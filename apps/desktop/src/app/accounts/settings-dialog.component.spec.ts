@@ -33,6 +33,7 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -45,7 +46,6 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -53,11 +53,15 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { TabsModule, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { AutoUnlockService } from "@bitwarden/unlock";
+import { VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
-import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
+import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
@@ -97,11 +101,13 @@ describe("SettingsDialogComponent", () => {
   const validationService = mock<ValidationService>();
   const messagingService = mock<MessagingService>();
   const keyService = mock<KeyService>();
+  const autoUnlockService = mock<AutoUnlockService>();
   const dialogService = mock<DialogService>();
-  const desktopAutotypeService = mock<DesktopAutotypeService>();
+  const desktopAutotypeMvpService = mock<DesktopAutotypeMvpService>();
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
   const configService = mock<ConfigService>();
   const userVerificationService = mock<UserVerificationService>();
+  const vaultCopyButtonsService = mock<VaultCopyButtonsService>();
 
   const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
 
@@ -152,6 +158,7 @@ describe("SettingsDialogComponent", () => {
           useValue: mock<NativeMessagingManifestService>(),
         },
         { provide: KeyService, useValue: keyService },
+        { provide: AutoUnlockService, useValue: autoUnlockService },
         { provide: PinServiceAbstraction, useValue: pinServiceAbstraction },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: PolicyService, useValue: policyService },
@@ -162,8 +169,9 @@ describe("SettingsDialogComponent", () => {
         { provide: ValidationService, useValue: validationService },
         { provide: MessagingService, useValue: messagingService },
         { provide: ToastService, useValue: mock<ToastService>() },
-        { provide: DesktopAutotypeService, useValue: desktopAutotypeService },
+        { provide: DesktopAutotypeMvpService, useValue: desktopAutotypeMvpService },
         { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
+        { provide: VaultCopyButtonsService, useValue: vaultCopyButtonsService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -193,7 +201,6 @@ describe("SettingsDialogComponent", () => {
     desktopSettingsService.minimizeOnCopy$ = of(false);
     desktopSettingsService.runInBackground$ = of(false);
     desktopSettingsService.openAtLogin$ = of(false);
-    desktopSettingsService.browserIntegrationEnabled$ = of(false);
     desktopSettingsService.hardwareAcceleration$ = of(false);
     desktopSettingsService.sshAgentEnabled$ = of(false);
     desktopSettingsService.sshAgentPromptBehavior$ = of(SshAgentPromptType.Always);
@@ -204,10 +211,11 @@ describe("SettingsDialogComponent", () => {
     i18nService.userSetLocale$ = of("en");
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
     policyService.policiesByType$.mockReturnValue(of([null]));
-    desktopAutotypeService.autotypeEnabledUserSetting$ = of(false);
-    desktopAutotypeService.autotypeKeyboardShortcut$ = of(["Control", "Alt", "B"]);
+    desktopAutotypeMvpService.autotypeEnabledUserSetting$ = of(false);
+    desktopAutotypeMvpService.autotypeKeyboardShortcut$ = of(["Control", "Alt", "B"]);
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
     configService.getFeatureFlag$.mockReturnValue(of(false));
+    vaultCopyButtonsService.showQuickCopyActions$ = of(false);
 
     fixture = TestBed.createComponent(SettingsDialogComponent);
     component = fixture.componentInstance;
@@ -629,10 +637,27 @@ describe("SettingsDialogComponent", () => {
       },
     );
 
+    describe("when updating to false", () => {
+      it("deletes the stored biometric unlock key", async () => {
+        await component.ngOnInit();
+
+        await (component as any).updateBiometricHandler(false);
+
+        expect(desktopBiometricsService.deleteBiometricUnlockKeyForUser).toHaveBeenCalledWith(
+          mockUserId,
+        );
+        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
+          false,
+          mockUserId,
+        );
+      });
+    });
+
     describe("when updating to true", () => {
       beforeEach(async () => {
         await component.ngOnInit();
         (component as any).supportsBiometric.set(true);
+        keyService.userKey$.mockReturnValue(of(mockUserKey));
       });
 
       it("calls services to clear biometrics when supportsBiometric is false", async () => {
@@ -644,7 +669,7 @@ describe("SettingsDialogComponent", () => {
           false,
           mockUserId,
         );
-        expect(keyService.refreshAdditionalKeys).toHaveBeenCalled();
+        expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalled();
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
 
@@ -659,7 +684,7 @@ describe("SettingsDialogComponent", () => {
           await (component as any).updateBiometricHandler(true);
 
           expect(biometricStateService.setBiometricUnlockEnabled).not.toHaveBeenCalled();
-          expect(keyService.refreshAdditionalKeys).not.toHaveBeenCalled();
+          expect(autoUnlockService.refreshAutoUnlockKey).not.toHaveBeenCalled();
           expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
 
           if (dialogResult) {
@@ -688,7 +713,11 @@ describe("SettingsDialogComponent", () => {
           mockUserId,
         );
         expect((component as any).form.controls.biometric.value).toBe(true);
-        expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+        expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalledWith(mockUserId);
+        expect(desktopBiometricsService.setBiometricProtectedUnlockKeyForUser).toHaveBeenCalledWith(
+          mockUserId,
+          mockUserKey,
+        );
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
 
@@ -719,7 +748,7 @@ describe("SettingsDialogComponent", () => {
             false,
             mockUserId,
           );
-          expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+          expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalledWith(mockUserId);
           expect((component as any).form.controls.biometric.value).toBe(true);
           expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
         });
@@ -754,7 +783,7 @@ describe("SettingsDialogComponent", () => {
               false,
               mockUserId,
             );
-            expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+            expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalledWith(mockUserId);
             expect((component as any).form.controls.biometric.value).toBe(true);
             expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
           });
@@ -791,7 +820,7 @@ describe("SettingsDialogComponent", () => {
                 false,
                 mockUserId,
               );
-              expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+              expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalledWith(mockUserId);
               expect((component as any).form.controls.biometric.value).toBe(true);
               expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
             },
@@ -818,7 +847,7 @@ describe("SettingsDialogComponent", () => {
           false,
           mockUserId,
         );
-        expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+        expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalledWith(mockUserId);
         expect((component as any).form.controls.biometric.value).toBe(true);
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
@@ -842,7 +871,7 @@ describe("SettingsDialogComponent", () => {
 
           await (component as any).updateBiometricHandler(true);
 
-          expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+          expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalledWith(mockUserId);
           expect((component as any).form.controls.biometric.value).toBe(false);
           expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
             true,
@@ -868,7 +897,7 @@ describe("SettingsDialogComponent", () => {
           false,
           mockUserId,
         );
-        expect(keyService.refreshAdditionalKeys).toHaveBeenCalled();
+        expect(autoUnlockService.refreshAutoUnlockKey).toHaveBeenCalled();
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
     });
@@ -947,6 +976,104 @@ describe("SettingsDialogComponent", () => {
 
       // `showEnableAutotype` signal should be false
       expect((component as any).showEnableAutotype()).toBe(false);
+    });
+
+    describe("flag-driven visibility on windows", () => {
+      beforeEach(() => {
+        // `isWindows` is captured in the constructor, so the device must be set before
+        // the component is created.
+        platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+
+        fixture = TestBed.createComponent(SettingsDialogComponent);
+        component = fixture.componentInstance;
+      });
+
+      it("shows the enable autotype control when the feature flag is enabled", async () => {
+        configService.getFeatureFlag$.mockReturnValue(of(true) as any);
+
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotype()).toBe(true);
+        expect(
+          fixture.debugElement.query(By.css("input[formControlName='enableAutotype']")),
+        ).not.toBeNull();
+      });
+
+      it("hides the enable autotype control when the feature flag is disabled", async () => {
+        // The top-level `beforeEach` already mocks every feature flag as false.
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotype()).toBe(false);
+        expect(
+          fixture.debugElement.query(By.css("input[formControlName='enableAutotype']")),
+        ).toBeNull();
+      });
+    });
+  });
+
+  describe("quick copy actions", () => {
+    /**
+     * `showQuickCopyActionsSetting` is a `toSignal()` initialized at class level, so the feature
+     * flag mock must be in place before the component is constructed.
+     */
+    function createComponentWithFlag(enabled: boolean) {
+      configService.getFeatureFlag$.mockImplementation((flag) =>
+        of(flag === FeatureFlag.PM40435_QuickCopyIconSetting ? enabled : false),
+      );
+
+      fixture = TestBed.createComponent(SettingsDialogComponent);
+      component = fixture.componentInstance;
+    }
+
+    it("is not visible when the feature flag is disabled", async () => {
+      createComponentWithFlag(false);
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      const showQuickCopyActionsInput = fixture.debugElement.query(
+        By.css("input[formControlName='showQuickCopyActions']"),
+      );
+      expect(showQuickCopyActionsInput).toBeNull();
+      expect((component as any).showQuickCopyActionsSetting()).toBe(false);
+    });
+
+    it("is visible when the feature flag is enabled", async () => {
+      createComponentWithFlag(true);
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      const showQuickCopyActionsInput = fixture.debugElement.query(
+        By.css("input[formControlName='showQuickCopyActions']"),
+      );
+      expect(showQuickCopyActionsInput).not.toBeNull();
+      expect(showQuickCopyActionsInput.attributes).toMatchObject({
+        type: "checkbox",
+      });
+      expect((component as any).showQuickCopyActionsSetting()).toBe(true);
+    });
+
+    test.each([true, false])(
+      "initializes the form control from the stored setting when it is %s",
+      async (stored) => {
+        vaultCopyButtonsService.showQuickCopyActions$ = of(stored);
+
+        await component.ngOnInit();
+
+        expect(component["form"].controls.showQuickCopyActions.value).toBe(stored);
+      },
+    );
+
+    test.each([true, false])("saves the new value when set to %s", async (value) => {
+      await component.ngOnInit();
+
+      component["form"].controls.showQuickCopyActions.setValue(value);
+      await component.saveQuickCopyActions();
+
+      expect(vaultCopyButtonsService.setShowQuickCopyActions).toHaveBeenLastCalledWith(value);
     });
   });
 

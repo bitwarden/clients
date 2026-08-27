@@ -1,4 +1,8 @@
-import { Discount, DiscountTypes, getAmount } from "./discount";
+import { mock } from "jest-mock-extended";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
+import { CartDiscount, Discount, DiscountTypes, getAmount, getLabel } from "./discount";
 
 describe("getAmount", () => {
   describe("PercentOff", () => {
@@ -75,6 +79,69 @@ describe("getAmount", () => {
     it("should return 0 for zero-value discount", () => {
       const discount: Discount = { type: DiscountTypes.AmountOff, value: 0 };
       expect(getAmount(discount, 200)).toBe(0);
+    });
+  });
+});
+
+describe("getLabel", () => {
+  let i18nService: I18nService;
+
+  beforeEach(() => {
+    i18nService = mock<I18nService>();
+    (i18nService.t as jest.Mock).mockImplementation((key: string) => key);
+  });
+
+  describe("without a server-supplied label", () => {
+    it("should derive a label from a whole-number percent-off discount", () => {
+      const discount: Discount = { type: DiscountTypes.PercentOff, value: 25 };
+      expect(getLabel(i18nService, discount)).toBe("25% discount");
+    });
+
+    it("should derive a label from a decimal percent-off discount", () => {
+      const discount: Discount = { type: DiscountTypes.PercentOff, value: 0.25 };
+      expect(getLabel(i18nService, discount)).toBe("25% discount");
+    });
+
+    it("should derive a label from an amount-off discount", () => {
+      const discount: Discount = { type: DiscountTypes.AmountOff, value: 15 };
+      expect(getLabel(i18nService, discount)).toBe("$15.00 discount");
+    });
+  });
+
+  describe("with a server-supplied label", () => {
+    it("should prefer the label over the derived percent-off label", () => {
+      const discount: CartDiscount = {
+        type: DiscountTypes.PercentOff,
+        value: 25,
+        label: "Launch promotion",
+      };
+      expect(getLabel(i18nService, discount)).toBe("Launch promotion");
+    });
+
+    it("should prefer the label over the derived amount-off label", () => {
+      const discount: CartDiscount = {
+        type: DiscountTypes.AmountOff,
+        value: 15,
+        label: "Loyalty coupon",
+      };
+      expect(getLabel(i18nService, discount)).toBe("Loyalty coupon");
+    });
+
+    it("should not consult the i18n service when a label is supplied", () => {
+      const discount: CartDiscount = {
+        type: DiscountTypes.PercentOff,
+        value: 25,
+        label: "Launch promotion",
+      };
+
+      getLabel(i18nService, discount);
+
+      expect(i18nService.t).not.toHaveBeenCalled();
+    });
+
+    it("should fall back to the derived label when the label is an empty string", () => {
+      const discount: CartDiscount = { type: DiscountTypes.PercentOff, value: 25, label: "" };
+      expect(getLabel(i18nService, discount)).toBe("25% discount");
     });
   });
 });

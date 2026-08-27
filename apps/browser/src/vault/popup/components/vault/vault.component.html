@@ -1,7 +1,10 @@
 <popup-page [hideOverflow]="showSkeletonsLoaders$ | async">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
-      <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
+      <app-new-item-dropdown
+        [initialValues]="newItemItemValues$ | async"
+        [canCreateCipher]="(canCreateCipher$ | async) ?? true"
+      ></app-new-item-dropdown>
 
       <app-pop-out></app-pop-out>
       <app-current-account></app-current-account>
@@ -11,13 +14,12 @@
   @if (vaultState === VaultStateEnum.Empty) {
     <vault-fade-in-out>
       <div class="tw-flex tw-flex-col tw-h-full tw-justify-center">
-        <bit-no-items [icon]="vaultIcon">
+        <bit-status-lockup>
+          <bit-svg slot="graphic" [content]="vaultIcon"></bit-svg>
           <ng-container slot="title">{{ "yourVaultIsEmpty" | i18n }}</ng-container>
-          <ng-container slot="description">
-            <p bitTypography="body2" class="tw-mx-6 tw-mt-2">
-              {{ "emptyVaultDescription" | i18n }}
-            </p>
-          </ng-container>
+          <div slot="description" class="tw-mx-6">
+            {{ "emptyVaultDescription" | i18n }}
+          </div>
           <a
             slot="button"
             bitButton
@@ -27,13 +29,17 @@
           >
             {{ "newLogin" | i18n }}
           </a>
-        </bit-no-items>
+        </bit-status-lockup>
       </div>
     </vault-fade-in-out>
   }
 
   @if (vaultState !== VaultStateEnum.Empty) {
     <blocked-injection-banner slot="full-width-notice"></blocked-injection-banner>
+  }
+
+  @if (vaultState !== VaultStateEnum.Empty) {
+    <fill-assist-active-banner slot="full-width-notice"></fill-assist-active-banner>
   }
 
   <!-- Show search & filters outside of the scroll area of the page -->
@@ -74,9 +80,16 @@
         </button>
       </bit-callout>
     }
-    @if (vaultState !== VaultStateEnum.Empty) {
+    @if (vaultState === VaultStateEnum.Empty) {
+      <vault-organization-user-notifications
+        class="-tw-mx-5 -tw-mt-3 tw-flex tw-flex-col tw-px-2 tw-mb-3"
+      ></vault-organization-user-notifications>
+    } @else {
       <!-- At-Risk callout displays as a banner and should always remain visually above all other callouts -->
       <vault-at-risk-password-callout></vault-at-risk-password-callout>
+      <vault-organization-user-notifications
+        class="-tw-mx-5 -tw-mt-3 tw-flex tw-flex-col tw-px-2 tw-mb-3"
+      ></vault-organization-user-notifications>
 
       @if (showHasItemsVaultSpotlight$ | async) {
         <div class="tw-mb-4">
@@ -100,10 +113,11 @@
   @if (vaultState !== VaultStateEnum.Empty) {
     @if (vaultState === VaultStateEnum.NoResults) {
       <div class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12">
-        <bit-no-items [icon]="noResultsIcon">
+        <bit-status-lockup>
+          <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
           <ng-container slot="title">{{ "noItemsMatchSearch" | i18n }}</ng-container>
           <ng-container slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</ng-container>
-        </bit-no-items>
+        </bit-status-lockup>
       </div>
     }
 
@@ -111,12 +125,13 @@
     <div role="status" aria-live="polite">
       @if (vaultState === VaultStateEnum.DeactivatedOrg) {
         <div class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12">
-          <bit-no-items [icon]="deactivatedIcon">
+          <bit-status-lockup>
+            <bit-svg slot="graphic" [content]="deactivatedIcon"></bit-svg>
             <ng-container slot="title">
               {{ "organizationIsDeactivated" | i18n }}
             </ng-container>
             <ng-container slot="description">{{ "contactYourOrgAdmin" | i18n }}</ng-container>
-          </bit-no-items>
+          </bit-status-lockup>
         </div>
       }
     </div>

@@ -1,27 +1,22 @@
 import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { firstValueFrom, map, Observable, startWith } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { getById } from "@bitwarden/common/platform/misc";
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { SwitchComponent } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 import { EncString } from "@bitwarden/sdk-internal";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
 import { MultiStepPolicyEditDialogComponent } from "../policy-edit-dialogs";
-import { PolicyStep } from "../policy-edit-dialogs/models";
 
 type SaveOrganizationDataOwnershipPolicyRequest = SavePolicyRequest<{
   defaultUserCollectionName: string;
@@ -33,26 +28,23 @@ type OrganizationDataOwnershipPolicyData = {
 
 export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   name = "centralizeDataOwnership";
+  nameVfo1 = "centralizeDataOwnershipVfo1";
   description = "centralizeDataOwnershipDesc";
+  descriptionVfo1 = "centralizeDataOwnershipDescVfo1";
   type = PolicyType.OrganizationDataOwnership;
   category = PolicyCategory.DataControl;
   priority = 20;
   component = OrganizationDataOwnershipPolicyComponent;
+  // OrganizationDataOwnershipPolicyComponent renders its own description inline, so the
+  // dialog's description is hidden.
   showDescription = false;
-
   editDialogComponent = MultiStepPolicyEditDialogComponent;
-
-  override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
-    return configService
-      .getFeatureFlag$(FeatureFlag.PolicyDrawers)
-      .pipe(map((enabled) => !enabled));
-  }
 }
 
 @Component({
   selector: "organization-data-ownership-policy-edit",
   templateUrl: "organization-data-ownership.component.html",
-  imports: [SharedModule],
+  imports: [SharedModule, SwitchComponent, Vfo1I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrganizationDataOwnershipPolicyComponent
@@ -65,7 +57,6 @@ export class OrganizationDataOwnershipPolicyComponent
     private readonly i18nService: I18nService,
     private readonly encryptService: EncryptService,
     private readonly formBuilder: FormBuilder,
-    private readonly organizationService: OrganizationService,
   ) {
     super();
 
@@ -79,32 +70,15 @@ export class OrganizationDataOwnershipPolicyComponent
     });
   }
 
-  override readonly policySteps: PolicyStep[] = [
-    {
-      sideEffect: () => this.savePolicy(),
-    },
-  ];
-
   readonly data = this.formBuilder.group({
     enableIndividualItemsTransfer: [{ value: false, disabled: true }],
   });
 
-  protected readonly enableIndividualItemsTransfer = toSignal(
-    this.data.controls.enableIndividualItemsTransfer.valueChanges.pipe(startWith(false)),
-    { initialValue: false },
-  );
-
   override async ngOnInit(): Promise<void> {
     super.ngOnInit();
 
-    const orgId = this.policyResponse()?.organizationId as OrganizationId | undefined;
-    if (orgId) {
-      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const org = await firstValueFrom(
-        this.organizationService.organizations$(userId).pipe(getById(orgId)),
-      );
-      this.useMyItems.set(org?.useMyItems ?? false);
-    }
+    const org = await firstValueFrom(this.organization$);
+    this.useMyItems.set(org?.useMyItems ?? false);
 
     if (this.enabled.value && this.useMyItems()) {
       this.data.controls.enableIndividualItemsTransfer.enable();

@@ -1,22 +1,31 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, filter, firstValueFrom, of, take, timeout, timer } from "rxjs";
+import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { mockAccountInfoWith, FakeAccountService } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService, BiometricsCommands } from "@bitwarden/key-management";
-import { ConfigService } from "@bitwarden/services/config.service";
-
-import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService, CsprngArray, EncryptService } from "@bitwarden/legacy-crypto";
 
 import { BiometricMessageHandlerService } from "./biometric-message-handler.service";
+
+jest.mock("@bitwarden/sdk-internal", () => ({
+  PureCrypto: {
+    make_aes256_cbc_hmac_key: jest.fn(),
+  },
+}));
+
+jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk-load.service", () => ({
+  SdkLoadService: { Ready: Promise.resolve() },
+}));
+
+const makeAes256CbcHmacKey = jest.requireMock("@bitwarden/sdk-internal").PureCrypto
+  .make_aes256_cbc_hmac_key as jest.Mock;
 
 const SomeUser = "SomeUser" as UserId;
 const AnotherUser = "SomeOtherUser" as UserId;
@@ -37,8 +46,6 @@ describe("BiometricMessageHandlerService", () => {
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let encryptService: MockProxy<EncryptService>;
   let logService: MockProxy<LogService>;
-  let configService: MockProxy<ConfigService>;
-  let desktopSettingsService: DesktopSettingsService;
   let biometricsService: MockProxy<BiometricsService>;
   let accountService: AccountService;
   let authService: MockProxy<AuthService>;
@@ -47,13 +54,9 @@ describe("BiometricMessageHandlerService", () => {
     cryptoFunctionService = mock<CryptoFunctionService>();
     encryptService = mock<EncryptService>();
     logService = mock<LogService>();
-    desktopSettingsService = mock<DesktopSettingsService>();
-    configService = mock<ConfigService>();
     biometricsService = mock<BiometricsService>();
     accountService = new FakeAccountService(accounts);
     authService = mock<AuthService>();
-
-    desktopSettingsService.browserIntegrationEnabled$ = of(false);
 
     (global as any).ipc = {
       platform: {
@@ -70,100 +73,18 @@ describe("BiometricMessageHandlerService", () => {
       },
     };
     cryptoFunctionService.randomBytes.mockResolvedValue(new Uint8Array(64) as CsprngArray);
+    makeAes256CbcHmacKey.mockReturnValue(Utils.fromBufferToB64(new Uint8Array(64)));
     cryptoFunctionService.rsaEncrypt.mockResolvedValue(
       Utils.fromUtf8ToArray("encrypted") as CsprngArray,
     );
-    configService.getFeatureFlag.mockResolvedValue(false);
     service = new BiometricMessageHandlerService(
       cryptoFunctionService,
       encryptService,
       logService,
-      desktopSettingsService,
       biometricsService,
       accountService,
       authService,
-      configService,
     );
-  });
-
-  describe("constructor", () => {
-    let browserIntegrationEnabled = new BehaviorSubject<boolean>(true);
-
-    beforeEach(async () => {
-      (global as any).ipc = {
-        platform: {
-          ephemeralStore: {
-            listEphemeralValueKeys: jest.fn(() =>
-              Promise.resolve(["connectedApp_appId1", "connectedApp_appId2"]),
-            ),
-            getEphemeralValue: jest.fn((key) => {
-              if (key === "connectedApp_appId1") {
-                return Promise.resolve(
-                  JSON.stringify({
-                    publicKey: Utils.fromUtf8ToB64("publicKeyApp1"),
-                    sessionSecret: Utils.fromUtf8ToB64("sessionSecretApp1"),
-                    trusted: true,
-                  }),
-                );
-              } else if (key === "connectedApp_appId2") {
-                return Promise.resolve(
-                  JSON.stringify({
-                    publicKey: Utils.fromUtf8ToB64("publicKeyApp2"),
-                    sessionSecret: Utils.fromUtf8ToB64("sessionSecretApp2"),
-                    trusted: false,
-                  }),
-                );
-              }
-              return Promise.resolve(null);
-            }),
-            removeEphemeralValue: jest.fn(),
-            setEphemeralValue: jest.fn(),
-          },
-        },
-      };
-
-      desktopSettingsService.browserIntegrationEnabled$ = browserIntegrationEnabled.asObservable();
-
-      service = new BiometricMessageHandlerService(
-        cryptoFunctionService,
-        encryptService,
-        logService,
-        desktopSettingsService,
-        biometricsService,
-        accountService,
-        authService,
-        configService,
-      );
-    });
-
-    afterEach(() => {
-      browserIntegrationEnabled = new BehaviorSubject<boolean>(true);
-
-      desktopSettingsService.browserIntegrationEnabled$ = browserIntegrationEnabled.asObservable();
-    });
-
-    it("should clear connected apps when browser integration disabled", async () => {
-      browserIntegrationEnabled.next(false);
-
-      await firstValueFrom(
-        timer(0, 100).pipe(
-          filter(
-            () =>
-              (global as any).ipc.platform.ephemeralStore.removeEphemeralValue.mock.calls.length ==
-              2,
-          ),
-          take(1),
-          timeout(1000),
-        ),
-      );
-
-      expect((global as any).ipc.platform.ephemeralStore.removeEphemeralValue).toHaveBeenCalledWith(
-        "connectedApp_appId1",
-      );
-      expect((global as any).ipc.platform.ephemeralStore.removeEphemeralValue).toHaveBeenCalledWith(
-        "connectedApp_appId2",
-      );
-    });
   });
 
   describe("setup encryption", () => {

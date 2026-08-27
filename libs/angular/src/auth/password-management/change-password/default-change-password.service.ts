@@ -9,7 +9,7 @@ import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -21,7 +21,9 @@ import {
 import { firstValueFromOrThrow } from "@bitwarden/common/key-management/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { KdfConfig, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KdfConfig } from "@bitwarden/legacy-crypto";
 
 import {
   ChangePasswordService,
@@ -82,7 +84,7 @@ export class DefaultChangePasswordService implements ChangePasswordService {
       userKey,
     );
 
-    const request = PasswordRequest.newConstructor(
+    const request = new PasswordRequest(
       currentAuthenticationData.masterPasswordAuthenticationHash,
       newAuthenticationData,
       newUnlockData,

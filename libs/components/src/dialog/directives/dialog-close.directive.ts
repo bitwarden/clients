@@ -1,6 +1,6 @@
 import { Directive, HostBinding, HostListener, Optional, input } from "@angular/core";
 
-import { DialogRef } from "../dialog.service";
+import { DialogRef } from "../dialog-ref";
 
 @Directive({
   selector: "[bitDialogClose]",

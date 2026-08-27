@@ -45,8 +45,9 @@ import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loa
 import {
   ButtonModule,
   DialogService,
-  NoItemsModule,
+  StatusLockupComponent,
   ScrollLayoutService,
+  SvgComponent,
   ToastService,
   TypographyModule,
   CalloutModule,
@@ -55,6 +56,7 @@ import {
   DecryptionFailureDialogComponent,
   VaultItemsTransferService,
   DefaultVaultItemsTransferService,
+  VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
 
 import { CurrentAccountComponent } from "../../../../auth/popup/account-switching/current-account.component";
@@ -72,6 +74,7 @@ import { VaultFadeInOutSkeletonComponent } from "../vault-fade-in-out-skeleton/v
 import { VaultLoadingSkeletonComponent } from "../vault-loading-skeleton/vault-loading-skeleton.component";
 
 import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injection-banner.component";
+import { FillAssistActiveBannerComponent } from "./fill-assist-active-banner/fill-assist-active-banner.component";
 import {
   NewItemDropdownComponent,
   NewItemInitialValues,
@@ -95,11 +98,12 @@ type VaultState = UnionOfValues<typeof VaultState>;
   templateUrl: "vault.component.html",
   imports: [
     BlockedInjectionBanner,
+    FillAssistActiveBannerComponent,
     PopupPageComponent,
     PopupHeaderComponent,
     PopOutComponent,
     CurrentAccountComponent,
-    NoItemsModule,
+    StatusLockupComponent,
     JslibModule,
     CommonModule,
     AutofillVaultListItemsComponent,
@@ -111,10 +115,12 @@ type VaultState = UnionOfValues<typeof VaultState>;
     AtRiskPasswordCalloutComponent,
     CalloutModule,
     RouterModule,
+    SvgComponent,
     TypographyModule,
     VaultLoadingSkeletonComponent,
     VaultFadeInOutSkeletonComponent,
     VaultFadeInOutComponent,
+    VaultOrganizationUserNotificationsComponent,
   ],
   providers: [{ provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService }],
 })
@@ -210,6 +216,13 @@ export class VaultComponent implements OnInit, OnDestroy {
       ),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
+
+  /**
+   * Whether a new cipher can be created in the currently selected organization.
+   * `false` when the target organization is suspended, since items cannot be saved to it.
+   */
+  protected canCreateCipher$: Observable<boolean> =
+    this.vaultPopupItemsService.showDeactivatedOrg$.pipe(map((isDeactivated) => !isDeactivated));
 
   /** Visual state of the vault */
   protected vaultState: VaultState | null = null;
@@ -343,7 +356,11 @@ export class VaultComponent implements OnInit, OnDestroy {
             }
           }
 
-          return this.autoConfirmService.upsert(userId, newState);
+          await this.autoConfirmService.upsert(userId, newState);
+
+          if (result) {
+            await this.autoConfirmService.bulkAutoConfirmPendingUsers(userId);
+          }
         }),
         takeUntilDestroyed(this.destroyRef),
       )

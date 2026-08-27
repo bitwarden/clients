@@ -1,3 +1,6 @@
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { SendAccessToken } from "../../../auth/send-access";
 import { ErrorResponse } from "../../../models/response/error.response";
@@ -6,10 +9,8 @@ import {
   FileUploadApiMethods,
   FileUploadService,
 } from "../../../platform/abstractions/file-upload/file-upload.service";
-import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
-import { SendAccessRequest } from "../models/request/send-access.request";
 import { SendRequest } from "../models/request/send.request";
 import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";
@@ -33,30 +34,7 @@ export class SendApiService implements SendApiServiceAbstraction {
     return new SendResponse(r);
   }
 
-  async postSendAccess(
-    id: string,
-    request: SendAccessRequest,
-    apiUrl?: string,
-  ): Promise<SendAccessResponse> {
-    const addSendIdHeader = (headers: Headers) => {
-      headers.set("Send-Id", id);
-    };
-    const r = await this.apiService.send(
-      "POST",
-      "/sends/access/" + id,
-      request,
-      false,
-      true,
-      apiUrl,
-      addSendIdHeader,
-    );
-    return new SendAccessResponse(r);
-  }
-
-  async postSendAccessV2(
-    accessToken: SendAccessToken,
-    apiUrl?: string,
-  ): Promise<SendAccessResponse> {
+  async postSendAccess(accessToken: SendAccessToken, apiUrl?: string): Promise<SendAccessResponse> {
     const setAuthTokenHeader = (headers: Headers) => {
       headers.set("Authorization", "Bearer " + accessToken.token);
     };
@@ -73,26 +51,6 @@ export class SendApiService implements SendApiServiceAbstraction {
   }
 
   async getSendFileDownloadData(
-    send: SendAccessView,
-    request: SendAccessRequest,
-    apiUrl?: string,
-  ): Promise<SendFileDownloadDataResponse> {
-    const addSendIdHeader = (headers: Headers) => {
-      headers.set("Send-Id", send.id);
-    };
-    const r = await this.apiService.send(
-      "POST",
-      "/sends/" + send.id + "/access/file/" + send.file.id,
-      request,
-      false,
-      true,
-      apiUrl,
-      addSendIdHeader,
-    );
-    return new SendFileDownloadDataResponse(r);
-  }
-
-  async getSendFileDownloadDataV2(
     send: SendAccessView,
     accessToken: SendAccessToken,
     apiUrl?: string,
@@ -132,7 +90,11 @@ export class SendApiService implements SendApiServiceAbstraction {
     return this.apiService.send("DELETE", "/sends/" + id, null, true, false);
   }
 
-  async save(sendData: [Send, EncArrayBuffer]): Promise<Send> {
+  // `plaintextPassword` is part of the shared `SendApiService` contract for the SDK path, which
+  // derives the send password over the key it generates. The legacy path derives it in
+  // `SendService.encrypt` before `save` and carries the result on `Send.password`, so it ignores
+  // the plaintext here — behavior is unchanged.
+  async save(sendData: [Send, EncArrayBuffer], _plaintextPassword?: string): Promise<Send> {
     const response = await this.upload(sendData);
 
     const data = new SendData(response);

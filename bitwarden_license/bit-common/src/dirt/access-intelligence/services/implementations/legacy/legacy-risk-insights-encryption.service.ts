@@ -1,12 +1,17 @@
 import { firstValueFrom, map } from "rxjs";
 
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptService,
+  EncString,
+  KeyGenerationService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import {
   createNewSummaryData,
@@ -81,7 +86,8 @@ export class LegacyRiskInsightsEncryptionService {
     try {
       if (!wrappedKey) {
         // Generate a new key
-        contentEncryptionKey = await this.keyGeneratorService.createKey(512);
+        await SdkLoadService.Ready;
+        contentEncryptionKey = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
       } else {
         // Unwrap the existing key
         contentEncryptionKey = await this.encryptService.unwrapSymmetricKey(wrappedKey, orgKey);
@@ -215,7 +221,12 @@ export class LegacyRiskInsightsEncryptionService {
         this.logService.warning(
           "[LegacyRiskInsightsEncryptionService] V2 report detected in V1 path, running downgrade transform",
         );
-        const payload = validateAccessReportPayload(parsedData.data);
+        const { data: payload, errors } = validateAccessReportPayload(parsedData.data);
+        if (errors.length > 0) {
+          this.logService.warning(
+            `[LegacyRiskInsightsEncryptionService] Dropped ${errors.length} invalid report payload ${errors.length === 1 ? "entry" : "entries"}:\n${errors.join("\n")}`,
+          );
+        }
         return this._convertV2ReportToV1(payload.reports, payload.memberRegistry);
       }
 

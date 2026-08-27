@@ -9,6 +9,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
@@ -37,6 +38,7 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
 
   constructor(
     data: AuthRequestLoginStrategyData,
+    private unlockService: UnlockService,
     private deviceTrustService: DeviceTrustServiceAbstraction,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
@@ -75,25 +77,16 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     // This login strategy does not use a master key
   }
 
-  protected override async setUserKey(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
+  protected override async unlock(response: IdentityTokenResponse, userId: UserId): Promise<void> {
     const authRequestCredentials = this.cache.value.authRequestCredentials;
     await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
-    await this.keyService.setUserKey(authRequestCredentials.decryptedUserKey, userId);
+    // Login with device: the approving device supplies an already-decrypted user key.
+    await this.unlockService.unlockWithDecryptedUserKey(
+      userId,
+      authRequestCredentials.decryptedUserKey,
+    );
     // Establish trust if required after setting user key
     await this.deviceTrustService.trustDeviceIfRequired(userId);
-  }
-
-  protected override async setAccountCryptographicState(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    await this.accountCryptographicStateService.setAccountCryptographicState(
-      response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-      userId,
-    );
   }
 
   exportCache(): CacheData {

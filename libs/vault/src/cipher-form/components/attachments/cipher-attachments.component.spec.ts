@@ -214,16 +214,9 @@ describe("CipherAttachmentsComponent", () => {
       submitBtnFixture.componentInstance.disabled.set(undefined as unknown as boolean);
       file = new File([""], "attachment.txt", { type: "text/plain" });
 
-      const inputElement = fixture.debugElement.query(By.css("input[type=file]"));
-
-      // Set the file value of the input element
-      Object.defineProperty(inputElement.nativeElement, "files", {
-        value: [file],
-        writable: false,
-      });
-
-      // Trigger change event, for event listeners
-      inputElement.nativeElement.dispatchEvent(new InputEvent("change"));
+      // Set the file via the reactive form control (CVA writes it back to bit-file-upload)
+      component.attachmentForm.controls.file.setValue(file);
+      fixture.detectChanges();
     });
 
     it("sets value of `file` control when input changes", () => {
@@ -258,6 +251,38 @@ describe("CipherAttachmentsComponent", () => {
           variant: "error",
           title: "errorOccurred",
           message: "maxFileSize",
+        });
+      });
+
+      it("shows error toast if file name matches an existing attachment", async () => {
+        const attachment = {
+          id: "1234-5678",
+          fileName: "helloworld.txt",
+          sizeName: "65 Bytes",
+        } as AttachmentView;
+
+        const cipherWithAttachments = { ...cipherView, attachments: [attachment] };
+        cipherServiceDecrypt.mockResolvedValue(cipherWithAttachments);
+
+        // Create fresh fixture to pick up the mock
+        fixture = TestBed.createComponent(CipherAttachmentsComponent);
+        component = fixture.componentInstance;
+        fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
+        fixture.detectChanges();
+
+        await waitForInitialization();
+
+        component.attachmentForm.controls.file.setValue({
+          name: "helloworld.txt",
+          size: 65,
+        } as File);
+
+        await component.submit();
+
+        expect(showToast).toHaveBeenCalledWith({
+          variant: "error",
+          title: "errorOccurred",
+          message: "duplicateAttachmentNameError",
         });
       });
 
@@ -361,15 +386,12 @@ describe("CipherAttachmentsComponent", () => {
         );
       });
 
-      it("resets form and input values", async () => {
+      it("resets form control value after upload", async () => {
         await setupWithOrganization(true);
 
         await component.submit();
 
-        const fileInput = fixture.debugElement.query(By.css("input[type=file]"));
-
-        expect(fileInput.nativeElement.value).toEqual("");
-        expect(component.attachmentForm.controls.file.value).toEqual(null);
+        expect(component.attachmentForm.controls.file.value).toBeNull();
       });
 
       it("shows success toast", async () => {

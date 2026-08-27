@@ -10,8 +10,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType, EventResponse } from "@bitwarden/common/dirt/event-logs";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BitwardenIcon } from "@bitwarden/components";
+
+export const SEND_EVENTS_HREF_PREFIX = "#send-events:";
+export const MEMBER_EVENTS_HREF_PREFIX = "#member-events:";
 
 @Injectable()
 export class EventService {
@@ -21,6 +26,7 @@ export class EventService {
     private i18nService: I18nService,
     policyService: PolicyService,
     accountService: AccountService,
+    private configService: ConfigService,
   ) {
     accountService.activeAccount$
       .pipe(
@@ -63,6 +69,18 @@ export class EventService {
   private async getEventMessage(ev: EventResponse, options: EventOptions) {
     let msg = "";
     let humanReadableMsg = "";
+
+    const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
+    if (vfo1Enabled) {
+      const vfo1Result = this.getEventMessageVfo1(ev, options);
+      if (vfo1Result.msg && vfo1Result.humanReadableMsg) {
+        return {
+          message: vfo1Result.msg,
+          humanReadableMessage: vfo1Result.humanReadableMsg,
+        };
+      }
+    }
+
     switch (ev.type) {
       // User
       case EventType.User_LoggedIn:
@@ -442,6 +460,13 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
+      case EventType.OrganizationUser_Staged:
+        msg = this.i18nService.t("stagedUserId", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "stagedUserId",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
       case EventType.OrganizationUser_ApprovedAuthRequest:
         msg = this.i18nService.t("approvedAuthRequest", this.formatOrgUserId(ev));
         humanReadableMsg = this.i18nService.t(
@@ -499,6 +524,27 @@ export class EventService {
         break;
       case EventType.OrganizationUser_NotificationBannerActionClicked:
         msg = humanReadableMsg = this.i18nService.t("clickedVaultBannerButton");
+        break;
+      case EventType.OrganizationUser_InviteLinkAccepted:
+        msg = this.i18nService.t("inviteLinkEventAccepted", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "inviteLinkEventAccepted",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_AdminChangedEmail:
+        msg = this.i18nService.t("eventAdminChangedUserEmail", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "eventAdminChangedUserEmail",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_InviteLinkConfirmed:
+        msg = this.i18nService.t("inviteLinkEventMemberConfirmed", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "inviteLinkEventMemberConfirmed",
+          this.getShortId(ev.organizationUserId),
+        );
         break;
       // Org
       case EventType.Organization_Updated:
@@ -618,6 +664,27 @@ export class EventService {
         break;
       case EventType.Organization_AutoConfirmDisabled_Portal:
         msg = humanReadableMsg = this.i18nService.t("autoConfirmDisabledByPortal");
+        break;
+      case EventType.Organization_InviteLinkCreated:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventCreated");
+        break;
+      case EventType.Organization_InviteLinkDomainsEdited:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventDomainsEdited");
+        break;
+      case EventType.Organization_InviteLinkDeleted:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventDeleted");
+        break;
+      case EventType.Organization_InviteLinkClientCopied:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventCopied");
+        break;
+      case EventType.Organization_InviteLinkRefreshed:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventRegenerated");
+        break;
+      case EventType.Organization_InviteLinkConfirmEnabled:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventConfirmEnabled");
+        break;
+      case EventType.Organization_InviteLinkConfirmDisabled:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventConfirmDisabled");
         break;
 
       // Policies
@@ -844,40 +911,110 @@ export class EventService {
         break;
       // Send
       case EventType.Send_Created_Text:
-        msg = humanReadableMsg = this.i18nService.t("createdTextSend");
+        msg = this.i18nService.t("createdTextSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "createdTextSendV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Created_Text_WithEmailVerification:
-        msg = humanReadableMsg = this.i18nService.t("createdTextSendWithEmailVerification");
+        msg = this.i18nService.t(
+          "createdTextSendWithEmailVerificationV2",
+          this.formatSendId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "createdTextSendWithEmailVerificationV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Created_Text_WithPasswordProtection:
-        msg = humanReadableMsg = this.i18nService.t("createdTextSendWithPasswordProtection");
+        msg = this.i18nService.t(
+          "createdTextSendWithPasswordProtectionV2",
+          this.formatSendId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "createdTextSendWithPasswordProtectionV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Created_File:
-        msg = humanReadableMsg = this.i18nService.t("createdFileSend");
+        msg = this.i18nService.t("createdFileSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "createdFileSendV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Created_File_WithEmailVerification:
-        msg = humanReadableMsg = this.i18nService.t("createdFileSendWithEmailVerification");
+        msg = this.i18nService.t(
+          "createdFileSendWithEmailVerificationV2",
+          this.formatSendId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "createdFileSendWithEmailVerificationV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Created_File_WithPasswordProtection:
-        msg = humanReadableMsg = this.i18nService.t("createdFileSendWithPasswordProtection");
+        msg = this.i18nService.t(
+          "createdFileSendWithPasswordProtectionV2",
+          this.formatSendId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "createdFileSendWithPasswordProtectionV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Updated_Text:
-        msg = humanReadableMsg = this.i18nService.t("editedTextSend");
+        msg = this.i18nService.t("editedTextSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "editedTextSendV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Updated_File:
-        msg = humanReadableMsg = this.i18nService.t("editedFileSend");
+        msg = this.i18nService.t("editedFileSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "editedFileSendV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Deleted_Text:
-        msg = humanReadableMsg = this.i18nService.t("deletedTextSend");
+        msg = this.i18nService.t("deletedTextSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "deletedTextSendV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Deleted_File:
-        msg = humanReadableMsg = this.i18nService.t("deletedFileSend");
+        msg = this.i18nService.t("deletedFileSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "deletedFileSendV2",
+          this.formatSendIdText(ev, options),
+        );
         break;
       case EventType.Send_Accessed_Text:
-        msg = humanReadableMsg = this.i18nService.t("accessedTextSend");
+        msg = this.i18nService.t(
+          "accessedTextSendV3",
+          this.formatSendId(ev, options),
+          this.formatSendCreatorId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "accessedTextSendV3",
+          this.formatSendIdText(ev, options),
+          this.getShortId(ev.userId),
+        );
         break;
       case EventType.Send_Accessed_File:
-        msg = humanReadableMsg = this.i18nService.t("accessedFileSend");
+        msg = this.i18nService.t(
+          "accessedFileSendV3",
+          this.formatSendId(ev, options),
+          this.formatSendCreatorId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "accessedFileSendV3",
+          this.formatSendIdText(ev, options),
+          this.getShortId(ev.userId),
+        );
         break;
 
       default:
@@ -887,6 +1024,335 @@ export class EventService {
       message: msg === "" ? null : msg,
       humanReadableMessage: humanReadableMsg === "" ? null : humanReadableMsg,
     };
+  }
+
+  // Produces the updated terminology/personalization for event types that have one; returns
+  // empty strings for anything else (including cases where an organization name was needed but
+  // couldn't be resolved), signaling getEventMessage to fall back to its own messaging.
+  private getEventMessageVfo1(
+    ev: EventResponse,
+    options: EventOptions,
+  ): { msg: string; humanReadableMsg: string } {
+    let msg = "";
+    let humanReadableMsg = "";
+
+    switch (ev.type) {
+      case EventType.Cipher_Shared: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "movedItemIdToOrgWithName",
+            this.formatCipherId(ev, options),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "movedItemIdToOrgWithName",
+            this.getShortId(ev.cipherId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.Cipher_UpdatedCollections:
+        msg = this.i18nService.t("editedSharedFoldersForItem", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "editedSharedFoldersForItem",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Collection_Created:
+        msg = this.i18nService.t("createdSharedFolderId", this.formatCollectionId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "createdSharedFolderId",
+          this.getShortId(ev.collectionId),
+        );
+        break;
+      case EventType.Collection_Updated:
+        msg = this.i18nService.t("editedSharedFolderId", this.formatCollectionId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "editedSharedFolderId",
+          this.getShortId(ev.collectionId),
+        );
+        break;
+      case EventType.Collection_Deleted:
+        msg = this.i18nService.t("deletedSharedFolderId", this.formatCollectionId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "deletedSharedFolderId",
+          this.getShortId(ev.collectionId),
+        );
+        break;
+      case EventType.OrganizationUser_Revoked: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "revokedUserIdWithOrgName",
+            this.formatOrgUserId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "revokedUserIdWithOrgName",
+            this.getShortId(ev.organizationUserId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.OrganizationUser_Restored: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "restoredUserIdWithOrgName",
+            this.formatOrgUserId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "restoredUserIdWithOrgName",
+            this.getShortId(ev.organizationUserId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.OrganizationUser_Left: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "userLeftOrganizationWithName",
+            this.formatOrgUserId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "userLeftOrganizationWithName",
+            this.getShortId(ev.organizationUserId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.OrganizationUser_SelfRevoked: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "userSelfRevokedOrganizationOwnershipWithName",
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "userSelfRevokedOrganizationOwnershipWithName",
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.OrganizationUser_Revoked_TwoFactorNonCompliance: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "revokedUserIdTwoFactorNonComplianceWithOrgName",
+            this.formatOrgUserId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "revokedUserIdTwoFactorNonComplianceWithOrgName",
+            this.getShortId(ev.organizationUserId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.OrganizationUser_Revoked_SingleOrganizationNonCompliance: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "revokedUserIdSingleOrganizationNonComplianceWithOrgName",
+            this.formatOrgUserId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "revokedUserIdSingleOrganizationNonComplianceWithOrgName",
+            this.getShortId(ev.organizationUserId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.Organization_Updated: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t("editedOrgSettingsWithName", this.escapeHtml(orgName));
+          humanReadableMsg = this.i18nService.t("editedOrgSettingsWithName", orgName);
+        }
+        break;
+      }
+      case EventType.Organization_PurgedVault: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t("purgedOrganizationVaultWithName", this.escapeHtml(orgName));
+          humanReadableMsg = this.i18nService.t("purgedOrganizationVaultWithName", orgName);
+        }
+        break;
+      }
+      case EventType.Organization_ClientExportedVault: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t("exportedOrganizationVaultWithName", this.escapeHtml(orgName));
+          humanReadableMsg = this.i18nService.t("exportedOrganizationVaultWithName", orgName);
+        }
+        break;
+      }
+      case EventType.Organization_CollectionManagementUpdated:
+        msg = this.i18nService.t("modifiedSharedFolderManagement", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "modifiedSharedFolderManagement",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionCreationEnabled:
+        msg = this.i18nService.t("limitSharedFolderCreationEnabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitSharedFolderCreationEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionCreationDisabled:
+        msg = this.i18nService.t(
+          "limitSharedFolderCreationDisabled",
+          this.formatOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "limitSharedFolderCreationDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionDeletionEnabled:
+        msg = this.i18nService.t("limitSharedFolderDeletionEnabled", this.formatOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "limitSharedFolderDeletionEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_LimitCollectionDeletionDisabled:
+        msg = this.i18nService.t(
+          "limitSharedFolderDeletionDisabled",
+          this.formatOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "limitSharedFolderDeletionDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsEnabled:
+        msg = this.i18nService.t(
+          "allowAdminAccessToAllSharedFolderItemsEnabled",
+          this.formatOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "allowAdminAccessToAllSharedFolderItemsEnabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_CollectionManagement_AllowAdminAccessToAllCollectionItemsDisabled:
+        msg = this.i18nService.t(
+          "allowAdminAccessToAllSharedFolderItemsDisabled",
+          this.formatOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "allowAdminAccessToAllSharedFolderItemsDisabled",
+          this.getShortId(ev.organizationId),
+        );
+        break;
+      case EventType.Organization_ItemOrganization_Accepted: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t("userAcceptedTransferWithOrgName", this.escapeHtml(orgName));
+          humanReadableMsg = this.i18nService.t("userAcceptedTransferWithOrgName", orgName);
+        }
+        break;
+      }
+      case EventType.Organization_ItemOrganization_Declined: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "revokedUserIdDeclinedTransferWithOrgName",
+            this.formatOrgUserId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "revokedUserIdDeclinedTransferWithOrgName",
+            this.getShortId(ev.organizationUserId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.ProviderOrganization_Created: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "createdOrganizationIdWithName",
+            this.formatProviderOrganizationId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "createdOrganizationIdWithName",
+            this.getShortId(ev.providerOrganizationId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.ProviderOrganization_Added: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "addedOrganizationIdWithName",
+            this.formatProviderOrganizationId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "addedOrganizationIdWithName",
+            this.getShortId(ev.providerOrganizationId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.ProviderOrganization_Removed: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "removedOrganizationIdWithName",
+            this.formatProviderOrganizationId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "removedOrganizationIdWithName",
+            this.getShortId(ev.providerOrganizationId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.ProviderOrganization_VaultAccessed: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "accessedClientVaultWithName",
+            this.formatProviderOrganizationId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "accessedClientVaultWithName",
+            this.getShortId(ev.providerOrganizationId),
+            orgName,
+          );
+        }
+        break;
+      }
+      default:
+        break;
+    }
+
+    return { msg, humanReadableMsg };
   }
 
   private getAppInfo(ev: EventResponse): [BitwardenIcon, string] {
@@ -956,7 +1422,7 @@ export class EventService {
   private formatCipherId(ev: EventResponse, options: EventOptions) {
     const shortId = this.getShortId(ev.cipherId);
     if (ev.organizationId == null || !options.cipherInfo) {
-      return "<code>" + shortId + "</code>";
+      return "<code>" + this.escapeHtml(shortId) + "</code>";
     }
     const a = this.makeAnchor(shortId);
     a.setAttribute(
@@ -1107,12 +1573,51 @@ export class EventService {
   private makeAnchor(shortId: string) {
     const a = document.createElement("a");
     a.title = this.i18nService.t("view");
-    a.innerHTML = "<code>" + shortId + "</code>";
+    const code = document.createElement("code");
+    code.textContent = shortId;
+    a.appendChild(code);
     return a;
+  }
+
+  private formatSendId(ev: EventResponse, options: EventOptions): string {
+    if (options.hideSendId || ev.sendId == null) {
+      return "";
+    }
+    const shortId = this.getShortId(ev.sendId);
+    const a = this.makeAnchor(shortId);
+    a.title = this.i18nService.t("viewSendEvents", shortId);
+    a.setAttribute("href", SEND_EVENTS_HREF_PREFIX + ev.sendId);
+    return " " + a.outerHTML;
+  }
+
+  private formatSendIdText(ev: EventResponse, options: EventOptions): string {
+    return options.hideSendId || ev.sendId == null ? "" : " " + this.getShortId(ev.sendId);
+  }
+
+  private formatSendCreatorId(ev: EventResponse, options: EventOptions): string {
+    if (ev.userId == null) {
+      return "";
+    }
+    const shortId = this.getShortId(ev.userId);
+    // Render plain text (no link) when the creator is not a member we can open events for
+    if (options.linkableMemberIds != null && !options.linkableMemberIds.has(ev.userId)) {
+      return "<code>" + this.escapeHtml(shortId) + "</code>";
+    }
+    const a = this.makeAnchor(shortId);
+    a.title = this.i18nService.t("viewMemberEvents", shortId);
+    a.setAttribute("href", MEMBER_EVENTS_HREF_PREFIX + ev.userId);
+    return a.outerHTML;
   }
 
   private getShortId(id: string) {
     return id?.substring(0, 8);
+  }
+
+  // Resolves the display name of the organization an event pertains to. Returns undefined if the
+  // caller hasn't wired up a resolver or it can't resolve one, so callers can fall back to
+  // messaging that doesn't reference an organization name.
+  private resolveOrgName(ev: EventResponse, options: EventOptions): string | undefined {
+    return options.getOrganizationName?.(ev);
   }
 
   private escapeHtml(unsafe: string): string {
@@ -1154,4 +1659,16 @@ export class EventInfo {
 export class EventOptions {
   cipherInfo = true;
   disableLink = false;
+  // Set when rendering inside a Send-scoped dialog, where repeating the Send id on every row is redundant.
+  hideSendId = false;
+  // User ids whose member events can be opened. When provided, the Send creator id renders
+  // as a link only if its id is in this set; otherwise it renders as plain text, since clicking a
+  // non-member's id would do nothing. An empty set means nothing is linkable; leaving it undefined
+  // keeps all creator ids linked (for callers that don't gate on membership).
+  linkableMemberIds?: ReadonlySet<string>;
+  // Resolves the display name of the organization an event pertains to, used to personalize
+  // organization-level event copy (e.g. "Purged Acme Inc vault."). A function rather than a plain
+  // string because a single batch of events can span multiple organizations (e.g. the provider
+  // events page, where each row references a different client organization).
+  getOrganizationName?: (ev: EventResponse) => string | undefined;
 }

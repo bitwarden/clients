@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, signal } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
@@ -20,7 +20,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -31,18 +30,24 @@ import {
   SectionHeaderComponent,
 } from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 
-import { BasePolicyEditDefinition, PolicyDialogComponent } from "./base-policy-edit.component";
-import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
+import {
+  BasePolicyEditDefinition,
+  PolicyDialogComponent,
+  policyTitleKeys,
+  policyDescriptionKeys,
+} from "./base-policy-edit.component";
+import { PolicyEditDrawerComponent } from "./policy-edit-drawer.component";
 import { PolicyListService, PolicySection } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
 @Component({
   templateUrl: "policies.component.html",
-  imports: [SharedModule, HeaderModule, SectionHeaderComponent, ItemModule],
+  imports: [SharedModule, HeaderModule, SectionHeaderComponent, ItemModule, Vfo1I18nPipe],
   providers: [
     safeProvider({
       provide: PolicyListService,
@@ -91,21 +96,24 @@ export class PoliciesComponent {
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
+  private readonly policyEditDefinitionsDict = Object.fromEntries(
+    this.policyListService.getPolicies().map((p) => [p.type, p]),
+  ) as Record<PolicyType, BasePolicyEditDefinition>;
+
   protected readonly policiesEnabledMap$: Observable<Map<PolicyType, boolean>> =
     this.orgPolicies$.pipe(
       map((orgPolicies) => {
         const policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
         orgPolicies.forEach((op) => {
-          policiesEnabledMap.set(op.type, op.enabled);
+          const showEnabled = this.policyEditDefinitionsDict[op.type]?.enabled(op) ?? op.enabled;
+          policiesEnabledMap.set(op.type, showEnabled);
         });
         return policiesEnabledMap;
       }),
     );
 
-  protected readonly useDrawer = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PolicyDrawers),
-    { initialValue: false },
-  );
+  protected readonly nameKeys = policyTitleKeys;
+  protected readonly descriptionKeys = policyDescriptionKeys;
 
   protected readonly policySections$: Observable<PolicySection[]> = this.organization$.pipe(
     switchMap((organization) =>
@@ -181,36 +189,32 @@ export class PoliciesComponent {
 
   async edit(policy: BasePolicyEditDefinition, organization: Organization) {
     const dialogComponent: PolicyDialogComponent =
-      policy.editDialogComponent ?? PolicyEditDialogComponent;
+      policy.editDialogComponent ?? PolicyEditDrawerComponent;
 
-    const drawerOpener = this.useDrawer() ? dialogComponent.openDrawer : undefined;
+    const triggerEl = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
-    if (drawerOpener) {
-      const triggerEl =
-        document.activeElement instanceof HTMLElement ? document.activeElement : null;
-
-      // openDrawer is async and returns undefined if a currently-open drawer's
-      // closePredicate prevented it from closing — only update the ref when it opened.
-      const ref = await drawerOpener(this.dialogService, {
-        data: {
-          policy: policy,
-          organization: organization,
-        },
-      });
-      if (ref !== undefined) {
-        this.drawerRef.set(ref);
+    // openDrawer is async and returns undefined if a currently-open drawer's
+    // closePredicate prevented it from closing — only update the ref when it opened.
+    const ref = await dialogComponent.openDrawer(this.dialogService, {
+      data: {
+        policy: policy,
+        organization: organization,
+      },
+    });
+    if (ref !== undefined) {
+      this.drawerRef.set(ref);
+      try {
         await lastValueFrom(ref.closed);
-        if (triggerEl?.isConnected) {
-          triggerEl.focus();
-        }
+      } finally {
+        // Once closed, this ref is permanently spent (DrawerRef.close() short-circuits to
+        // `{ closed: false }` on a ref that's already closed). Clear it so canDeactivate()
+        // doesn't try to re-close a stale ref and incorrectly block navigation away from
+        // this page after a save/cancel.
+        this.drawerRef.set(undefined);
       }
-    } else {
-      dialogComponent.open(this.dialogService, {
-        data: {
-          policy: policy,
-          organization: organization,
-        },
-      });
+      if (triggerEl?.isConnected) {
+        triggerEl.focus();
+      }
     }
   }
 

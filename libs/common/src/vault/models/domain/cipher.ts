@@ -1,14 +1,13 @@
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { Decryptable, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
 
 import { assertNonNullish } from "../../../auth/utils";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
-import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import {
   CipherRepromptType,
@@ -141,6 +140,11 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
   }
 
+  /**
+   * @deprecated WARNING: This API may fail to decrypt ciphers if they are using blob encryption.
+   * If you are using this, please migrate off of it immediately! This function will be removed
+   * in a near release.
+   */
   async decrypt(userKeyOrOrgKey: SymmetricCryptoKey): Promise<CipherView> {
     assertNonNullish(userKeyOrOrgKey, "userKeyOrOrgKey", "Cipher decryption");
 

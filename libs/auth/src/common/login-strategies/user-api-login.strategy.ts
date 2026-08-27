@@ -66,10 +66,7 @@ export class UserApiLoginStrategy extends LoginStrategy {
     }
   }
 
-  protected override async setUserKey(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
+  protected override async unlock(response: IdentityTokenResponse, userId: UserId): Promise<void> {
     const sdkHandledKeyConnector =
       response.canUnlockWithKeyConnector() &&
       (await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk));
@@ -93,19 +90,9 @@ export class UserApiLoginStrategy extends LoginStrategy {
           masterKey,
           userId,
         );
-        await this.keyService.setUserKey(userKey, userId);
+        await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
       }
     }
-  }
-
-  protected override async setAccountCryptographicState(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    await this.accountCryptographicStateService.setAccountCryptographicState(
-      response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-      userId,
-    );
   }
 
   // Overridden to save client ID and secret to token service

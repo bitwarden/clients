@@ -1,6 +1,9 @@
 import { catchError, firstValueFrom, switchMap } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
 import {
+  AuthEdit,
   PasswordManagerClient,
   SendAddRequest,
   SendAuthType,
@@ -16,11 +19,9 @@ import { getUserId } from "../../../auth/services/account.service";
 import { ListResponse } from "../../../models/response/list.response";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { SdkService, asUuid } from "../../../platform/abstractions/sdk/sdk.service";
-import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { UserId } from "../../../types/guid";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
-import { SendAccessRequest } from "../models/request/send-access.request";
 import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";
 import { SendResponse } from "../models/response/send.response";
@@ -54,28 +55,28 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * data. Patches the input with server-assigned id/accessId on create so callers reading
    * those after `save()` continue to work.
    *
-   * Two cases the SDK cannot currently handle are routed to legacy by
-   * `SendApiServiceSelector` and rejected here as a guard for direct callers:
+   * New file sends cannot be handled by the SDK and are routed to legacy by
+   * `SendApiServiceSelector`; this method rejects them as a guard for direct callers:
+   * `SendService.encrypt` produces a pre-encrypted buffer under a client-derived key,
+   * while the SDK's `create_file_send` generates its own key.
    *
-   * - **New file sends.** `SendService.encrypt` produces a pre-encrypted buffer under a
-   *   client-derived key; the SDK's `create_file_send` generates its own key.
-   * - **Password-protected sends.** `Send.password` is already the PBKDF2-derived
-   *   `keyB64`, but the SDK's `SendAuthType::auth_data`
-   *   (`bitwarden-send/src/send.rs:160-163`) re-applies PBKDF2 to whatever string sits in
-   *   `auth.password`, double-hashing the value. No skip-hash variant exists on the
-   *   public request types.
+   * Password-protected sends route through the SDK. On create or password-change the caller
+   * forwards the plaintext `password`, which `buildSendAuth` hands to the SDK's high-level
+   * `password` auth variant so the SDK derives the proof-of-knowledge over the key it
+   * generates (keeping password and key consistent). On an edit that preserves the existing
+   * password the caller has no plaintext; `buildSendAuthEdit` emits `AuthEdit::Preserve`,
+   * which the SDK resolves against its own stored Send, so the client never needs to know
+   * or resend the existing password hash. The plaintext password is Protected Data and is
+   * never logged.
    */
-  async save(sendData: [Send, EncArrayBuffer]): Promise<Send> {
+  async save(sendData: [Send, EncArrayBuffer], plaintextPassword?: string): Promise<Send> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const [send] = sendData;
     if (send.id == null && send.type === SendType.File) {
       throw new Error("SendSdkApiService.save: file send creation requires SendApiService.");
     }
-    if (send.authType === AuthType.Password) {
-      throw new Error("SendSdkApiService.save: password-protected sends require SendApiService.");
-    }
     const sendView = await send.decrypt(userId);
-    const sdkView = await this.mutateSend(sendView, userId);
+    const sdkView = await this.mutateSend(sendView, userId, plaintextPassword);
 
     // Patch server-assigned identifiers onto the input for callers that read them after
     // save (matches the legacy SendApiService contract). The server always returns id
@@ -153,13 +154,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
 
   // `apiUrl` is intentionally omitted; `SendApiServiceSelector` routes per-call `apiUrl`
   // to the legacy service.
-  async postSendAccess(id: string, request: SendAccessRequest): Promise<SendAccessResponse> {
-    const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
-    const view = await sdk.sends().access_send_v1(id, request.password ?? undefined);
-    return new SendAccessResponse(view);
-  }
-
-  async postSendAccessV2(accessToken: SendAccessToken): Promise<SendAccessResponse> {
+  async postSendAccess(accessToken: SendAccessToken): Promise<SendAccessResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
     const view = await sdk.sends().access_send(accessToken.token);
     return new SendAccessResponse(view);
@@ -208,19 +203,6 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   // to the legacy service.
   async getSendFileDownloadData(
     send: SendAccessView,
-    request: SendAccessRequest,
-  ): Promise<SendFileDownloadDataResponse> {
-    const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
-    const data = await sdk
-      .sends()
-      .get_file_download_data_v1(send.id, send.file.id, request.password ?? undefined);
-    return new SendFileDownloadDataResponse(data);
-  }
-
-  // `apiUrl` is intentionally omitted; `SendApiServiceSelector` routes per-call `apiUrl`
-  // to the legacy service.
-  async getSendFileDownloadDataV2(
-    send: SendAccessView,
     accessToken: SendAccessToken,
   ): Promise<SendFileDownloadDataResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
@@ -228,7 +210,11 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return new SendFileDownloadDataResponse(data);
   }
 
-  private async mutateSend(sendView: SendView, userId: UserId): Promise<SdkSendView> {
+  private async mutateSend(
+    sendView: SendView,
+    userId: UserId,
+    plaintextPassword?: string,
+  ): Promise<SdkSendView> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
@@ -238,11 +224,11 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
           using ref = sdk.take();
           const sendsClient = ref.value.sends();
           if (sendView.id == null) {
-            return await sendsClient.create(this.buildSendAddRequest(sendView));
+            return await sendsClient.create(this.buildSendAddRequest(sendView, plaintextPassword));
           }
           return await sendsClient.edit(
             asUuid<SdkSendId>(sendView.id),
-            this.buildSendEditRequest(sendView),
+            this.buildSendEditRequest(sendView, plaintextPassword),
           );
         }),
         catchError((error: unknown) => {
@@ -263,7 +249,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return new Send(data);
   }
 
-  private buildSendAddRequest(sendView: SendView): SendAddRequest {
+  private buildSendAddRequest(sendView: SendView, plaintextPassword?: string): SendAddRequest {
     return {
       name: sendView.name,
       notes: sendView.notes ?? undefined,
@@ -273,11 +259,13 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
       hideEmail: sendView.hideEmail,
       deletionDate: this.requireDeletionDate(sendView).toISOString(),
       expirationDate: sendView.expirationDate?.toISOString() ?? undefined,
-      auth: this.buildSendAuth(sendView),
+      // A create always has a plaintext password when password-protected; there is no
+      // existing key to preserve.
+      auth: this.buildSendAuth(sendView, plaintextPassword),
     };
   }
 
-  private buildSendEditRequest(sendView: SendView): SendEditRequest {
+  private buildSendEditRequest(sendView: SendView, plaintextPassword?: string): SendEditRequest {
     return {
       name: sendView.name,
       notes: sendView.notes ?? undefined,
@@ -287,8 +275,23 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
       hideEmail: sendView.hideEmail,
       deletionDate: this.requireDeletionDate(sendView).toISOString(),
       expirationDate: sendView.expirationDate?.toISOString() ?? undefined,
-      auth: this.buildSendAuth(sendView),
+      auth: this.buildSendAuthEdit(sendView, plaintextPassword),
     };
+  }
+
+  /**
+   * Builds the `AuthEdit` for an edit. A password-protected send being edited without a
+   * password change has no plaintext to build a `SendAuthType` from — `Preserve` tells the
+   * SDK to keep whatever auth is already on the Send, resolved against its own stored state,
+   * so the client never needs to know or resend the existing password hash. Every other case
+   * (a password change, or a non-password auth type, which carries no secret the client could
+   * be missing) can always be rebuilt from the current view and is sent as `Set`.
+   */
+  private buildSendAuthEdit(sendView: SendView, plaintextPassword?: string): AuthEdit {
+    if (sendView.authType === AuthType.Password && plaintextPassword == null) {
+      return { type: "preserve" };
+    }
+    return { type: "set", auth: this.buildSendAuth(sendView, plaintextPassword) };
   }
 
   // SendView.deletionDate is typed as `Date` but declared with a `null` default, and
@@ -325,17 +328,30 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     };
   }
 
-  // `AuthType.Password` is unreachable here: SendApiServiceSelector and the guard in
-  // `save()` both route password-protected sends to the legacy service because the SDK
-  // re-applies PBKDF2 to `auth.password`. When the SDK gains a skip-hash/preserve
-  // variant, the routing changes and a `case AuthType.Password` branch comes back.
-  private buildSendAuth(sendView: SendView): SendAuthType {
+  /**
+   * Builds the SDK `SendAuthType` for a create, or for an edit that sets/changes the auth
+   * (see {@link buildSendAuthEdit} for the `Preserve` case, which never reaches here).
+   *
+   * For a password-protected send, this always has a plaintext password to work with: a
+   * create always sets one, and an edit only calls this when the password is changing. The
+   * SDK derives the proof-of-knowledge with PBKDF2 over the key it generates, keeping
+   * password and key consistent by construction.
+   *
+   * The plaintext password is Protected Data — this method must never log it or place it in
+   * error messages.
+   */
+  private buildSendAuth(sendView: SendView, plaintextPassword?: string): SendAuthType {
     switch (sendView.authType) {
       case AuthType.Email:
         if (sendView.emails == null || sendView.emails.length === 0) {
           throw new Error("Email-protected send is missing recipient emails.");
         }
         return { type: "emails", emails: sendView.emails };
+      case AuthType.Password:
+        if (plaintextPassword == null) {
+          throw new Error("Password-protected send is missing its password.");
+        }
+        return { type: "password", password: plaintextPassword };
       case AuthType.None:
       default:
         return { type: "none" };

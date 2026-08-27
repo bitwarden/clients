@@ -12,12 +12,14 @@ import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/m
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { EntityEventsComponent } from "../../../../../dirt/event-logs";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { AccountRecoveryDialogComponent } from "../../components/account-recovery/account-recovery-dialog.component";
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";
+import { BulkEnablePrivilegedControlsDialogComponent } from "../../components/bulk/bulk-enable-privileged-controls-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "../../components/bulk/bulk-enable-sm-dialog.component";
 import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
@@ -40,6 +42,7 @@ describe("MemberDialogManagerService", () => {
   let toastService: MockProxy<ToastService>;
   let userNamePipe: MockProxy<UserNamePipe>;
   let deleteManagedMemberWarningService: MockProxy<DeleteManagedMemberWarningService>;
+  let vfo1TerminologyService: MockProxy<Vfo1TerminologyService>;
 
   let mockOrganization: Organization;
   let mockUser: OrganizationUserView;
@@ -52,8 +55,10 @@ describe("MemberDialogManagerService", () => {
     toastService = mock<ToastService>();
     userNamePipe = mock<UserNamePipe>();
     deleteManagedMemberWarningService = mock<DeleteManagedMemberWarningService>();
+    vfo1TerminologyService = mock<Vfo1TerminologyService>();
 
     configService.getFeatureFlag.mockResolvedValue(false);
+    vfo1TerminologyService.enabled.mockReturnValue(false);
 
     service = new MemberDialogManagerService(
       configService,
@@ -62,6 +67,7 @@ describe("MemberDialogManagerService", () => {
       toastService,
       userNamePipe,
       deleteManagedMemberWarningService,
+      vfo1TerminologyService,
     );
 
     // Setup mock data
@@ -163,12 +169,15 @@ describe("MemberDialogManagerService", () => {
           data: {
             kind: "Edit",
             name: "Test User",
+            profileName: "Test User",
+            email: "test@example.com",
             organizationId: mockOrganization.id,
             organizationUserId: mockUser.id,
             usesKeyConnector: false,
             isOnSecretsManagerStandalone: false,
             initialTab: MemberDialogTab.Role,
             claimedByOrganization: false,
+            hasMasterPassword: true,
           },
         }),
       );
@@ -428,6 +437,49 @@ describe("MemberDialogManagerService", () => {
     });
   });
 
+  describe("openBulkActivatePrivilegedControlsDialog", () => {
+    it("should open dialog with eligible users only", async () => {
+      const mockDialogRef = { closed: of(undefined) };
+      dialogService.open.mockReturnValue(mockDialogRef as any);
+
+      const user1 = { ...mockUser, accessPam: false } as OrganizationUserView;
+      const user2 = {
+        ...mockUser,
+        id: "user-2",
+        accessPam: true,
+      } as OrganizationUserView;
+      const users = [user1, user2];
+
+      await service.openBulkActivatePrivilegedControlsDialog(mockOrganization, users);
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        BulkEnablePrivilegedControlsDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            orgId: mockOrganization.id,
+            users: [user1],
+          }),
+        }),
+      );
+    });
+
+    it("should show error toast when no eligible users", async () => {
+      i18nService.t.mockImplementation((key) => key);
+
+      const user1 = { ...mockUser, accessPam: true } as OrganizationUserView;
+      const users = [user1];
+
+      await service.openBulkActivatePrivilegedControlsDialog(mockOrganization, users);
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "errorOccurred",
+        message: "noSelectedUsersApplicable",
+      });
+      expect(dialogService.open).not.toHaveBeenCalled();
+    });
+  });
+
   describe("openBulkStatusDialog", () => {
     it("should open bulk status dialog with correct parameters", async () => {
       const mockDialogRef = { closed: of(undefined) };
@@ -535,6 +587,21 @@ describe("MemberDialogManagerService", () => {
       });
       expect(result).toBe(true);
     });
+
+    it("should not show no master password warning for staged users", async () => {
+      const stagedUser = {
+        ...mockUser,
+        status: OrganizationUserStatusType.Staged,
+        hasMasterPassword: false,
+      } as OrganizationUserView;
+
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      const result = await service.openRemoveUserConfirmationDialog(stagedUser);
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
+      expect(result).toBe(true);
+    });
   });
 
   describe("openRevokeUserConfirmationDialog", () => {
@@ -575,6 +642,22 @@ describe("MemberDialogManagerService", () => {
       const result = await service.openRevokeUserConfirmationDialog(noMpUser);
 
       expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(2);
+      expect(result).toBe(true);
+    });
+
+    it("should not show no master password warning for staged users", async () => {
+      const stagedUser = {
+        ...mockUser,
+        status: OrganizationUserStatusType.Staged,
+        hasMasterPassword: false,
+      } as OrganizationUserView;
+
+      i18nService.t.mockReturnValue("Revoke user confirmation");
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      const result = await service.openRevokeUserConfirmationDialog(stagedUser);
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
       expect(result).toBe(true);
     });
   });
@@ -652,6 +735,23 @@ describe("MemberDialogManagerService", () => {
 
       expect(result).toBe(false);
       expect(deleteManagedMemberWarningService.acknowledgeWarning).not.toHaveBeenCalled();
+    });
+
+    it("should use the shared folder terminology warning when the VFO1 flag is on", async () => {
+      vfo1TerminologyService.enabled.mockReturnValue(true);
+      deleteManagedMemberWarningService.warningAcknowledged.mockReturnValue(of(true));
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      await service.openDeleteUserConfirmationDialog(mockUser, mockOrganization);
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          content: {
+            key: "deleteOrganizationUserWarningDescSharedFolders",
+            placeholders: ["Test User"],
+          },
+        }),
+      );
     });
   });
 });

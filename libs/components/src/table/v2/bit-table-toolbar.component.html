@@ -1,0 +1,79 @@
+<!--
+  Two rows: the search and any `slot=end` dev controls share the top row; the
+  filter chips get their own row beneath. The filter row is the unit that collapses
+  into a single trigger + dialog on small screens (responsive view).
+-->
+<div class="tw-relative tw-flex tw-flex-col">
+  <div [class]="searchRowClasses()">
+    <div [class]="searchClasses()">
+      <ng-content select="bit-search"></ng-content>
+    </div>
+    <!-- Below md the chip row collapses into this single trigger + applied-count berry. -->
+    @if (collapsed() && hasFilters()) {
+      <div class="tw-relative tw-flex-none">
+        <button
+          type="button"
+          bitIconButton="bwi-sliders"
+          [label]="'filters' | i18n"
+          (click)="openFilterDialog()"
+        ></button>
+        @if (appliedCount()) {
+          <bit-berry
+            class="tw-pointer-events-none tw-absolute tw-end-0 tw-top-0"
+            [value]="appliedCount()"
+          ></bit-berry>
+        }
+      </div>
+    }
+    <div [class]="endSlotClasses()">
+      <ng-content select="[slot=end]"></ng-content>
+    </div>
+  </div>
+  <!--
+    Wide-viewport filter row: the projected chips and the item count. Hidden (not
+    removed) below md so the chips stay instantiated to back the dialog and the
+    small-screen active-filter chips below.
+  -->
+  <div bitOverflowList [gap]="8" [items]="overflowItems()" [class]="filterRowClasses()">
+    <ng-content select="bit-filter-menu, bit-filter-toggle, bit-filter-divider"></ng-content>
+    @if (appliedCount()) {
+      <button
+        bitOverflowItem
+        id="bit-table-toolbar_button_clear-all"
+        bitButton
+        buttonType="subtleGhost"
+        size="small"
+        type="button"
+        startIcon="bwi-clear"
+        (click)="clearAll()"
+      >
+        {{ "clearAll" | i18n }}
+      </button>
+    }
+    @if (table && hasFilters()) {
+      <!-- Not an overflow item: its width is reserved, so the row collapses before it is crowded out. -->
+      <span
+        bitOverflowTrigger
+        alwaysShow
+        class="tw-ms-auto tw-whitespace-nowrap tw-text-sm tw-tabular-nums tw-text-fg-body-subtle"
+      >
+        {{ "itemCount" | i18n: itemCount() }}
+      </span>
+    }
+  </div>
+  <!--
+    Below md, a second row of just the active filters — dismissible chips that clear
+    on click. Rendered only when there's at least one (no empty row, no item count).
+  -->
+  @if (collapsed() && activeFilters().length) {
+    <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-px-5 tw-py-3">
+      @for (filter of activeFilters(); track filter.key()) {
+        <bit-chip
+          [label]="appliedLabel(filter)"
+          (click)="filter.clear()"
+          (dismissed)="filter.clear()"
+        ></bit-chip>
+      }
+    </div>
+  }
+</div>

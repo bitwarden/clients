@@ -1,16 +1,18 @@
 @if (useNewItemDialog() && (canCreateCipher() || canCreateCollection() || canCreateFolder())) {
   <button
     bitButton
-    buttonType="primary"
+    [buttonType]="buttonType()"
     type="button"
     (click)="handleButtonClick()"
     id="newItemButton"
+    [disabled]="disabled()"
     [appA11yTitle]="getButtonLabel() | i18n"
+    [bitTooltip]="disabled() ? ('organizationIsSuspended' | i18n) : ''"
     [bitPopoverAnchorFor]="coachmarkPopover()"
     [popoverOpen]="coachmarkPopoverOpen()"
     [position]="coachmarkPosition()"
     [spotlight]="!!coachmarkPopover()"
-    startIcon="bwi-plus"
+    [startIcon]="icon()"
   >
     {{ getButtonLabel() | i18n }}
   </button>
@@ -18,18 +20,20 @@
   <div>
     <button
       bitButton
-      buttonType="primary"
+      [buttonType]="buttonType()"
       type="button"
       [bitMenuTriggerFor]="isOnlyCollectionCreation() ? null : addOptions"
       (click)="handleButtonClick()"
       id="newItemDropdown"
+      [disabled]="disabled()"
       [appA11yTitle]="getButtonLabel() | i18n"
+      [bitTooltip]="disabled() ? ('organizationIsSuspended' | i18n) : ''"
       [bitPopoverAnchorFor]="coachmarkPopover()"
       [popoverOpen]="coachmarkPopoverOpen()"
       [position]="coachmarkPosition()"
       [spotlight]="!!coachmarkPopover()"
       [closeOnBackdropClick]="false"
-      startIcon="bwi-plus"
+      [startIcon]="icon()"
     >
       {{ getButtonLabel() | i18n }}
     </button>
@@ -51,8 +55,8 @@
       }
       @if (canCreateCollection()) {
         <button type="button" bitMenuItem (click)="collectionAdded.emit()">
-          <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
-          {{ "collection" | i18n }}
+          <bit-icon fixedWidth [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
+          {{ "collection" | vfo1I18n: "sharedFolder" }}
         </button>
       }
     </bit-menu>

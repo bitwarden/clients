@@ -1,31 +1,36 @@
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
-import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
+import { AsyncPipe } from "@angular/common";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder } from "@angular/forms";
-import { firstValueFrom, Observable, of } from "rxjs";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { map, of } from "rxjs";
 
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import {
+  CalloutComponent,
+  CheckboxModule,
+  FormControlModule,
+  LinkComponent,
+  SwitchComponent,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
-import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
 
 export class ResetPasswordPolicy extends BasePolicyEditDefinition {
   name = "accountRecoveryPolicy";
   description = "accountRecoveryPolicyDescV2";
+  descriptionVfo1 = "accountRecoveryPolicyDescVfo1";
   type = PolicyType.ResetPassword;
   category = PolicyCategory.Authentication;
   priority = 20;
   component = ResetPasswordPolicyComponent;
+  showDescription = false;
 
-  override display$(organization: Organization): Observable<boolean> {
+  display$(organization: Organization, _configService: ConfigService) {
     return of(organization.useResetPassword);
   }
 }
@@ -33,19 +38,31 @@ export class ResetPasswordPolicy extends BasePolicyEditDefinition {
 @Component({
   selector: "reset-password-policy-edit",
   templateUrl: "reset-password.component.html",
-  imports: [SharedModule],
+  imports: [
+    AsyncPipe,
+    CalloutComponent,
+    CheckboxModule,
+    FormControlModule,
+    LinkComponent,
+    ReactiveFormsModule,
+    SwitchComponent,
+    I18nPipe,
+    Vfo1I18nPipe,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ResetPasswordPolicyComponent extends BasePolicyEditComponent implements OnInit {
-  data = this.formBuilder.group({
+export class ResetPasswordPolicyComponent extends BasePolicyEditComponent {
+  private readonly formBuilder = inject(FormBuilder);
+
+  readonly data = this.formBuilder.group({
     autoEnrollEnabled: [{ value: false, disabled: true }],
   });
-  showKeyConnectorInfo = false;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private organizationService: OrganizationService,
-  ) {
+  readonly showKeyConnectorInfo$ = this.organization$.pipe(
+    map((org) => org?.keyConnectorEnabled ?? false),
+  );
+
+  constructor() {
     super();
 
     this.enabled.valueChanges.pipe(takeUntilDestroyed()).subscribe((enabled) => {
@@ -56,30 +73,5 @@ export class ResetPasswordPolicyComponent extends BasePolicyEditComponent implem
         this.data.controls.autoEnrollEnabled.setValue(false);
       }
     });
-  }
-
-  async ngOnInit() {
-    super.ngOnInit();
-
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
-    if (!userId) {
-      throw new Error("No user found.");
-    }
-
-    if (!this.policyResponse()) {
-      throw new Error("Policies not found");
-    }
-
-    const organization = await firstValueFrom(
-      this.organizationService
-        .organizations$(userId)
-        .pipe(getOrganizationById(this.policyResponse()!.organizationId)),
-    );
-
-    if (!organization) {
-      throw new Error("No organization found.");
-    }
-    this.showKeyConnectorInfo = organization.keyConnectorEnabled;
   }
 }

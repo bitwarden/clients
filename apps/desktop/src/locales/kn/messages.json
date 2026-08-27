@@ -11,6 +11,9 @@
   "favorites": {
     "message": "ಮೆಚ್ಚುಗೆಗಳು"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "Unfavorite"
   },
@@ -104,6 +107,69 @@
   "shared": {
     "message": "ಹಂಚಿಕೊಳ್ಳಲಾಗಿದೆ"
   },
+  "sharedFolder": {
+    "message": "Shared folder"
+  },
+  "sharedFolders": {
+    "message": "Shared folders"
+  },
+  "myFolder": {
+    "message": "My folder"
+  },
+  "myFolders": {
+    "message": "My folders"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
+  "addSharedFolder": {
+    "message": "Add shared folder"
+  },
+  "newSharedFolder": {
+    "message": "New shared folder"
+  },
+  "searchSharedFolder": {
+    "message": "Search shared folder"
+  },
+  "searchMyFolder": {
+    "message": "Search My folders"
+  },
+  "viewSharedFolderWithName": {
+    "message": "View shared folder - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Delete shared folder"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Delete $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "The selected items and shared folders will be permanently deleted."
+  },
+  "sharedFolderDeleted": {
+    "message": "Shared folder deleted"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Shared folders deleted"
+  },
   "share": {
     "message": "ಹಂಚಿಕೊಳ್ಳಿ"
   },
@@ -135,8 +201,20 @@
   "attachments": {
     "message": "ಲಗತ್ತುಗಳು"
   },
+  "attachmentsNeedFix": {
+    "message": "This item has old file attachments that need to be fixed."
+  },
   "viewItem": {
     "message": "ಐಟಂ ವೀಕ್ಷಿಸಿ"
+  },
+  "viewCollectionWithName": {
+    "message": "View collection - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Collection1"
+      }
+    }
   },
   "viewItemHeaderLogin": {
     "message": "View Login",
@@ -154,6 +232,10 @@
     "message": "View Note",
     "description": "Header for view note item type"
   },
+  "viewItemHeaderSecureNote": {
+    "message": "View secure note",
+    "description": "Header for view secure note item type"
+  },
   "viewItemHeaderSshKey": {
     "message": "View SSH key",
     "description": "Header for view SSH key item type"
@@ -170,6 +252,42 @@
     "message": "View passport",
     "description": "Header for view passport item type"
   },
+  "addItemHeaderLogin": {
+    "message": "Add login",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Add card",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Add identity",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Add note",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Add secure note",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Add SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Add bank account",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Add license",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Add passport",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "New Login",
     "description": "Header for new login item type"
@@ -185,6 +303,10 @@
   "newItemHeaderNote": {
     "message": "New Note",
     "description": "Header for new note item type"
+  },
+  "newItemHeaderSecureNote": {
+    "message": "New secure note",
+    "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
     "message": "New SSH key",
@@ -216,6 +338,26 @@
   },
   "editItemHeaderNote": {
     "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSecureNote": {
+    "message": "Edit secure note",
+    "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Edit login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Edit card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Edit identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Edit note",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
@@ -310,6 +452,29 @@
     "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "View login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "View card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "View identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "View note",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Create",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Add collection"
+  },
   "new": {
     "message": "New",
     "description": "for adding new items"
@@ -326,8 +491,21 @@
   "passphrase": {
     "message": "ಪಾಸ್ಫ್ರೇಸ್"
   },
+  "passwordAnnounceSpace": {
+    "message": "space",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "editItem": {
     "message": "ವಸ್ತುಗಳನ್ನು ಸಂಪಾದಿಸಿ"
+  },
+  "editItemWithName": {
+    "message": "Edit item - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
   },
   "emailAddress": {
     "message": "ಇಮೇಲ್ ವಿಳಾಸ"
@@ -347,9 +525,24 @@
   "launch": {
     "message": "ಶುರು"
   },
+  "launchWebsite": {
+    "message": "Launch website"
+  },
   "copyValue": {
     "message": "ಮೌಲ್ಯವನ್ನು ನಕಲಿಸಿ",
     "description": "Copy value to clipboard"
+  },
+  "copyWebsite": {
+    "message": "Copy website"
+  },
+  "copyCustomField": {
+    "message": "Copy $FIELD$",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Custom field label"
+      }
+    }
   },
   "minimizeOnCopyToClipboard": {
     "message": "ಕ್ಲಿಪ್ಬೋರ್ಡ್ಗೆ ನಕಲಿಸಿದಾಗ ಕಡಿಮೆ ಮಾಡಿ"
@@ -629,6 +822,9 @@
   "type": {
     "message": "ಪ್ರಕಾರ"
   },
+  "items": {
+    "message": "Items"
+  },
   "firstName": {
     "message": "ಮೊದಲ ಹೆಸರು"
   },
@@ -699,23 +895,114 @@
       }
     }
   },
+  "appUri": {
+    "message": "App (URI)"
+  },
+  "appUriCount": {
+    "message": "App (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Website added"
   },
   "addWebsite": {
     "message": "Add website"
   },
+  "addWebsiteOrApp": {
+    "message": "Add website or app"
+  },
+  "app": {
+    "message": "App"
+  },
   "deleteWebsite": {
     "message": "Delete website"
   },
+  "deleteCustomField": {
+    "message": "Delete $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "owner": {
     "message": "Owner"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Shared folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collection $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "My folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Owner $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Vault $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "addField": {
     "message": "Add field"
   },
   "editField": {
     "message": "Edit field"
+  },
+  "editFieldLabel": {
+    "message": "Edit $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Are you sure you want to permanently delete this attachment?"
@@ -741,8 +1028,8 @@
   "linkedHelpText": {
     "message": "Use a linked field when you are experiencing autofill issues for a specific website."
   },
-  "linkedLabelHelpText": {
-    "message": "Enter the the field's html id, name, aria-label, or placeholder."
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "folder": {
     "message": "ಫೋಲ್ಡರ್"
@@ -796,6 +1083,45 @@
   },
   "deleteItem": {
     "message": "ಐಟಂ ಅಳಿಸಿ"
+  },
+  "deleteItemsCount": {
+    "message": "Delete $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+  },
+  "deleteItemsDesc": {
+    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+  },
+  "deleteItemPermanently": {
+    "message": "Delete item permanently"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Delete $COUNT$ items permanently",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "You will not be able to recover this item."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "You will not be able to recover these items."
+  },
+  "deleteSelection": {
+    "message": "Delete selection"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "The selected items and collections will be permanently deleted."
   },
   "deleteFolder": {
     "message": "ಫೋಲ್ಡರ್ ಅಳಿಸಿ"
@@ -867,20 +1193,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "ನಕಲಿಸಿ ಪರಿಶೀಲನೆ ಕೋಡ್ (TOTP)"
-  },
-  "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "Copy private key"
@@ -1024,6 +1336,9 @@
   },
   "file": {
     "message": "ಫೈಲ್"
+  },
+  "photo": {
+    "message": "Photo"
   },
   "selectFile": {
     "message": "ಕಡತವನ್ನು ಆಯ್ಕೆಮಾಡು."
@@ -1686,6 +2001,12 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
+  },
+  "noDetailsToCopy": {
+    "message": "No details to copy"
+  },
   "runInBackground": {
     "message": "Keep Bitwarden running in the background"
   },
@@ -1782,6 +2103,21 @@
   "copyVerificationCode": {
     "message": "Copy verification code"
   },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
+  },
   "copyUsername": {
     "message": "ಬಳಕೆಹೆಸರು ನಕಲಿಸು"
   },
@@ -1800,9 +2136,6 @@
     "message": "ಭದ್ರತಾ ಕೋಡ್ ಅನ್ನು ನಕಲಿಸಿ",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "card number"
-  },
   "premiumMembership": {
     "message": "ಪ್ರೀಮಿಯಂ ಸದಸ್ಯತ್ವ"
   },
@@ -1812,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "ನಿಮ್ಮ ಸದಸ್ಯತ್ವವನ್ನು ನೀವು bitwarden.com ವೆಬ್ ವಾಲ್ಟ್‌ನಲ್ಲಿ ನಿರ್ವಹಿಸಬಹುದು. ನೀವು ಈಗ ವೆಬ್‌ಸೈಟ್‌ಗೆ ಭೇಟಿ ನೀಡಲು ಬಯಸುವಿರಾ?"
   },
-  "premiumRefresh": {
-    "message": "ಸದಸ್ಯತ್ವವನ್ನು ರಿಫ್ರೆಶ್ ಮಾಡಿ"
-  },
-  "premiumNotCurrentMember": {
-    "message": "ನೀವು ಪ್ರಸ್ತುತ ಪ್ರೀಮಿಯಂ ಸದಸ್ಯರಲ್ಲ."
-  },
-  "premiumSignUpAndGet": {
-    "message": "ಪ್ರೀಮಿಯಂ ಸದಸ್ಯತ್ವಕ್ಕಾಗಿ ಸೈನ್ ಅಪ್ ಮಾಡಿ ಮತ್ತು ಪಡೆಯಿರಿ:"
-  },
   "premiumSignUpStorage": {
     "message": "ಫೈಲ್ ಲಗತ್ತುಗಳಿಗಾಗಿ 1 ಜಿಬಿ ಎನ್‌ಕ್ರಿಪ್ಟ್ ಮಾಡಿದ ಸಂಗ್ರಹ."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
-  },
-  "premiumSignUpReports": {
-    "message": "ನಿಮ್ಮ ವಾಲ್ಟ್ ಅನ್ನು ಸುರಕ್ಷಿತವಾಗಿರಿಸಲು ಪಾಸ್ವರ್ಡ್ ನೈರ್ಮಲ್ಯ, ಖಾತೆ ಆರೋಗ್ಯ ಮತ್ತು ಡೇಟಾ ಉಲ್ಲಂಘನೆ ವರದಿಗಳು."
-  },
-  "premiumSignUpTotp": {
-    "message": "ನಿಮ್ಮ ವಾಲ್ಟ್‌ನಲ್ಲಿನ ಲಾಗಿನ್‌ಗಳಿಗಾಗಿ TOTP ಪರಿಶೀಲನಾ ಕೋಡ್ (2FA) ಜನರೇಟರ್."
-  },
-  "premiumSignUpSupport": {
-    "message": "ಆದ್ಯತೆಯ ಗ್ರಾಹಕ ಬೆಂಬಲ."
-  },
-  "premiumSignUpFuture": {
-    "message": "ಎಲ್ಲಾ ಭವಿಷ್ಯದ ಪ್ರೀಮಿಯಂ ವೈಶಿಷ್ಟ್ಯಗಳು. ಹೆಚ್ಚು ಶೀಘ್ರದಲ್ಲೇ ಬರಲಿದೆ!"
   },
   "premiumPurchase": {
     "message": "ಪ್ರೀಮಿಯಂ ಖರೀದಿಸಿ"
   },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
-  },
-  "premiumCurrentMember": {
-    "message": "ನೀವು ಪ್ರೀಮಿಯಂ ಸದಸ್ಯರಾಗಿದ್ದೀರಿ!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "ಬಿಟ್ವಾರ್ಡೆನ್ ಅವರನ್ನು ಬೆಂಬಲಿಸಿದ್ದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು."
-  },
-  "premiumPrice": {
-    "message": "ಎಲ್ಲವೂ ಕೇವಲ $PRICE$ / ವರ್ಷಕ್ಕೆ!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "month"
@@ -1896,7 +2181,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Clear generator history"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "clear": {
@@ -1932,8 +2217,98 @@
   "selectAll": {
     "message": "ಎಲ್ಲವನ್ನು ಆರಿಸು"
   },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
+  "showingItemRange": {
+    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rows per page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rows per page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "All"
+  },
+  "clearAll": {
+    "message": "Clear all"
+  },
+  "done": {
+    "message": "Done"
+  },
+  "filter": {
+    "message": "Filter"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selected",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Previous page"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Go to page"
+  },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "No matching items"
+  },
   "selected": {
     "message": "Selected"
+  },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "Bulk actions"
@@ -2168,11 +2543,8 @@
   "restrictCardTypeImportDesc": {
     "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“File password”  and “Confirm file password“ do not match."
-  },
-  "done": {
-    "message": "Done"
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "warning": {
     "message": "ಎಚ್ಚರಿಕೆ",
@@ -2181,8 +2553,8 @@
   "confirmVaultExport": {
     "message": "ವಾಲ್ಟ್ ರಫ್ತು ಖಚಿತಪಡಿಸಿ"
   },
-  "exportWarningDesc": {
-    "message": "ಈ ರಫ್ತು ನಿಮ್ಮ ವಾಲ್ಟ್ ಡೇಟಾವನ್ನು ಎನ್‌ಕ್ರಿಪ್ಟ್ ಮಾಡದ ಸ್ವರೂಪದಲ್ಲಿ ಒಳಗೊಂಡಿದೆ. ನೀವು ರಫ್ತು ಮಾಡಿದ ಫೈಲ್ ಅನ್ನು ಅಸುರಕ್ಷಿತ ಚಾನಲ್‌ಗಳಲ್ಲಿ (ಇಮೇಲ್ ನಂತಹ) ಸಂಗ್ರಹಿಸಬಾರದು ಅಥವಾ ಕಳುಹಿಸಬಾರದು. ನೀವು ಅದನ್ನು ಬಳಸಿದ ನಂತರ ಅದನ್ನು ಅಳಿಸಿ."
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "ಈ ರಫ್ತು ನಿಮ್ಮ ಖಾತೆಯ ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಕೀಲಿಯನ್ನು ಬಳಸಿಕೊಂಡು ನಿಮ್ಮ ಡೇಟಾವನ್ನು ಎನ್‌ಕ್ರಿಪ್ಟ್ ಮಾಡುತ್ತದೆ. ನಿಮ್ಮ ಖಾತೆಯ ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಕೀಲಿಯನ್ನು ನೀವು ಎಂದಾದರೂ ತಿರುಗಿಸಿದರೆ ನೀವು ಈ ರಫ್ತು ಫೈಲ್ ಅನ್ನು ಡೀಕ್ರಿಪ್ಟ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗದ ಕಾರಣ ನೀವು ಮತ್ತೆ ರಫ್ತು ಮಾಡಬೇಕು."
@@ -2395,11 +2767,38 @@
   "archivedItemRestored": {
     "message": "Archived item restored"
   },
+  "archivedItemsRestored": {
+    "message": "Archived items restored"
+  },
   "restoredItem": {
     "message": "ಐಟಂ ಅನ್ನು ಮರುಸ್ಥಾಪಿಸಲಾಗಿದೆ"
   },
+  "restoredItems": {
+    "message": "Items restored"
+  },
   "permanentlyDelete": {
     "message": "ಶಾಶ್ವತವಾಗಿ ಅಳಿಸಿ"
+  },
+  "permanentlyDeletedItems": {
+    "message": "Items permanently deleted"
+  },
+  "deletedItems": {
+    "message": "Items sent to trash"
+  },
+  "deletedCollections": {
+    "message": "Deleted collections"
+  },
+  "collectionDeleted": {
+    "message": "Collection deleted"
+  },
+  "collectionsDeleted": {
+    "message": "Collections deleted"
+  },
+  "movedItem": {
+    "message": "Item moved"
+  },
+  "movedItems": {
+    "message": "Items moved"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "ಲಾಗ್ out ಟ್ ಆಗುವುದರಿಂದ ನಿಮ್ಮ ವಾಲ್ಟ್‌ನ ಎಲ್ಲಾ ಪ್ರವೇಶವನ್ನು ತೆಗೆದುಹಾಕುತ್ತದೆ ಮತ್ತು ಕಾಲಾವಧಿ ಅವಧಿಯ ನಂತರ ಆನ್‌ಲೈನ್ ದೃ hentic ೀಕರಣದ ಅಗತ್ಯವಿದೆ. ಈ ಸೆಟ್ಟಿಂಗ್ ಅನ್ನು ಬಳಸಲು ನೀವು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?"
@@ -2564,29 +2963,11 @@
   "acceptPoliciesRequired": {
     "message": "Terms of Service and Privacy Policy have not been acknowledged."
   },
-  "enableBrowserIntegration": {
-    "message": "ಬ್ರೌಸರ್ ಏಕೀಕರಣವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"
-  },
-  "enableBrowserIntegrationDesc1": {
-    "message": "Used to allow biometric unlock in browsers that are not Safari."
-  },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Allow DuckDuckGo browser integration"
   },
   "enableDuckDuckGoBrowserIntegrationDesc": {
     "message": "Use your Bitwarden vault when browsing with DuckDuckGo."
-  },
-  "browserIntegrationUnsupportedTitle": {
-    "message": "Browser integration not supported"
-  },
-  "browserIntegrationErrorTitle": {
-    "message": "Error enabling browser integration"
-  },
-  "browserIntegrationErrorDesc": {
-    "message": "An error has occurred while enabling browser integration."
-  },
-  "browserIntegrationWindowsStoreDesc": {
-    "message": "ದುರದೃಷ್ಟವಶಾತ್ ವಿಂಡೋಸ್ ಸ್ಟೋರ್ ಆವೃತ್ತಿಯಲ್ಲಿ ಬ್ರೌಸರ್ ಏಕೀಕರಣವನ್ನು ಪ್ರಸ್ತುತ ಬೆಂಬಲಿಸುವುದಿಲ್ಲ."
   },
   "enableHardwareAcceleration": {
     "message": "Use hardware acceleration"
@@ -2752,6 +3133,10 @@
   },
   "createSend": {
     "message": "ಕಳುಹಿಸು ರಚಿಸಿ",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Create Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -3070,6 +3455,30 @@
   "options": {
     "message": "Options"
   },
+  "moreOptions": {
+    "message": "More options"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
   "sessionTimeout": {
     "message": "Your session has timed out. Please go back and try logging in again."
   },
@@ -3283,7 +3692,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3293,7 +3702,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3307,7 +3716,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -3317,7 +3726,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -3381,6 +3790,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Add website prefix",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Hostname",
     "description": "Part of a URL."
@@ -3391,7 +3808,7 @@
   "apiKey": {
     "message": "API key"
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Premium subscription required"
   },
   "organizationIsDisabled": {
@@ -3976,6 +4393,75 @@
   "importNothingError": {
     "message": "Nothing was imported."
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ items will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "The following items could not be read and will not be included in your import:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
+  },
+  "identifier": {
+    "message": "Identifier"
+  },
+  "contact": {
+    "message": "Contact"
+  },
+  "membership": {
+    "message": "Membership"
+  },
+  "passport": {
+    "message": "Passport"
+  },
+  "driverLicense": {
+    "message": "Driver's license"
+  },
+  "ssnCard": {
+    "message": "Identity card"
+  },
+  "birthCertificate": {
+    "message": "Birth certificate"
+  },
+  "databaseCredentials": {
+    "message": "Database credentials"
+  },
+  "serverCredentials": {
+    "message": "Server credentials"
+  },
+  "softwareLicense": {
+    "message": "Software license"
+  },
+  "healthInsurance": {
+    "message": "Health insurance"
+  },
+  "wifiCredentials": {
+    "message": "Wi-Fi credentials"
+  },
+  "general": {
+    "message": "General"
+  },
   "importEncKeyError": {
     "message": "Error decrypting the exported file. Your encryption key does not match the encryption key used export the data."
   },
@@ -4018,6 +4504,79 @@
   "noFileChosen": {
     "message": "No file chosen"
   },
+  "noFileSelected": {
+    "message": "No file selected"
+  },
+  "fileChosen": {
+    "message": "File chosen: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "File added: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "File removed: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 file uploaded"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ files uploaded",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Uploaded files"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Click to upload or drag and drop"
+  },
+  "chooseFiles": {
+    "message": "Choose files"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. file size: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "or copy/paste the import file contents"
   },
@@ -4039,6 +4598,30 @@
   },
   "confirmFilePassword": {
     "message": "Confirm file password"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass master password"
+  },
+  "addKeyFile": {
+    "message": "Add key file"
+  },
+  "keyFileUpload": {
+    "message": "Key file upload"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX file upload"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Accepted formats: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "kdbxWrongFileType": {
+    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+  },
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
   },
   "exportSuccess": {
     "message": "Vault data exported"
@@ -4078,6 +4661,9 @@
   },
   "multifactorAuthenticationFailed": {
     "message": "Multifactor authentication failed"
+  },
+  "keeperConnectionError": {
+    "message": "There was a problem communicating with Keeper. Please try the import again."
   },
   "includeSharedFolders": {
     "message": "Include shared folders"
@@ -4137,6 +4723,195 @@
   "lastPassYubikeyDesc": {
     "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
   },
+  "keeperEmail": {
+    "message": "Keeper email"
+  },
+  "keeperEmailHint": {
+    "message": "Enter the email you use to log in to Keeper"
+  },
+  "dataCenterLocation": {
+    "message": "Data center location"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper master password"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Please enter your Keeper master password"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Please enter the code from your two-factor method"
+  },
+  "totpCodePrompt": {
+    "message": "Please enter the code from your authenticator app"
+  },
+  "smsCodePrompt": {
+    "message": "Please enter the code sent via text message"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Please enter the code from your Keeper DNA app"
+  },
+  "adminApproval": {
+    "message": "Admin approval"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "We've sent an admin approval request to your admin"
+  },
+  "method": {
+    "message": "Method"
+  },
+  "directImporter": {
+    "message": "Direct importer"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "SSO authentication required"
+  },
+  "keeperSsoDesc": {
+    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+  },
+  "ssoToken": {
+    "message": "SSO token"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper authentication required"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper device approval required"
+  },
+  "selectApprovalMethod": {
+    "message": "Approval methods"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Device approval needed"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Two-factor method"
+  },
+  "emailVerification": {
+    "message": "Email verification"
+  },
+  "approvalEmailDesc": {
+    "message": "Please check your email and enter the verification code below"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper Push notification sent to approved device"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push sent"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Approval request will be canceled"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+  },
+  "cancelRequest": {
+    "message": "Cancel request"
+  },
+  "keeperMFARequired": {
+    "message": "Keeper two-factor authentication required"
+  },
+  "mfaPushDesc": {
+    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Select two-factor method"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Choose how you want to verify your identity."
+  },
+  "authenticatorAppTotp": {
+    "message": "Authenticator app (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Text message (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Backup codes"
+  },
+  "securityKeyU2f": {
+    "message": "Security key (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Security key (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA verification"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Approve the Keeper DNA notification on your device"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Select Keeper DNA method"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Choose how you want to verify with Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Push notification"
+  },
+  "enterCodeManually": {
+    "message": "Enter code manually"
+  },
+  "twoFactorAuthentication": {
+    "message": "Two-factor authentication"
+  },
+  "unknownMethod": {
+    "message": "Unknown method"
+  },
+  "selectDuoMethod": {
+    "message": "Select Duo method"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Choose how you want to verify with Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Phone call"
+  },
+  "duoVerification": {
+    "message": "Duo verification"
+  },
+  "duoPushWaiting": {
+    "message": "Approve the Duo push notification on your device."
+  },
+  "duoSmsWaiting": {
+    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+  },
+  "duoVoiceWaiting": {
+    "message": "Answer the phone call from Duo and follow the instructions."
+  },
+  "tryAnotherMethod": {
+    "message": "Try another method"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+  },
   "commonImportFormats": {
     "message": "Common formats",
     "description": "Label indicating the most common import formats"
@@ -4195,6 +4970,12 @@
   },
   "removePasskey": {
     "message": "Remove passkey"
+  },
+  "deletePasskey": {
+    "message": "Delete passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
   },
   "passkeyRemoved": {
     "message": "Passkey removed"
@@ -4392,10 +5173,17 @@
     "message": "Change account email"
   },
   "passkeyLogin": {
-    "message": "Log in with passkey?"
+    "message": "Log in with passkey?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Log in with passkey"
   },
   "savePasskeyQuestion": {
     "message": "Save passkey?"
+  },
+  "savePasskey": {
+    "message": "Save passkey"
   },
   "saveNewPasskey": {
     "message": "Save as new login"
@@ -4407,7 +5195,11 @@
     "message": "No matching logins for this site"
   },
   "overwritePasskey": {
-    "message": "Overwrite passkey?"
+    "message": "Overwrite passkey?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Overwrite passkey"
   },
   "unableToSavePasskey": {
     "message": "Unable to save passkey"
@@ -4464,6 +5256,15 @@
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -4567,8 +5368,23 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+  },
   "assignToCollections": {
     "message": "Assign to collections"
+  },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
+  },
+  "itemLower": {
+    "message": "item"
+  },
+  "itemsLower": {
+    "message": "items"
   },
   "assignToTheseCollections": {
     "message": "Assign to these collections"
@@ -4576,8 +5392,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Only organization members with access to these collections will be able to see the item."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Only organization members with access to these collections will be able to see the items."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "noCollectionsAssigned": {
     "message": "No collections have been assigned"
@@ -4625,9 +5447,6 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
-  },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
     "placeholders": {
@@ -4637,8 +5456,78 @@
       }
     }
   },
+  "personalItemTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+  },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
+  },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
+  "itemMovedToCollection": {
+    "message": "Item moved to collection"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
+  },
+  "itemMovedToCollections": {
+    "message": "Item moved to collections"
+  },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
+  "itemsMovedToCollection": {
+    "message": "Items moved to collection"
+  },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
+  "itemsMovedToCollections": {
+    "message": "Items moved to collections"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
+  },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
   },
   "nothingSelected": {
     "message": "You have not selected anything."
@@ -4782,6 +5671,41 @@
   },
   "unArchiveAndSave": {
     "message": "Unarchive and save"
+  },
+  "archiveItemsPlural": {
+    "message": "Archive $NUM$ items",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemTitle": {
+    "message": "Archive item",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Once archived, these items will be excluded from search results and autofill suggestions."
+  },
+  "bulkArchiveItems": {
+    "message": "Items archived"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Items unarchived"
+  },
+  "moveSelectedItemsDesc": {
+    "message": "Choose a folder that you would like to add the $COUNT$ selected item(s) to.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "selectFolder": {
+    "message": "Select folder"
   },
   "restartPremium": {
     "message": "Restart Premium"
@@ -5106,6 +6030,13 @@
   "enterYear": {
     "message": "Enter year."
   },
+  "sendTypes": {
+    "message": "Send types",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "Any"
+  },
   "invalidDay": {
     "message": "Enter a valid day."
   },
@@ -5224,6 +6155,9 @@
   "newBankAccountNudgeBody": {
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
+  "sendDeletionDate": {
+    "message": "Deletion date"
+  },
   "discardEditsTitle": {
     "message": "Discard edits"
   },
@@ -5281,7 +6215,15 @@
     "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
+  "orgDoesNotAllowTextSends": {
+    "message": "Text Sends are not allowed for your organization",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "File Sends are not allowed for your organization",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
     "message": "This Send will automatically expire at the set deletion date",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
@@ -5335,5 +6277,132 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ has set this deletion date",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
+  "addToFolder": {
+    "message": "Add to folder"
+  },
+  "deleteCollection": {
+    "message": "Delete collection"
+  },
+  "deleteCollectionsCount": {
+    "message": "Delete $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "This collection will be permanently deleted."
+  },
+  "deleteCollectionsDesc": {
+    "message": "These collections will be permanently deleted."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Items cannot have multiple attachments with the same file name"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "create a new $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "overwrite a $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "sign in as $USERNAME$ with your $RPID$ passkey",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
   }
 }

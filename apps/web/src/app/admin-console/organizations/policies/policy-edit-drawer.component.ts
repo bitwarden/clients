@@ -4,6 +4,7 @@ import {
   ChangeDetectorRef,
   Component,
   DestroyRef,
+  Directive,
   Inject,
   Signal,
   ViewContainerRef,
@@ -18,6 +19,7 @@ import { Constructor } from "type-fest";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -33,55 +35,64 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared";
 
-import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
-import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-dialog.component";
+import {
+  BasePolicyEditDefinition,
+  BasePolicyEditComponent,
+  policyDrawerTitleKeys,
+  policyDrawerDescriptionKeys,
+} from "./base-policy-edit.component";
 
-@Component({
-  selector: "app-policy-edit-drawer",
-  templateUrl: "policy-edit-drawer.component.html",
-  imports: [SharedModule, SpinnerComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class PolicyEditDrawerComponent implements AfterViewInit {
-  private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
-  private readonly destroyRef = inject(DestroyRef);
+export type PolicyEditDialogData = {
+  /**
+   * The metadata containing information about how to display and edit the policy.
+   */
+  policy: BasePolicyEditDefinition;
+  /**
+   * The organization for the policy.
+   */
+  organization: Organization;
+};
+
+export type PolicyEditDialogResult = "saved";
+
+/**
+ * Abstract base class shared by {@link PolicyEditDrawerComponent} and
+ * {@link MultiStepPolicyEditDialogComponent}. Contains all the constructor-injected services,
+ * shared signals, and shared logic (load, discard guard) so concrete subclasses only need to
+ * implement the template-specific parts ({@link ngAfterViewInit} and {@link submit}).
+ */
+@Directive()
+export abstract class PolicyEditDialogComponent implements AfterViewInit {
+  protected readonly destroyRef = inject(DestroyRef);
   /** Disarmed on lock/logout so neither closePredicate nor beforeunload prompts during teardown. */
-  private readonly guardArmed = signal(true);
-
-  protected readonly policyType = PolicyType;
+  protected readonly guardArmed = signal(true);
   protected readonly loading = signal(true);
-  protected readonly enabled = false;
-  private readonly _saveDisabled = signal(true);
-  protected readonly saveDisabled: Signal<boolean> = this._saveDisabled;
   protected readonly policyComponent = signal<BasePolicyEditComponent | undefined>(undefined);
   protected readonly policyEnabled = signal(false);
 
-  readonly formGroup = this.formBuilder.group({
-    enabled: [this.enabled],
-  });
-
   constructor(
     @Inject(DIALOG_DATA) protected readonly data: PolicyEditDialogData,
-    private readonly accountService: AccountService,
-    private readonly policyApiService: PolicyApiServiceAbstraction,
-    private readonly i18nService: I18nService,
-    private readonly cdr: ChangeDetectorRef,
-    private readonly formBuilder: FormBuilder,
-    private readonly dialogRef: DialogRef<PolicyEditDialogResult>,
-    private readonly toastService: ToastService,
-    private readonly keyService: KeyService,
-    private readonly dialogService: DialogService,
-    private readonly authService: AuthService,
+    protected readonly accountService: AccountService,
+    protected readonly policyApiService: PolicyApiServiceAbstraction,
+    protected readonly i18nService: I18nService,
+    protected readonly cdr: ChangeDetectorRef,
+    protected readonly formBuilder: FormBuilder,
+    protected readonly dialogRef: DialogRef<PolicyEditDialogResult>,
+    protected readonly toastService: ToastService,
+    protected readonly keyService: KeyService,
+    protected readonly dialogService: DialogService,
+    protected readonly authService: AuthService,
   ) {}
 
   get policy(): BasePolicyEditDefinition {
     return this.data.policy;
   }
 
-  private isFormDirty(): boolean {
+  protected isFormDirty(): boolean {
     const component = this.policyComponent();
     if (!component) {
       return false;
@@ -89,7 +100,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
     return component.enabled.dirty || (component.data?.dirty ?? false);
   }
 
-  private readonly discardDialogOptions = {
+  protected readonly discardDialogOptions = {
     title: { key: "discardEditsTitle" },
     content: { key: "discardEditsConfirmation" },
     type: "danger" as const,
@@ -98,7 +109,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
     cancelButtonText: { key: "backToEditing" },
   };
 
-  private setupDiscardGuard(): void {
+  protected setupDiscardGuard(): void {
     this.dialogRef.closePredicate = async (result?: PolicyEditDialogResult) => {
       // A truthy result means an intentional close (e.g. after a successful save) — always allow.
       if (result || !this.isFormDirty()) {
@@ -138,7 +149,128 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
       });
   }
 
-  async ngAfterViewInit() {
+  async load() {
+    try {
+      return await this.policyApiService.getPolicy(
+        this.data.organization.id,
+        this.data.policy.type,
+      );
+    } catch (e: any) {
+      // No policy exists yet, instantiate an empty one
+      if (e.statusCode === 404) {
+        return new PolicyResponse({ Enabled: false });
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  abstract readonly submit: () => Promise<void>;
+
+  abstract ngAfterViewInit(): Promise<void>;
+}
+
+@Component({
+  selector: "app-policy-edit-drawer",
+  templateUrl: "policy-edit-drawer.component.html",
+  imports: [SharedModule, SpinnerComponent, Vfo1I18nPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class PolicyEditDrawerComponent extends PolicyEditDialogComponent implements AfterViewInit {
+  private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
+
+  protected readonly policyType = PolicyType;
+  protected readonly enabled = false;
+  private readonly _saveDisabled = signal(true);
+  protected readonly saveDisabled: Signal<boolean> = this._saveDisabled;
+
+  readonly formGroup = this.formBuilder.group({
+    enabled: [this.enabled],
+  });
+
+  constructor(
+    @Inject(DIALOG_DATA) data: PolicyEditDialogData,
+    accountService: AccountService,
+    policyApiService: PolicyApiServiceAbstraction,
+    i18nService: I18nService,
+    cdr: ChangeDetectorRef,
+    formBuilder: FormBuilder,
+    dialogRef: DialogRef<PolicyEditDialogResult>,
+    toastService: ToastService,
+    keyService: KeyService,
+    dialogService: DialogService,
+    authService: AuthService,
+  ) {
+    super(
+      data,
+      accountService,
+      policyApiService,
+      i18nService,
+      cdr,
+      formBuilder,
+      dialogRef,
+      toastService,
+      keyService,
+      dialogService,
+      authService,
+    );
+  }
+
+  /**
+   * [legacy, VFO1] i18n key pair for the drawer title.
+   */
+  get titleKeys(): [string, string] {
+    return policyDrawerTitleKeys(this.policy);
+  }
+
+  /**
+   * [legacy, VFO1] i18n key pair for the drawer body description.
+   */
+  get descriptionKeys(): [string, string] {
+    return policyDrawerDescriptionKeys(this.policy);
+  }
+
+  /**
+   * [legacy, VFO1] i18n key pair for the prerequisite callout, if one is configured.
+   */
+  get prerequisiteKeys(): [string, string] | undefined {
+    const legacy = this.policy.prerequisiteKey;
+    if (!legacy) {
+      return undefined;
+    }
+    return [legacy, this.policy.prerequisiteKeyVfo1 ?? legacy];
+  }
+
+  /**
+   * [legacy, VFO1] i18n key pair for the warning callout, if one is configured.
+   */
+  get warningKeys(): [string, string] | undefined {
+    const legacy = this.policy.warningKey;
+    if (!legacy) {
+      return undefined;
+    }
+    return [legacy, this.policy.warningKeyVfo1 ?? legacy];
+  }
+
+  protected policyDataHasChanged(oldPolicyData: any, newPolicyData: any) {
+    const oldPolicy = oldPolicyData ?? {};
+    const newPolicy = newPolicyData ?? {};
+    return (
+      Object.keys(oldPolicy).length !== Object.keys(newPolicy).length ||
+      Object.keys(newPolicy).some((newKey) => {
+        const oldValue = oldPolicy[newKey];
+        const newValue = newPolicy[newKey];
+        if (Array.isArray(oldValue) || Array.isArray(newValue)) {
+          return (
+            JSON.stringify((oldValue || []).sort()) !== JSON.stringify((newValue || []).sort())
+          );
+        }
+        return oldValue !== newValue;
+      })
+    );
+  }
+
+  override async ngAfterViewInit() {
     const policyResponse = await this.load();
     this.loading.set(false);
     this.cdr.detectChanges(); // ensure @else branch renders before accessing policyFormRef
@@ -151,9 +283,10 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
     const componentRef = policyFormRef.createComponent(this.getComponentToLoad());
     componentRef.setInput("policy", this.data.policy);
     componentRef.setInput("policyResponse", policyResponse);
+    componentRef.setInput("organizationId", this.data.organization.id);
     const component = componentRef.instance;
     this.policyComponent.set(component);
-    this.policyEnabled.set(policyResponse.enabled);
+    this.policyEnabled.set(this.data.policy.enabled(policyResponse));
 
     combineLatest([
       component.enabled.valueChanges.pipe(startWith(policyResponse.enabled)),
@@ -181,32 +314,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
     this.setupDiscardGuard();
   }
 
-  private policyDataHasChanged(oldPolicyData: any, newPolicyData: any) {
-    const oldPolicy = oldPolicyData ?? {};
-    const newPolicy = newPolicyData ?? {};
-    return (
-      Object.keys(oldPolicy).length !== Object.keys(newPolicy).length ||
-      Object.keys(newPolicy).some((newKey) => oldPolicy[newKey] !== newPolicy[newKey])
-    );
-  }
-
-  async load() {
-    try {
-      return await this.policyApiService.getPolicy(
-        this.data.organization.id,
-        this.data.policy.type,
-      );
-    } catch (e: any) {
-      // No policy exists yet, instantiate an empty one
-      if (e.statusCode === 404) {
-        return new PolicyResponse({ Enabled: false });
-      } else {
-        throw e;
-      }
-    }
-  }
-
-  readonly submit = async () => {
+  override readonly submit = async () => {
     const policyComponent = this.policyComponent();
     if (!policyComponent) {
       throw new Error("PolicyComponent not initialized.");
@@ -252,7 +360,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
   }
 
   private getComponentToLoad(): Constructor<BasePolicyEditComponent> {
-    return this.data.policy.v2?.component ?? this.data.policy.component;
+    return this.data.policy.component;
   }
 
   static readonly openDrawer = (

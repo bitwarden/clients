@@ -190,16 +190,19 @@ export class NativeMessagingMain {
       }
       case "darwin": {
         const nmhs = this.getDarwinNMHS();
-        for (const [key, value] of Object.entries(nmhs)) {
-          if (existsSync(value)) {
-            const p = path.join(value, "NativeMessagingHosts", "com.8bit.bitwarden.json");
+        for (const [key, browserDirectory] of Object.entries(nmhs)) {
+          if (existsSync(browserDirectory)) {
+            const nmhsPath = path.join(browserDirectory, "NativeMessagingHosts");
+            const manifestPath = path.join(nmhsPath, "com.8bit.bitwarden.json");
 
             let manifest: any = await this.generateChromeJson(binaryPath);
             if (key === "Firefox" || key === "Zen") {
+              // Only generate the NMHS dir if the browser directory exists
+              await fs.mkdir(nmhsPath, { recursive: true });
               manifest = await this.generateFirefoxJson(binaryPath);
             }
 
-            await this.writeManifest(p, manifest);
+            await this.writeManifest(manifestPath, manifest);
           } else {
             this.logService.warning(`${key} not found, skipping.`);
           }
@@ -213,15 +216,19 @@ export class NativeMessagingMain {
         // so that a canonical path to put in the manifest can be used.
 
         // Unsandboxed browser
-        for (const [key, value] of Object.entries(this.getLinuxNMHS())) {
-          if (existsSync(value)) {
-            let nhmsPath = path.join(value, "NativeMessagingHosts");
+        for (const [key, browserDirectory] of Object.entries(this.getLinuxNMHS())) {
+          if (existsSync(browserDirectory)) {
+            let nhmsPath = path.join(browserDirectory, "NativeMessagingHosts");
             if (key === "Firefox") {
-              nhmsPath = path.join(value, "native-messaging-hosts");
+              nhmsPath = path.join(browserDirectory, "native-messaging-hosts");
             }
             const browserBinaryPath = path.join(nhmsPath, ".bitwarden_desktop_proxy");
 
-            await fs.mkdir(nhmsPath, { recursive: true });
+            if (key === "Firefox") {
+              // Only generate the NMHS dir if the browser directory exists
+              await fs.mkdir(nhmsPath, { recursive: true });
+            }
+
             await this.linkOrCopy(binaryPath, browserBinaryPath);
             this.logService.info(
               `[Native messaging] Hard-linked ${binaryPath} to ${browserBinaryPath}`,
@@ -417,6 +424,7 @@ export class NativeMessagingMain {
       "Microsoft Edge": `${this.homedir()}/.config/microsoft-edge/`,
       Vivaldi: `${this.homedir()}/.config/vivaldi/`,
       Brave: `${this.homedir()}/.config/BraveSoftware/Brave-Browser/`,
+      Helium: `${this.homedir()}/.config/net.imput.helium/`,
     };
   }
 
@@ -433,7 +441,7 @@ export class NativeMessagingMain {
     this.logService.debug(`Writing manifest: ${destination}`);
 
     if (!existsSync(path.dirname(destination))) {
-      await fs.mkdir(path.dirname(destination), { recursive: true });
+      await fs.mkdir(path.dirname(destination));
     }
 
     await fs.writeFile(destination, JSON.stringify(manifest, null, 2));
@@ -490,35 +498,39 @@ export class NativeMessagingMain {
         });
 
         for (const profile of profiles) {
-          try {
-            // Read the profile Preferences file and find the extension commands section
-            const prefs = JSON.parse(
-              await fs.readFile(path.join(chromePath, profile, "Preferences"), "utf8"),
-            );
-            const commands: Map<string, any> = prefs.extensions.commands;
+          // Chrome writes keyboard-shortcut assignments to "Preferences" only when "was_assigned"
+          // is true. Freshly-loaded dev extensions may have the correct commands in
+          // "Secure Preferences" but not yet in "Preferences", so scan both files.
+          for (const prefsFile of ["Preferences", "Secure Preferences"]) {
+            try {
+              const prefs = JSON.parse(
+                await fs.readFile(path.join(chromePath, profile, prefsFile), "utf8"),
+              );
+              const commands: Map<string, any> = prefs.extensions?.commands;
 
-            // If one of the commands is autofill_login or generate_password, we know it's probably the Bitwarden extension
-            for (const { command_name, extension } of Object.values(commands)) {
-              if (command_name === "autofill_login" || command_name === "generate_password") {
-                ids.add(`chrome-extension://${extension}/`);
-                this.logService.info(`Found extension from ${chromePath}: ${extension}`);
+              // If one of the commands is autofill_login or generate_password, we know it's probably the Bitwarden extension
+              for (const { command_name, extension } of Object.values(commands ?? {})) {
+                if (command_name === "autofill_login" || command_name === "generate_password") {
+                  ids.add(`chrome-extension://${extension}/`);
+                  this.logService.info(`Found extension from ${chromePath}: ${extension}`);
+                }
               }
-            }
 
-            // Match via settings too. Sometimes global commands don't register properly.
-            const settings: Map<string, any> = prefs.extensions.settings;
-            for (const [extension, setting] of Object.entries(settings)) {
-              if (setting.commands) {
-                for (const [command_name] of Object.entries(setting.commands)) {
-                  if (command_name === "autofill_login" || command_name === "generate_password") {
-                    ids.add(`chrome-extension://${extension}/`);
-                    this.logService.info(`Found extension ${chromePath}: ${extension}`);
+              // Match via settings too. Sometimes global commands don't register properly.
+              const settings: Map<string, any> = prefs.extensions?.settings;
+              for (const [extension, setting] of Object.entries(settings ?? {})) {
+                if (setting.commands) {
+                  for (const [command_name] of Object.entries(setting.commands)) {
+                    if (command_name === "autofill_login" || command_name === "generate_password") {
+                      ids.add(`chrome-extension://${extension}/`);
+                      this.logService.info(`Found extension ${chromePath}: ${extension}`);
+                    }
                   }
                 }
               }
+            } catch (e) {
+              this.logService.info(`Error reading preferences: ${e}`);
             }
-          } catch (e) {
-            this.logService.info(`Error reading preferences: ${e}`);
           }
         }
       } catch {

@@ -1,4 +1,3 @@
-import { DialogRef as CdkDialogRef } from "@angular/cdk/dialog";
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -9,6 +8,7 @@ import {
   ViewContainerRef,
   WritableSignal,
   computed,
+  inject,
   signal,
   viewChild,
 } from "@angular/core";
@@ -19,7 +19,6 @@ import { map, of, startWith, switchMap } from "rxjs";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DIALOG_DATA,
@@ -29,13 +28,15 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../../shared";
+import { policyDrawerDescriptionKeys, policyDrawerTitleKeys } from "../base-policy-edit.component";
 import {
   PolicyEditDialogComponent,
   PolicyEditDialogData,
   PolicyEditDialogResult,
-} from "../policy-edit-dialog.component";
+} from "../policy-edit-drawer.component";
 
 import { PolicyStep } from "./models";
 
@@ -54,25 +55,36 @@ export class MultiStepPolicyEditDialogComponent
     { read: ViewContainerRef },
   );
 
+  readonly formGroup = this.formBuilder.group({});
+
   protected readonly policySteps: WritableSignal<PolicyStep[]> = signal([]);
   readonly currentStep: WritableSignal<number> = signal(0);
 
   private readonly currentStepConfig = computed(() => this.policySteps()[this.currentStep()]);
 
+  private readonly terminology = inject(Vfo1TerminologyService);
+
+  private readonly dialogTitleKeys = computed<[string, string]>(() =>
+    policyDrawerTitleKeys(this.policy),
+  );
+
   protected readonly dialogTitle = computed(() => {
     if (this.currentStepConfig()?.titleContent?.()) {
       return undefined;
     }
-    return this.policy.showEnabledBadge
-      ? this.i18nService.t(this.policy.name)
-      : this.i18nService.t("editPolicy");
+    const [legacy, next] = this.dialogTitleKeys();
+    return this.i18nService.t(this.terminology.enabled() ? next : legacy);
   });
 
-  protected readonly dialogSubtitle = computed(() => {
-    if (this.currentStepConfig()?.titleContent?.() || this.policy.showEnabledBadge) {
-      return undefined;
-    }
-    return this.i18nService.t(this.policy.name);
+  protected readonly showDescription = computed(() => this.policy.showDescription);
+
+  private readonly dialogDescriptionKeys = computed<[string, string]>(() =>
+    policyDrawerDescriptionKeys(this.policy),
+  );
+
+  protected readonly descriptionKey = computed(() => {
+    const [legacy, next] = this.dialogDescriptionKeys();
+    return this.terminology.enabled() ? next : legacy;
   });
 
   protected readonly saveDisabled = toSignal(
@@ -105,8 +117,6 @@ export class MultiStepPolicyEditDialogComponent
     toastService: ToastService,
     keyService: KeyService,
     dialogService: DialogService,
-    cdkDialogRef: CdkDialogRef,
-    configService: ConfigService,
     authService: AuthService,
   ) {
     super(
@@ -120,15 +130,13 @@ export class MultiStepPolicyEditDialogComponent
       toastService,
       keyService,
       dialogService,
-      cdkDialogRef,
-      configService,
       authService,
     );
   }
 
   override async ngAfterViewInit() {
     const policyResponse = await this.load();
-    this.policyEnabled.set(policyResponse.enabled);
+    this.policyEnabled.set(this.policy.enabled(policyResponse));
     this.loading.set(false);
 
     const policyFormRef = this.policyFormViewRef();
@@ -136,7 +144,6 @@ export class MultiStepPolicyEditDialogComponent
       throw new Error("Template not initialized.");
     }
 
-    // Create the policy component instance
     const componentRef = policyFormRef.createComponent(this.data.policy.component);
     componentRef.setInput("policyResponse", policyResponse);
     componentRef.setInput("policy", this.data.policy);
@@ -149,7 +156,7 @@ export class MultiStepPolicyEditDialogComponent
     // Setting policySteps triggers currentStepConfig to recompute, which re-evaluates saveDisabled.
     this.policySteps.set(component.policySteps ?? []);
 
-    await this.setupDiscardGuard();
+    this.setupDiscardGuard();
   }
 
   override readonly submit = async () => {
@@ -190,17 +197,7 @@ export class MultiStepPolicyEditDialogComponent
     }
   };
 
-  static override readonly open = (
-    dialogService: DialogService,
-    config: DialogConfig<PolicyEditDialogData>,
-  ) => {
-    return dialogService.open<PolicyEditDialogResult, PolicyEditDialogData>(
-      MultiStepPolicyEditDialogComponent,
-      config,
-    );
-  };
-
-  static override readonly openDrawer = (
+  static readonly openDrawer = (
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
   ) => {

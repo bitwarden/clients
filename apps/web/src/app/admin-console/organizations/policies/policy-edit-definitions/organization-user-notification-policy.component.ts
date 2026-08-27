@@ -25,7 +25,7 @@ import {
   TypographyModule,
   IconComponent,
   TooltipDirective,
-  CalloutComponent,
+  SwitchComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -54,6 +54,7 @@ export class OrganizationUserNotificationPolicy extends BasePolicyEditDefinition
   component = OrganizationUserNotificationPolicyComponent;
   category = PolicyCategory.VaultManagement;
   priority = 70;
+  prerequisiteKey = "singleOrgPrerequisite";
 
   display$(organization: Organization, configService: ConfigService) {
     return configService.getFeatureFlag$(FeatureFlag.PM31948_OrgUserNotificationBanner);
@@ -79,7 +80,7 @@ interface OrganizationUserNotificationPolicyOptions {
     TypographyModule,
     IconComponent,
     TooltipDirective,
-    CalloutComponent,
+    SwitchComponent,
     I18nPipe,
   ],
 })

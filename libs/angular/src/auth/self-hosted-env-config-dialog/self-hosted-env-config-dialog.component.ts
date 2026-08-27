@@ -11,7 +11,6 @@ import {
 } from "@angular/forms";
 import { Subject, firstValueFrom, take, filter, takeUntil } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   EnvironmentService,
   Region,
@@ -29,6 +28,8 @@ import {
   LinkModule,
   TypographyModule,
 } from "@bitwarden/components";
+
+import { JslibModule } from "../../jslib.module";
 
 /**
  * Validator for self-hosted environment settings form.
@@ -170,10 +171,9 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    /**
-     * Populate the form with the current self-hosted environment settings.
-     */
-    this.environmentService.environment$
+    // Populate the form with the current self-hosted environment settings.
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    this.environmentService.globalEnvironment$
       .pipe(
         take(1),
         filter((env) => {

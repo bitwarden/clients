@@ -1,17 +1,17 @@
 import { Observable, firstValueFrom, map, shareReplay } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+
 import { SendAccessToken } from "../../../auth/send-access";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ListResponse } from "../../../models/response/list.response";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
-import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { Send } from "../models/domain/send";
-import { SendAccessRequest } from "../models/request/send-access.request";
 import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";
 import { SendResponse } from "../models/response/send.response";
 import { SendAccessView } from "../models/view/send-access.view";
-import { AuthType } from "../types/auth-type";
 import { SendType } from "../types/send-type";
 
 import { SendApiService } from "./send-api.service";
@@ -51,21 +51,20 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
   }
 
   /**
-   * Routes saves to SDK when the flag is on, except for two cases that fall back to
-   * legacy regardless: new file sends (the SDK generates its own send key, which
-   * wouldn't match the caller's pre-encrypted file buffer) and password-protected
-   * sends (the SDK re-applies PBKDF2 to `auth.password`, double-hashing the keyB64
-   * the client already derived).
+   * Routes saves to SDK when the flag is on, except for new file sends which fall back
+   * to legacy regardless (the SDK generates its own send key, which wouldn't match the
+   * caller's pre-encrypted file buffer).
+   *
+   * `plaintextPassword` is forwarded unchanged to whichever service handles the save. The
+   * legacy service ignores it; the SDK service uses it to derive the send password over the
+   * key it generates. It is Protected Data — never logged here or downstream.
    */
-  async save(sendData: [Send, EncArrayBuffer]): Promise<Send> {
+  async save(sendData: [Send, EncArrayBuffer], plaintextPassword?: string): Promise<Send> {
     const [send] = sendData;
     if (send.id == null && send.type === SendType.File) {
-      return this.sendApiService.save(sendData);
+      return this.sendApiService.save(sendData, plaintextPassword);
     }
-    if (send.authType === AuthType.Password) {
-      return this.sendApiService.save(sendData);
-    }
-    return (await this.getService()).save(sendData);
+    return (await this.getService()).save(sendData, plaintextPassword);
   }
 
   async delete(id: string): Promise<any> {
@@ -97,25 +96,11 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
    * receive, e.g. the CLI opening a self-hosted Send link while signed in to a
    * different server) because the SDK client targets only its configured environment.
    */
-  async postSendAccess(
-    id: string,
-    request: SendAccessRequest,
-    apiUrl?: string,
-  ): Promise<SendAccessResponse> {
+  async postSendAccess(accessToken: SendAccessToken, apiUrl?: string): Promise<SendAccessResponse> {
     if (apiUrl != null) {
-      return this.sendApiService.postSendAccess(id, request, apiUrl);
+      return this.sendApiService.postSendAccess(accessToken, apiUrl);
     }
-    return (await this.getService()).postSendAccess(id, request);
-  }
-
-  async postSendAccessV2(
-    accessToken: SendAccessToken,
-    apiUrl?: string,
-  ): Promise<SendAccessResponse> {
-    if (apiUrl != null) {
-      return this.sendApiService.postSendAccessV2(accessToken, apiUrl);
-    }
-    return (await this.getService()).postSendAccessV2(accessToken);
+    return (await this.getService()).postSendAccess(accessToken);
   }
 
   /**
@@ -146,23 +131,12 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
   /** See {@link postSendAccess} — cross-instance callers (those passing `apiUrl`) route to legacy. */
   async getSendFileDownloadData(
     send: SendAccessView,
-    request: SendAccessRequest,
-    apiUrl?: string,
-  ): Promise<SendFileDownloadDataResponse> {
-    if (apiUrl != null) {
-      return this.sendApiService.getSendFileDownloadData(send, request, apiUrl);
-    }
-    return (await this.getService()).getSendFileDownloadData(send, request);
-  }
-
-  async getSendFileDownloadDataV2(
-    send: SendAccessView,
     accessToken: SendAccessToken,
     apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse> {
     if (apiUrl != null) {
-      return this.sendApiService.getSendFileDownloadDataV2(send, accessToken, apiUrl);
+      return this.sendApiService.getSendFileDownloadData(send, accessToken, apiUrl);
     }
-    return (await this.getService()).getSendFileDownloadDataV2(send, accessToken);
+    return (await this.getService()).getSendFileDownloadData(send, accessToken);
   }
 }
