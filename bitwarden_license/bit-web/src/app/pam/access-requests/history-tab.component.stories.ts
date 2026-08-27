@@ -28,6 +28,8 @@ import { MyAccessService } from "./my-access.service";
 
 const names = storyNames();
 
+const MINE_TOGGLE = '[data-testid="history-scope-mine"] label';
+
 const request = (overrides: Record<string, unknown>) =>
   toRequestRow(accessRequest(overrides), names);
 
@@ -175,7 +177,7 @@ type Story = StoryObj<HistoryTabComponent>;
 
 /**
  * The caller's own history, for a member who cannot approve. With no managed rows and no approval
- * privilege the Mine/Managed toggle is not rendered at all — a scope switch with one option is noise.
+ * privilege the toggle is not rendered at all: every filter would narrow the same one list.
  */
 export const Default: Story = {
   decorators: [history()],
@@ -187,28 +189,35 @@ export const Empty: Story = {
 };
 
 /**
- * An approver's view: the table opens on the managed scope because there is history behind it, with
- * the revoke and withdraw actions that only exist there. Switch the toggle for the rows the
- * approver raised themselves.
+ * An approver's view. The table opens on All — both the rows they raised and the ones they decided,
+ * newest first — with revoke and withdraw offered only on the rows they manage. The toggle narrows
+ * that list to either source.
  */
 export const WithManagedHistory: Story = {
   decorators: [history({ managed: managedRows })],
 };
 
-/** An approver with nothing decided yet: the scope toggle is offered before it has content. */
+/** An approver with nothing decided yet: the filters are offered before there is anything to narrow. */
 export const ApproverWithoutManagedHistory: Story = {
   decorators: [history({ canApprove: true })],
 };
 
 /**
- * An approver whose own history is empty but who has decided other people's requests. Opens on the
- * managed scope: the Actions column exists nowhere else, so this is the only story that renders the
- * revoke and withdraw buttons.
+ * An approver whose own history is empty but who has decided other people's requests, filtered down
+ * to the managed rows.
  */
 export const ManagedOnly: Story = {
   decorators: [history({ mine: [], managed: managedRows })],
   play: async ({ canvasElement }) => {
     const managed = await within(canvasElement).findByTestId("history-scope-managed");
     await userEvent.click(within(managed).getByRole("radio"));
+  },
+};
+
+/** The "Raised by me" filter applied over a history that has both sources. */
+export const MineFilter: Story = {
+  decorators: [history({ managed: managedRows })],
+  play: async ({ canvasElement }) => {
+    await userEvent.click(canvasElement.querySelector<HTMLLabelElement>(MINE_TOGGLE)!);
   },
 };
