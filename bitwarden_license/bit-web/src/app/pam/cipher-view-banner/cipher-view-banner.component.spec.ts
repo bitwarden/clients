@@ -817,6 +817,12 @@ describe("CipherViewBannerComponent", () => {
       await component["submitRequest"]();
     }
 
+    /** The serialized `ErrorResponseModel` the SDK concatenates onto its transport string. */
+    const wireBody = (serverMessage: string, exceptionMessage = serverMessage) =>
+      `error in response: status code 400 Bad Request: {"object":"error",` +
+      `"message":"${serverMessage}","validationErrors":null,` +
+      `"exceptionMessage":"${exceptionMessage}","exceptionStackTrace":null}`;
+
     it("treats 'already pending' as information, collapsing without an inline error", async () => {
       await submitAndFail(REQUEST_ACCESS_SERVER_ERRORS.AlreadyPending);
 
@@ -838,6 +844,25 @@ describe("CipherViewBannerComponent", () => {
 
     it("echoes a validation failure inline and keeps the fold-out open", async () => {
       await submitAndFail(REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax);
+
+      expect(component["requestError"]()).toBe(REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax);
+      expect(component["requestFormExpanded"]()).toBe(true);
+    });
+
+    it("classifies on the server's message decoded out of the serialized response", async () => {
+      await submitAndFail(wireBody(REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax));
+
+      expect(component["requestError"]()).toBe(REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax);
+      expect(component["requestFormExpanded"]()).toBe(true);
+    });
+
+    it("ignores a catalog sentence carried elsewhere in the envelope", async () => {
+      await submitAndFail(
+        wireBody(
+          REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax,
+          REQUEST_ACCESS_SERVER_ERRORS.AlreadyActive,
+        ),
+      );
 
       expect(component["requestError"]()).toBe(REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax);
       expect(component["requestFormExpanded"]()).toBe(true);

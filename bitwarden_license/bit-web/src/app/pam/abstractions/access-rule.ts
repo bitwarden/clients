@@ -1,5 +1,7 @@
 import type { AccessCondition, AccessRuleError } from "@bitwarden/sdk-internal";
 
+import { apiErrorBodyMessage } from "./api-error";
+
 // `export type` is REQUIRED (not `export`) — these are type-only re-exports of the
 // wasm SDK's shapes. Because they carry no runtime value, this line is erased by the
 // compiler, so jest never resolves the wasm package while running this directory's unit tests.
@@ -84,35 +86,16 @@ function isAccessRuleError(e: unknown): e is AccessRuleError {
  * The toastable message carried by the SDK's `AccessRuleError`, or `undefined` when
  * `e` isn't that shape — callers fall back to a generic error message in that case.
  *
- * The `Api` variant needs unwrapping first: the SDK stringifies the whole failed
- * response as `error in response: status code 400 Bad Request: {…ErrorResponseModel
- * JSON…}`, so the human-readable server message (`"A rule with that name already
- * exists."`, …) is buried inside a JSON body. Surface that inner message; when there
- * is no parsable body (network failures, serde errors) return `undefined` so callers
- * use their generic fallback rather than toasting the raw wrapper.
+ * The `Api` variant needs unwrapping first through {@link apiErrorBodyMessage}, which digs the
+ * server's sentence (`"A rule with that name already exists."`, …) out of the serialized response
+ * body. When there is no parsable body (network failures, serde errors) return `undefined` so
+ * callers use their generic fallback rather than toasting the raw wrapper.
  */
 export function accessRuleErrorMessage(e: unknown): string | undefined {
   if (!isAccessRuleError(e)) {
     return undefined;
   }
   return e.variant === "Api" ? apiErrorBodyMessage(e.message) : e.message;
-}
-
-/** Extract the server's `message` field from an `Api`-variant error string, if present. */
-function apiErrorBodyMessage(message: string): string | undefined {
-  const bodyStart = message.indexOf("{");
-  if (bodyStart === -1) {
-    return undefined;
-  }
-  try {
-    const body: unknown = JSON.parse(message.slice(bodyStart));
-    const serverMessage = (body as { message?: unknown }).message;
-    return typeof serverMessage === "string" && serverMessage.length > 0
-      ? serverMessage
-      : undefined;
-  } catch {
-    return undefined;
-  }
 }
 
 /**
