@@ -192,7 +192,7 @@ describe("IpAllowlistEditorComponent", () => {
     }
 
     function clickRemove(index: number): void {
-      rows()[index].query(By.css("button[bitSuffix]")).nativeElement.click();
+      rows()[index].query(By.css("button[bitIconButton]")).nativeElement.click();
     }
 
     const DUPLICATE = "accessRuleIpAllowlistDuplicateCidr";
