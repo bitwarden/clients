@@ -18271,8 +18271,8 @@
   "pamInboxApprovedToast": {
     "message": "Request approved"
   },
-  "pamInboxCancelApproval": {
-    "message": "Cancel"
+  "pamInboxWithdrawApproval": {
+    "message": "Withdraw approval"
   },
   "pamInboxCannotApproveOwn": {
     "message": "You cannot approve your own request."
@@ -18355,11 +18355,11 @@
   "pamInboxRevokedToast": {
     "message": "Access revoked"
   },
-  "pamInboxApprovalCanceledToast": {
-    "message": "Approval canceled"
+  "pamInboxApprovalWithdrawnToast": {
+    "message": "Approval withdrawn"
   },
-  "pamInboxCancelApprovalFailed": {
-    "message": "Could not cancel approval"
+  "pamInboxWithdrawApprovalFailed": {
+    "message": "Could not withdraw approval"
   },
   "pamInboxWindow": {
     "message": "Requested window"
