@@ -249,6 +249,26 @@ describe("toRequestRow", () => {
     expect(row.producedLeaseId).toBe("lease-1");
   });
 
+  it("carries the produced lease's status, whatever the request's own status says", () => {
+    const row = toRequestRow(
+      request("req-1", {
+        status: "denied",
+        producedLeaseId: "lease-1",
+        producedLeaseStatus: "active",
+      }),
+      emptyResolvedNames(),
+    );
+
+    expect(row.producedLeaseStatus).toBe("active");
+    expect(row.statusBadge).toEqual({ labelKey: "pamStatusDenied", variant: "danger" });
+  });
+
+  it("leaves the produced lease's status null when the request never activated", () => {
+    const row = toRequestRow(request("req-1"), emptyResolvedNames());
+
+    expect(row.producedLeaseStatus).toBeNull();
+  });
+
   it("reads the resolver + comment from the human decision", () => {
     const row = toRequestRow(
       request("req-1", {
