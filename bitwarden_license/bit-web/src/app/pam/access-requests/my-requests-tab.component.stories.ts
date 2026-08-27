@@ -218,7 +218,8 @@ export const ApprovedNotYetRedeemable: Story = {
 
 /**
  * An approved grant nobody activated before its window lapsed. It still has to be visible
- * somewhere, so it stays with the active access, badged "Approved" with no action offered.
+ * somewhere, so it stays with the active access, badged "Approved" with no action offered — below
+ * the lease the caller actually holds, even though its window ended first.
  */
 export const ApprovedWindowLapsed: Story = {
   decorators: [
@@ -237,7 +238,15 @@ export const ApprovedWindowLapsed: Story = {
           ),
         ],
         extensions: [],
-        leases: [],
+        leases: [
+          toLeaseRow(
+            accessLease({
+              notBefore: liveFromNow(-15 * MINUTE),
+              notAfter: liveFromNow(20 * MINUTE),
+            }),
+            names,
+          ),
+        ],
       }),
     }),
   ],
