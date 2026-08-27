@@ -14,6 +14,11 @@ jobs:
   signal:
     name: Signal desktop version bump
     runs-on: ubuntu-24.04
+    # Prerelease tags must not bump the version. A beta cycle tags rc once per beta and
+    # again for prod, and the bump advances main a patch per tag regardless of what the
+    # tag says — so three tags would consume three numbers where one is intended. Skipping
+    # the only job leaves this run's conclusion as `skipped`, which the listener ignores.
+    if: ${{ !contains(github.ref_name, '-beta.') }}
     steps:
       - name: Noop
         run: echo "Desktop tag ${GITHUB_REF_NAME} pushed; version-auto-bump-desktop workflow_run listener will handle the bump on main."
