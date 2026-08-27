@@ -16,6 +16,16 @@ import { MyRequestsTabComponent } from "./my-requests-tab.component";
 
 const LEASE_END = "2026-08-20T12:00:00.000Z";
 
+/**
+ * The ids of the once-a-second clocks a spied `setInterval` created, told apart from the
+ * zero-delay timers Angular's own scheduler queues during change detection.
+ */
+function secondlyIntervalIds(spy: jest.SpyInstance): unknown[] {
+  return spy.mock.results
+    .filter((_, index) => spy.mock.calls[index][1] === 1000)
+    .map((result) => result.value);
+}
+
 // Overrides are loosely typed rather than `Partial<MyAccessLeaseRow>`: the row's ids are opaque
 // branded types, so tests stand in plain strings and rely on the single cast below — the same
 // convention as `history-tab.component.spec.ts`.
@@ -93,6 +103,18 @@ describe("MyRequestsTabComponent", () => {
     return [...rows].map((row) => row.getAttribute("data-testid"));
   }
 
+  /** Click the active-access table's Item header, toggling its sort the way a user would. */
+  function sortActiveAccessByItem(): void {
+    const anyRow = fixture.nativeElement.querySelector(
+      'tr[data-testid^="my-access-lease-"], tr[data-testid^="my-access-approved-"]',
+    ) as HTMLElement;
+    const header = anyRow
+      .closest("table")!
+      .querySelector("th[bitSortable] button") as HTMLButtonElement;
+    header.click();
+    fixture.detectChanges();
+  }
+
   beforeEach(async () => {
     jest.useFakeTimers();
     pendingRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
@@ -130,6 +152,7 @@ describe("MyRequestsTabComponent", () => {
   afterEach(() => {
     fixture?.destroy();
     jest.useRealTimers();
+    jest.restoreAllMocks();
   });
 
   describe("active lease countdown", () => {
@@ -394,6 +417,78 @@ describe("MyRequestsTabComponent", () => {
 
       expect(query('[data-testid="my-access-pending-empty"]')).not.toBeNull();
       expect(query('[data-testid="my-access-approved-req-1"]')).not.toBeNull();
+    });
+  });
+
+  describe("sorting the active access by item", () => {
+    beforeEach(() => {
+      jest.setSystemTime(new Date("2026-08-20T11:30:00.000Z"));
+      pendingRows$.next([
+        requestRow({ id: "req-alpha", cipherName: "Alpha DB" }),
+        requestRow({ id: "req-zebra", cipherName: "Zebra DB" }),
+      ]);
+      leases$.next([leaseRow({ id: "lease-1", cipherName: "Prod database" })]);
+    });
+
+    it("keeps held access ahead of grants when sorted A to Z", () => {
+      create();
+
+      sortActiveAccessByItem();
+
+      expect(activeAccessRowIds()).toEqual([
+        "my-access-lease-lease-1",
+        "my-access-approved-req-alpha",
+        "my-access-approved-req-zebra",
+      ]);
+    });
+
+    it("keeps held access ahead of grants when the sort is reversed", () => {
+      create();
+
+      sortActiveAccessByItem();
+      sortActiveAccessByItem();
+
+      expect(activeAccessRowIds()).toEqual([
+        "my-access-lease-lease-1",
+        "my-access-approved-req-zebra",
+        "my-access-approved-req-alpha",
+      ]);
+    });
+  });
+
+  describe("the countdown clock", () => {
+    it("runs no clock at all when nothing on the tab has a window to lapse", () => {
+      const setIntervalSpy = jest.spyOn(global, "setInterval");
+      leases$.next([leaseRow()]);
+
+      create();
+
+      expect(secondlyIntervalIds(setIntervalSpy)).toHaveLength(1); // the badge's own, not a second
+    });
+
+    it("shares one clock with the badges it renders, and tears it down on destroy", () => {
+      const setIntervalSpy = jest.spyOn(global, "setInterval");
+      const clearIntervalSpy = jest.spyOn(global, "clearInterval");
+      pendingRows$.next([requestRow()]);
+      leases$.next([leaseRow()]);
+
+      create();
+
+      const [intervalId] = secondlyIntervalIds(setIntervalSpy);
+      expect(secondlyIntervalIds(setIntervalSpy)).toHaveLength(1);
+      expect(clearIntervalSpy).not.toHaveBeenCalledWith(intervalId);
+
+      fixture.destroy();
+
+      expect(clearIntervalSpy).toHaveBeenCalledWith(intervalId);
+    });
+
+    it("holds no clock when there is neither a request nor a lease to watch", () => {
+      const setIntervalSpy = jest.spyOn(global, "setInterval");
+
+      create();
+
+      expect(secondlyIntervalIds(setIntervalSpy)).toHaveLength(0);
     });
   });
 });

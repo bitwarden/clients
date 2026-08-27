@@ -26,6 +26,8 @@ import {
   MyAccessRequestRow,
   buildMyAccessRequestRows,
   extensionsByLeaseId,
+  isRedeemableGrant,
+  lapsedGrantBadge,
   resolvedOrSubmittedMs,
   toLeaseRow,
   toRequestRow,
@@ -85,18 +87,23 @@ export class MyAccessService {
   );
 
   /**
-   * Requests the requester can still act on: still pending a decision, or approved and awaiting
-   * activation. Extension requests are surfaced separately (see {@link extensionRows$}), so
-   * {@link rows$} — which already folds them away — never mixes them in here.
+   * Requests the requester can still act on: still pending a decision, or approved and awaiting an
+   * activation that can still happen ({@link isRedeemableGrant}). A grant whose window lapsed
+   * unused is not one of them — it can mint nothing and offers no action, so it settles in
+   * {@link historyRows$} rather than being carried here forever. The window is read once per
+   * emission; a grant that lapses while the page is open moves on the next load, and the tab's own
+   * clock withholds its actions in the meantime.
+   *
+   * Extension requests are surfaced separately (see {@link extensionRows$}), so {@link rows$} —
+   * which already folds them away — never mixes them in here.
    */
   readonly pendingRows$: Observable<MyAccessRequestRow[]> = this.rows$.pipe(
-    map((rows) =>
-      rows
-        .filter(
-          (r) => r.status === "pending" || (r.status === "approved" && r.producedLeaseId == null),
-        )
-        .slice(0, MY_ACCESS_PAGE_LIMIT),
-    ),
+    map((rows) => {
+      const nowMs = Date.now();
+      return rows
+        .filter((r) => r.status === "pending" || isRedeemableGrant(r, nowMs))
+        .slice(0, MY_ACCESS_PAGE_LIMIT);
+    }),
   );
 
   /**
@@ -120,9 +127,13 @@ export class MyAccessService {
   );
 
   /**
-   * Terminal requests (everything but pending, and approved-but-not-yet-activated), newest first. A grant whose lease is
-   * still active is excluded — it belongs in Active leases, not both places — and returns here
-   * once the lease ends.
+   * Terminal requests (everything but pending, and a grant still awaiting an activation that can
+   * happen), newest first — the exact complement of {@link pendingRows$}, so a request is always in
+   * one of the two. A grant whose lease is still active is excluded on top of that: it belongs in
+   * Active leases, not both places, and returns here once the lease ends.
+   *
+   * An unactivated grant can only reach here by its window lapsing, which is not a state the
+   * caller-agnostic {@link historyDisplayStatus} can name, so its badge is corrected on the way in.
    *
    * Includes a denied extension, which {@link rows$} deliberately does not fold onto its grant: it
    * added nothing to the lease, so this is the only place the requester can see it (PM-42632).
@@ -132,13 +143,19 @@ export class MyAccessService {
     this.leases$,
   ]).pipe(
     map(([rows, leases]) => {
+      const nowMs = Date.now();
       const activeLeaseIds = new Set(leases.map((l) => uuidAsString(l.id)));
       return rows
         .filter(
           (r) =>
             r.status !== "pending" &&
-            !(r.status === "approved" && r.producedLeaseId == null) &&
+            !isRedeemableGrant(r, nowMs) &&
             !(r.producedLeaseId != null && activeLeaseIds.has(r.producedLeaseId)),
+        )
+        .map((r) =>
+          r.status === "approved" && r.producedLeaseId == null
+            ? { ...r, statusBadge: lapsedGrantBadge }
+            : r,
         )
         .sort((a, b) => resolvedOrSubmittedMs(b) - resolvedOrSubmittedMs(a))
         .slice(0, MY_ACCESS_PAGE_LIMIT);
