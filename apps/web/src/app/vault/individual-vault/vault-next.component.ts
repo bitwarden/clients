@@ -208,13 +208,8 @@ export class VaultNextComponent {
    * Narrowed to the vault only, never to the shared folder in view: an item belongs to as many
    * shared folders as it was assigned to, so a row in the folder being viewed may live in others
    * too — narrowing this would drop those from its Shared folders column and leave the chip unable
-   * to offer them. The grid needs the whole vault for the same reason: the folder it drills into
-   * has to be findable in the tree.
-   *
-   * Narrowed to the vault only, never to the shared folder in view: an item belongs to as many
-   * shared folders as it was assigned to, so a row in the folder being viewed may live in others
-   * too — narrowing this would drop those from its Shared folders column and leave the chip unable
-   * to offer them.
+   * to offer them. The breadcrumb tree needs the whole vault for the same reason: the folder it
+   * drills into has to be findable in the tree.
    *
    * The unscoped {@link collections} still back the row actions, which assign an item to any
    * collection the user can reach — not just the ones this page shows.
@@ -236,10 +231,7 @@ export class VaultNextComponent {
     return scope.type === VaultScopeType.Organization ? scope.organizationId : undefined;
   });
 
-  /**
-   * {@link scopedCollections} as a tree — the collections of the vault the drill-in sits inside, so
-   * the grid can never surface a folder outside it.
-   */
+  /** {@link scopedCollections} as a tree — used to derive the shared folder node for breadcrumbs. */
   private readonly collectionTree = computed(() =>
     getNestedCollectionTree(this.scopedCollections()),
   );
@@ -254,8 +246,9 @@ export class VaultNextComponent {
   });
 
   /**
-   * The name of the shared folder in view, titling the grid. The tree names each node by its own
-   * path segment, so this is the folder's own name rather than its full path.
+   * The name of the shared folder in view — used as the page title when the URL drills into a
+   * folder. The tree names each node by its own path segment, so this is the folder's own name
+   * rather than its full path.
    */
   protected readonly sharedFolderName = computed(() => this.sharedFolderNode()?.node.name ?? "");
 
@@ -266,7 +259,8 @@ export class VaultNextComponent {
 
   /**
    * The ancestor chain for the selected shared folder, from the org root down to the immediate
-   * parent. Excludes the currently selected folder itself (shown as a non-linked last crumb).
+   * parent. Excludes the currently selected folder itself — it is shown as the page title via
+   * {@link title} with a trailing arrow in the breadcrumb trail pointing to it.
    */
   protected readonly collectionBreadcrumbs = computed((): CollectionView[] => {
     const node = this.sharedFolderNode();
@@ -318,22 +312,17 @@ export class VaultNextComponent {
   });
 
   /**
-   * The route a child shared folder's card links to: this vault, drilled into that folder. Following
-   * it re-derives the scope and with it the rows and the grid's next set of children.
+   * The route an ancestor breadcrumb crumb links to: this vault, drilled into that folder.
    *
    * A folder's route names the vault it lives in rather than the path taken to it, so drilling
-   * deeper replaces the segment — see {@link vaultScopeCommands}. A scope that can hold no folder
-   * links to itself, which the grid never renders a card for anyway.
-   *
-   * Bound as an input, so it must be a stable reference rather than a method — see the grid's
-   * `folderRoute`.
+   * deeper replaces the collection segment — see {@link vaultScopeCommands}.
    */
-  protected readonly sharedFolderRoute = (folder: CollectionView): string[] => {
+  protected sharedFolderRoute(folder: CollectionView): string[] {
     const scope = this.vaultScope();
     return vaultScopeCommands(
       scope.type === VaultScopeType.Organization ? { ...scope, collectionId: folder.id } : scope,
     );
-  };
+  }
 
   /**
    * Whether the page offers the toolbar's Import and New item actions. New items cannot be created
@@ -357,7 +346,9 @@ export class VaultNextComponent {
       case VaultScopeType.MyVault:
         return this.i18nService.t("myVault");
       case VaultScopeType.Organization:
-        return this.collectionSelected() ? "" : this.scopedOrganizations()[0]?.name;
+        return this.collectionSelected()
+          ? this.sharedFolderName()
+          : this.scopedOrganizations()[0]?.name;
       case VaultScopeType.Trash:
         return this.i18nService.t("trash");
       case VaultScopeType.Archive:
