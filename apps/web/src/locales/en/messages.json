@@ -18367,6 +18367,9 @@
   "pamApprovalsNoResults": {
     "message": "No access requests match your filters."
   },
+  "pamApprovalsLoaded": {
+    "message": "Access requests loaded"
+  },
   "pamHistoryScopeMine": {
     "message": "Raised by me"
   },
