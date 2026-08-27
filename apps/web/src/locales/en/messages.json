@@ -18379,6 +18379,15 @@
   "pamInboxRevokeConfirm": {
     "message": "This immediately revokes the member's access. They will need a new approval to regain it."
   },
+  "pamInboxWithdrawApprovalConfirm": {
+    "message": "This withdraws the member's approval for $ITEM$. Access will not start, and they will need a new approval to get it.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Prod database"
+      }
+    }
+  },
   "pamCollectionAccessRuleCalloutTitle": {
     "message": "Access rule"
   },
