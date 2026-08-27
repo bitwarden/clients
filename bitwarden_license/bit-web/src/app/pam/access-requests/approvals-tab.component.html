@@ -1,6 +1,8 @@
 <div class="tw-sr-only" role="status" aria-live="polite" data-testid="approvals-loading-status">
   @if (skeletonVisible()) {
     {{ "loading" | i18n }}
+  } @else if (announceLoaded()) {
+    {{ "pamApprovalsLoaded" | i18n }}
   }
 </div>
 

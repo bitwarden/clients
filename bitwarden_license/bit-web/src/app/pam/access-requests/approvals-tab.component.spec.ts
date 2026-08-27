@@ -194,7 +194,9 @@ describe("ApprovalsTabComponent", () => {
 
       expect(query("bit-skeleton")).toBeNull();
       expect(query('[data-testid="approvals-loading"]')).toBeNull();
-      expect(query('[data-testid="approvals-loading-status"]')?.textContent?.trim()).toBe("");
+      expect(query('[data-testid="approvals-loading-status"]')?.textContent).toContain(
+        "pamApprovalsLoaded",
+      );
       expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
     });
 
@@ -215,6 +217,7 @@ describe("ApprovalsTabComponent", () => {
       fixture.detectChanges();
 
       expect(query("bit-skeleton")).toBeNull();
+      expect(query('[data-testid="approvals-loading-status"]')?.textContent?.trim()).toBe("");
       expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
     });
 
