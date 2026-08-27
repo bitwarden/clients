@@ -1,6 +1,7 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute } from "@angular/router";
+import { By } from "@angular/platform-browser";
+import { ActivatedRoute, provideRouter, RouterLink } from "@angular/router";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -18,7 +19,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService } from "@bitwarden/components";
+import { BreadcrumbsModule, DialogService, IconModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
@@ -55,6 +56,7 @@ describe("OrgPasskeyReportComponent", () => {
     await TestBed.configureTestingModule({
       imports: [OrgPasskeyReportComponent, I18nPipe],
       providers: [
+        provideRouter([]),
         {
           provide: CipherService,
           useValue: cipherServiceMock,
@@ -111,7 +113,7 @@ describe("OrgPasskeyReportComponent", () => {
     })
       .overrideComponent(OrgPasskeyReportComponent, {
         set: {
-          imports: [I18nPipe],
+          imports: [I18nPipe, BreadcrumbsModule, IconModule],
           schemas: [NO_ERRORS_SCHEMA],
           providers: [
             {
@@ -137,6 +139,20 @@ describe("OrgPasskeyReportComponent", () => {
 
   it("should initialize component", () => {
     expect(component).toBeTruthy();
+  });
+
+  it("should render a header breadcrumb that navigates back to the reports home page", () => {
+    const breadcrumbs = fixture.debugElement.query(By.css("bit-breadcrumbs[slot=breadcrumbs]"));
+    expect(breadcrumbs).not.toBeNull();
+
+    const links = breadcrumbs.queryAll(By.css("a[href]"));
+    expect(links).toHaveLength(1);
+
+    // The crumb routes to `../`, the report's parent — i.e. the reports home page. No report route
+    // is activated in the TestBed, so that resolves against the root route here.
+    expect(links[0].injector.get(RouterLink).urlTree?.toString()).toBe("/");
+
+    expect(breadcrumbs.nativeElement.querySelector("bit-icon[name='bwi-sliders']")).not.toBeNull();
   });
 
   describe("loading ciphers", () => {

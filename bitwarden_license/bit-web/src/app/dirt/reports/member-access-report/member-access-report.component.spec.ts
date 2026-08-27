@@ -1,9 +1,11 @@
-import { Provider, signal } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { EnvironmentProviders, NO_ERRORS_SCHEMA, Provider, signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
-import { ActivatedRoute, Route, ROUTES, Router, Routes } from "@angular/router";
+import { ActivatedRoute, provideRouter, Route, ROUTES, RouterLink, Routes } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { NEVER, of } from "rxjs";
+import { of } from "rxjs";
 
 // The component library modules SharedModule pulls in use browser observers jsdom does not implement
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
@@ -38,11 +40,18 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { Guid, OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { CdkDialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  BreadcrumbsModule,
+  CdkDialogRef,
+  DialogService,
+  IconModule,
+  ToastService,
+} from "@bitwarden/components";
 // Imported only as a DI token to mock out — MemberActionsService injects it. No crypto runs here.
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
+import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import { GroupApiService } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import { EditMemberDialogComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/edit-member-dialog";
 import { MemberDialogResult } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/member-dialog/member-dialog.types";
@@ -112,7 +121,7 @@ function buildRow(): MemberAccessReportView {
  * MemberActionsService, MemberDialogManagerService and BillingConstraintService are deliberately
  * absent: they are the subject of this test, so the route's `providers` must be their only source.
  */
-function environmentProviders(): Provider[] {
+function environmentProviders(): (Provider | EnvironmentProviders)[] {
   const accountService = mock<AccountService>();
   const account: Account = {
     id: USER_ID,
@@ -163,6 +172,10 @@ function environmentProviders(): Provider[] {
 
   return [
     provideNoopAnimations(),
+    // Listed before the ActivatedRoute stub below so that stub still wins: the report's breadcrumb
+    // renders a `routerLink`, which needs a real Router. DialogService and DrawerService also
+    // inject Router non-optionally and read `events` and `url` while being constructed.
+    provideRouter([]),
     {
       provide: ActivatedRoute,
       useValue: {
@@ -171,9 +184,6 @@ function environmentProviders(): Provider[] {
         queryParams: of({}),
       },
     },
-    // DialogService and DrawerService inject Router non-optionally and read `events` and `url`
-    // while being constructed.
-    { provide: Router, useValue: mock<Router>({ events: NEVER, url: "/" }) },
     { provide: AccountService, useValue: accountService },
     { provide: OrganizationService, useValue: organizationService },
     { provide: CollectionAdminService, useValue: collectionAdminService },
@@ -257,6 +267,45 @@ describe("MemberAccessReportComponent", () => {
       );
 
       dialogService.closeAll();
+    });
+  });
+
+  describe("header", () => {
+    it("renders a breadcrumb that navigates back to the reports home page", async () => {
+      await TestBed.configureTestingModule({
+        imports: [MemberAccessReportComponent],
+        providers: [
+          ...environmentProviders(),
+          ...memberAccessReportRouteProviders(),
+          { provide: DialogService, useValue: mock<DialogService>() },
+        ],
+      })
+        // The rest of the report's template — the real header chain, tables, dialogs — is
+        // irrelevant here and drags in the whole web layout. Keep only what renders the crumb.
+        .overrideComponent(MemberAccessReportComponent, {
+          set: {
+            imports: [CommonModule, I18nPipe, Vfo1I18nPipe, BreadcrumbsModule, IconModule],
+            schemas: [NO_ERRORS_SCHEMA],
+          },
+        })
+        .compileComponents();
+
+      const fixture = TestBed.createComponent(MemberAccessReportComponent);
+      fixture.detectChanges();
+
+      const breadcrumbs = fixture.debugElement.query(By.css("bit-breadcrumbs[slot=breadcrumbs]"));
+      expect(breadcrumbs).not.toBeNull();
+
+      const links = breadcrumbs.queryAll(By.css("a[href]"));
+      expect(links).toHaveLength(1);
+
+      // The crumb routes to `../`, the report's parent — i.e. the reports home page. No report
+      // route is activated in the TestBed, so that resolves against the root route here.
+      expect(links[0].injector.get(RouterLink).urlTree?.toString()).toBe("/");
+
+      expect(
+        breadcrumbs.nativeElement.querySelector("bit-icon[name='bwi-sliders']"),
+      ).not.toBeNull();
     });
   });
 });

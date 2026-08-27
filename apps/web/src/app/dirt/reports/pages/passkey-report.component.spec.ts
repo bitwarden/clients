@@ -1,6 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute } from "@angular/router";
+import { By } from "@angular/platform-browser";
+import { provideRouter, RouterLink } from "@angular/router";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -16,7 +17,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService } from "@bitwarden/components";
+import { BreadcrumbsModule, DialogService, IconModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
@@ -47,6 +48,7 @@ describe("PasskeyReportComponent", () => {
     await TestBed.configureTestingModule({
       imports: [PasskeyReportComponent, I18nPipe],
       providers: [
+        provideRouter([]),
         {
           provide: CipherService,
           useValue: cipherServiceMock,
@@ -87,18 +89,12 @@ describe("PasskeyReportComponent", () => {
           provide: CipherFormConfigService,
           useValue: mock<CipherFormConfigService>(),
         },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            data: of({}),
-          },
-        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     })
       .overrideComponent(PasskeyReportComponent, {
         set: {
-          imports: [I18nPipe],
+          imports: [I18nPipe, BreadcrumbsModule, IconModule],
           schemas: [CUSTOM_ELEMENTS_SCHEMA],
           providers: [PasskeyReportService],
         },
@@ -114,6 +110,20 @@ describe("PasskeyReportComponent", () => {
 
   it("should initialize component", () => {
     expect(component).toBeTruthy();
+  });
+
+  it("should render a header breadcrumb that navigates back to the reports home page", () => {
+    const breadcrumbs = fixture.debugElement.query(By.css("bit-breadcrumbs[slot=breadcrumbs]"));
+    expect(breadcrumbs).not.toBeNull();
+
+    const links = breadcrumbs.queryAll(By.css("a[href]"));
+    expect(links).toHaveLength(1);
+
+    // The crumb routes to `../`, the report's parent — i.e. the reports home page. No report route
+    // is activated in the TestBed, so that resolves against the root route here.
+    expect(links[0].injector.get(RouterLink).urlTree?.toString()).toBe("/");
+
+    expect(breadcrumbs.nativeElement.querySelector("bit-icon[name='bwi-sliders']")).not.toBeNull();
   });
 
   it("should call fullSync on init", () => {

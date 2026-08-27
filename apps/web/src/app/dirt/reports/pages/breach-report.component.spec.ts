@@ -1,6 +1,8 @@
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
+import { By } from "@angular/platform-browser";
+import { provideRouter, RouterLink } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
@@ -10,7 +12,13 @@ import { BreachAccountResponse } from "@bitwarden/common/dirt/models/response/br
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { AsyncActionsModule, ButtonModule, FormFieldModule } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  BreadcrumbsModule,
+  ButtonModule,
+  FormFieldModule,
+  IconModule,
+} from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -36,7 +44,7 @@ const breachedAccounts = [
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-header",
-  template: "<div></div>",
+  template: "<ng-content select='[slot=breadcrumbs]'></ng-content><ng-content></ng-content>",
   standalone: false,
 })
 class MockHeaderComponent {}
@@ -68,8 +76,17 @@ describe("BreachReportComponent", () => {
 
     await TestBed.configureTestingModule({
       declarations: [BreachReportComponent, MockHeaderComponent, MockBitContainerComponent],
-      imports: [ReactiveFormsModule, I18nPipe, AsyncActionsModule, ButtonModule, FormFieldModule],
+      imports: [
+        ReactiveFormsModule,
+        I18nPipe,
+        AsyncActionsModule,
+        ButtonModule,
+        FormFieldModule,
+        BreadcrumbsModule,
+        IconModule,
+      ],
       providers: [
+        provideRouter([]),
         {
           provide: AuditService,
           useValue: auditService,
@@ -100,6 +117,20 @@ describe("BreachReportComponent", () => {
 
   it("should initialize component", () => {
     expect(component).toBeTruthy();
+  });
+
+  it("should render a header breadcrumb that navigates back to the reports home page", () => {
+    const breadcrumbs = fixture.debugElement.query(By.css("bit-breadcrumbs[slot=breadcrumbs]"));
+    expect(breadcrumbs).not.toBeNull();
+
+    const links = breadcrumbs.queryAll(By.css("a[href]"));
+    expect(links).toHaveLength(1);
+
+    // The crumb routes to `../`, the report's parent — i.e. the reports home page. No report route
+    // is activated in the TestBed, so that resolves against the root route here.
+    expect(links[0].injector.get(RouterLink).urlTree?.toString()).toBe("/");
+
+    expect(breadcrumbs.nativeElement.querySelector("bit-icon[name='bwi-sliders']")).not.toBeNull();
   });
 
   it("should initialize form with account email", async () => {

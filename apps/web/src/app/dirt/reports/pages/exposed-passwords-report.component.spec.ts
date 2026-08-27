@@ -1,5 +1,7 @@
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { provideRouter, RouterLink } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -15,8 +17,10 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import {
   DialogService,
   AsyncActionsModule,
+  BreadcrumbsModule,
   ButtonModule,
   FormFieldModule,
+  IconModule,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -30,7 +34,7 @@ import { cipherData } from "./reports-ciphers.mock";
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-header",
-  template: "<div></div>",
+  template: "<ng-content select='[slot=breadcrumbs]'></ng-content><ng-content></ng-content>",
   standalone: false,
 })
 class MockHeaderComponent {}
@@ -65,8 +69,16 @@ describe("ExposedPasswordsReportComponent", () => {
         MockHeaderComponent,
         MockBitContainerComponent,
       ],
-      imports: [I18nPipe, AsyncActionsModule, ButtonModule, FormFieldModule],
+      imports: [
+        I18nPipe,
+        AsyncActionsModule,
+        ButtonModule,
+        FormFieldModule,
+        BreadcrumbsModule,
+        IconModule,
+      ],
       providers: [
+        provideRouter([]),
         {
           provide: CipherService,
           useValue: mock<CipherService>(),
@@ -125,6 +137,20 @@ describe("ExposedPasswordsReportComponent", () => {
 
   it("should initialize component", () => {
     expect(component).toBeTruthy();
+  });
+
+  it("should render a header breadcrumb that navigates back to the reports home page", () => {
+    const breadcrumbs = fixture.debugElement.query(By.css("bit-breadcrumbs[slot=breadcrumbs]"));
+    expect(breadcrumbs).not.toBeNull();
+
+    const links = breadcrumbs.queryAll(By.css("a[href]"));
+    expect(links).toHaveLength(1);
+
+    // The crumb routes to `../`, the report's parent — i.e. the reports home page. No report route
+    // is activated in the TestBed, so that resolves against the root route here.
+    expect(links[0].injector.get(RouterLink).urlTree?.toString()).toBe("/");
+
+    expect(breadcrumbs.nativeElement.querySelector("bit-icon[name='bwi-sliders']")).not.toBeNull();
   });
 
   it('should get only ciphers with exposed passwords that the user has "Can Edit" access to', async () => {

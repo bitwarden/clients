@@ -1,5 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { provideRouter, RouterLink } from "@angular/router";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -12,7 +14,7 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService } from "@bitwarden/components";
+import { BreadcrumbsModule, DialogService, IconModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
@@ -38,8 +40,9 @@ describe("InactiveTwoFactorReportComponent", () => {
 
     await TestBed.configureTestingModule({
       declarations: [InactiveTwoFactorReportComponent],
-      imports: [I18nPipe],
+      imports: [I18nPipe, BreadcrumbsModule, IconModule],
       providers: [
+        provideRouter([]),
         {
           provide: CipherService,
           useValue: mock<CipherService>(),
@@ -93,6 +96,20 @@ describe("InactiveTwoFactorReportComponent", () => {
 
   it("should initialize component", () => {
     expect(component).toBeTruthy();
+  });
+
+  it("should render a header breadcrumb that navigates back to the reports home page", () => {
+    const breadcrumbs = fixture.debugElement.query(By.css("bit-breadcrumbs[slot=breadcrumbs]"));
+    expect(breadcrumbs).not.toBeNull();
+
+    const links = breadcrumbs.queryAll(By.css("a[href]"));
+    expect(links).toHaveLength(1);
+
+    // The crumb routes to `../`, the report's parent — i.e. the reports home page. No report route
+    // is activated in the TestBed, so that resolves against the root route here.
+    expect(links[0].injector.get(RouterLink).urlTree?.toString()).toBe("/");
+
+    expect(breadcrumbs.nativeElement.querySelector("bit-icon[name='bwi-sliders']")).not.toBeNull();
   });
 
   it('should get only ciphers with domains in the 2fa directory that they have "Can Edit" access to', async () => {
