@@ -57,6 +57,7 @@ type FilterableRow = {
  * are flattened onto the row because `bit-table` sorts on top-level row properties.
  */
 type ActiveAccessRow = {
+  readonly testId: string;
   readonly requestId: AccessRequestId;
   readonly cipherId: string;
   readonly cipherName: string | null;
@@ -157,18 +158,20 @@ export class MyRequestsTabComponent implements OnInit {
       .sort((a, b) => a.label.localeCompare(b.label));
   });
 
+  private readonly filteredPending = computed(() => this.applyFilters(this.allPending()));
+
   /** Rows still awaiting an approver's decision — the only thing "Pending" holds. */
   protected readonly pendingRows = computed(() =>
-    this.applyFilters(this.allPending()).filter((row) => row.status === "pending"),
+    this.filteredPending().filter((row) => row.status === "pending"),
   );
 
   /**
-   * Approved and awaiting activation. The exact complement of {@link pendingRows} over the
-   * service's `pendingRows$`, split on `status` alone: a clock-dependent split (`canStart`) would
-   * drop a grant whose activation window has lapsed out of both sections.
+   * Approved and awaiting activation. The exact complement of {@link pendingRows}, split on
+   * `status` alone: a clock-dependent split (`canStart`) would drop a grant whose activation
+   * window has lapsed out of both sections.
    */
   protected readonly approvedRows = computed(() =>
-    this.applyFilters(this.allPending()).filter((row) => row.status !== "pending"),
+    this.filteredPending().filter((row) => row.status !== "pending"),
   );
 
   protected readonly extensionRows = computed(() => this.applyFilters(this.allExtensions()));
@@ -181,6 +184,7 @@ export class MyRequestsTabComponent implements OnInit {
    */
   protected readonly activeAccessRows = computed<ActiveAccessRow[]>(() => [
     ...this.approvedRows().map((request) => ({
+      testId: `my-access-approved-${request.id}`,
       requestId: request.id,
       cipherId: request.cipherId,
       cipherName: request.cipherName,
@@ -191,6 +195,7 @@ export class MyRequestsTabComponent implements OnInit {
       request,
     })),
     ...this.leases().map((lease) => ({
+      testId: `my-access-lease-${lease.id}`,
       requestId: lease.requestId,
       cipherId: lease.cipherId,
       cipherName: lease.cipherName,
@@ -276,12 +281,6 @@ export class MyRequestsTabComponent implements OnInit {
 
   protected leaseBadgeState(id: AccessLeaseId): AccessBadgeState | null {
     return this.leaseBadgeStates().get(id) ?? null;
-  }
-
-  protected rowTestId(row: ActiveAccessRow): string {
-    return row.lease == null
-      ? `my-access-approved-${row.requestId}`
-      : `my-access-lease-${row.lease.id}`;
   }
 
   protected isCancelling(id: AccessRequestId): boolean {
