@@ -152,7 +152,7 @@ describe("VaultItemDialogComponent", () => {
         },
         {
           provide: ShareLinkService,
-          useValue: { cipherCanBeShared: () => of(false) },
+          useValue: { cipherCanBeShared$: () => of(false) },
         },
       ],
     })

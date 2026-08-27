@@ -191,7 +191,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     if (this.cipher.organizationId != null) {
       this.organization = this.organizations.find((o) => o.id === this.cipher.organizationId);
     }
-    this.showShareViaLink$ = this.shareLinkService.cipherCanBeShared(this.cipher);
+    this.showShareViaLink$ = this.shareLinkService.cipherCanBeShared$(this.cipher);
   }
 
   // Archive button will not show in Admin Console

@@ -218,7 +218,7 @@ export class ViewComponent {
                 (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete))),
           );
 
-          this.showShareButton$ = this.shareLinkService.cipherCanBeShared(this.cipher);
+          this.showShareButton$ = this.shareLinkService.cipherCanBeShared$(this.cipher);
 
           await this.eventCollectionService.collect(
             EventType.Cipher_ClientViewed,

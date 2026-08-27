@@ -139,7 +139,7 @@ export class ItemMoreOptionsComponent {
   );
 
   protected readonly showShareViaLink$ = this._cipher$.pipe(
-    switchMap((cipher) => this.shareLinkService.cipherCanBeShared(cipher)),
+    switchMap((cipher) => this.shareLinkService.cipherCanBeShared$(cipher)),
   );
 
   constructor(

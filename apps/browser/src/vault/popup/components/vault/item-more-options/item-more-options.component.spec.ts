@@ -123,7 +123,7 @@ describe("ItemMoreOptionsComponent", () => {
         },
         {
           provide: ShareLinkService,
-          useValue: { cipherCanBeShared: () => of(false) },
+          useValue: { cipherCanBeShared$: () => of(false) },
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],

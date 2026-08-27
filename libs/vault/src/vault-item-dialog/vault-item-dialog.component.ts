@@ -392,7 +392,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         this.updateTitle();
       }
 
-      this.showShareButton$ = this.shareLinkService.cipherCanBeShared(this.cipher);
+      this.showShareButton$ = this.shareLinkService.cipherCanBeShared$(this.cipher);
 
       await this.eventCollectionService.collect(
         EventType.Cipher_ClientViewed,

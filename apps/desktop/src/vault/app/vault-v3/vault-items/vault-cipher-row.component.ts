@@ -115,7 +115,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
 
   constructor() {
     effect(() => {
-      this.showShareViaLink$ = this.shareLinkService.cipherCanBeShared(this.cipher());
+      this.showShareViaLink$ = this.shareLinkService.cipherCanBeShared$(this.cipher());
     });
   }
 

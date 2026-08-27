@@ -32,48 +32,46 @@
 
   <form [formGroup]="form">
     <bit-section disableMargin>
-      <bit-card>
-        <p bitTypography="h6" class="tw-mb-1">
-          {{ "peopleWhoCanView" | i18n }}
-        </p>
-        <p bitTypography="helper" class="tw-text-fg-body tw-font-normal tw-mb-4">
-          {{ "shareEmailVerificationDescription" | i18n }}
-        </p>
-        <bit-form-field>
-          <bit-label class="tw-font-normal">{{ "emails" | i18n }}</bit-label>
-          <textarea
-            bitInput
-            id="share-item-form_textarea_emails"
-            formControlName="emails"
-            rows="3"
-          ></textarea>
-        </bit-form-field>
-        <p bitTypography="helper" class="tw-text-fg-body tw-font-normal -tw-mt-2 tw-mb-3">
-          {{ "enterMultipleEmailsSeparatedByComma" | i18n }}
-        </p>
-        <bit-form-field>
-          <bit-label class="tw-font-normal">{{ "linkExpiresAfter" | i18n }}</bit-label>
-          <bit-select bitInput id="share-item-form_select_expiry" formControlName="expiryHours">
-            @for (option of expiryOptions; track option.value) {
-              <bit-option [value]="option.value" [label]="option.label"></bit-option>
-            }
-          </bit-select>
-        </bit-form-field>
-        <p bitTypography="helper" class="tw-text-fg-body tw-font-normal -tw-mt-2 tw-mb-3">
-          {{ "shareLinkExpiryHint" | i18n }}
-        </p>
-        <bit-form-control disableMargin>
-          <input
-            type="checkbox"
-            bitCheckbox
-            id="share-item-form_checkbox_one-time"
-            formControlName="oneTimeShare"
-          />
-          <bit-label bitTypography="body1" class="tw-font-normal">{{
-            "oneTimeShare" | i18n
-          }}</bit-label>
-        </bit-form-control>
-      </bit-card>
+      <p bitTypography="h6" class="tw-mb-1">
+        {{ "peopleWhoCanView" | i18n }}
+      </p>
+      <p bitTypography="helper" class="tw-text-fg-body tw-font-normal tw-mb-4">
+        {{ "shareEmailVerificationDescription" | i18n }}
+      </p>
+      <bit-form-field>
+        <bit-label class="tw-font-normal">{{ "emails" | i18n }}</bit-label>
+        <textarea
+          bitInput
+          id="share-item-form_textarea_emails"
+          formControlName="emails"
+          rows="3"
+        ></textarea>
+      </bit-form-field>
+      <p bitTypography="helper" class="tw-text-fg-body tw-font-normal -tw-mt-2 tw-mb-3">
+        {{ "enterMultipleEmailsSeparatedByComma" | i18n }}
+      </p>
+      <bit-form-field>
+        <bit-label class="tw-font-normal">{{ "linkExpiresAfter" | i18n }}</bit-label>
+        <bit-select bitInput id="share-item-form_select_expiry" formControlName="expiryHours">
+          @for (option of expiryOptions; track option.value) {
+            <bit-option [value]="option.value" [label]="option.label"></bit-option>
+          }
+        </bit-select>
+      </bit-form-field>
+      <p bitTypography="helper" class="tw-text-fg-body tw-font-normal -tw-mt-2 tw-mb-3">
+        {{ "shareLinkExpiryHint" | i18n }}
+      </p>
+      <bit-form-control disableMargin>
+        <input
+          type="checkbox"
+          bitCheckbox
+          id="share-item-form_checkbox_one-time"
+          formControlName="oneTimeShare"
+        />
+        <bit-label bitTypography="body1" class="tw-font-normal">{{
+          "oneTimeShare" | i18n
+        }}</bit-label>
+      </bit-form-control>
     </bit-section>
   </form>
 

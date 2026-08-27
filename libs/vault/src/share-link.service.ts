@@ -166,7 +166,7 @@ export class ShareLinkService {
   }
 
   /** Returns whether a cipher can be shared or not */
-  cipherCanBeShared(c: CipherViewLike | undefined): Observable<boolean> {
+  cipherCanBeShared$(c: CipherViewLike | undefined): Observable<boolean> {
     return combineLatest([
       this.configService.getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing),
       this.accountService.activeAccount$.pipe(
