@@ -17989,6 +17989,9 @@
   "pamHistoryScopeManaged": {
     "message": "For my collections"
   },
+  "pamHistoryScopeLabel": {
+    "message": "History scope"
+  },
   "pamInboxRevokeConfirm": {
     "message": "This immediately revokes the member's access. They will need a new approval to regain it."
   },
