@@ -79,7 +79,10 @@ the next bump. The SDK splits its own failures per client —
 `AccessRequestError` (request/activate/cancel), `ApprovalError` (decide) and `AccessLeaseError`
 (read/extend/end). `abstractions/access-lease.ts` unions them as `LeasingError`, detected
 through the injectable `LeasingErrorService` seam so consumers never import the wasm guards.
-All three carry an `Api` variant holding the server's message.
+All three carry an `Api` variant holding the server's message. That variant's payload is the whole
+serialized response, so `abstractions/api-error.ts` owns the one `apiErrorBodyMessage()` decode of
+the `ErrorResponseModel` body — use it rather than re-parsing; what a miss means (generic copy, or
+the raw string) stays with the caller.
 
 A rejected access-request submit is interpreted by
 `helpers/request-access-error.ts`. Three of the server's messages mean the caller already
