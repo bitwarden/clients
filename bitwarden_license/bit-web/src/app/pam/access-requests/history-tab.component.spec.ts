@@ -10,6 +10,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 
 import { HistoryTabComponent } from "./history-tab.component";
@@ -50,13 +51,16 @@ describe("HistoryTabComponent", () => {
   let myRows$: BehaviorSubject<MyAccessRequestRow[]>;
   let managedRows$: BehaviorSubject<MyAccessRequestRow[]>;
   let managedIds$: BehaviorSubject<Set<string>>;
+  let managedLoading$: BehaviorSubject<boolean>;
   let inbox: {
     historyRows$: BehaviorSubject<MyAccessRequestRow[]>;
     managedIds$: BehaviorSubject<Set<string>>;
     cipherById$: BehaviorSubject<Map<string, CipherView>>;
+    loading$: BehaviorSubject<boolean>;
     revokeLease: jest.Mock;
     cancelApproval: jest.Mock;
   };
+  let canApprove$: BehaviorSubject<boolean>;
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
 
@@ -72,7 +76,7 @@ describe("HistoryTabComponent", () => {
 
   /** Switch to the approver-side scope and re-render. */
   function showManaged(): void {
-    component["scope"].set("managed");
+    component["selectScope"]("managed");
     fixture.detectChanges();
   }
 
@@ -80,13 +84,16 @@ describe("HistoryTabComponent", () => {
     myRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
     managedRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
     managedIds$ = new BehaviorSubject<Set<string>>(new Set());
+    managedLoading$ = new BehaviorSubject(false);
     inbox = {
       historyRows$: managedRows$,
       managedIds$,
       cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
+      loading$: managedLoading$,
       revokeLease: jest.fn().mockResolvedValue(undefined),
       cancelApproval: jest.fn().mockResolvedValue(undefined),
     };
+    canApprove$ = new BehaviorSubject(false);
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
     dialogService.openSimpleDialog.mockResolvedValue(true);
@@ -103,6 +110,7 @@ describe("HistoryTabComponent", () => {
           },
         },
         { provide: ApproverInboxService, useValue: inbox },
+        { provide: ApprovalPrivilegeService, useValue: { canApprove$ } },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: mock<LogService>() },
@@ -133,12 +141,74 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="history-scope-managed"]')).not.toBeNull();
     });
 
-    it("shows the caller's own rows by default", () => {
+    it("offers the toggle to an approver with no managed history yet", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+
+      create();
+
+      expect(query('[data-testid="history-scope-managed"]')).not.toBeNull();
+    });
+
+    it("shows nothing until the managed history has loaded, so the scope cannot swap under the reader", () => {
+      canApprove$.next(true);
+      managedLoading$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+
+      create();
+
+      const skeleton = query('[data-testid="history-loading"]');
+      expect(skeleton).not.toBeNull();
+      expect(skeleton?.querySelectorAll("bit-skeleton").length).toBeGreaterThan(0);
+      expect(skeleton?.querySelector('[role="status"]')?.textContent).toContain("loading");
+      expect(query('[data-testid="my-access-history-mine-1"]')).toBeNull();
+
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      managedLoading$.next(false);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="my-access-history-managed-1"]')).not.toBeNull();
+    });
+
+    // The shell never loads the inbox for a member who cannot approve, so its loading flag stays
+    // raised for the life of the page.
+    it("does not wait on the inbox for a member who cannot approve", () => {
+      managedLoading$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+
+      create();
+
+      expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
+    });
+
+    it("lands on the managed side when there is managed history", () => {
       myRows$.next([historyRow({ id: "mine-1" })]);
       managedRows$.next([historyRow({ id: "managed-1" })]);
 
       create();
 
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1"]);
+    });
+
+    it("lands on the caller's own rows when there is no managed history", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+
+      create();
+
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
+    });
+
+    it("keeps the viewer on the scope they picked when managed history arrives", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      create();
+
+      component["selectScope"]("mine");
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      fixture.detectChanges();
+
+      expect(component["showingManaged"]()).toBe(false);
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
     });
 
@@ -152,6 +222,8 @@ describe("HistoryTabComponent", () => {
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1"]);
     });
 
+    // A non-approver whose managed rows go away loses the toggle, so their pinned scope stops
+    // applying.
     it("falls back to the caller's own rows if the managed side empties out", () => {
       managedRows$.next([historyRow({ id: "managed-1" })]);
       myRows$.next([historyRow({ id: "mine-1" })]);
