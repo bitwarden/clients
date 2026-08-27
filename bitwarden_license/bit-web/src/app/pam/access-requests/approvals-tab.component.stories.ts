@@ -90,7 +90,6 @@ function activeLeases(): ManagedLeaseRow[] {
       leaseNotBefore: liveFromNow(-2 * HOUR),
       leaseNotAfter: liveFromNow(3 * HOUR),
     }),
-    // Extended in place: the row must end at the extension's end, not the request's own.
     lease(
       {
         id: "req-live-3",
