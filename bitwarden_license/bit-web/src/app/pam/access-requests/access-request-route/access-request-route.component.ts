@@ -32,6 +32,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 
 import {
   AccessRequestView,
+  activateAccessErrorMessageKey,
   durationLabel,
   exactWindow,
   humanApprover,
@@ -318,7 +319,7 @@ export class AccessRequestRouteComponent implements OnInit {
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("pamStartLeaseError"),
+        message: this.i18nService.t(activateAccessErrorMessageKey(e)),
       });
     } finally {
       this.starting.set(false);
