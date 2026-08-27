@@ -147,6 +147,7 @@
         @if (!requestFormExpanded()) {
           <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
             <button
+              #requestToggleButton
               type="button"
               bitButton
               buttonType="primary"
@@ -162,7 +163,7 @@
     </div>
 
     @if (requestFormExpanded()) {
-      <div class="tw-text-fg-body">
+      <div class="tw-text-fg-body" #requestFoldOut tabindex="-1">
         <hr class="tw-my-4 tw-border-t tw-border-border-base" />
 
         @if (loadingRequestForm()) {
@@ -267,8 +268,8 @@
           </p>
         }
 
-        @if (requestMode() !== null) {
-          <div class="tw-mt-4 tw-flex tw-items-center tw-justify-end tw-gap-2">
+        <div class="tw-mt-4 tw-flex tw-items-center tw-justify-end tw-gap-2">
+          @if (requestMode() !== null) {
             <button
               type="button"
               bitButton
@@ -279,18 +280,18 @@
             >
               {{ "requestAccessModalSubmit" | i18n }}
             </button>
-            <button
-              type="button"
-              bitButton
-              buttonType="secondary"
-              size="small"
-              (click)="toggleRequestForm()"
-              id="pam-cipher-view-banner_button_request-cancel"
-            >
-              {{ "cancel" | i18n }}
-            </button>
-          </div>
-        }
+          }
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            size="small"
+            (click)="toggleRequestForm()"
+            id="pam-cipher-view-banner_button_request-cancel"
+          >
+            {{ "cancel" | i18n }}
+          </button>
+        </div>
       </div>
     }
   </bit-card>
