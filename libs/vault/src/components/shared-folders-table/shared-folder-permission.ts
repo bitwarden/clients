@@ -7,10 +7,10 @@
  * consistently, and keep the URL-synced filter value locale-independent.
  */
 export const SharedFolderPermission = Object.freeze({
-  View: "view",
   ViewExceptPass: "viewExceptPass",
-  Edit: "edit",
+  View: "view",
   EditExceptPass: "editExceptPass",
+  Edit: "edit",
 
   /** Full control of the folder. What an organization's admins and owners hold over every folder. */
   Manage: "manage",
@@ -25,19 +25,19 @@ export type SharedFolderPermission =
  * much access each grants, matching how the permission is offered when it's assigned.
  */
 export const SHARED_FOLDER_PERMISSIONS: readonly SharedFolderPermission[] = Object.freeze([
-  SharedFolderPermission.View,
   SharedFolderPermission.ViewExceptPass,
-  SharedFolderPermission.Edit,
+  SharedFolderPermission.View,
   SharedFolderPermission.EditExceptPass,
+  SharedFolderPermission.Edit,
   SharedFolderPermission.Manage,
 ]);
 
 /** The i18n key naming each permission. */
 const PERMISSION_MESSAGE_KEYS: Readonly<Record<SharedFolderPermission, string>> = Object.freeze({
-  [SharedFolderPermission.View]: "viewItems",
   [SharedFolderPermission.ViewExceptPass]: "viewItemsHidePass",
-  [SharedFolderPermission.Edit]: "editItems",
+  [SharedFolderPermission.View]: "viewItems",
   [SharedFolderPermission.EditExceptPass]: "editItemsHidePass",
+  [SharedFolderPermission.Edit]: "editItems",
   [SharedFolderPermission.Manage]: "manage",
 });
 
