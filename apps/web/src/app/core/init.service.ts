@@ -9,10 +9,8 @@ import { OrganizationInviteService } from "@bitwarden/common/auth/organization-i
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { SharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock";
+import { SharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
@@ -50,8 +48,7 @@ export class InitService {
     private taskService: TaskService,
     private readonly migrationRunner: MigrationRunner,
     @Inject(DOCUMENT) private document: Document,
-    private configService: ConfigService,
-    private sharedUnlockFollowerService: SharedUnlockFollowerService,
+    private sharedUnlockPeerService: SharedUnlockPeerService,
     private legacyCompatKeyService: LegacyCompatKeyService,
     private organizationInviteService: OrganizationInviteService,
     private logService: LogService,
@@ -87,9 +84,7 @@ export class InitService {
       this.themingService.applyThemeChangesTo(this.document);
       this.versionService.applyVersionToWindow();
       await this.ipcService.init();
-      if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart2)) {
-        await this.sharedUnlockFollowerService.start();
-      }
+      await this.sharedUnlockPeerService.start();
       this.taskService.listenForTaskNotifications();
 
       // Opportunistic sweep of any sealed open-org-invite secrets whose TTL has expired

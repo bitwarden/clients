@@ -35,7 +35,7 @@
     ></button>
 
     @if (showDiscountBadges()) {
-      @for (discount of cart.discounts; track discount) {
+      @for (discount of cart.discounts; track $index) {
         <billing-discount-badge class="tw-mr-1" [discount]="discount"></billing-discount-badge>
       }
     }
@@ -82,24 +82,26 @@
           </div>
         </div>
 
-        <!-- Password Manager Seats Discount -->
-        @if (passwordManagerSeatsDiscountAmount() > 0) {
-          <div class="tw-flex tw-justify-between" data-testid="password-manager-seats-discount">
-            <div
-              bitTypography="body1"
-              class="tw-text-success-600"
-              data-testid="password-manager-seats-discount-label"
-            >
-              {{ passwordManagerSeatsDiscountLabel() }}
+        <!-- Password Manager Seats Discounts -->
+        @for (discountRow of passwordManagerSeatsDiscountRows(); track $index) {
+          @if (discountRow.amount > 0) {
+            <div class="tw-flex tw-justify-between" data-testid="password-manager-seats-discount">
+              <div
+                bitTypography="body1"
+                class="tw-pl-4 tw-text-success-600"
+                data-testid="password-manager-seats-discount-label"
+              >
+                {{ discountRow.label }}
+              </div>
+              <div
+                bitTypography="body1"
+                class="tw-text-success-600"
+                data-testid="password-manager-seats-discount-amount"
+              >
+                -{{ discountRow.amount | currency: "USD" : "symbol" }}
+              </div>
             </div>
-            <div
-              bitTypography="body1"
-              class="tw-text-success-600"
-              data-testid="password-manager-seats-discount-amount"
-            >
-              -{{ passwordManagerSeatsDiscountAmount() | currency: "USD" : "symbol" }}
-            </div>
-          </div>
+          }
         }
 
         <!-- Additional Storage -->
@@ -132,12 +134,33 @@
               {{ additionalStorageTotal() | currency: "USD" : "symbol" }}
             </div>
           </div>
+
+          <!-- Additional Storage Discounts -->
+          @for (discountRow of additionalStorageDiscountRows(); track $index) {
+            @if (discountRow.amount > 0) {
+              <div class="tw-flex tw-justify-between" data-testid="additional-storage-discount">
+                <div
+                  bitTypography="body1"
+                  class="tw-pl-4 tw-text-success-600"
+                  data-testid="additional-storage-discount-label"
+                >
+                  {{ discountRow.label }}
+                </div>
+                <div
+                  bitTypography="body1"
+                  class="tw-text-success-600"
+                  data-testid="additional-storage-discount-amount"
+                >
+                  -{{ discountRow.amount | currency: "USD" : "symbol" }}
+                </div>
+              </div>
+            }
+          }
         }
       </div>
 
       <!-- Secrets Manager Section -->
-      @let secretsManagerSeats = cart.secretsManager?.seats;
-      @if (secretsManagerSeats) {
+      @if (cart.secretsManager) {
         <div id="secrets-manager" class="tw-border-b tw-border-secondary-100 tw-py-2">
           <div class="tw-flex tw-justify-between">
             <div bitTypography="h5" class="tw-text-muted tw-font-semibold">
@@ -145,36 +168,64 @@
             </div>
           </div>
 
-          <!-- Secrets Manager Members -->
-          <div id="secrets-manager-members" class="tw-flex tw-justify-between">
-            <div bitTypography="body1" class="tw-text-muted tw-font-normal">
-              {{ secretsManagerSeats.quantity }}
-              {{
-                translateWithParams(
-                  secretsManagerSeats.translationKey,
-                  secretsManagerSeats.translationParams
-                )
-              }}
-              @if (!secretsManagerSeats.hideBreakdown) {
-                x
-                {{ secretsManagerSeats.cost | currency: "USD" : "symbol" }}
-                @if (!hideTerm) {
-                  /
-                  {{ term }}
+          <!-- Secrets Manager Members (absent when the preview's SM section has no seat line) -->
+          @let secretsManagerSeats = cart.secretsManager.seats;
+          @if (secretsManagerSeats) {
+            <div id="secrets-manager-members" class="tw-flex tw-justify-between">
+              <div bitTypography="body1" class="tw-text-muted tw-font-normal">
+                {{ secretsManagerSeats.quantity }}
+                {{
+                  translateWithParams(
+                    secretsManagerSeats.translationKey,
+                    secretsManagerSeats.translationParams
+                  )
+                }}
+                @if (!secretsManagerSeats.hideBreakdown) {
+                  x
+                  {{ secretsManagerSeats.cost | currency: "USD" : "symbol" }}
+                  @if (!hideTerm) {
+                    /
+                    {{ term }}
+                  }
                 }
+              </div>
+              <div
+                bitTypography="body1"
+                class="tw-text-muted tw-font-normal"
+                data-testid="secrets-manager-seats-total"
+              >
+                {{ secretsManagerSeatsTotal() | currency: "USD" : "symbol" }}
+              </div>
+            </div>
+
+            <!-- Secrets Manager Seats Discounts -->
+            @for (discountRow of secretsManagerSeatsDiscountRows(); track $index) {
+              @if (discountRow.amount > 0) {
+                <div
+                  class="tw-flex tw-justify-between"
+                  data-testid="secrets-manager-seats-discount"
+                >
+                  <div
+                    bitTypography="body1"
+                    class="tw-pl-4 tw-text-success-600"
+                    data-testid="secrets-manager-seats-discount-label"
+                  >
+                    {{ discountRow.label }}
+                  </div>
+                  <div
+                    bitTypography="body1"
+                    class="tw-text-success-600"
+                    data-testid="secrets-manager-seats-discount-amount"
+                  >
+                    -{{ discountRow.amount | currency: "USD" : "symbol" }}
+                  </div>
+                </div>
               }
-            </div>
-            <div
-              bitTypography="body1"
-              class="tw-text-muted tw-font-normal"
-              data-testid="secrets-manager-seats-total"
-            >
-              {{ secretsManagerSeatsTotal() | currency: "USD" : "symbol" }}
-            </div>
-          </div>
+            }
+          }
 
           <!-- Additional Service Accounts -->
-          @let additionalServiceAccounts = cart.secretsManager?.additionalServiceAccounts;
+          @let additionalServiceAccounts = cart.secretsManager.additionalServiceAccounts;
           @if (additionalServiceAccounts) {
             <div id="additional-service-accounts" class="tw-flex tw-justify-between">
               <div bitTypography="body1" class="tw-text-muted tw-font-normal">
@@ -202,17 +253,55 @@
                 {{ additionalServiceAccountsTotal() | currency: "USD" : "symbol" }}
               </div>
             </div>
+
+            <!-- Additional Service Accounts Discounts -->
+            @for (discountRow of additionalServiceAccountsDiscountRows(); track $index) {
+              @if (discountRow.amount > 0) {
+                <div
+                  class="tw-flex tw-justify-between"
+                  data-testid="additional-service-accounts-discount"
+                >
+                  <div
+                    bitTypography="body1"
+                    class="tw-pl-4 tw-text-success-600"
+                    data-testid="additional-service-accounts-discount-label"
+                  >
+                    {{ discountRow.label }}
+                  </div>
+                  <div
+                    bitTypography="body1"
+                    class="tw-text-success-600"
+                    data-testid="additional-service-accounts-discount-amount"
+                  >
+                    -{{ discountRow.amount | currency: "USD" : "symbol" }}
+                  </div>
+                </div>
+              }
+            }
           }
         </div>
       }
 
+      <!-- Subtotal (rendered only when cart-level discounts are present) -->
+      @if (hasCartDiscounts()) {
+        <div
+          id="subtotal-section"
+          class="tw-flex tw-justify-between tw-pt-2"
+          data-testid="subtotal-section"
+        >
+          <h3 bitTypography="h5" class="tw-text-muted tw-font-semibold">
+            {{ "subtotal" | i18n }}
+          </h3>
+          <div bitTypography="body1" class="tw-text-muted" data-testid="subtotal-amount">
+            {{ subtotal() | currency: "USD" : "symbol" }}
+          </div>
+        </div>
+      }
+
       <!-- Discounts -->
-      @for (discountItem of discountLineItems(); track discountItem.label) {
+      @for (discountItem of discountLineItems(); track $index) {
         @if (discountItem.amount > 0) {
-          <div
-            class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"
-            data-testid="discount-section"
-          >
+          <div class="tw-flex tw-justify-between" data-testid="discount-section">
             <div bitTypography="body1" class="tw-text-success-600">{{ discountItem.label }}</div>
             <div bitTypography="body1" class="tw-text-success-600" data-testid="discount-amount">
               -{{ discountItem.amount | currency: "USD" : "symbol" }}
@@ -225,7 +314,10 @@
       @if (creditAmount() > 0) {
         <div
           id="credit-section"
-          class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"
+          class="tw-flex tw-justify-between"
+          [class.tw-border-b]="!hasCartDiscounts()"
+          [class.tw-border-secondary-100]="!hasCartDiscounts()"
+          [class.tw-py-2]="!hasCartDiscounts()"
           data-testid="credit-section"
         >
           <div bitTypography="body1" class="tw-text-muted tw-font-normal">
@@ -244,7 +336,8 @@
       <!-- Estimated Tax -->
       <div
         id="estimated-tax-section"
-        class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-pt-2 tw-pb-0.5"
+        class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-pb-0.5"
+        [class.tw-pt-2]="!hasCartDiscounts()"
       >
         <h3 bitTypography="h5" class="tw-text-muted tw-font-semibold">
           {{ "estimatedTax" | i18n }}

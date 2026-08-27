@@ -110,7 +110,6 @@ import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/d
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
@@ -126,13 +125,11 @@ import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import {
-  SharedUnlockLeaderService,
-  SharedUnlockFollowerService,
+  SharedUnlockPeerService,
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
-import { DefaultSharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-follower.service";
-import { DefaultSharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-leader.service";
+import { DefaultSharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-peer.service";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { DefaultV2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/services/default-v2-upgrade-token-state.service";
 import {
@@ -319,7 +316,7 @@ import {
   DefaultStateService,
   InlineDerivedStateProvider,
 } from "@bitwarden/state-internal";
-import { DefaultUnlockService, LockService, UnlockService } from "@bitwarden/unlock";
+import { AutoUnlockService, DefaultAutoUnlockService, LockService } from "@bitwarden/unlock";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -374,7 +371,7 @@ import { PhishingDataService } from "../dirt/phishing-detection/services/phishin
 import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
 import { BrowserSessionTimeoutTypeService } from "../key-management/session-timeout/services/browser-session-timeout-type.service";
-import { SHARED_UNLOCK_EXTERNAL } from "../key-management/shared-unlock-messages";
+import { BackgroundUnlockService } from "../key-management/unlock/background-unlock.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserActionsService } from "../platform/actions/browser-actions.service";
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
@@ -561,10 +558,10 @@ export default class MainBackground {
 
   ipcContentScriptManagerService: IpcContentScriptManagerService;
   ipcService: IpcService;
-  sharedUnlockLeaderService: SharedUnlockLeaderService;
-  sharedUnlockFollowerService: SharedUnlockFollowerService;
+  sharedUnlockPeerService: SharedUnlockPeerService;
   sharedUnlockSettingsService: SharedUnlockSettingsService;
-  unlockService: UnlockService;
+  unlockService: BackgroundUnlockService;
+  autoUnlockService: AutoUnlockService;
 
   badgeService: BadgeService;
   authStatusBadgeUpdaterService: AuthStatusBadgeUpdaterService;
@@ -797,6 +794,21 @@ export default class MainBackground {
 
     this.kdfConfigService = new DefaultKdfConfigService(this.stateProvider);
 
+    // Constructed before the key service, which depends on it to delete platform-specific copies of
+    // the user key. Its own key service and vault timeout dependencies are lazy to break the cycle.
+    const browserBiometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+      () => this.configService,
+      this.logService,
+      () => this.keyService,
+      this.biometricStateService,
+      this.messagingService,
+      () => this.vaultTimeoutSettingsService,
+      () => this.ipcService,
+    );
+    // Temporary dependency cycle workaround, until browser biometrics is replaced by shared unlock
+    this.biometricsService = browserBiometricsService;
+
     this.keyService = new DefaultKeyService(
       this.cryptoFunctionService,
       this.encryptService,
@@ -805,6 +817,15 @@ export default class MainBackground {
       this.stateService,
       this.stateProvider,
       this.accountCryptographicStateService,
+      browserBiometricsService,
+    );
+
+    this.autoUnlockService = new DefaultAutoUnlockService(
+      this.keyService,
+      this.stateService,
+      this.stateProvider,
+      this.platformUtilsService,
+      this.logService,
     );
 
     this.legacyCompatKeyService = new DefaultLegacyCompatKeyService(
@@ -848,7 +869,7 @@ export default class MainBackground {
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       this.userDecryptionOptionsService,
-      this.keyService,
+      this.autoUnlockService,
       this.tokenService,
       this.policyService,
       this.biometricStateService,
@@ -979,19 +1000,7 @@ export default class MainBackground {
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
     this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
 
-    const browserBiometricsService = new BackgroundBrowserBiometricsService(
-      runtimeNativeMessagingBackground,
-      () => this.configService,
-      this.logService,
-      this.keyService,
-      this.biometricStateService,
-      this.messagingService,
-      this.vaultTimeoutSettingsService,
-      () => this.ipcService,
-    );
-    // Temporary dependency cycle workaround, until browser biometrics is replaced by shared unlock
-    this.biometricsService = browserBiometricsService;
-    this.unlockService = new DefaultUnlockService(
+    this.unlockService = new BackgroundUnlockService(
       this.registerSdkService,
       this.accountCryptographicStateService,
       this.kdfConfigService,
@@ -1000,12 +1009,15 @@ export default class MainBackground {
       this.stateProvider,
       this.logService,
       this.biometricsService,
-      this.platformUtilsService,
-      this.stateService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
-      this.keyService,
+      this.autoUnlockService,
+      this.messagingService,
+      messageListener,
     );
+    // Started here rather than in bootstrap so an unlock the popup performs while the service
+    // worker is starting up is not missed.
+    this.unlockService.init();
     void browserBiometricsService.setUnlockService(this.unlockService);
 
     // Constructed after the unlock service, which it depends on.
@@ -1753,26 +1765,13 @@ export default class MainBackground {
     );
 
     this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(this.stateProvider);
-    this.sharedUnlockLeaderService = new DefaultSharedUnlockLeaderService(
+    this.sharedUnlockPeerService = new DefaultSharedUnlockPeerService(
       this.ipcService,
       this.accountService,
       this.lockService,
-      this.keyService,
       this.platformUtilsService,
       this.vaultTimeoutSettingsService,
       this.environmentService,
-      this.sharedUnlockSettingsService,
-      this.unlockService,
-    );
-    this.sharedUnlockFollowerService = new DefaultSharedUnlockFollowerService(
-      this.ipcService,
-      this.accountService,
-      this.lockService,
-      this.keyService,
-      this.platformUtilsService,
-      this.vaultTimeoutSettingsService,
-      this.environmentService,
-      this.sharedUnlockSettingsService,
       this.unlockService,
     );
 
@@ -1870,15 +1869,7 @@ export default class MainBackground {
     await this.initOverlayAndTabsBackground();
     await this.ipcContentScriptManagerService.init();
     await this.ipcService.init();
-    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
-      await this.sharedUnlockLeaderService.start();
-    }
-    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart2)) {
-      await this.sharedUnlockFollowerService.start();
-      this.sharedUnlockFollowerService.externalUnlock$.subscribe((userId) => {
-        this.messagingService.send(SHARED_UNLOCK_EXTERNAL, { userId });
-      });
-    }
+    await this.sharedUnlockPeerService.start();
     this.badgeService.startListening();
 
     return new Promise<void>((resolve) => {
