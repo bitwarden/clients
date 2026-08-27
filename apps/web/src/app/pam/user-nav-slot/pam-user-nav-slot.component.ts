@@ -17,9 +17,9 @@ import { PamNavBadgeService } from "../pam-nav-badge.service";
  * {@link FeatureFlag.Pam} feature flag is on and the user belongs to an organization that has
  * PAM enabled (`usePam`) — the "My access" page is empty for anyone else.
  *
- * Also badges the item with the number of the caller's own requests still awaiting their attention,
- * read through the optional {@link PamNavBadgeService} seam — unprovided in OSS-only builds, where the
- * count falls back to 0 and no badge renders.
+ * Also badges the item with the number of access requests still awaiting the caller's attention —
+ * their own, plus the ones they can decide — read through the optional {@link PamNavBadgeService}
+ * seam, unprovided in OSS-only builds, where the count falls back to 0 and no badge renders.
  *
  * Encapsulates the flag lookup, the organization gate, and the badge lookup so the host layout can
  * plug PAM in with a single tag and no PAM-specific symbols.

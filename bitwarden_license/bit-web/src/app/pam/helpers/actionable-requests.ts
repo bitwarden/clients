@@ -26,11 +26,3 @@ export function isActionableRequest(request: ActionableRequest, now: Date): bool
     Date.parse(request.leaseNotAfter) > now.getTime()
   );
 }
-
-/** How many of `requests` still need the requester's attention. See {@link isActionableRequest}. */
-export function actionableRequestCount(
-  requests: ReadonlyArray<ActionableRequest>,
-  now: Date,
-): number {
-  return requests.filter((request) => isActionableRequest(request, now)).length;
-}

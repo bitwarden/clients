@@ -1,6 +1,6 @@
 import type { AccessRequestStatus, AccessRequestView } from "../abstractions/access-lease";
 
-import { actionableRequestCount, isActionableRequest } from "./actionable-requests";
+import { isActionableRequest } from "./actionable-requests";
 
 const NOW = new Date("2026-08-17T12:00:00.000Z");
 const FUTURE = "2026-08-17T13:00:00.000Z";
@@ -42,22 +42,4 @@ describe("isActionableRequest", () => {
       expect(isActionableRequest(request(status, FUTURE), NOW)).toBe(false);
     },
   );
-});
-
-describe("actionableRequestCount", () => {
-  it("counts only the actionable requests", () => {
-    const requests = [
-      request("pending", FUTURE),
-      request("approved", FUTURE),
-      request("approved", PAST),
-      request("approved", FUTURE, "lease-1"), // already activated -> not actionable
-      request("denied", FUTURE),
-    ];
-
-    expect(actionableRequestCount(requests, NOW)).toBe(2);
-  });
-
-  it("is zero for an empty list", () => {
-    expect(actionableRequestCount([], NOW)).toBe(0);
-  });
 });
