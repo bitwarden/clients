@@ -17,6 +17,7 @@
     [loading]="loading()"
     [rowActions]="rowActions()"
     [itemAction]="itemAction"
+    [orgRequiresDataOwnership]="orgRequiresDataOwnership()"
     (selectedChange)="handleSelectionChange($event)"
   >
     @if (showAddCipherBtn()) {
