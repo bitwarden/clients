@@ -84,6 +84,13 @@ describe("HistoryTabComponent", () => {
     );
   }
 
+  /** The text of every column header the table renders. */
+  function renderedHeaders(): (string | undefined)[] {
+    return [...fixture.nativeElement.querySelectorAll("th")].map((th: HTMLElement) =>
+      th.textContent?.trim(),
+    );
+  }
+
   /** Switch to the approver-side scope and re-render. */
   function showManaged(): void {
     component["selectScope"]("managed");
@@ -615,22 +622,59 @@ describe("HistoryTabComponent", () => {
       myRows$.next([historyRow({ id: "mine-1" })]);
       create();
 
-      const headers = [...fixture.nativeElement.querySelectorAll("th")].map((th: HTMLElement) =>
-        th.textContent?.trim(),
-      );
-      expect(headers).not.toContain("pamColumnActions");
+      expect(renderedHeaders()).not.toContain("pamColumnActions");
     });
 
-    it("shows the Actions column once a listed row is one the caller manages", () => {
+    // The column has to answer "can anything here be acted on", not "does the caller manage
+    // anything here" — a decided-and-done managed history is all a mature approver ever has.
+    it("hides the Actions column when every managed row is already terminal", () => {
+      canApprove$.next(true);
+      managedRows$.next([
+        historyRow({ id: "managed-1", status: "denied" }),
+        historyRow({
+          id: "managed-2",
+          status: "approved",
+          statusBadge: { labelKey: "pamStatusRevoked", variant: "subtle" },
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "revoked",
+        }),
+      ]);
+      create();
+      showManaged();
+
+      expect(renderedRowIds().sort()).toEqual(["managed-1", "managed-2"]);
+      expect(renderedHeaders()).not.toContain("pamColumnActions");
+    });
+
+    // A request the caller raised against a collection they also manage is in `managedIds`, but
+    // "Raised by me" only ever lists it once it is past anything Revoke or Withdraw could reach.
+    it("hides the Actions column under Mine for a terminal row the caller both raised and manages", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "managed-1", status: "denied" })]);
+      create();
+      component["selectScope"]("mine");
+      fixture.detectChanges();
+
+      expect(renderedRowIds()).toEqual(["managed-1"]);
+      expect(renderedHeaders()).not.toContain("pamColumnActions");
+    });
+
+    it("shows the Actions column once a listed row can be acted on", () => {
       canApprove$.next(true);
       myRows$.next([historyRow({ id: "mine-1" })]);
       managedRows$.next([activeGrant]);
       create();
 
-      const headers = [...fixture.nativeElement.querySelectorAll("th")].map((th: HTMLElement) =>
-        th.textContent?.trim(),
-      );
-      expect(headers).toContain("pamColumnActions");
+      expect(renderedHeaders()).toContain("pamColumnActions");
+    });
+
+    it("shows the Actions column for a managed approval the requester has not started", () => {
+      canApprove$.next(true);
+      managedRows$.next([unstartedApproval]);
+      create();
+      showManaged();
+
+      expect(renderedHeaders()).toContain("pamColumnActions");
     });
 
     it("keeps a managed row's actions when the caller filters down to All's subsets", () => {
