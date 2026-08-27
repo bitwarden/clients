@@ -7,8 +7,8 @@
 </ng-template>
 
 <!-- Renders a crumb as static text (current page), a link (routed), or a button. -->
-<ng-template #crumb let-breadcrumb="breadcrumb" let-isLast="isLast">
-  @if (breadcrumb.isActiveRoute() || isLast) {
+<ng-template #crumb let-breadcrumb="breadcrumb">
+  @if (breadcrumb.isActiveRoute()) {
     <span
       [class]="activeBreadcrumbStyles"
       [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
@@ -55,13 +55,7 @@
   class="-tw-ms-0.5 -tw-me-0.5 tw-flex tw-min-w-0 tw-flex-1 tw-flex-nowrap tw-items-center tw-overflow-x-clip tw-pe-0.5 tw-ps-0.5"
   [class.tw-invisible]="!ovf.ready()"
 >
-  @for (
-    breadcrumb of breadcrumbs();
-    track breadcrumb;
-    let i = $index;
-    let first = $first;
-    let last = $last
-  ) {
+  @for (breadcrumb of breadcrumbs(); track breadcrumb; let i = $index; let first = $first) {
     <span
       bitOverflowItem
       #item="bitOverflowItem"
@@ -76,10 +70,7 @@
         projects to one location at a time, and overflowed crumbs stamp in the menu.
       -->
       @if (ovf.displayed().includes(i)) {
-        <ng-container
-          [ngTemplateOutlet]="crumb"
-          [ngTemplateOutletContext]="{ breadcrumb, isLast: last && lastCrumbIsCurrentPage() }"
-        />
+        <ng-container [ngTemplateOutlet]="crumb" [ngTemplateOutletContext]="{ breadcrumb }" />
       }
     </span>
 
