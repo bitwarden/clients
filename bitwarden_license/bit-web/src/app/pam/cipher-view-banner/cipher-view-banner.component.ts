@@ -4,15 +4,16 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  Injector,
   LOCALE_ID,
   NgZone,
   OnInit,
+  afterNextRender,
   computed,
   effect,
   inject,
   input,
   signal,
-  untracked,
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
@@ -128,6 +129,7 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
+  private readonly injector = inject(Injector);
   private readonly locale = inject(LOCALE_ID);
 
   /** Ticks once a second so the live countdown and a scheduled window's opening stay current. */
@@ -297,7 +299,6 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly requestFoldOut = viewChild("requestFoldOut", {
     read: ElementRef<HTMLElement>,
   });
-  private readonly requestFormToggled = signal(false);
   /** Approval path resolved by the pre-check; `null` until the fold-out lands it. */
   protected readonly requestMode = signal<AccessApprovalMode | null>(null);
   protected readonly loadingRequestForm = signal(false);
@@ -354,19 +355,13 @@ export class CipherViewBannerComponent implements OnInit {
   });
 
   constructor() {
-    // Opening unmounts the "Request access" button and collapsing unmounts Cancel, so each
-    // direction destroys the element the requester just activated and focus falls to <body>.
-    // Latched by a toggle and spent on the first mounted target, so neither the initial render nor
-    // a later remount — the toggle returning when a lease lapses, say — pulls focus on its own. The
-    // latch is read untracked so spending it cannot re-enter; `requestFormExpanded` is written by
-    // every toggle and still drives the re-run.
+    // The resting request card is the only thing that renders the fold-out, so an access change
+    // that retires the card — a lease granted from another surface, say — has to close it too.
+    // Left open, it would unfold itself again when the card returns, with no user action and
+    // seeded from a pre-check run against whichever rule was in force before.
     effect(() => {
-      const target = this.requestFormExpanded()
-        ? this.requestFoldOut()
-        : this.requestToggleButton();
-      if (target != null && untracked(this.requestFormToggled)) {
-        this.requestFormToggled.set(false);
-        target.nativeElement.focus();
+      if (!this.canRequestAccess()) {
+        this.requestFormExpanded.set(false);
       }
     });
   }
@@ -409,8 +404,15 @@ export class CipherViewBannerComponent implements OnInit {
    */
   protected async toggleRequestForm(): Promise<void> {
     const next = !this.requestFormExpanded();
-    this.requestFormToggled.set(true);
     this.requestFormExpanded.set(next);
+    // Opening unmounts the "Request access" button and collapsing unmounts Cancel, so each
+    // direction destroys the element the requester just activated and focus falls to <body>. Bound
+    // to the render this toggle causes, so the intent expires with it: a card retired before
+    // either target mounts leaves nothing behind to pull focus on a later remount.
+    afterNextRender(
+      () => (next ? this.requestFoldOut() : this.requestToggleButton())?.nativeElement.focus(),
+      { injector: this.injector },
+    );
     if (!next) {
       return;
     }
