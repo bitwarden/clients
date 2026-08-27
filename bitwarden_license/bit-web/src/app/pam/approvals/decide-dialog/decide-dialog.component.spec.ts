@@ -17,6 +17,7 @@ function approvalRow(overrides: Record<string, unknown> = {}): ApprovalRow {
     id: "req-1",
     cipherId: "cipher-1",
     collectionId: "col-1",
+    organizationId: "org-1",
     requesterId: "user-1",
     status: "pending",
     leaseNotBefore: "2026-08-17T12:00:00.000Z",
@@ -34,6 +35,7 @@ function approvalRow(overrides: Record<string, unknown> = {}): ApprovalRow {
       ...emptyResolvedNames(),
       cipherNameById: new Map([["cipher-1", "Prod database"]]),
       collectionNameById: new Map([["col-1", "Production"]]),
+      organizationNameById: new Map([["org-1", "Meridian Group"]]),
     },
     NOW,
     true,
@@ -67,6 +69,11 @@ describe("DecideDialogComponent", () => {
     fixture.detectChanges();
   }
 
+  /** Read-only fields render their value on the input, not as element text. */
+  function fieldValue(id: string): string {
+    return (fixture.nativeElement.querySelector(`#${id}`) as HTMLInputElement).value;
+  }
+
   beforeEach(() => {
     jest.clearAllMocks();
     TestBed.resetTestingModule();
@@ -86,24 +93,45 @@ describe("DecideDialogComponent", () => {
 
     const summary = fixture.nativeElement.querySelector('[data-testid="decide-dialog-summary"]');
     expect(summary.textContent).toContain("Prod database");
-    expect(summary.textContent).toContain("Grace");
-    expect(summary.textContent).toContain("prod incident");
+    expect(summary.textContent).toContain("Meridian Group");
     expect(summary.textContent).toContain("Production");
+    expect(summary.textContent).toContain("Grace");
+    expect(summary.textContent).toContain("grace@example.com");
+    expect(fieldValue("pam-request-summary_input_reason")).toContain("prod incident");
+    expect(fieldValue("pam-request-summary_input_access-requested")).toContain(
+      "pamInboxDuration1Hour",
+    );
+  });
+
+  it("renders nothing for an organization that did not resolve", async () => {
+    await create("approve", approvalRow({ organizationId: undefined }));
+
+    const summary = fixture.nativeElement.querySelector('[data-testid="decide-dialog-summary"]');
+    expect(summary.textContent).not.toContain("Meridian Group");
+    expect(summary.textContent).not.toContain("org-1");
   });
 
   it("says so explicitly when the request carried no reason", async () => {
     await create("approve", approvalRow({ reason: undefined }));
 
-    expect(fixture.nativeElement.textContent).toContain("pamInboxReasonMissing");
+    const reason = fixture.nativeElement.querySelector(
+      "#pam-request-summary_input_reason",
+    ) as HTMLInputElement;
+    expect(reason.value).toBe("");
+    expect(reason.placeholder).toContain("pamInboxReasonMissing");
   });
 
-  it("closes with the trimmed comment on confirm", async () => {
+  it("closes with the trimmed comment and the verdict on confirm", async () => {
     await create();
     component["formGroup"].patchValue({ comment: "  looks fine  " });
 
     await component["confirm"]();
 
-    expect(close).toHaveBeenCalledWith({ confirmed: true, comment: "looks fine" });
+    expect(close).toHaveBeenCalledWith({
+      confirmed: true,
+      verdict: "approve",
+      comment: "looks fine",
+    });
   });
 
   it("treats a blank comment as absent rather than writing whitespace to the audit log", async () => {
@@ -112,15 +140,23 @@ describe("DecideDialogComponent", () => {
 
     await component["confirm"]();
 
-    expect(close).toHaveBeenCalledWith({ confirmed: true, comment: undefined });
+    expect(close).toHaveBeenCalledWith({
+      confirmed: true,
+      verdict: "approve",
+      comment: undefined,
+    });
   });
 
-  it("confirms with no comment at all — it is optional on both verdicts", async () => {
-    await create("deny");
+  it("confirms with no comment at all when approving — it stays optional", async () => {
+    await create("approve");
 
     await component["confirm"]();
 
-    expect(close).toHaveBeenCalledWith({ confirmed: true, comment: undefined });
+    expect(close).toHaveBeenCalledWith({
+      confirmed: true,
+      verdict: "approve",
+      comment: undefined,
+    });
   });
 
   it("never calls an API itself; the caller records the decision", async () => {
@@ -130,5 +166,118 @@ describe("DecideDialogComponent", () => {
     await component["confirm"]();
 
     expect(close).toHaveBeenCalledTimes(1);
+  });
+
+  describe("denying", () => {
+    it("will not confirm until a reason is given", async () => {
+      await create("deny");
+      expect(component["confirmDisabled"]()).toBe(true);
+
+      await component["confirm"]();
+      expect(close).not.toHaveBeenCalled();
+
+      component["formGroup"].patchValue({ comment: "no longer needed" });
+      expect(component["confirmDisabled"]()).toBe(false);
+
+      await component["confirm"]();
+      expect(close).toHaveBeenCalledWith({
+        confirmed: true,
+        verdict: "deny",
+        comment: "no longer needed",
+      });
+    });
+
+    it("shows the confirm button as disabled while no reason has been given", async () => {
+      await create("deny");
+
+      const confirm = fixture.nativeElement.querySelector("#pam-decide-dialog_button_confirm");
+      expect(confirm.getAttribute("aria-disabled")).toBe("true");
+
+      component["formGroup"].patchValue({ comment: "no longer needed" });
+      fixture.detectChanges();
+
+      expect(confirm.getAttribute("aria-disabled")).not.toBe("true");
+    });
+
+    it("treats a whitespace-only reason as no reason", async () => {
+      // `Validators.required` accepts "   ", so the trimmed value is what actually gates the button.
+      await create("deny");
+      component["formGroup"].patchValue({ comment: "   " });
+
+      expect(component["confirmDisabled"]()).toBe(true);
+
+      await component["confirm"]();
+      expect(close).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("switching the approve variant to deny", () => {
+    it("re-titles and re-labels the dialog in place", async () => {
+      await create("approve");
+
+      component["switchToDeny"]();
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent as string;
+      expect(text).toContain("pamDecideDenyTitle");
+      expect(text).not.toContain("pamDecideApproveTitle");
+      expect(text).toContain("pamDecideDenyReasonLabel");
+      expect(text).toContain("pamDecideDenyReasonRequired");
+      expect(text).not.toContain("pamInboxCommentLabel");
+    });
+
+    it("applies the deny variant's required reason", async () => {
+      await create("approve");
+      expect(component["confirmDisabled"]()).toBe(false);
+
+      component["switchToDeny"]();
+
+      expect(component["confirmDisabled"]()).toBe(true);
+      expect(component["formGroup"].controls.comment.invalid).toBe(true);
+    });
+
+    it("moves focus onto the reason field, which the removed button would otherwise strand", async () => {
+      await create("approve");
+
+      const switchButton = fixture.nativeElement.querySelector(
+        "#pam-decide-dialog_button_switch-to-deny",
+      ) as HTMLButtonElement;
+      switchButton.click();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("#pam-decide-dialog_button_switch-to-deny")).toBe(
+        null,
+      );
+      expect(document.activeElement?.id).toBe("pam-decide-dialog_textarea_comment");
+    });
+
+    it("discards a note typed while approving rather than recording it as the denial reason", async () => {
+      await create("approve");
+      component["formGroup"].patchValue({ comment: "Approved for the maintenance window" });
+
+      component["switchToDeny"]();
+      fixture.detectChanges();
+
+      expect(component["formGroup"].getRawValue().comment).toBe("");
+      // The whole point of the required reason: it has to engage on this path too.
+      expect(component["confirmDisabled"]()).toBe(true);
+
+      await component["confirm"]();
+      expect(close).not.toHaveBeenCalled();
+    });
+
+    it("closes with deny, not the verdict it was opened on", async () => {
+      await create("approve");
+
+      component["switchToDeny"]();
+      component["formGroup"].patchValue({ comment: "wrong window" });
+      await component["confirm"]();
+
+      expect(close).toHaveBeenCalledWith({
+        confirmed: true,
+        verdict: "deny",
+        comment: "wrong window",
+      });
+    });
   });
 });
