@@ -200,7 +200,7 @@ export class ShareLinkService {
           return true;
         }
         return c.collectionIds.some((cId) =>
-          collections.some((col) => col.id === cId && !col.readOnly),
+          collections.some((col) => col.id === cId && !col.readOnly && !col.hidePasswords),
         );
       }),
     );
