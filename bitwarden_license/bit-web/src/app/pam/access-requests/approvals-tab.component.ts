@@ -10,7 +10,7 @@ import {
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { EMPTY, distinctUntilChanged, firstValueFrom, switchMap } from "rxjs";
+import { EMPTY, distinctUntilChanged, filter, firstValueFrom, map, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -113,6 +113,20 @@ export class ApprovalsTabComponent {
     { initialValue: false },
   );
 
+  /**
+   * Whether a load has ever completed. Latched, because only the first one has nothing to leave on
+   * screen — every later reload already has a rendered tab behind it.
+   */
+  private readonly hasLoadedOnce = toSignal(
+    this.inbox.loading$.pipe(
+      filter((loading) => !loading),
+      map(() => true),
+    ),
+    { initialValue: false },
+  );
+
+  private readonly loadError = toSignal(this.inbox.loadError$, { initialValue: null });
+
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
   protected readonly collectionControl = new FormControl<string | null>(null);
   protected readonly requesterControl = new FormControl<string | null>(null);
@@ -207,6 +221,19 @@ export class ApprovalsTabComponent {
    */
   protected readonly skeletonVisible = computed(() => this.showSkeleton() && !this.hasRows());
 
+  /**
+   * Whether the loading region replaces the tab's content. Before anything has loaded it covers the
+   * whole load, skeleton or not, since there is nothing else to show; afterwards only the skeleton
+   * may take over, so a reload of an inbox that is already empty leaves its empty state up rather
+   * than blanking the tab for the length of the skeleton's show delay. PAM reloads on every managed
+   * request change, so that blank would recur for as long as the tab is left open.
+   */
+  protected readonly loadingVisible = computed(() =>
+    this.hasLoadedOnce()
+      ? this.skeletonVisible()
+      : (this.loading() || this.showSkeleton()) && !this.hasRows(),
+  );
+
   /** Five fills the space the table occupies without implying a row count the inbox may not have. */
   protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
@@ -217,10 +244,12 @@ export class ApprovalsTabComponent {
    * Whether the live region announces that the content has arrived. Emptying the region announces
    * nothing on its own, so the "loading" announcement needs a counterpart once the rows land. Gated
    * on the skeleton having been shown, so a load that finishes inside the delay announces neither
-   * half.
+   * half, and on the load having succeeded — a failed load leaves the same empty table behind, and
+   * announcing it as loaded is the one reading a sighted user cannot correct against the shell's
+   * error toast.
    */
   protected readonly announceLoaded = computed(
-    () => this.skeletonShown() && !this.skeletonVisible(),
+    () => this.skeletonShown() && !this.skeletonVisible() && this.loadError() == null,
   );
 
   protected readonly dataSource = new TableDataSource<ApprovalRow>();
