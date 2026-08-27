@@ -149,6 +149,12 @@ describe("CipherViewBannerComponent", () => {
     return Array.from(fixture.nativeElement.querySelectorAll(selector)) as HTMLElement[];
   }
 
+  function endFieldError(): HTMLElement | null {
+    return (query("#pam-cipher-view-banner_input_end")
+      ?.closest("bit-form-field")
+      ?.querySelector("bit-error") ?? null) as HTMLElement | null;
+  }
+
   beforeEach(() => {
     enabled$ = new BehaviorSubject<boolean>(true);
     requestsApi = mock<AccessRequestSdkService>();
@@ -662,10 +668,9 @@ describe("CipherViewBannerComponent", () => {
 
       expect(component["humanForm"].invalid).toBe(true);
       const maxWindow = formatDuration("en-US", 1800, "long");
-      const error = query('[data-testid="window-exceeds-max"]');
+      const error = endFieldError();
       expect(error).not.toBeNull();
       expect(error?.textContent).toContain(maxWindow);
-      expect(error?.querySelector("bit-error")).not.toBeNull();
     });
 
     it("re-resolves the bounds when the fold-out is re-opened against a different rule", async () => {
@@ -795,15 +800,11 @@ describe("CipherViewBannerComponent", () => {
       await fixture.whenStable();
       fixture.detectChanges();
 
-      const error = query('[data-testid="window-end-before-start"]');
+      const error = endFieldError();
       expect(error).not.toBeNull();
       expect(error?.textContent).toContain("requestAccessModalEndBeforeStart");
-
-      const endInput = query("#pam-cipher-view-banner_input_end");
-      const bitError = error?.querySelector("bit-error");
-      expect(bitError).not.toBeNull();
-      expect(bitError?.getAttribute("aria-live")).toBe("assertive");
-      expect(endInput?.getAttribute("aria-invalid")).toBe("true");
+      expect(error?.getAttribute("aria-live")).toBe("assertive");
+      expect(query("#pam-cipher-view-banner_input_end")?.getAttribute("aria-invalid")).toBe("true");
     });
 
     it("reveals the window error when a start edit breaks a window the requester never touched", async () => {
@@ -820,7 +821,7 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
 
       expect(component["humanForm"].controls.end.touched).toBe(true);
-      const error = query('[data-testid="window-end-before-start"]');
+      const error = endFieldError();
       expect(error).not.toBeNull();
       expect(error?.textContent).toContain("requestAccessModalEndBeforeStart");
     });
@@ -843,8 +844,7 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
 
       expect(component["humanForm"].controls.end.errors).toBeNull();
-      expect(query('[data-testid="window-end-before-start"]')).toBeNull();
-      expect(query('[data-testid="window-exceeds-max"]')).toBeNull();
+      expect(endFieldError()).toBeNull();
     });
 
     it("reveals the window error on submit rather than submitting", async () => {
@@ -866,7 +866,7 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
 
       expect(requestsApi.submitAccessRequest).not.toHaveBeenCalled();
-      const error = query('[data-testid="window-end-before-start"]');
+      const error = endFieldError();
       expect(error).not.toBeNull();
       expect(error?.textContent).toContain("requestAccessModalEndBeforeStart");
     });
