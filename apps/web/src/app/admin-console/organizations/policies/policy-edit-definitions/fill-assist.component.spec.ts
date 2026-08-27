@@ -47,6 +47,8 @@ describe("FillAssistPolicy", () => {
     expect(policy.description).toBe("fillAssistPolicyDesc");
     expect(policy.type).toBe(PolicyType.FillAssist);
     expect(policy.component).toBe(FillAssistPolicyComponent);
+    expect(policy.prerequisiteKey).toBe("requireSsoPolicyReqV2");
+    expect(policy.prerequisiteKeyVfo1).toBe("requireSsoPolicyReqV2Vfo1");
   });
 
   it("gates display$ on the FillAssistTargetingRules feature flag when enabled", async () => {
