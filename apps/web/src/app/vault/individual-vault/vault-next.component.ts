@@ -121,7 +121,9 @@ export class VaultNextComponent {
 
   private readonly collectionIdParam = computed(() => this.routeParams()?.get("collectionId"));
 
-  private readonly vaultNav = toSignal(this.vaultNavService.viewModel$);
+  private readonly vaultNav = toSignal(
+    this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
+  );
 
   /**
    * The vault the side nav has scoped this page to, and the shared folder within it the URL has
@@ -199,9 +201,15 @@ export class VaultNextComponent {
   );
 
   /**
-   * The collections the table resolves its Shared folders column and chip from. The chip lists
-   * whatever this holds rather than deriving its options from the rows, so a scoped page has to
-   * narrow it or it offers folders none of its items could be in.
+   * The collections the table resolves its Shared folders column and chip from, and the card grid
+   * derives its tree from. The chip lists whatever this holds rather than deriving its options from
+   * the rows, so a scoped page has to narrow it or it offers folders none of its items could be in.
+   *
+   * Narrowed to the vault only, never to the shared folder in view: an item belongs to as many
+   * shared folders as it was assigned to, so a row in the folder being viewed may live in others
+   * too — narrowing this would drop those from its Shared folders column and leave the chip unable
+   * to offer them. The grid needs the whole vault for the same reason: the folder it drills into
+   * has to be findable in the tree.
    *
    * Narrowed to the vault only, never to the shared folder in view: an item belongs to as many
    * shared folders as it was assigned to, so a row in the folder being viewed may live in others
@@ -244,9 +252,6 @@ export class VaultNextComponent {
     // Predates strict null checks: a miss comes back as `null` despite the signature.
     return ServiceUtils.getTreeNodeObjectFromList(this.collectionTree(), collectionId) ?? undefined;
   });
-
-  /** The direct children of the shared folder in view — the cards the grid renders. */
-  protected readonly childSharedFolders = computed(() => this.sharedFolderNode()?.children ?? []);
 
   /**
    * The name of the shared folder in view, titling the grid. The tree names each node by its own

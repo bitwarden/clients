@@ -5,26 +5,40 @@ import { getByRole, userEvent } from "storybook/test";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
-import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { I18nMockService } from "@bitwarden/components";
+
+import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 
 import { SharedFolderCardGridComponent } from "./shared-folder-card-grid.component";
 
-function folderNode(name: string, id = name): TreeNode<CollectionView> {
-  const collection = new CollectionView({
-    id: id as CollectionId,
-    organizationId: "org-1" as OrganizationId,
-    name,
-  });
+const organizationId = "org-1" as OrganizationId;
 
-  return new TreeNode(collection, undefined as unknown as TreeNode<CollectionView>);
+/** The folder every story drills into — the one whose children the grid renders. */
+const PARENT = { id: "departments" as CollectionId, name: "Departments" };
+
+const SCOPE: VaultScope = {
+  type: VaultScopeType.Organization,
+  organizationId,
+  collectionId: PARENT.id,
+};
+
+function collection(id: string, name: string): CollectionView {
+  return new CollectionView({ id: id as CollectionId, organizationId, name });
 }
 
-function folderNodes(names: string[]): TreeNode<CollectionView>[] {
-  return names.map((name, i) => folderNode(name, `folder-${i}`));
+/**
+ * The folder in view and its children, flat and nested by name — the shape the collection services
+ * hold, which the grid resolves into a tree of its own. Cards come out sorted by name rather than
+ * in the order given here.
+ */
+function childFolders(names: string[]): CollectionView[] {
+  return [
+    collection(PARENT.id, PARENT.name),
+    ...names.map((name, i) => collection(`folder-${i}`, `${PARENT.name}/${name}`)),
+  ];
 }
 
-const DEFAULT_FOLDERS = folderNodes([
+const DEFAULT_FOLDERS = childFolders([
   "Engineering",
   "Design",
   "Marketing",
@@ -33,7 +47,7 @@ const DEFAULT_FOLDERS = folderNodes([
 ]);
 
 /** Fourteen children — nine fill the first three rows, five collapse behind the trigger. */
-const MANY_FOLDERS = folderNodes([
+const MANY_FOLDERS = childFolders([
   "Engineering",
   "Design",
   "Marketing",
@@ -56,7 +70,7 @@ const MANY_FOLDERS = folderNodes([
  */
 const NARROW_WRAPPER = "tw-max-w-xl";
 
-const LONG_NAME_FOLDERS = folderNodes([
+const LONG_NAME_FOLDERS = childFolders([
   "Engineering — Platform, Infrastructure, and Developer Experience",
   "Design — Brand, Product, and Marketing Systems",
   "A folder name with no spaces atallwhichcannotwrapanywhere",
@@ -89,10 +103,8 @@ export default {
     componentWrapperDecorator((story) => `<div class="tw-max-w-5xl">${story}</div>`),
   ],
   args: {
-    folders: DEFAULT_FOLDERS,
-    parentName: "Departments",
-    // Stands in for a host that routes a folder to `/vault/<org>/<folder>`.
-    folderRoute: (folder: CollectionView) => ["/vault", folder.organizationId, folder.id],
+    collections: DEFAULT_FOLDERS,
+    scope: SCOPE,
   },
 } as Meta<SharedFolderCardGridComponent>;
 
@@ -132,26 +144,26 @@ export const Default: Story = {};
 
 export const SingleChild: Story = {
   args: {
-    folders: folderNodes(["Engineering"]),
+    collections: childFolders(["Engineering"]),
   },
 };
 
 /** Renders nothing at all, so the host needs no `@if` of its own. */
 export const NoChildren: Story = {
   args: {
-    folders: [],
+    collections: childFolders([]),
   },
 };
 
 export const ManyChildrenCollapsed: Story = {
   args: {
-    folders: MANY_FOLDERS,
+    collections: MANY_FOLDERS,
   },
 };
 
 export const ManyChildrenExpanded: Story = {
   args: {
-    folders: MANY_FOLDERS,
+    collections: MANY_FOLDERS,
   },
   play: expandOverflow,
   parameters: autoplayInDocs,
@@ -163,7 +175,7 @@ export const ManyChildrenExpanded: Story = {
  */
 export const AccordionCollapsed: Story = {
   args: {
-    folders: MANY_FOLDERS,
+    collections: MANY_FOLDERS,
   },
   play: collapseAccordion,
   parameters: autoplayInDocs,
@@ -178,7 +190,7 @@ export const NarrowContainerCollapsed: Story = {
     componentWrapperDecorator((story) => `<div class="${NARROW_WRAPPER}">${story}</div>`),
   ],
   args: {
-    folders: MANY_FOLDERS,
+    collections: MANY_FOLDERS,
   },
 };
 
@@ -192,7 +204,7 @@ export const NarrowContainerExpanded: Story = {
     componentWrapperDecorator((story) => `<div class="${NARROW_WRAPPER}">${story}</div>`),
   ],
   args: {
-    folders: MANY_FOLDERS,
+    collections: MANY_FOLDERS,
   },
   play: expandOverflow,
   parameters: autoplayInDocs,
@@ -201,13 +213,13 @@ export const NarrowContainerExpanded: Story = {
 /** Names truncate rather than blowing out the track width. */
 export const LongNames: Story = {
   args: {
-    folders: LONG_NAME_FOLDERS,
+    collections: LONG_NAME_FOLDERS,
   },
 };
 
 export const Rtl: Story = {
   decorators: [componentWrapperDecorator((story) => `<div dir="rtl">${story}</div>`)],
   args: {
-    folders: MANY_FOLDERS,
+    collections: MANY_FOLDERS,
   },
 };
