@@ -1,3 +1,4 @@
+import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormArray, FormControl } from "@angular/forms";
 import { By } from "@angular/platform-browser";
@@ -172,20 +173,34 @@ describe("IpAllowlistEditorComponent", () => {
       input.dispatchEvent(new Event("input"));
     }
 
-    function renderedErrors(): string[] {
-      fixture.detectChanges();
-      return fixture.debugElement
-        .queryAll(By.css("bit-error"))
-        .map((e) => (e.nativeElement as HTMLElement).textContent!.trim());
+    function rows(): DebugElement[] {
+      return fixture.debugElement.queryAll(By.css("bit-form-field"));
     }
+
+    /**
+     * The `bit-error` text rendered inside each row's own `bit-form-field`, in row order. Scoped
+     * per row rather than counted across the component, so a mark landing under the wrong input
+     * fails instead of passing on a matching total.
+     */
+    function errorsByRow(): string[][] {
+      fixture.detectChanges();
+      return rows().map((row) =>
+        row
+          .queryAll(By.css("bit-error"))
+          .map((e) => (e.nativeElement as HTMLElement).textContent!.trim()),
+      );
+    }
+
+    function clickRemove(index: number): void {
+      rows()[index].query(By.css("button[bitSuffix]")).nativeElement.click();
+    }
+
+    const DUPLICATE = "accessRuleIpAllowlistDuplicateCidr";
 
     it("renders a bit-error on both duplicate rows when an already-duplicated rule mounts untouched", () => {
       create(hostArray("10.0.0.0/8", "192.168.0.0/16", "10.0.0.0/8"));
 
-      expect(renderedErrors()).toEqual([
-        "accessRuleIpAllowlistDuplicateCidr",
-        "accessRuleIpAllowlistDuplicateCidr",
-      ]);
+      expect(errorsByRow()).toEqual([[DUPLICATE], [], [DUPLICATE]]);
       expect(cidrArray.at(1).hasError("duplicateCidr")).toBe(false);
     });
 
@@ -195,15 +210,21 @@ describe("IpAllowlistEditorComponent", () => {
       type(1, "10.0.0.0/8");
       inputAt(1).dispatchEvent(new Event("blur"));
 
-      expect(renderedErrors().length).toBe(2);
+      expect(errorsByRow()).toEqual([[DUPLICATE], [DUPLICATE]]);
     });
 
     it("keeps the duplicate marks on the surviving rows when a row between them is removed", () => {
       create(hostArray("10.0.0.0/8", "192.168.0.0/16", "10.0.0.0/8"));
 
-      component["removeRow"](1);
+      clickRemove(1);
 
-      expect(renderedErrors().length).toBe(2);
+      expect(errorsByRow()).toEqual([[DUPLICATE], [DUPLICATE]]);
+    });
+
+    it("shows the format error rather than the duplicate one on a row that is both", () => {
+      create(hostArray("not-a-cidr", "not-a-cidr"));
+
+      expect(errorsByRow()).toEqual([["invalid"], ["invalid"]]);
     });
 
     it("clears the duplicate mark from both rows once the values differ", () => {
@@ -211,7 +232,7 @@ describe("IpAllowlistEditorComponent", () => {
 
       type(1, "192.168.0.0/16");
 
-      expect(renderedErrors()).toEqual([]);
+      expect(errorsByRow()).toEqual([[], []]);
     });
   });
 });
