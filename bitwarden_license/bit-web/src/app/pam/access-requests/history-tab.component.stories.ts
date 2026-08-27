@@ -3,6 +3,7 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { of } from "rxjs";
 import { userEvent, within } from "storybook/test";
 
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
@@ -148,6 +149,7 @@ function history(
         },
       },
       { provide: ApprovalPrivilegeService, useValue: { canApprove$: of(canApprove) } },
+      { provide: SyncService, useValue: { activeUserLastSync$: () => of(new Date()) } },
       { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
       { provide: ToastService, useValue: { showToast: () => {} } },
     ],
