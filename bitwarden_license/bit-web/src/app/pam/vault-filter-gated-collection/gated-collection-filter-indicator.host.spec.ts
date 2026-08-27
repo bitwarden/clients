@@ -32,7 +32,10 @@ import { GatedCollectionFilterIndicatorComponent } from "./gated-collection-filt
  */
 function collectionSection(hasEnabledAccessRule: boolean): VaultFilterSection {
   const head = { id: "AllCollections", name: "collections" } as unknown as VaultFilterType;
-  const headNode = new TreeNode<VaultFilterType>(head, null as unknown as TreeNode<VaultFilterType>);
+  const headNode = new TreeNode<VaultFilterType>(
+    head,
+    null as unknown as TreeNode<VaultFilterType>,
+  );
   const child = {
     id: "collection-1",
     name: "Engineering",
