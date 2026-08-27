@@ -22,7 +22,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { CidrValidationService } from "./cidr-validation.service";
-import { CidrPredicate, cidrValidator } from "./cidr.validator";
+import { CidrPredicate, cidrValidator, duplicateCidrValues } from "./cidr.validator";
 
 /** A single CIDR row control, carrying the per-row {@link cidrValidator}. */
 export type CidrRowControl = FormControl<string>;
@@ -122,10 +122,13 @@ export class IpAllowlistEditorComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Marks every row whose trimmed value is shared with another row, so `bit-form-field` renders
+   * Marks every row {@link duplicateCidrValues} reports as repeated, so `bit-form-field` renders
    * `accessRuleIpAllowlistDuplicateCidr` through `bit-error` under each offending row — the same
    * mechanism {@link cidrValidator} already gets for `invalidCidr`. A row can be both malformed and
    * repeated; `invalidCidr` stays first in insertion order so the format error is what shows.
+   *
+   * The rows marked here and the array's own `duplicateCidrs` error come from that one function, so
+   * the array can never be rejected with no row saying why.
    *
    * Marking the row touched is part of the contract, not a nicety:
    * `BitFormFieldControlDirective.hasError` gates on the row's own `touched`, and neither an
@@ -134,18 +137,7 @@ export class IpAllowlistEditorComponent implements OnInit, AfterViewInit {
   private syncDuplicateErrors(): void {
     const controls = this.cidrArray().controls;
     const values = controls.map((control) => control.value.trim());
-
-    const seen = new Set<string>();
-    const duplicated = new Set<string>();
-    for (const value of values) {
-      if (value === "") {
-        continue;
-      }
-      if (seen.has(value)) {
-        duplicated.add(value);
-      }
-      seen.add(value);
-    }
+    const duplicated = duplicateCidrValues(values);
 
     const message = this.i18n.t("accessRuleIpAllowlistDuplicateCidr");
     controls.forEach((control, index) => {
