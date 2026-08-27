@@ -185,6 +185,66 @@ describe("ApprovalsTabComponent", () => {
       expect(text).toContain("prod incident");
     });
 
+    // jsdom performs no layout and loads no stylesheet, so these assert the breakpoint classes are
+    // present on both halves of each column pair, not that the buttons are on screen. The 1024px
+    // behaviour is verified in a browser.
+    it("drops the window and reason columns below the xl breakpoint", () => {
+      inbox.inboxRows$.next([row({ id: "req-1" })]);
+
+      create();
+
+      for (const column of ["window", "reason"]) {
+        const header = query(`[data-testid="approvals-col-${column}"]`);
+        const cell = query(`[data-testid="approvals-cell-${column}-req-1"]`);
+
+        for (const element of [header, cell]) {
+          expect(element).not.toBeNull();
+          expect(element?.classList).toContain("tw-hidden");
+          expect(element?.classList).toContain("xl:tw-table-cell");
+          expect(element?.classList).not.toContain("lg:tw-table-cell");
+        }
+      }
+    });
+
+    it("drops the submitted column below the lg breakpoint", () => {
+      inbox.inboxRows$.next([row({ id: "req-1" })]);
+
+      create();
+
+      const header = query('[data-testid="approvals-col-submitted"]');
+      const cell = query('[data-testid="approvals-cell-submitted-req-1"]');
+
+      for (const element of [header, cell]) {
+        expect(element).not.toBeNull();
+        expect(element?.classList).toContain("tw-hidden");
+        expect(element?.classList).toContain("lg:tw-table-cell");
+        expect(element?.classList).not.toContain("xl:tw-table-cell");
+      }
+    });
+
+    it("keeps the actions column visible at every width", () => {
+      inbox.inboxRows$.next([row({ id: "req-1" })]);
+
+      create();
+
+      expect(query('[data-testid="approvals-col-actions"]')?.classList).not.toContain("tw-hidden");
+      const actionsCell = query('[data-testid="approvals-approve-req-1"]')?.closest("td");
+      expect(actionsCell).not.toBeNull();
+      expect(actionsCell?.classList).not.toContain("tw-hidden");
+    });
+
+    it("keeps the full window and reason reachable from the row", () => {
+      const reason = "prod incident ".repeat(40).trim();
+      inbox.inboxRows$.next([row({ id: "req-1", reason })]);
+
+      create();
+
+      expect(query('[data-testid="approvals-row-req-1"] a')?.getAttribute("href")).toBe(
+        "/pam/requests/req-1",
+      );
+      expect(query(".tw-line-clamp-2")?.getAttribute("title")).toBe(reason);
+    });
+
     it("says so explicitly when a request carries no reason", () => {
       inbox.inboxRows$.next([row({ reason: undefined })]);
 
