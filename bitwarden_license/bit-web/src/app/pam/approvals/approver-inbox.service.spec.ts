@@ -348,6 +348,49 @@ describe("ApproverInboxService", () => {
       expect(await firstValueFrom(service.activeLeaseRows$)).toHaveLength(1);
     });
 
+    it("drops a lease whose window has closed, however the server still reports its status", async () => {
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "lapsed",
+          status: "approved",
+          leaseNotAfter: new Date(Date.now() - 1000).toISOString(),
+          producedLeaseId: "lease-lapsed",
+          producedLeaseStatus: "active",
+        }),
+      ]);
+
+      await service.load();
+
+      expect(await firstValueFrom(service.activeLeaseRows$)).toHaveLength(0);
+    });
+
+    it("keeps a lease an extension has carried past the request's own end", async () => {
+      const requestEnd = new Date(Date.now() - 1000).toISOString();
+      const extendedEnd = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "original",
+          status: "approved",
+          leaseNotAfter: requestEnd,
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "active",
+        }),
+        request({
+          id: "the-extension",
+          status: "approved",
+          extensionOfLeaseId: "lease-1",
+          leaseNotBefore: requestEnd,
+          leaseNotAfter: extendedEnd,
+        }),
+      ]);
+
+      await service.load();
+
+      const rows = await firstValueFrom(service.activeLeaseRows$);
+      expect(rows.map((r) => r.requestId)).toEqual(["original"]);
+      expect(rows[0].endsAt).toBe(extendedEnd);
+    });
+
     it("ends the row at the applied extension's end, not the originating request's", async () => {
       const requestEnd = new Date(Date.now() + 60 * 60 * 1000).toISOString();
       const extendedEnd = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();

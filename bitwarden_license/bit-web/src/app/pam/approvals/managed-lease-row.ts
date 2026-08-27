@@ -40,7 +40,10 @@ export type ManagedLeaseRow = {
 };
 
 /**
- * Whether this request's grant is running right now.
+ * Whether this request minted a lease the server still holds open.
+ *
+ * Not on its own "live right now": nothing ever moves a lease out of `active` when its window
+ * closes, so a caller listing running access must also test the effective end.
  *
  * Reads the request, never the display badge: `historyDisplayStatus` only reaches its activated
  * branch for `status === "approved"`, and an activated grant can arrive with a status the client
