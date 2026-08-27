@@ -1,8 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { NgClass } from "@angular/common";
-import { Component, HostListener, computed, inject, input, output, viewChild } from "@angular/core";
+import { AsyncPipe, NgClass } from "@angular/common";
+import {
+  Component,
+  HostListener,
+  computed,
+  inject,
+  input,
+  output,
+  viewChild,
+  effect,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { Observable } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge/premium-badge.component";
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
@@ -28,6 +38,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import {
   GetOrgNameFromIdPipe,
   OrganizationNameBadgeComponent,
+  ShareLinkService,
   VaultCopyButtonsService,
   VaultItemCopyActionsComponent,
   Vfo1I18nPipe,
@@ -57,6 +68,7 @@ import { VaultItemEvent } from "./vault-item-event";
     CheckboxModule,
     Vfo1I18nPipe,
     Vfo1IconPipe,
+    AsyncPipe,
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {
@@ -89,7 +101,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
    * Enforce Org Data Ownership Policy Status
    */
   protected readonly enforceOrgDataOwnershipPolicy = input<boolean>();
-  protected readonly showShareViaLinkOption = input<boolean>(false);
   protected readonly showBatchBar = input<boolean>(false);
   protected readonly selected = input<boolean>(false);
   protected readonly checkboxChange = output<void>();
@@ -99,6 +110,14 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   private i18nService = inject(I18nService);
   private vaultCopyButtonsService = inject(VaultCopyButtonsService);
   private configService = inject(ConfigService);
+  private shareLinkService = inject(ShareLinkService);
+  protected showShareViaLink$: Observable<boolean>;
+
+  constructor() {
+    effect(() => {
+      this.showShareViaLink$ = this.shareLinkService.cipherCanBeShared(this.cipher());
+    });
+  }
 
   private readonly quickCopyActionsSetting = toSignal(
     this.vaultCopyButtonsService.showQuickCopyActions$,
@@ -172,14 +191,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
       return false;
     }
     return true;
-  });
-
-  protected readonly showShareViaLink = computed(() => {
-    return (
-      this.showShareViaLinkOption() &&
-      !this.isDeleted() &&
-      !CipherViewLikeUtils.isArchived(this.cipher())
-    );
   });
 
   // Do Not show Assign to Collections option if item is archived

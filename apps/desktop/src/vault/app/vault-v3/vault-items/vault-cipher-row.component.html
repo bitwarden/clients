@@ -132,7 +132,7 @@
           {{ "assignToCollections" | vfo1I18n: "addToSharedFolder" }}
         </button>
       }
-      @if (showShareViaLink()) {
+      @if (showShareViaLink$ | async) {
         <button bitMenuItem type="button" (click)="shareViaLink()">
           <i class="bwi bwi-fw bwi-share-link" aria-hidden="true"></i>
           {{ "shareViaLink" | i18n }}

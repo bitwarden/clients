@@ -4,6 +4,7 @@ import { BehaviorSubject, combineLatest, firstValueFrom, map, Observable, switch
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -23,6 +24,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { PolicyType } from "@bitwarden/sdk-internal";
 
 /**
  * Represents an active share link created for a vault item.
@@ -48,6 +50,7 @@ export class ShareLinkService {
   private i18nService = inject(I18nService);
   private configService = inject(ConfigService);
   private collectionService = inject(CollectionService);
+  private policyService = inject(PolicyService);
 
   private cipherId = new BehaviorSubject<CipherId | undefined>(undefined);
   private links = new BehaviorSubject<ShareLink[]>([]);
@@ -170,9 +173,21 @@ export class ShareLinkService {
         getUserId,
         switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
       ),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendControls, userId)),
+      ),
     ]).pipe(
-      map(([ffEnabled, collections]) => {
-        if (!c) {
+      map(([ffEnabled, collections, sendControlsPolicies]) => {
+        const policyDisablingItemSends = sendControlsPolicies.find(
+          (scp) =>
+            scp.data.disableSend ||
+            (scp.data.allowedSendTypes && !scp.data.allowedSendTypes.includes(SendType.Item)),
+        );
+        if (policyDisablingItemSends) {
+          return false;
+        }
+        if (!c || c.archivedDate || c.deletedDate) {
           return false;
         }
         if (!ffEnabled) {

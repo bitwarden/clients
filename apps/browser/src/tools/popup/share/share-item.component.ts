@@ -37,7 +37,7 @@ export class ShareItemComponent {
   private readonly accountService = inject(AccountService);
 
   protected readonly cipher = signal<CipherView | null>(null);
-  protected readonly shareItemForm = viewChild.required(ShareItemFormComponent);
+  protected readonly shareItemForm = viewChild(ShareItemFormComponent);
 
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -60,7 +60,10 @@ export class ShareItemComponent {
   }
 
   protected async createAndCopyLink(): Promise<void> {
-    await this.shareItemForm().createAndCopyLink();
+    const copySuccessful = await this.shareItemForm()?.createAndCopyLink();
+    if (copySuccessful) {
+      this.onBackClick();
+    }
   }
 
   protected onBackClick(): void {
