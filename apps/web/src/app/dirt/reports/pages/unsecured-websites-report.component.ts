@@ -39,6 +39,7 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
       initialValue: false,
     },
   );
+  protected readonly reportTitleKey = "unsecuredWebsitesReport";
 
   disabled = true;
 

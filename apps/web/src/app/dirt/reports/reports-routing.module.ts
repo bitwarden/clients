@@ -32,42 +32,35 @@ const routes: Routes = [
       {
         path: "breach-report",
         component: BreachReportComponent,
-        data: { titleId: "dataBreachReport" },
       },
       {
         path: "reused-passwords-report",
         component: ReusedPasswordsReportComponent,
-        data: { titleId: "reusedPasswordsReport" },
         canActivate: [hasPremiumGuard()],
       },
       {
         path: "unsecured-websites-report",
         component: UnsecuredWebsitesReportComponent,
-        data: { titleId: "unsecuredWebsitesReport" },
         canActivate: [hasPremiumGuard()],
       },
       {
         path: "weak-passwords-report",
         component: WeakPasswordsReportComponent,
-        data: { titleId: "weakPasswordsReport" },
         canActivate: [hasPremiumGuard()],
       },
       {
         path: "exposed-passwords-report",
         component: ExposedPasswordsReportComponent,
-        data: { titleId: "exposedPasswordsReport" },
         canActivate: [hasPremiumGuard()],
       },
       {
         path: "inactive-two-factor-report",
         component: InactiveTwoFactorReportComponent,
-        data: { titleId: "inactive2faReport" },
         canActivate: [hasPremiumGuard()],
       },
       {
         path: "passkey-report",
         component: PasskeyReportComponent,
-        data: { titleId: "passkeyLoginReport" },
         canActivate: [
           hasPremiumGuard(),
           canAccessFeature(FeatureFlag.PasskeyLoginReport, true, "/reports", false),

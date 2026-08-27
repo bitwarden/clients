@@ -106,6 +106,7 @@ export class OrgPasskeyReportComponent {
       initialValue: false,
     },
   );
+  protected readonly reportTitleKey = "passkeyLoginReport";
 
   // Reactive state
   protected readonly loading = signal(false);

@@ -122,6 +122,7 @@ export class PasskeyReportComponent implements OnInit {
       initialValue: false,
     },
   );
+  protected readonly reportTitleKey = "passkeyLoginReport";
 
   protected readonly currentFilterStatus = signal<number | string>(0);
   private readonly passkeyServices = signal<Map<string, PasskeyServiceEntry>>(new Map());

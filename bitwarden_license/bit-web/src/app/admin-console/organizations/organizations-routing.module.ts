@@ -110,9 +110,6 @@ const routes: Routes = [
               safeProvider(MemberDialogManagerService),
               safeProvider(BillingConstraintService),
             ],
-            data: {
-              titleId: "memberAccessReport",
-            },
             canActivate: [isEnterpriseOrgGuard()],
           },
         ],

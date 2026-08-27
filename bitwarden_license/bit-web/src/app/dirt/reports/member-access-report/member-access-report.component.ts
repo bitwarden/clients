@@ -98,6 +98,7 @@ export class MemberAccessReportComponent implements OnInit {
       initialValue: false,
     },
   );
+  protected readonly reportTitleKey = "memberAccessReport";
 
   protected dataSource = new TableDataSource<MemberAccessReportView>();
   protected searchControl = new FormControl("", { nonNullable: true });

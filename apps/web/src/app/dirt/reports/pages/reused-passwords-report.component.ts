@@ -40,6 +40,7 @@ export class ReusedPasswordsReportComponent extends CipherReportComponent implem
       initialValue: false,
     },
   );
+  protected readonly reportTitleKey = "reusedPasswordsReport";
 
   ciphersToCheckForReusedPasswords: CipherView[] = [];
   passwordUseMap: Map<string, number>;

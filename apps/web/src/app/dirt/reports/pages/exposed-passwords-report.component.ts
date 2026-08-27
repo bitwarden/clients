@@ -41,6 +41,7 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
       initialValue: false,
     },
   );
+  protected readonly reportTitleKey = "exposedPasswordsReport";
 
   disabled = true;
 

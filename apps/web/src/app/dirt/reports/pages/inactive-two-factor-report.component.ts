@@ -46,6 +46,7 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       initialValue: false,
     },
   );
+  protected readonly reportTitleKey = "inactive2faReport";
 
   services = new Map<string, string>();
   cipherDocs = new Map<string, string>();

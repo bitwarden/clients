@@ -28,6 +28,7 @@ export class BreachReportComponent implements OnInit {
       initialValue: false,
     },
   );
+  protected readonly reportTitleKey = "dataBreachReport";
 
   loading = false;
   error = false;

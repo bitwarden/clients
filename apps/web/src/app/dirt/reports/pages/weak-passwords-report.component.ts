@@ -45,6 +45,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
       initialValue: false,
     },
   );
+  protected readonly reportTitleKey = "weakPasswordsReport";
 
   disabled = true;
 
