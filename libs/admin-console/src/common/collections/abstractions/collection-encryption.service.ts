@@ -5,9 +5,8 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { UserId } from "@bitwarden/common/types/guid";
 
 /**
- * The result of decrypting a batch of collections where individual failures do not abort the
- * rest of the batch. A collection that fails to decrypt is returned in `failure` instead of
- * being silently dropped.
+ * Result of decrypting a batch of collections. Collections that fail to decrypt are returned
+ * in `failure` instead of aborting the batch.
  */
 export type CollectionDecryptionResult = {
   success: CollectionView[];
@@ -39,13 +38,7 @@ export abstract class CollectionEncryptionService {
   abstract decryptMany(collections: Collection[], userId: UserId): Observable<CollectionView[]>;
 
   /**
-   * Decrypts many collections using the SDK for the given userId, returning successes and
-   * failures separately. Unlike `decryptMany`, a single collection that fails to decrypt does
-   * not silently drop — it is returned in `failure` instead.
-   *
-   * Implementations may use `FeatureFlag.CollectionBulkDecryptWithFailures` to choose between a
-   * batched SDK call and decrypting collections one at a time, but both paths must uphold this
-   * success/failure contract.
+   * Like `decryptMany`, but returns failures separately instead of dropping them.
    *
    * @param collections The encrypted collection objects
    * @param userId The user ID whose keys will be used for decryption

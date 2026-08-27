@@ -65,11 +65,7 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
     );
   }
 
-  /**
-   * V1 implementation: decrypts each collection individually via the SDK, one at a time.
-   * A collection that fails to decrypt is logged and returned in `failure` instead of aborting
-   * the rest of the batch.
-   */
+  /** Decrypts each collection individually via the SDK, one at a time. */
   private decryptManyWithFailuresV1(
     collections: Collection[],
     userId: UserId,
@@ -102,12 +98,7 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
     );
   }
 
-  /**
-   * V2 implementation using the SDK's `decrypt_list_with_failures`, which parallelizes
-   * decryption of the whole list for better performance on large lists. Gated behind
-   * {@link FeatureFlag.CollectionBulkDecryptWithFailures} until the SDK bindings that expose
-   * this method have rolled out everywhere this service is used.
-   */
+  /** Decrypts the whole list in one SDK call via `decrypt_list_with_failures`. */
   private decryptManyWithFailuresV2(
     collections: Collection[],
     userId: UserId,
@@ -143,12 +134,7 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
     );
   }
 
-  /**
-   * Records how long a single decrypt took. `startTime` must be captured inside the
-   * `concatMap` rather than when the pipeline is built: `userClient$` re-emits on unlock and on
-   * key re-emission, so a `startTime` closed over at build time would make every emission after
-   * the first report elapsed session time instead of decrypt duration.
-   */
+  /** startTime must be captured inside concatMap since userClient$ can re-emit. */
   private measureDecrypt(
     startTime: DOMHighResTimeStamp,
     variant: string,
@@ -168,12 +154,6 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
     );
   }
 
-  /**
-   * Builds a lookup of source `Collection`s by id, used to re-associate decrypted SDK views with
-   * their source (needed to preserve `defaultUserCollectionEmail`, which gates the security
-   * restriction in `CollectionView.canEditName()`). Duplicate ids collapse to the last entry,
-   * which is the same collection either way.
-   */
   private buildCollectionMap(collections: Collection[]): Map<string, Collection> {
     return new Map(collections.map((c) => [c.id, c]));
   }

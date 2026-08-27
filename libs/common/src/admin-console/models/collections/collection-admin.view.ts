@@ -151,12 +151,7 @@ export class CollectionAdminView extends CollectionView {
     return view;
   }
 
-  /**
-   * Wraps an already-decrypted `CollectionView` (produced by
-   * {@link CollectionEncryptionService.decryptManyWithFailures}) with the admin-only fields
-   * (`groups`, `users`, `unmanaged`, `assigned`) carried by the access-details response. This is a
-   * data transform only - decryption itself is the responsibility of `CollectionEncryptionService`.
-   */
+  /** Combines an already-decrypted `CollectionView` with the admin-only fields from the source response. */
   static fromCollectionView(
     view: CollectionView,
     source: CollectionAccessDetailsResponse,
@@ -186,13 +181,7 @@ export class CollectionAdminView extends CollectionView {
     return adminView;
   }
 
-  /**
-   * Creates a placeholder CollectionAdminView for a collection that failed to decrypt via the
-   * SDK bulk path (`decrypt_list_with_failures`). Unlike the personal-vault decryption path, the
-   * Admin Console must never silently drop a collection that fails to decrypt, since admins still
-   * need to see, manage, and delete it. Mirrors the fallback behavior of
-   * {@link fromCollectionAccessDetails}'s catch branch.
-   */
+  /** Placeholder view for a collection that failed to decrypt, so admins can still manage it. */
   static fromCollectionAccessDetailsDecryptionFailure(
     source: CollectionAccessDetailsResponse,
   ): CollectionAdminView {

@@ -57,12 +57,7 @@ export class Collection extends Domain {
     return collection;
   }
 
-  /**
-   * Creates a Collection domain model from a `CollectionAccessDetailsResponse`, for use with SDK
-   * crypto operations (see {@link CollectionEncryptionService}). Admin-only fields (`groups`,
-   * `users`, `unmanaged`, `assigned`) are not carried by `Collection` and must be re-attached by
-   * the caller when transforming a decrypted result back to a `CollectionAdminView`.
-   */
+  /** Note: admin-only fields (`groups`, `users`, etc.) are not carried by `Collection`. */
   static fromCollectionAccessDetailsResponse(
     response: CollectionAccessDetailsResponse,
   ): Collection {

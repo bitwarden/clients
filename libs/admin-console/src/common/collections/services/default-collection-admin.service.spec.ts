@@ -200,10 +200,7 @@ describe("DefaultCollectionAdminService", () => {
       });
 
       it("still decrypts responses that carry no groups/users", async () => {
-        // `ApiService` builds every element as a `CollectionAccessDetailsResponse`, whose
-        // `groups`/`users` default to `[]`, so this shape does not occur on the current call
-        // path. The cast below forces the plain `CollectionResponse` class to cover the
-        // defensive `isCollectionAccessDetailsResponse` branch in `decryptManyV1`.
+        // Forces the plain CollectionResponse shape, which doesn't occur in practice today.
         apiService.getManyCollectionsWithAccessDetails.mockResolvedValue(
           new ListResponse(
             {
@@ -226,8 +223,6 @@ describe("DefaultCollectionAdminService", () => {
 
         const result = await firstValueFrom(service.collectionAdminViews$(orgId, userId));
 
-        // Both constructors yield the same name and an empty `groups`, so assert the branch
-        // taken rather than the resulting shape.
         expect(fromResponse).toHaveBeenCalledTimes(1);
         expect(fromAccessDetails).not.toHaveBeenCalled();
         expect(collectionEncryptionService.decryptManyWithFailures).not.toHaveBeenCalled();

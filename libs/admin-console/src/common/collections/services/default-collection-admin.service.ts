@@ -145,11 +145,6 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     );
   }
 
-  /**
-   * Routes decryption through the SDK-backed batch path or the original per-item path based on
-   * {@link FeatureFlag.CollectionAdminBulkDecrypt}. The empty case is handled by the caller, so
-   * this is a straight two-way mapping: flag on -> SDK, flag off -> non-SDK.
-   */
   private decryptMany(
     organizationId: string,
     userId: UserId,
@@ -166,14 +161,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     );
   }
 
-  /**
-   * V1 implementation: decrypts each collection individually via `EncryptService`.
-   *
-   * Accepts the wider `CollectionResponse` shape and narrows per item. Every caller today passes
-   * `CollectionAccessDetailsResponse`s, so the `fromCollectionResponse` branch is defensive only —
-   * it keeps this path correct if a caller ever supplies responses built from the plain
-   * `CollectionResponse` class, which carries no `groups`/`users`.
-   */
+  /** Decrypts each collection individually via `EncryptService`. */
   private async decryptManyV1(
     organizationId: string,
     collections: CollectionResponse[] | CollectionAccessDetailsResponse[],
@@ -181,9 +169,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
   ): Promise<CollectionAdminView[]> {
     const orgKey = orgKeys[organizationId as OrganizationId];
 
-    // Sequential rather than `Promise.all`: decryption is compute-bound, so there is no
-    // concurrency to win, and the extra promise scheduling makes the parallel form slower
-    // on both V8 and SpiderMonkey.
+    // Sequential, not Promise.all: decryption is CPU-bound, so parallelizing only adds overhead.
     const views: CollectionAdminView[] = [];
     for (const c of collections) {
       views.push(
@@ -196,13 +182,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     return views;
   }
 
-  /**
-   * V2 implementation: delegates to `CollectionEncryptionService` and wraps results into
-   * `CollectionAdminView`s. Gated behind {@link FeatureFlag.CollectionAdminBulkDecrypt}.
-   *
-   * Both per-collection and batch-level failures are caught and rendered as placeholder views
-   * so admins can still see and manage collections that failed to decrypt.
-   */
+  /** Decrypts via `CollectionEncryptionService`, rendering failures as placeholder views. */
   private decryptManyV2(
     collections: CollectionAccessDetailsResponse[],
     userId: UserId,
@@ -321,13 +301,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
   }
 }
 
-/**
- * Duck-types a response as a `CollectionAccessDetailsResponse` by the presence of `groups` and
- * `users`. Note this is true for every instance the API layer builds today: `ApiService`
- * constructs `ListResponse(r, CollectionAccessDetailsResponse)`, and that class defaults both
- * fields to `[]` regardless of the payload. The check is retained as a guard against a caller
- * supplying responses built from the plain `CollectionResponse` class.
- */
+/** Duck-types a response as a `CollectionAccessDetailsResponse` by its `groups`/`users` fields. */
 function isCollectionAccessDetailsResponse(
   response: CollectionResponse | CollectionAccessDetailsResponse,
 ): response is CollectionAccessDetailsResponse {

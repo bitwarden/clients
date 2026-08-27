@@ -252,10 +252,6 @@ describe("DefaultCollectionEncryptionService", () => {
       });
 
       it("resolves duplicate input ids by letting the last entry win", async () => {
-        // A duplicate id indicates a duplicate collection - the map collapses to the last entry,
-        // which is used to re-associate the decrypted view with its source (needed to preserve
-        // `defaultUserCollectionEmail`, which gates the security restriction in
-        // `CollectionView.canEditName()`).
         const collection1 = makeCollection({
           defaultUserCollectionEmail: "offboarded@example.com",
           type: CollectionTypes.DefaultUserCollection,
@@ -287,9 +283,7 @@ describe("DefaultCollectionEncryptionService", () => {
       });
 
       it("times each emission of userClient$ separately", async () => {
-        // userClient$ is long-lived and re-emits on unlock and key re-emission. A startTime
-        // captured when the pipeline was built would be reused for every later emission, so
-        // measure would report elapsed session time rather than decrypt duration.
+        // userClient$ can re-emit; startTime should be captured per emission, not once.
         jest.spyOn(performance, "now").mockReturnValueOnce(1000).mockReturnValueOnce(2000);
         (sdkService.userClient$ as jest.Mock).mockReturnValue(of(mockSdk, mockSdk));
 
@@ -416,8 +410,6 @@ describe("DefaultCollectionEncryptionService", () => {
       });
 
       it("times each emission of userClient$ separately", async () => {
-        // See the equivalent test on the enabled path - both variants capture startTime inside
-        // concatMap so that a re-emitting userClient$ does not inflate later measurements.
         jest.spyOn(performance, "now").mockReturnValueOnce(1000).mockReturnValueOnce(2000);
         (sdkService.userClient$ as jest.Mock).mockReturnValue(of(mockSdk, mockSdk));
 
