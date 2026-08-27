@@ -34,7 +34,7 @@ import {
   DIALOG_CIPHER_MENU_ITEMS,
 } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { BitwardenIcon, ChipFilterOption } from "@bitwarden/components";
-import { MY_VAULT, NO_FOLDER } from "@bitwarden/vault";
+import { idString, MY_VAULT, NO_FOLDER } from "@bitwarden/vault";
 
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
@@ -49,11 +49,6 @@ interface CachedTableFilterState {
   folderIds?: string[];
   cipherType?: CipherType | null;
 }
-
-/**
- * Widens a branded SDK id to a plain string, or `undefined` for null/undefined inputs.
- */
-const idString = (id: unknown): string | undefined => (id == null ? undefined : String(id));
 
 /**
  * Filter service for the vault popup list table (`VaultPopupListTableComponent`).

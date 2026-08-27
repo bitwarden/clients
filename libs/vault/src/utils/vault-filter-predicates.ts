@@ -13,7 +13,14 @@ export const MY_VAULT = "myVault";
 /** Sentinel for the My folders chip's "no folder" option. */
 export const NO_FOLDER = "noFolder";
 
-const idString = (id: unknown): string | undefined => (id == null ? undefined : String(id));
+/**
+ * Widens a branded SDK id to a plain string, or `undefined` for null/undefined inputs.
+ *
+ * Cipher ids are branded SDK types on `CipherListView` (`OrganizationId`, `CollectionId`,
+ * `FolderId`) but plain strings on `CipherView`, so reading one off `CipherViewLike` yields a
+ * union that can't key a lookup or be compared to a filter value until it's normalized.
+ */
+export const idString = (id: unknown): string | undefined => (id == null ? undefined : String(id));
 
 /**
  * Whether the cipher matches the given type filter.

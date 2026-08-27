@@ -48,6 +48,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
+  idString,
   matchesFavorite,
   matchesFolder,
   matchesSharedFolder,
@@ -133,15 +134,6 @@ export type VaultItemsTableFilters = {
  * step as types are added.
  */
 const ALL_CIPHER_TYPES: CipherType[] = DIALOG_CIPHER_MENU_ITEMS.map((item) => item.type);
-
-/**
- * Widens an id to a plain string.
- *
- * Cipher ids are branded SDK types on `CipherListView` (`OrganizationId`, `CollectionId`,
- * `FolderId`) but plain strings on `CipherView`, so reading one off `CipherViewLike` yields a
- * union that can't key a lookup or be compared to a filter value until it's normalized.
- */
-const idString = (id: unknown): string | undefined => (id == null ? undefined : String(id));
 
 /**
  * i18n key per cipher type, for the Type chip's options — taken from the same menu items

@@ -132,4 +132,5 @@ export {
   matchesVault,
   matchesSharedFolder,
   matchesFolder,
+  idString,
 } from "./utils/vault-filter-predicates";
