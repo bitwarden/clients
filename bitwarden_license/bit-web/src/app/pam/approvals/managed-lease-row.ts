@@ -22,8 +22,8 @@ export type ManagedLeaseRow = {
   leaseId: AccessLeaseId;
   cipherId: string;
   collectionId: string;
-  /** null when the cipher isn't in the caller's local vault; the template falls back to the id. */
-  cipherName: string | null;
+  /** The gated cipher's display name, falling back to its raw id when it isn't in the local vault. */
+  cipherName: string;
   collectionName: string | null;
   /** The holder's name, falling back to their email, then empty. */
   requester: string;
@@ -69,7 +69,7 @@ export function toManagedLeaseRow(
 ): ManagedLeaseRow {
   const cipherId = uuidAsString(request.cipherId);
   const collectionId = uuidAsString(request.collectionId);
-  const cipherName = names.cipherNameById.get(cipherId) ?? null;
+  const cipherName = names.cipherNameById.get(cipherId) ?? cipherId;
   const collectionName = names.collectionNameById.get(collectionId) ?? null;
   const extended = extension != null && extension.latestEndMs > 0;
   const endsAtMs = extended ? extension.latestEndMs : Date.parse(request.leaseNotAfter);
