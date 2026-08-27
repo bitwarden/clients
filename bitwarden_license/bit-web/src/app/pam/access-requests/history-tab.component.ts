@@ -9,13 +9,22 @@ import {
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
-import { combineLatest, filter, map, take } from "rxjs";
+import {
+  combineLatest,
+  distinctUntilChanged,
+  filter,
+  map,
+  shareReplay,
+  startWith,
+  take,
+} from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
   BadgeComponent,
   ButtonModule,
@@ -68,7 +77,8 @@ function resolvedOrSubmittedMs(row: MyAccessRequestRow): number {
  * differs is what a row permits: `managedIds` is the per-row authority, so a row carries the same
  * actions under All as under the filter it came from, and a row the caller merely raised carries
  * none. A request the caller raised against a collection they also manage is returned by both reads,
- * so All de-duplicates by request id.
+ * so All de-duplicates by request id, keeping the caller's own copy — only that side fills in the
+ * extension the grant was given.
  *
  * Own rows are read-only, so a caller with no approval privilege has no managed rows, gets no
  * Actions column, and is shown no toggle — every option would be a filter over the same one list.
@@ -138,7 +148,7 @@ export class HistoryTabComponent {
 
   /**
    * Latched true the first time every source the table draws from has finished loading — which is
-   * all the skeleton is waiting for, now that nothing about the opening view is read off the rows.
+   * all the skeleton is waiting for: nothing about the opening view is read off the rows.
    *
    * Latched rather than tracked so a background reload cannot pull the table out from under whoever
    * is reading it. Sampling the whole first load, rather than clearing as soon as any one source
@@ -152,21 +162,55 @@ export class HistoryTabComponent {
    * the history route has no guard; `canViewApprovalsGuard` waits the same way for the same reason
    * on the sibling tab.
    */
-  private readonly historyLoaded = toSignal(
-    combineLatest([
-      this.myAccess.loading$,
-      this.inbox.loading$,
-      this.approvalPrivileges.canApprove$,
-      this.syncService.activeUserLastSync$(),
-    ]).pipe(
-      filter(
-        ([myLoading, inboxLoading, canApprove, lastSync]) =>
-          !myLoading && !((canApprove || lastSync == null) && inboxLoading),
-      ),
-      take(1),
-      map(() => true),
+  private readonly historyLoaded$ = combineLatest([
+    this.myAccess.loading$,
+    this.inbox.loading$,
+    this.approvalPrivileges.canApprove$,
+    this.syncService.activeUserLastSync$(),
+  ]).pipe(
+    filter(
+      ([myLoading, inboxLoading, canApprove, lastSync]) =>
+        !myLoading && !((canApprove || lastSync == null) && inboxLoading),
+    ),
+    take(1),
+    map(() => true),
+    startWith(false),
+    shareReplay({ bufferSize: 1, refCount: false }),
+  );
+
+  protected readonly historyLoaded = toSignal(this.historyLoaded$, { initialValue: false });
+
+  /**
+   * The skeleton is held back until the load has run for a second, per the component library's
+   * display guidance, so a history that arrives quickly never flashes it — arriving at this tab
+   * from a sibling, both reads have usually already answered.
+   */
+  private readonly showSkeleton = toSignal(
+    this.historyLoaded$.pipe(
+      map((loaded) => !loaded),
+      distinctUntilChanged(),
+      skeletonLoadingDelay(),
     ),
     { initialValue: false },
+  );
+
+  /**
+   * Whether the skeleton table is on screen. Drives the `role="status"` announcement as well, so
+   * that a load finishing inside the delay never announces a screen the user was not shown.
+   */
+  protected readonly skeletonVisible = computed(() => this.showSkeleton() && !this.historyLoaded());
+
+  /** Latched once the skeleton has been on screen, so its removal can be announced in turn. */
+  private readonly skeletonShown = signal(false);
+
+  /**
+   * Whether the live region announces that the content has arrived. Emptying the region announces
+   * nothing on its own, so the "loading" announcement needs a counterpart once the rows land. Gated
+   * on the skeleton having been shown, so a load that finishes inside the delay announces neither
+   * half.
+   */
+  protected readonly announceLoaded = computed(
+    () => this.skeletonShown() && !this.skeletonVisible(),
   );
 
   private readonly hasManagedHistory = computed(() => this.managedRows().length > 0);
@@ -184,10 +228,15 @@ export class HistoryTabComponent {
     this.canSwitchScope() ? this.selectedScope() : HistoryScope.All,
   );
 
-  /** Both sources in one list, de-duplicated by request id and re-sorted on the shared key. */
+  /**
+   * Both sources in one list, de-duplicated by request id and re-sorted on the shared key. A row
+   * both reads return keeps the caller's own copy: `buildMyAccessRequestRows` folds an approved
+   * extension onto the grant it extended and fills in the "Extended" badge, which the inbox's
+   * straight row mapping leaves null.
+   */
   private readonly allRows = computed(() => {
-    const rowsById = new Map(this.managedRows().map((row) => [String(row.id), row]));
-    for (const row of this.myRows()) {
+    const rowsById = new Map(this.myRows().map((row) => [String(row.id), row]));
+    for (const row of this.managedRows()) {
       const key = String(row.id);
       if (!rowsById.has(key)) {
         rowsById.set(key, row);
@@ -209,8 +258,6 @@ export class HistoryTabComponent {
     }
   });
 
-  protected readonly showSkeleton = computed(() => !this.historyLoaded());
-
   /**
    * Shown exactly when something in the current list can be acted on. Keyed off the listed rows
    * rather than the viewer's privilege because an approver who has decided nothing yet, and the
@@ -229,12 +276,25 @@ export class HistoryTabComponent {
 
   protected readonly historyDataSource = new TableDataSource<MyAccessRequestRow>();
 
+  /**
+   * The Resolved column's sort, which is what actually orders the rendered table. Sorting on
+   * `resolvedAt` alone would send a row that was never decided to the end of the descending sort
+   * rather than to its submitted-at place. Ascending: `bitSortable` applies the direction itself.
+   */
+  protected readonly byResolvedOrSubmitted = (a: MyAccessRequestRow, b: MyAccessRequestRow) =>
+    resolvedOrSubmittedMs(a) - resolvedOrSubmittedMs(b);
+
   /** Five fills the space the table occupies without implying a row count the history may not have. */
   protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
   constructor() {
     effect(() => {
       this.historyDataSource.data = this.historyRows();
+    });
+    effect(() => {
+      if (this.skeletonVisible()) {
+        this.skeletonShown.set(true);
+      }
     });
   }
 
