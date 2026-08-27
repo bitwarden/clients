@@ -29,7 +29,6 @@
         <ng-container header>
           <tr>
             <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
-            <th bitCell>{{ "pamColumnStatus" | i18n }}</th>
             <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
             <th bitCell bitSortable="submittedAt" default="desc">
               {{ "pamColumnSubmitted" | i18n }}
@@ -61,21 +60,6 @@
                   }
                 </div>
               </div>
-            </td>
-            <td bitCell>
-              @if (pendingStatus(row); as status) {
-                @if (status.badgeState; as state) {
-                  <app-pam-access-state-badge [state]="state" />
-                } @else if (status.statusBadge; as badge) {
-                  <span
-                    bitBadge
-                    [variant]="badge.variant"
-                    [attr.data-testid]="'my-access-pending-status-' + row.id"
-                  >
-                    {{ badge.labelKey | i18n }}
-                  </span>
-                }
-              }
             </td>
             <td bitCell>
               @if (startsNow(row)) {
@@ -191,7 +175,7 @@
         <ng-container header>
           <tr>
             <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
-            <th bitCell bitSortable="notAfter">{{ "pamColumnWindow" | i18n }}</th>
+            <th bitCell>{{ "pamColumnWindow" | i18n }}</th>
             <th bitCell>{{ "pamColumnStatus" | i18n }}</th>
             <th bitCell class="tw-w-32">
               <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
@@ -235,7 +219,7 @@
               </div>
             </td>
             <td bitCell>
-              @if (row.request != null && startsNow(row.request)) {
+              @if (row.request != null && isReadyNow(row.request)) {
                 {{ "pamWindowUntil" | i18n: (row.notAfter | date: "short") }}
               } @else {
                 {{ row.notBefore | date: "short" }} &ndash; {{ row.notAfter | date: "short" }}
@@ -247,7 +231,7 @@
               } @else if (row.request; as request) {
                 @if (isReadyNow(request)) {
                   <app-pam-access-state-badge [state]="readyBadge" />
-                } @else if (request.statusBadge; as badge) {
+                } @else if (grantBadge(request); as badge) {
                   <span
                     bitBadge
                     [variant]="badge.variant"
