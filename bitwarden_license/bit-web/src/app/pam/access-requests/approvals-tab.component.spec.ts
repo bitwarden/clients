@@ -69,6 +69,16 @@ function leaseRow(
   );
 }
 
+/**
+ * The ids of the once-a-second clocks a spied `setInterval` created, told apart from the
+ * zero-delay timers Angular's own scheduler queues during change detection.
+ */
+function secondlyIntervalIds(spy: jest.SpyInstance): unknown[] {
+  return spy.mock.results
+    .filter((_, index) => spy.mock.calls[index][1] === 1000)
+    .map((result) => result.value);
+}
+
 describe("ApprovalsTabComponent", () => {
   let fixture: ComponentFixture<ApprovalsTabComponent>;
   let component: ApprovalsTabComponent;
@@ -135,6 +145,7 @@ describe("ApprovalsTabComponent", () => {
   afterEach(() => {
     fixture?.destroy();
     jest.useRealTimers();
+    jest.restoreAllMocks();
   });
 
   describe("rendering", () => {
@@ -386,6 +397,36 @@ describe("ApprovalsTabComponent", () => {
 
       expect(query('[data-testid="approvals-lease-lease-1"]')).toBeNull();
       expect(query('[data-testid="approvals-active-access-empty"]')).not.toBeNull();
+    });
+
+    it("runs no clock at all when there is no lease to expire", () => {
+      // The shared ticker is ref-counted, so a pending-only queue must leave it torn down rather
+      // than scheduling a round of change detection every second that can never change anything.
+      const setIntervalSpy = jest.spyOn(global, "setInterval");
+      inbox.inboxRows$.next([row()]);
+
+      create();
+
+      expect(secondlyIntervalIds(setIntervalSpy)).toHaveLength(0);
+    });
+
+    it("shares one clock with the badges it renders, and tears it down on destroy", () => {
+      const setIntervalSpy = jest.spyOn(global, "setInterval");
+      const clearIntervalSpy = jest.spyOn(global, "clearInterval");
+      inbox.activeLeaseRows$.next([
+        leaseRow(),
+        leaseRow({ id: "req-2", producedLeaseId: "lease-2" }),
+      ]);
+
+      create();
+
+      const [intervalId] = secondlyIntervalIds(setIntervalSpy);
+      expect(secondlyIntervalIds(setIntervalSpy)).toHaveLength(1);
+      expect(clearIntervalSpy).not.toHaveBeenCalledWith(intervalId);
+
+      fixture.destroy();
+
+      expect(clearIntervalSpy).toHaveBeenCalledWith(intervalId);
     });
 
     it("revokes the lease once confirmed, and toasts", async () => {
