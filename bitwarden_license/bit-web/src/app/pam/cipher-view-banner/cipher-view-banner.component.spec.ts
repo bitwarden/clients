@@ -886,6 +886,34 @@ describe("CipherViewBannerComponent", () => {
       });
     });
 
+    it("maps the server's reason to a client-side i18n key without leaking the raw payload", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView() }),
+      );
+      requestsApi.activateAccessRequest.mockRejectedValue(
+        Object.assign(
+          new Error(
+            'error in response: status code 409 Conflict: {"object":"error",' +
+              '"message":"Another active lease exists for this item. Try again once it ends.",' +
+              '"validationErrors":null,"exceptionStackTrace":"   at Bit.Services.Pam' +
+              '.OrganizationFeatures.Commands.ActivateAccessRequestCommand.ActivateAsync"}',
+          ),
+          { name: "AccessRequestError", variant: "Api" },
+        ),
+      );
+      await create(gatedCipher());
+
+      await component["activateRequest"]();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamStartLeaseErrorSingleActiveLease",
+      });
+      const shown = toastService.showToast.mock.calls[0][0].message as string;
+      expect(shown).not.toContain("exceptionStackTrace");
+      expect(shown).not.toContain("Bit.Services.Pam");
+    });
+
     it("cancels a pending request once confirmed", async () => {
       requestsApi.getCipherAccessState.mockResolvedValue(
         accessState({ pendingRequest: requestView({ id: "request-3" } as never) }),
