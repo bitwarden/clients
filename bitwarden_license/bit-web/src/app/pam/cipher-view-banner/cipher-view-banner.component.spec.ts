@@ -586,8 +586,6 @@ describe("CipherViewBannerComponent", () => {
 
       query("#pam-cipher-view-banner_button_request-cancel")?.click();
       fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
 
       expect(component["requestFormExpanded"]()).toBe(false);
       expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
