@@ -16972,8 +16972,8 @@
   "pamAccessRuleSingleActiveUser": {
     "message": "Only 1 user can have active access at a time"
   },
-  "pamAccessRuleSingleActiveUserHint": {
-    "message": "Others with approval can attempt to start access once the current session ends or is revoked."
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Others with approval can attempt to start access once the current access ends or is revoked."
   },
   "pamAccessRuleAllowExtensions": {
     "message": "Allow lease extensions"
