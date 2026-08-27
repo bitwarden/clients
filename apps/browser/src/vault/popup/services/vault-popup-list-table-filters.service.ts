@@ -34,7 +34,7 @@ import {
   DIALOG_CIPHER_MENU_ITEMS,
 } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { BitwardenIcon, ChipFilterOption } from "@bitwarden/components";
-import { MY_VAULT, NO_FOLDER, Vfo1TerminologyService } from "@bitwarden/vault";
+import { MY_VAULT, NO_FOLDER } from "@bitwarden/vault";
 
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
@@ -66,7 +66,6 @@ const idString = (id: unknown): string | undefined => (id == null ? undefined : 
   providedIn: "root",
 })
 export class VaultPopupListTableFiltersService {
-  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
   private readonly folderService = inject(FolderService);
   private readonly cipherService = inject(CipherService);
   private readonly organizationService = inject(OrganizationService);
@@ -372,11 +371,9 @@ export class VaultPopupListTableFiltersService {
         tree.nestedList.map((c) =>
           this.convertToChipFilterOption(
             c,
-            this.vfo1TerminologyService.iconClass(
-              c.node.type === CollectionTypes.DefaultUserCollection
-                ? "bwi-user"
-                : "bwi-collection-shared",
-            ),
+            c.node.type === CollectionTypes.DefaultUserCollection
+              ? "bwi-user"
+              : "bwi-shared-folder",
           ),
         ),
       ),
