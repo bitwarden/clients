@@ -43,6 +43,7 @@ import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 import { MY_VAULT_ID, VaultPopupListFiltersService } from "./vault-popup-list-filters.service";
+import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filters.service";
 
 /**
  * Service for managing the various item lists on the new Vault tab in the browser popup.
@@ -265,10 +266,14 @@ export class VaultPopupItemsService {
   hasFilterApplied$ = combineLatest([
     this._hasSearchText,
     this.vaultPopupListFiltersService.filters$,
+    this.vaultPopupListTableFiltersService.hasFilterApplied$,
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
   ]).pipe(
-    map(([hasSearchText, filters, vfo1Enabled]) => {
-      return hasSearchText || (!vfo1Enabled && Object.values(filters).some((f) => f !== null));
+    map(([hasSearchText, filters, tableFilterApplied, vfo1Enabled]) => {
+      const filterApplied = vfo1Enabled
+        ? tableFilterApplied
+        : Object.values(filters).some((f) => f !== null);
+      return hasSearchText || filterApplied;
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -357,6 +362,7 @@ export class VaultPopupItemsService {
     private ngZone: NgZone,
     private restrictedItemTypesService: RestrictedItemTypesService,
     private configService: ConfigService,
+    private vaultPopupListTableFiltersService: VaultPopupListTableFiltersService,
   ) {}
 
   applyFilter(newSearchText: string) {

@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable, signal } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { combineLatest, filter, map, Observable, shareReplay, switchMap, take } from "rxjs";
 
@@ -99,6 +99,20 @@ export class VaultPopupListTableFiltersService {
     deserializer: (v) => v,
     persistNavigation: true,
   });
+
+  /** Whether any chip filter is currently selected. */
+  readonly hasFilterApplied = computed(() => {
+    const filters = this.cachedFilters();
+    return !!(
+      filters.organizationIds?.length ||
+      filters.collectionIds?.length ||
+      filters.folderIds?.length ||
+      filters.cipherType != null
+    );
+  });
+
+  /** Observable mirror of {@link hasFilterApplied} for use in RxJS pipelines. */
+  hasFilterApplied$ = toObservable(this.hasFilterApplied);
 
   /**
    * Persists the current chip selection to the view cache.

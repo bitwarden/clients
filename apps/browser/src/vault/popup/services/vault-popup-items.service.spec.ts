@@ -39,6 +39,7 @@ import {
   PopupListFilter,
   VaultPopupListFiltersService,
 } from "./vault-popup-list-filters.service";
+import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filters.service";
 
 describe("VaultPopupItemsService", () => {
   let testBed: TestBed;
@@ -66,6 +67,7 @@ describe("VaultPopupItemsService", () => {
   const vaultAutofillServiceMock = mock<VaultPopupAutofillService>();
   const syncServiceMock = mock<SyncService>();
   const vaultPopupListFiltersServiceMock = mock<VaultPopupListFiltersService>();
+  const vaultPopupListTableFiltersServiceMock = mock<VaultPopupListTableFiltersService>();
   const configServiceMock = mock<ConfigService>();
   let filters$: BehaviorSubject<PopupListFilter>;
 
@@ -143,6 +145,7 @@ describe("VaultPopupItemsService", () => {
     });
     vaultPopupListFiltersServiceMock.filters$ = filters$;
     vaultPopupListFiltersServiceMock.filterFunction$ = of((ciphers) => ciphers);
+    vaultPopupListTableFiltersServiceMock.hasFilterApplied$ = of(false);
 
     mockCollections = [
       { id: "col1", name: "Collection 1" } as CollectionView,
@@ -171,6 +174,10 @@ describe("VaultPopupItemsService", () => {
         { provide: CollectionService, useValue: collectionService },
         { provide: VaultPopupAutofillService, useValue: vaultAutofillServiceMock },
         { provide: VaultPopupListFiltersService, useValue: vaultPopupListFiltersServiceMock },
+        {
+          provide: VaultPopupListTableFiltersService,
+          useValue: vaultPopupListTableFiltersServiceMock,
+        },
         { provide: SyncService, useValue: syncServiceMock },
         { provide: ConfigService, useValue: configServiceMock },
         { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
