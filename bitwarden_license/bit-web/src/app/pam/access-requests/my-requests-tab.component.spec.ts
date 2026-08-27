@@ -86,6 +86,13 @@ describe("MyRequestsTabComponent", () => {
     return fixture.nativeElement.querySelector(selector) as HTMLElement | null;
   }
 
+  function activeAccessRowIds(): (string | null)[] {
+    const rows = fixture.nativeElement.querySelectorAll(
+      'tr[data-testid^="my-access-lease-"], tr[data-testid^="my-access-approved-"]',
+    ) as NodeListOf<HTMLElement>;
+    return [...rows].map((row) => row.getAttribute("data-testid"));
+  }
+
   beforeEach(async () => {
     jest.useFakeTimers();
     pendingRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
@@ -394,6 +401,24 @@ describe("MyRequestsTabComponent", () => {
       expect(query('[data-testid="access-state-badge-ready"]')).toBeNull();
       expect(query('[data-testid="my-access-approved-start-req-1"]')).toBeNull();
       expect(query('[data-testid="my-access-approved-cancel-req-1"]')).toBeNull();
+    });
+
+    it("orders held access soonest-ending first, ahead of grants awaiting activation", () => {
+      pendingRows$.next([
+        requestRow({ id: "req-lapsed", leaseNotAfter: "2026-08-19T11:30:00.000Z" }),
+      ]);
+      leases$.next([
+        leaseRow({ id: "lease-late", notAfter: "2026-08-20T18:00:00.000Z" }),
+        leaseRow({ id: "lease-soon" }),
+      ]);
+
+      create();
+
+      expect(activeAccessRowIds()).toEqual([
+        "my-access-lease-lease-soon",
+        "my-access-lease-lease-late",
+        "my-access-approved-req-lapsed",
+      ]);
     });
 
     it("shows the Pending empty state when the only request is approved", () => {
