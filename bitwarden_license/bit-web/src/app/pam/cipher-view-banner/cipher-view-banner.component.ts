@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  LOCALE_ID,
   NgZone,
   OnInit,
   computed,
@@ -10,7 +11,7 @@ import {
   input,
   signal,
 } from "@angular/core";
-import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { catchError, combineLatest, firstValueFrom, from, map, merge, of, switchMap } from "rxjs";
 
@@ -43,6 +44,7 @@ import {
   MAX_REQUEST_ACCESS_WINDOW_SECONDS,
   REQUEST_ACCESS_DURATION_PRESETS,
   type RequestDurationOption,
+  type RequestWindowProblem,
   activateAccessErrorMessageKey,
   apiErrorBodyMessage,
   classifyRequestAccessError,
@@ -54,13 +56,15 @@ import {
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { DurationShortPipe } from "../date/duration-short.pipe";
+import { formatDuration } from "../date/format-duration";
 import { formatRemaining } from "../date/format-remaining";
 import { isGovernedCipher } from "../helpers/governed-cipher";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 
 import {
   REQUEST_WINDOW_ERROR_KEY,
-  requestWindowValidator,
+  type RequestWindowError,
+  requestWindowEndValidator,
 } from "./request-access-window.validators";
 
 /**
@@ -121,6 +125,7 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
+  private readonly locale = inject(LOCALE_ID);
 
   /** Ticks once a second so the live countdown and a scheduled window's opening stay current. */
   private readonly nowMs = signal(Date.now());
@@ -320,37 +325,71 @@ export class CipherViewBannerComponent implements OnInit {
     reason: [""],
   });
 
-  protected readonly humanForm = this.formBuilder.nonNullable.group(
-    {
-      date: ["", Validators.required],
-      start: ["", Validators.required],
-      end: ["", Validators.required],
-      reason: ["", [Validators.required, nonBlank]],
-    },
-    // Reads the cap through the signal on every run, so a fold-out re-opened against a different
-    // rule validates against that rule's maximum rather than the one in force when the form was
-    // built.
-    { validators: [requestWindowValidator(() => this.maxWindowSeconds())] },
-  );
-
-  protected readonly windowEndBeforeStart = computed(
-    () => this.humanFormErrors()?.[REQUEST_WINDOW_ERROR_KEY] === "endBeforeStart",
-  );
-  protected readonly windowExceedsMax = computed(
-    () => this.humanFormErrors()?.[REQUEST_WINDOW_ERROR_KEY] === "exceedsMaxWindow",
-  );
+  protected readonly humanForm = this.formBuilder.nonNullable.group({
+    date: ["", Validators.required],
+    start: ["", Validators.required],
+    end: [
+      "",
+      [
+        Validators.required,
+        // Reads the cap through the signal on every run, so a fold-out re-opened against a
+        // different rule validates against that rule's maximum rather than the one in force when
+        // the form was built.
+        requestWindowEndValidator(
+          () => this.maxWindowSeconds(),
+          (problem, max) => this.windowProblemMessage(problem, max),
+        ),
+      ],
+    ],
+    reason: ["", [Validators.required, nonBlank]],
+  });
 
   /**
-   * The human form's group-level errors as a signal, so the two window messages above re-evaluate
-   * under OnPush. Reactive forms are not signal-based, so the value stream is the change source;
-   * `valueChanges` fires after the validators have run, so `errors` is already current.
+   * The End control's event stream as a signal. Reactive forms are not signal-based, so this is the
+   * change source that lets {@link windowErrorTestId} re-evaluate under OnPush — the same
+   * `ControlEvent` stream `BitFormFieldControlDirective` uses to repaint the field itself.
    */
-  private readonly humanFormErrors = toSignal(
-    this.humanForm.valueChanges.pipe(map(() => this.humanForm.errors)),
-    { initialValue: null },
-  );
+  private readonly endControlEvents = toSignal(this.humanForm.controls.end.events, {
+    initialValue: null,
+  });
+
+  /**
+   * The `data-testid` the End field carries while it is SHOWING a window problem — null otherwise,
+   * so the hook marks a rendered message rather than a latent error. It cannot go on `bit-error`,
+   * which the design system creates inside its own template.
+   */
+  protected readonly windowErrorTestId = computed<string | null>(() => {
+    this.endControlEvents();
+    const end = this.humanForm.controls.end;
+    const error = end.errors?.[REQUEST_WINDOW_ERROR_KEY] as RequestWindowError | undefined;
+    switch (end.touched ? (error?.problem ?? null) : null) {
+      case "endBeforeStart":
+        return "window-end-before-start";
+      case "exceedsMaxWindow":
+        return "window-exceeds-max";
+      default:
+        return null;
+    }
+  });
 
   ngOnInit(): void {
+    // A control validator only re-runs on its own control, so without this a window fixed — or
+    // broken — by editing Date or Start would leave End's status behind. Subscribed to the two
+    // siblings rather than the group, because `updateValueAndValidity` re-emits the group's
+    // `valueChanges` and a group subscription would re-enter.
+    const { date, start, end } = this.humanForm.controls;
+    merge(date.valueChanges, start.valueChanges)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        end.updateValueAndValidity();
+        // Narrow on purpose: only a fresh window error, and only from a sibling edit, so this
+        // never nags a blank End the requester has not reached and never races
+        // `BitInputDirective.onInput`'s `markAsUntouched` on End itself.
+        if (end.errors?.[REQUEST_WINDOW_ERROR_KEY] != null) {
+          end.markAsTouched();
+        }
+      });
+
     // Kept outside the Angular zone: a periodic in-zone timer never lets NgZone settle, which would
     // hang `fixture.whenStable()` for any host embedding the cipher view. The signal write still
     // drives change detection on its own.
@@ -421,6 +460,15 @@ export class CipherViewBannerComponent implements OnInit {
     } finally {
       this.loadingRequestForm.set(false);
     }
+  }
+
+  private windowProblemMessage(problem: RequestWindowProblem, maxWindowSeconds: number): string {
+    return problem === "endBeforeStart"
+      ? this.i18nService.t("requestAccessModalEndBeforeStart")
+      : this.i18nService.t(
+          "requestAccessModalWindowExceedsMax",
+          formatDuration(this.locale, maxWindowSeconds, "long"),
+        );
   }
 
   // `[bitAction]` owns the button's busy state and serialises re-entrant clicks, so this only has to
