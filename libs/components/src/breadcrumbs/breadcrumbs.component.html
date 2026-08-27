@@ -78,7 +78,7 @@
       @if (ovf.displayed().includes(i)) {
         <ng-container
           [ngTemplateOutlet]="crumb"
-          [ngTemplateOutletContext]="{ breadcrumb, isLast: last && !showTrailingArrow() }"
+          [ngTemplateOutletContext]="{ breadcrumb, isLast: last && lastCrumbIsCurrentPage() }"
         />
       }
     </span>

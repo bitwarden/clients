@@ -1,6 +1,6 @@
 <app-header [title]="title()">
   @if (collectionSelected()) {
-    <bit-breadcrumbs slot="breadcrumbs">
+    <bit-breadcrumbs slot="breadcrumbs" lastCrumbIsCurrentPage>
       <bit-breadcrumb (click)="navigateToOrgRoot()">
         <bit-icon-tile slot="start" [icon]="orgNavItem()?.icon" [color]="orgTileColor()" />
         {{ orgNavItem()?.label }}

@@ -96,6 +96,13 @@ export class BreadcrumbsComponent {
    */
   readonly showTrailingArrow = input(false, { transform: booleanAttribute });
 
+  /**
+   * When true, the last crumb in the trail is rendered as non-interactive text with
+   * `aria-current="page"` rather than a link or button. Use this when the active page is included
+   * in the trail itself (rather than shown as the page heading after a trailing arrow).
+   */
+  readonly lastCrumbIsCurrentPage = input(false, { transform: booleanAttribute });
+
   protected readonly breadcrumbs = contentChildren(BreadcrumbComponent);
 
   private readonly overflowList = viewChild.required(OverflowListDirective);
