@@ -11,11 +11,87 @@ import { Importer } from "./importer";
 
 export class PasswordBossJsonImporter extends BaseImporter implements Importer {
   parse(data: string): Promise<ImportResult> {
-    const result = new ImportResult();
     const results = JSON.parse(data);
+
+    // Current export ("Password Boss JSON - Not Encrypted"): a flat array of items, with card/login
+    // fields living directly on each item rather than nested under `identifiers`, and no separate
+    // top-level `folders` list — each item names its own folder (if any) directly.
+    if (Array.isArray(results)) {
+      return Promise.resolve(this.parseFlatItems(results));
+    }
+
+    // Older export shape, kept for anyone importing a backup made before Password Boss changed
+    // its export format: a top-level object with `items` and `folders` arrays, and each item's
+    // fields nested under `identifiers`.
+    return Promise.resolve(this.parseLegacyExport(results));
+  }
+
+  private parseFlatItems(items: any[]): ImportResult {
+    const result = new ImportResult();
+
+    items.forEach((value: any) => {
+      const isCard = value.itemTypeName === "CreditCard";
+      const cipher = this.initLoginCipher();
+      cipher.name = this.getValueOrDefault(value.name, "--");
+
+      if (isCard) {
+        cipher.card = new CardView();
+        cipher.type = CipherType.Card;
+      }
+
+      this.processFolder(result, value.folder);
+
+      if (!this.isNullOrWhitespace(value.notes)) {
+        cipher.notes = value.notes;
+      }
+
+      if (isCard) {
+        cipher.card.number = this.getValueOrDefault(value.cardNumber);
+        if (cipher.card.number != null) {
+          cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
+        }
+        cipher.card.cardholderName = this.getValueOrDefault(value.nameOnCard);
+        cipher.card.code = this.getValueOrDefault(value.securityCode);
+        if (!this.isNullOrWhitespace(value.expirationDate)) {
+          const expDate = new Date(value.expirationDate);
+          if (!isNaN(expDate.getTime())) {
+            cipher.card.expYear = expDate.getFullYear().toString();
+            cipher.card.expMonth = (expDate.getMonth() + 1).toString();
+          }
+        }
+        this.processKvp(cipher, "Issuing Bank", value.issuingBank);
+        this.processKvp(cipher, "Issue Date", value.issueDate);
+        this.processKvp(cipher, "PIN", value.pin);
+      } else {
+        cipher.login.uris = this.makeUriArray(value.url);
+        cipher.login.username = this.getValueOrDefault(value.username);
+        cipher.login.password = this.getValueOrDefault(value.password);
+      }
+
+      if (Array.isArray(value.customFields)) {
+        value.customFields.forEach((cf: any) => {
+          this.processKvp(cipher, cf.name, cf.value);
+        });
+      }
+
+      if (Array.isArray(value.tags) && value.tags.length > 0) {
+        this.processKvp(cipher, "Tags", value.tags.join(", "));
+      }
+
+      this.convertToNoteIfNeeded(cipher);
+      this.cleanupCipher(cipher);
+      result.ciphers.push(cipher);
+    });
+
+    result.success = true;
+    return result;
+  }
+
+  private parseLegacyExport(results: any): ImportResult {
+    const result = new ImportResult();
     if (results == null || results.items == null) {
       result.success = false;
-      return Promise.resolve(result);
+      return result;
     }
 
     const foldersMap = new Map<string, string>();
@@ -128,6 +204,6 @@ export class PasswordBossJsonImporter extends BaseImporter implements Importer {
     });
 
     result.success = true;
-    return Promise.resolve(result);
+    return result;
   }
 }
