@@ -3,6 +3,7 @@ import type { BadgeVariant } from "@bitwarden/components";
 
 import {
   AccessLeaseId,
+  AccessLeaseStatus,
   AccessLeaseView,
   AccessRequestDecisionView,
   AccessRequestId,
@@ -53,6 +54,12 @@ export type MyAccessRequestRow = {
    * lease is still active (shown in Active leases instead).
    */
   producedLeaseId: string | null;
+  /**
+   * The produced lease's status as of the read this row was built from; null until activation. The
+   * source {@link statusBadge} is derived from, and the honest read for "is this access still
+   * running?" — see {@link isLiveManagedLease}.
+   */
+  producedLeaseStatus: AccessLeaseStatus | null;
   /**
    * Set when this request minted a lease that was later extended: the total time added across all
    * applied extensions, and the lease's current end. Both null when the request was never
@@ -216,6 +223,7 @@ export function toRequestRow(request: AccessRequestView, names: ResolvedNames): 
     approverComment:
       human?.comment ?? request.decisions.find((d) => d.comment != null)?.comment ?? null,
     producedLeaseId: request.producedLeaseId == null ? null : uuidAsString(request.producedLeaseId),
+    producedLeaseStatus: request.producedLeaseStatus ?? null,
     // Defaults; buildMyAccessRequestRows fills these in for an original whose lease was extended.
     extendedBySeconds: null,
     extendedUntil: null,

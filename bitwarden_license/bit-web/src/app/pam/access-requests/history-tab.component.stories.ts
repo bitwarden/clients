@@ -1,7 +1,7 @@
 import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
-import { userEvent } from "storybook/test";
+import { userEvent, within } from "storybook/test";
 
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
@@ -25,8 +25,6 @@ import { toRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 
 const names = storyNames();
-
-const MANAGED_TOGGLE = '[data-testid="history-scope-managed"] label';
 
 const request = (overrides: Record<string, unknown>) =>
   toRequestRow(accessRequest(overrides), names);
@@ -180,8 +178,8 @@ export const Empty: Story = {
 
 /**
  * An approver's view: the Mine/Managed toggle appears because there is managed history behind it.
- * The table still opens on Mine — switch the toggle to see the revoke and cancel-approval actions,
- * which only exist on the managed scope.
+ * The table still opens on Mine — switch the toggle to see the revoke and withdraw actions, which
+ * only exist on the managed scope.
  */
 export const WithManagedHistory: Story = {
   decorators: [history({ managed: managedRows })],
@@ -195,6 +193,7 @@ export const WithManagedHistory: Story = {
 export const ManagedOnly: Story = {
   decorators: [history({ mine: [], managed: managedRows })],
   play: async ({ canvasElement }) => {
-    await userEvent.click(canvasElement.querySelector<HTMLLabelElement>(MANAGED_TOGGLE)!);
+    const managed = await within(canvasElement).findByTestId("history-scope-managed");
+    await userEvent.click(within(managed).getByRole("radio"));
   },
 };
