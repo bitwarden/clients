@@ -442,6 +442,34 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
+   * Resolves a cipher's TOTP code for clipboard copy when the caller can't rely on a successful
+   * fill to produce one (e.g., a hidden TOTP input that the fill script can't target). Applies
+   * the same premium/organization gate and auto-copy setting as {@link doAutoFill}.
+   */
+  async getTotpCopyCode(cipher: CipherView): Promise<string | undefined> {
+    if (cipher.type !== CipherType.Login || !cipher.login?.totp) {
+      return undefined;
+    }
+
+    if (!(await this.getShouldAutoCopyTotp())) {
+      return undefined;
+    }
+
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    const canAccessPremium = activeAccount?.id
+      ? await firstValueFrom(
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$(activeAccount.id),
+        )
+      : false;
+
+    if (!canAccessPremium && !cipher.organizationUseTotp) {
+      return undefined;
+    }
+
+    return (await firstValueFrom(this.totpService.getCode$(cipher.login.totp))).code ?? undefined;
+  }
+
+  /**
    * Autofill a given tab with a given login item
    * @param {AutoFillOptions} options Instructions about the autofill operation, including tab and login item
    * @returns {Promise<AutoFillResult>} Whether a fill was dispatched (`didAutofill`) and the TOTP code
