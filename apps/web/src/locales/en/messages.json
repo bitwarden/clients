@@ -17464,6 +17464,9 @@
   "pamExtendLeaseError": {
     "message": "Couldn't extend access."
   },
+  "pamExtendLeaseEnded": {
+    "message": "Your access ended before it could be extended. The request is in your history."
+  },
   "pamStatusApproved": {
     "message": "Approved"
   },
