@@ -43,7 +43,11 @@
         [placeholder]="'pamAuditSearchPlaceholder' | i18n"
         [formControl]="searchControl"
       ></bit-search>
-      <bit-filter-menu key="kind" [placeholderText]="'pamAuditColumnEvent' | i18n">
+      <bit-filter-menu
+        key="kind"
+        [placeholderText]="'pamAuditColumnEvent' | i18n"
+        [unsetLabel]="'all' | i18n"
+      >
         @for (option of kindOptions(); track option.value) {
           <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
         }
