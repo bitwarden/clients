@@ -450,6 +450,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     // `leaseGated` has no domain source — it is stamped on the view here so the gating surfaces
     // (the cipher-view banner) keep rendering access state once `partial` has gone.
     view.leaseGated = leased;
+    // The form rebuilds its own view from `originalCipher`, so the flag has to travel on the
+    // config too — that is what routes a save down the gated SDK path.
+    this.formConfig.leaseGated = leased;
     this.formConfig.originalCipher = cipher;
     this.cipher = view;
     this.collections = this.formConfig.collections.filter((c) =>

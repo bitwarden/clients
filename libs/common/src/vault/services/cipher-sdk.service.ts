@@ -3,7 +3,9 @@ import { firstValueFrom, switchMap, catchError } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
 import {
+  CipherEditRequest,
   CipherListView,
+  CiphersClient,
   CipherView as SdkCipherView,
   CreateAttachmentRequest,
   CreatedAttachment,
@@ -21,6 +23,19 @@ import {
 import { CipherSdkService, DecryptAllCiphersResult } from "../abstractions/cipher-sdk.service";
 import { Cipher } from "../models/domain/cipher";
 import { CipherView } from "../models/view/cipher.view";
+
+/**
+ * `CiphersClient` plus the PAM gated-edit entry point. `sdk-internal` does not declare
+ * `edit_gated` yet, so it is bridged here — the same shape of stopgap as the `partial` bridge in
+ * `models/view/cipher.view.ts`, and it collapses away the same way.
+ *
+ * The Rust side is done but unpublished: `CiphersClient::edit_gated` lives in
+ * `crates/bitwarden-vault/src/cipher/cipher_client/edit.rs` on `pam/cipher-partial-data` and
+ * generates with exactly this signature. Not on `main`, so no `main.*` build carries it.
+ */
+type CiphersClientWithGatedEdit = CiphersClient & {
+  edit_gated(request: CipherEditRequest, originalCipherView: SdkCipherView): Promise<SdkCipherView>;
+};
 
 export class DefaultCipherSdkService implements CipherSdkService {
   constructor(
@@ -63,6 +78,7 @@ export class DefaultCipherSdkService implements CipherSdkService {
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
+    leaseGated?: boolean,
   ): Promise<CipherView | undefined> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
@@ -81,6 +97,17 @@ export class DefaultCipherSdkService implements CipherSdkService {
                 originalCipherView?.toSdkCipherView(sdkCiphersClient) ||
                   new CipherView().toSdkCipherView(sdkCiphersClient),
               );
+          } else if (leaseGated && cipher.edit) {
+            // A PAM-gated cipher is only ever held partial in local state, so `edit` — which
+            // rebuilds password history from that copy — refuses it. Hand the SDK the full
+            // original revealed under the lease to diff against instead.
+            if (originalCipherView == null) {
+              throw new Error("Editing a lease-gated cipher requires the original cipher view");
+            }
+            result = await (sdkCiphersClient as CiphersClientWithGatedEdit).edit_gated(
+              sdkUpdateRequest,
+              originalCipherView.toSdkCipherView(sdkCiphersClient),
+            );
           } else if (cipher.edit) {
             result = await sdkCiphersClient.edit(sdkUpdateRequest);
           } else {
