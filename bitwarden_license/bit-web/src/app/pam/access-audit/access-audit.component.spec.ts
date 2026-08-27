@@ -1,5 +1,6 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { ActivatedRoute } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -96,8 +97,6 @@ describe("AccessAuditComponent", () => {
             pamAuditKindLeaseRevoked: "Lease revoked",
             pamAuditKindLeaseEndedByHolder: "Lease ended by holder",
             all: "All",
-            clear: "Clear",
-            noMatchingItems: "No matching items",
             removeItem: (name: string) => `Remove ${name}`,
             search: "Search",
             resetSearch: "Reset search",
@@ -127,6 +126,11 @@ describe("AccessAuditComponent", () => {
 
   /** The component's protected surface, reached the way the template reaches it. */
   const component = () => fixture.componentInstance as unknown as Record<string, any>;
+
+  /** The Event chip, driven the way the menu rows drive it. */
+  const kindChip = () =>
+    fixture.debugElement.query(By.directive(FilterMenuComponent))
+      .componentInstance as FilterMenuComponent;
 
   it("reads the trail for the organization in the route", async () => {
     auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
@@ -229,7 +233,7 @@ describe("AccessAuditComponent", () => {
     ]);
   });
 
-  it("filters rows by the selected kind", async () => {
+  it("filters rows by the kind selected on the Event chip", async () => {
     auditApiService.listAccessAuditTrail.mockResolvedValue([
       event({ Kind: "leaseActivated" }),
       event({ Kind: "requestApproved" }),
@@ -237,12 +241,18 @@ describe("AccessAuditComponent", () => {
 
     fixture.detectChanges();
     await fixture.whenStable();
+    fixture.detectChanges();
     expect(component().filteredRows()).toHaveLength(2);
+    expect(fixture.nativeElement.querySelector("bit-chip-filter")).toBeNull();
 
-    component().kindControl.setValue("pamAuditKindLeaseActivated");
+    kindChip().toggle("pamAuditKindLeaseActivated");
 
     expect(component().filteredRows()).toHaveLength(1);
     expect(component().filteredRows()[0].kindLabelKey).toBe("pamAuditKindLeaseActivated");
+
+    kindChip().clear();
+
+    expect(component().filteredRows()).toHaveLength(2);
   });
 
   // A LeaseRevoked whose actor is the requester is relabelled "Lease ended by holder" by
@@ -255,48 +265,20 @@ describe("AccessAuditComponent", () => {
 
     fixture.detectChanges();
     await fixture.whenStable();
+    fixture.detectChanges();
 
     expect(component().kindOptions()).toEqual([
       { label: "Lease ended by holder", value: "pamAuditKindLeaseEndedByHolder" },
       { label: "Lease revoked", value: "pamAuditKindLeaseRevoked" },
     ]);
 
-    component().kindControl.setValue("pamAuditKindLeaseEndedByHolder");
+    kindChip().toggle("pamAuditKindLeaseEndedByHolder");
     expect(component().filteredRows()).toHaveLength(1);
     expect(component().filteredRows()[0].actor).toBe("Grace");
 
-    component().kindControl.setValue("pamAuditKindLeaseRevoked");
+    kindChip().toggle("pamAuditKindLeaseRevoked");
     expect(component().filteredRows()).toHaveLength(1);
     expect(component().filteredRows()[0].actor).toBe("Ada");
-  });
-
-  it("filters through the Event chip, which drives kindControl rather than binding to it", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
-      event({ Kind: "leaseActivated" }),
-      event({ Kind: "requestApproved" }),
-    ]);
-
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.querySelector("bit-chip-filter")).toBeNull();
-    const chip = fixture.debugElement
-      .queryAllNodes(() => true)
-      .find((node: any) => node.nativeNode?.tagName === "BIT-FILTER-MENU")!
-      .injector.get(FilterMenuComponent);
-
-    chip.toggle("pamAuditKindLeaseActivated");
-    fixture.detectChanges();
-
-    expect(component().kindControl.value).toBe("pamAuditKindLeaseActivated");
-    expect(component().filteredRows()).toHaveLength(1);
-
-    chip.clear();
-    fixture.detectChanges();
-
-    expect(component().kindControl.value).toBeNull();
-    expect(component().filteredRows()).toHaveLength(2);
   });
 
   it("filters rows by free text over actor, requester, item, and detail", async () => {
