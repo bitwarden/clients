@@ -27,6 +27,11 @@ describe("IpAllowlistEditorComponent", () => {
     );
   }
 
+  /** The per-row remove buttons currently rendered, in row order. */
+  function removeButtons(): HTMLButtonElement[] {
+    return Array.from(fixture.nativeElement.querySelectorAll("bit-form-field button"));
+  }
+
   /** Creates the component bound to `array` and runs ngOnInit. */
   function create(array: IpAllowlistCidrsArray): void {
     cidrArray = array;
@@ -100,6 +105,47 @@ describe("IpAllowlistEditorComponent", () => {
 
       expect(cidrArray.length).toBe(1);
       expect(cidrArray.at(0).value).toBe("");
+    });
+
+    it("clears the removed row's error rather than showing it against the row that replaces it", () => {
+      create(hostArray("not-a-cidr", "10.0.0.0/8"));
+      cidrArray.at(0).markAsTouched();
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector("bit-error")).not.toBeNull();
+
+      removeButtons()[0].click();
+      fixture.detectChanges();
+
+      expect(cidrArray.at(0).value).toBe("10.0.0.0/8");
+      expect(fixture.nativeElement.querySelector("bit-error")).toBeNull();
+    });
+  });
+
+  describe("remove button", () => {
+    it("is hidden while a single row is all there is to remove", () => {
+      create(hostArray("10.0.0.0/8"));
+      expect(removeButtons().length).toBe(0);
+    });
+
+    it("is offered on every row once more than one exists", () => {
+      create(hostArray("10.0.0.0/8", "192.168.0.0/16"));
+      expect(removeButtons().length).toBe(2);
+    });
+
+    it("sits outside the input rather than inside it as a suffix", () => {
+      create(hostArray("10.0.0.0/8", "192.168.0.0/16"));
+      expect(removeButtons()[0].closest("[bitFieldContainer]")).toBeNull();
+    });
+
+    it("is withheld when the editor is read-only", () => {
+      cidrArray = hostArray("10.0.0.0/8", "192.168.0.0/16");
+      fixture = TestBed.createComponent(IpAllowlistEditorComponent);
+      fixture.componentRef.setInput("cidrArray", cidrArray);
+      fixture.componentRef.setInput("readonly", true);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      expect(removeButtons().length).toBe(0);
     });
   });
 
