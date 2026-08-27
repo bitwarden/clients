@@ -187,7 +187,7 @@ describe("ApprovalsTabComponent", () => {
 
     // jsdom performs no layout and loads no stylesheet, so these assert the breakpoint classes on
     // both the header and the cell of each column, not that the buttons are on screen. The 1024px
-    // behaviour is verified in a browser.
+    // behaviour still needs verifying in a browser.
     it.each([
       ["window", "xl"],
       ["reason", "xl"],
@@ -220,15 +220,22 @@ describe("ApprovalsTabComponent", () => {
       expect(actionsCell?.classList).not.toContain("tw-hidden");
     });
 
-    it("keeps the full window and reason reachable from the row", () => {
-      const pending = row({ id: "req-1" });
-      inbox.inboxRows$.next([pending]);
+    it("links each row to the request detail, which is where a hidden column is read", () => {
+      inbox.inboxRows$.next([row({ id: "req-1" })]);
 
       create();
 
       expect(query('[data-testid="approvals-row-req-1"] a')?.getAttribute("href")).toBe(
         "/pam/requests/req-1",
       );
+    });
+
+    it("carries the exact window and the unclamped reason on title, where those columns show", () => {
+      const pending = row({ id: "req-1" });
+      inbox.inboxRows$.next([pending]);
+
+      create();
+
       expect(query('[data-testid="approvals-cell-window-req-1"] span')?.title).toBe(
         pending.exactWindow,
       );
