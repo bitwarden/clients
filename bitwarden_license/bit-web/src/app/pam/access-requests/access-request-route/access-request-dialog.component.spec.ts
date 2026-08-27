@@ -384,6 +384,45 @@ describe("AccessRequestDialogComponent", () => {
       });
     });
 
+    it("maps the server's reason to a client-side i18n key without leaking the raw payload", async () => {
+      detail.request$.next(request({ status: "approved" }));
+      detail.activate.mockRejectedValue(
+        Object.assign(
+          new Error(
+            'error in response: status code 400 Bad Request: {"object":"error",' +
+              '"message":"The approved access window has already ended.",' +
+              '"validationErrors":null,"exceptionStackTrace":"   at Bit.Services.Pam' +
+              '.OrganizationFeatures.Commands.ActivateAccessRequestCommand.ActivateAsync"}',
+          ),
+          { name: "AccessRequestError", variant: "Api" },
+        ),
+      );
+      create();
+
+      await component["startAccess"]();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamStartLeaseErrorWindowEnded",
+      });
+      const shown = toastService.showToast.mock.calls[0][0].message as string;
+      expect(shown).not.toContain("exceptionStackTrace");
+      expect(shown).not.toContain("Bit.Services.Pam");
+    });
+
+    it("falls back to the generic message when starting access fails for another reason", async () => {
+      detail.request$.next(request({ status: "approved" }));
+      detail.activate.mockRejectedValue(new Error("offline"));
+      create();
+
+      await component["startAccess"]();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamStartLeaseError",
+      });
+    });
+
     it("confirms before ending the lease", async () => {
       detail.request$.next(
         request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "active" }),
