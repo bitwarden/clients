@@ -17900,8 +17900,11 @@
   "pamMyRequestsGroupExtensions": {
     "message": "Extension requests"
   },
-  "pamMyRequestsGroupCheckedOut": {
-    "message": "Currently checked out"
+  "pamMyRequestsActiveAccessSection": {
+    "message": "Active access"
+  },
+  "pamMyRequestsActiveAccessEmpty": {
+    "message": "No active access"
   },
   "pamMyRequestsLoadError": {
     "message": "Could not load your requests"
@@ -17914,9 +17917,6 @@
   },
   "pamMyLeasesActiveSection": {
     "message": "Active leases"
-  },
-  "pamMyLeasesActiveEmpty": {
-    "message": "No active leases"
   },
   "pamMyRequestsPendingSection": {
     "message": "Pending"
