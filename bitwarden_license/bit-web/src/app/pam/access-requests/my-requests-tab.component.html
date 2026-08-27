@@ -160,15 +160,15 @@
     </bit-accordion>
   }
 
-  <!-- Your access: the leases held now, plus grants awaiting activation -->
-  <bit-accordion [title]="'pamMyRequestsGroupCheckedOut' | i18n" [open]="true">
+  <!-- Active access -->
+  <bit-accordion [title]="'pamMyRequestsActiveAccessSection' | i18n" [open]="true">
     <span slot="end" bitBadge variant="secondary" data-testid="my-access-active-count">{{
       activeAccessRows().length
     }}</span>
 
     @if (activeAccessRows().length === 0) {
       <p bitTypography="body2" class="tw-mb-0 tw-text-muted" data-testid="my-access-leases-empty">
-        {{ "pamMyLeasesActiveEmpty" | i18n }}
+        {{ "pamMyRequestsActiveAccessEmpty" | i18n }}
       </p>
     } @else {
       <bit-table [dataSource]="activeAccessDataSource">
