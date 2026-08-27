@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormArray, FormControl } from "@angular/forms";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -157,6 +158,62 @@ describe("IpAllowlistEditorComponent", () => {
       component["markTouched"]();
 
       expect(cidrArray.touched).toBe(true);
+    });
+  });
+
+  describe("duplicate rows", () => {
+    function inputAt(index: number): HTMLInputElement {
+      return fixture.debugElement.queryAll(By.css("input[bitInput]"))[index].nativeElement;
+    }
+
+    function type(index: number, value: string): void {
+      const input = inputAt(index);
+      input.value = value;
+      input.dispatchEvent(new Event("input"));
+    }
+
+    // Counts what the admin actually sees. Asserting on the model instead — or reaching for
+    // markAllAsTouched() — is what hid the earlier attempts' failure to mark the partner row.
+    function renderedErrors(): string[] {
+      fixture.detectChanges();
+      return fixture.debugElement
+        .queryAll(By.css("bit-error"))
+        .map((e) => (e.nativeElement as HTMLElement).textContent!.trim());
+    }
+
+    it("renders a bit-error on both duplicate rows when an already-duplicated rule mounts untouched", () => {
+      create(hostArray("10.0.0.0/8", "192.168.0.0/16", "10.0.0.0/8"));
+
+      expect(renderedErrors()).toEqual([
+        "accessRuleIpAllowlistDuplicateCidr",
+        "accessRuleIpAllowlistDuplicateCidr",
+      ]);
+      expect(cidrArray.at(1).hasError("duplicateCidr")).toBe(false);
+    });
+
+    it("marks both rows of a duplicate pair when only one of them is blurred", () => {
+      create(hostArray("10.0.0.0/8", "192.168.0.0/16"));
+
+      type(1, "10.0.0.0/8");
+      inputAt(1).dispatchEvent(new Event("blur"));
+
+      expect(renderedErrors().length).toBe(2);
+    });
+
+    it("keeps the duplicate marks on the surviving rows when a row between them is removed", () => {
+      create(hostArray("10.0.0.0/8", "192.168.0.0/16", "10.0.0.0/8"));
+
+      component["removeRow"](1);
+
+      expect(renderedErrors().length).toBe(2);
+    });
+
+    it("clears the duplicate mark from both rows once the values differ", () => {
+      create(hostArray("10.0.0.0/8", "10.0.0.0/8"));
+
+      type(1, "192.168.0.0/16");
+
+      expect(renderedErrors()).toEqual([]);
     });
   });
 });
