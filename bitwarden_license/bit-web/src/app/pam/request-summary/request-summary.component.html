@@ -1,0 +1,75 @@
+<bit-card class="tw-mb-4" data-testid="request-summary-item">
+  <div class="tw-flex tw-items-center tw-gap-3">
+    @if (cipher(); as itemCipher) {
+      <app-vault-icon [cipher]="itemCipher" [size]="32" />
+    } @else {
+      <bit-icon name="bwi-key" class="tw-text-muted" [fixedWidth]="true"></bit-icon>
+    }
+    <span bitTypography="body1" class="tw-font-bold">{{ itemName() }}</span>
+  </div>
+
+  @if (organizationName() || collectionName()) {
+    <div class="tw-mt-3 tw-flex tw-flex-wrap tw-items-center tw-gap-x-6 tw-gap-y-1 tw-text-sm">
+      @if (organizationName(); as organization) {
+        <span class="tw-flex tw-items-center tw-gap-2">
+          <bit-icon
+            name="bwi-business"
+            class="tw-text-muted"
+            [ariaLabel]="'organization' | i18n"
+            [fixedWidth]="true"
+          ></bit-icon>
+          {{ organization }}
+        </span>
+      }
+      @if (collectionName(); as collection) {
+        <span class="tw-flex tw-items-center tw-gap-2">
+          <bit-icon
+            name="bwi-collection"
+            class="tw-text-muted"
+            [ariaLabel]="'collection' | i18n"
+            [fixedWidth]="true"
+          ></bit-icon>
+          {{ collection }}
+        </span>
+      }
+    </div>
+  }
+</bit-card>
+
+<h2 bitTypography="h6" class="tw-mb-2">{{ "pamAccessRequestDetailsTitle" | i18n }}</h2>
+
+<bit-card class="tw-mb-4" data-testid="request-summary-details">
+  <div class="tw-flex tw-flex-col tw-gap-4">
+    <pam-summary-field [label]="'pamInboxRequester' | i18n">
+      {{ requesterName() }}
+      @if (secondaryEmail(); as email) {
+        <span class="tw-text-fg-body-subtle">&lt;{{ email }}&gt;</span>
+      }
+    </pam-summary-field>
+
+    <bit-form-field disableMargin>
+      <bit-label>{{ "pamAccessRequestedLabel" | i18n }}</bit-label>
+      <input
+        bitInput
+        readonly
+        id="pam-request-summary_input_access-requested"
+        [title]="exactWindow()"
+        [value]="accessRequested()"
+      />
+    </bit-form-field>
+
+    <bit-form-field disableMargin>
+      <bit-label>{{ "pamInboxRequestReasonLabel" | i18n }}</bit-label>
+      <textarea
+        bitInput
+        readonly
+        rows="1"
+        id="pam-request-summary_input_reason"
+        [value]="quotedReason()"
+        [placeholder]="'pamInboxReasonMissing' | i18n"
+      ></textarea>
+    </bit-form-field>
+
+    <ng-content></ng-content>
+  </div>
+</bit-card>
