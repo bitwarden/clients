@@ -309,11 +309,17 @@ describe("MyRequestsTabComponent", () => {
     });
   });
 
-  describe("Active access section empty state", () => {
+  describe("Active access section", () => {
+    it("renders the section title", () => {
+      create();
+
+      expect(fixture.nativeElement.textContent).toContain("pamMyRequestsActiveAccessSection");
+    });
+
     it("shows the empty-state message when no access is active", () => {
       create();
 
-      expect(query('[data-testid="my-access-leases-empty"]')).not.toBeNull();
+      expect(query('[data-testid="my-access-active-empty"]')).not.toBeNull();
       expect(fixture.nativeElement.textContent).toContain("pamMyRequestsActiveAccessEmpty");
     });
   });
