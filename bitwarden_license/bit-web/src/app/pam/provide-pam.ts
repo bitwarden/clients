@@ -191,7 +191,14 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: PamNavBadgeService,
       useClass: DefaultPamNavBadgeService,
-      deps: [AccessRequestSdkService, AccessEventService, ConfigService, LogService],
+      deps: [
+        AccessRequestSdkService,
+        ApprovalSdkService,
+        ApprovalPrivilegeService,
+        AccessEventService,
+        ConfigService,
+        LogService,
+      ],
     }),
     safeProvider({
       provide: COLLECTION_ACCESS_RULE_CALLOUT,
