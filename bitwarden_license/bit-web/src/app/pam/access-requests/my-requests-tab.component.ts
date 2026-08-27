@@ -52,11 +52,28 @@ type FilterableRow = {
 };
 
 /**
+ * A row of the active-access table. Exactly one of `lease` / `request` is set: a lease the caller
+ * holds right now, or an approved request they have not activated yet. `cipherName` / `notAfter`
+ * are flattened onto the row because `bit-table` sorts on top-level row properties.
+ */
+type ActiveAccessRow = {
+  readonly requestId: AccessRequestId;
+  readonly cipherId: string;
+  readonly cipherName: string | null;
+  readonly collectionName: string | null;
+  readonly notBefore: string;
+  readonly notAfter: string;
+  readonly lease: MyAccessLeaseRow | null;
+  readonly request: MyAccessRequestRow | null;
+};
+
+/**
  * "My requests" tab — the caller's own PAM access, grouped into three accordion sections mirroring
  * the design:
- *  - Pending — requests still awaiting a decision, or approved and awaiting activation.
+ *  - Pending — requests still awaiting an approver's decision.
  *  - Extension requests — open requests to extend a lease already held.
- *  - Currently checked out — the leases the caller holds right now.
+ *  - Currently checked out — the leases the caller holds right now, together with approved grants
+ *    the caller has not activated yet.
  *
  * Data, name resolution, and optimistic cancel/end live in {@link MyAccessService} (provided on the
  * shell route and shared across tabs); this component owns only the view: the live countdown clock,
@@ -140,9 +157,50 @@ export class MyRequestsTabComponent implements OnInit {
       .sort((a, b) => a.label.localeCompare(b.label));
   });
 
-  protected readonly pendingRows = computed(() => this.applyFilters(this.allPending()));
+  /** Rows still awaiting an approver's decision — the only thing "Pending" holds. */
+  protected readonly pendingRows = computed(() =>
+    this.applyFilters(this.allPending()).filter((row) => row.status === "pending"),
+  );
+
+  /**
+   * Approved and awaiting activation. The exact complement of {@link pendingRows} over the
+   * service's `pendingRows$`, split on `status` alone: a clock-dependent split (`canStart`) would
+   * drop a grant whose activation window has lapsed out of both sections.
+   */
+  protected readonly approvedRows = computed(() =>
+    this.applyFilters(this.allPending()).filter((row) => row.status !== "pending"),
+  );
+
   protected readonly extensionRows = computed(() => this.applyFilters(this.allExtensions()));
   protected readonly leases = computed(() => this.applyFilters(this.allLeases()));
+
+  /**
+   * Deliberately depends on `approvedRows` and `leases` only, never on `nowMs()`: a per-tick
+   * rebuild would hand every badge a fresh input object every second and restart its countdown
+   * (see {@link leaseBadgeStates}). `bit-table`'s default sort orders the merged set by `notAfter`.
+   */
+  protected readonly activeAccessRows = computed<ActiveAccessRow[]>(() => [
+    ...this.approvedRows().map((request) => ({
+      requestId: request.id,
+      cipherId: request.cipherId,
+      cipherName: request.cipherName,
+      collectionName: request.collectionName,
+      notBefore: request.leaseNotBefore,
+      notAfter: request.leaseNotAfter,
+      lease: null,
+      request,
+    })),
+    ...this.leases().map((lease) => ({
+      requestId: lease.requestId,
+      cipherId: lease.cipherId,
+      cipherName: lease.cipherName,
+      collectionName: lease.collectionName,
+      notBefore: lease.notBefore,
+      notAfter: lease.notAfter,
+      lease,
+      request: null,
+    })),
+  ]);
 
   /**
    * Badge state is memoised per lease so the shared badge component sees a stable input across the
@@ -160,12 +218,15 @@ export class MyRequestsTabComponent implements OnInit {
       ),
   );
 
+  /** A stable identity so the badge input does not churn; the `ready` state carries no payload. */
+  protected readonly readyBadge: AccessBadgeState = { kind: "ready" };
+
   /**
    * Each table renders from its own data source so `bit-table` can sort the rows independently.
    */
   protected readonly pendingDataSource = new TableDataSource<MyAccessRequestRow>();
   protected readonly extensionDataSource = new TableDataSource<MyAccessRequestRow>();
-  protected readonly leasesDataSource = new TableDataSource<MyAccessLeaseRow>();
+  protected readonly activeAccessDataSource = new TableDataSource<ActiveAccessRow>();
 
   constructor() {
     effect(() => {
@@ -175,7 +236,7 @@ export class MyRequestsTabComponent implements OnInit {
       this.extensionDataSource.data = this.extensionRows();
     });
     effect(() => {
-      this.leasesDataSource.data = this.leases();
+      this.activeAccessDataSource.data = this.activeAccessRows();
     });
   }
 
@@ -215,6 +276,12 @@ export class MyRequestsTabComponent implements OnInit {
 
   protected leaseBadgeState(id: AccessLeaseId): AccessBadgeState | null {
     return this.leaseBadgeStates().get(id) ?? null;
+  }
+
+  protected rowTestId(row: ActiveAccessRow): string {
+    return row.lease == null
+      ? `my-access-approved-${row.requestId}`
+      : `my-access-lease-${row.lease.id}`;
   }
 
   protected isCancelling(id: AccessRequestId): boolean {
@@ -283,6 +350,14 @@ export class MyRequestsTabComponent implements OnInit {
       row.producedLeaseId == null &&
       Date.parse(row.leaseNotAfter) > this.nowMs()
     );
+  }
+
+  /**
+   * The grant can be started right now: approved, unactivated, and inside its window. Only then is
+   * "Ready to use" a true statement about the access the viewer holds.
+   */
+  protected isReadyNow(row: MyAccessRequestRow): boolean {
+    return this.canStart(row) && this.startsNow(row);
   }
 
   protected async cancel(row: MyAccessRequestRow): Promise<void> {
