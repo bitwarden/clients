@@ -1,14 +1,5 @@
 import { CommonModule } from "@angular/common";
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  OnInit,
-  inject,
-  input,
-} from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ChangeDetectionStrategy, Component, DoCheck, OnInit, inject, input } from "@angular/core";
 import { FormArray, FormControl, ReactiveFormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -71,7 +62,7 @@ export function cidrRowControl(
     IconButtonModule,
   ],
 })
-export class IpAllowlistEditorComponent implements OnInit, AfterViewInit {
+export class IpAllowlistEditorComponent implements OnInit, DoCheck {
   /** The host-owned CIDR array this editor renders and mutates. */
   readonly cidrArray = input.required<IpAllowlistCidrsArray>();
 
@@ -80,20 +71,21 @@ export class IpAllowlistEditorComponent implements OnInit, AfterViewInit {
 
   private readonly i18n = inject(I18nService);
   private readonly cidrValidation = inject(CidrValidationService);
-  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     // Start with a single blank row to type into when the host seeds no value.
     if (this.cidrArray().length === 0) {
       this.appendRow();
     }
-
-    this.cidrArray()
-      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.syncDuplicateErrors());
   }
 
-  ngAfterViewInit(): void {
+  /**
+   * The row marks have to track the array's own duplicate validator, which the host can re-run
+   * without any notification: it replaces the rows and toggles the array's enabled state under
+   * `emitEvent: false`, so neither `valueChanges` nor `statusChanges` fires. Checking each cycle
+   * is what keeps the two in step; {@link syncDuplicateErrors} writes nothing once they agree.
+   */
+  ngDoCheck(): void {
     this.syncDuplicateErrors();
   }
 
