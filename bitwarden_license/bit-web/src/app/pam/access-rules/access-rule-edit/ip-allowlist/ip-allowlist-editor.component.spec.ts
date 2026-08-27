@@ -134,7 +134,7 @@ describe("IpAllowlistEditorComponent", () => {
 
     it("sits outside the input rather than inside it as a suffix", () => {
       create(hostArray("10.0.0.0/8", "192.168.0.0/16"));
-      expect(removeButtons()[0].getAttribute("slot")).toBe("inline-end");
+      expect(removeButtons()[0].closest("[bitFieldContainer]")).toBeNull();
     });
 
     it("is withheld when the editor is read-only", () => {
