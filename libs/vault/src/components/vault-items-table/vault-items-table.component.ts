@@ -429,8 +429,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly multipleVaults = computed(() => this.presentVaults().size > 1);
 
   /**
-   * Whether the Vault chip offers "My vault". True when some cipher is individually owned, or
-   * when there are no ciphers yet and the user can have personal ciphers.
+   * Whether the Vault chip offers "My vault".
    */
   protected readonly showMyVaultOption = computed(() => {
     const hasPersonalCiphers = this.presentVaults().has(MY_VAULT);
