@@ -354,6 +354,53 @@ describe("LoginDecryptionOptionsComponent", () => {
       );
     });
 
+    it("persists the unlock sharing choice before unlocking when feature flag is enabled", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+      loginDecryptionOptionsService.handleCreateUserSuccess.mockResolvedValue(undefined);
+      router.navigate.mockResolvedValue(true);
+      appIdService.getAppId.mockResolvedValue("mock-app-id");
+      organizationApiService.getKeys.mockResolvedValue({
+        publicKey: "mock-org-public-key",
+        privateKey: "mock-org-private-key",
+      } as any);
+
+      await component["initializeUserCryptoForJitProvisionedAccount"]();
+
+      const setUnlockSharingDisabledOrder =
+        sharedUnlockSettingsService.setUnlockSharingDisabled.mock.invocationCallOrder[0];
+      const unlockOrder = unlockService.unlockWithDecryptedUserKey.mock.invocationCallOrder[0];
+
+      expect(setUnlockSharingDisabledOrder).toBeLessThan(unlockOrder);
+    });
+
+    it("persists the unlock sharing choice before unlocking when feature flag is disabled", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      const mockPrivateKey = {
+        encryptedString: "mock-encrypted-private-key",
+      } as any;
+      const mockUserKey = makeSymmetricCryptoKey<UserKey>(64);
+
+      jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockReturnValue({} as any);
+      jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(mockUserKey);
+      keyService.userKey$.mockReturnValue(of(null));
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(["mock-public-key", mockPrivateKey]);
+
+      apiService.postAccountKeys.mockResolvedValue(undefined);
+      passwordResetEnrollmentService.enroll.mockResolvedValue(undefined);
+      deviceTrustService.trustDevice.mockResolvedValue(undefined);
+      loginDecryptionOptionsService.handleCreateUserSuccess.mockResolvedValue(undefined);
+      router.navigate.mockResolvedValue(true);
+
+      await component["initializeUserCryptoForJitProvisionedAccount"]();
+
+      const setUnlockSharingDisabledOrder =
+        sharedUnlockSettingsService.setUnlockSharingDisabled.mock.invocationCallOrder[0];
+      const unlockOrder = unlockService.unlockWithDecryptedUserKey.mock.invocationCallOrder[0];
+
+      expect(setUnlockSharingDisabledOrder).toBeLessThan(unlockOrder);
+    });
+
     it("should disable shared unlock when the user proceeds without trusting the device", async () => {
       configService.getFeatureFlag.mockResolvedValue(true);
       loginDecryptionOptionsService.handleCreateUserSuccess.mockResolvedValue(undefined);

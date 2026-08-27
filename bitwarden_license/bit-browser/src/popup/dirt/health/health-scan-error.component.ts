@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, output } from "@angular/core";
 
 import { ReportBreach } from "@bitwarden/assets/svg";
-import { SvgComponent, TypographyModule } from "@bitwarden/components";
+import { SvgComponent, StatusLockupComponent, ButtonModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
@@ -11,10 +11,16 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "dirt-health-scan-error",
   templateUrl: "./health-scan-error.component.html",
-  imports: [SvgComponent, TypographyModule, I18nPipe],
+  imports: [SvgComponent, I18nPipe, StatusLockupComponent, ButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HealthScanErrorComponent {
+  readonly retry = output<void>();
+
   /** The pages-and-warning illustration the design frame uses for this state. */
   protected readonly illustration = ReportBreach;
+
+  protected readonly onRetryClick = () => {
+    this.retry.emit();
+  };
 }

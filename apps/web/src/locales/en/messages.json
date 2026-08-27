@@ -1224,6 +1224,48 @@
   "sharedFolders": {
     "message": "Shared folders"
   },
+  "sharedFoldersInParent": {
+    "message": "Shared folders in $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ shared folder",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ more shared folders shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 more shared folder shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "My folder"
   },
@@ -3742,9 +3784,6 @@
   },
   "restrictedItemTypePolicy": {
     "message": "Remove card item type"
-  },
-  "restrictedItemTypePolicyDesc": {
-    "message": "Do not allow members to create card item types. Existing cards will be automatically removed."
   },
   "restrictedItemTypePolicyDescV2": {
     "message": "Do not allow members to create and store credit card items in their vaults. When this policy is turned on, existing cards will be automatically hidden."
@@ -6799,7 +6838,7 @@
   "openOrgInviteAcceptFailed": {
     "message": "Unable to accept invitation. Ask an organization admin to send a new invitation link."
   },
-  "openOrgInviteAcceptFailedTitle": {
+  "cannotAcceptInvitation": {
     "message": "Cannot accept invitation"
   },
   "openOrgInviteAcceptAlreadyMember": {
@@ -7375,6 +7414,21 @@
       }
     }
   },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Check your email to finish joining $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
+  },
+  "inviteSentToEmail": {
+    "message": "Invite sent to email"
+  },
   "acceptPolicies": {
     "message": "By checking this box you agree to the following:"
   },
@@ -7644,17 +7698,11 @@
   "twoStepLoginPolicyDescV2": {
     "message": "Require members to set up two-step login. This policy won't be enforced for owners and admins."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "Organization members who are not owners or admins and do not have two-step login setup for their account will be removed from the organization and will receive an email notifying them about the change."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "Enabling this policy will revoke any users who do not have two-step login enabled on their accounts. Affected users will be notified by email."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "You are a member of an organization that requires two-step login to be setup on your user account. If you turn off all two-step login providers you will be automatically removed from these organizations."
-  },
-  "passwordGeneratorPolicyDesc": {
-    "message": "Set requirements for password generator."
   },
   "passwordGeneratorPolicyDescV2": {
     "message": "Select a set of minimum requirements for any member-generated passwords."
@@ -7918,9 +7966,6 @@
   "singleOrgDesc": {
     "message": "Restrict members from joining other organizations."
   },
-  "singleOrgPolicyDesc": {
-    "message": "Restrict members from joining other organizations. This policy is required for organizations that have enabled domain verification."
-  },
   "singleOrgPolicyDescVfo1": {
     "message": "Restrict members from joining other shared or organization vaults.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
@@ -7953,9 +7998,6 @@
     "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
   },
-  "requireSsoPolicyDesc": {
-    "message": "Require members to log in with the Enterprise single sign-on method."
-  },
   "requireSsoPolicyTitle": {
     "message": "Require single sign-on (SSO)"
   },
@@ -7964,9 +8006,6 @@
   },
   "prerequisite": {
     "message": "Prerequisite"
-  },
-  "requireSsoPolicyReq": {
-    "message": "The single organization Enterprise policy must be turned on before activating this policy."
   },
   "requireSsoPolicyReqV2": {
     "message": "You must enable the single organization policy before enabling this one."
@@ -8385,9 +8424,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Prompt members to transfer their items"
   },
@@ -8396,9 +8432,6 @@
   },
   "centralizeDataOwnershipWarningLink": {
     "message": "Learn more about the transfer"
-  },
-  "promptUsersToMoveItems": {
-    "message": "Prompt users to move individual vault items to the organization"
   },
   "promptUsersToMoveItemsCallout": {
     "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
@@ -8611,10 +8644,6 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "Desktop autotype default setting"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "Enable desktop autotype for members. Members will be able to turn autotype off manually in the desktop client."
   },
@@ -8700,9 +8729,6 @@
   "uriMatchDetectionPolicy": {
     "message": "Default URI match detection"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
-  },
   "uriMatchDetectionPolicyDescVfo1": {
     "message": "Set the default URI match detection for all items created by members.",
     "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
@@ -8716,6 +8742,23 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Please select a valid URI match detection option.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "Activate fill assist",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Turn on fill assist by default for all members. This feature uses reviewed, site-specific instructions to improve autofill accuracy on websites known to be difficult to autofill."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Custom autofill rule set"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "By default, fill assist uses Bitwarden's curated rule set. Enter a URL here to override it with your own."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Enter a valid URL",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "Modified policy $ID$.",
@@ -8731,6 +8774,9 @@
   },
   "estimatedTax": {
     "message": "Estimated tax"
+  },
+  "subtotal": {
+    "message": "Subtotal"
   },
   "custom": {
     "message": "Custom"
@@ -9499,9 +9545,6 @@
   "automaticAppLoginWithSSO": {
     "message": "Automatic login with SSO"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
   },
@@ -9636,9 +9679,6 @@
   },
   "disableExport": {
     "message": "Remove export"
-  },
-  "disablePersonalVaultExportDescription": {
-    "message": "Do not allow members to export data from their individual vault."
   },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Do not allow members to export data from their individual vaults. This policy won't be enforced for owners and admins."
@@ -14854,9 +14894,6 @@
     "message": "Remove Sponsored Families Plan",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
   },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Do not allow members to redeem a Families plan through this organization."
-  },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Do not allow members to redeem a Families plan sponsored by your organization."
   },
@@ -15314,9 +15351,6 @@
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "Do not allow members to unlock their account with a PIN."
-  },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Members will not be allowed to unlock their account with a PIN."
   },
@@ -15704,6 +15738,9 @@
   "providersubCanceledmessage": {
     "message": "To resubscribe, contact Bitwarden Customer Support."
   },
+  "showAll": {
+    "message": "Show all"
+  },
   "showMore": {
     "message": "Show more"
   },
@@ -15751,16 +15788,21 @@
   "checkInputFormat": {
     "message": "Check input format for typos."
   },
-  "exampleTaxIdFormat": {
-    "message": "Example $CODE$ format: $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Example tax ID format: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Recognized format: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -16016,9 +16058,6 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Block account creation for claimed domains"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
-  },
   "blockClaimedDomainAccountCreationDescVfo1": {
     "message": "Prevent account creation from claimed domains.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
@@ -16029,9 +16068,6 @@
   "blockClaimedDomainAccountCreationDescV2Vfo1": {
     "message": "Block members from using your claimed domain to create Bitwarden accounts outside of your organization vault.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
-  },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "A domain must be claimed before activating this policy."
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "Before turning on this policy, you must claim a domain."
@@ -16153,6 +16189,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "Verifying folder integrity"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Verifying attachment integrity"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ item(s) have file attachments with old encryption. Open an item below and go to Attachments to fix it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "Data Recovery and Diagnostics"
@@ -16489,6 +16537,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "Premium subscription credit"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Applied subscription credits"
   },
   "enterpriseMembership": {
     "message": "Enterprise membership"

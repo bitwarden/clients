@@ -13,7 +13,6 @@ import {
   switchMap,
 } from "rxjs";
 
-import { ClientType } from "@bitwarden/client-type";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { BaseEncryptedOrganizationKey } from "@bitwarden/common/admin-console/models/domain/encrypted-organization-key";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
@@ -21,14 +20,10 @@ import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-con
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { USER_KEY } from "@bitwarden/common/key-management/state-definitions";
-import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
-import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { convertValues } from "@bitwarden/common/platform/misc/convert-values";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
@@ -88,72 +83,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     ) as Observable<Record<OrganizationId, OrgKey>>;
   }
 
-  async setUserKey(key: UserKey, userId: UserId): Promise<void> {
-    if (key == null) {
-      throw new Error("No key provided. Lock the user to clear the key");
-    }
-    if (userId == null) {
-      throw new Error("No userId provided.");
-    }
-
-    // Set userId to ensure we have one for the account status update
-    await this.stateProvider.setUserState(USER_KEY, key, userId);
-    await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
-
-    await this.storeAdditionalKeys(key, userId);
-
-    // Await the key actually being set. This ensures that any subsequent callers know the key is already in state.
-    // There were bugs related to the stateprovider observables in the past that caused issues around this.
-    const userKey = await firstValueFrom(this.userKey$(userId).pipe(filter((k) => k != null)));
-    if (userKey == null) {
-      throw new Error("Failed to set user key");
-    }
-  }
-
-  async refreshAdditionalKeys(userId: UserId): Promise<void> {
-    if (userId == null) {
-      throw new Error("UserId is required.");
-    }
-
-    const key = await firstValueFrom(this.userKey$(userId));
-    if (key == null) {
-      throw new Error("No user key found for: " + userId);
-    }
-
-    await this.setUserKey(key, userId);
-  }
-
   everHadUserKey$(userId: UserId): Observable<boolean> {
     return this.stateProvider
       .getUser(userId, USER_EVER_HAD_USER_KEY)
       .state$.pipe(map((x) => x ?? false));
-  }
-
-  /**
-   * @deprecated Use {@link userKey$} with a required {@link UserId} instead.
-   */
-  async getUserKey(userId?: UserId): Promise<UserKey | null> {
-    return await firstValueFrom(this.stateProvider.getUserState$(USER_KEY, userId));
-  }
-
-  async getUserKeyFromStorage(
-    keySuffix: KeySuffixOptions,
-    userId: UserId,
-  ): Promise<UserKey | null> {
-    if (userId == null) {
-      throw new Error("UserId is required");
-    }
-
-    const userKey = await this.getKeyFromStorage(keySuffix, userId);
-    if (userKey == null) {
-      return null;
-    }
-
-    if (!(await this.validateUserKey(userKey, userId))) {
-      this.logService.warning("Invalid key, throwing away stored keys");
-      await this.clearAllStoredUserKeys(userId);
-    }
-    return userKey;
   }
 
   async hasUserKey(userId: UserId): Promise<boolean> {
@@ -307,64 +240,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return true;
   }
 
-  /**
-   * Generates any additional keys if needed. Additional keys are
-   * keys such as biometrics, auto, and pin keys.
-   * Useful to make sure other keys stay in sync when the user key
-   * has been rotated.
-   * @param key The user key
-   * @param userId The desired user
-   */
-  protected async storeAdditionalKeys(key: UserKey, userId: UserId) {
-    const storeAuto = await this.shouldStoreKey(KeySuffixOptions.Auto, userId);
-    if (storeAuto) {
-      await this.stateService.setUserKeyAutoUnlock(key.keyB64, { userId: userId });
-    } else {
-      await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
-    }
-  }
-
-  protected async shouldStoreKey(keySuffix: KeySuffixOptions, userId: UserId) {
-    switch (keySuffix) {
-      case KeySuffixOptions.Auto: {
-        // Cli has fixed Never vault timeout, and it should not be affected by a policy.
-        if (this.platformUtilService.getClientType() == ClientType.Cli) {
-          return true;
-        }
-
-        // TODO: Sharing the UserKeyDefinition is temporary to get around a circ dep issue between
-        // the VaultTimeoutSettingsSvc and this service.
-        // This should be fixed as part of the PM-7082 - Auto Key Service work.
-        const vaultTimeout = await firstValueFrom(
-          this.stateProvider
-            .getUserState$(VAULT_TIMEOUT, userId)
-            .pipe(filter((timeout) => timeout != null)),
-        );
-
-        this.logService.debug(
-          `[KeyService] Should store auto key for vault timeout ${vaultTimeout}`,
-        );
-
-        return vaultTimeout == VaultTimeoutStringType.Never;
-      }
-    }
-    return false;
-  }
-
-  protected async getKeyFromStorage(
-    keySuffix: KeySuffixOptions,
-    userId: UserId,
-  ): Promise<UserKey | null> {
-    if (keySuffix === KeySuffixOptions.Auto) {
-      const userKey = await this.stateService.getUserKeyAutoUnlock({ userId: userId });
-      if (userKey) {
-        return new SymmetricCryptoKey(Utils.fromB64ToArray(userKey)) as UserKey;
-      }
-    }
-    return null;
-  }
-
-  protected async clearAllStoredUserKeys(userId: UserId): Promise<void> {
+  async clearAllStoredUserKeys(userId: UserId): Promise<void> {
     // No-op on platforms that do not store a biometrics-protected copy of the user key.
     await this.biometricsService.deleteBiometricUnlockKeyForUser(userId);
     await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });

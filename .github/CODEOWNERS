@@ -117,6 +117,7 @@ libs/platform                     @bitwarden/team-platform-dev
 libs/storage-core                 @bitwarden/team-platform-dev
 libs/logging                      @bitwarden/team-platform-dev
 libs/logging-angular              @bitwarden/team-platform-dev
+libs/managed-settings             @bitwarden/team-platform-dev
 libs/storage-test-utils           @bitwarden/team-platform-dev
 libs/messaging                    @bitwarden/team-platform-dev
 libs/serialization                @bitwarden/team-platform-dev
@@ -167,9 +168,10 @@ libs/common/src/autofill                         @bitwarden/team-autofill-dev
 .github/workflows/test-browser-interactions.yml  @bitwarden/team-autofill-dev
 
 ## Desktop Native team files ##
-apps/desktop/src/autofill                         @bitwarden/team-desktop-native-dev
-apps/desktop/desktop_native/autotype              @bitwarden/team-desktop-native-dev
+apps/desktop/src/autofill                             @bitwarden/team-desktop-native-dev
+apps/desktop/desktop_native/autotype                  @bitwarden/team-desktop-native-dev
 apps/desktop/desktop_native/napi/src/autotype_mvp.rs  @bitwarden/team-desktop-native-dev
+libs/common/src/desktop-native                        @bitwarden/team-desktop-native-dev
 
 ## Desktop Native team files + SSH working group co-owned files ##
 apps/desktop/desktop_native/core/src/ssh_agent                 @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
@@ -246,6 +248,10 @@ apps/desktop/src/services/biometric-message-handler.service.ts  @bitwarden/team-
 bitwarden_license/bit-web/src/app/pam  @bitwarden/team-pam-dev
 apps/web/src/app/pam                   @bitwarden/team-pam-dev
 libs/pam                               @bitwarden/team-pam-dev
+
+## Automation driver ##
+### Temporary Code-owner.
+libs/automation-driver @bitwarden/team-key-management-dev
 
 ## Locales ##
 apps/browser/src/_locales/en/messages.json
