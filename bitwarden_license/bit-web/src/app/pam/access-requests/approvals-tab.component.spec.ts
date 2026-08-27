@@ -149,13 +149,42 @@ describe("ApprovalsTabComponent", () => {
   });
 
   describe("rendering", () => {
-    it("shows the loading message while loading and nothing has arrived yet", () => {
+    it("shows the skeleton table once loading has run for a second", () => {
       inbox.loading$.next(true);
 
       create();
 
-      expect(query('[bitTypography="body2"]')?.textContent).toContain("loading");
+      expect(query('[data-testid="approvals-loading"]')).not.toBeNull();
+      expect(query("bit-skeleton")).toBeNull();
+
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      const skeleton = query('[data-testid="approvals-loading"]');
+      expect(skeleton?.querySelectorAll("bit-skeleton").length).toBeGreaterThan(0);
+      expect(skeleton?.querySelector('[role="status"]')?.textContent).toContain("loading");
+      expect(query('p[bitTypography="body2"]')).toBeNull();
       expect(query('[data-testid="approvals-empty"]')).toBeNull();
+    });
+
+    it("never shows the skeleton when the inbox arrives inside a second", () => {
+      inbox.loading$.next(true);
+
+      create();
+
+      // Still loading, so the block is on screen and an ungated skeleton would be visible here.
+      jest.advanceTimersByTime(500);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="approvals-loading"]')).not.toBeNull();
+      expect(query("bit-skeleton")).toBeNull();
+
+      inbox.loading$.next(false);
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      expect(query("bit-skeleton")).toBeNull();
+      expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
     });
 
     it("shows the empty state when there is nothing to approve", () => {
