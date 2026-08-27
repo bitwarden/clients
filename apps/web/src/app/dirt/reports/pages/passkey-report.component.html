@@ -38,7 +38,11 @@
         </bit-callout>
       } @else {
         <bit-callout type="info" title="{{ 'passkeyLoginFound' | i18n }}">
-          {{ reportDescriptionKey() | i18n: (ciphers().length | number) ?? "" }}
+          {{ "passkeyLoginFoundInfoPrefix" | i18n }}
+          <strong class="tw-font-semibold">{{
+            "loginsCount" | i18n: (ciphers().length | number)
+          }}</strong>
+          {{ infoBannerSuffixKey() | i18n }}
         </bit-callout>
         @if (showFilterToggle()) {
           @if (canDisplayToggleGroup()) {
