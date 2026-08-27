@@ -218,7 +218,7 @@ export const ApprovedNotYetRedeemable: Story = {
 
 /**
  * An approved grant nobody activated before its window lapsed. It still has to be visible
- * somewhere, so it stays with the active access, badged "Approved" with no action offered — below
+ * somewhere, so it stays with the active access, badged "Expired" with no action offered — below
  * the lease the caller actually holds, even though its window ended first.
  */
 export const ApprovedWindowLapsed: Story = {
