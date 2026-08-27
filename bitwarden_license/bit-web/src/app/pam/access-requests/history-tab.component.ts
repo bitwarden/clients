@@ -197,7 +197,7 @@ export class HistoryTabComponent {
       content: {
         key: "pamInboxWithdrawApprovalConfirm",
         // The same expression the Item column renders, so the dialog and its row can never name the
-        // item differently — including when the cipher is not in the approver's vault.
+        // item differently.
         placeholders: [row.cipherName ?? row.cipherId],
       },
       acceptButtonText: { key: "pamInboxWithdrawApproval" },
