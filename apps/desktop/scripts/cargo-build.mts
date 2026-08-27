@@ -29,9 +29,10 @@ import {
   binaryFileName,
   buildEnv,
   builtLibraryName,
+  cargoBuildCommand,
+  cargoTargetArg,
   libraryFileName,
   rustTargetsFor,
-  usesXwin,
 } from "./rust-targets.mts";
 
 const DESKTOP_NATIVE = "desktop_native";
@@ -105,15 +106,16 @@ function cargo(
   hostArch: NodeArch,
   target: RustTarget,
 ): void {
-  // `cargo xwin build` rather than `cargo build` when targeting Windows from elsewhere.
-  // configure has already checked that cargo-xwin is installed.
-  const command = usesXwin(host, target) ? ["xwin", "build"] : ["build"];
+  // cargo-xwin or cargo-zigbuild when this is a cross build; configure has already checked
+  // that whichever one it needs is installed.
+  const command = cargoBuildCommand(host, target);
   const selector = artifact.kind === "binary" ? "--bin" : "--package";
+  const targetArg = cargoTargetArg(host, target, config.linux?.glibc);
   const profileArgs = config.profile === "release" ? ["--release"] : [];
 
   runCommand(
     "cargo",
-    [...command, selector, artifact.cargoPackage, `--target=${target}`, ...profileArgs],
+    [...command, selector, artifact.cargoPackage, `--target=${targetArg}`, ...profileArgs],
     { cwd: DESKTOP_NATIVE, env: buildEnv(host, hostArch, target) },
   );
 }
