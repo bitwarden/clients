@@ -52,8 +52,9 @@ export function cidrRowControl(
  *
  * Renders a repeatable list of CIDR inputs over a {@link FormArray} owned by the host form and
  * passed in via {@link cidrArray}. The host keeps value and validity on its own control — this
- * component only manages the row UI (add/remove) and surfaces the array's validation errors.
- * Empty rows stay in the value; the host trims and drops them when serialising the rule.
+ * component manages the row UI (add/remove), surfaces the array's validation errors, and marks
+ * each row that repeats another row's range. Empty rows stay in the value; the host trims and
+ * drops them when serialising the rule.
  */
 @Component({
   selector: "app-pam-ip-allowlist-editor",
@@ -115,7 +116,7 @@ export class IpAllowlistEditorComponent implements OnInit, AfterViewInit {
     this.markTouched();
   }
 
-  /** Surface the array-level errors (duplicate / at-least-one) once the user interacts. */
+  /** Surface the array-level at-least-one error once the user interacts. */
   protected markTouched(): void {
     this.cidrArray().markAsTouched();
   }
