@@ -5,7 +5,7 @@
       {{ "reports" | i18n }}
     </bit-breadcrumb>
     @if (vfo1Enabled()) {
-      <bit-breadcrumb route="./">
+      <bit-breadcrumb [route]="[]">
         {{ reportTitleKey | i18n }}
       </bit-breadcrumb>
     }
