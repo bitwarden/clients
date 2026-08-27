@@ -1,10 +1,13 @@
-@if (historyReady() && canSwitchScope()) {
+@if (!showSkeleton() && canSwitchScope()) {
   <div class="tw-mb-4 tw-flex tw-justify-end">
     <bit-toggle-group
       [selected]="scope()"
       (selectedChange)="selectScope($event)"
       [label]="'pamHistoryScopeLabel' | i18n"
     >
+      <bit-toggle [value]="HistoryScope.All" data-testid="history-scope-all">
+        {{ "pamHistoryScopeAll" | i18n }}
+      </bit-toggle>
       <bit-toggle [value]="HistoryScope.Mine" data-testid="history-scope-mine">
         {{ "pamHistoryScopeMine" | i18n }}
       </bit-toggle>
@@ -15,7 +18,7 @@
   </div>
 }
 
-@if (!historyReady()) {
+@if (showSkeleton()) {
   <div data-testid="history-loading">
     <span class="tw-sr-only" role="status">{{ "loading" | i18n }}</span>
 
@@ -53,9 +56,7 @@
   </div>
 } @else if (historyRows().length === 0) {
   <bit-no-items class="tw-mt-2 tw-block" data-testid="my-access-history-empty">
-    <span slot="title" class="tw-mt-4 tw-block">{{
-      (showingManaged() ? "pamInboxHistoryEmpty" : "pamMyRequestsHistoryEmpty") | i18n
-    }}</span>
+    <span slot="title" class="tw-mt-4 tw-block">{{ emptyMessageKey() | i18n }}</span>
   </bit-no-items>
 } @else {
   <bit-table [dataSource]="historyDataSource">
@@ -66,7 +67,7 @@
         <th bitCell>{{ "pamColumnResolver" | i18n }}</th>
         <th bitCell>{{ "pamColumnComment" | i18n }}</th>
         <th bitCell bitSortable="resolvedAt" default="desc">{{ "pamColumnResolved" | i18n }}</th>
-        @if (showingManaged()) {
+        @if (showActionsColumn()) {
           <th bitCell>{{ "pamColumnActions" | i18n }}</th>
         }
       </tr>
@@ -141,7 +142,7 @@
             </span>
           }
         </td>
-        @if (showingManaged()) {
+        @if (showActionsColumn()) {
           <td bitCell>
             @if (canRevoke(row)) {
               <button
