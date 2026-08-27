@@ -1675,28 +1675,26 @@ describe("VaultItemsTableComponent", () => {
      * scroll space the last row sits permanently beneath it, and its checkbox and quick actions
      * can't be clicked — so the table holds space below the last row while the bar is showing.
      */
-    it("reserves scroll space below the last row only while the bar is showing", () => {
+    it("holds a bottom margin only while the bar is showing", () => {
       const amazon = cipherView({ id: "a", name: "Amazon" });
       fixture.componentRef.setInput("ciphers", [amazon]);
       fixture.detectChanges();
 
-      const viewport = () =>
-        fixture.debugElement.query(By.css("cdk-virtual-scroll-viewport"))
-          .nativeElement as HTMLElement;
+      const host = () => fixture.nativeElement as HTMLElement;
 
-      expect(viewport().style.paddingBottom).toBe("");
+      expect(host().style.marginBottom).toBe("0px");
 
       selectionModel().select(amazon);
       fixture.detectChanges();
 
       // Enough to clear the bar; the exact figure lives with BULK_BAR_CLEARANCE, so assert that
       // space is held rather than pinning a number the constant is free to tune.
-      expect(parseInt(viewport().style.paddingBottom, 10)).toBeGreaterThan(0);
+      expect(parseInt(host().style.marginBottom, 10)).toBeGreaterThan(0);
 
       selectionModel().clear();
       fixture.detectChanges();
 
-      expect(viewport().style.paddingBottom).toBe("");
+      expect(host().style.marginBottom).toBe("0px");
     });
 
     /**

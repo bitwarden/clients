@@ -88,13 +88,15 @@ export const VAULT_FILTER_NAMESPACE = "vault";
 export const MAX_SELECTION_COUNT = 500;
 
 /**
- * Scroll space (px) reserved below the last row while the bulk-actions bar is showing: the bar's
- * own height of 53px;
+ * Bottom margin (px) held while the bulk-actions bar is showing: the bar's own height (53) plus a
+ * 16px gap, matching the margin the bar keeps below itself so it sits evenly between the table and
+ * the viewport edge.
  *
- * The bar is `position: fixed`, so it never displaces content — without this the last row sits
- * permanently beneath it and its checkbox and quick actions can't be clicked.
+ * The bar is `position: fixed`, so it never displaces content. Without this the table's bottom
+ * border and last row sit underneath it — the row's checkbox and quick actions unreachable, and
+ * the border hidden behind the bar.
  */
-const BULK_BAR_CLEARANCE = 53;
+const BULK_BAR_CLEARANCE = 69;
 
 /**
  * The `key` values for each filter chip in the vault table.
@@ -230,6 +232,7 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: "tw-flex tw-flex-col tw-flex-1 tw-min-h-0",
+    "[style.marginBottom.px]": "bulkBarClearance()",
   },
   imports: [
     BitCellComponent,
@@ -271,9 +274,11 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly filterKeys = VAULT_FILTER_KEYS;
 
   /**
-   * Scroll space held below the last row while the bulk-actions bar is up, so the row can be
-   * scrolled clear of it rather than sitting underneath — where its checkbox and quick actions
-   * would be unreachable. {@link BULK_BAR_CLEARANCE} covers the bar itself plus a visible gap.
+   * Bottom margin held while the bulk-actions bar is up, so the table ends above it.
+   *
+   * The bar is `position: fixed` and never displaces content, so without this the table's bottom
+   * border and its last row sit underneath — the row's checkbox and quick actions unreachable, and
+   * the border hidden behind the bar.
    */
   protected readonly bulkBarClearance = computed(() =>
     this.batchBarService?.barVisible() ? BULK_BAR_CLEARANCE : 0,

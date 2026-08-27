@@ -206,7 +206,6 @@
         <cdk-virtual-scroll-viewport
           class="tw-overscroll-x-none"
           [style.height]="isFill() ? null : viewportHeight()"
-          [style.paddingBottom.px]="scrollPaddingBottom() || null"
           [class.tw-flex-1]="isFill()"
           [class.tw-min-h-0]="isFill()"
           [(bitSyncScrollLeft)]="horizontalScroll"
@@ -233,7 +232,6 @@
         -->
         <div
           class="tw-overflow-auto tw-overscroll-x-none"
-          [style.paddingBottom.px]="scrollPaddingBottom() || null"
           [class.tw-flex-1]="isFill()"
           [class.tw-min-h-0]="isFill()"
           [(bitSyncScrollLeft)]="horizontalScroll"
