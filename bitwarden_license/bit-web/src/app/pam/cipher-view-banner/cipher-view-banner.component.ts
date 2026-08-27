@@ -289,7 +289,6 @@ export class CipherViewBannerComponent implements OnInit {
       (this.approvedRequest() != null && !this.approvedRequestStartsNow()),
   );
 
-  /** Whether the "Request access" entry point has folded out its form. */
   protected readonly requestFormExpanded = signal(false);
   private readonly requestToggleButton = viewChild("requestToggleButton", {
     read: ElementRef<HTMLElement>,
