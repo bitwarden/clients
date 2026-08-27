@@ -17,7 +17,6 @@ function mockImportOption(id: ImportType, loaders: ImportOption["loaders"]): Imp
     name: id,
     featuredImporter: false,
     isBrowser: false,
-    featuredInSourcePicker: false,
     acceptedFileTypes: ["csv"],
     pasteFormats: ["csv"],
     hasDirectImporter: false,

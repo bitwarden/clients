@@ -182,6 +182,14 @@ export const PICKER_FEATURED_PASSWORD_MANAGER_ORDER: readonly ImportType[] = [
   "roboformcsv",
 ];
 
+/** Whether `id` is one of the 8 featured password managers shown by default in the source-select
+ *  grid, ahead of the "Show all" disclosure. Derived from `PICKER_FEATURED_PASSWORD_MANAGER_ORDER`
+ *  rather than tracked as a second, separately-maintained flag — a vendor's featured status and
+ *  its position in that list are the same fact. */
+export function isFeaturedPasswordManager(id: string): boolean {
+  return (PICKER_FEATURED_PASSWORD_MANAGER_ORDER as readonly string[]).includes(id);
+}
+
 /** Sorts `ids` by their position in `order`; anything absent from `order` sorts after everything
  *  present, in its original relative order. Used to pin the Browsers/featured Password managers
  *  sections to the design's order instead of `ImportOption`'s declaration order in the

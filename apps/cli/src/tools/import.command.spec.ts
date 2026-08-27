@@ -54,7 +54,6 @@ describe("ImportCommand", () => {
     name: "KeePass (kdbx)",
     featuredImporter: false,
     isBrowser: false,
-    featuredInSourcePicker: false,
     acceptedFileTypes: ["kdbx"],
     pasteFormats: [],
     hasDirectImporter: false,

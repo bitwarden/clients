@@ -32,6 +32,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { ImportOption, importOptions, ImportType } from "../../models";
 
 import {
+  isFeaturedPasswordManager,
   isPickerVendor,
   pickerDisplayNameFor,
   pickerIconFor,
@@ -117,7 +118,7 @@ export class ImportSourceSelectComponent {
     sortByPickerOrder(
       this.allOptions.filter(
         (option) =>
-          !option.isBrowser && option.featuredInSourcePicker && this.matchesSearch(option),
+          !option.isBrowser && isFeaturedPasswordManager(option.id) && this.matchesSearch(option),
       ),
       PICKER_FEATURED_PASSWORD_MANAGER_ORDER,
     ),
@@ -127,7 +128,7 @@ export class ImportSourceSelectComponent {
     this.allOptions
       .filter(
         (option) =>
-          !option.isBrowser && !option.featuredInSourcePicker && this.matchesSearch(option),
+          !option.isBrowser && !isFeaturedPasswordManager(option.id) && this.matchesSearch(option),
       )
       .sort((a, b) =>
         this.i18nService.collator

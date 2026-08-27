@@ -16,7 +16,6 @@ jest.mock("../../models", () => {
       name: overrides.id,
       featuredImporter: false,
       isBrowser: false,
-      featuredInSourcePicker: false,
       acceptedFileTypes: ["csv"],
       pasteFormats: ["csv"],
       hasDirectImporter: false,
@@ -27,17 +26,18 @@ jest.mock("../../models", () => {
 
   return {
     ...actual,
+    // Featured vs. remaining is no longer a per-option flag — it's derived from real
+    // membership in PICKER_FEATURED_PASSWORD_MANAGER_ORDER, so these ids are chosen to match
+    // that real list rather than set via an override here.
     importOptions: [
       buildOption({ id: "chromecsv", name: "Chrome", isBrowser: true }),
       buildOption({ id: "firefoxcsv", name: "Firefox (csv)", isBrowser: true }),
-      buildOption({
-        id: "1password1pux",
-        name: "1Password (1pux/json)",
-        featuredInSourcePicker: true,
-      }),
-      buildOption({ id: "lastpasscsv", name: "LastPass", featuredInSourcePicker: true }),
-      buildOption({ id: "zohovaultcsv", name: "Zoho Vault" }),
-      buildOption({ id: "protonpass", name: "ProtonPass (zip/json)" }),
+      buildOption({ id: "1password1pux", name: "1Password (1pux/json)" }),
+      buildOption({ id: "lastpasscsv", name: "LastPass" }),
+      // Squished (no space) on purpose: displayNameFor's real value ("Zoho Vault", with a
+      // space) diverges from this raw name — for the search-matches-display-name test below.
+      buildOption({ id: "zohovaultcsv", name: "ZohoVault" }),
+      buildOption({ id: "keepassxcsv", name: "KeePassX (csv)" }),
       buildOption({ id: "keepercsv", name: "Keeper (csv)" }),
       buildOption({ id: "keeperjson", name: "Keeper (json)" }),
       // Real id with a real picker vendor-metadata entry that has no icon — for the
@@ -123,7 +123,7 @@ describe("ImportSourceSelectComponent", () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain("importSourceBreadcrumb");
   });
 
-  it("renders every browser, regardless of featuredInSourcePicker", () => {
+  it("renders every browser, regardless of featured-password-manager status", () => {
     expect(cardLabels()).toEqual(expect.arrayContaining(["Chrome", "Firefox"]));
   });
 
@@ -131,7 +131,7 @@ describe("ImportSourceSelectComponent", () => {
     const labels = cardLabels();
     expect(labels).toEqual(expect.arrayContaining(["1Password", "LastPass"]));
     expect(labels).not.toContain("Zoho Vault");
-    expect(labels).not.toContain("Proton Pass");
+    expect(labels).not.toContain("KeePassX");
   });
 
   it("shows a clean vendor display name, not ImportOption.name's format suffix", () => {
@@ -163,7 +163,7 @@ describe("ImportSourceSelectComponent", () => {
     showAllButton.nativeElement.click();
     fixture.detectChanges();
 
-    expect(cardLabels()).toEqual(expect.arrayContaining(["Zoho Vault", "Proton Pass"]));
+    expect(cardLabels()).toEqual(expect.arrayContaining(["Zoho Vault", "KeePassX"]));
   });
 
   it("reveals matching remaining password managers while searching", () => {
@@ -179,12 +179,13 @@ describe("ImportSourceSelectComponent", () => {
   });
 
   it("matches search against the display name even when it differs from ImportOption.name", () => {
-    // Real data: id "protonpass", ImportOption.name "ProtonPass (zip/json)" (no space), display
-    // name "Proton Pass" (with a space) — searching the display name's exact text must still work.
-    component["searchControl"].setValue("proton pass");
+    // Mocked fixture: id "zohovaultcsv", ImportOption.name "ZohoVault" (no space), display name
+    // "Zoho Vault" (with a space, from the real picker metadata) — searching the display name's
+    // exact text must still work even though it isn't a substring of the raw name.
+    component["searchControl"].setValue("zoho vault");
     fixture.detectChanges();
 
-    expect(cardLabels()).toEqual(["Proton Pass"]);
+    expect(cardLabels()).toEqual(["Zoho Vault"]);
   });
 
   it("keeps a single source of truth for the disclosure's open state across search and manual toggle", () => {
