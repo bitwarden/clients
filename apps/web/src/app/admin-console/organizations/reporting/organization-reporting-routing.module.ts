@@ -38,43 +38,58 @@ const routes: Routes = [
       },
       {
         path: "reports",
+        component: ReportsHomeComponent,
         canActivate: [organizationPermissionsGuard()],
+        data: {
+          titleId: "reports",
+        },
         children: [
-          {
-            path: "",
-            component: ReportsHomeComponent,
-            data: {
-              titleId: "reports",
-            },
-          },
           {
             path: "exposed-passwords-report",
             component: ExposedPasswordsReportComponent,
+            data: {
+              titleId: "exposedPasswordsReport",
+            },
             canActivate: [isPaidOrgGuard()],
           },
           {
             path: "inactive-two-factor-report",
             component: InactiveTwoFactorReportComponent,
+            data: {
+              titleId: "inactive2faReport",
+            },
             canActivate: [isPaidOrgGuard()],
           },
           {
             path: "reused-passwords-report",
             component: ReusedPasswordsReportComponent,
+            data: {
+              titleId: "reusedPasswordsReport",
+            },
             canActivate: [isPaidOrgGuard()],
           },
           {
             path: "unsecured-websites-report",
             component: UnsecuredWebsitesReportComponent,
+            data: {
+              titleId: "unsecuredWebsitesReport",
+            },
             canActivate: [isPaidOrgGuard()],
           },
           {
             path: "weak-passwords-report",
             component: WeakPasswordsReportComponent,
+            data: {
+              titleId: "weakPasswordsReport",
+            },
             canActivate: [isPaidOrgGuard()],
           },
           {
             path: "passkey-report",
             component: OrgPasskeyReportComponent,
+            data: {
+              titleId: "passkeyLoginReport",
+            },
             canActivate: [
               isPaidOrgGuard(),
               canAccessFeature(FeatureFlag.PasskeyLoginReport, true, "../reports", false),
