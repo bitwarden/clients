@@ -2,6 +2,7 @@ import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.se
 
 import type {
   AccessLeaseId,
+  AccessLeaseStatus,
   AccessRequestId,
   AccessRequestView,
 } from "../abstractions/access-lease";
@@ -39,6 +40,12 @@ export type ManagedLeaseRow = {
   searchText: string;
 };
 
+/** The fields {@link isLiveManagedLease} reads, so a raw request and a built row both qualify. */
+type LeaseProducing = {
+  producedLeaseId: unknown;
+  producedLeaseStatus: AccessLeaseStatus | null | undefined;
+};
+
 /**
  * Whether this request minted a lease the server still holds open.
  *
@@ -48,10 +55,14 @@ export type ManagedLeaseRow = {
  * Reads the request, never the display badge: `historyDisplayStatus` only reaches its activated
  * branch for `status === "approved"`, and an activated grant can arrive with a status the client
  * reads otherwise, which would empty this section in the product while every test still passed.
+ *
+ * Structural rather than tied to {@link AccessRequestView} so every surface offering to end a lease
+ * — Active access here, History's Managed scope over `MyAccessRequestRow` — answers the question
+ * with this one predicate, and no two of them can disagree about the same lease.
  */
-export function isLiveManagedLease(
-  request: AccessRequestView,
-): request is AccessRequestView & { producedLeaseId: AccessLeaseId } {
+export function isLiveManagedLease<T extends LeaseProducing>(
+  request: T,
+): request is T & { producedLeaseId: NonNullable<T["producedLeaseId"]> } {
   return request.producedLeaseId != null && request.producedLeaseStatus === "active";
 }
 
