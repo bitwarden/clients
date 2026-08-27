@@ -88,15 +88,15 @@ export const VAULT_FILTER_NAMESPACE = "vault";
 export const MAX_SELECTION_COUNT = 500;
 
 /**
- * Bottom margin (px) held while the bulk-actions bar is showing: the bar's own height (53) plus a
- * 16px gap, matching the margin the bar keeps below itself so it sits evenly between the table and
+ * Bottom margin (px) held while the bulk-actions bar is showing: the bar's own height (53),
+ * matching the margin the bar keeps below itself so it sits evenly between the table and
  * the viewport edge.
  *
  * The bar is `position: fixed`, so it never displaces content. Without this the table's bottom
  * border and last row sit underneath it — the row's checkbox and quick actions unreachable, and
  * the border hidden behind the bar.
  */
-const BULK_BAR_CLEARANCE = 69;
+const BULK_BAR_CLEARANCE = 53;
 
 /**
  * The `key` values for each filter chip in the vault table.
