@@ -441,8 +441,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   });
 
   /**
-   * The organizations the Vault chip offers, sorted for a stable menu. All organizations are
-   * always included so the dropdown is stable — it never shrinks as items are added.
+   * The organizations the Vault chip offers. Derived from the `organizations` input
+   * so the options don't change as ciphers are filtered in or out.
    */
   protected readonly sortedOrganizations = computed(() =>
     [...this.organizations()].sort((a, b) => a.name.localeCompare(b.name)),
