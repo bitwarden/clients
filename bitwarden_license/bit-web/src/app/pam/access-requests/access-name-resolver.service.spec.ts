@@ -2,7 +2,9 @@ import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -20,17 +22,23 @@ function collectionViews(entries: Array<[string, string]>): CollectionView[] {
   return entries.map(([id, name]) => ({ id, name })) as unknown as CollectionView[];
 }
 
+function organizations(entries: Array<[string, string]>): Organization[] {
+  return entries.map(([id, name]) => ({ id, name })) as unknown as Organization[];
+}
+
 describe("AccessNameResolverService", () => {
   let service: AccessNameResolverService;
   // Narrowed to the one method the service calls, so the mock says exactly what it depends on.
   let cipherService: jest.Mocked<Pick<CipherService, "getAllDecryptedForIdsIncludingPartials">>;
   let collections$: BehaviorSubject<CollectionView[]>;
+  let organizations$: BehaviorSubject<Organization[]>;
 
   beforeEach(() => {
     cipherService = {
       getAllDecryptedForIdsIncludingPartials: jest.fn().mockResolvedValue([]),
     } as jest.Mocked<Pick<CipherService, "getAllDecryptedForIdsIncludingPartials">>;
     collections$ = new BehaviorSubject<CollectionView[]>([]);
+    organizations$ = new BehaviorSubject<Organization[]>([]);
 
     TestBed.configureTestingModule({
       providers: [
@@ -38,6 +46,7 @@ describe("AccessNameResolverService", () => {
         { provide: AccountService, useValue: { activeAccount$: of({ id: USER_ID }) } },
         { provide: CipherService, useValue: cipherService },
         { provide: CollectionService, useValue: { decryptedCollections$: () => collections$ } },
+        { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
       ],
     });
     service = TestBed.inject(AccessNameResolverService);
@@ -56,6 +65,26 @@ describe("AccessNameResolverService", () => {
     ]);
     expect(names.cipherNameById.get("cipher-1")).toBe("Prod database");
     expect(names.collectionNameById.get("col-1")).toBe("Production");
+  });
+
+  it("keys every organization the caller belongs to, since a ref carries no organization id", async () => {
+    organizations$.next(
+      organizations([
+        ["org-1", "Meridian Group"],
+        ["org-2", "Northwind"],
+      ]),
+    );
+
+    const names = await service.resolveNames([{ cipherId: "cipher-1", collectionId: "col-1" }]);
+
+    expect(names.organizationNameById.get("org-1")).toBe("Meridian Group");
+    expect(names.organizationNameById.get("org-2")).toBe("Northwind");
+  });
+
+  it("leaves an organization the caller does not belong to absent", async () => {
+    const names = await service.resolveNames([{ cipherId: "cipher-1", collectionId: "col-1" }]);
+
+    expect(names.organizationNameById.get("org-9")).toBeUndefined();
   });
 
   it("resolves names for PAM-gated (partial) ciphers", async () => {
