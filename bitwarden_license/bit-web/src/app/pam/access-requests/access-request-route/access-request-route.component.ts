@@ -13,7 +13,6 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 import { filter } from "rxjs";
 
-import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -22,12 +21,10 @@ import {
   BadgeComponent,
   ButtonModule,
   DialogService,
-  IconModule,
   NoItemsModule,
   SectionComponent,
   SectionHeaderComponent,
   ToastService,
-  TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -43,7 +40,9 @@ import {
 } from "../..";
 import { AccessStateBadgeComponent } from "../../access-state-badge/access-state-badge.component";
 import { RemainingTimePipe } from "../../date/remaining-time.pipe";
-import { emptyResolvedNames } from "../access-name-resolver.service";
+import { RequestSummaryComponent } from "../../request-summary/request-summary.component";
+import { SummaryFieldComponent } from "../../request-summary/summary-field.component";
+import { emptyResolvedNames, organizationNameFor } from "../access-name-resolver.service";
 import { historyDisplayStatus } from "../my-access-row";
 
 import { AccessRequestDetailService } from "./access-request-detail.service";
@@ -88,14 +87,13 @@ const DECISION_LABEL_KEYS = {
     AccessStateBadgeComponent,
     BadgeComponent,
     ButtonModule,
-    IconModule,
-    IconComponent,
     NoItemsModule,
     SectionComponent,
     SectionHeaderComponent,
-    TooltipDirective,
     TypographyModule,
     RemainingTimePipe,
+    RequestSummaryComponent,
+    SummaryFieldComponent,
   ],
 })
 export class AccessRequestRouteComponent implements OnInit {
@@ -130,6 +128,12 @@ export class AccessRequestRouteComponent implements OnInit {
     return request == null
       ? null
       : (this.names().collectionNameById.get(collectionId(request)) ?? null);
+  });
+
+  /** Owning organization's name resolved from the caller's membership; null when unknown. */
+  protected readonly organizationName = computed(() => {
+    const request = this.request();
+    return request == null ? null : organizationNameFor(request, this.names());
   });
 
   /** Ticks once a second so the lease / redemption countdowns stay live. */
@@ -171,6 +175,8 @@ export class AccessRequestRouteComponent implements OnInit {
       ? null
       : request.requesterName || request.requesterEmail || uuidAsString(request.requesterId);
   });
+
+  protected readonly requesterEmail = computed(() => this.request()?.requesterEmail ?? null);
 
   /** The recorded decisions as a view model, oldest first (as the server returns them). */
   protected readonly decisions = computed(() => {
