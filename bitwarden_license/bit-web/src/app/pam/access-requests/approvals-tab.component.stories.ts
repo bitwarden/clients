@@ -170,7 +170,10 @@ export const Empty: Story = {
   decorators: [inbox({ rows: [] })],
 };
 
-/** The first load, before any row has arrived. */
+/**
+ * The first load, before any row has arrived. The skeleton is held back for a second, per the
+ * component library's display guidance, so this story renders blank for its first second.
+ */
 export const Loading: Story = {
   decorators: [inbox({ rows: [], loading: true })],
 };
