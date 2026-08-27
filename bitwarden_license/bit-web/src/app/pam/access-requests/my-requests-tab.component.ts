@@ -84,8 +84,8 @@ const byWindowEnd = (a: ActiveAccessRow, b: ActiveAccessRow): number =>
  * the design:
  *  - Pending — requests still awaiting an approver's decision.
  *  - Extension requests — open requests to extend a lease already held.
- *  - Active access — the leases the caller holds right now, together with approved grants
- *    the caller has not activated yet.
+ *  - Active access — the leases the caller holds right now, together with approved grants the
+ *    caller has not activated yet.
  *
  * Data, name resolution, and optimistic cancel/end live in {@link MyAccessService} (provided on the
  * shell route and shared across tabs); this component owns only the view: the live countdown clock,
