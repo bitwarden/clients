@@ -43,8 +43,6 @@ function requestRow(overrides: Record<string, unknown> = {}): MyAccessRequestRow
     cipherName: "Prod database",
     collectionName: "Production",
     status: "approved",
-    statusVariant: "info",
-    statusLabelKey: "pamStatusApproved",
     badgeState: null,
     statusBadge: { labelKey: "pamStatusApproved", variant: "success" },
     submittedAt: "2026-08-17T11:00:00.000Z",
