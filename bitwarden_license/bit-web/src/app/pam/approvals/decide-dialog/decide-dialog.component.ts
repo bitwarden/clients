@@ -62,7 +62,8 @@ export type DecideDialogResult = {
  * `/pam/requests/:id` uses, so the two surfaces cannot describe a request differently.
  *
  * The verdict is dialog state, not a fixed parameter: the approve variant offers "Deny request",
- * which switches this dialog to the deny variant instead of closing and reopening. Denying requires
+ * which switches this dialog to the deny variant instead of closing and reopening, discarding any
+ * note typed while approving so it cannot become the recorded denial reason. Denying requires
  * a reason; approving keeps the comment optional and trims a whitespace-only note to `undefined`,
  * so it is not written to the audit log as if it said something. The dialog makes no API call: it
  * returns the decision and the caller records it, which keeps the retry-and-toast logic in one place.
@@ -118,12 +119,18 @@ export class DecideDialogComponent {
   }
 
   /**
+   * A note typed while approving is cleared, not carried over: "Approved for the maintenance
+   * window" would arrive at the requester and the audit log as the reason they were denied, and a
+   * non-blank leftover leaves the confirm button already enabled, so the required-reason gate the
+   * deny variant exists to apply never engages.
+   *
    * The button that triggers this lives inside the approve-only branch, so the click destroys the
    * focused element and focus would otherwise fall to `<body>`. Focus moves after the re-render so
    * the reason field is announced with the label and required state the switch just gave it.
    */
   protected switchToDeny(): void {
     this.verdict.set("deny");
+    this.formGroup.controls.comment.reset("");
     this.applyVerdictValidators();
     afterNextRender(() => this.commentField()?.nativeElement.focus(), { injector: this.injector });
   }
