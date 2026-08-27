@@ -106,8 +106,6 @@ export class OrganizationSubscriptionCloudVNextComponent {
 
   readonly organizationId: string = this.route.snapshot.params.organizationId;
 
-  // The card is the only resource() (reloaded after a mutation); the organization and its legacy
-  // OrganizationSubscriptionResponse-derived reads are toSignal streams, per the breakdown.
   readonly organization = toSignal(this.data.organization$(this.organizationId));
   readonly organizationSubscription = toSignal(
     this.data.organizationSubscription$(this.organizationId),
