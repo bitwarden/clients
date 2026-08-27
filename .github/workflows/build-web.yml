@@ -71,10 +71,11 @@ jobs:
           inputs: "${{ toJson(inputs) }}"
 
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Get GitHub sha as version
         id: version
@@ -98,7 +99,6 @@ jobs:
     name: "Build [${{matrix.artifact_name}}], image tag: [${{matrix.image_name}}]"
     runs-on: ubuntu-24.04
     permissions:
-      security-events: write
       id-token: write
       packages: write
     needs: setup
@@ -157,10 +157,11 @@ jobs:
       _VERSION: ${{ needs.setup.outputs.version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Get Latest Server Version
         id: latest-server-version
@@ -187,7 +188,7 @@ jobs:
           echo "server_ref=$SERVER_REF" >> "$GITHUB_OUTPUT"
 
       - name: Check out Server repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: server
           repository: bitwarden/server
@@ -426,23 +427,6 @@ jobs:
           cosign sign --yes "${images[@]}"
           echo "images=${images[*]}" >> "$GITHUB_OUTPUT"
 
-      - name: Scan Docker image
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        id: container-scan
-        uses: anchore/scan-action@0d444ed77d83ee2ba7f5ced0d90d640a1281d762 # v7.3.0
-        with:
-          image: ${{ steps.image-name.outputs.name }}
-          fail-build: false
-          output-format: sarif
-
-      - name: Upload Grype results to GitHub
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: github/codeql-action/upload-sarif@573acd9552f33577783abde4acb66a1058e762e5 # codeql-bundle-v2.23.1
-        with:
-          sarif_file: ${{ steps.container-scan.outputs.sarif }}
-          sha: ${{ contains(github.event_name, 'pull_request') && github.event.pull_request.head.sha || github.sha }}
-          ref: ${{ contains(github.event_name, 'pull_request') && format('refs/pull/{0}/head', github.event.pull_request.number) || github.ref }}
-
       - name: Log out of Docker
         run: |
           docker logout "$_AZ_REGISTRY"
@@ -508,10 +492,11 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main

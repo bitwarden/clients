@@ -406,6 +406,15 @@ impl WebAuthnPlugin {
             ));
         };
 
+        // With nothing to add, removing is the whole operation - signing out syncs an empty
+        // list to clear the store - so a failure here cannot be reported as a successful sync.
+        if credentials.is_empty() {
+            tracing::debug!("No credentials to add to Windows, removing all existing ones...");
+            remove_all_credentials(self.clsid)?;
+            tracing::debug!("Successfully removed existing credentials - sync completed");
+            return Ok(());
+        }
+
         // First try to remove all existing credentials for this plugin
         tracing::debug!("Attempting to remove all existing credentials before sync...");
         match remove_all_credentials(self.clsid) {
@@ -417,12 +426,6 @@ impl WebAuthnPlugin {
                 // Continue anyway, as this might be the first sync or an older Windows version
             }
         };
-
-        // Add the new credentials (only if we have any)
-        if credentials.is_empty() {
-            tracing::debug!("No credentials to add to Windows - sync completed successfully");
-            return Ok(());
-        }
         tracing::debug!("Adding new credentials to Windows...");
 
         // Convert to raw credentials to Windows credential details

@@ -58,7 +58,6 @@ import type { NativeWindowObject } from "./desktop-fido2-user-interface.service"
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
-  private registrationRequest?: PasskeyRegistrationRequest;
   private featureFlag?:
     typeof FeatureFlag.MacOsNativeCredentialSync | typeof FeatureFlag.WindowsNativeCredentialSync;
   private isEnabled: boolean = false;
@@ -153,7 +152,7 @@ export class DesktopAutofillService implements OnDestroy {
     }
 
     const cipherViewMap = await firstValueFrom(this.cipherService.cipherViews$(userId));
-    this.logService.info("Performing AdHoc sync", Object.values(cipherViewMap ?? []));
+    this.logService.info(`Performing AdHoc sync over ${cipherViewMap?.length ?? 0} ciphers`);
     await this.sync(Object.values(cipherViewMap ?? []));
   }
 
@@ -203,8 +202,8 @@ export class DesktopAutofillService implements OnDestroy {
     }
 
     this.logService.info("Syncing autofill credentials", {
-      fido2Credentials,
-      passwordCredentials,
+      fido2Credentials: fido2Credentials.length,
+      passwordCredentials: passwordCredentials.length,
     });
 
     const syncResult = await ipc.autofill.desktopAutofill.runCommand<AutofillSyncCommand>({
@@ -232,10 +231,6 @@ export class DesktopAutofillService implements OnDestroy {
     });
   }
 
-  get lastRegistrationRequest() {
-    return this.registrationRequest;
-  }
-
   async doCancelRequest(context: string): Promise<void> {
     const controller = this.inFlightRequests[context];
     if (controller) {
@@ -260,11 +255,9 @@ export class DesktopAutofillService implements OnDestroy {
     request: PasskeyRegistrationRequest,
     abortController: AbortController,
   ): Promise<PasskeyRegistrationResponse> {
-    this.registrationRequest = request;
-
     const response = await this.fido2AuthenticatorService.makeCredential(
       this.convertRegistrationRequest(request),
-      { windowXy: request.clientWindow.position },
+      await this.nativeWindowObject(request),
       abortController,
     );
     return this.convertRegistrationResponse(request, response);
@@ -278,7 +271,7 @@ export class DesktopAutofillService implements OnDestroy {
 
     const response = await this.fido2AuthenticatorService.getAssertion(
       this.convertAssertionRequest(request, assumeUserPresence),
-      { windowXy: request.clientWindow.position },
+      await this.nativeWindowObject(request),
       abortController,
     );
 
@@ -293,11 +286,35 @@ export class DesktopAutofillService implements OnDestroy {
 
     const response = await this.fido2AuthenticatorService.getAssertion(
       this.convertAssertionRequest(request, assumeUserPresence),
-      { windowXy: request.clientWindow.position },
+      await this.nativeWindowObject(request),
       abortController,
     );
 
     return this.convertAssertionResponse(request, response);
+  }
+
+  /**
+   * Collects everything the FIDO2 user interface needs to know about the
+   * windows involved in a request: where to position our own UI, and which
+   * native windows an OS prompt can attach itself to.
+   */
+  private async nativeWindowObject(
+    request:
+      | PasskeyRegistrationRequest
+      | PasskeyAssertionRequest
+      | PasskeyAssertionWithoutUserInterfaceRequest,
+  ): Promise<NativeWindowObject> {
+    return {
+      windowXy: request.clientWindow.position,
+      clientWindowHandle: request.clientWindow.handle
+        ? new Uint8Array(request.clientWindow.handle)
+        : null,
+      appWindowHandle: await ipc.autofill.desktopAutofill.getAppWindowHandle(),
+      rpId: request.rpId,
+      requestContext: request.context,
+      // Discoverable credential requests don't contain a userHandle.
+      userHandle: "userHandle" in request ? request.userHandle : undefined,
+    };
   }
 
   async doNativeStatus(status: NativeStatus): Promise<void> {

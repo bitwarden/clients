@@ -10,7 +10,6 @@ import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
   AuthRequestServiceAbstraction,
-  LockService,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -20,6 +19,7 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -43,6 +43,9 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { LockService } from "@bitwarden/unlock";
 
 import { AppComponent } from "./app.component";
 
@@ -99,6 +102,7 @@ describe("AppComponent (desktop)", () => {
           ngZone,
           mock<VaultTimeoutSettingsService>(),
           mock<KeyService>(),
+          mock<LegacyCompatKeyService>(),
           logService,
           mock<MessagingService>(),
           mock<ServerNotificationsService>(),
@@ -129,6 +133,7 @@ describe("AppComponent (desktop)", () => {
           mock<SsoLoginServiceAbstraction>(),
           mock<AccountDeletionService>(),
           premiumCheckoutPendingService,
+          mock<BillingAccountProfileStateService>(),
         ),
     );
 

@@ -119,6 +119,9 @@
   "vault": {
     "message": "Trezor"
   },
+  "vaults": {
+    "message": "Trezory"
+  },
   "myVault": {
     "message": "Můj trezor"
   },
@@ -505,6 +508,45 @@
   "options": {
     "message": "Volby"
   },
+  "optionsForItem": {
+    "message": "Volby pro $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "Žádná sdílená složka"
+  },
+  "filterByName": {
+    "message": "Filtrovat podle $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "favoritesFilterTooltip": {
+    "message": "Označte položky jako oblíbené pro jejich filtrování zde."
+  },
+  "foldersFilterTooltip": {
+    "message": "Přidejte složky k položkám pro jejich filtrování zde."
+  },
+  "editItemWithName": {
+    "message": "Upravit položku - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noItemsInVault": {
+    "message": "Žádné položky v trezoru"
+  },
   "length": {
     "message": "Délka"
   },
@@ -708,15 +750,6 @@
   },
   "launchWebsite": {
     "message": "Otevřít webovou stránku"
-  },
-  "launchWebsiteName": {
-    "message": "Spustit web $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "website": {
     "message": "Webová stránka"
@@ -1055,6 +1088,12 @@
   "addedFolder": {
     "message": "Složka byla přidána"
   },
+  "folderEdited": {
+    "message": "Složka byla upravena"
+  },
+  "enterAName": {
+    "message": "Zadejte název."
+  },
   "twoStepLoginConfirmation": {
     "message": "Dvoufázové přihlášení činí Váš účet mnohem bezpečnějším díky nutnosti po každém úspěšném přihlášení zadat ověřovací kód získaný z bezpečnostního klíče, aplikace, SMS, telefonního hovoru nebo e-mailu. Dvoufázové přihlášení lze aktivovat na webové stránce bitwarden.com. Chcete tuto stránku nyní otevřít?"
   },
@@ -1367,17 +1406,17 @@
   "additionalOptions": {
     "message": "Další volby"
   },
-  "enableFillAssist": {
-    "message": "Použít asistenta vyplňování"
+  "fillAssistActiveNotice": {
+    "message": "Automatické vyplňování na této stránce využívá Fill Assist."
   },
-  "turnOnFillAssist": {
-    "message": "Zapnout asistenta vyplňování"
+  "activateFillAssist": {
+    "message": "Zapnout Fill Assist"
   },
-  "enableFillAssistDescription": {
-    "message": "Asistent vyplňování zvyšuje přesnost automatického vyplňování na podporovaných stránkách pomocí pravidel pro konkrétní web. Při použití této funkce nejsou shromažďována ani ukládána žádná data."
+  "activateFillAssistDescription": {
+    "message": "Fill Assist zvyšuje přesnost automatického vyplňování na podporovaných webech pomocí pravidel specifických pro daný web. Při používání této funkce se žádná data neshromažďují ani neukládají."
   },
-  "aboutFillAssist": {
-    "message": "O asistentovi vyplňování"
+  "aboutFillAssistLabel": {
+    "message": "O Fill Assist"
   },
   "enableContextMenuItem": {
     "message": "Zobrazit volby v kontextovém menu"
@@ -1496,6 +1535,12 @@
   "myFolders": {
     "message": "Moje složky"
   },
+  "addSharedFolder": {
+    "message": "Přidat sdílenou složku"
+  },
+  "newSharedFolder": {
+    "message": "Nová sdílená složka"
+  },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden pro podnikání Vám umožňuje sdílet položky v trezoru s ostatními prostřednictvím organizace. Více informací naleznete na bitwarden.com."
   },
@@ -1550,6 +1595,21 @@
   },
   "copyVerificationCode": {
     "message": "Kopírovat ověřovací kód"
+  },
+  "noUsername": {
+    "message": "Žádné uživatelské jméno"
+  },
+  "noPassword": {
+    "message": "Žádné heslo"
+  },
+  "noVerificationCode": {
+    "message": "Žádný ověřovací kód"
+  },
+  "noNumber": {
+    "message": "Žádné číslo"
+  },
+  "noSecurityCode": {
+    "message": "Žádný bezpečnostní kód"
   },
   "attachments": {
     "message": "Přílohy"
@@ -1620,12 +1680,6 @@
   "premiumRefresh": {
     "message": "Obnovit členství"
   },
-  "premiumNotCurrentMember": {
-    "message": "Aktuálně nemáte členství Premium."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Přihlaste se k členství Premium a získejte:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB šifrovaného úložiště pro přílohy."
   },
@@ -1670,12 +1724,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Premium si můžete zakoupit v nastavení účtu ve webové aplikaci Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "Jste prémiovým členem!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Děkujeme za podporu Bitwardenu."
   },
   "premiumFeatures": {
     "message": "Přejděte na Premium a získáte:"
@@ -1748,7 +1796,7 @@
     "message": "Přečíst bezpečnostní klíč"
   },
   "readingPasskeyLoading": {
-    "message": "Načítání přístupového klíče..."
+    "message": "Načítání přístupového klíče…"
   },
   "passkeyAuthenticationFailed": {
     "message": "Ověření přístupového klíče selhalo"
@@ -1757,7 +1805,7 @@
     "message": "Použít jinou metodu přihlášení"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Čeká se na interakci s bezpečnostním klíčem..."
+    "message": "Čeká se na interakci s bezpečnostním klíčem…"
   },
   "loginUnavailable": {
     "message": "Přihlášení není dostupné"
@@ -1943,6 +1991,9 @@
   },
   "showInlineMenuCardsLabel": {
     "message": "Zobrazit karty jako návrhy"
+  },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Zobrazit SSH klíče jako návrhy"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Zobrazit návrhy, když je vybrána ikona"
@@ -2146,9 +2197,6 @@
   },
   "securityCode": {
     "message": "Bezpečnostní kód"
-  },
-  "cardNumber": {
-    "message": "číslo karty"
   },
   "ex": {
     "message": "např."
@@ -2566,6 +2614,15 @@
       }
     }
   },
+  "nSharedFolders": {
+    "message": "$COUNT$ sdílených složek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "favorites": {
     "message": "Oblíbené"
   },
@@ -2593,6 +2650,92 @@
   "clear": {
     "message": "Vymazat",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selectAllRows": {
+    "message": "Vybrat všechny řádky"
+  },
+  "selectRow": {
+    "message": "Vybrat řádek"
+  },
+  "showingItemRange": {
+    "message": "Zobrazování $START$ - $END$ z $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Řádků na stránku"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ řádků na stránku",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ položek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Vše"
+  },
+  "clearAll": {
+    "message": "Vymazat vše"
+  },
+  "done": {
+    "message": "Hotovo"
+  },
+  "filter": {
+    "message": "Filtr"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ vybráno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Předchozí stránka"
+  },
+  "nextPage": {
+    "message": "Další stránka"
+  },
+  "goToPage": {
+    "message": "Přejít na stránku"
+  },
+  "ofPageCount": {
+    "message": "z $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Žádné odpovídající položky"
   },
   "selected": {
     "message": "Vybráno"
@@ -3186,6 +3329,10 @@
   "atRiskPasswords": {
     "message": "Zranitelná hesla"
   },
+  "atRisk": {
+    "message": "zranitelné",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
+  },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ Vás žádá o změnu 1 hesla, protože je zranitelné.",
     "placeholders": {
@@ -3621,7 +3768,7 @@
     "message": "Tato organizace má podnikové zásady, které Vás automaticky zaregistrují k obnovení hesla. Registrace umožní správcům organizace změnit Vaše hlavní heslo."
   },
   "selectFolder": {
-    "message": "Vyberte složku..."
+    "message": "Vyberte složku…"
   },
   "noFoldersFound": {
     "message": "Nebyly nalezeny žádné složky",
@@ -4027,6 +4174,14 @@
         "example": "JustTrust.us"
       }
     }
+  },
+  "forwarderWebsitePrefix": {
+    "message": "Přidat předponu webových stránek",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Pokud je povoleno, bude doména aktuální webové stránky použita jako předpona pro vygenerovanou e-mailovou adresu",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
     "message": "Název hostitele",
@@ -4570,7 +4725,7 @@
     "message": "-- Pište pro filtrování --"
   },
   "multiSelectLoading": {
-    "message": "Načítání voleb..."
+    "message": "Načítání voleb…"
   },
   "multiSelectNotFound": {
     "message": "Nebyly nalezeny žádné položky"
@@ -4799,8 +4954,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ položka bude přeskočena",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Následující položky nelze přečíst a nebudou zahrnuty do Vašeho importu:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Tento klíč SSH nelze importovat"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Nepodporovaný typ položky"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Tuto položku nelze importovat"
+  },
+  "identifier": {
+    "message": "Identifikátor"
   },
   "contact": {
     "message": "Kontakt"
@@ -4877,6 +5053,79 @@
   "noFileChosen": {
     "message": "Není vybrán žádný soubor"
   },
+  "noFileSelected": {
+    "message": "Nebyl vybrán žádný soubor"
+  },
+  "fileChosen": {
+    "message": "Byl vybrán soubor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Byl přidán soubor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "Bylo přidáno $COUNT$ souborů: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Byl odebrán soubor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 soubor byl nahrán"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ souborů bylo nahráno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Nahrané soubory"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Klepnutím nahrajte nebo přetáhněte a pusťte"
+  },
+  "chooseFiles": {
+    "message": "Vybrat soubory"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. velikost souboru: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "nebo zkopírujte a vložte obsah souboru"
   },
@@ -4889,6 +5138,207 @@
         "example": "LastPass (csv)"
       }
     }
+  },
+  "importHelpCenterInstructions": {
+    "message": "Podrobné pokyny k $NAME$ najdete v našem",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Centru nápovědy"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "Tento proces je naprosto stejný jako import z Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "V desktopové aplikaci KeePassX přejděte do \"Database\" → \"Export to CSV file\" a uložte CSV soubor."
+  },
+  "importAviraInstructions": {
+    "message": "Ve webovém trezoru Avira, přejděte do \"Settings\" → \"My data\" → \"Export data\" a uložte soubor CSV."
+  },
+  "importBlurInstructions": {
+    "message": "Ve webovém trezoru Blur klepměte na své uživatelské jméno v horní části a přejděte do \"Settings\" → \"Export data\" a poté klepněte na \"Export CSV\" pro \"Accounts\"."
+  },
+  "importSafeincloudInstructions": {
+    "message": "V desktopové aplikaci SafeInCloud přejděte do \"File\" → \"Export\" → \"As XML\" a uložte XML soubor."
+  },
+  "importPadlockInstructions": {
+    "message": "V desktopové aplikaci Padlock klepněte na ikonu menu v horní levé části a přejděte do \"Settings\" → \"Export\" a uložte soubor \"As CSV\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "V desktopové aplikaci KeePass 2 přejděte do \"File\" → \"Export\" a vyberte volbu \"KeePass XML (2.x)\"."
+  },
+  "importUpmInstructions": {
+    "message": "V desktopové aplikaci Universal Password Manager přejděte do \"Database\" → \"Export\" a uložte CSV soubor."
+  },
+  "importSaferpassInstructions": {
+    "message": "V rozšíření prohlížeče SaferPass klepněte na ikonu menu v horní levé části a přejděte do \"Settings\". Klepněte na tlačítko \"Export accounts\" pro uložení souboru CSV."
+  },
+  "importMeldiumInstructions": {
+    "message": "Ve webovém trezoru Meldium, přejděte do \"Settings\". Najděte funkci \"Export data\" a klepněte na \"Show me my data\" pro uložení souboru CSV."
+  },
+  "importPassworddragonInstructions": {
+    "message": "V desktopové aplikaci Password Dragon přejděte do \"File\" → \"Export\" → \"To XML\". V zobrazeném dialogovém okně vyberte volbu \"All Rows\" a zaškrtněte všechna pole. Klepněte na tlačítko \"Export\" a uložte soubor XML."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "V desktopové aplikaci Enpass přejděte do \"File\" → \"Export\" → \"As CSV\". Vyberte \"OK\" do výstrahy a uložte soubor CSV. Upozorňujeme, že importér podporuje jen soubory exportované v programu s nastavenou angličtinou, proto nastavení odpovídajícím způsobem upravte."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "V desktopové aplikaci Enpass 6 klepněte na tlačítko menu a přejděte do \"File\" → \"Export\". Zvolte formát souboru \".json\" a uložte JSON soubor."
+  },
+  "importPwsafeInstructions": {
+    "message": "V desktopové aplikaci Password Safe přejděte do \"File\" → \"Export To\" → \"XML format…\" a uložte XML soubor."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Přihlaste se do Dashlane, klepněte na \"My Account\" → \"Settings\" → \"Export file\" a vyberte \"Export jako soubor CSV\". Tímto stáhnete zip archiv obsahující různé CSV soubory. Rozbalte archiv a importujte každý CSV soubor jednotlivě."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane již nepodporuje formát JSON. Použijte jen pokud máte existující JSON pro import. Při vytváření nových exportů použijte CSV importéra."
+  },
+  "importMsecureInstructions": {
+    "message": "V desktopové aplikaci mSecure přejděte do \"File\" → \"Export\" → \"CSV File…\" a uložte CSV soubor."
+  },
+  "importStickypasswordInstructions": {
+    "message": "V desktopové aplikaci Sticky Password přejděte do menu (vpravo nahoře) a zvolte \"Export\" → \"Export all\". Vyberte nešifrované XML a uložte XML soubor."
+  },
+  "importTruekeyInstructions": {
+    "message": "V desktopové aplikaci True Key klepněte na ikonu ozubeného kola (vpravo nahoře) a přejděte do \"App Settings\". Klepněte na tlačítko \"Export\", zadejte Vaše heslo a uložte CSV soubor."
+  },
+  "importClipperzInstructions": {
+    "message": "Přihlaste se do webové aplikace Clipperz (clipperz.is/app). Klepněte na ikonu menu vpravo nahoře pro rozbalení navigačního panelu. Přejděte do \"Data\" → \"Export\". Klepněte na tlačítko \"Download HTML+JSON\" pro uložení HTML souboru."
+  },
+  "importRoboformInstructions": {
+    "message": "V desktopové aplikaci RoboForm Editor přejděte do \"DoboForm\" (vlevo nahoře) a přejděte do \"Options\" → \"Account & Data\" a klepněte na tlačítko \"Export\". Vyberte všechna data, změňte \"Format\" na \"CSV file\" a poté klepněte na tlačítko \"Export\", abyste soubor CSV uložili. Poznámka: RoboForm umožňuje exportovat jen přihlašovací údaje. Ostatní položky nebudou exportovány."
+  },
+  "importPassboltInstructions": {
+    "message": "Přihlaste se do webového trezoru Passbolt a přejděte do seznamu \"Hesla\". Vyberte všechna hesla, která chcete exportovat a klepněte na tlačítko \"Export\" v horní části seznamu. Vyberte formát exportu \"csv (lastpass)\" a klepněte na tlačítko \"Export\"."
+  },
+  "importAscendoInstructions": {
+    "message": "V desktopové aplikaci Ascendo DataVault přejděte do \"Tools\" → \"Export\". V zobrazeném dialogovém okně vyberte volbu \"All Items (DVX, CSV)\". Klepnutím na tlačítko \"OK\" uložte CSV soubor."
+  },
+  "importPasswordbossInstructions": {
+    "message": "V desktopové aplikaci Password Boss přejděte do \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" a uložte JSON soubor."
+  },
+  "importZohoInstructions": {
+    "message": "Přihlaste se do webového trezoru Zoho (vault.zoho.com). Přejděte do \"Tools\" → \"Export Secrets\". Vyberte volbu \"All Secrets\" a klepněte na tlačítko \"Zoho Vault Format CSV\". Zvýrazněte a zkopírujte data z textového pole. Otevřete textový editor, například Poznámkový blok, a vložte do něj data. Uložte data z textového editoru jako",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "V desktopové aplikaci SplashID Safe klepněte na modré logo zámku vpravo nahoře. Přejděte do \"Export\" → \"Export as CSV\" a uložte CSV soubor."
+  },
+  "importPasskeepInstructions": {
+    "message": "V mobilní aplikaci PassKeep přejděte do \"Backup/Restore\". Najděte sekci \"CSV Backup/Restore\" a klepněte na \"Backup to CSV\" pro uložení CSV souboru."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Ujistěte se, že máte nainstalovaný python-keyring a python-gnomekeying. Uložte",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "Import/Export klíče GNOME"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "python skript na plochu jako",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Otevřete terminál a spusťte",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "a pak",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Nahrajte výsledný",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "soubor sem do Bitwardenu.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "V desktopové aplikaci Password Agent přejděte do \"File\" → \"Export\", klepněte na tlačítko \"Fields to export\" a zaškrtněte všechna políčka, změňte \"Output format\" na \"CSV\" a pak klepněte na tlačítko \"Start\", aby se uložil CSV soubor."
+  },
+  "importPasspackInstructions": {
+    "message": "Přihlaste se do webového trezoru Passpack a přejděte do \"Nastavení\" → \"Export\" a klepněte na tlačítko \"Download\" pro uložení CSV souboru."
+  },
+  "importPassmanInstructions": {
+    "message": "Otevřete trezor Passman a klepněte na \"Settings\" v levém dolním rohu. V okně \"Settings\" přepněte na záložku \"Export credentials\" a zvolte \"JSON\" jako typ exportu. Zadejte heslo Vašeho trezoru a klepněte na tlačítko \"Export\" pro uložení JSON souboru."
+  },
+  "importAvastCsvInstructions": {
+    "message": "V desktopové aplikaci Avast Passwords přejděte do \"Settings\" → \"Import/export data\". Vyberte tlačítko \"Export\" a zvolte \"Export to CSV file\" pro uložení CSV souboru."
+  },
+  "importAvastJsonInstructions": {
+    "message": "V desktopové aplikaci Avast Passwords přejděte do \"Settings\" → \"Import/export data\". Vyberte tlačítko \"Export\" a zvolte \"Export to JSON file\" pro uložení JSON souboru."
+  },
+  "importFsecureInstructions": {
+    "message": "V desktopové aplikaci F-Secure KEY přejděte do \"Settings\" → \"Export Passwrods\". Vyberte tlačítko \"Export\", zadejte hlavní heslo a uložte FSK soubor."
+  },
+  "importKasperskyInstructions": {
+    "message": "V desktopové aplikaci Kaspersky Password Manager přejděte do \"Settings\" → \"Import/Export\". Vyhledejte sekci \"Export to text file\" a vyberte tlačítko \"Export\" pro uložení TXT souboru."
+  },
+  "importRemembearInstructions": {
+    "message": "V desktopové aplikaci RememBear přejděte do \"Settings\" → \"Account\" → \"Export\". Zadejte své hlavní heslo a vyberte tlačítko \"Export Anyway\" pro uložení CSV souboru."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "V desktopové aplikaci PasswordWallet přejděte do \"File\" → \"Export\" → \"Visible entries to text file\". Zadejte své heslo a vyberte tlačítko \"OK\" pro uložení TXT souboru."
+  },
+  "importMykiInstructions": {
+    "message": "V rozšíření prohlížeče Myki přejděte do \"Advanced\" → \"Export Accounts\" a pak naskenujte QR kód pomocí Vašeho mobilního zařízení. Do složky pro stahování ve Vašem počítači pak budou uloženy různé CSV soubory."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Exportujte Vaše heslo SecureSafe bezpečně do souboru CSV pomocí oddělovače čárkou."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Otevřete rozšíření prohlížeče LogMeOnce a přejděte do \"Open Menu\" → \"Export To\" a vyberte \"CSV soubor\" pro uložení CSV souboru."
+  },
+  "importBlackberryInstructions": {
+    "message": "V aplikaci BlackBerry Password Keeper přejděte do \"Settings\" → \"Import/Export\". Vyberte \"Export Passwords\" a postupujte podle pokynů na obrazovce pro uložení nešifrovaného CSV souboru."
+  },
+  "importButtercupInstructions": {
+    "message": "V desktopové aplikaci Buttercup odemkněte Váš trezor. Klepněte pravým tlačítkem myši na ikonu Vašeho trezoru a vyberte \"Export\" pro uložení CSV souboru."
+  },
+  "importCodebookInstructions": {
+    "message": "Otevřete aplikaci Codebook a přihlaste se. Přejděte do \"File\" → \"Export all\" a pak klepněte na \"Yes\" v dialogovém okně a uložte CSV soubor."
+  },
+  "importEncryptrInstructions": {
+    "message": "Otevřete nejnovější verzi desktopové aplikace Encryptr a umožněte synchronizaci všech Vašich dat. Po dokončení synchronizace dat se ikona stahování v pravém horním rohu změní na růžovou. Klepněte na ikonu stahování a uložte CSV soubor."
+  },
+  "importYotiInstructions": {
+    "message": "V rozšíření prohlížeče Yoti klepněte na \"Settings\", pak \"Export Saved Logins\" a uložte CSV soubor."
+  },
+  "importPsonoInstructions": {
+    "message": "Přihlaste se do webového trezoru Psono, klepněte na \"Signed in as\", vyberte \"Others\". Přejděte na záložku \"Export\" a vyberte export typu JSON a poté klepněte na \"Export\"."
+  },
+  "importPasskyInstructions": {
+    "message": "Přihlaste se do \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" v části Passky. (\"Backup\" není podporována, protože je šifrována)."
+  },
+  "importProtonpassInstructions": {
+    "message": "V rozšíření prohlížeče ProtonPass přejděte do Settings → Export. Exportujte bez PGP šifrování a uložte ZIP soubor."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Vyberte Database → Export to file… V rámci voleb exportu se ujistěte, že jsou zaškrtnuté názvy složek a sloupců. Stiskněte tlačítko \"Browse…\", vyberte cílový soubor a nastavte jeho typ na CSV soubor."
+  },
+  "importNetwrixInstructions": {
+    "message": "Otevřete FullClient, přejděte do hlavního menu a vyberte \"Export\". Spusťte export hesel a postupujte podle pokynů pro export CSV souboru."
+  },
+  "importNordpassInstructions": {
+    "message": "Přihlaste se do NordPass a otevřete Settings → Import and Export a vyberte položky pro export. Zadejte hlavní heslo a vyberte \"Pokračovat\". Uložte CSV soubor do Vašeho zařízení."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "V desktopové aplikaci přejděte do Tools → Export → Zadejte své hlavní heslo → Vyberte \"XML Format (*. xml)\" jako formát exportu → Klepněte na \"Next\" → Vyberte, které položky by měly být zahrnuty do exportu → Klepnutím na \"Next\" se provede export do dříve zvoleného umístění."
+  },
+  "importDelineaInstructions": {
+    "message": "Přihlaste se do Delinea, najděte \"Import/Export\" → vyberte \"Export\" → zvolte \"XML\" jako formát pro export → zvolte \"QuantumLock\" jako typ ověřování → zadejte Vaše heslo a zvolte \"Export\" pro uložení XML souboru."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Přihlaste se do Delinea, najděte \"Import/Export\" → vyberte \"Export\" → zvolte \"CSV\" jako formát pro export → zvolte \"QuantumLock\" jako typ ověřování → zadejte Vaše heslo a zvolte \"Export\" pro uložení CSV souboru."
   },
   "confirmVaultImport": {
     "message": "Potvrdit import trezoru"
@@ -5035,7 +5485,7 @@
     "message": "E-mail LastPass"
   },
   "importingYourAccount": {
-    "message": "Importování Vašeho účtu..."
+    "message": "Importování Vašeho účtu…"
   },
   "lastPassMFARequired": {
     "message": "Je vyžadováno vícefaktorové ověření LastPass"
@@ -5060,10 +5510,6 @@
   },
   "awaitingSSODesc": {
     "message": "Pokračujte v přihlášení pomocí přihlašovacích údajů Vaší společnosti."
-  },
-  "seeDetailedInstructions": {
-    "message": "Podívejte se na podrobné pokyny na našem webu s nápovědou na",
-    "description": "This is followed a by a hyperlink to the help website."
   },
   "importDirectlyFromLastPass": {
     "message": "Importovat přímo z LastPass"
@@ -5466,6 +5912,12 @@
   "removePasskey": {
     "message": "Odebrat přístupový klíč"
   },
+  "deletePasskey": {
+    "message": "Smazat přístupový klíč"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Tento přístupový klíč bude trvale smazán z Vašeho přihlášení. Toto nelze vrátit zpět."
+  },
   "passkeyRemoved": {
     "message": "Přístupový klíč byl odebrán"
   },
@@ -5486,26 +5938,6 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "Vymažte filtry nebo zkuste jiný hledaný výraz"
-  },
-  "copyInfoTitle": {
-    "message": "Kopírovat informace - $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Kopírovat poznámku - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
   },
   "moreOptionsLabel": {
     "message": "Více voleb, $ITEMNAME$",
@@ -5578,29 +6010,21 @@
       }
     }
   },
-  "copyFieldCipherName": {
-    "message": "Kopírovat $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "Nebyla zadána žádná hodnota",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Žádné hodnoty ke zkopírování"
+  "noDetailsToCopy": {
+    "message": "Žádné podrobnosti ke kopírování"
   },
   "assignToCollections": {
     "message": "Přiřadit ke sbírkám"
+  },
+  "addToSharedFolder": {
+    "message": "Přidat do sdílené složky"
+  },
+  "transferAndAdd": {
+    "message": "Převést a přidat"
   },
   "copyEmail": {
     "message": "Kopírovat e-mail"
@@ -5744,6 +6168,60 @@
   },
   "owner": {
     "message": "Vlastník"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Sdílená složka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Sbírka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Moje složka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Složka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Vlastník $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Trezor $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "Vy",
@@ -6015,8 +6493,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Jen členové organizace s přístupem k těmto sbírkám budou moci vidět položku."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Jen členové trezoru s přístupem k těmto sdíleným složkám budou moci vidět položku."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Jen členové organizace s přístupem k těmto sbírkám budou moci vidět položky."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Jen členové trezoru s přístupem k těmto sdíleným složkám budou moci vidět položky."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Vybrali jste $TOTAL_COUNT$ položek. Nemůžete aktualizovat $READONLY_COUNT$ položek, protože nemáte oprávnění k úpravám.",
@@ -6122,8 +6606,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 položka bude trvale převedena do vybrané organizace. Tuto položku již nebudete vlastnit."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 položka bude trvale převedena do vybraného trezoru. Tuto položku již nebudete vlastnit."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ položek bude trvale převedeno do vybrané organizace. Tyto položky již nebudete vlastnit.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ položek bude trvale převedeno do vybraného trezoru. Tyto položky již nebudete vlastnit.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6156,17 +6652,32 @@
   "successfullyAssignedCollections": {
     "message": "Sbírky byly úspěšně přiřazeny"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Sdílené složky byly úspěšně přidány"
+  },
   "itemMovedToCollection": {
     "message": "Položka byla přesunuta do sbírky"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Položka byla přidána do sdílené složky"
   },
   "itemMovedToCollections": {
     "message": "Položka byla přesunuta do sbírek"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Položka byla přidána do sdílených složek"
+  },
   "itemsMovedToCollection": {
     "message": "Položky byly přesunuty do sbírky"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Položky byly přidány do sdílené složky"
+  },
   "itemsMovedToCollections": {
     "message": "Položky byly přesunuty do sbírek"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Položky byly přidány do sdílených složek"
   },
   "itemAssignedToCollections": {
     "message": "Položka byla přiřazena do sbírek"
@@ -6216,10 +6727,16 @@
     "message": "Umístění položky"
   },
   "fileSends": {
-    "message": "Sends se soubory"
+    "message": "Sends se soubory",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Sends s texty"
+    "message": "Sends s texty",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Položky Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Činnosti účtu"
@@ -6239,8 +6756,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "Zobrazit tlačítka pro rychlé zkopírování v trezoru"
+  "showQuickCopyActionsInVault": {
+    "message": "Zobrazit tlačítka pro rychlé kopírování v trezoru"
   },
   "systemDefault": {
     "message": "Výchozí systémový"
@@ -6554,6 +7071,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Nemůžete odebrat sdílené složky s oprávněními jen pro zobrazení: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Aktualizujte aplikaci pro stolní počítač"
   },
@@ -6736,6 +7262,9 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden bude používat uložené přihlašovací URI k identifikaci, která ikona nebo změna adresy URL by měla být použita pro zlepšení Vašeho zážitku. Při používání této služby nejsou shromažďovány ani ukládány žádné informace."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Přidá vedle položek 3 tlačítka pro rychlé kopírování, pomocí kterých můžete zkopírovat své uživatelské jméno, heslo nebo ověřovací kód do schránky."
+  },
   "noPermissionsViewPage": {
     "message": "Nemáte oprávnění k zobrazení této stránky. Zkuste se přihlásit jiným účtem."
   },
@@ -6757,7 +7286,7 @@
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
-    "message": "Více...",
+    "message": "Více…",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "confirmKeyConnectorDomain": {
@@ -7034,6 +7563,9 @@
   "sharedUnlockWithWebDescription": {
     "message": "Pokud je povoleno, stav odemknutí bude sdílen s webovým trezorem Bitwarden."
   },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "Sdílené odemknutí není k dispozici, protože jste se rozhodli nepamatovat si toto zařízení. Chcete-li toto nastavení povolit, zkuste se znovu přihlásit."
+  },
   "newPermissionNeeded": {
     "message": "Je vyžadováno nové oprávnění"
   },
@@ -7240,5 +7772,175 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "health": {
+    "message": "Zdraví"
+  },
+  "scanMyVault": {
+    "message": "Prohledat můj trezor"
+  },
+  "introducingHealth": {
+    "message": "Představujeme Zdraví"
+  },
+  "healthIntroDescription": {
+    "message": "Sledujte a zlepšujte zdraví Vašeho trezoru opravením hesel, která jsou ohrožená, slabá a/nebo znovu použita."
+  },
+  "yourVaultIsHealthy": {
+    "message": "Váš trezor je zdravý",
+    "description": "Heading shown when none of the user's passwords are at risk."
+  },
+  "yourVaultRiskIsHigh": {
+    "message": "Ohrožení Vašeho trezoru je vysoké",
+    "description": "Heading shown when at least one of the user's passwords is at risk."
+  },
+  "passwordsNeedFixing": {
+    "message": "$AT_RISK$ z $TOTAL$ hesel je třeba opravit",
+    "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
+    "placeholders": {
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
+    }
+  },
+  "exposedPasswordsNone": {
+    "message": "Žádná odhalená hesla",
+    "description": "Title of the exposed risk category row when no passwords are exposed."
+  },
+  "exposedPassword": {
+    "message": "1 odhalené heslo",
+    "description": "Title of the exposed risk category row when exactly one password is exposed."
+  },
+  "exposedPasswordsPlural": {
+    "message": "$COUNT$ odhalených hesel",
+    "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsDesc": {
+    "message": "Odhaleno v únicích dat",
+    "description": "Explains what makes a password count as exposed."
+  },
+  "exposedPasswordsNoneDesc": {
+    "message": "Žádné z Vašich hesel nebylo nalezeno v únicích dat",
+    "description": "Description of the exposed risk category row when no passwords are exposed."
+  },
+  "weakPasswordsNone": {
+    "message": "Žádná slabá hesla",
+    "description": "Title of the weak risk category row when no passwords are weak."
+  },
+  "weakPassword": {
+    "message": "1 slabé heslo",
+    "description": "Title of the weak risk category row when exactly one password is weak."
+  },
+  "weakPasswordsPlural": {
+    "message": "$COUNT$ slabých hesel",
+    "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "22"
+      }
+    }
+  },
+  "weakPasswordsDesc": {
+    "message": "Příliš krátké nebo jednoduché",
+    "description": "Explains what makes a password count as weak."
+  },
+  "weakPasswordsNoneDesc": {
+    "message": "Všechna Vaše hesla jsou silná",
+    "description": "Description of the weak risk category row when no passwords are weak."
+  },
+  "reusedPasswordsNone": {
+    "message": "Žádná znovu použitá hesla",
+    "description": "Title of the reused risk category row when no passwords are reused."
+  },
+  "reusedPassword": {
+    "message": "1 znovu použité heslo",
+    "description": "Title of the reused risk category row when exactly one password is reused."
+  },
+  "reusedPasswordsPlural": {
+    "message": "$COUNT$ znovu použitých hesel",
+    "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "35"
+      }
+    }
+  },
+  "reusedPasswordsDesc": {
+    "message": "Znovu použito pro několik přihlášení",
+    "description": "Explains what makes a password count as reused."
+  },
+  "reusedPasswordsNoneDesc": {
+    "message": "Všechna Vaše hesla jsou jedinečná",
+    "description": "Description of the reused risk category row when no passwords are reused."
+  },
+  "risksIdentified": {
+    "message": "Zjištěná rizika",
+    "description": "Section heading above the list of risk categories on the Health Overview."
+  },
+  "categoryHealthy": {
+    "message": "Žádné položky nepotřebují pozornost",
+    "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Odhalená hesla"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Hesla k těmto účtům byla odhalena v důsledku úniků dat. Okamžitě je změňte, abyste ochránili své účty."
+  },
+  "weakPasswordsTitle": {
+    "message": "Slabá hesla"
+  },
+  "weakPasswordsDescription": {
+    "message": "Tato hesla lze snadno uhodnout, protože jsou příliš krátká nebo jednoduchá. Zvyšte jejich bezpečnost tím, že je uděláte složitějšími."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Opakovaně použitá hesla"
+  },
+  "reusedPasswordsDescription": {
+    "message": "U těchto přihlašovacích údajů se opakuje stejné heslo. Vytvořte pro každý účet jedinečné heslo, abyste zabránili tomu, že by někdo mohl pomocí jednoho hesla získat přístup k více účtům."
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Smazáním tohoto přihlášení jej odeberte z Vašeho trezoru, ale nevyřešíte riziko. Pro ochranu účtu si nejprve změňte heslo."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "Toto heslo má další rizika:"
+  },
+  "reused": {
+    "message": "Znovu použito",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$krát",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "Žádné z Vašich hesel nebylo nalezeno v únicích dat."
+  },
+  "weakPasswordEmpty": {
+    "message": "Všechna Vaše hesla jsou silná."
+  },
+  "reusedPasswordEmpty": {
+    "message": "Všechna Vaše hesla jsou jedinečná."
+  },
+  "youreAllSet": {
+    "message": "Vše je nastaveno!"
   }
 }

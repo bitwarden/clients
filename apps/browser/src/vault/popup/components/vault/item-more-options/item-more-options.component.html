@@ -34,7 +34,7 @@
         }
         @if (canAssignCollections$ | async) {
           <a bitMenuItem (click)="conditionallyNavigateToAssignCollections()">
-            {{ "assignToCollections" | i18n }}
+            {{ "assignToCollections" | vfo1I18n: "addToSharedFolder" }}
           </a>
         }
       }

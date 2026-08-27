@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -20,11 +18,13 @@ import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationApiKeyRequest } from "@bitwarden/common/admin-console/models/request/organization-api-key.request";
 import { OrganizationCollectionManagementUpdateRequest } from "@bitwarden/common/admin-console/models/request/organization-collection-management-update.request";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpdateRequest } from "@bitwarden/common/admin-console/models/request/organization-update.request";
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -32,6 +32,9 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { ApiKeyComponent } from "../../../auth/settings/security/api-key.component";
 import { PurgeVaultComponent } from "../../../vault/settings/purge-vault.component";
@@ -50,8 +53,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   canEditSubscription = true;
   loading = true;
   canUseApi = false;
-  org: OrganizationResponse;
-  taxFormPromise: Promise<unknown>;
+  org!: OrganizationResponse;
 
   // FormGroup validators taken from server Organization domain object
   protected formGroup = this.formBuilder.group({
@@ -78,8 +80,8 @@ export class AccountComponent implements OnInit, OnDestroy {
     }),
   });
 
-  protected organizationId: string;
-  protected publicKeyBuffer: Uint8Array;
+  protected organizationId!: string;
+  protected publicKeyBuffer!: Uint8Array;
 
   private destroy$ = new Subject<void>();
 
@@ -88,6 +90,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private platformUtilsService: PlatformUtilsService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private router: Router,
     private accountService: AccountService,
     private organizationService: OrganizationService,
@@ -95,6 +98,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
+    private vfo1TerminologyService: Vfo1TerminologyService,
   ) {}
 
   async ngOnInit() {
@@ -112,24 +116,24 @@ export class AccountComponent implements OnInit, OnDestroy {
           return combineLatest([
             of(organization),
             // OrganizationResponse for form population
-            from(this.organizationApiService.get(organization.id)),
+            from(this.organizationApiService.get(organization!.id)),
             // Organization Public Key
-            from(this.organizationApiService.getKeys(organization.id)),
+            from(this.organizationApiService.getKeys(organization!.id)),
           ]);
         }),
         takeUntil(this.destroy$),
       )
       .subscribe(([organization, orgResponse, orgKeys]) => {
         // Set domain level organization variables
-        this.organizationId = organization.id;
-        this.canEditSubscription = organization.canEditSubscription;
-        this.canUseApi = organization.useApi;
+        this.organizationId = organization!.id;
+        this.canEditSubscription = organization!.canEditSubscription;
+        this.canUseApi = organization!.useApi;
 
         // Update disabled states - reactive forms prefers not using disabled attribute
         if (!this.selfHosted) {
-          this.formGroup.get("orgName").enable();
+          this.formGroup.get("orgName")!.enable();
           if (this.canEditSubscription) {
-            this.formGroup.get("billingEmail").enable();
+            this.formGroup.get("billingEmail")!.enable();
           }
         }
 
@@ -170,8 +174,8 @@ export class AccountComponent implements OnInit, OnDestroy {
 
     // The server ignores any undefined values, so it's ok to reference disabled form fields here
     const request: OrganizationUpdateRequest = {
-      name: this.formGroup.value.orgName,
-      billingEmail: this.formGroup.value.billingEmail,
+      name: this.formGroup.value.orgName ?? undefined,
+      billingEmail: this.formGroup.value.billingEmail ?? undefined,
     };
 
     // Backfill pub/priv key if necessary
@@ -180,18 +184,18 @@ export class AccountComponent implements OnInit, OnDestroy {
         this.accountService.activeAccount$.pipe(
           getUserId,
           switchMap((userId) => this.keyService.orgKeys$(userId)),
-          map((orgKeys) => orgKeys[this.organizationId as OrganizationId] ?? null),
+          map((orgKeys) => orgKeys?.[this.organizationId as OrganizationId] ?? null),
         ),
       );
-      const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
-      request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
+      const orgKeys = await this.legacyCompatKeyService.makeKeyPair(orgShareKey!);
+      request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString!);
     }
 
     await this.organizationApiService.save(this.organizationId, request);
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: undefined,
       message: this.i18nService.t("organizationUpdated"),
     });
   };
@@ -199,19 +203,23 @@ export class AccountComponent implements OnInit, OnDestroy {
   submitCollectionManagement = async () => {
     const request = new OrganizationCollectionManagementUpdateRequest();
     request.limitCollectionCreation =
-      this.collectionManagementFormGroup.value.limitCollectionCreation;
+      this.collectionManagementFormGroup.value.limitCollectionCreation ?? false;
     request.limitCollectionDeletion =
-      this.collectionManagementFormGroup.value.limitCollectionDeletion;
+      this.collectionManagementFormGroup.value.limitCollectionDeletion ?? false;
     request.allowAdminAccessToAllCollectionItems =
-      this.collectionManagementFormGroup.value.allowAdminAccessToAllCollectionItems;
-    request.limitItemDeletion = this.collectionManagementFormGroup.value.limitItemDeletion;
+      this.collectionManagementFormGroup.value.allowAdminAccessToAllCollectionItems ?? false;
+    request.limitItemDeletion = this.collectionManagementFormGroup.value.limitItemDeletion ?? false;
 
     await this.organizationApiService.updateCollectionManagement(this.organizationId, request);
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
-      message: this.i18nService.t("updatedCollectionManagement"),
+      title: undefined,
+      message: this.i18nService.t(
+        this.vfo1TerminologyService.enabled()
+          ? "updatedSharedFolderManagement"
+          : "updatedCollectionManagement",
+      ),
     });
   };
 
@@ -246,7 +254,8 @@ export class AccountComponent implements OnInit, OnDestroy {
       data: {
         keyType: "organization",
         entityId: this.organizationId,
-        postKey: this.organizationApiService.getOrCreateApiKey.bind(this.organizationApiService),
+        postKey: (id: string, request: SecretVerificationRequest) =>
+          this.organizationApiService.getOrCreateApiKey(id, request as OrganizationApiKeyRequest),
         scope: "api.organization",
         grantType: "client_credentials",
         apiKeyTitle: "apiKey",
@@ -262,7 +271,8 @@ export class AccountComponent implements OnInit, OnDestroy {
         keyType: "organization",
         isRotation: true,
         entityId: this.organizationId,
-        postKey: this.organizationApiService.rotateApiKey.bind(this.organizationApiService),
+        postKey: (id: string, request: SecretVerificationRequest) =>
+          this.organizationApiService.rotateApiKey(id, request as OrganizationApiKeyRequest),
         scope: "api.organization",
         grantType: "client_credentials",
         apiKeyTitle: "apiKey",

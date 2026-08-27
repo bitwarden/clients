@@ -1,6 +1,8 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   Fido2Credential as SdkFido2Credential,
   Cipher as SdkCipher,
@@ -16,7 +18,6 @@ import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId, CipherId, OrganizationId } from "../../types/guid";
 import { UserKey } from "../../types/key";
 import { CipherRepromptType, CipherType } from "../enums";
@@ -648,6 +649,74 @@ describe("DefaultCipherEncryptionService", () => {
         { id: "a1" },
         encryptedContent,
       );
+    });
+  });
+
+  describe("encryptedByKeyId", () => {
+    const keyId = "000102030405060708090a0b0c0d0e0f";
+
+    beforeEach(() => {
+      jest.spyOn(Cipher, "fromSdkCipher").mockReturnValue({} as Cipher);
+    });
+
+    it("carries the key id from encrypt", async () => {
+      mockSdkClient.vault().ciphers().encrypt.mockReturnValue({
+        cipher: sdkCipher,
+        encryptedFor: userId,
+        encryptedByKeyId: keyId,
+      });
+
+      const result = await cipherEncryptionService.encrypt(cipherViewObj, userId);
+
+      expect(result!.encryptedByKeyId).toBe(keyId);
+    });
+
+    it("carries the key id from encryptMany", async () => {
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .encrypt_list.mockReturnValue([
+          { cipher: sdkCipher, encryptedFor: userId, encryptedByKeyId: keyId },
+        ]);
+
+      const results = await cipherEncryptionService.encryptMany([cipherViewObj], userId);
+
+      expect(results[0].encryptedByKeyId).toBe(keyId);
+    });
+
+    it("carries the key id from moveToOrganization", async () => {
+      mockSdkClient.vault().ciphers().move_to_organization.mockReturnValue({
+        id: cipherId,
+        organizationId: orgId,
+      });
+      mockSdkClient.vault().ciphers().encrypt.mockReturnValue({
+        cipher: sdkCipher,
+        encryptedFor: userId,
+        encryptedByKeyId: keyId,
+      });
+
+      const result = await cipherEncryptionService.moveToOrganization(cipherViewObj, orgId, userId);
+
+      expect(result!.encryptedByKeyId).toBe(keyId);
+    });
+
+    it("carries the new key's id from encryptCipherForRotation", async () => {
+      mockSdkClient.vault().ciphers().encrypt_cipher_for_rotation.mockReturnValue({
+        cipher: sdkCipher,
+        encryptedFor: userId,
+        encryptedByKeyId: keyId,
+      });
+      const newUserKey: UserKey = new SymmetricCryptoKey(
+        Utils.fromUtf8ToArray("00000000000000000000000000000000"),
+      ) as UserKey;
+
+      const result = await cipherEncryptionService.encryptCipherForRotation(
+        cipherViewObj,
+        userId,
+        newUserKey,
+      );
+
+      expect(result!.encryptedByKeyId).toBe(keyId);
     });
   });
 });
