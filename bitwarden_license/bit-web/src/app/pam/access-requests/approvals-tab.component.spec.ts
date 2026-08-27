@@ -10,17 +10,25 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import type { AccessRequestView } from "../abstractions/access-lease";
+import type { AccessLeaseId, AccessRequestView } from "../abstractions/access-lease";
 import { ApprovalRow, toApprovalRow } from "../approvals/approval-row";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
+import { ManagedLeaseRow, toManagedLeaseRow } from "../approvals/managed-lease-row";
 
 import { emptyResolvedNames } from "./access-name-resolver.service";
 import { ApprovalsTabComponent } from "./approvals-tab.component";
 
 const NOW = new Date("2026-08-17T12:00:00.000Z");
 
-function row(overrides: Record<string, unknown> = {}, canDecide = true): ApprovalRow {
-  const request = {
+const NAMES = {
+  ...emptyResolvedNames(),
+  cipherNameById: new Map([["cipher-1", "Prod database"]]),
+  collectionNameById: new Map([["col-1", "Production"]]),
+  organizationNameById: new Map([["org-1", "Meridian Group"]]),
+};
+
+function accessRequest(overrides: Record<string, unknown> = {}): AccessRequestView {
+  return {
     id: "req-1",
     cipherId: "cipher-1",
     collectionId: "col-1",
@@ -36,16 +44,25 @@ function row(overrides: Record<string, unknown> = {}, canDecide = true): Approva
     requesterEmail: "grace@example.com",
     ...overrides,
   } as unknown as AccessRequestView;
-  return toApprovalRow(
-    request,
-    {
-      ...emptyResolvedNames(),
-      cipherNameById: new Map([["cipher-1", "Prod database"]]),
-      collectionNameById: new Map([["col-1", "Production"]]),
-      organizationNameById: new Map([["org-1", "Meridian Group"]]),
-    },
-    NOW,
-    canDecide,
+}
+
+function row(overrides: Record<string, unknown> = {}, canDecide = true): ApprovalRow {
+  return toApprovalRow(accessRequest(overrides), NAMES, NOW, canDecide);
+}
+
+function leaseRow(
+  overrides: Record<string, unknown> = {},
+  extension?: { addedSeconds: number; latestEndMs: number },
+): ManagedLeaseRow {
+  return toManagedLeaseRow(
+    accessRequest({
+      status: "approved",
+      producedLeaseId: "lease-1",
+      producedLeaseStatus: "active",
+      ...overrides,
+    }) as AccessRequestView & { producedLeaseId: AccessLeaseId },
+    NAMES,
+    extension,
   );
 }
 
@@ -54,9 +71,11 @@ describe("ApprovalsTabComponent", () => {
   let component: ApprovalsTabComponent;
   let inbox: {
     inboxRows$: BehaviorSubject<ApprovalRow[]>;
+    activeLeaseRows$: BehaviorSubject<ManagedLeaseRow[]>;
     cipherById$: BehaviorSubject<Map<string, CipherView>>;
     loading$: BehaviorSubject<boolean>;
     decide: jest.Mock;
+    revokeLease: jest.Mock;
   };
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
@@ -74,9 +93,11 @@ describe("ApprovalsTabComponent", () => {
   beforeEach(async () => {
     inbox = {
       inboxRows$: new BehaviorSubject<ApprovalRow[]>([]),
+      activeLeaseRows$: new BehaviorSubject<ManagedLeaseRow[]>([]),
       cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
       loading$: new BehaviorSubject<boolean>(false),
       decide: jest.fn().mockResolvedValue(undefined),
+      revokeLease: jest.fn().mockResolvedValue(undefined),
     };
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
@@ -261,6 +282,97 @@ describe("ApprovalsTabComponent", () => {
 
       expect(dialogService.open).not.toHaveBeenCalled();
       expect(inbox.decide).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("active access", () => {
+    it("renders a row per live lease, with the holder and the item on it", () => {
+      inbox.activeLeaseRows$.next([
+        leaseRow({ producedLeaseId: "lease-1" }),
+        leaseRow(
+          { id: "req-2", producedLeaseId: "lease-2", requesterName: "Alan" },
+          {
+            addedSeconds: 3600,
+            latestEndMs: Date.parse("2026-08-17T14:00:00.000Z"),
+          },
+        ),
+      ]);
+
+      create();
+
+      expect(query('[data-testid="approvals-lease-lease-1"]')).not.toBeNull();
+      expect(query('[data-testid="approvals-lease-lease-2"]')).not.toBeNull();
+      expect(query('[data-testid="approvals-lease-extended-lease-2"]')).not.toBeNull();
+      const text = fixture.nativeElement.textContent as string;
+      expect(text).toContain("Prod database");
+      expect(text).toContain("Grace");
+      expect(text).toContain("Alan");
+    });
+
+    it("shows both sections when there is live access but nothing pending", () => {
+      inbox.activeLeaseRows$.next([leaseRow()]);
+
+      create();
+
+      expect(query('[data-testid="approvals-empty"]')).toBeNull();
+      expect(query("bit-accordion-group")).not.toBeNull();
+      expect(query('[data-testid="approvals-pending-empty"]')).not.toBeNull();
+      expect(query('[data-testid="approvals-lease-lease-1"]')).not.toBeNull();
+    });
+
+    it("still renders the section, empty, when there is nothing live but something pending", () => {
+      inbox.inboxRows$.next([row()]);
+
+      create();
+
+      expect(query("bit-accordion-group")).not.toBeNull();
+      expect(query('[data-testid="approvals-active-access-empty"]')).not.toBeNull();
+      expect(query('[data-testid="approvals-empty"]')).toBeNull();
+    });
+
+    it("shows the inbox-zero empty state only when both sections are empty", () => {
+      create();
+
+      expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
+      expect(query("bit-accordion-group")).toBeNull();
+    });
+
+    it("revokes the lease once confirmed, and toasts", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      inbox.activeLeaseRows$.next([leaseRow()]);
+      create();
+
+      await component["revoke"](component["leaseRows"]()[0]);
+
+      expect(inbox.revokeLease).toHaveBeenCalledWith("req-1", "lease-1");
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+    });
+
+    it("does nothing when the confirm is dismissed", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      inbox.activeLeaseRows$.next([leaseRow()]);
+      create();
+
+      await component["revoke"](component["leaseRows"]()[0]);
+
+      expect(inbox.revokeLease).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
+    });
+
+    it("toasts an error when the revoke fails", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      inbox.revokeLease.mockRejectedValue(new Error("boom"));
+      inbox.activeLeaseRows$.next([leaseRow()]);
+      create();
+
+      await component["revoke"](component["leaseRows"]()[0]);
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamInboxRevokeFailed",
+      });
     });
   });
 });
