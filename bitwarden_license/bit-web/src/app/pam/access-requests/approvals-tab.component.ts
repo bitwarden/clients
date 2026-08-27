@@ -237,7 +237,12 @@ export class ApprovalsTabComponent {
   /** Five fills the space the table occupies without implying a row count the inbox may not have. */
   protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
-  /** Latched once the skeleton has been on screen, so its removal can be announced in turn. */
+  /**
+   * Whether the load on screen has shown its skeleton, so that skeleton's removal can be announced
+   * in turn. Held for the length of one load rather than the component's life: a reload that never
+   * reaches the skeleton has nothing to announce the end of, and a retry must not inherit the
+   * previous attempt's skeleton.
+   */
   private readonly skeletonShown = signal(false);
 
   /**
@@ -280,6 +285,8 @@ export class ApprovalsTabComponent {
     effect(() => {
       if (this.skeletonVisible()) {
         this.skeletonShown.set(true);
+      } else if (this.loading()) {
+        this.skeletonShown.set(false);
       }
     });
   }
