@@ -27,6 +27,7 @@ import { UnlockService } from "@bitwarden/unlock";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { SshAgentService } from "../../autofill/services/ssh-agent.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
 import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
@@ -58,6 +59,7 @@ export class InitService {
     private sshAgentService: SshAgentService,
     private autofillService: DesktopAutofillService,
     private autotypeMvpService: DesktopAutotypeMvpService,
+    private autotypeService: DesktopAutotypeService,
     private sdkLoadService: SdkLoadService,
     private ipcService: IpcService,
     private sharedUnlockPeerService: SharedUnlockPeerService,
@@ -125,6 +127,7 @@ export class InitService {
       await this.biometricMessageHandlerService.init();
       await this.autofillService.init();
       await this.autotypeMvpService.init();
+      await this.autotypeService.init();
     };
   }
 }
