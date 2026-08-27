@@ -1,5 +1,14 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, DoCheck, OnInit, inject, input } from "@angular/core";
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+  input,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormArray, FormControl, ReactiveFormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -13,7 +22,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { CidrValidationService } from "./cidr-validation.service";
-import { CidrPredicate, cidrValidator, duplicateCidrValues } from "./cidr.validator";
+import { CidrPredicate, cidrValidator } from "./cidr.validator";
 
 export type CidrRowControl = FormControl<string>;
 
@@ -32,8 +41,12 @@ export function cidrRowControl(
 }
 
 /**
- * Row UI for the `ip_allowlist` condition over the host's array. Empty rows stay in the value; the
- * host drops them when serializing.
+ * Editor for the `ip_allowlist` access rule.
+ *
+ * Renders a repeatable list of CIDR inputs over a {@link FormArray} owned by the host form and
+ * passed in via {@link cidrArray}. The host keeps value and validity on its own control — this
+ * component only manages the row UI (add/remove) and surfaces the array's validation errors.
+ * Empty rows stay in the value; the host trims and drops them when serialising the rule.
  */
 @Component({
   selector: "app-pam-ip-allowlist-editor",
@@ -50,25 +63,31 @@ export function cidrRowControl(
     IconButtonModule,
   ],
 })
-export class IpAllowlistEditorComponent implements OnInit, DoCheck {
+export class IpAllowlistEditorComponent implements OnInit, AfterViewInit {
+  /** The host-owned CIDR array this editor renders and mutates. */
   readonly cidrArray = input.required<IpAllowlistCidrsArray>();
 
   readonly readonly = input<boolean>(false);
 
   private readonly i18n = inject(I18nService);
   private readonly cidrValidation = inject(CidrValidationService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     if (this.cidrArray().length === 0) {
       this.appendRow();
     }
+
+    this.cidrArray()
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.syncDuplicateErrors());
   }
 
-  /**
-   * The host can re-run the array's validators with `emitEvent: false`, so no change event fires.
-   * {@link syncDuplicateErrors} writes nothing once the row marks are in step.
-   */
-  ngDoCheck(): void {
+  ngAfterViewInit(): void {
+    // Not ngOnInit: each row's `[formControl]` directive revalidates its control as its binding
+    // initialises, replacing `control.errors` wholesale and wiping any mark set earlier. Not
+    // valueChanges alone either: the host seeds an existing rule's rows with `{ emitEvent: false }`
+    // (access-rule-edit.component.ts:426-438), so nothing is emitted on load.
     this.syncDuplicateErrors();
   }
 
@@ -80,8 +99,6 @@ export class IpAllowlistEditorComponent implements OnInit, DoCheck {
   protected removeRow(index: number): void {
     const array = this.cidrArray();
     array.removeAt(index);
-    // `removeAt` leaves the form pristine, which would let the page's discard guard skip its prompt.
-    array.markAsDirty();
     // Keep at least one row so the user always has an input to type into.
     if (array.length === 0) {
       this.appendRow();
@@ -89,27 +106,44 @@ export class IpAllowlistEditorComponent implements OnInit, DoCheck {
     this.markTouched();
   }
 
-  /** Surfaces the array-level at-least-one error once the user interacts. */
+  /** Surface the array-level errors (duplicate / at-least-one) once the user interacts. */
   protected markTouched(): void {
     this.cidrArray().markAsTouched();
   }
 
   /**
-   * Marks each repeated row so `bit-form-field` shows the error under it. `invalidCidr` stays
-   * first, so a malformed repeated row shows the format error.
+   * Marks every row whose trimmed value is shared with another row, so `bit-form-field` renders
+   * `accessRuleIpAllowlistDuplicateCidr` through `bit-error` under each offending row — the same
+   * mechanism {@link cidrValidator} already gets for `invalidCidr`. A row can be both malformed and
+   * repeated; `invalidCidr` stays first in insertion order so the format error is what shows.
+   *
+   * Marking the row touched is part of the contract, not a nicety:
+   * `BitFormFieldControlDirective.hasError` gates on the row's own `touched`, and neither an
+   * untouched initial load nor a blur on one row of a pair ever sets it on the partner row.
    */
   private syncDuplicateErrors(): void {
     const controls = this.cidrArray().controls;
     const values = controls.map((control) => control.value.trim());
-    const duplicated = duplicateCidrValues(values);
+
+    const counts = new Map<string, number>();
+    for (const value of values) {
+      if (value !== "") {
+        counts.set(value, (counts.get(value) ?? 0) + 1);
+      }
+    }
 
     const message = this.i18n.t("accessRuleIpAllowlistDuplicateCidr");
     controls.forEach((control, index) => {
-      const isDuplicate = duplicated.has(values[index]);
+      const isDuplicate = (counts.get(values[index]) ?? 0) > 1;
+      // Every `setErrors` revalidates the whole array through its ancestors, so only write to the
+      // rows whose mark actually changes.
       if (isDuplicate === control.hasError("duplicateCidr")) {
         return;
       }
       if (isDuplicate) {
+        // No `{ emitEvent: false }` on either call: `hasError` only recomputes on a
+        // StatusChangeEvent / TouchedChangeEvent, so suppressing them would change the errors
+        // without rendering them.
         control.setErrors({ ...control.errors, duplicateCidr: { message } });
         control.markAsTouched();
       } else {
