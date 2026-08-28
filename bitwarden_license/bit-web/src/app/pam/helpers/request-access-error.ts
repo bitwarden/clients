@@ -19,6 +19,12 @@ export const REQUEST_ACCESS_SERVER_ERRORS = Object.freeze({
   HumanGotDuration:
     "This item requires human approval; provide a start and end date, not a duration.",
   StartBeforeEnd: "The start date must be before the end date.",
+  /**
+   * Also what the SDK's own `AccessRequestWindowError::EndInPast` renders, deliberately spelled the
+   * same on both sides — so a window the SDK refuses before it reaches the wire and one the server
+   * refuses on arrival land on this single entry.
+   */
+  WindowInPast: "The requested window has already ended.",
   StartEndRequired: "A start and end date are required.",
   PositiveDurationRequired: "A positive duration is required.",
   DurationExceedsMax: "The requested duration exceeds the maximum of 86400 seconds.",
@@ -64,6 +70,7 @@ const INLINE_SERVER_MESSAGES: ReadonlyArray<string> = [
   REQUEST_ACCESS_SERVER_ERRORS.HumanGotDuration,
   REQUEST_ACCESS_SERVER_ERRORS.StartEndRequired,
   REQUEST_ACCESS_SERVER_ERRORS.StartBeforeEnd,
+  REQUEST_ACCESS_SERVER_ERRORS.WindowInPast,
   REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax,
   REQUEST_ACCESS_SERVER_ERRORS.NotLeasingGated,
 ];
