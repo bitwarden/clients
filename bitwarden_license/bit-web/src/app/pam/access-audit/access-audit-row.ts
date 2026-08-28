@@ -191,6 +191,53 @@ export function auditRangeEnd(value: string): Date | null {
   return start == null ? null : new Date(start.getTime() + END_OF_MINUTE_MS);
 }
 
+/** An audit date range. A null bound is unbounded on that side. */
+export type AuditRange = { from: Date | null; to: Date | null };
+
+export const UNBOUNDED_AUDIT_RANGE: AuditRange = { from: null, to: null };
+
+/**
+ * A choice in the Time period filter.
+ *
+ * `allTime` is the whole fetched trail, not all of history: `GET /organizations/{orgId}/audit` serves a
+ * fixed 90-day window and takes no parameters, so nothing older than that window is on the client for any
+ * option here to show.
+ */
+export type AuditTimePeriod = "today" | "past7Days" | "past30Days" | "allTime" | "custom";
+
+/** The Time period options that carry their own bounds, in menu order. */
+export const AUDIT_TIME_PRESETS: readonly AuditTimePeriod[] = ["today", "past7Days", "past30Days"];
+
+export const AUDIT_TIME_PERIOD_LABEL_KEYS: Record<AuditTimePeriod, string> = {
+  today: "recentlyActiveToday",
+  past7Days: "recentlyActivePast7Days",
+  past30Days: "recentlyActivePast30Days",
+  allTime: "allTime",
+  custom: "custom",
+};
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * The bounds a preset stands for, measured against `now`.
+ *
+ * Local time throughout, matching the Time column's `date` pipe: "Today" is the start of the auditor's own
+ * day rather than the last 24 hours, so an event at 08:00 this morning is in it and one at 22:00 last night
+ * is not. `allTime` carries no bounds, and `custom` takes its bounds from the dialog instead.
+ */
+export function auditPresetRange(period: AuditTimePeriod, now: Date): AuditRange {
+  switch (period) {
+    case "today":
+      return { from: new Date(now.getFullYear(), now.getMonth(), now.getDate()), to: null };
+    case "past7Days":
+      return { from: new Date(now.getTime() - 7 * DAY_MS), to: null };
+    case "past30Days":
+      return { from: new Date(now.getTime() - 30 * DAY_MS), to: null };
+    default:
+      return UNBOUNDED_AUDIT_RANGE;
+  }
+}
+
 /** The active audit-log filter. Every dimension is independent, and an unset one matches everything. */
 export type AuditFilter = {
   kindLabelKey: string | null;
