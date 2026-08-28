@@ -109,6 +109,12 @@ describe("AccessAuditComponent", () => {
             pamAccessRules: "Access rules",
             backTo: "Back to __$1__",
             viewItemsIn: "View items in __$1__",
+            removeItem: "Remove __$1__",
+            all: "All",
+            clear: "Clear",
+            noMatchingItems: "No matching items",
+            search: "Search",
+            resetSearch: "Reset search",
             from: "From",
             to: "To",
             startDate: "Start date",
@@ -135,9 +141,6 @@ describe("AccessAuditComponent", () => {
             pamAuditKindRuleCreated: "Access rule created",
             pamAuditKindLeaseRevoked: "Lease revoked",
             pamAuditKindLeaseEndedByHolder: "Lease ended by holder",
-            all: "All",
-            removeItem: (name?: string) => `Remove ${name}`,
-            search: "Search",
             exportVerb: "Export",
             update: "Update",
             close: "Close",
@@ -177,29 +180,34 @@ describe("AccessAuditComponent", () => {
   /** The component's protected surface, reached the way the template reaches it. */
   const component = () => fixture.componentInstance as unknown as Record<string, any>;
 
-  /** The Event chip, driven the way the menu rows drive it. */
-  const kindChip = () =>
-    fixture.debugElement.query(By.directive(FilterMenuComponent))
-      .componentInstance as FilterMenuComponent;
+  /**
+   * Selects a chip's option through the `FilterControl` contract the chips expose. A
+   * `bit-filter-menu` owns its own selection — there is no form control to set — and the chips only
+   * exist once the ready branch has rendered.
+   */
+  const selectFilter = (key: string, value: unknown) => {
+    fixture.detectChanges();
+    const control = component()
+      .filterControls()
+      .find((candidate: any) => candidate.key() === key);
+    control.setValue(value);
+    fixture.detectChanges();
+  };
+
+  /** The Event chip, which is the first of the chips the toolbar declares. */
+  const kindMenu = () => fixture.debugElement.queryAll(By.directive(FilterMenuComponent))[0];
+
+  /** The Event chip driven through its own selection API, the way its menu rows drive it. */
+  const kindChip = () => kindMenu().componentInstance as FilterMenuComponent;
 
   /** The options declared into the Event menu, in template order. */
   const kindMenuOptions = () =>
-    fixture.debugElement.queryAll(By.directive(FilterOptionComponent)).map((option) => ({
-      label: (option.componentInstance as FilterOptionComponent).label(),
-      value: (option.componentInstance as FilterOptionComponent).value(),
-    }));
-
-  /**
-   * Opens the Event menu and returns its rendered rows, "All" first. The menu body is stamped
-   * into a CDK overlay on the document, not inside the fixture's host element.
-   */
-  const openKindMenu = () => {
-    (fixture.nativeElement as HTMLElement)
-      .querySelector<HTMLButtonElement>("bit-filter-menu button[aria-haspopup]")!
-      .click();
-    fixture.detectChanges();
-    return Array.from(document.querySelectorAll<HTMLButtonElement>("[role='menuitemradio']"));
-  };
+    kindMenu()
+      .queryAll(By.directive(FilterOptionComponent))
+      .map((option) => ({
+        label: (option.componentInstance as FilterOptionComponent).label(),
+        value: (option.componentInstance as FilterOptionComponent).value(),
+      }));
 
   it("reads the trail for the organization in the route", async () => {
     auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
@@ -312,17 +320,9 @@ describe("AccessAuditComponent", () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(component().filteredRows()).toHaveLength(2);
-    expect(fixture.debugElement.query(By.directive(FilterMenuComponent))).not.toBeNull();
+    expect(fixture.nativeElement.querySelector("bit-chip-filter")).toBeNull();
 
-    const rows = openKindMenu();
-    expect(rows.map((row) => row.textContent?.trim())).toEqual([
-      "All",
-      "Lease activated",
-      "Request approved",
-    ]);
-
-    rows[1].click();
-    fixture.detectChanges();
+    selectFilter("kind", "pamAuditKindLeaseActivated");
 
     expect(component().filteredRows()).toHaveLength(1);
     expect(component().filteredRows()[0].kindLabelKey).toBe("pamAuditKindLeaseActivated");
@@ -409,7 +409,7 @@ describe("AccessAuditComponent", () => {
       { label: "J. Smith (smith-b@example.com)", value: "user-4" },
     ]);
 
-    component().requesterControl.setValue("user-4");
+    selectFilter("requester", "user-4");
 
     expect(component().filteredRows()).toHaveLength(1);
     expect(component().filteredRows()[0].requesterId).toBe("user-4");
@@ -424,7 +424,7 @@ describe("AccessAuditComponent", () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    component().actorControl.setValue("user-3");
+    selectFilter("actor", "user-3");
 
     expect(component().filteredRows()).toHaveLength(1);
     expect(component().filteredRows()[0].actor).toBe("Linus");
@@ -509,9 +509,9 @@ describe("AccessAuditComponent", () => {
     expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledTimes(1);
     fixture.detectChanges();
 
-    kindChip().toggle("pamAuditKindLeaseActivated");
-    component().actorControl.setValue("user-1");
-    component().requesterControl.setValue("user-2");
+    selectFilter("kind", "pamAuditKindLeaseActivated");
+    selectFilter("actor", "user-1");
+    selectFilter("requester", "user-2");
     component().fromControl.setValue("2026-08-18T00:00");
     component().toControl.setValue("2026-08-19T00:00");
     fixture.detectChanges();
@@ -567,6 +567,29 @@ describe("AccessAuditComponent", () => {
       expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledTimes(2);
       expect(component().status()).toBe("ready");
       expect(component().rows()).toHaveLength(1);
+    });
+
+    // The chips build their options from the trail, so a refresh that brings back a kind the page has
+    // never rendered adds an option to an already-mounted chip.
+    it("takes on an event kind that only the refresh brought back", async () => {
+      await renderReady();
+      expect(component().kindOptions()).toHaveLength(1);
+
+      auditApiService.listAccessAuditTrail.mockResolvedValue([
+        event(),
+        event({ Kind: "leaseActivated" }),
+      ]);
+      clickUpdate();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component().kindOptions()).toEqual([
+        { label: "Lease activated", value: "pamAuditKindLeaseActivated" },
+        { label: "Request approved", value: "pamAuditKindRequestApproved" },
+      ]);
+      expect(
+        fixture.nativeElement.querySelectorAll("bit-filter-menu bit-filter-option").length,
+      ).toBeGreaterThan(1);
     });
 
     it("re-reads the member lookup alongside the trail", async () => {
@@ -628,8 +651,7 @@ describe("AccessAuditComponent", () => {
       const toolbar = await renderToolbar();
 
       expect(toolbar).not.toBeNull();
-      expect(toolbar.querySelectorAll("bit-filter-menu")).toHaveLength(1);
-      expect(toolbar.querySelectorAll("bit-chip-filter")).toHaveLength(2);
+      expect(toolbar.querySelectorAll("bit-filter-menu")).toHaveLength(3);
       for (const control of [
         "#access-audit_input_from",
         "#access-audit_input_to",
@@ -645,7 +667,7 @@ describe("AccessAuditComponent", () => {
     it("offsets the controls that have no label so they line up with the date inputs", async () => {
       const toolbar = await renderToolbar();
 
-      const chips = toolbar.querySelector("bit-chip-filter")!.parentElement!;
+      const chips = toolbar.querySelector("bit-filter-menu")!.parentElement!;
       expect(chips.classList).toContain("tw-mt-7");
       for (const button of ["#access-audit_button_refresh", "#access-audit_button_export"]) {
         expect(toolbar.querySelector(button)!.classList).toContain("tw-mt-7");
@@ -656,7 +678,7 @@ describe("AccessAuditComponent", () => {
       const toolbar = await renderToolbar();
 
       expect(toolbar.classList).toContain("tw-flex-wrap");
-      expect(toolbar.querySelector("bit-chip-filter")!.parentElement!.classList).toContain(
+      expect(toolbar.querySelector("bit-filter-menu")!.parentElement!.classList).toContain(
         "tw-flex-wrap",
       );
     });
@@ -685,8 +707,7 @@ describe("AccessAuditComponent", () => {
       await fixture.whenStable();
       fixture.detectChanges();
 
-      component().actorControl.setValue("user-3");
-      fixture.detectChanges();
+      selectFilter("actor", "user-3");
       clickExport();
 
       expect(component().rows()).toHaveLength(3);
@@ -749,8 +770,7 @@ describe("AccessAuditComponent", () => {
       const button = fixture.nativeElement.querySelector("#access-audit_button_export");
       expect(button.getAttribute("aria-disabled")).toBeNull();
 
-      kindChip().toggle("pamAuditKindLeaseActivated");
-      fixture.detectChanges();
+      selectFilter("kind", "pamAuditKindLeaseActivated");
       await fixture.whenStable();
       fixture.detectChanges();
 
