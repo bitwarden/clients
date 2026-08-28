@@ -496,6 +496,7 @@ jobs:
   windows:
     name: Windows Build - ${{ matrix.build_type.readable }}
     runs-on: windows-2022
+    if: ${{ matrix.build_type.name == 'prod' || needs.setup.outputs.has_secrets == 'true' }}
     needs:
       - setup
     permissions:
@@ -616,14 +617,13 @@ jobs:
           key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*', 'package-lock.json') }}
 
       - name: Build Native Module
-        if: ${{ (matrix.build_type.name == 'prod' || needs.setup.outputs.has_secrets == 'true') && steps.cache.outputs.cache-hit != 'true' }}
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
         working-directory: apps/desktop/desktop_native
         env:
           MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
         run: node build.js cross-platform "$env:MODE"
 
       - name: Build
-        if: ${{ matrix.build_type.name == 'prod' || needs.setup.outputs.has_secrets == 'true' }}
         run: npm run ${{ matrix.build_type.build_command }}
 
       - name: Pack
