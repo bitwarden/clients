@@ -25,6 +25,12 @@ import { BaseChipDirective } from "../chips/shared/base-chip.directive";
 import { ChipContentComponent } from "../chips/shared/chip-content.component";
 import { ChipDismissButtonComponent } from "../chips/shared/chip-dismiss-button.component";
 import { IconComponent } from "../icon";
+import {
+  IconTileComponent,
+  IconTileVariant,
+  resolveIconTileColor,
+  resolveIconTileVariant,
+} from "../icon-tile";
 import { menuItemBaseStyles, menuItemPrimaryStyles } from "../menu/menu-item.component";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { MenuComponent } from "../menu/menu.component";
@@ -88,6 +94,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
     I18nPipe,
     NgTemplateOutlet,
     IconComponent,
+    IconTileComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
@@ -289,6 +296,14 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
     }
     host.registerFilter(this);
     this.destroyRef.onDestroy(() => host.unregisterFilter(this));
+  }
+
+  protected tileVariant(option: FilterOptionComponent): IconTileVariant {
+    return resolveIconTileVariant(option.iconTile(), option.disabled());
+  }
+
+  protected tileColor(option: FilterOptionComponent): string | undefined {
+    return resolveIconTileColor(option.iconTile(), option.disabled());
   }
 
   /** Narrows an entry to a section for the template (else `null`). */
