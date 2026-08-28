@@ -4,12 +4,13 @@ import {
   Component,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, ReactiveFormsModule, ValidatorFn } from "@angular/forms";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { map, switchMap } from "rxjs";
 
@@ -61,17 +62,33 @@ const byLabel = (a: AuditChipOption, b: AuditChipOption) => a.label.localeCompar
 /**
  * One chip option per distinct identity in `rows`, labelled the way the cells label it. A row whose identity
  * resolved to neither a name nor an email is skipped rather than offered under its raw id.
+ *
+ * Two members can share a display name, and a menu offering the same words twice would let an auditor read a
+ * filtered half of the trail as the whole of one person's activity. A shared label is therefore qualified with
+ * the identity's email, in the `Name (email)` shape the member pickers already use
+ * (`apps/web/src/app/admin-console/organizations/shared/components/access-selector/access-selector.models.ts`).
+ * Where the trail carries no email for a namesake, the two stay indistinguishable.
  */
 function identityOptions(rows: AuditRow[], identity: "actor" | "requester"): AuditChipOption[] {
-  const labelById = new Map<string, string>();
+  const identities = new Map<string, { label: string; email: string | null }>();
   for (const row of rows) {
     const value = row[`${identity}Id`];
     const label = row[identity];
-    if (value != null && label != null && !labelById.has(value)) {
-      labelById.set(value, label);
+    if (value != null && label != null && !identities.has(value)) {
+      identities.set(value, { label, email: row[`${identity}Email`] });
     }
   }
-  return [...labelById].map(([value, label]) => ({ label, value }));
+  const labelCounts = new Map<string, number>();
+  for (const { label } of identities.values()) {
+    labelCounts.set(label, (labelCounts.get(label) ?? 0) + 1);
+  }
+  return [...identities].map(([value, { label, email }]) => ({
+    value,
+    label:
+      (labelCounts.get(label) ?? 0) > 1 && email != null && email !== label
+        ? `${label} (${email})`
+        : label,
+  }));
 }
 
 /**
@@ -191,11 +208,17 @@ export class AccessAuditComponent implements OnInit {
     return start != null && end != null && end.getTime() < start.getTime();
   });
 
-  /** `bit-error` renders the second element's `message` for any key it does not itself translate. */
-  protected readonly invalidRangeError: [string, { message: string }] = [
-    "invalidDateRange",
-    { message: this.i18nService.t("invalidDateRange") },
-  ];
+  /**
+   * The inverted range as the To control's own error, so the field carries the danger border, `aria-invalid`
+   * and the message that `bit-form-field` already renders for a control in error.
+   *
+   * A validator rather than a `setErrors` call: `setUpControl` re-validates the control whenever the ready
+   * branch is created, which would wipe an imperatively set error.
+   */
+  private readonly invertedRangeValidator: ValidatorFn = () =>
+    this.invertedRange()
+      ? { invalidDateRange: { message: this.i18nService.t("invalidDateRange") } }
+      : null;
 
   /** Event-kind chip options, limited to the labels actually present in the trail, sorted. */
   protected readonly kindOptions = computed(() =>
@@ -234,6 +257,24 @@ export class AccessAuditComponent implements OnInit {
     };
     return this.rows().filter((row) => auditRowMatchesFilter(row, filter));
   });
+
+  constructor() {
+    this.toControl.addValidators(this.invertedRangeValidator);
+
+    // Editing From leaves To's value alone, so nothing else would re-run a cross-field rule. The control is
+    // marked touched on every inverted edit rather than only when the range flips, because
+    // `BitInputDirective.onInput` marks it untouched on each keystroke and
+    // `BitFormFieldControlDirective.hasError` paints nothing on an untouched control — the message would
+    // otherwise blink out mid-edit and stay hidden until the next blur.
+    effect(() => {
+      this.fromValue();
+      this.toValue();
+      this.toControl.updateValueAndValidity();
+      if (this.invertedRange()) {
+        this.toControl.markAsTouched();
+      }
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     await this.load();
