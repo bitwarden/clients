@@ -3,10 +3,12 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
+import * as papa from "papaparse";
 import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { FilterMenuComponent, FilterOptionComponent, I18nMockService } from "@bitwarden/components";
@@ -44,6 +46,7 @@ describe("AccessAuditComponent", () => {
   let fixture: ComponentFixture<AccessAuditComponent>;
   let auditApiService: MockProxy<AuditApiService>;
   let nameResolver: MockProxy<AccessNameResolverService>;
+  let fileDownloadService: MockProxy<FileDownloadService>;
 
   const configureTestBed = async (canManageAccessRules = true) => {
     await TestBed.configureTestingModule({
@@ -51,6 +54,7 @@ describe("AccessAuditComponent", () => {
       providers: [
         { provide: AuditApiService, useValue: auditApiService },
         { provide: AccessNameResolverService, useValue: nameResolver },
+        { provide: FileDownloadService, useValue: fileDownloadService },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: ActivatedRoute,
@@ -109,6 +113,8 @@ describe("AccessAuditComponent", () => {
             removeItem: (name?: string) => `Remove ${name}`,
             search: "Search",
             resetSearch: "Reset search",
+            exportVerb: "Export",
+            close: "Close",
           }),
         },
       ],
@@ -128,6 +134,7 @@ describe("AccessAuditComponent", () => {
   beforeEach(async () => {
     auditApiService = mock<AuditApiService>();
     nameResolver = mock<AccessNameResolverService>();
+    fileDownloadService = mock<FileDownloadService>();
     nameResolver.resolveNames.mockResolvedValue(emptyResolvedNames());
 
     await configureTestBed();
@@ -493,5 +500,88 @@ describe("AccessAuditComponent", () => {
     await fixture.whenStable();
 
     expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledTimes(1);
+  });
+
+  describe("export", () => {
+    const clickExport = () => {
+      fixture.nativeElement.querySelector("#access-audit_button_export").click();
+    };
+
+    const exportedRows = () => {
+      const request = fileDownloadService.download.mock.calls[0][0];
+      return papa.parse<Record<string, string>>(request.blobData as string, { header: true }).data;
+    };
+
+    // The file has to hold what the auditor narrowed the table down to: exporting the whole fetched
+    // window would hand them back the rows they deliberately filtered out.
+    it("exports the rows the filters left on screen, not the whole trail", async () => {
+      auditApiService.listAccessAuditTrail.mockResolvedValue([
+        event({ ActorId: "user-1", ActorName: "Ada" }),
+        event({ ActorId: "user-3", ActorName: "Linus" }),
+        event({ ActorId: "user-3", ActorName: "Linus" }),
+      ]);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      component().actorControl.setValue("user-3");
+      fixture.detectChanges();
+      clickExport();
+
+      expect(component().rows()).toHaveLength(3);
+      expect(exportedRows()).toHaveLength(2);
+      expect(exportedRows().map((row) => row.actorName)).toEqual(["Linus", "Linus"]);
+    });
+
+    it("hands the download service one csv blob", async () => {
+      auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      clickExport();
+
+      expect(fileDownloadService.download).toHaveBeenCalledTimes(1);
+      const request = fileDownloadService.download.mock.calls[0][0];
+      expect(request.fileName).toMatch(/\.csv$/);
+      expect(request.blobOptions).toEqual({ type: "text/csv" });
+      expect(request.blobData).toContain("Request approved");
+    });
+
+    // Everything the file needs is already in the browser, and the endpoint takes no parameters, so an
+    // export that re-read the trail would be a bug rather than a refresh.
+    it("does not re-read the trail to export", async () => {
+      auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      clickExport();
+
+      expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledTimes(1);
+    });
+
+    it("disables Export while no row matches the filters", async () => {
+      auditApiService.listAccessAuditTrail.mockResolvedValue([event({ ActorName: "Ada" })]);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const button = fixture.nativeElement.querySelector("#access-audit_button_export");
+      expect(button.getAttribute("aria-disabled")).toBeNull();
+
+      component().searchControl.setValue("nothing matches this");
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(button.getAttribute("aria-disabled")).toBe("true");
+      button.click();
+      expect(fileDownloadService.download).not.toHaveBeenCalled();
+    });
   });
 });
