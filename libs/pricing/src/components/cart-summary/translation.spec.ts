@@ -55,7 +55,7 @@ describe("getCartItemTranslationKey", () => {
   const allTiers: PlanTier[] = ["families", "teams", "enterprise", "premium"];
 
   const tierAgnostic: Array<[PurchasableReference, string]> = [
-    ["pm-storage", "additionalStorageGb"],
+    ["pm-storage", "additionalStorageGbLower"],
     ["sm-seat", "membersLower"],
     ["sm-service-account", "additionalServiceAccounts"],
   ];
