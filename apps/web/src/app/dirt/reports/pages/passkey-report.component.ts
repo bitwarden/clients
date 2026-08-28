@@ -27,6 +27,7 @@ import {
   TableDataSource,
   TableModule,
   ToggleGroupModule,
+  BerryComponent,
 } from "@bitwarden/components";
 import {
   CipherFormConfig,
@@ -69,6 +70,7 @@ import {
     GetOrgNameFromIdPipe,
     Vfo1IconPipe,
     ButtonModule,
+    BerryComponent,
   ],
   providers: [PasskeyReportService],
 })
