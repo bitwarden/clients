@@ -218,7 +218,7 @@ export class ApprovalsTabComponent {
    * The toolbar's three filters, applied to either section's rows. Both row models carry the same
    * three fields, so one predicate keeps the two sections from drifting apart.
    */
-  private applyFilters<T extends FilterableRow>(rows: T[]): T[] {
+  private applyFilters<T extends FilterableRow>(rows: readonly T[]): T[] {
     const term = this.searchTerm().trim().toLowerCase();
     const collection = this.collectionFilter();
     const requester = this.requesterFilter();
