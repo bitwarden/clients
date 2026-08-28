@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   ProviderStatusType,
   ProviderType,
@@ -19,20 +17,16 @@ export class Provider {
   providerStatus: ProviderStatusType;
   providerType: ProviderType;
 
-  constructor(obj?: ProviderData) {
-    if (obj == null) {
-      return;
-    }
-
-    this.id = obj.id;
-    this.name = obj.name;
-    this.status = obj.status;
-    this.type = obj.type;
-    this.enabled = obj.enabled;
-    this.userId = obj.userId;
-    this.useEvents = obj.useEvents;
-    this.providerStatus = obj.providerStatus;
-    this.providerType = obj.providerType;
+  constructor(c: ProviderData) {
+    this.id = c.id;
+    this.name = c.name;
+    this.status = c.status;
+    this.type = c.type;
+    this.enabled = c.enabled;
+    this.userId = c.userId;
+    this.useEvents = c.useEvents;
+    this.providerStatus = c.providerStatus;
+    this.providerType = c.providerType;
   }
 
   get canAccess() {

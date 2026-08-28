@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { inject } from "@angular/core";
 import {
   ActivatedRouteSnapshot,
@@ -58,7 +56,6 @@ export function providerPermissionsGuard(
     if (!provider.isProviderAdmin && !provider.enabled) {
       toastService.showToast({
         variant: "error",
-        title: null,
         message: i18nService.t("providerIsDisabled"),
       });
       return router.createUrlTree(["/"]);
@@ -69,7 +66,6 @@ export function providerPermissionsGuard(
     if (!hasSpecifiedPermissions) {
       toastService.showToast({
         variant: "error",
-        title: null,
         message: i18nService.t("accessDenied"),
       });
       return router.createUrlTree(["/providers", provider.id]);
