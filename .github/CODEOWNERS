@@ -174,7 +174,7 @@ apps/desktop/desktop_native/napi/src/autotype_mvp.rs  @bitwarden/team-desktop-na
 libs/common/src/desktop-native                        @bitwarden/team-desktop-native-dev
 
 ## Desktop Native team files + SSH working group co-owned files ##
-apps/desktop/desktop_native/core/src/ssh_agent                 @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
+apps/desktop/desktop_native/ssh_agent                          @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 apps/desktop/desktop_native/ssh_agent                          @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 apps/desktop/desktop_native/napi/src/sshagent.rs               @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 apps/desktop/src/autofill/services/ssh-agent.service.ts        @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
