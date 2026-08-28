@@ -480,19 +480,22 @@ export abstract class BaseImporter {
     ].join("-");
   }
 
-  protected processBankAccountType(type: string): BankAccountType {
+  protected processBankAccountType(type: string | undefined): BankAccountType {
+    if (!type) {
+      return BankAccountType.Other;
+    }
     switch (type.toLowerCase()) {
-      case BankAccountType.CertificateOfDeposit:
+      case BankAccountType.CertificateOfDeposit.toLowerCase():
         return BankAccountType.CertificateOfDeposit;
-      case BankAccountType.Checking:
+      case BankAccountType.Checking.toLowerCase():
         return BankAccountType.Checking;
-      case BankAccountType.InvestmentBrokerage:
+      case BankAccountType.InvestmentBrokerage.toLowerCase():
         return BankAccountType.InvestmentBrokerage;
-      case BankAccountType.LineOfCredit:
+      case BankAccountType.LineOfCredit.toLowerCase():
         return BankAccountType.LineOfCredit;
-      case BankAccountType.MoneyMarket:
+      case BankAccountType.MoneyMarket.toLowerCase():
         return BankAccountType.MoneyMarket;
-      case BankAccountType.Savings:
+      case BankAccountType.Savings.toLowerCase():
         return BankAccountType.Savings;
       default:
         return BankAccountType.Other;
