@@ -360,7 +360,11 @@ export class AccessAuditComponent implements OnInit {
       this.setPeriod(previous);
       return;
     }
-    this.customRange.set(result);
+    if (result.action === "clear") {
+      this.resetTimePeriod();
+      return;
+    }
+    this.customRange.set({ from: result.from, to: result.to });
     this.range.set({ from: auditRangeStart(result.from), to: auditRangeEnd(result.to) });
     this.appliedPeriod.set("custom");
   }
@@ -369,15 +373,21 @@ export class AccessAuditComponent implements OnInit {
     this.timePeriodChip()?.setValue(period);
   }
 
+  /** Drops the time period back to the whole fetched trail, chip and bounds together. */
+  private resetTimePeriod(): void {
+    this.customRange.set(NO_CUSTOM_RANGE);
+    this.handledPeriod.set(null);
+    this.appliedPeriod.set(null);
+    this.range.set(UNBOUNDED_AUDIT_RANGE);
+    this.setPeriod(null);
+  }
+
   /** Resets every chip, so an auditor who narrowed the trail four ways gets back to all of it in one click. */
   protected clearAll(): void {
     for (const chip of this.chips()) {
       chip.setValue(null);
     }
-    this.customRange.set(NO_CUSTOM_RANGE);
-    this.handledPeriod.set(null);
-    this.appliedPeriod.set(null);
-    this.range.set(UNBOUNDED_AUDIT_RANGE);
+    this.resetTimePeriod();
   }
 
   async ngOnInit(): Promise<void> {
