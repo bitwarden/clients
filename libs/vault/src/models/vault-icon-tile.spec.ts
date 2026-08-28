@@ -39,12 +39,13 @@ describe("orgIconTile", () => {
 describe("navIconTile", () => {
   const navItem = (
     type: VaultNavItemType,
-    color: string,
     icon: BitwardenIcon,
+    color?: string,
   ): VaultNavItemViewModel => ({ id: "1", label: "Vault", type, color, icon });
 
+  // Org tiles derive their color from `type` alone, so the view model carries no color for them.
   it("gives a family org the teal variant", () => {
-    expect(navIconTile(navItem(VaultNavItemType.Family, "teal", "bwi-family"))).toEqual({
+    expect(navIconTile(navItem(VaultNavItemType.Family, "bwi-family"))).toEqual({
       icon: "bwi-family",
       variant: "teal",
       emphasis: "bold",
@@ -52,7 +53,7 @@ describe("navIconTile", () => {
   });
 
   it("gives a business org the purple variant", () => {
-    expect(navIconTile(navItem(VaultNavItemType.Organization, "purple", "bwi-business"))).toEqual({
+    expect(navIconTile(navItem(VaultNavItemType.Organization, "bwi-business"))).toEqual({
       icon: "bwi-business",
       variant: "purple",
       emphasis: "bold",
@@ -60,7 +61,7 @@ describe("navIconTile", () => {
   });
 
   it("keeps the personal entry on its avatar-matched hex", () => {
-    expect(navIconTile(navItem(VaultNavItemType.Personal, "#abcdef", "bwi-user"))).toEqual({
+    expect(navIconTile(navItem(VaultNavItemType.Personal, "bwi-user", "#abcdef"))).toEqual({
       icon: "bwi-user",
       color: "#abcdef",
     });

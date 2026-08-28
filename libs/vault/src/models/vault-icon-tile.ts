@@ -70,18 +70,24 @@ export function orgIconTile(tier: ProductTierType): IconTileOptions {
  * reads `iconTile` and writes the mapped array, so a fresh object each render re-triggers that
  * effect indefinitely and hangs change detection.
  *
- * @param avatarColor The user's avatar color, palette name or custom hex.
+ * @param avatarColor The user's avatar color, palette name or custom hex. When omitted the tile
+ * renders untinted; callers that have a user should resolve the avatar default rather than rely on
+ * that, since the nav always has one.
  */
-export function personalIconTile(avatarColor: VaultNavColor): IconTileOptions {
+export function personalIconTile(avatarColor?: VaultNavColor): IconTileOptions {
   return {
     icon: "bwi-user",
-    color: vaultTileColor(avatarColor),
+    color: avatarColor === undefined ? undefined : vaultTileColor(avatarColor),
   };
 }
 
 /**
  * The icon tile for a side-nav vault entry, whose view model already carries the resolved
- * {@link VaultNavItemType} and color rather than a raw product tier.
+ * {@link VaultNavItemType} rather than a raw product tier.
+ *
+ * Only the personal entry reads `color`; org tiles resolve their variant from `type`, so
+ * {@link VaultNavItemViewModel.color} is the single source of truth for exactly the one vault that
+ * has a user-chosen color and is left unset elsewhere.
  */
 export function navIconTile(vault: VaultNavItemViewModel): IconTileOptions {
   if (vault.type === VaultNavItemType.Personal) {
