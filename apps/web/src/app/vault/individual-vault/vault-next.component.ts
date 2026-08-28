@@ -306,9 +306,14 @@ export class VaultNextComponent {
     );
   }
 
+  // Derived from scope (URL params), not from async collection data, so it's available
+  // when bit-breadcrumb's ngOnInit fires — ensuring isActiveRoute detects the match.
   protected readonly currentFolderRoute = computed(() => {
-    const node = this.sharedFolderNode();
-    return node ? this.sharedFolderRoute(node.node) : undefined;
+    const scope = this.vaultScope();
+    if (scope.type !== VaultScopeType.Organization || !scope.collectionId) {
+      return undefined;
+    }
+    return vaultScopeCommands(scope);
   });
 
   /**
