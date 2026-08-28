@@ -194,14 +194,24 @@ export class OrganizationSubscriptionCloudVNextComponent {
     () => this.billingSubscription()?.items.some((item) => item.sponsoredSubscriptionItem) ?? false,
   );
 
-  // Reseller organizations exempt from billing automation are billed externally, so the card's
-  // status callout (past due, unpaid, etc.) must be suppressed for them, mirroring the legacy page.
-  readonly hideSubscriptionCallout = computed(
-    () =>
-      (this.organization()?.hasReseller &&
-        this.organizationSubscription()?.exemptFromBillingAutomation) ??
-      false,
-  );
+  // The status callout (past due, unpaid, etc.) and its CTAs are suppressed when they would be
+  // misleading or unusable:
+  //  - Reseller orgs exempt from billing automation are billed externally, mirroring the legacy page.
+  //  - Owners who can't edit the subscription would only hit permission-guarded routes from the CTAs
+  //    (ManageInvoices/UpdatePayment navigate to canEditPaymentMethods/canViewBillingHistory routes,
+  //    both aliases of canEditSubscription), so the whole callout is hidden rather than offering
+  //    dead-end actions that bounce with "Access denied".
+  readonly hideSubscriptionCallout = computed(() => {
+    const organization = this.organization();
+    const subscription = this.organizationSubscription();
+    if (organization == null || subscription == null) {
+      return false;
+    }
+    const exemptFromBillingAutomation =
+      organization.hasReseller && subscription.exemptFromBillingAutomation;
+    const cannotEditSubscription = !organization.canEditSubscription;
+    return exemptFromBillingAutomation || cannotEditSubscription;
+  });
 
   readonly canAdjustSeats = computed(
     () => this.organizationSubscription()?.plan.PasswordManager.hasAdditionalSeatsOption ?? false,

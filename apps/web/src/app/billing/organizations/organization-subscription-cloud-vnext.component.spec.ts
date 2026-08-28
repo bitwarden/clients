@@ -537,10 +537,10 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     });
   });
 
-  describe("reseller callout suppression", () => {
+  describe("callout suppression", () => {
     it("hides the card callout for a reseller org exempt from billing automation", () => {
       createComponent({
-        organization: buildOrganization({ hasReseller: true }),
+        organization: buildOrganization({ hasReseller: true, canEditSubscription: true }),
         subscription: buildSubscriptionResponse({ exemptFromBillingAutomation: true }),
       });
 
@@ -549,7 +549,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
 
     it("does not hide the callout when the org is not a reseller", () => {
       createComponent({
-        organization: buildOrganization({ hasReseller: false }),
+        organization: buildOrganization({ hasReseller: false, canEditSubscription: true }),
         subscription: buildSubscriptionResponse({ exemptFromBillingAutomation: true }),
       });
 
@@ -558,11 +558,20 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
 
     it("does not hide the callout when the reseller org is not exempt", () => {
       createComponent({
-        organization: buildOrganization({ hasReseller: true }),
+        organization: buildOrganization({ hasReseller: true, canEditSubscription: true }),
         subscription: buildSubscriptionResponse({ exemptFromBillingAutomation: false }),
       });
 
       expect(component.hideSubscriptionCallout()).toBe(false);
+    });
+
+    it("hides the callout when the owner cannot edit the subscription", () => {
+      createComponent({
+        organization: buildOrganization({ hasReseller: false, canEditSubscription: false }),
+        subscription: buildSubscriptionResponse({ exemptFromBillingAutomation: false }),
+      });
+
+      expect(component.hideSubscriptionCallout()).toBe(true);
     });
   });
 
