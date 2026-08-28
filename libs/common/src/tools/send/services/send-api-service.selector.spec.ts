@@ -9,6 +9,7 @@ import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { Send } from "../models/domain/send";
 import { SendAccessView } from "../models/view/send-access.view";
+import { SendView } from "../models/view/send.view";
 import { AuthType } from "../types/auth-type";
 import { SendType } from "../types/send-type";
 
@@ -148,6 +149,49 @@ describe("SendApiServiceSelector", () => {
     });
   });
 
+  describe("saveView", () => {
+    function view(type: SendType, id: string | null): SendView {
+      const sendView = new SendView();
+      sendView.id = id;
+      sendView.type = type;
+      sendView.authType = AuthType.None;
+      return sendView;
+    }
+
+    // Unlike `save`, file creates are flag-controlled here: the plaintext contents let the SDK
+    // create and upload under the key it generates. See `SendSdkApiService.saveView`.
+    it.each([
+      ["file create", SendType.File, null],
+      ["file edit", SendType.File, "existing-id"],
+      ["text create", SendType.Text, null],
+      ["text edit", SendType.Text, "existing-id"],
+    ])("routes a %s to the SDK when the flag is on", async (_name, type, id) => {
+      const selector = buildSelector(true);
+      const sendView = view(type, id);
+      const file = new ArrayBuffer(4);
+
+      await selector.saveView(sendView, file, "hunter2");
+
+      expect(sdk.saveView).toHaveBeenCalledWith(sendView, file, "hunter2");
+      expect(legacy.saveView).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["file create", SendType.File, null],
+      ["file edit", SendType.File, "existing-id"],
+      ["text create", SendType.Text, null],
+      ["text edit", SendType.Text, "existing-id"],
+    ])("routes a %s to legacy when the flag is off", async (_name, type, id) => {
+      const selector = buildSelector(false);
+      const sendView = view(type, id);
+
+      await selector.saveView(sendView, null);
+
+      expect(legacy.saveView).toHaveBeenCalledWith(sendView, null, undefined);
+      expect(sdk.saveView).not.toHaveBeenCalled();
+    });
+  });
+
   describe.each([
     ["delete", (s: SendApiServiceSelector) => s.delete("id")],
     ["removePassword", (s: SendApiServiceSelector) => s.removePassword("id")],
@@ -190,7 +234,10 @@ describe("SendApiServiceSelector", () => {
   describe("postSendAccess", () => {
     const accessToken: SendAccessToken = { token: "tok" } as SendAccessToken;
 
-    it("routes to legacy when apiUrl is supplied, even with the flag on", async () => {
+    // `apiUrl` is not a reliable cross-instance signal at the call site (see PR #22321 review
+    // discussion), so these always route to legacy regardless of the flag — matching the SDK
+    // client's inability to target anything but its own configured environment.
+    it("routes a cross-instance apiUrl to legacy even when the flag is on", async () => {
       const selector = buildSelector(true);
 
       await selector.postSendAccess(accessToken, "https://other.example");
@@ -208,6 +255,15 @@ describe("SendApiServiceSelector", () => {
       expect(legacy.postSendAccess).not.toHaveBeenCalled();
     });
 
+    it("routes a cross-instance apiUrl to legacy when the flag is off", async () => {
+      const selector = buildSelector(false);
+
+      await selector.postSendAccess(accessToken, "https://other.example");
+
+      expect(legacy.postSendAccess).toHaveBeenCalledWith(accessToken, "https://other.example");
+      expect(sdk.postSendAccess).not.toHaveBeenCalled();
+    });
+
     it("routes to legacy without apiUrl when the flag is off", async () => {
       const selector = buildSelector(false);
 
@@ -222,7 +278,7 @@ describe("SendApiServiceSelector", () => {
     const accessView = mock<SendAccessView>();
     const accessToken: SendAccessToken = { token: "tok" } as SendAccessToken;
 
-    it("routes to legacy when apiUrl is supplied, even with the flag on", async () => {
+    it("routes a cross-instance apiUrl to legacy even when the flag is on", async () => {
       const selector = buildSelector(true);
 
       await selector.getSendFileDownloadData(accessView, accessToken, "https://other.example");
@@ -242,6 +298,19 @@ describe("SendApiServiceSelector", () => {
 
       expect(sdk.getSendFileDownloadData).toHaveBeenCalledWith(accessView, accessToken);
       expect(legacy.getSendFileDownloadData).not.toHaveBeenCalled();
+    });
+
+    it("routes a cross-instance apiUrl to legacy when the flag is off", async () => {
+      const selector = buildSelector(false);
+
+      await selector.getSendFileDownloadData(accessView, accessToken, "https://other.example");
+
+      expect(legacy.getSendFileDownloadData).toHaveBeenCalledWith(
+        accessView,
+        accessToken,
+        "https://other.example",
+      );
+      expect(sdk.getSendFileDownloadData).not.toHaveBeenCalled();
     });
 
     it("routes to legacy without apiUrl when the flag is off", async () => {

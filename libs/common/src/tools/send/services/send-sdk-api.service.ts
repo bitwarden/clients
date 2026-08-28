@@ -7,6 +7,7 @@ import {
   PasswordManagerClient,
   SendAddRequest,
   SendAuthType,
+  SendClient,
   SendEditRequest,
   SendId as SdkSendId,
   SendView as SdkSendView,
@@ -35,6 +36,17 @@ import { SendApiService as SendApiServiceAbstraction } from "./send-api.service.
 import { InternalSendService } from "./send.service.abstraction";
 
 /**
+ * Ceiling on plaintext size for a file send created through {@link SendSdkApiService.createFileSend}.
+ *
+ * `create_file_send`'s response carries the ciphertext as a plain JS `number[]` rather than a
+ * typed array (the SDK's `Tsify` derive doesn't special-case `Vec<u8>` — tracked upstream in
+ * PM-41234), so it costs several times the file's byte length in JS heap alone, stacked on top of
+ * the plaintext buffer already held here and the SDK's own copies in wasm linear memory. The
+ * legacy path has none of this overhead: `EncArrayBuffer` stays a compact typed array end to end.
+ */
+export const MAX_SDK_FILE_SEND_SIZE_BYTES = 500 * 1024 * 1024;
+
+/**
  * SDK-backed implementation of `SendApiService`. Save/removePassword mutate via the SDK
  * then refetch via legacy to keep `InternalSendService` populated with `EncString`-shaped
  * data. Methods returning wire-encrypted shapes have no SDK equivalent and are routed to
@@ -55,10 +67,12 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * data. Patches the input with server-assigned id/accessId on create so callers reading
    * those after `save()` continue to work.
    *
-   * New file sends cannot be handled by the SDK and are routed to legacy by
-   * `SendApiServiceSelector`; this method rejects them as a guard for direct callers:
+   * New file sends cannot be handled through this method and are routed to legacy by
+   * `SendApiServiceSelector`; it rejects them as a guard for direct callers:
    * `SendService.encrypt` produces a pre-encrypted buffer under a client-derived key,
-   * while the SDK's `create_file_send` generates its own key.
+   * while the SDK's `create_file_send` generates its own key. {@link saveView} carries the
+   * plaintext file contents instead, and is the entry point that can create file sends
+   * through the SDK.
    *
    * Password-protected sends route through the SDK. On create or password-change the caller
    * forwards the plaintext `password`, which `buildSendAuth` hands to the SDK's high-level
@@ -99,6 +113,40 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
       this.logService.error(`Send refresh failed after successful mutation: ${error}`);
       return send;
     }
+  }
+
+  /**
+   * Saves a send from its plaintext view — the preferred entry point for this service.
+   *
+   * The plaintext view goes straight into the SDK, which generates the send key and encrypts
+   * under it inside its own WASM boundary — this TypeScript code never sees the key or the
+   * ciphertext-generation step. (The SDK still runs in-process like the legacy TS path does;
+   * "client-side" isn't what distinguishes the two — owning key generation is.) This is what
+   * {@link save} cannot do, since it receives a payload already encrypted under a key the SDK
+   * will never use.
+   *
+   * New file sends take the two-step {@link createFileSend} path instead of the single
+   * `create`/`edit` call every other send uses; the result is the same plaintext view either way.
+   *
+   * The plaintext password is Protected Data and is never logged. See {@link buildSendAuth} and
+   * {@link buildSendAuthEdit} for how it reaches the SDK.
+   *
+   * @param file The plaintext file contents, required when creating a file send. Ignored
+   *   otherwise: file contents are immutable after create.
+   */
+  async saveView(
+    view: SendView,
+    file: File | ArrayBuffer | null,
+    plaintextPassword?: string,
+  ): Promise<Send> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const sdkView =
+      view.id == null && view.type === SendType.File
+        ? await this.createFileSend(view, file, userId, plaintextPassword)
+        : await this.mutateSend(view, userId, plaintextPassword);
+
+    return await this.refreshAfterMutation(sdkView.id as unknown as string);
   }
 
   async delete(id: string): Promise<any> {
@@ -152,9 +200,16 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return Promise.reject(new Error("SendSdkApiService.getSend: use SendApiService."));
   }
 
-  // `apiUrl` is intentionally omitted; `SendApiServiceSelector` routes per-call `apiUrl`
-  // to the legacy service.
-  async postSendAccess(accessToken: SendAccessToken): Promise<SendAccessResponse> {
+  /**
+   * `apiUrl` is part of the shared `SendApiService` contract for cross-instance receive (the CLI
+   * opening a Send hosted on another Bitwarden instance) — legacy honours it, but
+   * `SendApiServiceSelector` always routes those calls to legacy regardless of the flag, since the
+   * SDK client only targets its own configured environment. It never reaches here.
+   */
+  async postSendAccess(
+    accessToken: SendAccessToken,
+    _apiUrl?: string,
+  ): Promise<SendAccessResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
     const view = await sdk.sends().access_send(accessToken.token);
     return new SendAccessResponse(view);
@@ -199,11 +254,11 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     );
   }
 
-  // `apiUrl` is intentionally omitted; `SendApiServiceSelector` routes per-call `apiUrl`
-  // to the legacy service.
+  /** See {@link postSendAccess} — `apiUrl` never reaches here either. */
   async getSendFileDownloadData(
     send: SendAccessView,
     accessToken: SendAccessToken,
+    _apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
     const data = await sdk.sends().get_file_download_data(accessToken.token, send.file.id);
@@ -239,6 +294,126 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     );
   }
 
+  /**
+   * Creates a file send through the SDK's two-step create → upload sequence.
+   *
+   * `create_file_send` takes the *plaintext* bytes and encrypts them internally under the send
+   * key it generates, returning the ciphertext alongside the upload metadata — nothing is
+   * encrypted here, and no key material is ever exposed to this service. The returned
+   * ciphertext then goes straight to `upload_send_file`.
+   *
+   * @param file The plaintext file contents. Required: the create step needs them to size the
+   *   upload the server reserves quota for.
+   */
+  private async createFileSend(
+    view: SendView,
+    file: File | ArrayBuffer | null,
+    userId: UserId,
+    plaintextPassword?: string,
+  ): Promise<SdkSendView> {
+    if (file == null) {
+      throw new Error("File send creation requires file data.");
+    }
+    const fileSize = file instanceof ArrayBuffer ? file.byteLength : file.size;
+    if (fileSize > MAX_SDK_FILE_SEND_SIZE_BYTES) {
+      throw new Error(
+        `File is too large to send (max ${MAX_SDK_FILE_SEND_SIZE_BYTES / (1024 * 1024)} MB).`,
+      );
+    }
+    const fileBytes =
+      file instanceof ArrayBuffer ? new Uint8Array(file) : new Uint8Array(await file.arrayBuffer());
+    // A real `File` (web/browser/desktop) carries its own name; the CLI hands over plaintext
+    // bytes as an `ArrayBuffer` instead and sets the name on the view itself beforehand — the
+    // same split the legacy path's `SendService.encrypt` makes.
+    const fileName = file instanceof ArrayBuffer ? view.file?.fileName : file.name;
+
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          const sendsClient = ref.value.sends();
+          const created = await sendsClient.create_file_send(
+            this.buildSendAddRequest(view, plaintextPassword, fileName),
+            fileBytes,
+          );
+
+          const sendId = created.send.id;
+          if (sendId == null) {
+            throw new Error("Created file send is missing its id.");
+          }
+
+          // `encryptedFileBuffer` crosses the wasm boundary as a JS `number[]` rather than a
+          // `Uint8Array` (the SDK's `Tsify` derive doesn't special-case `Vec<u8>`), costing several
+          // times the ciphertext's byte length. Pull out just the fields the upload needs so
+          // `created` — and the oversized array it holds — isn't kept alive by this closure for the
+          // duration of the (potentially slow) network upload.
+          const encryptedFileBuffer = new Uint8Array(created.encryptedFileBuffer);
+          const { fileId, encryptedFileName, fileUploadType, url, send: sendView } = created;
+
+          try {
+            await sendsClient.upload_send_file(
+              sendId,
+              fileId,
+              encryptedFileName,
+              fileUploadType,
+              url,
+              encryptedFileBuffer,
+            );
+          } catch (error) {
+            await this.rollbackFileSend(sendsClient, sendId);
+            throw error;
+          }
+
+          return sendView;
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to create file send: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  /**
+   * Deletes the send `create_file_send` registered when the upload of its contents fails.
+   * Without this the server keeps a permanent, content-less send.
+   *
+   * A rollback failure is logged rather than thrown, so the caller still sees the upload error
+   * that caused it — mirroring `SendApiService.generateRollbackCallback`, which the legacy
+   * upload path hands to `FileUploadService` for the same purpose.
+   */
+  private async rollbackFileSend(sendsClient: SendClient, sendId: SdkSendId): Promise<void> {
+    try {
+      await sendsClient.delete(sendId);
+    } catch (error: unknown) {
+      this.logService.error(`Failed to roll back file send after a failed upload: ${error}`);
+    }
+  }
+
+  /**
+   * Resolves the wire-encrypted form of a send the SDK just mutated.
+   *
+   * Prefers a refetch from the server. If that fails the mutation has still landed, so surfacing
+   * an error would invite a retry that duplicates the send; fall back to the copy the SDK wrote
+   * to local state (the send repository registered in `initializeClientManagedState`), and only
+   * rethrow if neither source can produce it.
+   */
+  private async refreshAfterMutation(sendId: string): Promise<Send> {
+    try {
+      return await this.refreshSendFromServer(sendId);
+    } catch (error) {
+      this.logService.error(`Send refresh failed after successful mutation: ${error}`);
+      const local = await this.sendService.getFromState(sendId);
+      if (local == null) {
+        throw error;
+      }
+      return local;
+    }
+  }
+
   // After the SDK executes a mutation server-side, refetch the wire-encrypted form via
   // the legacy API so InternalSendService stores EncString-shaped data and consumers
   // that decrypt the returned Send work correctly.
@@ -249,11 +424,15 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return new Send(data);
   }
 
-  private buildSendAddRequest(sendView: SendView, plaintextPassword?: string): SendAddRequest {
+  private buildSendAddRequest(
+    sendView: SendView,
+    plaintextPassword?: string,
+    fileName?: string,
+  ): SendAddRequest {
     return {
       name: sendView.name,
       notes: sendView.notes ?? undefined,
-      viewType: this.buildSendViewType(sendView),
+      viewType: this.buildSendViewType(sendView, fileName),
       maxAccessCount: sendView.maxAccessCount ?? undefined,
       disabled: sendView.disabled,
       hideEmail: sendView.hideEmail,
@@ -306,17 +485,24 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return sendView.deletionDate;
   }
 
-  private buildSendViewType(sendView: SendView): SendViewType {
+  /**
+   * @param fileName Overrides `sendView.file.fileName` for a file create. The Send form no
+   *   longer populates `sendView.file` for a new file (`FileUploadComponent` only ever hands
+   *   back a real `File`, not view metadata) — {@link createFileSend} derives the name from that
+   *   `File` directly, the same way the legacy path's `SendService.encrypt` does.
+   */
+  private buildSendViewType(sendView: SendView, fileName?: string): SendViewType {
     if (sendView.type === SendType.File) {
-      if (sendView.file == null || !sendView.file.fileName) {
+      const resolvedFileName = fileName ?? sendView.file?.fileName;
+      if (!resolvedFileName) {
         throw new Error("File send is missing a file name.");
       }
       return {
         File: {
-          id: sendView.file.id ?? undefined,
-          fileName: sendView.file.fileName,
-          size: sendView.file.size?.toString() ?? undefined,
-          sizeName: sendView.file.sizeName ?? undefined,
+          id: sendView.file?.id ?? undefined,
+          fileName: resolvedFileName,
+          size: sendView.file?.size?.toString() ?? undefined,
+          sizeName: sendView.file?.sizeName ?? undefined,
         },
       };
     }
