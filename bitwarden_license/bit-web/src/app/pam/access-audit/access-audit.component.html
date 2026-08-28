@@ -39,11 +39,6 @@
   }
   @case ("ready") {
     <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
-      <bit-search
-        class="tw-grow tw-max-w-md"
-        [placeholder]="'pamAuditSearchPlaceholder' | i18n"
-        [formControl]="searchControl"
-      ></bit-search>
       <bit-filter-menu
         key="kind"
         [placeholderText]="'pamAuditColumnEvent' | i18n"

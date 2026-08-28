@@ -27,7 +27,6 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     duration: { key: "pamInboxDurationHours", value: 4 },
     exactWindow: "6/30/26, 12:00 – 6/30/26, 16:00",
     extendedUntil: null,
-    searchText: "ada lovelace grace hopper prod db production",
     ...overrides,
   };
 }

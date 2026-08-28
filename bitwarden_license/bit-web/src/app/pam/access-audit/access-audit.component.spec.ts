@@ -80,7 +80,6 @@ describe("AccessAuditComponent", () => {
             pamAuditEmptyTitle: "No audit activity",
             pamAuditEmptyMessage: "Activity will appear here.",
             pamAccessRules: "Access rules",
-            pamAuditSearchPlaceholder: "Search the audit log",
             backTo: "Back to __$1__",
             viewItemsIn: "View items in __$1__",
             from: "From",
@@ -112,7 +111,6 @@ describe("AccessAuditComponent", () => {
             all: "All",
             removeItem: (name?: string) => `Remove ${name}`,
             search: "Search",
-            resetSearch: "Reset search",
             exportVerb: "Export",
             close: "Close",
           }),
@@ -324,21 +322,6 @@ describe("AccessAuditComponent", () => {
     expect(component().filteredRows()[0].actor).toBe("Ada");
   });
 
-  it("filters rows by free text over actor, requester, item, and detail", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
-      event({ ActorName: "Ada" }),
-      event({ ActorName: "Linus" }),
-    ]);
-
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    component().searchControl.setValue("ada");
-
-    expect(component().filteredRows()).toHaveLength(1);
-    expect(component().filteredRows()[0].actor).toBe("Ada");
-  });
-
   it("offers an actor option per identity that acted, plus the system bucket", async () => {
     auditApiService.listAccessAuditTrail.mockResolvedValue([
       event({ ActorId: "user-1", ActorName: "Ada" }),
@@ -490,7 +473,6 @@ describe("AccessAuditComponent", () => {
     expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledTimes(1);
     fixture.detectChanges();
 
-    component().searchControl.setValue("ada");
     kindChip().toggle("pamAuditKindLeaseActivated");
     component().actorControl.setValue("user-1");
     component().requesterControl.setValue("user-2");
@@ -565,7 +547,9 @@ describe("AccessAuditComponent", () => {
     });
 
     it("disables Export while no row matches the filters", async () => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue([event({ ActorName: "Ada" })]);
+      auditApiService.listAccessAuditTrail.mockResolvedValue([
+        event({ Kind: "requestApproved", ActorName: "Ada" }),
+      ]);
 
       fixture.detectChanges();
       await fixture.whenStable();
@@ -574,7 +558,7 @@ describe("AccessAuditComponent", () => {
       const button = fixture.nativeElement.querySelector("#access-audit_button_export");
       expect(button.getAttribute("aria-disabled")).toBeNull();
 
-      component().searchControl.setValue("nothing matches this");
+      kindChip().toggle("pamAuditKindLeaseActivated");
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();

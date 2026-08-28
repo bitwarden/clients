@@ -2,7 +2,7 @@ import { importProvidersFrom } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
-import { userEvent } from "storybook/test";
+import { fireEvent } from "storybook/test";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -236,13 +236,14 @@ export const SingleEvent: Story = {
 };
 
 /**
- * A search that matches nothing. Export is disabled alongside the no-matches callout: the file follows the
- * filtered table, so with nothing on screen there is nothing to download.
+ * A filter that matches nothing — a From bound later than every event in the trail. Export is disabled
+ * alongside the no-matches callout: the file follows the filtered table, so with nothing on screen there is
+ * nothing to download.
  */
 export const NoMatches: Story = {
   decorators: [audit()],
   play: async ({ canvasElement }) => {
-    const search = canvasElement.querySelector<HTMLInputElement>('input[name="searchText"]')!;
-    await userEvent.type(search, "nothing matches this");
+    const from = canvasElement.querySelector<HTMLInputElement>("#access-audit_input_from")!;
+    await fireEvent.input(from, { target: { value: "2999-01-01T00:00" } });
   },
 };
