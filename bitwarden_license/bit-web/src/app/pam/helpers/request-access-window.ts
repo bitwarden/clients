@@ -23,7 +23,7 @@ export type RequestWindowFormValue = {
 };
 
 /** The ways a fully-populated requested window can be invalid. */
-export type RequestWindowProblem = "endBeforeStart" | "exceedsMaxWindow";
+export type RequestWindowProblem = "endBeforeStart" | "endInPast" | "exceedsMaxWindow";
 
 /**
  * Compose the form's local date + times into an absolute window. Returns `null` while any field is
@@ -48,17 +48,27 @@ export function composeRequestWindow(
 }
 
 /**
- * Validate a requested window, mirroring the two checks the server enforces: the end must be
- * strictly after the start, and the span must fit inside `maxWindowSeconds`. Returns `null` for a
- * valid window and for an incomplete one — an unfinished form is not yet wrong.
+ * Validate a requested window, mirroring the three checks the server enforces: the end must be
+ * strictly after the start, the window must not have already elapsed, and the span must fit inside
+ * `maxWindowSeconds`. Returns `null` for a valid window and for an incomplete one — an unfinished
+ * form is not yet wrong.
  *
  * `maxWindowSeconds` is the governing rule's cap as the pre-check published it, defaulting to the
  * global ceiling for a caller that has not resolved one. Checking only the global ceiling let a
  * window past the rule's own maximum look valid right up until submit rejected it.
+ *
+ * `now` is the instant the window is measured against, injectable so this stays testable without a
+ * fake clock. The check is on the END, not the start: a window that has merely STARTED is still
+ * usable, and the form seeds `start` at `now`, so rejecting a past start would fail every request
+ * where the requester paused to type a justification. A window whose end has passed is the one
+ * that can never be activated — `ActivateAccessRequestCommand` refuses it with "The approved access
+ * window has already ended", so without this check the requester lands a pending request that is
+ * dead on arrival yet still reaches an approver (PM-42592).
  */
 export function requestWindowProblem(
   value: RequestWindowFormValue,
   maxWindowSeconds: number = MAX_REQUEST_ACCESS_WINDOW_SECONDS,
+  now: Date = new Date(),
 ): RequestWindowProblem | null {
   const window = composeRequestWindow(value);
   if (window == null) {
@@ -67,6 +77,12 @@ export function requestWindowProblem(
   const spanMs = window.end.getTime() - window.start.getTime();
   if (spanMs <= 0) {
     return "endBeforeStart";
+  }
+  // Ordered ahead of the span check on purpose: an elapsed window is wrong wherever it sits, and
+  // "move it into the future" is the fix the requester has to make first. Length only matters once
+  // the window is somewhere it could run.
+  if (window.end.getTime() <= now.getTime()) {
+    return "endInPast";
   }
   return spanMs > maxWindowSeconds * 1000 ? "exceedsMaxWindow" : null;
 }

@@ -16,22 +16,28 @@ export const REQUEST_WINDOW_ERROR_KEY = "requestWindow";
 export type RequestWindowError = { problem: RequestWindowProblem; message: string };
 
 /**
- * End-time validator for the human-path window: rejects an end at or before the start, and a span
- * past the cap the governing rule allows. The rules themselves live in
- * `helpers/request-access-window` (`requestWindowProblem`) so they stay Angular-free and
+ * End-time validator for the human-path window: rejects an end at or before the start, a window
+ * that has already elapsed, and a span past the cap the governing rule allows. The rules themselves
+ * live in `helpers/request-access-window` (`requestWindowProblem`) so they stay Angular-free and
  * unit-testable without a form; this is only the reactive-forms adapter. Stays quiet while the
  * window is incomplete.
  *
  * Field-level rather than group-level so `bit-form-field` renders it in the End time slot, which is
- * what carries the control association, the invalid styling and the live announcement.
+ * what carries the control association, the invalid styling and the live announcement. That slot
+ * holds the past-window message too, even though a past DATE is what usually causes it: the date
+ * and both times compose into one window, and splitting the verdict across three fields would make
+ * the same problem render up to three times.
  *
  * A factory rather than a bare validator because the cap is per-rule and is not known until the
  * pre-check lands. `maxWindowSeconds` is read through a callback rather than captured, so
- * re-opening the fold-out against a different rule does not leave a stale cap behind.
+ * re-opening the fold-out against a different rule does not leave a stale cap behind. `now` is a
+ * callback for the same reason — read per run, so a form left open does not keep validating against
+ * the instant it was built.
  */
 export function requestWindowEndValidator(
   maxWindowSeconds: () => number,
   message: (problem: RequestWindowProblem, maxWindowSeconds: number) => string,
+  now: () => Date = () => new Date(),
 ): (control: AbstractControl) => ValidationErrors | null {
   return (control) => {
     const group = control.parent;
@@ -47,7 +53,7 @@ export function requestWindowEndValidator(
       end: control.value,
     };
     const max = maxWindowSeconds();
-    const problem = requestWindowProblem(requested, max);
+    const problem = requestWindowProblem(requested, max, now());
     if (problem == null) {
       return null;
     }
