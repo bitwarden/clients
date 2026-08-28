@@ -16,7 +16,6 @@ export class CollectionExport {
     const req = new CollectionExport();
     req.organizationId = emptyGuid as OrganizationId;
     req.name = "Collection name";
-    req.externalId = null;
     return req;
   }
 
@@ -41,7 +40,7 @@ export class CollectionExport {
 
   organizationId: OrganizationId;
   name: string;
-  externalId: string;
+  externalId?: string;
 
   // Use build method instead of ctor so that we can control order of JSON stringify for pretty print
   build(o: CollectionView | CollectionDomain) {
