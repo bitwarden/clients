@@ -689,6 +689,7 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
 
       const focused = document.activeElement as HTMLElement | null;
+      expect(focused).not.toBe(document.body);
       expect(focused?.contains(query("#pam-cipher-view-banner_button_request-cancel"))).toBe(true);
     });
 
