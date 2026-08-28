@@ -50,6 +50,16 @@
       }
 
       <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
+      @if (customerDiscount()?.id === "sm-standalone") {
+        <p bitTypography="body1">
+          {{ "smStandaloneTrialSeatCountUpdateMessageFragment1" | i18n }}
+          {{ "passwordManager" | i18n }}
+          {{ "smStandaloneTrialSeatCountUpdateMessageFragment2" | i18n }}
+          <a href="https://bitwarden.com/contact/" target="_blank" rel="noreferrer">
+            {{ "contactSupportShort" | i18n }}.
+          </a>
+        </p>
+      }
       <p bitTypography="body1">{{ subscriptionDesc() }}</p>
 
       @if (canAdjustSubscription()) {
