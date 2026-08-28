@@ -23,11 +23,11 @@ import { VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
 
 import { PremiumSubscriptionRoutingService } from "../billing/individual/services/premium-subscription-routing.service";
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
-import { PamUserNavSlotComponent } from "../pam/user-nav-slot/pam-user-nav-slot.component";
+import { UserLayoutComponent } from "../layouts/user-layout.component";
+import { WebLayoutModule } from "../layouts/web-layout.module";
 import { CoachmarkComponent, CoachmarkService } from "../vault/components/coachmark";
 
-import { UserLayoutComponent } from "./user-layout.component";
-import { WebLayoutModule } from "./web-layout.module";
+import { PamUserNavSlotComponent } from "./user-nav-slot/pam-user-nav-slot.component";
 
 @Component({
   selector: "app-layout",
@@ -116,12 +116,15 @@ Object.defineProperty(window, "matchMedia", {
 
 /**
  * The side nav's ~20 items use RELATIVE routes (`route="settings/account"`), and Angular resolves
- * a relative `routerLink` against the `ActivatedRoute` of the component rendering it. Mounting a
- * second `UserLayoutComponent` at a top-level path therefore silently re-bases the whole nav
- * beneath that path. This pins the property that keeps the links correct: however deep the user
- * navigates, the layout stays mounted at the root and its links stay root-relative.
+ * a relative `routerLink` against the `ActivatedRoute` of the component rendering it. Mounting PAM
+ * under a second `UserLayoutComponent` at a top-level path therefore silently re-bases the whole
+ * nav beneath `/pam`. This pins the constraint that mounting PAM places on itself: it joins the
+ * root layout as a child, so the shared nav's links stay root-relative while a PAM page is open.
+ *
+ * `UserLayoutComponent` is the fixture here, not the subject — the nav is free to switch to
+ * absolute routes without touching this spec; only a change to where PAM mounts breaks it.
  */
-describe("UserLayoutComponent nav link resolution", () => {
+describe("PAM mount / shared nav link resolution", () => {
   const flag$ = new BehaviorSubject<boolean>(true);
   const viewModel$ = new BehaviorSubject<VaultsNavViewModel>(emptyViewModel);
   const canArchive$ = new BehaviorSubject<boolean>(true);
