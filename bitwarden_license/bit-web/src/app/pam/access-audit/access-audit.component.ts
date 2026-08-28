@@ -43,6 +43,7 @@ import { AccessNameResolverService } from "../access-requests/access-name-resolv
 
 import {
   AUTOMATED_ACTOR,
+  AuditFilter,
   AuditRow,
   auditRangeEnd,
   auditRangeStart,
@@ -53,24 +54,24 @@ import { AuditApiService } from "./audit-api.service";
 
 type AuditStatus = "loading" | "ready" | "empty" | "error";
 
+type AuditChipOption = { label: string; value: string };
+
+const byLabel = (a: AuditChipOption, b: AuditChipOption) => a.label.localeCompare(b.label);
+
 /**
  * One chip option per distinct identity in `rows`, labelled the way the cells label it. A row whose identity
  * resolved to neither a name nor an email is skipped rather than offered under its raw id.
  */
-function identityOptions(
-  rows: AuditRow[],
-  id: (row: AuditRow) => string | null,
-  label: (row: AuditRow) => string | null,
-): ChipFilterOption<string>[] {
+function identityOptions(rows: AuditRow[], identity: "actor" | "requester"): AuditChipOption[] {
   const labelById = new Map<string, string>();
   for (const row of rows) {
-    const value = id(row);
-    const text = label(row);
-    if (value != null && text != null && !labelById.has(value)) {
-      labelById.set(value, text);
+    const value = row[`${identity}Id`];
+    const label = row[identity];
+    if (value != null && label != null && !labelById.has(value)) {
+      labelById.set(value, label);
     }
   }
-  return [...labelById].map(([value, text]) => ({ label: text, value }));
+  return [...labelById].map(([value, label]) => ({ label, value }));
 }
 
 /**
@@ -200,7 +201,7 @@ export class AccessAuditComponent implements OnInit {
   protected readonly kindOptions = computed(() =>
     [...new Set(this.rows().map((row) => row.kindLabelKey))]
       .map((labelKey) => ({ label: this.i18nService.t(labelKey), value: labelKey }))
-      .sort((a, b) => a.label.localeCompare(b.label)),
+      .sort(byLabel),
   );
 
   /** Actor chip options: the identities that actually acted, plus the system bucket when the trail has one. */
@@ -208,36 +209,30 @@ export class AccessAuditComponent implements OnInit {
     const rows = this.rows();
     const options = identityOptions(
       rows.filter((row) => !row.automated),
-      (row) => row.actorId,
-      (row) => row.actor,
+      "actor",
     );
     if (rows.some((row) => row.automated)) {
       options.push({ label: this.i18nService.t("pamAuditSystem"), value: AUTOMATED_ACTOR });
     }
-    return options.sort((a, b) => a.label.localeCompare(b.label));
+    return options.sort(byLabel);
   });
 
   /** Requester chip options: the identities whose access the trail records. */
   protected readonly requesterOptions = computed<ChipFilterOption<string>[]>(() =>
-    identityOptions(
-      this.rows(),
-      (row) => row.requesterId,
-      (row) => row.requester,
-    ).sort((a, b) => a.label.localeCompare(b.label)),
+    identityOptions(this.rows(), "requester").sort(byLabel),
   );
 
   protected readonly filteredRows = computed(() => {
     const inverted = this.invertedRange();
-    return this.rows().filter((row) =>
-      auditRowMatchesFilter(row, {
-        text: this.searchText(),
-        kindLabelKey: this.kindValue(),
-        actorId: this.actorValue(),
-        requesterId: this.requesterValue(),
-        from: inverted ? null : this.rangeStart(),
-        to: inverted ? null : this.rangeEnd(),
-      }),
-    );
+    const filter: AuditFilter = {
+      text: this.searchText(),
+      kindLabelKey: this.kindValue(),
+      actorId: this.actorValue(),
+      requesterId: this.requesterValue(),
+      from: inverted ? null : this.rangeStart(),
+      to: inverted ? null : this.rangeEnd(),
+    };
+    return this.rows().filter((row) => auditRowMatchesFilter(row, filter));
   });
 
   async ngOnInit(): Promise<void> {
