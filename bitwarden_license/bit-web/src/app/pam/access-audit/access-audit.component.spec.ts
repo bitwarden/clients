@@ -1,17 +1,27 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import * as papa from "papaparse";
 import { of } from "rxjs";
 
+import {
+  OrganizationUserApiService,
+  OrganizationUserUserMiniResponse,
+} from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { FilterMenuComponent, FilterOptionComponent, I18nMockService } from "@bitwarden/components";
+import {
+  DialogService,
+  FilterMenuComponent,
+  FilterOptionComponent,
+  I18nMockService,
+} from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import {
@@ -42,19 +52,36 @@ function event(overrides: Record<string, unknown> = {}): AccessAuditEventRespons
   });
 }
 
+/**
+ * One entry of `getAllMiniUserDetails`, which is what bridges the PLATFORM user id an audit row carries
+ * to the ORGANIZATION USER id the entity-events dialog is keyed on.
+ */
+function member(userId: string, organizationUserId: string, name: string, email: string) {
+  return { userId, id: organizationUserId, name, email };
+}
+
+function miniUserDetails(members: ReturnType<typeof member>[]) {
+  return { data: members } as unknown as ListResponse<OrganizationUserUserMiniResponse>;
+}
+
 describe("AccessAuditComponent", () => {
   let fixture: ComponentFixture<AccessAuditComponent>;
   let auditApiService: MockProxy<AuditApiService>;
   let nameResolver: MockProxy<AccessNameResolverService>;
   let fileDownloadService: MockProxy<FileDownloadService>;
+  let organizationUserApiService: MockProxy<OrganizationUserApiService>;
+  let dialogService: MockProxy<DialogService>;
 
   const configureTestBed = async (canManageAccessRules = true) => {
     await TestBed.configureTestingModule({
       imports: [AccessAuditComponent],
       providers: [
+        provideRouter([]),
         { provide: AuditApiService, useValue: auditApiService },
         { provide: AccessNameResolverService, useValue: nameResolver },
         { provide: FileDownloadService, useValue: fileDownloadService },
+        { provide: OrganizationUserApiService, useValue: organizationUserApiService },
+        { provide: DialogService, useValue: dialogService },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: ActivatedRoute,
@@ -133,7 +160,15 @@ describe("AccessAuditComponent", () => {
     auditApiService = mock<AuditApiService>();
     nameResolver = mock<AccessNameResolverService>();
     fileDownloadService = mock<FileDownloadService>();
+    organizationUserApiService = mock<OrganizationUserApiService>();
+    dialogService = mock<DialogService>();
     nameResolver.resolveNames.mockResolvedValue(emptyResolvedNames());
+    organizationUserApiService.getAllMiniUserDetails.mockResolvedValue(
+      miniUserDetails([
+        member("user-1", "org-user-1", "Ada", "ada@example.com"),
+        member("user-2", "org-user-2", "Grace", "grace@example.com"),
+      ]),
+    );
 
     await configureTestBed();
   });
@@ -566,6 +601,190 @@ describe("AccessAuditComponent", () => {
       expect(button.getAttribute("aria-disabled")).toBe("true");
       button.click();
       expect(fileDownloadService.download).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("entity event history links", () => {
+    const render = async (events: AccessAuditEventResponse[]) => {
+      auditApiService.listAccessAuditTrail.mockResolvedValue(events);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const link = (name: string): HTMLAnchorElement | null =>
+      fixture.nativeElement.querySelector(`#access-audit_link_${name}-0`);
+
+    const cells = (): HTMLElement[] =>
+      Array.from(fixture.nativeElement.querySelectorAll("bit-table tbody tr td"));
+
+    /** The params the one opened dialog was configured with. */
+    const dialogData = () =>
+      (dialogService.open.mock.calls[0][1] as { data: Record<string, unknown> }).data;
+
+    const resolveCipherName = (cipherId: string, name: string) => {
+      nameResolver.resolveNames.mockResolvedValue({
+        ...emptyResolvedNames(),
+        cipherNameById: new Map([[cipherId, name]]),
+      });
+    };
+
+    it("opens an actor's event history from their name", async () => {
+      await render([event({ ActorId: "user-1", ActorName: "Ada" })]);
+
+      const anchor = link("actor")!;
+      expect(anchor).not.toBeNull();
+      expect(anchor.textContent!.trim()).toBe("Ada");
+      expect(anchor.getAttribute("title")).toBe("ada@example.com");
+      // Focusable and Enter-activatable as a native anchor, rather than a click-only span.
+      expect(anchor.getAttribute("href")).toBe("#");
+
+      anchor.click();
+
+      expect(dialogService.open).toHaveBeenCalledTimes(1);
+      // The dialog is keyed on the ORGANIZATION USER id, not the platform user id the row carries.
+      expect(dialogData()).toEqual({
+        entity: "user",
+        entityId: "org-user-1",
+        organizationId: ORGANIZATION_ID,
+        name: "Ada",
+        showUser: true,
+      });
+    });
+
+    it("opens a requester's event history from their name", async () => {
+      await render([event({ RequesterId: "user-2", RequesterName: "Grace" })]);
+
+      const anchor = link("requester")!;
+      expect(anchor).not.toBeNull();
+      expect(anchor.getAttribute("title")).toBe("grace@example.com");
+
+      anchor.click();
+
+      expect(dialogData()).toEqual({
+        entity: "user",
+        entityId: "org-user-2",
+        organizationId: ORGANIZATION_ID,
+        name: "Grace",
+        showUser: true,
+      });
+    });
+
+    it("opens the item's event history from a cipher row", async () => {
+      resolveCipherName("cipher-1", "Prod database");
+      await render([event({ CipherId: "cipher-1", CollectionId: "col-1" })]);
+
+      const anchor = link("item")!;
+      expect(anchor).not.toBeNull();
+      expect(anchor.textContent!.trim()).toBe("Prod database");
+
+      anchor.click();
+
+      expect(dialogData()).toEqual({
+        entity: "cipher",
+        entityId: "cipher-1",
+        organizationId: ORGANIZATION_ID,
+        name: "Prod database",
+        showUser: true,
+      });
+    });
+
+    // The automated bucket is not a member, so there is no event history behind it.
+    it("leaves the System actor as plain text", async () => {
+      await render([event({ ActorId: "user-1", ActorName: "Ada", Automated: true })]);
+
+      expect(link("actor")).toBeNull();
+      expect(cells()[2].textContent).toContain("System");
+    });
+
+    it("leaves an identity the member lookup did not resolve as plain text", async () => {
+      await render([
+        event({
+          ActorId: "user-9",
+          ActorName: "Linus",
+          RequesterId: "user-9",
+          RequesterName: "Linus",
+        }),
+      ]);
+
+      expect(link("actor")).toBeNull();
+      expect(link("requester")).toBeNull();
+      expect(cells()[2].textContent).toContain("Linus");
+      expect(cells()[3].textContent).toContain("Linus");
+    });
+
+    // There is no entity-events dialog for an access rule, and the rule editor is behind
+    // canManageAccessRules, which this page's guard does not imply.
+    it("leaves a rule name as plain text", async () => {
+      await render([event({ Kind: "ruleCreated", RuleName: "Production access" })]);
+
+      expect(link("item")).toBeNull();
+      expect(cells()[4].textContent).toContain("Production access");
+    });
+
+    // An item outside the viewer's own vault has no decrypted name to render as link text.
+    it("leaves an item that did not decrypt unlinked", async () => {
+      await render([event({ CipherId: "cipher-1", CollectionId: "col-1" })]);
+
+      expect(link("item")).toBeNull();
+      expect(cells()[4].textContent).toContain("—");
+    });
+
+    // An auditor mid-table expects to keep their place; the organization event log's own member link
+    // routes on to the members page, which sits behind a permission this page's viewer need not hold.
+    it("does not navigate away when a dialog is opened", async () => {
+      const router = TestBed.inject(Router);
+      const navigate = jest.spyOn(router, "navigate").mockResolvedValue(true);
+      const navigateByUrl = jest.spyOn(router, "navigateByUrl").mockResolvedValue(true);
+
+      await render([event({ ActorId: "user-1", ActorName: "Ada" })]);
+      link("actor")!.click();
+      link("requester")!.click();
+
+      expect(dialogService.open).toHaveBeenCalledTimes(2);
+      expect(navigate).not.toHaveBeenCalled();
+      expect(navigateByUrl).not.toHaveBeenCalled();
+    });
+
+    // AccessEventLogs authorizes this trail but does not imply permission to enumerate members, so a
+    // refused lookup is an ordinary outcome for a legitimate viewer — not a reason to fail the page.
+    it("renders the whole trail with nothing linked when the member lookup fails", async () => {
+      organizationUserApiService.getAllMiniUserDetails.mockRejectedValue(new Error("forbidden"));
+      resolveCipherName("cipher-1", "Prod database");
+
+      await expect(
+        render([
+          event({ ActorId: "user-1", ActorName: "Ada" }),
+          event({ CipherId: "cipher-1", CollectionId: "col-1" }),
+        ]),
+      ).resolves.not.toThrow();
+
+      expect(component().status()).toBe("ready");
+      expect(component().rows()).toHaveLength(2);
+      expect(link("actor")).toBeNull();
+      expect(link("requester")).toBeNull();
+      expect(cells()[2].textContent).toContain("Ada");
+      expect(TestBed.inject(LogService).error).toHaveBeenCalled();
+    });
+
+    // The cipher link is resolved from local vault state, not from the member lookup, so it survives.
+    it("still links the item when only the member lookup failed", async () => {
+      organizationUserApiService.getAllMiniUserDetails.mockRejectedValue(new Error("forbidden"));
+      resolveCipherName("cipher-1", "Prod database");
+
+      await render([event({ CipherId: "cipher-1", CollectionId: "col-1" })]);
+
+      expect(link("item")).not.toBeNull();
+    });
+
+    it("reads the member lookup once per load, not once per row", async () => {
+      await render([event(), event(), event()]);
+
+      expect(organizationUserApiService.getAllMiniUserDetails).toHaveBeenCalledTimes(1);
+      expect(organizationUserApiService.getAllMiniUserDetails).toHaveBeenCalledWith(
+        ORGANIZATION_ID,
+      );
     });
   });
 
