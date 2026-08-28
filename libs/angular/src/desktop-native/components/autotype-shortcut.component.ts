@@ -48,7 +48,6 @@ export class AutotypeShortcutComponent {
 
   setShortcutForm = this.formBuilder.group({
     shortcut: ["", [Validators.required, this.shortcutCombinationValidator()]],
-    requireMasterPasswordOnClientRestart: true,
   });
 
   submit = async () => {
