@@ -309,7 +309,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   protected readonly visibleColumns = computed<VaultItemsTableColumn[]>(() => {
     const hidden = new Set<VaultItemsTableColumn>();
-    if (!this.multipleVaults()) {
+    if (!this.showVaults()) {
       hidden.add("vault");
     }
     if (!this.showSharedFolders()) {
@@ -377,9 +377,10 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * Whether the Shared folders chip has nothing to offer: either no cipher belongs to an org,
    * or no collections have been provided to populate the dropdown.
    */
-  protected readonly noSharedFolderOptions = computed(
-    () => !this.showSharedFolders() || !this.collections().length,
-  );
+  protected readonly noSharedFolderOptions = computed(() => {
+    const allPersonalCiphers = this.ciphers().every((cipher) => cipher.organizationId == null);
+    return allPersonalCiphers || !this.collections().length;
+  });
 
   /** Tooltip for the disabled Shared folders chip — see {@link favoritesDisabledTooltip}. */
   protected readonly sharedFolderDisabledTooltip = computed(() =>
@@ -405,39 +406,36 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   }
 
   /**
-   * The distinct vaults {@link ciphers} span, as the values the Vault chip offers: an organization
-   * id per organization {@link organizations} can name, plus {@link MY_VAULT} when any cipher is
-   * individually owned.
+   * Whether there are any ciphers that belong to the personal vault.
    */
-  private readonly presentVaults = computed(() => {
-    const names = this.organizationNames();
-    const vaults = new Set<string>();
-    for (const cipher of this.ciphers()) {
-      const organizationId = idString(cipher.organizationId);
-      if (!organizationId) {
-        vaults.add(MY_VAULT);
-      } else if (names.has(organizationId)) {
-        vaults.add(organizationId);
-      }
-    }
-    return vaults;
-  });
-
-  /**
-   * Whether the rows span more than one vault. Used to determine Vault column/filter visbility.
-   */
-  protected readonly multipleVaults = computed(() => this.presentVaults().size > 1);
+  private readonly hasPersonalCiphers = computed(() =>
+    this.ciphers().some((cipher) => !idString(cipher.organizationId)),
+  );
 
   /**
    * Whether the Vault chip offers "My vault".
    */
   protected readonly showMyVaultOption = computed(() => {
-    const hasPersonalCiphers = this.presentVaults().has(MY_VAULT);
     const canHaveEmptyPersonalVault =
       !this.ciphers().filter((cipher) => !cipher.organizationId).length &&
       !this.scopedOrganizationId() &&
       !this.orgRequiresDataOwnership();
-    return hasPersonalCiphers || canHaveEmptyPersonalVault;
+    return this.hasPersonalCiphers() || canHaveEmptyPersonalVault;
+  });
+
+  /**
+   * Whether the Vault chip and column should be shown.
+   *
+   * Shown when the user's items can span more than one vault:
+   * - multiple organizations are present (user can filter between them), or
+   * - exactly one organization is present alongside a personal vault option
+   *   (user can distinguish personal items from org-owned ones).
+   */
+  protected readonly showVaults = computed(() => {
+    const hasMultipleVaults = this.sortedOrganizations().length > 1;
+    const hasPersonalAndOrgVault =
+      this.showMyVaultOption() && this.sortedOrganizations().length === 1;
+    return hasMultipleVaults || hasPersonalAndOrgVault;
   });
 
   /**
@@ -449,11 +447,12 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   );
 
   /**
-   * Whether the Shared folders chip has anything to offer — only when some cipher belongs to an organization
+   * Whether the Shared folders chip and column should be shown.
+   *
+   * Driven by the organizations input rather than the cipher rows, so the chip stays
+   * visible even when org-owned ciphers are filtered out.
    */
-  protected readonly showSharedFolders = computed(() =>
-    this.ciphers().some((cipher) => cipher.organizationId != null),
-  );
+  protected readonly showSharedFolders = computed(() => this.organizations().length > 0);
 
   /** The Shared folders chip's options, sorted for a stable menu, when it isn't grouped. */
   protected readonly sortedCollections = computed(() =>

@@ -685,68 +685,6 @@ describe("VaultItemsTableComponent", () => {
       ]);
     });
 
-    describe("multipleVaults", () => {
-      it("is false when every cipher is in the individual vault", () => {
-        fixture.componentRef.setInput("ciphers", [cipherView({ organizationId: undefined })]);
-
-        expect(component["multipleVaults"]()).toBe(false);
-      });
-
-      /** The side-nav pre-filter case: one vault on screen, so the chip can't narrow anything. */
-      it("is false when every cipher is in the same organization", () => {
-        fixture.componentRef.setInput("ciphers", [
-          cipherView({ id: "a", organizationId: "org-1" as never }),
-          cipherView({ id: "b", organizationId: "org-1" as never }),
-        ]);
-
-        expect(component["multipleVaults"]()).toBe(false);
-      });
-
-      it("is true when ciphers span the individual vault and an organization", () => {
-        fixture.componentRef.setInput("ciphers", [
-          cipherView({ id: "a", organizationId: undefined }),
-          cipherView({ id: "b", organizationId: "org-1" as never }),
-        ]);
-
-        expect(component["multipleVaults"]()).toBe(true);
-      });
-
-      it("is true when ciphers span two organizations", () => {
-        fixture.componentRef.setInput("ciphers", [
-          cipherView({ id: "a", organizationId: "org-1" as never }),
-          cipherView({ id: "b", organizationId: "org-2" as never }),
-        ]);
-
-        expect(component["multipleVaults"]()).toBe(true);
-      });
-
-      /** Nothing to name the organizations with, so the chip would have no options to offer. */
-      it("stays false when the caller supplies no organizations", () => {
-        fixture.componentRef.setInput("organizations", []);
-        fixture.componentRef.setInput("ciphers", [
-          cipherView({ id: "a", organizationId: undefined }),
-          cipherView({ id: "b", organizationId: "org-1" as never }),
-        ]);
-
-        expect(component["multipleVaults"]()).toBe(false);
-      });
-
-      it("ignores an organization the caller didn't supply, since the chip can't offer it", () => {
-        fixture.componentRef.setInput("ciphers", [
-          cipherView({ id: "a", organizationId: undefined }),
-          cipherView({ id: "b", organizationId: "org-unknown" as never }),
-        ]);
-
-        expect(component["multipleVaults"]()).toBe(false);
-      });
-
-      it("is false when there are no ciphers", () => {
-        fixture.componentRef.setInput("ciphers", []);
-
-        expect(component["multipleVaults"]()).toBe(false);
-      });
-    });
-
     describe("chip options", () => {
       it("includes all organizations regardless of which hold ciphers", () => {
         fixture.componentRef.setInput("ciphers", [
@@ -797,11 +735,12 @@ describe("VaultItemsTableComponent", () => {
     });
 
     describe("visibleColumns", () => {
-      it("drops the Vault column when every row is in the same vault", () => {
-        fixture.componentRef.setInput("ciphers", [
-          cipherView({ id: "a", organizationId: "org-1" as never }),
-          cipherView({ id: "b", organizationId: "org-1" as never }),
+      it("drops the Vault column when there is one organization and no personal vault option", () => {
+        fixture.componentRef.setInput("organizations", [
+          { id: "org-1", name: "Acme corporation" } as Organization,
         ]);
+        // Scoping to the org suppresses the My vault option, leaving nothing to distinguish.
+        fixture.componentRef.setInput("scopedOrganizationId", "org-1" as never);
 
         expect(component["visibleColumns"]()).not.toContain("vault");
       });
@@ -824,7 +763,7 @@ describe("VaultItemsTableComponent", () => {
   });
 
   describe("showSharedFolders", () => {
-    it("is false when every row is individually owned, which can't be in a collection", () => {
+    it("is false when no organizations are provided, regardless of cipher ownership", () => {
       fixture.componentRef.setInput("ciphers", [
         cipherView({ id: "a", organizationId: undefined }),
         cipherView({ id: "b", organizationId: undefined }),
@@ -834,10 +773,9 @@ describe("VaultItemsTableComponent", () => {
       expect(component["visibleColumns"]()).not.toContain("sharedFolders");
     });
 
-    it("is true when any row is organization-owned", () => {
-      fixture.componentRef.setInput("ciphers", [
-        cipherView({ id: "a", organizationId: undefined }),
-        cipherView({ id: "b", organizationId: "org-1" as never }),
+    it("is true when organizations are provided", () => {
+      fixture.componentRef.setInput("organizations", [
+        { id: "org-1", name: "Acme corporation" } as Organization,
       ]);
 
       expect(component["showSharedFolders"]()).toBe(true);
@@ -845,19 +783,19 @@ describe("VaultItemsTableComponent", () => {
     });
 
     /**
-     * Collection membership doesn't depend on the caller naming the organization, so this differs
-     * from `multipleVaults` — which ignores organizations it can't name.
+     * Unlike the vault column, the shared folders chip does not require org-owned ciphers to be
+     * visible — organizations alone determine visibility, so the chip stays stable as rows filter.
      */
-    it("is true for an organization the caller didn't supply", () => {
+    it("is false when org-owned ciphers exist but no organizations are provided", () => {
       fixture.componentRef.setInput("organizations", []);
       fixture.componentRef.setInput("ciphers", [
         cipherView({ organizationId: "org-unknown" as never }),
       ]);
 
-      expect(component["showSharedFolders"]()).toBe(true);
+      expect(component["showSharedFolders"]()).toBe(false);
     });
 
-    it("is false when there are no ciphers", () => {
+    it("is false when no organizations are provided and there are no ciphers", () => {
       fixture.componentRef.setInput("ciphers", []);
 
       expect(component["showSharedFolders"]()).toBe(false);
@@ -1024,7 +962,7 @@ describe("VaultItemsTableComponent", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
         { id: "org-1", name: "Acme" } as Organization,
-        // A second org is required for the Vault chip to render (organizations().length > 1).
+        // Two orgs ensure the Vault chip renders via the multiple-vaults path.
         { id: "org-2", name: "Contoso" } as Organization,
       ]);
       fixture.componentRef.setInput("collections", [
