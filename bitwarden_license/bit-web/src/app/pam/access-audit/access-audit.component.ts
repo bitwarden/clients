@@ -7,7 +7,7 @@ import {
   effect,
   inject,
   signal,
-  viewChild,
+  viewChildren,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule, ValidatorFn } from "@angular/forms";
@@ -29,11 +29,9 @@ import {
   BadgeModule,
   ButtonModule,
   CalloutModule,
-  ChipFilterComponent,
-  ChipFilterOption,
   DialogService,
-  FilterMenuComponent,
-  FilterOptionComponent,
+  FILTER_CONTROL,
+  FilterMenuModule,
   FormFieldModule,
   LinkModule,
   StatusLockupComponent,
@@ -66,6 +64,16 @@ import { AuditExportService } from "./audit-export.service";
 type AuditStatus = "loading" | "ready" | "empty" | "error";
 
 type AuditChipOption = { label: string; value: string };
+
+/**
+ * The chips' keys. A `bit-filter-menu` owns its own selection and reports it under its key rather than
+ * through a form control, so these are how the filter predicate reaches each chip's value.
+ */
+const FILTER_KEYS = {
+  kind: "kind",
+  actor: "actor",
+  requester: "requester",
+} as const;
 
 const byLabel = (a: AuditChipOption, b: AuditChipOption) => a.label.localeCompare(b.label);
 
@@ -136,9 +144,7 @@ function identityOptions(rows: AuditRow[], identity: "actor" | "requester"): Aud
     BadgeModule,
     ButtonModule,
     CalloutModule,
-    ChipFilterComponent,
-    FilterMenuComponent,
-    FilterOptionComponent,
+    FilterMenuModule,
     FormFieldModule,
     HeaderModule,
     LinkModule,
@@ -200,23 +206,19 @@ export class AccessAuditComponent implements OnInit {
    * has bridged the two.
    */
   private readonly members = signal(new Map<string, ResolvedMember>());
-  protected readonly actorControl = new FormControl<string | null>(null);
-  protected readonly requesterControl = new FormControl<string | null>(null);
+
+  protected readonly filterKeys = FILTER_KEYS;
+
+  /**
+   * The filter chips, which own their own selections. Read through the {@link FilterControl} contract
+   * rather than a host bridge: this page is not a filterable surface with rows to facet, it is a few
+   * independent chips over one already-fetched array.
+   */
+  private readonly filterControls = viewChildren(FILTER_CONTROL);
+
   protected readonly fromControl = new FormControl("", { nonNullable: true });
   protected readonly toControl = new FormControl("", { nonNullable: true });
 
-  /**
-   * The Event chip. `bit-filter-menu` is not a `ControlValueAccessor` — it owns its selection and
-   * publishes it as a signal, so the filter reads the chip directly rather than a form control
-   * bound to it.
-   */
-  private readonly kindMenu = viewChild(FilterMenuComponent);
-
-  private readonly kindValue = computed(() => (this.kindMenu()?.value() ?? null) as string | null);
-  private readonly actorValue = toSignal(this.actorControl.valueChanges, { initialValue: null });
-  private readonly requesterValue = toSignal(this.requesterControl.valueChanges, {
-    initialValue: null,
-  });
   private readonly fromValue = toSignal(this.fromControl.valueChanges, { initialValue: "" });
   private readonly toValue = toSignal(this.toControl.valueChanges, { initialValue: "" });
 
@@ -242,13 +244,13 @@ export class AccessAuditComponent implements OnInit {
       ? { invalidDateRange: { message: this.i18nService.t("invalidDateRange") } }
       : null;
 
-  protected readonly kindOptions = computed(() =>
+  protected readonly kindOptions = computed<AuditChipOption[]>(() =>
     [...new Set(this.rows().map((row) => row.kindLabelKey))]
       .map((labelKey) => ({ label: this.i18nService.t(labelKey), value: labelKey }))
       .sort(byLabel),
   );
 
-  protected readonly actorOptions = computed<ChipFilterOption<string>[]>(() => {
+  protected readonly actorOptions = computed<AuditChipOption[]>(() => {
     const rows = this.rows();
     const options = identityOptions(
       rows.filter((row) => !row.automated),
@@ -260,16 +262,23 @@ export class AccessAuditComponent implements OnInit {
     return options.sort(byLabel);
   });
 
-  protected readonly requesterOptions = computed<ChipFilterOption<string>[]>(() =>
+  protected readonly requesterOptions = computed<AuditChipOption[]>(() =>
     identityOptions(this.rows(), "requester").sort(byLabel),
   );
+
+  /** One chip's selection, or null when that chip has none. Single-select, so the value is a scalar. */
+  private selectedValue(key: string): string | null {
+    const control = this.filterControls().find((candidate) => candidate.key() === key);
+    const value = control?.value();
+    return typeof value === "string" ? value : null;
+  }
 
   protected readonly filteredRows = computed(() => {
     const inverted = this.invertedRange();
     const filter: AuditFilter = {
-      kindLabelKey: this.kindValue(),
-      actorId: this.actorValue(),
-      requesterId: this.requesterValue(),
+      kindLabelKey: this.selectedValue(FILTER_KEYS.kind),
+      actorId: this.selectedValue(FILTER_KEYS.actor),
+      requesterId: this.selectedValue(FILTER_KEYS.requester),
       from: inverted ? null : this.rangeStart(),
       to: inverted ? null : this.rangeEnd(),
     };
