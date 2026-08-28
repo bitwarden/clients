@@ -1,7 +1,6 @@
-import { Location } from "@angular/common";
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { DefaultUrlSerializer, Navigation, Router } from "@angular/router";
+import { DefaultUrlSerializer, Navigation, NavigationExtras, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { Subject } from "rxjs";
 
@@ -19,15 +18,11 @@ describe("AccessRequestRouteComponent", () => {
   let fixture: ComponentFixture<AccessRequestRouteComponent>;
   let dialogService: MockProxy<DialogService>;
   let router: MockProxy<Router>;
-  let location: MockProxy<Location>;
   let detail: AccessRequestDetailService;
   let closed$: Subject<void>;
   let close: jest.Mock;
 
-  /**
-   * Both `hasHistory` and the backdrop tab are read during construction, off the navigation the
-   * router is still running.
-   */
+  /** The origin tab is read during construction, off the navigation the router is still running. */
   function create(previousNavigation: Navigation | null): void {
     router.getCurrentNavigation.mockReturnValue({ previousNavigation } as Navigation);
     fixture = TestBed.createComponent(AccessRequestRouteComponent);
@@ -37,6 +32,47 @@ describe("AccessRequestRouteComponent", () => {
   /** A previous navigation that finished on `path`, as the router would report it. */
   function cameFrom(path: string): Navigation {
     return { finalUrl: new DefaultUrlSerializer().parse(path) } as Navigation;
+  }
+
+  /**
+   * A stand-in for the browser history stack, so the close path can be exercised the way a real tab
+   * experiences it: a navigation pushes unless it is told to replace, and Back at the bottom of the
+   * stack does nothing.
+   */
+  class BrowserHistory {
+    readonly entries: string[];
+    private index: number;
+
+    constructor(...entries: string[]) {
+      this.entries = entries;
+      this.index = entries.length - 1;
+    }
+
+    get url(): string {
+      return this.entries[this.index];
+    }
+
+    navigate(url: string, replaceUrl: boolean): void {
+      if (replaceUrl) {
+        this.entries[this.index] = url;
+        return;
+      }
+      this.entries.length = this.index + 1;
+      this.entries.push(url);
+      this.index += 1;
+    }
+
+    back(): void {
+      this.index = Math.max(0, this.index - 1);
+    }
+  }
+
+  /** Drives `history` off the component's own navigation, the way the browser would. */
+  function trackHistory(history: BrowserHistory): void {
+    router.navigate.mockImplementation((commands: readonly any[], extras?: NavigationExtras) => {
+      history.navigate(commands.join("/"), extras?.replaceUrl === true);
+      return Promise.resolve(true);
+    });
   }
 
   beforeEach(async () => {
@@ -50,7 +86,6 @@ describe("AccessRequestRouteComponent", () => {
       close,
     } as unknown as DialogRef<unknown, unknown>);
     router = mock<Router>();
-    location = mock<Location>();
     detail = mock<AccessRequestDetailService>();
 
     await TestBed.configureTestingModule({
@@ -58,7 +93,6 @@ describe("AccessRequestRouteComponent", () => {
       providers: [
         { provide: DialogService, useValue: dialogService },
         { provide: Router, useValue: router },
-        { provide: Location, useValue: location },
       ],
     })
       // The detail service is provided on this component so it can read the `:id` off
@@ -96,11 +130,16 @@ describe("AccessRequestRouteComponent", () => {
     expect(fixture.nativeElement.querySelector(selector)).not.toBeNull();
   });
 
-  it("renders My requests behind the dialog when the caller arrived from outside the tabs", () => {
-    create(cameFrom("/vault"));
+  // `/organizations/:id/billing/history` ends on the same segment as the PAM History tab, so a
+  // caller from there must not be mistaken for one.
+  it.each(["/vault", "/organizations/orgId/billing/history"])(
+    "renders My requests behind the dialog when the caller arrived from outside the tabs (%s)",
+    (path) => {
+      create(cameFrom(path));
 
-    expect(fixture.nativeElement.querySelector("pam-my-requests-tab")).not.toBeNull();
-  });
+      expect(fixture.nativeElement.querySelector("pam-my-requests-tab")).not.toBeNull();
+    },
+  );
 
   it("renders My requests behind the dialog when the link was opened cold", () => {
     create(null);
@@ -108,31 +147,73 @@ describe("AccessRequestRouteComponent", () => {
     expect(fixture.nativeElement.querySelector("pam-my-requests-tab")).not.toBeNull();
   });
 
-  it("goes back to where the caller came from when the dialog is closed", () => {
-    create({} as Navigation);
+  it.each([
+    ["/pam/approvals", "approvals"],
+    ["/pam/history", "history"],
+    ["/pam/my-requests", "my-requests"],
+  ])("replaces the dialog URL with the tab it rendered behind (%s)", (path, tab) => {
+    create(cameFrom(path));
 
     closed$.next();
 
-    expect(location.back).toHaveBeenCalled();
-    expect(router.navigate).not.toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(["/pam", tab], { replaceUrl: true });
   });
 
-  it("falls back to the tab shell when the link was opened cold", () => {
+  it("replaces the dialog URL with My requests when the link was opened cold", () => {
     create(null);
 
     closed$.next();
 
-    expect(router.navigate).toHaveBeenCalledWith(["/pam"]);
-    expect(location.back).not.toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(["/pam", "my-requests"], { replaceUrl: true });
+  });
+
+  it("consumes the dialog URL rather than stacking the tab on top of it", () => {
+    const history = new BrowserHistory("/pam/requests/A");
+    trackHistory(history);
+    create(null);
+
+    closed$.next();
+
+    expect(history.entries).toEqual(["/pam/my-requests"]);
+  });
+
+  it("never leaves the caller stranded on the dialog URL", () => {
+    const detailUrl = "/pam/requests/A";
+    const history = new BrowserHistory(detailUrl);
+    trackHistory(history);
+
+    // A pasted link opened in a fresh tab: nothing behind it in history, and the shell is built by
+    // this same activation, so the router has already dropped the navigation.
+    create(null);
+    // The caller closes the dialog; the navigation that follows tears the route down.
+    closed$.next();
+    fixture.destroy();
+    // Back. Should the close have pushed rather than replaced, this lands on the dialog again —
+    // and this time the shell is mounted, so the activation does see a previous navigation.
+    history.back();
+    create(cameFrom("/pam/my-requests"));
+    // The caller closes it a second time.
+    closed$.next();
+
+    expect(history.url).not.toBe(detailUrl);
   });
 
   it("closes the dialog without navigating when the route is left by other means", () => {
-    create({} as Navigation);
+    create(cameFrom("/pam/my-requests"));
 
     fixture.destroy();
 
     expect(close).toHaveBeenCalled();
-    expect(location.back).not.toHaveBeenCalled();
     expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it("navigates once when the dismissal itself tears the route down", () => {
+    create(cameFrom("/pam/history"));
+
+    closed$.next();
+    fixture.destroy();
+
+    expect(close).toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledTimes(1);
   });
 });
