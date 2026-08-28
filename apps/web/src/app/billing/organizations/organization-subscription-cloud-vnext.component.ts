@@ -143,9 +143,10 @@ export class OrganizationSubscriptionCloudVNextComponent {
    * @summary Provides a reactive resource for the subscription preview of the organization.
    */
   readonly subscriptionPreview = resource({
-    params: () => ({ org: this.organization() }),
-    loader: async ({ params: { org } }) => {
-      return org ? await this.data.getSubscriptionPreview(org.id) : null;
+    // Keyed on the id, not the object: organizations$ emits a new instance on every sync.
+    params: () => this.organization()?.id,
+    loader: async ({ params: organizationId }) => {
+      return organizationId ? await this.data.getSubscriptionPreview(organizationId) : null;
     },
   });
 
