@@ -10,4 +10,8 @@
     }
     <navigation-product-switcher></navigation-product-switcher>
   </ng-container>
+
+  <ng-container slot="account">
+    <app-account-menu [expanded]="sideNavService.open()"></app-account-menu>
+  </ng-container>
 </bit-side-nav>

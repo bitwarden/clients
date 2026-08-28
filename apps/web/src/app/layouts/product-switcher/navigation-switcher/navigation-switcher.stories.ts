@@ -5,6 +5,7 @@ import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/an
 import { BehaviorSubject, Observable, of } from "rxjs";
 
 import { PasswordManagerLogo, SideNavLogo } from "@bitwarden/assets/svg";
+import { LogoutService } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -13,6 +14,10 @@ import { Provider } from "@bitwarden/common/admin-console/models/domain/provider
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import {
+  VaultTimeoutAction,
+  VaultTimeoutSettingsService,
+} from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -32,7 +37,9 @@ import { positionFixedWrapperDecorator } from "@bitwarden/components/src/stories
 import { GlobalStateProvider } from "@bitwarden/state";
 import { enabledFlags } from "@bitwarden/storybook";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { LockService } from "@bitwarden/unlock";
 
+import { AccountMenuComponent } from "../../header/account-menu.component";
 import { ProductSwitcherService } from "../shared/product-switcher.service";
 
 import { NavigationProductSwitcherComponent } from "./navigation-switcher.component";
@@ -103,6 +110,22 @@ class MockPlatformUtilsService implements Partial<PlatformUtilsService> {
   }
 }
 
+class MockVaultTimeoutSettingsService implements Partial<VaultTimeoutSettingsService> {
+  availableVaultTimeoutActions$() {
+    return of([VaultTimeoutAction.Lock]);
+  }
+}
+
+class MockLogoutService implements Partial<LogoutService> {
+  async logout(): Promise<undefined> {
+    return undefined;
+  }
+}
+
+class MockLockService implements Partial<LockService> {
+  async lock() {}
+}
+
 class MockBillingAccountProfileStateService implements Partial<BillingAccountProfileStateService> {
   hasPremiumFromAnySource$(userId: UserId): Observable<boolean> {
     return of(false);
@@ -146,6 +169,7 @@ export default {
         LayoutComponent,
         I18nPipe,
         NavigationProductSwitcherComponent,
+        AccountMenuComponent,
         BadgeComponent,
         BerryComponent,
         IconTileComponent,
@@ -157,6 +181,9 @@ export default {
         { provide: ProviderService, useClass: MockProviderService },
         { provide: SyncService, useClass: MockSyncService },
         { provide: PlatformUtilsService, useClass: MockPlatformUtilsService },
+        { provide: VaultTimeoutSettingsService, useClass: MockVaultTimeoutSettingsService },
+        { provide: LogoutService, useClass: MockLogoutService },
+        { provide: LockService, useClass: MockLockService },
         {
           provide: BillingAccountProfileStateService,
           useClass: MockBillingAccountProfileStateService,
@@ -403,7 +430,7 @@ export const RealisticSideNavV2: Story = {
             </div>
           </ng-container>
           <ng-container slot="account">
-            <div class="tw-p-3">Account section would go here</div>
+            <app-account-menu></app-account-menu>
           </ng-container>
         </bit-side-nav>
         <router-outlet></router-outlet>
