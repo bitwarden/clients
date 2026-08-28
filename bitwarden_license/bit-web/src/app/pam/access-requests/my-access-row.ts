@@ -102,6 +102,18 @@ type TerminalRequestStatus = Exclude<AccessRequestStatus, "pending" | "approved"
 /** Time an extension (or sum of extensions) added to a lease, and the resulting end (ms). */
 export type LeaseExtensionSummary = { addedSeconds: number; latestEndMs: number };
 
+/**
+ * The one sort key every history list is ordered by: when the request was decided, falling back to
+ * when it was raised so a row that was never decided keeps its place rather than being sent to the
+ * end. Shared by both sources and by the tab that merges them — a merge can only preserve an order
+ * its sources also used, so this has to be a single definition.
+ */
+export function resolvedOrSubmittedMs(
+  row: Pick<MyAccessRequestRow, "resolvedAt" | "submittedAt">,
+): number {
+  return Date.parse(row.resolvedAt ?? row.submittedAt);
+}
+
 /** Map a terminal status to its badge. Exported for tests + storybook fidelity. */
 export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStatusBadge {
   switch (status) {

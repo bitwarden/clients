@@ -10,6 +10,7 @@ import {
   extensionsByLeaseId,
   historyDisplayStatus,
   resolveResolver,
+  resolvedOrSubmittedMs,
   terminalStatusBadge,
   toLeaseRow,
   toRequestRow,
@@ -74,6 +75,23 @@ function lease(id: string, overrides: Record<string, unknown> = {}): AccessLease
 function names(overrides: Partial<ResolvedNames> = {}): ResolvedNames {
   return { ...emptyResolvedNames(), ...overrides };
 }
+
+describe("resolvedOrSubmittedMs", () => {
+  it("keys a decided request on when it was decided", () => {
+    expect(
+      resolvedOrSubmittedMs({
+        submittedAt: "2024-01-01T00:00:00.000Z",
+        resolvedAt: "2024-01-02T00:00:00.000Z",
+      }),
+    ).toBe(Date.parse("2024-01-02T00:00:00.000Z"));
+  });
+
+  it("falls back to when an undecided request was raised", () => {
+    expect(
+      resolvedOrSubmittedMs({ submittedAt: "2024-01-01T00:00:00.000Z", resolvedAt: null }),
+    ).toBe(Date.parse("2024-01-01T00:00:00.000Z"));
+  });
+});
 
 describe("terminalStatusBadge", () => {
   it.each([
