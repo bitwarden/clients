@@ -32,48 +32,23 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     duration: null,
     exactWindow: null,
     extendedUntil: null,
-    searchText: "alice alice prod db production",
     ...overrides,
   };
 }
 
 describe("auditRowMatchesFilter", () => {
-  const unfiltered: AuditFilter = { text: "", kindLabelKey: null };
+  const unfiltered: AuditFilter = { kindLabelKey: null };
 
   it("matches everything when the filter is empty", () => {
-    expect(auditRowMatchesFilter(row(), { text: "", kindLabelKey: null })).toBe(true);
-  });
-
-  it("matches free text against the haystack, case-insensitively", () => {
-    expect(auditRowMatchesFilter(row(), { text: "PROD", kindLabelKey: null })).toBe(true);
-    expect(auditRowMatchesFilter(row(), { text: "  production ", kindLabelKey: null })).toBe(true);
-    expect(auditRowMatchesFilter(row(), { text: "staging", kindLabelKey: null })).toBe(false);
+    expect(auditRowMatchesFilter(row(), { kindLabelKey: null })).toBe(true);
   });
 
   it("filters by event-kind label key", () => {
     const deleted = row({ kindLabelKey: "pamAuditKindRuleDeleted" });
-    expect(
-      auditRowMatchesFilter(deleted, { text: "", kindLabelKey: "pamAuditKindRuleDeleted" }),
-    ).toBe(true);
-    expect(
-      auditRowMatchesFilter(deleted, { text: "", kindLabelKey: "pamAuditKindRequestSubmitted" }),
-    ).toBe(false);
-  });
-
-  it("requires both text and kind to match when both are set", () => {
-    const revoked = row({ kindLabelKey: "pamAuditKindLeaseRevoked", searchText: "bob server" });
-    expect(
-      auditRowMatchesFilter(revoked, { text: "bob", kindLabelKey: "pamAuditKindLeaseRevoked" }),
-    ).toBe(true);
-    expect(
-      auditRowMatchesFilter(revoked, {
-        text: "bob",
-        kindLabelKey: "pamAuditKindRequestSubmitted",
-      }),
-    ).toBe(false);
-    expect(
-      auditRowMatchesFilter(revoked, { text: "carol", kindLabelKey: "pamAuditKindLeaseRevoked" }),
-    ).toBe(false);
+    expect(auditRowMatchesFilter(deleted, { kindLabelKey: "pamAuditKindRuleDeleted" })).toBe(true);
+    expect(auditRowMatchesFilter(deleted, { kindLabelKey: "pamAuditKindRequestSubmitted" })).toBe(
+      false,
+    );
   });
 
   it("filters by actor identity, not by the name the cell renders", () => {
@@ -138,11 +113,9 @@ describe("auditRowMatchesFilter", () => {
       kindLabelKey: "pamAuditKindLeaseRevoked",
       actorId: "user-ada",
       requesterId: "user-bob",
-      searchText: "ada bob prod db",
       occurredAt: new Date("2026-06-30T12:00:00Z"),
     });
     const all = {
-      text: "prod",
       kindLabelKey: "pamAuditKindLeaseRevoked",
       actorId: "user-ada",
       requesterId: "user-bob",
@@ -153,7 +126,6 @@ describe("auditRowMatchesFilter", () => {
     expect(auditRowMatchesFilter(target, all)).toBe(true);
     expect(auditRowMatchesFilter(target, { ...all, actorId: "user-alice" })).toBe(false);
     expect(auditRowMatchesFilter(target, { ...all, requesterId: "user-alice" })).toBe(false);
-    expect(auditRowMatchesFilter(target, { ...all, text: "staging" })).toBe(false);
     expect(auditRowMatchesFilter(target, { ...all, from: new Date("2026-06-30T12:30:00Z") })).toBe(
       false,
     );
@@ -217,7 +189,6 @@ describe("toAuditRow", () => {
 
     expect(result.ruleName).toBe("prod-rule");
     expect(result.cipherName).toBeNull();
-    expect(result.searchText).toContain("prod-rule");
     expect(result.inDoubt).toBe(false);
   });
 
