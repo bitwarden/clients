@@ -38,42 +38,43 @@
     </bit-status-lockup>
   }
   @case ("ready") {
-    <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
-      <bit-filter-menu
-        key="kind"
-        [placeholderText]="'pamAuditColumnEvent' | i18n"
-        [unsetLabel]="'all' | i18n"
-      >
-        @for (option of kindOptions(); track option.value) {
-          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
-        }
-      </bit-filter-menu>
-      <bit-chip-filter
-        [placeholderText]="'pamAuditColumnActor' | i18n"
-        placeholderIcon="bwi-filter"
-        [options]="actorOptions()"
-        [formControl]="actorControl"
-      ></bit-chip-filter>
-      <bit-chip-filter
-        [placeholderText]="'pamAuditColumnRequester' | i18n"
-        placeholderIcon="bwi-filter"
-        [options]="requesterOptions()"
-        [formControl]="requesterControl"
-      ></bit-chip-filter>
-      <button
-        type="button"
-        bitButton
-        buttonType="secondary"
-        class="tw-ms-auto"
-        id="access-audit_button_export"
-        [bitAction]="exportCsv"
-        [disabled]="filteredRows().length === 0"
-      >
-        {{ "exportVerb" | i18n }}
-      </button>
-    </div>
-
-    <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-start tw-gap-3">
+    <div
+      class="tw-mb-4 tw-flex tw-flex-wrap tw-items-start tw-gap-3"
+      id="access-audit_container_toolbar"
+    >
+      <div class="tw-mt-7 tw-flex tw-min-h-10 tw-flex-wrap tw-items-center tw-gap-3">
+        <!--
+          The option list sits inside an `@if` rather than directly under the chip. `refreshView` runs a
+          view's effects before it updates that view's embedded views, so an option created by a `@for` in
+          the chip's own host view is visible to `bit-filter-menu`'s summary effect a beat before Angular
+          has bound its required `value` — which throws NG0950 the first time Update brings a new event
+          kind into the trail. Nesting the loop one view deeper moves the option's creation after those
+          effects have run, so the chip only ever sees a fully bound option.
+        -->
+        <bit-filter-menu
+          key="kind"
+          [placeholderText]="'pamAuditColumnEvent' | i18n"
+          [unsetLabel]="'all' | i18n"
+        >
+          @if (kindOptions(); as options) {
+            @for (option of options; track option.value) {
+              <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+            }
+          }
+        </bit-filter-menu>
+        <bit-chip-filter
+          [placeholderText]="'pamAuditColumnActor' | i18n"
+          placeholderIcon="bwi-filter"
+          [options]="actorOptions()"
+          [formControl]="actorControl"
+        ></bit-chip-filter>
+        <bit-chip-filter
+          [placeholderText]="'pamAuditColumnRequester' | i18n"
+          placeholderIcon="bwi-filter"
+          [options]="requesterOptions()"
+          [formControl]="requesterControl"
+        ></bit-chip-filter>
+      </div>
       <bit-form-field disableMargin>
         <bit-label>{{ "from" | i18n }}</bit-label>
         <input
@@ -94,6 +95,28 @@
           [formControl]="toControl"
         />
       </bit-form-field>
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        class="tw-mt-7"
+        id="access-audit_button_refresh"
+        [bitAction]="load"
+      >
+        {{ "update" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        class="tw-ms-auto tw-mt-7"
+        id="access-audit_button_export"
+        endIcon="bwi-import"
+        [bitAction]="exportCsv"
+        [disabled]="filteredRows().length === 0"
+      >
+        {{ "exportVerb" | i18n }}
+      </button>
     </div>
 
     @if (filteredRows().length === 0) {
