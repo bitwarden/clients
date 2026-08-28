@@ -1,3 +1,4 @@
+import { DatePipe } from "@angular/common";
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
@@ -125,7 +126,7 @@ describe("AccessAuditComponent", () => {
             clearAll: "Clear all",
             pamAuditNoMatchesTitle: "No matching events",
             pamAuditNoMatchesMessage: "No events match the current filters.",
-            pamAuditColumnTime: "Time",
+            timestamp: "Timestamp",
             pamAuditColumnEvent: "Event",
             pamAuditColumnActor: "Actor",
             pamAuditColumnRequester: "Requester",
@@ -1557,6 +1558,47 @@ describe("AccessAuditComponent", () => {
         expect(text(column)).toBe("—");
         expect(cell(column).querySelector(".tw-text-muted")).not.toBeNull();
       }
+    });
+  });
+
+  // The organization event log heads this column "Timestamp" and renders it `medium`; an auditor
+  // reading both surfaces should not have to translate between two renderings of the same instant.
+  describe("timestamp column", () => {
+    const OCCURRED_AT = "2026-08-18T09:00:00.000Z";
+
+    const renderRow = async () => {
+      auditApiService.listAccessAuditTrail.mockResolvedValue([event({ OccurredAt: OCCURRED_AT })]);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const header = (): HTMLElement =>
+      fixture.nativeElement.querySelectorAll("bit-table thead th")[0];
+
+    const cell = (): HTMLElement =>
+      fixture.nativeElement.querySelectorAll("bit-table tbody tr td")[0];
+
+    it("heads the column the way the organization event log heads it", async () => {
+      await renderRow();
+
+      expect(header().textContent!.trim()).toBe("Timestamp");
+    });
+
+    it("renders the whole timestamp rather than an abbreviated one", async () => {
+      await renderRow();
+
+      const medium = new DatePipe("en-US").transform(new Date(OCCURRED_AT), "medium")!;
+      expect(cell().textContent!.trim()).toBe(medium);
+    });
+
+    // The tooltip existed only to recover what `short` left out; a cell that shows the whole
+    // timestamp has nothing left to reveal on hover.
+    it("carries nothing to hover over", async () => {
+      await renderRow();
+
+      expect(cell().querySelector("span")).toBeNull();
     });
   });
 
