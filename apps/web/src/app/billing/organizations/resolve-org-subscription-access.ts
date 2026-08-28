@@ -29,7 +29,7 @@ export function resolveOrgSubscriptionAccess(org: Organization): OrgSubscription
   return {
     showSubscription: org.canViewSubscription && !managedByConsolidatedBillingMsp,
     showManagementActions: org.canEditSubscription && !managedByConsolidatedBillingMsp,
-    showSelfHost: org.canEditSubscription && org.selfHost,
+    showSelfHost: org.selfHost,
     showConsolidatedBillingMsp: managedByConsolidatedBillingMsp,
   };
 }
