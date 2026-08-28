@@ -35,6 +35,8 @@ export type AuditRow = {
   collectionName: string | null;
   /** The access rule's name (plaintext, provided by the server), for rule administration events; null otherwise. */
   ruleName: string | null;
+  /** The subject access rule, when the event names one — the identity behind a rule-named Item cell. */
+  ruleId: string | null;
   /** An approver comment or a revoke reason, if any. */
   detail: string | null;
   /** True for a system / automatic event (expiry, an automatic decision). */
@@ -147,6 +149,7 @@ export function toAuditRow(
     cipherId: event.cipherId,
     collectionName,
     ruleName: event.ruleName,
+    ruleId: event.ruleId,
     detail: event.detail,
     automated: event.automated,
     inDoubt: event.incomplete,
@@ -155,6 +158,30 @@ export function toAuditRow(
     exactWindow: grantedWindow == null ? null : exactWindow(grantedWindow),
     extendedUntil,
   };
+}
+
+/**
+ * The identity behind the Item cell, or null when that cell renders no item.
+ *
+ * Mirrors what the cell actually shows: a decrypted cipher name first, an access rule name second, an em
+ * dash otherwise. Keyed on the id rather than the label because two access rules can carry the same name,
+ * and merging them would let an auditor read half a rule's history as the whole of it. A row whose cipher
+ * did not decrypt in this viewer's vault has no name to render and so no identity to filter on — the same
+ * rule the Actor chip follows for an unresolved member.
+ */
+export function auditItemId(row: AuditRow): string | null {
+  if (row.cipherName != null) {
+    return row.cipherId;
+  }
+  if (row.ruleName != null) {
+    return row.ruleId;
+  }
+  return null;
+}
+
+/** The label the Item cell renders for a row, or null when it renders no item. */
+export function auditItemLabel(row: AuditRow): string | null {
+  return row.cipherName ?? row.ruleName;
 }
 
 /**
@@ -250,6 +277,8 @@ export type AuditFilter = {
   /** Actor identities, or {@link AUTOMATED_ACTOR} for the system bucket. */
   actorId?: readonly string[] | null;
   requesterId?: readonly string[] | null;
+  /** Item identities, as {@link auditItemId} reads them. A row with no item matches no selection. */
+  itemId?: readonly string[] | null;
   /** Inclusive lower bound on {@link AuditRow.occurredAt}. */
   from?: Date | null;
   /** Inclusive upper bound on {@link AuditRow.occurredAt}. */
@@ -275,6 +304,9 @@ export function auditRowMatchesFilter(row: AuditRow, filter: AuditFilter): boole
     return false;
   }
   if (!selects(filter.requesterId, row.requesterId)) {
+    return false;
+  }
+  if (!selects(filter.itemId, auditItemId(row))) {
     return false;
   }
   const occurredAt = row.occurredAt.getTime();
