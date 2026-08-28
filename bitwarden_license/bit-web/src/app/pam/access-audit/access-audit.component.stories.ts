@@ -165,10 +165,11 @@ const EVENTS: AccessAuditEventResponse[] = [
 ];
 
 /**
- * Item and Detail both render unbounded free text, so the column widths only hold up under values
- * long enough to fight for room. These three are the shapes that broke the layout: a rule name well
- * past sixty characters, a full-sentence detail, and a single token longer than the column cap —
- * which has to break mid-word rather than push the table wider than the page.
+ * Item renders unbounded free text, so the column widths only hold up under values long enough to
+ * fight for room. These three are the shapes that broke the layout: a rule name well past sixty
+ * characters, and a single token longer than the column cap — which has to break mid-word rather
+ * than push the table wider than the page. Their details, now the drawer's, are carried along so
+ * the pane behind them has something long to lay out too.
  */
 const LONG_TEXT_EVENTS: AccessAuditEventResponse[] = [
   event({
@@ -281,8 +282,8 @@ const MIXED_LINK_EVENTS: AccessAuditEventResponse[] = [
 ];
 
 /**
- * The absence check. Every cell that can carry no value carries none here, so the five that render an em
- * dash — actor, requester, item, duration, detail — line up in one look beside the one absence that is not
+ * The absence check. Every cell that can carry no value carries none here, so the four that render an em
+ * dash — actor, requester, item, duration — line up in one look beside the one absence that is not
  * one: the automated row's Actor cell, which reads System because that IS the value.
  */
 const EMPTY_FIELD_EVENTS: AccessAuditEventResponse[] = [
@@ -432,7 +433,13 @@ function audit(
           getAllMiniUserDetails: () => Promise.resolve({ data: MEMBERS }),
         },
       },
-      { provide: DialogService, useValue: { open: () => ({ closed: of(undefined) }) } },
+      {
+        provide: DialogService,
+        useValue: {
+          open: () => ({ closed: of(undefined) }),
+          openDrawer: () => Promise.resolve(undefined),
+        },
+      },
       {
         provide: FileDownloadService,
         useValue: { download: (): void => undefined },
@@ -492,9 +499,9 @@ export const SingleEvent: Story = {
 };
 
 /**
- * The width check. Time and Event hold on one line beside Item and Detail values long enough to
- * wrap, and the over-long token breaks inside its column — so the table stays within the page
- * instead of dragging a horizontal scrollbar onto it.
+ * The width check. Timestamp and Event hold on one line beside Item values long enough to wrap, and
+ * the over-long token breaks inside its column — so the table stays within the page instead of
+ * dragging a horizontal scrollbar onto it.
  */
 export const LongValues: Story = {
   decorators: [audit({ events: [...LONG_TEXT_EVENTS, ...EVENTS] })],
@@ -524,8 +531,8 @@ export const Refreshing: Story = {
 };
 
 /**
- * Absence, rendered the one way. Actor, Requester, Item, Duration and Detail each render the same muted em
- * dash where the trail carries no value, so a reader can tell "we have no value for this" from a cell that
+ * Absence, rendered the one way. Actor, Requester, Item and Duration each render the same muted em dash
+ * where the trail carries no value, so a reader can tell "we have no value for this" from a cell that
  * failed to render — while the automated row keeps its System actor, which is a value rather than an absence.
  */
 export const EmptyFields: Story = {
