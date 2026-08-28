@@ -1,12 +1,11 @@
 import { inject, Injectable } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { shareReplay, switchMap } from "rxjs";
+import { map, shareReplay, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import {
@@ -17,6 +16,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 
 import { VaultItemsTableRowAction } from "../components/vault-items-table/vault-items-table-row-action";
 
@@ -39,7 +39,8 @@ export class CipherRowMenuService {
   private readonly cipherActionService = inject(CipherActionService);
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(
-    getUserId,
+    map((a) => a?.id),
+    filterOutNullish(),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 

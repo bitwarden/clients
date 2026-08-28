@@ -1,9 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  OnInit,
   TemplateRef,
-  booleanAttribute,
-  computed,
   contentChild,
   effect,
   inject,
@@ -13,7 +12,14 @@ import {
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { NavigationEnd, QueryParamsHandling, Router, RouterLink, UrlTree } from "@angular/router";
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  QueryParamsHandling,
+  Router,
+  RouterLink,
+  UrlTree,
+} from "@angular/router";
 import { filter } from "rxjs";
 
 import { IconModule } from "../icon";
@@ -33,7 +39,7 @@ import { BitwardenIcon } from "../shared/icon";
   imports: [IconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BreadcrumbComponent {
+export class BreadcrumbComponent implements OnInit {
   /**
    * Optional icon to display before the breadcrumb text.
    */
@@ -55,12 +61,6 @@ export class BreadcrumbComponent {
   readonly queryParamsHandling = input<QueryParamsHandling>();
 
   /**
-   * When true, renders this crumb as non-interactive text with `aria-current="page"`. Use this
-   * when the active page is included in the trail itself rather than shown as the page heading.
-   */
-  readonly active = input(false, { transform: booleanAttribute });
-
-  /**
    * Emitted when the breadcrumb is clicked.
    */
   readonly click = output<unknown>();
@@ -78,10 +78,9 @@ export class BreadcrumbComponent {
   readonly size = signal<"small" | "base">("base");
 
   private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
-  private readonly _routerIsActiveRoute = signal(false);
-
-  readonly isActiveRoute = computed(() => this.active() || this._routerIsActiveRoute());
+  readonly isActiveRoute = signal(false);
 
   checkActiveRoute() {
     const route = this.route();
@@ -90,22 +89,27 @@ export class BreadcrumbComponent {
       return;
     }
 
-    let routeStringOrUrlTree: string | UrlTree = "";
+    // Resolve the target the same way `RouterLink` does — a bare string is a single command, and
+    // `queryParams`/`queryParamsHandling` are part of the URL the crumb navigates to. Comparing
+    // against the path alone marks every crumb sharing that path as active, which is the norm for
+    // crumbs that navigate via query params (ex. `[route]="[]"` plus a differing `collectionId`).
+    const urlTree =
+      route instanceof UrlTree
+        ? route
+        : this.router.createUrlTree(Array.isArray(route) ? route : [route], {
+            relativeTo: this.activatedRoute,
+            queryParams: this.queryParams(),
+            queryParamsHandling: this.queryParamsHandling(),
+          });
 
-    if (typeof route === "string" || route instanceof UrlTree) {
-      routeStringOrUrlTree = route;
-    } else {
-      routeStringOrUrlTree = this.router.createUrlTree(route);
-    }
-
-    const result = this.router.isActive(routeStringOrUrlTree, {
-      paths: "subset",
+    const result = this.router.isActive(urlTree, {
+      paths: "exact",
       queryParams: "exact",
       fragment: "ignored",
       matrixParams: "ignored",
     });
 
-    this._routerIsActiveRoute.set(result);
+    this.isActiveRoute.set(result);
   }
 
   constructor() {
@@ -124,6 +128,13 @@ export class BreadcrumbComponent {
         tile.size.set(this.size() === "small" ? "xs" : "sm");
       }
     });
+  }
+
+  ngOnInit() {
+    // Check again, when inputs are populated, to catch the case where a `bit-breadcrumb` created
+    // *after* the `NavigationEnd` for the current URL has already fired (ex. async data revealing
+    // an `@if`, a lazily-shown breadcrumb list, a Storybook story with no subsequent navigation).
+    this.checkActiveRoute();
   }
 
   onClick(args: unknown) {
