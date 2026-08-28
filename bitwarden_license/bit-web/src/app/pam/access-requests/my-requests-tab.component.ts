@@ -213,7 +213,7 @@ export class MyRequestsTabComponent {
    * sortable but keeps the same grouping; see {@link byItemName}.
    */
   protected readonly activeAccessRows = computed<ActiveAccessRow[]>(() => {
-    const held: ActiveAccessRow[] = this.leases().map((lease) => ({
+    const held: ActiveAccessRow[] = this.leases().map((lease): ActiveAccessRow => ({
       testId: `my-access-lease-${lease.id}`,
       requestId: lease.requestId,
       cipherId: lease.cipherId,
@@ -224,7 +224,7 @@ export class MyRequestsTabComponent {
       lease,
       request: null,
     }));
-    const granted: ActiveAccessRow[] = this.approvedRows().map((request) => ({
+    const granted: ActiveAccessRow[] = this.approvedRows().map((request): ActiveAccessRow => ({
       testId: `my-access-approved-${request.id}`,
       requestId: request.id,
       cipherId: request.cipherId,
