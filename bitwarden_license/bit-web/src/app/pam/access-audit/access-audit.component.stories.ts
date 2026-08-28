@@ -533,9 +533,10 @@ export const EmptyFields: Story = {
 };
 
 /**
- * A filter that matches nothing — Today over a trail whose newest event is older than that. Export is
- * disabled alongside the no-matches callout: the file follows the filtered table, so with nothing on screen
- * there is nothing to download. Clear all sits at the end of the chip row, which is the way back.
+ * A filter that matches nothing — Today over a trail whose newest event is older than that. The standard
+ * empty state, the same shape a trail with no events at all gets, rather than a callout: an over-narrow
+ * filter is an ordinary outcome, not a warning. Export is disabled alongside it, the file following the
+ * filtered table, and Clear all sits inside the empty state as well as at the end of the chip row.
  */
 export const NoMatches: Story = {
   decorators: [audit()],
