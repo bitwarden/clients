@@ -161,6 +161,47 @@ const EVENTS: AccessAuditEventResponse[] = [
   }),
 ];
 
+/**
+ * Item and Detail both render unbounded free text, so the column widths only hold up under values
+ * long enough to fight for room. These three are the shapes that broke the layout: a rule name well
+ * past sixty characters, a full-sentence detail, and a single token longer than the column cap —
+ * which has to break mid-word rather than push the table wider than the page.
+ */
+const LONG_TEXT_EVENTS: AccessAuditEventResponse[] = [
+  event({
+    kind: AccessAuditEventKind.RuleDeleted,
+    occurredAt: fromNow(-10 * MINUTE),
+    cipherId: null,
+    collectionId: null,
+    requestId: null,
+    ruleId: "rule-2",
+    ruleName:
+      "Emergency database credential rotation access for the platform reliability engineering on-call team",
+    ...APPROVER,
+  }),
+  event({
+    kind: AccessAuditEventKind.LeaseRevoked,
+    occurredAt: fromNow(-30 * MINUTE),
+    leaseId: "lease-3",
+    ...APPROVER,
+    detail:
+      "Revoked ahead of the scheduled expiry after the on-call engineer confirmed the primary replica had recovered and the failover procedure completed without needing the elevated credential.",
+  }),
+  event({
+    kind: AccessAuditEventKind.RequestDenied,
+    occurredAt: fromNow(-90 * MINUTE),
+    cipherId: null,
+    collectionId: null,
+    requestId: null,
+    ruleId: "rule-3",
+    ruleName:
+      "https://runbooks.internal.example.com/database/emergency-credential-rotation-procedure-v4-approved-2026",
+    ...APPROVER,
+    detail:
+      "correlationid=AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKKKLLLLMMMMNNNNOOOOPPPPQQQQRRRRSSSSTTTT",
+  }),
+];
+
 function audit(options: { events?: AccessAuditEventResponse[]; fails?: boolean } = {}) {
   const { events = EVENTS, fails = false } = options;
   return moduleMetadata({
@@ -233,6 +274,15 @@ export const LoadError: Story = {
 /** A single event — the trail right after an organization's first request. */
 export const SingleEvent: Story = {
   decorators: [audit({ events: [EVENTS[EVENTS.length - 2]] })],
+};
+
+/**
+ * The width check. Time and Event hold on one line beside Item and Detail values long enough to
+ * wrap, and the over-long token breaks inside its column — so the table stays within the page
+ * instead of dragging a horizontal scrollbar onto it.
+ */
+export const LongValues: Story = {
+  decorators: [audit({ events: [...LONG_TEXT_EVENTS, ...EVENTS] })],
 };
 
 /**
