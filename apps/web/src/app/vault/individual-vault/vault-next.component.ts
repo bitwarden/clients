@@ -24,6 +24,7 @@ import {
   DEFAULT_COPY_PRESENTATION,
   DefaultCipherFormConfigService,
   NewCipherMenuComponent,
+  SharedFolderCardGridComponent,
   VaultCopyButtonsService,
   VaultItemsTableComponent,
   VaultItemsTableCopyPresentation,
@@ -71,6 +72,7 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     VaultItemsTableComponent,
     VaultOnboardingComponent,
     VaultOrganizationUserNotificationsComponent,
+    SharedFolderCardGridComponent,
   ],
   providers: [
     safeProvider({ provide: DefaultCipherFormConfigService, useAngularDecorators: true }),
@@ -94,19 +96,25 @@ export class VaultNextComponent {
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
-  private readonly vaultIdParam = toSignal(
-    this.activatedRoute.paramMap.pipe(map((params) => params.get("vaultId"))),
+  private readonly routeParams = toSignal(this.activatedRoute.paramMap);
+
+  private readonly vaultIdParam = computed(() => this.routeParams()?.get("vaultId"));
+
+  private readonly collectionIdParam = computed(() => this.routeParams()?.get("collectionId"));
+
+  private readonly vaultNav = toSignal(
+    this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
   );
 
-  private readonly vaultNav = toSignal(this.vaultNavService.viewModel$);
-
   /**
-   * The vault the side nav has scoped this page to. `vaultScopeGuard` has already turned away any
-   * segment that names no vault, so an unresolvable one here means the guard was bypassed — show
-   * everything rather than an empty page.
+   * The vault the side nav has scoped this page to, and the shared folder within it the URL has
+   * drilled into. `vaultScopeGuard` has already turned away any segment that names no vault, so an
+   * unresolvable one here means the guard was bypassed — show everything rather than an empty page.
    */
   protected readonly vaultScope = computed(
-    () => resolveVaultScope(this.vaultIdParam(), this.vaultNav()) ?? ALL_ITEMS_SCOPE,
+    () =>
+      resolveVaultScope(this.vaultIdParam(), this.collectionIdParam(), this.vaultNav()) ??
+      ALL_ITEMS_SCOPE,
   );
 
   /**
@@ -174,9 +182,15 @@ export class VaultNextComponent {
   );
 
   /**
-   * The collections the table resolves its Shared folders column and chip from. The chip lists
-   * whatever this holds rather than deriving its options from the rows, so a scoped page has to
-   * narrow it or it offers folders none of its items could be in.
+   * The collections the table resolves its Shared folders column and chip from, and the card grid
+   * derives its tree from. The chip lists whatever this holds rather than deriving its options from
+   * the rows, so a scoped page has to narrow it or it offers folders none of its items could be in.
+   *
+   * Narrowed to the vault only, never to the shared folder in view: an item belongs to as many
+   * shared folders as it was assigned to, so a row in the folder being viewed may live in others
+   * too — narrowing this would drop those from its Shared folders column and leave the chip unable
+   * to offer them. The grid needs the whole vault for the same reason: the folder it drills into
+   * has to be findable in the tree.
    *
    * The unscoped {@link collections} still back the row actions, which assign an item to any
    * collection the user can reach — not just the ones this page shows.
