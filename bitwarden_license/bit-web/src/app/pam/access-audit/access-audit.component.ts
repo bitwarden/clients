@@ -18,10 +18,12 @@ import { NoResults } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { getById } from "@bitwarden/common/platform/misc/rxjs-operators";
 import {
+  AsyncActionsModule,
   BadgeModule,
   ButtonModule,
   CalloutModule,
@@ -52,6 +54,7 @@ import {
   toAuditRow,
 } from "./access-audit-row";
 import { AuditApiService } from "./audit-api.service";
+import { AuditExportService } from "./audit-export.service";
 
 type AuditStatus = "loading" | "ready" | "empty" | "error";
 
@@ -117,6 +120,7 @@ function identityOptions(rows: AuditRow[], identity: "actor" | "requester"): Aud
     CommonModule,
     ReactiveFormsModule,
     RouterLink,
+    AsyncActionsModule,
     BadgeModule,
     ButtonModule,
     CalloutModule,
@@ -140,6 +144,8 @@ export class AccessAuditComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly auditApiService = inject(AuditApiService);
   private readonly nameResolver = inject(AccessNameResolverService);
+  private readonly auditExportService = inject(AuditExportService);
+  private readonly fileDownloadService = inject(FileDownloadService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
   private readonly accountService = inject(AccountService);
@@ -295,4 +301,22 @@ export class AccessAuditComponent implements OnInit {
       this.status.set("error");
     }
   }
+
+  /**
+   * Downloads the filtered trail as CSV. An arrow property so `bitAction` can call it detached from the
+   * instance.
+   *
+   * Exports {@link filteredRows}, not {@link rows}: an auditor who narrowed the table to one requester and
+   * one week is asking for that week, and the whole 90-day window would hand them back the events they
+   * deliberately filtered out. The file is built from what the browser already holds — the endpoint takes no
+   * parameters and is not re-read — and every name in it is one this viewer could already read on screen.
+   */
+  protected readonly exportCsv = (): void => {
+    const csv = this.auditExportService.getAuditExport(this.filteredRows());
+    this.fileDownloadService.download({
+      fileName: this.auditExportService.getFileName(),
+      blobData: csv,
+      blobOptions: { type: "text/csv" },
+    });
+  };
 }
