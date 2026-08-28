@@ -18,7 +18,7 @@ import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
-  TwoFactorTimeoutIcon,
+  ExpiredIcon,
   TwoFactorAuthEmailIcon,
   UserLockIcon,
   VaultIcon,
@@ -93,7 +93,7 @@ const routes: Routes = [
       },
     ],
     data: {
-      pageIcon: TwoFactorTimeoutIcon,
+      pageIcon: ExpiredIcon,
       pageTitle: {
         key: "authenticationTimeout",
       },

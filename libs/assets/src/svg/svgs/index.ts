@@ -53,7 +53,7 @@ export * from "./two-factor-auth-security-key-failed.icon";
 export * from "./two-factor-auth-security-key.icon";
 export * from "./two-factor-auth-webauthn.icon";
 export * from "./two-factor-auth-yubico.icon";
-export * from "./two-factor-timeout.icon";
+export * from "./expired.icon";
 export * from "./unlocked.icon";
 export * from "./user-lock.icon";
 export * from "./user-verification-biometrics-fingerprint.icon";
