@@ -34,11 +34,11 @@ import {
   LinkModule,
   IconModule,
 } from "@bitwarden/components";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   GetOrgNameFromIdPipe,
   OrganizationNameBadgeComponent,
-  ShareLinkService,
   VaultCopyButtonsService,
   VaultItemCopyActionsComponent,
   Vfo1I18nPipe,

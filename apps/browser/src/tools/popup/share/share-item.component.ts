@@ -10,8 +10,8 @@ import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ButtonModule } from "@bitwarden/components";
+import { ShareItemFormComponent } from "@bitwarden/tools-share";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { ShareItemFormComponent } from "@bitwarden/vault";
 
 import { PopupFooterComponent } from "../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";

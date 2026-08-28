@@ -39,11 +39,11 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import {
   ArchiveCipherUtilitiesService,
   CopyCipherFieldService,
   PasswordRepromptService,
-  ShareLinkService,
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";

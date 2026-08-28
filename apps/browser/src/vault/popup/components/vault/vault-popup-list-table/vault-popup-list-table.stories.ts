@@ -35,11 +35,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
-import {
-  PasswordRepromptService,
-  ShareLinkService,
-  VaultCopyButtonsService,
-} from "@bitwarden/vault";
+import { ShareLinkService } from "@bitwarden/tools-share";
+import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";

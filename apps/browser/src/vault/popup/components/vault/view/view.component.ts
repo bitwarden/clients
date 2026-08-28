@@ -47,12 +47,12 @@ import {
   SearchModule,
   ToastService,
 } from "@bitwarden/components";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import {
   ArchiveCipherUtilitiesService,
   CipherViewComponent,
   CopyCipherFieldService,
   PasswordRepromptService,
-  ShareLinkService,
 } from "@bitwarden/vault";
 
 import { sendExtensionMessage } from "../../../../../autofill/utils/index";

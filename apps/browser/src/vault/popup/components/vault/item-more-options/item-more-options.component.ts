@@ -32,7 +32,8 @@ import {
   ToastService,
   IconModule,
 } from "@bitwarden/components";
-import { PasswordRepromptService, ShareLinkService, Vfo1I18nPipe } from "@bitwarden/vault";
+import { ShareLinkService } from "@bitwarden/tools-share";
+import { PasswordRepromptService, Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { AddEditQueryParams } from "../add-edit/add-edit.component";
