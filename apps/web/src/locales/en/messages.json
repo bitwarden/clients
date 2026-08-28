@@ -17536,9 +17536,6 @@
   "pamAuditEmptyMessage": {
     "message": "Privileged-access activity in this organization will appear here."
   },
-  "pamAuditEmptyRulesHint": {
-    "message": "Access rules are what put activity in this log — once a rule is in place, every request and decision it governs is recorded."
-  },
   "pamAuditSearchPlaceholder": {
     "message": "Search the audit log"
   },

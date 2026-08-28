@@ -22,9 +22,7 @@
   @case ("empty") {
     <bit-no-items [icon]="noItemsIcon">
       <span slot="title">{{ "pamAuditEmptyTitle" | i18n }}</span>
-      <span slot="description">
-        {{ "pamAuditEmptyMessage" | i18n }} {{ "pamAuditEmptyRulesHint" | i18n }}
-      </span>
+      <span slot="description">{{ "pamAuditEmptyMessage" | i18n }}</span>
       @if (canManageAccessRules()) {
         <a
           slot="button"
