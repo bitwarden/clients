@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input, output } from "@angular/core
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, convertToParamMap, ParamMap, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { Observable, of } from "rxjs";
+import { BehaviorSubject, Observable, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -491,43 +491,46 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     });
 
     it("auto-opens change plan once the subscription loads when ?upgrade is present", async () => {
-      activatedRoute.queryParamMap = of(convertToParamMap({ upgrade: "true" }));
+      const queryParamMap = new BehaviorSubject(convertToParamMap({}));
+      activatedRoute.queryParamMap = queryParamMap;
 
       createComponent();
       const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
-      fixture.detectChanges();
+      queryParamMap.next(convertToParamMap({ upgrade: "true" }));
       await fixture.whenStable();
 
       expect(changePlan).toHaveBeenCalledWith(undefined);
     });
 
     it("passes the deep-link productTierType to change plan", async () => {
-      activatedRoute.queryParamMap = of(
+      const queryParamMap = new BehaviorSubject(convertToParamMap({}));
+      activatedRoute.queryParamMap = queryParamMap;
+
+      createComponent();
+      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+      queryParamMap.next(
         convertToParamMap({
           upgrade: "true",
           productTierType: ProductTierType.Enterprise.toString(),
         }),
       );
-
-      createComponent();
-      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
-      fixture.detectChanges();
       await fixture.whenStable();
 
       expect(changePlan).toHaveBeenCalledWith(ProductTierType.Enterprise);
     });
 
     it("ignores an invalid productTierType and falls back to the current tier", async () => {
-      activatedRoute.queryParamMap = of(
+      const queryParamMap = new BehaviorSubject(convertToParamMap({}));
+      activatedRoute.queryParamMap = queryParamMap;
+
+      createComponent();
+      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+      queryParamMap.next(
         convertToParamMap({
           upgrade: "true",
           productTierType: "not-a-tier",
         }),
       );
-
-      createComponent();
-      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
-      fixture.detectChanges();
       await fixture.whenStable();
 
       expect(changePlan).toHaveBeenCalledWith(undefined);
