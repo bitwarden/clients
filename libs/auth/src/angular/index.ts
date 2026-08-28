@@ -14,6 +14,7 @@ export * from "./login/login.component";
 export * from "./login/login-secondary-content.component";
 export * from "./login/login-component.service";
 export * from "./login/default-login-component.service";
+export * from "./login/handle-query-param-errors-result.type";
 
 // login decryption options
 export * from "./login-decryption-options/login-decryption-options.component";
