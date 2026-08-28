@@ -117,7 +117,7 @@ import {
   NoopDeepLinkRedirectService,
 } from "@bitwarden/common/auth/deep-link-redirect";
 import {
-  DefaultOrganizationInviteService,
+  NoopOrganizationInviteService,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
 import {
@@ -603,6 +603,7 @@ const safeProviders: SafeProvider[] = [
       UserKeyRotationServiceAbstraction,
       CipherServiceAbstraction,
       SdkService,
+      StateProvider,
     ],
   }),
   safeProvider({
@@ -1775,25 +1776,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: OrganizationInviteService,
-    useClass: DefaultOrganizationInviteService,
-    deps: [
-      ApiServiceAbstraction,
-      LogoutService,
-      KeyService,
-      LegacyCompatKeyService,
-      EncryptService,
-      PolicyApiServiceAbstraction,
-      InternalPolicyService,
-      LogService,
-      OrganizationApiServiceAbstraction,
-      OrganizationUserApiService,
-      OrganizationInviteLinkApiService,
-      I18nServiceAbstraction,
-      GlobalStateProvider,
-      SdkService,
-      ConfigService,
-      DeepLinkRedirectService,
-    ],
+    useClass: NoopOrganizationInviteService,
+    deps: [],
   }),
   safeProvider({
     provide: SetInitialPasswordService,
