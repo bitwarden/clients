@@ -1,12 +1,9 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { UserId } from "@bitwarden/common/types/guid";
-import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService, I18nMockService } from "@bitwarden/components";
+import { I18nMockService } from "@bitwarden/components";
+import { UpgradeFlowService } from "@bitwarden/web-vault/app/billing/individual/upgrade/services/upgrade-flow.service";
 import { UpgradeCalloutComponent } from "@bitwarden/web-vault/app/billing/individual/upgrade/upgrade-nav-button/upgrade-callout/upgrade-callout.component";
 
 export default {
@@ -28,34 +25,11 @@ export default {
           },
         },
         {
-          provide: DialogService,
+          provide: UpgradeFlowService,
           useValue: {
-            open: () => ({
-              closed: of({}),
-            }),
-          },
-        },
-        {
-          provide: AccountService,
-          useValue: {
-            activeAccount$: of({
-              id: "user-id" as UserId,
-              email: "test@example.com",
-              name: "Test User",
-              emailVerified: true,
-            }),
-          },
-        },
-        {
-          provide: SyncService,
-          useValue: {
-            fullSync: () => {},
-          },
-        },
-        {
-          provide: PlatformUtilsService,
-          useValue: {
-            isSelfHost: () => false,
+            calloutDismissed$: of(false),
+            upgrade: () => Promise.resolve(),
+            dismissCallout: () => Promise.resolve(),
           },
         },
       ],

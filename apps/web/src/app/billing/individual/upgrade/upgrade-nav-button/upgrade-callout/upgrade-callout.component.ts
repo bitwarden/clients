@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 
 import { ButtonComponent, CalloutComponent } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -14,7 +15,11 @@ import { UpgradeFlowService } from "../../services/upgrade-flow.service";
 export class UpgradeCalloutComponent {
   private readonly upgradeFlowService = inject(UpgradeFlowService);
 
-  protected readonly dismissed = signal(false);
+  protected readonly dismissed = toSignal(this.upgradeFlowService.calloutDismissed$, {
+    initialValue: true,
+  });
 
   protected readonly upgrade = () => this.upgradeFlowService.upgrade();
+
+  protected readonly dismiss = () => this.upgradeFlowService.dismissCallout();
 }

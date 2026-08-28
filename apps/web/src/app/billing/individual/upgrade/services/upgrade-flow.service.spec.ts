@@ -1,7 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -9,13 +9,14 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
+import { StateProvider } from "@bitwarden/state";
 
 import {
   UnifiedUpgradeDialogResult,
   UnifiedUpgradeDialogStatus,
 } from "../unified-upgrade-dialog/unified-upgrade-dialog.component";
 
-import { UpgradeFlowService } from "./upgrade-flow.service";
+import { UPGRADE_CALLOUT_DISMISSED_KEY, UpgradeFlowService } from "./upgrade-flow.service";
 
 describe("UpgradeFlowService", () => {
   let service: UpgradeFlowService;
@@ -24,6 +25,7 @@ describe("UpgradeFlowService", () => {
   let mockSyncService: MockProxy<SyncService>;
   let mockRouter: MockProxy<Router>;
   let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
+  let mockStateProvider: MockProxy<StateProvider>;
   let activeAccount$: BehaviorSubject<Account | null>;
 
   const mockAccount: Account = {
@@ -43,10 +45,12 @@ describe("UpgradeFlowService", () => {
     mockSyncService = mock<SyncService>();
     mockRouter = mock<Router>();
     mockPlatformUtilsService = mock<PlatformUtilsService>();
+    mockStateProvider = mock<StateProvider>();
 
     activeAccount$ = new BehaviorSubject<Account | null>(mockAccount);
     mockAccountService.activeAccount$ = activeAccount$;
     mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
+    mockStateProvider.getUserState$.mockReturnValue(of(null));
 
     TestBed.configureTestingModule({
       providers: [
@@ -56,6 +60,7 @@ describe("UpgradeFlowService", () => {
         { provide: SyncService, useValue: mockSyncService },
         { provide: Router, useValue: mockRouter },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+        { provide: StateProvider, useValue: mockStateProvider },
       ],
     });
 
@@ -136,6 +141,49 @@ describe("UpgradeFlowService", () => {
 
       expect(mockSyncService.fullSync).not.toHaveBeenCalled();
       expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("calloutDismissed$", () => {
+    it("emits false when the user has no stored dismissal", async () => {
+      expect(await firstValueFrom(service.calloutDismissed$)).toBe(false);
+      expect(mockStateProvider.getUserState$).toHaveBeenCalledWith(
+        UPGRADE_CALLOUT_DISMISSED_KEY,
+        mockAccount.id,
+      );
+    });
+
+    it("emits the stored dismissal for the active user", async () => {
+      mockStateProvider.getUserState$.mockReturnValue(of(true));
+
+      expect(await firstValueFrom(service.calloutDismissed$)).toBe(true);
+    });
+
+    it("emits true when there is no active account", async () => {
+      activeAccount$.next(null);
+
+      expect(await firstValueFrom(service.calloutDismissed$)).toBe(true);
+      expect(mockStateProvider.getUserState$).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("dismissCallout", () => {
+    it("persists the dismissal against the active user", async () => {
+      await service.dismissCallout();
+
+      expect(mockStateProvider.setUserState).toHaveBeenCalledWith(
+        UPGRADE_CALLOUT_DISMISSED_KEY,
+        true,
+        mockAccount.id,
+      );
+    });
+
+    it("does nothing when there is no active account", async () => {
+      activeAccount$.next(null);
+
+      await service.dismissCallout();
+
+      expect(mockStateProvider.setUserState).not.toHaveBeenCalled();
     });
   });
 });

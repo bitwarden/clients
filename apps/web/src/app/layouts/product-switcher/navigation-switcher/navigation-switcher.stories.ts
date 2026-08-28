@@ -34,6 +34,7 @@ import { GlobalStateProvider } from "@bitwarden/state";
 import { enabledFlags } from "@bitwarden/storybook";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { UpgradeFlowService } from "../../../billing/individual/upgrade/services/upgrade-flow.service";
 import { UpgradeCalloutComponent } from "../../../billing/individual/upgrade/upgrade-nav-button/upgrade-callout/upgrade-callout.component";
 import { ProductSwitcherService } from "../shared/product-switcher.service";
 
@@ -193,6 +194,14 @@ export default {
           provide: ApiService,
           useValue: {
             refreshIdentityToken: () => {},
+          },
+        },
+        {
+          provide: UpgradeFlowService,
+          useValue: {
+            calloutDismissed$: of(false),
+            upgrade: () => Promise.resolve(),
+            dismissCallout: () => Promise.resolve(),
           },
         },
       ],
