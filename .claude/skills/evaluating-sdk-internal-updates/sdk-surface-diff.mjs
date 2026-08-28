@@ -35,12 +35,15 @@ function fail(message) {
   process.exit(1);
 }
 
+// Returns the published TypeScript declaration surface for `pkg`@`version`: downloads (or reuses
+// a cached) `npm pack` tarball, extracts `bitwarden_wasm_internal.d.ts`, and, when the tarball
+// also ships a VERSION file, the sdk-internal commit SHA it was built from.
 function fetchSurface(version) {
   const dir = join(cache, version);
   const tarball = join(dir, "package");
-  const dts = join(tarball, "bitwarden_wasm_internal.d.ts");
+  const sdkTypescriptTypeDefinitions = join(tarball, "bitwarden_wasm_internal.d.ts");
 
-  if (!existsSync(dts)) {
+  if (!existsSync(sdkTypescriptTypeDefinitions)) {
     mkdirSync(dir, { recursive: true });
     try {
       execFileSync(
@@ -80,7 +83,7 @@ function fetchSurface(version) {
 
   const version_file = join(tarball, "VERSION");
   return {
-    text: readFileSync(dts, "utf8"),
+    text: readFileSync(sdkTypescriptTypeDefinitions, "utf8"),
     sha: existsSync(version_file) ? readFileSync(version_file, "utf8").trim() : null,
   };
 }
@@ -94,7 +97,12 @@ function header(node, source) {
   return normalize(body === -1 ? text : text.slice(0, body));
 }
 
-function extract(text, label) {
+// Parses a `.d.ts` file's text into a Map of qualified name -> normalized declaration text.
+// Top-level functions and type aliases each get one entry. Classes, interfaces, and enums get an
+// entry for their own header (name only, so a member change does not also dirty its owner) plus
+// one entry per member, keyed as `Owner.member`. This is what lets the diff below operate at
+// member granularity.
+function extractDeclarations(text, label) {
   const source = ts.createSourceFile(label, text, ts.ScriptTarget.Latest, false);
   if (source.parseDiagnostics?.length) {
     fail(`${label} did not parse: ${source.parseDiagnostics[0].messageText}`);
@@ -135,8 +143,8 @@ function extract(text, label) {
 
 const before = fetchSurface(oldVersion);
 const after = fetchSurface(newVersion);
-const old_surface = extract(before.text, `${oldVersion}.d.ts`);
-const new_surface = extract(after.text, `${newVersion}.d.ts`);
+const old_surface = extractDeclarations(before.text, `${oldVersion}.d.ts`);
+const new_surface = extractDeclarations(after.text, `${newVersion}.d.ts`);
 
 // An empty extraction reads as "nothing changed", the one wrong answer this must never give.
 if (old_surface.size === 0 || new_surface.size === 0) {
@@ -155,29 +163,51 @@ const mutated = [...old_surface.keys()]
 const added_owners = new Set(added);
 const ownerOf = (key) => (key.includes(".") ? key.slice(0, key.indexOf(".")) : null);
 
-console.log("## RANGE");
-console.log(`${pkg} ${oldVersion} -> ${newVersion}`);
-if (before.sha && after.sha) {
-  console.log(`sdk-internal ${before.sha}..${after.sha}`);
-}
-console.log(`declarations ${old_surface.size} -> ${new_surface.size}`);
-
-console.log(`\n## REMOVED (${removed.length}) - absent at NEW; a compile break at every call site`);
-for (const key of removed) {
-  console.log(`  ${key}`);
-}
-
-console.log(`\n## ADDED (${added.length}) - only a pre-existing owner is a break`);
-for (const key of added) {
-  const owner = ownerOf(key);
-  const note =
-    owner === null ? "" : added_owners.has(owner) ? "  (new owner)" : "  (existing owner)";
-  console.log(`  ${key}${note}`);
+// The two versions compared and, when both tarballs shipped a VERSION file, the sdk-internal
+// commit range between them (the range step 5 walks for context on each change below).
+function logRange() {
+  console.log("## RANGE");
+  console.log(`${pkg} ${oldVersion} -> ${newVersion}`);
+  if (before.sha && after.sha) {
+    console.log(`sdk-internal ${before.sha}..${after.sha}`);
+  }
+  console.log(`declarations ${old_surface.size} -> ${new_surface.size}`);
 }
 
-console.log(`\n## MUTATED (${mutated.length}) - key survives, its declaration changed`);
-for (const key of mutated) {
-  console.log(`  ${key}`);
-  console.log(`    OLD: ${old_surface.get(key)}`);
-  console.log(`    NEW: ${new_surface.get(key)}`);
+// Keys present at OLD but gone at NEW: every reference to one is now a compile error.
+function logRemoved() {
+  console.log(
+    `\n## REMOVED (${removed.length}) - absent at NEW; a compile break at every call site`,
+  );
+  for (const key of removed) {
+    console.log(`  ${key}`);
+  }
 }
+
+// A key here exists at NEW but not OLD. It only counts as a break if its owner (the part before
+// the dot, if any) already existed at OLD too; a brand-new class, interface, or enum cannot
+// break a caller.
+function logAdded() {
+  console.log(`\n## ADDED (${added.length}) - only a pre-existing owner is a break`);
+  for (const key of added) {
+    const owner = ownerOf(key);
+    const note =
+      owner === null ? "" : added_owners.has(owner) ? "  (new owner)" : "  (existing owner)";
+    console.log(`  ${key}${note}`);
+  }
+}
+
+// Same key at both versions, but the normalized declaration text differs: the name held, the shape changed.
+function logMutated() {
+  console.log(`\n## MUTATED (${mutated.length}) - key survives, its declaration changed`);
+  for (const key of mutated) {
+    console.log(`  ${key}`);
+    console.log(`    OLD: ${old_surface.get(key)}`);
+    console.log(`    NEW: ${new_surface.get(key)}`);
+  }
+}
+
+logRange();
+logRemoved();
+logAdded();
+logMutated();
