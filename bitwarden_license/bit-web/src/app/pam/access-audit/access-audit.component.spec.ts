@@ -568,4 +568,75 @@ describe("AccessAuditComponent", () => {
       expect(fileDownloadService.download).not.toHaveBeenCalled();
     });
   });
+
+  describe("column widths", () => {
+    /** Time, Event, Actor, Requester, Item, Duration, Detail — the order the template declares. */
+    const TIME = 0;
+    const EVENT = 1;
+    const ACTOR = 2;
+    const REQUESTER = 3;
+    const ITEM = 4;
+    const DETAIL = 6;
+
+    const renderTable = async () => {
+      auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      return {
+        headers: Array.from<HTMLElement>(
+          fixture.nativeElement.querySelectorAll("bit-table thead th"),
+        ),
+        cells: Array.from<HTMLElement>(
+          fixture.nativeElement.querySelectorAll("bit-table tbody tr td"),
+        ),
+      };
+    };
+
+    it("holds Time and Event on one line, header and body cell alike", async () => {
+      const { headers, cells } = await renderTable();
+
+      for (const column of [TIME, EVENT]) {
+        expect(headers[column].classList).toContain("tw-whitespace-nowrap");
+        expect(cells[column].classList).toContain("tw-whitespace-nowrap");
+      }
+    });
+
+    it("keeps the bitCell padding alongside the width classes", async () => {
+      const { headers, cells } = await renderTable();
+
+      // bitCell sets `class` through a HostBinding; a static class attribute on the same element
+      // has to survive that merge or every width class here is silently inert.
+      expect(headers[TIME].classList).toContain("tw-p-3");
+      expect(cells[ITEM].classList).toContain("tw-p-3");
+    });
+
+    it("caps Item and Detail and lets their text break inside the cap", async () => {
+      const { headers, cells } = await renderTable();
+
+      for (const column of [ITEM, DETAIL]) {
+        expect(headers[column].classList).toContain("tw-max-w-64");
+        expect(headers[column].classList).toContain("tw-break-words");
+        expect(cells[column].classList).toContain("tw-max-w-64");
+        expect(cells[column].classList).toContain("tw-break-words");
+      }
+    });
+
+    it("leaves the unbounded name columns free to wrap", async () => {
+      const { cells } = await renderTable();
+
+      for (const column of [ACTOR, REQUESTER]) {
+        expect(cells[column].classList).not.toContain("tw-whitespace-nowrap");
+      }
+    });
+
+    it("gives the table its own horizontal scroll container", async () => {
+      await renderTable();
+
+      const table = fixture.nativeElement.querySelector("bit-table");
+      expect(table.parentElement.classList).toContain("tw-overflow-x-auto");
+    });
+  });
 });
