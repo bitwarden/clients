@@ -97,7 +97,7 @@ describe("AccessAuditComponent", () => {
             pamAuditKindLeaseRevoked: "Lease revoked",
             pamAuditKindLeaseEndedByHolder: "Lease ended by holder",
             all: "All",
-            removeItem: (name: string) => `Remove ${name}`,
+            removeItem: (name?: string) => `Remove ${name}`,
             search: "Search",
             resetSearch: "Reset search",
           }),
@@ -144,7 +144,7 @@ describe("AccessAuditComponent", () => {
    * into a CDK overlay on the document, not inside the fixture's host element.
    */
   const openKindMenu = () => {
-    fixture.nativeElement
+    (fixture.nativeElement as HTMLElement)
       .querySelector<HTMLButtonElement>("bit-filter-menu button[aria-haspopup]")!
       .click();
     fixture.detectChanges();
