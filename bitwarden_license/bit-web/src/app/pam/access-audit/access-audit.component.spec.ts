@@ -30,8 +30,10 @@ function event(overrides: Record<string, unknown> = {}): AccessAuditEventRespons
     OrganizationId: ORGANIZATION_ID,
     ActorId: "user-1",
     ActorName: "Ada",
+    ActorEmail: "ada@example.com",
     RequesterId: "user-2",
     RequesterName: "Grace",
+    RequesterEmail: "grace@example.com",
     Automated: false,
     Incomplete: false,
     ...overrides,
@@ -360,16 +362,27 @@ describe("AccessAuditComponent", () => {
     expect(component().actorOptions()).toEqual([]);
   });
 
-  it("separates two requesters who share a display name", async () => {
+  it("tells apart two requesters who share a display name", async () => {
     auditApiService.listAccessAuditTrail.mockResolvedValue([
-      event({ RequesterId: "user-2", RequesterName: "J. Smith" }),
-      event({ RequesterId: "user-4", RequesterName: "J. Smith" }),
+      event({
+        RequesterId: "user-2",
+        RequesterName: "J. Smith",
+        RequesterEmail: "smith-a@example.com",
+      }),
+      event({
+        RequesterId: "user-4",
+        RequesterName: "J. Smith",
+        RequesterEmail: "smith-b@example.com",
+      }),
     ]);
 
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(component().requesterOptions()).toHaveLength(2);
+    expect(component().requesterOptions()).toEqual([
+      { label: "J. Smith (smith-a@example.com)", value: "user-2" },
+      { label: "J. Smith (smith-b@example.com)", value: "user-4" },
+    ]);
 
     component().requesterControl.setValue("user-4");
 
@@ -415,11 +428,12 @@ describe("AccessAuditComponent", () => {
     expect(component().filteredRows()[0].occurredAt).toEqual(noon);
   });
 
-  it("leaves the table alone and reports an inverted range rather than emptying it", async () => {
+  it("leaves the table alone and reports an inverted range on the To field rather than emptying it", async () => {
     auditApiService.listAccessAuditTrail.mockResolvedValue([event(), event()]);
 
     fixture.detectChanges();
     await fixture.whenStable();
+    fixture.detectChanges();
 
     component().fromControl.setValue("2026-08-18T18:00");
     component().toControl.setValue("2026-08-18T09:00");
@@ -427,9 +441,34 @@ describe("AccessAuditComponent", () => {
 
     expect(component().invertedRange()).toBe(true);
     expect(component().filteredRows()).toHaveLength(2);
-    expect(fixture.nativeElement.querySelector("bit-error").textContent).toContain(
+
+    const toInput = fixture.nativeElement.querySelector("#access-audit_input_to");
+    const fromInput = fixture.nativeElement.querySelector("#access-audit_input_from");
+    expect(toInput.closest("bit-form-field").querySelector("bit-error").textContent).toContain(
       "Invalid date range.",
     );
+    expect(toInput.getAttribute("aria-invalid")).toBe("true");
+    expect(fromInput.getAttribute("aria-invalid")).not.toBe("true");
+  });
+
+  it("clears the inverted-range error once the bounds are the right way round", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    component().fromControl.setValue("2026-08-01T00:00");
+    component().toControl.setValue("2026-07-01T00:00");
+    fixture.detectChanges();
+
+    component().toControl.setValue("2026-09-01T00:00");
+    fixture.detectChanges();
+
+    const toInput = fixture.nativeElement.querySelector("#access-audit_input_to");
+    expect(toInput.closest("bit-form-field").querySelector("bit-error")).toBeNull();
+    expect(toInput.getAttribute("aria-invalid")).not.toBe("true");
+    expect(component().toControl.errors).toBeNull();
   });
 
   // Every filter is a predicate over the one already-fetched window; the endpoint takes no query
