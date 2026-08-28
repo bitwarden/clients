@@ -4,9 +4,11 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { of } from "rxjs";
 import { fireEvent } from "storybook/test";
 
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
+import { DialogService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessNameResolverService } from "../access-requests/access-name-resolver.service";
@@ -202,8 +204,89 @@ const LONG_TEXT_EVENTS: AccessAuditEventResponse[] = [
   }),
 ];
 
-function audit(options: { events?: AccessAuditEventResponse[]; fails?: boolean } = {}) {
-  const { events = EVENTS, fails = false } = options;
+/**
+ * The organization's members as `getAllMiniUserDetails` returns them, keyed by platform user id and
+ * carrying the organization user id the entity-events dialog needs.
+ *
+ * Deliberately short of the identities the trail names: `user-9` acted while a member and has since been
+ * removed, so that row's actor and requester stay plain text however the rest of the table links.
+ */
+const MEMBERS = [
+  { userId: "user-1", id: "org-user-1", name: "Grace Hopper", email: "grace@example.com" },
+  { userId: "user-2", id: "org-user-2", name: "Ada Lovelace", email: "ada@example.com" },
+  { userId: "user-3", id: "org-user-3", name: "Katherine Johnson", email: "katherine@example.com" },
+];
+
+/** An identity the member lookup cannot resolve — a member who has since left the organization. */
+const FORMER_MEMBER = {
+  actorId: "user-9",
+  actorName: "Alan Turing",
+  actorEmail: "alan@example.com",
+  requesterId: "user-9",
+  requesterName: "Alan Turing",
+  requesterEmail: "alan@example.com",
+};
+
+/**
+ * The linkability check. Every cell that must NOT become an anchor sits beside one that must, so a
+ * regression that links everything is as visible as one that links nothing: the automated row's System
+ * actor, a former member's name, an access rule (which has no entity-events dialog), and an item that
+ * did not decrypt in this viewer's vault.
+ */
+const MIXED_LINK_EVENTS: AccessAuditEventResponse[] = [
+  // Every cell linkable: a resolved actor, a resolved requester, and an item this vault decrypted.
+  event({
+    kind: AccessAuditEventKind.CredentialAccessed,
+    occurredAt: fromNow(-5 * MINUTE),
+    ...APPROVER,
+  }),
+  // Automated: the Actor cell reads System, which is not a member and never a link.
+  event({
+    kind: AccessAuditEventKind.LeaseExpired,
+    occurredAt: fromNow(-15 * MINUTE),
+    leaseId: "lease-1",
+    actorId: null,
+    actorName: null,
+    actorEmail: null,
+    automated: true,
+  }),
+  // A former member: both names resolve to nothing the lookup knows, so both stay text.
+  event({
+    kind: AccessAuditEventKind.RequestSubmitted,
+    occurredAt: fromNow(-40 * MINUTE),
+    ...FORMER_MEMBER,
+  }),
+  // A rule change: the Item cell falls back to the rule name, which has no event history to open.
+  event({
+    kind: AccessAuditEventKind.RuleUpdated,
+    occurredAt: fromNow(-3 * HOUR),
+    cipherId: null,
+    collectionId: null,
+    requestId: null,
+    ruleId: "rule-1",
+    ruleName: "Production access",
+    ...APPROVER,
+  }),
+  // An item outside this viewer's vault: no decrypted name, so nothing to render as link text.
+  event({
+    kind: AccessAuditEventKind.RequestApproved,
+    occurredAt: fromNow(-DAY),
+    cipherId: "cipher-9",
+    collectionId: "col-9",
+    requestId: "req-9",
+    ...OTHER_REQUESTER,
+    ...APPROVER,
+  }),
+];
+
+function audit(
+  options: {
+    events?: AccessAuditEventResponse[];
+    fails?: boolean;
+    membersRefused?: boolean;
+  } = {},
+) {
+  const { events = EVENTS, fails = false, membersRefused = false } = options;
   return moduleMetadata({
     imports: [AccessAuditComponent],
     providers: [
@@ -218,6 +301,16 @@ function audit(options: { events?: AccessAuditEventResponse[]; fails?: boolean }
         provide: AccessNameResolverService,
         useValue: { resolveNames: () => Promise.resolve(names) },
       },
+      {
+        provide: OrganizationUserApiService,
+        useValue: {
+          getAllMiniUserDetails: () =>
+            membersRefused
+              ? Promise.reject(new Error("member listing refused"))
+              : Promise.resolve({ data: MEMBERS }),
+        },
+      },
+      { provide: DialogService, useValue: { open: () => ({ closed: of(undefined) }) } },
       {
         provide: FileDownloadService,
         useValue: { download: (): void => undefined },
@@ -283,6 +376,24 @@ export const SingleEvent: Story = {
  */
 export const LongValues: Story = {
   decorators: [audit({ events: [...LONG_TEXT_EVENTS, ...EVENTS] })],
+};
+
+/**
+ * Which cells open an event history and which do not. The actor, requester and item of the top row are
+ * all anchors; beside them sit the four that must stay plain text — the System actor, a former member's
+ * name, an access rule, and an item this viewer's vault could not decrypt.
+ */
+export const EntityLinks: Story = {
+  decorators: [audit({ events: MIXED_LINK_EVENTS })],
+};
+
+/**
+ * The member lookup refused. `AccessEventLogs` authorizes this trail but does not imply permission to
+ * enumerate the organization's members, so this is what a legitimate viewer without that second
+ * permission sees: the whole trail, with every name plain text and only the item still linked.
+ */
+export const MemberLookupRefused: Story = {
+  decorators: [audit({ events: MIXED_LINK_EVENTS, membersRefused: true })],
 };
 
 /**

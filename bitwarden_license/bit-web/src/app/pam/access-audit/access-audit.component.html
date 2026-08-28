@@ -138,13 +138,44 @@
                 <td bitCell>
                   @if (row.automated) {
                     <span class="tw-text-muted">{{ "pamAuditSystem" | i18n }}</span>
+                  } @else if (linkedMember(row.actorId, row.actor); as member) {
+                    <a
+                      bitLink
+                      href="#"
+                      id="access-audit_link_actor-{{ $index }}"
+                      [title]="member.email"
+                      (click)="openMemberEvents($event, member)"
+                      >{{ row.actor }}</a
+                    >
                   } @else {
                     {{ row.actor }}
                   }
                 </td>
-                <td bitCell>{{ row.requester }}</td>
+                <td bitCell>
+                  @if (linkedMember(row.requesterId, row.requester); as member) {
+                    <a
+                      bitLink
+                      href="#"
+                      id="access-audit_link_requester-{{ $index }}"
+                      [title]="member.email"
+                      (click)="openMemberEvents($event, member)"
+                      >{{ row.requester }}</a
+                    >
+                  } @else {
+                    {{ row.requester }}
+                  }
+                </td>
                 <td bitCell class="tw-max-w-64 tw-break-words">
-                  @if (row.cipherName) {
+                  @if (row.cipherName && row.cipherId) {
+                    <a
+                      bitLink
+                      href="#"
+                      id="access-audit_link_item-{{ $index }}"
+                      [bitTooltip]="row.collectionName"
+                      (click)="openCipherEvents($event, row)"
+                      >{{ row.cipherName }}</a
+                    >
+                  } @else if (row.cipherName) {
                     <span [bitTooltip]="row.collectionName">{{ row.cipherName }}</span>
                   } @else if (row.ruleName) {
                     {{ row.ruleName }}

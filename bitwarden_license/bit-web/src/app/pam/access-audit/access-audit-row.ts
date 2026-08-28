@@ -29,6 +29,8 @@ export type AuditRow = {
   requesterEmail: string | null;
   /** Decrypted cipher name from local vault state, or null when the item isn't in the caller's vault. */
   cipherName: string | null;
+  /** The subject cipher, when the event names one — the entity the Item cell opens an event history for. */
+  cipherId: string | null;
   /** Decrypted collection name from local vault state, or null. */
   collectionName: string | null;
   /** The access rule's name (plaintext, provided by the server), for rule administration events; null otherwise. */
@@ -142,6 +144,7 @@ export function toAuditRow(
     requesterId: event.requesterId,
     requesterEmail: event.requesterEmail,
     cipherName,
+    cipherId: event.cipherId,
     collectionName,
     ruleName: event.ruleName,
     detail: event.detail,
