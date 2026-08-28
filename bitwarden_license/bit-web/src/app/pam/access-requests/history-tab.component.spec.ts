@@ -54,12 +54,14 @@ describe("HistoryTabComponent", () => {
   let managedIds$: BehaviorSubject<Set<string>>;
   let managedLoading$: BehaviorSubject<boolean>;
   let myLoading$: BehaviorSubject<boolean>;
+  let myLoadError$: BehaviorSubject<unknown | null>;
   let lastSync$: BehaviorSubject<Date | null>;
   let inbox: {
     historyRows$: BehaviorSubject<MyAccessRequestRow[]>;
     managedIds$: BehaviorSubject<Set<string>>;
     cipherById$: BehaviorSubject<Map<string, CipherView>>;
     loading$: BehaviorSubject<boolean>;
+    loadError$: BehaviorSubject<unknown | null>;
     revokeLease: jest.Mock;
     cancelApproval: jest.Mock;
   };
@@ -110,12 +112,14 @@ describe("HistoryTabComponent", () => {
     managedIds$ = new BehaviorSubject<Set<string>>(new Set());
     managedLoading$ = new BehaviorSubject(false);
     myLoading$ = new BehaviorSubject(false);
+    myLoadError$ = new BehaviorSubject<unknown | null>(null);
     lastSync$ = new BehaviorSubject<Date | null>(new Date("2026-08-20T09:00:00.000Z"));
     inbox = {
       historyRows$: managedRows$,
       managedIds$,
       cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
       loading$: managedLoading$,
+      loadError$: new BehaviorSubject<unknown | null>(null),
       revokeLease: jest.fn().mockResolvedValue(undefined),
       cancelApproval: jest.fn().mockResolvedValue(undefined),
     };
@@ -134,6 +138,7 @@ describe("HistoryTabComponent", () => {
             historyRows$: myRows$,
             cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
             loading$: myLoading$,
+            loadError$: myLoadError$,
           },
         },
         { provide: ApproverInboxService, useValue: inbox },
@@ -502,6 +507,45 @@ describe("HistoryTabComponent", () => {
 
       expect(query('[data-testid="history-loading-status"]')).toBe(status);
       expect(status?.textContent).toContain("pamHistoryLoaded");
+    });
+
+    // The latch resolves on the loading flags alone, so a failed read ends the skeleton exactly like
+    // a successful one and falls through to the same empty table — with the shell toasting the error
+    // beside it. A sighted reader can weigh those two against each other; "Request history loaded"
+    // read into the live region is the one claim that cannot be corrected.
+    it("does not announce a failed managed-history load as loaded", () => {
+      canApprove$.next(true);
+      managedLoading$.next(true);
+
+      create();
+      passSkeletonDelay();
+
+      expect(query('[data-testid="history-loading-status"]')?.textContent).toContain("loading");
+
+      inbox.loadError$.next(new Error("boom"));
+      managedLoading$.next(false);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="history-loading"]')).toBeNull();
+      expect(query('[data-testid="history-loading-status"]')?.textContent?.trim()).toBe("");
+    });
+
+    // Either read failing leaves the merged list short by everything that side holds, so the
+    // requester's own history guards the announcement on the same terms as the managed one.
+    it("does not announce a failed own-history load as loaded", () => {
+      myLoading$.next(true);
+
+      create();
+      passSkeletonDelay();
+
+      expect(query('[data-testid="history-loading-status"]')?.textContent).toContain("loading");
+
+      myLoadError$.next(new Error("boom"));
+      myLoading$.next(false);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="history-loading"]')).toBeNull();
+      expect(query('[data-testid="history-loading-status"]')?.textContent?.trim()).toBe("");
     });
 
     // The shell never loads the inbox for a member who cannot approve, so its loading flag stays
