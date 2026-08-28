@@ -51,8 +51,6 @@ export type AuditRow = {
   exactWindow: string | null;
   /** A lease-extended event's new lease end (the wire's ISO string). Null on every other kind. */
   extendedUntil: string | null;
-  /** Lowercased haystack for the free-text filter: actor, requester, item, and detail. */
-  searchText: string;
 };
 
 /** The i18n key for an event kind's label. */
@@ -153,10 +151,6 @@ export function toAuditRow(
     duration: grantedWindow == null ? null : durationLabel(grantedWindow),
     exactWindow: grantedWindow == null ? null : exactWindow(grantedWindow),
     extendedUntil,
-    searchText: [actor, requester, cipherName, collectionName, event.ruleName, event.detail]
-      .filter((value): value is string => value != null)
-      .join(" ")
-      .toLowerCase(),
   };
 }
 
@@ -196,7 +190,6 @@ export function auditRangeEnd(value: string): Date | null {
 
 /** The active audit-log filter. Every dimension is independent, and an unset one matches everything. */
 export type AuditFilter = {
-  text: string;
   kindLabelKey: string | null;
   /** An actor identity, or {@link AUTOMATED_ACTOR} for the system bucket. */
   actorId?: string | null;
@@ -207,7 +200,7 @@ export type AuditFilter = {
   to?: Date | null;
 };
 
-/** Whether a row passes the filter. Empty text, a null kind, a null identity and a null bound match everything. */
+/** Whether a row passes the filter. A null kind, a null identity and a null bound match everything. */
 export function auditRowMatchesFilter(row: AuditRow, filter: AuditFilter): boolean {
   if (filter.kindLabelKey != null && row.kindLabelKey !== filter.kindLabelKey) {
     return false;
@@ -228,6 +221,5 @@ export function auditRowMatchesFilter(row: AuditRow, filter: AuditFilter): boole
   if (filter.to != null && occurredAt > filter.to.getTime()) {
     return false;
   }
-  const text = filter.text.trim().toLowerCase();
-  return text === "" || row.searchText.includes(text);
+  return true;
 }
