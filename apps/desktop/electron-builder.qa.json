@@ -6,6 +6,7 @@
   "extraMetadata": {
     "name": "bitwarden-qa"
   },
+  "publish": null,
   "dmg": {
     "artifactName": "Bitwarden-${version}-${arch}.${ext}"
   },
