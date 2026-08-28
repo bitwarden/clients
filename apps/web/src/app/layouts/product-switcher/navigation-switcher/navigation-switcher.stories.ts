@@ -5,7 +5,6 @@ import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/an
 import { BehaviorSubject, Observable, of } from "rxjs";
 
 import { PasswordManagerLogo, SideNavLogo } from "@bitwarden/assets/svg";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -21,7 +20,6 @@ import { UserId } from "@bitwarden/common/types/guid";
 import {
   BadgeComponent,
   BerryComponent,
-  DialogService,
   I18nMockService,
   IconTileComponent,
   LayoutComponent,
@@ -180,20 +178,6 @@ export default {
           provide: PolicyService,
           useValue: {
             policyAppliesToUser$: () => of(false),
-          },
-        },
-        {
-          provide: DialogService,
-          useValue: {
-            open: () => ({
-              closed: of({}),
-            }),
-          },
-        },
-        {
-          provide: ApiService,
-          useValue: {
-            refreshIdentityToken: () => {},
           },
         },
         {
