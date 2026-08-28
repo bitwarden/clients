@@ -130,7 +130,7 @@ export class MyAccessService {
    * Terminal requests (everything but pending, and a grant still awaiting an activation that can
    * happen), newest first — the exact complement of {@link pendingRows$}, so a request is always in
    * one of the two. A grant whose lease is still active is excluded on top of that: it belongs in
-   * Active leases, not both places, and returns here once the lease ends.
+   * Active access, not both places, and returns here once the lease ends.
    *
    * An unactivated grant can only reach here by its window lapsing, which is not a state the
    * caller-agnostic {@link historyDisplayStatus} can name, so its badge is corrected on the way in.
@@ -230,7 +230,7 @@ export class MyAccessService {
   }
 
   /**
-   * End the caller's own active lease early. Optimistically drops the lease from Active leases and
+   * End the caller's own active lease early. Optimistically drops the lease from Active access and
    * marks its originating request's produced lease `canceled` — the status the server records for a
    * self-service end, as against `revoked` for an operator ending it — so the grant reappears in
    * History labelled "Canceled" straight away; then calls the API and, on failure, restores both
