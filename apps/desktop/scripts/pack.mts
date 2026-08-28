@@ -13,6 +13,7 @@
 /// Usage:
 ///   node scripts/pack.mts --build-dir build-mac
 
+import { execFileSync } from "child_process";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 
@@ -23,6 +24,8 @@ import { loadBuildConfig, parseBuildArgs, projectDir, runScript } from "./build-
 import {
   applyBuildConfig,
   electronBuilderTargets,
+  signedAppxConfig,
+  unpackedDir,
   unsupportedChannels,
 } from "./electron-builder-config.mts";
 import { packHooks } from "./pack-hooks.mts";
@@ -116,6 +119,83 @@ async function pack(config: BuildConfig): Promise<void> {
     // Leaving this unset would let electron-builder publish on a tagged CI run.
     publish: "never",
   });
+
+  if (config.distributionChannels.includes("windows-appx")) {
+    await packSignedAppx(config, readBaseConfig());
+  }
+}
+
+/// Repackages what the first pass unpacked as an Appx naming the signing certificate.
+///
+/// Nothing is rebuilt: electron-builder is pointed at the app directory it just produced, so
+/// the binaries keep the signatures they were given, and the cost is one Appx compression per
+/// architecture rather than a second build.
+async function packSignedAppx(config: BuildConfig, base: Record<string, unknown>): Promise<void> {
+  const output = path.resolve(projectDir, config.directories.dist);
+
+  for (const architecture of config.architectures) {
+    const prepackaged = path.join(output, unpackedDir(architecture));
+    if (!existsSync(prepackaged)) {
+      throw new BuildError(
+        `No unpacked ${architecture} app at ${prepackaged} to repackage as a signed Appx.`,
+      );
+    }
+
+    const publisher = signingSubject(path.join(prepackaged, `${config.derived.productName}.exe`));
+    console.log(`Packaging a signed ${architecture} Appx published by '${publisher}'`);
+
+    await electronBuilder({
+      projectDir,
+      prepackaged,
+      publish: "never",
+      targets: Platform.WINDOWS.createTarget("appx", ARCHITECTURES[architecture]),
+      config: {
+        ...signedAppxConfig(base, config, publisher),
+        // The manifest this pass generates needs the same edits the first one's did.
+        ...appxManifestHook(config),
+        // No hooks on this pass. The app is packed and signed already, and afterPack would flip
+        // the Electron fuses a second time -- which rewrites the binary and would invalidate
+        // the signature this package exists to carry. These also displace the script paths the
+        // checked-in configuration names, which electron-builder would otherwise load.
+        beforePack: () => {},
+        afterPack: () => {},
+        afterSign: () => {},
+      },
+    });
+  }
+}
+
+/// Subject of the certificate an executable was signed with.
+///
+/// Read from the signed binary rather than configured, because it is not a choice: the Appx
+/// manifest's publisher has to be exactly this or signing fails. Whoever holds the certificate
+/// is the only one who knows the subject, and by this point they have already used it.
+function signingSubject(executable: string): string {
+  if (!existsSync(executable)) {
+    throw new BuildError(`Expected a signed executable at ${executable}, but it is not there.`);
+  }
+
+  const quoted = executable.replace(/'/g, "''");
+  const output = execFileSync(
+    "powershell",
+    [
+      "-NoProfile",
+      "-Command",
+      `(Get-AuthenticodeSignature -LiteralPath '${quoted}').SignerCertificate.Subject`,
+    ],
+    { encoding: "utf8" },
+  );
+
+  const subject = output.trim();
+  // PowerShell prints nothing at all for an unsigned file: there is no certificate to ask.
+  if (subject === "") {
+    throw new BuildError(
+      `${executable} is not signed, so there is no publisher for the Appx to name.\n` +
+        "       A signed Appx needs a signed app: set ELECTRON_BUILDER_SIGN and its signing " +
+        "environment for the pack that produced it.",
+    );
+  }
+  return subject;
 }
 
 /// Rewrites those to absolute paths.

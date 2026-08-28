@@ -14,7 +14,12 @@
 
 import { relative, sep } from "path";
 
-import { type BuildConfig, type DistributionChannel, isAppStoreBuild } from "./build-config.mts";
+import {
+  type Architecture,
+  type BuildConfig,
+  type DistributionChannel,
+  isAppStoreBuild,
+} from "./build-config.mts";
 
 /// electron-builder target for each distribution channel. Null where producing the channel
 /// takes more than an electron-builder target -- those are packaged by steps that do not exist
@@ -85,15 +90,85 @@ const PACKAGED_BINARIES: Record<string, (from: string) => ExtraFile[]> = {
   ],
 };
 
+/// Channels produced by a step of our own that runs after electron-builder, rather than by an
+/// electron-builder target of their own.
+const POST_PROCESSED: readonly DistributionChannel[] = ["windows-appx"];
+
+export function isPostProcessed(channel: DistributionChannel): boolean {
+  return POST_PROCESSED.includes(channel);
+}
+
 /// Channels this build asked for that nothing can produce yet.
 export function unsupportedChannels(config: BuildConfig): DistributionChannel[] {
-  return config.distributionChannels.filter((channel) => ELECTRON_BUILDER_TARGETS[channel] == null);
+  return config.distributionChannels.filter(
+    (channel) => ELECTRON_BUILDER_TARGETS[channel] == null && !isPostProcessed(channel),
+  );
 }
 
 export function electronBuilderTargets(config: BuildConfig): string[] {
-  return config.distributionChannels
+  const targets = config.distributionChannels
     .map((channel) => ELECTRON_BUILDER_TARGETS[channel])
     .filter((target): target is string => target != null);
+
+  if (targets.length > 0) {
+    return targets;
+  }
+
+  // A post-processed channel repackages what electron-builder unpacked, so something has to be
+  // unpacked even when no other channel asked for it.
+  return config.distributionChannels.some(isPostProcessed) ? ["dir"] : [];
+}
+
+/// Where electron-builder leaves the unpacked app for an architecture, relative to the output
+/// directory. The default architecture goes without a suffix.
+export function unpackedDir(architecture: Architecture): string {
+  return architecture === "x64" ? "win-unpacked" : `win-${architecture}-unpacked`;
+}
+
+/// The configuration for the second electron-builder pass, which repackages an already-built
+/// and already-signed app directory as an Appx that names the signing certificate.
+///
+/// An Appx carries its publisher in the manifest, and signing only succeeds when that publisher
+/// is the subject of the certificate signing it. A Store package has to keep the
+/// Microsoft-assigned publisher and stay unsigned, so the two cannot be the same package -- one
+/// installs for nobody, the other is rejected at ingestion. Hence a second pass rather than a
+/// second target: nothing is rebuilt, the app keeps the signatures from the first pass, and
+/// only the manifest changes.
+export function signedAppxConfig(
+  base: Record<string, unknown>,
+  config: BuildConfig,
+  publisher: string,
+): Record<string, unknown> {
+  const result = applyBuildConfig(base, config);
+
+  result.appx = {
+    ...(result.appx as Record<string, unknown>),
+    publisher,
+    // The unsuffixed name. The first pass took `-store` for the package that keeps the
+    // Microsoft publisher, so this is the one a person downloads and installs.
+    artifactName: appxArtifactName(base, config),
+  };
+
+  return result;
+}
+
+/// `appx.artifactName` as configured, before the Store suffix is applied.
+function appxArtifactName(base: Record<string, unknown>, config: BuildConfig): string {
+  const appx = applyChannelTo(base, config).appx as Record<string, unknown> | undefined;
+  return typeof appx?.artifactName === "string"
+    ? appx.artifactName
+    : "${productName}-${version}-${arch}.${ext}";
+}
+
+/// The channel overlay applied to a copy of the base, for reading a value the overlay may have
+/// changed without going through the whole of applyBuildConfig.
+function applyChannelTo(
+  base: Record<string, unknown>,
+  config: BuildConfig,
+): Record<string, unknown> {
+  const copy = JSON.parse(JSON.stringify(base)) as Record<string, unknown>;
+  applyChannel(copy, config);
+  return copy;
 }
 
 /// Applies the build configuration to a copy of the base electron-builder configuration.
@@ -127,6 +202,7 @@ export function applyBuildConfig(
   result[platformKey] = { ...(result[platformKey] as Record<string, unknown>), extraFiles };
 
   applyChannel(result, config);
+  applyStoreAppxName(result, config);
 
   if (config.derived.platform === "macos") {
     applyMacIdentity(result, config);
@@ -210,6 +286,26 @@ function applyChannel(result: Record<string, unknown>, config: BuildConfig): voi
   // rather than the project, and eagerly, whatever platform is being built -- so a relative one
   // breaks a macOS build started from anywhere but apps/desktop. pack.mts adds it, absolute,
   // for the Windows builds that have a manifest at all.
+}
+
+/// Renames the Store Appx when a signed one is being built alongside it.
+///
+/// Both are Appx packages of the same app for the same architecture, so they land on the same
+/// `appx.artifactName` and the second would overwrite the first. The Store package takes the
+/// suffix because the signed one is what a person downloads by name. CI renames these by hand
+/// today, between the two packaging steps.
+function applyStoreAppxName(result: Record<string, unknown>, config: BuildConfig): void {
+  const channels = config.distributionChannels;
+  if (!channels.includes("microsoft-store") || !channels.includes("windows-appx")) {
+    return;
+  }
+
+  const appx = { ...(result.appx as Record<string, unknown>) };
+  const name = typeof appx.artifactName === "string" ? appx.artifactName : null;
+  if (name != null) {
+    appx.artifactName = name.replace(/\.\$\{ext\}$/, "-store.${ext}");
+    result.appx = appx;
+  }
 }
 
 /// Overlays values onto one section of the configuration, leaving the rest of it alone.
