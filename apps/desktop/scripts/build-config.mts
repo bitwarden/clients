@@ -169,25 +169,48 @@ export interface AutofillExtensionBuild {
   xcodeConfiguration: string;
   codeSignIdentity: string;
   provisioningProfileSpecifier: string;
+  /// Relative to the Xcode project directory, which is what xcodebuild resolves it against.
+  codeSignEntitlements: string;
 }
 
-/// Mirrors the mapping in build-macos-extension.js, moved here so the build script can read a
-/// decision instead of making one.
-const AUTOFILL_EXTENSION_BUILDS: Record<string, AutofillExtensionBuild> = {
+/// The Xcode configuration says how the extension was compiled and nothing about where it is
+/// going. The project also has ReleaseAppStore and ReleaseDeveloper, which predate this and
+/// name both at once; they are still there for build-macos-extension.js and for anyone
+/// building from Xcode, and nothing here selects them.
+const AUTOFILL_EXTENSION_CONFIGURATIONS: Record<Profile, string> = {
+  debug: "Debug",
+  release: "Release",
+};
+
+/// How the extension is signed, which follows from where the build is going. Every one of
+/// these outranks the Xcode configuration's own settings, because xcodebuild ranks a setting
+/// given on the command line above both the target's and the .xcconfig's.
+interface AutofillExtensionSigning {
+  codeSignIdentity: string;
+  provisioningProfileSpecifier: string;
+  codeSignEntitlements: string;
+}
+
+/// Sandboxed, for an app whose entitlements the App Store grants.
+const APP_STORE_ENTITLEMENTS = "autofill-extension/autofill_extension.entitlements";
+/// Everything else, where the extension asks for the capabilities itself.
+const DIRECT_ENTITLEMENTS = "autofill-extension/autofill_extension_enabled.entitlements";
+
+const AUTOFILL_EXTENSION_SIGNING: Record<string, AutofillExtensionSigning> = {
   "mac-app-store": {
-    xcodeConfiguration: "ReleaseAppStore",
     codeSignIdentity: "3rd Party Mac Developer Application",
     provisioningProfileSpecifier: "Bitwarden Desktop Autofill App Store 2024",
+    codeSignEntitlements: APP_STORE_ENTITLEMENTS,
   },
   "mac-app-store-development": {
-    xcodeConfiguration: "Debug",
     codeSignIdentity: "Apple Development",
     provisioningProfileSpecifier: "Bitwarden Desktop Autofill Development 2024",
+    codeSignEntitlements: DIRECT_ENTITLEMENTS,
   },
   default: {
-    xcodeConfiguration: "ReleaseDeveloper",
     codeSignIdentity: "Developer ID Application",
     provisioningProfileSpecifier: "Bitwarden Desktop Autofill Extension Developer Dis",
+    codeSignEntitlements: DIRECT_ENTITLEMENTS,
   },
 };
 
@@ -517,12 +540,13 @@ export function toBuildConfig(raw: RawOptions, resolved: ResolvedInputs = {}): B
   const targets = resolveTargets(raw, platform);
   const autofillExtension = targets.some((target) => target.key === "macosAutofillExtension");
   const macos = macosConfig(raw, resolved, buildDir);
+  const profile: Profile = isProfile(raw.profile) ? raw.profile : "debug";
 
   return {
     configVersion: CONFIG_VERSION,
     buildDir,
     channel: isChannel(raw.channel) ? raw.channel : "stable",
-    profile: isProfile(raw.profile) ? raw.profile : "debug",
+    profile,
     architectures: raw.architectures.filter(isArchitecture).slice().sort(),
     distributionChannels,
     ...(raw.buildNumber != null ? { buildNumber: raw.buildNumber } : {}),
@@ -536,7 +560,7 @@ export function toBuildConfig(raw: RawOptions, resolved: ResolvedInputs = {}): B
     derived: {
       platform,
       ...(autofillExtension
-        ? { macosAutofillExtension: autofillExtensionBuild(distributionChannels) }
+        ? { macosAutofillExtension: autofillExtensionBuild(profile, distributionChannels) }
         : {}),
     },
     directories: {
@@ -697,15 +721,25 @@ function resolveTargets(raw: RawOptions, platform: Platform): TargetDefinition[]
 }
 
 function autofillExtensionBuild(
+  profile: Profile,
   distributionChannels: readonly DistributionChannel[],
 ): AutofillExtensionBuild {
+  return {
+    xcodeConfiguration: AUTOFILL_EXTENSION_CONFIGURATIONS[profile],
+    ...autofillExtensionSigning(distributionChannels),
+  };
+}
+
+function autofillExtensionSigning(
+  distributionChannels: readonly DistributionChannel[],
+): AutofillExtensionSigning {
   for (const channel of distributionChannels) {
-    const build = AUTOFILL_EXTENSION_BUILDS[channel];
-    if (build != null) {
-      return build;
+    const signing = AUTOFILL_EXTENSION_SIGNING[channel];
+    if (signing != null) {
+      return signing;
     }
   }
-  return AUTOFILL_EXTENSION_BUILDS.default;
+  return AUTOFILL_EXTENSION_SIGNING.default;
 }
 
 function platformsOf(distributionChannels: readonly DistributionChannel[]): Platform[] {

@@ -305,29 +305,55 @@ describe("toBuildConfig", () => {
     });
   });
 
-  it("derives the autofill extension build from the distribution channel", () => {
-    const developerId = toBuildConfigFromArgs([...MAC_ARGS, "--with-macos-autofill-extension"]);
-    const appStore = toBuildConfigFromArgs([
-      "--build-dir",
-      "build-mas",
-      "--architecture",
-      "universal",
-      "--distribution-channel",
-      "mac-app-store",
-      "--macos-signing-certificate",
-      "3rd Party Mac Developer Application: Bitwarden Inc",
-      "--with-macos-autofill-extension",
-    ]);
+  const APP_STORE_ARGS = [
+    "--build-dir",
+    "build-mas",
+    "--architecture",
+    "universal",
+    "--distribution-channel",
+    "mac-app-store",
+    "--macos-signing-certificate",
+    "3rd Party Mac Developer Application: Bitwarden Inc",
+    "--with-macos-autofill-extension",
+  ];
 
-    expect(developerId.derived.macosAutofillExtension).toEqual({
-      xcodeConfiguration: "ReleaseDeveloper",
+  it("signs the autofill extension according to the distribution channel", () => {
+    const developerId = toBuildConfigFromArgs([...MAC_ARGS, "--with-macos-autofill-extension"]);
+    const appStore = toBuildConfigFromArgs(APP_STORE_ARGS);
+
+    expect(developerId.derived.macosAutofillExtension).toMatchObject({
       codeSignIdentity: "Developer ID Application",
       provisioningProfileSpecifier: "Bitwarden Desktop Autofill Extension Developer Dis",
+      codeSignEntitlements: "autofill-extension/autofill_extension_enabled.entitlements",
     });
-    expect(appStore.derived.macosAutofillExtension).toEqual({
-      xcodeConfiguration: "ReleaseAppStore",
+    expect(appStore.derived.macosAutofillExtension).toMatchObject({
       codeSignIdentity: "3rd Party Mac Developer Application",
       provisioningProfileSpecifier: "Bitwarden Desktop Autofill App Store 2024",
+      codeSignEntitlements: "autofill-extension/autofill_extension.entitlements",
+    });
+  });
+
+  it("takes the autofill extension's Xcode configuration from the profile, not the channel", () => {
+    const configurationFor = (args: string[]) =>
+      toBuildConfigFromArgs(args).derived.macosAutofillExtension?.xcodeConfiguration;
+
+    expect(configurationFor([...MAC_ARGS, "--with-macos-autofill-extension"])).toBe("Debug");
+    expect(configurationFor(APP_STORE_ARGS)).toBe("Debug");
+    expect(
+      configurationFor([...MAC_ARGS, "--with-macos-autofill-extension", "--profile", "release"]),
+    ).toBe("Release");
+    expect(configurationFor([...APP_STORE_ARGS, "--profile", "release"])).toBe("Release");
+  });
+
+  it("signs a debug App Store build the App Store way, which the old naming could not express", () => {
+    expect(
+      toBuildConfigFromArgs([...APP_STORE_ARGS, "--profile", "debug"]).derived
+        .macosAutofillExtension,
+    ).toEqual({
+      xcodeConfiguration: "Debug",
+      codeSignIdentity: "3rd Party Mac Developer Application",
+      provisioningProfileSpecifier: "Bitwarden Desktop Autofill App Store 2024",
+      codeSignEntitlements: "autofill-extension/autofill_extension.entitlements",
     });
   });
 

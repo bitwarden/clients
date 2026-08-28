@@ -53,7 +53,12 @@ import {
   usage,
   validate,
 } from "./build-config.mts";
-import { asHostPlatform, crossCompilationPlan, rustTargetsFor } from "./rust-targets.mts";
+import {
+  type RustTarget,
+  asHostPlatform,
+  crossCompilationPlan,
+  rustTargetsFor,
+} from "./rust-targets.mts";
 import { type ToolchainReport, verifyToolchain, verifyXcode } from "./toolchain.mts";
 
 const projectDir = path.resolve(import.meta.dirname, "..");
@@ -139,9 +144,23 @@ function toolchainIsReady(config: BuildConfig): boolean {
   const enabled = enabledTargetDefinitions(config);
   const report: ToolchainReport = { errors: [], warnings: [] };
 
+  const rustTargets = new Set<RustTarget>();
   if (enabled.some((target) => target.toolchain === "rust")) {
-    const targets = rustTargetsFor(config.derived.platform, config.architectures);
-    merge(report, verifyToolchain(crossCompilationPlan(host, targets)));
+    for (const target of rustTargetsFor(config.derived.platform, config.architectures)) {
+      rustTargets.add(target);
+    }
+  }
+  if (enabled.some((target) => target.key === "macosAutofillExtension")) {
+    // Not a cargo target itself, but the Xcode project links a universal static library built
+    // from the autofill_provider crate, so it needs both darwin triples whatever architectures
+    // the app was configured for. build.sh used to `rustup target add` them mid-build.
+    for (const target of rustTargetsFor("macos", ["universal"])) {
+      rustTargets.add(target);
+    }
+  }
+
+  if (rustTargets.size > 0) {
+    merge(report, verifyToolchain(crossCompilationPlan(host, [...rustTargets])));
   }
   if (enabled.some((target) => target.toolchain === "xcode")) {
     merge(report, verifyXcode());
