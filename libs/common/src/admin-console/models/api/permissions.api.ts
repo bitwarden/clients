@@ -1,3 +1,5 @@
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
 import { BaseResponse } from "../../../models/response/base.response";
 
 export class PermissionsApi extends BaseResponse {
@@ -17,6 +19,9 @@ export class PermissionsApi extends BaseResponse {
 
   constructor(data: any = null) {
     super(data);
+    if (data == null) {
+      return this;
+    }
     this.accessEventLogs = this.getResponseProperty("AccessEventLogs");
     this.accessImportExport = this.getResponseProperty("AccessImportExport");
     this.accessReports = this.getResponseProperty("AccessReports");
