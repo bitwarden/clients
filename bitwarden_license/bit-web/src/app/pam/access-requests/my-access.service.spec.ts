@@ -180,7 +180,7 @@ describe("MyAccessService", () => {
             status: "approved",
             producedLeaseId: "lease-1",
             producedLeaseStatus: "active",
-          }), // lease still active -> excluded (in Active leases)
+          }), // lease still active -> excluded (in Active access)
           request("req-5", {
             status: "approved",
             producedLeaseId: "lease-2",
