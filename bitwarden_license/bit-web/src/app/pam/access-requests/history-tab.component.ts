@@ -50,7 +50,7 @@ import { isLiveManagedLease } from "../approvals/managed-lease-row";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { RelativeTimePipe } from "../date/relative-time.pipe";
 
-import { MyAccessRequestRow } from "./my-access-row";
+import { MyAccessRequestRow, resolvedOrSubmittedMs } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 
 /** Which slice of the history the table is showing. */
@@ -63,11 +63,6 @@ type HistoryScope = (typeof HistoryScope)[keyof typeof HistoryScope];
  * stale claim about a load.
  */
 const announcementHoldMs = 2000;
-
-/** Newest first, by the moment the request was decided — falling back to when it was raised. */
-function resolvedOrSubmittedMs(row: MyAccessRequestRow): number {
-  return Date.parse(row.resolvedAt ?? row.submittedAt);
-}
 
 /**
  * "History" tab — decided requests, drawn from two sources:
@@ -156,6 +151,18 @@ export class HistoryTabComponent {
     initialValue: new Map<string, CipherView>(),
   });
 
+  private readonly myLoadError = toSignal(this.myAccess.loadError$, { initialValue: null });
+  private readonly managedLoadError = toSignal(this.inbox.loadError$, { initialValue: null });
+
+  /**
+   * Whether either read the table draws from failed. Either one is enough: a failure on one side
+   * leaves the merged list short by everything that side holds, which the table cannot say for
+   * itself.
+   */
+  private readonly loadFailed = computed(
+    () => this.myLoadError() != null || this.managedLoadError() != null,
+  );
+
   /**
    * Latched true the first time every source the table draws from has finished loading — which is
    * all the skeleton is waiting for: nothing about the opening view is read off the rows.
@@ -227,13 +234,17 @@ export class HistoryTabComponent {
    * Whether the live region announces that the content has arrived. Emptying the region announces
    * nothing on its own, so the "loading" announcement needs a counterpart once the rows land. Gated
    * on the skeleton having been shown, so a load that finishes inside the delay announces neither
-   * half.
+   * half, and on both reads having succeeded — a failed read resolves the latch exactly like a
+   * successful one and leaves the same empty table behind, so without the guard the region claims a
+   * history has loaded while the shell is toasting the error for the very same load. A sighted user
+   * reads the toast against the empty table; the announcement is the reading that cannot be
+   * corrected.
    *
    * The announcement is transient: assistive tech that re-reads a region's contents on demand would
    * otherwise be handed a load that finished minutes ago as though it were current.
    */
   protected readonly announceLoaded = computed(
-    () => this.skeletonShown() && !this.skeletonVisible(),
+    () => this.skeletonShown() && !this.skeletonVisible() && !this.loadFailed(),
   );
 
   private readonly hasManagedHistory = computed(() => this.managedRows().length > 0);
