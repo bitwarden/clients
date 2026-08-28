@@ -121,7 +121,8 @@ function identityOptions(rows: AuditRow[], identity: "actor" | "requester"): Aud
  *
  * The toolbar filters (event kind, actor, requester, date range) run client-side over the already-fetched
  * window: the endpoint takes no query parameters and returns the whole 90 days at once, so changing a
- * filter never re-reads it.
+ * filter never re-reads it. Update is therefore not "apply these filters" as it is on the organization
+ * event log — those are already live — but the only way to pull in events recorded since the page opened.
  */
 @Component({
   selector: "app-pam-access-audit",
@@ -297,8 +298,22 @@ export class AccessAuditComponent implements OnInit {
     await this.load();
   }
 
-  protected async load(): Promise<void> {
-    this.status.set("loading");
+  /**
+   * Reads the trail and rebuilds everything derived from it. An arrow property so `bitAction` can call it
+   * detached from the instance, and safe to call on an already-rendered page: the Update button re-runs it
+   * so events recorded since the page opened appear.
+   *
+   * A refresh deliberately leaves the rendered table in place until it has something to replace it with.
+   * Dropping back to "loading" would take the whole ready branch — the toolbar, the filters and the very
+   * button being pressed — out of the DOM mid-refresh, and a failed refresh that swapped a readable trail
+   * for an error callout would lose the auditor their place over a transient error. The failure is raised
+   * to `bitAction` instead, which reports it while the table stays as it was.
+   */
+  protected readonly load = async (): Promise<void> => {
+    const refreshing = this.status() === "ready";
+    if (!refreshing) {
+      this.status.set("loading");
+    }
     try {
       const events = await this.auditApiService.listAccessAuditTrail(this.organizationId());
       // Only events naming both a cipher and its collection can be resolved to a local vault item.
@@ -316,10 +331,13 @@ export class AccessAuditComponent implements OnInit {
       this.rows.set(rows);
       this.status.set(rows.length === 0 ? "empty" : "ready");
     } catch (e) {
+      if (refreshing) {
+        throw e;
+      }
       this.logService.error(e);
       this.status.set("error");
     }
-  }
+  };
 
   /**
    * The organization's members, keyed by platform user id, for {@link members}.
