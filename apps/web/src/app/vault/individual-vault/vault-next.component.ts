@@ -306,14 +306,16 @@ export class VaultNextComponent {
     );
   }
 
-  // Derived from scope (URL params), not from async collection data, so it's available
-  // when bit-breadcrumb's ngOnInit fires — ensuring isActiveRoute detects the match.
+  // Derived from raw URL params, not the resolved scope — vaultScope() translates the
+  // MY_ITEMS_ROUTE sentinel to a real UUID, which would no longer match the browser URL
+  // and cause isActiveRoute to return false after vaultNav() loads.
   protected readonly currentFolderRoute = computed(() => {
-    const scope = this.vaultScope();
-    if (scope.type !== VaultScopeType.Organization || !scope.collectionId) {
+    const vaultId = this.vaultIdParam();
+    const collectionId = this.collectionIdParam();
+    if (!vaultId || !collectionId) {
       return undefined;
     }
-    return vaultScopeCommands(scope);
+    return ["/vault", vaultId, collectionId];
   });
 
   /**
