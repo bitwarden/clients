@@ -292,7 +292,17 @@ export class AccessAuditComponent implements OnInit {
     identityOptions(this.rows(), "requester").sort(byLabel),
   );
 
-  /** One chip's selection, or null when that chip has none. Single-select, so the value is a scalar. */
+  /** A multi-select chip's selection, or null when it has none — which matches every row. */
+  private selectedValues(chip: FilterControl | undefined): string[] | null {
+    const value = chip?.value();
+    if (!Array.isArray(value)) {
+      return null;
+    }
+    const selected = value.filter((entry): entry is string => typeof entry === "string");
+    return selected.length > 0 ? selected : null;
+  }
+
+  /** The single-select time-period chip's selection, whose value is a scalar rather than a list. */
   private selectedValue(chip: FilterControl | undefined): string | null {
     const value = chip?.value();
     return typeof value === "string" ? value : null;
@@ -305,9 +315,9 @@ export class AccessAuditComponent implements OnInit {
   protected readonly filteredRows = computed(() => {
     const { from, to } = this.range();
     const filter: AuditFilter = {
-      kindLabelKey: this.selectedValue(this.kindChip()),
-      actorId: this.selectedValue(this.actorChip()),
-      requesterId: this.selectedValue(this.requesterChip()),
+      kindLabelKey: this.selectedValues(this.kindChip()),
+      actorId: this.selectedValues(this.actorChip()),
+      requesterId: this.selectedValues(this.requesterChip()),
       from,
       to,
     };
