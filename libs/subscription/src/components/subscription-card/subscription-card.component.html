@@ -81,16 +81,20 @@
         }
       }
       @case ("past_due") {
-        {{ "yourSubscriptionWillBeSuspendedOn" | i18n }}
-        <span class="tw-font-bold">{{ suspension() | date: dateFormat }}</span>
+        @if (suspension(); as suspension) {
+          {{ "yourSubscriptionWillBeSuspendedOn" | i18n }}
+          <span class="tw-font-bold">{{ suspension | date: dateFormat }}</span>
+        }
       }
       @case ("canceled") {
         {{ "yourSubscriptionWasCanceledOn" | i18n }}
         <span class="tw-font-bold">{{ canceled() | date: dateFormat }}</span>
       }
       @case ("unpaid") {
-        {{ "yourSubscriptionWasSuspendedOn" | i18n }}
-        <span class="tw-font-bold">{{ suspension() | date: dateFormat }}</span>
+        @if (suspension(); as suspension) {
+          {{ "yourSubscriptionWasSuspendedOn" | i18n }}
+          <span class="tw-font-bold">{{ suspension | date: dateFormat }}</span>
+        }
       }
     }
   </h2>

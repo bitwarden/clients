@@ -5,7 +5,7 @@ import { By } from "@angular/platform-browser";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Cart } from "@bitwarden/pricing";
 
-import { BitwardenSubscription, SubscriptionCardComponent } from "../..";
+import { BitwardenSubscription, SubscriptionCardComponent, SubscriptionPreview } from "../..";
 
 describe("SubscriptionCardComponent", () => {
   let component: SubscriptionCardComponent;
@@ -379,6 +379,18 @@ describe("SubscriptionCardComponent", () => {
       const buttons = callout.queryAll(By.css("button"));
       expect(buttons.length).toBe(1);
       expect(buttons[0].nativeElement.textContent.trim()).toBe("Manage invoices");
+    });
+
+    it("renders no callout for past_due without suspension details", () => {
+      fixture.componentRef.setInput("title", "Test Plan");
+      fixture.componentRef.setInput("subscription", {
+        cart: mockCart,
+        status: "past_due",
+      } satisfies SubscriptionPreview);
+      fixture.detectChanges();
+
+      expect(component.callout()).toBeNull();
+      expect(fixture.debugElement.query(By.css("bit-callout"))).toBeNull();
     });
 
     it("should display canceled callout with resubscribe action", () => {

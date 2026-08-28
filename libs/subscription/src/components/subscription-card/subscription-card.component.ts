@@ -213,13 +213,17 @@ export class SubscriptionCardComponent {
       }
       case SubscriptionStatuses.PastDue: {
         const suspension = this.datePipe.transform(subscription.suspension, this.dateFormat);
+        // past_due may omit suspension/gracePeriod; render no callout when absent (pending copy).
+        if (subscription.gracePeriod == null || suspension == null) {
+          return null;
+        }
         return {
           title: this.i18nService.t("pastDue"),
           type: "warning",
           description: this.i18nService.t(
             "youHaveAGracePeriod",
             subscription.gracePeriod,
-            suspension!,
+            suspension,
           ),
           callsToAction: [
             {

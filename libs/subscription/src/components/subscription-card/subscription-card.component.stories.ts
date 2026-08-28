@@ -287,6 +287,29 @@ export const PastDue: Story = {
   },
 };
 
+export const PastDueWithoutDetails: Story = {
+  name: "Past Due - No Suspension Details",
+  args: {
+    title: "Enterprise Subscription",
+    // SubscriptionPreview may omit suspension/gracePeriod for past_due — the card renders no callout
+    // and no suspension header in that case.
+    subscription: {
+      status: "past_due",
+      cart: {
+        passwordManager: {
+          seats: {
+            quantity: 20,
+            translationKey: "members",
+            cost: 6,
+          },
+        },
+        cadence: "annually",
+        estimatedTax: 0,
+      },
+    } satisfies SubscriptionPreview,
+  },
+};
+
 export const CalloutSuppressed: Story = {
   name: "Callout Suppressed (hideCallout)",
   args: {
