@@ -117,6 +117,7 @@ libs/platform                     @bitwarden/team-platform-dev
 libs/storage-core                 @bitwarden/team-platform-dev
 libs/logging                      @bitwarden/team-platform-dev
 libs/logging-angular              @bitwarden/team-platform-dev
+libs/managed-settings             @bitwarden/team-platform-dev
 libs/storage-test-utils           @bitwarden/team-platform-dev
 libs/messaging                    @bitwarden/team-platform-dev
 libs/serialization                @bitwarden/team-platform-dev
@@ -287,4 +288,5 @@ apps/desktop/native-messaging-test-runner/package-lock.json  @bitwarden/team-pla
 .claude/                           @bitwarden/team-ai-sme
 .github/workflows/respond.yml      @bitwarden/team-ai-sme
 .github/workflows/review-code.yml  @bitwarden/team-ai-sme
+.github/workflows/sdlc-sdk-update-evaluate.yml  @bitwarden/team-ai-sme @bitwarden/team-platform-dev
 .mcp.json                          @bitwarden/team-ai-sme
