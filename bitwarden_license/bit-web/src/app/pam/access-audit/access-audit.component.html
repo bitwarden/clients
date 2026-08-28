@@ -222,8 +222,10 @@
                       (click)="openMemberEvents($event, member)"
                       >{{ row.actor }}</a
                     >
-                  } @else {
+                  } @else if (row.actor) {
                     {{ row.actor }}
+                  } @else {
+                    <span class="tw-text-muted">—</span>
                   }
                 </td>
                 <td bitCell>
@@ -236,8 +238,10 @@
                       (click)="openMemberEvents($event, member)"
                       >{{ row.requester }}</a
                     >
-                  } @else {
+                  } @else if (row.requester) {
                     {{ row.requester }}
+                  } @else {
+                    <span class="tw-text-muted">—</span>
                   }
                 </td>
                 <td bitCell class="tw-max-w-64 tw-break-words">
@@ -271,7 +275,13 @@
                     <span class="tw-text-muted">—</span>
                   }
                 </td>
-                <td bitCell class="tw-max-w-64 tw-break-words">{{ row.detail }}</td>
+                <td bitCell class="tw-max-w-64 tw-break-words">
+                  @if (row.detail) {
+                    {{ row.detail }}
+                  } @else {
+                    <span class="tw-text-muted">—</span>
+                  }
+                </td>
               </tr>
             }
           </ng-template>
