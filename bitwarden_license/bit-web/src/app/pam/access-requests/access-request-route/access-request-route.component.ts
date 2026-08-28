@@ -1,4 +1,3 @@
-import { Location } from "@angular/common";
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { PRIMARY_OUTLET, Router, UrlTree } from "@angular/router";
@@ -23,9 +22,13 @@ type OriginTab = "approvals" | "history" | "my-requests";
  * The detail itself is a dialog over the access-requests shell, not a page of its own: this
  * component is a child of the shell route, so the header and tab bar stay put, and it renders the
  * tab the caller left underneath so the backdrop shows the list they were reading rather than an
- * empty shell or an unrelated tab. Closing the dialog leaves the URL — a dismissed dialog must not
- * stay addressable — by going back to wherever the caller came from, or to `/pam` when they
- * arrived cold (a pasted or emailed link has no history to return to).
+ * empty shell or an unrelated tab. Closing the dialog replaces this URL with that same tab — a
+ * dismissed dialog must not stay addressable, and replacing consumes the entry rather than
+ * stacking the tab on top of a dialog the caller can still land back on with Back. The cost is a
+ * repeated entry behind a warm caller, whose first Back press then looks idle; the alternative,
+ * stepping the browser back instead, has no way to tell an entry this app pushed from the one a
+ * pasted link opened the tab on, and strands the caller on a dismissed dialog when it guesses
+ * wrong.
  *
  * {@link AccessRequestDetailService} is provided here rather than on the route config because it
  * reads the `:id` off `ActivatedRoute`, which route-level providers cannot see (they resolve in the
@@ -44,27 +47,21 @@ export class AccessRequestRouteComponent implements OnInit {
   private readonly dialogService = inject(DialogService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
-  private readonly location = inject(Location);
-
-  private readonly navigation = this.router.getCurrentNavigation();
 
   /**
-   * Whether to return the caller to where they came from when the dialog closes, read off the
-   * in-flight navigation during construction. It holds only while the `/pam` shell is already
-   * mounted: on a cold load the shell is created during this same activation and its outlet has
-   * not registered yet, so Angular defers this component to a later change-detection pass, by
-   * which point the router has dropped the navigation and this reads `false`. That is the right
-   * answer for a cold load and the safe answer for any other deferred entry — an unrecognised
-   * caller is sent to the shell rather than back out of the app.
+   * The tab to render behind the dialog, and the one closing it returns to. Rows on all three tabs
+   * link here, so the backdrop follows the caller rather than assuming My requests — an approver
+   * opening a row from the Approvals inbox would otherwise watch the list swap to their own
+   * requests and swap back on close.
+   *
+   * Read off the in-flight navigation during construction, which is absent on a cold load: the
+   * shell is created by that same activation and its outlet has not registered yet, so Angular
+   * defers this component to a later change-detection pass, by which point the router has dropped
+   * the navigation. My requests — the shell's own default tab — is the answer then.
    */
-  private readonly hasHistory = this.navigation?.previousNavigation != null;
-
-  /**
-   * The tab to render behind the dialog. Rows on all three tabs link here, so the backdrop follows
-   * the caller rather than assuming My requests — an approver opening a row from the Approvals
-   * inbox would otherwise watch the list swap to their own requests and swap back on close.
-   */
-  protected readonly originTab = tabFrom(this.navigation?.previousNavigation?.finalUrl);
+  protected readonly originTab = tabFrom(
+    this.router.getCurrentNavigation()?.previousNavigation?.finalUrl,
+  );
 
   ngOnInit(): void {
     const dialogRef = AccessRequestDialogComponent.open(this.dialogService, {
@@ -73,7 +70,7 @@ export class AccessRequestRouteComponent implements OnInit {
 
     // The ref reports every close the same way, including the one this component performs on its
     // way out, so leaving the route has to be told apart from the caller dismissing the dialog —
-    // otherwise a back-button close sends the browser back twice.
+    // otherwise being navigated away would fire a second close navigation of its own.
     let leaving = false;
 
     this.destroyRef.onDestroy(() => {
@@ -86,22 +83,23 @@ export class AccessRequestRouteComponent implements OnInit {
         return;
       }
       leaving = true;
-      if (this.hasHistory) {
-        this.location.back();
-      } else {
-        void this.router.navigate(["/pam"]);
-      }
+      void this.router.navigate(["/pam", this.originTab], { replaceUrl: true });
     });
   }
 }
 
 /**
- * The tab a URL addresses, read off its last path segment so it holds wherever the PAM routes are
- * mounted. Anything else — including a caller from outside `/pam` and a cold load with no previous
- * URL at all — falls back to My requests, the shell's own default tab.
+ * The tab a URL addresses, matched on the whole `/pam/<tab>` shape rather than the trailing segment
+ * alone: `history` is also the last segment of the organization and provider billing routes, and
+ * this route is built to be deep-linked into from outside. Anything else — including a caller from
+ * elsewhere in the app and a cold load with no previous URL at all — falls back to My requests, the
+ * shell's own default tab.
  */
 function tabFrom(url: UrlTree | undefined): OriginTab {
-  const segments = url?.root.children[PRIMARY_OUTLET]?.segments ?? [];
-  const last = segments[segments.length - 1]?.path;
-  return last === "approvals" || last === "history" ? last : "my-requests";
+  const segments = url?.root.children[PRIMARY_OUTLET]?.segments.map((s) => s.path) ?? [];
+  if (segments.length !== 2 || segments[0] !== "pam") {
+    return "my-requests";
+  }
+  const tab = segments[1];
+  return tab === "approvals" || tab === "history" ? tab : "my-requests";
 }
