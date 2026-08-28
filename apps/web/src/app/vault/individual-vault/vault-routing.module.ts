@@ -4,20 +4,16 @@ import { RouterModule, Routes } from "@angular/router";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { vaultFilterLegacyRedirectGuard, vaultScopeGuard } from "@bitwarden/vault";
+import {
+  SHARED_FOLDERS_ROUTE,
+  vaultFilterLegacyRedirectGuard,
+  vaultScopeGuard,
+} from "@bitwarden/vault";
 
 import { organizationVaultGuard } from "./shared-folders/organization-vault.guard";
 import { SharedFoldersComponent } from "./shared-folders/shared-folders.component";
 import { VaultNextComponent } from "./vault-next.component";
 import { VaultComponent } from "./vault.component";
-
-/**
- * The route segment naming an organization vault's shared folders list, under its `:vaultId`.
- *
- * Exported so the links into the page are built from the same constant the route is declared with
- * — the same reason `vaultScopeCommands` is the only place vault scope URLs are assembled.
- */
-export const SHARED_FOLDERS_ROUTE = "shared-folders";
 
 const routes: Routes = [
   ...featureFlaggedRoute({

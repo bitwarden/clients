@@ -1,8 +1,8 @@
 import { NgTemplateOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { IsActiveMatchOptions } from "@angular/router";
-import { switchMap } from "rxjs";
+import { IsActiveMatchOptions, NavigationEnd, Router } from "@angular/router";
+import { filter, map, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -19,6 +19,7 @@ import { VaultNavItemType, VaultNavItemViewModel } from "../../models/vault-nav-
 import {
   ALL_ITEMS_SCOPE,
   isPersonalOnly,
+  sharedFoldersCommands,
   vaultScopeCommands,
   VaultScopeType,
 } from "../../models/vault-scope";
@@ -39,6 +40,7 @@ export class VaultNavSectionComponent {
 
   private readonly vaultNavService = inject(VaultNavService);
   private readonly accountService = inject(AccountService);
+  private readonly router = inject(Router);
 
   protected readonly vaultNav = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -79,14 +81,71 @@ export class VaultNavSectionComponent {
       ),
   );
 
+  /**
+   * Each organization vault's shared folders route, by vault id. Precomputed for the same reason
+   * {@link vaultRoutes} is. Personal vaults have no shared folders and so no entry — the nav only
+   * offers the destination beneath an organization.
+   */
+  private readonly sharedFolderRoutes = computed(
+    () =>
+      new Map(
+        this.vaultNav()
+          ?.vaults.filter((vault) => vault.type !== VaultNavItemType.Personal)
+          .map((vault) => [vault.id, sharedFoldersCommands(vault.id as OrganizationId)]) ?? [],
+      ),
+  );
+
   /** Whether to render one unscoped entry rather than All items and a list. */
   protected readonly personalOnly = computed(() => {
     const nav = this.vaultNav();
     return nav != null && isPersonalOnly(nav);
   });
 
+  /**
+   * `router.isActive` reads router state rather than a signal, so reading this is what ties
+   * {@link sharedFoldersVaultId} to navigation — without it the answer would be computed once and
+   * kept.
+   */
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map(() => this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  /**
+   * The vault whose shared folders list is the page in view, if any.
+   *
+   * That page nests under its vault's own route, so the subset match every nav item uses by default
+   * leaves All vault items lit alongside it. Suppressing that on this one route rather than matching
+   * All vault items exactly keeps it lit for a shared folder drill-in, which nests under the same
+   * route and has no nav entry of its own to light instead.
+   */
+  private readonly sharedFoldersVaultId = computed(() => {
+    this.currentUrl();
+
+    return Array.from(this.sharedFolderRoutes()).find(([, commands]) =>
+      this.router.isActive(this.router.createUrlTree(commands), {
+        paths: "exact",
+        queryParams: "ignored",
+        fragment: "ignored",
+        matrixParams: "ignored",
+      }),
+    )?.[0];
+  });
+
   protected vaultRoute(vault: VaultNavItemViewModel): string[] | undefined {
     return this.vaultRoutes().get(vault.id);
+  }
+
+  protected sharedFoldersRoute(vault: VaultNavItemViewModel): string[] | undefined {
+    return this.sharedFolderRoutes().get(vault.id);
+  }
+
+  /** Whether the page in view is this vault's shared folders list — see {@link sharedFoldersVaultId}. */
+  protected sharedFoldersActive(vault: VaultNavItemViewModel): boolean {
+    return this.sharedFoldersVaultId() === vault.id;
   }
 
   protected vaultTileColor(vault: VaultNavItemViewModel): string {

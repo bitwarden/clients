@@ -19,10 +19,18 @@
       } @else {
         <bit-nav-group [text]="vault.label" [open]="nav.organizationDataOwnership">
           <bit-icon-tile [icon]="vault.icon" [color]="vaultTileColor(vault)" size="sm" />
+          @let sharedFoldersLit = sharedFoldersActive(vault);
           <bit-nav-item
             icon="bwi-list-alt"
             [text]="'allVaultItems' | i18n"
             [route]="vaultRoute(vault)"
+            [hideActiveStyles]="sharedFoldersLit"
+            [ariaCurrentWhenActive]="sharedFoldersLit ? false : 'page'"
+          ></bit-nav-item>
+          <bit-nav-item
+            icon="bwi-shared-folder"
+            [text]="'sharedFolders' | i18n"
+            [route]="sharedFoldersRoute(vault)"
           ></bit-nav-item>
         </bit-nav-group>
       }
