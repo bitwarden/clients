@@ -67,6 +67,7 @@ import {
   toAuditRow,
 } from "./access-audit-row";
 import { AuditApiService } from "./audit-api.service";
+import { AuditEventDrawerComponent } from "./audit-event-drawer/audit-event-drawer.component";
 import { AuditExportService } from "./audit-export.service";
 import {
   CustomRangeDialogComponent,
@@ -153,7 +154,8 @@ function identityOptions(rows: AuditRow[], identity: "actor" | "requester"): Aud
  * the one that opens this trail, so an auditor holding only AccessEventLogs would follow such a link
  * into a 404. What the cells do open is the shared entity-events dialog, over the same AccessEventLogs
  * permission that authorized this page — an actor, a requester or a cipher, never an access rule, which
- * has no such dialog.
+ * has no such dialog. The row itself opens {@link AuditEventDrawerComponent} over the same trail this
+ * page already holds, which is where the fields too wide for a column live.
  *
  * The toolbar filters (event kind, actor, requester, item, time period) run client-side over the already-fetched
  * window: the endpoint takes no query parameters and returns the whole 90 days at once, so changing a
@@ -543,6 +545,7 @@ export class AccessAuditComponent implements OnInit {
    */
   protected openMemberEvents(event: Event, member: ResolvedMember): void {
     event.preventDefault();
+    event.stopPropagation();
     if (member.organizationUserId == null) {
       return;
     }
@@ -563,6 +566,7 @@ export class AccessAuditComponent implements OnInit {
    */
   protected openCipherEvents(event: Event, row: AuditRow): void {
     event.preventDefault();
+    event.stopPropagation();
     if (row.cipherId == null || row.cipherName == null) {
       return;
     }
@@ -573,6 +577,25 @@ export class AccessAuditComponent implements OnInit {
         organizationId: this.organizationId(),
         name: row.cipherName,
         showUser: true,
+      },
+    });
+  }
+
+  /**
+   * Opens one event's details in the side drawer.
+   *
+   * The identities are resolved here rather than in the drawer so the pane links exactly what the row
+   * under it links — the member lookup ran once for the whole trail, and a second answer could
+   * disagree with the first. An automated row has no actor to resolve: its cell reads "System",
+   * which is a value, not a member.
+   */
+  protected openDetails(row: AuditRow): void {
+    void AuditEventDrawerComponent.open(this.dialogService, {
+      data: {
+        row,
+        organizationId: this.organizationId(),
+        actor: row.automated ? null : this.linkedMember(row.actorId, row.actor),
+        requester: this.linkedMember(row.requesterId, row.requester),
       },
     });
   }
