@@ -23,6 +23,12 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { ButtonModule } from "../../button";
 import { IconComponent } from "../../icon";
 import { IconButtonModule } from "../../icon-button";
+import {
+  IconTileComponent,
+  IconTileVariant,
+  resolveIconTileColor,
+  resolveIconTileVariant,
+} from "../../icon-tile";
 import { MenuComponent, MenuItemComponent, MenuModule, MenuTriggerForDirective } from "../../menu";
 import { Option } from "../../select/option";
 import { BitwardenIcon } from "../../shared/icon";
@@ -31,7 +37,10 @@ import { BaseChipDirective } from "../shared/base-chip.directive";
 import { ChipContentComponent } from "../shared/chip-content.component";
 import { ChipDismissButtonComponent } from "../shared/chip-dismiss-button.component";
 
-/** An option that will be showed in the overlay menu of `ChipFilterComponent` */
+/**
+ * An option that will be showed in the overlay menu of `ChipFilterComponent`. `iconTile` is
+ * inherited from {@link Option} and takes precedence over `icon` when both are set.
+ */
 export type ChipFilterOption<T> = Omit<Option<T>, "icon"> & {
   /** The options that will be nested under this option */
   children?: ChipFilterOption<T>[];
@@ -60,6 +69,7 @@ export type ChipFilterOption<T> = Omit<Option<T>, "icon"> & {
     ChipContentComponent,
     ChipDismissButtonComponent,
     IconComponent,
+    IconTileComponent,
   ],
   providers: [
     {
@@ -192,7 +202,17 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
 
   /** The icon to show in the chip button */
   protected get icon(): BitwardenIcon | undefined {
-    return this.selectedOption?.icon || this.placeholderIcon();
+    return (
+      this.selectedOption?.icon ?? this.selectedOption?.iconTile?.icon ?? this.placeholderIcon()
+    );
+  }
+
+  protected tileVariant(option: ChipFilterOption<T>): IconTileVariant {
+    return resolveIconTileVariant(option.iconTile, option.disabled);
+  }
+
+  protected tileColor(option: ChipFilterOption<T>): string | undefined {
+    return resolveIconTileColor(option.iconTile, option.disabled);
   }
 
   /**

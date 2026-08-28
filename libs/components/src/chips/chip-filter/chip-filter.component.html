@@ -72,7 +72,20 @@
           class="tw-text-[length:inherit]"
           [attr.aria-haspopup]="option.children?.length ? 'menu' : null"
         >
-          @if (option.icon) {
+          @if (option.iconTile; as tile) {
+            <!-- tw-flex on the host: its inner box is inline-flex, so an inline host would add a
+                 line box's worth of descender space below the tile and push it above the row's
+                 center. -->
+            <bit-icon-tile
+              slot="start"
+              class="!tw-flex"
+              [icon]="tile.icon"
+              [variant]="tileVariant(option)"
+              [color]="tileColor(option)"
+              [emphasis]="tile.emphasis ?? 'subtle'"
+              size="xs"
+            />
+          } @else if (option.icon) {
             <bit-icon
               slot="start"
               [name]="option.icon"

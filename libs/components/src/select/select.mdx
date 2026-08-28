@@ -13,8 +13,39 @@ import { SelectModule } from "@bitwarden/components";
 <Primary />
 <Controls />
 
+## Leading visuals
+
+`bit-option` accepts either a plain `icon` or an `iconTile`. `iconTile` takes precedence when both
+are set, and mirrors the inputs of [`bit-icon-tile`](?path=/docs/component-library-icon-tile--docs)
+minus `size` — the tile is always rendered at `xs` so options and menu items share the same
+footprint.
+
+```html
+<bit-select>
+  <bit-option value="login" label="Login" [iconTile]="{ icon: 'bwi-globe', variant: 'brand' }" />
+  <bit-option
+    value="card"
+    label="Card"
+    [iconTile]="{ icon: 'bwi-credit-card', color: '#175ddc' }"
+  />
+</bit-select>
+```
+
+Usage guidelines:
+
+- Use a leading visual for every option, or for none of them — and don't mix `icon` and `iconTile`
+  within the same select.
+- The tile is decorative; the option label carries the meaning, so no `ariaLabel` is applied.
+- A disabled option's tile renders in the neutral `gray` family and ignores any custom `color`, so
+  it reads as inactive alongside the muted label. A plain `icon` needs no equivalent handling — it
+  inherits the option's text color.
+
 ## Stories
 
 ### Default
 
 <Canvas of={stories.Default} />
+
+### Icon tiles
+
+<Canvas of={stories.IconTiles} />
