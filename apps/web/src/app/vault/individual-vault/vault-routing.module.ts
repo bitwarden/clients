@@ -6,8 +6,18 @@ import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-f
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { vaultFilterLegacyRedirectGuard, vaultScopeGuard } from "@bitwarden/vault";
 
+import { organizationVaultGuard } from "./shared-folders/organization-vault.guard";
+import { SharedFoldersComponent } from "./shared-folders/shared-folders.component";
 import { VaultNextComponent } from "./vault-next.component";
 import { VaultComponent } from "./vault.component";
+
+/**
+ * The route segment naming an organization vault's shared folders list, under its `:vaultId`.
+ *
+ * Exported so the links into the page are built from the same constant the route is declared with
+ * — the same reason `vaultScopeCommands` is the only place vault scope URLs are assembled.
+ */
+export const SHARED_FOLDERS_ROUTE = "shared-folders";
 
 const routes: Routes = [
   ...featureFlaggedRoute({
@@ -28,6 +38,21 @@ const routes: Routes = [
       vaultScopeGuard,
     ],
     data: { titleId: "vaults" },
+  },
+  // An organization vault's shared folders. Declared above `:vaultId/:collectionId` and must stay
+  // there: the router matches in declaration order rather than preferring a static segment over a
+  // parameter, so below it this path would be read as a collection named "shared-folders" and
+  // `vaultScopeGuard` would redirect away before this route was ever tried. The reverse collision
+  // can't happen — collection ids are guids.
+  {
+    path: `:vaultId/${SHARED_FOLDERS_ROUTE}`,
+    component: SharedFoldersComponent,
+    canActivate: [
+      canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
+      organizationVaultGuard,
+      vaultScopeGuard,
+    ],
+    data: { titleId: "sharedFolders" },
   },
   // The shared folder a vault has been drilled into. Drilling deeper replaces the segment rather
   // than nesting under it: a folder's route names the vault it lives in, not the path taken to it.
