@@ -11,7 +11,9 @@ import {
   input,
   model,
 } from "@angular/core";
-import { Router, RouterLinkActive, UrlTree } from "@angular/router";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, NavigationEnd, Router, RouterLinkActive, UrlTree } from "@angular/router";
+import { filter } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -38,6 +40,15 @@ export class NavGroupComponent extends NavBaseComponent {
   private readonly parentNavGroup = inject(NavGroupComponent, { optional: true, skipSelf: true });
   private readonly el = inject(ElementRef);
   private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
+
+  /**
+   * Re-evaluated after every navigation so the router-seeded `open()` stays current
+   * across in-app navigations, not just hard loads.
+   */
+  private readonly navigationEnd = toSignal(
+    this.router.events.pipe(filter((e) => e instanceof NavigationEnd)),
+  );
 
   // Query direct children for hideIfEmpty functionality
   readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: false });
@@ -122,13 +133,21 @@ export class NavGroupComponent extends NavBaseComponent {
     }
 
     // In vfo1, effectiveRoute is suppressed to prevent navigation on click, so routerLinkActive
-    // never fires. Seed open() from the router directly so the group expands on hard load/reload.
+    // never fires. Seed open() from the router directly so the group expands on load and stays
+    // current across in-app navigations.
     effect(() => {
+      // Track navigationEnd so this effect re-runs after every in-app navigation.
+      this.navigationEnd();
+
       const route = this.route();
       if (this.sideNavService.version() === "vfo1" && this.treeDepth() === 0 && route) {
-        const urlTree = Array.isArray(route)
-          ? this.router.createUrlTree(route)
-          : (route as string | UrlTree);
+        const relativeTo = this.relativeTo() ?? this.activatedRoute;
+        const urlTree =
+          route instanceof UrlTree
+            ? route
+            : this.router.createUrlTree(Array.isArray(route) ? route : [route], {
+                relativeTo,
+              });
         if (
           this.router.isActive(urlTree, {
             paths: "subset",
