@@ -65,6 +65,17 @@
         [options]="requesterOptions()"
         [formControl]="requesterControl"
       ></bit-chip-filter>
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        class="tw-ms-auto"
+        id="access-audit_button_export"
+        [bitAction]="exportCsv"
+        [disabled]="filteredRows().length === 0"
+      >
+        {{ "exportVerb" | i18n }}
+      </button>
     </div>
 
     <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-start tw-gap-3">
