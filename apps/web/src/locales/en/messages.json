@@ -18172,6 +18172,9 @@
   "requestAccessModalEndBeforeStart": {
     "message": "End time must be after start time."
   },
+  "requestAccessModalWindowInPast": {
+    "message": "The requested window has already ended. Pick a later date or time."
+  },
   "requestAccessModalWindowExceedsMax": {
     "message": "The window can't exceed $DURATION$.",
     "placeholders": {
