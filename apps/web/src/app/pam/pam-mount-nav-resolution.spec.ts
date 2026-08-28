@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { provideRouter, Routes } from "@angular/router";
+import { LoadChildrenCallback, provideRouter, Routes } from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
@@ -27,6 +27,7 @@ import { UserLayoutComponent } from "../layouts/user-layout.component";
 import { WebLayoutModule } from "../layouts/web-layout.module";
 import { CoachmarkComponent, CoachmarkService } from "../vault/components/coachmark";
 
+import { PAM_ROUTES } from "./pam-routes.token";
 import { PamUserNavSlotComponent } from "./user-nav-slot/pam-user-nav-slot.component";
 
 @Component({
@@ -79,9 +80,14 @@ const userId = "user-id" as UserId;
 
 const emptyViewModel: VaultsNavViewModel = { vaults: [], organizationDataOwnership: false };
 
+const pamChildRoutes: Routes = [{ path: "", component: FeaturePageComponent }];
+
 /**
  * The production shape: ONE `UserLayoutComponent` mount at the root, with every feature — `/pam`
  * included — as a child of it. See `OssRoutingModule`.
+ *
+ * `/pam` reaches its pages through the same lazy `PAM_ROUTES` seam production uses rather than
+ * eager `children`, so what renders inside the layout here is what a licensed build renders.
  */
 const routes: Routes = [
   {
@@ -89,7 +95,11 @@ const routes: Routes = [
     component: UserLayoutComponent,
     children: [
       { path: "vault", component: FeaturePageComponent },
-      { path: "pam", children: [{ path: "", component: FeaturePageComponent }] },
+      {
+        path: "pam",
+        canMatch: [() => inject(PAM_ROUTES, { optional: true }) != null],
+        loadChildren: () => inject<LoadChildrenCallback>(PAM_ROUTES)(),
+      },
     ],
   },
 ];
@@ -151,6 +161,7 @@ describe("PAM mount / shared nav link resolution", () => {
       imports: [UserLayoutComponent, NavigationModule],
       providers: [
         provideRouter(routes),
+        { provide: PAM_ROUTES, useValue: () => pamChildRoutes },
         { provide: I18nService, useValue: i18nService },
         { provide: ConfigService, useValue: configService },
         { provide: VaultNavService, useValue: vaultNavService },

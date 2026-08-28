@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, Provider } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
-import { provideRouter, Router, RouterOutlet, Routes } from "@angular/router";
+import { LoadChildrenCallback, provideRouter, Router, RouterOutlet, Routes } from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
 
 import { PAM_ROUTES } from "./pam-routes.token";
@@ -42,6 +42,11 @@ describe("PAM_ROUTES seam", () => {
    * The shape `OssRoutingModule` gives the user shell: one `UserLayoutComponent` mount behind
    * `deepLinkGuard` + `authGuard`, with `pam` as one of its children. The guards are recorders
    * rather than the real ones so their relative order is observable.
+   *
+   * `canMatch` and `loadChildren` are copied verbatim from `OssRoutingModule` rather than
+   * simplified: both reach the seam through `inject()`, which is legal only because the router
+   * calls them inside an injection context. Nothing else fails if that stops holding — the
+   * callback runs on navigation, so neither `test:types` nor a production build executes it.
    */
   const routes: Routes = [
     {
@@ -54,7 +59,7 @@ describe("PAM_ROUTES seam", () => {
           path: "pam",
           canMatch: [() => inject(PAM_ROUTES, { optional: true }) != null],
           canActivate: [record("canAccessFeature(Pam)")],
-          loadChildren: () => pamChildRoutes,
+          loadChildren: () => inject<LoadChildrenCallback>(PAM_ROUTES)(),
         },
       ],
     },
