@@ -7,12 +7,12 @@ import {
   effect,
   inject,
   signal,
-  viewChildren,
+  untracked,
+  viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { FormControl, ReactiveFormsModule, ValidatorFn } from "@angular/forms";
 import { ActivatedRoute, RouterLink } from "@angular/router";
-import { map, switchMap } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -31,8 +31,8 @@ import {
   CalloutModule,
   DialogService,
   FILTER_CONTROL,
+  FilterControl,
   FilterMenuModule,
-  FormFieldModule,
   LinkModule,
   StatusLockupComponent,
   SvgComponent,
@@ -50,9 +50,15 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { AccessNameResolverService } from "../access-requests/access-name-resolver.service";
 
 import {
+  AUDIT_TIME_PERIOD_LABEL_KEYS,
+  AUDIT_TIME_PRESETS,
   AUTOMATED_ACTOR,
   AuditFilter,
+  AuditRange,
   AuditRow,
+  AuditTimePeriod,
+  UNBOUNDED_AUDIT_RANGE,
+  auditPresetRange,
   auditRangeEnd,
   auditRangeStart,
   auditRowMatchesFilter,
@@ -60,6 +66,10 @@ import {
 } from "./access-audit-row";
 import { AuditApiService } from "./audit-api.service";
 import { AuditExportService } from "./audit-export.service";
+import {
+  CustomRangeDialogComponent,
+  CustomRangeDialogParams,
+} from "./custom-range-dialog/custom-range-dialog.component";
 
 type AuditStatus = "loading" | "ready" | "empty" | "error";
 
@@ -73,7 +83,10 @@ const FILTER_KEYS = {
   kind: "kind",
   actor: "actor",
   requester: "requester",
+  timePeriod: "timePeriod",
 } as const;
+
+const NO_CUSTOM_RANGE: CustomRangeDialogParams = { from: "", to: "" };
 
 const byLabel = (a: AuditChipOption, b: AuditChipOption) => a.label.localeCompare(b.label);
 
@@ -127,10 +140,12 @@ function identityOptions(rows: AuditRow[], identity: "actor" | "requester"): Aud
  * permission that authorized this page — an actor, a requester or a cipher, never an access rule, which
  * has no such dialog.
  *
- * The toolbar filters (event kind, actor, requester, date range) run client-side over the already-fetched
+ * The toolbar filters (event kind, actor, requester, time period) run client-side over the already-fetched
  * window: the endpoint takes no query parameters and returns the whole 90 days at once, so changing a
  * filter never re-reads it. Update is therefore not "apply these filters" as it is on the organization
  * event log — those are already live — but the only way to pull in events recorded since the page opened.
+ * For the same reason the time period's "All time" means the whole fetched trail, which is those 90 days
+ * and no more; nothing on this page claims to reach further back.
  */
 @Component({
   selector: "app-pam-access-audit",
@@ -138,14 +153,12 @@ function identityOptions(rows: AuditRow[], identity: "actor" | "requester"): Aud
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     RouterLink,
     AsyncActionsModule,
     BadgeModule,
     ButtonModule,
     CalloutModule,
     FilterMenuModule,
-    FormFieldModule,
     HeaderModule,
     LinkModule,
     StatusLockupComponent,
@@ -211,38 +224,51 @@ export class AccessAuditComponent implements OnInit {
 
   /**
    * The filter chips, which own their own selections. Read through the {@link FilterControl} contract
-   * rather than a host bridge: this page is not a filterable surface with rows to facet, it is a few
+   * rather than a host bridge: this page is not a filterable surface with rows to facet, it is four
    * independent chips over one already-fetched array.
+   *
+   * Located by template reference rather than by matching `key()`, and only `value`, `active` and
+   * `setValue` are ever read. `key` is a required input, and the Export button's disabled state reads the
+   * filtered rows from above the chip row — one binding before Angular has set those inputs, which reading
+   * `key()` there would answer with NG0950.
    */
-  private readonly filterControls = viewChildren(FILTER_CONTROL);
+  private readonly kindChip = viewChild("kindFilter", { read: FILTER_CONTROL });
+  private readonly actorChip = viewChild("actorFilter", { read: FILTER_CONTROL });
+  private readonly requesterChip = viewChild("requesterFilter", { read: FILTER_CONTROL });
+  private readonly timePeriodChip = viewChild("timePeriodFilter", { read: FILTER_CONTROL });
 
-  protected readonly fromControl = new FormControl("", { nonNullable: true });
-  protected readonly toControl = new FormControl("", { nonNullable: true });
-
-  private readonly fromValue = toSignal(this.fromControl.valueChanges, { initialValue: "" });
-  private readonly toValue = toSignal(this.toControl.valueChanges, { initialValue: "" });
-
-  private readonly rangeStart = computed(() => auditRangeStart(this.fromValue()));
-  private readonly rangeEnd = computed(() => auditRangeEnd(this.toValue()));
-
-  /** From after To. Surfaced to the auditor, who otherwise reads an empty table as a trail with no events. */
-  protected readonly invertedRange = computed(() => {
-    const start = this.rangeStart();
-    const end = this.rangeEnd();
-    return start != null && end != null && end.getTime() < start.getTime();
-  });
+  private readonly chips = computed(() =>
+    [this.kindChip(), this.actorChip(), this.requesterChip(), this.timePeriodChip()].filter(
+      (chip): chip is FilterControl => chip != null,
+    ),
+  );
 
   /**
-   * The inverted range as the To control's own error, so the field carries the danger border, `aria-invalid`
-   * and the message that `bit-form-field` already renders for a control in error.
-   *
-   * A validator rather than a `setErrors` call: `setUpControl` re-validates the control whenever the ready
-   * branch is created, which would wipe an imperatively set error.
+   * The bounds the table is narrowed to. Stamped when a period is chosen rather than recomputed on every
+   * filter pass, so "Past 7 days" does not slide forward under a table the auditor is still reading, and
+   * so nothing in the row predicate consults the clock.
    */
-  private readonly invertedRangeValidator: ValidatorFn = () =>
-    this.invertedRange()
-      ? { invalidDateRange: { message: this.i18nService.t("invalidDateRange") } }
-      : null;
+  private readonly range = signal<AuditRange>(UNBOUNDED_AUDIT_RANGE);
+
+  /** The period whose bounds {@link range} holds. A cancelled dialog rolls the chip back to this. */
+  private readonly appliedPeriod = signal<AuditTimePeriod | null>(null);
+
+  /** The last chip selection {@link applyTimePeriod} was run for, so a rollback does not re-enter it. */
+  private readonly handledPeriod = signal<AuditTimePeriod | null>(null);
+
+  /** The custom bounds last confirmed, kept so reopening the dialog shows the range in force. */
+  private readonly customRange = signal<CustomRangeDialogParams>(NO_CUSTOM_RANGE);
+
+  /**
+   * The Time period options. "All time" is the chip's own reset row rather than a fifth option, so the
+   * menu offers one way to mean "no bounds" instead of two that read differently.
+   */
+  protected readonly timePresets = AUDIT_TIME_PRESETS.map((period) => ({
+    value: period,
+    label: this.i18nService.t(AUDIT_TIME_PERIOD_LABEL_KEYS[period]),
+  }));
+
+  protected readonly customPeriodLabel = this.i18nService.t(AUDIT_TIME_PERIOD_LABEL_KEYS.custom);
 
   protected readonly kindOptions = computed<AuditChipOption[]>(() =>
     [...new Set(this.rows().map((row) => row.kindLabelKey))]
@@ -267,40 +293,91 @@ export class AccessAuditComponent implements OnInit {
   );
 
   /** One chip's selection, or null when that chip has none. Single-select, so the value is a scalar. */
-  private selectedValue(key: string): string | null {
-    const control = this.filterControls().find((candidate) => candidate.key() === key);
-    const value = control?.value();
+  private selectedValue(chip: FilterControl | undefined): string | null {
+    const value = chip?.value();
     return typeof value === "string" ? value : null;
   }
 
+  private readonly selectedPeriod = computed<AuditTimePeriod | null>(
+    () => this.selectedValue(this.timePeriodChip()) as AuditTimePeriod | null,
+  );
+
   protected readonly filteredRows = computed(() => {
-    const inverted = this.invertedRange();
+    const { from, to } = this.range();
     const filter: AuditFilter = {
-      kindLabelKey: this.selectedValue(FILTER_KEYS.kind),
-      actorId: this.selectedValue(FILTER_KEYS.actor),
-      requesterId: this.selectedValue(FILTER_KEYS.requester),
-      from: inverted ? null : this.rangeStart(),
-      to: inverted ? null : this.rangeEnd(),
+      kindLabelKey: this.selectedValue(this.kindChip()),
+      actorId: this.selectedValue(this.actorChip()),
+      requesterId: this.selectedValue(this.requesterChip()),
+      from,
+      to,
     };
     return this.rows().filter((row) => auditRowMatchesFilter(row, filter));
   });
 
-  constructor() {
-    this.toControl.addValidators(this.invertedRangeValidator);
+  /** Whether anything is narrowing the table, which is what puts "Clear all" at the end of the chip row. */
+  protected readonly filtersActive = computed(() => this.chips().some((chip) => chip.active()));
 
-    // Editing From leaves To's value alone, so nothing else would re-run a cross-field rule. The control is
-    // marked touched on every inverted edit rather than only when the range flips, because
-    // `BitInputDirective.onInput` marks it untouched on each keystroke and
-    // `BitFormFieldControlDirective.hasError` paints nothing on an untouched control — the message would
-    // otherwise blink out mid-edit and stay hidden until the next blur.
+  constructor() {
+    // A `bit-filter-menu` has no value output to subscribe to, so the chip's own selection signal is what
+    // drives the range. Guarded on the last handled selection because rolling the chip back after a
+    // cancelled dialog writes to that same signal.
     effect(() => {
-      this.fromValue();
-      this.toValue();
-      this.toControl.updateValueAndValidity();
-      if (this.invertedRange()) {
-        this.toControl.markAsTouched();
-      }
+      const period = this.selectedPeriod();
+      untracked(() => {
+        if (period === this.handledPeriod()) {
+          return;
+        }
+        this.handledPeriod.set(period);
+        void this.applyTimePeriod(period);
+      });
     });
+  }
+
+  /** Narrows the table to a chosen period, or collects bounds in the dialog when that period is Custom. */
+  private async applyTimePeriod(period: AuditTimePeriod | null): Promise<void> {
+    if (period === "custom") {
+      await this.openCustomRange();
+      return;
+    }
+    this.range.set(period == null ? UNBOUNDED_AUDIT_RANGE : auditPresetRange(period, new Date()));
+    this.appliedPeriod.set(period);
+  }
+
+  /**
+   * Collects custom bounds, applying them only on confirm.
+   *
+   * A cancelled dialog rolls the chip back to the period still in force, so it is never left reading
+   * "Custom" over a range that was never applied. The dialog blocks its own confirm on an inverted range,
+   * so a range that would hide every row cannot arrive here.
+   */
+  private async openCustomRange(): Promise<void> {
+    const result = await firstValueFrom(
+      CustomRangeDialogComponent.open(this.dialogService, { data: this.customRange() }).closed,
+    );
+    if (result == null) {
+      const previous = this.appliedPeriod();
+      this.handledPeriod.set(previous);
+      this.setPeriod(previous);
+      return;
+    }
+    this.customRange.set(result);
+    this.range.set({ from: auditRangeStart(result.from), to: auditRangeEnd(result.to) });
+    this.appliedPeriod.set("custom");
+  }
+
+  private setPeriod(period: AuditTimePeriod | null): void {
+    this.timePeriodChip()?.setValue(period);
+  }
+
+  /** Resets every chip, so an auditor who narrowed the trail four ways gets back to all of it in one click. */
+  protected clearAll(): void {
+    for (const chip of this.chips()) {
+      chip.setValue(null);
+    }
+    this.customRange.set(NO_CUSTOM_RANGE);
+    this.handledPeriod.set(null);
+    this.appliedPeriod.set(null);
+    this.range.set(UNBOUNDED_AUDIT_RANGE);
   }
 
   async ngOnInit(): Promise<void> {
