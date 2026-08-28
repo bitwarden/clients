@@ -19,10 +19,14 @@ export type AuditRow = {
   actor: string | null;
   /** Who performed it, as an identity — the actor filter keys on this, since two members can share a display name. */
   actorId: string | null;
+  /** The actor's email, used to tell apart two identities whose display names collide. */
+  actorEmail: string | null;
   /** The access requester (name, falling back to email). */
   requester: string | null;
   /** The access requester, as an identity — see {@link AuditRow.actorId}. */
   requesterId: string | null;
+  /** The requester's email — see {@link AuditRow.actorEmail}. */
+  requesterEmail: string | null;
   /** Decrypted cipher name from local vault state, or null when the item isn't in the caller's vault. */
   cipherName: string | null;
   /** Decrypted collection name from local vault state, or null. */
@@ -135,8 +139,10 @@ export function toAuditRow(
     kindLabelKey: selfEnded ? "pamAuditKindLeaseEndedByHolder" : auditKindLabelKey(event.kind),
     actor,
     actorId: event.actorId,
+    actorEmail: event.actorEmail,
     requester,
     requesterId: event.requesterId,
+    requesterEmail: event.requesterEmail,
     cipherName,
     collectionName,
     ruleName: event.ruleName,
