@@ -155,8 +155,8 @@
     </div>
   }
 
-  @if (showConsolidatedBillingMsp()) {
-    @if (org?.isProviderUser) {
+  @if (!showSubscription() && org?.hasProvider) {
+    @if (showConsolidatedBillingMsp() && org.isProviderUser) {
       <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
       <p bitTypography="body1">
         {{ "manageSubscriptionFromThe" | i18n }}
@@ -169,7 +169,7 @@
       <div class="tw-mt-7 tw-flex tw-flex-col tw-items-center tw-text-center tw-text-info">
         <bit-icon name="bwi-provider" class="tw-mb-3 tw-text-4xl"></bit-icon>
         <p bitTypography="body1" class="tw-font-medium">
-          {{ "billingManagedByProvider" | i18n: org?.providerName || "" }}
+          {{ "billingManagedByProvider" | i18n: org.providerName || "" }}
         </p>
         <p bitTypography="body1">{{ "billingContactProviderForAssistance" | i18n }}</p>
       </div>
