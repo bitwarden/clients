@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/vault";
 import { COLLECTION_ACCESS_RULE_CALLOUT } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/collection-dialog/collection-access-rule-callout.token";
 import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.service";
+import { PAM_ROUTES } from "@bitwarden/web-vault/app/pam/pam-routes.token";
 import { VaultRowAccessActionsService } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-access-actions.service";
 import { VAULT_ROW_LEASE_BADGE } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-lease-badge.token";
 import { VAULT_CONTROLLED_ACCESS_FILTER } from "@bitwarden/web-vault/app/vault/individual-vault/vault-controlled-access-filter.token";
@@ -85,15 +86,24 @@ import {
  * list), `GATED_CIPHER_RELOADER` (the observable that reveals a gated cipher in place
  * once a lease covers it),
  * `COLLECTION_ACCESS_RULE_CALLOUT` (the governing-rule notice in the collection
- * edit dialog), `PamNavBadgeService` (the nav badge count), and
+ * edit dialog), `PamNavBadgeService` (the nav badge count),
  * `VaultRowAccessActionsService` (withdrawing a gated row's outstanding access
- * request from the vault-list menu).
+ * request from the vault-list menu), and `PAM_ROUTES` (the lazy loader for the user-scoped
+ * "Access requests" pages, which the OSS root shell mounts inside the shared user layout so
+ * the side nav's relative links keep resolving against the root).
  *
  * `AccessEventService` turns the server's access push into a tick; `AccessRefreshService`
  * merges that tick with local mutations so every leasing surface re-reads through one path.
  */
 export function providePam(): SafeProvider[] {
   return [
+    safeProvider({
+      provide: PAM_ROUTES,
+      useValue: () =>
+        import("./access-requests/access-requests-routing.module").then(
+          (m) => m.AccessRequestsRoutingModule,
+        ),
+    }),
     safeProvider({
       provide: AccessRuleSdkService,
       useClass: AccessRulesSdkService,
