@@ -51,7 +51,7 @@ export type MyAccessRequestRow = {
   /**
    * The raw id of the lease this request minted when activated, or null if it never produced one.
    * Used to fold an extension onto its original and to exclude the row from History while that
-   * lease is still active (shown in Active leases instead).
+   * lease is still active (shown in Active access instead).
    */
   producedLeaseId: string | null;
   /**
@@ -168,7 +168,7 @@ export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStat
  * `canceled` and `revoked` are distinct lease statuses, so the label reads straight off
  * `producedLeaseStatus`: the requester ending their own lease is "Canceled", an operator ending it
  * out from under them is "Revoked". An `active` produced lease is labelled like a live grant — callers exclude it from History (it
- * belongs in Active leases) but the detail page's top status field can still render it correctly.
+ * belongs in Active access) but the detail page's top status field can still render it correctly.
  */
 export function historyDisplayStatus(
   request: Pick<AccessRequestView, "status" | "producedLeaseId" | "producedLeaseStatus">,
