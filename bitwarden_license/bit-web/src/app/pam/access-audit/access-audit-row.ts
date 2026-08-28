@@ -44,11 +44,16 @@ export type AuditRow = {
   /** True when the action's outcome never landed (only the write-ahead attempt) — shown as an in-doubt row. */
   inDoubt: boolean;
   /**
-   * The originating request, when the event has one. Carried but not rendered: the request-detail page
-   * is authorized for the requester or a managing approver, not for AccessEventLogs, so this trail
-   * offers no drill-down (see {@link AccessAuditComponent}).
+   * The originating request, when the event has one. Shown in the details drawer but never as a link:
+   * the request-detail page is authorized for the requester or a managing approver, not for
+   * AccessEventLogs, so this trail offers no drill-down (see {@link AccessAuditComponent}).
    */
   requestId: string | null;
+  /**
+   * The lease the event concerns, when it has one. Like {@link AuditRow.requestId} it opens nothing;
+   * it is carried so the details drawer can hand an auditor the id support would ask them for.
+   */
+  leaseId: string | null;
   /** The length of the granted access window, as an i18n key + value. Null on every other kind. */
   duration: LabelValue | null;
   /** The exact "from – to" window behind {@link duration}, for the cell's tooltip. Null whenever {@link duration} is. */
@@ -154,6 +159,7 @@ export function toAuditRow(
     automated: event.automated,
     inDoubt: event.incomplete,
     requestId: event.requestId,
+    leaseId: event.leaseId,
     duration: grantedWindow == null ? null : durationLabel(grantedWindow),
     exactWindow: grantedWindow == null ? null : exactWindow(grantedWindow),
     extendedUntil,

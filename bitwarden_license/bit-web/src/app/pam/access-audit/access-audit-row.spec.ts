@@ -32,6 +32,7 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     automated: false,
     inDoubt: false,
     requestId: null,
+    leaseId: null,
     duration: null,
     exactWindow: null,
     extendedUntil: null,

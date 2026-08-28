@@ -1399,6 +1399,172 @@ describe("AccessAuditComponent", () => {
     });
   });
 
+  describe("details drawer", () => {
+    const render = async (events: AccessAuditEventResponse[]) => {
+      auditApiService.listAccessAuditTrail.mockResolvedValue(events);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const rows = (): HTMLElement[] =>
+      Array.from(fixture.nativeElement.querySelectorAll("bit-table tbody tr"));
+
+    const activator = (index = 0): HTMLElement =>
+      fixture.nativeElement.querySelector(`#access-audit_button_details-${index}`);
+
+    /** The params the one opened drawer was configured with. */
+    const drawerData = () =>
+      (dialogService.openDrawer.mock.calls[0][1] as { data: Record<string, any> }).data;
+
+    const press = (element: HTMLElement, key: string): KeyboardEvent => {
+      const keydown = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
+      element.dispatchEvent(keydown);
+      fixture.detectChanges();
+      return keydown;
+    };
+
+    it("opens the drawer over the row that was activated", async () => {
+      await render([
+        event({ OccurredAt: "2026-08-18T09:00:00.000Z", Detail: "first" }),
+        event({ OccurredAt: "2026-08-18T08:00:00.000Z", Detail: "second" }),
+      ]);
+
+      rows()[1].click();
+
+      expect(dialogService.openDrawer).toHaveBeenCalledTimes(1);
+      expect(drawerData().row.detail).toBe("second");
+      expect(drawerData().organizationId).toBe(ORGANIZATION_ID);
+    });
+
+    // The member lookup ran once for the whole trail; the pane must link exactly what the row under
+    // it links, which it can only do if the page hands over the answer it already has.
+    it("hands the drawer the identities the row resolved", async () => {
+      await render([event({ ActorId: "user-1", RequesterId: "user-2" })]);
+
+      rows()[0].click();
+
+      expect(drawerData().actor).toEqual({
+        name: "Ada",
+        email: "ada@example.com",
+        organizationUserId: "org-user-1",
+      });
+      expect(drawerData().requester.organizationUserId).toBe("org-user-2");
+    });
+
+    it("hands the drawer no actor for an automated row", async () => {
+      await render([event({ Automated: true })]);
+
+      rows()[0].click();
+
+      expect(drawerData().actor).toBeNull();
+    });
+
+    it("leaves an identity the member lookup did not resolve unlinked in the drawer", async () => {
+      await render([event({ ActorId: "user-9", ActorName: "Linus", RequesterId: "user-9" })]);
+
+      rows()[0].click();
+
+      expect(drawerData().actor).toBeNull();
+      expect(drawerData().requester).toBeNull();
+    });
+
+    // An anchor inside the row already opens something of its own. Letting the click reach the row
+    // as well would stack a drawer behind the dialog the auditor actually asked for.
+    it.each([
+      ["actor", { ActorId: "user-1", ActorName: "Ada" }],
+      ["requester", { RequesterId: "user-2", RequesterName: "Grace" }],
+    ])("opens only the entity dialog from the %s link", async (name, overrides) => {
+      await render([event(overrides)]);
+
+      fixture.nativeElement.querySelector(`#access-audit_link_${name}-0`).click();
+
+      expect(dialogService.open).toHaveBeenCalledTimes(1);
+      expect(dialogService.openDrawer).not.toHaveBeenCalled();
+    });
+
+    it("opens only the entity dialog from the item link", async () => {
+      nameResolver.resolveNames.mockResolvedValue({
+        ...emptyResolvedNames(),
+        cipherNameById: new Map([["cipher-1", "Prod database"]]),
+      });
+      await render([event({ CipherId: "cipher-1", CollectionId: "col-1" })]);
+
+      fixture.nativeElement.querySelector("#access-audit_link_item-0").click();
+
+      expect(dialogService.open).toHaveBeenCalledTimes(1);
+      expect(dialogService.openDrawer).not.toHaveBeenCalled();
+    });
+
+    // A `tr` is neither focusable nor nameable, so the affordance lives on a cell — one cell, not
+    // six, or a ninety-day trail would put hundreds of tab stops between an auditor and the table's end.
+    it("gives the row one keyboard activator, with a role and a name", async () => {
+      await render([event()]);
+
+      const cell = activator();
+      expect(cell.getAttribute("role")).toBe("button");
+      expect(cell.getAttribute("tabindex")).toBe("0");
+      expect(cell.getAttribute("aria-label")).toContain("Request approved");
+      expect(cell.className).toContain("focus-visible:tw-ring-2");
+      expect(
+        fixture.nativeElement.querySelectorAll('bit-table tbody [role="button"]'),
+      ).toHaveLength(1);
+    });
+
+    it("opens the drawer on Enter", async () => {
+      await render([event()]);
+
+      press(activator(), "Enter");
+
+      expect(dialogService.openDrawer).toHaveBeenCalledTimes(1);
+    });
+
+    // Space activates the row without also scrolling the page out from under it.
+    it("opens the drawer on Space, and swallows the key", async () => {
+      await render([event()]);
+
+      const keydown = press(activator(), " ");
+
+      expect(dialogService.openDrawer).toHaveBeenCalledTimes(1);
+      expect(keydown.defaultPrevented).toBe(true);
+    });
+
+    // Pointer activation sits on the row, so the activator cell must not repeat it.
+    it("opens the drawer once when the activator itself is clicked", async () => {
+      await render([event()]);
+
+      activator().click();
+
+      expect(dialogService.openDrawer).toHaveBeenCalledTimes(1);
+    });
+
+    it("no longer gives the table a Detail column", async () => {
+      await render([event({ Detail: "Incident closed early." })]);
+
+      const headers = Array.from<HTMLElement>(
+        fixture.nativeElement.querySelectorAll("bit-table thead th"),
+      ).map((header) => header.textContent!.trim());
+      expect(headers).toEqual(["Timestamp", "Event", "Actor", "Requester", "Item", "Duration"]);
+      expect(fixture.nativeElement.querySelector("bit-table tbody").textContent).not.toContain(
+        "Incident closed early.",
+      );
+    });
+
+    // The column is gone from the TABLE, not from the trail: the file an auditor exports is the
+    // record they file, and it still has to carry the free text the column used to show.
+    it("still exports the detail the column gave up", async () => {
+      await render([event({ Detail: "Incident closed early." })]);
+
+      fixture.nativeElement.querySelector("#access-audit_button_export").click();
+
+      const csv = fileDownloadService.download.mock.calls[0][0].blobData as string;
+      const parsed = papa.parse<Record<string, string>>(csv, { header: true });
+      expect(parsed.meta.fields).toContain("detail");
+      expect(parsed.data[0].detail).toBe("Incident closed early.");
+    });
+  });
+
   describe("no matches", () => {
     const emptyStateClearAll = (): HTMLButtonElement | null =>
       fixture.nativeElement.querySelector("#access-audit_button_no-matches-clear-all");
@@ -1487,7 +1653,8 @@ describe("AccessAuditComponent", () => {
   describe("empty cells", () => {
     const ACTOR = 2;
     const REQUESTER = 3;
-    const DETAIL = 6;
+    const ITEM = 4;
+    const DURATION = 5;
 
     const render = async (events: AccessAuditEventResponse[]) => {
       auditApiService.listAccessAuditTrail.mockResolvedValue(events);
@@ -1535,18 +1702,6 @@ describe("AccessAuditComponent", () => {
       expect(text(REQUESTER)).toBe("—");
     });
 
-    it("renders the detail when the row carries one", async () => {
-      await render([event({ Detail: "Incident closed early." })]);
-
-      expect(text(DETAIL)).toBe("Incident closed early.");
-    });
-
-    it("renders an em dash for a row with no detail", async () => {
-      await render([event({ Detail: null })]);
-
-      expect(text(DETAIL)).toBe("—");
-    });
-
     // A blank cell in an audit table reads as a rendering failure rather than as "no value".
     it("leaves no cell of a bare row blank", async () => {
       await render([
@@ -1557,11 +1712,12 @@ describe("AccessAuditComponent", () => {
           RequesterId: null,
           RequesterName: null,
           RequesterEmail: null,
-          Detail: null,
+          CipherId: null,
+          CollectionId: null,
         }),
       ]);
 
-      for (const column of [ACTOR, REQUESTER, DETAIL]) {
+      for (const column of [ACTOR, REQUESTER, ITEM, DURATION]) {
         expect(text(column)).toBe("—");
         expect(cell(column).querySelector(".tw-text-muted")).not.toBeNull();
       }
@@ -1609,13 +1765,12 @@ describe("AccessAuditComponent", () => {
   });
 
   describe("column widths", () => {
-    /** Time, Event, Actor, Requester, Item, Duration, Detail — the order the template declares. */
+    /** Timestamp, Event, Actor, Requester, Item, Duration — the order the template declares. */
     const TIME = 0;
     const EVENT = 1;
     const ACTOR = 2;
     const REQUESTER = 3;
     const ITEM = 4;
-    const DETAIL = 6;
 
     const renderTable = async () => {
       auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
@@ -1652,15 +1807,13 @@ describe("AccessAuditComponent", () => {
       expect(cells[ITEM].classList).toContain("tw-p-3");
     });
 
-    it("caps Item and Detail and lets their text break inside the cap", async () => {
+    it("caps Item and lets its text break inside the cap", async () => {
       const { headers, cells } = await renderTable();
 
-      for (const column of [ITEM, DETAIL]) {
-        expect(headers[column].classList).toContain("tw-max-w-64");
-        expect(headers[column].classList).toContain("tw-break-words");
-        expect(cells[column].classList).toContain("tw-max-w-64");
-        expect(cells[column].classList).toContain("tw-break-words");
-      }
+      expect(headers[ITEM].classList).toContain("tw-max-w-64");
+      expect(headers[ITEM].classList).toContain("tw-break-words");
+      expect(cells[ITEM].classList).toContain("tw-max-w-64");
+      expect(cells[ITEM].classList).toContain("tw-break-words");
     });
 
     it("leaves the unbounded name columns free to wrap", async () => {
