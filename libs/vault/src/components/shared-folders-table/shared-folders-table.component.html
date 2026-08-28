@@ -76,7 +76,9 @@
   }
 
   <!-- Name -->
-  <bit-column sortable defaultSort="asc" width="minmax(240px, 1fr)">
+  <!-- Capped rather than `1fr`: unbounded, the name track soaks up every pixel the other columns
+       don't claim and strands them at the far right of a wide table. -->
+  <bit-column sortable defaultSort="asc" width="minmax(240px, 480px)">
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
 
     <bit-cell *bitCellDef="table.columns.name; let row">
@@ -121,7 +123,9 @@
   </bit-column>
 
   <!-- Options -->
-  <bit-column width="80px">
+  <!-- The flexible track, so leftover width lands here and the right-aligned overflow trigger stays
+       pinned to the table's right edge. -->
+  <bit-column width="minmax(80px, 1fr)">
     <bit-header-cell>
       <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
     </bit-header-cell>
