@@ -26,6 +26,7 @@ import {
   MyAccessRequestRow,
   buildMyAccessRequestRows,
   extensionsByLeaseId,
+  resolvedOrSubmittedMs,
   toLeaseRow,
   toRequestRow,
 } from "./my-access-row";
@@ -139,7 +140,7 @@ export class MyAccessService {
             !(r.status === "approved" && r.producedLeaseId == null) &&
             !(r.producedLeaseId != null && activeLeaseIds.has(r.producedLeaseId)),
         )
-        .sort((a, b) => timeOf(b) - timeOf(a))
+        .sort((a, b) => resolvedOrSubmittedMs(b) - resolvedOrSubmittedMs(a))
         .slice(0, MY_ACCESS_PAGE_LIMIT);
     }),
   );
@@ -253,11 +254,6 @@ export class MyAccessService {
     await this.requestsApi.activateAccessRequest(id);
     await this.load();
   }
-}
-
-/** Sort key for history: resolution time, falling back to submit time. */
-function timeOf(row: MyAccessRequestRow): number {
-  return Date.parse(row.resolvedAt ?? row.submittedAt);
 }
 
 /** The distinct cipher/collection refs across a set of requests + leases, for name resolution. */
