@@ -9,6 +9,7 @@ import {
   queryByRole,
   fireEvent,
   getAllByLabelText,
+  findByTestId,
 } from "storybook/test";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -140,6 +141,35 @@ export const Default: Story = {
 export const DefaultVfo1: Story = {
   ...Default,
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
+export const DefaultNoBanner: Story = {
+  ...Default,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const bannerClose = await findByTestId(canvas, "bit-banner-close-btn");
+    await userEvent.click(bannerClose);
+  },
+  parameters: {
+    chromatic: {
+      viewports: [1280],
+    },
+  },
+};
+
+export const DefaultVfo1NoBanner: Story = {
+  ...Default,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const bannerClose = await findByTestId(canvas, "bit-banner-close-btn");
+    await userEvent.click(bannerClose);
+  },
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  parameters: {
+    chromatic: {
+      viewports: [1280],
+    },
+  },
 };
 
 export const MenuOpen: Story = {

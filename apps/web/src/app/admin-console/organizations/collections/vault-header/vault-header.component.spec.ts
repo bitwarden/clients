@@ -193,9 +193,9 @@ describe("VaultHeaderComponent", () => {
       expect((component as any).icon()).toBe("bwi-collection-shared");
     });
 
-    it("returns empty string when no collectionId is set", () => {
+    it("returns undefined when no collectionId is set", () => {
       setInputs({ filter: { organizationId: orgId } });
-      expect((component as any).icon()).toBe("");
+      expect((component as any).icon()).toBe(undefined);
     });
   });
 

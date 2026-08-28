@@ -13,8 +13,12 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
+import { of } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { drawerSizeToWidthRem } from "../dialog/dialog/dialog.component";
@@ -58,6 +62,13 @@ export class LayoutComponent {
   private readonly drawerService = inject(DrawerService);
   protected drawerPortal = this.drawerService.portal;
   protected footerPortal = inject(LayoutFooterService).portal;
+  private readonly configService = inject(ConfigService, { optional: true });
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService?.getFeatureFlag$(FeatureFlag.VFO1Foundation) ?? of(false),
+    { initialValue: false },
+  );
 
   /** Rendered only when nothing is projected into the side-nav slot (ng-content fallback). */
   private readonly sideNavSlotFallback = viewChild<ElementRef>("sideNavSlotFallback");

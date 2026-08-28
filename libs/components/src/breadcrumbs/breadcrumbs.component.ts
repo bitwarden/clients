@@ -5,6 +5,7 @@ import {
   Component,
   computed,
   contentChildren,
+  DestroyRef,
   effect,
   ElementRef,
   inject,
@@ -16,6 +17,7 @@ import { RouterModule } from "@angular/router";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { HeaderContext } from "../header/header-context";
 import { IconModule } from "../icon";
 import { IconButtonModule } from "../icon-button";
 import { MenuModule } from "../menu";
@@ -54,13 +56,15 @@ const TRAILING_ARROW_RESERVE_PX = { base: 48, small: 34 } as const;
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: "tw-flex tw-items-center",
+    class: "tw-flex tw-items-center tw-w-full tw-min-w-0",
     role: "navigation",
     "[attr.aria-label]": "ariaLabel",
   },
 })
 export class BreadcrumbsComponent {
   private readonly i18nService = inject(I18nService);
+  private readonly headerContext = inject(HeaderContext, { optional: true });
+
   private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
   protected readonly ariaLabel = this.i18nService.t("breadcrumbs");
 
@@ -101,6 +105,13 @@ export class BreadcrumbsComponent {
   private readonly overflowList = viewChild.required(OverflowListDirective);
 
   constructor() {
+    if (this.headerContext) {
+      this.headerContext.registerPromotedHeading(this.displayActiveAsHeader);
+      inject(DestroyRef).onDestroy(() =>
+        this.headerContext?.unregisterPromotedHeading(this.displayActiveAsHeader),
+      );
+    }
+
     // Push our size down to each child crumb so they can size projected icon tiles in step.
     effect(() => {
       const size = this.size();
@@ -116,6 +127,25 @@ export class BreadcrumbsComponent {
       this.overflowList().remeasure({ reset: true });
     });
   }
+
+  protected readonly activeBreadcrumb = computed(() => {
+    const result = this.breadcrumbs().find((breadcrumb) => breadcrumb.isActiveRoute());
+
+    return result;
+  });
+
+  /**
+   * Display the active breadcrumb as a semantic header element when HeaderContext says to do so,
+   * and there is an active breadcrumb available
+   *
+   * (after VFO1 flag is removed, update this to check for the existence of HeaderContext instead
+   * of the check for promoteActiveBreadcrumb, which is solely a VFO1 flag gate)
+   */
+  protected readonly displayActiveAsHeader = computed(
+    () =>
+      (this.headerContext?.promoteActiveBreadcrumb() ?? false) &&
+      this.activeBreadcrumb() != undefined,
+  );
 
   protected readonly baseStyles = [
     "tw-inline-block",
