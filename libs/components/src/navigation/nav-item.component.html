@@ -147,8 +147,10 @@
               type="button"
               [class]="interactiveElClass"
               data-fvw
-              [attr.aria-expanded]="ariaExpanded()"
-              [attr.aria-controls]="ariaControls()"
+              [attr.tabindex]="suppressMainButton() ? '-1' : null"
+              [attr.aria-hidden]="suppressMainButton() ? 'true' : null"
+              [attr.aria-expanded]="suppressMainButton() ? null : ariaExpanded()"
+              [attr.aria-controls]="suppressMainButton() ? null : ariaControls()"
               (click)="mainContentClicked.emit()"
               data-testid="nav-item-interactive"
             >

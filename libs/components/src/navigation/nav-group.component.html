@@ -19,7 +19,7 @@
   <bit-nav-item
     [text]="text()"
     [icon]="icon()"
-    [route]="sideNavService.version() === 'vfo1' && treeDepth() === 0 ? undefined : route()"
+    [route]="effectiveRoute()"
     [treeDepth]="treeDepth()"
     [relativeTo]="relativeTo()"
     [routerLinkActiveOptions]="routerLinkActiveOptions()"
@@ -31,6 +31,7 @@
     [ariaExpanded]="!toggleInStartSlot() ? open() : undefined"
     [ariaControls]="!toggleInStartSlot() ? contentId : undefined"
     [hasForwardedIconTile]="!toggleInStartSlot() && hasStartSlotTile()"
+    [suppressMainButton]="toggleIsOnlyControl()"
   >
     @if (toggleInStartSlot()) {
       <ng-container slot="start" *ngTemplateOutlet="collapseToggle"></ng-container>
