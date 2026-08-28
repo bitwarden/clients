@@ -35,7 +35,6 @@ import {
   LinkModule,
   StatusLockupComponent,
   SvgComponent,
-  SearchModule,
   TableModule,
   TooltipDirective,
 } from "@bitwarden/components";
@@ -108,7 +107,7 @@ function identityOptions(rows: AuditRow[], identity: "actor" | "requester"): Aud
  * Read-only, and deliberately without a drill-down: the request-detail page is authorized for the
  * request's requester or a managing approver, which is a different permission from the one that opens
  * this trail, so an auditor holding only AccessEventLogs would follow such a link into a 404. The
- * toolbar filters (free text, event kind, actor, requester, date range) run client-side over the
+ * toolbar filters (event kind, actor, requester, date range) run client-side over the
  * already-fetched window: the endpoint takes no query parameters and returns the whole 90 days at once,
  * so changing a filter never re-reads it.
  */
@@ -132,7 +131,6 @@ function identityOptions(rows: AuditRow[], identity: "actor" | "requester"): Aud
     LinkModule,
     StatusLockupComponent,
     SvgComponent,
-    SearchModule,
     TableModule,
     TooltipDirective,
     I18nPipe,
@@ -179,13 +177,10 @@ export class AccessAuditComponent implements OnInit {
   protected readonly status = signal<AuditStatus>("loading");
   protected readonly rows = signal<AuditRow[]>([]);
 
-  protected readonly searchControl = new FormControl("", { nonNullable: true });
   protected readonly actorControl = new FormControl<string | null>(null);
   protected readonly requesterControl = new FormControl<string | null>(null);
   protected readonly fromControl = new FormControl("", { nonNullable: true });
   protected readonly toControl = new FormControl("", { nonNullable: true });
-
-  private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
 
   /**
    * The Event chip. `bit-filter-menu` is not a `ControlValueAccessor` — it owns its selection and
@@ -195,7 +190,6 @@ export class AccessAuditComponent implements OnInit {
   private readonly kindMenu = viewChild(FilterMenuComponent);
 
   private readonly kindValue = computed(() => (this.kindMenu()?.value() ?? null) as string | null);
-
   private readonly actorValue = toSignal(this.actorControl.valueChanges, { initialValue: null });
   private readonly requesterValue = toSignal(this.requesterControl.valueChanges, {
     initialValue: null,
@@ -250,7 +244,6 @@ export class AccessAuditComponent implements OnInit {
   protected readonly filteredRows = computed(() => {
     const inverted = this.invertedRange();
     const filter: AuditFilter = {
-      text: this.searchText(),
       kindLabelKey: this.kindValue(),
       actorId: this.actorValue(),
       requesterId: this.requesterValue(),
