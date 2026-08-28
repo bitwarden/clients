@@ -2,8 +2,7 @@ import { svg } from "@bitwarden/assets/svg";
 
 /**
  * Log-page-with-clock glyph shown on the PAM audit empty state. Shares the rounded-tile frame with
- * {@link NoAccessRulesIcon} so the two PAM empty states read as one family, and maps its fills to
- * the `primary` theme tokens so the illustration adapts to light/dark themes.
+ * {@link NoAccessRulesIcon} so the two PAM empty states read as one family.
  */
 export const NoAuditActivityIcon = svg`
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 64 64">
