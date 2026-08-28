@@ -3,6 +3,8 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { map } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { HeaderComponent, BannerModule } from "@bitwarden/components";
 
@@ -17,6 +19,17 @@ import { AccountSwitcherV2Component } from "../../../auth/components/account-swi
 export class DesktopHeaderComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly i18nService = inject(I18nService);
+
+  /**
+   * Whether the legacy header account switcher should render. It's hidden once the VFO1 side-nav
+   * footer account switcher (see `DesktopSideNavComponent`) takes over.
+   */
+  protected readonly showAccountSwitcher = toSignal(
+    inject(ConfigService)
+      .getFeatureFlag$(FeatureFlag.VFO1Foundation)
+      .pipe(map((enabled) => !enabled)),
+    { initialValue: true },
+  );
 
   /**
    * Title to display in header (takes precedence over route data)
