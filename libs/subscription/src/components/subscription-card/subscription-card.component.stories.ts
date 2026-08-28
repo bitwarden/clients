@@ -447,57 +447,6 @@ export const Enterprise: Story = {
   },
 };
 
-export const ActiveFromPreview: Story = {
-  name: "Preview-Driven - Active",
-  args: {
-    title: "Teams Subscription",
-    subscription: {
-      status: "active",
-      nextCharge: new Date("2025-02-15"),
-      cart: {
-        passwordManager: {
-          seats: {
-            quantity: 5,
-            translationKey: "members",
-            cost: 4,
-          },
-        },
-        cadence: "annually",
-        estimatedTax: 1.5,
-      },
-      storage: {
-        available: 1000,
-        used: 234,
-        readableUsed: "234 MB",
-      },
-    } satisfies SubscriptionPreview,
-  },
-};
-
-export const PreviewWithoutStorage: Story = {
-  name: "Preview-Driven - No Storage",
-  args: {
-    title: "Teams Subscription",
-    // `storage` is optional on SubscriptionPreview (the server omits it when there is no maximum
-    // storage allowance) — verifies the card renders without a storage section.
-    subscription: {
-      status: "active",
-      nextCharge: new Date("2025-02-15"),
-      cart: {
-        passwordManager: {
-          seats: {
-            quantity: 5,
-            translationKey: "members",
-            cost: 4,
-          },
-        },
-        cadence: "annually",
-        estimatedTax: 1.5,
-      },
-    } satisfies SubscriptionPreview,
-  },
-};
-
 export const WithProjectedContent: Story = {
   name: "Preview-Driven - With Projected Warning",
   args: {
