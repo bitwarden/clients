@@ -85,6 +85,7 @@
         -->
         <bit-filter-menu
           #kindFilter
+          multiple
           [key]="filterKeys.kind"
           [placeholderText]="'pamAuditColumnEvent' | i18n"
         >
@@ -96,6 +97,7 @@
         </bit-filter-menu>
         <bit-filter-menu
           #actorFilter
+          multiple
           [key]="filterKeys.actor"
           [placeholderText]="'pamAuditColumnActor' | i18n"
         >
@@ -107,6 +109,7 @@
         </bit-filter-menu>
         <bit-filter-menu
           #requesterFilter
+          multiple
           [key]="filterKeys.requester"
           [placeholderText]="'pamAuditColumnRequester' | i18n"
         >
