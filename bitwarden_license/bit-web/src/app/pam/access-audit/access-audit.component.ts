@@ -58,6 +58,8 @@ import {
   AuditRow,
   AuditTimePeriod,
   UNBOUNDED_AUDIT_RANGE,
+  auditItemId,
+  auditItemLabel,
   auditPresetRange,
   auditRangeEnd,
   auditRangeStart,
@@ -83,6 +85,7 @@ const FILTER_KEYS = {
   kind: "kind",
   actor: "actor",
   requester: "requester",
+  item: "item",
   timePeriod: "timePeriod",
 } as const;
 
@@ -140,7 +143,7 @@ function identityOptions(rows: AuditRow[], identity: "actor" | "requester"): Aud
  * permission that authorized this page — an actor, a requester or a cipher, never an access rule, which
  * has no such dialog.
  *
- * The toolbar filters (event kind, actor, requester, time period) run client-side over the already-fetched
+ * The toolbar filters (event kind, actor, requester, item, time period) run client-side over the already-fetched
  * window: the endpoint takes no query parameters and returns the whole 90 days at once, so changing a
  * filter never re-reads it. Update is therefore not "apply these filters" as it is on the organization
  * event log — those are already live — but the only way to pull in events recorded since the page opened.
@@ -235,12 +238,17 @@ export class AccessAuditComponent implements OnInit {
   private readonly kindChip = viewChild("kindFilter", { read: FILTER_CONTROL });
   private readonly actorChip = viewChild("actorFilter", { read: FILTER_CONTROL });
   private readonly requesterChip = viewChild("requesterFilter", { read: FILTER_CONTROL });
+  private readonly itemChip = viewChild("itemFilter", { read: FILTER_CONTROL });
   private readonly timePeriodChip = viewChild("timePeriodFilter", { read: FILTER_CONTROL });
 
   private readonly chips = computed(() =>
-    [this.kindChip(), this.actorChip(), this.requesterChip(), this.timePeriodChip()].filter(
-      (chip): chip is FilterControl => chip != null,
-    ),
+    [
+      this.kindChip(),
+      this.actorChip(),
+      this.requesterChip(),
+      this.itemChip(),
+      this.timePeriodChip(),
+    ].filter((chip): chip is FilterControl => chip != null),
   );
 
   /**
@@ -292,6 +300,23 @@ export class AccessAuditComponent implements OnInit {
     identityOptions(this.rows(), "requester").sort(byLabel),
   );
 
+  /**
+   * One option per item the trail names, labelled the way the Item cell labels it. Rows whose cell renders
+   * an em dash — no cipher this viewer could decrypt and no rule — contribute nothing, so the menu never
+   * offers an option that would narrow the table to rows showing no item.
+   */
+  protected readonly itemOptions = computed<AuditChipOption[]>(() => {
+    const items = new Map<string, string>();
+    for (const row of this.rows()) {
+      const value = auditItemId(row);
+      const label = auditItemLabel(row);
+      if (value != null && label != null && !items.has(value)) {
+        items.set(value, label);
+      }
+    }
+    return [...items].map(([value, label]) => ({ value, label })).sort(byLabel);
+  });
+
   /** A multi-select chip's selection, or null when it has none — which matches every row. */
   private selectedValues(chip: FilterControl | undefined): string[] | null {
     const value = chip?.value();
@@ -318,6 +343,7 @@ export class AccessAuditComponent implements OnInit {
       kindLabelKey: this.selectedValues(this.kindChip()),
       actorId: this.selectedValues(this.actorChip()),
       requesterId: this.selectedValues(this.requesterChip()),
+      itemId: this.selectedValues(this.itemChip()),
       from,
       to,
     };
