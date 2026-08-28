@@ -1,0 +1,48 @@
+<form [formGroup]="formGroup" [bitSubmit]="confirm" bit-dialog background="alt">
+  <span bitDialogTitle>{{ "timePeriod" | i18n }}</span>
+
+  <div bitDialogContent>
+    <bit-form-field>
+      <bit-label>{{ "from" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="datetime-local"
+        id="pam-custom-range-dialog_input_from"
+        [placeholder]="'startDate' | i18n"
+        formControlName="from"
+      />
+    </bit-form-field>
+    <bit-form-field disableMargin>
+      <bit-label>{{ "to" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="datetime-local"
+        id="pam-custom-range-dialog_input_to"
+        [placeholder]="'endDate' | i18n"
+        formControlName="to"
+      />
+    </bit-form-field>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button
+      type="submit"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+      id="pam-custom-range-dialog_button_confirm"
+      [disabled]="confirmDisabled()"
+    >
+      {{ "save" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      [bitDialogClose]="undefined"
+      id="pam-custom-range-dialog_button_cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</form>
