@@ -209,21 +209,87 @@ describe("validate", () => {
     ]);
   });
 
-  it("requires a signing certificate for the App Store", () => {
+  /// Both are sandboxed, and the proxy inside a sandboxed build is signed with entitlements of
+  /// its own -- which needs an identity that was named rather than discovered.
+  it("requires a signing certificate for either App Store channel", () => {
     const args = ["--build-dir", "b", "--architecture", "universal"];
 
-    expect(validateArgs([...args, "--distribution-channel", "mac-app-store"])).toEqual([
-      expect.stringContaining("mac-app-store requires --macos-signing-certificate"),
-    ]);
-    expect(
+    for (const channel of ["mac-app-store", "mac-app-store-development"]) {
+      expect(validateArgs([...args, "--distribution-channel", channel])).toEqual([
+        expect.stringContaining(`${channel} requires --macos-signing-certificate`),
+      ]);
+    }
+  });
+
+  it("refuses an unsigned App Store build, but allows an unsigned development one", () => {
+    const args = ["--build-dir", "b", "--architecture", "universal"];
+    const unsigned = (channel: string) =>
       validateArgs([
         ...args,
         "--distribution-channel",
-        "mac-app-store",
+        channel,
         "--macos-signing-certificate",
         "none",
+      ]);
+
+    expect(unsigned("mac-app-store")).toEqual([
+      expect.stringContaining("mac-app-store cannot be built unsigned"),
+    ]);
+    expect(unsigned("mac-app-store-development")).toEqual([]);
+  });
+
+  it("rejects --notarize where Apple would do it, or where there is nothing to notarize", () => {
+    const mac = ["--build-dir", "b", "--architecture", "universal"];
+
+    expect(
+      validateArgs([
+        ...mac,
+        "--distribution-channel",
+        "mac-app-store",
+        "--macos-signing-certificate",
+        "x",
+        "--notarize",
       ]),
-    ).toEqual([expect.stringContaining("mac-app-store requires --macos-signing-certificate")]);
+    ).toEqual([expect.stringContaining("Apple does it on submission")]);
+
+    expect(
+      validateArgs([
+        ...mac,
+        "--distribution-channel",
+        "dmg",
+        "--macos-signing-certificate",
+        "none",
+        "--notarize",
+      ]),
+    ).toEqual([expect.stringContaining("--notarize needs a signed app")]);
+
+    expect(
+      validateArgs([
+        "--build-dir",
+        "b",
+        "--architecture",
+        "x64",
+        "--distribution-channel",
+        "deb",
+        "--notarize",
+      ]),
+    ).toEqual([expect.stringContaining("--notarize is only available on macos")]);
+  });
+
+  it("accepts --notarize for a signed, directly distributed build", () => {
+    expect(
+      validateArgs([
+        "--build-dir",
+        "b",
+        "--architecture",
+        "universal",
+        "--distribution-channel",
+        "dmg",
+        "--macos-signing-certificate",
+        "Developer ID Application: Bitwarden Inc",
+        "--notarize",
+      ]),
+    ).toEqual([]);
   });
 
   it("allows a beta App Store build", () => {
@@ -349,9 +415,25 @@ describe("toBuildConfig", () => {
         .macosAutofillExtension,
     ).toEqual({
       xcodeConfiguration: "Debug",
+      signed: true,
       codeSignIdentity: "3rd Party Mac Developer Application",
       provisioningProfileSpecifier: "Bitwarden Desktop Autofill App Store 2024",
     });
+  });
+
+  it("does not sign the extension when the build asked for no signing", () => {
+    const unsigned = toBuildConfigFromArgs([
+      ...MAC_ARGS,
+      "--with-macos-autofill-extension",
+      "--macos-signing-certificate",
+      "none",
+    ]);
+
+    expect(unsigned.derived.macosAutofillExtension?.signed).toBe(false);
+    expect(
+      toBuildConfigFromArgs([...MAC_ARGS, "--with-macos-autofill-extension"]).derived
+        .macosAutofillExtension?.signed,
+    ).toBe(true);
   });
 
   it("omits the autofill extension build when the target is off", () => {
@@ -361,20 +443,30 @@ describe("toBuildConfig", () => {
     expect(derived.macos?.entitlements.autofillExtension).toBeUndefined();
   });
 
-  it("generates entitlements into the build directory, and only names the extension's when it is built", () => {
+  it("names an entitlements file for everything a directly distributed build signs", () => {
+    const entitlements = (file: string) => `build-mac/intermediates/entitlements/${file}`;
+
     expect(toBuildConfigFromArgs(MAC_ARGS).derived.macos).toEqual({
       bundleId: "com.bitwarden.desktop",
-      entitlements: { app: "build-mac/intermediates/entitlements/app.plist" },
-    });
-    expect(
-      toBuildConfigFromArgs([...MAC_ARGS, "--with-macos-autofill-extension"]).derived.macos,
-    ).toEqual({
-      bundleId: "com.bitwarden.desktop",
       entitlements: {
-        app: "build-mac/intermediates/entitlements/app.plist",
-        autofillExtension: "build-mac/intermediates/entitlements/autofill-extension.plist",
+        app: entitlements("app.plist"),
+        appInherit: entitlements("app-inherit.plist"),
+        desktopProxy: entitlements("desktop-proxy.plist"),
+        desktopProxyInherit: entitlements("desktop-proxy-inherit.plist"),
       },
     });
+  });
+
+  it("adds the login helper's for the App Store, and the extension's when it is built", () => {
+    const appStore = toBuildConfigFromArgs(APP_STORE_ARGS).derived.macos?.entitlements;
+    const withExtension = toBuildConfigFromArgs([...MAC_ARGS, "--with-macos-autofill-extension"])
+      .derived.macos?.entitlements;
+
+    expect(appStore?.loginHelper).toBe("build-mas/intermediates/entitlements/login-helper.plist");
+    expect(withExtension?.loginHelper).toBeUndefined();
+    expect(withExtension?.autofillExtension).toBe(
+      "build-mac/intermediates/entitlements/autofill-extension.plist",
+    );
   });
 
   it("gives a beta build its own bundle identifier", () => {
@@ -505,7 +597,7 @@ describe("toBuildConfig", () => {
         "--distribution-channel",
         channel,
       ];
-      if (channel === "mac-app-store") {
+      if (channel.startsWith("mac-app-store")) {
         args.push("--macos-signing-certificate", "3rd Party Mac Developer Application");
       }
 

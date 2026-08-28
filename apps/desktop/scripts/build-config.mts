@@ -31,8 +31,6 @@ export const PROVISIONING_PROFILE_FILE = "app.provisionprofile";
 /// Entitlements are generated from the configuration rather than checked in, so they land here
 /// for the same reason the provisioning profile does: they belong to this build.
 export const ENTITLEMENTS_DIR = "intermediates/entitlements";
-export const APP_ENTITLEMENTS_FILE = "app.plist";
-export const AUTOFILL_EXTENSION_ENTITLEMENTS_FILE = "autofill-extension.plist";
 
 /// Bundle identifier per channel. Beta is a separate application to macOS -- its own identifier,
 /// its own app group, its own provisioning -- which is why the entitlements have to be built
@@ -186,6 +184,9 @@ export const TARGETS: readonly TargetDefinition[] = [
 
 export interface AutofillExtensionBuild {
   xcodeConfiguration: string;
+  /// False when the build asked for no signing at all, in which case the identity and profile
+  /// below say what it *would* be signed with and nothing uses them.
+  signed: boolean;
   codeSignIdentity: string;
   provisioningProfileSpecifier: string;
 }
@@ -229,6 +230,7 @@ export interface RawOptions {
   profile?: string;
   glibc?: string;
   skipToolchainCheck: boolean;
+  notarize: boolean;
   architectures: string[];
   distributionChannels: string[];
   buildNumber?: string;
@@ -254,13 +256,35 @@ export interface MacosDerived {
   /// from it, so entitlements cannot disagree with what was packaged.
   bundleId: string;
   /// Written by configure, so a build step is handed a file rather than a decision about which
-  /// checked-in file to use.
-  entitlements: {
-    app: string;
-    /// Absent unless the extension is part of the build.
-    autofillExtension?: string;
-  };
+  /// checked-in file to use. Paths are relative to apps/desktop.
+  entitlements: MacosEntitlements;
 }
+
+/// One entry per thing that gets signed separately. Which document each holds depends on the
+/// distribution channel; that choice is configure's, and by the time anything reads this it has
+/// been made.
+export interface MacosEntitlements {
+  app: string;
+  /// Applied to the app's child processes.
+  appInherit: string;
+  /// Absent outside the App Store, which is the only build with a login helper.
+  loginHelper?: string;
+  /// The native messaging proxy, and the copy of it the app launches itself.
+  desktopProxy: string;
+  desktopProxyInherit: string;
+  /// Absent unless the extension is part of the build.
+  autofillExtension?: string;
+}
+
+/// Filenames under ENTITLEMENTS_DIR, one per member of MacosEntitlements.
+const ENTITLEMENTS_FILES: Record<keyof MacosEntitlements, string> = {
+  app: "app.plist",
+  appInherit: "app-inherit.plist",
+  loginHelper: "login-helper.plist",
+  desktopProxy: "desktop-proxy.plist",
+  desktopProxyInherit: "desktop-proxy-inherit.plist",
+  autofillExtension: "autofill-extension.plist",
+};
 
 export interface ProvisioningProfileConfig {
   requested: string;
@@ -279,6 +303,9 @@ export interface BuildConfig {
   macos?: {
     signingCertificate?: string;
     provisioningProfile?: ProvisioningProfileConfig;
+    /// Whether to submit the packaged app to Apple. Off unless asked for: notarization needs
+    /// credentials and Apple's servers, and a local build wants neither.
+    notarize?: boolean;
   };
   linux?: {
     /// Applied when cross-compiling, where cargo-zigbuild can cap the glibc symbol versions a
@@ -341,6 +368,7 @@ export function usage(): string {
     `      ${Object.keys(DISTRIBUTION_CHANNELS).join(", ")}`,
     option("--build-number <digits>", "Build number stamped into the app"),
     option("--macos-signing-certificate <id>", "Certificate subject, or 'none' to leave unsigned"),
+    option("--notarize", "Submit the packaged app to Apple for notarization"),
     option(
       "--provisioning-profile <path|name>",
       "A file under apps/desktop, or an installed profile",
@@ -362,6 +390,7 @@ export function parseConfigureArgs(argv: string[]): RawOptions {
     profile: { type: "string" },
     glibc: { type: "string" },
     "skip-toolchain-check": { type: "boolean" },
+    notarize: { type: "boolean" },
     architecture: { type: "string", multiple: true },
     "distribution-channel": { type: "string", multiple: true },
     "build-number": { type: "string" },
@@ -408,6 +437,7 @@ export function parseConfigureArgs(argv: string[]): RawOptions {
     profile: asString(values.profile),
     glibc: asString(values.glibc),
     skipToolchainCheck: values["skip-toolchain-check"] === true,
+    notarize: values.notarize === true,
     architectures: asStringArray(values.architecture),
     distributionChannels: asStringArray(values["distribution-channel"]),
     buildNumber: asString(values["build-number"]),
@@ -535,11 +565,31 @@ export function validate(raw: RawOptions): string[] {
     errors.push(`--glibc is only available on linux, not ${platform}.`);
   }
 
-  if (
-    distributionChannels.includes("mac-app-store") &&
-    (raw.macosSigningCertificate == null || raw.macosSigningCertificate === "none")
-  ) {
-    errors.push("--distribution-channel mac-app-store requires --macos-signing-certificate.");
+  // Sandboxed builds sign the native messaging proxy with entitlements of its own, which needs
+  // an identity named rather than discovered: the alternative is picking one out of the keychain
+  // and hoping it is the one electron-builder picked for everything else.
+  for (const channel of distributionChannels.filter((each) => APP_STORE_CHANNELS.includes(each))) {
+    if (raw.macosSigningCertificate == null) {
+      errors.push(`--distribution-channel ${channel} requires --macos-signing-certificate.`);
+    } else if (raw.macosSigningCertificate === "none" && channel === "mac-app-store") {
+      errors.push("--distribution-channel mac-app-store cannot be built unsigned.");
+    }
+  }
+
+  if (raw.notarize) {
+    if (platform != null && platform !== "macos") {
+      errors.push(`--notarize is only available on macos, not ${platform}.`);
+    }
+    // Apple notarizes App Store submissions itself, as part of accepting them.
+    const appStore = distributionChannels.filter((each) => APP_STORE_CHANNELS.includes(each));
+    if (appStore.length > 0) {
+      errors.push(
+        `--notarize does not apply to ${appStore.join(", ")}; Apple does it on submission.`,
+      );
+    }
+    if (raw.macosSigningCertificate === "none") {
+      errors.push("--notarize needs a signed app; --macos-signing-certificate is 'none'.");
+    }
   }
 
   return errors;
@@ -583,10 +633,23 @@ export function toBuildConfig(raw: RawOptions, resolved: ResolvedInputs = {}): B
     derived: {
       platform,
       ...(platform === "macos"
-        ? { macos: macosDerived(buildDir, channel, autofillExtension) }
+        ? {
+            macos: macosDerived(
+              buildDir,
+              channel,
+              distributionChannels.some((each) => APP_STORE_CHANNELS.includes(each)),
+              autofillExtension,
+            ),
+          }
         : {}),
       ...(autofillExtension
-        ? { macosAutofillExtension: autofillExtensionBuild(profile, distributionChannels) }
+        ? {
+            macosAutofillExtension: autofillExtensionBuild(
+              profile,
+              distributionChannels,
+              raw.macosSigningCertificate,
+            ),
+          }
         : {}),
     },
     directories: {
@@ -605,10 +668,11 @@ function macosConfig(
   resolved: ResolvedInputs,
   buildDir: string,
 ): BuildConfig["macos"] {
-  if (raw.macosSigningCertificate == null && raw.provisioningProfile == null) {
+  if (raw.macosSigningCertificate == null && raw.provisioningProfile == null && !raw.notarize) {
     return undefined;
   }
   return {
+    ...(raw.notarize ? { notarize: true } : {}),
     ...(raw.macosSigningCertificate != null
       ? { signingCertificate: raw.macosSigningCertificate }
       : {}),
@@ -714,16 +778,21 @@ export function enabledTargetDefinitions(config: BuildConfig): TargetDefinition[
 function macosDerived(
   buildDir: string,
   channel: Channel,
+  appStore: boolean,
   autofillExtension: boolean,
 ): MacosDerived {
-  const entitlement = (file: string) => join(buildDir, ENTITLEMENTS_DIR, file);
+  const entitlement = (key: keyof MacosEntitlements) =>
+    join(buildDir, ENTITLEMENTS_DIR, ENTITLEMENTS_FILES[key]);
+
   return {
     bundleId: BUNDLE_IDS[channel],
     entitlements: {
-      app: entitlement(APP_ENTITLEMENTS_FILE),
-      ...(autofillExtension
-        ? { autofillExtension: entitlement(AUTOFILL_EXTENSION_ENTITLEMENTS_FILE) }
-        : {}),
+      app: entitlement("app"),
+      appInherit: entitlement("appInherit"),
+      desktopProxy: entitlement("desktopProxy"),
+      desktopProxyInherit: entitlement("desktopProxyInherit"),
+      ...(appStore ? { loginHelper: entitlement("loginHelper") } : {}),
+      ...(autofillExtension ? { autofillExtension: entitlement("autofillExtension") } : {}),
     },
   };
 }
@@ -772,9 +841,15 @@ function resolveTargets(raw: RawOptions, platform: Platform): TargetDefinition[]
 function autofillExtensionBuild(
   profile: Profile,
   distributionChannels: readonly DistributionChannel[],
+  signingCertificate: string | undefined,
 ): AutofillExtensionBuild {
   return {
     xcodeConfiguration: AUTOFILL_EXTENSION_CONFIGURATIONS[profile],
+    // `--macos-signing-certificate none` is a statement about the build, not about the app
+    // bundle in it. An extension signed with a Developer ID inside an unsigned app would be an
+    // odd thing to have produced, and on a machine holding no such certificate the build would
+    // simply fail.
+    signed: signingCertificate !== "none",
     ...autofillExtensionSigning(distributionChannels),
   };
 }

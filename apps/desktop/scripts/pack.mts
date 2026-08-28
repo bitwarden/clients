@@ -25,7 +25,19 @@ import {
   electronBuilderTargets,
   unsupportedChannels,
 } from "./electron-builder-config.mts";
+import { packHooks } from "./pack-hooks.mts";
 
+/// TODO: electron-builder merges this file in a second time, behind our back. Passing `config`
+/// as an object leaves `configPath` null, and app-builder-lib's getConfig then discovers
+/// electron-builder.json in the project directory and deepAssigns ours on top of it -- which
+/// concatenates arrays rather than replacing them. So the base's `mac.extraFiles`, pointing at
+/// the `desktop_native/dist` that build.js writes, survives alongside the entries generated
+/// here: harmless while that directory is absent (electron-builder warns and skips), but a
+/// stale binary there would be packaged. Passing a path instead of an object would stop the
+/// discovery, but then the hooks below could not be functions. It goes away when
+/// desktop_native/build.js and the legacy pack scripts do, and electron-builder.json can be
+/// generated outright rather than overlaid.
+///
 /// Everything that does not vary per build. Read rather than reproduced, so the language
 /// lists, snap plugs and installer settings stay data.
 const BASE_CONFIG = "electron-builder.json";
@@ -70,8 +82,6 @@ async function pack(config: BuildConfig): Promise<void> {
     );
   }
 
-  warnAboutUnsignedMac(config);
-
   const resolved = applyBuildConfig(readBaseConfig(), config);
   const resolvedPath = path.resolve(projectDir, config.buildDir, RESOLVED_CONFIG);
   writeFileSync(resolvedPath, `${JSON.stringify(resolved, null, 2)}\n`);
@@ -82,7 +92,9 @@ async function pack(config: BuildConfig): Promise<void> {
 
   await electronBuilder({
     projectDir,
-    config: resolved,
+    // The hooks go on after the file is written, because they are functions and would vanish
+    // from it -- what is recorded there stays the configuration, not the code that runs over it.
+    config: { ...resolved, ...packHooks(config) },
     targets: PLATFORMS[config.derived.platform].createTarget(
       targets,
       ...config.architectures.map((architecture) => ARCHITECTURES[architecture]),
@@ -91,32 +103,6 @@ async function pack(config: BuildConfig): Promise<void> {
     // Leaving this unset would let electron-builder publish on a tagged CI run.
     publish: "never",
   });
-}
-
-/// TODO: stop needing the electron-builder hooks at all. before-pack.js, after-pack.js and
-/// after-sign.js each re-derive what this build already decided -- gating the autofill
-/// extension on whether a directory exists, picking a signing identity from GITHUB_ACTIONS,
-/// notarizing any darwin build -- and they are the reason a configuration this script has in
-/// hand cannot be honoured end to end. What they do belongs here, where the build
-/// configuration is readable.
-///
-/// When that happens, embed the autofill and safari extensions at the point after-pack runs
-/// rather than where after-sign does. Both are copied into Contents/PlugIns today *after* the
-/// app has been signed, so after-sign has to re-sign the bundle to cover them. Putting them in
-/// before signing makes the signature right the first time and drops the second pass.
-///
-/// after-pack.js signs the proxy binary with the hardened runtime whatever the configuration
-/// says, picking an identity out of the keychain. Turning electron-builder's signing off makes
-/// it strip the signatures the hook then tries to replace, and the pack fails partway through.
-/// The hooks read the environment rather than the build configuration; until they read it, an
-/// unsigned macOS package is not something this can produce.
-function warnAboutUnsignedMac(config: BuildConfig): void {
-  if (config.derived.platform === "macos" && config.macos?.signingCertificate === "none") {
-    console.warn(
-      "warning: --macos-signing-certificate none is not yet honored end to end; the packaging " +
-        "hooks sign the proxy binary regardless and this build will fail while doing so.",
-    );
-  }
 }
 
 function readBaseConfig(): Record<string, unknown> {

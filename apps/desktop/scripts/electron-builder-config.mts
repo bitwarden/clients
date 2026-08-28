@@ -98,6 +98,13 @@ export function applyBuildConfig(
   // depend on structuredClone, which the test environment's jsdom predates.
   const result = JSON.parse(JSON.stringify(base)) as Record<string, unknown>;
 
+  // scripts/before-pack.js did this by pushing onto the normalized filter of files[0] through
+  // electron-builder's private `_configuration`. It is a file list, so it belongs in the file
+  // list. Architecture is deliberately not filtered here: @electron/universal needs every
+  // non-asar file present in both per-architecture builds, and `singleArchFiles` sorts them out
+  // during the merge.
+  result.files = [...asArray(result.files), ...foreignNodeFiles(config)];
+
   result.directories = {
     ...(result.directories as Record<string, unknown>),
     app: config.directories.appSource,
@@ -117,7 +124,30 @@ export function applyBuildConfig(
     applyMacSigning(result, config);
   }
 
+  // The hooks are supplied by pack.mts as functions closed over this configuration, so the
+  // script paths the checked-in file names are dropped rather than left to be loaded as well.
+  delete result.beforePack;
+  delete result.afterPack;
+  delete result.afterSign;
+
   return result;
+}
+
+/// `.node` addons belonging to a platform this build is not for. They are pulled in by
+/// node_modules and would otherwise be packaged on every platform at once.
+function foreignNodeFiles(config: BuildConfig): string[] {
+  const packaged = { macos: "darwin", windows: "win32", linux: "linux" }[config.derived.platform];
+
+  return ["darwin", "linux", "win32"]
+    .filter((platform) => platform !== packaged)
+    .flatMap((platform) => [
+      `!node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-*.node`,
+      `!node_modules/**/prebuilds/${platform}-*/*.node`,
+    ]);
+}
+
+function asArray(value: unknown): string[] {
+  return Array.isArray(value) ? (value as string[]) : [];
 }
 
 function packagedBinaries(config: BuildConfig): ExtraFile[] {
@@ -158,11 +188,40 @@ function applyMacIdentity(result: Record<string, unknown>, config: BuildConfig):
 
   result.appId = macos.bundleId;
 
-  const section = isAppStoreBuild(config) ? "mas" : "mac";
+  const appStore = isAppStoreBuild(config);
+  const section = appStore ? "mas" : "mac";
+  const { entitlements } = macos;
+
   result[section] = {
     ...(result[section] as Record<string, unknown>),
-    entitlements: macos.entitlements.app,
+    entitlements: entitlements.app,
+    entitlementsInherit: entitlements.appInherit,
+    ...(entitlements.loginHelper != null
+      ? { entitlementsLoginHelper: entitlements.loginHelper }
+      : {}),
+    ...(embeddedExtensions(config).length > 0 ? { signIgnore: embeddedExtensions(config) } : {}),
   };
+}
+
+/// Patterns matching the app extensions pack.mts embeds before electron-builder signs.
+///
+/// They arrive already signed, by Xcode or by whoever built them, with entitlements of their
+/// own -- an app group, and the AutoFill credential provider. Without this they would not be
+/// left alone: @electron/osx-sign walks the bundle and re-signs every Mach-O it finds, and it
+/// only recognises `.app` and `.framework` directories as bundles, so an `.appex` is descended
+/// into and its executable signed loose, with the app's inherited entitlements in place of the
+/// extension's own.
+///
+/// The app itself is signed last and after these are already in place, so its seal covers them.
+function embeddedExtensions(config: BuildConfig): string[] {
+  const patterns: string[] = [];
+  if (config.targets.macosAutofillExtension === true) {
+    patterns.push("autofill-extension\\.appex");
+  }
+  if (config.dependencies.safariExtension != null) {
+    patterns.push("safari\\.appex");
+  }
+  return patterns;
 }
 
 function applyMacSigning(result: Record<string, unknown>, config: BuildConfig): void {
