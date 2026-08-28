@@ -115,11 +115,13 @@ describe("AccessAuditComponent", () => {
             noMatchingItems: "No matching items",
             search: "Search",
             resetSearch: "Reset search",
-            from: "From",
-            to: "To",
-            startDate: "Start date",
-            endDate: "End date",
-            invalidDateRange: "Invalid date range.",
+            timePeriod: "Time period",
+            allTime: "All time",
+            recentlyActiveToday: "Today",
+            recentlyActivePast7Days: "Past 7 days",
+            recentlyActivePast30Days: "Past 30 days",
+            custom: "Custom",
+            clearAll: "Clear all",
             pamAuditNoMatchesTitle: "No matching events",
             pamAuditNoMatchesMessage: "No events match the current filters.",
             pamAuditColumnTime: "Time",
@@ -185,12 +187,9 @@ describe("AccessAuditComponent", () => {
    * `bit-filter-menu` owns its own selection — there is no form control to set — and the chips only
    * exist once the ready branch has rendered.
    */
-  const selectFilter = (key: string, value: unknown) => {
+  const selectFilter = (chip: "kind" | "actor" | "requester" | "timePeriod", value: unknown) => {
     fixture.detectChanges();
-    const control = component()
-      .filterControls()
-      .find((candidate: any) => candidate.key() === key);
-    control.setValue(value);
+    component()[`${chip}Chip`]().setValue(value);
     fixture.detectChanges();
   };
 
@@ -430,70 +429,195 @@ describe("AccessAuditComponent", () => {
     expect(component().filteredRows()[0].actor).toBe("Linus");
   });
 
-  it("bounds the rows by a date range read in the viewer's own zone", async () => {
-    const noon = new Date(2026, 7, 18, 12, 0);
-    const evening = new Date(2026, 7, 18, 18, 0);
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
-      event({ OccurredAt: noon.toISOString() }),
-      event({ OccurredAt: evening.toISOString() }),
-    ]);
+  describe("time period", () => {
+    const HOUR_MS = 60 * 60 * 1000;
+    const DAY_MS = 24 * HOUR_MS;
 
-    fixture.detectChanges();
-    await fixture.whenStable();
+    /** Stamped from the real clock so the presets, which read the same clock, line up with the fixtures. */
+    const now = () => new Date();
+    const startOfToday = () => {
+      const today = now();
+      return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    };
 
-    component().fromControl.setValue("2026-08-18T13:00");
+    const renderTrail = async (occurredAt: Date[]) => {
+      auditApiService.listAccessAuditTrail.mockResolvedValue(
+        occurredAt.map((at) => event({ OccurredAt: at.toISOString() })),
+      );
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
 
-    expect(component().filteredRows()).toHaveLength(1);
-    expect(component().filteredRows()[0].occurredAt).toEqual(evening);
+    const occurredAt = () =>
+      component()
+        .filteredRows()
+        .map((row: any) => row.occurredAt.getTime());
 
-    component().fromControl.setValue("");
-    component().toControl.setValue("2026-08-18T12:00");
+    it("bounds Today at the start of the viewer's own day, not twenty-four hours back", async () => {
+      const thisMorning = new Date(startOfToday().getTime() + HOUR_MS);
+      const lateLastNight = new Date(startOfToday().getTime() - HOUR_MS);
+      await renderTrail([thisMorning, lateLastNight]);
 
-    expect(component().filteredRows()).toHaveLength(1);
-    expect(component().filteredRows()[0].occurredAt).toEqual(noon);
+      selectFilter("timePeriod", "today");
+
+      expect(occurredAt()).toEqual([thisMorning.getTime()]);
+    });
+
+    it("bounds Past 7 days seven days back from now", async () => {
+      const recent = new Date(now().getTime() - 6 * DAY_MS);
+      const older = new Date(now().getTime() - 8 * DAY_MS);
+      await renderTrail([recent, older]);
+
+      selectFilter("timePeriod", "past7Days");
+
+      expect(occurredAt()).toEqual([recent.getTime()]);
+    });
+
+    it("bounds Past 30 days thirty days back from now", async () => {
+      const recent = new Date(now().getTime() - 20 * DAY_MS);
+      const older = new Date(now().getTime() - 40 * DAY_MS);
+      await renderTrail([recent, older]);
+
+      selectFilter("timePeriod", "past30Days");
+
+      expect(occurredAt()).toEqual([recent.getTime()]);
+    });
+
+    // "All time" is the chip's own reset row: it means the whole fetched window, which is all this client
+    // holds.
+    it("drops the bounds again when the chip is reset to All time", async () => {
+      const recent = new Date(now().getTime() - HOUR_MS);
+      const older = new Date(now().getTime() - 40 * DAY_MS);
+      await renderTrail([recent, older]);
+
+      selectFilter("timePeriod", "past7Days");
+      expect(component().filteredRows()).toHaveLength(1);
+
+      selectFilter("timePeriod", null);
+
+      expect(component().filteredRows()).toHaveLength(2);
+    });
+
+    describe("custom range", () => {
+      const closesWith = (result: unknown) => {
+        dialogService.open.mockReturnValue({ closed: of(result) } as any);
+      };
+
+      const chooseCustom = async () => {
+        selectFilter("timePeriod", "custom");
+        await fixture.whenStable();
+        fixture.detectChanges();
+      };
+
+      it("applies the bounds the dialog confirmed and leaves the chip active", async () => {
+        const noon = new Date(2026, 7, 18, 12, 0);
+        const evening = new Date(2026, 7, 18, 18, 0);
+        await renderTrail([noon, evening]);
+        closesWith({ from: "2026-08-18T13:00", to: "" });
+
+        await chooseCustom();
+
+        expect(occurredAt()).toEqual([evening.getTime()]);
+        expect(component().selectedPeriod()).toBe("custom");
+      });
+
+      // Reopening has to show what the table is filtered to, or the auditor is editing bounds they cannot see.
+      it("reopens the dialog on the range in force", async () => {
+        await renderTrail([new Date(2026, 7, 18, 12, 0)]);
+        closesWith({ from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
+
+        await chooseCustom();
+        selectFilter("timePeriod", null);
+        await chooseCustom();
+
+        expect(dialogService.open).toHaveBeenLastCalledWith(expect.anything(), {
+          data: { from: "2026-08-18T09:00", to: "2026-08-18T17:00" },
+        });
+      });
+
+      // A cancelled dialog that left "Custom" showing would claim a range the table is not filtered to.
+      it("rolls the chip back to the period in force when cancelled", async () => {
+        const recent = new Date(now().getTime() - HOUR_MS);
+        const older = new Date(now().getTime() - 40 * DAY_MS);
+        await renderTrail([recent, older]);
+        selectFilter("timePeriod", "past7Days");
+        closesWith(undefined);
+
+        await chooseCustom();
+
+        expect(component().selectedPeriod()).toBe("past7Days");
+        expect(occurredAt()).toEqual([recent.getTime()]);
+      });
+
+      it("leaves the chip unselected when cancelled from no selection at all", async () => {
+        await renderTrail([new Date(now().getTime() - HOUR_MS)]);
+        closesWith(undefined);
+
+        await chooseCustom();
+
+        expect(component().selectedPeriod()).toBeNull();
+        expect(component().filteredRows()).toHaveLength(1);
+      });
+    });
   });
 
-  it("leaves the table alone and reports an inverted range on the To field rather than emptying it", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([event(), event()]);
+  describe("clear all", () => {
+    const clearAllButton = () =>
+      fixture.nativeElement.querySelector("#access-audit_button_clear-all");
 
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
+    /** Stamped against the real clock, so the time-period chip has something inside its preset window. */
+    const anHourAgo = () => new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
-    component().fromControl.setValue("2026-08-18T18:00");
-    component().toControl.setValue("2026-08-18T09:00");
-    fixture.detectChanges();
+    const renderReady = async () => {
+      auditApiService.listAccessAuditTrail.mockResolvedValue([
+        event({ OccurredAt: anHourAgo(), ActorId: "user-1", ActorName: "Ada" }),
+        event({
+          OccurredAt: anHourAgo(),
+          Kind: "leaseActivated",
+          ActorId: "user-3",
+          ActorName: "Linus",
+        }),
+      ]);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
 
-    expect(component().invertedRange()).toBe(true);
-    expect(component().filteredRows()).toHaveLength(2);
+    it("stays out of the chip row while nothing is filtering the table", async () => {
+      await renderReady();
 
-    const toInput = fixture.nativeElement.querySelector("#access-audit_input_to");
-    const fromInput = fixture.nativeElement.querySelector("#access-audit_input_from");
-    expect(toInput.closest("bit-form-field").querySelector("bit-error").textContent).toContain(
-      "Invalid date range.",
-    );
-    expect(toInput.getAttribute("aria-invalid")).toBe("true");
-    expect(fromInput.getAttribute("aria-invalid")).not.toBe("true");
-  });
+      expect(clearAllButton()).toBeNull();
+    });
 
-  it("clears the inverted-range error once the bounds are the right way round", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
+    it("appears as soon as one chip has a selection", async () => {
+      await renderReady();
 
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
+      selectFilter("actor", "user-3");
 
-    component().fromControl.setValue("2026-08-01T00:00");
-    component().toControl.setValue("2026-07-01T00:00");
-    fixture.detectChanges();
+      expect(clearAllButton()).not.toBeNull();
+    });
 
-    component().toControl.setValue("2026-09-01T00:00");
-    fixture.detectChanges();
+    it("resets every chip at once", async () => {
+      await renderReady();
+      selectFilter("kind", "pamAuditKindRequestApproved");
+      selectFilter("actor", "user-1");
+      selectFilter("requester", "user-2");
+      selectFilter("timePeriod", "past7Days");
+      expect(component().filteredRows()).toHaveLength(1);
 
-    const toInput = fixture.nativeElement.querySelector("#access-audit_input_to");
-    expect(toInput.closest("bit-form-field").querySelector("bit-error")).toBeNull();
-    expect(toInput.getAttribute("aria-invalid")).not.toBe("true");
-    expect(component().toControl.errors).toBeNull();
+      clearAllButton().click();
+      fixture.detectChanges();
+
+      expect(
+        component()
+          .chips()
+          .some((chip: any) => chip.active()),
+      ).toBe(false);
+      expect(component().selectedPeriod()).toBeNull();
+      expect(component().filteredRows()).toHaveLength(2);
+      expect(clearAllButton()).toBeNull();
+    });
   });
 
   // Every filter is a predicate over the one already-fetched window; the endpoint takes no query
@@ -512,8 +636,7 @@ describe("AccessAuditComponent", () => {
     selectFilter("kind", "pamAuditKindLeaseActivated");
     selectFilter("actor", "user-1");
     selectFilter("requester", "user-2");
-    component().fromControl.setValue("2026-08-18T00:00");
-    component().toControl.setValue("2026-08-19T00:00");
+    selectFilter("timePeriod", "past30Days");
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -647,38 +770,42 @@ describe("AccessAuditComponent", () => {
       return fixture.nativeElement.querySelector("#access-audit_container_toolbar") as HTMLElement;
     };
 
-    it("renders every control in one row", async () => {
+    it("filters from four chips of the same family", async () => {
       const toolbar = await renderToolbar();
 
       expect(toolbar).not.toBeNull();
-      expect(toolbar.querySelectorAll("bit-filter-menu")).toHaveLength(3);
-      for (const control of [
-        "#access-audit_input_from",
-        "#access-audit_input_to",
-        "#access-audit_button_refresh",
-        "#access-audit_button_export",
-      ]) {
-        expect(toolbar.querySelector(control)).not.toBeNull();
-      }
+      expect(toolbar.querySelectorAll("bit-filter-menu")).toHaveLength(4);
+      expect(toolbar.querySelector("bit-form-field")).toBeNull();
+      expect(toolbar.querySelector("input[type=datetime-local]")).toBeNull();
     });
 
-    // The date inputs are taller than a chip or a button by the height of their label, so everything
-    // beside them carries the same offset the event log uses; without it the row sits ragged.
-    it("offsets the controls that have no label so they line up with the date inputs", async () => {
+    // A long chip label wraps the chip row. The buttons sit above it so that wrap can never orphan
+    // Export onto a line of its own.
+    it("keeps the actions out of the wrapping row, right-aligned above it", async () => {
       const toolbar = await renderToolbar();
 
-      const chips = toolbar.querySelector("bit-filter-menu")!.parentElement!;
-      expect(chips.classList).toContain("tw-mt-7");
+      const actions = toolbar.querySelector("#access-audit_container_actions")!;
+      const filters = toolbar.querySelector("#access-audit_container_filters")!;
+      expect(actions.classList).toContain("tw-justify-end");
       for (const button of ["#access-audit_button_refresh", "#access-audit_button_export"]) {
-        expect(toolbar.querySelector(button)!.classList).toContain("tw-mt-7");
+        expect(actions.querySelector(button)).not.toBeNull();
+        expect(filters.querySelector(button)).toBeNull();
       }
     });
 
-    it("wraps the row rather than overflowing it", async () => {
+    // Four chips of one height need no vertical nudge; the offsets existed only to line them up with
+    // the labelled date fields that are now in the dialog.
+    it("carries no height nudges", async () => {
       const toolbar = await renderToolbar();
 
-      expect(toolbar.classList).toContain("tw-flex-wrap");
-      expect(toolbar.querySelector("bit-filter-menu")!.parentElement!.classList).toContain(
+      expect(toolbar.querySelectorAll(".tw-mt-7")).toHaveLength(0);
+      expect(toolbar.querySelectorAll(".tw-ms-auto")).toHaveLength(0);
+    });
+
+    it("wraps the chip row rather than overflowing it", async () => {
+      const toolbar = await renderToolbar();
+
+      expect(toolbar.querySelector("#access-audit_container_filters")!.classList).toContain(
         "tw-flex-wrap",
       );
     });
