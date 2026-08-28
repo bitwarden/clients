@@ -23,6 +23,7 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     requesterId: "user-alice",
     requesterEmail: "alice@example.com",
     cipherName: "prod db",
+    cipherId: "cipher-1",
     collectionName: "production",
     ruleName: null,
     detail: null,
@@ -189,7 +190,43 @@ describe("toAuditRow", () => {
 
     expect(result.ruleName).toBe("prod-rule");
     expect(result.cipherName).toBeNull();
+    expect(result.cipherId).toBeNull();
     expect(result.inDoubt).toBe(false);
+  });
+
+  it("carries the subject cipher's id beside its decrypted name", () => {
+    const event = new AccessAuditEventResponse({
+      Kind: AccessAuditEventKind.CredentialAccessed,
+      OccurredAt: "2026-06-30T12:00:00Z",
+      OrganizationId: "org-1",
+      ActorName: "Ada",
+      CipherId: "cipher-1",
+      CollectionId: "col-1",
+      Automated: false,
+    });
+
+    const result = toAuditRow(event, new Map([["cipher-1", "prod db"]]), new Map());
+
+    expect(result.cipherId).toBe("cipher-1");
+    expect(result.cipherName).toBe("prod db");
+  });
+
+  // The id rides on the row whether or not the item decrypted, but the Item cell only links a row that
+  // has a name to render as the link text.
+  it("carries the subject cipher's id even when the item did not decrypt", () => {
+    const event = new AccessAuditEventResponse({
+      Kind: AccessAuditEventKind.CredentialAccessed,
+      OccurredAt: "2026-06-30T12:00:00Z",
+      OrganizationId: "org-1",
+      ActorName: "Ada",
+      CipherId: "cipher-9",
+      Automated: false,
+    });
+
+    const result = toAuditRow(event, new Map(), new Map());
+
+    expect(result.cipherId).toBe("cipher-9");
+    expect(result.cipherName).toBeNull();
   });
 
   it("marks a row in-doubt when the event is incomplete", () => {
