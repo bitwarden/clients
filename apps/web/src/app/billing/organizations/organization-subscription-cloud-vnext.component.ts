@@ -1,7 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from "@angular/core";
-import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { filter, firstValueFrom, lastValueFrom, map, switchMap, take } from "rxjs";
+import {
+  BehaviorSubject,
+  filter,
+  firstValueFrom,
+  lastValueFrom,
+  map,
+  shareReplay,
+  switchMap,
+  take,
+} from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -13,7 +22,6 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   ButtonModule,
-  CardComponent,
   ContainerComponent,
   DialogService,
   FormControlModule,
@@ -25,6 +33,7 @@ import {
 } from "@bitwarden/components";
 import { DiscountTypes, getAmount } from "@bitwarden/pricing";
 import {
+  ErrorCardComponent,
   SubscriptionCardAction,
   SubscriptionCardActions,
   SubscriptionCardComponent,
@@ -78,7 +87,6 @@ const QUERY_PARAM_PRODUCT_TIER = "productTierType";
     RouterModule,
     AsyncActionsModule,
     ButtonModule,
-    CardComponent,
     ContainerComponent,
     FormControlModule,
     ProgressBarComponent,
@@ -92,6 +100,7 @@ const QUERY_PARAM_PRODUCT_TIER = "productTierType";
     SecretsManagerSubscribeStandaloneComponent,
     SecretsManagerAdjustSubscriptionComponent,
     IconComponent,
+    ErrorCardComponent,
   ],
 })
 export class OrganizationSubscriptionCloudVNextComponent {
@@ -109,13 +118,23 @@ export class OrganizationSubscriptionCloudVNextComponent {
 
   readonly organizationId: string = this.route.snapshot.params.organizationId;
 
+  // Re-fires the subscription data streams after a mutation (reinstate, cancel, storage, etc.).
+  // Seeded so the streams load once on init, then reload each time refreshAll() emits.
+  private readonly refresh$ = new BehaviorSubject<void>(undefined);
+
   readonly organization = toSignal(this.data.organization$(this.organizationId));
-  readonly organizationSubscription = toSignal(
-    this.data.organizationSubscription$(this.organizationId),
+
+  private readonly organizationSubscription$ = this.refresh$.pipe(
+    switchMap(() => this.data.organizationSubscription$(this.organizationId)),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
-  readonly hasBillingSyncToken = toSignal(this.data.hasBillingSyncToken$(this.organizationId));
+  readonly organizationSubscription = toSignal(this.organizationSubscription$);
+
+  readonly hasBillingSyncToken = toSignal(
+    this.refresh$.pipe(switchMap(() => this.data.hasBillingSyncToken$(this.organizationId))),
+  );
   readonly resellerSeatsRemaining = toSignal(
-    this.data.resellerSeatsRemaining$(this.organizationId),
+    this.refresh$.pipe(switchMap(() => this.data.resellerSeatsRemaining$(this.organizationId))),
   );
 
   /**
@@ -384,7 +403,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
     if (result === ChangePlanDialogResultType.Closed) {
       return;
     }
-    this.reloadSubscriptionPreview();
+    this.refreshAll();
   };
 
   readonly reinstate = async () => {
@@ -406,7 +425,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
         title: undefined,
         message: this.i18nService.t("reinstated"),
       });
-      this.reloadSubscriptionPreview();
+      this.refreshAll();
     } catch (e) {
       this.logService.error(e);
     }
@@ -437,7 +456,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
       const churnResult = await lastValueFrom(churnDialogRef.closed);
 
       if (churnResult === ChurnMitigationOfferDialogResultType.Accepted) {
-        this.reloadSubscriptionPreview();
+        this.refreshAll();
         return;
       }
 
@@ -459,7 +478,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
     if (result === OffboardingSurveyDialogResultType.Closed) {
       return;
     }
-    this.reloadSubscriptionPreview();
+    this.refreshAll();
   };
 
   readonly adjustStorage = (add: boolean) => {
@@ -475,7 +494,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
 
       const result = await lastValueFrom(dialogRef.closed);
       if (result === AdjustStorageDialogResultType.Submitted) {
-        this.reloadSubscriptionPreview();
+        this.refreshAll();
       }
     };
   };
@@ -497,7 +516,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
         title: undefined,
         message: this.i18nService.t("removeSponsorshipSuccess"),
       });
-      this.reloadSubscriptionPreview();
+      this.refreshAll();
     } catch (e) {
       this.logService.error(e);
     }
@@ -515,21 +534,20 @@ export class OrganizationSubscriptionCloudVNextComponent {
       hasBillingToken: this.hasBillingSyncToken() ?? false,
     });
     await firstValueFrom(dialogRef.closed);
-    this.reloadSubscriptionPreview();
+    this.refreshAll();
   }
 
   subscriptionAdjusted() {
-    this.reloadSubscriptionPreview();
+    this.refreshAll();
   }
 
   /** Opens the change plan dialog if the upgrade query parameter is present. */
   private openChangePlanIfUpgradeRequested() {
-    const subscription$ = toObservable(this.organizationSubscription);
     this.route.queryParamMap
       .pipe(
         filter((params) => params.get(QUERY_PARAM_UPGRADE) != null),
         switchMap((params) =>
-          subscription$.pipe(
+          this.organizationSubscription$.pipe(
             filter((subscription) => subscription != null),
             take(1),
             map(() => this.toProductTier(params.get(QUERY_PARAM_PRODUCT_TIER))),
@@ -559,7 +577,8 @@ export class OrganizationSubscriptionCloudVNextComponent {
     return price - getAmount({ type: DiscountTypes.PercentOff, value: discount.percentOff }, price);
   }
 
-  protected reloadSubscriptionPreview() {
+  protected refreshAll() {
+    this.refresh$.next();
     this.subscriptionPreview.reload();
   }
 }
