@@ -4454,6 +4454,9 @@
   "additionalStorageGb": {
     "message": "Additional storage (GB)"
   },
+  "additionalStorageGbLower": {
+    "message": "additional storage GB"
+  },
   "additionalStorageGbDesc": {
     "message": "# of additional GB"
   },
@@ -11000,6 +11003,9 @@
   },
   "members": {
     "message": "Members"
+  },
+  "membersLower": {
+    "message": "members"
   },
   "membersAtRisk": {
     "message": "Members at risk"

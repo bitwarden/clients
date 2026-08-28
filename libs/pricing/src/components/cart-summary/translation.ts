@@ -38,9 +38,9 @@ export const getCartItemTranslationKey = (
     case "pm-seat":
       return getPasswordManagerSeatTranslationKey(planTier, flowContext, logService);
     case "pm-storage":
-      return "additionalStorageGb";
+      return "additionalStorageGbLower";
     case "sm-seat":
-      return "secretsManagerPlanPrice";
+      return "membersLower";
     case "sm-service-account":
       return "additionalServiceAccounts";
     default: {
@@ -84,7 +84,7 @@ const getPasswordManagerSeatTranslationKey = (
     case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
     case InvoicePreviewFlowContext.OrganizationPlanChange:
       if (planTier === "families" || planTier === "teams" || planTier === "enterprise") {
-        return "passwordManagerPlanPrice";
+        return "membersLower";
       }
       break;
   }

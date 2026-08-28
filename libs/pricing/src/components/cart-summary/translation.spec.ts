@@ -24,61 +24,21 @@ describe("getCartItemTranslationKey", () => {
     ["pm-seat", InvoicePreviewFlowContext.PremiumOrgUpgrade, "families", "familiesMembership"],
     ["pm-seat", InvoicePreviewFlowContext.PremiumOrgUpgrade, "teams", "teamsMembership"],
     ["pm-seat", InvoicePreviewFlowContext.PremiumOrgUpgrade, "enterprise", "enterpriseMembership"],
-    [
-      "pm-seat",
-      InvoicePreviewFlowContext.OrganizationCheckout,
-      "families",
-      "passwordManagerPlanPrice",
-    ],
-    [
-      "pm-seat",
-      InvoicePreviewFlowContext.OrganizationCheckout,
-      "teams",
-      "passwordManagerPlanPrice",
-    ],
-    [
-      "pm-seat",
-      InvoicePreviewFlowContext.OrganizationCheckout,
-      "enterprise",
-      "passwordManagerPlanPrice",
-    ],
-    [
-      "pm-seat",
-      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
-      "families",
-      "passwordManagerPlanPrice",
-    ],
-    [
-      "pm-seat",
-      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
-      "teams",
-      "passwordManagerPlanPrice",
-    ],
+    ["pm-seat", InvoicePreviewFlowContext.OrganizationCheckout, "families", "membersLower"],
+    ["pm-seat", InvoicePreviewFlowContext.OrganizationCheckout, "teams", "membersLower"],
+    ["pm-seat", InvoicePreviewFlowContext.OrganizationCheckout, "enterprise", "membersLower"],
+    ["pm-seat", InvoicePreviewFlowContext.OrganizationSubscriptionPage, "families", "membersLower"],
+    ["pm-seat", InvoicePreviewFlowContext.OrganizationSubscriptionPage, "teams", "membersLower"],
     [
       "pm-seat",
       InvoicePreviewFlowContext.OrganizationSubscriptionPage,
       "enterprise",
-      "passwordManagerPlanPrice",
+      "membersLower",
     ],
     // Plan-change follows the other org-scoped surfaces; rationale in translation.ts.
-    [
-      "pm-seat",
-      InvoicePreviewFlowContext.OrganizationPlanChange,
-      "families",
-      "passwordManagerPlanPrice",
-    ],
-    [
-      "pm-seat",
-      InvoicePreviewFlowContext.OrganizationPlanChange,
-      "teams",
-      "passwordManagerPlanPrice",
-    ],
-    [
-      "pm-seat",
-      InvoicePreviewFlowContext.OrganizationPlanChange,
-      "enterprise",
-      "passwordManagerPlanPrice",
-    ],
+    ["pm-seat", InvoicePreviewFlowContext.OrganizationPlanChange, "families", "membersLower"],
+    ["pm-seat", InvoicePreviewFlowContext.OrganizationPlanChange, "teams", "membersLower"],
+    ["pm-seat", InvoicePreviewFlowContext.OrganizationPlanChange, "enterprise", "membersLower"],
   ];
 
   it.each(fanOut)(
@@ -96,7 +56,7 @@ describe("getCartItemTranslationKey", () => {
 
   const tierAgnostic: Array<[PurchasableReference, string]> = [
     ["pm-storage", "additionalStorageGb"],
-    ["sm-seat", "secretsManagerPlanPrice"],
+    ["sm-seat", "membersLower"],
     ["sm-service-account", "additionalServiceAccounts"],
   ];
 
