@@ -143,6 +143,7 @@ describe("AccessAuditComponent", () => {
             pamAuditKindRuleCreated: "Access rule created",
             pamAuditKindLeaseRevoked: "Lease revoked",
             pamAuditKindLeaseEndedByHolder: "Lease ended by holder",
+            pamAuditKindRuleUpdated: "Access rule updated",
             exportVerb: "Export",
             update: "Update",
             close: "Close",
@@ -187,7 +188,10 @@ describe("AccessAuditComponent", () => {
    * `bit-filter-menu` owns its own selection — there is no form control to set — and the chips only
    * exist once the ready branch has rendered.
    */
-  const selectFilter = (chip: "kind" | "actor" | "requester" | "timePeriod", value: unknown) => {
+  const selectFilter = (
+    chip: "kind" | "actor" | "requester" | "item" | "timePeriod",
+    value: unknown,
+  ) => {
     fixture.detectChanges();
     component()[`${chip}Chip`]().setValue(value);
     fixture.detectChanges();
@@ -638,6 +642,126 @@ describe("AccessAuditComponent", () => {
     });
   });
 
+  describe("item filter", () => {
+    /** The Item cell renders locally-decrypted cipher names, so the chip's options follow the resolver. */
+    const withCiphers = (names: [string, string][]) => {
+      nameResolver.resolveNames.mockResolvedValue({
+        ...emptyResolvedNames(),
+        cipherNameById: new Map(names),
+      });
+    };
+
+    const render = async (events: AccessAuditEventResponse[]) => {
+      auditApiService.listAccessAuditTrail.mockResolvedValue(events);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    it("offers one option per item, labelled the way the Item cell labels it", async () => {
+      withCiphers([
+        ["cipher-1", "Prod database"],
+        ["cipher-2", "Staging database"],
+      ]);
+      await render([
+        event({ CipherId: "cipher-1", CollectionId: "col-1" }),
+        event({ CipherId: "cipher-1", CollectionId: "col-1" }),
+        event({ CipherId: "cipher-2", CollectionId: "col-2" }),
+        event({
+          Kind: "ruleUpdated",
+          CipherId: null,
+          CollectionId: null,
+          RuleId: "rule-1",
+          RuleName: "Production access",
+        }),
+      ]);
+
+      expect(component().itemOptions()).toEqual([
+        { label: "Prod database", value: "cipher-1" },
+        { label: "Production access", value: "rule-1" },
+        { label: "Staging database", value: "cipher-2" },
+      ]);
+    });
+
+    // The cell renders an em dash for these, and an option that narrowed the table to "no item" would be
+    // an option with no name to put on it.
+    it("offers no option for a row naming no item at all", async () => {
+      await render([event({ CipherId: null, CollectionId: null, RuleId: null, RuleName: null })]);
+
+      expect(component().itemOptions()).toEqual([]);
+    });
+
+    // Same rule the Actor chip follows for a member it cannot resolve: no label, so no option.
+    it("offers no option for a cipher this viewer's vault could not decrypt", async () => {
+      withCiphers([["cipher-1", "Prod database"]]);
+      await render([
+        event({ CipherId: "cipher-1", CollectionId: "col-1" }),
+        event({ CipherId: "cipher-9", CollectionId: "col-9" }),
+      ]);
+
+      expect(component().itemOptions()).toEqual([{ label: "Prod database", value: "cipher-1" }]);
+    });
+
+    it("filters the trail to the selected item", async () => {
+      withCiphers([
+        ["cipher-1", "Prod database"],
+        ["cipher-2", "Staging database"],
+      ]);
+      await render([
+        event({ CipherId: "cipher-1", CollectionId: "col-1" }),
+        event({ CipherId: "cipher-2", CollectionId: "col-2" }),
+      ]);
+
+      selectFilter("item", ["cipher-1"]);
+
+      expect(component().filteredRows()).toHaveLength(1);
+      expect(component().filteredRows()[0].cipherName).toBe("Prod database");
+    });
+
+    // Two access rules can carry the same name; filtering on the id keeps their histories apart.
+    it("keeps two rules that share a name apart", async () => {
+      await render([
+        event({
+          Kind: "ruleUpdated",
+          CipherId: null,
+          CollectionId: null,
+          RuleId: "rule-1",
+          RuleName: "Approval required",
+        }),
+        event({
+          Kind: "ruleUpdated",
+          CipherId: null,
+          CollectionId: null,
+          RuleId: "rule-2",
+          RuleName: "Approval required",
+        }),
+      ]);
+
+      expect(component().itemOptions()).toEqual([
+        { label: "Approval required", value: "rule-1" },
+        { label: "Approval required", value: "rule-2" },
+      ]);
+
+      selectFilter("item", ["rule-2"]);
+
+      expect(component().filteredRows()).toHaveLength(1);
+      expect(component().filteredRows()[0].ruleId).toBe("rule-2");
+    });
+
+    it("drops a row that names no item once an item is selected", async () => {
+      withCiphers([["cipher-1", "Prod database"]]);
+      await render([
+        event({ CipherId: "cipher-1", CollectionId: "col-1" }),
+        event({ CipherId: null, CollectionId: null, RuleId: null, RuleName: null }),
+      ]);
+
+      selectFilter("item", ["cipher-1"]);
+
+      expect(component().filteredRows()).toHaveLength(1);
+      expect(component().filteredRows()[0].cipherName).toBe("Prod database");
+    });
+  });
+
   describe("clear all", () => {
     const clearAllButton = () =>
       fixture.nativeElement.querySelector("#access-audit_button_clear-all");
@@ -846,11 +970,11 @@ describe("AccessAuditComponent", () => {
       return fixture.nativeElement.querySelector("#access-audit_container_toolbar") as HTMLElement;
     };
 
-    it("filters from four chips of the same family", async () => {
+    it("filters from five chips of the same family", async () => {
       const toolbar = await renderToolbar();
 
       expect(toolbar).not.toBeNull();
-      expect(toolbar.querySelectorAll("bit-filter-menu")).toHaveLength(4);
+      expect(toolbar.querySelectorAll("bit-filter-menu")).toHaveLength(5);
       expect(toolbar.querySelector("bit-form-field")).toBeNull();
       expect(toolbar.querySelector("input[type=datetime-local]")).toBeNull();
     });
@@ -883,8 +1007,8 @@ describe("AccessAuditComponent", () => {
       const toolbar = await renderToolbar();
 
       const chips = [...toolbar.querySelectorAll("bit-filter-menu")];
-      expect(chips).toHaveLength(4);
-      expect(chips.filter((chip) => chip.hasAttribute("multiple"))).toHaveLength(3);
+      expect(chips).toHaveLength(5);
+      expect(chips.filter((chip) => chip.hasAttribute("multiple"))).toHaveLength(4);
 
       const timePeriod = chips.find((chip) =>
         chip.querySelector("button")?.getAttribute("title")?.startsWith("Time period"),
