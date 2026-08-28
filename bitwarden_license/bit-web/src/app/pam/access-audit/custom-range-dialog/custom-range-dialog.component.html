@@ -1,27 +1,34 @@
-<form [formGroup]="formGroup" [bitSubmit]="confirm" bit-dialog background="alt">
+<form [formGroup]="formGroup" [bitSubmit]="confirm" bit-dialog background="alt" dialogSize="small">
   <span bitDialogTitle>{{ "timePeriod" | i18n }}</span>
 
   <div bitDialogContent>
-    <bit-form-field>
-      <bit-label>{{ "from" | i18n }}</bit-label>
-      <input
-        bitInput
-        type="datetime-local"
-        id="pam-custom-range-dialog_input_from"
-        [placeholder]="'startDate' | i18n"
-        formControlName="from"
-      />
-    </bit-form-field>
-    <bit-form-field disableMargin>
-      <bit-label>{{ "to" | i18n }}</bit-label>
-      <input
-        bitInput
-        type="datetime-local"
-        id="pam-custom-range-dialog_input_to"
-        [placeholder]="'endDate' | i18n"
-        formControlName="to"
-      />
-    </bit-form-field>
+    <div class="tw-flex tw-flex-col tw-gap-4 sm:tw-flex-row">
+      <div class="tw-min-w-0 tw-flex-1">
+        <bit-form-field disableMargin>
+          <bit-label>{{ "from" | i18n }}</bit-label>
+          <input
+            #fromField
+            bitInput
+            type="datetime-local"
+            id="pam-custom-range-dialog_input_from"
+            [placeholder]="'startDate' | i18n"
+            formControlName="from"
+          />
+        </bit-form-field>
+      </div>
+      <div class="tw-min-w-0 tw-flex-1">
+        <bit-form-field disableMargin>
+          <bit-label>{{ "to" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="datetime-local"
+            id="pam-custom-range-dialog_input_to"
+            [placeholder]="'endDate' | i18n"
+            formControlName="to"
+          />
+        </bit-form-field>
+      </div>
+    </div>
   </div>
 
   <ng-container bitDialogFooter>
@@ -43,6 +50,16 @@
       id="pam-custom-range-dialog_button_cancel"
     >
       {{ "cancel" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      buttonType="subtleGhost"
+      class="tw-ms-auto"
+      id="pam-custom-range-dialog_button_clear"
+      (click)="clear()"
+    >
+      {{ "clear" | i18n }}
     </button>
   </ng-container>
 </form>

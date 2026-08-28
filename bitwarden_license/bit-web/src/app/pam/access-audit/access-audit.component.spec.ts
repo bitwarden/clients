@@ -514,7 +514,7 @@ describe("AccessAuditComponent", () => {
         const noon = new Date(2026, 7, 18, 12, 0);
         const evening = new Date(2026, 7, 18, 18, 0);
         await renderTrail([noon, evening]);
-        closesWith({ from: "2026-08-18T13:00", to: "" });
+        closesWith({ action: "apply", from: "2026-08-18T13:00", to: "" });
 
         await chooseCustom();
 
@@ -525,7 +525,7 @@ describe("AccessAuditComponent", () => {
       // Reopening has to show what the table is filtered to, or the auditor is editing bounds they cannot see.
       it("reopens the dialog on the range in force", async () => {
         await renderTrail([new Date(2026, 7, 18, 12, 0)]);
-        closesWith({ from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
+        closesWith({ action: "apply", from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
 
         await chooseCustom();
         selectFilter("timePeriod", null);
@@ -548,6 +548,23 @@ describe("AccessAuditComponent", () => {
 
         expect(component().selectedPeriod()).toBe("past7Days");
         expect(occurredAt()).toEqual([recent.getTime()]);
+      });
+
+      // Clear is the dialog's own way out of a custom range, so the chip goes back to All time with it.
+      it("drops the chip back to All time when the dialog clears the range", async () => {
+        const recent = new Date(now().getTime() - HOUR_MS);
+        const older = new Date(now().getTime() - 40 * DAY_MS);
+        await renderTrail([recent, older]);
+        closesWith({ action: "apply", from: new Date(recent).toISOString().slice(0, 16), to: "" });
+        await chooseCustom();
+        expect(component().selectedPeriod()).toBe("custom");
+
+        closesWith({ action: "clear" });
+        selectFilter("timePeriod", null);
+        await chooseCustom();
+
+        expect(component().selectedPeriod()).toBeNull();
+        expect(component().filteredRows()).toHaveLength(2);
       });
 
       it("leaves the chip unselected when cancelled from no selection at all", async () => {
