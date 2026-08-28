@@ -173,7 +173,6 @@ export class AccessAuditComponent implements OnInit {
   protected readonly status = signal<AuditStatus>("loading");
   protected readonly rows = signal<AuditRow[]>([]);
 
-  // --- Toolbar filters (client-side over the fetched window) ---
   protected readonly searchControl = new FormControl("", { nonNullable: true });
   protected readonly actorControl = new FormControl<string | null>(null);
   protected readonly requesterControl = new FormControl<string | null>(null);
@@ -220,14 +219,12 @@ export class AccessAuditComponent implements OnInit {
       ? { invalidDateRange: { message: this.i18nService.t("invalidDateRange") } }
       : null;
 
-  /** Event-kind chip options, limited to the labels actually present in the trail, sorted. */
   protected readonly kindOptions = computed(() =>
     [...new Set(this.rows().map((row) => row.kindLabelKey))]
       .map((labelKey) => ({ label: this.i18nService.t(labelKey), value: labelKey }))
       .sort(byLabel),
   );
 
-  /** Actor chip options: the identities that actually acted, plus the system bucket when the trail has one. */
   protected readonly actorOptions = computed<ChipFilterOption<string>[]>(() => {
     const rows = this.rows();
     const options = identityOptions(
@@ -240,7 +237,6 @@ export class AccessAuditComponent implements OnInit {
     return options.sort(byLabel);
   });
 
-  /** Requester chip options: the identities whose access the trail records. */
   protected readonly requesterOptions = computed<ChipFilterOption<string>[]>(() =>
     identityOptions(this.rows(), "requester").sort(byLabel),
   );
