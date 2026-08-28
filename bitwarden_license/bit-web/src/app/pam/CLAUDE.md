@@ -32,12 +32,15 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   lands on it; but a DIALOG over the shell rather than a page of its own. It is a
   fourth child of the shell route, so the header and tab bar stay mounted;
   `access-request-route.component` is the host (opens the dialog, renders the tab the
-  caller came from behind it, and navigates on close — back if the caller came from
-  inside the app, `/pam` on a cold load), and `access-request-dialog.component` is the
-  view. `originTab` picks that tab off the last segment of the previous navigation's URL,
-  so an approver opening a row keeps the Approvals inbox behind the dialog rather than
-  watching it swap to their own requests; My requests is only the fallback, for a caller
-  from outside the tabs or a cold load.
+  caller came from behind it, and on close REPLACES the URL with `/pam/<that tab>`, so a
+  dismissed dialog is never left addressable and never stacked on top of), and
+  `access-request-dialog.component` is the view. `originTab` picks that tab off the
+  previous navigation's URL, matched on the whole `/pam/<tab>` shape, so an approver
+  opening a row keeps the Approvals inbox behind the dialog rather than watching it swap
+  to their own requests; My requests is only the fallback, for a caller from outside the
+  tabs or a cold load. Do not step the browser back on close instead: the router's
+  `previousNavigation` says only that this SPA session navigated before, never that the
+  browser has an entry below this one to go back to.
   `AccessRequestDetailService` is provided on the host component, not the route config,
   because it reads the `:id` off `ActivatedRoute` — a route-level provider resolves in
   the route's environment injector, where that lookup falls through to the root route.
