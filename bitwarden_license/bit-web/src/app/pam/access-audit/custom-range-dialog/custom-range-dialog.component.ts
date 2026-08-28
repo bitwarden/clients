@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  afterNextRender,
+  computed,
+  effect,
+  inject,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, ValidatorFn } from "@angular/forms";
 
@@ -20,7 +29,13 @@ import { auditRangeEnd, auditRangeStart } from "../access-audit-row";
 /** A custom audit range as `datetime-local` values; a blank bound is unbounded on that side. */
 export type CustomRangeDialogParams = { from: string; to: string };
 
-export type CustomRangeDialogResult = CustomRangeDialogParams;
+/**
+ * What the auditor asked for. Tagged rather than shaped, because "no range at all" and "a range with
+ * both ends blank" reach the caller as different intents: the first drops the Custom selection, the
+ * second is not offerable at all — Save is disabled until at least one end is set.
+ */
+export type CustomRangeDialogResult =
+  { action: "apply"; from: string; to: string } | { action: "clear" };
 
 /**
  * Collects the custom bounds behind the audit log's Time period filter.
@@ -35,6 +50,9 @@ export type CustomRangeDialogResult = CustomRangeDialogParams;
  * strand the chip reading "Custom" over no range at all. Cancel binds that `undefined` explicitly: a bare
  * `bitDialogClose` attribute closes with the empty string, which a caller checking for a result would take
  * for one.
+ *
+ * Clear is the way out of a custom range from inside the dialog — without it an auditor who opened it to
+ * widen the trail would have to cancel and clear the chip from the row behind.
  */
 @Component({
   selector: "pam-custom-range-dialog",
@@ -54,6 +72,7 @@ export class CustomRangeDialogComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly i18nService = inject(I18nService);
   private readonly params = inject<CustomRangeDialogParams>(DIALOG_DATA);
+  private readonly fromField = viewChild<ElementRef<HTMLInputElement>>("fromField");
 
   protected readonly formGroup = this.formBuilder.nonNullable.group({
     from: [this.params.from],
@@ -83,9 +102,16 @@ export class CustomRangeDialogComponent {
       ? { invalidDateRange: { message: this.i18nService.t("invalidDateRange") } }
       : null;
 
-  protected readonly confirmDisabled = computed(() => this.invertedRange());
+  /** Whether either end is set. Both blank is the same as no custom range, which Save must not apply. */
+  private readonly bounded = computed(
+    () => auditRangeStart(this.fromValue()) != null || auditRangeEnd(this.toValue()) != null,
+  );
+
+  protected readonly confirmDisabled = computed(() => this.invertedRange() || !this.bounded());
 
   constructor() {
+    afterNextRender(() => this.fromField()?.nativeElement.focus());
+
     this.formGroup.controls.to.addValidators(this.invertedRangeValidator);
 
     // Editing From leaves To's value alone, so nothing else would re-run a cross-field rule. The control
@@ -104,12 +130,16 @@ export class CustomRangeDialogComponent {
   }
 
   protected readonly confirm = async (): Promise<void> => {
-    if (this.invertedRange()) {
+    if (this.confirmDisabled()) {
       return;
     }
     const { from, to } = this.formGroup.getRawValue();
-    void this.dialogRef.close({ from: from.trim(), to: to.trim() });
+    void this.dialogRef.close({ action: "apply", from: from.trim(), to: to.trim() });
   };
+
+  protected clear(): void {
+    void this.dialogRef.close({ action: "clear" });
+  }
 
   static open(
     dialogService: DialogService,
