@@ -357,6 +357,65 @@ describe("AccessAuditComponent", () => {
     expect(component().filteredRows()[0].actor).toBe("Ada");
   });
 
+  // An auditor reconstructing an incident is usually following two or three people at once; narrowing to
+  // each in turn would lose the order the events happened in.
+  it("keeps every row matching any of several selected actors", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ ActorId: "user-1", ActorName: "Ada" }),
+      event({ ActorId: "user-3", ActorName: "Linus" }),
+      event({ ActorId: "user-4", ActorName: "Katherine" }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    selectFilter("actor", ["user-1", "user-4"]);
+
+    expect(
+      component()
+        .filteredRows()
+        .map((row: any) => row.actor),
+    ).toEqual(["Ada", "Katherine"]);
+  });
+
+  it("narrows across chips while widening within one", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ Kind: "requestApproved", ActorId: "user-1", ActorName: "Ada" }),
+      event({ Kind: "leaseActivated", ActorId: "user-1", ActorName: "Ada" }),
+      event({ Kind: "leaseActivated", ActorId: "user-3", ActorName: "Linus" }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    selectFilter("kind", ["pamAuditKindRequestApproved", "pamAuditKindLeaseActivated"]);
+    selectFilter("actor", ["user-1"]);
+
+    expect(component().filteredRows()).toHaveLength(2);
+    expect(
+      component()
+        .filteredRows()
+        .every((row: any) => row.actor === "Ada"),
+    ).toBe(true);
+  });
+
+  it("goes back to matching everything when the last value is removed from a chip", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ ActorId: "user-1", ActorName: "Ada" }),
+      event({ ActorId: "user-3", ActorName: "Linus" }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    selectFilter("actor", ["user-1"]);
+    expect(component().filteredRows()).toHaveLength(1);
+
+    selectFilter("actor", []);
+
+    expect(component().filteredRows()).toHaveLength(2);
+  });
+
   it("offers an actor option per identity that acted, plus the system bucket", async () => {
     auditApiService.listAccessAuditTrail.mockResolvedValue([
       event({ ActorId: "user-1", ActorName: "Ada" }),
@@ -817,6 +876,21 @@ describe("AccessAuditComponent", () => {
 
       expect(toolbar.querySelectorAll(".tw-mt-7")).toHaveLength(0);
       expect(toolbar.querySelectorAll(".tw-ms-auto")).toHaveLength(0);
+    });
+
+    // Event, Actor and Requester each answer "which of these", and only the time period is one-of.
+    it("makes every chip but the time period multi-select", async () => {
+      const toolbar = await renderToolbar();
+
+      const chips = [...toolbar.querySelectorAll("bit-filter-menu")];
+      expect(chips).toHaveLength(4);
+      expect(chips.filter((chip) => chip.hasAttribute("multiple"))).toHaveLength(3);
+
+      const timePeriod = chips.find((chip) =>
+        chip.querySelector("button")?.getAttribute("title")?.startsWith("Time period"),
+      )!;
+      expect(timePeriod).not.toBeUndefined();
+      expect(timePeriod.hasAttribute("multiple")).toBe(false);
     });
 
     it("wraps the chip row rather than overflowing it", async () => {
