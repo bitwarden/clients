@@ -57,6 +57,7 @@ import {
   defaultRequestWindow,
   requestDurationOptions,
   requestedWindowSeconds,
+  toDateInputValue,
 } from "..";
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
 import { DurationLongPipe } from "../date/duration-long.pipe";
@@ -330,6 +331,19 @@ export class CipherViewBannerComponent implements OnInit {
     () => this.requestBounds()?.maxSeconds ?? MAX_REQUEST_ACCESS_WINDOW_SECONDS,
   );
 
+  /**
+   * Floor for the human path's date picker, as `<input type="date">` spells it — today, pinned when
+   * the fold-out opened. Greys out every earlier day in the native calendar, which is the cheapest
+   * place to stop a past window (PM-42592); it is an affordance, not the guard. `min` reports itself
+   * through `ValidityState.rangeUnderflow`, which reactive forms do not read, and a typed-in date
+   * bypasses the picker entirely — so the verdict still comes from `requestWindowEndValidator`, and
+   * the server refuses the record regardless.
+   *
+   * Pinned rather than live: it is set from the same `Date` that seeds the window below, so the
+   * floor and the pre-filled date cannot disagree across a midnight boundary.
+   */
+  protected readonly minRequestDate = signal("");
+
   protected readonly automaticForm = this.formBuilder.nonNullable.group({
     durationSeconds: [DEFAULT_REQUEST_ACCESS_DURATION_SECONDS, Validators.required],
     reason: [""],
@@ -447,7 +461,10 @@ export class CipherViewBannerComponent implements OnInit {
       this.requestBounds.set(bounds);
 
       if (preCheck.approvalMode === "human") {
-        const { date, start, end } = defaultRequestWindow(new Date(), bounds.defaultSeconds);
+        // One clock reading for both, so the picker's floor is exactly the day it pre-fills.
+        const openedAt = new Date();
+        const { date, start, end } = defaultRequestWindow(openedAt, bounds.defaultSeconds);
+        this.minRequestDate.set(toDateInputValue(openedAt));
         this.humanForm.patchValue({ date: date ?? "", start: start ?? "", end: end ?? "" });
       } else {
         // Pre-select the rule's own default rather than a hardcoded hour. `requestDurationOptions`
@@ -465,12 +482,17 @@ export class CipherViewBannerComponent implements OnInit {
   }
 
   private windowProblemMessage(problem: RequestWindowProblem, maxWindowSeconds: number): string {
-    return problem === "endBeforeStart"
-      ? this.i18nService.t("requestAccessModalEndBeforeStart")
-      : this.i18nService.t(
+    switch (problem) {
+      case "endBeforeStart":
+        return this.i18nService.t("requestAccessModalEndBeforeStart");
+      case "endInPast":
+        return this.i18nService.t("requestAccessModalWindowInPast");
+      case "exceedsMaxWindow":
+        return this.i18nService.t(
           "requestAccessModalWindowExceedsMax",
           formatDuration(this.locale, maxWindowSeconds, "long"),
         );
+    }
   }
 
   // `[bitAction]` owns the button's busy state and serialises re-entrant clicks, so this only has to
@@ -482,6 +504,13 @@ export class CipherViewBannerComponent implements OnInit {
       return;
     }
     const form = mode === "automatic" ? this.automaticForm : this.humanForm;
+    // The window validator reads the clock, and `markAllAsTouched` does not re-run validators — so
+    // a fold-out left open until its own seeded window elapsed still carries the verdict from the
+    // last edit, and would post a window that has since passed. Re-run it before trusting
+    // `form.invalid`, so the requester is told in the field rather than by the server.
+    if (mode === "human") {
+      this.humanForm.controls.end.updateValueAndValidity();
+    }
     form.markAllAsTouched();
     if (form.invalid) {
       return;
