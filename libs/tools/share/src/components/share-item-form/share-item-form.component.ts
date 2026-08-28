@@ -197,9 +197,9 @@ export class ShareItemFormComponent implements OnDestroy {
 
   constructor() {
     this.sendPolicyService.deletionDatePolicyInfo$.pipe(takeUntilDestroyed()).subscribe((dh) => {
-      if (dh) {
+      if (dh?.deletionHours) {
         const expiryHoursFormControl = this.form.get("expiryHours");
-        expiryHoursFormControl?.setValue((dh as any) ?? ExpiryOption.SevenDays);
+        expiryHoursFormControl?.setValue(dh.deletionHours as any);
         expiryHoursFormControl?.disable();
       }
     });
