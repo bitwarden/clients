@@ -2,9 +2,11 @@ import { importProvidersFrom } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
+import { userEvent } from "storybook/test";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessNameResolverService } from "../access-requests/access-name-resolver.service";
@@ -176,6 +178,10 @@ function audit(options: { events?: AccessAuditEventResponse[]; fails?: boolean }
         useValue: { resolveNames: () => Promise.resolve(names) },
       },
       {
+        provide: FileDownloadService,
+        useValue: { download: (): void => undefined },
+      },
+      {
         provide: ActivatedRoute,
         useValue: { params: of({ organizationId: "org-1" }), data: of({}) },
       },
@@ -227,4 +233,16 @@ export const LoadError: Story = {
 /** A single event — the trail right after an organization's first request. */
 export const SingleEvent: Story = {
   decorators: [audit({ events: [EVENTS[EVENTS.length - 2]] })],
+};
+
+/**
+ * A search that matches nothing. Export is disabled alongside the no-matches callout: the file follows the
+ * filtered table, so with nothing on screen there is nothing to download.
+ */
+export const NoMatches: Story = {
+  decorators: [audit()],
+  play: async ({ canvasElement }) => {
+    const search = canvasElement.querySelector<HTMLInputElement>('input[name="searchText"]')!;
+    await userEvent.type(search, "nothing matches this");
+  },
 };
