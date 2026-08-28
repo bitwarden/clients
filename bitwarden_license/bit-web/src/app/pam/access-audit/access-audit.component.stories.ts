@@ -2,7 +2,7 @@ import { importProvidersFrom } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
-import { fireEvent } from "storybook/test";
+import { fireEvent, userEvent, within } from "storybook/test";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -17,6 +17,7 @@ import {
   HOUR,
   MINUTE,
   fromNow,
+  liveFromNow,
   provideStoryChangeDetection,
   provideStoryLogService,
   storyNames,
@@ -279,6 +280,53 @@ const MIXED_LINK_EVENTS: AccessAuditEventResponse[] = [
   }),
 ];
 
+/**
+ * A trail stamped against the REAL clock, for the stories that exercise the Time period presets. The
+ * presets are measured from `Date.now()`, so a {@link fromNow} fixture — anchored to a fixed past
+ * instant — would fall outside every window and leave those stories showing an empty table forever.
+ */
+function liveEvents(): AccessAuditEventResponse[] {
+  return [
+    event({ kind: AccessAuditEventKind.CredentialAccessed, occurredAt: liveFromNow(-HOUR) }),
+    event({
+      kind: AccessAuditEventKind.LeaseRevoked,
+      occurredAt: liveFromNow(-2 * DAY),
+      leaseId: "lease-2",
+      ...APPROVER,
+      detail: "Incident closed early.",
+    }),
+    event({
+      kind: AccessAuditEventKind.RequestApproved,
+      occurredAt: liveFromNow(-20 * DAY),
+      cipherId: "cipher-2",
+      collectionId: "col-2",
+      ...OTHER_REQUESTER,
+    }),
+    event({
+      kind: AccessAuditEventKind.RequestSubmitted,
+      occurredAt: liveFromNow(-60 * DAY),
+      cipherId: "cipher-3",
+      ...OTHER_REQUESTER,
+    }),
+  ];
+}
+
+/**
+ * Picks an option from one of the filter chips, found by the label its trigger carries. The chip's menu
+ * renders in a CDK overlay on `document.body`, outside the story's own canvas.
+ */
+async function selectChipOption(
+  canvasElement: HTMLElement,
+  chip: string,
+  option: string,
+): Promise<void> {
+  const trigger = canvasElement.querySelector<HTMLButtonElement>(
+    `bit-filter-menu button[title^="${chip}"]`,
+  )!;
+  await userEvent.click(trigger);
+  await userEvent.click(await within(document.body).findByText(option));
+}
+
 function audit(
   options: {
     events?: AccessAuditEventResponse[];
@@ -411,14 +459,38 @@ export const Refreshing: Story = {
 };
 
 /**
- * A filter that matches nothing — a From bound later than every event in the trail. Export is disabled
- * alongside the no-matches callout: the file follows the filtered table, so with nothing on screen there is
- * nothing to download.
+ * A filter that matches nothing — Today over a trail whose newest event is older than that. Export is
+ * disabled alongside the no-matches callout: the file follows the filtered table, so with nothing on screen
+ * there is nothing to download. Clear all sits at the end of the chip row, which is the way back.
  */
 export const NoMatches: Story = {
   decorators: [audit()],
   play: async ({ canvasElement }) => {
-    const from = canvasElement.querySelector<HTMLInputElement>("#access-audit_input_from")!;
-    await fireEvent.input(from, { target: { value: "2999-01-01T00:00" } });
+    await selectChipOption(canvasElement, "Time period", "Today");
+  },
+};
+
+/**
+ * A preset in force. The Time period chip carries its selection the way the other three carry theirs —
+ * same height, same pressed styling, same dismiss — so the row reads as one family of controls, and the
+ * table is narrowed to the events inside the window rather than the whole fetched trail.
+ */
+export const TimePeriodFiltered: Story = {
+  decorators: [audit({ events: liveEvents() })],
+  play: async ({ canvasElement }) => {
+    await selectChipOption(canvasElement, "Time period", "Past 7 days");
+  },
+};
+
+/**
+ * Two chips narrowed at once, which is where Clear all earns its place: it is the only affordance that
+ * undoes them in one move. The actions sit on their own row above, so a chip label long enough to wrap
+ * the row can never orphan Export onto a line of its own.
+ */
+export const FiltersActive: Story = {
+  decorators: [audit({ events: liveEvents() })],
+  play: async ({ canvasElement }) => {
+    await selectChipOption(canvasElement, "Time period", "Past 30 days");
+    await selectChipOption(canvasElement, "Event", "Request approved");
   },
 };
