@@ -22,7 +22,7 @@ import {
   RegistrationUserAddIcon,
   ExpiredIcon,
   EmailSentIcon,
-  TwoFactorAuthSecurityKeyIcon,
+  SecurityKeyIcon,
   UserLockIcon,
   VaultIcon,
   SsoKeyIcon,
@@ -160,7 +160,7 @@ const routes: Routes = [
         path: AuthRoute.LoginWithPasskey,
         canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: TwoFactorAuthSecurityKeyIcon,
+          pageIcon: SecurityKeyIcon,
           titleId: "logInWithPasskey",
           pageTitle: {
             key: "logInWithPasskey",

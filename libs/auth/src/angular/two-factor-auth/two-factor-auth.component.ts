@@ -19,7 +19,7 @@ import {
   TwoFactorAuthAuthenticatorIcon,
   EmailSentIcon,
   TwoFactorAuthWebAuthnIcon,
-  TwoFactorAuthSecurityKeyIcon,
+  SecurityKeyIcon,
   TwoFactorAuthDuoIcon,
 } from "@bitwarden/assets/svg";
 import {
@@ -422,7 +422,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       case TwoFactorProviderType.Yubikey:
         this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
           pageSubtitle: this.i18nService.t("pressYourYubiKeyToAuthenticate"),
-          pageIcon: TwoFactorAuthSecurityKeyIcon,
+          pageIcon: SecurityKeyIcon,
         });
         break;
       case TwoFactorProviderType.WebAuthn:
