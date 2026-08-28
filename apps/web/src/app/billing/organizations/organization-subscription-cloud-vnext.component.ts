@@ -349,10 +349,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
         : this.i18nService.t("subscriptionUpgrade", sub.seats.toString());
     }
     if (sub.maxAutoscaleSeats === sub.seats && sub.seats != null) {
-      const key = sub.plan.isAnnual
-        ? "annualSubscriptionUserSeatsMessage"
-        : "monthlySubscriptionUserSeatsMessage";
-      return this.i18nService.t(key + "subscriptionSeatMaxReached", sub.seats.toString());
+      return this.i18nService.t("subscriptionSeatMaxReached", sub.seats.toString());
     }
     if (org?.productTierType === ProductTierType.TeamsStarter) {
       return this.i18nService.t("subscriptionUserSeatsWithoutAdditionalSeatsOption", 10);
