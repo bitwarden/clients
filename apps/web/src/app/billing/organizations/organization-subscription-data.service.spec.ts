@@ -109,6 +109,20 @@ describe("OrganizationSubscriptionDataService", () => {
         done();
       });
     });
+
+    it("does not re-fetch when organizations$ re-emits an unchanged org", () => {
+      const orgs$ = new BehaviorSubject<Organization[]>([{ id: "org-123" } as Organization]);
+      orgService.organizations$.mockImplementation((_userId: any) => orgs$.asObservable());
+      orgApiService.getSubscription.mockResolvedValue({
+        id: "sub-123",
+      } as OrganizationSubscriptionResponse);
+
+      const subscription = service.organizationSubscription$("org-123").subscribe();
+      orgs$.next([{ id: "org-123" } as Organization]);
+
+      expect(orgApiService.getSubscription).toHaveBeenCalledTimes(1);
+      subscription.unsubscribe();
+    });
   });
 
   describe("hasBillingSyncToken$", () => {
