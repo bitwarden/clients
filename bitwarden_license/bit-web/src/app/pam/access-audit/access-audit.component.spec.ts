@@ -72,6 +72,7 @@ describe("AccessAuditComponent", () => {
             tryAgain: "Try again",
             pamAuditEmptyTitle: "No audit activity",
             pamAuditEmptyMessage: "Activity will appear here.",
+            pamAuditEmptyRulesHint: "Access rules put activity in this log.",
             pamAccessRules: "Access rules",
             pamAuditSearchPlaceholder: "Search the audit log",
             pamAuditNoMatchesTitle: "No matching events",
@@ -149,6 +150,18 @@ describe("AccessAuditComponent", () => {
 
     const link = fixture.nativeElement.querySelector("#access-audit_link_access-rules");
     expect(link).not.toBeNull();
+  });
+
+  it("explains what puts an entry in the trail on the empty state", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const description = fixture.nativeElement.querySelector("[slot=description]");
+    expect(description.textContent).toContain("Activity will appear here.");
+    expect(description.textContent).toContain("Access rules put activity in this log.");
   });
 
   it("drops the empty state's Access rules link for a viewer who cannot manage access rules", async () => {
