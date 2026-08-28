@@ -695,7 +695,10 @@ function mapUserToAccessItemView(
     readonlyPermission:
       collection != null
         ? convertToPermission(
-            new CollectionAccessSelectionView(collection.users.find((u) => u.id === user.id)),
+            (() => {
+              const selection = collection.users.find((u) => u.id === user.id);
+              return selection == null ? undefined : new CollectionAccessSelectionView(selection);
+            })(),
           )
         : undefined,
   };
