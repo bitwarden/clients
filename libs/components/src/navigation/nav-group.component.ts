@@ -1,16 +1,17 @@
 import { NgTemplateOutlet } from "@angular/common";
 import {
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
+  computed,
+  contentChildren,
+  effect,
+  ElementRef,
   inject,
   input,
   model,
-  contentChildren,
-  ChangeDetectionStrategy,
-  computed,
-  ElementRef,
 } from "@angular/core";
-import { RouterLinkActive } from "@angular/router";
+import { Router, RouterLinkActive, UrlTree } from "@angular/router";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -36,6 +37,7 @@ export class NavGroupComponent extends NavBaseComponent {
   protected readonly sideNavService = inject(SideNavService);
   private readonly parentNavGroup = inject(NavGroupComponent, { optional: true, skipSelf: true });
   private readonly el = inject(ElementRef);
+  private readonly router = inject(Router);
 
   // Query direct children for hideIfEmpty functionality
   readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: false });
@@ -118,6 +120,27 @@ export class NavGroupComponent extends NavBaseComponent {
     if (this.parentNavGroup) {
       this.treeDepth.set(this.parentNavGroup.treeDepth() + 1);
     }
+
+    // In vfo1, effectiveRoute is suppressed to prevent navigation on click, so routerLinkActive
+    // never fires. Seed open() from the router directly so the group expands on hard load/reload.
+    effect(() => {
+      const route = this.route();
+      if (this.sideNavService.version() === "vfo1" && this.treeDepth() === 0 && route) {
+        const urlTree = Array.isArray(route)
+          ? this.router.createUrlTree(route)
+          : (route as string | UrlTree);
+        if (
+          this.router.isActive(urlTree, {
+            paths: "subset",
+            queryParams: "ignored",
+            fragment: "ignored",
+            matrixParams: "ignored",
+          })
+        ) {
+          this.open.set(true);
+        }
+      }
+    });
   }
 
   setOpen(isOpen: boolean) {
