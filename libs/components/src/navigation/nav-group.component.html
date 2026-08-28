@@ -31,7 +31,6 @@
     [ariaExpanded]="!toggleInStartSlot() ? open() : undefined"
     [ariaControls]="!toggleInStartSlot() ? contentId : undefined"
     [hasForwardedIconTile]="!toggleInStartSlot() && hasStartSlotTile()"
-    [suppressMainButton]="toggleIsOnlyControl()"
   >
     @if (toggleInStartSlot()) {
       <ng-container slot="start" *ngTemplateOutlet="collapseToggle"></ng-container>

@@ -2,7 +2,6 @@ import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  booleanAttribute,
   input,
   inject,
   signal,
@@ -137,13 +136,6 @@ export class NavItemComponent extends NavBaseComponent {
    * `aria-controls` for the interactive element — the id of the region the item expands/collapses.
    */
   readonly ariaControls = input<string | undefined>(undefined);
-
-  /**
-   * When true, the no-route `<button>` is removed from the tab order and hidden from AT.
-   * The element remains in the DOM and is clickable for sighted users.
-   * Used by `nav-group` when a collapse toggle in the start slot is already the sole AT control.
-   */
-  readonly suppressMainButton = input(false, { transform: booleanAttribute });
 
   /**
    * By default, a navigation will put the user's focus on the `main` element.

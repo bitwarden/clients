@@ -62,18 +62,6 @@ export class NavGroupComponent extends NavBaseComponent {
     () => this.sideNavService.version() === "default" || this.treeDepth() > 0,
   );
 
-  /**
-   * True in vfo1 when the collapse toggle (in slot=start) is the only control in the row —
-   * i.e., there is no navigable route. Signals nav-item to remove the main button from the tab
-   * order and hide it from AT so users don't encounter two elements doing the same thing.
-   */
-  protected readonly toggleIsOnlyControl = computed(
-    () =>
-      this.sideNavService.version() === "vfo1" &&
-      this.toggleInStartSlot() &&
-      !this.effectiveRoute(),
-  );
-
   /** In vfo1, top-level groups suppress their route to avoid navigating on expand. */
   protected readonly effectiveRoute = computed(() =>
     this.sideNavService.version() === "vfo1" && this.treeDepth() === 0 ? undefined : this.route(),
