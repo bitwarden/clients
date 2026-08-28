@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { Observable, from, map, of, switchMap } from "rxjs";
+import { Observable, distinctUntilChanged, from, map, of, switchMap } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -32,6 +32,7 @@ export class OrganizationSubscriptionDataService {
           .organizations$(userId)
           .pipe(map((organizations) => organizations.find((org) => org.id === organizationId))),
       ),
+      distinctUntilChanged((a, b) => a?.id === b?.id),
     );
   };
 
