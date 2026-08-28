@@ -18,8 +18,10 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     kindLabelKey: "pamAuditKindRequestSubmitted",
     actor: "alice",
     actorId: "user-alice",
+    actorEmail: "alice@example.com",
     requester: "alice",
     requesterId: "user-alice",
+    requesterEmail: "alice@example.com",
     cipherName: "prod db",
     collectionName: "production",
     ruleName: null,
@@ -186,6 +188,7 @@ describe("toAuditRow", () => {
       OrganizationId: "org-1",
       ActorId: "user-ada",
       ActorName: "Ada",
+      ActorEmail: "ada@example.com",
       RequesterId: "user-bob",
       RequesterEmail: "bob@example.com",
       Automated: false,
@@ -194,7 +197,9 @@ describe("toAuditRow", () => {
     const result = toAuditRow(event, new Map(), new Map());
 
     expect(result.actorId).toBe("user-ada");
+    expect(result.actorEmail).toBe("ada@example.com");
     expect(result.requesterId).toBe("user-bob");
+    expect(result.requesterEmail).toBe("bob@example.com");
     expect(result.requester).toBe("bob@example.com");
   });
 
