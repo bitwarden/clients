@@ -4,7 +4,7 @@ import {
   BitSvg,
   TwoFactorAuthAuthenticatorIcon,
   TwoFactorAuthDuoIcon,
-  EmailSentIcon,
+  EmailCodeSentIcon,
   TwoFactorAuthWebAuthnIcon,
   TwoFactorAuthYubicoIcon,
 } from "@bitwarden/assets/svg";
@@ -34,7 +34,7 @@ export class TwoFactorIconComponent {
   protected readonly IconProviderMap: Partial<Record<TwoFactorProviderType, BitSvg>> = {
     [TwoFactorProviderType.Authenticator]: TwoFactorAuthAuthenticatorIcon,
     [TwoFactorProviderType.Duo]: TwoFactorAuthDuoIcon,
-    [TwoFactorProviderType.Email]: EmailSentIcon,
+    [TwoFactorProviderType.Email]: EmailCodeSentIcon,
     [TwoFactorProviderType.OrganizationDuo]: TwoFactorAuthDuoIcon,
     [TwoFactorProviderType.WebAuthn]: TwoFactorAuthWebAuthnIcon,
     [TwoFactorProviderType.Yubikey]: TwoFactorAuthYubicoIcon,

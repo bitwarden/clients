@@ -19,7 +19,7 @@ import {
   DevicesIcon,
   RegistrationUserAddIcon,
   ExpiredIcon,
-  EmailSentIcon,
+  EmailCodeSentIcon,
   UserLockIcon,
   VaultIcon,
   LockIcon,
@@ -112,7 +112,7 @@ const routes: Routes = [
       },
     ],
     data: {
-      pageIcon: EmailSentIcon,
+      pageIcon: EmailCodeSentIcon,
       pageTitle: {
         key: "verifyYourIdentity",
       },

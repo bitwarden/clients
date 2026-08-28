@@ -5,7 +5,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   TwoFactorAuthAuthenticatorIcon,
   TwoFactorAuthDuoIcon,
-  EmailSentIcon,
+  EmailCodeSentIcon,
   TwoFactorAuthWebAuthnIcon,
   TwoFactorAuthYubicoIcon,
 } from "@bitwarden/assets/svg";
@@ -49,7 +49,7 @@ export class TwoFactorOptionsComponent implements OnInit {
 
   readonly Icons = {
     TwoFactorAuthAuthenticatorIcon,
-    EmailSentIcon,
+    EmailCodeSentIcon,
     TwoFactorAuthDuoIcon,
     TwoFactorAuthYubicoIcon,
     TwoFactorAuthWebAuthnIcon,
