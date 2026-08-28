@@ -36,6 +36,7 @@ describe("classifyRequestAccessError", () => {
       REQUEST_ACCESS_SERVER_ERRORS.HumanGotDuration,
       REQUEST_ACCESS_SERVER_ERRORS.StartEndRequired,
       REQUEST_ACCESS_SERVER_ERRORS.StartBeforeEnd,
+      REQUEST_ACCESS_SERVER_ERRORS.WindowInPast,
       REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax,
       REQUEST_ACCESS_SERVER_ERRORS.NotLeasingGated,
     ])("echoes %s inline with no pinned field", (message) => {
