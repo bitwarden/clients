@@ -172,9 +172,20 @@
     </div>
 
     @if (filteredRows().length === 0) {
-      <bit-callout type="info" [title]="'pamAuditNoMatchesTitle' | i18n">
-        {{ "pamAuditNoMatchesMessage" | i18n }}
-      </bit-callout>
+      <bit-no-items>
+        <span slot="title">{{ "pamAuditNoMatchesTitle" | i18n }}</span>
+        <span slot="description">{{ "pamAuditNoMatchesMessage" | i18n }}</span>
+        <button
+          slot="button"
+          type="button"
+          bitButton
+          buttonType="secondary"
+          id="access-audit_button_no-matches-clear-all"
+          (click)="clearAll()"
+        >
+          {{ "clearAll" | i18n }}
+        </button>
+      </bit-no-items>
     } @else {
       <div class="tw-overflow-x-auto">
         <bit-table>
