@@ -73,9 +73,9 @@
           </ng-container>
           <ng-template bitRowDef let-row>
             <td bitCell>
-              <div class="tw-truncate tw-flex tw-items-center tw-gap-4">
+              <div class="tw-flex tw-items-center tw-gap-4">
                 <app-vault-icon [cipher]="row.cipher"></app-vault-icon>
-                <span>
+                <span class="tw-truncate tw-min-w-0">
                   <a
                     bitLink
                     href="#"
@@ -112,7 +112,7 @@
             <td bitCell class="tw-truncate">
               @if (row.cipher.organizationId) {
                 @let orgName = row.cipher.organizationId | orgNameFromId: organizations() ?? [];
-                {{ "orgNameVault" | i18n: orgName }}
+                {{ "orgNameVault" | i18n: orgName ?? "" }}
               } @else {
                 {{ "myVault" | i18n }}
               }
