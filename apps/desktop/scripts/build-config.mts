@@ -13,7 +13,7 @@
 import { isAbsolute, relative, resolve, sep } from "path";
 import { parseArgs } from "util";
 
-export const CONFIG_VERSION = 1;
+export const CONFIG_VERSION = 2;
 export const BUILD_CONFIG_FILENAME = "build-config.json";
 
 /// Layout inside the build directory. Intermediates mirror the path of the source they were
@@ -27,6 +27,25 @@ export const APP_SOURCE_DIR = "intermediates/src";
 /// or the name of an installed profile, whose own file is named by UUID.
 export const PROVISIONING_PROFILE_DIR = "intermediates/provisioning";
 export const PROVISIONING_PROFILE_FILE = "app.provisionprofile";
+
+/// Entitlements are generated from the configuration rather than checked in, so they land here
+/// for the same reason the provisioning profile does: they belong to this build.
+export const ENTITLEMENTS_DIR = "intermediates/entitlements";
+export const APP_ENTITLEMENTS_FILE = "app.plist";
+export const AUTOFILL_EXTENSION_ENTITLEMENTS_FILE = "autofill-extension.plist";
+
+/// Bundle identifier per channel. Beta is a separate application to macOS -- its own identifier,
+/// its own app group, its own provisioning -- which is why the entitlements have to be built
+/// from it rather than written down once.
+///
+/// TODO: beta is to become `com.bitwarden.beta.desktop`. The value here matches
+/// electron-builder.beta.json, which was itself a guess and was never registered under that
+/// name; changing it means new provisioning profiles and a new app group, so it is left to the
+/// step that makes beta a first-class channel rather than changed in passing.
+export const BUNDLE_IDS: Record<Channel, string> = {
+  stable: "com.bitwarden.desktop",
+  beta: "com.bitwarden.desktop.beta",
+};
 
 export const PLATFORMS = ["macos", "windows", "linux"] as const;
 export type Platform = (typeof PLATFORMS)[number];
@@ -76,10 +95,10 @@ export const DISTRIBUTION_CHANNELS = {
 } as const;
 export type DistributionChannel = keyof typeof DISTRIBUTION_CHANNELS;
 
-/// An App Store build signs and provisions differently from a directly distributed one, and
-/// the autofill extension has to be built against the matching Xcode configuration. Allowing
-/// both in one invocation would leave that choice ambiguous.
-const EXCLUSIVE_DISTRIBUTION_CHANNELS: readonly DistributionChannel[] = [
+/// An App Store build signs, provisions and sandboxes differently from a directly distributed
+/// one. Allowing both in one invocation would leave those choices ambiguous, which is why they
+/// are also the channels no other channel can be combined with.
+export const APP_STORE_CHANNELS: readonly DistributionChannel[] = [
   "mac-app-store",
   "mac-app-store-development",
 ];
@@ -169,8 +188,6 @@ export interface AutofillExtensionBuild {
   xcodeConfiguration: string;
   codeSignIdentity: string;
   provisioningProfileSpecifier: string;
-  /// Relative to the Xcode project directory, which is what xcodebuild resolves it against.
-  codeSignEntitlements: string;
 }
 
 /// The Xcode configuration says how the extension was compiled and nothing about where it is
@@ -182,35 +199,26 @@ const AUTOFILL_EXTENSION_CONFIGURATIONS: Record<Profile, string> = {
   release: "Release",
 };
 
-/// How the extension is signed, which follows from where the build is going. Every one of
-/// these outranks the Xcode configuration's own settings, because xcodebuild ranks a setting
-/// given on the command line above both the target's and the .xcconfig's.
+/// How the extension is signed, which follows from where the build is going. Both of these
+/// outrank the Xcode configuration's own settings, because xcodebuild ranks a setting given on
+/// the command line above both the target's and the .xcconfig's.
 interface AutofillExtensionSigning {
   codeSignIdentity: string;
   provisioningProfileSpecifier: string;
-  codeSignEntitlements: string;
 }
-
-/// Sandboxed, for an app whose entitlements the App Store grants.
-const APP_STORE_ENTITLEMENTS = "autofill-extension/autofill_extension.entitlements";
-/// Everything else, where the extension asks for the capabilities itself.
-const DIRECT_ENTITLEMENTS = "autofill-extension/autofill_extension_enabled.entitlements";
 
 const AUTOFILL_EXTENSION_SIGNING: Record<string, AutofillExtensionSigning> = {
   "mac-app-store": {
     codeSignIdentity: "3rd Party Mac Developer Application",
     provisioningProfileSpecifier: "Bitwarden Desktop Autofill App Store 2024",
-    codeSignEntitlements: APP_STORE_ENTITLEMENTS,
   },
   "mac-app-store-development": {
     codeSignIdentity: "Apple Development",
     provisioningProfileSpecifier: "Bitwarden Desktop Autofill Development 2024",
-    codeSignEntitlements: DIRECT_ENTITLEMENTS,
   },
   default: {
     codeSignIdentity: "Developer ID Application",
     provisioningProfileSpecifier: "Bitwarden Desktop Autofill Extension Developer Dis",
-    codeSignEntitlements: DIRECT_ENTITLEMENTS,
   },
 };
 
@@ -241,6 +249,19 @@ export interface ResolvedInputs {
   safariExtensionPath?: string;
 }
 
+export interface MacosDerived {
+  /// What the app is called to macOS. The application identifier and the app group are built
+  /// from it, so entitlements cannot disagree with what was packaged.
+  bundleId: string;
+  /// Written by configure, so a build step is handed a file rather than a decision about which
+  /// checked-in file to use.
+  entitlements: {
+    app: string;
+    /// Absent unless the extension is part of the build.
+    autofillExtension?: string;
+  };
+}
+
 export interface ProvisioningProfileConfig {
   requested: string;
   name?: string;
@@ -268,6 +289,7 @@ export interface BuildConfig {
   dependencies: Record<string, { path: string }>;
   derived: {
     platform: Platform;
+    macos?: MacosDerived;
     macosAutofillExtension?: AutofillExtensionBuild;
   };
   directories: {
@@ -457,7 +479,7 @@ export function validate(raw: RawOptions): string[] {
     );
   }
 
-  for (const exclusive of EXCLUSIVE_DISTRIBUTION_CHANNELS) {
+  for (const exclusive of APP_STORE_CHANNELS) {
     const others = distributionChannels.filter(
       (channel) => channel !== exclusive && channel !== "directory",
     );
@@ -541,11 +563,12 @@ export function toBuildConfig(raw: RawOptions, resolved: ResolvedInputs = {}): B
   const autofillExtension = targets.some((target) => target.key === "macosAutofillExtension");
   const macos = macosConfig(raw, resolved, buildDir);
   const profile: Profile = isProfile(raw.profile) ? raw.profile : "debug";
+  const channel: Channel = isChannel(raw.channel) ? raw.channel : "stable";
 
   return {
     configVersion: CONFIG_VERSION,
     buildDir,
-    channel: isChannel(raw.channel) ? raw.channel : "stable",
+    channel,
     profile,
     architectures: raw.architectures.filter(isArchitecture).slice().sort(),
     distributionChannels,
@@ -559,6 +582,9 @@ export function toBuildConfig(raw: RawOptions, resolved: ResolvedInputs = {}): B
         : {},
     derived: {
       platform,
+      ...(platform === "macos"
+        ? { macos: macosDerived(buildDir, channel, autofillExtension) }
+        : {}),
       ...(autofillExtension
         ? { macosAutofillExtension: autofillExtensionBuild(profile, distributionChannels) }
         : {}),
@@ -669,6 +695,12 @@ export function resolveBuildDir(
   };
 }
 
+/// Whether this build is going to the App Store, which decides how it is signed and whether it
+/// is sandboxed. Asked in enough places to be worth having one answer.
+export function isAppStoreBuild(config: BuildConfig): boolean {
+  return config.distributionChannels.some((channel) => APP_STORE_CHANNELS.includes(channel));
+}
+
 export function targetByKey(key: string): TargetDefinition | undefined {
   return TARGETS.find((target) => target.key === key);
 }
@@ -677,6 +709,23 @@ export function targetByKey(key: string): TargetDefinition | undefined {
 /// than the key -- which toolchain they need, where their output goes.
 export function enabledTargetDefinitions(config: BuildConfig): TargetDefinition[] {
   return TARGETS.filter((target) => config.targets[target.key] === true);
+}
+
+function macosDerived(
+  buildDir: string,
+  channel: Channel,
+  autofillExtension: boolean,
+): MacosDerived {
+  const entitlement = (file: string) => join(buildDir, ENTITLEMENTS_DIR, file);
+  return {
+    bundleId: BUNDLE_IDS[channel],
+    entitlements: {
+      app: entitlement(APP_ENTITLEMENTS_FILE),
+      ...(autofillExtension
+        ? { autofillExtension: entitlement(AUTOFILL_EXTENSION_ENTITLEMENTS_FILE) }
+        : {}),
+    },
+  };
 }
 
 export function provisioningProfilePath(buildDir: string): string {

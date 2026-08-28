@@ -324,12 +324,10 @@ describe("toBuildConfig", () => {
     expect(developerId.derived.macosAutofillExtension).toMatchObject({
       codeSignIdentity: "Developer ID Application",
       provisioningProfileSpecifier: "Bitwarden Desktop Autofill Extension Developer Dis",
-      codeSignEntitlements: "autofill-extension/autofill_extension_enabled.entitlements",
     });
     expect(appStore.derived.macosAutofillExtension).toMatchObject({
       codeSignIdentity: "3rd Party Mac Developer Application",
       provisioningProfileSpecifier: "Bitwarden Desktop Autofill App Store 2024",
-      codeSignEntitlements: "autofill-extension/autofill_extension.entitlements",
     });
   });
 
@@ -353,12 +351,40 @@ describe("toBuildConfig", () => {
       xcodeConfiguration: "Debug",
       codeSignIdentity: "3rd Party Mac Developer Application",
       provisioningProfileSpecifier: "Bitwarden Desktop Autofill App Store 2024",
-      codeSignEntitlements: "autofill-extension/autofill_extension.entitlements",
     });
   });
 
   it("omits the autofill extension build when the target is off", () => {
-    expect(toBuildConfigFromArgs(MAC_ARGS).derived).toEqual({ platform: "macos" });
+    const derived = toBuildConfigFromArgs(MAC_ARGS).derived;
+
+    expect(derived.macosAutofillExtension).toBeUndefined();
+    expect(derived.macos?.entitlements.autofillExtension).toBeUndefined();
+  });
+
+  it("generates entitlements into the build directory, and only names the extension's when it is built", () => {
+    expect(toBuildConfigFromArgs(MAC_ARGS).derived.macos).toEqual({
+      bundleId: "com.bitwarden.desktop",
+      entitlements: { app: "build-mac/intermediates/entitlements/app.plist" },
+    });
+    expect(
+      toBuildConfigFromArgs([...MAC_ARGS, "--with-macos-autofill-extension"]).derived.macos,
+    ).toEqual({
+      bundleId: "com.bitwarden.desktop",
+      entitlements: {
+        app: "build-mac/intermediates/entitlements/app.plist",
+        autofillExtension: "build-mac/intermediates/entitlements/autofill-extension.plist",
+      },
+    });
+  });
+
+  it("gives a beta build its own bundle identifier", () => {
+    expect(toBuildConfigFromArgs([...MAC_ARGS, "--channel", "beta"]).derived.macos?.bundleId).toBe(
+      "com.bitwarden.desktop.beta",
+    );
+  });
+
+  it("has no macOS identity on another platform", () => {
+    expect(toBuildConfigFromArgs(WINDOWS_ARGS).derived.macos).toBeUndefined();
   });
 
   it("records the provisioning profile alongside where it was copied", () => {

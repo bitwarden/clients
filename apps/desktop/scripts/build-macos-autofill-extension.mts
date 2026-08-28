@@ -200,6 +200,14 @@ function build(config: BuildConfig): void {
   // Stale output from an earlier configuration would otherwise be picked up as this one's.
   rmSync(path.join(projectDir, XCODE_BUILD_DIR), { recursive: true, force: true });
 
+  const entitlements = config.derived.macos?.entitlements.autofillExtension;
+  if (entitlements == null) {
+    throw new BuildError(
+      "The configuration enables the autofill extension but generated no entitlements for it. " +
+        "Reconfigure the build directory.",
+    );
+  }
+
   runCommand("xcodebuild", [
     "-project",
     XCODE_PROJECT,
@@ -215,7 +223,9 @@ function build(config: BuildConfig): void {
     // own CODE_SIGN_IDENTITY and so the .xcconfig values never win on their own.
     `CODE_SIGN_IDENTITY=${settings.codeSignIdentity}`,
     `PROVISIONING_PROFILE_SPECIFIER=${settings.provisioningProfileSpecifier}`,
-    `CODE_SIGN_ENTITLEMENTS=${settings.codeSignEntitlements}`,
+    // Absolute, because xcodebuild resolves this against the Xcode project's directory while
+    // the configuration names it relative to apps/desktop.
+    `CODE_SIGN_ENTITLEMENTS=${path.resolve(projectDir, entitlements)}`,
   ]);
 
   stageBundle(
