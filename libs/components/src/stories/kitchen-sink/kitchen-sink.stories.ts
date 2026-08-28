@@ -2,7 +2,14 @@ import { importProvidersFrom } from "@angular/core";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { userEvent, getByRole, queryByRole, fireEvent, getAllByLabelText } from "storybook/test";
+import {
+  userEvent,
+  getByRole,
+  queryByRole,
+  fireEvent,
+  getAllByLabelText,
+  findByTestId,
+} from "storybook/test";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -135,6 +142,35 @@ export const Default: Story = {
 export const DefaultVfo1: Story = {
   ...Default,
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
+export const DefaultNoBanner: Story = {
+  ...Default,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const bannerClose = await findByTestId(canvas, "bit-banner-close-btn");
+    await userEvent.click(bannerClose);
+  },
+  parameters: {
+    chromatic: {
+      viewports: [1280],
+    },
+  },
+};
+
+export const DefaultVfo1NoBanner: Story = {
+  ...Default,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const bannerClose = await findByTestId(canvas, "bit-banner-close-btn");
+    await userEvent.click(bannerClose);
+  },
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  parameters: {
+    chromatic: {
+      viewports: [1280],
+    },
+  },
 };
 
 export const MenuOpen: Story = {

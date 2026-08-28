@@ -9,14 +9,23 @@
 <!-- Renders a crumb as static text (current page), a link (routed), or a button. -->
 <ng-template #crumb let-breadcrumb="breadcrumb">
   @if (breadcrumb.isActiveRoute()) {
-    <span
-      [class]="activeBreadcrumbStyles"
-      [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
-      aria-current="page"
-      tabindex="0"
-    >
-      <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
-    </span>
+    @if (displayActiveAsHeader()) {
+      <h1
+        [class]="activeBreadcrumbStyles"
+        [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
+        aria-current="page"
+      >
+        <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
+      </h1>
+    } @else {
+      <span
+        [class]="activeBreadcrumbStyles"
+        [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
+        aria-current="page"
+      >
+        <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
+      </span>
+    }
   } @else if (breadcrumb.route()) {
     <a
       [class]="breadcrumbStyles"
