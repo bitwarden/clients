@@ -320,7 +320,6 @@ export class VaultNextComponent {
     return type !== VaultScopeType.Trash && type !== VaultScopeType.Archive;
   });
 
-  /** `undefined` leaves the route's own titleId in place (All items, org name still loading). */
   protected readonly title = computed(() => {
     const scope = this.vaultScope();
     switch (scope.type) {
