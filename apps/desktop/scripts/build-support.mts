@@ -5,7 +5,15 @@
 /// parts none of them should be spelling out themselves.
 
 import { execFileSync } from "child_process";
-import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, rmSync } from "fs";
+import {
+  copyFileSync,
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+} from "fs";
 import path from "path";
 import { parseArgs } from "util";
 
@@ -17,6 +25,13 @@ import {
 } from "./build-config.mts";
 
 export const projectDir = path.resolve(import.meta.dirname, "..");
+export const repoRoot = path.resolve(projectDir, "../..");
+
+/// The caller's working directory, with symlinks resolved so it can be compared against
+/// `projectDir` -- which node has already realpathed on its way to loading this module.
+export function callerDir(): string {
+  return realpathSync(process.cwd());
+}
 
 export interface BuildArgs {
   buildDir?: string;
@@ -36,16 +51,20 @@ export function parseBuildArgs(argv: string[]): BuildArgs {
   }
 }
 
+/// Reads the configuration out of the directory the caller named. `--build-dir` is resolved
+/// against the caller's working directory, the same as it was when they configured it, so the
+/// same words mean the same directory in both steps.
 export function loadBuildConfig(buildDir: string | undefined): BuildConfig {
   if (buildDir == null || buildDir.trim() === "") {
     throw new BuildError("--build-dir is required.");
   }
 
-  const configPath = path.resolve(projectDir, buildDir, BUILD_CONFIG_FILENAME);
+  const resolvedBuildDir = path.resolve(callerDir(), buildDir);
+  const configPath = path.join(resolvedBuildDir, BUILD_CONFIG_FILENAME);
   if (!existsSync(configPath)) {
     throw new BuildError(
       `No build configuration at ${configPath}.\n` +
-        `       Run: node scripts/configure.mts --build-dir ${buildDir} ...`,
+        `       Run: bw-task configure --build-dir ${buildDir} ...`,
     );
   }
 
@@ -66,6 +85,19 @@ export function loadBuildConfig(buildDir: string | undefined): BuildConfig {
     );
   }
 
+  // Everything else in the file -- where the app source goes, where each intermediate is
+  // staged -- is relative to apps/desktop, so a build directory that has been moved or copied
+  // since it was configured would send this build's output to the directory it came from.
+  const describedBuildDir = path.resolve(projectDir, config.buildDir);
+  if (describedBuildDir !== resolvedBuildDir) {
+    throw new BuildError(
+      `${configPath} describes a build directory at ${describedBuildDir}, but it was found at ` +
+        `${resolvedBuildDir}. Reconfigure it where it now lives.`,
+    );
+  }
+
+  // eslint-disable-next-line no-console
+  console.log(`Build directory: ${resolvedBuildDir}`);
   return config;
 }
 

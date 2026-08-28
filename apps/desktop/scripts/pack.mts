@@ -65,8 +65,8 @@ async function pack(config: BuildConfig): Promise<void> {
   const appSource = path.resolve(projectDir, config.directories.appSource);
   if (!existsSync(path.join(appSource, "package.json"))) {
     throw new BuildError(
-      `No app source at ${config.directories.appSource}.\n` +
-        `       Run: node scripts/build-app.mts --build-dir ${config.buildDir}`,
+      `No app source at ${appSource}.\n` +
+        `       Run: bw-task build app --build-dir ${path.resolve(projectDir, config.buildDir)}`,
     );
   }
 
