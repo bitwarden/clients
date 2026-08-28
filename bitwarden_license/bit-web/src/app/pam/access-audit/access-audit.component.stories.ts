@@ -281,6 +281,68 @@ const MIXED_LINK_EVENTS: AccessAuditEventResponse[] = [
 ];
 
 /**
+ * The absence check. Every cell that can carry no value carries none here, so the five that render an em
+ * dash — actor, requester, item, duration, detail — line up in one look beside the one absence that is not
+ * one: the automated row's Actor cell, which reads System because that IS the value.
+ */
+const EMPTY_FIELD_EVENTS: AccessAuditEventResponse[] = [
+  // Nothing but a time and a kind: no actor, no requester, no item, no duration, no detail.
+  event({
+    kind: AccessAuditEventKind.LeasingFreezeEnabled,
+    occurredAt: fromNow(-5 * MINUTE),
+    actorId: null,
+    actorName: null,
+    actorEmail: null,
+    requesterId: null,
+    requesterName: null,
+    requesterEmail: null,
+    cipherId: null,
+    collectionId: null,
+    requestId: null,
+  }),
+  // Automated with nothing else: the Actor cell reads System while the rest of the row dashes.
+  event({
+    kind: AccessAuditEventKind.LeaseExpired,
+    occurredAt: fromNow(-25 * MINUTE),
+    leaseId: "lease-4",
+    actorId: null,
+    actorName: null,
+    actorEmail: null,
+    requesterId: null,
+    requesterName: null,
+    requesterEmail: null,
+    cipherId: null,
+    collectionId: null,
+    requestId: null,
+    automated: true,
+  }),
+  // An actor but no requester: a rule change nobody asked for, and no comment recorded against it.
+  event({
+    kind: AccessAuditEventKind.RuleCreated,
+    occurredAt: fromNow(-2 * HOUR),
+    cipherId: null,
+    collectionId: null,
+    requestId: null,
+    ruleId: "rule-4",
+    ruleName: "Production access",
+    requesterId: null,
+    requesterName: null,
+    requesterEmail: null,
+    ...APPROVER,
+  }),
+  // A full row beside them, so a regression that dashes a value is as visible as one that blanks an absence.
+  event({
+    kind: AccessAuditEventKind.LeaseActivated,
+    occurredAt: fromNow(-3 * HOUR),
+    leaseId: "lease-5",
+    leaseNotBefore: fromNow(-3 * HOUR),
+    leaseNotAfter: fromNow(-HOUR),
+    ...APPROVER,
+    detail: "Approved for the incident window.",
+  }),
+];
+
+/**
  * A trail stamped against the REAL clock, for the stories that exercise the Time period presets. The
  * presets are measured from `Date.now()`, so a {@link fromNow} fixture — anchored to a fixed past
  * instant — would fall outside every window and leave those stories showing an empty table forever.
@@ -459,6 +521,15 @@ export const Refreshing: Story = {
     const update = canvasElement.querySelector<HTMLButtonElement>("#access-audit_button_refresh")!;
     await fireEvent.click(update);
   },
+};
+
+/**
+ * Absence, rendered the one way. Actor, Requester, Item, Duration and Detail each render the same muted em
+ * dash where the trail carries no value, so a reader can tell "we have no value for this" from a cell that
+ * failed to render — while the automated row keeps its System actor, which is a value rather than an absence.
+ */
+export const EmptyFields: Story = {
+  decorators: [audit({ events: EMPTY_FIELD_EVENTS })],
 };
 
 /**
