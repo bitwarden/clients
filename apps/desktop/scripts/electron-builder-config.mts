@@ -12,6 +12,8 @@
 ///
 /// Pure: the base is passed in, so this is testable without reading anything.
 
+import { relative, sep } from "path";
+
 import { type BuildConfig, type DistributionChannel, isAppStoreBuild } from "./build-config.mts";
 
 /// electron-builder target for each distribution channel. Null where producing the channel
@@ -41,7 +43,12 @@ export const ELECTRON_BUILDER_TARGETS: Record<DistributionChannel, string | null
 export interface ExtraFile {
   from: string;
   to: string;
+  /// Only used by `files` entries, where it selects what to take from `from`.
+  filter?: string[];
 }
+
+/// Where the native addon lives inside the packaged app, which is where index.js looks for it.
+const NAPI_PACKAGE = "node_modules/@bitwarden/desktop-napi";
 
 /// Files copied into the packaged app, keyed by the target that produces them. The `to` paths
 /// have to match what the app looks for at runtime, so they are fixed; only `from` follows the
@@ -103,7 +110,7 @@ export function applyBuildConfig(
   // list. Architecture is deliberately not filtered here: @electron/universal needs every
   // non-asar file present in both per-architecture builds, and `singleArchFiles` sorts them out
   // during the merge.
-  result.files = [...asArray(result.files), ...foreignNodeFiles(config)];
+  result.files = [...asArray(result.files), ...foreignNodeFiles(config), ...nativeModule(config)];
 
   result.directories = {
     ...(result.directories as Record<string, unknown>),
@@ -212,6 +219,42 @@ function section(
   values: Record<string, unknown>,
 ): void {
   result[key] = { ...(result[key] as Record<string, unknown>), ...values };
+}
+
+/// The native Node addon, taken from what this build staged rather than from the copy in the
+/// crate directory.
+///
+/// `@bitwarden/desktop-napi` is a `file:` dependency pointing at desktop_native/napi, so
+/// electron-builder collects the package -- index.js and the type declarations -- out of
+/// node_modules, and the `.node` files it finds there are whatever was compiled into the crate
+/// directory last. That is not necessarily this build: napi-rs leaves a copy there as a side
+/// effect of every build, so packaging one configuration after building another would ship the
+/// other one's module, with no sign that it had.
+///
+/// So the collected `.node` files are dropped and the staged ones put in their place. The
+/// package around them still comes from node_modules; only the compiled artifact is this
+/// build's. Destination paths are unchanged, which is what keeps `singleArchFiles` and
+/// `x64ArchFiles` -- the universal merge's account of which files exist in only one
+/// architecture -- still pointing at the right thing.
+function nativeModule(config: BuildConfig): (string | ExtraFile)[] {
+  const staged = config.intermediates.napi;
+  if (config.targets.napi !== true || staged == null) {
+    return [];
+  }
+
+  return [
+    `!${NAPI_PACKAGE}/*.node`,
+    {
+      // `files` resolves a relative `from` against the app directory.
+      from: posix(relative(config.directories.appSource, staged)),
+      to: NAPI_PACKAGE,
+      filter: ["*.node"],
+    },
+  ];
+}
+
+function posix(value: string): string {
+  return value.split(sep).join("/");
 }
 
 /// `.node` addons belonging to a platform this build is not for. They are pulled in by

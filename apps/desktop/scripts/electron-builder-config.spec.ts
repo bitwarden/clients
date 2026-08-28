@@ -296,3 +296,60 @@ describe("the beta channel", () => {
     expect((stable.mac as Record<string, unknown>).icon).toBeUndefined();
   });
 });
+
+describe("the native addon", () => {
+  const MAC_DMG = [...MAC, "--distribution-channel", "dmg"];
+
+  it("drops what was collected from the crate directory and adds what this build staged", () => {
+    const files = applyBuildConfig(base, configFor(MAC_DMG)).files as unknown[];
+
+    expect(files).toContain("!node_modules/@bitwarden/desktop-napi/*.node");
+    expect(files).toContainEqual({
+      from: "../desktop_native/napi",
+      to: "node_modules/@bitwarden/desktop-napi",
+      filter: ["*.node"],
+    });
+  });
+
+  it("takes it from the staged path the build configuration names", () => {
+    const config = configFor(MAC_DMG);
+    const files = applyBuildConfig(base, config).files as ExtraFile[];
+    const added = files.find(
+      (file) => typeof file === "object" && file.to?.includes("desktop-napi"),
+    );
+
+    // The `from` is relative to the app directory, and has to arrive at the staged intermediate.
+    expect(resolve(config.directories.appSource, added!.from)).toBe(
+      resolve(config.intermediates.napi),
+    );
+  });
+
+  it("leaves the destination alone, so the universal merge still recognises it", () => {
+    const result = applyBuildConfig(base, configFor(MAC_DMG));
+
+    expect((result.mac as Record<string, unknown>).singleArchFiles).toBe(
+      (base.mac as Record<string, unknown>).singleArchFiles,
+    );
+    expect((result.mac as Record<string, unknown>).x64ArchFiles).toBe(
+      (base.mac as Record<string, unknown>).x64ArchFiles,
+    );
+  });
+
+  /// The addon is built for every platform -- it has no flag and no way to turn it off -- so
+  /// every platform's package takes it from the same place.
+  it("does the same on the other platforms", () => {
+    for (const platform of [
+      [...LINUX, "--distribution-channel", "deb"],
+      [...WINDOWS, "--distribution-channel", "windows-installer"],
+    ]) {
+      const files = applyBuildConfig(base, configFor(platform)).files as unknown[];
+
+      expect(files).toContain("!node_modules/@bitwarden/desktop-napi/*.node");
+      expect(files).toContainEqual({
+        from: "../desktop_native/napi",
+        to: "node_modules/@bitwarden/desktop-napi",
+        filter: ["*.node"],
+      });
+    }
+  });
+});
