@@ -163,40 +163,29 @@ export const AUTOMATED_ACTOR = "automated";
 const END_OF_MINUTE_MS = 59_999;
 
 /**
- * Read a `datetime-local` value as an instant in the viewer's own zone, so a bound typed as 09:00 means
- * 09:00 where the auditor is sitting — the same zone the Time column's `date` pipe renders in. Built from
- * the parts rather than handed to `Date.parse`, which reads a *date-only* string as UTC and only this
- * date-time form as local.
+ * The lower bound of an audit date range, from a `datetime-local` value. Blank or unparseable means unbounded.
+ *
+ * Read as an instant in the viewer's own zone, so a bound typed as 09:00 means 09:00 where the auditor is
+ * sitting — the same zone the Time column's `date` pipe renders in. Built from the parts rather than handed
+ * to `Date.parse`, which reads a *date-only* string as UTC and only this date-time form as local.
  */
-function parseLocalDateTime(value: string): Date | null {
+export function auditRangeStart(value: string): Date | null {
   const parts = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value.trim());
   if (parts == null) {
     return null;
   }
   const [, year, month, day, hour, minute] = parts;
-  const parsed = new Date(
-    Number(year),
-    Number(month) - 1,
-    Number(day),
-    Number(hour),
-    Number(minute),
-  );
-  return Number.isFinite(parsed.getTime()) ? parsed : null;
-}
-
-/** The lower bound of an audit date range, from a `datetime-local` value. Blank or unparseable means unbounded. */
-export function auditRangeStart(value: string): Date | null {
-  return parseLocalDateTime(value);
+  return new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute));
 }
 
 /**
- * The upper bound of an audit date range, from a `datetime-local` value. Blank or unparseable means unbounded.
- * Carried to the end of the chosen minute, matching `EventService.formatDateFilters`, so a bound typed as 09:00
- * still admits an event recorded at 09:00:30 — which the Time column also renders as 09:00.
+ * The upper bound of an audit date range, read like {@link auditRangeStart} but carried to the end of the
+ * chosen minute, matching `EventService.formatDateFilters`, so a bound typed as 09:00 still admits an event
+ * recorded at 09:00:30 — which the Time column also renders as 09:00.
  */
 export function auditRangeEnd(value: string): Date | null {
-  const parsed = parseLocalDateTime(value);
-  return parsed == null ? null : new Date(parsed.getTime() + END_OF_MINUTE_MS);
+  const start = auditRangeStart(value);
+  return start == null ? null : new Date(start.getTime() + END_OF_MINUTE_MS);
 }
 
 /** The active audit-log filter. Every dimension is independent, and an unset one matches everything. */
@@ -217,16 +206,11 @@ export function auditRowMatchesFilter(row: AuditRow, filter: AuditFilter): boole
   if (filter.kindLabelKey != null && row.kindLabelKey !== filter.kindLabelKey) {
     return false;
   }
-  if (filter.actorId != null) {
-    // The Actor cell reads "System" for every automated row whatever the wire carries as its actor, so the
-    // two buckets have to split the same way that cell does.
-    const wantsAutomated = filter.actorId === AUTOMATED_ACTOR;
-    if (wantsAutomated !== row.automated) {
-      return false;
-    }
-    if (!wantsAutomated && row.actorId !== filter.actorId) {
-      return false;
-    }
+  // The Actor cell reads "System" for every automated row whatever the wire carries as its actor, so the
+  // buckets split on the effective identity that cell renders rather than on the row's own actor id.
+  const actorId = row.automated ? AUTOMATED_ACTOR : row.actorId;
+  if (filter.actorId != null && actorId !== filter.actorId) {
+    return false;
   }
   if (filter.requesterId != null && row.requesterId !== filter.requesterId) {
     return false;
