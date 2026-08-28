@@ -325,6 +325,9 @@ async function selectChipOption(
   )!;
   await userEvent.click(trigger);
   await userEvent.click(await within(document.body).findByText(option));
+  // A multi-select menu stays open so more options can be picked; close it before the next chip is
+  // reached for, or the click lands on this menu's backdrop instead of that chip.
+  await userEvent.keyboard("{Escape}");
 }
 
 function audit(
