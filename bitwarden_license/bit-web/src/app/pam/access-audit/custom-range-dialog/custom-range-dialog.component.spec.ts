@@ -31,6 +31,7 @@ describe("CustomRangeDialogComponent", () => {
             invalidDateRange: "Invalid date range.",
             save: "Save",
             cancel: "Cancel",
+            clear: "Clear",
             close: "Close",
             submenu: "Submenu",
             toggleVisibility: "Toggle visibility",
@@ -77,7 +78,11 @@ describe("CustomRangeDialogComponent", () => {
 
     await component["confirm"]();
 
-    expect(close).toHaveBeenCalledWith({ from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
+    expect(close).toHaveBeenCalledWith({
+      action: "apply",
+      from: "2026-08-18T09:00",
+      to: "2026-08-18T17:00",
+    });
   });
 
   // A blank bound is unbounded on that side, not an error — one-sided ranges are ordinary.
@@ -87,7 +92,7 @@ describe("CustomRangeDialogComponent", () => {
 
     await component["confirm"]();
 
-    expect(close).toHaveBeenCalledWith({ from: "2026-08-18T09:00", to: "" });
+    expect(close).toHaveBeenCalledWith({ action: "apply", from: "2026-08-18T09:00", to: "" });
   });
 
   // An inverted range matches nothing, and a table emptied by it reads as a trail with no events.
@@ -118,6 +123,52 @@ describe("CustomRangeDialogComponent", () => {
     expect(errorFor("to")).toBeNull();
     expect(component["formGroup"].controls.to.errors).toBeNull();
     expect(confirmButton().getAttribute("aria-disabled")).toBeNull();
+  });
+
+  // A Save that would apply nothing is a trap: it reads as confirming a range while leaving the trail
+  // exactly as wide as it was.
+  it("holds Save disabled until at least one end is set", async () => {
+    await create();
+
+    expect(confirmButton().getAttribute("aria-disabled")).toBe("true");
+
+    component["formGroup"].patchValue({ to: "2026-08-18T17:00" });
+    fixture.detectChanges();
+
+    expect(confirmButton().getAttribute("aria-disabled")).toBeNull();
+  });
+
+  it("applies nothing when Save is pressed with both ends blank", async () => {
+    await create();
+
+    await component["confirm"]();
+
+    expect(close).not.toHaveBeenCalled();
+  });
+
+  // The way out of a custom range from inside the dialog; without it the auditor has to cancel and clear
+  // the chip from the row behind.
+  it("closes asking for the range to be dropped when cleared", async () => {
+    await create({ from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
+
+    fixture.nativeElement.querySelector("#pam-custom-range-dialog_button_clear").click();
+
+    expect(close).toHaveBeenCalledWith({ action: "clear" });
+  });
+
+  it("opens with From focused, so the range can be typed without reaching for the mouse", async () => {
+    await create();
+
+    expect(document.activeElement).toBe(input("from"));
+  });
+
+  it("lays the two ends side by side, stacking only on a narrow viewport", async () => {
+    await create();
+
+    const row = input("from").closest("[bitDialogContent]")!.firstElementChild!;
+    expect(row.classList).toContain("tw-flex-col");
+    expect(row.classList).toContain("sm:tw-flex-row");
+    expect(row.querySelectorAll("bit-form-field")).toHaveLength(2);
   });
 
   // Cancel closes without a result, so the caller keeps whatever range it already had in force.
