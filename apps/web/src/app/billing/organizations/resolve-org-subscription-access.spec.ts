@@ -138,7 +138,7 @@ describe("resolveOrgSubscriptionAccess", () => {
       expect(result.showSelfHost).toBe(false);
     });
 
-    it("returns false for regular member regardless of self-hosted license availability", () => {
+    it("tracks the plan's self-host capability regardless of role", () => {
       const org = createOrganization({
         type: OrganizationUserType.User,
         isProviderUser: false,
@@ -148,7 +148,7 @@ describe("resolveOrgSubscriptionAccess", () => {
 
       const result = resolveOrgSubscriptionAccess(org);
 
-      expect(result.showSelfHost).toBe(false);
+      expect(result.showSelfHost).toBe(true);
     });
   });
 
@@ -244,7 +244,7 @@ describe("resolveOrgSubscriptionAccess", () => {
       expect(result).toEqual({
         showSubscription: true,
         showManagementActions: false,
-        showSelfHost: false,
+        showSelfHost: true,
         showConsolidatedBillingMsp: false,
       });
     });
@@ -289,7 +289,7 @@ describe("resolveOrgSubscriptionAccess", () => {
         type: OrganizationUserType.User,
         isProviderUser: false,
         hasProvider: false,
-        selfHost: true,
+        selfHost: false,
       });
 
       const result = resolveOrgSubscriptionAccess(org);

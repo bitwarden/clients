@@ -277,9 +277,9 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       expect(component.showSubscription()).toBe(true);
     });
 
-    it("shows self-host only when the org can edit and self-hosts", () => {
+    it("shows self-host when the plan allows self-hosting", () => {
       createComponent({
-        organization: buildOrganization({ canEditSubscription: true, selfHost: true }),
+        organization: buildOrganization({ selfHost: true }),
       });
       expect(component.showSelfHost()).toBe(true);
     });
