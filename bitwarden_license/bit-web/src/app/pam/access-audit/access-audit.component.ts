@@ -14,6 +14,8 @@ import { FormControl, ReactiveFormsModule, ValidatorFn } from "@angular/forms";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { map, switchMap } from "rxjs";
 
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { NoResults } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -29,6 +31,7 @@ import {
   CalloutModule,
   ChipFilterComponent,
   ChipFilterOption,
+  DialogService,
   FilterMenuComponent,
   FilterOptionComponent,
   FormFieldModule,
@@ -39,6 +42,11 @@ import {
   TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
+import {
+  ResolvedMember,
+  isLinkableMember,
+} from "@bitwarden/web-vault/app/dirt/event-logs/components/send-access-member";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { AccessNameResolverService } from "../access-requests/access-name-resolver.service";
@@ -104,12 +112,16 @@ function identityOptions(rows: AuditRow[], identity: "actor" | "requester"): Aud
  * because those are Vault Data — encrypted EncStrings this client only decrypts for items already in
  * the viewer's own vault. An admin who never held the item sees no item name, by design.
  *
- * Read-only, and deliberately without a drill-down: the request-detail page is authorized for the
- * request's requester or a managing approver, which is a different permission from the one that opens
- * this trail, so an auditor holding only AccessEventLogs would follow such a link into a 404. The
- * toolbar filters (event kind, actor, requester, date range) run client-side over the
- * already-fetched window: the endpoint takes no query parameters and returns the whole 90 days at once,
- * so changing a filter never re-reads it.
+ * Read-only, and deliberately without a drill-down to another PAM page: the request-detail page is
+ * authorized for the request's requester or a managing approver, which is a different permission from
+ * the one that opens this trail, so an auditor holding only AccessEventLogs would follow such a link
+ * into a 404. What the cells do open is the shared entity-events dialog, over the same AccessEventLogs
+ * permission that authorized this page — an actor, a requester or a cipher, never an access rule, which
+ * has no such dialog.
+ *
+ * The toolbar filters (event kind, actor, requester, date range) run client-side over the already-fetched
+ * window: the endpoint takes no query parameters and returns the whole 90 days at once, so changing a
+ * filter never re-reads it.
  */
 @Component({
   selector: "app-pam-access-audit",
@@ -135,6 +147,7 @@ function identityOptions(rows: AuditRow[], identity: "actor" | "requester"): Aud
     TooltipDirective,
     I18nPipe,
   ],
+  providers: [UserNamePipe],
 })
 export class AccessAuditComponent implements OnInit {
   protected readonly noResultsSvg = NoResults;
@@ -148,6 +161,9 @@ export class AccessAuditComponent implements OnInit {
   private readonly logService = inject(LogService);
   private readonly accountService = inject(AccountService);
   private readonly organizationService = inject(OrganizationService);
+  private readonly organizationUserApiService = inject(OrganizationUserApiService);
+  private readonly userNamePipe = inject(UserNamePipe);
+  private readonly dialogService = inject(DialogService);
 
   /**
    * The organization whose trail to show, from the route. `requireSync` holds because `params` emits
@@ -177,6 +193,12 @@ export class AccessAuditComponent implements OnInit {
   protected readonly status = signal<AuditStatus>("loading");
   protected readonly rows = signal<AuditRow[]>([]);
 
+  /**
+   * The organization's members, keyed by PLATFORM user id — the id an audit row carries. The entity-events
+   * dialog is keyed on the ORGANIZATION USER id instead, so an identity can only be linked once this map
+   * has bridged the two. Empty whenever {@link loadMembers} was refused.
+   */
+  private readonly members = signal(new Map<string, ResolvedMember>());
   protected readonly actorControl = new FormControl<string | null>(null);
   protected readonly requesterControl = new FormControl<string | null>(null);
   protected readonly fromControl = new FormControl("", { nonNullable: true });
@@ -283,7 +305,11 @@ export class AccessAuditComponent implements OnInit {
       const refs = events
         .filter((event) => event.cipherId != null && event.collectionId != null)
         .map((event) => ({ cipherId: event.cipherId!, collectionId: event.collectionId! }));
-      const names = await this.nameResolver.resolveNames(refs);
+      const [names, members] = await Promise.all([
+        this.nameResolver.resolveNames(refs),
+        this.loadMembers(),
+      ]);
+      this.members.set(members);
       const rows = events.map((event) =>
         toAuditRow(event, names.cipherNameById, names.collectionNameById),
       );
@@ -293,6 +319,91 @@ export class AccessAuditComponent implements OnInit {
       this.logService.error(e);
       this.status.set("error");
     }
+  }
+
+  /**
+   * The organization's members, keyed by platform user id, for {@link members}.
+   *
+   * A refusal here is an ordinary outcome, not an error to surface: this page is authorized by
+   * AccessEventLogs alone, which does not imply permission to enumerate the organization's members. The
+   * lookup therefore resolves to an empty map rather than rejecting, leaving every identity unlinked and
+   * the trail itself intact — an auditor who cannot enumerate members still reads the whole trail.
+   */
+  private async loadMembers(): Promise<Map<string, ResolvedMember>> {
+    const members = new Map<string, ResolvedMember>();
+    try {
+      const response = await this.organizationUserApiService.getAllMiniUserDetails(
+        this.organizationId(),
+      );
+      for (const user of response.data) {
+        members.set(user.userId, {
+          name: this.userNamePipe.transform(user),
+          email: user.email,
+          organizationUserId: user.id,
+        });
+      }
+    } catch (e) {
+      this.logService.error(e);
+    }
+    return members;
+  }
+
+  /**
+   * The member behind one of a row's identities, when the trail carries a label to render for them and
+   * {@link members} resolved them to someone whose event history can be opened. Null otherwise, and the
+   * cell then renders that label as plain text — which is also what every row shows to a viewer who
+   * cannot enumerate members. An identity that cannot be resolved is ordinary, so it must never be given
+   * an anchor: a dead link on an audit surface invites a click that reports nothing.
+   */
+  protected linkedMember(userId: string | null, label: string | null): ResolvedMember | null {
+    if (userId == null || label == null) {
+      return null;
+    }
+    const members = this.members();
+    return isLinkableMember(userId, members) ? (members.get(userId) ?? null) : null;
+  }
+
+  /**
+   * Opens a member's own event history over this organization.
+   *
+   * Unlike the organization event log's equivalent, this deliberately does not route on to the members
+   * page afterwards: an auditor mid-table expects to keep their place, and that page is behind
+   * `manageUsers`, which this page's viewer need not hold.
+   */
+  protected openMemberEvents(event: Event, member: ResolvedMember): void {
+    event.preventDefault();
+    if (member.organizationUserId == null) {
+      return;
+    }
+    openEntityEventsDialog(this.dialogService, {
+      data: {
+        entity: "user",
+        entityId: member.organizationUserId,
+        organizationId: this.organizationId(),
+        name: member.name,
+        showUser: true,
+      },
+    });
+  }
+
+  /**
+   * Opens the subject item's own event history. Reachable only from a row whose item decrypted, which is
+   * to say one the viewer already holds.
+   */
+  protected openCipherEvents(event: Event, row: AuditRow): void {
+    event.preventDefault();
+    if (row.cipherId == null || row.cipherName == null) {
+      return;
+    }
+    openEntityEventsDialog(this.dialogService, {
+      data: {
+        entity: "cipher",
+        entityId: row.cipherId,
+        organizationId: this.organizationId(),
+        name: row.cipherName,
+        showUser: true,
+      },
+    });
   }
 
   /**
