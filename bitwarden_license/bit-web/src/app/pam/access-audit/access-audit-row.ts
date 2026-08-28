@@ -238,30 +238,43 @@ export function auditPresetRange(period: AuditTimePeriod, now: Date): AuditRange
   }
 }
 
-/** The active audit-log filter. Every dimension is independent, and an unset one matches everything. */
+/**
+ * The active audit-log filter. Every dimension is independent, and an unset one matches everything.
+ *
+ * The identity dimensions are lists because their chips are multi-select: an auditor reconstructing an
+ * incident is usually following two or three people, not one, and narrowing to each in turn loses the
+ * order events happened in.
+ */
 export type AuditFilter = {
-  kindLabelKey: string | null;
-  /** An actor identity, or {@link AUTOMATED_ACTOR} for the system bucket. */
-  actorId?: string | null;
-  requesterId?: string | null;
+  kindLabelKey: readonly string[] | null;
+  /** Actor identities, or {@link AUTOMATED_ACTOR} for the system bucket. */
+  actorId?: readonly string[] | null;
+  requesterId?: readonly string[] | null;
   /** Inclusive lower bound on {@link AuditRow.occurredAt}. */
   from?: Date | null;
   /** Inclusive upper bound on {@link AuditRow.occurredAt}. */
   to?: Date | null;
 };
 
-/** Whether a row passes the filter. A null kind, a null identity and a null bound match everything. */
+/** Whether a row's value is one of those selected. An empty or absent selection matches everything. */
+function selects(selected: readonly string[] | null | undefined, value: string | null): boolean {
+  if (selected == null || selected.length === 0) {
+    return true;
+  }
+  return value != null && selected.includes(value);
+}
+
+/** Whether a row passes the filter. An empty selection and a null bound match everything. */
 export function auditRowMatchesFilter(row: AuditRow, filter: AuditFilter): boolean {
-  if (filter.kindLabelKey != null && row.kindLabelKey !== filter.kindLabelKey) {
+  if (!selects(filter.kindLabelKey, row.kindLabelKey)) {
     return false;
   }
   // The Actor cell reads "System" for every automated row whatever the wire carries as its actor, so the
   // buckets split on the effective identity that cell renders rather than on the row's own actor id.
-  const actorId = row.automated ? AUTOMATED_ACTOR : row.actorId;
-  if (filter.actorId != null && actorId !== filter.actorId) {
+  if (!selects(filter.actorId, row.automated ? AUTOMATED_ACTOR : row.actorId)) {
     return false;
   }
-  if (filter.requesterId != null && row.requesterId !== filter.requesterId) {
+  if (!selects(filter.requesterId, row.requesterId)) {
     return false;
   }
   const occurredAt = row.occurredAt.getTime();

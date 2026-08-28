@@ -47,8 +47,10 @@ describe("auditRowMatchesFilter", () => {
 
   it("filters by event-kind label key", () => {
     const deleted = row({ kindLabelKey: "pamAuditKindRuleDeleted" });
-    expect(auditRowMatchesFilter(deleted, { kindLabelKey: "pamAuditKindRuleDeleted" })).toBe(true);
-    expect(auditRowMatchesFilter(deleted, { kindLabelKey: "pamAuditKindRequestSubmitted" })).toBe(
+    expect(auditRowMatchesFilter(deleted, { kindLabelKey: ["pamAuditKindRuleDeleted"] })).toBe(
+      true,
+    );
+    expect(auditRowMatchesFilter(deleted, { kindLabelKey: ["pamAuditKindRequestSubmitted"] })).toBe(
       false,
     );
   });
@@ -56,31 +58,37 @@ describe("auditRowMatchesFilter", () => {
   it("filters by actor identity, not by the name the cell renders", () => {
     const namesake = row({ actor: "J. Smith", actorId: "user-2" });
 
-    expect(auditRowMatchesFilter(namesake, { ...unfiltered, actorId: "user-2" })).toBe(true);
-    expect(auditRowMatchesFilter(namesake, { ...unfiltered, actorId: "user-alice" })).toBe(false);
+    expect(auditRowMatchesFilter(namesake, { ...unfiltered, actorId: ["user-2"] })).toBe(true);
+    expect(auditRowMatchesFilter(namesake, { ...unfiltered, actorId: ["user-alice"] })).toBe(false);
   });
 
   it("filters by requester identity", () => {
     const forBob = row({ requester: "bob", requesterId: "user-bob" });
 
-    expect(auditRowMatchesFilter(forBob, { ...unfiltered, requesterId: "user-bob" })).toBe(true);
-    expect(auditRowMatchesFilter(forBob, { ...unfiltered, requesterId: "user-alice" })).toBe(false);
+    expect(auditRowMatchesFilter(forBob, { ...unfiltered, requesterId: ["user-bob"] })).toBe(true);
+    expect(auditRowMatchesFilter(forBob, { ...unfiltered, requesterId: ["user-alice"] })).toBe(
+      false,
+    );
   });
 
   it("puts automated rows in their own actor bucket, and only those", () => {
     const automated = row({ actor: null, actorId: null, automated: true });
 
-    expect(auditRowMatchesFilter(automated, { ...unfiltered, actorId: AUTOMATED_ACTOR })).toBe(
+    expect(auditRowMatchesFilter(automated, { ...unfiltered, actorId: [AUTOMATED_ACTOR] })).toBe(
       true,
     );
-    expect(auditRowMatchesFilter(row(), { ...unfiltered, actorId: AUTOMATED_ACTOR })).toBe(false);
-    expect(auditRowMatchesFilter(automated, { ...unfiltered, actorId: "user-alice" })).toBe(false);
+    expect(auditRowMatchesFilter(row(), { ...unfiltered, actorId: [AUTOMATED_ACTOR] })).toBe(false);
+    expect(auditRowMatchesFilter(automated, { ...unfiltered, actorId: ["user-alice"] })).toBe(
+      false,
+    );
   });
 
   it("keeps an automated row out of a human bucket even when the wire carried an actor id", () => {
     const automated = row({ actorId: "user-alice", automated: true });
 
-    expect(auditRowMatchesFilter(automated, { ...unfiltered, actorId: "user-alice" })).toBe(false);
+    expect(auditRowMatchesFilter(automated, { ...unfiltered, actorId: ["user-alice"] })).toBe(
+      false,
+    );
   });
 
   it("bounds the range inclusively at both ends", () => {
@@ -118,16 +126,16 @@ describe("auditRowMatchesFilter", () => {
       occurredAt: new Date("2026-06-30T12:00:00Z"),
     });
     const all = {
-      kindLabelKey: "pamAuditKindLeaseRevoked",
-      actorId: "user-ada",
-      requesterId: "user-bob",
+      kindLabelKey: ["pamAuditKindLeaseRevoked"],
+      actorId: ["user-ada"],
+      requesterId: ["user-bob"],
       from: new Date("2026-06-30T11:00:00Z"),
       to: new Date("2026-06-30T13:00:00Z"),
     };
 
     expect(auditRowMatchesFilter(target, all)).toBe(true);
-    expect(auditRowMatchesFilter(target, { ...all, actorId: "user-alice" })).toBe(false);
-    expect(auditRowMatchesFilter(target, { ...all, requesterId: "user-alice" })).toBe(false);
+    expect(auditRowMatchesFilter(target, { ...all, actorId: ["user-alice"] })).toBe(false);
+    expect(auditRowMatchesFilter(target, { ...all, requesterId: ["user-alice"] })).toBe(false);
     expect(auditRowMatchesFilter(target, { ...all, from: new Date("2026-06-30T12:30:00Z") })).toBe(
       false,
     );
