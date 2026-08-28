@@ -264,17 +264,39 @@ describe("the beta channel", () => {
       "identityName",
       "backgroundColor",
       "artifactName",
-      "customExtensionsPath",
       "minVersion",
     ]) {
       expect([key, appx[key]]).toEqual([key, forked[key]]);
     }
   });
 
-  it("points Windows at the beta plugin authenticator resources", () => {
-    expect((betaOf(WINDOWS_STORE).win as Record<string, unknown>).extraResources).toEqual(
-      (betaFork.win as Record<string, unknown>).extraResources,
+  /// The fork shipped a second copy of the extensions file for beta; there is now one template
+  /// and configure fills it in per channel, so what the configuration names is generated.
+  it("points the custom extensions at the file configure generated", () => {
+    const config = configFor([...WINDOWS_STORE, "--channel", "beta"]);
+    const appx = betaOf(WINDOWS_STORE).appx as Record<string, unknown>;
+
+    expect(appx.customExtensionsPath).toBe(config.derived.windows?.appxExtensions);
+    expect(appx.customExtensionsPath).toBe(
+      "build-win/intermediates/appx/custom-appx-extensions.xml",
     );
+  });
+
+  it("declares no extensions on the stable channel, as before", () => {
+    const stable = applyBuildConfig(base, configFor(WINDOWS_STORE)).appx as Record<string, unknown>;
+
+    expect(stable.customExtensionsPath).toBeUndefined();
+  });
+
+  /// Deliberately *not* through `extraResources`, which the fork used. That is an array, and
+  /// electron-builder concatenates the configuration it reads itself with the one we pass, so
+  /// naming the beta files there appends to the base's stable ones instead of replacing them --
+  /// both copy to the same destination and the survivor is neither channel's file. pack-hooks
+  /// puts them in place after packing instead.
+  it("does not try to swap the plugin authenticator resources through extraResources", () => {
+    const win = betaOf(WINDOWS_STORE).win as Record<string, unknown>;
+
+    expect(win.extraResources).toEqual((base.win as Record<string, unknown>).extraResources);
   });
 
   /// The drift the fork accumulated. A beta build now inherits these from the base instead of

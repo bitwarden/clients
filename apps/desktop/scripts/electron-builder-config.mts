@@ -249,21 +249,14 @@ function applyChannel(result: Record<string, unknown>, config: BuildConfig): voi
   // Beta has its own icons at every size the platforms ask for.
   section(result, "mac", { icon: "icon.beta.icns" });
   section(result, "dmg", { icon: "dmg.beta.icns" });
-  section(result, "win", {
-    icon: "icon.beta.ico",
-    // The native messaging manifest and the logo Windows shows for the plugin authenticator
-    // both name the app, so both have a beta copy.
-    extraResources: [
-      {
-        from: "resources/windows_plugin_authenticator_config.beta.json",
-        to: "plugin_authenticator_config.json",
-      },
-      {
-        from: "resources/windows_plugin_authenticator_logo.beta.svg",
-        to: "plugin_authenticator_logo.svg",
-      },
-    ],
-  });
+  section(result, "win", { icon: "icon.beta.ico" });
+  // The plugin authenticator's config and logo also have a beta copy, and they are *not* set
+  // here. `extraResources` is an array, and electron-builder merges the configuration it reads
+  // itself with the one we pass by concatenating arrays -- so naming the beta files here does
+  // not replace the base's, it appends to them. Both then copy to the same destination and the
+  // result is whichever landed last, over the top of the other without truncating: a file that
+  // is neither channel's and is not valid JSON. pack-hooks.mts copies them instead, after
+  // electron-builder has finished putting the stable ones there.
 
   // Artifact names, carried over exactly. Note the macOS ones do not say "Beta" -- the
   // installer and portable ones do -- which is how the fork had it.
@@ -278,7 +271,14 @@ function applyChannel(result: Record<string, unknown>, config: BuildConfig): voi
     identityName: "8bitSolutionsLLC.BitwardenBeta",
     backgroundColor: "#FDC700",
     artifactName: "Bitwarden-Beta-${version}-${arch}.${ext}",
-    customExtensionsPath: "../custom-appx-extensions.beta.xml",
+    // The file configure generated for this channel, relative to apps/desktop like every other
+    // path here. The fork named a checked-in `../custom-appx-extensions.beta.xml`, which
+    // electron-builder resolves against `directories.app` -- so it was right only while the app
+    // directory was apps/desktop/build. pack.mts makes this absolute, so where it is resolved
+    // from stops mattering.
+    ...(config.derived.windows?.appxExtensions != null
+      ? { customExtensionsPath: config.derived.windows.appxExtensions }
+      : {}),
     minVersion: "10.0.14393.0",
   });
   // The fork also sets `appxManifestCreated`, a hook that edits the generated manifest. It is

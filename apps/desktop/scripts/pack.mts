@@ -19,6 +19,7 @@ import path from "path";
 
 import { Arch, Platform, build as electronBuilder } from "electron-builder";
 
+import { crossPackageAppx } from "./appx.mts";
 import { type Architecture, type BuildConfig, BuildError } from "./build-config.mts";
 import { loadBuildConfig, parseBuildArgs, projectDir, runScript } from "./build-support.mts";
 import {
@@ -121,8 +122,39 @@ async function pack(config: BuildConfig): Promise<void> {
   });
 
   if (config.distributionChannels.includes("windows-appx")) {
-    await packSignedAppx(config, readBaseConfig());
+    // Microsoft's packer only runs on Windows. Anywhere else the same package is built with
+    // makemsix, from the same unpacked app and against the same configuration.
+    if (process.platform === "win32") {
+      await packSignedAppx(config, readBaseConfig());
+    } else {
+      crossPackAppx(config, resolved);
+    }
   }
+}
+
+/// Packages the Appx without electron-builder, one architecture at a time.
+function crossPackAppx(config: BuildConfig, resolved: Record<string, unknown>): void {
+  const output = path.resolve(projectDir, config.directories.dist);
+  const appVersion = readAppVersion();
+
+  for (const architecture of config.architectures) {
+    const unpacked = path.join(output, unpackedDir(architecture));
+    if (!existsSync(unpacked)) {
+      throw new BuildError(`No unpacked ${architecture} app at ${unpacked} to package as an Appx.`);
+    }
+
+    crossPackageAppx({ config, resolved, architecture, unpacked, appVersion });
+  }
+}
+
+/// The app's own version, which is what electron-builder names artifacts after.
+function readAppVersion(): string {
+  const manifest = path.join(projectDir, "package.json");
+  const { version } = JSON.parse(readFileSync(manifest, "utf8")) as { version?: string };
+  if (version == null) {
+    throw new BuildError(`${manifest} declares no version.`);
+  }
+  return version;
 }
 
 /// Repackages what the first pass unpacked as an Appx naming the signing certificate.
@@ -221,6 +253,27 @@ function withAbsoluteSigningPaths(resolved: Record<string, unknown>): Record<str
       }
     }
     result[platform] = values;
+  }
+
+  // electron-builder resolves the custom Appx extensions against `directories.app`, which is
+  // inside the build directory and so is not where anything of ours lives.
+  const appx = result.appx as Record<string, unknown> | undefined;
+  if (typeof appx?.customExtensionsPath === "string") {
+    result.appx = {
+      ...appx,
+      customExtensionsPath: path.resolve(projectDir, appx.customExtensionsPath),
+    };
+  }
+
+  // Windows signing is delegated to a script of ours, which electron-builder loads with
+  // `require` -- so, like the hooks, it is resolved against the working directory.
+  const win = result.win as Record<string, unknown> | undefined;
+  const signtool = win?.signtoolOptions as Record<string, unknown> | undefined;
+  if (typeof signtool?.sign === "string") {
+    result.win = {
+      ...win,
+      signtoolOptions: { ...signtool, sign: path.resolve(projectDir, signtool.sign) },
+    };
   }
 
   return result;
