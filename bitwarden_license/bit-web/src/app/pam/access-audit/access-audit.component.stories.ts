@@ -284,17 +284,35 @@ function audit(
     events?: AccessAuditEventResponse[];
     fails?: boolean;
     membersRefused?: boolean;
+    refreshPending?: boolean;
   } = {},
 ) {
-  const { events = EVENTS, fails = false, membersRefused = false } = options;
+  const {
+    events = EVENTS,
+    fails = false,
+    membersRefused = false,
+    refreshPending = false,
+  } = options;
   return moduleMetadata({
     imports: [AccessAuditComponent],
     providers: [
       {
         provide: AuditApiService,
-        useValue: {
-          listAccessAuditTrail: () =>
-            fails ? Promise.reject(new Error("audit read failed")) : Promise.resolve(events),
+        // A factory rather than a value so the read counter behind `refreshPending` starts again on
+        // every mount of the story, instead of once for the lifetime of the module.
+        useFactory: () => {
+          let reads = 0;
+          return {
+            listAccessAuditTrail: () => {
+              reads += 1;
+              if (fails) {
+                return Promise.reject(new Error("audit read failed"));
+              }
+              return refreshPending && reads > 1
+                ? new Promise<AccessAuditEventResponse[]>(() => undefined)
+                : Promise.resolve(events);
+            },
+          };
         },
       },
       {
@@ -394,6 +412,20 @@ export const EntityLinks: Story = {
  */
 export const MemberLookupRefused: Story = {
   decorators: [audit({ events: MIXED_LINK_EVENTS, membersRefused: true })],
+};
+
+/**
+ * A refresh in flight. The trail is already live under every filter, so Update exists only to pull in what
+ * the server has recorded since the page opened — and for as long as that read takes, the table, the chips
+ * and the date range all stay exactly where the auditor left them, behind nothing but the button's own
+ * pending state.
+ */
+export const Refreshing: Story = {
+  decorators: [audit({ refreshPending: true })],
+  play: async ({ canvasElement }) => {
+    const update = canvasElement.querySelector<HTMLButtonElement>("#access-audit_button_refresh")!;
+    await fireEvent.click(update);
+  },
 };
 
 /**
