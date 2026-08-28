@@ -21,23 +21,31 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { safeProvider } from "@bitwarden/ui-common";
 import {
+  BULK_DELETE_DIALOG,
+  BULK_EDIT_COLLECTION_ACCESS_DIALOG,
+  BulkDeleteDialogRef,
+  BulkEditCollectionAccessDialogRef,
   cipherInScope,
   parseVaultScope,
   SharedFolderPermission,
   SharedFolderRow,
+  SharedFoldersTableBulkAction,
   SharedFoldersTableComponent,
   SharedFoldersTableRowAction,
   VaultScope,
   VaultScopeType,
 } from "@bitwarden/vault";
 
+import { BulkEditCollectionAccessWebDialogAdapter } from "../../../admin-console/organizations/collections/bulk-collections-dialog/bulk-edit-collection-access-web-dialog.adapter";
 import {
   CollectionDialogAction,
   CollectionDialogTabType,
   openCollectionDialog,
 } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
+import { BulkDeleteDialogWebAdapter } from "../bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { openDeleteSharedFolderDialog } from "../bulk-action-dialogs/delete-shared-folder-dialog/delete-shared-folder-dialog.component";
 
 /**
@@ -67,11 +75,27 @@ type WebSharedFolderRow = SharedFolderRow & { collection: CollectionView };
     class: "tw-flex tw-flex-col tw-h-full tw-min-h-0",
   },
   imports: [HeaderModule, SharedFoldersTableComponent],
+  providers: [
+    safeProvider({
+      provide: BULK_DELETE_DIALOG,
+      useClass: BulkDeleteDialogWebAdapter,
+      useAngularDecorators: true,
+    }),
+    safeProvider({
+      provide: BULK_EDIT_COLLECTION_ACCESS_DIALOG,
+      useClass: BulkEditCollectionAccessWebDialogAdapter,
+      useAngularDecorators: true,
+    }),
+  ],
 })
 export class SharedFoldersComponent {
   private readonly accountService = inject(AccountService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly apiService = inject(ApiService);
+  private readonly bulkDeleteDialog = inject<BulkDeleteDialogRef>(BULK_DELETE_DIALOG);
+  private readonly bulkEditAccessDialog = inject<BulkEditCollectionAccessDialogRef>(
+    BULK_EDIT_COLLECTION_ACCESS_DIALOG,
+  );
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
   private readonly dialogService = inject(DialogService);
@@ -184,6 +208,48 @@ export class SharedFoldersComponent {
     },
   );
 
+  /**
+   * The actions the bulk actions bar offers over the selected folders — and, because the table only
+   * shows checkboxes once it has an action to run, what turns row selection on at all.
+   *
+   * Mirrors what the organization vault's batch bar offers for a collections-only selection: Edit
+   * access, then Delete, on the same labels, icons, and per-folder permission checks.
+   *
+   * An action is left out entirely when the member can perform it on none of the listed folders,
+   * and the whole bar with it — a permanently disabled button is worth less than the checkbox
+   * column it would cost.
+   */
+  protected readonly bulkActions = computed<SharedFoldersTableBulkAction<WebSharedFolderRow>[]>(
+    () => {
+      const organization = this.organization();
+      const rows = this.sharedFolders();
+      const actions: SharedFoldersTableBulkAction<WebSharedFolderRow>[] = [];
+
+      // Both dialogs re-check the batch and refuse it whole; disabling says so before the click.
+      if (rows.some((row) => row.collection.canEdit(organization))) {
+        actions.push({
+          id: "edit-access",
+          label: this.i18nService.t("editAccess"),
+          icon: "bwi-users",
+          disabled: (selected) => selected.some((row) => !row.collection.canEdit(organization)),
+          run: (selected) => this.editSharedFoldersAccess(selected.map((row) => row.collection)),
+        });
+      }
+
+      if (rows.some((row) => row.collection.canDelete(organization))) {
+        actions.push({
+          id: "delete",
+          label: this.i18nService.t("delete"),
+          icon: "bwi-trash",
+          disabled: (selected) => selected.some((row) => !row.collection.canDelete(organization)),
+          run: (selected) => this.deleteSharedFolders(selected.map((row) => row.collection)),
+        });
+      }
+
+      return actions;
+    },
+  );
+
   protected async addSharedFolder(): Promise<void> {
     const organizationId = this.organizationId();
     if (organizationId == null) {
@@ -251,6 +317,38 @@ export class SharedFoldersComponent {
       variant: "success",
       message: this.i18nService.t("sharedFolderDeleted"),
     });
+  }
+
+  /**
+   * Opens the shared access editor over every selected folder — the same dialog the organization
+   * vault's Edit access reaches, which replaces the members and groups on all of them at once and
+   * shows its own toast. It writes through `CollectionAdminService`, so nothing is written back
+   * here either.
+   */
+  private async editSharedFoldersAccess(collections: CollectionView[]): Promise<void> {
+    const organizationId = this.organizationId();
+    if (organizationId == null || collections.length === 0) {
+      return;
+    }
+
+    await this.bulkEditAccessDialog.open({ organizationId, collections });
+  }
+
+  /**
+   * Deletes every selected folder through the shared bulk delete dialog, which owns the whole
+   * sequence — confirmation, the batched requests, the resync, and the toast. Nothing is written
+   * back here: the dialog clears the deleted folders from `CollectionService`, so the table's stream
+   * re-emits without them.
+   */
+  private async deleteSharedFolders(collections: CollectionView[]): Promise<void> {
+    const organization = this.organization();
+    if (organization == null || collections.length === 0) {
+      return;
+    }
+
+    // `organization` rather than `organizations`: the route scopes this page to a single org, which
+    // is the permission check the dialog runs the batch against.
+    await this.bulkDeleteDialog.open({ organization, collections });
   }
 
   /** Writes a saved folder back to `CollectionService`, so the table's stream re-emits with it. */

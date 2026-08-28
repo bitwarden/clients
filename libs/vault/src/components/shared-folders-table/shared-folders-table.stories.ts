@@ -49,7 +49,24 @@ const sharedFolders: SharedFolderRow[] = [
     permissions: SharedFolderPermission.ViewExceptPass,
     items: 3,
   },
+  // A second Manage folder, so a multi-row selection can hold two folders the member may act on
+  // and the bulk actions' disabled predicates have both states to demonstrate.
+  {
+    id: "col-6" as CollectionId,
+    organizationId,
+    name: "Sales",
+    permissions: SharedFolderPermission.Manage,
+    items: 12,
+  },
 ];
+
+/**
+ * What the web client requires of a folder before it offers either bulk action over it: both Edit
+ * access and Delete come down to Manage for an ordinary member (an organization admin holds them
+ * over every folder regardless).
+ */
+const managed = (sharedFolder: SharedFolderRow): boolean =>
+  sharedFolder.permissions === SharedFolderPermission.Manage;
 
 const rowActions: SharedFoldersTableRowAction[] = [
   {
@@ -60,7 +77,7 @@ const rowActions: SharedFoldersTableRowAction[] = [
   },
   {
     id: "access",
-    label: "Manage access",
+    label: "Edit access",
     icon: "bwi-users",
     run: action("access"),
   },
@@ -76,19 +93,26 @@ const rowActions: SharedFoldersTableRowAction[] = [
   },
 ];
 
+/**
+ * The pair the web client offers, in its order — matching the organization vault's batch bar for a
+ * folders-only selection, down to the labels, the icons, and the permission each is gated on.
+ *
+ * Both refuse a batch containing a folder the member may not act on, so both disable rather than
+ * let the click through to a dialog that would reject it.
+ */
 const bulkActions: SharedFoldersTableBulkAction[] = [
   {
-    id: "access",
-    label: "Manage access",
+    id: "edit-access",
+    label: "Edit access",
     icon: "bwi-users",
-    run: action("bulk access"),
+    disabled: (rows) => rows.some((sharedFolder) => !managed(sharedFolder)),
+    run: action("bulk edit access"),
   },
   {
     id: "delete",
     label: "Delete",
     icon: "bwi-trash",
-    // As with the row action, deleting folders that still hold items is a separate, confirmed flow.
-    disabled: (rows) => rows.some((sharedFolder) => sharedFolder.items > 0),
+    disabled: (rows) => rows.some((sharedFolder) => !managed(sharedFolder)),
     run: action("bulk delete"),
   },
 ];
@@ -193,9 +217,10 @@ type Story = StoryObj<StoryProps>;
  * Permissions, or Items; the search box matches on name; the chip offers each permission present
  * in the rows, with a faceted count apiece.
  *
- * `bulkActions` adds the checkbox column and the bulk actions bar the checkboxes raise. Select a
- * folder that still holds items to watch Delete disable itself — its `disabled` predicate is
- * re-resolved against the selection on every change.
+ * `bulkActions` adds the checkbox column and the bulk actions bar the checkboxes raise. Select
+ * Engineering and Sales — the two the member manages — and both Edit access and Delete stay
+ * enabled; add any other folder and both disable, their predicates being re-resolved against the
+ * selection on every change.
  */
 export const Default: Story = {};
 
@@ -225,9 +250,16 @@ export const NoRowActions: Story = {
 /**
  * With no `bulkActions` the rows lose their checkboxes: a selection with nothing to act on would
  * only raise an empty bar.
+ *
+ * What the web client falls back to for a member who manages none of the listed folders — it drops
+ * an action it could never enable rather than offering it permanently disabled, and dropping both
+ * takes the checkbox column with them.
  */
 export const NoBulkActions: Story = {
-  args: { bulkActions: [] },
+  args: {
+    bulkActions: [],
+    sharedFolders: sharedFolders.filter((sharedFolder) => !managed(sharedFolder)),
+  },
 };
 
 /**
