@@ -35,6 +35,7 @@ import {
 import {
   MyAccessRequestRow,
   extensionsByLeaseId,
+  resolvedOrSubmittedMs,
   toRequestRow,
 } from "../access-requests/my-access-row";
 
@@ -291,13 +292,6 @@ function patchRequest(
   return requests.map((request) =>
     uuidAsString(request.id) === uuidAsString(id) ? { ...request, ...patch } : request,
   );
-}
-
-/** Sort key for history: when it was resolved, falling back to when it was submitted. */
-function resolvedOrSubmittedMs(
-  row: Pick<MyAccessRequestRow, "resolvedAt" | "submittedAt">,
-): number {
-  return Date.parse(row.resolvedAt ?? row.submittedAt);
 }
 
 /** The distinct cipher/collection refs across a set of requests, for name resolution. */
