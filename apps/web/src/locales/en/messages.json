@@ -18267,9 +18267,6 @@
   "pamAuditNoMatchesMessage": {
     "message": "No events match the current filters."
   },
-  "pamAuditColumnTime": {
-    "message": "Time"
-  },
   "pamAuditColumnEvent": {
     "message": "Event"
   },
