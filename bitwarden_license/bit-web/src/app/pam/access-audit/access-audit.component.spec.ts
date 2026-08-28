@@ -1398,6 +1398,84 @@ describe("AccessAuditComponent", () => {
     });
   });
 
+  describe("no matches", () => {
+    const emptyStateClearAll = (): HTMLButtonElement | null =>
+      fixture.nativeElement.querySelector("#access-audit_button_no-matches-clear-all");
+
+    const renderReady = async () => {
+      auditApiService.listAccessAuditTrail.mockResolvedValue([
+        event({ ActorId: "user-1", ActorName: "Ada" }),
+        event({ ActorId: "user-3", ActorName: "Linus" }),
+      ]);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    /** Narrows to a kind the trail does not carry, which leaves the filtered table empty. */
+    const overFilter = () => selectFilter("kind", ["pamAuditKindRuleCreated"]);
+
+    // Filtering something out is an ordinary outcome, not the unexpected condition a callout announces.
+    it("renders the standard empty state rather than a callout", async () => {
+      await renderReady();
+      overFilter();
+
+      expect(component().filteredRows()).toHaveLength(0);
+      expect(fixture.nativeElement.querySelector("bit-no-items")).not.toBeNull();
+      expect(fixture.nativeElement.querySelector("bit-callout")).toBeNull();
+      expect(fixture.nativeElement.querySelector("bit-table")).toBeNull();
+    });
+
+    it("carries the no-matches title and message into the empty state", async () => {
+      await renderReady();
+      overFilter();
+
+      const noItems = fixture.nativeElement.querySelector("bit-no-items") as HTMLElement;
+      expect(noItems.querySelector("[slot=title]")!.textContent!.trim()).toBe("No matching events");
+      expect(noItems.querySelector("[slot=description]")!.textContent!.trim()).toBe(
+        "No events match the current filters.",
+      );
+    });
+
+    // The trail-with-no-events state is a different empty state, with its own copy and its own action.
+    it("leaves the trail's own empty state alone", async () => {
+      auditApiService.listAccessAuditTrail.mockResolvedValue([]);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component().status()).toBe("empty");
+      const noItems = fixture.nativeElement.querySelector("bit-no-items") as HTMLElement;
+      expect(noItems.querySelector("[slot=title]")!.textContent!.trim()).toBe("No audit activity");
+      expect(fixture.nativeElement.querySelector("#access-audit_link_access-rules")).not.toBeNull();
+      expect(emptyStateClearAll()).toBeNull();
+    });
+
+    // The way out of an over-filtered table has to be where the auditor is looking, not only in the
+    // chip row above it.
+    it("resets every chip from the empty state's Clear all", async () => {
+      await renderReady();
+      selectFilter("actor", ["user-1"]);
+      selectFilter("timePeriod", "today");
+      overFilter();
+      expect(emptyStateClearAll()).not.toBeNull();
+
+      emptyStateClearAll()!.click();
+      fixture.detectChanges();
+
+      expect(
+        component()
+          .chips()
+          .some((chip: any) => chip.active()),
+      ).toBe(false);
+      expect(component().selectedPeriod()).toBeNull();
+      expect(component().filteredRows()).toHaveLength(2);
+      expect(fixture.nativeElement.querySelector("bit-table")).not.toBeNull();
+      expect(emptyStateClearAll()).toBeNull();
+    });
+  });
+
   describe("empty cells", () => {
     const ACTOR = 2;
     const REQUESTER = 3;
