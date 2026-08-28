@@ -75,6 +75,13 @@ describe("AccessAuditComponent", () => {
             pamAuditEmptyMessage: "Activity will appear here.",
             pamAccessRules: "Access rules",
             pamAuditSearchPlaceholder: "Search the audit log",
+            backTo: "Back to __$1__",
+            viewItemsIn: "View items in __$1__",
+            from: "From",
+            to: "To",
+            startDate: "Start date",
+            endDate: "End date",
+            invalidDateRange: "Invalid date range.",
             pamAuditNoMatchesTitle: "No matching events",
             pamAuditNoMatchesMessage: "No events match the current filters.",
             pamAuditColumnTime: "Time",
@@ -263,7 +270,7 @@ describe("AccessAuditComponent", () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(component().filteredRows()).toHaveLength(2);
-    expect(fixture.nativeElement.querySelector("bit-chip-filter")).toBeNull();
+    expect(fixture.debugElement.query(By.directive(FilterMenuComponent))).not.toBeNull();
 
     const rows = openKindMenu();
     expect(rows.map((row) => row.textContent?.trim())).toEqual([
@@ -322,5 +329,131 @@ describe("AccessAuditComponent", () => {
 
     expect(component().filteredRows()).toHaveLength(1);
     expect(component().filteredRows()[0].actor).toBe("Ada");
+  });
+
+  it("offers an actor option per identity that acted, plus the system bucket", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ ActorId: "user-1", ActorName: "Ada" }),
+      event({ ActorId: "user-1", ActorName: "Ada" }),
+      event({ ActorId: "user-3", ActorName: "Linus" }),
+      event({ ActorId: null, ActorName: null, Automated: true }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component().actorOptions()).toEqual([
+      { label: "Ada", value: "user-1" },
+      { label: "Linus", value: "user-3" },
+      { label: "System", value: "automated" },
+    ]);
+  });
+
+  it("offers no actor option for an identity that resolved to neither a name nor an email", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ ActorId: "user-9", ActorName: null, ActorEmail: null }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component().actorOptions()).toEqual([]);
+  });
+
+  it("separates two requesters who share a display name", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ RequesterId: "user-2", RequesterName: "J. Smith" }),
+      event({ RequesterId: "user-4", RequesterName: "J. Smith" }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component().requesterOptions()).toHaveLength(2);
+
+    component().requesterControl.setValue("user-4");
+
+    expect(component().filteredRows()).toHaveLength(1);
+    expect(component().filteredRows()[0].requesterId).toBe("user-4");
+  });
+
+  it("filters rows to the selected actor", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ ActorId: "user-1", ActorName: "Ada" }),
+      event({ ActorId: "user-3", ActorName: "Linus" }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    component().actorControl.setValue("user-3");
+
+    expect(component().filteredRows()).toHaveLength(1);
+    expect(component().filteredRows()[0].actor).toBe("Linus");
+  });
+
+  it("bounds the rows by a date range read in the viewer's own zone", async () => {
+    const noon = new Date(2026, 7, 18, 12, 0);
+    const evening = new Date(2026, 7, 18, 18, 0);
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ OccurredAt: noon.toISOString() }),
+      event({ OccurredAt: evening.toISOString() }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    component().fromControl.setValue("2026-08-18T13:00");
+
+    expect(component().filteredRows()).toHaveLength(1);
+    expect(component().filteredRows()[0].occurredAt).toEqual(evening);
+
+    component().fromControl.setValue("");
+    component().toControl.setValue("2026-08-18T12:00");
+
+    expect(component().filteredRows()).toHaveLength(1);
+    expect(component().filteredRows()[0].occurredAt).toEqual(noon);
+  });
+
+  it("leaves the table alone and reports an inverted range rather than emptying it", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([event(), event()]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    component().fromControl.setValue("2026-08-18T18:00");
+    component().toControl.setValue("2026-08-18T09:00");
+    fixture.detectChanges();
+
+    expect(component().invertedRange()).toBe(true);
+    expect(component().filteredRows()).toHaveLength(2);
+    expect(fixture.nativeElement.querySelector("bit-error").textContent).toContain(
+      "Invalid date range.",
+    );
+  });
+
+  // Every filter is a predicate over the one already-fetched window; the endpoint takes no query
+  // parameters, so a filter change that re-read it would be a bug, not an optimisation.
+  it("does not re-read the trail when a filter changes", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ Kind: "leaseActivated", ActorId: "user-1", RequesterId: "user-2" }),
+      event({ ActorId: "user-3", RequesterId: "user-4" }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledTimes(1);
+    fixture.detectChanges();
+
+    component().searchControl.setValue("ada");
+    kindChip().toggle("pamAuditKindLeaseActivated");
+    component().actorControl.setValue("user-1");
+    component().requesterControl.setValue("user-2");
+    component().fromControl.setValue("2026-08-18T00:00");
+    component().toControl.setValue("2026-08-19T00:00");
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledTimes(1);
   });
 });
