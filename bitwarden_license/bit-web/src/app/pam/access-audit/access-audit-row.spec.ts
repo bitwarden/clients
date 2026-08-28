@@ -216,11 +216,8 @@ describe("toAuditRow", () => {
     const result = toAuditRow(event, new Map(), new Map());
 
     expect(result.ruleName).toBe("prod-rule");
-    // A rule event has no cipher, so the item falls back to the rule name.
     expect(result.cipherName).toBeNull();
-    // The rule name is part of the free-text search haystack.
     expect(result.searchText).toContain("prod-rule");
-    // A completed event (no Incomplete flag) is not in-doubt.
     expect(result.inDoubt).toBe(false);
   });
 
