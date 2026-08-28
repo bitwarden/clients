@@ -67,32 +67,27 @@
       ></bit-chip-filter>
     </div>
 
-    <div class="tw-mb-4">
-      <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-3">
-        <bit-form-field disableMargin>
-          <bit-label>{{ "from" | i18n }}</bit-label>
-          <input
-            bitInput
-            type="datetime-local"
-            id="access-audit_input_from"
-            [placeholder]="'startDate' | i18n"
-            [formControl]="fromControl"
-          />
-        </bit-form-field>
-        <bit-form-field disableMargin>
-          <bit-label>{{ "to" | i18n }}</bit-label>
-          <input
-            bitInput
-            type="datetime-local"
-            id="access-audit_input_to"
-            [placeholder]="'endDate' | i18n"
-            [formControl]="toControl"
-          />
-        </bit-form-field>
-      </div>
-      @if (invertedRange()) {
-        <bit-error [error]="invalidRangeError"></bit-error>
-      }
+    <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-start tw-gap-3">
+      <bit-form-field disableMargin>
+        <bit-label>{{ "from" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="datetime-local"
+          id="access-audit_input_from"
+          [placeholder]="'startDate' | i18n"
+          [formControl]="fromControl"
+        />
+      </bit-form-field>
+      <bit-form-field disableMargin>
+        <bit-label>{{ "to" | i18n }}</bit-label>
+        <input
+          bitInput
+          type="datetime-local"
+          id="access-audit_input_to"
+          [placeholder]="'endDate' | i18n"
+          [formControl]="toControl"
+        />
+      </bit-form-field>
     </div>
 
     @if (filteredRows().length === 0) {
