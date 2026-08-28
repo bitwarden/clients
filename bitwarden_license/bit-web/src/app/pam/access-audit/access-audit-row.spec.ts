@@ -2,6 +2,7 @@ import {
   AUTOMATED_ACTOR,
   AuditFilter,
   AuditRow,
+  auditPresetRange,
   auditRangeEnd,
   auditRangeStart,
   auditRowMatchesFilter,
@@ -307,5 +308,48 @@ describe("toAuditRow", () => {
     expect(result.duration).toBeNull();
     expect(result.exactWindow).toBeNull();
     expect(result.extendedUntil).toBeNull();
+  });
+});
+
+describe("auditPresetRange", () => {
+  /** Mid-afternoon local time, so "today" and "the last 24 hours" are two different windows. */
+  const now = new Date(2026, 7, 18, 15, 30, 45, 123);
+
+  it("starts Today at midnight local, not twenty-four hours back", () => {
+    const range = auditPresetRange("today", now);
+
+    expect(range.from).toEqual(new Date(2026, 7, 18, 0, 0, 0, 0));
+    expect(range.to).toBeNull();
+  });
+
+  it("starts Past 7 days seven days before the moment it is read", () => {
+    const range = auditPresetRange("past7Days", now);
+
+    expect(range.from).toEqual(new Date(2026, 7, 11, 15, 30, 45, 123));
+    expect(range.to).toBeNull();
+  });
+
+  it("starts Past 30 days thirty days before the moment it is read", () => {
+    const range = auditPresetRange("past30Days", now);
+
+    expect(range.from).toEqual(new Date(2026, 6, 19, 15, 30, 45, 123));
+    expect(range.to).toBeNull();
+  });
+
+  // The whole fetched trail, which is the 90-day window the endpoint serves — not all history.
+  it("bounds All time on neither side", () => {
+    expect(auditPresetRange("allTime", now)).toEqual({ from: null, to: null });
+  });
+
+  // Custom takes its bounds from the dialog, never from the clock.
+  it("bounds Custom on neither side", () => {
+    expect(auditPresetRange("custom", now)).toEqual({ from: null, to: null });
+  });
+
+  it("leaves an unbounded preset matching every row", () => {
+    const range = auditPresetRange("allTime", now);
+    const filter: AuditFilter = { kindLabelKey: null, from: range.from, to: range.to };
+
+    expect(auditRowMatchesFilter(row({ occurredAt: new Date(1999, 0, 1) }), filter)).toBe(true);
   });
 });
