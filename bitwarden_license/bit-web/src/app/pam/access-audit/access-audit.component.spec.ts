@@ -255,7 +255,6 @@ describe("AccessAuditComponent", () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    // Labelled and sorted alphabetically, one entry per distinct kind label key.
     expect(kindMenuOptions()).toEqual([
       { label: "Lease activated", value: "pamAuditKindLeaseActivated" },
       { label: "Request approved", value: "pamAuditKindRequestApproved" },
