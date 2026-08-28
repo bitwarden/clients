@@ -122,7 +122,9 @@ export class OrganizationSubscriptionCloudVNextComponent {
   // Seeded so the streams load once on init, then reload each time refreshAll() emits.
   private readonly refresh$ = new BehaviorSubject<void>(undefined);
 
-  readonly organization = toSignal(this.data.organization$(this.organizationId));
+  readonly organization = toSignal(
+    this.refresh$.pipe(switchMap(() => this.data.organization$(this.organizationId))),
+  );
 
   private readonly organizationSubscription$ = this.refresh$.pipe(
     switchMap(() => this.data.organizationSubscription$(this.organizationId)),
