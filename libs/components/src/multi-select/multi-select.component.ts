@@ -22,6 +22,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { ChipComponent } from "../chips";
 import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
 import { IconComponent } from "../icon";
+import { IconTileComponent } from "../icon-tile";
 import { SpinnerComponent } from "../spinner";
 
 import { SelectItemView } from "./models/select-item-view";
@@ -38,6 +39,7 @@ import { SelectItemView } from "./models/select-item-view";
   ],
   imports: [
     IconComponent,
+    IconTileComponent,
     NgSelectModule,
     ReactiveFormsModule,
     FormsModule,
