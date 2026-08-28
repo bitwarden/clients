@@ -447,7 +447,6 @@ describe("toBuildConfig", () => {
     const entitlements = (file: string) => `build-mac/intermediates/entitlements/${file}`;
 
     expect(toBuildConfigFromArgs(MAC_ARGS).derived.macos).toEqual({
-      bundleId: "com.bitwarden.desktop",
       entitlements: {
         app: entitlements("app.plist"),
         appInherit: entitlements("app-inherit.plist"),
@@ -469,10 +468,14 @@ describe("toBuildConfig", () => {
     );
   });
 
-  it("gives a beta build its own bundle identifier", () => {
-    expect(toBuildConfigFromArgs([...MAC_ARGS, "--channel", "beta"]).derived.macos?.bundleId).toBe(
-      "com.bitwarden.desktop.beta",
-    );
+  it("gives a beta build its own identifier and name", () => {
+    const beta = toBuildConfigFromArgs([...MAC_ARGS, "--channel", "beta"]).derived;
+    const stable = toBuildConfigFromArgs(MAC_ARGS).derived;
+
+    expect(beta.appId).toBe("com.bitwarden.beta.desktop");
+    expect(beta.productName).toBe("Bitwarden Beta");
+    expect(stable.appId).toBe("com.bitwarden.desktop");
+    expect(stable.productName).toBe("Bitwarden");
   });
 
   it("has no macOS identity on another platform", () => {

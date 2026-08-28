@@ -195,3 +195,96 @@ describe("applyBuildConfig", () => {
     );
   });
 });
+
+/// The fork the overlay replaces. Kept as the reference for what a beta build is supposed to
+/// look like, so the two cannot quietly disagree while both are on disk.
+const betaFork = JSON.parse(
+  readFileSync(resolve(__dirname, "../electron-builder.beta.json"), "utf8"),
+) as Record<string, unknown>;
+
+describe("the beta channel", () => {
+  const betaOf = (args: string[]) =>
+    applyBuildConfig(base, configFor([...args, "--channel", "beta"]));
+  const stableOf = (args: string[]) => applyBuildConfig(base, configFor(args));
+
+  const WINDOWS_STORE = [...WINDOWS, "--distribution-channel", "microsoft-store"];
+  const MAC_DMG = [...MAC, "--distribution-channel", "dmg"];
+
+  it("renames the application, matching the fork except for the identifier it never registered", () => {
+    const beta = betaOf(MAC_DMG);
+
+    expect(beta.productName).toBe(betaFork.productName);
+    expect((beta.extraMetadata as Record<string, unknown>).name).toBe(
+      (betaFork.extraMetadata as Record<string, unknown>).name,
+    );
+    expect(betaFork.appId).toBe("com.bitwarden.desktop.beta");
+    expect(beta.appId).toBe("com.bitwarden.beta.desktop");
+  });
+
+  it("carries over the fork's icons and artifact names", () => {
+    const mac = betaOf(MAC_DMG);
+    const windows = betaOf(WINDOWS_STORE);
+
+    expect((mac.mac as Record<string, unknown>).icon).toBe(
+      (betaFork.mac as Record<string, unknown>).icon,
+    );
+    expect((mac.dmg as Record<string, unknown>).icon).toBe(
+      (betaFork.dmg as Record<string, unknown>).icon,
+    );
+    expect((mac.mac as Record<string, unknown>).artifactName).toBe(
+      (betaFork.mac as Record<string, unknown>).artifactName,
+    );
+    expect((windows.win as Record<string, unknown>).icon).toBe(
+      (betaFork.win as Record<string, unknown>).icon,
+    );
+    expect((windows.nsisWeb as Record<string, unknown>).artifactName).toBe(
+      (betaFork.nsisWeb as Record<string, unknown>).artifactName,
+    );
+    expect((windows.portable as Record<string, unknown>).artifactName).toBe(
+      (betaFork.portable as Record<string, unknown>).artifactName,
+    );
+  });
+
+  it("gives the Microsoft Store build the fork's separate identity", () => {
+    const appx = betaOf(WINDOWS_STORE).appx as Record<string, unknown>;
+    const forked = betaFork.appx as Record<string, unknown>;
+
+    for (const key of [
+      "applicationId",
+      "identityName",
+      "backgroundColor",
+      "artifactName",
+      "customExtensionsPath",
+      "minVersion",
+    ]) {
+      expect([key, appx[key]]).toEqual([key, forked[key]]);
+    }
+  });
+
+  it("points Windows at the beta plugin authenticator resources", () => {
+    expect((betaOf(WINDOWS_STORE).win as Record<string, unknown>).extraResources).toEqual(
+      (betaFork.win as Record<string, unknown>).extraResources,
+    );
+  });
+
+  /// The drift the fork accumulated. A beta build now inherits these from the base instead of
+  /// from a copy that stopped being updated.
+  it("no longer trails the base build's Electron, or loses whole platforms", () => {
+    expect(betaFork.electronVersion).toBe("41.7.2");
+    expect(base.electronVersion).toBe("43.2.0");
+    expect(betaOf(MAC_DMG).electronVersion).toBe(base.electronVersion);
+
+    for (const section of ["mas", "linux", "deb", "rpm", "snap", "appImage"]) {
+      expect([section, betaFork[section]]).toEqual([section, undefined]);
+      expect([section, betaOf(MAC_DMG)[section]]).not.toEqual([section, undefined]);
+    }
+  });
+
+  it("leaves a stable build alone", () => {
+    const stable = stableOf(MAC_DMG);
+
+    expect(stable.productName).toBe("Bitwarden");
+    expect(stable.appId).toBe("com.bitwarden.desktop");
+    expect((stable.mac as Record<string, unknown>).icon).toBeUndefined();
+  });
+});

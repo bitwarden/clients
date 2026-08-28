@@ -119,18 +119,99 @@ export function applyBuildConfig(
   const platformKey = { macos: "mac", windows: "win", linux: "linux" }[config.derived.platform];
   result[platformKey] = { ...(result[platformKey] as Record<string, unknown>), extraFiles };
 
+  applyChannel(result, config);
+
   if (config.derived.platform === "macos") {
     applyMacIdentity(result, config);
     applyMacSigning(result, config);
   }
 
-  // The hooks are supplied by pack.mts as functions closed over this configuration, so the
-  // script paths the checked-in file names are dropped rather than left to be loaded as well.
+  // The hooks are supplied by pack.mts as functions closed over this configuration. Dropping
+  // the script paths here only keeps them out of the written file -- electron-builder reads the
+  // checked-in configuration itself, so what actually displaces them is pack.mts handing it a
+  // function for each of these keys.
   delete result.beforePack;
   delete result.afterPack;
   delete result.afterSign;
 
   return result;
+}
+
+/// What a beta build is called and dressed as.
+///
+/// The base configuration describes the stable build; this is every way the beta one differs
+/// from it. It used to be a second copy of the whole file, electron-builder.beta.json, and a
+/// copy drifts: it pinned electronVersion 41.7.2 against the base's 43.2.0, and had no `linux`,
+/// `mas`, `deb`, `rpm` or `snap` sections at all, so beta could not be built for Linux or the
+/// App Store and shipped a different Electron than the stable build it shadows. Expressed as a
+/// difference, none of that can happen -- there is nothing left to fall behind.
+///
+/// The fork is still on disk: CI and the pack:*:beta npm scripts pass it to electron-builder
+/// directly, and it goes when they do.
+function applyChannel(result: Record<string, unknown>, config: BuildConfig): void {
+  result.appId = config.derived.appId;
+  result.productName = config.derived.productName;
+
+  if (config.channel !== "beta") {
+    return;
+  }
+
+  // The package name, which is what the Linux package managers install and what
+  // `${productName}` in the deb, rpm and AppImage artifact names resolves to.
+  result.extraMetadata = {
+    ...(result.extraMetadata as Record<string, unknown>),
+    name: "bitwarden-beta",
+  };
+
+  // Beta has its own icons at every size the platforms ask for.
+  section(result, "mac", { icon: "icon.beta.icns" });
+  section(result, "dmg", { icon: "dmg.beta.icns" });
+  section(result, "win", {
+    icon: "icon.beta.ico",
+    // The native messaging manifest and the logo Windows shows for the plugin authenticator
+    // both name the app, so both have a beta copy.
+    extraResources: [
+      {
+        from: "resources/windows_plugin_authenticator_config.beta.json",
+        to: "plugin_authenticator_config.json",
+      },
+      {
+        from: "resources/windows_plugin_authenticator_logo.beta.svg",
+        to: "plugin_authenticator_logo.svg",
+      },
+    ],
+  });
+
+  // Artifact names, carried over exactly. Note the macOS ones do not say "Beta" -- the
+  // installer and portable ones do -- which is how the fork had it.
+  section(result, "mac", { artifactName: "Bitwarden-${version}-${arch}-mac.${ext}" });
+  section(result, "dmg", { artifactName: "Bitwarden-${version}-${arch}.${ext}" });
+  section(result, "nsisWeb", { artifactName: "Bitwarden-Beta-Installer-${version}.${ext}" });
+  section(result, "portable", { artifactName: "Bitwarden-Beta-Portable-${version}.${ext}" });
+
+  // A separate application to the Microsoft Store, with its own identity and tile.
+  section(result, "appx", {
+    applicationId: "BitwardenBeta",
+    identityName: "8bitSolutionsLLC.BitwardenBeta",
+    backgroundColor: "#FDC700",
+    artifactName: "Bitwarden-Beta-${version}-${arch}.${ext}",
+    customExtensionsPath: "../custom-appx-extensions.beta.xml",
+    minVersion: "10.0.14393.0",
+  });
+  // The fork also sets `appxManifestCreated`, a hook that edits the generated manifest. It is
+  // not here because electron-builder resolves a hook's path against the working directory
+  // rather than the project, and eagerly, whatever platform is being built -- so a relative one
+  // breaks a macOS build started from anywhere but apps/desktop. pack.mts adds it, absolute,
+  // for the Windows builds that have a manifest at all.
+}
+
+/// Overlays values onto one section of the configuration, leaving the rest of it alone.
+function section(
+  result: Record<string, unknown>,
+  key: string,
+  values: Record<string, unknown>,
+): void {
+  result[key] = { ...(result[key] as Record<string, unknown>), ...values };
 }
 
 /// `.node` addons belonging to a platform this build is not for. They are pulled in by
@@ -177,16 +258,14 @@ function packagedBinaries(config: BuildConfig): ExtraFile[] {
   return entries;
 }
 
-/// The bundle identifier and the entitlements are generated together from the channel, so
-/// applying both from the same place is what keeps them from disagreeing -- an app signed with
-/// entitlements naming a different application identifier is rejected outright.
+/// The entitlements are generated from the same application identifier applied to the package,
+/// so an app signed with entitlements naming a different identifier -- which is rejected
+/// outright -- is not something this can produce.
 function applyMacIdentity(result: Record<string, unknown>, config: BuildConfig): void {
   const macos = config.derived.macos;
   if (macos == null) {
     return;
   }
-
-  result.appId = macos.bundleId;
 
   const appStore = isAppStoreBuild(config);
   const section = appStore ? "mas" : "mac";

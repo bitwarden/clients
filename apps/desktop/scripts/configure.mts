@@ -156,7 +156,7 @@ function writeEntitlements(config: BuildConfig): void {
   }
 
   const options = {
-    bundleId: macos.bundleId,
+    bundleId: config.derived.appId,
     autofill: config.targets.macosAutofillExtension === true,
   };
   const appStore = isAppStoreBuild(config);

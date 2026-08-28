@@ -32,17 +32,23 @@ export const PROVISIONING_PROFILE_FILE = "app.provisionprofile";
 /// for the same reason the provisioning profile does: they belong to this build.
 export const ENTITLEMENTS_DIR = "intermediates/entitlements";
 
-/// Bundle identifier per channel. Beta is a separate application to macOS -- its own identifier,
-/// its own app group, its own provisioning -- which is why the entitlements have to be built
-/// from it rather than written down once.
+/// Application identifier per channel. Beta is a separate application -- its own identifier, its
+/// own app group and provisioning on macOS, its own identity in the Microsoft Store -- which is
+/// why everything named after it is built from this rather than written down once per file.
 ///
-/// TODO: beta is to become `com.bitwarden.beta.desktop`. The value here matches
-/// electron-builder.beta.json, which was itself a guess and was never registered under that
-/// name; changing it means new provisioning profiles and a new app group, so it is left to the
-/// step that makes beta a first-class channel rather than changed in passing.
-export const BUNDLE_IDS: Record<Channel, string> = {
+/// electron-builder.beta.json said `com.bitwarden.desktop.beta`, which was a guess that was
+/// never registered under that name; `com.bitwarden.beta.desktop` is the identifier beta is
+/// actually taking. Changing it means new provisioning profiles and a new app group.
+export const APP_IDS: Record<Channel, string> = {
   stable: "com.bitwarden.desktop",
-  beta: "com.bitwarden.desktop.beta",
+  beta: "com.bitwarden.beta.desktop",
+};
+
+/// What the app calls itself. electron-builder uses it for the bundle name, the executable, and
+/// every artifact name written as `${productName}`.
+export const PRODUCT_NAMES: Record<Channel, string> = {
+  stable: "Bitwarden",
+  beta: "Bitwarden Beta",
 };
 
 export const PLATFORMS = ["macos", "windows", "linux"] as const;
@@ -252,9 +258,6 @@ export interface ResolvedInputs {
 }
 
 export interface MacosDerived {
-  /// What the app is called to macOS. The application identifier and the app group are built
-  /// from it, so entitlements cannot disagree with what was packaged.
-  bundleId: string;
   /// Written by configure, so a build step is handed a file rather than a decision about which
   /// checked-in file to use. Paths are relative to apps/desktop.
   entitlements: MacosEntitlements;
@@ -316,6 +319,10 @@ export interface BuildConfig {
   dependencies: Record<string, { path: string }>;
   derived: {
     platform: Platform;
+    /// What the app is called to the operating system, and what it calls itself. Both follow
+    /// from the channel, and everything downstream reads them here rather than deciding again.
+    appId: string;
+    productName: string;
     macos?: MacosDerived;
     macosAutofillExtension?: AutofillExtensionBuild;
   };
@@ -632,11 +639,12 @@ export function toBuildConfig(raw: RawOptions, resolved: ResolvedInputs = {}): B
         : {},
     derived: {
       platform,
+      appId: APP_IDS[channel],
+      productName: PRODUCT_NAMES[channel],
       ...(platform === "macos"
         ? {
             macos: macosDerived(
               buildDir,
-              channel,
               distributionChannels.some((each) => APP_STORE_CHANNELS.includes(each)),
               autofillExtension,
             ),
@@ -777,7 +785,6 @@ export function enabledTargetDefinitions(config: BuildConfig): TargetDefinition[
 
 function macosDerived(
   buildDir: string,
-  channel: Channel,
   appStore: boolean,
   autofillExtension: boolean,
 ): MacosDerived {
@@ -785,7 +792,6 @@ function macosDerived(
     join(buildDir, ENTITLEMENTS_DIR, ENTITLEMENTS_FILES[key]);
 
   return {
-    bundleId: BUNDLE_IDS[channel],
     entitlements: {
       app: entitlement("app"),
       appInherit: entitlement("appInherit"),

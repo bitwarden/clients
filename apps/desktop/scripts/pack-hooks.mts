@@ -35,12 +35,19 @@ const LINUX_WRAPPER = "resources/linux-wrapper.sh";
 const LINUX_REAL_BINARY = "bitwarden-app";
 
 export interface PackHooks {
+  beforePack: () => void;
   afterPack: (context: AfterPackContext) => Promise<void>;
   afterSign: (context: AfterPackContext) => Promise<void>;
 }
 
 export function packHooks(config: BuildConfig): PackHooks {
   return {
+    // Nothing to do: what scripts/before-pack.js did is expressed as a file filter now. It has
+    // to be here all the same, and as a function rather than an absent key, because
+    // electron-builder reads electron-builder.json itself and merges what we pass over the top
+    // -- so the only way to stop it requiring the script that file still names is to hand it
+    // something else for the same key. Removing the key from our own copy achieves nothing.
+    beforePack: () => {},
     afterPack: (context) => afterPack(config, context),
     afterSign: (context) => afterSign(config, context),
   };
@@ -181,12 +188,25 @@ function embedExtensions(config: BuildConfig, context: AfterPackContext): void {
 /// which is not what electron-builder would give it.
 function signProxy(config: BuildConfig, context: AfterPackContext): void {
   const identity = config.macos?.signingCertificate;
-  if (identity == null || identity === "none") {
-    // Nothing was named to sign with. electron-builder signs the bundle's contents with the
-    // inherited entitlements during its own pass, which is what these binaries would get here
-    // anyway outside the App Store -- and an App Store build cannot reach this point, because
-    // configure requires an identity for one.
+  if (identity === "none") {
+    // An unsigned build, so electron-builder is signing nothing either.
     return;
+  }
+  if (identity == null) {
+    // Nothing was named, and nothing else will sign these: electron-builder's own pass skips
+    // them, because `mac.signIgnore` in the base configuration lists both. Left alone they
+    // would be unsigned Mach-O binaries inside a signed, hardened-runtime bundle. Reported
+    // rather than guessed at, which is what the hook this replaced did -- it read
+    // GITHUB_ACTIONS, then CSC_NAME, then took whatever the keychain listed first.
+    //
+    // TODO: this belongs in validate(), so it lands at configure time with everything else.
+    // It is here for now because requiring the flag for every macOS build is a change to what
+    // configure accepts, and this is the narrower fix.
+    throw new BuildError(
+      "Packaging macOS needs --macos-signing-certificate: the native messaging proxy is signed " +
+        "separately from the app, and nothing else signs it.\n" +
+        "       Pass an identity, or 'none' to leave the whole package unsigned.",
+    );
   }
 
   const entitlements = config.derived.macos?.entitlements;

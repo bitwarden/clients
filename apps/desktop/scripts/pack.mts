@@ -94,7 +94,7 @@ async function pack(config: BuildConfig): Promise<void> {
     projectDir,
     // The hooks go on after the file is written, because they are functions and would vanish
     // from it -- what is recorded there stays the configuration, not the code that runs over it.
-    config: { ...resolved, ...packHooks(config) },
+    config: { ...resolved, ...packHooks(config), ...appxManifestHook(config) },
     targets: PLATFORMS[config.derived.platform].createTarget(
       targets,
       ...config.architectures.map((architecture) => ARCHITECTURES[architecture]),
@@ -103,6 +103,20 @@ async function pack(config: BuildConfig): Promise<void> {
     // Leaving this unset would let electron-builder publish on a tagged CI run.
     publish: "never",
   });
+}
+
+/// The beta Appx manifest is edited after electron-builder generates it, by a hook the beta
+/// fork names as `scripts/appx-manifest-created.js`.
+///
+/// Named here rather than in the generated configuration because electron-builder resolves a
+/// hook's path with `require`, against the working directory rather than the project -- and it
+/// resolves every hook up front, so a relative path breaks a macOS build started from anywhere
+/// but apps/desktop. Absolute, and only where there is a manifest to edit.
+function appxManifestHook(config: BuildConfig): Record<string, string> {
+  if (config.derived.platform !== "windows" || config.channel !== "beta") {
+    return {};
+  }
+  return { appxManifestCreated: path.join(projectDir, "scripts/appx-manifest-created.js") };
 }
 
 function readBaseConfig(): Record<string, unknown> {
