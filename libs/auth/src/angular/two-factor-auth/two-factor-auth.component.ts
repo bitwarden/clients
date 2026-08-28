@@ -17,7 +17,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
   TwoFactorAuthAuthenticatorIcon,
-  TwoFactorAuthEmailIcon,
+  EmailSentIcon,
   TwoFactorAuthWebAuthnIcon,
   TwoFactorAuthSecurityKeyIcon,
   TwoFactorAuthDuoIcon,
@@ -409,7 +409,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       case TwoFactorProviderType.Email:
         this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
           pageSubtitle: this.i18nService.t("enterTheCodeSentToYourEmail"),
-          pageIcon: TwoFactorAuthEmailIcon,
+          pageIcon: EmailSentIcon,
         });
         break;
       case TwoFactorProviderType.Duo:

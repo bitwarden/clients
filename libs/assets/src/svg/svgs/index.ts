@@ -48,7 +48,7 @@ export * from "./spot-report";
 export * from "./sso-key.icon";
 export * from "./two-factor-auth-authenticator.icon";
 export * from "./two-factor-auth-duo.icon";
-export * from "./two-factor-auth-email.icon";
+export * from "./email-sent.icon";
 export * from "./two-factor-auth-security-key-failed.icon";
 export * from "./two-factor-auth-security-key.icon";
 export * from "./two-factor-auth-webauthn.icon";

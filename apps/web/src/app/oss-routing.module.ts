@@ -21,7 +21,7 @@ import {
   DevicesIcon,
   RegistrationUserAddIcon,
   ExpiredIcon,
-  TwoFactorAuthEmailIcon,
+  EmailSentIcon,
   TwoFactorAuthSecurityKeyIcon,
   UserLockIcon,
   VaultIcon,
@@ -508,7 +508,7 @@ const routes: Routes = [
           },
         ],
         data: {
-          pageIcon: TwoFactorAuthEmailIcon,
+          pageIcon: EmailSentIcon,
           pageTitle: {
             key: "verifyYourIdentity",
           },

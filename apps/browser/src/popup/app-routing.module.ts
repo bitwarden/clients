@@ -21,7 +21,7 @@ import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag
 import {
   DevicesIcon,
   ExpiredIcon,
-  TwoFactorAuthEmailIcon,
+  EmailSentIcon,
   UserLockIcon,
   VaultIcon,
   LockIcon,
@@ -189,7 +189,7 @@ const routes: Routes = [
     canActivate: [unauthGuardFn(), activeAuthGuard()],
     children: [{ path: "", component: NewDeviceVerificationComponent }],
     data: {
-      pageIcon: TwoFactorAuthEmailIcon,
+      pageIcon: EmailSentIcon,
       pageTitle: {
         key: "verifyYourIdentity",
       },
