@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -110,7 +110,6 @@ export class VaultNextComponent {
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly vaultNavService = inject(VaultNavService);
   private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly i18nService = inject(I18nService);
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
@@ -245,11 +244,7 @@ export class VaultNextComponent {
     return ServiceUtils.getTreeNodeObjectFromList(this.collectionTree(), collectionId) ?? undefined;
   });
 
-  /**
-   * The name of the shared folder in view — shown as the last (non-linked) breadcrumb crumb. The
-   * tree names each node by its own path segment, so this is the folder's own name rather than its
-   * full path.
-   */
+  /** The folder's own name segment (not the full path). */
   protected readonly sharedFolderName = computed(() => this.sharedFolderNode()?.node.name ?? "");
 
   /** True when the URL has drilled into a shared folder — drives breadcrumb visibility. */
@@ -257,11 +252,7 @@ export class VaultNextComponent {
     () => scopedSharedFolderId(this.vaultScope()) != null,
   );
 
-  /**
-   * The ancestor chain for the selected shared folder, from the org root down to the immediate
-   * parent. Excludes the currently selected folder itself, which is shown as the non-linked last
-   * crumb separately.
-   */
+  /** Ancestors of the selected folder, from org root to immediate parent. Current folder excluded. */
   protected readonly collectionBreadcrumbs = computed((): CollectionView[] => {
     const node = this.sharedFolderNode();
     if (node == null) {
@@ -277,7 +268,7 @@ export class VaultNextComponent {
       .map((n) => n.node);
   });
 
-  /** The VaultNavItemViewModel for the currently scoped organization, used to render the org crumb. */
+  /** Nav item for the scoped org — provides icon, color, and label for the org crumb. */
   protected readonly orgNavItem = computed(() => {
     const scope = this.vaultScope();
     if (scope.type !== VaultScopeType.Organization) {
@@ -286,11 +277,7 @@ export class VaultNextComponent {
     return this.vaultNav()?.vaults.find((v) => v.id === scope.organizationId);
   });
 
-  /**
-   * The hex color for the org's icon tile — mirrors vault-nav-section's vaultTileColor():
-   * AvatarColor names (e.g. "teal") are resolved to their hex via defaultAvatarColors;
-   * already-hex values pass through unchanged.
-   */
+  /** AvatarColor names ("teal" etc.) are resolved to hex; already-hex values pass through. */
   protected readonly orgTileColor = computed((): string | undefined => {
     const item = this.orgNavItem();
     if (item == null) {
@@ -299,7 +286,7 @@ export class VaultNextComponent {
     return isAvatarColor(item.color) ? defaultAvatarColors[item.color] : item.color;
   });
 
-  /** Route commands to the org vault root — shared by the org-name crumb and "Shared Folders" crumb. */
+  /** Route to the org vault root. */
   protected readonly orgRootRoute = computed((): string[] => {
     const scope = this.vaultScope();
     if (scope.type !== VaultScopeType.Organization) {
@@ -311,18 +298,18 @@ export class VaultNextComponent {
     });
   });
 
-  /**
-   * The route an ancestor breadcrumb crumb links to: this vault, drilled into that folder.
-   *
-   * A folder's route names the vault it lives in rather than the path taken to it, so drilling
-   * deeper replaces the collection segment — see {@link vaultScopeCommands}.
-   */
+  /** Drilling deeper replaces the collection segment, not appends — see vaultScopeCommands. */
   protected sharedFolderRoute(folder: CollectionView): string[] {
     const scope = this.vaultScope();
     return vaultScopeCommands(
       scope.type === VaultScopeType.Organization ? { ...scope, collectionId: folder.id } : scope,
     );
   }
+
+  protected readonly currentFolderRoute = computed(() => {
+    const node = this.sharedFolderNode();
+    return node ? this.sharedFolderRoute(node.node) : undefined;
+  });
 
   /**
    * Whether the page offers the toolbar's Import and New item actions. New items cannot be created
@@ -333,20 +320,14 @@ export class VaultNextComponent {
     return type !== VaultScopeType.Trash && type !== VaultScopeType.Archive;
   });
 
-  /**
-   * Placeholder header title for the scoped vault. Breadcrumbs replace this — see the page layout
-   * epic — so it reuses the same strings the side nav labels these vaults with.
-   *
-   * `undefined` leaves the route's own `titleId` in place, which covers All items and the moment
-   * before an organization's name has loaded.
-   */
+  /** `undefined` leaves the route's own titleId in place (All items, org name still loading). */
   protected readonly title = computed(() => {
     const scope = this.vaultScope();
     switch (scope.type) {
       case VaultScopeType.MyVault:
         return this.i18nService.t("myVault");
       case VaultScopeType.Organization:
-        return this.collectionSelected() ? "" : this.scopedOrganizations()[0]?.name;
+        return this.scopedOrganizations()[0]?.name;
       case VaultScopeType.Trash:
         return this.i18nService.t("trash");
       case VaultScopeType.Archive:
@@ -410,10 +391,6 @@ export class VaultNextComponent {
     }
 
     await this.itemActions.add(result.cipherType);
-  }
-
-  protected navigateToOrgRoot(): void {
-    void this.router.navigate(this.orgRootRoute());
   }
 
   protected openImportDialog(): void {

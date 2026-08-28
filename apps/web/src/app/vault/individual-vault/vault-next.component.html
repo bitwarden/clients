@@ -1,11 +1,11 @@
 <app-header [title]="title()">
   @if (collectionSelected()) {
     <bit-breadcrumbs slot="breadcrumbs">
-      <bit-breadcrumb (click)="navigateToOrgRoot()">
+      <bit-breadcrumb [route]="orgRootRoute()">
         <bit-icon-tile slot="start" [icon]="orgNavItem()?.icon" [color]="orgTileColor()" />
         {{ orgNavItem()?.label }}
       </bit-breadcrumb>
-      <bit-breadcrumb [icon]="'bwi-list-alt'" (click)="navigateToOrgRoot()">
+      <bit-breadcrumb [icon]="'bwi-list-alt'" [route]="orgRootRoute()">
         {{ "collections" | vfo1I18n: "sharedFolders" }}
       </bit-breadcrumb>
       @for (crumb of collectionBreadcrumbs(); track crumb.id) {
@@ -16,7 +16,7 @@
           {{ crumb.name }}
         </bit-breadcrumb>
       }
-      <bit-breadcrumb [icon]="'bwi-collection-shared' | vfo1Icon" active>
+      <bit-breadcrumb [icon]="'bwi-collection-shared' | vfo1Icon" [route]="currentFolderRoute()">
         {{ sharedFolderName() }}
       </bit-breadcrumb>
     </bit-breadcrumbs>
