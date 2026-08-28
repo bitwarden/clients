@@ -17,8 +17,12 @@ export type AuditRow = {
   kindLabelKey: string;
   /** Who performed it (name, falling back to email); null for a system / automatic event. */
   actor: string | null;
+  /** Who performed it, as an identity — the actor filter keys on this, since two members can share a display name. */
+  actorId: string | null;
   /** The access requester (name, falling back to email). */
   requester: string | null;
+  /** The access requester, as an identity — see {@link AuditRow.actorId}. */
+  requesterId: string | null;
   /** Decrypted cipher name from local vault state, or null when the item isn't in the caller's vault. */
   cipherName: string | null;
   /** Decrypted collection name from local vault state, or null. */
@@ -130,7 +134,9 @@ export function toAuditRow(
     occurredAt: new Date(event.occurredAt),
     kindLabelKey: selfEnded ? "pamAuditKindLeaseEndedByHolder" : auditKindLabelKey(event.kind),
     actor,
+    actorId: event.actorId,
     requester,
+    requesterId: event.requesterId,
     cipherName,
     collectionName,
     ruleName: event.ruleName,
@@ -148,12 +154,88 @@ export function toAuditRow(
   };
 }
 
-/** The active audit-log filter: free-text plus an optional event-kind label key. */
-export type AuditFilter = { text: string; kindLabelKey: string | null };
+/**
+ * The Actor filter's value for the system / automatic bucket, which has no actor identity of its own.
+ * Not a possible actor id: the server writes those as GUIDs.
+ */
+export const AUTOMATED_ACTOR = "automated";
 
-/** Whether a row passes the filter. Empty text and a null kind match everything. */
+const END_OF_MINUTE_MS = 59_999;
+
+/**
+ * Read a `datetime-local` value as an instant in the viewer's own zone, so a bound typed as 09:00 means
+ * 09:00 where the auditor is sitting — the same zone the Time column's `date` pipe renders in. Built from
+ * the parts rather than handed to `Date.parse`, which reads a *date-only* string as UTC and only this
+ * date-time form as local.
+ */
+function parseLocalDateTime(value: string): Date | null {
+  const parts = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value.trim());
+  if (parts == null) {
+    return null;
+  }
+  const [, year, month, day, hour, minute] = parts;
+  const parsed = new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number(hour),
+    Number(minute),
+  );
+  return Number.isFinite(parsed.getTime()) ? parsed : null;
+}
+
+/** The lower bound of an audit date range, from a `datetime-local` value. Blank or unparseable means unbounded. */
+export function auditRangeStart(value: string): Date | null {
+  return parseLocalDateTime(value);
+}
+
+/**
+ * The upper bound of an audit date range, from a `datetime-local` value. Blank or unparseable means unbounded.
+ * Carried to the end of the chosen minute, matching `EventService.formatDateFilters`, so a bound typed as 09:00
+ * still admits an event recorded at 09:00:30 — which the Time column also renders as 09:00.
+ */
+export function auditRangeEnd(value: string): Date | null {
+  const parsed = parseLocalDateTime(value);
+  return parsed == null ? null : new Date(parsed.getTime() + END_OF_MINUTE_MS);
+}
+
+/** The active audit-log filter. Every dimension is independent, and an unset one matches everything. */
+export type AuditFilter = {
+  text: string;
+  kindLabelKey: string | null;
+  /** An actor identity, or {@link AUTOMATED_ACTOR} for the system bucket. */
+  actorId?: string | null;
+  requesterId?: string | null;
+  /** Inclusive lower bound on {@link AuditRow.occurredAt}. */
+  from?: Date | null;
+  /** Inclusive upper bound on {@link AuditRow.occurredAt}. */
+  to?: Date | null;
+};
+
+/** Whether a row passes the filter. Empty text, a null kind, a null identity and a null bound match everything. */
 export function auditRowMatchesFilter(row: AuditRow, filter: AuditFilter): boolean {
   if (filter.kindLabelKey != null && row.kindLabelKey !== filter.kindLabelKey) {
+    return false;
+  }
+  if (filter.actorId != null) {
+    // The Actor cell reads "System" for every automated row whatever the wire carries as its actor, so the
+    // two buckets have to split the same way that cell does.
+    const wantsAutomated = filter.actorId === AUTOMATED_ACTOR;
+    if (wantsAutomated !== row.automated) {
+      return false;
+    }
+    if (!wantsAutomated && row.actorId !== filter.actorId) {
+      return false;
+    }
+  }
+  if (filter.requesterId != null && row.requesterId !== filter.requesterId) {
+    return false;
+  }
+  const occurredAt = row.occurredAt.getTime();
+  if (filter.from != null && occurredAt < filter.from.getTime()) {
+    return false;
+  }
+  if (filter.to != null && occurredAt > filter.to.getTime()) {
     return false;
   }
   const text = filter.text.trim().toLowerCase();

@@ -24,8 +24,11 @@ import {
   BadgeModule,
   ButtonModule,
   CalloutModule,
+  ChipFilterComponent,
+  ChipFilterOption,
   FilterMenuComponent,
   FilterOptionComponent,
+  FormFieldModule,
   LinkModule,
   StatusLockupComponent,
   SvgComponent,
@@ -38,10 +41,37 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 
 import { AccessNameResolverService } from "../access-requests/access-name-resolver.service";
 
-import { AuditRow, auditRowMatchesFilter, toAuditRow } from "./access-audit-row";
+import {
+  AUTOMATED_ACTOR,
+  AuditRow,
+  auditRangeEnd,
+  auditRangeStart,
+  auditRowMatchesFilter,
+  toAuditRow,
+} from "./access-audit-row";
 import { AuditApiService } from "./audit-api.service";
 
 type AuditStatus = "loading" | "ready" | "empty" | "error";
+
+/**
+ * One chip option per distinct identity in `rows`, labelled the way the cells label it. A row whose identity
+ * resolved to neither a name nor an email is skipped rather than offered under its raw id.
+ */
+function identityOptions(
+  rows: AuditRow[],
+  id: (row: AuditRow) => string | null,
+  label: (row: AuditRow) => string | null,
+): ChipFilterOption<string>[] {
+  const labelById = new Map<string, string>();
+  for (const row of rows) {
+    const value = id(row);
+    const text = label(row);
+    if (value != null && text != null && !labelById.has(value)) {
+      labelById.set(value, text);
+    }
+  }
+  return [...labelById].map(([value, text]) => ({ label: text, value }));
+}
 
 /**
  * The organization's PAM access-audit trail, read from the dedicated append-only audit store.
@@ -57,7 +87,9 @@ type AuditStatus = "loading" | "ready" | "empty" | "error";
  * Read-only, and deliberately without a drill-down: the request-detail page is authorized for the
  * request's requester or a managing approver, which is a different permission from the one that opens
  * this trail, so an auditor holding only AccessEventLogs would follow such a link into a 404. The
- * toolbar filters (free-text + event kind) run client-side over the already-fetched window.
+ * toolbar filters (free text, event kind, actor, requester, date range) run client-side over the
+ * already-fetched window: the endpoint takes no query parameters and returns the whole 90 days at once,
+ * so changing a filter never re-reads it.
  */
 @Component({
   selector: "app-pam-access-audit",
@@ -70,8 +102,10 @@ type AuditStatus = "loading" | "ready" | "empty" | "error";
     BadgeModule,
     ButtonModule,
     CalloutModule,
+    ChipFilterComponent,
     FilterMenuComponent,
     FilterOptionComponent,
+    FormFieldModule,
     HeaderModule,
     LinkModule,
     StatusLockupComponent,
@@ -123,6 +157,10 @@ export class AccessAuditComponent implements OnInit {
 
   // --- Toolbar filters (client-side over the fetched window) ---
   protected readonly searchControl = new FormControl("", { nonNullable: true });
+  protected readonly actorControl = new FormControl<string | null>(null);
+  protected readonly requesterControl = new FormControl<string | null>(null);
+  protected readonly fromControl = new FormControl("", { nonNullable: true });
+  protected readonly toControl = new FormControl("", { nonNullable: true });
 
   private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
 
@@ -135,6 +173,29 @@ export class AccessAuditComponent implements OnInit {
 
   private readonly kindValue = computed(() => (this.kindMenu()?.value() ?? null) as string | null);
 
+  private readonly actorValue = toSignal(this.actorControl.valueChanges, { initialValue: null });
+  private readonly requesterValue = toSignal(this.requesterControl.valueChanges, {
+    initialValue: null,
+  });
+  private readonly fromValue = toSignal(this.fromControl.valueChanges, { initialValue: "" });
+  private readonly toValue = toSignal(this.toControl.valueChanges, { initialValue: "" });
+
+  private readonly rangeStart = computed(() => auditRangeStart(this.fromValue()));
+  private readonly rangeEnd = computed(() => auditRangeEnd(this.toValue()));
+
+  /** From after To. Surfaced to the auditor, who otherwise reads an empty table as a trail with no events. */
+  protected readonly invertedRange = computed(() => {
+    const start = this.rangeStart();
+    const end = this.rangeEnd();
+    return start != null && end != null && end.getTime() < start.getTime();
+  });
+
+  /** `bit-error` renders the second element's `message` for any key it does not itself translate. */
+  protected readonly invalidRangeError: [string, { message: string }] = [
+    "invalidDateRange",
+    { message: this.i18nService.t("invalidDateRange") },
+  ];
+
   /** Event-kind chip options, limited to the labels actually present in the trail, sorted. */
   protected readonly kindOptions = computed(() =>
     [...new Set(this.rows().map((row) => row.kindLabelKey))]
@@ -142,11 +203,42 @@ export class AccessAuditComponent implements OnInit {
       .sort((a, b) => a.label.localeCompare(b.label)),
   );
 
-  protected readonly filteredRows = computed(() =>
-    this.rows().filter((row) =>
-      auditRowMatchesFilter(row, { text: this.searchText(), kindLabelKey: this.kindValue() }),
-    ),
+  /** Actor chip options: the identities that actually acted, plus the system bucket when the trail has one. */
+  protected readonly actorOptions = computed<ChipFilterOption<string>[]>(() => {
+    const rows = this.rows();
+    const options = identityOptions(
+      rows.filter((row) => !row.automated),
+      (row) => row.actorId,
+      (row) => row.actor,
+    );
+    if (rows.some((row) => row.automated)) {
+      options.push({ label: this.i18nService.t("pamAuditSystem"), value: AUTOMATED_ACTOR });
+    }
+    return options.sort((a, b) => a.label.localeCompare(b.label));
+  });
+
+  /** Requester chip options: the identities whose access the trail records. */
+  protected readonly requesterOptions = computed<ChipFilterOption<string>[]>(() =>
+    identityOptions(
+      this.rows(),
+      (row) => row.requesterId,
+      (row) => row.requester,
+    ).sort((a, b) => a.label.localeCompare(b.label)),
   );
+
+  protected readonly filteredRows = computed(() => {
+    const inverted = this.invertedRange();
+    return this.rows().filter((row) =>
+      auditRowMatchesFilter(row, {
+        text: this.searchText(),
+        kindLabelKey: this.kindValue(),
+        actorId: this.actorValue(),
+        requesterId: this.requesterValue(),
+        from: inverted ? null : this.rangeStart(),
+        to: inverted ? null : this.rangeEnd(),
+      }),
+    );
+  });
 
   async ngOnInit(): Promise<void> {
     await this.load();

@@ -52,29 +52,48 @@ function event(overrides: Record<string, unknown>): AccessAuditEventResponse {
     leaseNotAfter: null,
     cipherName: null,
     collectionName: null,
+    ruleName: null,
+    automated: false,
+    incomplete: false,
     ...overrides,
   } as unknown as AccessAuditEventResponse;
 }
 
-/** One of each kind the trail actually emits today, newest first as the server returns them. */
+/** The approver, distinct from the two requesters so the Actor and Requester chips each have something to sort. */
+const APPROVER = {
+  actorId: "user-2",
+  actorName: "Ada Lovelace",
+  actorEmail: "ada@example.com",
+};
+
+/** The second requester, so the Requester chip is not a one-option menu. */
+const OTHER_REQUESTER = {
+  requesterId: "user-3",
+  requesterName: "Katherine Johnson",
+  requesterEmail: "katherine@example.com",
+};
+
+/**
+ * One of each kind the trail actually emits today, newest first as the server returns them, spread
+ * over a week so the date range has something to narrow.
+ */
 const EVENTS: AccessAuditEventResponse[] = [
   event({
     kind: AccessAuditEventKind.LeaseExpired,
     occurredAt: fromNow(-5 * MINUTE),
     leaseId: "lease-1",
+    // No actor: the lease ran out on its own, which the row renders as an automated action.
+    actorId: null,
+    actorName: null,
+    actorEmail: null,
+    automated: true,
   }),
   event({
     kind: AccessAuditEventKind.LeaseRevoked,
     occurredAt: fromNow(-20 * MINUTE),
     leaseId: "lease-2",
-    actorId: "user-2",
-    actorName: "Ada Lovelace",
+    ...APPROVER,
     detail: "Incident closed early.",
-  }),
-  event({
-    kind: AccessAuditEventKind.LeaseRevoked,
-    occurredAt: fromNow(-25 * MINUTE),
-    leaseId: "lease-3",
   }),
   event({
     kind: AccessAuditEventKind.LeaseExtended,
@@ -92,37 +111,51 @@ const EVENTS: AccessAuditEventResponse[] = [
   event({
     kind: AccessAuditEventKind.RequestApproved,
     occurredAt: fromNow(-3 * HOUR),
-    actorName: "Ada Lovelace",
-    actorEmail: "ada@example.com",
+    ...APPROVER,
     detail: "Approved for the incident window.",
   }),
   // No actor: the rule auto-approved it, which the row renders as an automated action.
   event({
     kind: AccessAuditEventKind.RequestApproved,
-    occurredAt: fromNow(-4 * HOUR),
+    occurredAt: fromNow(-2 * DAY),
     cipherId: "cipher-2",
     collectionId: "col-2",
+    requestId: "req-2",
+    ...OTHER_REQUESTER,
     actorId: null,
     actorName: null,
     actorEmail: null,
+    automated: true,
+  }),
+  event({
+    kind: AccessAuditEventKind.RequestSubmitted,
+    occurredAt: fromNow(-2 * DAY - HOUR),
+    cipherId: "cipher-2",
+    collectionId: "col-2",
+    requestId: "req-2",
+    ...OTHER_REQUESTER,
+    actorId: OTHER_REQUESTER.requesterId,
+    actorName: OTHER_REQUESTER.requesterName,
+    actorEmail: OTHER_REQUESTER.requesterEmail,
   }),
   event({
     kind: AccessAuditEventKind.RequestDenied,
-    occurredAt: fromNow(-DAY),
+    occurredAt: fromNow(-4 * DAY),
     cipherId: "cipher-3",
-    actorName: "Ada Lovelace",
+    ...APPROVER,
     detail: "Use the read replica instead.",
   }),
-  event({ kind: AccessAuditEventKind.RequestCancelled, occurredAt: fromNow(-2 * DAY) }),
+  event({ kind: AccessAuditEventKind.RequestCancelled, occurredAt: fromNow(-5 * DAY) }),
   // A rule change: no cipher, so the subject column falls back to the rule name.
   event({
     kind: AccessAuditEventKind.RuleUpdated,
-    occurredAt: fromNow(-3 * DAY),
+    occurredAt: fromNow(-7 * DAY),
     cipherId: null,
     collectionId: null,
     requestId: null,
     ruleId: "rule-1",
     ruleName: "Production access",
+    ...APPROVER,
   }),
 ];
 
