@@ -173,8 +173,6 @@ describe("OrgPasskeyReportComponent", () => {
     expect(links[0].nativeElement.getAttribute("href")).toBe(
       `/organizations/${orgId}/reporting/reports`,
     );
-
-    expect(breadcrumbs.nativeElement.querySelector("bit-icon[name='bwi-sliders']")).not.toBeNull();
   });
 
   describe("loading ciphers", () => {

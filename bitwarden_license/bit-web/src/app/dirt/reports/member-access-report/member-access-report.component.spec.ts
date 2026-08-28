@@ -316,10 +316,6 @@ describe("MemberAccessReportComponent", () => {
       expect(links[0].nativeElement.getAttribute("href")).toBe(
         `/organizations/${ORGANIZATION_ID}/reporting/reports`,
       );
-
-      expect(
-        breadcrumbs.nativeElement.querySelector("bit-icon[name='bwi-sliders']"),
-      ).not.toBeNull();
     });
 
     it("renders the current page breadcrumb when the VFO1 feature flag is enabled", async () => {

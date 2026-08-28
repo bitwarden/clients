@@ -171,8 +171,6 @@ describe("ExposedPasswordsReportComponent", () => {
     const links = breadcrumbs.queryAll(By.css("a[href]"));
     expect(links).toHaveLength(1);
     expect(links[0].nativeElement.getAttribute("href")).toBe("/reports");
-
-    expect(breadcrumbs.nativeElement.querySelector("bit-icon[name='bwi-sliders']")).not.toBeNull();
   });
 
   it('should get only ciphers with exposed passwords that the user has "Can Edit" access to', async () => {

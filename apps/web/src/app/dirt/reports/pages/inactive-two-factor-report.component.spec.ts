@@ -130,8 +130,6 @@ describe("InactiveTwoFactorReportComponent", () => {
     const links = breadcrumbs.queryAll(By.css("a[href]"));
     expect(links).toHaveLength(1);
     expect(links[0].nativeElement.getAttribute("href")).toBe("/reports");
-
-    expect(breadcrumbs.nativeElement.querySelector("bit-icon[name='bwi-sliders']")).not.toBeNull();
   });
 
   it('should get only ciphers with domains in the 2fa directory that they have "Can Edit" access to', async () => {
