@@ -21,11 +21,11 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, MenuModule } from "@bitwarden/components";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import {
   CopyCipherFieldDirective,
   CopyCipherFieldService,
   OrganizationNameBadgeComponent,
-  ShareLinkService,
   VaultCopyButtonsService,
 } from "@bitwarden/vault";
 

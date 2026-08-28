@@ -20,9 +20,7 @@ import {
 } from "@angular/forms";
 import { combineLatest, switchMap } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -50,12 +48,12 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { PolicyType } from "@bitwarden/sdk-internal";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { ShareLinkService } from "../share-link.service";
-import type { ShareLink } from "../share-link.service";
-import { ExpiryChoice, ExpiryOption } from "../share-link.types";
+import { ShareLinkService } from "../../services/share-link.service";
+import type { ShareLink } from "../../services/share-link.service";
+import { ExpiryChoice, ExpiryOption } from "../../types/share-link.types";
 
 @Component({
   selector: "app-share-item-form",
@@ -85,7 +83,7 @@ export class ShareItemFormComponent implements OnDestroy {
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly toastService = inject(ToastService);
   private readonly shareLinkService = inject(ShareLinkService);
-  private readonly policyService = inject(PolicyService);
+  private readonly sendPolicyService = inject(SendPolicyService);
   private readonly logService = inject(LogService);
 
   /** The cipher to share. Provided by the shell component. */
@@ -139,16 +137,34 @@ export class ShareItemFormComponent implements OnDestroy {
     if (!control.value) {
       return null;
     }
-    const emails = (control.value as string).split(",").map((e) => e.trim());
-    const nonEmpty = emails.filter((e) => e.length > 0);
-    if (nonEmpty.length === 0) {
+    const emails = control.value.split(",").map((e: string) => e.trim());
+    const nonEmptyEmails = emails.filter((e: string) => e.length > 0);
+    if (nonEmptyEmails.length === 0) {
       return { required: true };
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const invalid = nonEmpty.filter((e) => !emailRegex.test(e));
-    if (invalid.length > 0) {
+    const invalidEmails = nonEmptyEmails.filter((e: string) => !emailRegex.test(e));
+    if (invalidEmails.length > 0) {
       return { multipleEmails: true };
     }
+
+    const policyAllowedDomains = this.policyAllowedDomains();
+    if (policyAllowedDomains && policyAllowedDomains.length > 0) {
+      const disallowedEmails = nonEmptyEmails.filter((email: string) => {
+        const domain = email.split("@")[1]?.toLowerCase();
+        return !policyAllowedDomains.includes(domain);
+      });
+      if (disallowedEmails.length > 0) {
+        return {
+          domainNotAllowed: {
+            value: control.value,
+            domains: policyAllowedDomains.join(", "),
+            message: this.i18nService.t("domainNotAllowed", policyAllowedDomains.join(", ")),
+          },
+        };
+      }
+    }
+
     return null;
   };
 
@@ -177,25 +193,28 @@ export class ShareItemFormComponent implements OnDestroy {
   });
 
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
+  private readonly policyAllowedDomains = signal<string[] | null>(null);
 
   constructor() {
-    this.activeUserId$
-      .pipe(
-        // Since item sharing is currently Send-based, we need to comply with any Send Controls policies
-        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendControls, userId)),
-      )
-      .pipe(takeUntilDestroyed())
-      .subscribe((sendControlsPolicies) => {
-        const policyWithDeletionDate = sendControlsPolicies.find(
-          (scp) => scp.data.deletionHours != undefined,
-        );
-        if (policyWithDeletionDate) {
-          const expiryHoursFormControl = this.form.get("expiryHours");
-          expiryHoursFormControl?.setValue(policyWithDeletionDate.data.deletionHours);
-          expiryHoursFormControl?.disable();
-        }
-      });
+    this.sendPolicyService.deletionDatePolicyInfo$.pipe(takeUntilDestroyed()).subscribe((dh) => {
+      if (dh) {
+        const expiryHoursFormControl = this.form.get("expiryHours");
+        expiryHoursFormControl?.setValue((dh as any) ?? ExpiryOption.SevenDays);
+        expiryHoursFormControl?.disable();
+      }
+    });
 
+    this.sendPolicyService.allowedDomains$
+      .pipe(takeUntilDestroyed())
+      .subscribe((allowedDomains) => {
+        const emailsControl = this.form.get("emails");
+        if (allowedDomains && allowedDomains.length > 0) {
+          this.policyAllowedDomains.set(allowedDomains);
+        } else {
+          this.policyAllowedDomains.set(null);
+        }
+        emailsControl?.updateValueAndValidity();
+      });
     const cipher$ = toObservable(this.cipher).pipe(filterOutNullish());
 
     combineLatest([

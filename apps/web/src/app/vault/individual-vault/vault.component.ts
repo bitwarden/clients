@@ -88,6 +88,7 @@ import {
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
+import { ShareItemDrawerComponent } from "@bitwarden/tools-share";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
@@ -125,7 +126,6 @@ import {
   BULK_DELETE_DIALOG,
   VaultOrganizationUserNotificationsComponent,
   Vfo1TerminologyService,
-  ShareItemDrawerComponent,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 

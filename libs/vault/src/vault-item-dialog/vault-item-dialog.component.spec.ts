@@ -30,9 +30,9 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { ShareLinkService } from "@bitwarden/tools-share";
 
 import { CipherFormConfig } from "../cipher-form";
-import { ShareLinkService } from "../share-link.service";
 
 import {
   VaultItemDialogComponent,

@@ -8,8 +8,8 @@ import {
   DialogRef,
   DialogService,
 } from "@bitwarden/components";
+import { ShareItemFormComponent } from "@bitwarden/tools-share";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { ShareItemFormComponent } from "@bitwarden/vault";
 
 export interface ShareItemDesktopDialogData {
   cipher: CipherView;

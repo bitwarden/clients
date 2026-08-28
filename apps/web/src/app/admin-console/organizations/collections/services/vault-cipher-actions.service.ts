@@ -25,6 +25,7 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { ShareItemDrawerComponent } from "@bitwarden/tools-share";
 import {
   AttachmentDialogResult,
   AttachmentsV2Component,
@@ -35,7 +36,6 @@ import {
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
-  ShareItemDrawerComponent,
   VaultFilter,
   VaultItemDialogComponent,
   VaultItemDialogMode,

@@ -30,11 +30,8 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuTriggerForDirective } from "@bitwarden/components";
-import {
-  ShareLinkService,
-  VaultCopyButtonsService,
-  Vfo1TerminologyService,
-} from "@bitwarden/vault";
+import { ShareLinkService } from "@bitwarden/tools-share";
+import { VaultCopyButtonsService, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import {
   CollectionPermission,

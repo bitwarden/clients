@@ -130,8 +130,8 @@ import {
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
 import { ImportDesktopComponent } from "../../../app/tools/import/import-desktop.component";
+import { ShareItemDesktopComponent } from "../../../app/tools/share-item/share-item-desktop.component";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
-import { ShareItemDesktopComponent } from "../vault/share-item";
 
 import { AssignCollectionsDesktopDialogAdapter } from "./bulk-action-dialogs/assign-collections-desktop-dialog.adapter";
 import { BulkDeleteDialogDesktopAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-desktop.adapter";

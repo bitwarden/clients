@@ -49,6 +49,7 @@ import {
   ItemModule,
   ToastService,
 } from "@bitwarden/components";
+import { ShareItemDrawerComponent, ShareLinkService } from "@bitwarden/tools-share";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { CipherFormComponent, CipherFormConfig, CipherFormModule } from "../cipher-form";
@@ -60,8 +61,6 @@ import {
 } from "../cipher-view/attachments/attachments-v2.component";
 import { CipherViewComponent } from "../cipher-view/cipher-view.component";
 import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
-import { ShareItemDrawerComponent } from "../share-item-drawer/share-item-drawer.component";
-import { ShareLinkService } from "../share-link.service";
 
 export type VaultItemDialogMode = "view" | "form";
 

@@ -8,7 +8,7 @@
       <bit-label>{{ "sendTypes" | i18n }}</bit-label>
       <bit-multi-select
         [formControl]="allowedSendTypesMultiSelectControl"
-        [baseItems]="allSendTypeOptions()"
+        [baseItems]="allSendTypeOptions$ | async"
         [disabled]="!enabled.value"
       ></bit-multi-select>
     </bit-form-field>

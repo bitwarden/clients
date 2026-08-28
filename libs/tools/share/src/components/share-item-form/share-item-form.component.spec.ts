@@ -3,7 +3,6 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -19,7 +18,7 @@ import { ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { PolicyType } from "@bitwarden/sdk-internal";
 
-import { ShareLink, ShareLinkService } from "../share-link.service";
+import { ShareLink, ShareLinkService } from "../..";
 
 import { ShareItemFormComponent } from "./share-item-form.component";
 
