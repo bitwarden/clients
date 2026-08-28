@@ -1398,6 +1398,90 @@ describe("AccessAuditComponent", () => {
     });
   });
 
+  describe("empty cells", () => {
+    const ACTOR = 2;
+    const REQUESTER = 3;
+    const DETAIL = 6;
+
+    const render = async (events: AccessAuditEventResponse[]) => {
+      auditApiService.listAccessAuditTrail.mockResolvedValue(events);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const cell = (column: number): HTMLElement =>
+      Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll("bit-table tbody tr td"))[
+        column
+      ];
+
+    const text = (column: number) => cell(column).textContent!.trim();
+
+    it("renders the actor's name when the row names one", async () => {
+      await render([event({ ActorId: "user-9", ActorName: "Linus" })]);
+
+      expect(text(ACTOR)).toBe("Linus");
+    });
+
+    it("renders an em dash for a row with no actor", async () => {
+      await render([event({ ActorId: null, ActorName: null, ActorEmail: null })]);
+
+      expect(text(ACTOR)).toBe("—");
+    });
+
+    // "System" is a value, not an absence: an automated row has an actor, it just is not a person.
+    it("keeps the System label rather than a dash for an automated row", async () => {
+      await render([event({ ActorId: null, ActorName: null, ActorEmail: null, Automated: true })]);
+
+      expect(text(ACTOR)).toBe("System");
+    });
+
+    it("renders the requester's name when the row names one", async () => {
+      await render([event({ RequesterId: "user-9", RequesterName: "Linus" })]);
+
+      expect(text(REQUESTER)).toBe("Linus");
+    });
+
+    it("renders an em dash for a row with no requester", async () => {
+      await render([event({ RequesterId: null, RequesterName: null, RequesterEmail: null })]);
+
+      expect(text(REQUESTER)).toBe("—");
+    });
+
+    it("renders the detail when the row carries one", async () => {
+      await render([event({ Detail: "Incident closed early." })]);
+
+      expect(text(DETAIL)).toBe("Incident closed early.");
+    });
+
+    it("renders an em dash for a row with no detail", async () => {
+      await render([event({ Detail: null })]);
+
+      expect(text(DETAIL)).toBe("—");
+    });
+
+    // A blank cell in an audit table reads as a rendering failure rather than as "no value".
+    it("leaves no cell of a bare row blank", async () => {
+      await render([
+        event({
+          ActorId: null,
+          ActorName: null,
+          ActorEmail: null,
+          RequesterId: null,
+          RequesterName: null,
+          RequesterEmail: null,
+          Detail: null,
+        }),
+      ]);
+
+      for (const column of [ACTOR, REQUESTER, DETAIL]) {
+        expect(text(column)).toBe("—");
+        expect(cell(column).querySelector(".tw-text-muted")).not.toBeNull();
+      }
+    });
+  });
+
   describe("column widths", () => {
     /** Time, Event, Actor, Requester, Item, Duration, Detail — the order the template declares. */
     const TIME = 0;
