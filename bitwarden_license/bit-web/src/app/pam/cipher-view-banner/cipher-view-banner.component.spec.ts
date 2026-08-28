@@ -15,6 +15,7 @@ import {
   AccessRequestSdkService,
   LeasingErrorService,
   REQUEST_ACCESS_SERVER_ERRORS,
+  toDateInputValue,
 } from "..";
 import type {
   AccessLeaseView,
@@ -27,11 +28,20 @@ import { AccessRequestCancelService } from "../services/access-request-cancel.se
 import { DefaultAccessRefreshService } from "../services/default-access-refresh.service";
 
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
+import { REQUEST_WINDOW_ERROR_KEY } from "./request-access-window.validators";
 
 /**
  * The SDK views are wide and every field is server-populated, so tests build only the fields the
  * banner reads and widen through `unknown` — the same convention `my-access.service.spec.ts` uses.
  */
+/**
+ * Tomorrow, in the shape `<input type="date">` carries. The window validator rejects a window that
+ * has already ended (PM-42592), so a date literal would let the cases below pass on the day they
+ * were written and fail every day after; anchoring to the real clock keeps them honest. The time of
+ * day is then free — any hour tomorrow is still ahead of now.
+ */
+const futureDate = toDateInputValue(new Date(Date.now() + 24 * 60 * 60 * 1000));
+
 function leaseView(overrides: Partial<AccessLeaseView> = {}): AccessLeaseView {
   return {
     id: "lease-1",
@@ -831,7 +841,7 @@ describe("CipherViewBannerComponent", () => {
       await fixture.whenStable();
 
       // A 2h window is well inside the global 24h ceiling but past this rule's 30m cap.
-      component["humanForm"].patchValue({ date: "2026-08-17", start: "09:00", end: "11:00" });
+      component["humanForm"].patchValue({ date: futureDate, start: "09:00", end: "11:00" });
       component["humanForm"].controls.end.markAsTouched();
       fixture.detectChanges();
       await fixture.whenStable();
@@ -842,6 +852,43 @@ describe("CipherViewBannerComponent", () => {
       const error = endFieldError();
       expect(error).not.toBeNull();
       expect(error?.textContent).toContain(maxWindow);
+    });
+
+    // PM-42592: a window dated before the request sailed through the form, and the server then
+    // persisted a pending request activation could never start.
+    it("rejects a window that has already ended", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
+      await create(gatedCipher());
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const pastDate = toDateInputValue(new Date(Date.now() - 8 * 24 * 60 * 60 * 1000));
+      component["humanForm"].patchValue({ date: pastDate, start: "09:00", end: "10:00" });
+      component["humanForm"].controls.end.markAsTouched();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component["humanForm"].invalid).toBe(true);
+      const error = endFieldError();
+      expect(error).not.toBeNull();
+      expect(error?.textContent).toContain("requestAccessModalWindowInPast");
+    });
+
+    it("floors the date picker at the day the fold-out opened", async () => {
+      // Only an affordance — `min` reports through `ValidityState.rangeUnderflow`, which reactive
+      // forms never read, and a typed date skips the picker. The validator above is the guard.
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
+      await create(gatedCipher());
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const date = query("#pam-cipher-view-banner_input_date") as HTMLInputElement | null;
+      expect(date?.getAttribute("min")).toBe(toDateInputValue(new Date()));
+      // The seeded date is the floor itself, so the form opens valid rather than pre-erroring.
+      expect(component["humanForm"].controls.date.value).toBe(date?.getAttribute("min"));
     });
 
     it("re-resolves the bounds when the fold-out is re-opened against a different rule", async () => {
@@ -926,7 +973,7 @@ describe("CipherViewBannerComponent", () => {
       await component["toggleRequestForm"]();
 
       component["humanForm"].patchValue({
-        date: "2026-08-17",
+        date: futureDate,
         start: "09:00",
         end: "10:00",
         reason: " prod incident ",
@@ -935,10 +982,41 @@ describe("CipherViewBannerComponent", () => {
 
       expect(requestsApi.submitAccessRequest).toHaveBeenCalledWith("cipher-1", {
         durationSeconds: undefined,
-        start: new Date("2026-08-17T09:00").toISOString(),
-        end: new Date("2026-08-17T10:00").toISOString(),
+        start: new Date(`${futureDate}T09:00`).toISOString(),
+        end: new Date(`${futureDate}T10:00`).toISOString(),
         reason: "prod incident",
       });
+    });
+
+    it("re-checks the window on submit when it elapsed while the form sat open", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
+      await create(gatedCipher());
+      await component["toggleRequestForm"]();
+
+      const end = component["humanForm"].controls.end;
+      component["humanForm"].patchValue({
+        date: futureDate,
+        start: "09:00",
+        end: "10:00",
+        reason: "prod incident",
+      });
+      expect(end.errors).toBeNull();
+
+      // Age the form past its own window without touching a control. Nothing re-runs the validator
+      // on its own, so `end` still reads valid — submit is the only thing that can catch this.
+      jest.useFakeTimers().setSystemTime(new Date(`${futureDate}T10:00`).getTime() + 1000);
+      try {
+        expect(end.errors).toBeNull();
+
+        await component["submitRequest"]();
+
+        expect(requestsApi.submitAccessRequest).not.toHaveBeenCalled();
+        expect(end.errors?.[REQUEST_WINDOW_ERROR_KEY]).toEqual(
+          expect.objectContaining({ problem: "endInPast" }),
+        );
+      } finally {
+        jest.useRealTimers();
+      }
     });
 
     it("does not submit an invalid human form", async () => {
@@ -947,7 +1025,7 @@ describe("CipherViewBannerComponent", () => {
       await component["toggleRequestForm"]();
 
       component["humanForm"].patchValue({
-        date: "2026-08-17",
+        date: futureDate,
         start: "10:00",
         end: "09:00",
         reason: "",
@@ -964,7 +1042,7 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component["humanForm"].patchValue({ date: "2026-08-17", start: "10:00", end: "09:00" });
+      component["humanForm"].patchValue({ date: futureDate, start: "10:00", end: "09:00" });
       component["humanForm"].controls.end.markAsTouched();
       fixture.detectChanges();
       await fixture.whenStable();
@@ -985,7 +1063,7 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component["humanForm"].patchValue({ date: "2026-08-17", start: "09:00", end: "10:00" });
+      component["humanForm"].patchValue({ date: futureDate, start: "09:00", end: "10:00" });
       component["humanForm"].controls.start.setValue("11:00");
       fixture.detectChanges();
       await fixture.whenStable();
@@ -1004,7 +1082,7 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      component["humanForm"].patchValue({ date: "2026-08-17", start: "11:00", end: "10:00" });
+      component["humanForm"].patchValue({ date: futureDate, start: "11:00", end: "10:00" });
       component["humanForm"].controls.end.markAsTouched();
       fixture.detectChanges();
       await fixture.whenStable();
@@ -1026,7 +1104,7 @@ describe("CipherViewBannerComponent", () => {
       await fixture.whenStable();
 
       component["humanForm"].patchValue({
-        date: "2026-08-17",
+        date: futureDate,
         start: "10:00",
         end: "09:00",
         reason: "prod incident",
