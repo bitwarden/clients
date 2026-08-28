@@ -1,5 +1,6 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { ActivatedRoute } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -18,6 +19,7 @@ import {
 
 import { AccessAuditComponent } from "./access-audit.component";
 import { AuditApiService } from "./audit-api.service";
+import { NoAuditActivityIcon } from "./no-audit-activity.icon";
 import { AccessAuditEventResponse } from "./responses/access-audit-event.response";
 
 const ORGANIZATION_ID = "org-1";
@@ -72,6 +74,7 @@ describe("AccessAuditComponent", () => {
             tryAgain: "Try again",
             pamAuditEmptyTitle: "No audit activity",
             pamAuditEmptyMessage: "Activity will appear here.",
+            pamAuditEmptyRulesHint: "Access rules put activity in this log.",
             pamAccessRules: "Access rules",
             pamAuditSearchPlaceholder: "Search the audit log",
             pamAuditNoMatchesTitle: "No matching events",
@@ -138,6 +141,29 @@ describe("AccessAuditComponent", () => {
     await fixture.whenStable();
 
     expect(component().status()).toBe("empty");
+  });
+
+  it("gives the empty state the PAM glyph rather than the generic no-results icon", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const noItems = fixture.debugElement.query(By.css("bit-no-items"));
+    expect(noItems.componentInstance.icon()).toBe(NoAuditActivityIcon);
+  });
+
+  it("explains what puts an entry in the trail on the empty state", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const description = fixture.nativeElement.querySelector("[slot=description]");
+    expect(description.textContent).toContain("Activity will appear here.");
+    expect(description.textContent).toContain("Access rules put activity in this log.");
   });
 
   it("shows the empty state's Access rules link for a viewer who can manage access rules", async () => {

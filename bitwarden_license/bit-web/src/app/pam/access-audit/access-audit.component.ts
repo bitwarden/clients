@@ -37,6 +37,7 @@ import { AccessNameResolverService } from "../access-requests/access-name-resolv
 
 import { AuditRow, auditRowMatchesFilter, toAuditRow } from "./access-audit-row";
 import { AuditApiService } from "./audit-api.service";
+import { NoAuditActivityIcon } from "./no-audit-activity.icon";
 
 type AuditStatus = "loading" | "ready" | "empty" | "error";
 
@@ -113,6 +114,8 @@ export class AccessAuditComponent implements OnInit {
 
   protected readonly status = signal<AuditStatus>("loading");
   protected readonly rows = signal<AuditRow[]>([]);
+
+  protected readonly noItemsIcon = NoAuditActivityIcon;
 
   // --- Toolbar filters (client-side over the fetched window) ---
   protected readonly searchControl = new FormControl("", { nonNullable: true });
