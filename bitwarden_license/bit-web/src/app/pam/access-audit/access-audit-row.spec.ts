@@ -27,6 +27,7 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     cipherId: "cipher-1",
     collectionName: "production",
     ruleName: null,
+    ruleId: null,
     detail: null,
     automated: false,
     inDoubt: false,
