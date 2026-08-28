@@ -193,19 +193,14 @@ function signProxy(config: BuildConfig, context: AfterPackContext): void {
     return;
   }
   if (identity == null) {
-    // Nothing was named, and nothing else will sign these: electron-builder's own pass skips
-    // them, because `mac.signIgnore` in the base configuration lists both. Left alone they
-    // would be unsigned Mach-O binaries inside a signed, hardened-runtime bundle. Reported
-    // rather than guessed at, which is what the hook this replaced did -- it read
-    // GITHUB_ACTIONS, then CSC_NAME, then took whatever the keychain listed first.
-    //
-    // TODO: this belongs in validate(), so it lands at configure time with everything else.
-    // It is here for now because requiring the flag for every macOS build is a change to what
-    // configure accepts, and this is the narrower fix.
+    // configure refuses a macOS build that names no certificate, so this is only reachable
+    // through a configuration that was written some other way. Worth keeping: nothing else
+    // signs these binaries -- `mac.signIgnore` in the base configuration excludes both from
+    // electron-builder's own pass -- so without it they would be unsigned Mach-O files inside
+    // a signed, hardened-runtime bundle, which is not a failure that announces itself.
     throw new BuildError(
-      "Packaging macOS needs --macos-signing-certificate: the native messaging proxy is signed " +
-        "separately from the app, and nothing else signs it.\n" +
-        "       Pass an identity, or 'none' to leave the whole package unsigned.",
+      `${config.buildDir} names no macOS signing certificate. Reconfigure it with ` +
+        "--macos-signing-certificate, or 'none' to leave the package unsigned.",
     );
   }
 

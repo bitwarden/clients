@@ -49,6 +49,15 @@ const PLATFORMS = {
   linux: Platform.LINUX,
 };
 
+/// Signing settings naming a file, which electron-builder passes to `codesign` and `security`
+/// as given.
+const SIGNING_PATHS = [
+  "entitlements",
+  "entitlementsInherit",
+  "entitlementsLoginHelper",
+  "provisioningProfile",
+];
+
 const ARCHITECTURES: Record<Architecture, Arch> = {
   ia32: Arch.ia32,
   x64: Arch.x64,
@@ -92,9 +101,13 @@ async function pack(config: BuildConfig): Promise<void> {
 
   await electronBuilder({
     projectDir,
-    // The hooks go on after the file is written, because they are functions and would vanish
-    // from it -- what is recorded there stays the configuration, not the code that runs over it.
-    config: { ...resolved, ...packHooks(config), ...appxManifestHook(config) },
+    // The hooks and the absolute paths go on after the file is written -- what is recorded there
+    // stays the configuration, relative and readable, not the form it has to take to run.
+    config: {
+      ...withAbsoluteSigningPaths(resolved),
+      ...packHooks(config),
+      ...appxManifestHook(config),
+    },
     targets: PLATFORMS[config.derived.platform].createTarget(
       targets,
       ...config.architectures.map((architecture) => ARCHITECTURES[architecture]),
@@ -103,6 +116,34 @@ async function pack(config: BuildConfig): Promise<void> {
     // Leaving this unset would let electron-builder publish on a tagged CI run.
     publish: "never",
   });
+}
+
+/// Rewrites those to absolute paths.
+///
+/// The configuration records them relative to apps/desktop, which is what makes it portable.
+/// But electron-builder runs `codesign` and `security` in the working directory it was called
+/// from, not the project directory, so a relative path is one they cannot open unless the
+/// caller happened to be standing in apps/desktop. Everything else -- `extraFiles`, the
+/// directories -- electron-builder resolves against the project itself and is left alone.
+function withAbsoluteSigningPaths(resolved: Record<string, unknown>): Record<string, unknown> {
+  const result = { ...resolved };
+
+  for (const platform of ["mac", "mas"]) {
+    const section = result[platform];
+    if (section == null || typeof section !== "object") {
+      continue;
+    }
+
+    const values = { ...(section as Record<string, unknown>) };
+    for (const key of SIGNING_PATHS) {
+      if (typeof values[key] === "string") {
+        values[key] = path.resolve(projectDir, values[key]);
+      }
+    }
+    result[platform] = values;
+  }
+
+  return result;
 }
 
 /// The beta Appx manifest is edited after electron-builder generates it, by a hook the beta

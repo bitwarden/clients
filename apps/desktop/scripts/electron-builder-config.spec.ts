@@ -22,7 +22,15 @@ function configFor(args: string[]): BuildConfig {
   return toBuildConfig(raw);
 }
 
-const MAC = ["--build-dir", "build-mac", "--architecture", "universal"];
+const MAC = [
+  "--build-dir",
+  "build-mac",
+  "--architecture",
+  "universal",
+  // Required for any macOS build; a case naming its own certificate later overrides it.
+  "--macos-signing-certificate",
+  "Developer ID Application: Bitwarden Inc",
+];
 const WINDOWS = ["--build-dir", "build-win", "--architecture", "x64"];
 const LINUX = ["--build-dir", "build-lin", "--architecture", "x64"];
 

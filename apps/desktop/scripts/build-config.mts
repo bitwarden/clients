@@ -572,15 +572,21 @@ export function validate(raw: RawOptions): string[] {
     errors.push(`--glibc is only available on linux, not ${platform}.`);
   }
 
-  // Sandboxed builds sign the native messaging proxy with entitlements of its own, which needs
-  // an identity named rather than discovered: the alternative is picking one out of the keychain
-  // and hoping it is the one electron-builder picked for everything else.
-  for (const channel of distributionChannels.filter((each) => APP_STORE_CHANNELS.includes(each))) {
-    if (raw.macosSigningCertificate == null) {
-      errors.push(`--distribution-channel ${channel} requires --macos-signing-certificate.`);
-    } else if (raw.macosSigningCertificate === "none" && channel === "mac-app-store") {
-      errors.push("--distribution-channel mac-app-store cannot be built unsigned.");
-    }
+  // Packaging macOS signs more than the app bundle: the native messaging proxy is signed
+  // separately, before electron-builder runs, because `mac.signIgnore` excludes it from
+  // electron-builder's own pass and the App Store build needs entitlements of its own on it.
+  // So an identity has to be named rather than discovered -- the alternative is picking one out
+  // of the keychain and hoping it is the one electron-builder picked for everything else, which
+  // is what the packaging hooks used to do.
+  if (platform === "macos" && raw.macosSigningCertificate == null) {
+    errors.push(
+      "Packaging macos requires --macos-signing-certificate, or 'none' to leave the package " +
+        "unsigned.",
+    );
+  }
+
+  if (distributionChannels.includes("mac-app-store") && raw.macosSigningCertificate === "none") {
+    errors.push("--distribution-channel mac-app-store cannot be built unsigned.");
   }
 
   if (raw.notarize) {

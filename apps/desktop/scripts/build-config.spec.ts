@@ -23,6 +23,10 @@ const MAC_ARGS = [
   "universal",
   "--distribution-channel",
   "dmg",
+  // Packaging macOS requires one. Appended, so `MAC_ARGS.slice(n)` still means what it did and
+  // a case passing its own certificate later on the line overrides this.
+  "--macos-signing-certificate",
+  "Developer ID Application: Bitwarden Inc",
 ];
 
 const WINDOWS_ARGS = [
@@ -209,16 +213,22 @@ describe("validate", () => {
     ]);
   });
 
-  /// Both are sandboxed, and the proxy inside a sandboxed build is signed with entitlements of
-  /// its own -- which needs an identity that was named rather than discovered.
-  it("requires a signing certificate for either App Store channel", () => {
+  /// The proxy is signed separately from the app, before electron-builder runs, so an identity
+  /// has to be named rather than discovered -- whatever the channel.
+  it("requires a signing certificate for any macOS build", () => {
     const args = ["--build-dir", "b", "--architecture", "universal"];
 
-    for (const channel of ["mac-app-store", "mac-app-store-development"]) {
+    for (const channel of ["dmg", "mac-zip", "mac-app-store", "mac-app-store-development"]) {
       expect(validateArgs([...args, "--distribution-channel", channel])).toEqual([
-        expect.stringContaining(`${channel} requires --macos-signing-certificate`),
+        expect.stringContaining("Packaging macos requires --macos-signing-certificate"),
       ]);
     }
+  });
+
+  it("does not ask for one on another platform", () => {
+    expect(
+      validateArgs(["--build-dir", "b", "--architecture", "x64", "--distribution-channel", "deb"]),
+    ).toEqual([]);
   });
 
   it("refuses an unsigned App Store build, but allows an unsigned development one", () => {
@@ -600,7 +610,7 @@ describe("toBuildConfig", () => {
         "--distribution-channel",
         channel,
       ];
-      if (channel.startsWith("mac-app-store")) {
+      if (platform === "macos") {
         args.push("--macos-signing-certificate", "3rd Party Mac Developer Application");
       }
 
