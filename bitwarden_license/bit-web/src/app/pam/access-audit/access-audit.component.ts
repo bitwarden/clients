@@ -227,6 +227,21 @@ export class AccessAuditComponent implements OnInit {
     { initialValue: false },
   );
 
+  /**
+   * Gates the drawer's collection link, which lands on the organization vault narrowed to that one
+   * collection. That route is guarded by `canAccessVaultTab`, which reads `canViewAllCollections` —
+   * neither implied by this page's own `canAccessEventLogs`, so a custom auditor holding the events
+   * permission alone would follow the link into an "Access denied" bounce.
+   */
+  private readonly canViewCollections = toSignal(
+    this.activeUserId$.pipe(
+      switchMap((userId) => this.organizationService.organizations$(userId)),
+      getById(this.organizationId()),
+      map((organization) => organization?.canViewAllCollections ?? false),
+    ),
+    { initialValue: false },
+  );
+
   protected readonly status = signal<AuditStatus>("loading");
   protected readonly rows = signal<AuditRow[]>([]);
 
@@ -588,6 +603,9 @@ export class AccessAuditComponent implements OnInit {
    * under it links — the member lookup ran once for the whole trail, and a second answer could
    * disagree with the first. An automated row has no actor to resolve: its cell reads "System",
    * which is a value, not a member.
+   *
+   * The two permissions travel with the data for the same reason: this page already reads the viewer's
+   * membership once, and a drawer re-deriving them could offer a link the page would not.
    */
   protected openDetails(row: AuditRow): void {
     void AuditEventDrawerComponent.open(this.dialogService, {
@@ -596,6 +614,8 @@ export class AccessAuditComponent implements OnInit {
         organizationId: this.organizationId(),
         actor: row.automated ? null : this.linkedMember(row.actorId, row.actor),
         requester: this.linkedMember(row.requesterId, row.requester),
+        canManageAccessRules: this.canManageAccessRules(),
+        canViewCollections: this.canViewCollections(),
       },
     });
   }
