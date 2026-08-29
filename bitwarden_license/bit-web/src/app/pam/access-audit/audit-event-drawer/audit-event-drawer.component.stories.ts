@@ -1,7 +1,10 @@
 import { importProvidersFrom } from "@angular/core";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
-import { DIALOG_DATA, DialogService } from "@bitwarden/components";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DIALOG_DATA, DialogService, ToastModule } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AuditRow } from "../access-audit-row";
@@ -23,7 +26,8 @@ const POPULATED: AuditRow = {
   cipherName: "Production database credential",
   cipherId: "cipher-1",
   collectionName: "Production infrastructure",
-  ruleName: null,
+  collectionId: "5c4b3a29-1d8e-4f60-b2a7-3e9c8d1f0a64",
+  ruleName: "Approval required",
   ruleId: "8f1c0f2e-9b4a-4d1e-8a77-6c2f9d3b4a51",
   detail:
     "Approved ahead of the scheduled window after the on-call engineer confirmed the primary replica had not recovered, on the understanding that the credential would be surrendered as soon as failover completed.",
@@ -53,6 +57,7 @@ const BARE: AuditRow = {
   cipherName: null,
   cipherId: null,
   collectionName: null,
+  collectionId: null,
   ruleName: null,
   ruleId: null,
   detail: null,
@@ -65,7 +70,25 @@ const BARE: AuditRow = {
   extendedUntil: null,
 };
 
-function params(row: AuditRow, linked: boolean): AuditEventDrawerParams {
+/**
+ * A rule deletion, whose name the store snapshotted at write time. The rule itself is gone, so the
+ * name must render without an anchor however the viewer is permissioned.
+ */
+const RULE_DELETED: AuditRow = {
+  ...POPULATED,
+  kindLabelKey: "pamAuditKindRuleDeleted",
+  cipherName: null,
+  cipherId: null,
+  collectionName: null,
+  collectionId: null,
+  requestId: null,
+  leaseId: null,
+  duration: null,
+  exactWindow: null,
+  detail: null,
+};
+
+function params(row: AuditRow, linked: boolean, permitted = linked): AuditEventDrawerParams {
   return {
     row,
     organizationId: "org-1",
@@ -75,6 +98,8 @@ function params(row: AuditRow, linked: boolean): AuditEventDrawerParams {
     requester: linked
       ? { name: "Grace Hopper", email: "grace@example.com", organizationUserId: "org-user-1" }
       : null,
+    canManageAccessRules: permitted,
+    canViewCollections: permitted,
   };
 }
 
@@ -87,7 +112,18 @@ export default {
       providers: [{ provide: DialogService, useValue: { open: (): undefined => undefined } }],
     }),
     applicationConfig({
-      providers: [importProvidersFrom(PreloadedEnglishI18nModule)],
+      providers: [
+        importProvidersFrom(PreloadedEnglishI18nModule),
+        provideRouter([]),
+        provideNoopAnimations(),
+        ToastModule.forRoot().providers!,
+        {
+          provide: PlatformUtilsService,
+          useValue: {
+            copyToClipboard: (): void => undefined,
+          },
+        },
+      ],
     }),
   ],
 } as Meta<AuditEventDrawerComponent>;
@@ -115,6 +151,34 @@ export const EmptyFields: Story = {
   render: () => ({
     moduleMetadata: {
       providers: [{ provide: DIALOG_DATA, useValue: params(BARE, false) }],
+    },
+    template: `<pam-audit-event-drawer />`,
+  }),
+};
+
+/**
+ * The rule this event names no longer exists, so the Access rule field reads as a name with no anchor
+ * even though the viewer administers rules. Following one would land on a 404 from the very event an
+ * auditor reconstructing a change is most likely to open.
+ */
+export const DeletedRule: Story = {
+  render: () => ({
+    moduleMetadata: {
+      providers: [{ provide: DIALOG_DATA, useValue: params(RULE_DELETED, true) }],
+    },
+    template: `<pam-audit-event-drawer />`,
+  }),
+};
+
+/**
+ * The same event read by an auditor holding AccessEventLogs and nothing more. Every name is still
+ * there — the pane withholds no fact — but the rule and the collection are plain text, because the
+ * pages behind them are guarded by permissions this viewer does not hold.
+ */
+export const WithoutLinkPermissions: Story = {
+  render: () => ({
+    moduleMetadata: {
+      providers: [{ provide: DIALOG_DATA, useValue: params(POPULATED, true, false) }],
     },
     template: `<pam-audit-event-drawer />`,
   }),

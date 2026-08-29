@@ -95,7 +95,16 @@
       <div>
         <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "collection" | i18n }}</dt>
         <dd class="tw-m-0 tw-break-words" data-testid="drawer-collection">
-          @if (row.collectionName) {
+          @if (collectionRoute; as route) {
+            <a
+              bitLink
+              id="pam-audit-event-drawer_link_collection"
+              [routerLink]="route"
+              [queryParams]="{ collectionId: row.collectionId }"
+              (click)="closeDrawer()"
+              >{{ row.collectionName }}</a
+            >
+          } @else if (row.collectionName) {
             {{ row.collectionName }}
           } @else {
             <span class="tw-text-muted">—</span>
@@ -143,11 +152,21 @@
         data-testid="drawer-trace"
       >
         <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "pamAccessRequestTitle" | i18n }}</dt>
-        <dd class="tw-m-0 tw-break-all tw-font-mono tw-text-sm" data-testid="drawer-request-id">
-          @if (row.requestId) {
-            {{ row.requestId }}
+        <dd class="tw-m-0 tw-flex tw-items-center tw-gap-1" data-testid="drawer-request-id">
+          @if (row.requestId; as requestId) {
+            <span class="tw-font-mono tw-text-sm">{{ shortId(requestId) }}</span>
+            <button
+              type="button"
+              bitIconButton="bwi-clone"
+              buttonType="subtleGhost"
+              size="small"
+              id="pam-audit-event-drawer_button_copy-request-id"
+              [appCopyClick]="requestId"
+              showToast
+              [label]="'copyValue' | i18n"
+            ></button>
           } @else {
-            <span class="tw-font-sans tw-text-muted">—</span>
+            <span class="tw-text-muted">—</span>
           }
         </dd>
       </div>
@@ -156,22 +175,40 @@
         <dt class="tw-text-sm tw-font-bold tw-text-muted">
           {{ "pamAccessRequestLeaseTitle" | i18n }}
         </dt>
-        <dd class="tw-m-0 tw-break-all tw-font-mono tw-text-sm" data-testid="drawer-lease-id">
-          @if (row.leaseId) {
-            {{ row.leaseId }}
+        <dd class="tw-m-0 tw-flex tw-items-center tw-gap-1" data-testid="drawer-lease-id">
+          @if (row.leaseId; as leaseId) {
+            <span class="tw-font-mono tw-text-sm">{{ shortId(leaseId) }}</span>
+            <button
+              type="button"
+              bitIconButton="bwi-clone"
+              buttonType="subtleGhost"
+              size="small"
+              id="pam-audit-event-drawer_button_copy-lease-id"
+              [appCopyClick]="leaseId"
+              showToast
+              [label]="'copyValue' | i18n"
+            ></button>
           } @else {
-            <span class="tw-font-sans tw-text-muted">—</span>
+            <span class="tw-text-muted">—</span>
           }
         </dd>
       </div>
 
       <div>
         <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "pamResolverAccessRule" | i18n }}</dt>
-        <dd class="tw-m-0 tw-break-all tw-font-mono tw-text-sm" data-testid="drawer-rule-id">
-          @if (row.ruleId) {
-            {{ row.ruleId }}
+        <dd class="tw-m-0 tw-break-words" data-testid="drawer-rule">
+          @if (ruleRoute; as route) {
+            <a
+              bitLink
+              id="pam-audit-event-drawer_link_rule"
+              [routerLink]="route"
+              (click)="closeDrawer()"
+              >{{ row.ruleName }}</a
+            >
+          } @else if (row.ruleName) {
+            {{ row.ruleName }}
           } @else {
-            <span class="tw-font-sans tw-text-muted">—</span>
+            <span class="tw-text-muted">—</span>
           }
         </dd>
       </div>
