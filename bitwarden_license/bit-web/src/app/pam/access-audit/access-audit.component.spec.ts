@@ -1816,6 +1816,23 @@ describe("AccessAuditComponent", () => {
       expect(cells[ITEM].classList).toContain("tw-break-words");
     });
 
+    it("floors Item so the auto table overflows instead of collapsing the column", async () => {
+      const { headers, cells } = await renderTable();
+
+      expect(headers[ITEM].classList).toContain("tw-min-w-48");
+      expect(cells[ITEM].classList).toContain("tw-min-w-48");
+    });
+
+    it("keeps the Item floor beneath the cap and beside the bitCell padding", async () => {
+      const { cells } = await renderTable();
+
+      // Same HostBinding merge as above: the floor is inert unless it survives alongside tw-p-3,
+      // and it is only a floor while the cap is still there to bound the other end.
+      expect(cells[ITEM].classList).toContain("tw-p-3");
+      expect(cells[ITEM].classList).toContain("tw-min-w-48");
+      expect(cells[ITEM].classList).toContain("tw-max-w-64");
+    });
+
     it("leaves the unbounded name columns free to wrap", async () => {
       const { cells } = await renderTable();
 
