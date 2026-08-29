@@ -1,15 +1,27 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { Router, provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogModule, DialogService, I18nMockService } from "@bitwarden/components";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import {
+  DIALOG_DATA,
+  DialogModule,
+  DialogRef,
+  DialogService,
+  I18nMockService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { AuditRow } from "../access-audit-row";
 
 import { AuditEventDrawerComponent, AuditEventDrawerParams } from "./audit-event-drawer.component";
 
 const ORGANIZATION_ID = "org-1";
+
+const REQUEST_ID = "3a9d5f74-2c18-4c6b-9f0d-71b8e4a2c6d5";
+const LEASE_ID = "b27e4c91-5d3a-4f88-a1c6-90e7d5f2b834";
 
 const ADA = { name: "Ada", email: "ada@example.com", organizationUserId: "org-user-1" };
 const GRACE = { name: "Grace", email: "grace@example.com", organizationUserId: "org-user-2" };
@@ -28,13 +40,14 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     cipherName: "Prod database",
     cipherId: "cipher-1",
     collectionName: "Production",
-    ruleName: null,
+    collectionId: "collection-1",
+    ruleName: "Approval required",
     ruleId: "rule-1",
     detail: "Approved for the incident window.",
     automated: false,
     inDoubt: false,
-    requestId: "req-1",
-    leaseId: "lease-1",
+    requestId: REQUEST_ID,
+    leaseId: LEASE_ID,
     duration: { key: "pamInboxDuration1Hour", value: null },
     exactWindow: "18/08/2026, 09:00 – 18/08/2026, 10:00",
     extendedUntil: null,
@@ -45,6 +58,8 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
 describe("AuditEventDrawerComponent", () => {
   let fixture: ComponentFixture<AuditEventDrawerComponent>;
   let dialogService: MockProxy<DialogService>;
+  let dialogRef: MockProxy<DialogRef>;
+  let platformUtilsService: MockProxy<PlatformUtilsService>;
 
   const render = async (overrides: Partial<AuditEventDrawerParams> = {}) => {
     const params: AuditEventDrawerParams = {
@@ -52,14 +67,20 @@ describe("AuditEventDrawerComponent", () => {
       organizationId: ORGANIZATION_ID,
       actor: ADA,
       requester: GRACE,
+      canManageAccessRules: true,
+      canViewCollections: true,
       ...overrides,
     };
 
     await TestBed.configureTestingModule({
       imports: [AuditEventDrawerComponent],
       providers: [
+        provideRouter([]),
         { provide: DIALOG_DATA, useValue: params },
         { provide: DialogService, useValue: dialogService },
+        { provide: DialogRef, useValue: dialogRef },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
+        { provide: ToastService, useValue: mock<ToastService>() },
         {
           provide: I18nService,
           // I18nMockService throws on an unknown key, so this is every key the pane can render.
@@ -82,6 +103,9 @@ describe("AuditEventDrawerComponent", () => {
             pamInboxDuration1Hour: "1 hour",
             pamAuditKindLeaseActivated: "Lease activated",
             pamAuditKindLeaseExtended: "Lease extended",
+            pamAuditKindRuleDeleted: "Access rule deleted",
+            copyValue: "Copy value",
+            copySuccessful: "Copy Successful",
             close: "Close",
           }),
         },
@@ -101,6 +125,8 @@ describe("AuditEventDrawerComponent", () => {
 
   beforeEach(() => {
     dialogService = mock<DialogService>();
+    dialogRef = mock<DialogRef>();
+    platformUtilsService = mock<PlatformUtilsService>();
   });
 
   afterEach(() => {
@@ -157,9 +183,9 @@ describe("AuditEventDrawerComponent", () => {
       expect(text("duration")).toBe("1 hour");
       expect(text("window")).toBe("18/08/2026, 09:00 – 18/08/2026, 10:00");
       expect(text("detail")).toBe("Approved for the incident window.");
-      expect(text("request-id")).toBe("req-1");
-      expect(text("lease-id")).toBe("lease-1");
-      expect(text("rule-id")).toBe("rule-1");
+      expect(text("request-id")).toBe("3a9d5f74");
+      expect(text("lease-id")).toBe("b27e4c91");
+      expect(text("rule")).toBe("Approval required");
     });
 
     it("puts each identity's email under their name", async () => {
@@ -223,6 +249,7 @@ describe("AuditEventDrawerComponent", () => {
       cipherName: null,
       cipherId: null,
       collectionName: null,
+      collectionId: null,
       ruleName: null,
       ruleId: null,
       detail: null,
@@ -243,7 +270,7 @@ describe("AuditEventDrawerComponent", () => {
       "detail",
       "request-id",
       "lease-id",
-      "rule-id",
+      "rule",
     ])("renders the muted em dash for an absent %s", async (name) => {
       await render({ row: EMPTY_ROW, actor: null, requester: null });
 
@@ -315,5 +342,105 @@ describe("AuditEventDrawerComponent", () => {
 
       expect(fixture.nativeElement.querySelector("#pam-audit-event-drawer_link_item")).toBeNull();
     });
+  });
+
+  describe("access rule", () => {
+    const link = () => fixture.nativeElement.querySelector("#pam-audit-event-drawer_link_rule");
+
+    // A uuid tells an auditor nothing, and the store already carries the name it stood for.
+    it("names the rule rather than identifying it by uuid", async () => {
+      await render();
+
+      expect(text("rule")).toBe("Approval required");
+      expect(text("rule")).not.toContain("rule-1");
+    });
+
+    it("links the name to the rule editor when the viewer administers rules", async () => {
+      await render();
+
+      expect(link().getAttribute("href")).toBe("/organizations/org-1/pam/access-rules/rule-1");
+    });
+
+    // The rule is gone, so the editor would answer the one event most worth reading with a 404.
+    it("leaves a rule deletion's name as plain text", async () => {
+      await render({ row: row({ kindLabelKey: "pamAuditKindRuleDeleted" }) });
+
+      expect(link()).toBeNull();
+      expect(text("rule")).toBe("Approval required");
+    });
+
+    // This page's own guard does not imply the rule editor's.
+    it("leaves the name as plain text without the rules permission", async () => {
+      await render({ canManageAccessRules: false });
+
+      expect(link()).toBeNull();
+      expect(text("rule")).toBe("Approval required");
+    });
+
+    it("closes the drawer before following the link out of it", async () => {
+      await render();
+      jest.spyOn(TestBed.inject(Router), "navigateByUrl").mockResolvedValue(true);
+
+      link().click();
+
+      expect(dialogRef.close).toHaveBeenCalled();
+    });
+  });
+
+  describe("collection", () => {
+    const link = () =>
+      fixture.nativeElement.querySelector("#pam-audit-event-drawer_link_collection");
+
+    it("links the name to the organization vault narrowed to that collection", async () => {
+      await render();
+
+      expect(link().getAttribute("href")).toBe(
+        "/organizations/org-1/vault?collectionId=collection-1",
+      );
+    });
+
+    it("leaves the name as plain text without permission to open the vault", async () => {
+      await render({ canViewCollections: false });
+
+      expect(link()).toBeNull();
+      expect(text("collection")).toBe("Production");
+    });
+  });
+
+  describe("request and lease ids", () => {
+    const copyButton = (name: string): HTMLElement =>
+      fixture.nativeElement.querySelector(`#pam-audit-event-drawer_button_copy-${name}`);
+
+    it.each([
+      ["request-id", REQUEST_ID],
+      ["lease-id", LEASE_ID],
+    ])("shortens the %s to its first eight characters", async (name, id) => {
+      await render();
+
+      expect(text(name)).toBe(id.substring(0, 8));
+      expect(text(name)).toHaveLength(8);
+    });
+
+    it.each([
+      ["request-id", REQUEST_ID],
+      ["lease-id", LEASE_ID],
+    ])("copies the whole %s, not the short form", async (name, id) => {
+      await render();
+
+      copyButton(name).click();
+
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(id);
+    });
+
+    // Nothing to copy, so nothing to offer copying.
+    it.each(["request-id", "lease-id"])(
+      "offers no copy affordance beside an absent %s",
+      async (name) => {
+        await render({ row: row({ requestId: null, leaseId: null }) });
+
+        expect(text(name)).toBe("—");
+        expect(copyButton(name)).toBeNull();
+      },
+    );
   });
 });

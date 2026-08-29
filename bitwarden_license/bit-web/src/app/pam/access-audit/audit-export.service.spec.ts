@@ -20,6 +20,7 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     cipherName: "prod db",
     cipherId: "cipher-1",
     collectionName: "production",
+    collectionId: "collection-1",
     ruleName: "Production access",
     ruleId: "rule-1",
     detail: "Approved for the incident window.",
