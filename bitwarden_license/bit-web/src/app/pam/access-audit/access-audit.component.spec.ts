@@ -5,7 +5,7 @@ import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import * as papa from "papaparse";
-import { of } from "rxjs";
+import { Subject, of } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -19,6 +19,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   DialogService,
+  DrawerRef,
   FilterMenuComponent,
   FilterOptionComponent,
   I18nMockService,
@@ -1869,6 +1870,222 @@ describe("AccessAuditComponent", () => {
 
       const table = fixture.nativeElement.querySelector("bit-table");
       expect(table.parentElement.classList).toContain("tw-overflow-x-auto");
+    });
+  });
+
+  /**
+   * Six columns do not fit the half-width the drawer leaves, so three of them stand down while it is
+   * open. The three that go are the three the drawer itself is already showing for the selected row.
+   */
+  describe("columns while the details drawer is open", () => {
+    const ALL_COLUMNS = ["Timestamp", "Event", "Actor", "Requester", "Item", "Duration"];
+    const WITH_DRAWER = ["Timestamp", "Event", "Item"];
+    const STOOD_DOWN = [2, 3, 5];
+
+    /**
+     * The drawer refs the page opened, newest last.
+     *
+     * `close()` and `forceClose()` are deliberately the same emission: `DrawerRef.close()` (the X
+     * button, Escape, and `openDrawer`'s own teardown of the outgoing stack) and `_forceClose()` (a
+     * route change under `closeOnNavigation`) both push one value onto `closed` and complete it. That
+     * they converge is what lets a single subscription cover every way out of the pane.
+     */
+    type FakeDrawer = { close: () => void; forceClose: () => void };
+
+    let drawers: FakeDrawer[];
+
+    beforeEach(() => {
+      drawers = [];
+      dialogService.openDrawer.mockImplementation(() => {
+        // The real openDrawer closes the open stack before pushing the new ref, so the outgoing
+        // drawer emits on `closed` before this call has the incoming one. Mirrored here, because that
+        // ordering is the whole risk in replacing one drawer with another.
+        drawers.at(-1)?.close();
+        const closed = new Subject<unknown>();
+        const emit = () => {
+          closed.next(undefined);
+          closed.complete();
+        };
+        drawers.push({ close: emit, forceClose: emit });
+        return Promise.resolve({ closed: closed.asObservable() } as unknown as DrawerRef);
+      });
+    });
+
+    const render = async () => {
+      auditApiService.listAccessAuditTrail.mockResolvedValue([
+        event({ OccurredAt: "2026-08-18T09:00:00.000Z" }),
+        event({ OccurredAt: "2026-08-18T08:00:00.000Z" }),
+      ]);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const openRow = async (index = 0) => {
+      const rows: HTMLElement[] = Array.from(
+        fixture.nativeElement.querySelectorAll("bit-table tbody tr"),
+      );
+      rows[index].click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const settle = async () => {
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    const headers = (): HTMLElement[] =>
+      Array.from(fixture.nativeElement.querySelectorAll("bit-table thead th"));
+
+    const bodyRows = (): HTMLElement[] =>
+      Array.from(fixture.nativeElement.querySelectorAll("bit-table tbody tr"));
+
+    const hidden = (element: HTMLElement) => element.classList.contains("tw-hidden");
+
+    const visibleColumns = () =>
+      headers()
+        .filter((header) => !hidden(header))
+        .map((header) => header.textContent!.trim());
+
+    it("keeps all six columns while no drawer is open", async () => {
+      await render();
+
+      expect(visibleColumns()).toEqual(ALL_COLUMNS);
+      expect(headers().filter(hidden)).toHaveLength(0);
+    });
+
+    it("stands Actor, Requester and Duration down once the drawer opens", async () => {
+      await render();
+      await openRow();
+
+      expect(component().detailsOpen()).toBe(true);
+      expect(visibleColumns()).toEqual(WITH_DRAWER);
+    });
+
+    // Hidden, not removed: a column dropped from the DOM would re-flow the table and, if the header
+    // and the cells ever disagreed about which one went, silently shift every value one column over.
+    it("leaves the stood-down columns in the DOM, header and cells together", async () => {
+      await render();
+      await openRow();
+
+      expect(headers()).toHaveLength(6);
+      const hiddenHeaders = headers().flatMap((header, index) => (hidden(header) ? [index] : []));
+      expect(hiddenHeaders).toEqual(STOOD_DOWN);
+
+      for (const row of bodyRows()) {
+        const cells: HTMLElement[] = Array.from(row.querySelectorAll("td"));
+        expect(cells).toHaveLength(6);
+        expect(cells.flatMap((cell, index) => (hidden(cell) ? [index] : []))).toEqual(STOOD_DOWN);
+      }
+    });
+
+    // The Actor and Requester anchors are unreachable while their columns are down, which is fine —
+    // the drawer offers the same links. What is not fine is a cell that is invisible but still read
+    // out and still focusable. `tw-hidden` is `display: none`, which takes the subtree out of the
+    // accessibility tree and out of the tab order; a visibility or opacity class would not.
+    it("takes the stood-down cells out of the accessibility tree, not just out of view", async () => {
+      await render();
+      await openRow();
+
+      for (const index of STOOD_DOWN) {
+        const cell = bodyRows()[0].querySelectorAll("td")[index];
+        expect(cell.classList).toContain("tw-hidden");
+        for (const seen of ["tw-invisible", "tw-opacity-0", "tw-sr-only", "tw-w-0"]) {
+          expect(cell.classList).not.toContain(seen);
+        }
+      }
+    });
+
+    // bitCell sets `class` through a HostBinding; the toggled class has to merge with that rather
+    // than replace it, or the padding goes with the column.
+    it("keeps the bitCell padding and the Item bounds under the toggle", async () => {
+      await render();
+      await openRow();
+
+      const item = bodyRows()[0].querySelectorAll("td")[4];
+      expect(item.classList).toContain("tw-p-3");
+      expect(item.classList).toContain("tw-min-w-48");
+      expect(item.classList).toContain("tw-max-w-64");
+      expect(bodyRows()[0].querySelectorAll("td")[2].classList).toContain("tw-p-3");
+    });
+
+    // Every way out of a drawer ends in one of these two, and both emit on `closed`. A drawer has no
+    // backdrop of its own to dismiss — it takes a grid column beside the table rather than covering
+    // the page — so there is no third route to miss.
+    it.each([
+      ["the close button", (drawer: FakeDrawer) => drawer.close()],
+      ["Escape", (drawer: FakeDrawer) => drawer.close()],
+      ["a route change", (drawer: FakeDrawer) => drawer.forceClose()],
+    ])("restores all six columns when the drawer closes by %s", async (_route, close) => {
+      await render();
+      await openRow();
+      expect(visibleColumns()).toEqual(WITH_DRAWER);
+
+      close(drawers.at(-1)!);
+      await settle();
+
+      expect(component().detailsOpen()).toBe(false);
+      expect(visibleColumns()).toEqual(ALL_COLUMNS);
+    });
+
+    // Activating a second row replaces the drawer: the outgoing ref closes on the way, and its close
+    // must not be read as "no drawer" over the one that took its place.
+    it("stays at three columns when a different row replaces the open drawer", async () => {
+      await render();
+      await openRow(0);
+      await openRow(1);
+
+      expect(dialogService.openDrawer).toHaveBeenCalledTimes(2);
+      expect(drawers).toHaveLength(2);
+      expect(component().detailsOpen()).toBe(true);
+      expect(visibleColumns()).toEqual(WITH_DRAWER);
+    });
+
+    it("restores all six columns when the replacement drawer is closed", async () => {
+      await render();
+      await openRow(0);
+      await openRow(1);
+
+      drawers.at(-1)!.close();
+      await settle();
+
+      expect(visibleColumns()).toEqual(ALL_COLUMNS);
+    });
+
+    // A ref that closed while a newer one was being opened has nothing left to report.
+    it("ignores a stale ref closing after it was replaced", async () => {
+      await render();
+      await openRow(0);
+      await openRow(1);
+
+      drawers[0].close();
+      await settle();
+
+      expect(component().detailsOpen()).toBe(true);
+      expect(visibleColumns()).toEqual(WITH_DRAWER);
+    });
+
+    // The wrapper is the safety net for widths nothing can be trimmed to fit; it does not go away
+    // just because the ordinary drawer-open case now has nothing to scroll.
+    it("keeps the horizontal scroll container while the drawer is open", async () => {
+      await render();
+      await openRow();
+
+      const table = fixture.nativeElement.querySelector("bit-table");
+      expect(table.parentElement.classList).toContain("tw-overflow-x-auto");
+    });
+
+    // A drawer that never opened — its predecessor's closePredicate refused — leaves the table alone.
+    it("keeps all six columns when the drawer never opened", async () => {
+      await render();
+      dialogService.openDrawer.mockResolvedValue(undefined);
+
+      await openRow();
+
+      expect(component().detailsOpen()).toBe(false);
+      expect(visibleColumns()).toEqual(ALL_COLUMNS);
     });
   });
 });
