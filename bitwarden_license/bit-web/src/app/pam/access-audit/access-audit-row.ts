@@ -33,6 +33,11 @@ export type AuditRow = {
   cipherId: string | null;
   /** Decrypted collection name from local vault state, or null. */
   collectionName: string | null;
+  /**
+   * The subject collection, when the event names one — the identity behind a collection the drawer can
+   * open the organization vault on.
+   */
+  collectionId: string | null;
   /** The access rule's name (plaintext, provided by the server), for rule administration events; null otherwise. */
   ruleName: string | null;
   /** The subject access rule, when the event names one — the identity behind a rule-named Item cell. */
@@ -153,6 +158,7 @@ export function toAuditRow(
     cipherName,
     cipherId: event.cipherId,
     collectionName,
+    collectionId: event.collectionId,
     ruleName: event.ruleName,
     ruleId: event.ruleId,
     detail: event.detail,
@@ -188,6 +194,18 @@ export function auditItemId(row: AuditRow): string | null {
 /** The label the Item cell renders for a row, or null when it renders no item. */
 export function auditItemLabel(row: AuditRow): string | null {
   return row.cipherName ?? row.ruleName;
+}
+
+/**
+ * Whether the event destroyed the rule it names.
+ *
+ * The audit store snapshots {@link AuditRow.ruleName} at write time, so such a row still reads as a name
+ * long after the rule itself is gone — and the rule editor's route would answer that name with a 404 on
+ * the very event an auditor is most likely to follow. Read off the label key rather than the wire kind
+ * because that is what the row carries once shaped.
+ */
+export function auditRuleDeleted(row: AuditRow): boolean {
+  return row.kindLabelKey === auditKindLabelKey(AccessAuditEventKind.RuleDeleted);
 }
 
 /**
