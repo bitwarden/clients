@@ -194,12 +194,28 @@
             <tr>
               <th bitCell class="tw-whitespace-nowrap">{{ "timestamp" | i18n }}</th>
               <th bitCell class="tw-whitespace-nowrap">{{ "pamAuditColumnEvent" | i18n }}</th>
-              <th bitCell>{{ "pamAuditColumnActor" | i18n }}</th>
-              <th bitCell>{{ "pamAuditColumnRequester" | i18n }}</th>
+              <!--
+                Actor, Requester and Duration stand down while the drawer is beside the table. Six
+                columns do not fit the half-width the drawer leaves, and these three are the ones the
+                reader loses least by: the pane they just opened already shows all three for the
+                selected row, actor and requester are a small repeating set of names across the trail,
+                and duration is an em dash on most kinds. Timestamp, Event and Item stay because they
+                are what keeps a place in the list — Item being what separates a run of rows sharing
+                one event label. `tw-hidden` rather than an opacity or width class, so the cells leave
+                the accessibility tree with the layout and no anchor is left focusable but unreadable.
+              -->
+              <th bitCell [class.tw-hidden]="detailsOpen()">
+                {{ "pamAuditColumnActor" | i18n }}
+              </th>
+              <th bitCell [class.tw-hidden]="detailsOpen()">
+                {{ "pamAuditColumnRequester" | i18n }}
+              </th>
               <th bitCell class="tw-min-w-48 tw-max-w-64 tw-break-words">
                 {{ "pamAuditColumnItem" | i18n }}
               </th>
-              <th bitCell>{{ "pamAuditColumnDuration" | i18n }}</th>
+              <th bitCell [class.tw-hidden]="detailsOpen()">
+                {{ "pamAuditColumnDuration" | i18n }}
+              </th>
             </tr>
           </ng-container>
           <ng-template body>
@@ -236,7 +252,7 @@
                     >
                   }
                 </td>
-                <td bitCell>
+                <td bitCell [class.tw-hidden]="detailsOpen()">
                   @if (row.automated) {
                     <span class="tw-text-muted">{{ "pamAuditSystem" | i18n }}</span>
                   } @else if (linkedMember(row.actorId, row.actor); as member) {
@@ -254,7 +270,7 @@
                     <span class="tw-text-muted">—</span>
                   }
                 </td>
-                <td bitCell>
+                <td bitCell [class.tw-hidden]="detailsOpen()">
                   @if (linkedMember(row.requesterId, row.requester); as member) {
                     <a
                       bitLink
@@ -288,7 +304,7 @@
                     <span class="tw-text-muted">—</span>
                   }
                 </td>
-                <td bitCell>
+                <td bitCell [class.tw-hidden]="detailsOpen()">
                   @if (row.duration; as duration) {
                     <span class="tw-whitespace-nowrap" [bitTooltip]="row.exactWindow">{{
                       duration.key | i18n: duration.value
