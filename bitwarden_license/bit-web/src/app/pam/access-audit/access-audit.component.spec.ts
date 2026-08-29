@@ -73,7 +73,7 @@ describe("AccessAuditComponent", () => {
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let dialogService: MockProxy<DialogService>;
 
-  const configureTestBed = async (canManageAccessRules = true) => {
+  const configureTestBed = async (canManageAccessRules = true, canViewAllCollections = true) => {
     await TestBed.configureTestingModule({
       imports: [AccessAuditComponent],
       providers: [
@@ -92,7 +92,8 @@ describe("AccessAuditComponent", () => {
         {
           provide: OrganizationService,
           useValue: {
-            organizations$: () => of([{ id: ORGANIZATION_ID, canManageAccessRules }]),
+            organizations$: () =>
+              of([{ id: ORGANIZATION_ID, canManageAccessRules, canViewAllCollections }]),
           },
         },
         {
@@ -1468,6 +1469,28 @@ describe("AccessAuditComponent", () => {
 
       expect(drawerData().actor).toBeNull();
       expect(drawerData().requester).toBeNull();
+    });
+
+    // The page already read the viewer's membership; a pane re-deriving it could offer a link the
+    // page itself would not.
+    it("hands the drawer the permissions its links are gated on", async () => {
+      await render([event()]);
+
+      rows()[0].click();
+
+      expect(drawerData().canManageAccessRules).toBe(true);
+      expect(drawerData().canViewCollections).toBe(true);
+    });
+
+    it("hands the drawer neither permission when the viewer holds neither", async () => {
+      TestBed.resetTestingModule();
+      await configureTestBed(false, false);
+      await render([event()]);
+
+      rows()[0].click();
+
+      expect(drawerData().canManageAccessRules).toBe(false);
+      expect(drawerData().canViewCollections).toBe(false);
     });
 
     // An anchor inside the row already opens something of its own. Letting the click reach the row
