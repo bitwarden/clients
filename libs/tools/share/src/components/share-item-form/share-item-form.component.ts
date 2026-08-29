@@ -26,6 +26,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SendDeletionDatePreset } from "@bitwarden/common/tools/models/send-deletion-date-preset";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -42,6 +43,7 @@ import {
   FormFieldModule,
   IconButtonModule,
   IconModule,
+  Option,
   SectionComponent,
   SelectModule,
   ToastService,
@@ -53,7 +55,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ShareLinkService } from "../../services/share-link.service";
 import type { ShareLink } from "../../services/share-link.service";
-import { ExpiryChoice, ExpiryOption } from "../../types/share-link.types";
 
 @Component({
   selector: "app-share-item-form",
@@ -121,14 +122,14 @@ export class ShareItemFormComponent implements OnDestroy {
     return CipherViewLikeUtils.subtitle(this.cipher(), this.i18nService);
   }
 
-  protected readonly expiryOptions: ExpiryChoice[] = [
-    { label: this.i18nService.t("expiryOneHour"), value: ExpiryOption.OneHour },
-    { label: this.i18nService.t("expiryOneDay"), value: ExpiryOption.OneDay },
-    { label: this.i18nService.t("expiryTwoDays"), value: ExpiryOption.TwoDays },
-    { label: this.i18nService.t("expiryThreeDays"), value: ExpiryOption.ThreeDays },
-    { label: this.i18nService.t("expirySevenDays"), value: ExpiryOption.SevenDays },
-    { label: this.i18nService.t("expiryFourteenDays"), value: ExpiryOption.FourteenDays },
-    { label: this.i18nService.t("expiryThirtyDays"), value: ExpiryOption.ThirtyDays },
+  protected readonly expiryOptions: Option<SendDeletionDatePreset>[] = [
+    { label: this.i18nService.t("oneHour"), value: SendDeletionDatePreset.OneHour },
+    { label: this.i18nService.t("oneDay"), value: SendDeletionDatePreset.OneDay },
+    { label: this.i18nService.t("days", "2"), value: SendDeletionDatePreset.TwoDays },
+    { label: this.i18nService.t("days", "3"), value: SendDeletionDatePreset.ThreeDays },
+    { label: this.i18nService.t("days", "7"), value: SendDeletionDatePreset.SevenDays },
+    { label: this.i18nService.t("days", "14"), value: SendDeletionDatePreset.FourteenDays },
+    { label: this.i18nService.t("days", "30"), value: SendDeletionDatePreset.ThirtyDays },
   ];
 
   private readonly emailListValidator: ValidatorFn = (
@@ -186,7 +187,7 @@ export class ShareItemFormComponent implements OnDestroy {
       nonNullable: true,
       validators: [Validators.required, this.emailListValidator, this.emailsMaxLengthValidator],
     }),
-    expiryHours: new FormControl<ExpiryOption>(ExpiryOption.SevenDays, {
+    expiryHours: new FormControl<SendDeletionDatePreset>(SendDeletionDatePreset.SevenDays, {
       nonNullable: true,
     }),
     oneTimeShare: new FormControl(false, { nonNullable: true }),
@@ -199,7 +200,7 @@ export class ShareItemFormComponent implements OnDestroy {
     this.sendPolicyService.deletionDatePolicyInfo$.pipe(takeUntilDestroyed()).subscribe((dh) => {
       if (dh?.deletionHours) {
         const expiryHoursFormControl = this.form.get("expiryHours");
-        expiryHoursFormControl?.setValue(dh.deletionHours as any);
+        expiryHoursFormControl?.setValue(dh.deletionHours);
         expiryHoursFormControl?.disable();
       }
     });

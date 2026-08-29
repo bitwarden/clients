@@ -17647,34 +17647,6 @@
     "message": "Failed to copy share link to clipboard",
     "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
   },
-  "expiryOneHour": {
-    "message": "1 hour",
-    "description": "Share link expiry duration option: one hour"
-  },
-  "expiryOneDay": {
-    "message": "1 day",
-    "description": "Share link expiry duration option: one day"
-  },
-  "expiryTwoDays": {
-    "message": "2 days",
-    "description": "Share link expiry duration option: two days"
-  },
-  "expiryThreeDays": {
-    "message": "3 days",
-    "description": "Share link expiry duration option: three days"
-  },
-  "expirySevenDays": {
-    "message": "7 days",
-    "description": "Share link expiry duration option: seven days"
-  },
-  "expiryFourteenDays": {
-    "message": "14 days",
-    "description": "Share link expiry duration option: fourteen days"
-  },
-  "expiryThirtyDays": {
-    "message": "30 days",
-    "description": "Share link expiry duration option: thirty days"
-  },
   "itemSendTitle": {
     "message": "Share for vault item $ITEM$",
     "placeholders": {

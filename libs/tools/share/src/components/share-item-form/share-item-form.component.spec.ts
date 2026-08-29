@@ -4,19 +4,19 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
+import { SendDeletionDatePreset } from "@bitwarden/common/tools/models/send-deletion-date-preset";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { PolicyType } from "@bitwarden/sdk-internal";
+import { OrganizationId } from "@bitwarden/sdk-internal";
+import { SendPolicyService } from "@bitwarden/send-ui";
 
 import { ShareLink, ShareLinkService } from "../..";
 
@@ -38,8 +38,12 @@ describe("ShareItemFormComponent", () => {
   let toastService: MockProxy<ToastService>;
   let shareLinkService: MockProxy<ShareLinkService>;
   let i18nService: MockProxy<I18nService>;
-  let policyService: MockProxy<PolicyService>;
-  const policies = new BehaviorSubject<Policy[]>([]);
+  // Mock SendPolicyService observables
+  const deletionDatePolicyInfo$ = new BehaviorSubject<{
+    deletionHours: SendDeletionDatePreset | null;
+    orgId: OrganizationId | null;
+  } | null>(null);
+  const allowedDomains$ = new BehaviorSubject<string[]>([]);
 
   beforeEach(async () => {
     platformUtilsService = mock<PlatformUtilsService>();
@@ -55,9 +59,6 @@ describe("ShareItemFormComponent", () => {
 
     const folderService = mock<FolderService>();
     folderService.folderViews$.mockReturnValue(of([]));
-
-    policyService = mock<PolicyService>();
-    policyService.policiesByType$.mockReturnValue(policies);
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, ShareItemFormComponent],
@@ -80,7 +81,7 @@ describe("ShareItemFormComponent", () => {
         { provide: ShareLinkService, useValue: shareLinkService },
         { provide: CollectionService, useValue: collectionService },
         { provide: FolderService, useValue: folderService },
-        { provide: PolicyService, useValue: policyService },
+        { provide: SendPolicyService, useValue: { deletionDatePolicyInfo$, allowedDomains$ } },
         { provide: LogService, useValue: mock<LogService>() },
       ],
     }).compileComponents();
@@ -175,10 +176,11 @@ describe("ShareItemFormComponent", () => {
   });
 
   it("should set the deletion date field to comply with any Send Controls policies", async () => {
-    policies.next([{ type: PolicyType.SendControls, data: { deletionHours: 72 } } as Policy]);
+    deletionDatePolicyInfo$.next({ deletionHours: 72, orgId: null });
     hostFixture.detectChanges();
     const expiryHoursFormControl = component.form.get("expiryHours");
     expect(expiryHoursFormControl?.value).toEqual(72);
     expect(expiryHoursFormControl?.disabled).toEqual(true);
+    deletionDatePolicyInfo$.next(null);
   });
 });
