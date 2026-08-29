@@ -1,7 +1,7 @@
 import { importProvidersFrom } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { of } from "rxjs";
+import { NEVER, of } from "rxjs";
 import { fireEvent, userEvent, within } from "storybook/test";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
@@ -398,9 +398,15 @@ function audit(
     events?: AccessAuditEventResponse[];
     fails?: boolean;
     refreshPending?: boolean;
+    drawerStaysOpen?: boolean;
   } = {},
 ) {
-  const { events = EVENTS, fails = false, refreshPending = false } = options;
+  const {
+    events = EVENTS,
+    fails = false,
+    refreshPending = false,
+    drawerStaysOpen = false,
+  } = options;
   return moduleMetadata({
     imports: [AccessAuditComponent],
     providers: [
@@ -437,7 +443,10 @@ function audit(
         provide: DialogService,
         useValue: {
           open: () => ({ closed: of(undefined) }),
-          openDrawer: () => Promise.resolve(undefined),
+          // A ref whose `closed` never emits is a drawer that stays open, which is what the page
+          // reads to decide how many columns the table can hold.
+          openDrawer: () =>
+            Promise.resolve(drawerStaysOpen ? { closed: NEVER, isDrawer: true } : undefined),
         },
       },
       {
@@ -505,6 +514,24 @@ export const SingleEvent: Story = {
  */
 export const LongValues: Story = {
   decorators: [audit({ events: [...LONG_TEXT_EVENTS, ...EVENTS] })],
+};
+
+/**
+ * The table with the details drawer open. Actor, Requester and Duration stand down — the pane shows all
+ * three for the selected row anyway — leaving Timestamp, Event and Item, which is what an auditor needs
+ * to keep their place and step to the next row.
+ *
+ * The story mounts the page on its own, so there is no layout to render the pane in and nothing beside
+ * the table; the narrow wrapper stands in for the width the drawer would leave, and the drawer itself is
+ * a ref that never closes. What this shows is the column set and the fit, not the pane.
+ */
+export const DetailsDrawerOpen: Story = {
+  decorators: [audit({ events: [...LONG_TEXT_EVENTS, ...EVENTS], drawerStaysOpen: true })],
+  render: () => ({ template: `<div class="tw-max-w-3xl"><app-pam-access-audit /></div>` }),
+  play: async ({ canvasElement }) => {
+    const row = canvasElement.querySelector<HTMLElement>("#access-audit_button_details-0")!;
+    await userEvent.click(row);
+  },
 };
 
 /**

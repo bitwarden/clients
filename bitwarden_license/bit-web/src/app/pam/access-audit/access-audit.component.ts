@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
   effect,
@@ -10,7 +11,7 @@ import {
   untracked,
   viewChild,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
@@ -30,6 +31,7 @@ import {
   ButtonModule,
   CalloutModule,
   DialogService,
+  DrawerRef,
   FILTER_CONTROL,
   FilterControl,
   FilterMenuModule,
@@ -201,6 +203,7 @@ export class AccessAuditComponent implements OnInit {
   private readonly organizationUserApiService = inject(OrganizationUserApiService);
   private readonly userNamePipe = inject(UserNamePipe);
   private readonly dialogService = inject(DialogService);
+  private readonly destroyRef = inject(DestroyRef);
 
   /**
    * The organization whose trail to show, from the route. `requireSync` holds because `params` emits
@@ -244,6 +247,25 @@ export class AccessAuditComponent implements OnInit {
 
   protected readonly status = signal<AuditStatus>("loading");
   protected readonly rows = signal<AuditRow[]>([]);
+
+  /**
+   * The open details drawer, or null when none is open. Held as the ref rather than a bare flag so a
+   * ref closing late — the drawer being replaced by activating a second row, which closes the first
+   * one on the way — cannot report the newer drawer as closed.
+   */
+  private readonly detailsDrawer = signal<DrawerRef<unknown, AuditEventDrawerComponent> | null>(
+    null,
+  );
+
+  /**
+   * Whether the drawer is over the table, which is what drops Actor, Requester and Duration from it.
+   *
+   * Driven by the drawer's own state rather than a viewport breakpoint. What narrows the table is the
+   * drawer taking its own grid column beside it, which a media query cannot see: a wide window with no
+   * drawer would lose columns it has room for, and a window narrow enough for the drawer to overlay
+   * rather than push would lose them while nothing was covering the table at all.
+   */
+  protected readonly detailsOpen = computed(() => this.detailsDrawer() != null);
 
   /**
    * The organization's members, keyed by PLATFORM user id — the id an audit row carries. The entity-events
@@ -608,7 +630,21 @@ export class AccessAuditComponent implements OnInit {
    * membership once, and a drawer re-deriving them could offer a link the page would not.
    */
   protected openDetails(row: AuditRow): void {
-    void AuditEventDrawerComponent.open(this.dialogService, {
+    void this.showDetails(row);
+  }
+
+  /**
+   * Opens the pane and tracks it for as long as it is open.
+   *
+   * A drawer has no backdrop to dismiss — it occupies its own column beside the table rather than
+   * covering the page — so every way out of one ends in `DrawerRef.close()` or `_forceClose()`, and
+   * both emit on `closed`: the X button, Escape, a route change under `closeOnNavigation`, and
+   * `openDrawer` itself tearing the stack down when a second row is activated. Subscribing to that one
+   * observable therefore covers every route, including the replacement, where the outgoing ref emits
+   * before this call has the incoming one.
+   */
+  private async showDetails(row: AuditRow): Promise<void> {
+    const drawer = await AuditEventDrawerComponent.open(this.dialogService, {
       data: {
         row,
         organizationId: this.organizationId(),
@@ -618,6 +654,13 @@ export class AccessAuditComponent implements OnInit {
         canViewCollections: this.canViewCollections(),
       },
     });
+    if (drawer == null) {
+      return;
+    }
+    drawer.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.detailsDrawer.update((open) => (open === drawer ? null : open));
+    });
+    this.detailsDrawer.set(drawer);
   }
 
   /**
