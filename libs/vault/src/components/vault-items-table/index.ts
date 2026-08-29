@@ -4,6 +4,7 @@ export {
   VaultItemsTableChipsCellComponent,
 } from "./vault-items-table-chips-cell.component";
 export {
+  copyPresentation$,
   DEFAULT_COPY_PRESENTATION,
   type VaultItemsTableCopyPresentation,
 } from "./vault-items-table-copy-presentation";

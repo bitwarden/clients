@@ -7,7 +7,7 @@ import {
   output,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -20,6 +20,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import {
   CipherRowMenuHandlers,
   CipherRowMenuService,
+  copyPresentation$,
+  DEFAULT_COPY_PRESENTATION,
   NewCipherMenuComponent,
   VaultBatchBarService,
   VaultItemsTableComponent,
@@ -81,6 +83,10 @@ export class VaultListTableComponent<C extends CipherViewLike> {
     assignToCollections: (item) =>
       this.onEvent.emit({ type: "assignToCollections", items: [item] }),
   }));
+
+  protected readonly copyPresentation = toSignal(copyPresentation$(), {
+    initialValue: DEFAULT_COPY_PRESENTATION,
+  });
 
   protected readonly rowActions = computed<VaultItemsTableRowAction<C>[]>(() =>
     this.cipherRowMenuService.getRowActions<C>(this.allCollections(), this.cipherRowMenuHandlers()),
