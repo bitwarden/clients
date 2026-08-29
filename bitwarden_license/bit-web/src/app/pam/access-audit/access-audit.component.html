@@ -196,7 +196,9 @@
               <th bitCell class="tw-whitespace-nowrap">{{ "pamAuditColumnEvent" | i18n }}</th>
               <th bitCell>{{ "pamAuditColumnActor" | i18n }}</th>
               <th bitCell>{{ "pamAuditColumnRequester" | i18n }}</th>
-              <th bitCell class="tw-max-w-64 tw-break-words">{{ "pamAuditColumnItem" | i18n }}</th>
+              <th bitCell class="tw-min-w-48 tw-max-w-64 tw-break-words">
+                {{ "pamAuditColumnItem" | i18n }}
+              </th>
               <th bitCell>{{ "pamAuditColumnDuration" | i18n }}</th>
             </tr>
           </ng-container>
@@ -268,7 +270,7 @@
                     <span class="tw-text-muted">—</span>
                   }
                 </td>
-                <td bitCell class="tw-max-w-64 tw-break-words">
+                <td bitCell class="tw-min-w-48 tw-max-w-64 tw-break-words">
                   @if (row.cipherName && row.cipherId) {
                     <a
                       bitLink
