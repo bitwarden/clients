@@ -121,6 +121,7 @@ describe("AccessAuditComponent", () => {
             recentlyActivePast7Days: "Past 7 days",
             recentlyActivePast30Days: "Past 30 days",
             custom: "Custom",
+            edit: "Edit",
             clearAll: "Clear all",
             pamAuditNoMatchesTitle: "No matching events",
             pamAuditNoMatchesMessage: "No events match the current filters.",
@@ -653,6 +654,48 @@ describe("AccessAuditComponent", () => {
         expect(dialogService.open).toHaveBeenLastCalledWith(expect.anything(), {
           data: { from: "2026-08-18T09:00", to: "2026-08-18T17:00" },
         });
+      });
+
+      // Re-selecting "Custom" writes the value the chip already holds, so its selection signal never
+      // notifies and the dialog cannot be reopened from the menu. Editing the bounds in force would
+      // otherwise mean dropping them first.
+      it("reopens the dialog from Edit without dropping the range in force", async () => {
+        await renderTrail([new Date(2026, 7, 18, 12, 0)]);
+        closesWith({ action: "apply", from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
+        await chooseCustom();
+
+        const edit = fixture.nativeElement.querySelector("#access-audit_button_edit-range");
+        expect(edit).not.toBeNull();
+
+        closesWith({ action: "apply", from: "2026-08-18T10:00", to: "2026-08-18T16:00" });
+        edit.click();
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        expect(dialogService.open).toHaveBeenLastCalledWith(expect.anything(), {
+          data: { from: "2026-08-18T09:00", to: "2026-08-18T17:00" },
+        });
+        expect(component().selectedPeriod()).toBe("custom");
+        expect(component().range()).toEqual({
+          from: new Date("2026-08-18T10:00"),
+          to: new Date("2026-08-18T16:00:59.999"),
+        });
+      });
+
+      // Nothing to edit until a range is in force, and nothing to edit once one of the presets is.
+      it("offers Edit only while a custom range is the period in force", async () => {
+        await renderTrail([new Date(2026, 7, 18, 12, 0)]);
+        expect(fixture.nativeElement.querySelector("#access-audit_button_edit-range")).toBeNull();
+
+        selectFilter("timePeriod", "past7Days");
+        expect(fixture.nativeElement.querySelector("#access-audit_button_edit-range")).toBeNull();
+
+        closesWith({ action: "apply", from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
+        await chooseCustom();
+
+        expect(
+          fixture.nativeElement.querySelector("#access-audit_button_edit-range"),
+        ).not.toBeNull();
       });
 
       // A cancelled dialog that left "Custom" showing would claim a range the table is not filtered to.
