@@ -216,18 +216,21 @@ export class AccessAuditComponent implements OnInit {
 
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
+  /** The organization the trail belongs to, which is what every permission below is read off. */
+  private readonly organization = toSignal(
+    this.activeUserId$.pipe(
+      switchMap((userId) => this.organizationService.organizations$(userId)),
+      getById(this.organizationId()),
+    ),
+  );
+
   /**
    * Gates the empty state's "Access rules" link. This page's own guard, `canAccessEventLogs`, does
    * not imply `canManageAccessRules` (the target route's guard) — an auditor holding only the events
    * permission would follow the link into an "Access denied" bounce.
    */
-  protected readonly canManageAccessRules = toSignal(
-    this.activeUserId$.pipe(
-      switchMap((userId) => this.organizationService.organizations$(userId)),
-      getById(this.organizationId()),
-      map((organization) => organization?.canManageAccessRules ?? false),
-    ),
-    { initialValue: false },
+  protected readonly canManageAccessRules = computed(
+    () => this.organization()?.canManageAccessRules ?? false,
   );
 
   /**
@@ -236,13 +239,8 @@ export class AccessAuditComponent implements OnInit {
    * neither implied by this page's own `canAccessEventLogs`, so a custom auditor holding the events
    * permission alone would follow the link into an "Access denied" bounce.
    */
-  private readonly canViewCollections = toSignal(
-    this.activeUserId$.pipe(
-      switchMap((userId) => this.organizationService.organizations$(userId)),
-      getById(this.organizationId()),
-      map((organization) => organization?.canViewAllCollections ?? false),
-    ),
-    { initialValue: false },
+  private readonly canViewCollections = computed(
+    () => this.organization()?.canViewAllCollections ?? false,
   );
 
   protected readonly status = signal<AuditStatus>("loading");
