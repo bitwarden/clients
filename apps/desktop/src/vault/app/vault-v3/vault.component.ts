@@ -122,7 +122,10 @@ import {
   cipherInScope,
   collectionInScope,
   FilterFunction,
+  hasMultipleVaults,
+  isMyVaultScope,
   organizationInScope,
+  organizationNameForScope,
   resolveVaultScope,
   VaultNavService,
   VaultScopeType,
@@ -274,13 +277,19 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     switchMap((id) => this.organizationService.organizations$(id)),
   );
 
+  /** The account's vaults nav view model — {@link vaultScope$} resolves against this. */
+  private readonly vaultNav$ = this.userId$.pipe(
+    switchMap((userId) => this.vaultNavService.viewModel$(userId)),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
   /** The vault the `:vaultId` segment scopes this page to; always All items on the legacy nav. */
   private readonly vaultScope$ = this.vfo1Foundation$.pipe(
     switchMap((vfo1Foundation) =>
       vfo1Foundation
         ? combineLatest([
             this.route.paramMap.pipe(map((params) => params.get("vaultId"))),
-            this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
+            this.vaultNav$,
           ]).pipe(
             // Desktop has no route for drilling into a shared folder, so it names no collection.
             map(([vaultId, nav]) => resolveVaultScope(vaultId, null, nav) ?? ALL_ITEMS_SCOPE),
@@ -304,6 +313,42 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           : filter?.organizationId;
       return organizations?.find((org) => org.id === organizationId);
     }),
+  );
+
+  /**
+   * Whether the scope is a vault an "empty vault" message makes sense for. Trash and Archive are
+   * not — an account with e.g. only one organization vault would otherwise show "No items in
+   * {org}" (and its Add item button) over an empty Trash or Archive, which is not a vault at all.
+   */
+  private readonly isVaultBrowsingScope$ = this.vaultScope$.pipe(
+    map((scope) => scope.type !== VaultScopeType.Trash && scope.type !== VaultScopeType.Archive),
+  );
+
+  /**
+   * The vault-scope facts {@link EmptyVaultComponent} needs for its copy, relayed through
+   * `app-vault-list-table` untouched. Only meaningful once `vfo1Foundation` is on — see
+   * {@link vaultScope$} — the legacy nav renders its own empty states instead.
+   */
+  protected readonly isMyVaultScope = toSignal(
+    combineLatest([this.vaultScope$, this.isVaultBrowsingScope$]).pipe(
+      map(([scope, browsing]) => browsing && isMyVaultScope(scope)),
+    ),
+    { initialValue: false },
+  );
+
+  protected readonly emptyVaultOrganizationName = toSignal(
+    combineLatest([this.vaultScope$, this.vaultNav$, this.isVaultBrowsingScope$]).pipe(
+      map(([scope, nav, browsing]) =>
+        browsing ? organizationNameForScope(scope, nav) : undefined,
+      ),
+    ),
+  );
+
+  protected readonly hasMultipleVaults = toSignal(
+    combineLatest([this.vaultNav$, this.isVaultBrowsingScope$]).pipe(
+      map(([nav, browsing]) => browsing && hasMultipleVaults(nav)),
+    ),
+    { initialValue: false },
   );
 
   protected readonly showAddCipherBtn$ = combineLatest([

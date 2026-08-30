@@ -557,6 +557,39 @@
   "noItemsInMyVault": {
     "message": "No items in My vault"
   },
+  "noItemsInOrganizationVault": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Your vaults are empty"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "No items match selected filters"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "No items match \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "length": {
     "message": "Length"
   },
@@ -2731,6 +2764,9 @@
   },
   "clearAll": {
     "message": "Clear all"
+  },
+  "clearSearch": {
+    "message": "Clear search"
   },
   "done": {
     "message": "Done"
@@ -7123,8 +7159,17 @@
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
   },
-  "emptyMyVaultDescription": {
+  "emptyVaultsDescription": {
     "message": "Add logins, IDs, cards, and other items to get started."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
   },
   "introCarouselLabel": {
     "message": "Welcome to Bitwarden"

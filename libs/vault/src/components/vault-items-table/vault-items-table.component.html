@@ -103,10 +103,16 @@
   <vault-empty-vault
     slot="empty"
     [hasItems]="ciphers().length > 0"
-    [hasActiveFilters]="hasActiveChipFilters(vaultTable)"
-    [isMyVaultSelected]="isMyVaultChipActive()"
+    [filterValues]="vaultTable.filterValues()"
+    [isMyVaultScope]="isMyVaultScope()"
+    [organizationName]="organizationName()"
+    [hasMultipleVaults]="hasMultipleVaults()"
+    [sharedFolderName]="sharedFolderName()"
+    (clearSearch)="clearSearch(vaultTable)"
     (clearFilters)="clearChipFilters(vaultTable)"
-  ></vault-empty-vault>
+  >
+    <ng-content slot="empty-add-item" select="[slot=empty-add-item]"></ng-content>
+  </vault-empty-vault>
 
   <!-- Name -->
   <bit-column sortable defaultSort="asc" width="minmax(240px, 480px)">

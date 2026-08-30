@@ -36,8 +36,12 @@ import {
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
+  hasMultipleVaults,
+  isMyVaultScope,
   organizationInScope,
+  organizationNameForScope,
   resolveVaultScope,
+  sharedFolderNameForScope,
   VaultScopeType,
 } from "@bitwarden/vault";
 
@@ -213,6 +217,34 @@ export class VaultNextComponent {
     const scope = this.vaultScope();
     return scope.type === VaultScopeType.Organization ? scope.organizationId : undefined;
   });
+
+  /**
+   * The vault-scope facts {@link EmptyVaultComponent} needs for its copy, relayed through
+   * `vault-items-table` untouched — the table itself has no notion of vault scope.
+   *
+   * Gated the same way as {@link showItemCreation}: Trash and Archive are not vaults a "My vault" /
+   * "No items in {org}" / "Add item" message makes sense for, even for an account these facts would
+   * otherwise resolve non-empty for.
+   */
+  protected readonly isMyVaultScope = computed(
+    () => this.showItemCreation() && isMyVaultScope(this.vaultScope()),
+  );
+
+  protected readonly emptyVaultOrganizationName = computed(() =>
+    this.showItemCreation()
+      ? organizationNameForScope(this.vaultScope(), this.vaultNav())
+      : undefined,
+  );
+
+  protected readonly hasMultipleVaults = computed(
+    () => this.showItemCreation() && hasMultipleVaults(this.vaultNav()),
+  );
+
+  protected readonly emptySharedFolderName = computed(() =>
+    this.showItemCreation()
+      ? sharedFolderNameForScope(this.vaultScope(), this.scopedCollections())
+      : undefined,
+  );
 
   /**
    * Whether the page offers the toolbar's Import and New item actions. New items cannot be created

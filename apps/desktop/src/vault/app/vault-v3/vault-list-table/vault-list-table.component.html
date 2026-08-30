@@ -19,9 +19,23 @@
     [loading]="loading()"
     [rowActions]="rowActions()"
     [itemAction]="itemAction"
+    [isMyVaultScope]="isMyVaultScope()"
+    [organizationName]="organizationName()"
+    [hasMultipleVaults]="hasMultipleVaults()"
     (selectedChange)="handleSelectionChange($event)"
   >
     @if (showAddCipherBtn()) {
+      <vault-new-cipher-menu
+        slot="empty-add-item"
+        [canCreateCipher]="canCreateCipher()"
+        [canCreateFolder]="false"
+        [canCreateCollection]="false"
+        [canCreateSshKey]="true"
+        [disabled]="!canCreateCipher()"
+        (cipherAdded)="onAddCipher.emit($event)"
+        (onAddItemDialog)="onAddItemDialog.emit()"
+      />
+
       <div slot="toolbar" class="tw-flex tw-items-center tw-gap-3">
         <button
           id="vault-list-table_button_import"
