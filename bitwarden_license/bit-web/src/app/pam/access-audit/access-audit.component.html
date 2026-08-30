@@ -142,6 +142,19 @@
           }
           <bit-filter-option value="custom">{{ customPeriodLabel }}</bit-filter-option>
         </bit-filter-menu>
+        @if (customRangeApplied()) {
+          <button
+            type="button"
+            bitButton
+            buttonType="subtleGhost"
+            size="small"
+            startIcon="bwi-pencil"
+            id="access-audit_button_edit-range"
+            [bitAction]="editCustomRange"
+          >
+            {{ "edit" | i18n }}
+          </button>
+        }
         @if (filtersActive()) {
           <button
             type="button"

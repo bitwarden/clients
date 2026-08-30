@@ -278,6 +278,13 @@ export class AccessAuditComponent implements OnInit {
 
   protected readonly customPeriodLabel = this.i18nService.t(AUDIT_TIME_PERIOD_LABEL_KEYS.custom);
 
+  /**
+   * Whether a custom range is the period in force. The chip cannot reopen its own dialog — re-selecting
+   * "Custom" writes the value it already holds, so the selection signal never notifies — so editing the
+   * bounds is a separate affordance rather than a second trip through the menu.
+   */
+  protected readonly customRangeApplied = computed(() => this.appliedPeriod() === "custom");
+
   protected readonly kindOptions = computed<AuditChipOption[]>(() =>
     [...new Set(this.rows().map((row) => row.kindLabelKey))]
       .map((labelKey) => ({ label: this.i18nService.t(labelKey), value: labelKey }))
@@ -404,6 +411,11 @@ export class AccessAuditComponent implements OnInit {
     this.range.set({ from: auditRangeStart(result.from), to: auditRangeEnd(result.to) });
     this.appliedPeriod.set("custom");
   }
+
+  /** Reopens the range dialog on the bounds in force, which the chip itself cannot do. */
+  protected readonly editCustomRange = async (): Promise<void> => {
+    await this.openCustomRange();
+  };
 
   private setPeriod(period: AuditTimePeriod | null): void {
     this.timePeriodChip()?.setValue(period);
