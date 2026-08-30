@@ -1440,6 +1440,20 @@ describe("AccessAuditComponent", () => {
       expect(drawerData().organizationId).toBe(ORGANIZATION_ID);
     });
 
+    // `openDrawer` defaults `closeOnNavigation` to false and `DrawerService` only tears the stack down
+    // when the bottom ref asked for it, so without this the pane stays mounted over whatever page the
+    // auditor navigates to next.
+    it("closes the drawer when the auditor navigates away", async () => {
+      await render([event()]);
+
+      rows()[0].click();
+
+      expect(dialogService.openDrawer).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ closeOnNavigation: true }),
+      );
+    });
+
     // The member lookup ran once for the whole trail; the pane must link exactly what the row under
     // it links, which it can only do if the page hands over the answer it already has.
     it("hands the drawer the identities the row resolved", async () => {
