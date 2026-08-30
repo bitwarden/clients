@@ -299,6 +299,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
+  /** {@link vaultScope$}, for the synchronous reads a dialog-opening handler needs. */
+  protected readonly vaultScope = toSignal(this.vaultScope$, { initialValue: ALL_ITEMS_SCOPE });
+
   /** The organization the page is pinned to, whichever nav the user is on. */
   protected readonly selectedOrganization$ = combineLatest([
     this.vfo1Foundation$,
@@ -889,7 +892,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     let collectionIds: CollectionId[] = [];
     let folderId: string | undefined;
 
-    if (activeFilter.collectionId != null) {
+    if (this.vfo1Foundation()) {
+      // No route names a collection under VFO1 yet, so only the organization can be prefilled —
+      // see `vaultScope$`.
+      const scope = this.vaultScope();
+      if (scope.type === VaultScopeType.Organization) {
+        organizationId = scope.organizationId;
+      }
+    } else if (activeFilter.collectionId != null) {
       const collection = this.allCollections.find((c) => c.id === activeFilter.collectionId);
       if (collection) {
         organizationId = collection.organizationId as OrganizationId;

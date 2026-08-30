@@ -646,7 +646,10 @@ describe("VaultNextComponent", () => {
     it("adds a cipher of the type chosen from vault-new-cipher-menu's legacy dropdown", async () => {
       await component().addCipher(CipherType.Card);
 
-      expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card);
+      expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card, {
+        organizationId: undefined,
+        collectionId: undefined,
+      });
     });
 
     it("opens the add-item form for the type chosen from the picker dialog", async () => {
@@ -656,13 +659,54 @@ describe("VaultNextComponent", () => {
 
       await component().openAddItemDialog();
 
-      expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card);
+      expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card, {
+        organizationId: undefined,
+        collectionId: undefined,
+      });
     });
 
     it("does nothing if the picker dialog is dismissed without a selection", async () => {
       await component().openAddItemDialog();
 
       expect(itemActions.add).not.toHaveBeenCalled();
+    });
+
+    it("prefills the organization and shared folder in scope when adding a cipher", async () => {
+      scopeTo(organizationId, engineeringId);
+
+      await component().addCipher(CipherType.Card);
+
+      expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card, {
+        organizationId,
+        collectionId: engineeringId,
+      });
+    });
+
+    it("prefills the organization and shared folder in scope when opening the add-item form", async () => {
+      scopeTo(organizationId, engineeringId);
+      addItemDialogOpen.mockReturnValue({
+        closed: of({ result: AddItemDialogResult.Cipher, cipherType: CipherType.Card }),
+      } as unknown as DialogRef<never>);
+
+      await component().openAddItemDialog();
+
+      expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card, {
+        organizationId,
+        collectionId: engineeringId,
+      });
+    });
+
+    it("prefills nothing for the my-items sentinel when the organization has no such collection", async () => {
+      // None of this suite's nav entries carry a `defaultUserCollectionId`, so `resolveVaultScope`
+      // cannot resolve the sentinel and the scope falls back to every active item.
+      scopeTo(organizationId, "my-items");
+
+      await component().addCipher(CipherType.Card);
+
+      expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card, {
+        organizationId: undefined,
+        collectionId: undefined,
+      });
     });
   });
 });

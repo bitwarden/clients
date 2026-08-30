@@ -9,6 +9,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -16,6 +17,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { ButtonModule, DialogService } from "@bitwarden/components";
+import { isGuid } from "@bitwarden/guid";
 import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
@@ -41,6 +43,7 @@ import {
   organizationInScope,
   organizationNameForScope,
   resolveVaultScope,
+  scopedSharedFolderId,
   sharedFolderNameForScope,
   VaultScopeType,
 } from "@bitwarden/vault";
@@ -219,6 +222,18 @@ export class VaultNextComponent {
   });
 
   /**
+   * The shared folder the scope has drilled into, prefilled onto a new item — `undefined` unless
+   * it names an actual collection rather than the {@link MY_ITEMS_ROUTE} sentinel, which
+   * `resolveVaultScope` has yet to resolve to an id while the nav is still loading.
+   */
+  protected readonly scopedCollectionId = computed(() => {
+    const collectionId = scopedSharedFolderId(this.vaultScope());
+    return collectionId != null && isGuid(collectionId)
+      ? (collectionId as CollectionId)
+      : undefined;
+  });
+
+  /**
    * The vault-scope facts {@link EmptyVaultComponent} needs for its copy, relayed through
    * `vault-items-table` untouched — the table itself has no notion of vault scope.
    *
@@ -322,7 +337,10 @@ export class VaultNextComponent {
 
   /** Handles `vault-new-cipher-menu`'s `cipherAdded`, emitted by its legacy per-type dropdown. */
   protected async addCipher(cipherType: CipherType): Promise<void> {
-    await this.itemActions.add(cipherType);
+    await this.itemActions.add(cipherType, {
+      organizationId: this.scopedOrganizationId(),
+      collectionId: this.scopedCollectionId(),
+    });
   }
 
   /**
@@ -341,7 +359,10 @@ export class VaultNextComponent {
       return;
     }
 
-    await this.itemActions.add(result.cipherType);
+    await this.itemActions.add(result.cipherType, {
+      organizationId: this.scopedOrganizationId(),
+      collectionId: this.scopedCollectionId(),
+    });
   }
 
   protected openImportDialog(): void {
