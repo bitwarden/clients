@@ -16,7 +16,7 @@ import { BitSvg } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   ButtonModule,
-  CardComponent,
+  CardContentComponent,
   DisclosureComponent,
   DisclosureTriggerForDirective,
   IconTileComponent,
@@ -24,6 +24,7 @@ import {
   ProgressBarComponent,
   RadioButtonModule,
   SearchModule,
+  SegmentedCardComponent,
   SvgModule,
   TypographyModule,
 } from "@bitwarden/components";
@@ -47,7 +48,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ButtonModule,
-    CardComponent,
+    CardContentComponent,
     DisclosureComponent,
     DisclosureTriggerForDirective,
     IconTileComponent,
@@ -58,6 +59,7 @@ import {
     ReactiveFormsModule,
     RadioButtonModule,
     SearchModule,
+    SegmentedCardComponent,
     SvgModule,
     TypographyModule,
   ],
@@ -161,6 +163,10 @@ export class ImportSourceSelectComponent {
 
   protected readonly visibleRemainingPasswordManagers = computed(() =>
     this.disclosureOpen() ? this.remainingPasswordManagers() : [],
+  );
+
+  protected readonly showAllLabel = computed(() =>
+    this.disclosureOpen() ? "importSourceShowLess" : "importSourceShowAll",
   );
 
   private readonly visibleOptions = computed(() => [

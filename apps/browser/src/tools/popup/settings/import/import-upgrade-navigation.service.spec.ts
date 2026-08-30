@@ -26,7 +26,7 @@ describe("ImportUpgradeNavigationService", () => {
       await service.openImportSourceSelectTab();
 
       expect(BrowserApi.createNewTab).toHaveBeenCalledWith(
-        "chrome-extension://test-extension-id/popup/index.html#/import-source-select?uilocation=tab",
+        "chrome-extension://test-extension-id/popup/index.html?uilocation=tab#/import-source-select",
       );
     });
   });

@@ -166,6 +166,20 @@ describe("ImportSourceSelectComponent", () => {
     expect(cardLabels()).toEqual(expect.arrayContaining(["Zoho Vault", "KeePassX"]));
   });
 
+  it("relabels Show all to Show less once the disclosure is open, and back again", () => {
+    const showAllButton = fixture.debugElement.query(By.css("button[bitLink]"))
+      .nativeElement as HTMLButtonElement;
+    expect(showAllButton.textContent).toContain("importSourceShowAll");
+
+    showAllButton.click();
+    fixture.detectChanges();
+    expect(showAllButton.textContent).toContain("importSourceShowLess");
+
+    showAllButton.click();
+    fixture.detectChanges();
+    expect(showAllButton.textContent).toContain("importSourceShowAll");
+  });
+
   it("reveals matching remaining password managers while searching", () => {
     component["searchControl"].setValue("zoho");
     fixture.detectChanges();

@@ -14,8 +14,13 @@ export class ImportUpgradeNavigationService {
     // with no `uilocation` param as a real popup, and `PopupRouterCacheService` only records/skips
     // route history for URLs `inPopup()` considers a popup — without this marker, opening this tab
     // would pollute the toolbar popup's cached "last route" and hijack its next open.
+    //
+    // Placed before the `#` fragment, not after: it's a query param, and the router owns
+    // everything after the `#` — an in-tab navigation that doesn't manually preserve a
+    // post-fragment "query string" would silently drop it, matching every other caller that
+    // builds one of these URLs (e.g. `context-menu-clicked-handler.ts`'s sidepanel path).
     const url =
-      BrowserApi.getRuntimeURL("popup/index.html#/import-source-select") + "?uilocation=tab";
+      BrowserApi.getRuntimeURL("popup/index.html") + "?uilocation=tab#/import-source-select";
     await BrowserApi.createNewTab(url);
   }
 }

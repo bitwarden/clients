@@ -1500,6 +1500,9 @@
   "importSourceShowAll": {
     "message": "Show all"
   },
+  "importSourceShowLess": {
+    "message": "Show less"
+  },
   "importSourceStepCount": {
     "message": "Step $CURRENT$ of $TOTAL$",
     "placeholders": {

@@ -1,10 +1,22 @@
 <popup-page disablePadding>
-  <!-- Plain title, no popup-header: popup-header always renders a distinct background bar (undesired) -->
-  <div slot="header" class="tw-max-w-6xl tw-mx-auto tw-w-full tw-p-4 tw-pb-0">
-    <h1 bitTypography="h1" noMargin>{{ "importNoun" | i18n }}</h1>
+  <!-- Plain title, no popup-header: popup-header always renders a distinct background bar (undesired).
+       The bg-bg-primary override goes on the full-width outer wrapper, not the inner max-w-6xl one —
+       otherwise it only paints the centered content column and popup-page's own ambient
+       tw-bg-background-alt shows through on either side. -->
+  <div slot="header" class="tw-w-full tw-bg-bg-primary">
+    <div class="tw-max-w-6xl tw-mx-auto tw-p-4 tw-pb-0">
+      <bit-svg
+        [content]="logo"
+        [ariaLabel]="'appLogoLabel' | i18n"
+        class="tw-mb-2 tw-block tw-w-32"
+      ></bit-svg>
+      <h1 bitTypography="h1" noMargin>{{ "importNoun" | i18n }}</h1>
+    </div>
   </div>
 
-  <div class="tw-max-w-6xl tw-mx-auto tw-p-4">
-    <importer-source-select></importer-source-select>
+  <div class="tw-min-h-full tw-bg-bg-primary">
+    <div class="tw-max-w-6xl tw-mx-auto tw-p-4">
+      <importer-source-select></importer-source-select>
+    </div>
   </div>
 </popup-page>
