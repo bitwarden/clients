@@ -78,6 +78,7 @@ describe("AppComponent (desktop)", () => {
     authRequestAnsweringService = mock<AuthRequestAnsweringService>();
     logService = mock<LogService>();
     configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
     dialogService = mock<DialogService>();
     router = mock<Router>();
     router.navigate.mockResolvedValue(true);
@@ -90,9 +91,6 @@ describe("AppComponent (desktop)", () => {
     broadcasterService.subscribe.mockImplementation((_id: string, cb: (message: any) => void) => {
       broadcasterCallback = cb as (message: any) => Promise<void>;
     });
-
-    const configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     const deviceTrustToastService = mock<DeviceTrustToastService>();
     deviceTrustToastService.setupListeners$ = EMPTY;
@@ -127,7 +125,6 @@ describe("AppComponent (desktop)", () => {
           mock<UserVerificationService>(),
           configService,
           dialogService,
-          mock<DialogService>(),
           mock<BiometricStateService>(),
           mock<StateEventRunnerService>(),
           accountService,
