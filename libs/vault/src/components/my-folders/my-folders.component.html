@@ -28,6 +28,22 @@
     </button>
   </bit-table-toolbar>
 
+  <bit-status-lockup slot="empty">
+    <span slot="title">{{ "youHaveNoFolders" | i18n }}</span>
+    <span slot="description">{{ "emptyFoldersDescription" | i18n }}</span>
+    <button
+      bitButton
+      type="button"
+      buttonType="primary"
+      startIcon="bwi-plus"
+      slot="button"
+      id="my-folders_empty_button_add-folder"
+      (click)="addFolder()"
+    >
+      {{ "addFolder" | i18n }}
+    </button>
+  </bit-status-lockup>
+
   <bit-bulk-actions-bar>
     <bit-bulk-action
       [action]="deleteSelected"

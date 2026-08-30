@@ -7171,6 +7171,12 @@
       }
     }
   },
+  "youHaveNoFolders": {
+    "message": "You have no folders."
+  },
+  "emptyFoldersDescription": {
+    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  },
   "introCarouselLabel": {
     "message": "Welcome to Bitwarden"
   },

@@ -35,6 +35,7 @@ import {
   SelectionConfig,
   ToastService,
   defineTable,
+  StatusLockupComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -66,6 +67,7 @@ import { openDeleteFolderDialog } from "../delete-folder-dialog/delete-folder-di
     I18nPipe,
     IconButtonModule,
     SearchModule,
+    StatusLockupComponent,
   ],
 })
 export class MyFoldersComponent {
