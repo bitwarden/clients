@@ -212,6 +212,19 @@ describe("AccessAuditComponent", () => {
         value: (option.componentInstance as FilterOptionComponent).value(),
       }));
 
+  /**
+   * Opens the Event menu and returns its rendered rows. The menu body is stamped into a CDK overlay
+   * on the document, not inside the fixture's host element, so it cannot be reached through the
+   * fixture. Multi-select, so the rows are checkboxes and there is no "All" row to reset from.
+   */
+  const openKindMenu = () => {
+    (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLButtonElement>("bit-filter-menu button[aria-haspopup]")!
+      .click();
+    fixture.detectChanges();
+    return Array.from(document.querySelectorAll<HTMLButtonElement>("[role='menuitemcheckbox']"));
+  };
+
   it("reads the trail for the organization in the route", async () => {
     auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
 
@@ -307,9 +320,47 @@ describe("AccessAuditComponent", () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
+    expect(component().kindOptions()).toEqual([
+      { label: "Lease activated", value: "pamAuditKindLeaseActivated" },
+      { label: "Request approved", value: "pamAuditKindRequestApproved" },
+    ]);
+  });
+
+  // The signal above is what the chip is bound to; this is what the chip does with it. Kept as its own
+  // test because the binding in between is where the option list has actually broken before — an option
+  // read a beat before Angular has bound its `value` throws NG0950 and renders nothing.
+  it("declares each event kind into the Event menu, sorted, one per distinct label", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ Kind: "requestApproved" }),
+      event({ Kind: "leaseActivated" }),
+      event({ Kind: "requestApproved" }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
     expect(kindMenuOptions()).toEqual([
       { label: "Lease activated", value: "pamAuditKindLeaseActivated" },
       { label: "Request approved", value: "pamAuditKindRequestApproved" },
+    ]);
+  });
+
+  // Declaring an option and rendering it are different failures. The rows are stamped into a CDK
+  // overlay only when the menu opens, which is the moment the NG0950 above would surface.
+  it("renders a checkable row per event kind when the Event menu is opened", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ Kind: "leaseActivated" }),
+      event({ Kind: "requestApproved" }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(openKindMenu().map((row) => row.textContent?.trim())).toEqual([
+      "Lease activated",
+      "Request approved",
     ]);
   });
 
@@ -356,7 +407,12 @@ describe("AccessAuditComponent", () => {
     expect(component().filteredRows()).toHaveLength(1);
     expect(component().filteredRows()[0].actor).toBe("Grace");
 
+    // Multi-select, so the second kind joins the first rather than replacing it. Both buckets
+    // selected is every revoke back again, which is what tells the two apart from one relabelled kind.
     kindChip().toggle("pamAuditKindLeaseRevoked");
+    expect(component().filteredRows()).toHaveLength(2);
+
+    kindChip().toggle("pamAuditKindLeaseEndedByHolder");
     expect(component().filteredRows()).toHaveLength(1);
     expect(component().filteredRows()[0].actor).toBe("Ada");
   });
