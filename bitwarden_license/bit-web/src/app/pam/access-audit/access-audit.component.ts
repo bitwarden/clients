@@ -643,6 +643,7 @@ export class AccessAuditComponent implements OnInit {
    */
   private async showDetails(row: AuditRow): Promise<void> {
     const drawer = await AuditEventDrawerComponent.open(this.dialogService, {
+      closeOnNavigation: true,
       data: {
         row,
         organizationId: this.organizationId(),
