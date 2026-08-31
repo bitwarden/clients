@@ -10,9 +10,7 @@
   </div>
 
   <!-- Cart Summary -->
-  <div class="tw-mb-4">
-    <billing-cart-summary [cart]="subscription().cart" [header]="cartSummaryHeader" />
-  </div>
+  <billing-cart-summary [cart]="subscription().cart" [header]="cartSummaryHeader" />
 
   <!-- Status-Based Callout -->
   @if (callout(); as callout) {
@@ -43,7 +41,7 @@
 
 <ng-template #cartSummaryHeader let-total="total">
   <h2
-    bitTypography="h4"
+    bitTypography="h5"
     class="!tw-m-0"
     id="cart-summary-header-custom"
     data-test-id="cart-summary-header-custom"
