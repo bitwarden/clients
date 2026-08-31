@@ -23,7 +23,18 @@ export type AuditExport = {
   ruleName: string;
   /** The length of the granted access window, localized as the Duration cell localizes it. */
   grantedDuration: string;
+  /**
+   * The new lease end a `LeaseExtended` event records, as a full ISO 8601 UTC timestamp. That kind carries no
+   * granted window, so it is the only field on the record that says what the extension did. Empty on every
+   * other kind.
+   */
+  extendedUntil: string;
   detail: string;
   automated: boolean;
   incomplete: boolean;
+  /**
+   * The request this event belongs to, if any. Never rendered in the table, and carried here because a
+   * correlation id is what joins this file to another export or to a support ticket.
+   */
+  requestId: string;
 };
