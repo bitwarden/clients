@@ -15,6 +15,14 @@
 ///
 /// Pure, like build-config.mts: everything is passed in, and the caller writes the result.
 
+import * as plistModule from "plist";
+
+// `plist` assigns its exports in a loop, which Node's CommonJS-to-ESM analysis cannot see: a
+// named import of `build` fails there outright, while the CommonJS that the test transform emits
+// has no `default` to reach it through. So take whichever of the two the running module system
+// actually provided.
+const { build } = (plistModule as { default?: typeof plistModule }).default ?? plistModule;
+
 /// Apple developer team, which is what an application identifier and an app group are prefixed
 /// with.
 export const TEAM_ID = "LTZ2PFU5D6";
@@ -149,44 +157,15 @@ export function desktopProxyInheritEntitlements(): Entitlements {
   };
 }
 
-/// Serializes to the plist dialect Xcode and codesign write: tab indented, keys in the order
-/// they were given, and a trailing newline.
+/// Serializes to the plist dialect Xcode and codesign write.
+///
+/// `offset: -1` is what puts `<dict>` at column zero with its keys one tab in, which is how
+/// Xcode writes these and therefore how the checked-in files are written; xmlbuilder would
+/// otherwise indent `<dict>` one level under `<plist>`. The trailing newline is xmlbuilder's
+/// only other departure from that format.
+///
+/// The specs compare the result against the checked-in plists byte for byte, so a change in how
+/// this renders is a failing test rather than a surprise at signing time.
 export function serializePlist(entitlements: Entitlements): string {
-  const lines = [
-    '<?xml version="1.0" encoding="UTF-8"?>',
-    '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" ' +
-      '"http://www.apple.com/DTDs/PropertyList-1.0.dtd">',
-    '<plist version="1.0">',
-    "<dict>",
-  ];
-
-  for (const [key, value] of Object.entries(entitlements)) {
-    lines.push(`\t<key>${escapeXml(key)}</key>`);
-    lines.push(...serializeValue(value, "\t"));
-  }
-
-  lines.push("</dict>", "</plist>");
-  return `${lines.join("\n")}\n`;
-}
-
-function serializeValue(value: EntitlementValue, indent: string): string[] {
-  if (typeof value === "boolean") {
-    return [`${indent}<${value}/>`];
-  }
-  if (typeof value === "string") {
-    return [`${indent}<string>${escapeXml(value)}</string>`];
-  }
-  return [
-    `${indent}<array>`,
-    ...value.map((item) => `${indent}\t<string>${escapeXml(item)}</string>`),
-    `${indent}</array>`,
-  ];
-}
-
-function escapeXml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+  return `${build(entitlements, { indent: "\t", offset: -1 })}\n`;
 }
