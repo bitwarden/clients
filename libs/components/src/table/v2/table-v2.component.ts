@@ -361,9 +361,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * `value` and no other filter applied. `undefined` with no `[filter]`
    * (server-side) — the chip then shows an explicit `count` instead.
    *
-   * Deliberately absolute rather than faceted. Design settled this in the 14AUG2026
-   * review: a count should always say how many items fall within that option, so it
-   * doesn't move as unrelated filters change.
+   * Absolute rather than faceted, per the 14AUG2026 design review, so a count doesn't
+   * move as unrelated filters change.
    */
   optionCount(key: string, value: unknown): number | undefined {
     const filter = this.filter();

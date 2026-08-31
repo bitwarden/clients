@@ -5,13 +5,9 @@ import { FILTER_TREE_HOST, FilterTreeHost, FilterTreeNode } from "./filter-token
 
 /**
  * One row of a multi-select filter menu's tree, adapting it to CDK's
- * {@link TreeKeyManagerItem} so the manager owns navigation instead of a bespoke
- * key handler. The row is the item rather than the `bit-filter-option` behind it:
- * an option is declared once but rendered per surface (the popover and the
- * responsive dialog), so only the row maps one-to-one onto something focusable.
- *
- * Relationships come from the host rather than being derived here — the rows are
- * laid out flat, so only the host's node list knows which row owns which.
+ * {@link TreeKeyManagerItem}. The row is the item rather than the `bit-filter-option`
+ * behind it: an option is declared once but rendered per surface, so only the row maps
+ * one-to-one onto something focusable.
  */
 @Directive({
   selector: "[bitFilterTreeRow]",

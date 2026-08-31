@@ -19,16 +19,11 @@ import { FILTER_ENTRY, FilterEntry } from "./filter-tokens";
 export type FilterOptionIconTile = IconTileOptions;
 
 /**
- * A selectable option inside a `bit-filter-menu`. It's **declarative**: it holds the
- * `value`, optional `count`, and `disabled` state, and captures its projected label text —
- * it renders no visible UI of its own. The chip draws the actual row (indicator, tile, label,
- * count) and handles selection, so the same options render independently in the popover and
- * the responsive filter dialog without sharing one set of projected nodes.
+ * A selectable option inside a `bit-filter-menu`. Declarative — it renders no UI of its
+ * own; the chip draws the row and handles selection.
  *
- * Options nest: project `bit-filter-option`s inside one to make it an expandable
- * parent (e.g. a collection and the collections beneath it). Selecting a parent
- * selects everything under it, and a parent renders partially selected while only
- * some of its subtree is.
+ * Project `bit-filter-option`s inside one to make it an expandable parent. Selecting a
+ * parent selects everything under it.
  *
  * @example
  * ```html
@@ -40,11 +35,9 @@ export type FilterOptionIconTile = IconTileOptions;
  */
 @Component({
   selector: "bit-filter-option",
-  // Child options are projected past the label so they don't land in its text.
   template: `<span #label><ng-content></ng-content></span
     ><ng-content select="bit-filter-option"></ng-content>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // Never shown directly; the chip renders the visible row from this declaration.
   host: { class: "tw-hidden" },
   providers: [{ provide: FILTER_ENTRY, useExisting: forwardRef(() => FilterOptionComponent) }],
 })

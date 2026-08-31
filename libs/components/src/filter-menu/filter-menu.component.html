@@ -28,22 +28,10 @@
   }
 </bit-chip-content>
 
-<!--
-  Hidden: instantiates the projected `bit-filter-option`/`bit-filter-section`
-  declarations so their data (labels, counts) is available before the menu or dialog
-  opens. The chip draws the visible rows below from this data — never by re-projecting
-  — so the same options render independently in the popover and the responsive dialog.
--->
+<!-- Instantiates the projected declarations so the chip can draw rows from their data. -->
 <div class="tw-hidden"><ng-content></ng-content></div>
 
-<!--
-  One option row, drawn by the chip (data only) so it re-stamps cleanly per surface,
-  and recursive so a parent renders the options nested under it. A `label` around a
-  real checkbox/radio: the browser supplies the role, the checked state, the
-  announcement, Space to toggle, and — for radios sharing a name — arrow-key
-  navigation, none of which a `button` gets for free. The expander sits outside the
-  label so it isn't interactive content nested inside it.
--->
+<!-- The expander sits outside the label so it isn't interactive content nested inside it. -->
 <ng-template #optionRow let-option let-depth="depth">
   @let selected = optionSelected(option);
   @let partial = partiallySelected(option);
@@ -114,12 +102,7 @@
     </div>
   }
   @if (multiple()) {
-    <!--
-      Multi-select is a tree: rows are selectable, rows can own rows, and a parent can
-      be partly selected — `treeitem` is the only role carrying expansion and a mixed
-      checked state at once. Presented flat, with each row declaring its own level and
-      sibling position, and navigated as one tab stop by `onTreeKeydown`.
-    -->
+    <!-- Flattened: each row declares its own level and sibling position. -->
     <div
       #tree
       role="tree"
@@ -161,11 +144,7 @@
             <span class="tw-size-4 tw-flex-none" aria-hidden="true"></span>
           }
           @if (checked !== null) {
-            <!--
-              Draws the control, nothing more: the row owns the semantics through
-              `aria-checked` and its own click, so this is hidden from assistive tech and
-              kept out of the tab order rather than being a second control to operate.
-            -->
+            <!-- Draws the control only; the row owns the semantics via `aria-checked`. -->
             <input
               type="checkbox"
               bitCheckbox
@@ -176,6 +155,19 @@
               [indeterminate]="checked === 'mixed'"
               [disabled]="nodeDisabled(node)"
             />
+          }
+          @if (node.kind === "option") {
+            @let tile = node.option.iconTile();
+            @if (tile) {
+              <bit-icon-tile
+                class="!tw-flex tw-flex-none"
+                [icon]="tile.icon"
+                [variant]="tileVariant(node.option)"
+                [color]="tileColor(node.option)"
+                [emphasis]="tile.emphasis ?? 'subtle'"
+                size="xs"
+              />
+            }
           }
           <span
             class="tw-min-w-0 tw-flex-1 tw-truncate"
@@ -204,7 +196,6 @@
       [attr.aria-label]="placeholderText()"
       class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
     >
-      <!-- Single-select always offers "All" at the top; selecting it clears the chip. -->
       @if (!multiple()) {
         @let allSelected = isSelected(clearValue);
         <label [class]="optionRowClasses">
@@ -280,10 +271,7 @@
   <div class="tw-flex tw-max-h-96 tw-min-w-52 tw-max-w-80 tw-flex-col">
     <ng-container *ngTemplateOutlet="optionsBody"></ng-container>
   </div>
-  <!--
-    The footer goes in `bit-menu`'s own slot rather than the body so its divider
-    runs the full width of the popover instead of being inset by the body padding.
-  -->
+  <!-- In `bit-menu`'s slot, not the body, so the divider runs the full popover width. -->
   @if (multiple() && active()) {
     <div slot="footer" class="tw-flex tw-items-center tw-gap-2">
       <span class="tw-flex-1 tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{

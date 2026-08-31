@@ -58,8 +58,7 @@ export class FilterDialogComponent {
   private readonly dialogRef = inject(DialogRef);
   private readonly injector = inject(Injector);
 
-  // Focus target when Clear all removes itself. `read` is explicit: the element hosts
-  // `bitButton`, so the default read would hand back that component, not the element.
+  // `read` is explicit: the element hosts `bitButton`.
   private readonly doneButtonEl = viewChild("doneButton", { read: ElementRef<HTMLElement> });
 
   /** The filters to present, in row order. */
@@ -71,20 +70,13 @@ export class FilterDialogComponent {
   /** How many filters currently have a selection — shown in the footer. */
   protected readonly selectedCount = computed(() => this.filters.filter((f) => f.active()).length);
 
-  /**
-   * A row's label, carrying the colon when there's a selection to follow it. Kept out
-   * of the template so no whitespace lands between the label and the colon.
-   */
+  /** Kept out of the template so no whitespace lands between the label and the colon. */
   protected rowLabel(filter: FilterPresenter): string {
     return filter.summary() ? `${filter.label()}:` : filter.label();
   }
 
-  /**
-   * The drill-in option list: one bordered card, with the rows divided rather than
-   * individually rounded. The rows come from the chip's own options template, which
-   * is shared with its desktop popover (where they sit on the menu surface with no
-   * card around them), so the card and dividers are applied from out here.
-   */
+  // The rows come from the chip's template, shared with the popover, so the card and
+  // dividers are applied from out here.
   protected readonly optionListClasses = [
     "tw-overflow-hidden",
     "tw-rounded-lg",
@@ -118,10 +110,7 @@ export class FilterDialogComponent {
     this.filters.forEach((filter) => filter.clear());
   }
 
-  /**
-   * Clearing removes the Clear all button itself, so pass focus to Done — the control
-   * that outlives it in the same footer — instead of dropping it to the document body.
-   */
+  /** Clearing removes this button, so hand focus to Done rather than dropping it. */
   protected clearAllAndKeepFocus(): void {
     this.clearAll();
     focusAfterRender(this.injector, () => this.doneButtonEl()?.nativeElement);

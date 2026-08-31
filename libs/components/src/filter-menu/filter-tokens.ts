@@ -89,10 +89,7 @@ export interface FilterPresenter {
   readonly active: Signal<boolean>;
   /** Selected-options summary for the row, e.g. "Login"; empty when none. */
   readonly summary: Signal<string>;
-  /**
-   * The same selection as {@link summary}, unjoined, so a surface that has to fit it
-   * into a fixed width can measure and drop labels individually.
-   */
+  /** The same selection as {@link summary}, unjoined, so a surface can measure each label. */
   readonly summaryLabels: Signal<readonly string[]>;
   /**
    * The options to stamp on a drill-in page. `undefined` means the filter has no
@@ -124,11 +121,7 @@ export type FilterTreeNode =
   | { kind: "section"; section: unknown; level: number; setsize: number; posinset: number }
   | { kind: "option"; option: unknown; level: number; setsize: number; posinset: number };
 
-/**
- * What a multi-select filter menu exposes to its tree rows. The rows render flat, so
- * only the menu's node list knows which row owns which — it answers those questions
- * here rather than each row deriving them from the DOM.
- */
+/** What a multi-select filter menu exposes to its tree rows. */
 export interface FilterTreeHost {
   nodeLabel(node: FilterTreeNode): string;
   nodeDisabled(node: FilterTreeNode): boolean;

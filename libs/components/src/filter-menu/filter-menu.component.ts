@@ -182,9 +182,7 @@ export class FilterMenuComponent
     "tw-gap-2",
     ...menuItemBaseStyles,
     ...menuItemPrimaryStyles,
-    // The row is a `label` wrapping a visually hidden input, so focus and disabled
-    // land on the input rather than the row. Mirror both onto the row, and drop the
-    // margin a bare `label` would otherwise carry.
+    // Focus and disabled land on the input, not the row; mirror both onto the row.
     "tw-mb-0",
     "has-[:focus-visible]:tw-z-50",
     "has-[:focus-visible]:tw-rounded-lg",
@@ -198,11 +196,7 @@ export class FilterMenuComponent
     "has-[:disabled]:!tw-text-fg-inactive",
   ];
 
-  /**
-   * Shared `name` for a single-select menu's radios. Radios only behave as one group
-   * — arrow keys moving between them, one tab stop for the set — when they share a
-   * name, and it must be unique per chip so two menus don't merge into one group.
-   */
+  /** Shared `name` so a menu's radios form one group; unique per chip so menus don't merge. */
   protected readonly radioName = `bit-filter-menu-${nextRadioGroupId++}`;
 
   /** The chip's value, read by the host bridge. */
@@ -241,12 +235,8 @@ export class FilterMenuComponent
    */
   protected readonly committedCount = signal(0);
 
-  /**
-   * The design system's own radio rendering, applied to the row's plain radio. `bitRadio`
-   * itself can't be used here — it drives `checked` and `name` from a form control group
-   * this row doesn't have — but its classes are the same definition, so there's nothing
-   * to drift from.
-   */
+  // `bitRadio` itself can't be used here: it drives `checked` and `name` from a form
+  // control group this row doesn't have. Its classes are the same definition.
   protected readonly radioInputClasses = radioInputClasses;
 
   /** Sentinel value bound to the single-select "All" option; selecting it clears the chip. */
@@ -267,10 +257,7 @@ export class FilterMenuComponent
    */
   readonly optionsTemplate = viewChild<TemplateRef<unknown>>("optionsBody");
 
-  /**
-   * Whether any option in this menu has children. Leaves reserve the expander's width
-   * when so, to keep every checkbox in a column.
-   */
+  /** Whether any option has children; leaves then reserve the expander's width. */
   protected readonly hasNesting = computed(() => this.allOptions().some((o) => o.hasChildren()));
 
   /** Whether the menu has enough options to warrant the in-menu search box. */
@@ -287,10 +274,8 @@ export class FilterMenuComponent
 
   protected readonly disabled = computed(() => this.baseChip.disabled());
 
-  /** The `role="tree"` container, so key handling can move focus between its rows. */
   private readonly treeEl = viewChild<ElementRef<HTMLElement>>("tree");
-  // `read` is explicit: the trigger button also hosts `bit-chip-content`, so the default
-  // read would hand back that component rather than the element.
+  // `read` is explicit: the button also hosts `bit-chip-content`.
   private readonly chipTriggerEl = viewChild("chipTrigger", { read: ElementRef<HTMLElement> });
   private readonly injector = inject(Injector);
 
@@ -321,10 +306,7 @@ export class FilterMenuComponent
     return counts;
   });
 
-  /**
-   * The count shown on the single-select "All" row: every row the host holds, since
-   * "All" pins no value. `undefined` without a host or a `[filter]`.
-   */
+  /** The count for the "All" row: every row the host holds, since it pins no value. */
   protected readonly unsetCount = computed(() => this.filterHost?.optionCount?.(this.key(), null));
 
   /**
@@ -344,9 +326,7 @@ export class FilterMenuComponent
   }
 
   constructor() {
-    // Unselected filter chips are white with a grey border, not brand-tinted; the
-    // base chip only routes to `primary` while selected, so `subtle` is the resting
-    // variant. Set rather than defaulted so a consumer's `variant` still wins.
+    // Set rather than defaulted so a consumer's own `variant` still wins.
     this.baseChip.variant.set("subtle");
     effect(() => {
       const options = this.allOptions();
@@ -364,9 +344,7 @@ export class FilterMenuComponent
     });
     // Reflect the active state as the chip's pressed (selected) styling.
     effect(() => this.baseChip.selectedState.set(this.active()));
-    // The berry count is otherwise only committed on menu close. Toggling the last
-    // selection off in an open menu drops the dismiss button, so a stale berry would
-    // be left sitting at the end of the chip until it closed.
+    // Otherwise only committed on menu close, leaving a stale berry on the chip.
     effect(() => {
       if (!this.active()) {
         this.committedCount.set(0);
@@ -404,11 +382,7 @@ export class FilterMenuComponent
     return entry.kind === "option" ? (entry as FilterOptionComponent) : null;
   }
 
-  /**
-   * Whether an option shows for the current search term. A parent stays visible when
-   * anything beneath it matches, so a nested match is reachable through its ancestors
-   * rather than being hidden with them.
-   */
+  /** Whether an option shows for the search term. A parent stays visible if a child matches. */
   protected optionVisible(option: FilterOptionComponent): boolean {
     const term = this._searchTerm().trim().toLowerCase();
     if (term === "") {
@@ -420,10 +394,7 @@ export class FilterMenuComponent
     );
   }
 
-  /**
-   * Whether a parent's children are shown: its own expansion state, or forced open
-   * while a search is narrowing the list so matches aren't buried in a collapsed row.
-   */
+  /** Whether a parent's children show — its own state, or forced open while searching. */
   protected optionExpanded(option: FilterOptionComponent): boolean {
     return this._searchTerm().trim() !== "" || option.open();
   }
@@ -446,12 +417,7 @@ export class FilterMenuComponent
     }).length;
   }
 
-  /**
-   * The multi-select menu's rows, flattened in the order they appear. A tree may be
-   * presented flat as long as each row carries its own level and sibling position,
-   * which keeps the template one loop instead of a recursive one and gives the
-   * keyboard model a plain array to move through.
-   */
+  /** The multi-select rows, flattened in document order, each carrying its own level. */
   protected readonly treeNodes = computed<FilterTreeNode[]>(() => {
     const nodes: FilterTreeNode[] = [];
     const pushOptions = (options: readonly FilterOptionComponent[], level: number) => {
@@ -510,19 +476,13 @@ export class FilterMenuComponent
   /** The rendered rows, in document order — the same order as {@link treeNodes}. */
   private readonly treeRows = viewChildren(FilterTreeRowDirective);
 
-  /**
-   * CDK owns tree navigation: up/down over the rows on screen, right to open then step
-   * in, left to close then climb, and home/end. The rows adapt themselves to its item
-   * contract; this just supplies the list. Typeahead is left off (it's opt-in, and
-   * optional for a tree) since the menu already has a search field.
-   */
+  // Typeahead is left off — optional for a tree, and the menu already has a search field.
   private readonly keyManager = new TreeKeyManager<FilterTreeRowDirective>(
     toObservable(this.treeRows).pipe(
       map((rows) => [...(rows as readonly FilterTreeRowDirective[])]),
     ),
     {
-      // Rows are re-created as the tree expands or a search narrows it; keying on the
-      // declaration behind each row keeps the active row identified across that.
+      // Rows are re-created as the tree expands, so key on the declaration behind each.
       trackBy: (row) => {
         const node = row.node();
         return node.kind === "section" ? node.section : node.option;
@@ -630,11 +590,7 @@ export class FilterMenuComponent
     return values;
   }
 
-  /**
-   * Whether an option's row draws as selected: for a leaf, whether its value is
-   * selected; for a parent, whether its whole subtree is. A parent that's only
-   * partly selected draws as {@link partiallySelected} instead.
-   */
+  /** Whether a row draws selected: a leaf's own value, or a parent's whole subtree. */
   protected optionSelected(option: FilterOptionComponent): boolean {
     const values = this.subtreeValues(option);
     return values.length > 0 && values.every((value) => this.isSelected(value));
@@ -648,11 +604,7 @@ export class FilterMenuComponent
     );
   }
 
-  /**
-   * Selecting a row selects everything beneath it, and clearing it clears the same
-   * set — so a parent is a bulk control for its subtree rather than a value that can
-   * drift out of step with its children.
-   */
+  /** Selecting a row selects everything beneath it; clearing it clears the same set. */
   protected toggleOption(option: FilterOptionComponent): void {
     const values = this.subtreeValues(option);
     if (!this.multiple() || values.length <= 1) {

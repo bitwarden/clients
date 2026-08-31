@@ -219,8 +219,7 @@ export class BitTableToolbarComponent {
    */
   protected clearAll(): void {
     this.filters().forEach((filter) => filter.clear());
-    // Clearing removes this very button, which would drop focus to the document body.
-    // Hand it to the first chip in the row the button belonged to.
+    // Clearing removes this button, so hand focus to the first chip in its row.
     focusAfterRender(this.injector, () =>
       this.filterRowEl()?.nativeElement.querySelector<HTMLElement>("button[bit-chip-content]"),
     );

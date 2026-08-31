@@ -45,9 +45,7 @@ const inactiveStyles = [
 ];
 
 // Variant color mappings using design token system.
-// A chip whose trigger is expanded carries the hover fill for as long as its menu is
-// open — matched on the trigger's `aria-expanded` because the host element isn't the
-// trigger. Inert on chips with nothing to expand.
+// Matched on the trigger's `aria-expanded` because the host element isn't the trigger.
 const variantStyles: Record<ChipVariant, string[]> = {
   primary: [
     "tw-bg-bg-brand-softer",

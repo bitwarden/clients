@@ -17,10 +17,8 @@ import { FormControlGroupComponent } from "../form-control/form-control-group.co
 let nextId = 0;
 
 /**
- * The radio control's own rendering — `appearance-none` plus `before:`/`after:` rings and
- * dot, including its disabled and forced-colors handling. Exported so a surface that
- * can't host this component (a filter menu row drives its own selection) still draws the
- * same control from the same definition instead of a copy that drifts.
+ * The radio control's own rendering. Exported so a surface that can't host this component
+ * still draws the same control from the same definition.
  */
 export const radioInputClasses = [
   "tw-appearance-none",
