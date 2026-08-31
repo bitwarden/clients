@@ -1,4 +1,7 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+// Pre-existing usage, not new crypto — the libs/common/src/key-management/crypto shim this
+// reached through was deleted upstream. See daemon-registration.service.ts.
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
 /**
  * Body for `POST /organizations/{orgId}/rotation/daemons`.

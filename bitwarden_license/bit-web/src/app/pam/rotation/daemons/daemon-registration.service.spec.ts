@@ -2,13 +2,18 @@ import { TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+// Pre-existing usage, not new crypto — the libs/common/src/key-management/crypto shim this
+// reached through was deleted upstream. See daemon-registration.service.ts.
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptService,
+  EncString,
+  KeyGenerationService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { DaemonRegisterRequest } from "../requests/daemon-register.request";
 import { DaemonRegistrationResponse } from "../responses/daemon-registration.response";

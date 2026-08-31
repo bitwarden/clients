@@ -3,12 +3,15 @@ import { filter, firstValueFrom, map, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+// Pre-existing usage, not new crypto: these primitives reached this service through the
+// libs/common/src/key-management/crypto re-export shims, which were the only files permitted to
+// import @bitwarden/legacy-crypto until they were deleted upstream. Moving the daemon token
+// derivation into the SDK needs the Key Management team.
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, KeyGenerationService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { DaemonRegisterRequest } from "../requests/daemon-register.request";
 import { DaemonRegistrationResponse } from "../responses/daemon-registration.response";
