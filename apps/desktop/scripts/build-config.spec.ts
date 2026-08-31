@@ -13,73 +13,52 @@ import {
   toBuildConfig,
   validate,
 } from "./build-config.mts";
+import { args } from "./spec-support.ts";
 
-/// A macOS configuration that passes validation, so individual cases only have to say what
-/// they change about it.
-const MAC_ARGS = [
-  "--build-dir",
-  "build-mac",
-  "--architecture",
-  "universal",
-  "--distribution-channel",
-  "dmg",
-  // Packaging macOS requires one. Appended, so `MAC_ARGS.slice(n)` still means what it did and
-  // a case passing its own certificate later on the line overrides this.
-  "--macos-signing-certificate",
-  "Developer ID Application: Bitwarden Inc",
-];
+/// Packaging macOS requires an identity whatever the channel, so it is part of the baseline.
+/// Named separately for the cases that vary the rest of the line around it.
+const MAC_SIGNING = '--macos-signing-certificate "Developer ID Application: Bitwarden Inc"';
 
-const WINDOWS_ARGS = [
-  "--build-dir",
-  "build-win",
-  "--architecture",
-  "x64",
-  "--distribution-channel",
-  "windows-installer",
-];
+/// Command lines that pass validation, so individual cases only have to say what they change.
+/// An option given later on the line replaces an earlier one.
+const MAC = `--build-dir build-mac --architecture universal --distribution-channel dmg ${MAC_SIGNING}`;
+const WINDOWS = "--build-dir build-win --architecture x64 --distribution-channel windows-installer";
+const LINUX = "--build-dir build-lin --architecture x64 --distribution-channel deb";
 
-function validateArgs(args: string[]): string[] {
-  return validate(parseConfigureArgs(args));
+function validateArgs(line: string): string[] {
+  return validate(parseConfigureArgs(args(line)));
 }
 
-function toBuildConfigFromArgs(args: string[], resolved = {}) {
-  const raw = parseConfigureArgs(args);
+function toBuildConfigFromArgs(line: string, resolved = {}) {
+  const raw = parseConfigureArgs(args(line));
   expect(validate(raw)).toEqual([]);
   return toBuildConfig(raw, resolved);
 }
 
 describe("parseConfigureArgs", () => {
   it("collects repeated architectures and distribution channels", () => {
-    const raw = parseConfigureArgs([
-      "--build-dir",
-      "build",
-      "--architecture",
-      "x64",
-      "--architecture",
-      "arm64",
-      "--distribution-channel",
-      "deb",
-      "--distribution-channel",
-      "rpm",
-    ]);
+    const raw = parseConfigureArgs(
+      args(
+        "--build-dir build --architecture x64 --architecture arm64 " +
+          "--distribution-channel deb --distribution-channel rpm",
+      ),
+    );
 
     expect(raw.architectures).toEqual(["x64", "arm64"]);
     expect(raw.distributionChannels).toEqual(["deb", "rpm"]);
   });
 
   it("separates --with and --no target flags", () => {
-    const raw = parseConfigureArgs([
-      ...MAC_ARGS,
-      "--with-macos-autofill-extension",
-      "--no-desktop-proxy",
-    ]);
+    const raw = parseConfigureArgs(
+      args(`${MAC} --with-macos-autofill-extension --no-desktop-proxy`),
+    );
 
     expect(raw.enabledTargets).toEqual(["macos-autofill-extension"]);
     expect(raw.disabledTargets).toEqual(["desktop-proxy"]);
   });
 
   it("rejects unknown flags", () => {
-    expect(() => parseConfigureArgs([...MAC_ARGS, "--with-nothing"])).toThrow(BuildError);
+    expect(() => parseConfigureArgs(args(`${MAC} --with-nothing`))).toThrow(BuildError);
   });
 
   it("exposes a --with/--no pair for every flagged target", () => {
@@ -87,19 +66,19 @@ describe("parseConfigureArgs", () => {
       if (target.flag == null) {
         continue;
       }
-      expect(() => parseConfigureArgs([...MAC_ARGS, `--with-${target.flag}`])).not.toThrow();
-      expect(() => parseConfigureArgs([...MAC_ARGS, `--no-${target.flag}`])).not.toThrow();
+      expect(() => parseConfigureArgs(args(`${MAC} --with-${target.flag}`))).not.toThrow();
+      expect(() => parseConfigureArgs(args(`${MAC} --no-${target.flag}`))).not.toThrow();
     }
   });
 });
 
 describe("validate", () => {
   it("accepts a minimal configuration", () => {
-    expect(validateArgs(MAC_ARGS)).toEqual([]);
+    expect(validateArgs(MAC)).toEqual([]);
   });
 
   it("reports every problem at once", () => {
-    const errors = validateArgs(["--channel", "nightly", "--build-number", "beta1"]);
+    const errors = validateArgs("--channel nightly --build-number beta1");
 
     expect(errors).toEqual(
       expect.arrayContaining([
@@ -112,99 +91,110 @@ describe("validate", () => {
     );
   });
 
-  it("rejects a glibc version that is not a version", () => {
-    expect(
-      validateArgs([
-        "--build-dir",
-        "b",
-        "--architecture",
-        "x64",
-        "--distribution-channel",
-        "deb",
-        "--glibc",
-        "oldest",
-      ]),
-    ).toEqual([expect.stringContaining("--glibc must look like 2.35")]);
+  /// Each of these is a single problem with the command line, so the whole error list is
+  /// asserted: an extra error here would mean one option's mistake was reported as two.
+  it.each([
+    [
+      "a glibc version that is not a version",
+      `${LINUX} --glibc oldest`,
+      "--glibc must look like 2.35",
+    ],
+    ["--glibc outside a Linux build", `${MAC} --glibc 2.35`, "--glibc is only available on linux"],
+    [
+      "an unknown profile",
+      `${MAC} --profile fast`,
+      "Unknown --profile 'fast'. Expected one of: debug, release.",
+    ],
+    [
+      "an unknown distribution channel, naming the accepted values",
+      "--build-dir build-mac --architecture universal --distribution-channel msi",
+      "Unknown --distribution-channel 'msi'. Expected one of: dmg,",
+    ],
+    [
+      "distribution channels from more than one platform",
+      `${MAC} --distribution-channel deb`,
+      "span multiple platforms",
+    ],
+    [
+      "an App Store build combined with another channel",
+      `${MAC} --distribution-channel mac-app-store ` +
+        '--macos-signing-certificate "3rd Party Mac Developer Application: Bitwarden Inc"',
+      "cannot be combined with dmg",
+    ],
+    [
+      "an architecture the platform cannot produce",
+      `${WINDOWS} --architecture universal`,
+      "--architecture universal is not available",
+    ],
+    [
+      "a target flag for another platform",
+      `${MAC} --with-windows-passkey-plugin`,
+      "--with-windows-passkey-plugin is not available on macos",
+    ],
+    [
+      "enabling and disabling the same target",
+      `${MAC} --with-desktop-proxy --no-desktop-proxy`,
+      "--with-desktop-proxy and --no-desktop-proxy are mutually exclusive",
+    ],
+    [
+      "--notarize where Apple would do it on submission",
+      "--build-dir b --architecture universal --distribution-channel mac-app-store " +
+        "--macos-signing-certificate x --notarize",
+      "Apple does it on submission",
+    ],
+    [
+      "--notarize with nothing to notarize",
+      "--build-dir b --architecture universal --distribution-channel dmg " +
+        "--macos-signing-certificate none --notarize",
+      "--notarize needs a signed app",
+    ],
+    ["--notarize off macOS", `${LINUX} --notarize`, "--notarize is only available on macos"],
+    [
+      "an unsigned App Store build",
+      "--build-dir b --architecture universal --distribution-channel mac-app-store " +
+        "--macos-signing-certificate none",
+      "mac-app-store cannot be built unsigned",
+    ],
+  ])("rejects %s", (_case, line, expected) => {
+    expect(validateArgs(line)).toEqual([expect.stringContaining(expected)]);
   });
 
-  it("rejects --glibc outside a Linux build", () => {
-    expect(validateArgs([...MAC_ARGS, "--glibc", "2.35"])).toEqual([
-      expect.stringContaining("--glibc is only available on linux"),
-    ]);
+  it.each([
+    ["the unpacked directory alongside any channel", `${MAC} --distribution-channel directory`],
+    ["a --no flag for a target on another platform", `${MAC} --no-windows-passkey-plugin`],
+    ["a build with no signing certificate off macOS", LINUX],
+    [
+      "an unsigned App Store development build",
+      "--build-dir b --architecture universal " +
+        "--distribution-channel mac-app-store-development --macos-signing-certificate none",
+    ],
+    ["--notarize for a signed, directly distributed build", `${MAC} --notarize`],
+    [
+      "a beta App Store build",
+      "--build-dir b --architecture universal --channel beta " +
+        "--distribution-channel mac-app-store " +
+        '--macos-signing-certificate "3rd Party Mac Developer Application: Bitwarden Inc"',
+    ],
+  ])("accepts %s", (_case, line) => {
+    expect(validateArgs(line)).toEqual([]);
   });
 
-  it("rejects an unknown profile", () => {
-    expect(validateArgs([...MAC_ARGS, "--profile", "fast"])).toEqual([
-      expect.stringContaining("Unknown --profile 'fast'. Expected one of: debug, release."),
-    ]);
-  });
-
-  it("names the accepted values for an unknown distribution channel", () => {
-    const errors = validateArgs([...MAC_ARGS.slice(0, 4), "--distribution-channel", "msi"]);
-
-    expect(errors).toEqual([
-      expect.stringContaining("Unknown --distribution-channel 'msi'. Expected one of: dmg,"),
-    ]);
-  });
-
-  it("rejects distribution channels from more than one platform", () => {
-    const errors = validateArgs([...MAC_ARGS, "--distribution-channel", "deb"]);
-
-    expect(errors).toEqual([expect.stringContaining("span multiple platforms")]);
-  });
-
-  it("rejects an App Store build combined with another channel", () => {
-    const errors = validateArgs([
-      ...MAC_ARGS,
-      "--distribution-channel",
-      "mac-app-store",
-      "--macos-signing-certificate",
-      "3rd Party Mac Developer Application: Bitwarden Inc",
-    ]);
-
-    expect(errors).toEqual([expect.stringContaining("cannot be combined with dmg")]);
-  });
-
-  it("allows the unpacked directory alongside any channel", () => {
-    expect(validateArgs([...MAC_ARGS, "--distribution-channel", "directory"])).toEqual([]);
-  });
-
-  it("rejects an architecture the platform cannot produce", () => {
-    const errors = validateArgs([...WINDOWS_ARGS, "--architecture", "universal"]);
-
-    expect(errors).toEqual([expect.stringContaining("--architecture universal is not available")]);
-  });
-
-  it("rejects a target flag for another platform", () => {
-    const errors = validateArgs([...MAC_ARGS, "--with-windows-passkey-plugin"]);
-
-    expect(errors).toEqual([
-      expect.stringContaining("--with-windows-passkey-plugin is not available on macos"),
-    ]);
-  });
-
-  it("ignores a --no flag for another platform", () => {
-    expect(validateArgs([...MAC_ARGS, "--no-windows-passkey-plugin"])).toEqual([]);
-  });
-
-  it("rejects enabling and disabling the same target", () => {
-    const errors = validateArgs([...MAC_ARGS, "--with-desktop-proxy", "--no-desktop-proxy"]);
-
-    expect(errors).toEqual([
-      expect.stringContaining("--with-desktop-proxy and --no-desktop-proxy are mutually exclusive"),
-    ]);
-  });
+  /// The proxy is signed separately from the app, before electron-builder runs, so an identity
+  /// has to be named rather than discovered -- whatever the channel.
+  it.each(["dmg", "mac-zip", "mac-app-store", "mac-app-store-development"])(
+    "requires a signing certificate for a %s build",
+    (channel) => {
+      expect(
+        validateArgs(`--build-dir b --architecture universal --distribution-channel ${channel}`),
+      ).toEqual([expect.stringContaining("Packaging macos requires --macos-signing-certificate")]);
+    },
+  );
 
   it("rejects macOS-only options on other platforms", () => {
-    const errors = validateArgs([
-      ...WINDOWS_ARGS,
-      "--safari-extension",
-      "safari.appex",
-      "--macos-signing-certificate",
-      "none",
-      "--provisioning-profile",
-      "profile.provisionprofile",
-    ]);
+    const errors = validateArgs(
+      `${WINDOWS} --safari-extension safari.appex --macos-signing-certificate none ` +
+        "--provisioning-profile profile.provisionprofile",
+    );
 
     expect(errors).toEqual([
       expect.stringContaining("--safari-extension is only available on macos"),
@@ -212,123 +202,23 @@ describe("validate", () => {
       expect.stringContaining("--provisioning-profile is only available on macos"),
     ]);
   });
-
-  /// The proxy is signed separately from the app, before electron-builder runs, so an identity
-  /// has to be named rather than discovered -- whatever the channel.
-  it("requires a signing certificate for any macOS build", () => {
-    const args = ["--build-dir", "b", "--architecture", "universal"];
-
-    for (const channel of ["dmg", "mac-zip", "mac-app-store", "mac-app-store-development"]) {
-      expect(validateArgs([...args, "--distribution-channel", channel])).toEqual([
-        expect.stringContaining("Packaging macos requires --macos-signing-certificate"),
-      ]);
-    }
-  });
-
-  it("does not ask for one on another platform", () => {
-    expect(
-      validateArgs(["--build-dir", "b", "--architecture", "x64", "--distribution-channel", "deb"]),
-    ).toEqual([]);
-  });
-
-  it("refuses an unsigned App Store build, but allows an unsigned development one", () => {
-    const args = ["--build-dir", "b", "--architecture", "universal"];
-    const unsigned = (channel: string) =>
-      validateArgs([
-        ...args,
-        "--distribution-channel",
-        channel,
-        "--macos-signing-certificate",
-        "none",
-      ]);
-
-    expect(unsigned("mac-app-store")).toEqual([
-      expect.stringContaining("mac-app-store cannot be built unsigned"),
-    ]);
-    expect(unsigned("mac-app-store-development")).toEqual([]);
-  });
-
-  it("rejects --notarize where Apple would do it, or where there is nothing to notarize", () => {
-    const mac = ["--build-dir", "b", "--architecture", "universal"];
-
-    expect(
-      validateArgs([
-        ...mac,
-        "--distribution-channel",
-        "mac-app-store",
-        "--macos-signing-certificate",
-        "x",
-        "--notarize",
-      ]),
-    ).toEqual([expect.stringContaining("Apple does it on submission")]);
-
-    expect(
-      validateArgs([
-        ...mac,
-        "--distribution-channel",
-        "dmg",
-        "--macos-signing-certificate",
-        "none",
-        "--notarize",
-      ]),
-    ).toEqual([expect.stringContaining("--notarize needs a signed app")]);
-
-    expect(
-      validateArgs([
-        "--build-dir",
-        "b",
-        "--architecture",
-        "x64",
-        "--distribution-channel",
-        "deb",
-        "--notarize",
-      ]),
-    ).toEqual([expect.stringContaining("--notarize is only available on macos")]);
-  });
-
-  it("accepts --notarize for a signed, directly distributed build", () => {
-    expect(
-      validateArgs([
-        "--build-dir",
-        "b",
-        "--architecture",
-        "universal",
-        "--distribution-channel",
-        "dmg",
-        "--macos-signing-certificate",
-        "Developer ID Application: Bitwarden Inc",
-        "--notarize",
-      ]),
-    ).toEqual([]);
-  });
-
-  it("allows a beta App Store build", () => {
-    expect(
-      validateArgs([
-        "--build-dir",
-        "b",
-        "--architecture",
-        "universal",
-        "--channel",
-        "beta",
-        "--distribution-channel",
-        "mac-app-store",
-        "--macos-signing-certificate",
-        "3rd Party Mac Developer Application: Bitwarden Inc",
-      ]),
-    ).toEqual([]);
-  });
 });
 
 describe("toBuildConfig", () => {
+  /// An App Store line, which signs and provisions differently from a directly distributed one.
+  const APP_STORE =
+    "--build-dir build-mas --architecture universal --distribution-channel mac-app-store " +
+    '--macos-signing-certificate "3rd Party Mac Developer Application: Bitwarden Inc" ' +
+    "--with-macos-autofill-extension";
+
   it("applies target defaults for the selected platform", () => {
-    const config = toBuildConfigFromArgs(MAC_ARGS);
+    const config = toBuildConfigFromArgs(MAC);
 
     expect(config.targets).toEqual({ desktopProxy: true, napi: true });
   });
 
   it("enables the Windows-only targets on a Windows build", () => {
-    const config = toBuildConfigFromArgs(WINDOWS_ARGS);
+    const config = toBuildConfigFromArgs(WINDOWS);
 
     expect(config.targets).toEqual({
       desktopProxy: true,
@@ -339,14 +229,7 @@ describe("toBuildConfig", () => {
   });
 
   it("enables the Linux-only targets on a Linux build", () => {
-    const config = toBuildConfigFromArgs([
-      "--build-dir",
-      "build-lin",
-      "--architecture",
-      "x64",
-      "--distribution-channel",
-      "deb",
-    ]);
+    const config = toBuildConfigFromArgs(LINUX);
 
     expect(config.targets).toEqual({
       desktopProxy: true,
@@ -356,18 +239,16 @@ describe("toBuildConfig", () => {
   });
 
   it("adds an opt-in target and drops an opted-out one", () => {
-    const config = toBuildConfigFromArgs([
-      ...MAC_ARGS,
-      "--with-macos-autofill-extension",
-      "--no-desktop-proxy",
-    ]);
+    const config = toBuildConfigFromArgs(
+      `${MAC} --with-macos-autofill-extension --no-desktop-proxy`,
+    );
 
     expect(config.targets).toEqual({ macosAutofillExtension: true, napi: true });
     expect(config.intermediates).not.toHaveProperty("desktopProxy");
   });
 
   it("places each intermediate at the path mirroring its source", () => {
-    const config = toBuildConfigFromArgs([...MAC_ARGS, "--with-macos-autofill-extension"]);
+    const config = toBuildConfigFromArgs(`${MAC} --with-macos-autofill-extension`);
 
     expect(config.intermediates).toEqual({
       macosAutofillExtension: "build-mac/intermediates/macos/autofill-extension.appex",
@@ -381,21 +262,9 @@ describe("toBuildConfig", () => {
     });
   });
 
-  const APP_STORE_ARGS = [
-    "--build-dir",
-    "build-mas",
-    "--architecture",
-    "universal",
-    "--distribution-channel",
-    "mac-app-store",
-    "--macos-signing-certificate",
-    "3rd Party Mac Developer Application: Bitwarden Inc",
-    "--with-macos-autofill-extension",
-  ];
-
   it("signs the autofill extension according to the distribution channel", () => {
-    const developerId = toBuildConfigFromArgs([...MAC_ARGS, "--with-macos-autofill-extension"]);
-    const appStore = toBuildConfigFromArgs(APP_STORE_ARGS);
+    const developerId = toBuildConfigFromArgs(`${MAC} --with-macos-autofill-extension`);
+    const appStore = toBuildConfigFromArgs(APP_STORE);
 
     expect(developerId.derived.macosAutofillExtension).toMatchObject({
       codeSignIdentity: "Developer ID Application",
@@ -408,21 +277,20 @@ describe("toBuildConfig", () => {
   });
 
   it("takes the autofill extension's Xcode configuration from the profile, not the channel", () => {
-    const configurationFor = (args: string[]) =>
-      toBuildConfigFromArgs(args).derived.macosAutofillExtension?.xcodeConfiguration;
+    const configurationFor = (line: string) =>
+      toBuildConfigFromArgs(line).derived.macosAutofillExtension?.xcodeConfiguration;
 
-    expect(configurationFor([...MAC_ARGS, "--with-macos-autofill-extension"])).toBe("Debug");
-    expect(configurationFor(APP_STORE_ARGS)).toBe("Debug");
-    expect(
-      configurationFor([...MAC_ARGS, "--with-macos-autofill-extension", "--profile", "release"]),
-    ).toBe("Release");
-    expect(configurationFor([...APP_STORE_ARGS, "--profile", "release"])).toBe("Release");
+    expect(configurationFor(`${MAC} --with-macos-autofill-extension`)).toBe("Debug");
+    expect(configurationFor(APP_STORE)).toBe("Debug");
+    expect(configurationFor(`${MAC} --with-macos-autofill-extension --profile release`)).toBe(
+      "Release",
+    );
+    expect(configurationFor(`${APP_STORE} --profile release`)).toBe("Release");
   });
 
   it("signs a debug App Store build the App Store way, which the old naming could not express", () => {
     expect(
-      toBuildConfigFromArgs([...APP_STORE_ARGS, "--profile", "debug"]).derived
-        .macosAutofillExtension,
+      toBuildConfigFromArgs(`${APP_STORE} --profile debug`).derived.macosAutofillExtension,
     ).toEqual({
       xcodeConfiguration: "Debug",
       signed: true,
@@ -432,22 +300,19 @@ describe("toBuildConfig", () => {
   });
 
   it("does not sign the extension when the build asked for no signing", () => {
-    const unsigned = toBuildConfigFromArgs([
-      ...MAC_ARGS,
-      "--with-macos-autofill-extension",
-      "--macos-signing-certificate",
-      "none",
-    ]);
+    const unsigned = toBuildConfigFromArgs(
+      `${MAC} --with-macos-autofill-extension --macos-signing-certificate none`,
+    );
 
     expect(unsigned.derived.macosAutofillExtension?.signed).toBe(false);
     expect(
-      toBuildConfigFromArgs([...MAC_ARGS, "--with-macos-autofill-extension"]).derived
-        .macosAutofillExtension?.signed,
+      toBuildConfigFromArgs(`${MAC} --with-macos-autofill-extension`).derived.macosAutofillExtension
+        ?.signed,
     ).toBe(true);
   });
 
   it("omits the autofill extension build when the target is off", () => {
-    const derived = toBuildConfigFromArgs(MAC_ARGS).derived;
+    const derived = toBuildConfigFromArgs(MAC).derived;
 
     expect(derived.macosAutofillExtension).toBeUndefined();
     expect(derived.macos?.entitlements.autofillExtension).toBeUndefined();
@@ -456,7 +321,7 @@ describe("toBuildConfig", () => {
   it("names an entitlements file for everything a directly distributed build signs", () => {
     const entitlements = (file: string) => `build-mac/intermediates/entitlements/${file}`;
 
-    expect(toBuildConfigFromArgs(MAC_ARGS).derived.macos).toEqual({
+    expect(toBuildConfigFromArgs(MAC).derived.macos).toEqual({
       entitlements: {
         app: entitlements("app.plist"),
         appInherit: entitlements("app-inherit.plist"),
@@ -467,9 +332,9 @@ describe("toBuildConfig", () => {
   });
 
   it("adds the login helper's for the App Store, and the extension's when it is built", () => {
-    const appStore = toBuildConfigFromArgs(APP_STORE_ARGS).derived.macos?.entitlements;
-    const withExtension = toBuildConfigFromArgs([...MAC_ARGS, "--with-macos-autofill-extension"])
-      .derived.macos?.entitlements;
+    const appStore = toBuildConfigFromArgs(APP_STORE).derived.macos?.entitlements;
+    const withExtension = toBuildConfigFromArgs(`${MAC} --with-macos-autofill-extension`).derived
+      .macos?.entitlements;
 
     expect(appStore?.loginHelper).toBe("build-mas/intermediates/entitlements/login-helper.plist");
     expect(withExtension?.loginHelper).toBeUndefined();
@@ -479,8 +344,8 @@ describe("toBuildConfig", () => {
   });
 
   it("gives a beta build its own identifier and name", () => {
-    const beta = toBuildConfigFromArgs([...MAC_ARGS, "--channel", "beta"]).derived;
-    const stable = toBuildConfigFromArgs(MAC_ARGS).derived;
+    const beta = toBuildConfigFromArgs(`${MAC} --channel beta`).derived;
+    const stable = toBuildConfigFromArgs(MAC).derived;
 
     expect(beta.appId).toBe("com.bitwarden.beta.desktop");
     expect(beta.productName).toBe("Bitwarden Beta");
@@ -489,12 +354,12 @@ describe("toBuildConfig", () => {
   });
 
   it("has no macOS identity on another platform", () => {
-    expect(toBuildConfigFromArgs(WINDOWS_ARGS).derived.macos).toBeUndefined();
+    expect(toBuildConfigFromArgs(WINDOWS).derived.macos).toBeUndefined();
   });
 
   it("records the provisioning profile alongside where it was copied", () => {
     const config = toBuildConfigFromArgs(
-      [...MAC_ARGS, "--provisioning-profile", "Bitwarden Desktop Developer ID"],
+      `${MAC} --provisioning-profile "Bitwarden Desktop Developer ID"`,
       { provisioningProfileName: "Bitwarden Desktop Developer ID" },
     );
 
@@ -506,53 +371,30 @@ describe("toBuildConfig", () => {
   });
 
   it("keeps a dependency outside the build directory", () => {
-    const config = toBuildConfigFromArgs(
-      [...MAC_ARGS, "--safari-extension", "../../out/safari.appex"],
-      {
-        safariExtensionPath: "../../out/safari.appex",
-      },
-    );
+    const config = toBuildConfigFromArgs(`${MAC} --safari-extension ../../out/safari.appex`, {
+      safariExtensionPath: "../../out/safari.appex",
+    });
 
     expect(config.dependencies).toEqual({ safariExtension: { path: "../../out/safari.appex" } });
     expect(config.intermediates).not.toHaveProperty("safariExtension");
   });
 
   it("gives Linux builds a glibc floor, and no one else one", () => {
-    const linux = toBuildConfigFromArgs([
-      "--build-dir",
-      "build-lin",
-      "--architecture",
-      "x64",
-      "--distribution-channel",
-      "deb",
-    ]);
-
-    expect(linux.linux).toEqual({ glibc: "2.35" });
-    expect(toBuildConfigFromArgs(MAC_ARGS)).not.toHaveProperty("linux");
+    expect(toBuildConfigFromArgs(LINUX).linux).toEqual({ glibc: "2.35" });
+    expect(toBuildConfigFromArgs(MAC)).not.toHaveProperty("linux");
   });
 
   it("takes a glibc floor from the caller", () => {
-    const config = toBuildConfigFromArgs([
-      "--build-dir",
-      "build-lin",
-      "--architecture",
-      "x64",
-      "--distribution-channel",
-      "deb",
-      "--glibc",
-      "2.31",
-    ]);
-
-    expect(config.linux).toEqual({ glibc: "2.31" });
+    expect(toBuildConfigFromArgs(`${LINUX} --glibc 2.31`).linux).toEqual({ glibc: "2.31" });
   });
 
   it("builds with the debug profile unless asked otherwise", () => {
-    expect(toBuildConfigFromArgs(MAC_ARGS).profile).toBe("debug");
-    expect(toBuildConfigFromArgs([...MAC_ARGS, "--profile", "release"]).profile).toBe("release");
+    expect(toBuildConfigFromArgs(MAC).profile).toBe("debug");
+    expect(toBuildConfigFromArgs(`${MAC} --profile release`).profile).toBe("release");
   });
 
   it("defaults the channel and omits an unset build number", () => {
-    const config = toBuildConfigFromArgs(MAC_ARGS);
+    const config = toBuildConfigFromArgs(MAC);
 
     expect(config.channel).toBe("stable");
     expect(config).not.toHaveProperty("buildNumber");
@@ -560,37 +402,23 @@ describe("toBuildConfig", () => {
   });
 
   it("normalizes a trailing separator on the build directory", () => {
-    const config = toBuildConfigFromArgs(["--build-dir", "build-mac/", ...MAC_ARGS.slice(2)]);
+    const config = toBuildConfigFromArgs(
+      `--build-dir build-mac/ --architecture universal --distribution-channel dmg ${MAC_SIGNING}`,
+    );
 
     expect(config.buildDir).toBe("build-mac");
     expect(config.directories.dist).toBe("build-mac/dist");
   });
 
   it("serializes the same regardless of the order options were given", () => {
-    const first = toBuildConfigFromArgs([
-      "--build-dir",
-      "build-lin",
-      "--architecture",
-      "arm64",
-      "--architecture",
-      "x64",
-      "--distribution-channel",
-      "rpm",
-      "--distribution-channel",
-      "deb",
-    ]);
-    const second = toBuildConfigFromArgs([
-      "--distribution-channel",
-      "deb",
-      "--architecture",
-      "x64",
-      "--distribution-channel",
-      "rpm",
-      "--build-dir",
-      "build-lin",
-      "--architecture",
-      "arm64",
-    ]);
+    const first = toBuildConfigFromArgs(
+      "--build-dir build-lin --architecture arm64 --architecture x64 " +
+        "--distribution-channel rpm --distribution-channel deb",
+    );
+    const second = toBuildConfigFromArgs(
+      "--distribution-channel deb --architecture x64 --distribution-channel rpm " +
+        "--build-dir build-lin --architecture arm64",
+    );
 
     expect(serializeBuildConfig(first)).toEqual(serializeBuildConfig(second));
     expect(serializeBuildConfig(first).endsWith("\n")).toBe(true);
@@ -602,19 +430,16 @@ describe("toBuildConfig", () => {
         continue;
       }
       const architecture = platform === "windows" ? "x64" : ARCHITECTURES[1];
-      const args = [
-        "--build-dir",
-        "b",
-        "--architecture",
-        architecture,
-        "--distribution-channel",
-        channel,
-      ];
-      if (platform === "macos") {
-        args.push("--macos-signing-certificate", "3rd Party Mac Developer Application");
-      }
+      const signing =
+        platform === "macos"
+          ? '--macos-signing-certificate "3rd Party Mac Developer Application"'
+          : "";
 
-      expect(toBuildConfigFromArgs(args).derived.platform).toBe(platform);
+      const config = toBuildConfigFromArgs(
+        `--build-dir b --architecture ${architecture} --distribution-channel ${channel} ${signing}`,
+      );
+
+      expect(config.derived.platform).toBe(platform);
     }
   });
 });
@@ -700,13 +525,8 @@ describe("resolveBuildDir", () => {
 
 describe("diffKeys", () => {
   it("names the leaves that changed", () => {
-    const before = toBuildConfigFromArgs(MAC_ARGS);
-    const after = toBuildConfigFromArgs([
-      ...MAC_ARGS,
-      "--no-desktop-proxy",
-      "--build-number",
-      "42",
-    ]);
+    const before = toBuildConfigFromArgs(MAC);
+    const after = toBuildConfigFromArgs(`${MAC} --no-desktop-proxy --build-number 42`);
 
     expect(diffKeys(before, after)).toEqual([
       "buildNumber",
@@ -716,6 +536,6 @@ describe("diffKeys", () => {
   });
 
   it("reports nothing for an unchanged configuration", () => {
-    expect(diffKeys(toBuildConfigFromArgs(MAC_ARGS), toBuildConfigFromArgs(MAC_ARGS))).toEqual([]);
+    expect(diffKeys(toBuildConfigFromArgs(MAC), toBuildConfigFromArgs(MAC))).toEqual([]);
   });
 });
