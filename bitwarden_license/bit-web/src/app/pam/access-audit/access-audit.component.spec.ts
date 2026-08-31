@@ -743,10 +743,11 @@ describe("AccessAuditComponent", () => {
 
   describe("item filter", () => {
     /** The Item cell renders locally-decrypted cipher names, so the chip's options follow the resolver. */
-    const withCiphers = (names: [string, string][]) => {
+    const withCiphers = (names: [string, string][], collections: [string, string][] = []) => {
       nameResolver.resolveNames.mockResolvedValue({
         ...emptyResolvedNames(),
         cipherNameById: new Map(names),
+        collectionNameById: new Map(collections),
       });
     };
 
@@ -815,6 +816,30 @@ describe("AccessAuditComponent", () => {
 
       expect(component().filteredRows()).toHaveLength(1);
       expect(component().filteredRows()[0].cipherName).toBe("Prod database");
+    });
+
+    // The Actor chip qualifies a shared display name with the identity's email; the collection is the
+    // equivalent an item carries, and the Item cell already shows it as that name's tooltip.
+    it("tells apart two items that share a name", async () => {
+      withCiphers(
+        [
+          ["cipher-1", "Database"],
+          ["cipher-2", "Database"],
+        ],
+        [
+          ["col-1", "production"],
+          ["col-2", "staging"],
+        ],
+      );
+      await render([
+        event({ CipherId: "cipher-1", CollectionId: "col-1" }),
+        event({ CipherId: "cipher-2", CollectionId: "col-2" }),
+      ]);
+
+      expect(component().itemOptions()).toEqual([
+        { label: "Database (production)", value: "cipher-1" },
+        { label: "Database (staging)", value: "cipher-2" },
+      ]);
     });
 
     // Two access rules can carry the same name; filtering on the id keeps their histories apart.
