@@ -23,7 +23,7 @@ $uri = "https://github.com/bitwarden/clients/releases/download/desktop-v" + $ver
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Invoke-RestMethod -Uri $uri -OutFile $exe
 
-$checksum = checksum -t sha256 $exe
+$checksum = Get-FileHash -Algorithm SHA256 $exe
 $nuspec = $distChocoDir + "\bitwarden.nuspec";
 $chocoInstall = $distChocoDir + "\tools\chocolateyinstall.ps1";
 
