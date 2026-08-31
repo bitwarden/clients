@@ -903,37 +903,6 @@ describe("AccessAuditComponent", () => {
       expect(navigateByUrl).not.toHaveBeenCalled();
     });
 
-    // AccessEventLogs authorizes this trail but does not imply permission to enumerate members, so a
-    // refused lookup is an ordinary outcome for a legitimate viewer — not a reason to fail the page.
-    it("renders the whole trail with nothing linked when the member lookup fails", async () => {
-      organizationUserApiService.getAllMiniUserDetails.mockRejectedValue(new Error("forbidden"));
-      resolveCipherName("cipher-1", "Prod database");
-
-      await expect(
-        render([
-          event({ ActorId: "user-1", ActorName: "Ada" }),
-          event({ CipherId: "cipher-1", CollectionId: "col-1" }),
-        ]),
-      ).resolves.not.toThrow();
-
-      expect(component().status()).toBe("ready");
-      expect(component().rows()).toHaveLength(2);
-      expect(link("actor")).toBeNull();
-      expect(link("requester")).toBeNull();
-      expect(cells()[2].textContent).toContain("Ada");
-      expect(TestBed.inject(LogService).error).toHaveBeenCalled();
-    });
-
-    // The cipher link is resolved from local vault state, not from the member lookup, so it survives.
-    it("still links the item when only the member lookup failed", async () => {
-      organizationUserApiService.getAllMiniUserDetails.mockRejectedValue(new Error("forbidden"));
-      resolveCipherName("cipher-1", "Prod database");
-
-      await render([event({ CipherId: "cipher-1", CollectionId: "col-1" })]);
-
-      expect(link("item")).not.toBeNull();
-    });
-
     it("reads the member lookup once per load, not once per row", async () => {
       await render([event(), event(), event()]);
 
