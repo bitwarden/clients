@@ -1092,8 +1092,7 @@ describe("AccessAuditComponent", () => {
       }
     });
 
-    // Four chips of one height need no vertical nudge; the offsets existed only to line them up with
-    // the labelled date fields that are now in the dialog.
+    // The chips are all one height, so nothing in the row needs an offset to line up.
     it("carries no height nudges", async () => {
       const toolbar = await renderToolbar();
 
