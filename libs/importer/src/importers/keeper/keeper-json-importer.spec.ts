@@ -1,4 +1,8 @@
+import { mock } from "jest-mock-extended";
+
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { BankAccountType } from "@bitwarden/common/vault/enums";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { FieldType } from "@bitwarden/common/vault/enums/field-type.enum";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -6,6 +10,7 @@ import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { newGuid } from "@bitwarden/guid";
 
 import { ImportResult } from "../../models";
+import { assertCustomFieldsStructure } from "../spec-data/importer-test-utils";
 import {
   CliTestData,
   WebTestData,
@@ -21,6 +26,7 @@ describe("Keeper Json Importer", () => {
   let orgResult: ImportResult;
   let legacyResult: ImportResult;
   let enterpriseResult: ImportResult;
+  const configService = mock<ConfigService>();
 
   beforeAll(async () => {
     // Pin locale and timezone so date formatting is machine-independent. In production we use the user's locale and timezone.
@@ -37,6 +43,9 @@ describe("Keeper Json Importer", () => {
 
     // Disable the logging. The SSH key parsing will log errors for invalid keys during tests.
     jest.spyOn(console, "warn").mockImplementation();
+
+    // By default, disable all feature flags
+    configService.getFeatureFlag.mockResolvedValue(false);
 
     // The CLI and Web exports should have the same content and their formats are very similar but do not appear
     // to be the same. That's why they are tests here both.
@@ -79,7 +88,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const address = getCipher(result, "Home Address");
-      expect(address).toBeDefined();
       expect(address.type).toEqual(CipherType.SecureNote);
 
       // Properties
@@ -93,27 +101,82 @@ describe("Keeper Json Importer", () => {
     });
   });
 
-  it("should parse bankAccount", async () => {
-    [cliResult, webResult].forEach((result) => {
-      // Cipher
-      const bankAccount = getCipher(result, "Wells Fargo Checking");
-      expect(bankAccount).toBeDefined();
-      expect(bankAccount.type).toEqual(CipherType.Login);
+  describe("should parse bankAccount", () => {
+    it("with new item types feature flag OFF", async () => {
+      [cliResult, webResult].forEach((result) => {
+        // Cipher
+        const bankAccount = getCipher(result, "Wells Fargo Checking");
+        expect(bankAccount.type).toEqual(CipherType.Login);
 
-      // Properties
-      expect(bankAccount.notes).toEqual(
-        "Primary checking account for direct deposit and bill payments",
-      );
-      expect(bankAccount.login.username).toEqual("m.thompson@email.com");
-      expect(bankAccount.login.password).toEqual("BankS3cur3!Pass");
-      expect(bankAccount.login.totp).toContain("otpauth://totp/");
+        // Properties
+        expect(bankAccount.notes).toEqual(
+          "Primary checking account for direct deposit and bill payments",
+        );
+        expect(bankAccount.login.username).toEqual("m.thompson@email.com");
+        expect(bankAccount.login.password).toEqual("BankS3cur3!Pass");
+        expect(bankAccount.login.totp).toContain("otpauth://totp/");
 
-      // Fields
-      expect(bankAccount.fields.length).toEqual(2);
-      expect(getField(bankAccount, "bankAccount")?.value).toEqual(
-        "Type: Checking, Account Number: 8472651938, Routing Number: 121000248",
-      );
-      expect(getField(bankAccount, "name")?.value).toEqual("Michael James Thompson");
+        // Fields
+        expect(bankAccount.fields.length).toEqual(2);
+        expect(getField(bankAccount, "bankAccount")?.value).toEqual(
+          "Type: Checking, Account Number: 8472651938, Routing Number: 121000248",
+        );
+        expect(getField(bankAccount, "name")?.value).toEqual("Michael James Thompson");
+      });
+    });
+
+    it("with new item types feature flag ON", async () => {
+      configService.getFeatureFlag.mockResolvedValueOnce(true);
+      // There are two banks in the test data, and both will have an
+      // extra cipher created for them when the feature flag is on
+      const modifiedCliResult = await expectParse(makeImporter(), CliTestData, 26);
+      configService.getFeatureFlag.mockResolvedValueOnce(true);
+      const modifiedWebResult = await expectParse(makeImporter(), WebTestData, 26);
+      [modifiedCliResult, modifiedWebResult].forEach((result) => {
+        // Ciphers
+        const bankAccountLoginCipherIdx = result.ciphers.findIndex(
+          (c) => c.name === "Wells Fargo Checking" && c.type === CipherType.Login,
+        );
+        expect(bankAccountLoginCipherIdx).not.toEqual(-1);
+        const bankAccountCipherIdx = result.ciphers.findIndex(
+          (c) => c.name === "Wells Fargo Checking" && c.type === CipherType.BankAccount,
+        );
+        expect(bankAccountCipherIdx).not.toEqual(-1);
+
+        // Login Cipher
+        const bankAccountLoginCipher = result.ciphers[bankAccountLoginCipherIdx];
+        // Properties
+        expect(bankAccountLoginCipher.notes).toEqual(
+          "Primary checking account for direct deposit and bill payments",
+        );
+        expect(bankAccountLoginCipher.login.username).toEqual("m.thompson@email.com");
+        expect(bankAccountLoginCipher.login.password).toEqual("BankS3cur3!Pass");
+        expect(bankAccountLoginCipher.login.totp).toContain("otpauth://totp/");
+
+        // Fields
+        expect(bankAccountLoginCipher.fields.length).toEqual(0);
+
+        // Bank Account Cipher
+        const bankAccountCipher = result.ciphers[bankAccountCipherIdx];
+        // Properties
+        expect(bankAccountCipher.bankAccount.accountNumber).toEqual("8472651938");
+        expect(bankAccountCipher.bankAccount.routingNumber).toEqual("121000248");
+        expect(bankAccountCipher.bankAccount.nameOnAccount).toEqual("Michael James Thompson");
+        expect(bankAccountCipher.bankAccount.accountType).toEqual(BankAccountType.Checking);
+        // Fields
+        expect(bankAccountCipher.fields.length).toEqual(0);
+        // Folder
+        const loginCipherRels = result.folderRelationships.filter(
+          (rel) => rel[0] === bankAccountLoginCipherIdx,
+        );
+        expect(loginCipherRels.length).toEqual(1);
+        // The bank account cipher should have the same folder as the login cipher
+        expect(
+          result.folderRelationships.some(
+            (rel) => rel[0] === bankAccountCipherIdx && rel[1] === loginCipherRels[0][1],
+          ),
+        );
+      });
     });
   });
 
@@ -121,7 +184,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const bankAccount = getCipher(result, "Other bank");
-      expect(bankAccount).toBeDefined();
       expect(bankAccount.type).toEqual(CipherType.SecureNote);
 
       // Fields
@@ -137,7 +199,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const bankCard = getCipher(result, "Chase Visa");
-      expect(bankCard).toBeDefined();
       expect(bankCard.type).toEqual(CipherType.Card);
 
       // Properties
@@ -164,7 +225,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const birthCertificate = getCipher(result, "John Doe Birth Certificate");
-      expect(birthCertificate).toBeDefined();
       expect(birthCertificate.type).toEqual(CipherType.SecureNote);
 
       // Properties
@@ -183,7 +243,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const contact = getCipher(result, "Dr. Emily Chen");
-      expect(contact).toBeDefined();
       expect(contact.type).toEqual(CipherType.SecureNote);
 
       // Properties
@@ -207,7 +266,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const databaseCredentials = getCipher(result, "Production MySQL Database");
-      expect(databaseCredentials).toBeDefined();
       expect(databaseCredentials.type).toEqual(CipherType.Login);
 
       // Properties
@@ -225,24 +283,51 @@ describe("Keeper Json Importer", () => {
     });
   });
 
-  it("should parse driverLicense", async () => {
-    [cliResult, webResult].forEach((result) => {
-      // Cipher
-      const driverLicense = getCipher(result, "Oregon Driver's License");
-      expect(driverLicense).toBeDefined();
-      expect(driverLicense.type).toEqual(CipherType.Identity);
+  describe("should parse driverLicense", () => {
+    it("with new item types feature flag OFF", async () => {
+      [cliResult, webResult].forEach((result) => {
+        // Cipher
+        const driverLicense = getCipher(result, "Oregon Driver's License");
+        expect(driverLicense.type).toEqual(CipherType.Identity);
 
-      // Properties
-      expect(driverLicense.notes).toEqual("Valid Oregon driver's license - Class C");
-      expect(driverLicense.identity.licenseNumber).toEqual("DL-7482693");
-      expect(driverLicense.identity.firstName).toEqual("Robert");
-      expect(driverLicense.identity.middleName).toEqual("William");
-      expect(driverLicense.identity.lastName).toEqual("Anderson");
+        // Properties
+        expect(driverLicense.notes).toEqual("Valid Oregon driver's license - Class C");
+        expect(driverLicense.identity.licenseNumber).toEqual("DL-7482693");
+        expect(driverLicense.identity.firstName).toEqual("Robert");
+        expect(driverLicense.identity.middleName).toEqual("William");
+        expect(driverLicense.identity.lastName).toEqual("Anderson");
 
-      // Fields
-      expect(driverLicense.fields.length).toEqual(2);
-      expect(getField(driverLicense, "birthDate")?.value).toEqual("3/14/1985, 11:00:00 PM");
-      expect(getField(driverLicense, "expirationDate")?.value).toEqual("3/14/2028, 11:00:00 PM");
+        // Fields
+        expect(driverLicense.fields.length).toEqual(2);
+        expect(getField(driverLicense, "birthDate")?.value).toEqual("3/14/1985, 11:00:00 PM");
+        expect(getField(driverLicense, "expirationDate")?.value).toEqual("3/14/2028, 11:00:00 PM");
+      });
+    });
+
+    it("with new item types feature flag ON", async () => {
+      configService.getFeatureFlag.mockResolvedValueOnce(true);
+      // There are two banks in the test data, and both will have an extra cipher
+      // created for them when the feature flag is on
+      const modifiedCliResult = await expectParse(makeImporter(), CliTestData, 26);
+      configService.getFeatureFlag.mockResolvedValueOnce(true);
+      const modifiedWebResult = await expectParse(makeImporter(), WebTestData, 26);
+      [modifiedCliResult, modifiedWebResult].forEach((result) => {
+        // Cipher
+        const driverLicense = getCipher(result, "Oregon Driver's License");
+        expect(driverLicense.type).toEqual(CipherType.DriversLicense);
+
+        // Properties
+        expect(driverLicense.notes).toEqual("Valid Oregon driver's license - Class C");
+        expect(driverLicense.driversLicense.licenseNumber).toEqual("DL-7482693");
+        expect(driverLicense.driversLicense.firstName).toEqual("Robert");
+        expect(driverLicense.driversLicense.middleName).toEqual("William");
+        expect(driverLicense.driversLicense.lastName).toEqual("Anderson");
+        expect(driverLicense.driversLicense.dateOfBirth).toEqual("1985-03-14");
+        expect(driverLicense.driversLicense.expirationDate).toEqual("2028-03-14");
+
+        // Fields
+        expect(driverLicense.fields.length).toEqual(0);
+      });
     });
   });
 
@@ -250,7 +335,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const encryptedNotes = getCipher(result, "Important Meeting Notes");
-      expect(encryptedNotes).toBeDefined();
       expect(encryptedNotes.type).toEqual(CipherType.SecureNote);
 
       // Properties
@@ -271,7 +355,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const file = getCipher(result, "Project Proposal Document");
-      expect(file).toBeDefined();
       expect(file.type).toEqual(CipherType.SecureNote);
 
       // Properties
@@ -288,7 +371,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const general = getCipher(result, "General Information Record");
-      expect(general).toBeDefined();
       expect(general.type).toEqual(CipherType.Login);
 
       // Properties
@@ -309,7 +391,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const healthInsurance = getCipher(result, "Blue Cross Blue Shield");
-      expect(healthInsurance).toBeDefined();
       expect(healthInsurance.type).toEqual(CipherType.Login);
 
       // Properties
@@ -331,7 +412,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const login = getCipher(result, "Amazon Account");
-      expect(login).toBeDefined();
       expect(login.type).toEqual(CipherType.Login);
       expect(login.login.totp).toContain("otpauth://totp/");
 
@@ -413,7 +493,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const membership = getCipher(result, "LA Fitness Gym");
-      expect(membership).toBeDefined();
       expect(membership.type).toEqual(CipherType.Login);
 
       // Properties
@@ -428,27 +507,56 @@ describe("Keeper Json Importer", () => {
     });
   });
 
-  it("should parse passport", async () => {
-    [cliResult, webResult].forEach((result) => {
-      // Cipher
-      const passport = getCipher(result, "US Passport");
-      expect(passport).toBeDefined();
-      expect(passport.type).toEqual(CipherType.Identity);
+  describe("should parse passport", () => {
+    it("with new item types feature flag OFF", async () => {
+      [cliResult, webResult].forEach((result) => {
+        // Cipher
+        const passport = getCipher(result, "US Passport");
+        expect(passport.type).toEqual(CipherType.Identity);
 
-      // Properties
-      expect(passport.notes).toEqual("Valid US passport for international travel");
-      expect(passport.identity.passportNumber).toEqual("543826194");
-      expect(passport.identity.firstName).toEqual("Jennifer");
-      expect(passport.identity.middleName).toEqual("Lynn");
-      expect(passport.identity.lastName).toEqual("Williams");
+        // Properties
+        expect(passport.notes).toEqual("Valid US passport for international travel");
+        expect(passport.identity.passportNumber).toEqual("543826194");
+        expect(passport.identity.firstName).toEqual("Jennifer");
+        expect(passport.identity.middleName).toEqual("Lynn");
+        expect(passport.identity.lastName).toEqual("Williams");
 
-      // Fields
-      expect(passport.fields.length).toEqual(4);
-      expect(getField(passport, "Password")?.value).toEqual("Passport2023!Secure");
-      expect(getField(passport, "Password")?.type).toEqual(FieldType.Hidden);
-      expect(getField(passport, "birthDate")?.value).toEqual("7/21/1990, 10:00:00 PM");
-      expect(getField(passport, "expirationDate")?.value).toEqual("7/21/2033, 10:00:00 PM");
-      expect(getField(passport, "dateIssued")?.value).toEqual("8/14/2023, 10:00:00 PM");
+        // Fields
+        expect(passport.fields.length).toEqual(4);
+        expect(getField(passport, "Password")?.value).toEqual("Passport2023!Secure");
+        expect(getField(passport, "Password")?.type).toEqual(FieldType.Hidden);
+        expect(getField(passport, "birthDate")?.value).toEqual("7/21/1990, 10:00:00 PM");
+        expect(getField(passport, "expirationDate")?.value).toEqual("7/21/2033, 10:00:00 PM");
+        expect(getField(passport, "dateIssued")?.value).toEqual("8/14/2023, 10:00:00 PM");
+      });
+    });
+
+    it("with new item types feature flag ON", async () => {
+      configService.getFeatureFlag.mockResolvedValueOnce(true);
+      // There are two banks in the test data, and both will have an extra cipher
+      // created for them when the feature flag is on
+      const modifiedCliResult = await expectParse(makeImporter(), CliTestData, 26);
+      configService.getFeatureFlag.mockResolvedValueOnce(true);
+      const modifiedWebResult = await expectParse(makeImporter(), WebTestData, 26);
+      [modifiedCliResult, modifiedWebResult].forEach((result) => {
+        // Cipher
+        const passport = getCipher(result, "US Passport");
+        expect(passport.type).toEqual(CipherType.Passport);
+
+        // Properties
+        expect(passport.notes).toEqual("Valid US passport for international travel");
+        expect(passport.passport.passportNumber).toEqual("543826194");
+        expect(passport.passport.givenName).toEqual("Jennifer Lynn");
+        expect(passport.passport.surname).toEqual("Williams");
+        expect(passport.passport.dateOfBirth).toEqual("1990-07-21");
+        expect(passport.passport.expirationDate).toEqual("2033-07-21");
+        expect(passport.passport.issueDate).toEqual("2023-08-14");
+
+        // Fields
+        assertCustomFieldsStructure(passport.fields, [
+          ["Password", "Passport2023!Secure", FieldType.Hidden],
+        ]);
+      });
     });
   });
 
@@ -456,7 +564,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const photo = getCipher(result, "Family Vacation 2024");
-      expect(photo).toBeDefined();
       expect(photo.type).toEqual(CipherType.SecureNote);
 
       // Properties
@@ -471,7 +578,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const serverCredentials = getCipher(result, "Web Server - Production");
-      expect(serverCredentials).toBeDefined();
       expect(serverCredentials.type).toEqual(CipherType.Login);
 
       // Properties
@@ -492,7 +598,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const softwareLicense = getCipher(result, "Adobe Creative Cloud");
-      expect(softwareLicense).toBeDefined();
       expect(softwareLicense.type).toEqual(CipherType.SecureNote);
 
       // Properties
@@ -512,7 +617,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const sshKey = getCipher(result, "Production Server SSH Key");
-      expect(sshKey).toBeDefined();
       expect(sshKey.type).toEqual(CipherType.SshKey);
 
       // Properties
@@ -530,7 +634,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const sshKey = getCipher(result, "Production Server SSH Key with a passphrase");
-      expect(sshKey).toBeDefined();
       expect(sshKey.type).toEqual(CipherType.SshKey);
 
       // Properties
@@ -550,7 +653,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const secNote = getCipher(result, "Invalid SSH key");
-      expect(secNote).toBeDefined();
       expect(secNote.type).toEqual(CipherType.SecureNote);
 
       // Properties
@@ -570,7 +672,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const ssnCard = getCipher(result, "National Identity Card");
-      expect(ssnCard).toBeDefined();
       expect(ssnCard.type).toEqual(CipherType.Identity);
 
       // Properties
@@ -589,7 +690,6 @@ describe("Keeper Json Importer", () => {
     [cliResult, webResult].forEach((result) => {
       // Cipher
       const wifiCredentials = getCipher(result, "Home Wi-Fi");
-      expect(wifiCredentials).toBeDefined();
       expect(wifiCredentials.type).toEqual(CipherType.Login);
 
       // Properties
@@ -662,7 +762,6 @@ describe("Keeper Json Importer", () => {
   it("should parse legacy login", async () => {
     // Cipher
     const login = getCipher(legacyResult, "AARP");
-    expect(login).toBeDefined();
     expect(login.type).toEqual(CipherType.Login);
 
     // Properties
@@ -676,7 +775,6 @@ describe("Keeper Json Importer", () => {
   it("should parse login with custom fields", async () => {
     // Cipher
     const login = getCipher(legacyResult, "cipher item");
-    expect(login).toBeDefined();
     expect(login.type).toEqual(CipherType.Login);
 
     // Properties
@@ -692,7 +790,6 @@ describe("Keeper Json Importer", () => {
   it("should parse login with multiple TOTP codes", async () => {
     // Cipher
     const login = getCipher(legacyResult, "Comp Test with OTP");
-    expect(login).toBeDefined();
     expect(login.type).toEqual(CipherType.Login);
 
     // Properties
@@ -712,7 +809,6 @@ describe("Keeper Json Importer", () => {
   it("should parse legacy bankCard", async () => {
     // Cipher
     const bankCard = getCipher(legacyResult, "VISA");
-    expect(bankCard).toBeDefined();
     expect(bankCard.type).toEqual(CipherType.Card);
 
     // Properties
@@ -746,7 +842,6 @@ describe("Keeper Json Importer", () => {
   it("should parse pamRemoteBrowser", async () => {
     // Cipher
     const pamRemoteBrowser = getCipher(enterpriseResult, "Admin Dashboard Connection");
-    expect(pamRemoteBrowser).toBeDefined();
     expect(pamRemoteBrowser.type).toEqual(CipherType.SecureNote);
 
     // Fields
@@ -759,7 +854,6 @@ describe("Keeper Json Importer", () => {
   it("should parse pamDatabase", async () => {
     // Cipher
     const pamDatabase = getCipher(enterpriseResult, "Database Tunnel to Production MySQL");
-    expect(pamDatabase).toBeDefined();
     expect(pamDatabase.type).toEqual(CipherType.SecureNote);
 
     // Fields
@@ -794,7 +888,6 @@ describe("Keeper Json Importer", () => {
   it("should parse pamUser", async () => {
     // Cipher
     const pamUser = getCipher(enterpriseResult, "Production Gateway Server - MySQL Admin User");
-    expect(pamUser).toBeDefined();
     expect(pamUser.type).toEqual(CipherType.Login);
 
     // Properties
@@ -805,7 +898,6 @@ describe("Keeper Json Importer", () => {
   it("should parse pamMachine", async () => {
     // Cipher
     const pamMachine = getCipher(enterpriseResult, "Production Gateway Server - RDP Machine");
-    expect(pamMachine).toBeDefined();
     expect(pamMachine.type).toEqual(CipherType.SecureNote);
 
     // Fields
@@ -830,7 +922,6 @@ describe("Keeper Json Importer", () => {
   it("should parse pamHardware", async () => {
     // Cipher
     const pamHardware = getCipher(enterpriseResult, "Dell PowerEdge R740 Server");
-    expect(pamHardware).toBeDefined();
     expect(pamHardware.type).toEqual(CipherType.SecureNote);
 
     // Fields
@@ -843,7 +934,6 @@ describe("Keeper Json Importer", () => {
   it("should parse SaaS Subscription", async () => {
     // Cipher
     const saasSubscription = getCipher(enterpriseResult, "GitHub Enterprise Plan");
-    expect(saasSubscription).toBeDefined();
     expect(saasSubscription.type).toEqual(CipherType.SecureNote);
 
     // Fields
@@ -854,7 +944,9 @@ describe("Keeper Json Importer", () => {
   });
 
   it("should parse custom field keys", () => {
-    const importer = new KeeperJsonImporter() as any; // Accessing private method for testing
+    const importer = new KeeperJsonImporter({
+      getFeatureFlag: () => false,
+    } as any as ConfigService) as any; // Accessing private method for testing
 
     [
       [undefined, "", ""],
@@ -882,7 +974,7 @@ describe("Keeper Json Importer", () => {
   //
 
   function makeImporter(orgId?: string): KeeperJsonImporter {
-    const importer = new KeeperJsonImporter();
+    const importer = new KeeperJsonImporter(configService);
     if (orgId) {
       importer.organizationId = orgId as OrganizationId;
     }
@@ -901,8 +993,10 @@ describe("Keeper Json Importer", () => {
     return result;
   }
 
-  function getCipher(result: ImportResult, name: string): CipherView | undefined {
-    return result.ciphers.find((c) => c.name === name);
+  function getCipher(result: ImportResult, name: string): CipherView {
+    const res = result.ciphers.find((c) => c.name === name);
+    expect(res).toBeDefined();
+    return res as CipherView;
   }
 
   function getField(cipher: CipherView, name: string): FieldView | undefined {
