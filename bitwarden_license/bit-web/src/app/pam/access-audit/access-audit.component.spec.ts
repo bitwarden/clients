@@ -32,8 +32,12 @@ import {
 } from "../access-requests/access-name-resolver.service";
 
 import { AccessAuditComponent } from "./access-audit.component";
-import { AuditApiService } from "./audit-api.service";
-import { AccessAuditEventResponse } from "./responses/access-audit-event.response";
+import { AuditApiService, AuditTrailFilter, AuditTrailPage } from "./audit-api.service";
+import {
+  AccessAuditEventKind,
+  AccessAuditEventResponse,
+} from "./responses/access-audit-event.response";
+import { AccessAuditItemResponse } from "./responses/access-audit-item.response";
 
 const ORGANIZATION_ID = "org-1";
 
@@ -52,6 +56,15 @@ function event(overrides: Record<string, unknown> = {}): AccessAuditEventRespons
     Incomplete: false,
     ...overrides,
   });
+}
+
+/** A subject the trail names, as the Item menu read returns it. */
+function cipherItem(cipherId: string, collectionId: string | null = null): AccessAuditItemResponse {
+  return new AccessAuditItemResponse({ CipherId: cipherId, CollectionId: collectionId });
+}
+
+function ruleItem(ruleId: string, ruleName: string): AccessAuditItemResponse {
+  return new AccessAuditItemResponse({ RuleId: ruleId, RuleName: ruleName });
 }
 
 /**
@@ -142,12 +155,29 @@ describe("AccessAuditComponent", () => {
             pamAuditSystem: "System",
             pamAuditIncomplete: "Incomplete",
             pamAuditIncompleteTooltip: "Outcome never confirmed.",
+            // Every kind, because the Event menu is now the vocabulary rather than what the page holds.
+            pamAuditKindRequestSubmitted: "Access requested",
             pamAuditKindRequestApproved: "Request approved",
+            pamAuditKindRequestDenied: "Request denied",
+            pamAuditKindRequestCanceled: "Request canceled",
+            pamAuditKindRequestExpiredUnanswered: "Request expired without a decision",
+            pamAuditKindRequestExpiredUnactivated: "Approval expired unused",
             pamAuditKindLeaseActivated: "Lease activated",
-            pamAuditKindRuleCreated: "Access rule created",
+            pamAuditKindLeaseActivationRejected: "Activation rejected",
+            pamAuditKindLeaseExtended: "Lease extended",
             pamAuditKindLeaseRevoked: "Lease revoked",
-            pamAuditKindLeaseEndedByHolder: "Lease ended by holder",
+            pamAuditKindLeaseExpired: "Lease expired",
+            pamAuditKindCredentialAccessed: "Credential accessed",
+            pamAuditKindCredentialAccessDenied: "Credential access denied",
+            pamAuditKindRuleCreated: "Access rule created",
             pamAuditKindRuleUpdated: "Access rule updated",
+            pamAuditKindRuleDeleted: "Access rule deleted",
+            pamAuditKindLeasingKillSwitchTriggered: "Kill switch triggered",
+            pamAuditKindLeasingFreezeEnabled: "Leasing frozen",
+            pamAuditKindLeasingFreezeLifted: "Leasing unfrozen",
+            pamAuditKindLeaseEndedByHolder: "Lease ended by holder",
+            pamAuditKindUnknown: "Unknown event",
+            loadMore: "Load more",
             exportVerb: "Export",
             update: "Update",
             close: "Close",
@@ -174,6 +204,7 @@ describe("AccessAuditComponent", () => {
     organizationUserApiService = mock<OrganizationUserApiService>();
     dialogService = mock<DialogService>();
     nameResolver.resolveNames.mockResolvedValue(emptyResolvedNames());
+    auditApiService.listAccessAuditItems.mockResolvedValue([]);
     organizationUserApiService.getAllMiniUserDetails.mockResolvedValue(
       miniUserDetails([
         member("user-1", "org-user-1", "Ada", "ada@example.com"),
@@ -188,14 +219,65 @@ describe("AccessAuditComponent", () => {
   const component = () => fixture.componentInstance as unknown as Record<string, any>;
 
   /**
+   * Stubs the trail as a single page with nothing to resume from, which is what most of these tests
+   * want: the read is paged now, but only the paging tests below care where a page ends.
+   */
+  const returnsTrail = (
+    events: AccessAuditEventResponse[],
+    continuationToken: string | null = null,
+  ) => auditApiService.listAccessAuditTrail.mockResolvedValue({ data: events, continuationToken });
+
+  const returnsTrailOnce = (
+    events: AccessAuditEventResponse[],
+    continuationToken: string | null = null,
+  ) =>
+    auditApiService.listAccessAuditTrail.mockResolvedValueOnce({ data: events, continuationToken });
+
+  /** The filter the trail was last read with — every chip is a query parameter on it now. */
+  const lastFilter = (): AuditTrailFilter => {
+    const calls = auditApiService.listAccessAuditTrail.mock.calls;
+    return calls[calls.length - 1][1] as AuditTrailFilter;
+  };
+
+  const readCount = () => auditApiService.listAccessAuditTrail.mock.calls.length;
+
+  /** Stubs the Item menu read, and the vault names the component will try to put to what comes back. */
+  const returnsItems = (
+    items: AccessAuditItemResponse[],
+    names: { ciphers?: [string, string][]; collections?: [string, string][] } = {},
+  ) => {
+    auditApiService.listAccessAuditItems.mockResolvedValue(items);
+    nameResolver.resolveNames.mockResolvedValue({
+      ...emptyResolvedNames(),
+      cipherNameById: new Map(names.ciphers ?? []),
+      collectionNameById: new Map(names.collections ?? []),
+    });
+  };
+
+  const itemReadCount = () => auditApiService.listAccessAuditItems.mock.calls.length;
+
+  const lastItemRange = () => {
+    const calls = auditApiService.listAccessAuditItems.mock.calls;
+    return calls[calls.length - 1][1] as { start?: Date; end?: Date };
+  };
+
+  /**
+   * Renders the page to its ready state with whatever the trail is currently stubbed to return. Two
+   * change-detection passes with a settle in between, because init reads the member roster and the first
+   * page before the ready branch — and its chips — exist to render.
+   */
+  const renderReady = async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  /**
    * Selects a chip's option through the `FilterControl` contract the chips expose. A
    * `bit-filter-menu` owns its own selection — there is no form control to set — and the chips only
    * exist once the ready branch has rendered.
    */
-  const selectFilter = (
-    chip: "kind" | "actor" | "requester" | "item" | "timePeriod",
-    value: unknown,
-  ) => {
+  const selectFilter = (chip: "kind" | "actor" | "requester" | "timePeriod", value: unknown) => {
     fixture.detectChanges();
     component()[`${chip}Chip`]().setValue(value);
     fixture.detectChanges();
@@ -203,9 +285,6 @@ describe("AccessAuditComponent", () => {
 
   /** The Event chip, which is the first of the chips the toolbar declares. */
   const kindMenu = () => fixture.debugElement.queryAll(By.directive(FilterMenuComponent))[0];
-
-  /** The Event chip driven through its own selection API, the way its menu rows drive it. */
-  const kindChip = () => kindMenu().componentInstance as FilterMenuComponent;
 
   /** The options declared into the Event menu, in template order. */
   const kindMenuOptions = () =>
@@ -230,18 +309,21 @@ describe("AccessAuditComponent", () => {
   };
 
   it("reads the trail for the organization in the route", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
+    returnsTrail([event()]);
 
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledWith(ORGANIZATION_ID);
+    expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledWith(
+      ORGANIZATION_ID,
+      expect.anything(),
+    );
     expect(component().status()).toBe("ready");
     expect(component().rows()).toHaveLength(1);
   });
 
   it("reports empty rather than ready for a trail with no events", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([]);
+    returnsTrail([]);
 
     fixture.detectChanges();
     await fixture.whenStable();
@@ -250,7 +332,7 @@ describe("AccessAuditComponent", () => {
   });
 
   it("shows the empty state's Access rules link for a viewer who can manage access rules", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([]);
+    returnsTrail([]);
 
     fixture.detectChanges();
     await fixture.whenStable();
@@ -263,7 +345,7 @@ describe("AccessAuditComponent", () => {
   it("drops the empty state's Access rules link for a viewer who cannot manage access rules", async () => {
     TestBed.resetTestingModule();
     await configureTestBed(false);
-    auditApiService.listAccessAuditTrail.mockResolvedValue([]);
+    returnsTrail([]);
 
     fixture.detectChanges();
     await fixture.whenStable();
@@ -290,7 +372,7 @@ describe("AccessAuditComponent", () => {
     await fixture.whenStable();
     expect(component().status()).toBe("error");
 
-    auditApiService.listAccessAuditTrail.mockResolvedValueOnce([event()]);
+    returnsTrailOnce([event()]);
     await component().load();
 
     expect(component().status()).toBe("ready");
@@ -299,7 +381,7 @@ describe("AccessAuditComponent", () => {
   // Only an event naming both a cipher and its collection can be matched to a local vault item, so
   // the others must not be sent to the resolver.
   it("asks the name resolver only about events naming both a cipher and a collection", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
+    returnsTrail([
       event({ CipherId: "cipher-1", CollectionId: "col-1" }),
       event({ CipherId: "cipher-2", CollectionId: null }),
       event({ Kind: "ruleCreated", RuleName: "Prod" }),
@@ -313,243 +395,227 @@ describe("AccessAuditComponent", () => {
     ]);
   });
 
-  it("offers a kind filter option only for the kinds actually in the trail", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
-      event({ Kind: "leaseActivated" }),
-      event({ Kind: "requestApproved" }),
-      event({ Kind: "requestApproved" }),
-    ]);
+  // The menu is the vocabulary, not the page. Deriving it from fifty loaded rows would offer an auditor
+  // only the events they had already scrolled past, and withhold the filter for the one they came for.
+  it("offers every event kind, whatever the page happens to hold", async () => {
+    returnsTrail([event({ Kind: "requestApproved" })]);
 
-    fixture.detectChanges();
-    await fixture.whenStable();
+    await renderReady();
+
+    const options = component().kindOptions();
+    expect(options.map((option: any) => option.value).sort()).toEqual(
+      Object.values(AccessAuditEventKind).sort(),
+    );
+    // Sorted by the label an auditor reads, not by the wire value behind it.
+    expect(options.map((option: any) => option.label)).toEqual(
+      options.map((option: any) => option.label).sort((a: string, b: string) => a.localeCompare(b)),
+    );
+  });
+
+  it("offers the same event kinds whichever kinds the page holds", async () => {
+    returnsTrail([event({ Kind: "requestApproved" })]);
+    await renderReady();
+    const before = component().kindOptions();
+
+    returnsTrail([event({ Kind: "leaseActivated" })]);
+    await component().load();
     fixture.detectChanges();
 
-    expect(component().kindOptions()).toEqual([
-      { label: "Lease activated", value: "pamAuditKindLeaseActivated" },
-      { label: "Request approved", value: "pamAuditKindRequestApproved" },
-    ]);
+    expect(component().kindOptions()).toEqual(before);
   });
 
   // The signal above is what the chip is bound to; this is what the chip does with it. Kept as its own
   // test because the binding in between is where the option list has actually broken before — an option
   // read a beat before Angular has bound its `value` throws NG0950 and renders nothing.
-  it("declares each event kind into the Event menu, sorted, one per distinct label", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
-      event({ Kind: "requestApproved" }),
-      event({ Kind: "leaseActivated" }),
-      event({ Kind: "requestApproved" }),
-    ]);
+  it("declares every event kind into the Event menu, sorted", async () => {
+    returnsTrail([event({ Kind: "requestApproved" })]);
 
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
+    await renderReady();
 
-    expect(kindMenuOptions()).toEqual([
-      { label: "Lease activated", value: "pamAuditKindLeaseActivated" },
-      { label: "Request approved", value: "pamAuditKindRequestApproved" },
-    ]);
+    expect(kindMenuOptions()).toEqual(component().kindOptions());
   });
 
   // Declaring an option and rendering it are different failures. The rows are stamped into a CDK
   // overlay only when the menu opens, which is the moment the NG0950 above would surface.
   it("renders a checkable row per event kind when the Event menu is opened", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
-      event({ Kind: "leaseActivated" }),
-      event({ Kind: "requestApproved" }),
-    ]);
+    returnsTrail([event({ Kind: "leaseActivated" })]);
 
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
+    await renderReady();
 
-    expect(openKindMenu().map((row) => row.textContent?.trim())).toEqual([
-      "Lease activated",
-      "Request approved",
-    ]);
+    expect(openKindMenu().map((row) => row.textContent?.trim())).toEqual(
+      component()
+        .kindOptions()
+        .map((option: any) => option.label),
+    );
   });
 
-  it("filters rows by the kind selected on the Event chip", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
-      event({ Kind: "leaseActivated" }),
-      event({ Kind: "requestApproved" }),
-    ]);
+  // The chip's values are the wire vocabulary, so a selection travels to the server as it stands rather
+  // than being translated out of a display label on the way.
+  it("re-reads the trail with the kinds selected on the Event chip", async () => {
+    returnsTrail([event({ Kind: "leaseActivated" }), event({ Kind: "requestApproved" })]);
+    await renderReady();
+    const before = readCount();
 
-    fixture.detectChanges();
+    selectFilter("kind", ["leaseActivated"]);
     await fixture.whenStable();
-    fixture.detectChanges();
-    expect(component().filteredRows()).toHaveLength(2);
-    expect(fixture.nativeElement.querySelector("bit-chip-filter")).toBeNull();
 
-    selectFilter("kind", "pamAuditKindLeaseActivated");
-
-    expect(component().filteredRows()).toHaveLength(1);
-    expect(component().filteredRows()[0].kindLabelKey).toBe("pamAuditKindLeaseActivated");
-
-    kindChip().clear();
-
-    expect(component().filteredRows()).toHaveLength(2);
+    expect(readCount()).toBe(before + 1);
+    expect(lastFilter().kinds).toEqual(["leaseActivated"]);
   });
 
-  // A LeaseRevoked whose actor is the requester is relabelled "Lease ended by holder" by
-  // toAuditRow. The filter is keyed on that same label, so the two can no longer disagree.
-  it("offers holder-ended access as its own option, separate from an operator revoke", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
+  // A LeaseRevoked whose actor is the requester is relabelled "Lease ended by holder" in the Event
+  // column, but the server records one kind and the filter follows the server: selecting "Lease revoked"
+  // asks for both, and the column is what still tells them apart.
+  it("folds a holder-ended lease into the Lease revoked filter, and still labels the row its own way", async () => {
+    returnsTrail([
       event({ Kind: "leaseRevoked", ActorId: "user-1", ActorName: "Ada", RequesterId: "user-2" }),
       event({ Kind: "leaseRevoked", ActorId: "user-2", ActorName: "Grace", RequesterId: "user-2" }),
     ]);
+    await renderReady();
 
-    fixture.detectChanges();
+    expect(component().kindOptions()).not.toContainEqual(
+      expect.objectContaining({ label: "Lease ended by holder" }),
+    );
+    expect(
+      component()
+        .rows()
+        .map((row: any) => row.kindLabelKey),
+    ).toEqual(["pamAuditKindLeaseRevoked", "pamAuditKindLeaseEndedByHolder"]);
+
+    selectFilter("kind", ["leaseRevoked"]);
     await fixture.whenStable();
-    fixture.detectChanges();
 
-    expect(kindMenuOptions()).toEqual([
-      { label: "Lease ended by holder", value: "pamAuditKindLeaseEndedByHolder" },
-      { label: "Lease revoked", value: "pamAuditKindLeaseRevoked" },
-    ]);
-
-    kindChip().toggle("pamAuditKindLeaseEndedByHolder");
-    expect(component().filteredRows()).toHaveLength(1);
-    expect(component().filteredRows()[0].actor).toBe("Grace");
-
-    // Multi-select, so the second kind joins the first rather than replacing it. Both buckets
-    // selected is every revoke back again, which is what tells the two apart from one relabelled kind.
-    kindChip().toggle("pamAuditKindLeaseRevoked");
-    expect(component().filteredRows()).toHaveLength(2);
-
-    kindChip().toggle("pamAuditKindLeaseEndedByHolder");
-    expect(component().filteredRows()).toHaveLength(1);
-    expect(component().filteredRows()[0].actor).toBe("Ada");
+    expect(lastFilter().kinds).toEqual(["leaseRevoked"]);
   });
 
   // An auditor reconstructing an incident is usually following two or three people at once; narrowing to
   // each in turn would lose the order the events happened in.
-  it("keeps every row matching any of several selected actors", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
-      event({ ActorId: "user-1", ActorName: "Ada" }),
-      event({ ActorId: "user-3", ActorName: "Linus" }),
-      event({ ActorId: "user-4", ActorName: "Katherine" }),
-    ]);
-
-    fixture.detectChanges();
-    await fixture.whenStable();
+  it("sends every selected actor, so several can be followed at once", async () => {
+    returnsTrail([event()]);
+    await renderReady();
 
     selectFilter("actor", ["user-1", "user-4"]);
+    await fixture.whenStable();
 
-    expect(
-      component()
-        .filteredRows()
-        .map((row: any) => row.actor),
-    ).toEqual(["Ada", "Katherine"]);
+    expect(lastFilter().actorIds).toEqual(["user-1", "user-4"]);
   });
 
   it("narrows across chips while widening within one", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
-      event({ Kind: "requestApproved", ActorId: "user-1", ActorName: "Ada" }),
-      event({ Kind: "leaseActivated", ActorId: "user-1", ActorName: "Ada" }),
-      event({ Kind: "leaseActivated", ActorId: "user-3", ActorName: "Linus" }),
-    ]);
+    returnsTrail([event()]);
+    await renderReady();
 
-    fixture.detectChanges();
+    selectFilter("kind", ["requestApproved", "leaseActivated"]);
+    await fixture.whenStable();
+    selectFilter("actor", ["user-1"]);
     await fixture.whenStable();
 
-    selectFilter("kind", ["pamAuditKindRequestApproved", "pamAuditKindLeaseActivated"]);
-    selectFilter("actor", ["user-1"]);
-
-    expect(component().filteredRows()).toHaveLength(2);
-    expect(
-      component()
-        .filteredRows()
-        .every((row: any) => row.actor === "Ada"),
-    ).toBe(true);
+    expect(lastFilter()).toEqual(
+      expect.objectContaining({
+        kinds: ["requestApproved", "leaseActivated"],
+        actorIds: ["user-1"],
+      }),
+    );
   });
 
-  it("goes back to matching everything when the last value is removed from a chip", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
-      event({ ActorId: "user-1", ActorName: "Ada" }),
-      event({ ActorId: "user-3", ActorName: "Linus" }),
-    ]);
-
-    fixture.detectChanges();
-    await fixture.whenStable();
+  it("drops a dimension from the read when the last value is removed from its chip", async () => {
+    returnsTrail([event()]);
+    await renderReady();
 
     selectFilter("actor", ["user-1"]);
-    expect(component().filteredRows()).toHaveLength(1);
+    await fixture.whenStable();
+    expect(lastFilter().actorIds).toEqual(["user-1"]);
 
     selectFilter("actor", []);
+    await fixture.whenStable();
 
-    expect(component().filteredRows()).toHaveLength(2);
+    expect(lastFilter().actorIds).toEqual([]);
   });
 
-  it("offers an actor option per identity that acted, plus the system bucket", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
-      event({ ActorId: "user-1", ActorName: "Ada" }),
-      event({ ActorId: "user-1", ActorName: "Ada" }),
-      event({ ActorId: "user-3", ActorName: "Linus" }),
-      event({ ActorId: null, ActorName: null, Automated: true }),
-    ]);
+  // Sourced from the organization's roster rather than the page, for the same reason the Event menu is
+  // the vocabulary: a page of fifty rows cannot be asked who else there is.
+  it("offers an actor option per organization member, plus the system bucket", async () => {
+    returnsTrail([event({ ActorId: "user-1", ActorName: "Ada" })]);
 
-    fixture.detectChanges();
-    await fixture.whenStable();
+    await renderReady();
 
     expect(component().actorOptions()).toEqual([
       { label: "Ada", value: "user-1" },
-      { label: "Linus", value: "user-3" },
+      { label: "Grace", value: "user-2" },
       { label: "System", value: "automated" },
     ]);
   });
 
-  it("offers no actor option for an identity that resolved to neither a name nor an email", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
-      event({ ActorId: "user-9", ActorName: null, ActorEmail: null }),
+  // The system bucket is offered whether or not the loaded page has an automated row: the page can no
+  // longer answer whether the organization has any, and a filter that comes and goes with the scroll
+  // position is worse than one that sometimes finds nothing.
+  it("offers the system bucket even when no loaded row is automated", async () => {
+    returnsTrail([event({ ActorId: "user-1", ActorName: "Ada", Automated: false })]);
+
+    await renderReady();
+
+    expect(component().actorOptions()).toContainEqual({ label: "System", value: "automated" });
+  });
+
+  // A former member is gone from the roster while the events they left behind still name them — and
+  // those events are often exactly what an audit is about.
+  it("offers a former member the roster no longer carries but the rows still name", async () => {
+    returnsTrail([
+      event({ ActorId: "user-9", ActorName: "Linus", ActorEmail: "linus@example.com" }),
     ]);
 
-    fixture.detectChanges();
+    await renderReady();
+
+    expect(component().actorOptions()).toContainEqual({ label: "Linus", value: "user-9" });
+  });
+
+  it("offers no actor option for an identity that resolved to neither a name nor an email", async () => {
+    returnsTrail([event({ ActorId: "user-9", ActorName: null, ActorEmail: null })]);
+
+    await renderReady();
+
+    expect(component().actorOptions()).not.toContainEqual(
+      expect.objectContaining({ value: "user-9" }),
+    );
+  });
+
+  // On the wire the automatic bucket is a flag rather than an id, because the events it selects have no
+  // actor to name. It unions with the ids alongside it rather than narrowing them.
+  it("sends the system bucket as a flag alongside the selected ids", async () => {
+    returnsTrail([event()]);
+    await renderReady();
+
+    selectFilter("actor", ["user-1", "automated"]);
     await fixture.whenStable();
 
-    expect(component().actorOptions()).toEqual([]);
+    expect(lastFilter().actorIds).toEqual(["user-1"]);
+    expect(lastFilter().includeAutomatedActor).toBe(true);
   });
 
   it("tells apart two requesters who share a display name", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
-      event({
-        RequesterId: "user-2",
-        RequesterName: "J. Smith",
-        RequesterEmail: "smith-a@example.com",
-      }),
-      event({
-        RequesterId: "user-4",
-        RequesterName: "J. Smith",
-        RequesterEmail: "smith-b@example.com",
-      }),
-    ]);
+    organizationUserApiService.getAllMiniUserDetails.mockResolvedValue(
+      miniUserDetails([
+        member("user-2", "org-user-2", "J. Smith", "smith-a@example.com"),
+        member("user-4", "org-user-4", "J. Smith", "smith-b@example.com"),
+      ]),
+    );
+    returnsTrail([event()]);
 
-    fixture.detectChanges();
-    await fixture.whenStable();
+    await renderReady();
 
     expect(component().requesterOptions()).toEqual([
       { label: "J. Smith (smith-a@example.com)", value: "user-2" },
       { label: "J. Smith (smith-b@example.com)", value: "user-4" },
     ]);
-
-    selectFilter("requester", "user-4");
-
-    expect(component().filteredRows()).toHaveLength(1);
-    expect(component().filteredRows()[0].requesterId).toBe("user-4");
   });
 
-  it("filters rows to the selected actor", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
-      event({ ActorId: "user-1", ActorName: "Ada" }),
-      event({ ActorId: "user-3", ActorName: "Linus" }),
-    ]);
+  it("re-reads the trail with the requester selected on the Requester chip", async () => {
+    returnsTrail([event()]);
+    await renderReady();
 
-    fixture.detectChanges();
+    selectFilter("requester", ["user-2"]);
     await fixture.whenStable();
 
-    selectFilter("actor", "user-3");
-
-    expect(component().filteredRows()).toHaveLength(1);
-    expect(component().filteredRows()[0].actor).toBe("Linus");
+    expect(lastFilter().requesterIds).toEqual(["user-2"]);
   });
 
   describe("time period", () => {
@@ -564,62 +630,71 @@ describe("AccessAuditComponent", () => {
     };
 
     const renderTrail = async (occurredAt: Date[]) => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue(
-        occurredAt.map((at) => event({ OccurredAt: at.toISOString() })),
-      );
+      returnsTrail(occurredAt.map((at) => event({ OccurredAt: at.toISOString() })));
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
     };
 
-    const occurredAt = () =>
-      component()
-        .filteredRows()
-        .map((row: any) => row.occurredAt.getTime());
+    /** The lower bound the chip put on the read, in epoch ms. */
+    const sentStart = () => (lastFilter().start as Date).getTime();
+
+    /** Within a second of the expected instant, since the preset reads the clock a moment after the test. */
+    const aboutEqual = (actual: number, expected: number) => Math.abs(actual - expected) < 1000;
+
+    const applyPeriod = async (period: string | null) => {
+      selectFilter("timePeriod", period);
+      await fixture.whenStable();
+    };
 
     it("bounds Today at the start of the viewer's own day, not twenty-four hours back", async () => {
-      const thisMorning = new Date(startOfToday().getTime() + HOUR_MS);
-      const lateLastNight = new Date(startOfToday().getTime() - HOUR_MS);
-      await renderTrail([thisMorning, lateLastNight]);
+      await renderTrail([now()]);
 
-      selectFilter("timePeriod", "today");
+      await applyPeriod("today");
 
-      expect(occurredAt()).toEqual([thisMorning.getTime()]);
+      expect(sentStart()).toBe(startOfToday().getTime());
+      expect(lastFilter().end).toBeUndefined();
     });
 
     it("bounds Past 7 days seven days back from now", async () => {
-      const recent = new Date(now().getTime() - 6 * DAY_MS);
-      const older = new Date(now().getTime() - 8 * DAY_MS);
-      await renderTrail([recent, older]);
+      await renderTrail([now()]);
 
-      selectFilter("timePeriod", "past7Days");
+      await applyPeriod("past7Days");
 
-      expect(occurredAt()).toEqual([recent.getTime()]);
+      expect(aboutEqual(sentStart(), now().getTime() - 7 * DAY_MS)).toBe(true);
     });
 
     it("bounds Past 30 days thirty days back from now", async () => {
-      const recent = new Date(now().getTime() - 20 * DAY_MS);
-      const older = new Date(now().getTime() - 40 * DAY_MS);
-      await renderTrail([recent, older]);
+      await renderTrail([now()]);
 
-      selectFilter("timePeriod", "past30Days");
+      await applyPeriod("past30Days");
 
-      expect(occurredAt()).toEqual([recent.getTime()]);
+      expect(aboutEqual(sentStart(), now().getTime() - 30 * DAY_MS)).toBe(true);
     });
 
-    // "All time" is the chip's own reset row: it means the whole fetched window, which is all this client
-    // holds.
-    it("drops the bounds again when the chip is reset to All time", async () => {
-      const recent = new Date(now().getTime() - HOUR_MS);
-      const older = new Date(now().getTime() - 40 * DAY_MS);
-      await renderTrail([recent, older]);
+    // "All time" is the chip's own reset row. It sends no bounds at all, which the server answers with
+    // everything it still holds — the retention window, and nothing older exists to ask for.
+    it("sends no bounds at all when the chip is reset to All time", async () => {
+      await renderTrail([now()]);
 
-      selectFilter("timePeriod", "past7Days");
-      expect(component().filteredRows()).toHaveLength(1);
+      await applyPeriod("past7Days");
+      expect(lastFilter().start).toBeInstanceOf(Date);
 
-      selectFilter("timePeriod", null);
+      await applyPeriod(null);
 
-      expect(component().filteredRows()).toHaveLength(2);
+      expect(lastFilter().start).toBeUndefined();
+      expect(lastFilter().end).toBeUndefined();
+    });
+
+    // Choosing a period is a new read, not a narrowing of what is already here — which is what lets it
+    // reach events the first page never contained.
+    it("re-reads the trail rather than narrowing the rows already loaded", async () => {
+      await renderTrail([now()]);
+      const before = readCount();
+
+      await applyPeriod("past7Days");
+
+      expect(readCount()).toBe(before + 1);
     });
 
     describe("custom range", () => {
@@ -641,7 +716,7 @@ describe("AccessAuditComponent", () => {
 
         await chooseCustom();
 
-        expect(occurredAt()).toEqual([evening.getTime()]);
+        expect(sentStart()).toBe(new Date("2026-08-18T13:00").getTime());
         expect(component().selectedPeriod()).toBe("custom");
       });
 
@@ -712,7 +787,9 @@ describe("AccessAuditComponent", () => {
         await chooseCustom();
 
         expect(component().selectedPeriod()).toBe("past7Days");
-        expect(occurredAt()).toEqual([recent.getTime()]);
+        // Still the preset's bounds: a cancelled dialog must not have re-read the trail for a range
+        // that was never applied.
+        expect(aboutEqual(sentStart(), now().getTime() - 7 * DAY_MS)).toBe(true);
       });
 
       // Clear is the dialog's own way out of a custom range, so the chip goes back to All time with it.
@@ -729,7 +806,8 @@ describe("AccessAuditComponent", () => {
         await chooseCustom();
 
         expect(component().selectedPeriod()).toBeNull();
-        expect(component().filteredRows()).toHaveLength(2);
+        expect(lastFilter().start).toBeUndefined();
+        expect(lastFilter().end).toBeUndefined();
       });
 
       it("leaves the chip unselected when cancelled from no selection at all", async () => {
@@ -739,153 +817,8 @@ describe("AccessAuditComponent", () => {
         await chooseCustom();
 
         expect(component().selectedPeriod()).toBeNull();
-        expect(component().filteredRows()).toHaveLength(1);
+        expect(lastFilter().start).toBeUndefined();
       });
-    });
-  });
-
-  describe("item filter", () => {
-    /** The Item cell renders locally-decrypted cipher names, so the chip's options follow the resolver. */
-    const withCiphers = (names: [string, string][], collections: [string, string][] = []) => {
-      nameResolver.resolveNames.mockResolvedValue({
-        ...emptyResolvedNames(),
-        cipherNameById: new Map(names),
-        collectionNameById: new Map(collections),
-      });
-    };
-
-    const render = async (events: AccessAuditEventResponse[]) => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue(events);
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-    };
-
-    it("offers one option per item, labelled the way the Item cell labels it", async () => {
-      withCiphers([
-        ["cipher-1", "Prod database"],
-        ["cipher-2", "Staging database"],
-      ]);
-      await render([
-        event({ CipherId: "cipher-1", CollectionId: "col-1" }),
-        event({ CipherId: "cipher-1", CollectionId: "col-1" }),
-        event({ CipherId: "cipher-2", CollectionId: "col-2" }),
-        event({
-          Kind: "ruleUpdated",
-          CipherId: null,
-          CollectionId: null,
-          RuleId: "rule-1",
-          RuleName: "Production access",
-        }),
-      ]);
-
-      expect(component().itemOptions()).toEqual([
-        { label: "Prod database", value: "cipher-1" },
-        { label: "Production access", value: "rule-1" },
-        { label: "Staging database", value: "cipher-2" },
-      ]);
-    });
-
-    // The cell renders an em dash for these, and an option that narrowed the table to "no item" would be
-    // an option with no name to put on it.
-    it("offers no option for a row naming no item at all", async () => {
-      await render([event({ CipherId: null, CollectionId: null, RuleId: null, RuleName: null })]);
-
-      expect(component().itemOptions()).toEqual([]);
-    });
-
-    // Same rule the Actor chip follows for a member it cannot resolve: no label, so no option.
-    it("offers no option for a cipher this viewer's vault could not decrypt", async () => {
-      withCiphers([["cipher-1", "Prod database"]]);
-      await render([
-        event({ CipherId: "cipher-1", CollectionId: "col-1" }),
-        event({ CipherId: "cipher-9", CollectionId: "col-9" }),
-      ]);
-
-      expect(component().itemOptions()).toEqual([{ label: "Prod database", value: "cipher-1" }]);
-    });
-
-    it("filters the trail to the selected item", async () => {
-      withCiphers([
-        ["cipher-1", "Prod database"],
-        ["cipher-2", "Staging database"],
-      ]);
-      await render([
-        event({ CipherId: "cipher-1", CollectionId: "col-1" }),
-        event({ CipherId: "cipher-2", CollectionId: "col-2" }),
-      ]);
-
-      selectFilter("item", ["cipher-1"]);
-
-      expect(component().filteredRows()).toHaveLength(1);
-      expect(component().filteredRows()[0].cipherName).toBe("Prod database");
-    });
-
-    // The Actor chip qualifies a shared display name with the identity's email; the collection is the
-    // equivalent an item carries, and the Item cell already shows it as that name's tooltip.
-    it("tells apart two items that share a name", async () => {
-      withCiphers(
-        [
-          ["cipher-1", "Database"],
-          ["cipher-2", "Database"],
-        ],
-        [
-          ["col-1", "production"],
-          ["col-2", "staging"],
-        ],
-      );
-      await render([
-        event({ CipherId: "cipher-1", CollectionId: "col-1" }),
-        event({ CipherId: "cipher-2", CollectionId: "col-2" }),
-      ]);
-
-      expect(component().itemOptions()).toEqual([
-        { label: "Database (production)", value: "cipher-1" },
-        { label: "Database (staging)", value: "cipher-2" },
-      ]);
-    });
-
-    // Two access rules can carry the same name; filtering on the id keeps their histories apart.
-    it("keeps two rules that share a name apart", async () => {
-      await render([
-        event({
-          Kind: "ruleUpdated",
-          CipherId: null,
-          CollectionId: null,
-          RuleId: "rule-1",
-          RuleName: "Approval required",
-        }),
-        event({
-          Kind: "ruleUpdated",
-          CipherId: null,
-          CollectionId: null,
-          RuleId: "rule-2",
-          RuleName: "Approval required",
-        }),
-      ]);
-
-      expect(component().itemOptions()).toEqual([
-        { label: "Approval required", value: "rule-1" },
-        { label: "Approval required", value: "rule-2" },
-      ]);
-
-      selectFilter("item", ["rule-2"]);
-
-      expect(component().filteredRows()).toHaveLength(1);
-      expect(component().filteredRows()[0].ruleId).toBe("rule-2");
-    });
-
-    it("drops a row that names no item once an item is selected", async () => {
-      withCiphers([["cipher-1", "Prod database"]]);
-      await render([
-        event({ CipherId: "cipher-1", CollectionId: "col-1" }),
-        event({ CipherId: null, CollectionId: null, RuleId: null, RuleName: null }),
-      ]);
-
-      selectFilter("item", ["cipher-1"]);
-
-      expect(component().filteredRows()).toHaveLength(1);
-      expect(component().filteredRows()[0].cipherName).toBe("Prod database");
     });
   });
 
@@ -897,7 +830,7 @@ describe("AccessAuditComponent", () => {
     const anHourAgo = () => new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
     const renderReady = async () => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue([
+      returnsTrail([
         event({ OccurredAt: anHourAgo(), ActorId: "user-1", ActorName: "Ada" }),
         event({
           OccurredAt: anHourAgo(),
@@ -927,14 +860,15 @@ describe("AccessAuditComponent", () => {
 
     it("resets every chip at once", async () => {
       await renderReady();
-      selectFilter("kind", "pamAuditKindRequestApproved");
-      selectFilter("actor", "user-1");
-      selectFilter("requester", "user-2");
+      selectFilter("kind", ["requestApproved"]);
+      selectFilter("actor", ["user-1"]);
+      selectFilter("requester", ["user-2"]);
       selectFilter("timePeriod", "past7Days");
-      expect(component().filteredRows()).toHaveLength(1);
+      await fixture.whenStable();
 
       clearAllButton().click();
       fixture.detectChanges();
+      await fixture.whenStable();
 
       expect(
         component()
@@ -942,37 +876,64 @@ describe("AccessAuditComponent", () => {
           .some((chip: any) => chip.active()),
       ).toBe(false);
       expect(component().selectedPeriod()).toBeNull();
-      expect(component().filteredRows()).toHaveLength(2);
       expect(clearAllButton()).toBeNull();
+      // One read back to the unnarrowed trail, rather than four as the chips reset one by one.
+      expect(lastFilter()).toEqual({
+        start: undefined,
+        end: undefined,
+        kinds: [],
+        actorIds: [],
+        includeAutomatedActor: false,
+        requesterIds: [],
+        cipherIds: [],
+        ruleIds: [],
+      });
     });
   });
 
-  // Every filter is a predicate over the one already-fetched window; the endpoint takes no query
-  // parameters, so a filter change that re-read it would be a bug, not an optimisation.
-  it("does not re-read the trail when a filter changes", async () => {
-    auditApiService.listAccessAuditTrail.mockResolvedValue([
-      event({ Kind: "leaseActivated", ActorId: "user-1", RequesterId: "user-2" }),
-      event({ ActorId: "user-3", RequesterId: "user-4" }),
-    ]);
+  // Every filter is a query parameter on the read, so changing one goes back to the server. That is what
+  // makes a filtered result the whole of what matches rather than the whole of what happened to be loaded.
+  it("re-reads the trail whenever a filter changes", async () => {
+    returnsTrail([event()]);
+    await renderReady();
+    expect(readCount()).toBe(1);
 
-    fixture.detectChanges();
+    selectFilter("kind", ["leaseActivated"]);
     await fixture.whenStable();
-    expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledTimes(1);
-    fixture.detectChanges();
-
-    selectFilter("kind", "pamAuditKindLeaseActivated");
-    selectFilter("actor", "user-1");
-    selectFilter("requester", "user-2");
+    selectFilter("actor", ["user-1"]);
+    await fixture.whenStable();
+    selectFilter("requester", ["user-2"]);
+    await fixture.whenStable();
     selectFilter("timePeriod", "past30Days");
+    await fixture.whenStable();
+
+    expect(readCount()).toBe(5);
+    expect(lastFilter()).toEqual(
+      expect.objectContaining({
+        kinds: ["leaseActivated"],
+        actorIds: ["user-1"],
+        requesterIds: ["user-2"],
+      }),
+    );
+  });
+
+  // The chips mount only once the first page has rendered, and their first report is "nothing selected" —
+  // the very filter that page was read with. Without the guard on the filter in force, every load would be
+  // followed immediately by an identical second one.
+  it("does not re-read the trail when a chip settles on the filter already in force", async () => {
+    returnsTrail([event()]);
+
+    await renderReady();
+    await fixture.whenStable();
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledTimes(1);
+    expect(readCount()).toBe(1);
   });
 
   describe("update", () => {
     const renderReady = async (events = [event()]) => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue(events);
+      returnsTrail(events);
 
       fixture.detectChanges();
       await fixture.whenStable();
@@ -983,22 +944,19 @@ describe("AccessAuditComponent", () => {
       fixture.nativeElement.querySelector("#access-audit_button_refresh").click();
     };
 
-    // The endpoint takes no parameters, so re-reading it is the only way to see an event recorded
-    // since the page opened — which is what Update is for here, the filters being live already.
-    it("re-reads the trail when Update is pressed", async () => {
+    // Re-reading is how an event recorded since the page opened appears. The filters reach the server
+    // now, so Update starts again from the first page of whatever they select rather than appending.
+    it("re-reads the first page for the filter in force when Update is pressed", async () => {
       await renderReady();
-      expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledTimes(1);
+      expect(readCount()).toBe(1);
 
-      auditApiService.listAccessAuditTrail.mockResolvedValue([
-        event(),
-        event({ Kind: "leaseActivated" }),
-      ]);
+      returnsTrail([event(), event({ Kind: "leaseActivated" })]);
       clickUpdate();
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledTimes(2);
-      expect(auditApiService.listAccessAuditTrail).toHaveBeenLastCalledWith(ORGANIZATION_ID);
+      expect(readCount()).toBe(2);
+      expect(lastFilter().continuationToken).toBeUndefined();
       expect(component().rows()).toHaveLength(2);
       expect(component().status()).toBe("ready");
     });
@@ -1009,7 +967,7 @@ describe("AccessAuditComponent", () => {
       await renderReady([]);
       expect(component().status()).toBe("empty");
 
-      auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
+      returnsTrail([event()]);
       clickUpdate();
       await fixture.whenStable();
       fixture.detectChanges();
@@ -1019,36 +977,31 @@ describe("AccessAuditComponent", () => {
       expect(component().rows()).toHaveLength(1);
     });
 
-    // The chips build their options from the trail, so a refresh that brings back a kind the page has
-    // never rendered adds an option to an already-mounted chip.
-    it("takes on an event kind that only the refresh brought back", async () => {
+    // The Event menu is the vocabulary rather than the page, so a refresh cannot add to it — which is
+    // the point: the option for a kind was already there before the event of that kind arrived.
+    it("renders a trail whose kinds were already all on offer", async () => {
       await renderReady();
-      expect(component().kindOptions()).toHaveLength(1);
+      const before = component().kindOptions();
 
-      auditApiService.listAccessAuditTrail.mockResolvedValue([
-        event(),
-        event({ Kind: "leaseActivated" }),
-      ]);
+      returnsTrail([event(), event({ Kind: "leaseActivated" })]);
       clickUpdate();
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(component().kindOptions()).toEqual([
-        { label: "Lease activated", value: "pamAuditKindLeaseActivated" },
-        { label: "Request approved", value: "pamAuditKindRequestApproved" },
-      ]);
-      expect(
-        fixture.nativeElement.querySelectorAll("bit-filter-menu bit-filter-option").length,
-      ).toBeGreaterThan(1);
+      expect(component().kindOptions()).toEqual(before);
+      expect(before).toContainEqual({ label: "Lease activated", value: "leaseActivated" });
     });
 
-    it("re-reads the member lookup alongside the trail", async () => {
+    // The roster is read once and outlives every filter, so it is not re-read per refresh — otherwise
+    // every chip an auditor touched would cost a second request for a list that has not changed.
+    it("does not re-read the member lookup on a refresh", async () => {
       await renderReady();
+      expect(organizationUserApiService.getAllMiniUserDetails).toHaveBeenCalledTimes(1);
 
       clickUpdate();
       await fixture.whenStable();
 
-      expect(organizationUserApiService.getAllMiniUserDetails).toHaveBeenCalledTimes(2);
+      expect(organizationUserApiService.getAllMiniUserDetails).toHaveBeenCalledTimes(1);
     });
 
     // Dropping to the loading state would take the table, the filters and the pressed button out of
@@ -1056,9 +1009,9 @@ describe("AccessAuditComponent", () => {
     it("keeps the rendered trail on screen while a refresh is in flight", async () => {
       await renderReady();
 
-      let release!: (events: AccessAuditEventResponse[]) => void;
+      let release!: (page: AuditTrailPage) => void;
       auditApiService.listAccessAuditTrail.mockReturnValueOnce(
-        new Promise<AccessAuditEventResponse[]>((resolve) => (release = resolve)),
+        new Promise<AuditTrailPage>((resolve) => (release = resolve)),
       );
 
       const refreshed = component().load();
@@ -1067,10 +1020,39 @@ describe("AccessAuditComponent", () => {
       expect(component().status()).toBe("ready");
       expect(fixture.nativeElement.querySelector("bit-table")).not.toBeNull();
 
-      release([event(), event()]);
+      release({ data: [event(), event()], continuationToken: null });
       await refreshed;
 
       expect(component().rows()).toHaveLength(2);
+    });
+
+    // A refresh leaves the chips live, so a second read can start while the first is still out. Whichever
+    // came back last would otherwise win, and a slow answer to a filter the auditor has already moved off
+    // would overwrite the one they are waiting for.
+    it("discards a read the auditor has already moved off", async () => {
+      await renderReady();
+
+      let releaseStale!: (page: AuditTrailPage) => void;
+      auditApiService.listAccessAuditTrail.mockReturnValueOnce(
+        new Promise<AuditTrailPage>((resolve) => (releaseStale = resolve)),
+      );
+      const stale = component().load();
+
+      returnsTrail([event({ ActorName: "Linus" })]);
+      await component().load();
+
+      releaseStale({
+        data: [event({ ActorName: "Ada" }), event({ ActorName: "Ada" })],
+        continuationToken: "page-2",
+      });
+      await stale;
+
+      expect(
+        component()
+          .rows()
+          .map((row: any) => row.actor),
+      ).toEqual(["Linus"]);
+      expect(component().canLoadMore()).toBe(false);
     });
 
     // A transient failure must not cost the auditor the trail they were reading; `bitAction` reports it.
@@ -1088,7 +1070,7 @@ describe("AccessAuditComponent", () => {
 
   describe("toolbar", () => {
     const renderToolbar = async () => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
+      returnsTrail([event()]);
 
       fixture.detectChanges();
       await fixture.whenStable();
@@ -1162,35 +1144,67 @@ describe("AccessAuditComponent", () => {
       return papa.parse<Record<string, string>>(request.blobData as string, { header: true }).data;
     };
 
-    // The file has to hold what the auditor narrowed the table down to: exporting the whole fetched
-    // window would hand them back the rows they deliberately filtered out.
-    it("exports the rows the filters left on screen, not the whole trail", async () => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue([
-        event({ ActorId: "user-1", ActorName: "Ada" }),
-        event({ ActorId: "user-3", ActorName: "Linus" }),
-        event({ ActorId: "user-3", ActorName: "Linus" }),
-      ]);
-
-      fixture.detectChanges();
+    /** Clicks Export and lets the page walk it takes settle. */
+    const runExport = async () => {
+      clickExport();
       await fixture.whenStable();
       fixture.detectChanges();
+      await fixture.whenStable();
+    };
 
-      selectFilter("actor", "user-3");
-      clickExport();
+    // The file has to hold what the auditor narrowed the table down to — all of it. Serializing the rows
+    // on screen would stop at the page boundary, and a file that stops early is the one outcome an audit
+    // export must not produce: it looks complete.
+    it("walks every page of the filtered trail rather than exporting what is on screen", async () => {
+      returnsTrail([event({ ActorId: "user-3", ActorName: "Linus" })]);
+      await renderReady();
+      selectFilter("actor", ["user-3"]);
+      await fixture.whenStable();
 
-      expect(component().rows()).toHaveLength(3);
-      expect(exportedRows()).toHaveLength(2);
-      expect(exportedRows().map((row) => row.actorName)).toEqual(["Linus", "Linus"]);
+      returnsTrailOnce([event({ ActorId: "user-3", ActorName: "Linus" })], "page-2");
+      returnsTrailOnce([event({ ActorId: "user-3", ActorName: "Ada" })], null);
+      await runExport();
+
+      // One page is on screen; the file carries both.
+      expect(component().rows()).toHaveLength(1);
+      expect(exportedRows().map((row) => row.actorName)).toEqual(["Linus", "Ada"]);
+    });
+
+    // The walk carries the chips with it, or the file would be the whole trail rather than the part the
+    // auditor asked for.
+    it("carries the active filter onto every page it reads", async () => {
+      returnsTrail([event()]);
+      await renderReady();
+      selectFilter("actor", ["user-3"]);
+      await fixture.whenStable();
+
+      returnsTrailOnce([event()], "page-2");
+      returnsTrailOnce([event()], null);
+      await runExport();
+
+      const calls = auditApiService.listAccessAuditTrail.mock.calls.slice(-2);
+      expect(calls[0][1]).toEqual(expect.objectContaining({ actorIds: ["user-3"] }));
+      expect(calls[1][1]).toEqual(
+        expect.objectContaining({ actorIds: ["user-3"], continuationToken: "page-2" }),
+      );
+    });
+
+    // A server answering every request with the same position would otherwise spin here forever, writing
+    // the same page into the file until the tab died. Refusing outright is the right failure: bitAction
+    // reports it, and no file is written that claims to be the trail and is not.
+    it("refuses to write a file when the trail hands back the same page twice", async () => {
+      returnsTrail([event()], "stuck");
+      await renderReady();
+
+      await expect(component().exportCsv()).rejects.toThrow(/same page twice/);
+      expect(fileDownloadService.download).not.toHaveBeenCalled();
     });
 
     it("hands the download service one csv blob", async () => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
+      returnsTrail([event()]);
+      await renderReady();
 
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      clickExport();
+      await runExport();
 
       expect(fileDownloadService.download).toHaveBeenCalledTimes(1);
       const request = fileDownloadService.download.mock.calls[0][0];
@@ -1199,27 +1213,10 @@ describe("AccessAuditComponent", () => {
       expect(request.blobData).toContain("Request approved");
     });
 
-    // Everything the file needs is already in the browser, and the endpoint takes no parameters, so an
-    // export that re-read the trail would be a bug rather than a refresh.
-    it("does not re-read the trail to export", async () => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
-
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      clickExport();
-
-      expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledTimes(1);
-    });
-
     // `bwi-import` is the export glyph in this icon set, and the icon both event-log surfaces settled on.
     it("carries the export icon", async () => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
-
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
+      returnsTrail([event()]);
+      await renderReady();
 
       const icon = fixture.nativeElement.querySelector("#access-audit_button_export i");
       expect(icon).not.toBeNull();
@@ -1227,30 +1224,270 @@ describe("AccessAuditComponent", () => {
     });
 
     it("disables Export while no row matches the filters", async () => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue([
-        event({ Kind: "requestApproved", ActorName: "Ada" }),
-      ]);
-
-      fixture.detectChanges();
-      await fixture.whenStable();
-      fixture.detectChanges();
+      returnsTrail([event({ Kind: "requestApproved", ActorName: "Ada" })]);
+      await renderReady();
 
       const button = fixture.nativeElement.querySelector("#access-audit_button_export");
       expect(button.getAttribute("aria-disabled")).toBeNull();
 
-      selectFilter("kind", "pamAuditKindLeaseActivated");
+      // The narrowed read comes back empty, which is what leaves nothing to export.
+      returnsTrail([]);
+      selectFilter("kind", ["leaseActivated"]);
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(button.getAttribute("aria-disabled")).toBe("true");
+      expect(component().rows()).toHaveLength(0);
       button.click();
       expect(fileDownloadService.download).not.toHaveBeenCalled();
     });
   });
 
+  describe("item filter", () => {
+    // The menu is the subjects the trail names, narrowed to the ones this vault can label. Neither half
+    // works alone: a page names only some of what is in range, and the vault holds credentials the trail
+    // never mentions.
+    it("offers an option per subject the trail names that this vault can name", async () => {
+      returnsTrail([event()]);
+      returnsItems([cipherItem("cipher-1"), ruleItem("rule-1", "Production database")], {
+        ciphers: [["cipher-1", "Prod database"]],
+      });
+
+      await renderReady();
+
+      expect(component().itemOptions()).toEqual([
+        { label: "Prod database", value: "cipher-1" },
+        { label: "Production database", value: "rule-1" },
+      ]);
+    });
+
+    // A cipher this viewer never held has no name to render, so offering it would put an unlabelled row
+    // in the menu — the same rule the Actor chip follows for an unresolved member.
+    it("offers no option for a cipher this vault could not decrypt", async () => {
+      returnsTrail([event()]);
+      returnsItems([cipherItem("cipher-1"), cipherItem("cipher-unknown")], {
+        ciphers: [["cipher-1", "Prod database"]],
+      });
+
+      await renderReady();
+
+      expect(component().itemOptions()).toEqual([{ label: "Prod database", value: "cipher-1" }]);
+    });
+
+    // A rule's name is plaintext organization configuration, so it needs no vault at all.
+    it("labels a rule from the name the server sent", async () => {
+      returnsTrail([event()]);
+      returnsItems([ruleItem("rule-1", "Production database")]);
+
+      await renderReady();
+
+      expect(component().itemOptions()).toEqual([
+        { label: "Production database", value: "rule-1" },
+      ]);
+    });
+
+    // Two items under one name would let an auditor read a filtered half of one item's history as the
+    // whole of it. The collection the cipher was last gated through is what tells them apart.
+    it("tells apart two items that share a name", async () => {
+      returnsTrail([event()]);
+      returnsItems(
+        [cipherItem("cipher-1", "collection-1"), cipherItem("cipher-2", "collection-2")],
+        {
+          ciphers: [
+            ["cipher-1", "Root password"],
+            ["cipher-2", "Root password"],
+          ],
+          collections: [
+            ["collection-1", "Web servers"],
+            ["collection-2", "Databases"],
+          ],
+        },
+      );
+
+      await renderReady();
+
+      expect(component().itemOptions()).toEqual([
+        { label: "Root password (Databases)", value: "cipher-2" },
+        { label: "Root password (Web servers)", value: "cipher-1" },
+      ]);
+    });
+
+    // One chip, two columns. An id sent against the wrong one would silently match nothing.
+    it("sends a credential as cipherIds and a rule as ruleIds", async () => {
+      returnsTrail([event()]);
+      returnsItems([cipherItem("cipher-1"), ruleItem("rule-1", "Production database")], {
+        ciphers: [["cipher-1", "Prod database"]],
+      });
+      await renderReady();
+
+      selectFilter("item", ["cipher-1", "rule-1"]);
+      await fixture.whenStable();
+
+      expect(lastFilter().cipherIds).toEqual(["cipher-1"]);
+      expect(lastFilter().ruleIds).toEqual(["rule-1"]);
+    });
+
+    // The range is what changes which items exist, so the menu follows it.
+    it("re-reads the menu when the time period changes", async () => {
+      returnsTrail([event()]);
+      await renderReady();
+      const before = itemReadCount();
+
+      selectFilter("timePeriod", "past7Days");
+      await fixture.whenStable();
+
+      expect(itemReadCount()).toBe(before + 1);
+      expect(lastItemRange().start).toBeInstanceOf(Date);
+    });
+
+    // The other dimensions are not. Narrowing to one actor must not quietly drop the credentials they
+    // never touched from a menu an auditor is using to look for exactly that.
+    it("leaves the menu alone when another chip changes", async () => {
+      returnsTrail([event()]);
+      await renderReady();
+      const before = itemReadCount();
+
+      selectFilter("actor", ["user-1"]);
+      await fixture.whenStable();
+      selectFilter("kind", ["leaseActivated"]);
+      await fixture.whenStable();
+
+      expect(itemReadCount()).toBe(before);
+    });
+
+    // The trail is still readable without one of its filters; an auditor who cannot narrow by item is
+    // better off than one looking at an error page.
+    it("leaves the menu empty when the read fails, without taking the page down", async () => {
+      returnsTrail([event()]);
+      auditApiService.listAccessAuditItems.mockRejectedValue(new Error("boom"));
+
+      await renderReady();
+
+      expect(component().itemOptions()).toEqual([]);
+      expect(component().status()).toBe("ready");
+    });
+  });
+
+  describe("paging", () => {
+    const loadMoreButton = (): HTMLButtonElement | null =>
+      fixture.nativeElement.querySelector("#access-audit_button_load-more");
+
+    const clickLoadMore = async () => {
+      loadMoreButton()!.click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    // The server sends a position to resume from only while a page remains, so its absence is the end of
+    // the trail rather than a guess made by counting rows.
+    it("offers Load more while the trail has a page left", async () => {
+      returnsTrail([event()], "page-2");
+
+      await renderReady();
+
+      expect(loadMoreButton()).not.toBeNull();
+    });
+
+    it("offers no Load more on the last page", async () => {
+      returnsTrail([event()], null);
+
+      await renderReady();
+
+      expect(loadMoreButton()).toBeNull();
+    });
+
+    it("appends the next page rather than replacing what is on screen", async () => {
+      returnsTrail([event({ ActorName: "Ada" })], "page-2");
+      await renderReady();
+
+      returnsTrail([event({ ActorName: "Linus" })], null);
+      await clickLoadMore();
+
+      expect(
+        component()
+          .rows()
+          .map((row: any) => row.actor),
+      ).toEqual(["Ada", "Linus"]);
+      expect(loadMoreButton()).toBeNull();
+    });
+
+    it("resumes from the position the previous page reported", async () => {
+      returnsTrail([event()], "page-2");
+      await renderReady();
+
+      returnsTrail([event()], null);
+      await clickLoadMore();
+
+      expect(lastFilter().continuationToken).toBe("page-2");
+    });
+
+    // An auditor reading down a trail is holding their place in it. Reloading the table to fetch what
+    // comes after would lose it.
+    it("keeps the page on screen while the next one is in flight", async () => {
+      returnsTrail([event()], "page-2");
+      await renderReady();
+
+      let release!: (page: AuditTrailPage) => void;
+      auditApiService.listAccessAuditTrail.mockReturnValueOnce(
+        new Promise<AuditTrailPage>((resolve) => (release = resolve)),
+      );
+
+      const pending = component().loadMore();
+      fixture.detectChanges();
+
+      expect(component().status()).toBe("ready");
+      expect(component().rows()).toHaveLength(1);
+
+      release({ data: [event()], continuationToken: null });
+      await pending;
+
+      expect(component().rows()).toHaveLength(2);
+    });
+
+    // A stale position would ask the server to resume a trail the auditor is no longer looking at.
+    it("starts again from the first page when a filter changes", async () => {
+      returnsTrail([event()], "page-2");
+      await renderReady();
+
+      selectFilter("actor", ["user-1"]);
+      await fixture.whenStable();
+
+      expect(lastFilter().continuationToken).toBeUndefined();
+      expect(component().rows()).toHaveLength(1);
+    });
+
+    // Same reason, for the other way of re-reading: Update means "start again", not "continue".
+    it("starts again from the first page when Update is pressed", async () => {
+      returnsTrail([event()], "page-2");
+      await renderReady();
+      await clickLoadMore();
+      expect(component().rows()).toHaveLength(2);
+
+      returnsTrail([event()], null);
+      fixture.nativeElement.querySelector("#access-audit_button_refresh").click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(lastFilter().continuationToken).toBeUndefined();
+      expect(component().rows()).toHaveLength(1);
+    });
+
+    // A failure mid-trail is raised to `bitAction`, which reports it while what is already read stays.
+    it("keeps the rows already read when the next page fails", async () => {
+      returnsTrail([event()], "page-2");
+      await renderReady();
+
+      auditApiService.listAccessAuditTrail.mockRejectedValueOnce(new Error("boom"));
+
+      await expect(component().loadMore()).rejects.toThrow("boom");
+
+      expect(component().rows()).toHaveLength(1);
+      expect(component().status()).toBe("ready");
+    });
+  });
+
   describe("entity event history links", () => {
     const render = async (events: AccessAuditEventResponse[]) => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue(events);
+      returnsTrail(events);
 
       fixture.detectChanges();
       await fixture.whenStable();
@@ -1403,7 +1640,7 @@ describe("AccessAuditComponent", () => {
 
   describe("details drawer", () => {
     const render = async (events: AccessAuditEventResponse[]) => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue(events);
+      returnsTrail(events);
 
       fixture.detectChanges();
       await fixture.whenStable();
@@ -1604,6 +1841,7 @@ describe("AccessAuditComponent", () => {
       await render([event({ Detail: "Incident closed early." })]);
 
       fixture.nativeElement.querySelector("#access-audit_button_export").click();
+      await fixture.whenStable();
 
       const csv = fileDownloadService.download.mock.calls[0][0].blobData as string;
       const parsed = papa.parse<Record<string, string>>(csv, { header: true });
@@ -1617,7 +1855,7 @@ describe("AccessAuditComponent", () => {
       fixture.nativeElement.querySelector("#access-audit_button_no-matches-clear-all");
 
     const renderReady = async () => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue([
+      returnsTrail([
         event({ ActorId: "user-1", ActorName: "Ada" }),
         event({ ActorId: "user-3", ActorName: "Linus" }),
       ]);
@@ -1626,15 +1864,22 @@ describe("AccessAuditComponent", () => {
       fixture.detectChanges();
     };
 
-    /** Narrows to a kind the trail does not carry, which leaves the filtered table empty. */
-    const overFilter = () => selectFilter("kind", ["pamAuditKindRuleCreated"]);
+    /** Narrows to a kind the trail does not carry, which the server answers with nothing. */
+    const overFilter = async () => {
+      returnsTrail([]);
+      selectFilter("kind", ["ruleCreated"]);
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
 
     // Filtering something out is an ordinary outcome, not the unexpected condition a callout announces.
     it("renders the standard empty state rather than a callout", async () => {
       await renderReady();
-      overFilter();
+      await overFilter();
 
-      expect(component().filteredRows()).toHaveLength(0);
+      expect(component().rows()).toHaveLength(0);
+      // Still "ready", not "empty": a filter that matched nothing must leave the way out of it on screen.
+      expect(component().status()).toBe("ready");
       expect(fixture.nativeElement.querySelector("bit-status-lockup")).not.toBeNull();
       expect(fixture.nativeElement.querySelector("bit-callout")).toBeNull();
       expect(fixture.nativeElement.querySelector("bit-table")).toBeNull();
@@ -1642,7 +1887,7 @@ describe("AccessAuditComponent", () => {
 
     it("carries the no-matches title and message into the empty state", async () => {
       await renderReady();
-      overFilter();
+      await overFilter();
 
       const emptyState = emptyStateClearAll()!.closest("bit-status-lockup")!;
       expect(emptyState.querySelector("[slot=title]")!.textContent!.trim()).toBe(
@@ -1655,7 +1900,7 @@ describe("AccessAuditComponent", () => {
 
     // The trail-with-no-events state is a different empty state, with its own copy and its own action.
     it("leaves the trail's own empty state alone", async () => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue([]);
+      returnsTrail([]);
 
       fixture.detectChanges();
       await fixture.whenStable();
@@ -1679,10 +1924,17 @@ describe("AccessAuditComponent", () => {
       await renderReady();
       selectFilter("actor", ["user-1"]);
       selectFilter("timePeriod", "today");
-      overFilter();
+      await overFilter();
       expect(emptyStateClearAll()).not.toBeNull();
 
+      // Clearing goes back to the server, so the unnarrowed trail has to be there to come back.
+      returnsTrail([
+        event({ ActorId: "user-1", ActorName: "Ada" }),
+        event({ ActorId: "user-3", ActorName: "Linus" }),
+      ]);
       emptyStateClearAll()!.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
       fixture.detectChanges();
 
       expect(
@@ -1691,7 +1943,7 @@ describe("AccessAuditComponent", () => {
           .some((chip: any) => chip.active()),
       ).toBe(false);
       expect(component().selectedPeriod()).toBeNull();
-      expect(component().filteredRows()).toHaveLength(2);
+      expect(component().rows()).toHaveLength(2);
       expect(fixture.nativeElement.querySelector("bit-table")).not.toBeNull();
       expect(emptyStateClearAll()).toBeNull();
     });
@@ -1704,7 +1956,7 @@ describe("AccessAuditComponent", () => {
     const DURATION = 5;
 
     const render = async (events: AccessAuditEventResponse[]) => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue(events);
+      returnsTrail(events);
 
       fixture.detectChanges();
       await fixture.whenStable();
@@ -1777,7 +2029,7 @@ describe("AccessAuditComponent", () => {
     const OCCURRED_AT = "2026-08-18T09:00:00.000Z";
 
     const renderRow = async () => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue([event({ OccurredAt: OCCURRED_AT })]);
+      returnsTrail([event({ OccurredAt: OCCURRED_AT })]);
 
       fixture.detectChanges();
       await fixture.whenStable();
@@ -1820,7 +2072,7 @@ describe("AccessAuditComponent", () => {
     const ITEM = 4;
 
     const renderTable = async () => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
+      returnsTrail([event()]);
 
       fixture.detectChanges();
       await fixture.whenStable();
@@ -1935,7 +2187,7 @@ describe("AccessAuditComponent", () => {
     });
 
     const render = async () => {
-      auditApiService.listAccessAuditTrail.mockResolvedValue([
+      returnsTrail([
         event({ OccurredAt: "2026-08-18T09:00:00.000Z" }),
         event({ OccurredAt: "2026-08-18T08:00:00.000Z" }),
       ]);
