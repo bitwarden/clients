@@ -453,3 +453,74 @@ describe("EventService shortcode escaping", () => {
     expect(info.message).not.toContain("<code><script></code>");
   });
 });
+
+describe("EventService PAM events", () => {
+  let sut: EventService;
+
+  const i18n = mock<I18nService>();
+  i18n.t.mockImplementation(
+    (id: string, p1?: string, p2?: string) => `${id}${p1 ?? ""}${p2 ?? ""}`,
+  );
+
+  beforeEach(() => {
+    const policyService = mock<PolicyService>();
+    policyService.policies$.mockReturnValue(of([]));
+    const accountService = mock<AccountService>();
+    (accountService as any).activeAccount$ = of({ id: "user-id" });
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
+
+    sut = new EventService(i18n, policyService, accountService, configService);
+  });
+
+  const organizationId = "org-1111-2222";
+  const cipherId = "1a2b3c4d-1111-2222-3333-444455556666";
+  const accessRequestId = "4a1b2c3d-1111-2222-3333-444455556666";
+  const accessLeaseId = "9f8e7d6c-1111-2222-3333-444455556666";
+
+  function pamEvent(type: EventType): EventResponse {
+    return { type, cipherId, accessRequestId, accessLeaseId, organizationId } as EventResponse;
+  }
+
+  it.each([
+    [EventType.Pam_AccessRequest_Submitted, "pamEventRequestedAccess", accessRequestId],
+    [EventType.Pam_AccessRequest_Approved, "pamEventApprovedAccessRequest", accessRequestId],
+    [EventType.Pam_AccessRequest_Denied, "pamEventDeniedAccessRequest", accessRequestId],
+    [EventType.Pam_AccessLease_Activated, "pamEventActivatedAccessLease", accessLeaseId],
+    [EventType.Pam_AccessLease_Revoked, "pamEventRevokedAccessLease", accessLeaseId],
+  ])("renders %s with its own message and the subject id", async (type, key, subjectId) => {
+    const info = await sut.getEventInfo(pamEvent(type as EventType));
+
+    expect(info.message).toContain(key);
+    expect(info.message).toContain(`<code>${(subjectId as string).substring(0, 8)}</code>`);
+  });
+
+  // The item is the fact an administrator reading this log wants, so it is named and linked into the
+  // vault the same way the ordinary cipher events link it.
+  it("names the item and links it into the vault", async () => {
+    const info = await sut.getEventInfo(pamEvent(EventType.Pam_AccessRequest_Submitted));
+
+    expect(info.message).toContain(cipherId.substring(0, 8));
+    expect(info.message).toContain(`viewEvents=${cipherId}`);
+  });
+
+  // The request-detail page is authorized for the requester or a managing approver, not for the
+  // AccessEventLogs permission this log is read with, so the subject id must not become a link.
+  it("renders the subject id as plain code, never a link", async () => {
+    const info = await sut.getEventInfo(pamEvent(EventType.Pam_AccessLease_Revoked));
+
+    expect(info.message).toContain(`<code>${accessLeaseId.substring(0, 8)}</code>`);
+    expect(info.message).not.toContain(
+      `href="#/organizations/${organizationId}/vault?search=${accessLeaseId}`,
+    );
+  });
+
+  it("keeps the human-readable (export) message plain text", async () => {
+    const info = await sut.getEventInfo(pamEvent(EventType.Pam_AccessRequest_Submitted));
+
+    expect(info.humanReadableMessage).not.toContain("<code>");
+    expect(info.humanReadableMessage).not.toContain("href");
+    expect(info.humanReadableMessage).toContain(cipherId.substring(0, 8));
+    expect(info.humanReadableMessage).toContain(accessRequestId.substring(0, 8));
+  });
+});
