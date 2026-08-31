@@ -85,9 +85,11 @@ export class AuditExportService {
         row.duration == null
           ? ""
           : this.i18nService.t(row.duration.key, row.duration.value ?? undefined),
+      extendedUntil: row.extendedUntil == null ? "" : new Date(row.extendedUntil).toISOString(),
       detail: row.detail ?? "",
       automated: row.automated,
       incomplete: row.inDoubt,
+      requestId: row.requestId ?? "",
     });
   }
 }
