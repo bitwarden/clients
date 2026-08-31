@@ -45,7 +45,8 @@ A chip is single-select by default; add `multiple` for a checkbox-style multi-se
 ## Nesting
 
 Project `bit-filter-option`s inside one another to make an expandable parent. Selecting a parent
-selects everything under it; a partly-selected parent renders indeterminate.
+selects everything under it; a partly-selected parent renders indeterminate. Parents start
+collapsed; add `expanded` to start one open.
 
 ```html
 <bit-filter-menu key="collection" placeholderText="Collections" multiple>
@@ -60,29 +61,10 @@ selects everything under it; a partly-selected parent renders indeterminate.
 </bit-filter-menu>
 ```
 
-Parents start collapsed; add `expanded` to start one open. Write the nesting out in markup —
-literally, or with an inline `@for` per level. Recursing through `ngTemplateOutlet` does not work.
+Nesting must be literal markup, or an inline `@for` per level; `ngTemplateOutlet` recursion does not
+work.
 
 <Canvas of={stories.NestedOptions} />
-
-## Keyboard
-
-A single-select menu is a radio group: arrow keys move and select. A multi-select menu is a tree,
-one tab stop, navigated with:
-
-| Key            | Behaviour                                          |
-| -------------- | -------------------------------------------------- |
-| `↑` / `↓`      | Move between the rows currently on screen          |
-| `→`            | Open a closed row; step into an already-open one   |
-| `←`            | Close an open row; otherwise move up to the parent |
-| `Home` / `End` | First / last row                                   |
-| `Space`        | Select or clear the row, and everything beneath it |
-
-Section headers are rows too — expandable but not selectable. Typeahead is not enabled; use the
-search field for a long list.
-
-Opening focuses the first row, or the search field when there is one. `Tab` reaches the search field
-and the footer instead of dismissing; `Escape` closes and returns focus to the chip.
 
 ## Value
 
@@ -124,8 +106,6 @@ Once a chip has more than ten options it renders a `bit-search` at the top of it
 never project a search field. It narrows the chip's options by their label: non-matching options
 hide, a `bit-filter-section` collapses when all of its options are hidden, and a "no matching items"
 message shows when nothing matches. The term resets when the menu closes.
-
-A parent stays visible while anything beneath it matches, and opens for the duration of the search.
 
 ## Driving a table
 
