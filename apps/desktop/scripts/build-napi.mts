@@ -48,9 +48,8 @@ const CRATE_DIR = "desktop_native/napi";
 const MODULE_NAME = "desktop_napi";
 
 runScript(async () => {
-  const args = parseBuildArgs(process.argv.slice(2));
-  if (args.help) {
-    console.log("Usage: node scripts/build-napi.mts --build-dir <dir>");
+  const args = parseBuildArgs("bw-task build napi", process.argv.slice(2));
+  if (args == null) {
     return;
   }
   await build(loadBuildConfig(args.buildDir));

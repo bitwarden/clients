@@ -15,11 +15,13 @@ import {
   rmSync,
 } from "fs";
 import path from "path";
-import { parseArgs } from "util";
+
+import { Command } from "commander";
 
 import {
   BUILD_CONFIG_FILENAME,
   CONFIG_VERSION,
+  HELP_WIDTH,
   BuildError,
   type BuildConfig,
 } from "./build-config.mts";
@@ -35,20 +37,40 @@ export function callerDir(): string {
 
 export interface BuildArgs {
   buildDir?: string;
-  help: boolean;
 }
 
-export function parseBuildArgs(argv: string[]): BuildArgs {
+/// Parses the flags a build step takes, which are the same for every step: each one is runnable
+/// on its own, so each one is handed `--build-dir` and nothing else.
+///
+/// Returns undefined once it has printed `--help`, which is the caller's cue to stop without
+/// building anything. `command` is how the step is spelled at the front door, so the help text
+/// names the command the reader typed rather than the script behind it.
+export function parseBuildArgs(command: string, argv: string[]): BuildArgs | undefined {
+  const parser = new Command(command)
+    .helpOption(false)
+    .allowExcessArguments(false)
+    .configureHelp({ helpWidth: HELP_WIDTH })
+    .option("--build-dir <dir>", "Build directory holding build-config.json (required)")
+    .option("--help", "Show this message")
+    .exitOverride()
+    // Commander writes its own diagnostics before throwing, and `runScript` reports the message
+    // it gets back; printing both would say it twice.
+    .configureOutput({ writeOut: () => {}, writeErr: () => {} });
+
   try {
-    const { values } = parseArgs({
-      args: argv,
-      options: { "build-dir": { type: "string" }, help: { type: "boolean" } },
-      allowPositionals: false,
-    });
-    return { buildDir: values["build-dir"], help: values.help === true };
+    parser.parse(argv, { from: "user" });
   } catch (error) {
-    throw new BuildError(error instanceof Error ? error.message : String(error));
+    const message = error instanceof Error ? error.message : String(error);
+    throw new BuildError(message.replace(/^error: /, ""));
   }
+
+  const values = parser.opts<{ buildDir?: string; help?: boolean }>();
+  if (values.help === true) {
+    // eslint-disable-next-line no-console
+    console.log(parser.helpInformation());
+    return undefined;
+  }
+  return { buildDir: values.buildDir };
 }
 
 /// Reads the configuration out of the directory the caller named. `--build-dir` is resolved

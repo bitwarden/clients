@@ -45,9 +45,8 @@ interface Compilation {
 }
 
 runScript(async () => {
-  const args = parseBuildArgs(process.argv.slice(2));
-  if (args.help) {
-    console.log("Usage: bw-task build app --build-dir <dir>");
+  const args = parseBuildArgs("bw-task build app", process.argv.slice(2));
+  if (args == null) {
     return;
   }
   await build(loadBuildConfig(args.buildDir));

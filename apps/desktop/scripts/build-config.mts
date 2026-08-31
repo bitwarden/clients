@@ -11,10 +11,15 @@
 // Named rather than a default import: this module is the one that gets unit tested, and the
 // CommonJS the test transform emits has no default export for a builtin.
 import { isAbsolute, relative, resolve, sep } from "path";
-import { parseArgs } from "util";
+
+import { Command } from "commander";
 
 export const CONFIG_VERSION = 2;
 export const BUILD_CONFIG_FILENAME = "build-config.json";
+
+/// Width `--help` is wrapped to. Fixed, because commander's default is the width of the
+/// terminal it was run in and `usage()` should read the same everywhere.
+export const HELP_WIDTH = 100;
 
 /// Layout inside the build directory. Intermediates mirror the path of the source they were
 /// built from, relative to `apps/desktop`.
@@ -242,6 +247,26 @@ const AUTOFILL_EXTENSION_SIGNING: Record<string, AutofillExtensionSigning> = {
   },
 };
 
+/// What `configureCommand` hands back. The target flags are read by computed name, which is
+/// what the index signature is for; commander camel-cases every long flag it is given.
+interface ConfigureOptions {
+  [flag: string]: string | string[] | boolean | undefined;
+  help?: boolean;
+  buildDir?: string;
+  channel?: string;
+  profile?: string;
+  glibc?: string;
+  skipToolchainCheck?: boolean;
+  notarize?: boolean;
+  architecture?: string[];
+  distributionChannel?: string[];
+  buildNumber?: string;
+  macosSigningCertificate?: string;
+  provisioningProfile?: string;
+  signAppx?: boolean;
+  safariExtension?: string;
+}
+
 export interface RawOptions {
   help: boolean;
   buildDir?: string;
@@ -367,120 +392,116 @@ export interface BuildConfig {
 /// sees all of them at once rather than one per run.
 export class BuildError extends Error {}
 
-export function usage(): string {
-  const targetFlags = TARGETS.filter((target) => target.flag != null)
-    .map((target) => {
-      const platforms = target.platforms.join(", ");
-      const fallback = target.enabledByDefault ? "enabled" : "disabled";
-      return (
-        `  --with-${target.flag} / --no-${target.flag}\n` +
-        `      ${platforms}; ${fallback} by default`
-      );
-    })
-    .join("\n");
-
-  const option = (flag: string, description: string) => `  ${flag.padEnd(33)} ${description}`;
-
-  return [
-    "Usage: bw-task configure --build-dir <dir> [options]",
-    "",
-    "Writes <build-dir>/build-config.json describing what this build should contain.",
-    "",
-    "Options:",
-    option("--build-dir <dir>", "Build directory, relative to apps/desktop (required)"),
-    option(`--channel <${CHANNELS.join("|")}>`, "Release channel (default: stable)"),
-    option(
+/// Every flag `configure` accepts, described once: the parser, the `--help` text and the values
+/// `parseConfigureArgs` reads back all come from this.
+///
+/// Pure -- building the command touches nothing, and `--help` is a plain option rather than
+/// commander's built-in so that printing it stays the caller's decision instead of an exit from
+/// inside here. `helpWidth` is fixed for the same reason: commander's default reads the
+/// terminal's width, which would make the help text depend on where it was run.
+///
+/// Values are deliberately not constrained to their vocabularies here, even though commander
+/// can: `.choices()` rejects the first bad value and stops, and configure exists to say
+/// everything that is wrong with a command line in one pass. That is `validate`'s job.
+export function configureCommand(): Command {
+  const command = new Command("bw-task configure")
+    .helpOption(false)
+    .allowExcessArguments(false)
+    .usage("--build-dir <dir> [options]")
+    .description("Writes <build-dir>/build-config.json describing what this build should contain.")
+    .configureHelp({ helpWidth: HELP_WIDTH })
+    .option("--build-dir <dir>", "Build directory, relative to apps/desktop (required)")
+    .option(`--channel <${CHANNELS.join("|")}>`, "Release channel (default: stable)")
+    .option(
       `--profile <${PROFILES.join("|")}>`,
       "Cargo profile for native targets (default: debug)",
-    ),
-    option(
+    )
+    .option(
       "--glibc <version>",
       `Oldest glibc a Linux cross build may need (default: ${DEFAULT_GLIBC})`,
-    ),
-    option("--architecture <arch>", `Repeatable. One of: ${ARCHITECTURES.join(", ")}`),
-    option("--distribution-channel <channel>", "Repeatable. One of:"),
-    `      ${Object.keys(DISTRIBUTION_CHANNELS).join(", ")}`,
-    option("--build-number <digits>", "Build number stamped into the app"),
-    option("--macos-signing-certificate <id>", "Certificate subject, or 'none' to leave unsigned"),
-    option("--notarize", "Submit the packaged app to Apple for notarization"),
-    option("--sign-appx", "Sign the Appx; the certificate comes from the environment"),
-    option(
+    )
+    .option("--architecture <arch>", `Repeatable. One of: ${ARCHITECTURES.join(", ")}`, collect)
+    .option(
+      "--distribution-channel <channel>",
+      `Repeatable. One of: ${Object.keys(DISTRIBUTION_CHANNELS).join(", ")}`,
+      collect,
+    )
+    .option("--build-number <digits>", "Build number stamped into the app")
+    .option("--macos-signing-certificate <id>", "Certificate subject, or 'none' to leave unsigned")
+    .option("--notarize", "Submit the packaged app to Apple for notarization")
+    .option("--sign-appx", "Sign the Appx; the certificate comes from the environment")
+    .option(
       "--provisioning-profile <path|name>",
       "A file under apps/desktop, or an installed profile",
-    ),
-    option("--safari-extension <path>", "Prebuilt safari.appex to package"),
-    option("--skip-toolchain-check", "Do not probe for cross-compilation prerequisites"),
-    option("--help", "Show this message"),
-    "",
-    "Targets:",
-    targetFlags,
-  ].join("\n");
+    )
+    .option("--safari-extension <path>", "Prebuilt safari.appex to package")
+    .option("--skip-toolchain-check", "Do not probe for cross-compilation prerequisites")
+    .option("--help", "Show this message");
+
+  command.optionsGroup("Targets:");
+  for (const target of flaggedTargets()) {
+    const fallback = target.enabledByDefault ? "enabled" : "disabled";
+    command.option(
+      `--with-${target.flag}`,
+      `${target.platforms.join(", ")}; ${fallback} by default`,
+    );
+    // The pair reads as one entry, so only the first carries the description. Note that
+    // commander treats a lone `--no-x` as a negation: the value it sets is `false` when the flag
+    // is passed and `true` when it is not, which is what `disabledTargets` looks for below.
+    command.option(`--no-${target.flag}`, "");
+  }
+
+  return command;
+}
+
+export function usage(): string {
+  return configureCommand().helpInformation();
 }
 
 export function parseConfigureArgs(argv: string[]): RawOptions {
-  const options: Record<string, { type: "string" | "boolean"; multiple?: boolean }> = {
-    help: { type: "boolean" },
-    "build-dir": { type: "string" },
-    channel: { type: "string" },
-    profile: { type: "string" },
-    glibc: { type: "string" },
-    "skip-toolchain-check": { type: "boolean" },
-    notarize: { type: "boolean" },
-    architecture: { type: "string", multiple: true },
-    "distribution-channel": { type: "string", multiple: true },
-    "build-number": { type: "string" },
-    "macos-signing-certificate": { type: "string" },
-    "provisioning-profile": { type: "string" },
-    "sign-appx": { type: "boolean" },
-    "safari-extension": { type: "string" },
-  };
+  const command = configureCommand()
+    .exitOverride()
+    // Commander writes its own diagnostics before throwing; the caller reports the message it
+    // gets back, and printing both would say it twice.
+    .configureOutput({ writeOut: () => {}, writeErr: () => {} });
 
-  for (const target of TARGETS) {
-    if (target.flag == null) {
-      continue;
-    }
-    options[`with-${target.flag}`] = { type: "boolean" };
-    options[`no-${target.flag}`] = { type: "boolean" };
-  }
-
-  let values: Record<string, unknown>;
   try {
-    ({ values } = parseArgs({ args: argv, options, allowPositionals: false }) as {
-      values: Record<string, unknown>;
-    });
+    command.parse(argv, { from: "user" });
   } catch (error) {
-    throw new BuildError(error instanceof Error ? error.message : String(error));
+    // Commander's messages already begin with "error: ", which is how every caller prefixes
+    // what it is handed.
+    const message = error instanceof Error ? error.message : String(error);
+    throw new BuildError(message.replace(/^error: /, ""));
   }
+
+  const values = command.opts<ConfigureOptions>();
 
   const enabledTargets: string[] = [];
   const disabledTargets: string[] = [];
-  for (const target of TARGETS) {
-    if (target.flag == null) {
-      continue;
-    }
-    if (values[`with-${target.flag}`] === true) {
+  for (const target of flaggedTargets()) {
+    if (values[camelCase(`with-${target.flag}`)] === true) {
       enabledTargets.push(target.flag);
     }
-    if (values[`no-${target.flag}`] === true) {
+    if (values[camelCase(target.flag)] === false) {
       disabledTargets.push(target.flag);
     }
   }
 
   return {
     help: values.help === true,
-    buildDir: asString(values["build-dir"]),
-    channel: asString(values.channel),
-    profile: asString(values.profile),
-    glibc: asString(values.glibc),
-    skipToolchainCheck: values["skip-toolchain-check"] === true,
+    buildDir: values.buildDir,
+    channel: values.channel,
+    profile: values.profile,
+    glibc: values.glibc,
+    skipToolchainCheck: values.skipToolchainCheck === true,
     notarize: values.notarize === true,
-    architectures: asStringArray(values.architecture),
-    distributionChannels: asStringArray(values["distribution-channel"]),
-    buildNumber: asString(values["build-number"]),
-    macosSigningCertificate: asString(values["macos-signing-certificate"]),
-    provisioningProfile: asString(values["provisioning-profile"]),
-    signAppx: values["sign-appx"] === true,
-    safariExtension: asString(values["safari-extension"]),
+    architectures: values.architecture ?? [],
+    distributionChannels: values.distributionChannel ?? [],
+    buildNumber: values.buildNumber,
+    macosSigningCertificate: values.macosSigningCertificate,
+    provisioningProfile: values.provisioningProfile,
+    signAppx: values.signAppx === true,
+    safariExtension: values.safariExtension,
     enabledTargets,
     disabledTargets,
   };
@@ -958,12 +979,25 @@ function isDistributionChannel(value: string): value is DistributionChannel {
   return Object.prototype.hasOwnProperty.call(DISTRIBUTION_CHANNELS, value);
 }
 
-function asString(value: unknown): string | undefined {
-  return typeof value === "string" ? value : undefined;
+/// The targets that can be named on the command line, typed so `flag` is a string rather than
+/// possibly-null everywhere it is used.
+function flaggedTargets(): (TargetDefinition & { flag: string })[] {
+  return TARGETS.filter(
+    (target): target is TargetDefinition & { flag: string } => target.flag != null,
+  );
 }
 
-function asStringArray(value: unknown): string[] {
-  return Array.isArray(value)
-    ? value.filter((item): item is string => typeof item === "string")
-    : [];
+/// Accumulator for a repeatable option. Deliberately without an initial value, so that
+/// commander does not advertise `(default: [])` in the help text.
+function collect(value: string, previous: string[] | undefined): string[] {
+  return [...(previous ?? []), value];
+}
+
+/// How commander names the value of a long flag, so a flag built from a target can be read
+/// back the same way.
+function camelCase(flag: string): string {
+  return flag
+    .split("-")
+    .map((word, index) => (index === 0 ? word : word[0].toUpperCase() + word.slice(1)))
+    .join("");
 }

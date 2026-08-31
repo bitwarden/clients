@@ -55,9 +55,8 @@ const SWIFT_BINDINGS_DIR = "macos/autofill-extension";
 const FFI_TARGETS = rustTargetsFor("macos", ["universal"]);
 
 runScript(() => {
-  const args = parseBuildArgs(process.argv.slice(2));
-  if (args.help) {
-    console.log("Usage: node scripts/build-macos-autofill-extension.mts --build-dir <dir>");
+  const args = parseBuildArgs("bw-task build macos-autofill-extension", process.argv.slice(2));
+  if (args == null) {
     return;
   }
   build(loadBuildConfig(args.buildDir));

@@ -9,7 +9,7 @@
 
 import path from "path";
 
-import { type BuildConfig, BuildError, targetByKey } from "./build-config.mts";
+import { type BuildConfig, BuildError, targetByKey, targetName } from "./build-config.mts";
 import {
   intermediatePath,
   loadBuildConfig,
@@ -50,9 +50,12 @@ export interface CargoArtifact {
 /// Entry point for a `build-*.mts` that builds a single cargo artifact.
 export function buildCargoArtifact(artifact: CargoArtifact): void {
   runScript(() => {
-    const args = parseBuildArgs(process.argv.slice(2));
-    if (args.help) {
-      console.log(`Usage: node scripts/${path.basename(process.argv[1])} --build-dir <dir>`);
+    const step = targetByKey(artifact.targetKey);
+    const args = parseBuildArgs(
+      `bw-task build ${step == null ? artifact.targetKey : targetName(step)}`,
+      process.argv.slice(2),
+    );
+    if (args == null) {
       return;
     }
     build(artifact, loadBuildConfig(args.buildDir));

@@ -70,9 +70,8 @@ const ARCHITECTURES: Record<Architecture, Arch> = {
 };
 
 runScript(async () => {
-  const args = parseBuildArgs(process.argv.slice(2));
-  if (args.help) {
-    console.log("Usage: node scripts/pack.mts --build-dir <dir>");
+  const args = parseBuildArgs("bw-task pack", process.argv.slice(2));
+  if (args == null) {
     return;
   }
   await pack(loadBuildConfig(args.buildDir));
