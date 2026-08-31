@@ -49,6 +49,16 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
+import {
+  idString,
+  matchesFavorite,
+  matchesFolder,
+  matchesSharedFolder,
+  matchesType,
+  matchesVault,
+  MY_VAULT,
+  NO_FOLDER,
+} from "../../utils/vault-filter-predicates";
 import { VaultItem } from "../vault-item";
 
 import { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
@@ -62,15 +72,6 @@ import {
 } from "./vault-items-table-copy-presentation";
 import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
 import { cipherSearchMatches } from "./vault-items-table-search";
-
-/**
- * Sentinel for the Vault chip's "my vault" option — organizations are identified by id, and the
- * individual vault has none.
- */
-export const MY_VAULT = "myVault";
-
-/** Sentinel for the My folders chip's "no folder" option. */
-export const NO_FOLDER = "noFolder";
 
 /** The `queryParam` namespace shared by every filter chip in the vault table. */
 export const VAULT_FILTER_NAMESPACE = "vault";
@@ -159,15 +160,6 @@ export type VaultItemsTableFilters = {
  * step as types are added.
  */
 const ALL_CIPHER_TYPES: CipherType[] = DIALOG_CIPHER_MENU_ITEMS.map((item) => item.type);
-
-/**
- * Widens an id to a plain string.
- *
- * Cipher ids are branded SDK types on `CipherListView` (`OrganizationId`, `CollectionId`,
- * `FolderId`) but plain strings on `CipherView`, so reading one off `CipherViewLike` yields a
- * union that can't key a lookup or be compared to a filter value until it's normalized.
- */
-const idString = (id: unknown): string | undefined => (id == null ? undefined : String(id));
 
 /**
  * i18n key per cipher type, for the Type chip's options — taken from the same menu items
@@ -320,14 +312,14 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   readonly cipherTypes = input<CipherType[]>(ALL_CIPHER_TYPES);
 
   /**
-   * The organization these rows belong to, for a vault the admin console has scoped to one.
+   * The organization this table is scoped to, when the host has narrowed the view to one org.
    *
-   * It scopes `SearchService`'s lunr index (see {@link cipherSearchMatches}) and nothing else.
-   * Which columns and filter chips apply is derived from `ciphers` alone, so setting this neither
-   * hides nor reveals any of them — scoping the table stays a matter of narrowing `ciphers`. Leave
-   * it unset for an individual vault.
+   * Scopes `SearchService`'s lunr index (see {@link cipherSearchMatches}) and suppresses the
+   * "My vault" option in the Vault chip's empty-state fallback so a user who has no personal
+   * items yet does not see a personal-vault filter while browsing an org-scoped view.
+   * Leave it unset for an unscoped individual vault.
    */
-  readonly organizationId = input<OrganizationId>();
+  readonly scopedOrganizationId = input<OrganizationId>();
 
   /**
    * Filter chip selections to open the table with, keyed by chip `key` — e.g. deep-linking into
@@ -340,6 +332,12 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * Runs when a row's name is activated. Omit to render the name as plain text rather than a button.
    */
   readonly itemAction = input<(item: C) => void | Promise<void>>();
+
+  /**
+   * Whether the `OrganizationDataOwnership` organization policy applies to the current user.
+   * Used within the logic of determining whether the "My vault" filter should be available to the user.
+   */
+  readonly orgRequiresDataOwnership = input<boolean>(false);
 
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
@@ -373,7 +371,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   protected readonly visibleColumns = computed<VaultItemsTableColumn[]>(() => {
     const hidden = new Set<VaultItemsTableColumn>();
-    if (!this.multipleVaults()) {
+    if (!this.showVaults()) {
       hidden.add("vault");
     }
     if (!this.showSharedFolders()) {
@@ -437,6 +435,20 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     this.noFolders() ? this.i18nService.t("foldersFilterTooltip") : "",
   );
 
+  /**
+   * Whether the Shared folders chip has nothing to offer: either no cipher belongs to an org,
+   * or no collections have been provided to populate the dropdown.
+   */
+  protected readonly noSharedFolderOptions = computed(() => {
+    const allPersonalCiphers = this.ciphers().every((cipher) => cipher.organizationId == null);
+    return allPersonalCiphers || !this.collections().length;
+  });
+
+  /** Tooltip for the disabled Shared folders chip — see {@link favoritesDisabledTooltip}. */
+  protected readonly sharedFolderDisabledTooltip = computed(() =>
+    this.noSharedFolderOptions() ? this.i18nService.t("sharedFolderFilterTooltip") : "",
+  );
+
   private readonly folderNames = computed(() => this.nameMap(this.folders()));
 
   private readonly collectionNames = computed(() => this.nameMap(this.collections()));
@@ -456,48 +468,53 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   }
 
   /**
-   * The distinct vaults {@link ciphers} span, as the values the Vault chip offers: an organization
-   * id per organization {@link organizations} can name, plus {@link MY_VAULT} when any cipher is
-   * individually owned.
+   * Whether there are any ciphers that belong to the personal vault.
    */
-  private readonly presentVaults = computed(() => {
-    const names = this.organizationNames();
-    const vaults = new Set<string>();
-    for (const cipher of this.ciphers()) {
-      const organizationId = idString(cipher.organizationId);
-      if (!organizationId) {
-        vaults.add(MY_VAULT);
-      } else if (names.has(organizationId)) {
-        vaults.add(organizationId);
-      }
-    }
-    return vaults;
-  });
-
-  /**
-   * Whether the rows span more than one vault. Used to determine Vault column/filter visbility.
-   */
-  protected readonly multipleVaults = computed(() => this.presentVaults().size > 1);
-
-  /** Whether the Vault chip offers "My vault" — only when some cipher is individually owned. */
-  protected readonly showMyVaultOption = computed(() => this.presentVaults().has(MY_VAULT));
-
-  /**
-   * The organizations the Vault chip offers, sorted for a stable menu.
-   */
-  protected readonly sortedOrganizations = computed(() => {
-    const present = this.presentVaults();
-    return this.organizations()
-      .filter((organization) => present.has(idString(organization.id) ?? ""))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  });
-
-  /**
-   * Whether the Shared folders chip has anything to offer — only when some cipher belongs to an organization
-   */
-  protected readonly showSharedFolders = computed(() =>
-    this.ciphers().some((cipher) => cipher.organizationId != null),
+  private readonly hasPersonalCiphers = computed(() =>
+    this.ciphers().some((cipher) => !idString(cipher.organizationId)),
   );
+
+  /**
+   * Whether the Vault chip offers "My vault".
+   */
+  protected readonly showMyVaultOption = computed(() => {
+    const canHaveEmptyPersonalVault =
+      !this.ciphers().filter((cipher) => !cipher.organizationId).length &&
+      !this.scopedOrganizationId() &&
+      !this.orgRequiresDataOwnership();
+    return this.hasPersonalCiphers() || canHaveEmptyPersonalVault;
+  });
+
+  /**
+   * Whether the Vault chip and column should be shown.
+   *
+   * Shown when the user's items can span more than one vault:
+   * - multiple organizations are present (user can filter between them), or
+   * - exactly one organization is present alongside a personal vault option
+   *   (user can distinguish personal items from org-owned ones).
+   */
+  protected readonly showVaults = computed(() => {
+    const hasMultipleVaults = this.sortedOrganizations().length > 1;
+    const hasPersonalAndOrgVault =
+      this.showMyVaultOption() && this.sortedOrganizations().length === 1;
+    return hasMultipleVaults || hasPersonalAndOrgVault;
+  });
+
+  /**
+   * The organizations the Vault chip offers. Derived from the `organizations` input
+   * so the options don't change as ciphers are filtered in or out.
+   */
+  protected readonly sortedOrganizations = computed(() =>
+    [...this.organizations()].sort((a, b) => a.name.localeCompare(b.name)),
+  );
+
+  /**
+   * Whether the Shared folders chip and column should be shown.
+   *
+   * Driven by the organizations input rather than the cipher rows, so the chip stays
+   * visible even when org-owned ciphers are filtered out.
+   */
+  protected readonly showSharedFolders = computed(() => this.organizations().length > 0);
 
   /** The Shared folders chip's options, sorted for a stable menu, when it isn't grouped. */
   protected readonly sortedCollections = computed(() =>
@@ -677,7 +694,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   private readonly searchMatches = cipherSearchMatches(
     this.ciphers,
     this.searchTerm,
-    this.organizationId,
+    this.scopedOrganizationId,
   );
 
   /**
@@ -694,11 +711,11 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   protected readonly filter = (cipher: C, values: VaultItemsTableFilters): boolean =>
     this.matchesSearch(cipher) &&
-    this.matchesType(cipher, values.type) &&
-    this.matchesFavorite(cipher, values.favorites) &&
-    this.matchesVault(cipher, values.vault) &&
-    this.matchesSharedFolder(cipher, values.sharedFolder) &&
-    this.matchesFolder(cipher, values.folder);
+    matchesType(cipher, values.type) &&
+    matchesFavorite(cipher, values.favorites) &&
+    matchesVault(cipher, values.vault) &&
+    matchesSharedFolder(cipher, values.sharedFolder) &&
+    matchesFolder(cipher, values.folder);
 
   /**
    * Whether the cipher is among the active search's matches. `undefined` matches means no
@@ -707,56 +724,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   private matchesSearch(cipher: C): boolean {
     const matches = this.searchMatches();
     return matches === undefined || matches.has(String(cipher.id));
-  }
-
-  private matchesType(cipher: C, type: CipherType | undefined): boolean {
-    // `type` differs between CipherView and CipherListView, so it must go through the utils.
-    return type == null || CipherViewLikeUtils.getType(cipher) === type;
-  }
-
-  private matchesFavorite(cipher: C, favorites: boolean | undefined): boolean {
-    return !favorites || cipher.favorite;
-  }
-
-  /**
-   * The Vault chip is multi-select: `vault` is an array of organization ids and/or
-   * {@link MY_VAULT}. A cipher matches if it satisfies *any* selected value (OR).
-   * `undefined` and `[]` both mean "no filter, match everything".
-   */
-  private matchesVault(cipher: C, vault: string[] | undefined): boolean {
-    if (!vault || vault.length === 0) {
-      return true;
-    }
-    return vault.some((value) =>
-      value === MY_VAULT ? !cipher.organizationId : idString(cipher.organizationId) === value,
-    );
-  }
-
-  /**
-   * The Shared folders chip is multi-select: `sharedFolder` is an array of collection ids. As
-   * with {@link matchesVault}, `undefined` and `[]` both mean unfiltered, and a cipher matches if
-   * it belongs to *any* selected collection.
-   */
-  private matchesSharedFolder(cipher: C, sharedFolder: string[] | undefined): boolean {
-    if (!sharedFolder || sharedFolder.length === 0) {
-      return true;
-    }
-    const collectionIds = (cipher.collectionIds ?? []).map((id) => idString(id));
-    return sharedFolder.some((value) => collectionIds.includes(value));
-  }
-
-  /**
-   * The My folders chip is multi-select: `folder` is an array of folder ids and/or
-   * {@link NO_FOLDER}. As with {@link matchesVault}, `undefined` and `[]` both mean unfiltered,
-   * and a cipher matches if it satisfies *any* selected value.
-   */
-  private matchesFolder(cipher: C, folder: string[] | undefined): boolean {
-    if (!folder || folder.length === 0) {
-      return true;
-    }
-    return folder.some((value) =>
-      value === NO_FOLDER ? !cipher.folderId : idString(cipher.folderId) === value,
-    );
   }
 
   /**

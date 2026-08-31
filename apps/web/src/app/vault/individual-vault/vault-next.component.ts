@@ -13,6 +13,7 @@ import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -25,6 +26,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { ButtonModule, DialogService } from "@bitwarden/components";
+import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
   AddItemDialogComponent,
@@ -127,6 +129,7 @@ export class VaultNextComponent {
   private readonly batchBarService = inject(VaultBatchBarService);
   private readonly configService = inject(ConfigService);
 
+  private readonly policyService = inject(PolicyService);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   private readonly routeParams = toSignal(this.activatedRoute.paramMap);
@@ -357,6 +360,16 @@ export class VaultNextComponent {
       this.collections(),
       this.rowMenuHandlers(),
     ),
+  );
+
+  /** Whether the `OrganizationDataOwnership` policy applies to the active user. */
+  protected readonly orgRequiresDataOwnership = toSignal(
+    this.userId$.pipe(
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+      ),
+    ),
+    { initialValue: false },
   );
 
   /**

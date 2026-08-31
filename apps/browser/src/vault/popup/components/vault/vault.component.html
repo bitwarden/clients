@@ -42,6 +42,13 @@
     <fill-assist-active-banner slot="full-width-notice"></fill-assist-active-banner>
   }
 
+  @if (vfo1Enabled() && vaultState !== VaultStateEnum.Empty) {
+    <ng-container slot="full-width-notice">
+      <vault-at-risk-password-callout></vault-at-risk-password-callout>
+      <vault-organization-user-notifications></vault-organization-user-notifications>
+    </ng-container>
+  }
+
   <!-- Show search & filters outside of the scroll area of the page -->
   <ng-container slot="above-scroll-area">
     @if (showPremiumSpotlight$ | async) {
@@ -86,10 +93,13 @@
       ></vault-organization-user-notifications>
     } @else {
       <!-- At-Risk callout displays as a banner and should always remain visually above all other callouts -->
-      <vault-at-risk-password-callout></vault-at-risk-password-callout>
-      <vault-organization-user-notifications
-        class="-tw-mx-5 -tw-mt-3 tw-flex tw-flex-col tw-px-2 tw-mb-3"
-      ></vault-organization-user-notifications>
+      <!-- When vfo1 is enabled these are rendered in the full-width-notice slot instead -->
+      @if (!vfo1Enabled()) {
+        <vault-at-risk-password-callout></vault-at-risk-password-callout>
+        <vault-organization-user-notifications
+          class="-tw-mx-5 -tw-mt-3 tw-flex tw-flex-col tw-px-2 tw-mb-3"
+        ></vault-organization-user-notifications>
+      }
 
       @if (showHasItemsVaultSpotlight$ | async) {
         <div class="tw-mb-4">
@@ -106,13 +116,25 @@
           </bit-callout>
         </div>
       }
-      <app-vault-header></app-vault-header>
+      <!-- The table supplies its own search/filter toolbar, so it replaces this header. -->
+      @if (!vfo1Enabled()) {
+        <app-vault-header></app-vault-header>
+      }
     }
   </ng-container>
 
   @if (vaultState !== VaultStateEnum.Empty) {
-    @if (vaultState === VaultStateEnum.NoResults) {
-      <div class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12">
+    <!--
+      The table owns the search input and the filter chips, so it stays mounted in the no-results
+      and deactivated-org states — unmounting would remove the only way to clear whatever produced
+      the state. It renders both messages in its own empty slot.
+    -->
+    @if (vfo1Enabled()) {
+      <div class="tw-flex tw-flex-col tw-justify-center tw-h-full">
+        <app-vault-popup-list-table></app-vault-popup-list-table>
+      </div>
+    } @else if (!vfo1Enabled() && vaultState === VaultStateEnum.NoResults) {
+      <div class="tw-flex tw-flex-col tw-justify-center tw-h-full">
         <bit-status-lockup>
           <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
           <ng-container slot="title">{{ "noItemsMatchSearch" | i18n }}</ng-container>
@@ -122,21 +144,23 @@
     }
 
     <!-- For better consistency with screen readers, the role/aria needs to be on an element that isn't dynamic by @if -->
-    <div role="status" aria-live="polite">
-      @if (vaultState === VaultStateEnum.DeactivatedOrg) {
-        <div class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12">
-          <bit-status-lockup>
-            <bit-svg slot="graphic" [content]="deactivatedIcon"></bit-svg>
-            <ng-container slot="title">
-              {{ "organizationIsDeactivated" | i18n }}
-            </ng-container>
-            <ng-container slot="description">{{ "contactYourOrgAdmin" | i18n }}</ng-container>
-          </bit-status-lockup>
-        </div>
-      }
-    </div>
+    @if (!vfo1Enabled()) {
+      <div role="status" aria-live="polite">
+        @if (vaultState === VaultStateEnum.DeactivatedOrg) {
+          <div class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12">
+            <bit-status-lockup>
+              <bit-svg slot="graphic" [content]="deactivatedIcon"></bit-svg>
+              <ng-container slot="title">
+                {{ "organizationIsDeactivated" | i18n }}
+              </ng-container>
+              <ng-container slot="description">{{ "contactYourOrgAdmin" | i18n }}</ng-container>
+            </bit-status-lockup>
+          </div>
+        }
+      </div>
+    }
 
-    @if (vaultState === null) {
+    @if (vaultState === null && !vfo1Enabled()) {
       <vault-fade-in-out>
         @if (!(loading$ | async)) {
           <!--If there is search text fold all the filtered ciphers into one container-->
@@ -170,7 +194,8 @@
     }
   }
 
-  @if (showSkeletonsLoaders$ | async) {
+  <!-- The table renders its own skeleton rows via `bit-table-v2 [loading]`. -->
+  @if (!vfo1Enabled() && (showSkeletonsLoaders$ | async)) {
     <vault-fade-in-out-skeleton>
       <vault-loading-skeleton></vault-loading-skeleton>
     </vault-fade-in-out-skeleton>
