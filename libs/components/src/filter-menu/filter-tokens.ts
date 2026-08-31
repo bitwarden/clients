@@ -2,6 +2,11 @@ import { InjectionToken, Signal, TemplateRef } from "@angular/core";
 
 import { BitwardenIcon } from "../shared/icon";
 
+// Type-only: the components import this module for their tokens, so a value import
+// would close a cycle.
+import type { FilterOptionComponent } from "./filter-option.component";
+import type { FilterSectionComponent } from "./filter-section.component";
+
 /**
  * What a chip exposes to a host bridge: a keyed, aggregated value. A filterable
  * host (e.g. `bit-table-v2`) collects these into a `{ key: value }` object, the
@@ -118,8 +123,20 @@ export interface FilterEntry {
 
 /** One row of a multi-select menu's flattened tree — a section header or an option. */
 export type FilterTreeNode =
-  | { kind: "section"; section: unknown; level: number; setsize: number; posinset: number }
-  | { kind: "option"; option: unknown; level: number; setsize: number; posinset: number };
+  | {
+      kind: "section";
+      section: FilterSectionComponent;
+      level: number;
+      setsize: number;
+      posinset: number;
+    }
+  | {
+      kind: "option";
+      option: FilterOptionComponent;
+      level: number;
+      setsize: number;
+      posinset: number;
+    };
 
 /** What a multi-select filter menu exposes to its tree rows. */
 export interface FilterTreeHost {
