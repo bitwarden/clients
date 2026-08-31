@@ -126,3 +126,11 @@ export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
 export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
 export { vaultScopeGuard } from "./routing/vault-scope.guard";
+export {
+  matchesType,
+  matchesFavorite,
+  matchesVault,
+  matchesSharedFolder,
+  matchesFolder,
+  idString,
+} from "./utils/vault-filter-predicates";

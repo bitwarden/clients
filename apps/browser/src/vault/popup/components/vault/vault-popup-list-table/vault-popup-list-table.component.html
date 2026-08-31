@@ -1,10 +1,12 @@
 <bit-table-v2
+  class="[&_[role=row]]:tw-mx-3"
   [tableDef]="table"
+  [filter]="filterPredicate"
+  [loading]="loading()"
+  [trackBy]="trackRow"
   presentation="list"
   height="fill"
   [virtualRowHeight]="itemHeight()"
-  [loading]="loading()"
-  [trackBy]="trackRow"
 >
   <bit-table-toolbar>
     <bit-search
@@ -15,7 +17,91 @@
       (ngModelChange)="onSearchTextChanged()"
       appAutofocus
     ></bit-search>
+
+    <bit-filter-menu key="cipherType" [placeholderText]="'type' | i18n" [unsetLabel]="'all' | i18n">
+      @for (option of cipherTypeOptions(); track option.value) {
+        <bit-filter-option [value]="option.value" [count]="optionCount('cipherType', option.value)">
+          {{ option.label }}
+        </bit-filter-option>
+      }
+    </bit-filter-menu>
+
+    @if (organizationOptions().length) {
+      <bit-filter-menu key="organization" [placeholderText]="'vault' | vfo1I18n: 'vaults'" multiple>
+        @for (option of organizationOptions(); track option.value.id) {
+          <bit-filter-option
+            [value]="option.value.id"
+            [count]="optionCount('organization', [option.value.id])"
+            >{{ option.label }}</bit-filter-option
+          >
+        }
+      </bit-filter-menu>
+    }
+
+    @if (collectionOptions().length) {
+      <bit-filter-menu
+        key="collection"
+        [placeholderText]="'collection' | vfo1I18n: 'sharedFolders'"
+        [unsetLabel]="'all' | i18n"
+        multiple
+      >
+        @if (groupCollectionsByOrg()) {
+          @for (org of collectionsByOrg(); track org.id) {
+            <bit-filter-section [label]="org.name" collapsible>
+              @for (option of org.collections; track option.value.id) {
+                <bit-filter-option
+                  [value]="option.value.id"
+                  [count]="optionCount('collection', [option.value.id])"
+                >
+                  {{ option.label }}
+                </bit-filter-option>
+              }
+            </bit-filter-section>
+          }
+        } @else {
+          @for (option of collectionOptions(); track option.value.id) {
+            <bit-filter-option
+              [value]="option.value.id"
+              [count]="optionCount('collection', [option.value.id])"
+              >{{ option.label }}</bit-filter-option
+            >
+          }
+        }
+      </bit-filter-menu>
+    }
+
+    @if (folderOptions().length) {
+      <bit-filter-menu key="folder" [placeholderText]="'folder' | vfo1I18n: 'myFolders'" multiple>
+        @for (option of folderOptions(); track option.value.id) {
+          <bit-filter-option
+            [value]="option.value.id ?? NO_FOLDER"
+            [count]="optionCount('folder', [option.value.id ?? NO_FOLDER])"
+            >{{ option.label }}</bit-filter-option
+          >
+        }
+      </bit-filter-menu>
+    }
   </bit-table-toolbar>
+  <!--
+    The suspended-organization state renders here rather than replacing the table, so
+    the filter that caused it stays clearable.
+  -->
+  <bit-status-lockup slot="empty" class="tw-mx-3 tw-my-auto" size="small">
+    <bit-svg
+      slot="graphic"
+      [content]="showDeactivatedOrg() ? deactivatedIcon : noResultsIcon"
+    ></bit-svg>
+    <span slot="title">{{
+      showDeactivatedOrg()
+        ? ("organizationIsDeactivated" | i18n)
+        : ((hasSearchText() ? "noItemsMatchSearch" : "nothingToShow") | i18n)
+    }}</span>
+    @if (showDeactivatedOrg()) {
+      <span slot="description">{{ "contactYourOrgAdmin" | i18n }}</span>
+    } @else if (hasSearchText()) {
+      <span slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</span>
+    }
+  </bit-status-lockup>
 
   <bit-column>
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
@@ -90,7 +176,7 @@
             bitIconButton="bwi-external-link"
             size="small"
             (click)="launchCipher(row.cipher)"
-            [label]="'launchWebsite' | i18n"
+            [label]="'launchWebsiteForName' | i18n: row.cipher.name"
           ></button>
         }
         <app-item-copy-actions [cipher]="row.cipher"></app-item-copy-actions>
@@ -103,7 +189,7 @@
     </bit-cell>
   </bit-column>
 
-  <bit-row-group [match]="isAutofill">
+  <bit-row-group collapsible [match]="isAutofill">
     <div class="tw-flex tw-gap-2 tw-items-center">
       {{ autofillSectionKey() | i18n }}
       @if (showRefresh) {

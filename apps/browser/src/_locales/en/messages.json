@@ -758,6 +758,15 @@
   "launchWebsite": {
     "message": "Launch website"
   },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
   "website": {
     "message": "Website"
   },

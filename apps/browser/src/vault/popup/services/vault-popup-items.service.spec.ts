@@ -9,6 +9,7 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -30,11 +31,15 @@ import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-l
 import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
-import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 import { VaultPopupItemsService } from "./vault-popup-items.service";
-import { VaultPopupListFiltersService } from "./vault-popup-list-filters.service";
+import {
+  MY_VAULT_ID,
+  PopupListFilter,
+  VaultPopupListFiltersService,
+} from "./vault-popup-list-filters.service";
+import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filters.service";
 
 describe("VaultPopupItemsService", () => {
   let testBed: TestBed;
@@ -57,11 +62,15 @@ describe("VaultPopupItemsService", () => {
   const cipherServiceMock = mock<CipherService>();
   const vaultSettingsServiceMock = mock<VaultSettingsService>();
   const organizationServiceMock = mock<OrganizationService>();
-  const vaultPopupListFiltersServiceMock = mock<VaultPopupListFiltersService>();
   const searchService = mock<SearchService>();
   const collectionService = mock<CollectionService>();
   const vaultAutofillServiceMock = mock<VaultPopupAutofillService>();
   const syncServiceMock = mock<SyncService>();
+  const vaultPopupListFiltersServiceMock = mock<VaultPopupListFiltersService>();
+  const vaultPopupListTableFiltersServiceMock = mock<VaultPopupListTableFiltersService>();
+  const configServiceMock = mock<ConfigService>();
+  let filters$: BehaviorSubject<PopupListFilter>;
+
   const inlineMenuFieldQualificationServiceMock = mock<InlineMenuFieldQualificationService>();
   const userId = Utils.newGuid() as UserId;
   const accountServiceMock = mockAccountServiceWith(userId);
@@ -105,22 +114,12 @@ describe("VaultPopupItemsService", () => {
     searchService.searchCiphers.mockImplementation(
       async (userId, _organizationId, _query, ciphers) => ciphers!,
     );
+    configServiceMock.getFeatureFlag$.mockReturnValue(of(false));
     cipherServiceMock.filterCiphersForUrl.mockImplementation(async (ciphers) =>
       ciphers.filter((c) => ["0", "1"].includes(uuidAsString(c.id))),
     );
     vaultSettingsServiceMock.showCardsCurrentTab$ = new BehaviorSubject(false);
     vaultSettingsServiceMock.showIdentitiesCurrentTab$ = new BehaviorSubject(false);
-
-    vaultPopupListFiltersServiceMock.filters$ = new BehaviorSubject({
-      organization: null,
-      collection: null,
-      cipherType: null,
-      folder: null,
-    });
-    // Return all ciphers, `filterFunction$` will be tested in `VaultPopupListFiltersService`
-    vaultPopupListFiltersServiceMock.filterFunction$ = new BehaviorSubject(
-      (ciphers: PopupCipherViewLike[]) => ciphers,
-    );
 
     vaultAutofillServiceMock.currentAutofillTab$ = new BehaviorSubject({
       url: "https://example.com",
@@ -135,7 +134,18 @@ describe("VaultPopupItemsService", () => {
       id: "org1",
       name: "Organization 1",
       productTierType: ProductTierType.Enterprise,
+      enabled: true,
     } as Organization;
+
+    filters$ = new BehaviorSubject<PopupListFilter>({
+      organization: null,
+      collection: null,
+      folder: null,
+      cipherType: null,
+    });
+    vaultPopupListFiltersServiceMock.filters$ = filters$;
+    vaultPopupListFiltersServiceMock.filterFunction$ = of((ciphers) => ciphers);
+    vaultPopupListTableFiltersServiceMock.hasFilterApplied$ = of(false);
 
     mockCollections = [
       { id: "col1", name: "Collection 1" } as CollectionView,
@@ -161,10 +171,15 @@ describe("VaultPopupItemsService", () => {
         { provide: SearchService, useValue: searchService },
         { provide: OrganizationService, useValue: organizationServiceMock },
         { provide: AccountService, useValue: accountServiceMock },
-        { provide: VaultPopupListFiltersService, useValue: vaultPopupListFiltersServiceMock },
         { provide: CollectionService, useValue: collectionService },
         { provide: VaultPopupAutofillService, useValue: vaultAutofillServiceMock },
+        { provide: VaultPopupListFiltersService, useValue: vaultPopupListFiltersServiceMock },
+        {
+          provide: VaultPopupListTableFiltersService,
+          useValue: vaultPopupListTableFiltersServiceMock,
+        },
         { provide: SyncService, useValue: syncServiceMock },
+        { provide: ConfigService, useValue: configServiceMock },
         { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
         {
           provide: InlineMenuFieldQualificationService,
@@ -426,6 +441,57 @@ describe("VaultPopupItemsService", () => {
 
       const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
       expect(deletedCiphers.length).toBe(1);
+    });
+  });
+
+  describe("showDeactivatedOrg$", () => {
+    it("returns false when no organization filter is selected", async () => {
+      expect(await firstValueFrom(service.showDeactivatedOrg$)).toBe(false);
+    });
+
+    it("returns false when the selected organization is enabled", (done) => {
+      filters$.next({
+        organization: mockOrg,
+        collection: null,
+        folder: null,
+        cipherType: null,
+      });
+
+      service.showDeactivatedOrg$.subscribe((showDeactivatedOrg) => {
+        expect(showDeactivatedOrg).toBe(false);
+        done();
+      });
+    });
+
+    it("returns true when the selected organization is disabled", (done) => {
+      organizationServiceMock.organizations$.mockReturnValue(
+        new BehaviorSubject([{ ...mockOrg, enabled: false } as Organization]),
+      );
+      filters$.next({
+        organization: mockOrg,
+        collection: null,
+        folder: null,
+        cipherType: null,
+      });
+
+      service.showDeactivatedOrg$.subscribe((showDeactivatedOrg) => {
+        expect(showDeactivatedOrg).toBe(true);
+        done();
+      });
+    });
+
+    it("returns false when 'My vault' is selected, even though it can never be suspended", (done) => {
+      filters$.next({
+        organization: { id: MY_VAULT_ID } as Organization,
+        collection: null,
+        folder: null,
+        cipherType: null,
+      });
+
+      service.showDeactivatedOrg$.subscribe((showDeactivatedOrg) => {
+        expect(showDeactivatedOrg).toBe(false);
+        done();
+      });
     });
   });
 
