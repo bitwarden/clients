@@ -535,6 +535,23 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
 
       expect(changePlan).toHaveBeenCalledWith(undefined);
     });
+
+    it("treats an empty productTierType as absent and falls back to the current tier", async () => {
+      const queryParamMap = new BehaviorSubject(convertToParamMap({}));
+      activatedRoute.queryParamMap = queryParamMap;
+
+      createComponent();
+      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+      queryParamMap.next(
+        convertToParamMap({
+          upgrade: "true",
+          productTierType: "",
+        }),
+      );
+      await fixture.whenStable();
+
+      expect(changePlan).toHaveBeenCalledWith(undefined);
+    });
   });
 
   describe("callout suppression", () => {

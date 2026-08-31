@@ -570,7 +570,8 @@ export class OrganizationSubscriptionCloudVNextComponent {
   }
 
   private toProductTier(value: string | null): ProductTierType | undefined {
-    if (value == null) {
+    // Guard "" too: Number("") === 0 === ProductTierType.Free, which would pre-seed Free
+    if (value == null || value === "") {
       return undefined;
     }
     const productTier = Number(value);
