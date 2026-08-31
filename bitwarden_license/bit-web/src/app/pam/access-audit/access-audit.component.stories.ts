@@ -24,7 +24,7 @@ import {
 } from "../testing/story-fixtures";
 
 import { AccessAuditComponent } from "./access-audit.component";
-import { AuditApiService } from "./audit-api.service";
+import { AuditApiService, AuditTrailPage } from "./audit-api.service";
 import {
   AccessAuditEventKind,
   AccessAuditEventResponse,
@@ -422,10 +422,15 @@ function audit(
               if (fails) {
                 return Promise.reject(new Error("audit read failed"));
               }
+              // One page, with no position to resume from: these stories are about how the trail
+              // renders, not how it pages, so every story is its own last page.
               return refreshPending && reads > 1
-                ? new Promise<AccessAuditEventResponse[]>(() => undefined)
-                : Promise.resolve(events);
+                ? new Promise<AuditTrailPage>(() => undefined)
+                : Promise.resolve({ data: events, continuationToken: null });
             },
+            // The Item menu is read separately from the trail. These stories are about how the trail
+            // renders, so the chip is left with nothing to offer rather than given a fixture of its own.
+            listAccessAuditItems: () => Promise.resolve([]),
           };
         },
       },
