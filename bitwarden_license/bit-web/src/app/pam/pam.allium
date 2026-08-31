@@ -1249,7 +1249,12 @@ deferred oldest_rule    -- see: server-side GoverningRuleResolver
 -- This is the PER-PATH bypass. The org-wide export permission is a separate,
 -- per-caller one that no rule-level warning captures — see
 -- VaultExportBypassesLeasing.
-deferred RuleBypassableCiphers    -- see: server-side rule evaluation
+-- IMPLEMENTED with a deliberate narrowing: the server answers the ungated COLLECTIONS, not the
+-- ciphers. Naming a cipher requires decrypting it from the caller's own vault, and an admin outside
+-- the collection -- the admin being warned -- has none of those ciphers there, so the cipher list
+-- would be empty for exactly the person who needs it. The collections are reliably nameable by any
+-- admin and are what remediation acts on. A non-empty list is the warning condition.
+deferred RuleBypassableCiphers    -- see: server-side ListRuleBypassableCiphersQuery
 
 -- `CanExportOrganizationVault(member, organization)`: whether the member holds the
 -- org-wide vault-export permission. Owned by the existing organization permission
