@@ -100,8 +100,8 @@ export class ChipGroupComponent {
   private readonly injector = inject(Injector);
 
   private readonly list = viewChild.required(OverflowListDirective);
-  private readonly overflowTrigger = viewChild.required(PopoverTriggerForDirective);
-  private readonly overflowItem = viewChild.required(OverflowTriggerDirective);
+  private readonly popoverTrigger = viewChild.required(PopoverTriggerForDirective);
+  private readonly overflowTrigger = viewChild.required(OverflowTriggerDirective);
 
   protected readonly overflow = computed(() => this.list().overflow());
 
@@ -146,7 +146,7 @@ export class ChipGroupComponent {
    * the row for when the trigger itself is what's going away.
    */
   private focusFallback(hidden: ReadonlySet<HTMLElement>): HTMLElement | undefined {
-    const trigger = this.overflowItem().elementRef.nativeElement;
+    const trigger = this.overflowTrigger().elementRef.nativeElement;
     if (!hidden.has(trigger)) {
       return trigger;
     }
@@ -167,7 +167,7 @@ export class ChipGroupComponent {
    * open over a list the consumer is about to filter would strand focus in stale content.
    */
   protected selectOverflowChip(chip: ChipGroupItem) {
-    this.overflowTrigger().closePopover();
+    this.popoverTrigger().closePopover();
     this.chipSelect.emit(chip);
   }
 }
