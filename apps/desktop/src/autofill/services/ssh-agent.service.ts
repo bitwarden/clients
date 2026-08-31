@@ -544,7 +544,7 @@ export class SshAgentService implements OnDestroy {
           return false;
         }
         this.logService.debug(
-          `SSH sign approval (${scope}, prompt setting: ${promptType}): prompting, new host.`,
+          `SSH sign approval (${scope}, prompt setting: ${promptType}): prompting- new host.`,
         );
         return true;
       }
