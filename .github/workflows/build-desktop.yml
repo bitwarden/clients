@@ -534,9 +534,6 @@ jobs:
       - name: Install AST
         run: dotnet tool install --global AzureSignTool --version 4.0.1
 
-      - name: Set up environment
-        run: choco install checksum --no-progress
-
       - name: Print environment
         run: |
           node --version
@@ -649,7 +646,7 @@ jobs:
           Copy-Item -Path ./dist/nsis-web/Bitwarden-Installer-$env:_PACKAGE_VERSION.exe `
           -Destination ./dist/chocolatey
 
-          $checksum = checksum -t sha256 ./dist/chocolatey/Bitwarden-Installer-$env:_PACKAGE_VERSION.exe
+          $checksum = (Get-FileHash -Algorithm SHA256 ./dist/chocolatey/Bitwarden-Installer-$env:_PACKAGE_VERSION.exe).Hash.ToLower()
           $chocoInstall = "./dist/chocolatey/tools/chocolateyinstall.ps1"
           (Get-Content $chocoInstall).replace('__version__', "$env:_PACKAGE_VERSION").replace('__checksum__', $checksum) | Set-Content $chocoInstall
           choco pack ./dist/chocolatey/bitwarden.nuspec --version "$env:_PACKAGE_VERSION" --out ./dist/chocolatey

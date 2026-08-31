@@ -350,7 +350,6 @@ jobs:
 
       - name: Setup Windows builder
         run: |
-          choco install checksum --no-progress
           choco install reshack --no-progress
           choco install nasm --no-progress
 
