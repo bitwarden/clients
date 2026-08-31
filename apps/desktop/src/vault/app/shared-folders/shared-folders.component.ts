@@ -23,16 +23,13 @@ import { DesktopHeaderComponent } from "../../../app/layout/header";
 
 /**
  * The shared folders of one organization vault, listed in the shared
- * {@link SharedFoldersTableComponent} — the desktop counterpart of the web page of the same name,
- * reached from the same side nav entry.
+ * {@link SharedFoldersTableComponent} — the desktop counterpart of the web page of the same name.
  *
- * Read-only for now: the table's Add button, row actions, and bulk actions are all client-supplied,
- * and each of them opens a collection dialog desktop does not have. Listing the folders is what the
- * nav entry promises, so the page delivers that and offers no action it cannot carry out.
+ * Read-only for now: every Add, row, and bulk action opens a collection dialog desktop doesn't
+ * have, so the page lists the folders and offers no action it can't carry out.
  *
- * Reached at `/vault/:vaultId/shared-folders`, guarded to organization vaults by
- * `organizationVaultGuard` — see the route in `AppRoutingModule`, which must stay declared above
- * `:vaultId/:collectionId`.
+ * Reached at `/vault/:vaultId/shared-folders`, guarded by `organizationVaultGuard` — see the route
+ * in `AppRoutingModule`.
  */
 @Component({
   templateUrl: "./shared-folders.component.html",
@@ -56,9 +53,8 @@ export class SharedFoldersComponent {
 
   /**
    * The organization whose folders this page lists. `organizationVaultGuard` has already turned
-   * away any segment that names something other than an organization vault, so `undefined` here
-   * means the guard was bypassed — the page then lists nothing rather than falling back to a vault
-   * the URL did not ask for.
+   * away any other segment, so `undefined` means the guard was bypassed — the page then lists
+   * nothing rather than falling back to a vault the URL did not ask for.
    */
   private readonly organizationId = computed<OrganizationId | undefined>(() => {
     const scope = parseVaultScope(this.routeParams()?.get("vaultId"));
@@ -87,16 +83,12 @@ export class SharedFoldersComponent {
   );
 
   /**
-   * The organization's name as the page heading, leaving the route's own `pageTitle` in place while
-   * the organization list loads — matching the web page, whose breadcrumbs will replace both.
+   * The organization's name as the page heading. `undefined` leaves the route's own `pageTitle` in
+   * place while the organization list loads. Breadcrumbs will replace both.
    */
   protected readonly title = computed(() => this.organization()?.name);
 
-  /**
-   * The organization's shared folders, with each folder's permission and item count resolved by
-   * the library's own row builder — see {@link sharedFolderRows}, which the web page lists from
-   * too, so the two clients cannot disagree on what a member may do with a folder.
-   */
+  /** The organization's shared folders — see {@link sharedFolderRows}, shared with the web page. */
   protected readonly sharedFolders = computed<SharedFolderCollectionRow[]>(() => {
     const organizationId = this.organizationId();
     const data = this.loaded();

@@ -5,30 +5,19 @@ import { SharedFolderPermission } from "./shared-folder-permission";
 
 /**
  * A row of the shared folders table. Clients may pass a richer type — the table is generic over
- * anything assignable to this shape, so the extra fields stay available to {@link
- * SharedFoldersTableRowAction} callbacks.
+ * anything assignable to this shape, so extra fields stay available to
+ * {@link SharedFoldersTableRowAction} callbacks.
  */
 export type SharedFolderRow = {
-  /**
-   * Stable identifier — the folder's collection id. Drives `trackBy`, the menu item QA ids, the
-   * `@for` track expression, and the folder the route the name links to drills into.
-   */
+  /** The folder's collection id. Drives tracking, QA ids, and the row's drill-in route. */
   id: CollectionId;
 
-  /**
-   * The organization the folder belongs to — the vault the route the name links to scopes to. Both
-   * ids are branded as the collection services hold them, so a row assembled from a
-   * `CollectionView` needs no casts.
-   */
+  /** The organization the folder belongs to — the vault the row's drill-in route scopes to. */
   organizationId: OrganizationId;
 
   name: string;
 
-  /**
-   * What the member may do with the folder. The table translates it; resolving the permission
-   * stays with the client, including collapsing an organization admin's or owner's implicit access
-   * to every folder down to {@link SharedFolderPermission.Manage}.
-   */
+  /** What the member may do with the folder. The client resolves it; the table translates it. */
   permissions: SharedFolderPermission;
 
   /** How many vault items the folder holds. */
@@ -51,7 +40,7 @@ export type SharedFolderRow = {
  * ```
  */
 export type SharedFoldersTableRowAction<R extends SharedFolderRow = SharedFolderRow> = {
-  /** Stable identifier. Drives the menu item's QA id and the `@for` track expression. */
+  /** Stable identifier. Drives the menu item's QA id and tracking. */
   id: string;
 
   /** Already-translated label. */

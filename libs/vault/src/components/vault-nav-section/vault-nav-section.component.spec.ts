@@ -66,7 +66,7 @@ const orgDataOwnership: VaultsNavViewModel = {
 class DummyComponent {}
 
 /**
- * The vault routes the nav links to, in the order the app declares them — `shared-folders` above
+ * The vault routes the nav links to, in the order the app declares them: `shared-folders` above
  * `:collectionId`, since the router matches in declaration order.
  */
 const routes = [
@@ -137,8 +137,7 @@ describe("VaultNavSectionComponent", () => {
 
   /**
    * Whether the nav item labelled `text` is marked as the page in view. `routerLinkActive` writes
-   * `aria-current="false"` rather than dropping the attribute when it is told not to mark an active
-   * link, so the absence of the token is what's checked rather than the absence of the attribute.
+   * `aria-current="false"` rather than dropping the attribute, so this checks the token's value.
    */
   const navItemIsCurrent = (root: HTMLElement, text: string) =>
     navItem(root, text).querySelector("a")?.getAttribute("aria-current") === "page";
@@ -259,8 +258,8 @@ describe("VaultNavSectionComponent", () => {
     });
 
     it("leaves All vault items lit on a shared folder drill-in", async () => {
-      // The drill-in nests under the vault route as well, and has no nav entry of its own — so
-      // suppressing the parent there would leave nothing to say where the user is.
+      // The drill-in nests under the vault route too, and has no nav entry of its own — so
+      // suppressing the parent there would leave nothing lit.
       await navigateTo("/vault/org-a/22222222-2222-4222-8222-222222222222");
       const group = expandGroup("Acme corporation");
 

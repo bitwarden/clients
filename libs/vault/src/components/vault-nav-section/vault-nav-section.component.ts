@@ -83,8 +83,7 @@ export class VaultNavSectionComponent {
 
   /**
    * Each organization vault's shared folders route, by vault id. Precomputed for the same reason
-   * {@link vaultRoutes} is. Personal vaults have no shared folders and so no entry — the nav only
-   * offers the destination beneath an organization.
+   * {@link vaultRoutes} is. Personal vaults have no shared folders, so they get no entry.
    */
   private readonly sharedFolderRoutes = computed(
     () =>
@@ -103,8 +102,7 @@ export class VaultNavSectionComponent {
 
   /**
    * `router.isActive` reads router state rather than a signal, so reading this is what ties
-   * {@link sharedFoldersVaultId} to navigation — without it the answer would be computed once and
-   * kept.
+   * {@link sharedFoldersVaultId} to navigation — without it the answer would be computed once.
    */
   private readonly currentUrl = toSignal(
     this.router.events.pipe(
@@ -117,10 +115,10 @@ export class VaultNavSectionComponent {
   /**
    * The vault whose shared folders list is the page in view, if any.
    *
-   * That page nests under its vault's own route, so the subset match every nav item uses by default
-   * leaves All vault items lit alongside it. Suppressing that on this one route rather than matching
-   * All vault items exactly keeps it lit for a shared folder drill-in, which nests under the same
-   * route and has no nav entry of its own to light instead.
+   * The page nests under its vault's own route, so the default subset match would leave All vault
+   * items lit alongside it. Suppressing that on this one route — rather than matching All vault
+   * items exactly — keeps it lit for a shared folder drill-in, which nests under the same route and
+   * has no nav entry of its own.
    */
   private readonly sharedFoldersVaultId = computed(() => {
     this.currentUrl();
@@ -143,7 +141,7 @@ export class VaultNavSectionComponent {
     return this.sharedFolderRoutes().get(vault.id);
   }
 
-  /** Whether the page in view is this vault's shared folders list — see {@link sharedFoldersVaultId}. */
+  /** Whether the page in view is this vault's shared folders list. */
   protected sharedFoldersActive(vault: VaultNavItemViewModel): boolean {
     return this.sharedFoldersVaultId() === vault.id;
   }

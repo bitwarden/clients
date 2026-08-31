@@ -11,10 +11,8 @@
   <bit-table-toolbar>
     <bit-search class="tw-flex-1" [placeholder]="'search' | i18n"></bit-search>
 
-    <!--
-      Hidden rather than removed with `@if`: the button is projected into the toolbar's `end` slot,
-      and projection matches only the static top-level nodes of projected content.
-    -->
+    <!-- Hidden rather than removed: projection only matches static top-level nodes, so an `@if`
+         would keep the button out of the toolbar's `end` slot. -->
     <button
       id="shared-folders-table_button_add"
       slot="end"
@@ -43,10 +41,7 @@
     <bit-svg slot="graphic" [content]="emptyIcon()"></bit-svg>
     <span slot="title">{{ emptyTitleKey() | i18n }}</span>
     <span slot="description">{{ emptyDescriptionKey() | i18n }}</span>
-    <!--
-      Hidden rather than removed with `@if`: the button is projected into the lockup's `button`
-      slot, and projection matches only the static top-level nodes of projected content.
-    -->
+    <!-- Hidden rather than removed, for the same reason as the Add button above. -->
     <button
       id="shared-folders-table_button_clear-filters"
       slot="button"
@@ -62,11 +57,8 @@
     </button>
   </bit-status-lockup>
 
-  <!--
-    Declared here rather than projected in by the client: the bar finds its selected count and its
-    clear button's target by injecting the table it sits inside, and content projected from the
-    client's template resolves its injector there, where there is no `bit-table-v2` to find.
-  -->
+  <!-- Declared here rather than projected in by the client: the bar injects the table it sits
+       inside, which content projected from a client's template couldn't resolve. -->
   @if (resolvedBulkActions().length > 0) {
     <bit-bulk-actions-bar>
       @for (bulkAction of resolvedBulkActions(); track bulkAction.id) {
@@ -81,18 +73,15 @@
   }
 
   <!-- Name -->
-  <!-- Capped rather than `1fr`: unbounded, the name track soaks up every pixel the other columns
-       don't claim and strands them at the far right of a wide table. -->
+  <!-- Capped rather than `1fr`: unbounded, the name track would soak up every pixel the other
+       columns don't claim and strand them at the far right of a wide table. -->
   <bit-column sortable defaultSort="asc" width="minmax(240px, 480px)">
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
 
     <bit-cell *bitCellDef="table.columns.name; let row">
       <!-- Decorative: the folder name beside it already names the row. -->
       <bit-icon-tile slot="start" icon="bwi-shared-folder" size="sm" aria-hidden="true" />
-      <!--
-        An anchor rather than a click handler, so activation, middle-click, and right-click all
-        behave like the ordinary links they look like.
-      -->
+      <!-- An anchor rather than a click handler, so middle- and right-click behave as expected. -->
       <a
         bitLink
         class="tw-truncate"
@@ -111,7 +100,7 @@
   </bit-column>
 
   <!-- Permissions -->
-  <!-- Wider than the label alone needs: "View items, hidden passwords" is the longest permission. -->
+  <!-- Wider than the label needs: "View items, hidden passwords" is the longest permission. -->
   <bit-column sortable [sortFn]="sortByPermission" width="minmax(200px, 320px)">
     <bit-header-cell>{{ "permissions" | i18n }}</bit-header-cell>
 
@@ -128,12 +117,8 @@
   </bit-column>
 
   <!-- Options -->
-  <!--
-    Removed with `@if` rather than left empty: a column registers itself with the table as it's
-    created, so a client that supplies no row actions would otherwise get an Options header over
-    nothing but blank cells. Unlike the slotted content above, a column is found by injection rather
-    than by projection, so a conditional block is no obstacle to the table finding it.
-  -->
+  <!-- Removed rather than left empty, so no row actions means no Options header over blank cells.
+       Unlike the slotted content above, a column is found by injection, so an `@if` is fine here. -->
   @if (showOptions()) {
     <!-- The flexible track, so leftover width lands here and the right-aligned overflow trigger
          stays pinned to the table's right edge. -->
@@ -149,10 +134,8 @@
       </bit-cell>
 
       <bit-cell *bitCellDef="table.columns.options; let row">
-        <!--
-          The overflow trigger sits in the `end` slot so the cell's flex-grow middle element pushes
-          it hard right, anchoring it to the same position on every row.
-        -->
+        <!-- In the `end` slot so the cell's flex-grow middle element pushes the trigger hard right,
+             anchoring it to the same position on every row. -->
         @let actions = visibleActions(row);
         @if (actions.length > 0) {
           <div slot="end">
@@ -184,19 +167,14 @@
   }
 
   <!--
-    Pagination, sized to the window rather than to a fixed count: a page holds however many rows fit
-    between the top of the rows and the bottom of the window — see `autoPageSize`.
+    Sized to the window rather than to a fixed count — see `autoPageSize`.
 
-    Hidden rather than removed with `@if`: the paginator is projected into the table's paginator
-    slot, and projection matches only the static top-level nodes of projected content. Hiding is
-    enough — at one page the table's slice already spans every row, so nothing is held back from a
-    window that can show them all.
+    Hidden rather than removed, since projection only matches static top-level nodes. Hiding is
+    enough: at one page the table's slice already spans every row.
 
-    Hidden on the *fitted* size rather than the effective one: the rows-per-page select is part of
-    the footer, so hiding on the effective size would take away the control a reader just used to
-    ask for a page longer than the rows — and `[pageSize]` is a one-way binding into a `model`, so
-    nothing rewrites it until the next resize. A hand-picked size keeps the paginator on screen,
-    where the choice can be undone.
+    Hidden on the *fitted* size rather than the effective one, because the rows-per-page select
+    lives in the footer — hiding on the effective size would take away the control just used to ask
+    for a longer page, with nothing to restore it until the next resize.
   -->
   <bit-table-paginator
     #paginator

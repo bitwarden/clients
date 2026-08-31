@@ -24,8 +24,8 @@ import {
 } from "./shared-folders-table.component";
 
 /**
- * A row, with the ids a row brands relaxed to plain strings so a test can name a folder by a
- * readable id rather than casting at every call.
+ * A row with its branded ids relaxed to plain strings, so a test can name a folder by a readable id
+ * rather than casting at every call.
  */
 function row(
   overrides: Partial<Omit<SharedFolderRow, "id" | "organizationId">> & {
@@ -123,7 +123,7 @@ describe("SharedFoldersTableComponent", () => {
   });
 
   // The stubbed `I18nService` echoes the key, so a cell renders the message key rather than the
-  // label — which is the assertion worth making: that the table translates the permission at all.
+  // label — enough to assert the table translates the permission at all.
   it("renders each permission's translated label", () => {
     fixture.componentRef.setInput("sharedFolders", [
       row({ id: "a", permissions: SharedFolderPermission.Manage }),
@@ -361,8 +361,8 @@ describe("SharedFoldersTableComponent", () => {
 
   describe("row actions", () => {
     /**
-     * Every row's Options menu trigger. Found by directive rather than by attribute selector:
-     * `bitMenuTriggerFor` is bound, and a property binding leaves no attribute in the DOM to match.
+     * Every row's Options menu trigger. Found by directive because `bitMenuTriggerFor` is bound,
+     * and a property binding leaves no attribute in the DOM to match.
      */
     function menuTriggers(): HTMLElement[] {
       return fixture.debugElement
@@ -576,8 +576,8 @@ describe("SharedFoldersTableComponent", () => {
       expect(selectionModel().count()).toBe(0);
       expect(component["selectedRows"]()).toEqual([]);
 
-      // The bar takes itself out of the page at a count of zero, so a stale count would leave it
-      // announcing a selection that no longer exists.
+      // The bar removes itself at a count of zero, so a stale count would leave it announcing a
+      // selection that no longer exists.
       const bar: HTMLElement = fixture.nativeElement.querySelector("bit-bulk-actions-bar");
       expect(bar.querySelector("[inert]")).not.toBeNull();
     });
@@ -618,8 +618,7 @@ describe("SharedFoldersTableComponent", () => {
 
       const [empty, populated] = bitTable().filtered();
 
-      // The selection reaches the component through the table's `selectedChange` output, so each
-      // change needs a pass to land.
+      // The selection reaches the component through `selectedChange`, so each change needs a pass.
       selectionModel().select(empty);
       fixture.detectChanges();
       expect(component["resolvedBulkActions"]()[0].disabled).toBe(false);
@@ -672,9 +671,8 @@ describe("SharedFoldersTableComponent", () => {
     const windowHeight = window.innerHeight;
 
     /**
-     * `jsdom` lays nothing out, so every rect is zero and the component would fit its page to a
-     * window it can't see. Rows are given a geometry — how far down the viewport they start and how
-     * tall each one is — leaving `window.innerHeight` (768 in `jsdom`) as the height to fill.
+     * `jsdom` lays nothing out, so every rect is zero. Giving the rows a geometry leaves
+     * `window.innerHeight` (768 in `jsdom`) as the height to fill.
      */
     function layOutRows({ top, height }: { top: number; height: number }): void {
       jest
@@ -684,8 +682,8 @@ describe("SharedFoldersTableComponent", () => {
 
     /**
      * Renders `count` folders and settles the fit. The measurement runs in a render effect — which
-     * this zone-based fixture flushes on a tick rather than inside `detectChanges` — and feeds back
-     * into the page size, so the rows it settles on need a further pass to reach the DOM.
+     * this zone-based fixture flushes on a tick, not inside `detectChanges` — and feeds back into
+     * the page size, so the rows it settles on need a further pass to reach the DOM.
      */
     function render(count: number): void {
       fixture.componentRef.setInput(
@@ -718,7 +716,7 @@ describe("SharedFoldersTableComponent", () => {
       return element;
     }
 
-    /** The paginator's own instance, to stand in for a reader working its rows-per-page select. */
+    /** The paginator instance, standing in for someone working its rows-per-page select. */
     function paginatorComponent(): BitTablePaginatorComponent {
       return fixture.debugElement.query(By.directive(BitTablePaginatorComponent))
         .componentInstance as BitTablePaginatorComponent;
@@ -743,7 +741,7 @@ describe("SharedFoldersTableComponent", () => {
     }));
 
     // The same 584px of room holds ten 56px rows but only seven 76px ones, so the fit divides by
-    // the height a row actually rendered at rather than by the nominal one.
+    // the measured height rather than the nominal one.
     it("fits fewer of a taller row", fakeAsync(() => {
       layOutRows({ top: 100, height: 76 });
 
@@ -805,7 +803,7 @@ describe("SharedFoldersTableComponent", () => {
     }));
 
     // The rows-per-page select lives in the paginator, so hiding a one-page paginator would take
-    // away the control that asked for the longer page — with nothing to restore it until a resize.
+    // away the control that asked for the longer page.
     it("keeps the paginator while a hand-picked size fits every folder on one page", fakeAsync(() => {
       layOutRows({ top: 300, height: 56 });
       render(20);

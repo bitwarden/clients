@@ -472,11 +472,10 @@ const routes: Routes = [
               vaultScopeGuard,
             ],
           },
-          // An organization vault's shared folders. Declared above `:vaultId/:collectionId` and must
-          // stay there: the router matches in declaration order rather than preferring a static
-          // segment over a parameter, so below it this path would be read as a collection named
-          // "shared-folders" and `vaultScopeGuard` would redirect away before this route was ever
-          // tried. The reverse collision can't happen — collection ids are guids.
+          // An organization vault's shared folders. Must stay declared above
+          // `:vaultId/:collectionId`: the router matches in declaration order, so below it this
+          // path would be read as a collection named "shared-folders". The reverse collision can't
+          // happen — collection ids are guids.
           {
             path: `:vaultId/${SHARED_FOLDERS_ROUTE}`,
             component: SharedFoldersComponent,

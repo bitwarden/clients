@@ -1,10 +1,9 @@
 /**
- * What a member may do with a shared folder.
+ * What a member may do with a shared folder. Mirrors the access selector's permissions: a
+ * collection's `readOnly` / `hidePasswords` / `manage` flags collapse onto exactly one of these.
  *
- * Mirrors the permissions offered by the access selector — the `readOnly` / `hidePasswords` /
- * `manage` flags a client holds collapse onto exactly one of these. Clients pass the permission
- * rather than a label so the table can translate it, order the column and the filter menu
- * consistently, and keep the URL-synced filter value locale-independent.
+ * Clients pass the permission rather than a label so the table can translate it and keep the
+ * URL-synced filter value locale-independent.
  */
 export const SharedFolderPermission = Object.freeze({
   ViewExceptPass: "viewExceptPass",
@@ -12,7 +11,7 @@ export const SharedFolderPermission = Object.freeze({
   EditExceptPass: "editExceptPass",
   Edit: "edit",
 
-  /** Full control of the folder. What an organization's admins and owners hold over every folder. */
+  /** Full control. Organization admins and owners hold this over every folder. */
   Manage: "manage",
 } as const);
 
@@ -20,9 +19,8 @@ export type SharedFolderPermission =
   (typeof SharedFolderPermission)[keyof typeof SharedFolderPermission];
 
 /**
- * Every permission in display order — the order the permissions column sorts by and the
- * Permissions filter menu lists. Grouped view, then edit, then manage rather than ranked by how
- * much access each grants, matching how the permission is offered when it's assigned.
+ * Every permission in display order — how the permissions column sorts and the filter menu lists.
+ * Grouped view, then edit, then manage, matching how permissions are offered when assigned.
  */
 export const SHARED_FOLDER_PERMISSIONS: readonly SharedFolderPermission[] = Object.freeze([
   SharedFolderPermission.ViewExceptPass,
@@ -46,18 +44,14 @@ export function isSharedFolderPermission(value: unknown): value is SharedFolderP
   return SHARED_FOLDER_PERMISSIONS.includes(value as SharedFolderPermission);
 }
 
-/**
- * The i18n key naming `permission`, e.g. `"editItemsHidePass"`. Pass it through `I18nPipe` or
- * `I18nService.t()` to get the label.
- */
+/** The i18n key naming `permission`, e.g. `"editItemsHidePass"`. */
 export function sharedFolderPermissionMessageKey(permission: SharedFolderPermission): string {
   return PERMISSION_MESSAGE_KEYS[permission];
 }
 
 /**
  * Where `permission` falls in {@link SHARED_FOLDER_PERMISSIONS}, for ordering. Unknown values sort
- * last rather than throwing — a row is still worth rendering when its permission isn't one the
- * table knows.
+ * last rather than throwing, so an unrecognized permission still renders.
  */
 export function sharedFolderPermissionOrder(permission: SharedFolderPermission): number {
   const index = SHARED_FOLDER_PERMISSIONS.indexOf(permission);

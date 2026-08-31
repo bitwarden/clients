@@ -49,13 +49,12 @@ import { openDeleteSharedFolderDialog } from "../bulk-action-dialogs/delete-shar
  * The shared folders of one organization vault, listed in the shared
  * {@link SharedFoldersTableComponent}.
  *
- * A sibling of the item list rather than a mode of it — `VaultNextComponent` shows the ciphers of
- * whatever vault the URL scopes to, and none of what it derives from them applies here. The two
- * pages share the vault scope and the `:vaultId` segment that names it, and nothing else.
+ * A sibling of the item list rather than a mode of it: `VaultNextComponent` shows ciphers, and
+ * nothing it derives from them applies here. The two pages share the vault scope and the
+ * `:vaultId` segment, and nothing else.
  *
- * Reached at `/vault/:vaultId/shared-folders`, guarded to organization vaults by
- * `organizationVaultGuard` — see the route in `VaultRoutingModule`, which must stay declared above
- * `:vaultId/:collectionId`.
+ * Reached at `/vault/:vaultId/shared-folders`, guarded by `organizationVaultGuard` — see the route
+ * in `VaultRoutingModule`.
  */
 @Component({
   selector: "app-shared-folders",
@@ -100,9 +99,8 @@ export class SharedFoldersComponent {
 
   /**
    * The organization whose folders this page lists. `organizationVaultGuard` has already turned
-   * away any segment that names something other than an organization vault, so `undefined` here
-   * means the guard was bypassed — the page then lists nothing rather than falling back to a vault
-   * the URL did not ask for.
+   * away any other segment, so `undefined` means the guard was bypassed — the page then lists
+   * nothing rather than falling back to a vault the URL did not ask for.
    */
   private readonly organizationId = computed<OrganizationId | undefined>(() => {
     const scope = parseVaultScope(this.routeParams()?.get("vaultId"));
@@ -136,10 +134,7 @@ export class SharedFoldersComponent {
    */
   protected readonly title = computed(() => this.organization()?.name);
 
-  /**
-   * The organization's shared folders, with each folder's permission and item count resolved by
-   * the library's own row builder — see {@link sharedFolderRows}.
-   */
+  /** The organization's shared folders — see {@link sharedFolderRows}. */
   protected readonly sharedFolders = computed<SharedFolderCollectionRow[]>(() => {
     const organizationId = this.organizationId();
     const data = this.loaded();
@@ -158,10 +153,8 @@ export class SharedFoldersComponent {
   /**
    * Whether the table offers its Add button, on the organization's own collection creation
    * permission — so this page and the organization vault's Add agree on who may add a folder.
-   *
-   * `false` while the organization list loads, and for a `:vaultId` that names no organization the
-   * member belongs to: an Add that appears mid-load, or over a vault that resolved to nothing, can
-   * only open a dialog with no organization to save to.
+   * `false` while the organization list loads, and for a `:vaultId` that resolves to nothing:
+   * either way the dialog would have no organization to save to.
    */
   protected readonly canAdd = computed(() => this.organization()?.canCreateNewCollections ?? false);
 
@@ -197,15 +190,12 @@ export class SharedFoldersComponent {
   });
 
   /**
-   * The actions the bulk actions bar offers over the selected folders — and, because the table only
-   * shows checkboxes once it has an action to run, what turns row selection on at all.
+   * The bulk actions bar's actions — and, since the table only shows checkboxes once it has an
+   * action to run, what turns row selection on at all. Mirrors the organization vault's batch bar
+   * for a collections-only selection.
    *
-   * Mirrors what the organization vault's batch bar offers for a collections-only selection: Edit
-   * access, then Delete, on the same labels, icons, and per-folder permission checks.
-   *
-   * An action is left out entirely when the member can perform it on none of the listed folders,
-   * and the whole bar with it — a permanently disabled button is worth less than the checkbox
-   * column it would cost.
+   * An action is left out entirely when the member can perform it on none of the listed folders: a
+   * permanently disabled button is worth less than the checkbox column it would cost.
    */
   protected readonly bulkActions = computed<
     SharedFoldersTableBulkAction<SharedFolderCollectionRow>[]
@@ -244,8 +234,7 @@ export class SharedFoldersComponent {
       return;
     }
 
-    // The organization is fixed by the route, so unlike the legacy vault's Add there is no
-    // org selector to offer and no default to pick.
+    // The route fixes the organization, so unlike the legacy vault's Add there's no org selector.
     const dialog = openCollectionDialog(this.dialogService, {
       data: { organizationId, limitNestedCollections: true },
     });
@@ -297,8 +286,7 @@ export class SharedFoldersComponent {
     const userId = await firstValueFrom(this.userId$);
     await this.collectionService.delete([collection.id], userId);
 
-    // Deleting a folder alters the items that were in it, so the whole vault is resynced rather
-    // than just the collection list.
+    // Deleting a folder alters the items in it, so the whole vault resyncs, not just collections.
     await this.syncService.fullSync(true);
 
     this.toastService.showToast({
@@ -309,9 +297,8 @@ export class SharedFoldersComponent {
 
   /**
    * Opens the shared access editor over every selected folder — the same dialog the organization
-   * vault's Edit access reaches, which replaces the members and groups on all of them at once and
-   * shows its own toast. It writes through `CollectionAdminService`, so nothing is written back
-   * here either.
+   * vault's Edit access reaches. It writes through `CollectionAdminService` and shows its own
+   * toast, so nothing is written back here.
    */
   private async editSharedFoldersAccess(collections: CollectionView[]): Promise<void> {
     const organizationId = this.organizationId();
@@ -324,9 +311,8 @@ export class SharedFoldersComponent {
 
   /**
    * Deletes every selected folder through the shared bulk delete dialog, which owns the whole
-   * sequence — confirmation, the batched requests, the resync, and the toast. Nothing is written
-   * back here: the dialog clears the deleted folders from `CollectionService`, so the table's stream
-   * re-emits without them.
+   * sequence — confirmation, requests, resync, and toast. It clears the deleted folders from
+   * `CollectionService`, so the table's stream re-emits without them.
    */
   private async deleteSharedFolders(collections: CollectionView[]): Promise<void> {
     const organization = this.organization();
@@ -334,8 +320,7 @@ export class SharedFoldersComponent {
       return;
     }
 
-    // `organization` rather than `organizations`: the route scopes this page to a single org, which
-    // is the permission check the dialog runs the batch against.
+    // `organization` rather than `organizations`: the route scopes this page to a single org.
     await this.bulkDeleteDialog.open({ organization, collections });
   }
 

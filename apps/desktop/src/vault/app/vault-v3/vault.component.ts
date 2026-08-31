@@ -275,8 +275,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   );
 
   /**
-   * The vault the `:vaultId` segment scopes this page to, and the shared folder within it the
-   * `:collectionId` segment has drilled into; always All items on the legacy nav.
+   * The vault `:vaultId` scopes this page to, and the shared folder `:collectionId` has drilled
+   * into; always All items on the legacy nav.
    */
   private readonly vaultScope$ = this.vfo1Foundation$.pipe(
     switchMap((vfo1Foundation) =>

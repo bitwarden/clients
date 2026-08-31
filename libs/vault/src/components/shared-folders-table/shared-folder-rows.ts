@@ -9,9 +9,9 @@ import { SharedFolderPermission } from "./shared-folder-permission";
 import { SharedFolderRow } from "./shared-folders-table-row";
 
 /**
- * A row carrying the `CollectionView` it was built from, so a client's row and bulk actions can act
- * on the folder without looking it up again. The table is generic over anything assignable to
- * {@link SharedFolderRow}, so the extra field stays typed through to each action's callbacks.
+ * A row carrying the `CollectionView` it was built from, so row and bulk actions can act on the
+ * folder without looking it up again. The table is generic over {@link SharedFolderRow}, so the
+ * extra field stays typed through to each action's callbacks.
  */
 export type SharedFolderCollectionRow = SharedFolderRow & { collection: CollectionView };
 
@@ -21,9 +21,8 @@ export type SharedFolderRowsParams = {
   organizationId: OrganizationId;
 
   /**
-   * That organization, once the organization list has loaded. `undefined` meanwhile, which resolves
-   * every permission from the collection's own flags — an admin's or owner's implicit Manage lands
-   * once the organization arrives.
+   * That organization, once the organization list has loaded. While `undefined`, permissions come
+   * from the collection's own flags — an admin's or owner's implicit Manage lands once it arrives.
    */
   organization: Organization | undefined;
 
@@ -36,15 +35,10 @@ export type SharedFolderRowsParams = {
 
 /**
  * The organization's shared folders as table rows, with each folder's permission and item count
- * resolved.
+ * resolved. Shared across clients so they can't disagree on either.
  *
- * The organization's "My items" collection is left out: it is the member's own default collection
- * rather than a folder shared with anyone, and the side nav already offers it as its own
- * destination.
- *
- * Shared rather than derived per client so every client's list agrees on which collections are
- * shared folders and on what the member may do with each — the two questions a client would
- * otherwise have to answer for itself, and disagree on.
+ * The organization's "My items" collection is left out: it's the member's own default collection
+ * rather than a shared folder, and the side nav already offers it as its own destination.
  */
 export function sharedFolderRows({
   organizationId,
@@ -71,9 +65,8 @@ export function sharedFolderRows({
 
 /**
  * The member's permission over `collection`, collapsing the `manage` / `readOnly` /
- * `hidePasswords` flags onto one {@link SharedFolderPermission} — mirroring the access selector's
- * `convertToPermission`, plus the implicit Manage an organization's admins and owners hold over
- * every folder.
+ * `hidePasswords` flags onto one {@link SharedFolderPermission}. Mirrors the access selector's
+ * `convertToPermission`, plus the implicit Manage admins and owners hold over every folder.
  */
 export function sharedFolderPermission(
   collection: CollectionView,
@@ -95,16 +88,13 @@ export function sharedFolderPermission(
 }
 
 /**
- * How many items each of the organization's folders holds, keyed by collection id — folders with no
+ * How many items each of the organization's folders holds, keyed by collection id. Folders with no
  * items are absent rather than zero.
  *
- * Counted through {@link cipherInScope} rather than by matching `collectionIds` directly, so the
- * counts exclude trashed and archived items on the same terms the vault page's own folder drill-in
- * does, and the two can't drift. The scope names no collection, leaving `cipherInScope` to answer
- * the organization and state dimensions while the ciphers' own `collectionIds` distribute each
- * counted item across its folders — one pass over the ciphers for every folder rather than one pass
- * per folder, which an enterprise vault's hundreds of folders and tens of thousands of items would
- * otherwise multiply out on the main thread each time the cipher list re-emits.
+ * Filtered through {@link cipherInScope} so trashed and archived items are excluded on the same
+ * terms as the vault page's folder drill-in. The scope names no collection, so each in-scope
+ * cipher is distributed across its own `collectionIds` — one pass over the ciphers total rather
+ * than one pass per folder.
  */
 export function sharedFolderItemCounts(
   ciphers: CipherViewLike[],

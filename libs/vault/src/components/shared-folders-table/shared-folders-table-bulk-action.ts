@@ -3,11 +3,8 @@ import { BitwardenIcon } from "@bitwarden/components";
 import { SharedFolderRow } from "./shared-folders-table-row";
 
 /**
- * A client-supplied action over the rows the table has selected, offered in the bulk actions bar
- * that rises from the bottom of the screen while a selection is held.
- *
- * Supplying at least one is what turns selection on — a table whose selection couldn't act on
- * anything offers no checkboxes.
+ * A client-supplied action over the table's selected rows, offered in the bulk actions bar.
+ * Supplying at least one is what turns selection on; without any, the table shows no checkboxes.
  *
  * @example
  * ```ts
@@ -29,15 +26,12 @@ export type SharedFoldersTableBulkAction<R extends SharedFolderRow = SharedFolde
   /** Already-translated label. */
   label: string;
 
-  /** Required, unlike on a row action: the bar drops to icon-only buttons when it runs short of room. */
+  /** Required, unlike on a row action: the bar drops to icon-only buttons when short of room. */
   icon: BitwardenIcon;
 
   /** Executes the action for every selected row when the bar's button is pressed. */
   run: (rows: readonly R[]) => void | Promise<void>;
 
-  /**
-   * Whether the action is unavailable for the current selection — a bulk delete over a folder that
-   * still holds items, say. Omit for always-enabled.
-   */
+  /** Whether the action is unavailable for the current selection. Omit for always-enabled. */
   disabled?: (rows: readonly R[]) => boolean;
 };

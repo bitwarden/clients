@@ -30,10 +30,8 @@ export const MY_ITEMS_ROUTE = "my-items";
 
 /**
  * The route segment naming an organization vault's shared folders list, nested under its
- * `:vaultId`.
- *
- * Lives here rather than beside the route it declares so the side nav can link to the page without
- * reaching into an app from a library — the same reason {@link vaultScopeCommands} exists.
+ * `:vaultId`. Lives here rather than beside the route it declares so the side nav can link to the
+ * page without reaching into an app from a library.
  */
 export const SHARED_FOLDERS_ROUTE = "shared-folders";
 
@@ -230,18 +228,15 @@ export function vaultScopeCommands(scope: VaultScope): string[] {
 }
 
 /**
- * The `Router.navigate` commands for an organization vault's shared folders list — the vault's own
- * route plus one segment, which is how the route is declared and so how it is built.
+ * The `Router.navigate` commands for an organization vault's shared folders list.
  *
- * Deliberately not a {@link VaultScope} member handled inside {@link vaultScopeCommands}: a scope
- * says which items a page shows, and every function that narrows by one — {@link cipherInScope},
- * {@link collectionInScope}, {@link organizationInScope} — would have to answer that for a page
- * that lists folders rather than items. Each of those switches on the scope type with a `default`
- * branch, so a new member would compile silently and fall through to All items' behavior rather
- * than being caught.
+ * Deliberately not a {@link VaultScope} member: a scope says which *items* a page shows, and
+ * {@link cipherInScope}, {@link collectionInScope}, and {@link organizationInScope} would each have
+ * to answer that for a page that lists folders instead. They switch on the scope type with a
+ * `default` branch, so a new member would compile silently and fall through to All items' behavior.
  *
- * Composing on `vaultScopeCommands` keeps the `/vault` prefix and the organization segment in one
- * place regardless, which is the drift the single-builder rule exists to prevent.
+ * Composing on `vaultScopeCommands` still keeps the `/vault` prefix and the organization segment in
+ * one place.
  */
 export function sharedFoldersCommands(organizationId: OrganizationId): string[] {
   return [
