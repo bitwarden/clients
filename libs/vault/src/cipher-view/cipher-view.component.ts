@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, input, resource } from "@angular/core";
+import { Component, computed, inject, input, resource, Type } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, of, switchMap, map, catchError, from, Observable, startWith } from "rxjs";
 
@@ -36,6 +36,8 @@ import {
   TypographyModule,
   LinkComponent,
 } from "@bitwarden/components";
+
+import { CIPHER_VIEW_BANNER } from "../tokens/cipher-view-banner.token";
 
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
@@ -83,6 +85,15 @@ export class CipherViewComponent {
    * The cipher to display details for
    */
   readonly cipher = input.required<CipherView>();
+
+  /**
+   * Optional host-provided banner rendered above the cipher's details. Only the web
+   * vault provides one today (privileged-access gating); elsewhere this is null and
+   * nothing renders. See {@link CIPHER_VIEW_BANNER}.
+   */
+  protected readonly bannerComponent: Type<unknown> | null = inject(CIPHER_VIEW_BANNER, {
+    optional: true,
+  });
 
   /**
    * Observable version of the cipher input
