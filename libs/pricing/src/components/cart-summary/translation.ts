@@ -88,8 +88,12 @@ const getPasswordManagerSeatTranslationKey = (
       }
       break;
     case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
-      if (planTier === "families" || planTier === "teams" || planTier === "enterprise") {
+      // Teams/Enterprise bill per seat, so "members"; Families is one flat plan (plan price).
+      if (planTier === "teams" || planTier === "enterprise") {
         return "membersLower";
+      }
+      if (planTier === "families") {
+        return "passwordManagerPlanPrice";
       }
       break;
   }
