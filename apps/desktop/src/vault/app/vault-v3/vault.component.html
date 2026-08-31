@@ -33,6 +33,8 @@
       [showAddCipherBtn]="(showAddCipherBtn$ | async) ?? true"
       [showPremiumCallout]="(showPremiumCallout$ | async) ?? false"
       [isMyVaultScope]="isMyVaultScope()"
+      [isTrashScope]="isTrashScope()"
+      [isArchiveScope]="isArchiveScope()"
       [organizationName]="emptyVaultOrganizationName()"
       [hasMultipleVaults]="hasMultipleVaults()"
       (onEvent)="onVaultItemsEvent($event)"

@@ -385,6 +385,8 @@ type StoryProps = {
   organizationName?: string;
   hasMultipleVaults: boolean;
   sharedFolderName?: string;
+  isTrashScope: boolean;
+  isArchiveScope: boolean;
 };
 
 /**
@@ -416,6 +418,8 @@ const template = `
       [organizationName]="organizationName"
       [hasMultipleVaults]="hasMultipleVaults"
       [sharedFolderName]="sharedFolderName"
+      [isTrashScope]="isTrashScope"
+      [isArchiveScope]="isArchiveScope"
     >
       <button slot="empty-add-item" bitButton buttonType="primary" type="button" startIcon="bwi-plus">
         Add item
@@ -442,6 +446,8 @@ const baseProps: StoryProps = {
   itemAction: () => { },
   isMyVaultScope: false,
   hasMultipleVaults: false,
+  isTrashScope: false,
+  isArchiveScope: false,
 };
 
 export default {
@@ -517,6 +523,12 @@ export default {
               emptyVaultsDescription: "Add logins, IDs, cards, and other items to get started.",
               emptySharedFolderDescription: (name) =>
                 `Add items to this shared folder, then give access to other ${name} members.`,
+              noItemsInTrash: "No items in trash",
+              noItemsInTrashDescription:
+                "Items you delete will appear here and be permanently deleted after 30 days.",
+              noItemsInArchive: "No items in archive",
+              noItemsInArchiveDesc:
+                "Archived items will appear here and will be excluded from general search results and autofill suggestions.",
               // Copy quick actions
               copyUsername: "Copy username",
               copyPassword: "Copy password",
@@ -608,12 +620,14 @@ export const Loading: Story = {
  * [Filtered To Zero](#filtered-to-zero) — there, the fix is to clear a filter rather than to add
  * anything.
  *
- * `isMyVaultScope`/`organizationName`/`hasMultipleVaults`/`sharedFolderName` are what a host relays
- * from its own vault-scope resolution — the table has no notion of scope itself, so an empty
- * `ciphers` array with none of them set renders no empty state at all. See
+ * `isMyVaultScope`/`organizationName`/`hasMultipleVaults`/`sharedFolderName`/`isTrashScope`/`isArchiveScope`
+ * are what a host relays from its own vault-scope resolution — the table has no notion of scope
+ * itself, so an empty `ciphers` array with none of them set renders no empty state at all. See
  * [Empty Organization Vault](#empty-organization-vault),
- * [Empty Multiple Vaults](#empty-multiple-vaults), and
- * [Empty Shared Folder](#empty-shared-folder) for the other variants.
+ * [Empty Multiple Vaults](#empty-multiple-vaults),
+ * [Empty Shared Folder](#empty-shared-folder),
+ * [Empty Trash](#empty-trash), and
+ * [Empty Archive](#empty-archive) for the other variants.
  */
 export const Empty: Story = {
   args: { ciphers: [], isMyVaultScope: true },
@@ -636,6 +650,16 @@ export const EmptyMultipleVaults: Story = {
  */
 export const EmptySharedFolder: Story = {
   args: { ciphers: [], organizationName: "Acme corporation", sharedFolderName: "Engineering" },
+};
+
+/** The trash, with no deleted items in it. */
+export const EmptyTrash: Story = {
+  args: { ciphers: [], isTrashScope: true },
+};
+
+/** The archive, with no archived items in it. */
+export const EmptyArchive: Story = {
+  args: { ciphers: [], isArchiveScope: true },
 };
 
 /**

@@ -85,6 +85,12 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   /** Whether the account has more than one vault — relayed to `vault-items-table` untouched. */
   readonly hasMultipleVaults = input(false);
 
+  /** Whether the current vault scope is the trash — relayed to `vault-items-table` untouched. */
+  readonly isTrashScope = input(false);
+
+  /** Whether the current vault scope is the archive — relayed to `vault-items-table` untouched. */
+  readonly isArchiveScope = input(false);
+
   readonly onEvent = output<VaultItemEvent<C>>();
   readonly onAddCipher = output<CipherType>();
   readonly onAddFolder = output<void>();

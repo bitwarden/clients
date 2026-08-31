@@ -354,6 +354,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     { initialValue: false },
   );
 
+  protected readonly isTrashScope = toSignal(
+    this.vaultScope$.pipe(map((scope) => scope.type === VaultScopeType.Trash)),
+    { initialValue: false },
+  );
+
+  protected readonly isArchiveScope = toSignal(
+    this.vaultScope$.pipe(map((scope) => scope.type === VaultScopeType.Archive)),
+    { initialValue: false },
+  );
+
   protected readonly showAddCipherBtn$ = combineLatest([
     this.vfo1Foundation$,
     this.vaultScope$,

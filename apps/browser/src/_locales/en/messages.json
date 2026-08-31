@@ -6874,6 +6874,9 @@
   "noItemsInTrashDesc": {
     "message": "Items you delete will appear here and be permanently deleted after 30 days"
   },
+  "noItemsInTrashDescription": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days."
+  },
   "trashWarning": {
     "message": "Items that have been in trash more than 30 days will automatically be deleted"
   },

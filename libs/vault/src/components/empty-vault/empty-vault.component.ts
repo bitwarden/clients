@@ -8,7 +8,13 @@ import {
   Signal,
 } from "@angular/core";
 
-import { BitSvg, VaultIcon, BusinessWelcome, SearchFolder } from "@bitwarden/assets/svg";
+import {
+  BitSvg,
+  VaultIcon,
+  BusinessWelcome,
+  SearchFolder,
+  EmptyTrash,
+} from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ButtonModule, StatusLockupComponent, SvgComponent } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -36,6 +42,8 @@ const EMPTY_VAULT_STATE = {
   emptyOrgVault: "emptyOrgVault",
   emptySharedFolder: "emptySharedFolder",
   emptyMultipleVaults: "emptyMultipleVaults",
+  emptyTrash: "emptyTrash",
+  emptyArchive: "emptyArchive",
 } as const;
 type EMPTY_VAULT_STATE = (typeof EMPTY_VAULT_STATE)[keyof typeof EMPTY_VAULT_STATE];
 
@@ -74,6 +82,12 @@ export class EmptyVaultComponent {
 
   /** The shared folder the current vault scope has drilled into, when it has. */
   readonly sharedFolderName = input<string>();
+
+  /** Whether the current vault scope is the trash. */
+  readonly isTrashScope = input(false);
+
+  /** Whether the current vault scope is the archive. */
+  readonly isArchiveScope = input(false);
 
   /** Emitted when the user asks to clear the active search term. */
   readonly clearSearch = output<void>();
@@ -115,6 +129,12 @@ export class EmptyVaultComponent {
       Object.values(filterValues).filter(Boolean).length > 0
     ) {
       return EMPTY_VAULT_STATE.noFilterMatches;
+    }
+    if (this.isTrashScope()) {
+      return EMPTY_VAULT_STATE.emptyTrash;
+    }
+    if (this.isArchiveScope()) {
+      return EMPTY_VAULT_STATE.emptyArchive;
     }
     if (this.isMyVaultScope()) {
       return EMPTY_VAULT_STATE.emptyPersonalVault;
@@ -161,6 +181,18 @@ export class EmptyVaultComponent {
         icon: BusinessWelcome,
         title: this.i18nService.t("noItemsInSharedFolder", this.sharedFolderName()),
         description: this.i18nService.t("emptySharedFolderDescription", this.organizationName()),
+      },
+      {
+        key: EMPTY_VAULT_STATE.emptyTrash,
+        icon: EmptyTrash,
+        title: this.i18nService.t("noItemsInTrash"),
+        description: this.i18nService.t("noItemsInTrashDescription"),
+      },
+      {
+        key: EMPTY_VAULT_STATE.emptyArchive,
+        icon: VaultIcon,
+        title: this.i18nService.t("noItemsInArchive"),
+        description: this.i18nService.t("noItemsInArchiveDesc"),
       },
       {
         key: EMPTY_VAULT_STATE.noFilterMatches,

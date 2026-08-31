@@ -261,6 +261,12 @@ export class VaultNextComponent {
       : undefined,
   );
 
+  protected readonly isTrashScope = computed(() => this.vaultScope().type === VaultScopeType.Trash);
+
+  protected readonly isArchiveScope = computed(
+    () => this.vaultScope().type === VaultScopeType.Archive,
+  );
+
   /**
    * Whether the page offers the toolbar's Import and New item actions. New items cannot be created
    * with a trashed or archived status and would "disappear" after creation on those views.

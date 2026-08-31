@@ -102,6 +102,50 @@ describe("EmptyVaultComponent", () => {
     });
   });
 
+  describe("trash", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput("isTrashScope", true);
+      fixture.detectChanges();
+    });
+
+    it("shows the trash title and description when empty", () => {
+      expect(fixture.nativeElement.textContent).toContain("noItemsInTrash");
+      expect(fixture.nativeElement.textContent).toContain("noItemsInTrashDescription");
+    });
+
+    it("takes priority over personal vault and organization states", () => {
+      fixture.componentRef.setInput("isMyVaultScope", true);
+      fixture.componentRef.setInput("organizationName", "Acme Corp");
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("noItemsInTrash");
+      expect(fixture.nativeElement.textContent).not.toContain("noItemsInMyVault");
+      expect(fixture.nativeElement.textContent).not.toContain("noItemsInOrganizationVault");
+    });
+  });
+
+  describe("archive", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput("isArchiveScope", true);
+      fixture.detectChanges();
+    });
+
+    it("shows the archive title and description when empty", () => {
+      expect(fixture.nativeElement.textContent).toContain("noItemsInArchive");
+      expect(fixture.nativeElement.textContent).toContain("noItemsInArchiveDesc");
+    });
+
+    it("takes priority over personal vault and organization states", () => {
+      fixture.componentRef.setInput("isMyVaultScope", true);
+      fixture.componentRef.setInput("organizationName", "Acme Corp");
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("noItemsInArchive");
+      expect(fixture.nativeElement.textContent).not.toContain("noItemsInMyVault");
+      expect(fixture.nativeElement.textContent).not.toContain("noItemsInOrganizationVault");
+    });
+  });
+
   describe("no search matches", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("hasItems", true);
@@ -163,6 +207,8 @@ describe("EmptyVaultComponent", () => {
       [organizationName]="organizationName()"
       [hasMultipleVaults]="hasMultipleVaults()"
       [sharedFolderName]="sharedFolderName()"
+      [isTrashScope]="isTrashScope()"
+      [isArchiveScope]="isArchiveScope()"
     >
       <button slot="empty-add-item" type="button">Add item</button>
     </vault-empty-vault>
@@ -175,6 +221,8 @@ class TestHostComponent {
   readonly organizationName = signal<string | undefined>(undefined);
   readonly hasMultipleVaults = signal(false);
   readonly sharedFolderName = signal<string | undefined>(undefined);
+  readonly isTrashScope = signal(false);
+  readonly isArchiveScope = signal(false);
 }
 
 describe("EmptyVaultComponent's empty-add-item slot", () => {
@@ -236,6 +284,20 @@ describe("EmptyVaultComponent's empty-add-item slot", () => {
   it("is not projected for the no-filter-matches state", () => {
     host.hasItems.set(true);
     host.filterValues.set({ favorites: true });
+    fixture.detectChanges();
+
+    expect(addItemButton()).toBeNull();
+  });
+
+  it("is not projected for the trash state", () => {
+    host.isTrashScope.set(true);
+    fixture.detectChanges();
+
+    expect(addItemButton()).toBeNull();
+  });
+
+  it("is not projected for the archive state", () => {
+    host.isArchiveScope.set(true);
     fixture.detectChanges();
 
     expect(addItemButton()).toBeNull();

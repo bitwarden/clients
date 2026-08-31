@@ -22,6 +22,8 @@
     [isMyVaultScope]="isMyVaultScope()"
     [organizationName]="organizationName()"
     [hasMultipleVaults]="hasMultipleVaults()"
+    [isTrashScope]="isTrashScope()"
+    [isArchiveScope]="isArchiveScope()"
     (selectedChange)="handleSelectionChange($event)"
   >
     @if (showAddCipherBtn()) {
