@@ -1422,7 +1422,7 @@ describe("AccessAuditComponent", () => {
       overFilter();
 
       expect(component().filteredRows()).toHaveLength(0);
-      expect(fixture.nativeElement.querySelector("bit-no-items")).not.toBeNull();
+      expect(fixture.nativeElement.querySelector("bit-status-lockup")).not.toBeNull();
       expect(fixture.nativeElement.querySelector("bit-callout")).toBeNull();
       expect(fixture.nativeElement.querySelector("bit-table")).toBeNull();
     });
@@ -1431,9 +1431,11 @@ describe("AccessAuditComponent", () => {
       await renderReady();
       overFilter();
 
-      const noItems = fixture.nativeElement.querySelector("bit-no-items") as HTMLElement;
-      expect(noItems.querySelector("[slot=title]")!.textContent!.trim()).toBe("No matching events");
-      expect(noItems.querySelector("[slot=description]")!.textContent!.trim()).toBe(
+      const emptyState = emptyStateClearAll()!.closest("bit-status-lockup")!;
+      expect(emptyState.querySelector("[slot=title]")!.textContent!.trim()).toBe(
+        "No matching events",
+      );
+      expect(emptyState.querySelector("[slot=description]")!.textContent!.trim()).toBe(
         "No events match the current filters.",
       );
     });
