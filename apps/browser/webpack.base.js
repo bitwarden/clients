@@ -194,7 +194,27 @@ module.exports.buildConfig = function buildConfig(params) {
         },
         { from: path.resolve(__dirname, "src/managed_schema.json"), to: "managed_schema.json" },
         { from: path.resolve(__dirname, "src/_locales"), to: "_locales" },
-        { from: path.resolve(__dirname, "src/images"), to: "images" },
+        // For beta builds (CHANNEL=beta), *_beta.png variants overwrite their default
+        // siblings so the manifest/action/runtime icon paths resolve to beta icons
+        // without any manifest or code changes. Non-beta builds filter *_beta.png
+        // out entirely so those assets don't ship in production.
+        {
+          from: path.resolve(__dirname, "src/images"),
+          to: "images",
+          filter: (resourcePath) => !path.basename(resourcePath).includes("_beta"),
+        },
+        ...(process.env.CHANNEL === "beta"
+          ? [
+              {
+                context: path.resolve(__dirname, "src/images"),
+                from: "*_beta.png",
+                to({ absoluteFilename }) {
+                  return path.join("images", path.basename(absoluteFilename).replace("_beta", ""));
+                },
+                force: true,
+              },
+            ]
+          : []),
         { from: path.resolve(__dirname, "src/popup/images"), to: "popup/images" },
         { from: path.resolve(__dirname, "src/autofill/content/autofill.css"), to: "content" },
       ],
