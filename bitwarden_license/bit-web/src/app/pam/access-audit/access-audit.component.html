@@ -229,6 +229,10 @@
                   it rather than all six: a trail is ninety days long, and a tab stop per cell would
                   put hundreds between an auditor and the end of the table. Pointer activation stays
                   on the row itself, so the cell must not repeat it — the click would arrive twice.
+
+                  `button` marks its children presentational, so the in-doubt badge below is not
+                  exposed as a node of its own and only reaches a screen reader through this cell's
+                  accessible name.
                 -->
                 <td
                   bitCell
@@ -237,7 +241,10 @@
                   class="tw-whitespace-nowrap focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus"
                   id="access-audit_button_details-{{ $index }}"
                   [attr.aria-label]="
-                    (row.kindLabelKey | i18n) + ' ' + (row.occurredAt | date: 'medium')
+                    (row.kindLabelKey | i18n) +
+                    ' ' +
+                    (row.occurredAt | date: 'medium') +
+                    (row.inDoubt ? ' ' + ('pamAuditIncomplete' | i18n) : '')
                   "
                   (keydown.enter)="openDetails(row)"
                   (keydown.space)="openDetails(row); $event.preventDefault()"
