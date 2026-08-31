@@ -1,0 +1,26 @@
+@if (warn()) {
+  <bit-callout
+    type="warning"
+    role="alert"
+    [title]="'pamRuleBypassableCiphersTitle' | i18n"
+    data-testid="rule-bypassable-ciphers-callout"
+  >
+    <span class="tw-inline">{{ "pamRuleBypassableCiphersBody" | i18n }}</span>
+    <p class="tw-mb-0 tw-mt-2" data-testid="rule-bypassable-ciphers-remediation">
+      <span class="tw-inline tw-me-1">{{ "pamRuleBypassableCiphersRemediation" | i18n }}</span>
+      <!-- Comma-separated, not whitespace-separated: two adjacent links read as one run-on phrase
+           ("Marketing Security") with nothing but a space between them. -->
+      @for (gap of gaps(); track gap.id; let last = $last) {
+        <span [attr.data-testid]="'rule-bypassable-gap-' + gap.id">
+          <a
+            bitLink
+            linkType="primary"
+            [routerLink]="['/organizations', organizationId(), 'vault']"
+            [queryParams]="{ collectionId: gap.id }"
+            >{{ gap.name ?? ("pamRuleBypassableCiphersUnnamedCollection" | i18n) }}</a
+          >{{ last ? "" : ", " }}
+        </span>
+      }
+    </p>
+  </bit-callout>
+}
