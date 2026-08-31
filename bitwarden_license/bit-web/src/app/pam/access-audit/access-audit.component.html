@@ -20,7 +20,8 @@
     </bit-callout>
   }
   @case ("empty") {
-    <bit-no-items>
+    <bit-status-lockup>
+      <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
       <span slot="title">{{ "pamAuditEmptyTitle" | i18n }}</span>
       <span slot="description">{{ "pamAuditEmptyMessage" | i18n }}</span>
       @if (canManageAccessRules()) {
@@ -34,7 +35,7 @@
           {{ "pamAccessRules" | i18n }}
         </a>
       }
-    </bit-no-items>
+    </bit-status-lockup>
   }
   @case ("ready") {
     <div class="tw-mb-4 tw-flex tw-items-center tw-gap-3">
