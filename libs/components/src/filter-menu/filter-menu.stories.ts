@@ -1,11 +1,13 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { findByLabelText, getAllByRole, userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { I18nMockService } from "../utils";
 
 import { FilterMenuModule } from "./filter-menu.module";
+import { FilterOptionIconTile } from "./filter-option.component";
 
 /**
  * Each chip declares a `key` and owns its own selection — no `ngModel`. Inside a
@@ -89,11 +91,96 @@ class FilterMenuDemoComponent {}
 })
 class FilterMenuNestedDemoComponent {}
 
+/**
+ * The menu spec's variant column, minus the radio: nine rows alternating individual, group,
+ * individual, group, with each group opening the next level down. Every row carries the same tile,
+ * count, and placeholder label.
+ */
+@Component({
+  selector: "filter-menu-nested-tiles-demo",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuModule],
+  template: `
+    <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2 tw-p-4">
+      <bit-filter-menu key="collection" placeholderText="Collections" multiple>
+        <bit-filter-option [value]="'individual-1'" [count]="456" [iconTile]="tile">
+          Item label
+        </bit-filter-option>
+        <bit-filter-option [value]="'group-1'" [count]="456" [iconTile]="tile" expanded>
+          Item label
+          <bit-filter-option [value]="'individual-2'" [count]="456" [iconTile]="tile">
+            Item label
+          </bit-filter-option>
+          <bit-filter-option [value]="'group-2'" [count]="456" [iconTile]="tile" expanded>
+            Item label
+            <bit-filter-option [value]="'individual-3'" [count]="456" [iconTile]="tile">
+              Item label
+            </bit-filter-option>
+            <bit-filter-option [value]="'group-3'" [count]="456" [iconTile]="tile" expanded>
+              Item label
+              <bit-filter-option [value]="'individual-4'" [count]="456" [iconTile]="tile">
+                Item label
+              </bit-filter-option>
+              <bit-filter-option [value]="'group-4'" [count]="456" [iconTile]="tile" expanded>
+                Item label
+                <bit-filter-option [value]="'individual-5'" [count]="456" [iconTile]="tile">
+                  Item label
+                </bit-filter-option>
+              </bit-filter-option>
+            </bit-filter-option>
+          </bit-filter-option>
+        </bit-filter-option>
+      </bit-filter-menu>
+    </div>
+  `,
+})
+class FilterMenuNestedTilesDemoComponent {
+  protected readonly tile: FilterOptionIconTile = { icon: "bwi-clock", variant: "brand" };
+}
+
+/** Enough options to bring out the in-menu search, so a search can be made to match nothing. */
+@Component({
+  selector: "filter-menu-empty-demo",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuModule],
+  template: `
+    <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2 tw-p-4">
+      <bit-filter-menu key="collection" placeholderText="Collections" multiple>
+        @for (name of names; track name) {
+          <bit-filter-option [value]="name" [count]="3">{{ name }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    </div>
+  `,
+})
+class FilterMenuEmptyDemoComponent {
+  protected readonly names = [
+    "Engineering",
+    "Operations",
+    "Project management",
+    "Security",
+    "Design",
+    "Marketing",
+    "Sales",
+    "Finance",
+    "Legal",
+    "Support",
+    "Research",
+    "Facilities",
+  ];
+}
+
 export default {
   title: "Component Library/Filter Menu",
   decorators: [
     moduleMetadata({
-      imports: [FilterMenuDemoComponent, FilterMenuNestedDemoComponent, FilterMenuModule],
+      imports: [
+        FilterMenuDemoComponent,
+        FilterMenuNestedDemoComponent,
+        FilterMenuNestedTilesDemoComponent,
+        FilterMenuEmptyDemoComponent,
+        FilterMenuModule,
+      ],
       providers: [
         {
           provide: I18nService,
@@ -158,4 +245,36 @@ export const NestedOptions: Story = {
   render: () => ({
     template: `<filter-menu-nested-demo></filter-menu-nested-demo>`,
   }),
+};
+
+/**
+ * Nested options with a leading icon tile on every row, mirroring the menu spec's variant column.
+ * Parents take a chevron and leaves reserve its column, so the tiles stay in one line at each level.
+ */
+export const NestedIconTiles: Story = {
+  render: () => ({
+    template: `<filter-menu-nested-tiles-demo></filter-menu-nested-tiles-demo>`,
+  }),
+  play: async (context) => {
+    // The rows only exist while the menu is open, so open it for the snapshot.
+    const [trigger] = getAllByRole(context.canvasElement, "button");
+    await userEvent.click(trigger);
+  },
+};
+
+/**
+ * No option matches the search term. The in-menu search appears once a chip has more than ten
+ * options, so it is reachable here.
+ */
+export const NoMatchingItems: Story = {
+  render: () => ({
+    template: `<filter-menu-empty-demo></filter-menu-empty-demo>`,
+  }),
+  play: async (context) => {
+    const [trigger] = getAllByRole(context.canvasElement, "button");
+    await userEvent.click(trigger);
+    // The popover renders into the CDK overlay, outside the story canvas.
+    const search = await findByLabelText(document.body, "Search");
+    await userEvent.type(search, "zzz");
+  },
 };
