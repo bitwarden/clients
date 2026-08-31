@@ -514,19 +514,39 @@ export class SshAgentService implements OnDestroy {
     isForwarded: boolean,
     hostFingerprint?: string,
   ): Promise<boolean> {
+    const scope = isForwarded ? "forwarded" : "local";
+
     const promptType = await firstValueFrom(this.desktopSettingsService.sshAgentPromptBehavior$);
     switch (promptType) {
       case SshAgentPromptType.Never:
+        this.logService.debug(
+          `SSH sign approval (${scope}, prompt setting: ${promptType}): approving.`,
+        );
         return false;
       case SshAgentPromptType.Always:
+        this.logService.debug(
+          `SSH sign approval (${scope}, prompt setting:  ${promptType}): prompting.`,
+        );
         return true;
       case SshAgentPromptType.RememberUntilLock: {
         const key = SshAgentService.authorizationKey(isForwarded, hostFingerprint);
         // This is a defensive check. While the API for the agent doesn't allow `key` to not be defined, if an IPC error or otherwise resulted in the key not being defined, then without this guard we'd silently approve forwarded requests to any host for this vault item.
         if (!key) {
+          this.logService.debug(
+            `SSH sign approval (${scope}, prompt setting: ${promptType}): prompting- no host key from request.`,
+          );
           return true;
         }
-        return !(this.authorizedKeys.get(cipherId)?.has(key) ?? false);
+        if (this.authorizedKeys.get(cipherId)?.has(key) ?? false) {
+          this.logService.debug(
+            `SSH sign approval (${scope}, prompt setting: ${promptType}): approving remembered host.`,
+          );
+          return false;
+        }
+        this.logService.debug(
+          `SSH sign approval (${scope}, prompt setting: ${promptType}): prompting, new host.`,
+        );
+        return true;
       }
     }
   }
