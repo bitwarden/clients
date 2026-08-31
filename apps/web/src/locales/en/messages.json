@@ -18459,6 +18459,18 @@
   "pamCollectionAccessRuleCalloutBody": {
     "message": "Access to items here is controlled by"
   },
+  "pamRuleBypassableCiphersTitle": {
+    "message": "Some items are not protected by this rule"
+  },
+  "pamRuleBypassableCiphersBody": {
+    "message": "These credentials are accessible to some members without leasing because they belong to another collection without an access rule."
+  },
+  "pamRuleBypassableCiphersRemediation": {
+    "message": "Reachable through:"
+  },
+  "pamRuleBypassableCiphersUnnamedCollection": {
+    "message": "a collection you cannot see"
+  },
   "accessRuleIpAllowlistHelpText": {
     "message": "Only requests originating from these IP ranges will be allowed."
   },
