@@ -38,9 +38,10 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 import { VaultBatchBarService, VaultSelectionSource } from "../../services/vault-batch-bar.service";
-import { MAX_SELECTION_COUNT, MY_VAULT, NO_FOLDER } from "../../utils/vault-filter-predicates";
+import { MY_VAULT, NO_FOLDER } from "../../utils/vault-filter-predicates";
 
 import {
+  MAX_SELECTION_COUNT,
   VaultItemsTableColumn,
   VaultItemsTableComponent,
   VaultItemsTableFilters,
