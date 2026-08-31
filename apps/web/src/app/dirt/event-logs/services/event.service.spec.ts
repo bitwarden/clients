@@ -486,16 +486,8 @@ describe("EventService PAM events", () => {
     [EventType.Pam_AccessRequest_Submitted, "pamEventRequestedAccess", accessRequestId],
     [EventType.Pam_AccessRequest_Approved, "pamEventApprovedAccessRequest", accessRequestId],
     [EventType.Pam_AccessRequest_Denied, "pamEventDeniedAccessRequest", accessRequestId],
-    [EventType.Pam_AccessRequest_Cancelled, "pamEventCancelledAccessRequest", accessRequestId],
-    [EventType.Pam_AccessLease_Activated, "pamEventActivatedAccess", accessLeaseId],
-    [
-      EventType.Pam_AccessLease_ActivationRejected,
-      "pamEventRejectedAccessLeaseActivation",
-      accessRequestId,
-    ],
-    [EventType.Pam_AccessLease_Extended, "pamEventExtendedAccess", accessLeaseId],
-    [EventType.Pam_AccessLease_Revoked, "pamEventRevokedAccess", accessLeaseId],
-    [EventType.Pam_AccessLease_Expired, "pamEventExpiredAccess", accessLeaseId],
+    [EventType.Pam_AccessLease_Activated, "pamEventActivatedAccessLease", accessLeaseId],
+    [EventType.Pam_AccessLease_Revoked, "pamEventRevokedAccessLease", accessLeaseId],
   ])("renders %s with its own message and the subject id", async (type, key, subjectId) => {
     const info = await sut.getEventInfo(pamEvent(type as EventType));
 
@@ -503,29 +495,8 @@ describe("EventService PAM events", () => {
     expect(info.message).toContain(`<code>${(subjectId as string).substring(0, 8)}</code>`);
   });
 
-  // A rotation has no request or lease, so the message names only the item.
-  it.each([
-    [EventType.Pam_Rotation_Succeeded, "pamEventRotatedCredential"],
-    [EventType.Pam_Rotation_Failed, "pamEventFailedCredentialRotation"],
-  ])("renders %s naming only the item", async (type, key) => {
-    const info = await sut.getEventInfo(pamEvent(type as EventType));
-
-    expect(info.message).toContain(`<code>${cipherId.substring(0, 8)}</code>`);
-    expect(info.humanReadableMessage).toBe(`${key}${cipherId.substring(0, 8)}`);
-  });
-
-  // A rule spans collections and has no id column on the event, so the message names no subject.
-  it.each([
-    [EventType.Pam_AccessRule_Created, "pamEventCreatedAccessRule"],
-    [EventType.Pam_AccessRule_Updated, "pamEventUpdatedAccessRule"],
-    [EventType.Pam_AccessRule_Deleted, "pamEventDeletedAccessRule"],
-  ])("renders %s with no subject id", async (type, key) => {
-    const info = await sut.getEventInfo(pamEvent(type as EventType));
-
-    expect(info.message).toBe(key);
-    expect(info.humanReadableMessage).toBe(key);
-  });
-
+  // The item is the fact an administrator reading this log wants, so it is named and linked into the
+  // vault the same way the ordinary cipher events link it.
   it("names the item and links it into the vault", async () => {
     const info = await sut.getEventInfo(pamEvent(EventType.Pam_AccessRequest_Submitted));
 
@@ -533,7 +504,8 @@ describe("EventService PAM events", () => {
     expect(info.message).toContain(`viewEvents=${cipherId}`);
   });
 
-  // The request-detail page needs a different permission than AccessEventLogs, so no link.
+  // The request-detail page is authorized for the requester or a managing approver, not for the
+  // AccessEventLogs permission this log is read with, so the subject id must not become a link.
   it("renders the subject id as plain code, never a link", async () => {
     const info = await sut.getEventInfo(pamEvent(EventType.Pam_AccessLease_Revoked));
 

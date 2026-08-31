@@ -1024,8 +1024,9 @@ export class EventService {
         );
         break;
 
-      // PAM access-audit events reported organization-wide. The trailing request or lease id
-      // correlates the row with PAM's own audit view.
+      // PAM. These cover the subset of the PAM access-audit trail reported organization-wide. The item is named first
+      // because it is the fact an administrator reading this log wants; the trailing request or lease id is a
+      // correlation handle into PAM's own access-audit view, where the rule and the approver's comment live.
       case EventType.Pam_AccessRequest_Submitted:
         msg = this.i18nService.t(
           "pamEventRequestedAccess",
@@ -1064,102 +1065,26 @@ export class EventService {
         break;
       case EventType.Pam_AccessLease_Activated:
         msg = this.i18nService.t(
-          "pamEventActivatedAccess",
+          "pamEventActivatedAccessLease",
           this.formatCipherId(ev, options),
           this.formatAccessLeaseId(ev),
         );
         humanReadableMsg = this.i18nService.t(
-          "pamEventActivatedAccess",
+          "pamEventActivatedAccessLease",
           this.getShortId(ev.cipherId),
           this.getShortId(ev.accessLeaseId),
         );
         break;
       case EventType.Pam_AccessLease_Revoked:
         msg = this.i18nService.t(
-          "pamEventRevokedAccess",
+          "pamEventRevokedAccessLease",
           this.formatCipherId(ev, options),
           this.formatAccessLeaseId(ev),
         );
         humanReadableMsg = this.i18nService.t(
-          "pamEventRevokedAccess",
+          "pamEventRevokedAccessLease",
           this.getShortId(ev.cipherId),
           this.getShortId(ev.accessLeaseId),
-        );
-        break;
-      case EventType.Pam_AccessRequest_Cancelled:
-        msg = this.i18nService.t(
-          "pamEventCancelledAccessRequest",
-          this.formatCipherId(ev, options),
-          this.formatAccessRequestId(ev),
-        );
-        humanReadableMsg = this.i18nService.t(
-          "pamEventCancelledAccessRequest",
-          this.getShortId(ev.cipherId),
-          this.getShortId(ev.accessRequestId),
-        );
-        break;
-      case EventType.Pam_AccessLease_Extended:
-        msg = this.i18nService.t(
-          "pamEventExtendedAccess",
-          this.formatCipherId(ev, options),
-          this.formatAccessLeaseId(ev),
-        );
-        humanReadableMsg = this.i18nService.t(
-          "pamEventExtendedAccess",
-          this.getShortId(ev.cipherId),
-          this.getShortId(ev.accessLeaseId),
-        );
-        break;
-      case EventType.Pam_AccessLease_Expired:
-        msg = this.i18nService.t(
-          "pamEventExpiredAccess",
-          this.formatCipherId(ev, options),
-          this.formatAccessLeaseId(ev),
-        );
-        humanReadableMsg = this.i18nService.t(
-          "pamEventExpiredAccess",
-          this.getShortId(ev.cipherId),
-          this.getShortId(ev.accessLeaseId),
-        );
-        break;
-      // A refused activation mints no lease, so the request is the only subject it can name.
-      case EventType.Pam_AccessLease_ActivationRejected:
-        msg = this.i18nService.t(
-          "pamEventRejectedAccessLeaseActivation",
-          this.formatCipherId(ev, options),
-          this.formatAccessRequestId(ev),
-        );
-        humanReadableMsg = this.i18nService.t(
-          "pamEventRejectedAccessLeaseActivation",
-          this.getShortId(ev.cipherId),
-          this.getShortId(ev.accessRequestId),
-        );
-        break;
-      // Rule events name no subject: a rule spans collections and has no id column on the event.
-      case EventType.Pam_AccessRule_Created:
-        msg = humanReadableMsg = this.i18nService.t("pamEventCreatedAccessRule");
-        break;
-      case EventType.Pam_AccessRule_Updated:
-        msg = humanReadableMsg = this.i18nService.t("pamEventUpdatedAccessRule");
-        break;
-      case EventType.Pam_AccessRule_Deleted:
-        msg = humanReadableMsg = this.i18nService.t("pamEventDeletedAccessRule");
-        break;
-      case EventType.Pam_Rotation_Succeeded:
-        msg = this.i18nService.t("pamEventRotatedCredential", this.formatCipherId(ev, options));
-        humanReadableMsg = this.i18nService.t(
-          "pamEventRotatedCredential",
-          this.getShortId(ev.cipherId),
-        );
-        break;
-      case EventType.Pam_Rotation_Failed:
-        msg = this.i18nService.t(
-          "pamEventFailedCredentialRotation",
-          this.formatCipherId(ev, options),
-        );
-        humanReadableMsg = this.i18nService.t(
-          "pamEventFailedCredentialRotation",
-          this.getShortId(ev.cipherId),
         );
         break;
 
@@ -1757,8 +1682,8 @@ export class EventService {
     return a.outerHTML;
   }
 
-  // PAM subject ids are plain code, not links, since the request-detail page needs a different
-  // permission than AccessEventLogs.
+  // PAM subject ids are shown as plain code, not links: the request-detail page is authorized for the requester or a
+  // managing approver, not for the AccessEventLogs permission this log is read with, so there is nowhere to link to.
   private formatAccessRequestId(ev: EventResponse) {
     return "<code>" + this.escapeHtml(this.getShortId(ev.accessRequestId)) + "</code>";
   }
