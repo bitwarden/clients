@@ -263,7 +263,12 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
 
   it("should compose the card title from plan name and cadence", () => {
     createComponent();
-    expect(component.cardTitle()).toBe("teams annual");
+    expect(component.cardTitle()).toBe("organizationSubscriptionCardTitle");
+    expect(i18nService.t).toHaveBeenCalledWith(
+      "organizationSubscriptionCardTitle",
+      "teams",
+      "annualLower",
+    );
   });
 
   it("should return a null card title when the subscription is absent", () => {

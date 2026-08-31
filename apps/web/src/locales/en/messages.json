@@ -5177,6 +5177,12 @@
   "annual": {
     "message": "Annual"
   },
+  "annualLower": {
+    "message": "annual"
+  },
+  "monthlyLower": {
+    "message": "monthly"
+  },
   "basePrice": {
     "message": "Base price"
   },
@@ -7207,6 +7213,19 @@
       "count": {
         "content": "$1",
         "example": "50"
+      }
+    }
+  },
+  "organizationSubscriptionCardTitle": {
+    "message": "$PLAN$ $CADENCE$ subscription",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
       }
     }
   },

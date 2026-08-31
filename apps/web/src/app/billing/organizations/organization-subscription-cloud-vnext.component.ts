@@ -180,8 +180,12 @@ export class OrganizationSubscriptionCloudVNextComponent {
     if (plan == null) {
       return null;
     }
-    const cadence = this.i18nService.t(plan.isAnnual ? "annual" : "monthly");
-    return `${this.i18nService.t(plan.nameLocalizationKey)} ${cadence}`;
+    const cadence = this.i18nService.t(plan.isAnnual ? "annualLower" : "monthlyLower");
+    return this.i18nService.t(
+      "organizationSubscriptionCardTitle",
+      this.i18nService.t(plan.nameLocalizationKey),
+      cadence,
+    );
   });
 
   readonly subscriptionMarkedForCancel = computed(() => {
