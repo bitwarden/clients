@@ -37,4 +37,9 @@ export type AuditExport = {
    * correlation id is what joins this file to another export or to a support ticket.
    */
   requestId: string;
+  /**
+   * The lease this event belongs to, if any. Carried for the same reason as {@link AuditExport.requestId}:
+   * it is the id support asks for, and the table has no column for it.
+   */
+  leaseId: string;
 };
