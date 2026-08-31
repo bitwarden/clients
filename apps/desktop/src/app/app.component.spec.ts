@@ -10,7 +10,6 @@ import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
   AuthRequestServiceAbstraction,
-  LockService,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -44,6 +43,9 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { LockService } from "@bitwarden/unlock";
 
 import { AppComponent } from "./app.component";
 
@@ -80,6 +82,9 @@ describe("AppComponent (desktop)", () => {
       broadcasterCallback = cb as (message: any) => Promise<void>;
     });
 
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
     const deviceTrustToastService = mock<DeviceTrustToastService>();
     deviceTrustToastService.setupListeners$ = EMPTY;
     const documentLangSetter = mock<DocumentLangSetter>();
@@ -100,6 +105,7 @@ describe("AppComponent (desktop)", () => {
           ngZone,
           mock<VaultTimeoutSettingsService>(),
           mock<KeyService>(),
+          mock<LegacyCompatKeyService>(),
           logService,
           mock<MessagingService>(),
           mock<ServerNotificationsService>(),
@@ -110,7 +116,7 @@ describe("AppComponent (desktop)", () => {
           mock<EventUploadService>(),
           mock<ModalService>(),
           mock<UserVerificationService>(),
-          mock<ConfigService>(),
+          configService,
           mock<DialogService>(),
           mock<BiometricStateService>(),
           mock<StateEventRunnerService>(),

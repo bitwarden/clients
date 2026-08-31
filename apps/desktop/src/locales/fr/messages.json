@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favoris"
   },
+  "favoritesFilterTooltip": {
+    "message": "Marquer les éléments comme favoris pour les filtrer ici."
+  },
   "unfavorite": {
     "message": "Retirer des favoris"
   },
@@ -116,11 +119,56 @@
   "myFolders": {
     "message": "Mes dossiers"
   },
+  "foldersFilterTooltip": {
+    "message": "Ajouter des dossiers aux éléments pour les filtrer ici."
+  },
   "addSharedFolder": {
     "message": "Ajouter un dossier partagé"
   },
   "newSharedFolder": {
     "message": "Nouveau dossier partagé"
+  },
+  "searchSharedFolder": {
+    "message": "Rechercher le dossier partagé"
+  },
+  "searchMyFolder": {
+    "message": "Rechercher dans Mes dossiers"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Afficher le dossier partagé - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Supprimer le dossier partagé"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Supprimer $COUNT$ dossiers partagés",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "Ce dossier partagé sera définitivement supprimé. Les éléments dans le dossier ne seront pas supprimés."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Ces dossiers partagés seront définitivement supprimés. Les éléments des dossiers ne seront pas supprimés."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Les éléments et les dossiers partagés sélectionnés seront définitivement supprimés."
+  },
+  "sharedFolderDeleted": {
+    "message": "Dossier partagé supprimé"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Dossiers partagés supprimés"
   },
   "share": {
     "message": "Partager"
@@ -476,6 +524,9 @@
   },
   "launch": {
     "message": "Ouvrir"
+  },
+  "launchWebsite": {
+    "message": "Ouvrir le site web"
   },
   "copyValue": {
     "message": "Copier la valeur",
@@ -1142,20 +1193,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Copier le code de vérification (TOTP)"
-  },
-  "copyFieldCipherName": {
-    "message": "Copier $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "Copier la clé privée"
@@ -1964,6 +2001,12 @@
   "showIconsChangePasswordUrls": {
     "message": "Affiche les icônes du site web et récupère les URL de changement de mot de passe"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Afficher les actions de copie rapide dans le coffre"
+  },
+  "noDetailsToCopy": {
+    "message": "Aucune information à copier"
+  },
   "runInBackground": {
     "message": "Garder Bitwarden en cours d'exécution en arrière-plan"
   },
@@ -2060,6 +2103,21 @@
   "copyVerificationCode": {
     "message": "Copier le code de vérification"
   },
+  "noUsername": {
+    "message": "Aucun nom d'utilisateur"
+  },
+  "noPassword": {
+    "message": "Aucun mot de passe"
+  },
+  "noVerificationCode": {
+    "message": "Aucun code de vérification"
+  },
+  "noNumber": {
+    "message": "Aucun numéro"
+  },
+  "noSecurityCode": {
+    "message": "Aucun code de sécurité"
+  },
   "copyUsername": {
     "message": "Copier le nom d'utilisateur"
   },
@@ -2078,9 +2136,6 @@
     "message": "Copier le code de sécurité",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "numéro de carte"
-  },
   "premiumMembership": {
     "message": "Adhésion Premium"
   },
@@ -2090,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "Vous pouvez gérer votre adhésion sur le coffre web de bitwarden.com. Voulez-vous visiter le site web maintenant ?"
   },
-  "premiumRefresh": {
-    "message": "Actualiser l'adhésion"
-  },
-  "premiumNotCurrentMember": {
-    "message": "Vous n'êtes pas actuellement un membre Premium."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Inscrivez-vous pour une adhésion Premium et obtenez :"
-  },
   "premiumSignUpStorage": {
     "message": "1 Go de stockage chiffré pour les fichiers joints."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "Stockage chiffré de $SIZE$ pour les pièces jointes.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Options de connexion propriétaires à deux facteurs telles que YubiKey et Duo."
-  },
-  "premiumSignUpReports": {
-    "message": "Hygiène du mot de passe, santé du compte et rapports sur les brèches de données pour assurer la sécurité de votre coffre."
-  },
-  "premiumSignUpTotp": {
-    "message": "Générateur de code de vérification TOTP (2FA) pour les identifiants dans votre coffre."
-  },
-  "premiumSignUpSupport": {
-    "message": "Assistance client prioritaire."
-  },
-  "premiumSignUpFuture": {
-    "message": "Toutes les futures fonctionnalités Premium. Plus à venir prochainement !"
   },
   "premiumPurchase": {
     "message": "Acheter Premium"
   },
   "premiumPurchaseAlertV2": {
     "message": "Vous pouvez faire des achats Prenium à partir des paramètres de votre compte sur l'application web Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "Vous êtes un membre Premium !"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Merci de soutenir Bitwarden."
-  },
-  "premiumPrice": {
-    "message": "Tout pour seulement $PRICE$/an !",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "mois"
@@ -3448,6 +3455,30 @@
   "options": {
     "message": "Options"
   },
+  "moreOptions": {
+    "message": "Plus d'options"
+  },
+  "optionsForItem": {
+    "message": "Options pour $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "Aucun dossier partagé"
+  },
+  "filterByName": {
+    "message": "Filtrer par $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
   "sessionTimeout": {
     "message": "Votre session a expiré. Veuillez revenir en arrière et essayer de vous connecter à nouveau."
   },
@@ -4473,6 +4504,79 @@
   "noFileChosen": {
     "message": "Aucun fichier choisi"
   },
+  "noFileSelected": {
+    "message": "Aucun fichier sélectionné"
+  },
+  "fileChosen": {
+    "message": "Fichier choisi : $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Fichier ajouté : $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ fichiers ajoutés : $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Fichier supprimé : $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 fichier téléversé"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ fichiers téléversés",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Fichiers téléversés"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Cliquez pour téléverser ou glissez-déposez"
+  },
+  "chooseFiles": {
+    "message": "Choisir les fichiers"
+  },
+  "maxFileSizeParam": {
+    "message": "Taille maximale du fichier : $SIZE$ Mo",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "ou copiez/collez le contenu du fichier à importer"
   },
@@ -5069,10 +5173,17 @@
     "message": "Changer l'adresse mail du compte"
   },
   "passkeyLogin": {
-    "message": "Se connecter avec une clé d'accès ?"
+    "message": "Se connecter avec une clé d'accès ?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Se connecter avec une clé d'accès"
   },
   "savePasskeyQuestion": {
     "message": "Enregistrer la clé d'accès ?"
+  },
+  "savePasskey": {
+    "message": "Enregistrer la clé d'accès"
   },
   "saveNewPasskey": {
     "message": "Enregistrer en tant que nouvel identifiant"
@@ -5084,7 +5195,11 @@
     "message": "Aucun identifiant correspondant pour ce site"
   },
   "overwritePasskey": {
-    "message": "Écraser la clé d'accès (passkey) ?"
+    "message": "Écraser la clé d'accès (passkey) ?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Écraser la clé d'accès"
   },
   "unableToSavePasskey": {
     "message": "Impossible d'enregistrer la clé d'accès (passkey)"
@@ -5141,6 +5256,15 @@
     "message": "Vous ne pouvez pas supprimer des collections avec les autorisations d'affichage uniquement : $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Vous ne pouvez pas supprimer les dossiers partagés avec les autorisations de visualisation uniquement : $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -5244,8 +5368,23 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden utilisera les URI de connexion enregistrées pour identifier quelle icône ou URL de changement de mot de passe doit être utilisée pour améliorer votre expérience. Aucune information n'est recueillie ou enregistrée lorsque vous utilisez ce service."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Ajoutez 3 boutons de copie rapide à côté des éléments pour copier votre nom d'utilisateur, votre mot de passe ou votre code de vérification dans le presse-papiers."
+  },
   "assignToCollections": {
     "message": "Assigner aux collections"
+  },
+  "addToSharedFolder": {
+    "message": "Ajouter au dossier partagé"
+  },
+  "transferAndAdd": {
+    "message": "Transférer et ajouter"
+  },
+  "itemLower": {
+    "message": "élément"
+  },
+  "itemsLower": {
+    "message": "éléments"
   },
   "assignToTheseCollections": {
     "message": "Assigner à ces collections"
@@ -5253,8 +5392,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Seuls les membres de l'organisation ayant accès à ces collections pourront voir l'élément."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Seuls les membres du coffre ayant accès à ces dossiers partagés pourront voir l'élément."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Seuls les membres de l'organisation ayant accès à ces collections pourront voir les éléments."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Seuls les membres du coffre ayant accès à ces dossiers partagés pourront voir les éléments."
   },
   "noCollectionsAssigned": {
     "message": "Aucune collection n'a été assignée"
@@ -5314,8 +5459,20 @@
   "personalItemTransferWarningSingular": {
     "message": "Un élément sera transféré définitivement à l'organisation sélectionnée. Vous ne serez plus le propriétaire de cet élément."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 élément sera transféré de façon permanente vers le coffre sélectionné. Vous ne posséderez plus cet élément."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "Les éléments $PERSONAL_ITEMS_COUNT$ seront transférés de façon permanente à l'organisation sélectionnée. Vous ne serez plus le propriétaire de ces éléments.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ éléments seront transférés de façon permanente vers le coffre sélectionné. Vous ne posséderez plus ces éléments.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5339,17 +5496,32 @@
   "successfullyAssignedCollections": {
     "message": "Collections assignées avec succès"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Dossiers partagés ajoutés avec succès"
+  },
   "itemMovedToCollection": {
     "message": "Élément déplacé vers la collection"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Élément ajouté au dossier partagé"
   },
   "itemMovedToCollections": {
     "message": "Élément déplacé vers les collections"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Élément ajouté aux dossiers partagés"
+  },
   "itemsMovedToCollection": {
     "message": "Éléments déplacés vers la collection"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Éléments ajoutés au dossier partagé"
+  },
   "itemsMovedToCollections": {
     "message": "Éléments déplacés vers les collections"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Éléments ajoutés aux dossiers partagés"
   },
   "itemAssignedToCollections": {
     "message": "Élément assigné aux collections"
@@ -6146,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "créer une nouvelle clé d'accès $RPID$ pour $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "écraser une clé d'accès $RPID$ pour $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "connectez-vous en tant que $USERNAME$ avec votre clé d'accès $RPID$",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Vérifiez votre identité pour créer une nouvelle clé d'accès $RPID$ pour $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Vérifiez votre identité pour écraser une clé d'accès $RPID$ pour $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Vérifiez votre identité pour vous connecter en tant que $USERNAME$ avec votre clé d'accès $RPID$.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }

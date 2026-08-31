@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favoriten"
   },
+  "favoritesFilterTooltip": {
+    "message": "Markiere Einträge als Favoriten, um sie hier zu filtern."
+  },
   "unfavorite": {
     "message": "Aus Favoriten entfernen"
   },
@@ -116,11 +119,56 @@
   "myFolders": {
     "message": "Meine Ordner"
   },
+  "foldersFilterTooltip": {
+    "message": "Füge Ordner zu Einträgen hinzu, um sie hier zu filtern."
+  },
   "addSharedFolder": {
-    "message": "Add shared folder"
+    "message": "Geteilten Ordner hinzufügen"
   },
   "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "Neuer geteilter Ordner"
+  },
+  "searchSharedFolder": {
+    "message": "Geteilten Ordner durchsuchen"
+  },
+  "searchMyFolder": {
+    "message": "Meine Ordner durchsuchen"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Geteilten Ordner anzeigen - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Geteilten Ordner löschen"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "$COUNT$ geteilte Ordner löschen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "Dieser geteilte Ordner wird dauerhaft gelöscht. Die Einträge im Ordner werden nicht gelöscht."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Diese geteilten Ordner werden dauerhaft gelöscht. Die Einträge in den Ordnern werden nicht gelöscht."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Die ausgewählten Einträge und geteilten Ordner werden dauerhaft gelöscht."
+  },
+  "sharedFolderDeleted": {
+    "message": "Geteilter Ordner gelöscht"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Geteilte Ordner gelöscht"
   },
   "share": {
     "message": "Teilen"
@@ -476,6 +524,9 @@
   },
   "launch": {
     "message": "Öffnen"
+  },
+  "launchWebsite": {
+    "message": "Website öffnen"
   },
   "copyValue": {
     "message": "Wert kopieren",
@@ -885,7 +936,7 @@
     "message": "Besitzer"
   },
   "sharedFolderAriaLabel": {
-    "message": "Shared folder $NAME$",
+    "message": "Geteilter Ordner $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -894,7 +945,7 @@
     }
   },
   "collectionAriaLabel": {
-    "message": "Collection $NAME$",
+    "message": "Sammlung $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -903,7 +954,7 @@
     }
   },
   "myFolderAriaLabel": {
-    "message": "My folder $NAME$",
+    "message": "Mein Ordner $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -912,7 +963,7 @@
     }
   },
   "folderAriaLabel": {
-    "message": "Folder $NAME$",
+    "message": "Ordner $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -921,7 +972,7 @@
     }
   },
   "ownerAriaLabel": {
-    "message": "Owner $NAME$",
+    "message": "Eigentümer $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -930,7 +981,7 @@
     }
   },
   "vaultAriaLabel": {
-    "message": "Vault $NAME$",
+    "message": "Tresor $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1142,20 +1193,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Verifizierungscode (TOTP) kopieren"
-  },
-  "copyFieldCipherName": {
-    "message": "$FIELD$, $CIPHERNAME$ kopieren",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "Privaten Schlüssel kopieren"
@@ -1964,6 +2001,12 @@
   "showIconsChangePasswordUrls": {
     "message": "Website-Symbole anzeigen und URLs zum Ändern von Passwörtern abrufen"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Schnellkopier-Aktionen im Tresor anzeigen"
+  },
+  "noDetailsToCopy": {
+    "message": "Keine Details zum Kopieren"
+  },
   "runInBackground": {
     "message": "Bitwarden im Hintergrund laufen lassen"
   },
@@ -2060,6 +2103,21 @@
   "copyVerificationCode": {
     "message": "Verifizierungscode kopieren"
   },
+  "noUsername": {
+    "message": "Kein Benutzername"
+  },
+  "noPassword": {
+    "message": "Kein Passwort"
+  },
+  "noVerificationCode": {
+    "message": "Kein Verifizierungscode"
+  },
+  "noNumber": {
+    "message": "Keine Nummer"
+  },
+  "noSecurityCode": {
+    "message": "Kein Sicherheitscode"
+  },
   "copyUsername": {
     "message": "Benutzername kopieren"
   },
@@ -2078,9 +2136,6 @@
     "message": "Sicherheitscode kopieren",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "Kartennummer"
-  },
   "premiumMembership": {
     "message": "Premium-Mitgliedschaft"
   },
@@ -2090,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "Du kannst deine Mitgliedschaft im bitwarden.com Webtresor verwalten. Möchtest du die Seite jetzt aufrufen?"
   },
-  "premiumRefresh": {
-    "message": "Mitgliedschaft erneuern"
-  },
-  "premiumNotCurrentMember": {
-    "message": "Du hast derzeit keine Premium-Mitgliedschaft."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Melde dich für eine Premium-Mitgliedschaft an und erhalte dafür:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB verschlüsselter Speicherplatz für Dateianhänge."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ verschlüsselter Speicher für Dateianhänge.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Proprietäre Optionen für die Zwei-Faktor Authentifizierung wie YubiKey und Duo."
-  },
-  "premiumSignUpReports": {
-    "message": "Berichte über Kennworthygiene, Kontostatus und Datenschutzverletzungen, um Ihren Tresor sicher zu halten."
-  },
-  "premiumSignUpTotp": {
-    "message": "TOTP Prüfcode (2FA) Generator für Anmeldungen in deinem Tresor."
-  },
-  "premiumSignUpSupport": {
-    "message": "Vorrangiger Kunden-Support."
-  },
-  "premiumSignUpFuture": {
-    "message": "Alle zukünftigen Premium-Features. Mehr in Kürze!"
   },
   "premiumPurchase": {
     "message": "Premium-Mitgliedschaft kaufen"
   },
   "premiumPurchaseAlertV2": {
     "message": "Du kannst Premium über deine Kontoeinstellungen in der Bitwarden Web-App kaufen."
-  },
-  "premiumCurrentMember": {
-    "message": "Du bist ein Premium-Mitglied!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Vielen Dank, dass du Bitwarden unterstützt."
-  },
-  "premiumPrice": {
-    "message": "Das alles für $PRICE$ pro Jahr!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "Monat"
@@ -2211,13 +2218,13 @@
     "message": "Alles auswählen"
   },
   "selectAllRows": {
-    "message": "Select all rows"
+    "message": "Alle Zeilen auswählen"
   },
   "selectRow": {
-    "message": "Select row"
+    "message": "Zeile auswählen"
   },
   "showingItemRange": {
-    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "message": "Es werden $START$ - $END$ von $TOTAL$ angezeigt",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -2234,10 +2241,10 @@
     }
   },
   "rowsPerPage": {
-    "message": "Rows per page"
+    "message": "Zeilen pro Seite"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$ rows per page",
+    "message": "$COUNT$ Zeilen pro Seite",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2246,7 +2253,7 @@
     }
   },
   "itemCount": {
-    "message": "$COUNT$ items",
+    "message": "$COUNT$ Einträge",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2255,10 +2262,10 @@
     }
   },
   "all": {
-    "message": "All"
+    "message": "Alle"
   },
   "clearAll": {
-    "message": "Clear all"
+    "message": "Alles löschen"
   },
   "done": {
     "message": "Fertig"
@@ -2267,7 +2274,7 @@
     "message": "Filter"
   },
   "filtersSelected": {
-    "message": "$COUNT$ selected",
+    "message": "$COUNT$ ausgewählt",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2276,16 +2283,16 @@
     }
   },
   "previousPage": {
-    "message": "Previous page"
+    "message": "Vorherige Seite"
   },
   "nextPage": {
-    "message": "Next page"
+    "message": "Nächste Seite"
   },
   "goToPage": {
-    "message": "Go to page"
+    "message": "Zur Seite gehen"
   },
   "ofPageCount": {
-    "message": "of $COUNT$",
+    "message": "von $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2294,7 +2301,7 @@
     }
   },
   "noMatchingItems": {
-    "message": "No matching items"
+    "message": "Keine passenden Einträge"
   },
   "selected": {
     "message": "Ausgewählt"
@@ -3448,6 +3455,30 @@
   "options": {
     "message": "Optionen"
   },
+  "moreOptions": {
+    "message": "Weitere Optionen"
+  },
+  "optionsForItem": {
+    "message": "Optionen für $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "Kein geteilter Ordner"
+  },
+  "filterByName": {
+    "message": "Nach $NAME$ filtern",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
   "sessionTimeout": {
     "message": "Deine Sitzung ist abgelaufen. Bitte gehe zurück und versuche dich erneut anzumelden."
   },
@@ -3760,11 +3791,11 @@
     }
   },
   "forwarderWebsitePrefix": {
-    "message": "Add website prefix",
+    "message": "Website-Präfix hinzufügen",
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
   },
   "forwarderWebsitePrefixHint": {
-    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "message": "Wenn diese Option aktiviert ist, wird die Domain der aktuellen Website als Präfix für die generierte E-Mail-Adresse verwendet",
     "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
@@ -4372,7 +4403,7 @@
     }
   },
   "importPartialErrorTitleSingular": {
-    "message": "$COUNT$ item will be skipped",
+    "message": "$COUNT$ Einträge werden übersprungen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4384,16 +4415,16 @@
     "message": "Die folgenden Einträge konnten nicht gelesen werden und werden nicht in deinen Import einbezogen:"
   },
   "importSkipReasonSshKeyParse": {
-    "message": "This SSH key could not be imported"
+    "message": "Dieser SSH-Schlüssel konnte nicht importiert werden"
   },
   "importSkipReasonUnsupportedType": {
-    "message": "Unsupported item type"
+    "message": "Das Dateiformat wird nicht unterstützt"
   },
   "importSkipReasonGeneric": {
-    "message": "This item could not be imported"
+    "message": "Dieser Eintrag konnte nicht importiert werden"
   },
   "identifier": {
-    "message": "Identifier"
+    "message": "Kennung"
   },
   "contact": {
     "message": "Kontakt"
@@ -4472,6 +4503,79 @@
   },
   "noFileChosen": {
     "message": "Keine Datei ausgewählt"
+  },
+  "noFileSelected": {
+    "message": "Keine Datei ausgewählt"
+  },
+  "fileChosen": {
+    "message": "Datei ausgewählt: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Datei hinzugefügt: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ Dateien hinzugefügt: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Datei entfernt: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 Datei hochgeladen"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ Dateien hochgeladen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Hochgeladene Dateien"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Zum Hochladen klicken oder per Drag & Drop hier ablegen"
+  },
+  "chooseFiles": {
+    "message": "Dateien auswählen"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. Dateigröße: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
   },
   "orCopyPasteFileContents": {
     "message": "oder kopiere und füge den Inhalt der Import-Datei hier ein"
@@ -4868,10 +4972,10 @@
     "message": "Passkey entfernen"
   },
   "deletePasskey": {
-    "message": "Delete passkey"
+    "message": "Passkey löschen"
   },
   "deletePasskeyConfirmation": {
-    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
+    "message": "Dieser Passkey wird dauerhaft aus diesen Zugangsdaten gelöscht. Dies kann nicht rückgängig gemacht werden."
   },
   "passkeyRemoved": {
     "message": "Passkey entfernt"
@@ -5069,10 +5173,17 @@
     "message": "E-Mail-Adresse des Kontos ändern"
   },
   "passkeyLogin": {
-    "message": "Mit Passkey anmelden?"
+    "message": "Mit Passkey anmelden?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Mit Passkey anmelden"
   },
   "savePasskeyQuestion": {
     "message": "Passkey speichern?"
+  },
+  "savePasskey": {
+    "message": "Passkey speichern"
   },
   "saveNewPasskey": {
     "message": "Als neue Zugangsdaten speichern"
@@ -5084,7 +5195,11 @@
     "message": "Keine passenden Zugangsdaten für diese Seite"
   },
   "overwritePasskey": {
-    "message": "Passkey überschreiben?"
+    "message": "Passkey überschreiben?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Passkey überschreiben"
   },
   "unableToSavePasskey": {
     "message": "Passkey konnte nicht gespeichert werden"
@@ -5141,6 +5256,15 @@
     "message": "Du kannst Sammlungen mit Leseberechtigung nicht entfernen: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Geteilte Ordner mit Leseberechtigung können nicht gelöscht werden: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -5244,8 +5368,23 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden verwendet gespeicherte URIs für die Anmeldung, um zu bestimmen, welches Symbol oder welche URL zum Ändern des Passworts verwendet werden soll, um dein Erlebnis zu verbessern. Es werden keine Informationen erfasst oder gespeichert, wenn du diesen Dienst nutzt."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Neben Einträgen 3 Schnellkopier-Buttons hinzufügen, um deinen Benutzernamen, Passwort oder Verifizierungscode in die Zwischenablage zu kopieren."
+  },
   "assignToCollections": {
     "message": "Sammlungen zuweisen"
+  },
+  "addToSharedFolder": {
+    "message": "Zu einem geteilten Ordner hinzufügen"
+  },
+  "transferAndAdd": {
+    "message": "Übertragen und hinzufügen"
+  },
+  "itemLower": {
+    "message": "Eintrag"
+  },
+  "itemsLower": {
+    "message": "Einträge"
   },
   "assignToTheseCollections": {
     "message": "Diesen Sammlungen zuweisen"
@@ -5253,8 +5392,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Nur Organisationsmitglieder mit Zugriff auf diese Sammlungen können diesen Eintrag sehen."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Nur Organisationsmitglieder mit Zugriff auf diese geteilten Ordner können den Eintrag sehen."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Nur Organisationsmitglieder mit Zugriff auf diese Sammlungen können die Einträge sehen."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Nur Organisationsmitglieder mit Zugriff auf die geteilten Ordner können diese Einträge sehen."
   },
   "noCollectionsAssigned": {
     "message": "Es wurden keine Sammlungen zugewiesen"
@@ -5314,8 +5459,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 Eintrag wird dauerhaft an die ausgewählte Organisation übertragen. Du wirst diesen Eintrag nicht mehr besitzen."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 Eintrag wird dauerhaft an den ausgewählten Tresor übertragen. Du wirst diesen Eintrag nicht mehr besitzen."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ werden dauerhaft an die ausgewählte Organisation übertragen. Du wirst diese Einträge nicht mehr besitzen.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ werden dauerhaft an den ausgewählten Tresor übertragen. Du wirst diese Einträge nicht mehr besitzen.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5339,17 +5496,32 @@
   "successfullyAssignedCollections": {
     "message": "Sammlungen erfolgreich zugewiesen"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Geteilte Ordner erfolgreich hinzugefügt"
+  },
   "itemMovedToCollection": {
     "message": "Eintrag in Sammlung verschoben"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Eintrag zu geteiltem Ordner hinzugefügt"
   },
   "itemMovedToCollections": {
     "message": "Eintrag in Sammlungen verschoben"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Eintrag zu geteilten Ordnern hinzugefügt"
+  },
   "itemsMovedToCollection": {
     "message": "Einträge in Sammlung verschoben"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Einträge zu geteiltem Ordner hinzugefügt"
+  },
   "itemsMovedToCollections": {
     "message": "Einträge in Sammlungen verschoben"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Einträge zu geteilten Ordnern hinzugefügt"
   },
   "itemAssignedToCollections": {
     "message": "Zu Sammlungen zugewiesener Eintrag"
@@ -6146,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "einen neuen $RPID$-Passkey für $USERNAME$ erstellen",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "einen $RPID$-Passkey für $USERNAME$ überschreiben",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "sich als $USERNAME$ mit deinem $RPID$-Passkey anmelden",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Bestätige deine Identität, um einen neuen $RPID$-Passkey für $USERNAME$ zu erstellen.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Bestätige deine Identität, um einen $RPID$-Passkey für $USERNAME$ zu überschreiben.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Bestätige deine Identität, um dich als $USERNAME$ mit deinem $RPID$-Passkey anzumelden.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }

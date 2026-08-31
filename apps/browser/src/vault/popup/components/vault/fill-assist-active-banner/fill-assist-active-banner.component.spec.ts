@@ -39,20 +39,20 @@ describe("FillAssistActiveBannerComponent", () => {
     jest.clearAllMocks();
   });
 
-  it("renders the banner when Fill Assist is active", () => {
+  it("renders the banner when fill assist is active", () => {
     fixture.detectChanges();
 
     expect(bannerIsRendered()).toBe(true);
   });
 
-  it("does not render the banner when Fill Assist is not active", () => {
+  it("does not render the banner when fill assist is not active", () => {
     showBanner$.next(false);
     fixture.detectChanges();
 
     expect(bannerIsRendered()).toBe(false);
   });
 
-  it("hides the banner after dismissal even while Fill Assist is still active (session-only)", () => {
+  it("hides the banner after dismissal even while fill assist is still active (session-only)", () => {
     fixture.detectChanges();
     expect(bannerIsRendered()).toBe(true);
 

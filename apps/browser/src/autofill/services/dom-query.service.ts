@@ -5,18 +5,36 @@ import {
   SHADOW_ROOT_CANDIDATE_NODE_NAMES,
 } from "@bitwarden/common/autofill/constants";
 
-import { stopwatch } from "../content/performance";
 import { nodeIsElement } from "../utils";
 
-import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-query.service";
+import {
+  DomQueryService as DomQueryServiceInterface,
+  ShadowRootScanResult,
+} from "./abstractions/dom-query.service";
 
-type ScanVerdict =
-  | { branch: "shortCircuit"; foundNewRoot: false }
-  | { branch: "narrow"; foundNewRoot: boolean }
-  | { branch: "fullScan"; foundNewRoot: boolean };
+// Per-scan cap; the persistent cap lives in ShadowHostHydrationTracker.
+const MAX_UNRESOLVED_SHADOW_HOSTS = 256;
+
+// Shared so the observe sites can't drift apart.
+const SHADOW_ROOT_OBSERVE_OPTIONS: MutationObserverInit = {
+  attributes: true,
+  childList: true,
+  subtree: true,
+};
+
+/**
+ * The two bins one shadow-root scan fills — hosts to re-scan, roots not seen before — plus the
+ * observer to enroll discovered roots with. With no `observer` the scan still reports what it
+ * found but enrolls nothing; a later walk that supplies one will.
+ */
+type ShadowScanContext = {
+  unresolvedHosts: Set<Element>;
+  discoveredRoots: Set<ShadowRoot>;
+  observer?: MutationObserver;
+};
 
 export class DomQueryService implements DomQueryServiceInterface {
-  /** One-way ratchet; reset only by `resetObservedShadowRoots()`. */
+  /** One-way ratchet — never reset; `resetObservedShadowRoots()` clears only the root set. */
   private pageContainsShadowDom!: boolean;
   // Stale entries (roots whose hosts left the DOM) are harmless — querying them
   // returns an empty NodeList. Cleared on `resetObservedShadowRoots` (navigation).
@@ -45,7 +63,6 @@ export class DomQueryService implements DomQueryServiceInterface {
   ]);
 
   constructor() {
-    this.getShadowRoot = stopwatch("getShadowRoot", this.getShadowRoot);
     void this.init();
   }
 
@@ -58,7 +75,6 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @param treeWalkerFilter - The filter callback to use for the treeWalker query
    * @param mutationObserver - The MutationObserver to use for observing shadow roots
    * @param forceDeepQueryAttempt - Whether to force a deep query attempt
-   * @param ignoredTreeWalkerNodesOverride - An optional set of node names to ignore when using the treeWalker strategy
    */
   query<T>(
     root: Document | ShadowRoot | Element,
@@ -66,29 +82,38 @@ export class DomQueryService implements DomQueryServiceInterface {
     treeWalkerFilter: (element: Element) => boolean,
     mutationObserver?: MutationObserver,
     forceDeepQueryAttempt?: boolean,
-    ignoredTreeWalkerNodesOverride?: Set<string>,
   ): T[] {
-    const ignoredTreeWalkerNodes = ignoredTreeWalkerNodesOverride || this.ignoredTreeWalkerNodes;
-
     if (!forceDeepQueryAttempt) {
-      return this.queryAllTreeWalkerNodes<T>(
-        root,
-        treeWalkerFilter,
-        ignoredTreeWalkerNodes,
-        mutationObserver,
-      );
+      return this.queryWithUnresolvedShadowHosts<T>(root, treeWalkerFilter, mutationObserver)
+        .elements;
     }
 
     try {
       return this.deepQueryElements<T>(root, queryString, mutationObserver);
     } catch {
-      return this.queryAllTreeWalkerNodes<T>(
-        root,
-        treeWalkerFilter,
-        ignoredTreeWalkerNodes,
-        mutationObserver,
-      );
+      return this.queryWithUnresolvedShadowHosts<T>(root, treeWalkerFilter, mutationObserver)
+        .elements;
     }
+  }
+
+  /** {@link query} plus the un-hydrated custom-element hosts seen along the way. */
+  queryWithUnresolvedShadowHosts<T>(
+    root: Document | ShadowRoot | Element,
+    treeWalkerFilter: (element: Element) => boolean,
+    mutationObserver?: MutationObserver,
+  ): { elements: T[]; unresolvedHosts: Set<Element> } {
+    const elements: T[] = [];
+    const unresolvedHosts = new Set<Element>();
+
+    this.buildTreeWalkerNodesQueryResults(
+      root,
+      elements,
+      treeWalkerFilter,
+      mutationObserver,
+      unresolvedHosts,
+    );
+
+    return { elements, unresolvedHosts };
   }
 
   /**
@@ -100,6 +125,13 @@ export class DomQueryService implements DomQueryServiceInterface {
   updatePageContainsShadowDom = (): boolean => {
     this.pageContainsShadowDom = this.queryShadowRoots(globalThis.document.body, true).length > 0;
     return this.pageContainsShadowDom;
+  };
+
+  // May be the page's first signal; scan while the latch is false (ratchet preserved).
+  refreshShadowDomStateForUserRequest = (): void => {
+    if (!this.pageContainsShadowDom) {
+      this.updatePageContainsShadowDom();
+    }
   };
 
   /**
@@ -126,35 +158,34 @@ export class DomQueryService implements DomQueryServiceInterface {
     this.isOwnedShadowHost = predicate;
   };
 
-  /** @returns true if an unobserved root is reachable; flips the latch on first post-init() find. */
-  checkForNewShadowRoots = (addedElements?: Element[]): boolean => {
-    const verdict = this.classifyShadowRootScan(addedElements);
-    if (verdict.foundNewRoot && !this.pageContainsShadowDom) {
+  /** Also collects still-shadow-less hosts, so the caller can re-scan them after hydration. */
+  checkForNewShadowRoots = (
+    addedElements?: Element[],
+    mutationObserver?: MutationObserver,
+  ): ShadowRootScanResult => {
+    const scan: ShadowScanContext = {
+      unresolvedHosts: new Set(),
+      discoveredRoots: new Set(),
+      observer: mutationObserver,
+    };
+    // No batch ⇒ short-circuit; never a full-document walk (O(document), re-pierces roots).
+    if (!addedElements?.length) {
+      return { foundNewRoot: false, unresolvedHosts: scan.unresolvedHosts };
+    }
+    this.findNewShadowRootInBatch(addedElements, scan);
+    const foundNewRoot = scan.discoveredRoots.size > 0;
+    if (foundNewRoot && !this.pageContainsShadowDom) {
       this.markShadowDomPresent();
     }
-    return verdict.foundNewRoot;
+    return { foundNewRoot, unresolvedHosts: scan.unresolvedHosts };
   };
 
-  private classifyShadowRootScan = (addedElements?: Element[]): ScanVerdict => {
-    const hasAddedElements = !!addedElements && addedElements.length > 0;
-    // Batch present: scan even with latch false (shadow DOM may attach post-init).
-    if (!this.pageContainsShadowDom && !hasAddedElements) {
-      return { branch: "shortCircuit", foundNewRoot: false };
-    }
-    return hasAddedElements
-      ? this.findNewShadowRootInBatch(addedElements!)
-      : this.findNewShadowRootInDocument();
-  };
-
-  private findNewShadowRootInBatch = (elements: Element[]): ScanVerdict => {
+  private findNewShadowRootInBatch = (elements: Element[], scan: ShadowScanContext): void => {
     // Drop descendants of other batch elements — same subtree, re-walked.
     const roots = this.suppressDescendantsInBatch(elements);
     for (const el of roots) {
-      if (this.scanForNewShadowRootInSubtree(el, 0)) {
-        return { branch: "narrow", foundNewRoot: true };
-      }
+      this.scanForNewShadowRootInSubtree(el, 0, scan);
     }
-    return { branch: "narrow", foundNewRoot: false };
   };
 
   /** O(N²) over the batch — N is bounded upstream by `pendingMutationAddedElementsCap`. */
@@ -176,19 +207,6 @@ export class DomQueryService implements DomQueryServiceInterface {
       }
     }
     return roots;
-  };
-
-  private findNewShadowRootInDocument = (): ScanVerdict => {
-    let roots: ShadowRoot[];
-    try {
-      roots = this.recursivelyQueryShadowRoots(globalThis.document.body);
-    } catch {
-      roots = this.queryShadowRoots(globalThis.document.body);
-    }
-    return {
-      branch: "fullScan",
-      foundNewRoot: roots.some((r) => !this.knownShadowRoots.has(r)),
-    };
   };
 
   private markShadowDomPresent = (): void => {
@@ -366,13 +384,8 @@ export class DomQueryService implements DomQueryServiceInterface {
       elements = elements.concat(this.queryElements<T>(shadowRoot, queryString));
 
       if (mutationObserver) {
-        mutationObserver.observe(shadowRoot, {
-          attributes: true,
-          childList: true,
-          subtree: true,
-        });
+        this.enrollShadowRoot(shadowRoot, mutationObserver);
       }
-      this.knownShadowRoots.add(shadowRoot);
     }
 
     return elements;
@@ -395,35 +408,63 @@ export class DomQueryService implements DomQueryServiceInterface {
   private scanForNewShadowRootInSubtree = (
     subtree: Element | ShadowRoot,
     depth: number,
-  ): boolean => {
+    scan: ShadowScanContext,
+  ): void => {
     if (depth >= MAX_DEEP_QUERY_RECURSION_DEPTH) {
-      return false;
+      return;
     }
     // Host check — `querySelectorAll("*")` excludes the scope element.
     if (nodeIsElement(subtree)) {
-      const root = this.getShadowRoot(subtree);
-      if (root) {
-        if (!this.knownShadowRoots.has(root)) {
-          return true;
-        }
-        if (this.scanForNewShadowRootInSubtree(root, depth + 1)) {
-          return true;
-        }
-      }
+      this.visitShadowHostCandidate(subtree, depth, scan);
     }
     // querySelectorAll doesn't pierce shadow boundaries — recurse per boundary.
     for (const child of subtree.querySelectorAll("*")) {
-      const childRoot = this.getShadowRoot(child);
-      if (childRoot) {
-        if (!this.knownShadowRoots.has(childRoot)) {
-          return true;
-        }
-        if (this.scanForNewShadowRootInSubtree(childRoot, depth + 1)) {
-          return true;
-        }
+      this.visitShadowHostCandidate(child, depth, scan);
+    }
+  };
+
+  /**
+   * Bounded per scan, and never a host we own — the extension must not walk its own inline menu.
+   * The one home for this rule; both sink sites go through it.
+   */
+  private sinkUnresolvedHost = (element: Element, sink: Set<Element>): void => {
+    if (
+      sink.size < MAX_UNRESOLVED_SHADOW_HOSTS &&
+      element.tagName.includes("-") &&
+      !element.shadowRoot &&
+      !this.isOwnedShadowHost(element)
+    ) {
+      sink.add(element);
+    }
+  };
+
+  private visitShadowHostCandidate = (
+    element: Element,
+    depth: number,
+    scan: ShadowScanContext,
+  ): void => {
+    const root = this.getShadowRoot(element);
+    if (!root) {
+      this.sinkUnresolvedHost(element, scan.unresolvedHosts);
+      return;
+    }
+    if (!this.knownShadowRoots.has(root)) {
+      scan.discoveredRoots.add(root);
+      // With an observer in hand, enroll here rather than re-finding the root in a later walk.
+      if (scan.observer) {
+        this.enrollShadowRoot(root, scan.observer);
       }
     }
-    return false;
+    // Descend even into a new root — its own un-hydrated hosts still belong in the sink.
+    this.scanForNewShadowRootInSubtree(root, depth + 1, scan);
+  };
+
+  /**
+   * Always both, in that order, so `knownShadowRoots` never holds a root we aren't watching.
+   */
+  private enrollShadowRoot = (root: ShadowRoot, observer: MutationObserver): void => {
+    observer.observe(root, SHADOW_ROOT_OBSERVE_OPTIONS);
+    this.knownShadowRoots.add(root);
   };
 
   /**
@@ -526,51 +567,18 @@ export class DomQueryService implements DomQueryServiceInterface {
   }
 
   /**
-   * Queries the DOM for all the nodes that match the given filter callback
-   * and returns a collection of nodes.
-   * @param rootNode
-   * @param filterCallback
-   * @param ignoredTreeWalkerNodes
-   * @param mutationObserver
-   */
-  private queryAllTreeWalkerNodes<T>(
-    rootNode: Node,
-    filterCallback: (element: Element) => boolean,
-    ignoredTreeWalkerNodes: Set<string>,
-    mutationObserver?: MutationObserver,
-  ): T[] {
-    const treeWalkerQueryResults: T[] = [];
-
-    this.buildTreeWalkerNodesQueryResults(
-      rootNode,
-      treeWalkerQueryResults,
-      filterCallback,
-      ignoredTreeWalkerNodes,
-      mutationObserver,
-    );
-
-    return treeWalkerQueryResults;
-  }
-
-  /**
-   * Recursively builds a collection of nodes that match the given filter callback.
-   * If a node has a ShadowRoot, it will be observed for mutations.
-   *
-   * @param rootNode
-   * @param treeWalkerQueryResults
-   * @param filterCallback
-   * @param ignoredTreeWalkerNodes
-   * @param mutationObserver
+   * Recursively collects filter-matching nodes, descending through each shadow boundary.
+   * `unresolvedHosts` is the only enrollment source for hosts that predate observer attachment.
    */
   private buildTreeWalkerNodesQueryResults<T>(
     rootNode: Node,
     treeWalkerQueryResults: T[],
     filterCallback: (element: Element) => boolean,
-    ignoredTreeWalkerNodes: Set<string>,
-    mutationObserver?: MutationObserver,
+    mutationObserver: MutationObserver | undefined,
+    unresolvedHosts: Set<Element>,
   ) {
     const treeWalker = document?.createTreeWalker(rootNode, NodeFilter.SHOW_ELEMENT, (node) =>
-      ignoredTreeWalkerNodes.has(node.nodeName?.toLowerCase())
+      this.ignoredTreeWalkerNodes.has(node.nodeName?.toLowerCase())
         ? NodeFilter.FILTER_REJECT
         : NodeFilter.FILTER_ACCEPT,
     );
@@ -593,33 +601,26 @@ export class DomQueryService implements DomQueryServiceInterface {
         treeWalkerQueryResults.push(currentNode as T);
       }
 
-      // Only probe for a shadow root when the page is known to have shadow DOM.
-      // Fast path: element.shadowRoot for open roots, free on any element type.
-      // Fall back to the extension API (chrome.dom.openOrClosedShadowRoot) for
-      // closed roots on any host element.
+      // Declared outside the latch check on purpose: the sink below must still run when the
+      // latch is false, which is when no probe happens at all.
+      let nodeShadowRoot: ShadowRoot | null = null;
       if (this.pageContainsShadowDom) {
-        let nodeShadowRoot: ShadowRoot | null = currentElement.shadowRoot;
-        if (!nodeShadowRoot) {
-          nodeShadowRoot = this.getShadowRoot(currentNode);
+        nodeShadowRoot = currentElement.shadowRoot ?? this.getShadowRoot(currentElement);
+      }
+      if (nodeShadowRoot) {
+        if (mutationObserver) {
+          this.enrollShadowRoot(nodeShadowRoot, mutationObserver);
         }
-        if (nodeShadowRoot) {
-          if (mutationObserver) {
-            mutationObserver.observe(nodeShadowRoot, {
-              attributes: true,
-              childList: true,
-              subtree: true,
-            });
-          }
-          this.knownShadowRoots.add(nodeShadowRoot);
 
-          this.buildTreeWalkerNodesQueryResults(
-            nodeShadowRoot,
-            treeWalkerQueryResults,
-            filterCallback,
-            ignoredTreeWalkerNodes,
-            mutationObserver,
-          );
-        }
+        this.buildTreeWalkerNodesQueryResults(
+          nodeShadowRoot,
+          treeWalkerQueryResults,
+          filterCallback,
+          mutationObserver,
+          unresolvedHosts,
+        );
+      } else {
+        this.sinkUnresolvedHost(currentElement, unresolvedHosts);
       }
     } while (treeWalker.nextNode());
   }

@@ -3,6 +3,8 @@
 import { firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 import {
   AuthType as SdkAuthType,
   Send as SdkSend,
@@ -10,7 +12,6 @@ import {
   SendType as SdkSendType,
 } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { asUuid, uuidAsString } from "../../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../../platform/misc/utils";
 import Domain from "../../../../platform/models/domain/domain-base";
@@ -26,11 +27,13 @@ import { SendText } from "./send-text";
 const SEND_TYPE_TO_SDK: Record<SendType, SdkSendType> = {
   [SendType.Text]: SdkSendType.Text,
   [SendType.File]: SdkSendType.File,
+  [SendType.Item]: SdkSendType.Item,
 };
 
 const SEND_TYPE_FROM_SDK: Record<SdkSendType, SendType> = {
   [SdkSendType.Text]: SendType.Text,
   [SdkSendType.File]: SendType.File,
+  [SdkSendType.Item]: SendType.Item,
 };
 
 const AUTH_TYPE_TO_SDK: Record<AuthType, SdkAuthType> = {
@@ -117,10 +120,11 @@ export class Send extends Domain {
     const model = new SendView(this);
     const keyService = Utils.getContainerService().getKeyService();
     const encryptService = Utils.getContainerService().getEncryptService();
+    const legacyCompatKeyService = Utils.getContainerService().getLegacyCompatKeyService();
     const sendKeyEncryptionKey = await firstValueFrom(keyService.userKey$(userId));
     // model.key is a seed used to derive a key, not a SymmetricCryptoKey
     model.key = await encryptService.decryptBytes(this.key, sendKeyEncryptionKey);
-    model.cryptoKey = await keyService.makeSendKey(model.key);
+    model.cryptoKey = await legacyCompatKeyService.makeSendKey(model.key);
     model.name =
       this.name != null ? await encryptService.decryptString(this.name, model.cryptoKey) : null;
     model.notes =
@@ -183,6 +187,7 @@ export class Send extends Domain {
       type: SEND_TYPE_TO_SDK[this.type],
       file: this.file ? this.file.toSdk() : undefined,
       text: this.text ? this.text.toSdk() : undefined,
+      data: undefined,
       maxAccessCount: this.maxAccessCount ?? undefined,
       accessCount: this.accessCount,
       disabled: this.disabled,

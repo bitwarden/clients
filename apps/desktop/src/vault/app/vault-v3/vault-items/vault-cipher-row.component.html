@@ -46,7 +46,8 @@
   </div>
 </td>
 @if (showOwner()) {
-  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden @md:tw-table-cell">
+  <!-- Breakpoint must match the Owner header cell in vault-list.component.html. -->
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden @xl:tw-table-cell">
     <app-org-badge
       [disabled]="disabled()"
       [organizationId]="cipher().organizationId"
@@ -63,7 +64,7 @@
       size="small"
       bitIconButton="bwi-ellipsis-v"
       type="button"
-      label="{{ 'options' | i18n }}"
+      label="{{ 'moreOptions' | i18n }}"
     ></button>
     <bit-menu #corruptedCipherOptions>
       @if (canDeleteCipher()) {
@@ -79,26 +80,17 @@
         [disabled]="disabled()"
         bitIconButton="bwi-external-link"
         type="button"
-        label="{{ 'launch' | i18n }}"
+        [label]="'launchWebsite' | i18n"
         (click)="handleLaunch()"
       ></button>
     }
-    @if (showCopyButton()) {
-      <button
-        [bitMenuTriggerFor]="copyOptions"
+    @if (showCopyActions()) {
+      <vault-item-copy-actions
+        class="tw-inline-flex tw-align-middle"
+        [cipher]="cipher()"
+        [showQuickCopyActions]="showQuickCopyActions()"
         [disabled]="disabled()"
-        bitIconButton="bwi-clone"
-        type="button"
-        label="{{ 'copyValue' | i18n }}"
-      ></button>
-      <bit-menu #copyOptions>
-        @for (copyField of copyFields(); track copyField.field) {
-          <button type="button" bitMenuItem [appCopyField]="copyField.field" [cipher]="cipher()">
-            <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
-            {{ copyField.title | i18n }}
-          </button>
-        }
-      </bit-menu>
+      ></vault-item-copy-actions>
     }
 
     <button
@@ -107,7 +99,7 @@
       [disabled]="disabled()"
       bitIconButton="bwi-ellipsis-v"
       type="button"
-      label="{{ 'options' | i18n }}"
+      label="{{ 'moreOptions' | i18n }}"
     ></button>
     <bit-menu #cipherOptions>
       @if (showFavorite()) {
@@ -137,7 +129,7 @@
       @if (showAssignToCollections()) {
         <button bitMenuItem type="button" (click)="assignToCollections()">
           <bit-icon fixedWidth [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
-          {{ "assignToCollections" | i18n }}
+          {{ "assignToCollections" | vfo1I18n: "addToSharedFolder" }}
         </button>
       }
       @if (showArchiveButton()) {

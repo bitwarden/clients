@@ -45,9 +45,13 @@ export type ProtonPassItemData = {
   metadata: ProtonPassItemMetadata;
   extraFields: ProtonPassItemExtraField[];
   platformSpecific?: any;
-  type: "login" | "alias" | "creditCard" | "note" | "identity";
+  type: "login" | "alias" | "creditCard" | "note" | "identity" | "custom" | "sshKey";
   content:
-    ProtonPassLoginItemContent | ProtonPassCreditCardItemContent | ProtonPassIdentityItemContent;
+    | ProtonPassLoginItemContent
+    | ProtonPassCreditCardItemContent
+    | ProtonPassIdentityItemContent
+    | ProtonPassCustomItemContent
+    | ProtonPassSshKeyItemContent;
 };
 
 export type ProtonPassItemMetadata = {
@@ -56,15 +60,33 @@ export type ProtonPassItemMetadata = {
   itemUuid: string;
 };
 
-export type ProtonPassItemExtraField = {
+export type ProtonPassItemExtraField =
+  | ProtonPassItemExtraFieldContent
+  | ProtonPassItemExtraFieldTimestamp
+  | ProtonPassItemExtraFieldTotp;
+
+type ProtonPassItemExtraFieldContent = {
   fieldName: string;
-  type: string;
-  data: ProtonPassItemExtraFieldData;
+  type: "text" | "hidden";
+  data: {
+    content: string;
+  };
 };
 
-export type ProtonPassItemExtraFieldData = {
-  content?: string;
-  totpUri?: string;
+type ProtonPassItemExtraFieldTimestamp = {
+  fieldName: string;
+  type: "timestamp";
+  data: {
+    timestamp: string;
+  };
+};
+
+type ProtonPassItemExtraFieldTotp = {
+  fieldName: string;
+  type: "totp";
+  data: {
+    totpUri: string;
+  };
 };
 
 export type ProtonPassLoginItemContent = {
@@ -88,6 +110,17 @@ export type ProtonPassCreditCardItemContent = {
 export type ProtonPassIdentityItemExtraSection = {
   sectionName?: string;
   sectionFields?: ProtonPassItemExtraField[];
+};
+
+export type ProtonPassCustomItemContent = {
+  sections?: ProtonPassIdentityItemExtraSection[];
+};
+
+export type ProtonPassSshKeyItemContent = {
+  privateKey?: string;
+  publicKey?: string;
+  fingerprint?: string;
+  sections?: ProtonPassIdentityItemExtraSection[];
 };
 
 export type ProtonPassIdentityItemContent = {

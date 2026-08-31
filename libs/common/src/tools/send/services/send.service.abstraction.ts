@@ -3,9 +3,9 @@ import { Observable } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
-import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { SendData } from "../models/data/send.data";
@@ -17,10 +17,16 @@ export abstract class SendService implements UserKeyRotationDataProvider<SendWit
   abstract sends$: Observable<Send[]>;
   abstract sendViews$: Observable<SendView[]>;
 
+  /**
+   * @param file The plaintext file bytes for a file send create, or `null` for text sends and
+   *   edits.
+   * @param password The plaintext password, when the user set or changed one. `null`/`undefined`
+   *   means no password. Protected Data — never log it.
+   */
   abstract encrypt(
     model: SendView,
-    file: File | ArrayBuffer,
-    password: string,
+    file: File | ArrayBuffer | null,
+    password?: string,
     key?: SymmetricCryptoKey,
   ): Promise<[Send, EncArrayBuffer]>;
   /**

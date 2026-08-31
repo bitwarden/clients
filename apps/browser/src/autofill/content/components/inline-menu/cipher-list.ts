@@ -1,7 +1,7 @@
 import { css } from "@emotion/css";
 import { html, TemplateResult } from "lit";
 
-import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { Theme } from "@bitwarden/common/platform/enums";
 
 import { InlineMenuCipherData } from "../../../background/abstractions/overlay.background";
 import { scrollbarStyles, spacing, themes, typography } from "../constants/styles";
@@ -23,7 +23,7 @@ export type InlineMenuCipherListProps = Omit<
 
 export function InlineMenuCipherList({
   ciphers,
-  theme = ThemeTypes.Light,
+  theme,
   passkeysText = "",
   passwordsText = "",
   showPasskeysLabels,
@@ -43,7 +43,7 @@ export function InlineMenuCipherList({
     theme,
     dataTestId: "inline-menu-cipher-list",
     children: html`
-      <div class=${cipherListStyles(theme)}>
+      <div role="list" data-cipher-list-scroll class=${cipherListStyles(theme)}>
         ${renderItems(ordered, withHeadings, theme, passkeysText, passwordsText, (cipher, index) =>
           InlineMenuCipherItem({
             ...itemProps,
@@ -98,7 +98,11 @@ function renderItems(
 }
 
 function heading(theme: Theme, text: string) {
-  return html`<div data-cipher-heading class=${cipherListHeadingStyles(theme)}>${text}</div>`;
+  return html`
+    <div data-cipher-heading role="presentation" class=${cipherListHeadingStyles(theme)}>
+      ${text}
+    </div>
+  `;
 }
 
 const cipherListStyles = (theme: Theme) => {
