@@ -65,10 +65,11 @@
     }
   </div>
 } @else if (!hasRows()) {
-  <bit-no-items class="tw-mt-2 tw-block" data-testid="approvals-empty">
-    <span slot="title" class="tw-mt-4 tw-block">{{ "pamInboxEmptyTitle" | i18n }}</span>
+  <bit-status-lockup class="tw-mt-2 tw-block" data-testid="approvals-empty">
+    <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
+    <span slot="title">{{ "pamInboxEmptyTitle" | i18n }}</span>
     <span slot="description">{{ "pamInboxEmptyDescription" | i18n }}</span>
-  </bit-no-items>
+  </bit-status-lockup>
 } @else {
   <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
     <bit-search
@@ -94,9 +95,10 @@
   @if (rows().length === 0 && leaseRows().length === 0) {
     <!-- Rendered inside the toolbar branch on purpose: a filter that matches nothing must not take
          the filter controls away with it, or there is no way back. -->
-    <bit-no-items class="tw-mt-2 tw-block" data-testid="approvals-no-results">
-      <span slot="title" class="tw-mt-4 tw-block">{{ "pamApprovalsNoResults" | i18n }}</span>
-    </bit-no-items>
+    <bit-status-lockup class="tw-mt-2 tw-block" data-testid="approvals-no-results">
+      <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
+      <span slot="title">{{ "pamApprovalsNoResults" | i18n }}</span>
+    </bit-status-lockup>
   } @else {
     <bit-accordion-group>
       <bit-accordion [title]="'pamApprovalsPendingSection' | i18n" [open]="true">

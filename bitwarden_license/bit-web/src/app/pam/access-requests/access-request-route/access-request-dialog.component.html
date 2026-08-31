@@ -104,10 +104,11 @@
         </bit-section>
       }
     } @else if (notFound()) {
-      <bit-no-items>
-        <span slot="title" class="tw-mt-4 tw-block">{{ "pamAccessRequestNotFound" | i18n }}</span>
+      <bit-status-lockup>
+        <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
+        <span slot="title">{{ "pamAccessRequestNotFound" | i18n }}</span>
         <span slot="description">{{ "pamAccessRequestNotFoundDescription" | i18n }}</span>
-      </bit-no-items>
+      </bit-status-lockup>
     } @else {
       <p bitTypography="body1" class="tw-text-muted">{{ "pamAccessRequestLoadError" | i18n }}</p>
     }
