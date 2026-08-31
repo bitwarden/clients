@@ -2090,8 +2090,7 @@ describe("AccessAuditComponent", () => {
       expect(visibleColumns()).toEqual(WITH_DRAWER);
     });
 
-    // The wrapper is the safety net for widths nothing can be trimmed to fit; it does not go away
-    // just because the ordinary drawer-open case now has nothing to scroll.
+    // The wrapper is the safety net for widths nothing can be trimmed to fit.
     it("keeps the horizontal scroll container while the drawer is open", async () => {
       await render();
       await openRow();
