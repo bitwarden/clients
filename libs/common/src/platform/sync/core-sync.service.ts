@@ -248,10 +248,8 @@ export abstract class CoreSyncService implements SyncService {
         ) {
           const useSdk = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
           if (useSdk) {
-            // The SDK's `fetch` persists the send directly into SEND_USER_ENCRYPTED through its
-            // client-managed send repository (see initializeClientManagedState/SendRecordMapper)
-            // — the same state InternalSendService reads — so no explicit upsert here: that
-            // would just write the identical record to the identical key a second time.
+            // sdk.sends().fetch() already persists into SEND_USER_ENCRYPTED, so no explicit
+            // upsert here.
             const sdkSend = await withPasswordManagerSdk(activeUserId, this.sdkService, (sdk) =>
               sdk.sends().fetch(asUuid<SdkSendId>(notification.id)),
             );

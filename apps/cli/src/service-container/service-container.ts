@@ -698,8 +698,6 @@ export class ServiceContainer {
       customUserAgent,
     );
 
-    // SendService depends on SdkService for the SDK-routed key-rotation path, so it must be
-    // constructed after this.sdkService is initialized above.
     this.sendService = new SendService(
       this.accountService,
       this.keyService,

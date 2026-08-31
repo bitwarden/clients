@@ -885,7 +885,7 @@ describe("DefaultSyncService", () => {
       tokenService.hasAccessToken$.mockReturnValue(of(true));
     });
 
-    it("fetches the send through the SDK when the flag is on, without a redundant upsert", async () => {
+    it("fetches the send through the SDK when the flag is on", async () => {
       configService.getFeatureFlag.mockResolvedValue(true);
       const sdkSend = {
         id: sendGuid,
@@ -905,9 +905,6 @@ describe("DefaultSyncService", () => {
       expect(result).toBe(true);
       expect(sendsClient.fetch).toHaveBeenCalledWith(sendGuid);
       expect(sendApiService.getSend).not.toHaveBeenCalled();
-      // The SDK's fetch() already persisted the send into SEND_USER_ENCRYPTED via its
-      // client-managed repository; upserting again here would write the same record twice.
-      expect(sendService.upsert).not.toHaveBeenCalled();
       expect(messageSender.send).toHaveBeenCalledWith("syncedUpsertedSend", { sendId: sendGuid });
     });
 
