@@ -64,7 +64,7 @@ export class SubscriptionCardComponent {
   private readonly datePipe = inject(DatePipe);
   private readonly i18nService = inject(I18nService);
 
-  protected readonly dateFormat = "MMM. d, y";
+  protected readonly dateFormat = "MMMM d, y";
 
   readonly title = input.required<string>();
 
