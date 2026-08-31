@@ -110,48 +110,58 @@ jobs:
             license_type: "oss"
             image_name: web-oss
             npm_command: dist:oss:selfhost
+            description: Web vault for self-hosted installations, open source build
           - artifact_name: cloud-COMMERCIAL
             license_type: "commercial"
             image_name: web-cloud
             npm_command: dist:bit:cloud
+            description: Web vault for the US production cloud
           - artifact_name: selfhosted-COMMERCIAL
             license_type: "commercial"
             image_name: web
             npm_command: dist:bit:selfhost
+            description: Web vault for self-hosted installations
           - artifact_name: selfhosted-DEV
             license_type: "commercial"
             image_name: web-dev
             npm_command: build:bit:selfhost:dev
             git_metadata: true
+            description: Web vault for self-hosted installations, development build
           - artifact_name: cloud-QA
             license_type: "commercial"
             image_name: web-qa-cloud
             npm_command: build:bit:qa
             git_metadata: true
+            description: Web vault for the US QA cloud
           - artifact_name: cloud-usqa2
             license_type: "commercial"
             image_name: web-qa2-cloud
             npm_command: build:bit:usqa2
             git_metadata: true
+            description: Web vault for the US QA2 cloud
           - artifact_name: ee
             license_type: "commercial"
             image_name: web-ee
             npm_command: build:bit:ee
             git_metadata: true
+            description: Web vault for ephemeral environments
           - artifact_name: cloud-euprd
             license_type: "commercial"
             image_name: web-euprd
             npm_command: build:bit:euprd
+            description: Web vault for the EU production cloud
           - artifact_name: cloud-euqa
             license_type: "commercial"
             image_name: web-euqa
             npm_command: build:bit:euqa
             git_metadata: true
+            description: Web vault for the EU QA cloud
           - artifact_name: cloud-usdev
             license_type: "commercial"
             image_name: web-usdev
             npm_command: build:bit:usdev
             git_metadata: true
+            description: Web vault for the US development cloud
     env:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       _VERSION: ${{ needs.setup.outputs.version }}
@@ -326,6 +336,37 @@ jobs:
             echo "tags=$ACR_NAME" >> "$GITHUB_OUTPUT"
           fi
 
+      ########## Image metadata ##########
+      - name: Build custom image metadata
+        id: custom-meta
+        env:
+          DESCRIPTION: ${{ matrix.description || 'Bitwarden web vault' }}
+          IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
+          PROJECT_NAME: ${{ matrix.image_name }}
+          REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          {
+            echo "items<<METADATA_EOF"
+            echo "org.opencontainers.image.title=Bitwarden Web Vault"
+            echo "org.opencontainers.image.description=${DESCRIPTION}"
+            echo "org.opencontainers.image.vendor=Bitwarden Inc."
+            echo "org.opencontainers.image.url=https://bitwarden.com"
+            echo "org.opencontainers.image.source=https://github.com/bitwarden/clients"
+            echo "org.opencontainers.image.version=${IMAGE_TAG}"
+            echo "org.opencontainers.image.revision=${REVISION}"
+            echo "com.bitwarden.project=${PROJECT_NAME}"
+            echo "METADATA_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Generate image metadata
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: index,manifest
+        with:
+          labels: ${{ steps.custom-meta.outputs.items }}
+          annotations: ${{ steps.custom-meta.outputs.items }}
+
       - name: Build Docker image
         id: build-container
         uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
@@ -343,6 +384,8 @@ jobs:
             linux/arm64
           push: false
           tags: ${{ steps.image-name.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
 
       - name: Push images
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
