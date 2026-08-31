@@ -55,26 +55,25 @@ import {
   AUDIT_TIME_PERIOD_LABEL_KEYS,
   AUDIT_TIME_PRESETS,
   AUTOMATED_ACTOR,
-  AuditFilter,
   AuditRange,
   AuditRow,
   AuditTimePeriod,
   UNBOUNDED_AUDIT_RANGE,
-  auditItemId,
-  auditItemLabel,
+  auditKindLabelKey,
   auditPresetRange,
   auditRangeEnd,
   auditRangeStart,
-  auditRowMatchesFilter,
   toAuditRow,
 } from "./access-audit-row";
-import { AuditApiService } from "./audit-api.service";
+import { AuditApiService, AuditTrailFilter, AuditTrailPage } from "./audit-api.service";
 import { AuditEventDrawerComponent } from "./audit-event-drawer/audit-event-drawer.component";
 import { AuditExportService } from "./audit-export.service";
 import {
   CustomRangeDialogComponent,
   CustomRangeDialogParams,
 } from "./custom-range-dialog/custom-range-dialog.component";
+import { AccessAuditEventKind } from "./responses/access-audit-event.response";
+import { AccessAuditItemResponse } from "./responses/access-audit-item.response";
 
 type AuditStatus = "loading" | "ready" | "empty" | "error";
 
@@ -95,6 +94,20 @@ const FILTER_KEYS = {
 const NO_CUSTOM_RANGE: CustomRangeDialogParams = { from: "", to: "" };
 
 const byLabel = (a: AuditChipOption, b: AuditChipOption) => a.label.localeCompare(b.label);
+
+/** Whether a filter narrows the trail at all, which is what tells an empty answer from an empty trail. */
+function isNarrowed(filter: AuditTrailFilter): boolean {
+  return (
+    filter.start != null ||
+    filter.end != null ||
+    (filter.kinds?.length ?? 0) > 0 ||
+    (filter.actorIds?.length ?? 0) > 0 ||
+    filter.includeAutomatedActor === true ||
+    (filter.requesterIds?.length ?? 0) > 0 ||
+    (filter.cipherIds?.length ?? 0) > 0 ||
+    (filter.ruleIds?.length ?? 0) > 0
+  );
+}
 
 /** One identity a chip can offer, before its label has been weighed against the other options'. */
 type AuditChipCandidate = { label: string; qualifier: string | null };
@@ -124,23 +137,6 @@ function qualifiedOptions(candidates: Map<string, AuditChipCandidate>): AuditChi
 }
 
 /**
- * One chip option per distinct identity in `rows`, labelled the way the cells label it. A row whose identity
- * resolved to neither a name nor an email is skipped rather than offered under its raw id. Two members can
- * share a display name, so the identity's email qualifies a shared one (see {@link qualifiedOptions}).
- */
-function identityOptions(rows: AuditRow[], identity: "actor" | "requester"): AuditChipOption[] {
-  const identities = new Map<string, AuditChipCandidate>();
-  for (const row of rows) {
-    const value = row[`${identity}Id`];
-    const label = row[identity];
-    if (value != null && label != null && !identities.has(value)) {
-      identities.set(value, { label, qualifier: row[`${identity}Email`] });
-    }
-  }
-  return qualifiedOptions(identities);
-}
-
-/**
  * The organization's PAM access-audit trail, read from the dedicated append-only audit store.
  *
  * `GET /organizations/{orgId}/audit` is org-scoped and authorized by the AccessEventLogs permission,
@@ -159,12 +155,17 @@ function identityOptions(rows: AuditRow[], identity: "actor" | "requester"): Aud
  * has no such dialog. The row itself opens {@link AuditEventDrawerComponent} over the same trail this
  * page already holds, which is where the fields too wide for a column live.
  *
- * The toolbar filters (event kind, actor, requester, item, time period) run client-side over the already-fetched
- * window: the endpoint takes no query parameters and returns the whole 90 days at once, so changing a
- * filter never re-reads it. Update is therefore not "apply these filters" as it is on the organization
- * event log — those are already live — but the only way to pull in events recorded since the page opened.
- * For the same reason the time period's "All time" means the whole fetched trail, which is those 90 days
- * and no more; nothing on this page claims to reach further back.
+ * The read is bounded and the toolbar filters (event kind, actor, requester, time period) are query
+ * parameters on it, so changing one re-reads the trail rather than hiding rows already fetched — which is
+ * what makes a filtered result the whole of what matches rather than the whole of what happened to be
+ * loaded. The table holds one page at a time and grows through "Load more"; "All time" is the store's
+ * ninety-day retention window, which is as far back as anything exists to show.
+ *
+ * The chip menus are therefore sourced from something other than the loaded page, since a page no longer
+ * contains every distinct value: the event kinds are the vocabulary itself, and the identities are the
+ * organization's roster, widened by any former member the loaded rows still name. There is no Item chip —
+ * its options could only ever have come from the page, because an item is named by a cipher this viewer
+ * decrypted locally and the server has no way to offer that list.
  */
 @Component({
   selector: "app-pam-access-audit",
@@ -244,7 +245,17 @@ export class AccessAuditComponent implements OnInit {
   );
 
   protected readonly status = signal<AuditStatus>("loading");
+
+  /** The pages read so far for the filter in force, oldest page first, newest event first within each. */
   protected readonly rows = signal<AuditRow[]>([]);
+
+  /**
+   * Where the last page stopped, or null once the trail has none left. The server sets it only while more
+   * remain, so this is also the answer to whether there is anything more to offer.
+   */
+  private readonly continuationToken = signal<string | null>(null);
+
+  protected readonly canLoadMore = computed(() => this.continuationToken() != null);
 
   /**
    * The open details drawer, or null when none is open. Held as the ref rather than a bare flag so a
@@ -334,46 +345,124 @@ export class AccessAuditComponent implements OnInit {
    */
   protected readonly customRangeApplied = computed(() => this.appliedPeriod() === "custom");
 
+  /**
+   * The Event chip's options: the whole vocabulary, not the kinds this page happens to be holding.
+   *
+   * A page is fifty rows, so deriving the menu from it would offer an auditor only the events they had
+   * already scrolled past — and quietly withhold the filter for the one they came looking for. The cost is
+   * options that match nothing in a given organization, which is the honest way round: an empty result
+   * says the event never happened, where a missing option says nothing at all.
+   *
+   * The values are the wire vocabulary, so a selection goes to the server as it stands. That folds the
+   * "Lease ended by holder" label into "Lease revoked" as a filter — the server records one kind and tells
+   * the two apart by actor, and the Event column still labels each row for what it was.
+   */
   protected readonly kindOptions = computed<AuditChipOption[]>(() =>
-    [...new Set(this.rows().map((row) => row.kindLabelKey))]
-      .map((labelKey) => ({ label: this.i18nService.t(labelKey), value: labelKey }))
+    Object.values(AccessAuditEventKind)
+      .map((kind) => ({ label: this.i18nService.t(auditKindLabelKey(kind)), value: kind }))
       .sort(byLabel),
   );
 
   protected readonly actorOptions = computed<AuditChipOption[]>(() => {
-    const rows = this.rows();
-    const options = identityOptions(
-      rows.filter((row) => !row.automated),
-      "actor",
-    );
-    if (rows.some((row) => row.automated)) {
-      options.push({ label: this.i18nService.t("pamAuditSystem"), value: AUTOMATED_ACTOR });
-    }
-    return options.sort(byLabel);
+    const candidates = this.identityCandidates("actor");
+    // Offered unconditionally rather than only when a loaded row is automated: the page can no longer
+    // answer whether the organization has any, and a filter that appears and disappears with the scroll
+    // position is worse than one that sometimes finds nothing.
+    candidates.set(AUTOMATED_ACTOR, {
+      label: this.i18nService.t("pamAuditSystem"),
+      qualifier: null,
+    });
+    return qualifiedOptions(candidates).sort(byLabel);
   });
 
   protected readonly requesterOptions = computed<AuditChipOption[]>(() =>
-    identityOptions(this.rows(), "requester").sort(byLabel),
+    qualifiedOptions(this.identityCandidates("requester")).sort(byLabel),
   );
 
   /**
-   * One option per item the trail names, labelled the way the Item cell labels it. Rows whose cell renders
-   * an em dash — no cipher this viewer could decrypt and no rule — contribute nothing, so the menu never
-   * offers an option that would narrow the table to rows showing no item. Two items sharing a name are told
-   * apart by the collection the Item cell already carries as that name's tooltip (see
-   * {@link qualifiedOptions}); an access rule has no such qualifier, so namesake rules stay alike.
+   * The subjects the trail names in the range in force, with whatever this vault could make of them.
+   *
+   * Held together as one value so the menu never renders items whose names have not landed yet. The
+   * names are resolved once, here, rather than per option: a `computed` cannot await, and re-resolving
+   * on every recomputation would decrypt the same ciphers again for each keystroke elsewhere.
+   */
+  private readonly itemFacets = signal<{
+    items: AccessAuditItemResponse[];
+    cipherNameById: Map<string, string>;
+    collectionNameById: Map<string, string>;
+  }>({ items: [], cipherNameById: new Map(), collectionNameById: new Map() });
+
+  /**
+   * The Item chip's options: the subjects the trail actually names in range, narrowed to the ones this
+   * viewer can put a name to.
+   *
+   * That intersection is the whole point of reading the subjects from the server. The page cannot supply
+   * the menu — fifty rows name only some of what is in range — and this vault cannot either, since it
+   * holds credentials the trail never mentions. A cipher that did not decrypt here has no label to
+   * render and so is not offered, the same rule the Actor chip follows for an unresolved member; a rule
+   * always has one, because its name is plaintext organization configuration.
    */
   protected readonly itemOptions = computed<AuditChipOption[]>(() => {
-    const items = new Map<string, AuditChipCandidate>();
-    for (const row of this.rows()) {
-      const value = auditItemId(row);
-      const label = auditItemLabel(row);
-      if (value != null && label != null && !items.has(value)) {
-        items.set(value, { label, qualifier: row.cipherName != null ? row.collectionName : null });
+    const { items, cipherNameById, collectionNameById } = this.itemFacets();
+    const candidates = new Map<string, AuditChipCandidate>();
+    for (const item of items) {
+      if (item.cipherId != null) {
+        const label = cipherNameById.get(item.cipherId);
+        if (label != null) {
+          candidates.set(item.cipherId, {
+            label,
+            qualifier:
+              item.collectionId == null
+                ? null
+                : (collectionNameById.get(item.collectionId) ?? null),
+          });
+        }
+      } else if (item.ruleId != null && item.ruleName != null) {
+        candidates.set(item.ruleId, { label: item.ruleName, qualifier: null });
       }
     }
-    return qualifiedOptions(items).sort(byLabel);
+    return qualifiedOptions(candidates).sort(byLabel);
   });
+
+  /**
+   * Which of the Item chip's values are rules. One chip carries both kinds, but they are different
+   * columns on the wire, and an id sent against the wrong one would silently match nothing.
+   */
+  private readonly ruleItemIds = computed(
+    () =>
+      new Set(
+        this.itemFacets()
+          .items.map((item) => item.ruleId)
+          .filter((ruleId): ruleId is string => ruleId != null),
+      ),
+  );
+
+  /**
+   * The identities a chip can offer: the organization's roster first, widened by anyone the loaded rows
+   * name that the roster does not.
+   *
+   * The roster is what makes the menu independent of the page. It cannot be the whole answer, though — a
+   * former member is gone from it while the events they left behind still name them, and those events are
+   * often exactly what an audit is about. So the rows contribute what the roster no longer can, which
+   * means those particular options do still come and go with what is loaded. Naming them is better than
+   * dropping them: the alternative is an auditor unable to filter to the person who left.
+   */
+  private identityCandidates(identity: "actor" | "requester"): Map<string, AuditChipCandidate> {
+    const candidates = new Map<string, AuditChipCandidate>();
+    for (const [userId, member] of this.members()) {
+      if (member.name != null && member.name !== "") {
+        candidates.set(userId, { label: member.name, qualifier: member.email });
+      }
+    }
+    for (const row of this.rows()) {
+      const value = row[`${identity}Id`];
+      const label = row[identity];
+      if (value != null && label != null && !candidates.has(value)) {
+        candidates.set(value, { label, qualifier: row[`${identity}Email`] });
+      }
+    }
+    return candidates;
+  }
 
   /** A multi-select chip's selection, or null when it has none — which matches every row. */
   private selectedValues(chip: FilterControl | undefined): string[] | null {
@@ -395,18 +484,37 @@ export class AccessAuditComponent implements OnInit {
     () => this.selectedValue(this.timePeriodChip()) as AuditTimePeriod | null,
   );
 
-  protected readonly filteredRows = computed(() => {
+  /**
+   * The read the chips currently describe. The automatic bucket is split back out of the actor selection
+   * here: it is a chip option because that is where an auditor looks for it, but on the wire it is a flag
+   * rather than an id, since the events it selects have no actor to name.
+   */
+  private readonly filter = computed<AuditTrailFilter>(() => {
     const { from, to } = this.range();
-    const filter: AuditFilter = {
-      kindLabelKey: this.selectedValues(this.kindChip()),
-      actorId: this.selectedValues(this.actorChip()),
-      requesterId: this.selectedValues(this.requesterChip()),
-      itemId: this.selectedValues(this.itemChip()),
-      from,
-      to,
+    const actors = this.selectedValues(this.actorChip()) ?? [];
+    const items = this.selectedValues(this.itemChip()) ?? [];
+    const rules = this.ruleItemIds();
+    return {
+      start: from ?? undefined,
+      end: to ?? undefined,
+      kinds: (this.selectedValues(this.kindChip()) ?? []) as AccessAuditEventKind[],
+      actorIds: actors.filter((value) => value !== AUTOMATED_ACTOR),
+      includeAutomatedActor: actors.includes(AUTOMATED_ACTOR),
+      requesterIds: this.selectedValues(this.requesterChip()) ?? [],
+      cipherIds: items.filter((value) => !rules.has(value)),
+      ruleIds: items.filter((value) => rules.has(value)),
     };
-    return this.rows().filter((row) => auditRowMatchesFilter(row, filter));
   });
+
+  /**
+   * What the rows on screen were read with, so a chip settling on the selection already in force does not
+   * re-read the trail. The chips mount only once the first page has rendered, and their first report is
+   * "nothing selected" — the very filter that page was read with — so without this every load would be
+   * followed immediately by an identical second one.
+   */
+  private readonly loadedFilterKey = signal<string | null>(null);
+
+  private readonly filterKey = computed(() => JSON.stringify(this.filter()));
 
   /** Whether anything is narrowing the table, which is what puts "Clear all" at the end of the chip row. */
   protected readonly filtersActive = computed(() => this.chips().some((chip) => chip.active()));
@@ -425,6 +533,71 @@ export class AccessAuditComponent implements OnInit {
         void this.applyTimePeriod(period);
       });
     });
+
+    // Every chip re-reads the trail, because the filters are query parameters rather than a predicate over
+    // rows already here. Driven off the resulting filter rather than off each chip, so the several signals
+    // a single interaction touches -- the time-period chip writes its selection and then its bounds --
+    // settle into one read instead of one per signal.
+    effect(() => {
+      const key = this.filterKey();
+      untracked(() => {
+        if (key === this.loadedFilterKey() || this.status() === "loading") {
+          return;
+        }
+        void this.load();
+      });
+    });
+
+    // The Item menu follows the time period and nothing else. The range is what changes which items exist,
+    // so a menu ignoring it would offer options the page can never match; the other dimensions are not,
+    // and narrowing to one actor must not quietly drop the credentials they never touched from a menu an
+    // auditor is using to look for exactly that.
+    effect(() => {
+      const key = this.itemRangeKey();
+      untracked(() => {
+        if (key === this.loadedItemRangeKey()) {
+          return;
+        }
+        void this.loadItemFacets();
+      });
+    });
+  }
+
+  /** The bounds the Item menu was read over. Only these re-read it. */
+  private readonly itemRangeKey = computed(() => {
+    const { from, to } = this.range();
+    return `${from?.getTime() ?? ""}|${to?.getTime() ?? ""}`;
+  });
+
+  private readonly loadedItemRangeKey = signal<string | null>(null);
+
+  /**
+   * Reads the subjects the trail names in range and resolves what this vault can name of them.
+   *
+   * A failure leaves the Item menu empty rather than taking the page down: the trail is still readable
+   * without one of its filters, and an auditor who cannot narrow by item is better off than one looking
+   * at an error page.
+   */
+  private async loadItemFacets(): Promise<void> {
+    const range = this.range();
+    this.loadedItemRangeKey.set(this.itemRangeKey());
+    try {
+      const items = await this.auditApiService.listAccessAuditItems(this.organizationId(), {
+        start: range.from ?? undefined,
+        end: range.to ?? undefined,
+      });
+      const refs = items
+        .filter((item) => item.cipherId != null && item.collectionId != null)
+        .map((item) => ({ cipherId: item.cipherId!, collectionId: item.collectionId! }));
+      const names = await this.nameResolver.resolveNames(refs);
+      this.itemFacets.set({
+        items,
+        cipherNameById: names.cipherNameById,
+        collectionNameById: names.collectionNameById,
+      });
+    } catch (e) {
+      this.logService.error(e);
+    }
   }
 
   /** Narrows the table to a chosen period, or collects bounds in the dialog when that period is Custom. */
@@ -490,13 +663,21 @@ export class AccessAuditComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
+    // The roster is read once and outlives every filter: it is what lets the identity chips offer someone
+    // the current page does not happen to name. A failure here leaves the chips narrower, not the trail
+    // unreadable, so it does not take the page down with it.
+    try {
+      this.members.set(await this.loadMembers());
+    } catch (e) {
+      this.logService.error(e);
+    }
     await this.load();
   }
 
   /**
-   * Reads the trail and rebuilds everything derived from it. An arrow property so `bitAction` can call it
-   * detached from the instance, and safe to call on an already-rendered page: the Update button re-runs it
-   * so events recorded since the page opened appear.
+   * Reads the first page of the trail for the filter in force and rebuilds everything derived from it. An
+   * arrow property so `bitAction` can call it detached from the instance, and safe to call on an
+   * already-rendered page: the Update button re-runs it so events recorded since the page opened appear.
    *
    * A refresh deliberately leaves the rendered table in place until it has something to replace it with.
    * Dropping back to "loading" would take the whole ready branch — the toolbar, the filters and the very
@@ -509,23 +690,30 @@ export class AccessAuditComponent implements OnInit {
     if (!refreshing) {
       this.status.set("loading");
     }
+    // Stamped before the read rather than after it, so a chip touched while this one is in flight is
+    // measured against the filter being read and not against the one before it.
+    const filter = this.filter();
+    const read = this.reads() + 1;
+    this.reads.set(read);
+    this.loadedFilterKey.set(this.filterKey());
     try {
-      const events = await this.auditApiService.listAccessAuditTrail(this.organizationId());
-      // Only events naming both a cipher and its collection can be resolved to a local vault item.
-      const refs = events
-        .filter((event) => event.cipherId != null && event.collectionId != null)
-        .map((event) => ({ cipherId: event.cipherId!, collectionId: event.collectionId! }));
-      const [names, members] = await Promise.all([
-        this.nameResolver.resolveNames(refs),
-        this.loadMembers(),
-      ]);
-      this.members.set(members);
-      const rows = events.map((event) =>
-        toAuditRow(event, names.cipherNameById, names.collectionNameById),
-      );
-      this.rows.set(rows);
-      this.status.set(rows.length === 0 ? "empty" : "ready");
+      const page = await this.readPage(filter);
+      if (this.superseded(read)) {
+        return;
+      }
+      this.rows.set(page.rows);
+      this.continuationToken.set(page.continuationToken);
+      // Nothing to show is two different states, and they must not be confused now that a filter can
+      // produce one: an organization with no PAM activity yet gets the trail's own empty state, while a
+      // filter that matched nothing stays "ready" so the chip row -- and the way back out of it --
+      // remains on the page. Read off the filter this page was fetched with rather than the chips'
+      // current state, so a chip touched mid-flight cannot decide which empty state the answer lands in.
+      const narrowed = isNarrowed(filter);
+      this.status.set(page.rows.length === 0 && !narrowed ? "empty" : "ready");
     } catch (e) {
+      if (this.superseded(read)) {
+        return;
+      }
       if (refreshing) {
         throw e;
       }
@@ -533,6 +721,61 @@ export class AccessAuditComponent implements OnInit {
       this.status.set("error");
     }
   };
+
+  /**
+   * Appends the next page to the table.
+   *
+   * Appends rather than replaces, and never touches {@link status}: an auditor reading down a trail is
+   * holding their place in it, and swapping the table out from under them to reload what they were already
+   * looking at would lose it. A failure is raised to `bitAction`, which reports it while what is already on
+   * screen stays there.
+   */
+  protected readonly loadMore = async (): Promise<void> => {
+    const continuationToken = this.continuationToken();
+    if (continuationToken == null) {
+      return;
+    }
+    const read = this.reads();
+    const page = await this.readPage({ ...this.filter(), continuationToken });
+    if (this.superseded(read)) {
+      return;
+    }
+    this.rows.update((rows) => [...rows, ...page.rows]);
+    this.continuationToken.set(page.continuationToken);
+  };
+
+  /**
+   * Which read the rows on screen belong to.
+   *
+   * A refresh deliberately leaves the table rendered rather than dropping to "loading", so the chips stay
+   * live and a second read can start while the first is still out. Without a sequence, whichever came back
+   * last would win — and a slow answer to a filter the auditor has already moved off would overwrite the
+   * one they are waiting for, leaving the table disagreeing with the chips above it.
+   */
+  private readonly reads = signal(0);
+
+  private superseded(read: number): boolean {
+    return read !== this.reads();
+  }
+
+  /** One page of the trail, shaped for the table. */
+  private async readPage(
+    filter: AuditTrailFilter,
+  ): Promise<{ rows: AuditRow[]; continuationToken: string | null }> {
+    const page = await this.auditApiService.listAccessAuditTrail(this.organizationId(), filter);
+    return { rows: await this.toRows(page), continuationToken: page.continuationToken };
+  }
+
+  private async toRows(page: AuditTrailPage): Promise<AuditRow[]> {
+    // Only events naming both a cipher and its collection can be resolved to a local vault item.
+    const refs = page.data
+      .filter((event) => event.cipherId != null && event.collectionId != null)
+      .map((event) => ({ cipherId: event.cipherId!, collectionId: event.collectionId! }));
+    const names = await this.nameResolver.resolveNames(refs);
+    return page.data.map((event) =>
+      toAuditRow(event, names.cipherNameById, names.collectionNameById),
+    );
+  }
 
   /**
    * The organization's members, keyed by platform user id, for {@link members}.
@@ -666,17 +909,48 @@ export class AccessAuditComponent implements OnInit {
    * Downloads the filtered trail as CSV. An arrow property so `bitAction` can call it detached from the
    * instance.
    *
-   * Exports {@link filteredRows}, not {@link rows}: an auditor who narrowed the table to one requester and
-   * one week is asking for that week, and the whole 90-day window would hand them back the events they
-   * deliberately filtered out. The file is built from what the browser already holds — the endpoint takes no
-   * parameters and is not re-read — and every name in it is one this viewer could already read on screen.
+   * Walks every page of the active filter rather than serializing the rows on screen. An auditor who
+   * narrowed the table to one requester and one week is asking for that week — all of it, not the first
+   * fifty of it — and a file that silently stops at the page boundary is the one outcome an audit export
+   * must not produce: it looks complete. The filters are what bound how much this pulls, and every name in
+   * the file is one this viewer could already have read on screen.
    */
-  protected readonly exportCsv = (): void => {
-    const csv = this.auditExportService.getAuditExport(this.filteredRows());
+  protected readonly exportCsv = async (): Promise<void> => {
+    const csv = this.auditExportService.getAuditExport(await this.readEveryPage());
     this.fileDownloadService.download({
       fileName: this.auditExportService.getFileName(),
       blobData: csv,
       blobOptions: { type: "text/csv" },
     });
   };
+
+  /**
+   * Every row the active filter matches, read page by page.
+   *
+   * Guarded on the position advancing rather than on a row count: a server that answered every request
+   * with the same token would otherwise spin here forever, writing the same page into the file until the
+   * tab died. Refusing outright is the right failure — `bitAction` reports it, and no file is written that
+   * claims to be the trail and is not.
+   */
+  private async readEveryPage(): Promise<AuditRow[]> {
+    const filter = this.filter();
+    const all: AuditRow[] = [];
+    const seen = new Set<string>();
+    let continuationToken: string | undefined;
+
+    for (;;) {
+      const page = await this.readPage({ ...filter, continuationToken });
+      all.push(...page.rows);
+      if (page.continuationToken == null) {
+        return all;
+      }
+      if (seen.has(page.continuationToken)) {
+        throw new Error(
+          "The audit trail returned the same page twice; the export was not written.",
+        );
+      }
+      seen.add(page.continuationToken);
+      continuationToken = page.continuationToken;
+    }
+  }
 }

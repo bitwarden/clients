@@ -173,30 +173,6 @@ export function toAuditRow(
 }
 
 /**
- * The identity behind the Item cell, or null when that cell renders no item.
- *
- * Mirrors what the cell actually shows: a decrypted cipher name first, an access rule name second, an em
- * dash otherwise. Keyed on the id rather than the label because two access rules can carry the same name,
- * and merging them would let an auditor read half a rule's history as the whole of it. A row whose cipher
- * did not decrypt in this viewer's vault has no name to render and so no identity to filter on — the same
- * rule the Actor chip follows for an unresolved member.
- */
-export function auditItemId(row: AuditRow): string | null {
-  if (row.cipherName != null) {
-    return row.cipherId;
-  }
-  if (row.ruleName != null) {
-    return row.ruleId;
-  }
-  return null;
-}
-
-/** The label the Item cell renders for a row, or null when it renders no item. */
-export function auditItemLabel(row: AuditRow): string | null {
-  return row.cipherName ?? row.ruleName;
-}
-
-/**
  * Whether the event destroyed the rule it names.
  *
  * The audit store snapshots {@link AuditRow.ruleName} at write time, so such a row still reads as a name
@@ -209,8 +185,9 @@ export function auditRuleDeleted(row: AuditRow): boolean {
 }
 
 /**
- * The Actor filter's value for the system / automatic bucket, which has no actor identity of its own.
- * Not a possible actor id: the server writes those as GUIDs.
+ * The Actor filter's value for the system / automatic bucket, which has no actor identity of its own. Not a
+ * possible actor id: the server writes those as GUIDs. Selecting it sends `includeAutomatedActor` rather
+ * than an id, which unions the automatic events with whichever members are also selected.
  */
 export const AUTOMATED_ACTOR = "automated";
 
@@ -248,11 +225,11 @@ export type AuditRange = { from: Date | null; to: Date | null };
 export const UNBOUNDED_AUDIT_RANGE: AuditRange = { from: null, to: null };
 
 /**
- * A choice in the Time period filter.
+ * A choice in the Time period filter. Each one resolves to the bounds sent to the server as `start` and
+ * `end`, so choosing a period re-reads the trail rather than hiding rows already fetched.
  *
- * `allTime` is the whole fetched trail, not all of history: `GET /organizations/{orgId}/audit` serves a
- * fixed 90-day window and takes no parameters, so nothing older than that window is on the client for any
- * option here to show.
+ * `allTime` is the store's retention window, not all of history: it sends no bounds, and the server answers
+ * an unbounded request with everything it still holds — ninety days — so nothing older exists to show.
  */
 export type AuditTimePeriod = "today" | "past7Days" | "past30Days" | "allTime" | "custom";
 
@@ -287,58 +264,4 @@ export function auditPresetRange(period: AuditTimePeriod, now: Date): AuditRange
     default:
       return UNBOUNDED_AUDIT_RANGE;
   }
-}
-
-/**
- * The active audit-log filter. Every dimension is independent, and an unset one matches everything.
- *
- * The identity dimensions are lists because their chips are multi-select: an auditor reconstructing an
- * incident is usually following two or three people, not one, and narrowing to each in turn loses the
- * order events happened in.
- */
-export type AuditFilter = {
-  kindLabelKey: readonly string[] | null;
-  /** Actor identities, or {@link AUTOMATED_ACTOR} for the system bucket. */
-  actorId?: readonly string[] | null;
-  requesterId?: readonly string[] | null;
-  /** Item identities, as {@link auditItemId} reads them. A row with no item matches no selection. */
-  itemId?: readonly string[] | null;
-  /** Inclusive lower bound on {@link AuditRow.occurredAt}. */
-  from?: Date | null;
-  /** Inclusive upper bound on {@link AuditRow.occurredAt}. */
-  to?: Date | null;
-};
-
-/** Whether a row's value is one of those selected. An empty or absent selection matches everything. */
-function selects(selected: readonly string[] | null | undefined, value: string | null): boolean {
-  if (selected == null || selected.length === 0) {
-    return true;
-  }
-  return value != null && selected.includes(value);
-}
-
-/** Whether a row passes the filter. An empty selection and a null bound match everything. */
-export function auditRowMatchesFilter(row: AuditRow, filter: AuditFilter): boolean {
-  if (!selects(filter.kindLabelKey, row.kindLabelKey)) {
-    return false;
-  }
-  // The Actor cell reads "System" for every automated row whatever the wire carries as its actor, so the
-  // buckets split on the effective identity that cell renders rather than on the row's own actor id.
-  if (!selects(filter.actorId, row.automated ? AUTOMATED_ACTOR : row.actorId)) {
-    return false;
-  }
-  if (!selects(filter.requesterId, row.requesterId)) {
-    return false;
-  }
-  if (!selects(filter.itemId, auditItemId(row))) {
-    return false;
-  }
-  const occurredAt = row.occurredAt.getTime();
-  if (filter.from != null && occurredAt < filter.from.getTime()) {
-    return false;
-  }
-  if (filter.to != null && occurredAt > filter.to.getTime()) {
-    return false;
-  }
-  return true;
 }
