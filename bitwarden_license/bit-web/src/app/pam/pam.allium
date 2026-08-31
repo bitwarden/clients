@@ -35,8 +35,9 @@
 --   - Governance dashboard (GovernanceDashboard) — no server or SDK backing
 --   - EmailApprovalDeepLink as a distinct landing page; /pam/requests/:id currently
 --     serves the requester's own request only
---   - ForecastDecision and RuleAllowsLease as separate reads; the built request form
---     shapes itself from AccessRequestsClient::pre_check instead
+--   - ForecastDecision as a separate read; the built request form shapes itself from
+--     AccessRequestsClient::pre_check instead. RuleAllowsLease now lands through that
+--     same pre_check (PM-42446), as can_start_lease / slot_frees_at.
 
 -- ----------------------------------------------------------------------------
 -- External entities (other systems own these; PAM only references them)
@@ -1409,6 +1410,13 @@ surface RequestAccessModal {
         -- (union/OR); otherwise always startable. Lets the modal warn that an
         -- otherwise-auto_approve request could not be started yet because another lease
         -- is active on this cipher. A current-state hint, re-checked for real at start.
+        --
+        -- Surfaced with the time the slot frees (the blocking lease's not_after, latest
+        -- one wins), so the requester gets a retry time rather than polling. Deliberately
+        -- WITHOUT the holder's identity: same-collection members can already enumerate
+        -- each other, but who is using which privileged credential right now is
+        -- behavioural data only approvers see (ActiveLeasesPage). Revisit only behind an
+        -- org opt-in.
         RuleAllowsLease(requester, target_cipher)
 
     provides:
