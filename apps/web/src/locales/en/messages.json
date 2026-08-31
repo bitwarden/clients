@@ -17976,17 +17976,11 @@
   "pamAuditEmptyMessage": {
     "message": "Privileged-access activity in this organization will appear here."
   },
-  "pamAuditSearchPlaceholder": {
-    "message": "Search the audit log"
-  },
   "pamAuditNoMatchesTitle": {
     "message": "No matching events"
   },
   "pamAuditNoMatchesMessage": {
     "message": "No events match the current filters."
-  },
-  "pamAuditColumnTime": {
-    "message": "Time"
   },
   "pamAuditColumnEvent": {
     "message": "Event"
