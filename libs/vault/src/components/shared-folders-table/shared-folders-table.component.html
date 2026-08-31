@@ -11,6 +11,10 @@
   <bit-table-toolbar>
     <bit-search class="tw-flex-1" [placeholder]="'search' | i18n"></bit-search>
 
+    <!--
+      Hidden rather than removed with `@if`: the button is projected into the toolbar's `end` slot,
+      and projection matches only the static top-level nodes of projected content.
+    -->
     <button
       id="shared-folders-table_button_add"
       slot="end"
@@ -18,6 +22,7 @@
       bitButton
       buttonType="primary"
       startIcon="bwi-plus"
+      [class.tw-hidden]="!canAdd()"
       (click)="add.emit()"
     >
       {{ "add" | i18n }}

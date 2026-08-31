@@ -177,6 +177,16 @@ export class SharedFoldersComponent {
       }));
   });
 
+  /**
+   * Whether the table offers its Add button, on the organization's own collection creation
+   * permission — so this page and the organization vault's Add agree on who may add a folder.
+   *
+   * `false` while the organization list loads, and for a `:vaultId` that names no organization the
+   * member belongs to: an Add that appears mid-load, or over a vault that resolved to nothing, can
+   * only open a dialog with no organization to save to.
+   */
+  protected readonly canAdd = computed(() => this.organization()?.canCreateNewCollections ?? false);
+
   protected readonly rowActions = computed<SharedFoldersTableRowAction<WebSharedFolderRow>[]>(
     () => {
       const organization = this.organization();

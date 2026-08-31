@@ -91,13 +91,14 @@ export type SharedFoldersTableFilters = {
 
 /**
  * A shared folders table: name, permissions, item count, and a per-row Options menu, with a search
- * field, a Permissions filter chip, and an Add button in the toolbar above them. Supply {@link
+ * field, a Permissions filter chip, and — for a client that sets {@link
+ * SharedFoldersTableComponent.canAdd} — an Add button in the toolbar above them. Supply {@link
  * SharedFoldersTableComponent.bulkActions} and the rows also take checkboxes, backed by a bulk
  * actions bar.
  *
  * The table is presentational — it sorts and searches the rows it is handed and reports intent
  * back through {@link add} and each action's `run`. Loading the folders, resolving each folder's
- * permission, and acting on a row all stay with the client.
+ * permission, and acting on a row all stay with the client, as does deciding who may add one.
  *
  * Each folder's name links to its organization's vault, drilled into that folder — the route
  * {@link vaultScopeCommands} builds from the row.
@@ -114,6 +115,7 @@ export type SharedFoldersTableFilters = {
  *   [loading]="loading()"
  *   [rowActions]="rowActions()"
  *   [bulkActions]="bulkActions()"
+ *   [canAdd]="canAdd()"
  *   (add)="addSharedFolder()"
  * />
  * ```
@@ -171,6 +173,16 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
    * {@link BitTableV2Component.queryParam}. Omit to leave the URL untouched.
    */
   readonly queryParam = input<string>();
+
+  /**
+   * Whether the toolbar offers its Add button.
+   *
+   * Off by default: creating a shared folder is a privileged action, and which members hold it is
+   * the client's to resolve — so a client opts the button in once it has checked, rather than
+   * having it offered until the client remembers to take it away. Prefixed because `add` already
+   * names the output the button emits.
+   */
+  readonly canAdd = input(false, { transform: booleanAttribute });
 
   /** Emitted when the toolbar's Add button is pressed. */
   readonly add = output<void>();

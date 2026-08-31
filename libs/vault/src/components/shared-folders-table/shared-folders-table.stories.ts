@@ -122,6 +122,7 @@ type StoryProps = {
   loading: boolean;
   rowActions: SharedFoldersTableRowAction[];
   bulkActions: SharedFoldersTableBulkAction[];
+  canAdd: boolean;
 };
 
 const template = /* HTML */ `
@@ -131,6 +132,7 @@ const template = /* HTML */ `
       [loading]="loading"
       [rowActions]="rowActions"
       [bulkActions]="bulkActions"
+      [canAdd]="canAdd"
       (add)="add()"
     ></vault-shared-folders-table>
   </div>
@@ -145,6 +147,7 @@ export default {
     loading: false,
     rowActions,
     bulkActions,
+    canAdd: true,
   },
   decorators: [
     moduleMetadata({
@@ -260,6 +263,15 @@ export const NoBulkActions: Story = {
     bulkActions: [],
     sharedFolders: sharedFolders.filter((sharedFolder) => !managed(sharedFolder)),
   },
+};
+
+/**
+ * Without `canAdd` the toolbar drops its Add button, leaving the search field and the Permissions
+ * chip. What the web client falls back to for a member the organization does not let create
+ * collections — the button is dropped rather than offered into a dialog that would refuse to save.
+ */
+export const NoAdd: Story = {
+  args: { canAdd: false },
 };
 
 /**

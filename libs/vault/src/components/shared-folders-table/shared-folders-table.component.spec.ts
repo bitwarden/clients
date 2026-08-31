@@ -497,13 +497,40 @@ describe("SharedFoldersTableComponent", () => {
     });
   });
 
-  it("emits add when the toolbar button is pressed", () => {
-    const add = jest.fn();
-    component.add.subscribe(add);
-    fixture.detectChanges();
+  describe("the Add button", () => {
+    /** The toolbar's Add button, hidden rather than removed while the client withholds `canAdd`. */
+    function addButton(): HTMLButtonElement {
+      const button = fixture.nativeElement.querySelector(
+        "#shared-folders-table_button_add",
+      ) as HTMLButtonElement | null;
+      if (!button) {
+        throw new Error("The toolbar's Add button is not rendered");
+      }
+      return button;
+    }
 
-    fixture.nativeElement.querySelector("#shared-folders-table_button_add").click();
+    it("emits add when pressed", () => {
+      const add = jest.fn();
+      component.add.subscribe(add);
+      fixture.componentRef.setInput("canAdd", true);
+      fixture.detectChanges();
 
-    expect(add).toHaveBeenCalled();
+      addButton().click();
+
+      expect(add).toHaveBeenCalled();
+    });
+
+    it("is offered once the client sets canAdd", () => {
+      fixture.componentRef.setInput("canAdd", true);
+      fixture.detectChanges();
+
+      expect(addButton().classList).not.toContain("tw-hidden");
+    });
+
+    it("is withheld by default", () => {
+      fixture.detectChanges();
+
+      expect(addButton().classList).toContain("tw-hidden");
+    });
   });
 });
