@@ -12,6 +12,7 @@
         [description]="'subscriptionDetailsNotLoadingDesc' | i18n"
         [buttonText]="'refresh' | i18n"
         icon="bwi-clear"
+        [loading]="subscriptionPreview.isLoading()"
         (actionClicked)="refreshAll()"
       />
     } @else if (subscriptionPreview.isLoading() || !subscription) {
