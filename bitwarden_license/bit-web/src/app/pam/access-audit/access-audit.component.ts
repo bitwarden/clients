@@ -93,36 +93,48 @@ const NO_CUSTOM_RANGE: CustomRangeDialogParams = { from: "", to: "" };
 
 const byLabel = (a: AuditChipOption, b: AuditChipOption) => a.label.localeCompare(b.label);
 
+/** One identity a chip can offer, before its label has been weighed against the other options'. */
+type AuditChipCandidate = { label: string; qualifier: string | null };
+
+/**
+ * Chip options for `candidates`, with a label two of them share qualified by whatever tells those two apart.
+ *
+ * The options are keyed on the identity rather than the label, but a menu offering the same words twice would
+ * still let an auditor read a filtered half of the trail as the whole of one identity's activity — the very
+ * outcome that keying was meant to prevent, arriving through the label instead. The qualifier is therefore
+ * appended in the `Name (qualifier)` shape the member pickers already use
+ * (`apps/web/src/app/admin-console/organizations/shared/components/access-selector/access-selector.models.ts`).
+ * Where the trail carries no qualifier for a namesake, the two stay indistinguishable.
+ */
+function qualifiedOptions(candidates: Map<string, AuditChipCandidate>): AuditChipOption[] {
+  const labelCounts = new Map<string, number>();
+  for (const { label } of candidates.values()) {
+    labelCounts.set(label, (labelCounts.get(label) ?? 0) + 1);
+  }
+  return [...candidates].map(([value, { label, qualifier }]) => ({
+    value,
+    label:
+      (labelCounts.get(label) ?? 0) > 1 && qualifier != null && qualifier !== label
+        ? `${label} (${qualifier})`
+        : label,
+  }));
+}
+
 /**
  * One chip option per distinct identity in `rows`, labelled the way the cells label it. A row whose identity
- * resolved to neither a name nor an email is skipped rather than offered under its raw id.
- *
- * Two members can share a display name, and a menu offering the same words twice would let an auditor read a
- * filtered half of the trail as the whole of one person's activity. A shared label is therefore qualified with
- * the identity's email, in the `Name (email)` shape the member pickers already use
- * (`apps/web/src/app/admin-console/organizations/shared/components/access-selector/access-selector.models.ts`).
- * Where the trail carries no email for a namesake, the two stay indistinguishable.
+ * resolved to neither a name nor an email is skipped rather than offered under its raw id. Two members can
+ * share a display name, so the identity's email qualifies a shared one (see {@link qualifiedOptions}).
  */
 function identityOptions(rows: AuditRow[], identity: "actor" | "requester"): AuditChipOption[] {
-  const identities = new Map<string, { label: string; email: string | null }>();
+  const identities = new Map<string, AuditChipCandidate>();
   for (const row of rows) {
     const value = row[`${identity}Id`];
     const label = row[identity];
     if (value != null && label != null && !identities.has(value)) {
-      identities.set(value, { label, email: row[`${identity}Email`] });
+      identities.set(value, { label, qualifier: row[`${identity}Email`] });
     }
   }
-  const labelCounts = new Map<string, number>();
-  for (const { label } of identities.values()) {
-    labelCounts.set(label, (labelCounts.get(label) ?? 0) + 1);
-  }
-  return [...identities].map(([value, { label, email }]) => ({
-    value,
-    label:
-      (labelCounts.get(label) ?? 0) > 1 && email != null && email !== label
-        ? `${label} (${email})`
-        : label,
-  }));
+  return qualifiedOptions(identities);
 }
 
 /**
@@ -310,18 +322,20 @@ export class AccessAuditComponent implements OnInit {
   /**
    * One option per item the trail names, labelled the way the Item cell labels it. Rows whose cell renders
    * an em dash — no cipher this viewer could decrypt and no rule — contribute nothing, so the menu never
-   * offers an option that would narrow the table to rows showing no item.
+   * offers an option that would narrow the table to rows showing no item. Two items sharing a name are told
+   * apart by the collection the Item cell already carries as that name's tooltip (see
+   * {@link qualifiedOptions}); an access rule has no such qualifier, so namesake rules stay alike.
    */
   protected readonly itemOptions = computed<AuditChipOption[]>(() => {
-    const items = new Map<string, string>();
+    const items = new Map<string, AuditChipCandidate>();
     for (const row of this.rows()) {
       const value = auditItemId(row);
       const label = auditItemLabel(row);
       if (value != null && label != null && !items.has(value)) {
-        items.set(value, label);
+        items.set(value, { label, qualifier: row.cipherName != null ? row.collectionName : null });
       }
     }
-    return [...items].map(([value, label]) => ({ value, label })).sort(byLabel);
+    return qualifiedOptions(items).sort(byLabel);
   });
 
   /** A multi-select chip's selection, or null when it has none — which matches every row. */
