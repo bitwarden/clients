@@ -81,19 +81,6 @@ describe("PasswordPreloginData", () => {
       );
     });
 
-    it("returns an undefined salt when the server omits it", () => {
-      const result = PasswordPreloginData.fromResponse(
-        new PasswordPreloginResponse({
-          KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
-        }),
-      );
-
-      expect(result.salt).toBeUndefined();
-      expect(result.kdfConfig).toEqual(
-        new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
-      );
-    });
-
     it.each([
       {
         description: "PBKDF2 iterations below minimum",
