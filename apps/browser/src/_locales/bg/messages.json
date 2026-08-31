@@ -508,6 +508,45 @@
   "options": {
     "message": "Опции"
   },
+  "optionsForItem": {
+    "message": "Опции за $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "Няма споделена папка"
+  },
+  "filterByName": {
+    "message": "Филтриране по $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "favoritesFilterTooltip": {
+    "message": "Отбелязвайте елементи като любими, за да ги филтрирате тук."
+  },
+  "foldersFilterTooltip": {
+    "message": "Добавете папки към елементите, за да ги филтрирате тук."
+  },
+  "editItemWithName": {
+    "message": "Редактиране на елемент – $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noItemsInVault": {
+    "message": "Няма елементи в трезора"
+  },
   "length": {
     "message": "Дължина"
   },
@@ -711,15 +750,6 @@
   },
   "launchWebsite": {
     "message": "Посещаване на уеб сайта"
-  },
-  "launchWebsiteForName": {
-    "message": "Отваряне на уеб сайта за $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "website": {
     "message": "Сайт"
@@ -1057,6 +1087,12 @@
   },
   "addedFolder": {
     "message": "Добавена папка"
+  },
+  "folderEdited": {
+    "message": "Папката е редактирана"
+  },
+  "enterAName": {
+    "message": "Въведете име."
   },
   "twoStepLoginConfirmation": {
     "message": "Двустепенното вписване защитава регистрацията ви, като ви кара да потвърдите влизането си чрез устройство-ключ, приложение за удостоверение, мобилно съобщение, телефонно обаждане или електронна поща. Двустепенното вписване може да се включи чрез сайта bitwarden.com. Искате ли да го посетите?"
@@ -1644,12 +1680,6 @@
   "premiumRefresh": {
     "message": "Опресняване на абонамента"
   },
-  "premiumNotCurrentMember": {
-    "message": "В момента ползвате безплатен абонамент."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Платеният абонамент дава следните предимства:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB пространство за файлове, които се шифрират."
   },
@@ -1694,12 +1724,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Можете да закупите платената версия от настройките на регистрацията си, в приложението по уеб на Битуорден."
-  },
-  "premiumCurrentMember": {
-    "message": "Честито, ползвате платен абонамент!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Благодарим ви за подкрепата на Bitwarden."
   },
   "premiumFeatures": {
     "message": "Преминете към платената версия и ще получите:"
@@ -2174,9 +2198,6 @@
   "securityCode": {
     "message": "Код за сигурност"
   },
-  "cardNumber": {
-    "message": "номер на карта"
-  },
   "ex": {
     "message": "напр."
   },
@@ -2586,6 +2607,15 @@
   },
   "nCollections": {
     "message": "$COUNT$ колекции",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "$COUNT$ споделени папки",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5109,6 +5139,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "Вижте подробни инструкции за $NAME$ в нашия",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Помощен център"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "Процесът е съвсем същият като при внасяне от Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "Използвайки настолното приложение на KeePassX, отидете в „База данни“ → „Изнасяне като файл CSV“ и запазете файла CSV."
+  },
+  "importAviraInstructions": {
+    "message": "В трезора по уеб на Avira, идете в „Настройки“ → „Моите данни“ → „Изнасяне на данните“ и запазете файла CSV."
+  },
+  "importBlurInstructions": {
+    "message": "В трезора по уеб на Blur, щракнете върху потребителското си име в горната част и идете в „Настройки“ → „Изнасяне на данните“, а след това изберете „Изнасяне като CSV“ за своите „Акаунти“."
+  },
+  "importSafeincloudInstructions": {
+    "message": "Използвайки настолното приложение на SafeInCloud, отидете в „Файл“ → „Изнасяне“ → „Като XML“ и запазете файла XML."
+  },
+  "importPadlockInstructions": {
+    "message": "Използвайки настолното приложение на Padlock, щракнете върху иконката за меню в горния ляв ъгъл и натиснете бутона „Настройки“ → „Изнасяне“, след което запазете файла „Като CSV“."
+  },
+  "importKeepass2Instructions": {
+    "message": "Използвайки настолното приложение на KeePass 2, идете във „Файл“ → „Изнасяне“ и изберете опцията „KeePass XML (2.x)“."
+  },
+  "importUpmInstructions": {
+    "message": "Използвайки настолното приложение на Universal Password Manager, отидете в „База данни“ → „Изнасяне“ и запазете файла CSV."
+  },
+  "importSaferpassInstructions": {
+    "message": "Използвайки добавката за браузър на SaferPass, щракнете върху иконката за меню в горния ляв ъгъл и идете в „Настройки“. Натиснете бутона „Изнасяне на акаунтите“, за да запазите файла CSV."
+  },
+  "importMeldiumInstructions": {
+    "message": "Използвайки трезора по уеб на Meldium, идете в „Настройки“. Намерете функцията за „Изнасяне на данни“ и щракнете върху „Показване на моите данни“, за да запазите файла CSV."
+  },
+  "importPassworddragonInstructions": {
+    "message": "Използвайки настолното приложение на Password Dragon, идете във „Файл“ → „Изнасяне“ → „Като XML“. В прозореца, който ще се покаже, изберете „Всички редове“ и отбележете всички полета. Натиснете бутона „Изнасяне“ и запазете файла XML."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "Използвайки настолното приложение на Enpass, идете във „Файл“ → „Изнасяне“ → „Като CSV“. Съгласете се с предупредителното съобщение и запазете файла CSV. Имайте предвид, че при внасяне се поддържат само файлове, изнесени докато Enpass се използва на английски език, така че задайте това, ако е необходимо."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "Използвайки настолното приложение на Enpass 6, натиснете бутона за менюто и идете във „Файл“ → „Изнасяне“. Изберете формат „.json“ и запазете файла JSON."
+  },
+  "importPwsafeInstructions": {
+    "message": "Използвайки настолното приложение на Password Safe, отидете в „Файл“ → „Изнасяне като“ → „Формат XML…“ и запазете файла XML."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Впишете се в Dashlane, щракнете върху „Моят акаунт“ → „Настройки“ → „Изнасяне на файл“ и изберете „ Изнасяне като файл CSV“. Така ще свалите архивиран файл zip съдържащ различни файлове CSV. Разархивирайте го и внесете всеки от файловете CSV един по един."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane вече не поддържа формата JSON. Използвайте това само ако вече имате JSON за внасяне. Когато изнасяте нови данни, използвайте CSV."
+  },
+  "importMsecureInstructions": {
+    "message": "Използвайки настолното приложение на mSecure, отидете във „Файл“ → „Изнасяне“ → „Файл CSV…“ и запазете файла CSV."
+  },
+  "importStickypasswordInstructions": {
+    "message": "Използвайки настолното приложение на Sticky Password, идете в „Меню“ (горе вдясно) → „Изнасяне“ → „Изнасяне на всичко“. Изберете нешифрован формат XML и запазете файла XML."
+  },
+  "importTruekeyInstructions": {
+    "message": "Използвайки настолното приложение на True Key, щракнете върху иконката със зъбно колело (горе вдясно) и след това идете в „Настройки на приложението“. Натиснете бутона за „Изнасяне“, въведете паролата си и запазете файла CSV."
+  },
+  "importClipperzInstructions": {
+    "message": "Впишете се в приложението по уеб на Clipperz (clipperz.is/app). Щракнете върху иконката за меню горе вдясно, за да разпънете лентата за навигация. Идете в „Данни“ → „Изнасяне“. Натиснете бутона за „Сваляне на HTML+JSON“, зада запазите файла HTML."
+  },
+  "importRoboformInstructions": {
+    "message": "Използвайки настолното приложение на RoboForm Editor, идете на „RoboForm“ (горе вляво) → „Настройки“ → „Акаунт и данни“ и натиснете бутона за „Изнасяне“. Изберете всичките си данни, променете формата на „Файл CSV“ и натиснете бутона за „Изнасяне“, за да запазите файла CSV. Забележка: RoboForm разрешава изнасянето само на данни за вписване. Другите данни няма да бъдат изнесени."
+  },
+  "importPassboltInstructions": {
+    "message": "Впишете се в трезора по уеб на Passbolt и идете в списъка с „Пароли“. Изберете всички пароли, които бихте искали да изнесете и натиснете бутона за „Изнасяне“ най-отгоре. Изберете формат за изнасяне „csv (lastpass)“ и натиснете бутона за „Изнасяне“."
+  },
+  "importAscendoInstructions": {
+    "message": "Използвайки настолното приложение на Ascendo DataVault, идете в „Инструменти“ → „Изнасяне“. В прозореца, който ще се появи, изберете „Всички елементи (DVX, CSV)“. Натиснете бутона за продължаване и запазете файла CSV."
+  },
+  "importPasswordbossInstructions": {
+    "message": "Използвайки настолното приложение на Password Boss, идете във „Файл“ → „Изнасяне на данните“ → „Password Boss JSON – без шифроване“ и запазете файла JSON."
+  },
+  "importZohoInstructions": {
+    "message": "Впишете се в трезора по уеб на Zoho (vault.zoho.com). Идете в „Инструменти“ → „Изнасяне на тайните“. Изберете „Всички тайни“ и натиснете бутона „Трезор на Zoho във формат CSV“. Изберете и копирайте данните от текстовото поле. Отворете текстов редактор и поставете там данните. Запазете файла в текстовия редактор като",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "Използвайки настолното приложение на SplashID Safe, щракнете върху логото със син катинар на SplashID в горния десен ъгъл. Идете в „Изнасяне“ → „Изнасяне като CSV“ и запазете файла CSV."
+  },
+  "importPasskeepInstructions": {
+    "message": "Използвайки мобилното приложение на PassKeep, идете в „Резервни копия и възстановяване“. Намерете раздела за файлове CSV и натиснете бутона за създаване на резервно копие във формат CSV, за да запазите файла CSV."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Уверете се, че python-keyring и python-gnomekeyring са инсталирани. Запазете скрипта за",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "внасяне/изнасяне на ключодържател на GNOME"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "на работния си плот като",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Отворете терминала и изпълнете командите",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "и",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". След това качете получения файл",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "тук в Битуорден.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "Използвайки настолното приложение на Password Agent, идете във „Файл“ → „Изнасяне“, натиснете бутона за избор на „Полета за изнасяне“ и отбележете всички полета. Сменете формата на „CSV“ и натиснете бутона „Старт“, за да запазите файла CSV."
+  },
+  "importPasspackInstructions": {
+    "message": "Впишете се в трезора по уеб на Passpack и идете в „Настройки“ → „Изнасяне“, а след това натиснете бутона за „Сваляне“, за да запазите файла CSV."
+  },
+  "importPassmanInstructions": {
+    "message": "Отворете своя трезор в Passman и щракнете върху „Настройки“ в долния ляв ъгъл. В прозореца с настройките превключете към раздела за изнасяне на данните и изберете „JSON“ като формат за файла. Въведете паролата-фраза за трезора си и натиснете бутона „Изнасяне“, за да запазите файла JSON."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Използвайки настолното приложение на Avast Passwords, идете в „Настройки“ → „Внасяне/изнасяне на данни“. Натиснете бутона за изнасяне към опцията за „Изнасяне като файл CSV“, за да запазите файла CSV."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Използвайки настолното приложение на Avast Passwords, идете в „Настройки“ → „Внасяне/изнасяне на данни“. Натиснете бутона за изнасяне към опцията за „Изнасяне като файл JSON“, за да запазите файла JSON."
+  },
+  "importFsecureInstructions": {
+    "message": "Използвайки настолното приложение на F-Secure KEY и идете в „Настройки“ → „Изнасяне на паролите“. Натиснете бутона за изнасяне, въведете главната си парола и запазете файла FSK."
+  },
+  "importKasperskyInstructions": {
+    "message": "Отворете настолното приложение на Kaspersky Password Manager и отидете в „Настройки“ → „Внасяне/изнасяне“. Намерете раздела за изнасяне като текстов файл и натиснете бутона „Изнасяне“, за да запазите файла TXT."
+  },
+  "importRemembearInstructions": {
+    "message": "Отворете настолното приложение на RememBear и идете в „Настройки“ → „Акаунт“ → „Изнасяне“. Въведете главната си парола и натиснете бутона „Изнасяне въпреки това“, за да запазите файла CSV."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Отворете настолното приложение на PasswordWallet и идете във „Файл“ → „Изнасяне“ → „Видими елементи към текстов файл“. Въведете паролата си и потвърдете, за да запазите файла TXT."
+  },
+  "importMykiInstructions": {
+    "message": "Отворете настолното приложение на Myki и идете в „Разширени“ → „Изнасяне на акаунти“, след което сканирайте QR кода с мобилното си устройство. На компютъра Ви ще бъдат свалени множество файлове CSV."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Изнесете сейфа си с пароли от SecureSafe към файл CSV с разделител запетая."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Отворете добавката за браузър на LogMeOnce и идете в „Отваряне на менюто“ → „Изнасяне като“ и изберете „Файл CSV“, за да запазите файла CSV."
+  },
+  "importBlackberryInstructions": {
+    "message": "Отворете приложението BlackBerry Password Keeper и идете в „Настройки“ → „Внасяне/изнасяне“. Изберете „Изнасяне на паролите“ и следвайте инструкциите, за да запазите нешифрования файл CSV."
+  },
+  "importButtercupInstructions": {
+    "message": "Отворете настолното приложение на Buttercup и отключете трезора си. Щракнете върху иконката на трезора с десния бутон на мишката и изберете „Изнасяне“, за да запазите файла CSV."
+  },
+  "importCodebookInstructions": {
+    "message": "Отворете настолното приложение на Codebook и се впишете. Идете във „Файл“ → „Изнасяне на всичко“, след което натиснете „Да“ в показалия се прозорец и запазете файла CSV."
+  },
+  "importEncryptrInstructions": {
+    "message": "Отворете последната версия на настолното приложение на Encryptr и разрешете синхронизирането на всички данни. След като синхронизирането завърши, иконката за сваляне в горния десен ъгъл трябва да стане розова. Щракнете върху нея и запазете файла CSV."
+  },
+  "importYotiInstructions": {
+    "message": "От добавката за браузър на Yoti, щракнете върху „Настройки“ и след това изберете възможността за Изнасяне на запазените данни за вписване и запазете файла CSV."
+  },
+  "importPsonoInstructions": {
+    "message": "Впишете се в трезора по уеб на Psono, щракнете върху падащото меню показващо кой е вписан в момента и изберете „Други“. Идете в раздела „Изнасяне“, изберете типът да бъде json и натиснете „Изнасяне“."
+  },
+  "importPasskyInstructions": {
+    "message": "Впишете с в „https://vault.passky.org“ → „Внасяне и изнасяне“ → „Изнасяне“ в раздела Passky. (Възможността за създаване на резервно копие не се поддържа, тъй като то е шифровано.)"
+  },
+  "importProtonpassInstructions": {
+    "message": "В добавката за браузър на ProtonPass, идете в Настройки > Изнасяне. Изнесете без шифроване чрез PGP и запазете файла ZIP."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Изберете менюто База данни → Изнасяне във файл… В настройките за изнасяне се уверете, че са отбелязани опциите за имена на папките и заглавия на колоните. Натиснете бутона за разглеждане, изберете целевия файл и задайте типа му да бъде CSV."
+  },
+  "importNetwrixInstructions": {
+    "message": "Отворете FullClient, идете в главното меню и изберете Изнасяне. Стартирайте съветника за изнасяне на паролите и следвайте инструкциите, за да изнесете файл CSV."
+  },
+  "importNordpassInstructions": {
+    "message": "Впишете с в NordPass и отворете Настройки → превъртете надолу до раздела за Внасяне и изнасяне и изберете Изнасяне → въведете главната си парола и изберете Продължаване. Запазете файла CSV на устройството си."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "В настолното приложение, идете в Инструменти → Изнасяне. Въведете гладната си парола и изберете XML (*.xml) като формат за изнасянето. Продължете напред и изберете кои елементи да бъдат включени в изнасянето. Продължете напред, за да изнесете файла в избраното местоположение."
+  },
+  "importDelineaInstructions": {
+    "message": "Впишете се в Delinea и потърсете „Внасяне/изнасяне“. Изберете „Изнасяне“. Изберете „XML“ като формат и „QuantumLock“ като тип на удостоверителя. Въведете паролата си и изберете „Изнасяне“, за да запазите файла XML."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Впишете се в Delinea и потърсете „Внасяне/изнасяне“. Изберете „Изнасяне“. Изберете „CSV“ като формат и „QuantumLock“ като тип на удостоверителя. Въведете паролата си и изберете „Изнасяне“, за да запазите файла CSV."
+  },
   "confirmVaultImport": {
     "message": "Потвърждаване на внасянето на трезора"
   },
@@ -5279,10 +5510,6 @@
   },
   "awaitingSSODesc": {
     "message": "Моля, продължете вписването с данните за удостоверяване на Вашата компания."
-  },
-  "seeDetailedInstructions": {
-    "message": "Може да намерите подробни инструкции в помощния ни уеб сайт на адрес",
-    "description": "This is followed a by a hyperlink to the help website."
   },
   "importDirectlyFromLastPass": {
     "message": "Внасяне директно от LastPass"
@@ -5712,26 +5939,6 @@
   "clearFiltersOrTryAnother": {
     "message": "Изчистете филтрите или опитайте да търсите нещо друго"
   },
-  "copyDetailsTitle": {
-    "message": "Копиране на подробностите за $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Копиране на бележката – $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "moreOptionsLabel": {
     "message": "Още опции, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -5800,20 +6007,6 @@
       "field": {
         "content": "$2",
         "example": "Username"
-      }
-    }
-  },
-  "copyFieldCipherName": {
-    "message": "Копиране на $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
     }
   },
@@ -7591,5 +7784,163 @@
   },
   "healthIntroDescription": {
     "message": "Наблюдавайте и подобрявайте състоянието на сигурността на трезора си, променяте паролите, които са слаби, преизползвани или са били разкрити."
+  },
+  "yourVaultIsHealthy": {
+    "message": "Вашият трезор е в добро състояние",
+    "description": "Heading shown when none of the user's passwords are at risk."
+  },
+  "yourVaultRiskIsHigh": {
+    "message": "Вашият трезор е под висок риск",
+    "description": "Heading shown when at least one of the user's passwords is at risk."
+  },
+  "passwordsNeedFixing": {
+    "message": "$AT_RISK$ от $TOTAL$ пароли имат нужда от внимание",
+    "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
+    "placeholders": {
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
+    }
+  },
+  "exposedPasswordsNone": {
+    "message": "Няма разобличени пароли",
+    "description": "Title of the exposed risk category row when no passwords are exposed."
+  },
+  "exposedPassword": {
+    "message": "1 разобличена парола",
+    "description": "Title of the exposed risk category row when exactly one password is exposed."
+  },
+  "exposedPasswordsPlural": {
+    "message": "$COUNT$ разобличени пароли",
+    "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsDesc": {
+    "message": "Разобличени при изтичания на данни",
+    "description": "Explains what makes a password count as exposed."
+  },
+  "exposedPasswordsNoneDesc": {
+    "message": "Нито една от паролите Ви не е намерена в известни изтичания на данни",
+    "description": "Description of the exposed risk category row when no passwords are exposed."
+  },
+  "weakPasswordsNone": {
+    "message": "Няма слаби пароли",
+    "description": "Title of the weak risk category row when no passwords are weak."
+  },
+  "weakPassword": {
+    "message": "1 слаба парола",
+    "description": "Title of the weak risk category row when exactly one password is weak."
+  },
+  "weakPasswordsPlural": {
+    "message": "$COUNT$ слаби пароли",
+    "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "22"
+      }
+    }
+  },
+  "weakPasswordsDesc": {
+    "message": "Твърде кратка или проста",
+    "description": "Explains what makes a password count as weak."
+  },
+  "weakPasswordsNoneDesc": {
+    "message": "Всичките Ви пароли са силни",
+    "description": "Description of the weak risk category row when no passwords are weak."
+  },
+  "reusedPasswordsNone": {
+    "message": "Няма преизползвани пароли",
+    "description": "Title of the reused risk category row when no passwords are reused."
+  },
+  "reusedPassword": {
+    "message": "1 преизползвана парола",
+    "description": "Title of the reused risk category row when exactly one password is reused."
+  },
+  "reusedPasswordsPlural": {
+    "message": "$COUNT$ преизползвани пароли",
+    "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "35"
+      }
+    }
+  },
+  "reusedPasswordsDesc": {
+    "message": "Преизползвана за няколко различни места",
+    "description": "Explains what makes a password count as reused."
+  },
+  "reusedPasswordsNoneDesc": {
+    "message": "Всичките Ви пароли са уникални",
+    "description": "Description of the reused risk category row when no passwords are reused."
+  },
+  "risksIdentified": {
+    "message": "Открити рискове",
+    "description": "Section heading above the list of risk categories on the Health Overview."
+  },
+  "categoryHealthy": {
+    "message": "Няма нуждаещи се от внимание елементи",
+    "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Разобличени пароли"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Паролите за тези запаси са били открити в познати изтичания на данни. Сменете ги незабавно, за да защитите акаунтите си."
+  },
+  "weakPasswordsTitle": {
+    "message": "Слаби пароли"
+  },
+  "weakPasswordsDescription": {
+    "message": "Тези пароли могат лесно да бъдат отгатнати, тъй като са прекалено кратки или прости. Подсилете ги, като ги направите по-сложни."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Преизползвани пароли"
+  },
+  "reusedPasswordsDescription": {
+    "message": "Тези записи имате преизползвани пароли. Създайте уникална парола за всеки акаунт, за да не може някой да получи достъп до няколко Ваши акаунта с една разкрита парола."
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Изтриването на този елемент го премахва от трезора, но не премахва риска. За да защитите акаунта си, първо сменете паролата му."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "Тази парола има допълнителни рискове:"
+  },
+  "reused": {
+    "message": "Преизползвана",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ пъти",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "Нито една от паролите Ви не е намерена в известни изтичания на данни."
+  },
+  "weakPasswordEmpty": {
+    "message": "Всичките Ви пароли са сложни."
+  },
+  "reusedPasswordEmpty": {
+    "message": "Всичките Ви пароли са уникални."
+  },
+  "youreAllSet": {
+    "message": "Всичко е готово!"
   }
 }

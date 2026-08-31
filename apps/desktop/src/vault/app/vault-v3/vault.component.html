@@ -23,17 +23,20 @@
       class="tw-flex-1 tw-min-h-0"
       [ciphers]="ciphers"
       [folders]="folders()"
-      [collections]="allCollections"
-      [organizations]="allOrganizations"
+      [collections]="scopedCollections"
+      [allCollections]="allCollections"
+      [scopedOrganizationId]="(selectedOrganization$ | async)?.id"
+      [organizations]="scopedOrganizations"
+      [orgRequiresDataOwnership]="(enforceOrgDataOwnershipPolicy$ | async) ?? false"
       [loading]="refreshing || performingInitialLoad"
       [canCreateCipher]="(canCreateCipher$ | async) ?? true"
       [showAddCipherBtn]="(showAddCipherBtn$ | async) ?? true"
       [showPremiumCallout]="(showPremiumCallout$ | async) ?? false"
-      [initialSearchText]="currentSearchText$ | async"
       (onEvent)="onVaultItemsEvent($event)"
       (onAddCipher)="addCipher($event)"
       (onAddFolder)="addFolder()"
       (onAddItemDialog)="openAddItemDialog()"
+      (onImport)="openImport()"
     />
   } @else {
     <bit-search

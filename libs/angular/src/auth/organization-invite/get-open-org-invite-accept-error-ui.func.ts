@@ -13,16 +13,19 @@ import { OpenOrgInviteErrorUi } from "./open-org-invite-error-ui.type";
  * kind, copy update, or icon swap lands in one place.
  *
  * @param kind The accept-endpoint error kind to render.
+ * @param vfo1Enabled Whether the `vfo1-foundation` flag is enabled — selects
+ * shared-vault terminology variants for affected body copy.
  */
 export function getOpenOrgInviteAcceptErrorUi(
   kind: OpenOrgInviteAcceptRenderableErrorKind,
+  vfo1Enabled: boolean,
 ): OpenOrgInviteErrorUi {
   const button: OpenOrgInviteErrorButton = {
     kind: "go-to-vault",
     labelI18nKey: "goToVault",
     navigateTo: "/",
   };
-  const pageTitle = { key: "openOrgInviteAcceptFailedTitle" };
+  const pageTitle = { key: "cannotAcceptInvitation" };
   switch (kind) {
     case "link-not-found":
       return {
@@ -76,14 +79,18 @@ export function getOpenOrgInviteAcceptErrorUi(
     case "auto-confirm-policy-violation-target-org":
       return {
         anonLayoutData: { pageTitle, pageIcon: AccountWarning },
-        bodyMessageI18nKey: "openOrgInviteAcceptSingleOrgTargetOrg",
+        bodyMessageI18nKey: vfo1Enabled
+          ? "openOrgInviteAcceptSingleOrgErrorTargetOrg"
+          : "openOrgInviteAcceptSingleOrgTargetOrg",
         button,
       };
     case "single-org-policy-violation-other-org":
     case "auto-confirm-policy-violation-other-org":
       return {
         anonLayoutData: { pageTitle, pageIcon: AccountWarning },
-        bodyMessageI18nKey: "openOrgInviteAcceptSingleOrgOtherOrg",
+        bodyMessageI18nKey: vfo1Enabled
+          ? "openOrgInviteAcceptSingleOrgErrorOtherOrg"
+          : "openOrgInviteAcceptSingleOrgOtherOrg",
         button,
       };
     case "provider-users-disallowed":

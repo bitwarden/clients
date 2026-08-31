@@ -1,14 +1,15 @@
 import { inject, Injectable } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { firstValueFrom, Subject, switchMap } from "rxjs";
-import { filter } from "rxjs/operators";
+import { firstValueFrom, map, Subject, switchMap } from "rxjs";
 
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -17,6 +18,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import {
@@ -31,8 +33,8 @@ import { PasswordRepromptService } from "./password-reprompt.service";
  * Handles cipher row actions that can be executed entirely within shared services
  * (no client-specific dialog components or component state required).
  *
- * Actions that open desktop-specific drawers (view, edit, clone, share)
- * remain as events emitted to the host component.
+ * Actions that open a client-specific view, form, or dialog (view, edit, clone, share) are left to
+ * the host.
  */
 @Injectable({ providedIn: "root" })
 export class CipherActionService {
@@ -44,6 +46,7 @@ export class CipherActionService {
   private readonly dialogService = inject(DialogService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
+  private readonly organizationService = inject(OrganizationService);
   private readonly passwordRepromptService = inject(PasswordRepromptService);
   private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
   private readonly toastService = inject(ToastService);
@@ -53,26 +56,33 @@ export class CipherActionService {
   /** Emits after any action completes (success or no-op). Subscribe to trigger a vault refresh. */
   readonly cipherModified$ = this._cipherModified.asObservable();
 
+  private readonly userId$ = this.accountService.activeAccount$.pipe(
+    map((a) => a?.id),
+    filterOutNullish(),
+  );
+
   private readonly userCanArchive = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
-    ),
+    this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId))),
     { initialValue: false },
   );
 
   private readonly userHasPremium = toSignal(
-    this.accountService.activeAccount$.pipe(
-      filter((account): account is Account => !!account),
-      switchMap((account) =>
-        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+    this.userId$.pipe(
+      switchMap((userId) =>
+        this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
       ),
     ),
     { initialValue: false },
   );
 
+  /** The organizations the active user belongs to, for resolving an item's owning organization. */
+  private readonly organizations = toSignal(
+    this.userId$.pipe(switchMap((userId) => this.organizationService.organizations$(userId))),
+    { initialValue: [] as Organization[] },
+  );
+
   async toggleFavorite(cipher: CipherViewLike): Promise<void> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userId = await firstValueFrom(this.userId$);
     const fullCipher = await this.cipherService.getFullCipherView(cipher);
     fullCipher.favorite = !fullCipher.favorite;
 
@@ -93,11 +103,15 @@ export class CipherActionService {
       return;
     }
 
+    if (!(await this.promptPassword(cipher))) {
+      return;
+    }
+
     const toastMessage = CipherViewLikeUtils.isArchived(cipher)
       ? this.i18nService.t("archivedItemRestored")
       : this.i18nService.t("restoredItem");
 
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userId = await firstValueFrom(this.userId$);
 
     try {
       await this.cipherService.restoreWithServer(cipher.id as CipherId, userId);
@@ -139,13 +153,21 @@ export class CipherActionService {
   }
 
   async viewAttachments(cipher: CipherViewLike): Promise<void> {
-    if (!this.userHasPremium()) {
-      await this.premiumUpgradePromptService.promptForPremium();
+    if (!(await this.promptPassword(cipher))) {
+      return;
+    }
+
+    const organizationId = cipher.organizationId
+      ? (uuidAsString(cipher.organizationId) as OrganizationId)
+      : undefined;
+
+    if (!(await this.canAccessAttachments(organizationId))) {
       return;
     }
 
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: cipher.id as CipherId,
+      organizationId,
       canEditCipher: cipher.edit,
     });
 
@@ -166,7 +188,7 @@ export class CipherActionService {
 
     const isDeleted = CipherViewLikeUtils.isDeleted(cipher);
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "deleteItem" },
+      title: { key: isDeleted ? "permanentlyDeleteItem" : "deleteItem" },
       content: { key: isDeleted ? "permanentlyDeleteItemConfirmation" : "deleteItemConfirmation" },
       type: "warning",
     });
@@ -175,7 +197,7 @@ export class CipherActionService {
       return;
     }
 
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userId = await firstValueFrom(this.userId$);
     try {
       await (isDeleted
         ? this.cipherService.deleteWithServer(cipher.id as CipherId, userId)
@@ -188,6 +210,32 @@ export class CipherActionService {
       this.logService.error(e);
     }
     this._cipherModified.next();
+  }
+
+  /**
+   * Whether the user is entitled to open the attachments dialog, prompting for the relevant upgrade
+   * when they are not. File storage is a premium feature for personal items, while an organization
+   * item needs storage allocated to its owning organization.
+   *
+   * An organization the user isn't a member of can't be checked for storage, so it is let through —
+   * the dialog itself is read-only in that case.
+   */
+  private async canAccessAttachments(organizationId: OrganizationId | undefined): Promise<boolean> {
+    if (organizationId == null) {
+      if (this.userHasPremium()) {
+        return true;
+      }
+      await this.premiumUpgradePromptService.promptForPremium();
+      return false;
+    }
+
+    const organization = this.organizations().find((o) => o.id === organizationId);
+    if (organization != null && !organization.maxStorageGb) {
+      await this.premiumUpgradePromptService.promptForPremium(organizationId);
+      return false;
+    }
+
+    return true;
   }
 
   private async promptPassword(cipher: CipherViewLike): Promise<boolean> {

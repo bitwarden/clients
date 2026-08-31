@@ -53,6 +53,29 @@ The chip builds its label from the selected options (`placeholderText`, or
 `multiple` chip also gets a sticky **Clear** button pinned to the bottom of its menu. Both reset the
 selection.
 
+## Icon tiles
+
+An option can render a leading `bit-icon-tile` — pass an `iconTile` config and the chip draws it at
+`size="xs"` so every row lines up.
+
+```html
+<bit-filter-menu key="type" placeholderText="Type" multiple>
+  <bit-filter-option [value]="'login'" [iconTile]="{ icon: 'bwi-globe', variant: 'brand' }">
+    Login
+  </bit-filter-option>
+</bit-filter-menu>
+```
+
+Usage guidelines:
+
+- Use a tile on every option in a chip, or on none of them — a partial set leaves the labels ragged.
+  On a single-select chip, remember the auto-injected "All" row has no tile.
+- The tile is decorative; the option label carries the meaning, so no `ariaLabel` is applied.
+- A disabled option's tile renders in the neutral `gray` family and ignores any custom `color`, so
+  it reads as inactive alongside the muted label.
+
+<Canvas of={stories.IconTiles} />
+
 ## In-menu search
 
 Once a chip has more than ten options it renders a `bit-search` at the top of its own menu — you

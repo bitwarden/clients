@@ -63,6 +63,7 @@ import { flagEnabled, Flags } from "../utils/flags";
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
+import { addPlanRedirectGuard } from "./admin-console/settings/add-plan-redirect.guard";
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { AuthWebRoute, AuthWebRouteSegment } from "./auth/constants/auth-web-route.constant";
 import { deepLinkGuard } from "./auth/guards/deep-link/deep-link.guard";
@@ -75,6 +76,7 @@ import { AccountComponent } from "./auth/settings/account/account.component";
 import { EmergencyAccessComponent } from "./auth/settings/emergency-access/emergency-access.component";
 import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/view/emergency-access-view.component";
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
+import { SsoLoginFailedComponent } from "./auth/sso/sso-login-failed.component";
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "./auth/verify-recover-delete.component";
 import { PremiumCheckoutSuccessComponent } from "./billing/individual/premium-checkout/premium-checkout-success.component";
@@ -101,6 +103,7 @@ import { BrowserExtensionPromptComponent } from "./vault/components/browser-exte
 import { SetupExtensionComponent } from "./vault/components/setup-extension/setup-extension.component";
 import { setupExtensionRedirectGuard } from "./vault/guards/setup-extension-redirect.guard";
 import { VaultModule } from "./vault/individual-vault/vault.module";
+import { MyFoldersComponent } from "./vault/my-folders/my-folders.component";
 
 const routes: Routes = [
   // These need to be placed at the top of the list prior to the root
@@ -239,6 +242,14 @@ const routes: Routes = [
         path: "organization-invite-link-invalid",
         canActivate: [canAccessFeature(FeatureFlag.GenerateInviteLink), unauthGuardFn()],
         component: OpenOrgInviteLinkInvalidComponent,
+      },
+      {
+        // Terminal page for SSO-login failure states. Variant is selected via
+        // a `kind` query param; chrome + body-copy mapping lives in
+        // `getSsoLoginFailedUi`.
+        path: "sso-login-failed",
+        canActivate: [unauthGuardFn()],
+        component: SsoLoginFailedComponent,
       },
       {
         path: AuthRoute.Login,
@@ -703,6 +714,12 @@ const routes: Routes = [
         canDeactivate: [unsavedSendEditsGuard],
       },
       {
+        path: "folders",
+        component: MyFoldersComponent,
+        canActivate: [canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault")],
+        data: { titleId: "myFolders" } satisfies RouteDataProperties,
+      },
+      {
         path: "sm-landing",
         component: SMLandingComponent,
         data: { titleId: "moreProductsFromBitwarden" },
@@ -715,6 +732,7 @@ const routes: Routes = [
       {
         path: "create-organization",
         component: CreateOrganizationComponent,
+        canActivate: [addPlanRedirectGuard],
         data: { titleId: "newOrganization" } satisfies RouteDataProperties,
       },
       {
@@ -744,6 +762,11 @@ const routes: Routes = [
             path: "domain-rules",
             component: DomainRulesComponent,
             data: { titleId: "domainRules" } satisfies RouteDataProperties,
+          },
+          {
+            path: "add-plan",
+            component: CreateOrganizationComponent,
+            data: { titleId: "addPlan" } satisfies RouteDataProperties,
           },
           {
             path: "subscription",
