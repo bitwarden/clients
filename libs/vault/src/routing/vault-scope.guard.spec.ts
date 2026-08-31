@@ -55,7 +55,6 @@ describe("vaultScopeGuard", () => {
   const organizationVault: VaultNavItemViewModel = {
     id: organizationId,
     label: "Acme corporation",
-    color: "purple",
     icon: "bwi-business",
     type: VaultNavItemType.Organization,
   };

@@ -6,6 +6,7 @@ import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -104,7 +105,6 @@ describe("VaultNextComponent", () => {
   const buildOrgNavItem = (id: OrganizationId, label: string): VaultNavItemViewModel => ({
     id,
     label,
-    color: "purple",
     icon: "bwi-business",
     type: VaultNavItemType.Organization,
   });
@@ -195,6 +195,9 @@ describe("VaultNextComponent", () => {
     const organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(organizations$);
 
+    const policyService = mock<PolicyService>();
+    policyService.policyAppliesToUser$.mockReturnValue(of(false));
+
     const copyButtonsService = mock<VaultCopyButtonsService>();
     // `showQuickCopyActions$` is readonly on the service, so it can't be assigned onto the mock.
     Object.defineProperty(copyButtonsService, "showQuickCopyActions$", {
@@ -218,8 +221,9 @@ describe("VaultNextComponent", () => {
         { provide: FolderService, useValue: folderService },
         { provide: I18nService, useValue: i18nService },
         { provide: OrganizationService, useValue: organizationService },
-        { provide: Router, useValue: router },
+        { provide: PolicyService, useValue: policyService },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
+        { provide: Router, useValue: router },
         { provide: VaultCopyButtonsService, useValue: copyButtonsService },
         { provide: VaultNavService, useValue: { viewModel$: () => vaultNav$ } },
       ],
