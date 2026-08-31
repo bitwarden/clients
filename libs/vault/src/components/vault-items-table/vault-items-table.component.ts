@@ -47,6 +47,17 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import {
+  idString,
+  matchesFavorite,
+  matchesFolder,
+  matchesSharedFolder,
+  matchesType,
+  matchesVault,
+  MY_VAULT,
+  NO_FOLDER,
+} from "../../utils/vault-filter-predicates";
+
 import { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
 import {
   VaultItemsTableChip,
@@ -58,15 +69,6 @@ import {
 } from "./vault-items-table-copy-presentation";
 import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
 import { cipherSearchMatches } from "./vault-items-table-search";
-
-/**
- * Sentinel for the Vault chip's "my vault" option — organizations are identified by id, and the
- * individual vault has none.
- */
-export const MY_VAULT = "myVault";
-
-/** Sentinel for the My folders chip's "no folder" option. */
-export const NO_FOLDER = "noFolder";
 
 /** The `queryParam` namespace shared by every filter chip in the vault table. */
 export const VAULT_FILTER_NAMESPACE = "vault";
@@ -132,15 +134,6 @@ export type VaultItemsTableFilters = {
  * step as types are added.
  */
 const ALL_CIPHER_TYPES: CipherType[] = DIALOG_CIPHER_MENU_ITEMS.map((item) => item.type);
-
-/**
- * Widens an id to a plain string.
- *
- * Cipher ids are branded SDK types on `CipherListView` (`OrganizationId`, `CollectionId`,
- * `FolderId`) but plain strings on `CipherView`, so reading one off `CipherViewLike` yields a
- * union that can't key a lookup or be compared to a filter value until it's normalized.
- */
-const idString = (id: unknown): string | undefined => (id == null ? undefined : String(id));
 
 /**
  * i18n key per cipher type, for the Type chip's options — taken from the same menu items
@@ -619,11 +612,11 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   protected readonly filter = (cipher: C, values: VaultItemsTableFilters): boolean =>
     this.matchesSearch(cipher) &&
-    this.matchesType(cipher, values.type) &&
-    this.matchesFavorite(cipher, values.favorites) &&
-    this.matchesVault(cipher, values.vault) &&
-    this.matchesSharedFolder(cipher, values.sharedFolder) &&
-    this.matchesFolder(cipher, values.folder);
+    matchesType(cipher, values.type) &&
+    matchesFavorite(cipher, values.favorites) &&
+    matchesVault(cipher, values.vault) &&
+    matchesSharedFolder(cipher, values.sharedFolder) &&
+    matchesFolder(cipher, values.folder);
 
   /**
    * Whether the cipher is among the active search's matches. `undefined` matches means no
@@ -632,56 +625,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   private matchesSearch(cipher: C): boolean {
     const matches = this.searchMatches();
     return matches === undefined || matches.has(String(cipher.id));
-  }
-
-  private matchesType(cipher: C, type: CipherType | undefined): boolean {
-    // `type` differs between CipherView and CipherListView, so it must go through the utils.
-    return type == null || CipherViewLikeUtils.getType(cipher) === type;
-  }
-
-  private matchesFavorite(cipher: C, favorites: boolean | undefined): boolean {
-    return !favorites || cipher.favorite;
-  }
-
-  /**
-   * The Vault chip is multi-select: `vault` is an array of organization ids and/or
-   * {@link MY_VAULT}. A cipher matches if it satisfies *any* selected value (OR).
-   * `undefined` and `[]` both mean "no filter, match everything".
-   */
-  private matchesVault(cipher: C, vault: string[] | undefined): boolean {
-    if (!vault || vault.length === 0) {
-      return true;
-    }
-    return vault.some((value) =>
-      value === MY_VAULT ? !cipher.organizationId : idString(cipher.organizationId) === value,
-    );
-  }
-
-  /**
-   * The Shared folders chip is multi-select: `sharedFolder` is an array of collection ids. As
-   * with {@link matchesVault}, `undefined` and `[]` both mean unfiltered, and a cipher matches if
-   * it belongs to *any* selected collection.
-   */
-  private matchesSharedFolder(cipher: C, sharedFolder: string[] | undefined): boolean {
-    if (!sharedFolder || sharedFolder.length === 0) {
-      return true;
-    }
-    const collectionIds = (cipher.collectionIds ?? []).map((id) => idString(id));
-    return sharedFolder.some((value) => collectionIds.includes(value));
-  }
-
-  /**
-   * The My folders chip is multi-select: `folder` is an array of folder ids and/or
-   * {@link NO_FOLDER}. As with {@link matchesVault}, `undefined` and `[]` both mean unfiltered,
-   * and a cipher matches if it satisfies *any* selected value.
-   */
-  private matchesFolder(cipher: C, folder: string[] | undefined): boolean {
-    if (!folder || folder.length === 0) {
-      return true;
-    }
-    return folder.some((value) =>
-      value === NO_FOLDER ? !cipher.folderId : idString(cipher.folderId) === value,
-    );
   }
 
   /**
