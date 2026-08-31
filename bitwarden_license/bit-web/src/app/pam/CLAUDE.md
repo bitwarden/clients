@@ -15,6 +15,30 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
 - `access-rules/` — list (`access-rules.component` + `.service`) and the routed
   create/edit page (`access-rule-edit.component`), at `access-rules`,
   `access-rules/new`, `access-rules/:accessRuleId`.
+- `access-rules/access-rule-edit/rule-bypassable-ciphers-callout/` — warns that the rule is not
+  actually protecting some of the credentials it governs, and names the collections letting them
+  through. Gating is a union (a cipher is withheld only when EVERY collection reaching it gates), so
+  an item also sitting in an ordinary collection is not protected at all. The determination is the
+  SERVER's — `listBypassGaps`, the exact negation of `CipherLeaseGate.IsGated` — and it returns
+  COLLECTION ids, nothing about the ciphers. That asymmetry is the design, not an omission: a cipher
+  name can only be decrypted from the caller's own vault, and an admin outside the collection —
+  precisely the admin being warned — has none of those ciphers there, so a cipher list is blank for
+  the person who needs it. Collection names come from
+  `CollectionAdminService.collectionAdminViews$`, the org-scoped admin read, which returns EVERY
+  collection to a caller authorized for `ReadAllWithAccess` (Admin/Owner, i.e. anyone who can reach
+  this page) — so a gap names itself regardless of assignment. Do NOT "improve" this by adding a
+  cipher list or count; that was tried and removed. A non-empty gap list IS the warning condition, so
+  there is no separate flag to keep in step. Each gap links to
+  `/organizations/{orgId}/vault?collectionId=<id>`; an admin with no access to that collection gets
+  the `collection-access-restricted` empty state, whose "Edit collection" button opens the very dialog
+  they need, and a gap whose name will not resolve still renders as a link. Reflects the SAVED rule,
+  not the collections multi-select's current value. The read is kicked off from `afterNextRender`,
+  NOT reactively off the inputs: starting it during initial change detection keeps the zone unstable
+  through first paint, and `AutofocusDirective` takes its deferred `onStable` path and loses the
+  rename flow's focus-and-select on the name field — guarded by "selects the prefilled name so typing
+  replaces it" in `access-rule-edit.component.spec.ts`. The component declares NO providers of its
+  own, deliberately: a component-level provider wins over the module injector and would defeat the
+  stubs its stories and spec install.
 - `access-rules/access-rule-edit/ip-allowlist/` — the `ip_allowlist` condition's CIDR
   editor plus its validators (delegates to the SDK's `is_valid_cidr`). The editor is a
   thin view over a `FormArray` owned by the edit page's form group (passed in via a
