@@ -191,6 +191,14 @@ export default {
               optionsForItem: (name) => `Options for ${name}`,
               selectAllRows: "Select all rows",
               selectRow: "Select row",
+              // Paginator
+              rowsPerPage: "Rows per page",
+              rowsPerPageOption: (count) => `${count} rows per page`,
+              previousPage: "Previous page",
+              nextPage: "Next page",
+              goToPage: "Go to page",
+              ofPageCount: (count) => `of ${count}`,
+              selectPlaceholder: "-- Select --",
               // Bulk actions bar
               bulkActionsBar: "Bulk actions",
               bulkActionsBarAnnouncement: (count, shortcut) =>
@@ -281,4 +289,22 @@ export const NoAdd: Story = {
  */
 export const Empty: Story = {
   args: { sharedFolders: [] },
+};
+
+/**
+ * The rows page themselves against the window: a page holds as many as fit below the table's
+ * header, so the paginator appears only once the window is too short to show every folder at once.
+ * Sixty folders here, which no ordinary window fits — shorten this frame and the page shrinks with
+ * it; give it room enough for all sixty and the paginator goes away.
+ */
+export const Pagination: Story = {
+  args: {
+    sharedFolders: Array.from({ length: 60 }, (_, index) => ({
+      ...sharedFolders[index % sharedFolders.length],
+      id: `col-${index + 1}` as CollectionId,
+      name: `${sharedFolders[index % sharedFolders.length].name} ${
+        Math.floor(index / sharedFolders.length) + 1
+      }`,
+    })),
+  },
 };

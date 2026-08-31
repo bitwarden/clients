@@ -1,14 +1,19 @@
 import {
+  afterRenderEffect,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
+  inject,
   input,
   output,
   signal,
   TrackByFunction,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
+import { auditTime, fromEvent, map } from "rxjs";
 
 import { NoFolders, NoResults } from "@bitwarden/assets/svg";
 import {
@@ -17,6 +22,7 @@ import {
   BitCellLoadingDirective,
   BitColumnComponent,
   BitHeaderCellComponent,
+  BitTablePaginatorComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
   BulkActionComponent,
@@ -73,6 +79,37 @@ export type SharedFoldersTableColumn = (typeof SHARED_FOLDERS_COLUMNS)[number];
  */
 const SEARCH_FILTER_KEY = "search";
 
+/**
+ * How tall a data row is, in px — `bit-row`'s minimum height in table presentation. A fallback only:
+ * it sizes the first page, and stands in wherever there's no layout to measure (a `TestBed`), but
+ * once a row has rendered its measured height is what the fit uses.
+ */
+const ROW_HEIGHT_PX = 56;
+
+/**
+ * The chrome below the rows, in px: the paginator's own height plus a gutter, so the last row of a
+ * page doesn't sit flush against the bottom of the window.
+ */
+const FOOTER_HEIGHT_PX = 84;
+
+/**
+ * The fewest rows a page holds. A window too short for even these pages anyway — below it, a page
+ * costs more in paginator than it returns in rows.
+ */
+const MIN_PAGE_SIZE = 5;
+
+/** Rows per page until the first row has been measured. */
+const DEFAULT_PAGE_SIZE = 10;
+
+/**
+ * Page sizes offered alongside the fitted one — `bit-table-paginator`'s own defaults, so someone who
+ * wants a longer page than the window fits can still ask for one.
+ */
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
+
+/** How long a burst of `resize` events is collapsed before re-fitting the page. */
+const RESIZE_AUDIT_MS = 100;
+
 /** The shape of {@link BitTableV2Component.filterValues} for this table. */
 export type SharedFoldersTableFilters = {
   /**
@@ -103,6 +140,12 @@ export type SharedFoldersTableFilters = {
  * Each folder's name links to its organization's vault, drilled into that folder — the route
  * {@link vaultScopeCommands} builds from the row.
  *
+ * The rows page themselves against the window: a page holds as many rows as fit below the table's
+ * header, and the paginator shows only when that's fewer than the folders on hand — see {@link
+ * autoPageSize}. Nothing for a client to configure; a client that syncs to the URL through {@link
+ * queryParam} should know the fit owns the page size, so a `pageSize` in a shared link gives way to
+ * whatever the reader's window fits.
+ *
  * Requires `DialogService` and a configured `Router` in the injector — `bit-table-toolbar` injects
  * the former for its small-screen filter dialog, and the name column's `routerLink` needs the
  * latter. Every client provides both through its module graph; a Storybook story or a bare
@@ -130,6 +173,7 @@ export type SharedFoldersTableFilters = {
     BitCellLoadingDirective,
     BitColumnComponent,
     BitHeaderCellComponent,
+    BitTablePaginatorComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
     BulkActionComponent,
@@ -150,6 +194,9 @@ export type SharedFoldersTableFilters = {
   ],
 })
 export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolderRow> {
+  /** The host, measured to fit the page to the window — see {@link autoPageSize}. */
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
   /** The rows to display. */
   readonly sharedFolders = input<R[]>([]);
 
@@ -291,6 +338,89 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
   /** The single predicate the table derives its rows, counts, and empty state from. */
   protected readonly filter = (row: R, values: SharedFoldersTableFilters): boolean =>
     this.matchesSearch(row, values.search) && this.matchesPermissions(row, values.permissions);
+
+  /**
+   * The window's height, in px. Tracked so the fitted page follows a resize; `resize` fires in
+   * bursts while a window is dragged, so it's audited rather than answered per event.
+   */
+  private readonly viewportHeight = toSignal(
+    fromEvent(window, "resize").pipe(
+      auditTime(RESIZE_AUDIT_MS),
+      map(() => window.innerHeight),
+    ),
+    { initialValue: window.innerHeight },
+  );
+
+  /**
+   * The first rendered row's distance from the top of the viewport, in px. Everything above the rows
+   * — the page's own header, the toolbar, the table's header row — is height the rows don't get, and
+   * measuring where they start accounts for all of it at once rather than assuming any of it.
+   * `undefined` until a row has rendered.
+   */
+  private readonly rowsTop = signal<number | undefined>(undefined);
+
+  /** A rendered row's measured height, in px, falling back to {@link ROW_HEIGHT_PX}. */
+  private readonly rowHeight = signal(ROW_HEIGHT_PX);
+
+  /**
+   * Rows per page: as many as fit between the top of the rows and the bottom of the window.
+   *
+   * This is what makes the paginator conditional. A window tall enough for every folder fits them
+   * all on one page, and the template hides a paginator that has only one page — so pagination shows
+   * up exactly when the window can't show the folders all at once, and goes away again when it can.
+   */
+  protected readonly autoPageSize = computed(() => {
+    const top = this.rowsTop();
+    if (top === undefined) {
+      return DEFAULT_PAGE_SIZE;
+    }
+    // A top clamped at 0: scrolled far enough down, the rows start above the viewport, and the room
+    // they have is the whole window rather than more of it.
+    const available = this.viewportHeight() - Math.max(0, top) - FOOTER_HEIGHT_PX;
+    return Math.max(MIN_PAGE_SIZE, Math.floor(available / this.rowHeight()));
+  });
+
+  /**
+   * The sizes the paginator's select offers: the fitted size and {@link PAGE_SIZE_OPTIONS}, in
+   * order. The fitted size is one of them so the select shows the size actually in use rather than
+   * coming up blank on a value it has no option for. A size chosen by hand holds until the next
+   * resize, which re-fits.
+   */
+  protected readonly pageSizeOptions = computed(() =>
+    [...new Set([this.autoPageSize(), ...PAGE_SIZE_OPTIONS])].sort((a, b) => a - b),
+  );
+
+  constructor() {
+    // Re-fit once the rows the measurement reads have rendered: at first paint, as the folders
+    // arrive (a client typically resolves them after that paint) and change, and on resize. A
+    // render effect rather than a plain one, so the measurement sees the laid-out rows; it depends
+    // on nothing it writes, so the re-render it triggers doesn't run it again.
+    afterRenderEffect(() => {
+      this.sharedFolders();
+      this.loading();
+      this.viewportHeight();
+      this.measureRows();
+    });
+  }
+
+  /**
+   * Measures the first rendered row: its top edge, which sets how much of the window is left for
+   * rows, and its height, which sets how many of them fit. Both come off the one row — rows size to
+   * content, so a table whose first row wraps is fitted a little short rather than a little long.
+   */
+  private measureRows(): void {
+    const row = this.host.nativeElement.querySelector("bit-row");
+    if (row == null) {
+      return;
+    }
+    const { top, height } = row.getBoundingClientRect();
+    this.rowsTop.set(top);
+    // Guarded: an unlaid-out row measures 0 (a `TestBed` has no layout engine), and every row fits
+    // in a page of zero-height rows.
+    if (height > 0) {
+      this.rowHeight.set(height);
+    }
+  }
 
   /**
    * Matches a row against the toolbar's search term, on name only — the permission and the item

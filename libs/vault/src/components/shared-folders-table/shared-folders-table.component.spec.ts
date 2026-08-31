@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
@@ -532,5 +532,145 @@ describe("SharedFoldersTableComponent", () => {
 
       expect(addButton().classList).toContain("tw-hidden");
     });
+  });
+
+  describe("pagination", () => {
+    /** The window height the fit divides — `jsdom`'s, restored after a test that changes it. */
+    const windowHeight = window.innerHeight;
+
+    /**
+     * `jsdom` lays nothing out, so every rect is zero and the component would fit its page to a
+     * window it can't see. Rows are given a geometry — how far down the viewport they start and how
+     * tall each one is — leaving `window.innerHeight` (768 in `jsdom`) as the height to fill.
+     */
+    function layOutRows({ top, height }: { top: number; height: number }): void {
+      jest
+        .spyOn(Element.prototype, "getBoundingClientRect")
+        .mockReturnValue({ top, height } as DOMRect);
+    }
+
+    /**
+     * Renders `count` folders and settles the fit. The measurement runs in a render effect — which
+     * this zone-based fixture flushes on a tick rather than inside `detectChanges` — and feeds back
+     * into the page size, so the rows it settles on need a further pass to reach the DOM.
+     */
+    function render(count: number): void {
+      fixture.componentRef.setInput(
+        "sharedFolders",
+        Array.from({ length: count }, (_, i) => row({ id: `col-${i}`, name: `Folder ${i}` })),
+      );
+      settle();
+    }
+
+    /** @see {@link render} */
+    function settle(): void {
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+    }
+
+    /** The rendered data rows. */
+    function renderedRows(): HTMLElement[] {
+      return fixture.debugElement.queryAll(By.css("bit-row")).map((row) => row.nativeElement);
+    }
+
+    /** The paginator, hidden rather than removed when the window fits every folder. */
+    function paginator(): HTMLElement {
+      const element = fixture.nativeElement.querySelector(
+        "bit-table-paginator",
+      ) as HTMLElement | null;
+      if (!element) {
+        throw new Error("The paginator is not rendered");
+      }
+      return element;
+    }
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+      Object.defineProperty(window, "innerHeight", {
+        value: windowHeight,
+        configurable: true,
+      });
+    });
+
+    // 768 (the window) less 300 (the rows' top) less 84 (the paginator and its gutter) is 384px of
+    // room, which holds six 56px rows with 48px to spare.
+    it("holds as many rows as the window fits", fakeAsync(() => {
+      layOutRows({ top: 300, height: 56 });
+
+      render(20);
+
+      expect(renderedRows()).toHaveLength(6);
+    }));
+
+    // The same 584px of room holds ten 56px rows but only seven 76px ones, so the fit divides by
+    // the height a row actually rendered at rather than by the nominal one.
+    it("fits fewer of a taller row", fakeAsync(() => {
+      layOutRows({ top: 100, height: 76 });
+
+      render(20);
+
+      expect(renderedRows()).toHaveLength(7);
+    }));
+
+    it("pages rather than shrinking a page below five rows", fakeAsync(() => {
+      // Only 68px of room — a page of one row, without the floor.
+      layOutRows({ top: 616, height: 56 });
+
+      render(20);
+
+      expect(renderedRows()).toHaveLength(5);
+    }));
+
+    it("shows the paginator once the window can't fit every folder", fakeAsync(() => {
+      layOutRows({ top: 300, height: 56 });
+
+      render(20);
+
+      expect(paginator().classList).not.toContain("tw-hidden");
+    }));
+
+    it("hides the paginator while every folder fits", fakeAsync(() => {
+      layOutRows({ top: 300, height: 56 });
+
+      render(6);
+
+      expect(renderedRows()).toHaveLength(6);
+      expect(paginator().classList).toContain("tw-hidden");
+    }));
+
+    it("re-fits the page as the window is resized", fakeAsync(() => {
+      layOutRows({ top: 300, height: 56 });
+      render(20);
+
+      Object.defineProperty(window, "innerHeight", { value: 1216, configurable: true });
+      window.dispatchEvent(new Event("resize"));
+      // Past the audit window that collapses a burst of resize events.
+      tick(200);
+      settle();
+
+      // 1216 less the same 384px of chrome leaves 832px of room — fourteen 56px rows.
+      expect(renderedRows()).toHaveLength(14);
+    }));
+
+    it("pages the folders the filters leave, not all of them", fakeAsync(() => {
+      layOutRows({ top: 300, height: 56 });
+      render(20);
+
+      // "Folder 1" and "Folder 10" through "Folder 19" — eleven of the twenty, six to a page.
+      searchControl().setValue("Folder 1");
+      settle();
+
+      expect(renderedRows()).toHaveLength(6);
+      expect(paginator().classList).not.toContain("tw-hidden");
+    }));
+
+    it("offers the fitted size alongside the standard ones", fakeAsync(() => {
+      layOutRows({ top: 300, height: 56 });
+
+      render(20);
+
+      expect(component["pageSizeOptions"]()).toEqual([6, 10, 25, 50, 100]);
+    }));
   });
 });

@@ -174,4 +174,20 @@
       }
     </bit-cell>
   </bit-column>
+
+  <!--
+    Pagination, sized to the window rather than to a fixed count: a page holds however many rows fit
+    between the top of the rows and the bottom of the window — see `autoPageSize`.
+
+    Hidden rather than removed with `@if`: the paginator is projected into the table's paginator
+    slot, and projection matches only the static top-level nodes of projected content. Hiding is
+    enough — at one page the table's slice already spans every row, so nothing is held back from a
+    window that can show them all.
+  -->
+  <bit-table-paginator
+    #paginator
+    [pageSize]="autoPageSize()"
+    [pageSizeOptions]="pageSizeOptions()"
+    [class.tw-hidden]="paginator.pageCount() < 2"
+  ></bit-table-paginator>
 </bit-table-v2>
