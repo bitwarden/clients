@@ -57,7 +57,7 @@ export default {
                 yourSubscriptionIsCanceled:
                   "Your subscription is canceled. Please resubscribe to continue using premium features.",
                 yourSubscriptionIsScheduledToCancel: `Your subscription is scheduled to cancel on ${args[0]}. You can reinstate it anytime before then.`,
-                reinstateSubscription: "Reinstate subscription",
+                keepSubscription: "Keep subscription",
                 resubscribe: "Resubscribe",
                 upgradeYourPlan: "Upgrade your plan",
                 premiumShareEvenMore:

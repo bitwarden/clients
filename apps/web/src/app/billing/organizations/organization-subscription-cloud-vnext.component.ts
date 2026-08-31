@@ -421,9 +421,11 @@ export class OrganizationSubscriptionCloudVNextComponent {
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "reinstateSubscription" },
-      content: { key: "reinstateConfirmation" },
-      type: "warning",
+      title: { key: "keepSubscription" },
+      content: { key: "undoCancellationRequestConfirmation" },
+      type: "info",
+      acceptButtonText: { key: "keepAndReactivate" },
+      cancelButtonText: { key: "cancel" },
     });
     if (!confirmed) {
       return;

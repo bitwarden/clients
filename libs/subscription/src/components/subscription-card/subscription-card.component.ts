@@ -41,6 +41,7 @@ type Callout = Maybe<{
     text: string;
     buttonType: ButtonType;
     action: SubscriptionCardAction;
+    endIcon?: BitwardenIcon;
   }[];
 }>;
 
@@ -178,16 +179,16 @@ export class SubscriptionCardComponent {
       case SubscriptionStatuses.Trialing:
       case SubscriptionStatuses.Active: {
         if (subscription.cancelAt) {
-          const cancelAt = this.datePipe.transform(subscription.cancelAt, this.dateFormat);
           return {
             title: this.i18nService.t("pendingCancellation"),
             type: "warning",
-            description: this.i18nService.t("yourSubscriptionIsScheduledToCancel", cancelAt!),
+            description: this.i18nService.t("subscriptionMarkedForCancellation"),
             callsToAction: [
               {
-                text: this.i18nService.t("reinstateSubscription"),
+                text: this.i18nService.t("keepSubscription"),
                 buttonType: "unstyled",
                 action: SubscriptionCardActions.ReinstateSubscription,
+                endIcon: "bwi-arrow-right",
               },
             ],
           };

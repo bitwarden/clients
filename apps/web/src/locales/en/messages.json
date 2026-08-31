@@ -17545,5 +17545,20 @@
         "example": "Login"
       }
     }
+  },
+  "subscriptionMarkedForCancellation": {
+    "message": "The subscription has been marked for cancellation at the end of the current billing period. "
+  },
+  "keepSubscription":{
+    "message": "Keep subscription"
+  },
+  "subscriptionIsNowActive": {
+    "message": "Subscription is now active"
+  },
+    "undoCancellationRequestConfirmation": {
+    "message": "This will undo your cancellation request and reactivate your subscription."
+  },
+  "keepAndReactivate" : {
+    "message": "Keep and reactivate"
   }
 }

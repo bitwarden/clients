@@ -48,7 +48,7 @@ describe("SubscriptionCardComponent", () => {
         yourSubscriptionIsExpired: "Your subscription is expired",
         yourSubscriptionIsCanceled: "Your subscription is canceled",
         yourSubscriptionIsScheduledToCancel: `Your subscription is scheduled to cancel on ${params[0]}`,
-        reinstateSubscription: "Reinstate subscription",
+        keepSubscription: "Keep subscription",
         resubscribe: "Resubscribe",
         upgradeYourPlan: "Upgrade your plan",
         premiumShareEvenMore: "Premium share even more",
@@ -316,7 +316,7 @@ describe("SubscriptionCardComponent", () => {
 
       const buttons = callout.queryAll(By.css("button"));
       expect(buttons.length).toBe(1);
-      expect(buttons[0].nativeElement.textContent.trim()).toBe("Reinstate subscription");
+      expect(buttons[0].nativeElement.textContent.trim()).toBe("Keep subscription");
     });
 
     it("should display upgrade callout for active status when showUpgradeButton is true", () => {
