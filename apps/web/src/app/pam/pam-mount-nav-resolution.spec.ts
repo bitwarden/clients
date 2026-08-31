@@ -155,7 +155,8 @@ describe("PAM mount / shared nav link resolution", () => {
     configService.getFeatureFlag$.mockReturnValue(flag$);
     policyService.policyAppliesToUser$.mockReturnValue(of(false));
     cipherArchiveService.userCanArchive$.mockReturnValue(canArchive$);
-    Object.defineProperty(vaultNavService, "viewModel$", { value: viewModel$ });
+    // `viewModel$` is a method taking the user id, not a bare stream.
+    Object.defineProperty(vaultNavService, "viewModel$", { value: () => viewModel$ });
 
     await TestBed.configureTestingModule({
       imports: [UserLayoutComponent, NavigationModule],
