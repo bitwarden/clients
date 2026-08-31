@@ -66,7 +66,7 @@
           id="access-audit_button_export"
           endIcon="bwi-import"
           [bitAction]="exportCsv"
-          [disabled]="filteredRows().length === 0"
+          [disabled]="rows().length === 0"
         >
           {{ "exportVerb" | i18n }}
         </button>
@@ -171,7 +171,7 @@
       </div>
     </div>
 
-    @if (filteredRows().length === 0) {
+    @if (rows().length === 0) {
       <bit-status-lockup>
         <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
         <span slot="title">{{ "pamAuditNoMatchesTitle" | i18n }}</span>
@@ -219,7 +219,7 @@
             </tr>
           </ng-container>
           <ng-template body>
-            @for (row of filteredRows(); track $index) {
+            @for (row of rows(); track $index) {
               <tr bitRow class="tw-cursor-pointer" (click)="openDetails(row)">
                 <td bitCell class="tw-whitespace-nowrap">{{ row.occurredAt | date: "medium" }}</td>
                 <!--
@@ -329,6 +329,25 @@
           </ng-template>
         </bit-table>
       </div>
+      @if (canLoadMore()) {
+        <!--
+          Below the table rather than beside Update, because it continues the list the auditor is
+          reading rather than acting on the page. It disappears on the last page: the server sends a
+          position to resume from only while one remains, so its absence is the end of the trail
+          rather than a guess made by counting rows.
+        -->
+        <div class="tw-mt-4 tw-flex tw-justify-center">
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            id="access-audit_button_load-more"
+            [bitAction]="loadMore"
+          >
+            {{ "loadMore" | i18n }}
+          </button>
+        </div>
+      }
     }
   }
 }
