@@ -283,16 +283,10 @@ function audit(
   options: {
     events?: AccessAuditEventResponse[];
     fails?: boolean;
-    membersRefused?: boolean;
     refreshPending?: boolean;
   } = {},
 ) {
-  const {
-    events = EVENTS,
-    fails = false,
-    membersRefused = false,
-    refreshPending = false,
-  } = options;
+  const { events = EVENTS, fails = false, refreshPending = false } = options;
   return moduleMetadata({
     imports: [AccessAuditComponent],
     providers: [
@@ -322,10 +316,7 @@ function audit(
       {
         provide: OrganizationUserApiService,
         useValue: {
-          getAllMiniUserDetails: () =>
-            membersRefused
-              ? Promise.reject(new Error("member listing refused"))
-              : Promise.resolve({ data: MEMBERS }),
+          getAllMiniUserDetails: () => Promise.resolve({ data: MEMBERS }),
         },
       },
       { provide: DialogService, useValue: { open: () => ({ closed: of(undefined) }) } },
@@ -403,15 +394,6 @@ export const LongValues: Story = {
  */
 export const EntityLinks: Story = {
   decorators: [audit({ events: MIXED_LINK_EVENTS })],
-};
-
-/**
- * The member lookup refused. `AccessEventLogs` authorizes this trail but does not imply permission to
- * enumerate the organization's members, so this is what a legitimate viewer without that second
- * permission sees: the whole trail, with every name plain text and only the item still linked.
- */
-export const MemberLookupRefused: Story = {
-  decorators: [audit({ events: MIXED_LINK_EVENTS, membersRefused: true })],
 };
 
 /**
