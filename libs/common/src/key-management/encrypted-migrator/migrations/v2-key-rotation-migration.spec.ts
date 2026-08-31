@@ -36,6 +36,7 @@ describe("V2KeyRotationMigration", () => {
     get_untrusted_organization_public_keys: jest.Mock;
     get_untrusted_emergency_access_public_keys: jest.Mock;
     should_regenerate_public_key_encryption_key_pair: jest.Mock;
+    request_permission_to_migrate_to_v2: jest.Mock;
   };
 
   const mockUserId = "00000000-0000-0000-0000-000000000000" as UserId;
@@ -58,18 +59,20 @@ describe("V2KeyRotationMigration", () => {
   };
 
   /**
-   * Backs the three SDK methods reached via `withPasswordManagerSdk`:
-   * organization-recovery enrollment, granted emergency access, and
-   * corrupted-private-key detection.
+   * Backs the four SDK methods reached via `withPasswordManagerSdk`:
+   * organization-recovery enrollment, granted emergency access,
+   * corrupted-private-key detection, and grace-period permission.
    */
   const arrangeSdkResult = ({
     orgKeys = [] as unknown[],
     emergencyKeys = [] as unknown[],
     shouldRegenerate = false,
+    migrationPermission = "Migrate",
   }: {
     orgKeys?: unknown[];
     emergencyKeys?: unknown[];
     shouldRegenerate?: boolean;
+    migrationPermission?: string;
   } = {}) => {
     mockUserCryptoMgmt = {
       get_untrusted_organization_public_keys: jest.fn().mockResolvedValue(orgKeys),
@@ -77,6 +80,7 @@ describe("V2KeyRotationMigration", () => {
       should_regenerate_public_key_encryption_key_pair: jest
         .fn()
         .mockResolvedValue(shouldRegenerate),
+      request_permission_to_migrate_to_v2: jest.fn().mockResolvedValue(migrationPermission),
     };
     mockSdkService.userClient$.mockReturnValue(
       of({
@@ -171,6 +175,57 @@ describe("V2KeyRotationMigration", () => {
       expect(mockLogService.info).toHaveBeenCalledWith(
         `[V2KeyRotationMigration] After syncing, user ${mockUserId} is already on v2. Skipping.`,
       );
+    });
+
+    it("returns 'noMigrationNeeded' when the user is inside the grace period", async () => {
+      arrangeHappyPath();
+      arrangeSdkResult({ migrationPermission: "Wait" });
+
+      const result = await sut.needsMigration(mockUserId);
+
+      expect(result).toBe("noMigrationNeeded");
+      expect(mockUserCryptoMgmt.request_permission_to_migrate_to_v2).toHaveBeenCalled();
+      expect(mockSyncService.fullSync).not.toHaveBeenCalled();
+      expect(mockLogService.info).toHaveBeenCalledWith(
+        `[V2KeyRotationMigration] User ${mockUserId} is inside the v2 migration grace period. Skipping.`,
+      );
+    });
+
+    it("continues past the grace period gate once permission is granted", async () => {
+      arrangeHappyPath();
+      arrangeSdkResult({ migrationPermission: "Migrate" });
+
+      const result = await sut.needsMigration(mockUserId);
+
+      expect(result).toBe("needsMigrationWithMasterPassword");
+      expect(mockUserCryptoMgmt.request_permission_to_migrate_to_v2).toHaveBeenCalled();
+    });
+
+    it("throws on an unrecognized migration permission", async () => {
+      arrangeHappyPath();
+      arrangeSdkResult({ migrationPermission: "Unrecognized" });
+
+      await expect(sut.needsMigration(mockUserId)).rejects.toThrow(
+        "Unhandled migration permission",
+      );
+    });
+
+    it("does not arm the grace period when the feature flag is disabled", async () => {
+      arrangeHappyPath();
+      mockConfigService.getFeatureFlag.mockResolvedValue(false);
+
+      await sut.needsMigration(mockUserId);
+
+      expect(mockUserCryptoMgmt.request_permission_to_migrate_to_v2).not.toHaveBeenCalled();
+    });
+
+    it("does not arm the grace period when the user key is already v2", async () => {
+      arrangeHappyPath();
+      mockKeyService.userKey$.mockReturnValue(of(mockUserKeyV2));
+
+      await sut.needsMigration(mockUserId);
+
+      expect(mockUserCryptoMgmt.request_permission_to_migrate_to_v2).not.toHaveBeenCalled();
     });
 
     it("returns 'noMigrationNeeded' when user is enrolled in account recovery", async () => {
