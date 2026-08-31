@@ -1,7 +1,33 @@
-<bit-header [title]="titleText()" icon="bwi-clock">
-  <bit-breadcrumbs slot="breadcrumbs">
-    <bit-breadcrumb [route]="['..']">{{ "pamAccessRules" | i18n }}</bit-breadcrumb>
-  </bit-breadcrumbs>
+<bit-header [title]="titleText()">
+  <div slot="breadcrumbs" class="tw-flex tw-items-baseline">
+    <bit-breadcrumbs showTrailingArrow>
+      <bit-breadcrumb [route]="['..']">{{ "pamAccessRules" | i18n }}</bit-breadcrumb>
+    </bit-breadcrumbs>
+    <!-- A route-less bit-breadcrumb falls back to a focusable button that does nothing and never
+         gets aria-current; a static span carries the current-page semantics without that trap. -->
+    <span
+      bitTypography="h3"
+      aria-current="page"
+      class="tw-inline-block !tw-m-0 !tw-text-fg-heading"
+      >{{ pageTypeKey | i18n }}</span
+    >
+  </div>
+
+  <!-- Sits inside the h1 next to the name, so the sr-only label keeps the bare "On"/"Off" from
+       reading as part of the rule's title. Reflects the saved rule, like the heading itself does;
+       the Status checkbox below only takes effect on save. -->
+  <span slot="title-suffix" class="tw-flex tw-h-full tw-items-center">
+    @if (existing(); as rule) {
+      <span class="tw-sr-only">{{ "status" | i18n }}:</span>
+      <span
+        bitBadge
+        [variant]="rule.enabled ? 'success' : 'subtle'"
+        [startIcon]="null"
+        id="access-rule-edit_badge_status"
+        >{{ (rule.enabled ? "on" : "off") | i18n }}</span
+      >
+    }
+  </span>
 </bit-header>
 
 <bit-container>
@@ -9,6 +35,40 @@
     <bit-spinner />
   } @else {
     <form [formGroup]="formGroup" [bitSubmit]="submit">
+      @if (saveError(); as error) {
+        <bit-callout
+          #saveErrorCallout
+          role="alert"
+          tabindex="-1"
+          type="danger"
+          [title]="null"
+          [accessibleName]="'error' | i18n"
+        >
+          <span class="tw-inline">{{ saveErrorMessage() }}</span>
+          @if (error.kind === "generic") {
+            <!-- A plain submit button so the retry rides the form's own `bitSubmit`, keeping Save's
+                 loading and disabled handling. `bitAction`/`bitFormButton` cannot supply that here:
+                 both inject `ButtonLikeAbstraction`, which `bitLink` does not provide. -->
+            <button
+              type="submit"
+              bitLink
+              linkType="danger"
+              class="tw-ms-2 tw-font-bold"
+              id="access-rule-edit_button_retry-save"
+            >
+              {{ "tryAgain" | i18n }}
+            </button>
+          }
+        </bit-callout>
+      }
+
+      <!-- Reflects the rule as SAVED, so it appears/clears on reload rather than while the
+           collections multi-select is being edited. Renders nothing on the create page. -->
+      <app-pam-rule-bypassable-ciphers-callout
+        [organizationId]="organizationId"
+        [accessRuleId]="accessRuleId"
+      />
+
       <bit-section>
         <bit-section-header>
           <h2 bitTypography="h5">{{ "pamAccessRuleGeneralInfoHeading" | i18n }}</h2>
@@ -23,6 +83,8 @@
               id="access-rule-edit_input_name"
               formControlName="name"
               [placeholder]="'pamAccessRuleNamePlaceholder' | i18n"
+              [appAutofocus]="renaming"
+              appAutofocusSelect
             />
           </bit-form-field>
 
@@ -47,16 +109,23 @@
             />
             <bit-hint>{{ "pamAccessRuleCollectionsHint" | i18n }}</bit-hint>
           </bit-form-field>
+        </bit-card>
+      </bit-section>
 
-          <bit-form-control class="tw-mt-4">
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h5">{{ "pamAccessRuleStatusHeading" | i18n }}</h2>
+        </bit-section-header>
+        <bit-card>
+          <bit-form-control disableMargin>
             <input
               type="checkbox"
               bitCheckbox
               id="access-rule-edit_checkbox_enabled"
               formControlName="enabled"
             />
-            <bit-label>{{ "pamAccessRuleEnabled" | i18n }}</bit-label>
-            <bit-hint>{{ "pamAccessRuleEnabledHint" | i18n }}</bit-hint>
+            <bit-label>{{ "pamAccessRuleActive" | i18n }}</bit-label>
+            <bit-hint>{{ "pamAccessRuleActiveHint" | i18n }}</bit-hint>
           </bit-form-control>
         </bit-card>
       </bit-section>
@@ -93,7 +162,9 @@
                 <bit-option [value]="opt.seconds" [label]="opt.labelKey | i18n" />
               }
             </bit-select>
-            <bit-hint>{{ "pamAccessRuleMaxDurationHint" | i18n }}</bit-hint>
+            @if (formGroup.controls.maxLeaseDurationSeconds.value !== noDurationCap) {
+              <bit-hint>{{ "pamAccessRuleMaxDurationHint" | i18n }}</bit-hint>
+            }
           </bit-form-field>
 
           <bit-form-control [disableMargin]="!formGroup.controls.allowsExtensions.value">
@@ -137,14 +208,13 @@
               formControlName="humanApprovalEnabled"
             />
             <bit-label>{{ "pamAccessRuleConditionHumanApproval" | i18n }}</bit-label>
+            @if (formGroup.controls.humanApprovalEnabled.value) {
+              <bit-hint
+                >{{ "pamAccessRuleApprovers" | i18n }}:
+                {{ "pamAccessRuleApproversCollectionManagers" | i18n }}</bit-hint
+              >
+            }
           </bit-form-control>
-
-          @if (formGroup.controls.humanApprovalEnabled.value) {
-            <p bitTypography="body2" class="tw-ml-7 tw-mb-4 tw--mt-3 tw-text-muted">
-              {{ "pamAccessRuleApprovers" | i18n }}:
-              {{ "pamAccessRuleApproversCollectionManagers" | i18n }}
-            </p>
-          }
 
           <bit-form-control>
             <input
@@ -169,13 +239,24 @@
               id="access-rule-edit_checkbox_single-active-lease"
               formControlName="singleActiveLease"
             />
-            <bit-label>{{ "pamAccessRuleSingleActiveLease" | i18n }}</bit-label>
-            <bit-hint>{{ "pamAccessRuleSingleActiveLeaseHint" | i18n }}</bit-hint>
+            <bit-label>{{ "pamAccessRuleSingleActiveUser" | i18n }}</bit-label>
+            <bit-hint>{{ "pamAccessRuleSingleActiveAccessHint" | i18n }}</bit-hint>
           </bit-form-control>
         </bit-card>
       </bit-section>
 
-      <div class="tw-flex tw-gap-2">
+      @if (canAccessEventLogs()) {
+        <p bitTypography="body2" class="tw-text-muted">
+          {{ "pamAccessRuleEventLogNotice" | i18n }}
+          <a bitLink [routerLink]="eventLogRoute" id="access-rule-edit_anchor_event-logs">{{
+            "pamAccessRuleViewAuditLog" | i18n
+          }}</a>
+        </p>
+      }
+
+      <bit-error-summary [formGroup]="formGroup" />
+
+      <div class="tw-flex tw-items-center tw-gap-2">
         <button
           type="submit"
           bitButton
@@ -189,12 +270,25 @@
           type="button"
           bitButton
           buttonType="secondary"
-          bitFormButton
-          (click)="cancel()"
+          [bitAction]="cancel"
           id="access-rule-edit_button_cancel"
         >
           {{ "cancel" | i18n }}
         </button>
+
+        @if (existing() != null) {
+          <button
+            type="button"
+            bitButton
+            buttonType="danger"
+            bitFormButton
+            [bitAction]="remove"
+            class="tw-ms-auto"
+            id="access-rule-edit_button_delete"
+          >
+            {{ "delete" | i18n }}
+          </button>
+        }
       </div>
     </form>
   }

@@ -34,6 +34,8 @@ export interface RoutedVaultFilterModel {
   folderId?: string;
   organizationId?: OrganizationId | Unassigned;
   type?: RoutedVaultFilterItemType;
+  /** Id of the selected "Controlled access" child, opaque to the vault. */
+  controlledAccess?: string;
 
   organizationIdParamType?: "path" | "query";
 }

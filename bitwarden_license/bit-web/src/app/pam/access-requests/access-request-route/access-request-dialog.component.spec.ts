@@ -1,0 +1,463 @@
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+
+import type { AccessRequestView } from "../../abstractions/access-lease";
+import { automaticDecision, humanDecision, selfEndDecision } from "../../testing/decision-builders";
+import { ResolvedNames, emptyResolvedNames } from "../access-name-resolver.service";
+
+import { AccessRequestDetailService } from "./access-request-detail.service";
+import {
+  AccessRequestDialogComponent,
+  AccessRequestDialogParams,
+} from "./access-request-dialog.component";
+
+const FUTURE = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+const PAST = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+
+function request(overrides: Record<string, unknown> = {}): AccessRequestView {
+  return {
+    id: "req-1",
+    cipherId: "cipher-1",
+    collectionId: "col-1",
+    organizationId: "org-1",
+    requesterId: "user-1",
+    status: "pending",
+    leaseNotBefore: new Date().toISOString(),
+    leaseNotAfter: FUTURE,
+    submittedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    decisions: [],
+    requesterName: "Grace",
+    ...overrides,
+  } as unknown as AccessRequestView;
+}
+
+describe("AccessRequestDialogComponent", () => {
+  let fixture: ComponentFixture<AccessRequestDialogComponent>;
+  let component: AccessRequestDialogComponent;
+  let detail: {
+    request$: BehaviorSubject<AccessRequestView | null>;
+    loading$: BehaviorSubject<boolean>;
+    notFound$: BehaviorSubject<boolean>;
+    loadError$: BehaviorSubject<unknown | null>;
+    names$: BehaviorSubject<ResolvedNames>;
+    cipherById$: BehaviorSubject<Map<string, CipherView>>;
+    cancel: jest.Mock;
+    activate: jest.Mock;
+    endLease: jest.Mock;
+  };
+  let dialogService: MockProxy<DialogService>;
+  let toastService: MockProxy<ToastService>;
+
+  function create(): void {
+    fixture = TestBed.createComponent(AccessRequestDialogComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }
+
+  function text(): string {
+    return fixture.nativeElement.textContent as string;
+  }
+
+  beforeEach(async () => {
+    detail = {
+      request$: new BehaviorSubject<AccessRequestView | null>(request()),
+      loading$: new BehaviorSubject<boolean>(false),
+      notFound$: new BehaviorSubject<boolean>(false),
+      loadError$: new BehaviorSubject<unknown | null>(null),
+      names$: new BehaviorSubject<ResolvedNames>({
+        ...emptyResolvedNames(),
+        cipherNameById: new Map([["cipher-1", "Prod database"]]),
+        collectionNameById: new Map([["col-1", "Production"]]),
+        organizationNameById: new Map([["org-1", "Meridian Group"]]),
+      }),
+      cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
+      cancel: jest.fn().mockResolvedValue(undefined),
+      activate: jest.fn().mockResolvedValue(undefined),
+      endLease: jest.fn().mockResolvedValue(undefined),
+    };
+    dialogService = mock<DialogService>();
+    toastService = mock<ToastService>();
+    dialogService.openSimpleDialog.mockResolvedValue(true);
+
+    // The detail service is route-scoped and handed in by the host route, so the dialog reads it
+    // off `DIALOG_DATA` rather than injecting it.
+    const params = {
+      detail: detail as unknown as AccessRequestDetailService,
+    } satisfies AccessRequestDialogParams;
+
+    await TestBed.configureTestingModule({
+      imports: [AccessRequestDialogComponent, NoopAnimationsModule],
+      providers: [
+        { provide: DIALOG_DATA, useValue: params },
+        { provide: DialogRef, useValue: { close: jest.fn() } },
+        { provide: ToastService, useValue: toastService },
+        { provide: LogService, useValue: mock<LogService>() },
+        {
+          provide: I18nService,
+          useValue: { t: (key: string, ...args: unknown[]) => [key, ...args].join(" ") },
+        },
+      ],
+    })
+      // `DialogModule` provides the real `DialogService` into the component's own standalone
+      // injector, which shadows a module-level override — so the end-lease confirm has to be
+      // stubbed on the component itself.
+      .overrideComponent(AccessRequestDialogComponent, {
+        add: { providers: [{ provide: DialogService, useValue: dialogService }] },
+      })
+      .compileComponents();
+  });
+
+  describe("loading states", () => {
+    it("renders the not-found state when the request is not available", () => {
+      detail.request$.next(null);
+      detail.notFound$.next(true);
+
+      create();
+
+      expect(text()).toContain("pamAccessRequestNotFound");
+    });
+
+    it("toasts a load failure that is not a not-found", () => {
+      create();
+
+      detail.loadError$.next(new Error("boom"));
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamAccessRequestLoadError",
+      });
+    });
+  });
+
+  describe("rendering", () => {
+    it("shows the resolved item and collection names", () => {
+      create();
+
+      expect(component["cipherName"]()).toBe("Prod database");
+      expect(component["collectionName"]()).toBe("Production");
+    });
+
+    it("falls back to the raw cipher id when the item is not in the caller's vault", () => {
+      detail.names$.next(emptyResolvedNames());
+
+      create();
+
+      expect(component["cipherName"]()).toBe("cipher-1");
+      expect(component["collectionName"]()).toBeNull();
+    });
+
+    it("resolves the owning organization's name, and nothing when it is unknown", () => {
+      create();
+      expect(component["organizationName"]()).toBe("Meridian Group");
+
+      detail.names$.next(emptyResolvedNames());
+      expect(component["organizationName"]()).toBeNull();
+    });
+
+    it("keeps Status, Submitted and Resolved beside the shared request-details rows", () => {
+      detail.request$.next(request({ status: "denied", resolvedAt: new Date().toISOString() }));
+
+      create();
+
+      const details = fixture.nativeElement.querySelector(
+        '[data-testid="request-summary-details"]',
+      ) as HTMLElement;
+      expect(details.textContent).toContain("pamColumnStatus");
+      expect(details.textContent).toContain("pamColumnSubmitted");
+      expect(details.textContent).toContain("pamColumnResolved");
+    });
+
+    it("renders each shared row exactly once, not alongside the page's old list", () => {
+      create();
+
+      const rendered = fixture.nativeElement.textContent as string;
+      expect(rendered.split("pamInboxRequester").length - 1).toBe(1);
+      expect(
+        fixture.nativeElement.querySelectorAll("#pam-request-summary_input_reason"),
+      ).toHaveLength(1);
+      expect(
+        fixture.nativeElement.querySelectorAll("#pam-request-summary_input_access-requested"),
+      ).toHaveLength(1);
+    });
+
+    it("identifies the requester by name, then email, then id", () => {
+      create();
+      expect(component["requesterDisplay"]()).toBe("Grace");
+
+      detail.request$.next(request({ requesterName: undefined, requesterEmail: "g@example.com" }));
+      expect(component["requesterDisplay"]()).toBe("g@example.com");
+
+      detail.request$.next(request({ requesterName: undefined, requesterEmail: undefined }));
+      expect(component["requesterDisplay"]()).toBe("user-1");
+    });
+  });
+
+  describe("the decision log", () => {
+    it("credits the access rule for an automatic decision", () => {
+      detail.request$.next(request({ status: "approved", decisions: [automaticDecision()] }));
+
+      create();
+
+      const decisions = component["decisions"]();
+      expect(decisions).toHaveLength(1);
+      expect(decisions[0].automatic).toBe(true);
+      expect(decisions[0].labelKey).toBe("pamStatusApproved");
+    });
+
+    it("credits a human approver by name", () => {
+      detail.request$.next(
+        request({
+          status: "approved",
+          decisions: [humanDecision({ id: "approver-1", name: "Ada" })],
+        }),
+      );
+
+      create();
+
+      const decisions = component["decisions"]();
+      expect(decisions[0].automatic).toBe(false);
+      expect(decisions[0].who).toBe("Ada");
+    });
+
+    it("falls back to the approver's email, then their id", () => {
+      detail.request$.next(
+        request({
+          status: "approved",
+          decisions: [
+            humanDecision({ id: "approver-1", email: "ada@example.com" }),
+            humanDecision({ id: "approver-2" }),
+          ],
+        }),
+      );
+
+      create();
+
+      expect(component["decisions"]()[0].who).toBe("ada@example.com");
+      expect(component["decisions"]()[1].who).toBe("approver-2");
+    });
+
+    it("reads a deny on a denied request as a denial", () => {
+      detail.request$.next(
+        request({
+          status: "denied",
+          decisions: [humanDecision({ id: "approver-1", name: "Ada", verdict: "deny" })],
+        }),
+      );
+
+      create();
+
+      expect(component["decisions"]()[0].labelKey).toBe("pamStatusDenied");
+    });
+
+    it("reads the holder's own deny as ending their lease, not a denial", () => {
+      // The revoke path records its reason as a deny decision; only the decider tells them apart.
+      detail.request$.next(
+        request({
+          status: "approved",
+          decisions: [automaticDecision(), selfEndDecision("user-1")],
+        }),
+      );
+
+      create();
+
+      const decisions = component["decisions"]();
+      expect(decisions[1].labelKey).toBe("pamAuditKindLeaseEndedByHolder");
+      expect(text()).not.toContain("pamStatusDenied");
+    });
+
+    it("reads someone else's deny on an activated request as an operator revoke", () => {
+      detail.request$.next(
+        request({
+          status: "approved",
+          decisions: [
+            automaticDecision(),
+            humanDecision({ id: "operator-9", name: "Ops", verdict: "deny" }),
+          ],
+        }),
+      );
+
+      create();
+
+      expect(component["decisions"]()[1].labelKey).toBe("pamAuditKindLeaseRevoked");
+    });
+  });
+
+  describe("action gating", () => {
+    it("offers Start only for an approved request still inside its window", () => {
+      detail.request$.next(request({ status: "approved" }));
+      create();
+      expect(component["canStart"]()).toBe(true);
+
+      detail.request$.next(request({ status: "approved", leaseNotAfter: PAST }));
+      expect(component["canStart"]()).toBe(false);
+
+      detail.request$.next(request({ status: "pending" }));
+      expect(component["canStart"]()).toBe(false);
+    });
+
+    it("offers Cancel for a pending request, and for an approved one not yet lapsed", () => {
+      detail.request$.next(request({ status: "pending", leaseNotAfter: PAST }));
+      create();
+      expect(component["canCancel"]()).toBe(true);
+
+      detail.request$.next(request({ status: "approved" }));
+      expect(component["canCancel"]()).toBe(true);
+
+      detail.request$.next(request({ status: "approved", leaseNotAfter: PAST }));
+      expect(component["canCancel"]()).toBe(false);
+
+      detail.request$.next(request({ status: "denied" }));
+      expect(component["canCancel"]()).toBe(false);
+    });
+
+    it("offers End only while the produced lease is live", () => {
+      detail.request$.next(
+        request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "active" }),
+      );
+      create();
+      expect(component["canEndLease"]()).toBe(true);
+
+      detail.request$.next(
+        request({
+          status: "approved",
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "revoked",
+        }),
+      );
+      expect(component["canEndLease"]()).toBe(false);
+    });
+
+    it("renders the offered actions in the dialog footer", () => {
+      detail.request$.next(request({ status: "approved" }));
+
+      create();
+
+      const footer = fixture.nativeElement.querySelector("footer") as HTMLElement;
+      expect(footer.querySelector("#access-request-dialog_button_start")).not.toBeNull();
+      expect(footer.querySelector("#access-request-dialog_button_cancel-request")).not.toBeNull();
+      expect(footer.querySelector("#access-request-dialog_button_close")).not.toBeNull();
+    });
+  });
+
+  describe("actions", () => {
+    it("cancels and toasts", async () => {
+      create();
+
+      await component["cancel"]();
+
+      expect(detail.cancel).toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "pamMyRequestsCanceledToast",
+      });
+    });
+
+    it("toasts an error when cancelling fails", async () => {
+      detail.cancel.mockRejectedValue(new Error("boom"));
+      create();
+
+      await component["cancel"]();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamMyRequestsCancelError",
+      });
+    });
+
+    it("starts access and toasts", async () => {
+      detail.request$.next(request({ status: "approved" }));
+      create();
+
+      await component["startAccess"]();
+
+      expect(detail.activate).toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "pamStartLeaseSuccess",
+      });
+    });
+
+    it("maps the server's reason to a client-side i18n key without leaking the raw payload", async () => {
+      detail.request$.next(request({ status: "approved" }));
+      detail.activate.mockRejectedValue(
+        Object.assign(
+          new Error(
+            'error in response: status code 400 Bad Request: {"object":"error",' +
+              '"message":"The approved access window has already ended.",' +
+              '"validationErrors":null,"exceptionStackTrace":"   at Bit.Services.Pam' +
+              '.OrganizationFeatures.Commands.ActivateAccessRequestCommand.ActivateAsync"}',
+          ),
+          { name: "AccessRequestError", variant: "Api" },
+        ),
+      );
+      create();
+
+      await component["startAccess"]();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamStartLeaseErrorWindowEnded",
+      });
+      const shown = toastService.showToast.mock.calls[0][0].message as string;
+      expect(shown).not.toContain("exceptionStackTrace");
+      expect(shown).not.toContain("Bit.Services.Pam");
+    });
+
+    it("falls back to the generic message when starting access fails for another reason", async () => {
+      detail.request$.next(request({ status: "approved" }));
+      detail.activate.mockRejectedValue(new Error("offline"));
+      create();
+
+      await component["startAccess"]();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamStartLeaseError",
+      });
+    });
+
+    it("confirms before ending the lease", async () => {
+      detail.request$.next(
+        request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "active" }),
+      );
+      create();
+
+      await component["endLease"]();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalled();
+      expect(detail.endLease).toHaveBeenCalledWith("lease-1");
+    });
+
+    it("does not end the lease when the confirm is dismissed", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      detail.request$.next(
+        request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "active" }),
+      );
+      create();
+
+      await component["endLease"]();
+
+      expect(detail.endLease).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when an action is not available", async () => {
+      detail.request$.next(request({ status: "denied" }));
+      create();
+
+      await component["cancel"]();
+      await component["startAccess"]();
+      await component["endLease"]();
+
+      expect(detail.cancel).not.toHaveBeenCalled();
+      expect(detail.activate).not.toHaveBeenCalled();
+      expect(detail.endLease).not.toHaveBeenCalled();
+    });
+  });
+});

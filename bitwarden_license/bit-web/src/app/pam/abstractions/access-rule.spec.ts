@@ -22,15 +22,47 @@ describe("accessRuleErrorMessage", () => {
   });
 
   it.each<AccessRuleErrorVariant>([
-    "BadRequest",
     "NotFound",
     "Validation",
     "InvalidConditions",
     "MissingField",
     "Chrono",
-    "Api",
   ])("recognises the %s variant", (variant) => {
     expect(accessRuleErrorMessage(accessRuleError(variant))).toBe("boom");
+  });
+
+  // The Api variant wraps the whole failed HTTP response; only the server's inner
+  // `message` field is toastable.
+  describe("the Api variant", () => {
+    const wrap = (body: string) =>
+      accessRuleError("Api", `error in response: status code 400 Bad Request: ${body}`);
+
+    it("extracts the server message from the embedded ErrorResponseModel body", () => {
+      expect(
+        accessRuleErrorMessage(wrap('{"message":"A rule with that name already exists."}')),
+      ).toBe("A rule with that name already exists.");
+    });
+
+    it("extracts it even when the transport appended content after the body", () => {
+      expect(
+        accessRuleErrorMessage(
+          wrap('{"message":"A rule with that name already exists."} (request id 8f2c)'),
+        ),
+      ).toBe("A rule with that name already exists.");
+    });
+
+    it("returns undefined when the body has no usable message", () => {
+      expect(accessRuleErrorMessage(wrap('{"message":""}'))).toBeUndefined();
+      expect(accessRuleErrorMessage(wrap('{"validationErrors":{}}'))).toBeUndefined();
+      expect(accessRuleErrorMessage(wrap('{"message":42}'))).toBeUndefined();
+    });
+
+    it("returns undefined when there is no JSON body (network/serde failures)", () => {
+      expect(accessRuleErrorMessage(accessRuleError("Api", "error in reqwest: timed out"))).toBe(
+        undefined,
+      );
+      expect(accessRuleErrorMessage(wrap("not json"))).toBeUndefined();
+    });
   });
 
   it("returns undefined for a plain Error", () => {

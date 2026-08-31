@@ -28,7 +28,16 @@
 --     spec models the *event*, not the wire format)
 --   - Audit log persistence (server-side; the client observes outcomes only)
 --   - LaunchDarkly feature-flag gating (deployment concern, not domain)
---   - Mock layer in apps/web/src/app/pam/mock (demo scaffolding)
+--
+-- Specified but NOT yet implemented in this client (the spec leads the code here):
+--   - Org-wide kill switch and leasing freeze (KillSwitchControl, LeasingFreeze) —
+--     no server or SDK backing
+--   - Governance dashboard (GovernanceDashboard) — no server or SDK backing
+--   - EmailApprovalDeepLink as a distinct landing page; /pam/requests/:id currently
+--     serves the requester's own request only
+--   - ForecastDecision as a separate read; the built request form shapes itself from
+--     AccessRequestsClient::pre_check instead. RuleAllowsLease now lands through that
+--     same pre_check (PM-42446), as can_start_lease / slot_frees_at.
 
 -- ----------------------------------------------------------------------------
 -- External entities (other systems own these; PAM only references them)
@@ -111,6 +120,12 @@ variant HumanApproval : Condition {
 variant IpAllowlist : Condition {
     -- CIDR ranges from which a request will auto-approve. Empty list means
     -- the condition never matches (i.e. effectively denies).
+    --
+    -- Bounds the FIRST grant and each activation of one, not the member's whole
+    -- period of access: an extension is not evaluated against conditions
+    -- (PM-42500), so a lease obtained from inside the allowlist may be extended
+    -- from outside it. Do not read this as "access to this credential only ever
+    -- happens from these networks".
     cidrs: List<String>
 }
 
@@ -126,7 +141,8 @@ value ApproverScope {
 --   - Conditions (the `conditions` list) gate the request DECISION. Each is a
 --     predicate on the request (its approver scope, its source IP, ...),
 --     evaluated together at request-evaluation time to decide approve / deny /
---     route-to-human. See the rule-evaluation rules.
+--     route-to-human. See the rule-evaluation rules. They gate FIRST GRANTS only:
+--     an extension of an existing lease is not evaluated against them (PM-42500).
 --
 --   - AccessLease constraints (`single_active_lease`, `max_lease_duration`) do NOT gate
 --     the decision — they shape the LEASE once approved, evaluated at lease start
@@ -153,10 +169,10 @@ entity AccessRule {
     -- AccessLease constraint: ceiling on the duration of a single lease AS MINTED —
     -- when set, the lease window is clamped to at most this long at activation.
     -- It deliberately does NOT bound the lease's cumulative life across extensions:
-    -- each approved extension pushes the end out past it. The control on cumulative
-    -- duration is per-extension approval, not arithmetic (see
-    -- ExtensionApprovedExtendsParentLease and the resolved note in Open questions).
-    -- Null = no cap.
+    -- each extension pushes the end out past it. Since PM-42500 no extension is gated
+    -- by an approval either, so nothing in this model bounds how far the total may
+    -- run — what SHOULD bound it is now an open question (see the cumulative-extension
+    -- note in Open questions). Null = no cap.
     max_lease_duration: Duration?
     -- AccessLease constraint: when true, the rule asks for a per-cipher singleton — only
     -- one AccessLease active at a time for a given cipher, across all granted users.
@@ -224,8 +240,9 @@ entity AccessRequest {
     submitted_at: Timestamp
 
     -- Global max-age cutoff: whatever its state, a request is invalid past this
-    -- age and auto-expires (cleanup of old requests, and the only bound on an
-    -- extension's pending phase).
+    -- age and auto-expires (cleanup of old requests). It no longer bounds an
+    -- extension's pending phase: since PM-42500 an extension is decided in the same
+    -- step it is created and never rests at pending.
     valid_until: submitted_at + config.request_max_age
 
     -- Resolution
@@ -235,7 +252,7 @@ entity AccessRequest {
     -- activation-window end, and moves the request to `activated`. An approved
     -- request left unactivated past its actionable_until bound transitions to
     -- `expired`. Single use: one approved request yields at most one lease.
-    status: pending | approved | activated | denied | cancelled | expired
+    status: pending | approved | activated | denied | canceled | expired
     -- Non-optional under its when-clause: every transition out of `pending` is
     -- structurally obliged to set it (and every resolution rule does).
     resolved_at: Timestamp when status != pending
@@ -267,13 +284,13 @@ entity AccessRequest {
     transitions status {
         pending -> approved
         pending -> denied
-        pending -> cancelled
+        pending -> canceled
         pending -> expired
         approved -> activated
         approved -> expired
         approved -> denied
-        approved -> cancelled
-        terminal: activated, denied, cancelled, expired
+        approved -> canceled
+        terminal: activated, denied, canceled, expired
     }
 }
 
@@ -423,12 +440,15 @@ rule CipherOpenRequiresAccessRequest {
     requires: approved_requests.count = 0
     ensures: CipherOpenNeedsRequest(caller, target_cipher, gating_rule)
     @guidance
-        -- Implementation: the cipher-open round-trip reports that the cipher is
-        -- gated and the caller holds no access, so the client shows the Request
-        -- Access modal. Submitting the modal POSTs a new AccessRequest
-        -- (MemberSubmitsAccessRequest); that response may already be approved
-        -- when the rule needs no human approval. See PamCipherOpenGate
-        -- (cipher-open-gate.service.ts).
+        -- Implementation: there is no separate cipher-open round-trip. The server
+        -- serves a gated cipher as a RESTRICTED (partial) cipher on sync — name and
+        -- URIs only, every secret field absent — and the client reads
+        -- CipherView.partial to know it is gated. The banner then reads the caller's
+        -- own state for that cipher through
+        -- AccessRequestsClient::cipher_access_state, and offers Request access when
+        -- no lease, approved request, or pending request comes back. Submitting calls
+        -- AccessRequestsClient::request, whose result may already be approved when
+        -- the rule needs no human approval.
 }
 
 rule CipherOpenWithApprovedRequest {
@@ -601,7 +621,7 @@ rule MemberCancelsOwnRequest {
     when: MemberCancelsRequest(member, request)
     requires: request.status in {pending, approved}
     requires: request.requester = member
-    ensures: request.status = cancelled
+    ensures: request.status = canceled
     ensures: request.resolved_at = now
     -- No decision was made; approver fields are present (status != pending) but
     -- empty.
@@ -611,9 +631,12 @@ rule MemberCancelsOwnRequest {
 
 rule MemberRequestsLeaseExtension {
     -- Member with an active lease asks to push its end out. Modelled as a fresh
-    -- AccessRequest pointing back at the parent lease, evaluated by the same
-    -- rules as any request. On approval it extends the parent in place
-    -- (ExtensionApprovedExtendsParentLease) rather than minting a new lease.
+    -- AccessRequest pointing back at the parent lease — but the request exists for
+    -- the audit trail, not to be decided: extensions never require an approval
+    -- (PM-42500), so AutoApproveExtension approves it on the spot and
+    -- ExtensionApprovedExtendsParentLease applies it to the parent in place rather
+    -- than minting a new lease. It is created `pending` only to pass through the
+    -- single evaluation entry point; it never rests there.
     -- The member names no window and no duration: the extension amount is
     -- rule-derived at apply time, and lease_not_before / lease_not_after stay
     -- null because an extension is never promoted to a lease of its own.
@@ -642,6 +665,29 @@ rule MemberRequestsLeaseExtension {
 -- — goes through the modal/submit; evaluation then considers the rule's
 -- conditions. A rule with no human_approval condition resolves synchronously on
 -- submit, so the submit response can already carry an approved request.
+--
+-- AN EXTENSION IS NOT EVALUATED AGAINST THE RULE AT ALL (PM-42500). A rule's
+-- conditions gate the FIRST grant only. Extending a lease the member already holds
+-- is not a fresh grant, so it is approved on the spot by AutoApproveExtension: no
+-- approver sees it, AND no automated condition is asked either. An extension
+-- requested from outside the rule's ip_allowlist still applies.
+--
+-- The reasoning, stated plainly because the consequence is not small: the decision
+-- that mattered was the original grant, and an extension re-opens no new access —
+-- it lengthens access the member already holds, over the same credential, under the
+-- same rule. The controls that remain on it are the rule's opt-in (may this lease
+-- be extended at all) and the per-increment cap. What this gives up is that an
+-- ip_allowlist can no longer bound access to the admitted network once a lease
+-- exists: a member who obtained a lease from inside the allowlist may extend it
+-- from anywhere. That is a deliberate trade, not an oversight — see the
+-- extension-conditions open question, which is where the argument against it lives.
+--
+-- The four evaluation rules below partition the pending space exactly once, so no
+-- request matches two:
+--   extension                                          -> AutoApproveExtension
+--   non-extension + automated pass + no human_approval -> AutoApproveWhenNoHumanApproval
+--   non-extension + automated pass + human_approval    -> RouteToHumanApprovers
+--   non-extension + automated fail                     -> AutoDenyWhenAutomatedConditionsFail
 
 rule RequestReadyForEvaluationOnCreation {
     -- Requests are only ever created by a member submitting the Request Access
@@ -654,12 +700,40 @@ rule RequestReadyForEvaluationOnCreation {
     ensures: RequestReadyForEvaluation(request)
 }
 
+rule AutoApproveExtension {
+    -- Extensions never require an approval (PM-42500). A member pushing out a lease
+    -- they already hold is not asking for a new grant, so the decision is not put to
+    -- a human — not even when the governing rule carries a human_approval condition.
+    -- Approved on the spot with no approver recorded, the same shape as any other
+    -- system decision. ExtensionApprovedExtendsParentLease then applies it to the
+    -- parent lease in the same step, so an extension never rests at `approved`
+    -- either — it is already `activated` (or `denied`) before anything can observe it.
+    --
+    -- The rule's automated conditions are NOT asked either, so this rule has no
+    -- failure branch: every extension that reaches evaluation is approved here. An
+    -- extension requested from outside the rule's ip_allowlist is approved like any
+    -- other. The only way one still ends up `denied` is ExtensionDeniedParentGone —
+    -- the parent lease vanished in the same step — which is a fact about the parent,
+    -- not a verdict on the request. The only gates left on extending are the rule's
+    -- opt-in and the per-increment cap, neither of which is modelled here yet — see
+    -- the extension-conditions open question.
+    when: RequestReadyForEvaluation(request)
+    requires: request.status = pending
+    requires: request.extension_of != null
+    ensures: request.status = approved
+    ensures: request.resolved_at = now
+    ensures: request.approver = null
+}
+
 rule AutoApproveWhenNoHumanApproval {
     -- If the access rule has no human_approval condition, and any non-human
     -- conditions (e.g. ip_allowlist) pass, approve the request automatically on
     -- submit. No lease is minted here — the requester starts it on activation.
     when: RequestReadyForEvaluation(request)
     requires: request.status = pending
+    -- First grants only; an extension is approved by AutoApproveExtension whatever
+    -- the rule says, and this guard keeps the two rules from both matching.
+    requires: request.extension_of = null
     requires: not request.rule.has_human_approval
     requires: RuleAutomatedConditionsPass(request)
     ensures: request.status = approved
@@ -673,9 +747,14 @@ rule AutoApproveWhenNoHumanApproval {
 
 rule AutoDenyWhenAutomatedConditionsFail {
     -- Any non-human condition (today: ip_allowlist) failed → reject without
-    -- ever surfacing the request in an approver inbox.
+    -- ever surfacing the request in an approver inbox. First grants only: an
+    -- extension is not evaluated against the conditions at all (PM-42500), so it
+    -- cannot fail them and this rule must not catch it — without this guard an
+    -- extension outside the allowlist would match both this rule and
+    -- AutoApproveExtension.
     when: RequestReadyForEvaluation(request)
     requires: request.status = pending
+    requires: request.extension_of = null
     requires: not RuleAutomatedConditionsPass(request)
     ensures: request.status = denied
     ensures: request.resolved_at = now
@@ -685,9 +764,12 @@ rule AutoDenyWhenAutomatedConditionsFail {
 
 rule RouteToHumanApprovers {
     -- Automated conditions passed, but the rule needs human approval. Leave
-    -- the request pending and signal the approver inbox.
+    -- the request pending and signal the approver inbox. First grants only —
+    -- an extension is never routed to a human (PM-42500); it takes the
+    -- AutoApproveExtension path instead, even under a human_approval rule.
     when: RequestReadyForEvaluation(request)
     requires: request.status = pending
+    requires: request.extension_of = null
     requires: request.rule.has_human_approval
     requires: RuleAutomatedConditionsPass(request)
     ensures: RequestAwaitingApprover(request)
@@ -702,6 +784,10 @@ rule ApproverApprovesRequest {
     -- (ActivateLease) when they actually need access.
     when: ApproverDecides(approver, request, verdict, comment?)
     requires: request.status = pending
+    -- First grants only. Extensions never require an approval (PM-42500) and never
+    -- rest at pending, so no approver can decide one; stated locally here rather
+    -- than left to a reachability argument.
+    requires: request.extension_of = null
     requires: request.rule.has_human_approval
     requires: verdict = approve
     requires: approver in EligibleApprovers(request)
@@ -717,6 +803,9 @@ rule ApproverApprovesRequest {
 rule ApproverDeniesRequest {
     when: ApproverDecides(approver, request, verdict, comment?)
     requires: request.status = pending
+    -- First grants only, mirroring ApproverApprovesRequest: an extension is never
+    -- put to an approver at all, to approve or to deny (PM-42500).
+    requires: request.extension_of = null
     requires: request.rule.has_human_approval
     requires: verdict = deny
     requires: approver in EligibleApprovers(request)
@@ -752,13 +841,15 @@ rule ApproverRetractsRequest {
 
 rule ExtensionApprovedExtendsParentLease {
     -- An approved extension applies in place: it pushes the parent lease's end
-    -- out rather than minting a new lease the requester must start. Fires for
-    -- both auto- and human-approved extensions (transitions_to approved). The
-    -- push-out amount is rule-derived — the same duration an on-demand window
-    -- gets — added to the parent's current end; the requester names nothing. The
-    -- push-out is NOT clamped by max_lease_duration: cumulative lease life is
-    -- governed by per-extension approval, not arithmetic (resolved — see Open
-    -- questions). If the parent is no longer active it is denied instead — see
+    -- out rather than minting a new lease the requester must start. Since PM-42500
+    -- the ONLY way an extension reaches `approved` is AutoApproveExtension — no
+    -- human ever decides one — so this fires in the same step the extension is
+    -- created. The push-out amount is rule-derived — the same duration an on-demand
+    -- window gets — added to the parent's current end; the requester names nothing.
+    -- The push-out is NOT clamped by max_lease_duration, and with approval no longer
+    -- in the loop nothing else clamps the cumulative total either — an open question,
+    -- not a settled position (see the cumulative-extension note in Open questions).
+    -- If the parent is no longer active it is denied instead — see
     -- ExtensionDeniedParentGone.
     when: request: AccessRequest.status transitions_to approved
     requires: request.extension_of != null
@@ -770,9 +861,13 @@ rule ExtensionApprovedExtendsParentLease {
 }
 
 rule ExtensionDeniedParentGone {
-    -- An approved extension whose parent lease ended (expired or was revoked)
-    -- while approval was pending cannot apply — there is nothing to extend.
-    -- Deny it explicitly with a reason rather than letting it lapse silently.
+    -- An approved extension whose parent lease is no longer active (expired or
+    -- revoked) cannot apply — there is nothing to extend. Deny it explicitly with a
+    -- reason rather than letting it lapse silently. Since PM-42500 an extension is
+    -- approved in the same step it is created, so the window in which the parent can
+    -- vanish under it has narrowed to that single step: this now guards a lease that
+    -- expired or was revoked concurrently with the request, not one that sat waiting
+    -- on an approver. Kept as the safety net for exactly that case.
     -- The approval and this denial happen in the same step, so resolved_at (set
     -- on approval) already reflects the moment.
     when: request: AccessRequest.status transitions_to approved
@@ -1104,6 +1199,11 @@ deferred EligibleRevokers     -- see: RevokeAccessLeaseCommand; cipher-lease-ban
 -- request's source IP). Evaluated at request evaluation (to decide approve / deny /
 -- route-to-human) AND re-checked at lease start (ActivateLease): a mismatch at start
 -- rejects the activation without consuming the approval.
+--
+-- FIRST GRANTS ONLY. Since PM-42500 an extension is never evaluated against this
+-- predicate — not at request evaluation (AutoApproveExtension asks nothing) and not
+-- at lease start (an extension never activates; it applies in place). So both
+-- evaluation points above describe a non-extension request.
 deferred RuleAutomatedConditionsPass    -- see: server-side rule evaluation
 
 -- `oldest_rule(candidates)`: selection primitive for governing-rule resolution.
@@ -1150,7 +1250,12 @@ deferred oldest_rule    -- see: server-side GoverningRuleResolver
 -- This is the PER-PATH bypass. The org-wide export permission is a separate,
 -- per-caller one that no rule-level warning captures — see
 -- VaultExportBypassesLeasing.
-deferred RuleBypassableCiphers    -- see: server-side rule evaluation
+-- IMPLEMENTED with a deliberate narrowing: the server answers the ungated COLLECTIONS, not the
+-- ciphers. Naming a cipher requires decrypting it from the caller's own vault, and an admin outside
+-- the collection -- the admin being warned -- has none of those ciphers there, so the cipher list
+-- would be empty for exactly the person who needs it. The collections are reliably nameable by any
+-- admin and are what remediation acts on. A non-empty list is the warning condition.
+deferred RuleBypassableCiphers    -- see: server-side ListRuleBypassableCiphersQuery
 
 -- `CanExportOrganizationVault(member, organization)`: whether the member holds the
 -- org-wide vault-export permission. Owned by the existing organization permission
@@ -1238,8 +1343,13 @@ actor OrgAdmin {
 -- ----------------------------------------------------------------------------
 
 surface CipherViewBanner {
-    -- Renders the leased pill / pending banner / denial state on the cipher
-    -- view page when PAM gating applies. See cipher-lease-banner.component.
+    -- The requester's entry point on an open gated cipher: renders exactly one of
+    -- four states — active lease (countdown, extend, end), approved request (start,
+    -- withdraw), pending request (withdraw), or none of those (request access, which
+    -- folds out RequestAccessModal inline). Also the surface that reveals the
+    -- credential in place the moment a lease becomes active, without reopening the
+    -- item. See cipher-view-banner.component, bound to the CIPHER_VIEW_BANNER seam;
+    -- the reveal itself goes through the GATED_CIPHER_RELOADER seam.
     facing viewer: Member
 
     context target_cipher: Cipher
@@ -1264,8 +1374,14 @@ surface RequestAccessModal {
     -- (CipherOpenNeedsRequest). No AccessRequest exists yet: the member optionally
     -- picks a scheduled window (otherwise the request is on-demand and the window
     -- defaults from the rule's duration at submit), adds a reason, and submits,
-    -- which creates it (MemberSubmitsAccessRequest). Dismissing the modal without
-    -- submitting creates nothing.
+    -- which creates it (MemberSubmitsAccessRequest). Dismissing without submitting
+    -- creates nothing.
+    --
+    -- Implemented as a fold-out INSIDE CipherViewBanner rather than a separate modal,
+    -- so the requester never loses sight of the item they are asking for. Which fields
+    -- it collects comes from pre_check: a duration alone on the automatic path, a
+    -- window plus a required reason on the human path. The name is kept because the
+    -- copy keys (requestAccessModal*) are shared with it.
     facing requester: Member
 
     context target_cipher: Cipher
@@ -1294,6 +1410,13 @@ surface RequestAccessModal {
         -- (union/OR); otherwise always startable. Lets the modal warn that an
         -- otherwise-auto_approve request could not be started yet because another lease
         -- is active on this cipher. A current-state hint, re-checked for real at start.
+        --
+        -- Surfaced with the time the slot frees (the blocking lease's not_after, latest
+        -- one wins), so the requester gets a retry time rather than polling. Deliberately
+        -- WITHOUT the holder's identity: same-collection members can already enumerate
+        -- each other, but who is using which privileged credential right now is
+        -- behavioural data only approvers see (ActiveLeasesPage). Revisit only behind an
+        -- org opt-in.
         RuleAllowsLease(requester, target_cipher)
 
     provides:
@@ -1301,9 +1424,14 @@ surface RequestAccessModal {
 }
 
 surface MyAccessRequestsPage {
-    -- "My requests" page: caller's own AccessRequest rows, bounded by the
-    -- shared history window; the UI further splits them into pending and
-    -- recent. See my-access-requests.component.
+    -- "My requests": the caller's own AccessRequest rows, bounded by the shared
+    -- history window. Implemented as two tabs of the Access requests page rather than
+    -- one list — my-requests-tab.component holds what is still actionable (pending
+    -- requests, an extension-requests bucket, active leases) and history-tab.component
+    -- holds what has resolved — because the two carry different actions. Weed target:
+    -- since PM-42500 the extension bucket cannot fill, because an extension resolves
+    -- in the step it is created and is never outstanding. Each row links to
+    -- access-request-route.component for the single-request view.
     facing viewer: Member
 
     context viewer: Member
@@ -1349,12 +1477,14 @@ surface MyAccessRequestsPage {
 
 surface ActiveLeasesPage {
     -- Caller's currently-active leases with per-row revoke (used by lease
-    -- holders to end their own access early).
+    -- holders to end their own access early) and extension.
     --
-    -- PLANNED — no component exists yet. This surface is intended design: it is
-    -- the only surface providing requester self-revoke and MemberRequestsExtension,
-    -- neither of which is reachable in the UI until it is built. Today the
-    -- caller's active-lease data feeds only the nav slot and cipher badges.
+    -- No page of its own. Both actions it provides ARE reachable: the
+    -- "Active access" section of my-requests-tab.component ends a lease, and
+    -- cipher-view-banner.component ends or extends the lease on the item itself
+    -- (through extend-lease-dialog.component). This surface is kept as the domain
+    -- statement of what a lease holder may do to their own lease, independently of
+    -- which screen offers it.
     facing viewer: Member
 
     context viewer: Member
@@ -1374,14 +1504,25 @@ surface ActiveLeasesPage {
 }
 
 surface ApproverInbox {
-    -- The approver's queue of pending requests plus a history view of
-    -- resolved items. See approver-inbox.component.
+    -- The approver's queue of pending requests plus a history view of resolved
+    -- items. Implemented as the Approvals tab of the Access requests page
+    -- (approvals-tab.component) plus the approver scope of its History tab, rather
+    -- than a page of its own; the tab is hidden entirely from a member with no
+    -- approval privileges.
+    --
+    -- Its two reads and its decision write go through the SDK's approver-scoped
+    -- ApprovalsClient (list_inbox, list_history, decide), like every other PAM call.
+    -- Revoke and cancel-approval are served by LeasesClient::end and
+    -- AccessRequestsClient::cancel.
     facing viewer: Approver
 
     context viewer: Approver
 
     exposes:
-        -- Pending bucket: requests the approver may decide.
+        -- Pending bucket: requests the approver may decide. Extensions never appear
+        -- here — since PM-42500 they are approved at creation and never rest at
+        -- `pending` (see AutoApproveExtension). An approver sees a member's first
+        -- grant and nothing after it.
         for r in AccessRequest where status = pending
                                   and viewer in EligibleApprovers(r):
             r.id
@@ -1466,6 +1607,31 @@ surface AccessRulesAdminPage {
                          collections, default_lease_duration, max_lease_duration,
                          single_active_lease, enabled)
         DeleteAccessRule(admin, rule)
+}
+
+surface CollectionAccessRuleCallout {
+    -- Shown inside the collection edit dialog, naming the access rules that gate the
+    -- collection's items so an admin editing WHO can reach a collection can see that a
+    -- rule already governs WHEN. Read-only and informational: it grants nothing and
+    -- blocks nothing, so a failed read simply hides it. Only rendered while editing an
+    -- existing collection — there is nothing to gate before one exists. See
+    -- collection-access-rule-callout.component, bound to the
+    -- COLLECTION_ACCESS_RULE_CALLOUT seam.
+    facing admin: OrgAdmin
+
+    context target_collection: Collection
+
+    exposes:
+        -- Every enabled rule governing this collection, with the conditions it
+        -- enforces. Plural even though Collection.access_rule is a single reference:
+        -- the client reads the org's rules and filters by membership rather than
+        -- following the link, so it reports whatever the server actually returns
+        -- instead of assuming the cardinality holds.
+        for rule in AccessRule where enabled and target_collection in collections:
+            rule.id
+            rule.name
+            rule.conditions
+            rule.single_active_lease
 }
 
 surface GovernanceDashboard {
@@ -1568,9 +1734,11 @@ invariant AtMostOneInFlightRequestPerRequesterCipher {
     -- CipherOpenWithApprovedRequest — extensions never rest at `approved`
     -- (they apply or deny in the same step they are approved), so that set is
     -- a singleton too. Extension requests are excluded from this invariant:
-    -- MemberRequestsLeaseExtension has no duplicate guard, so several pending
-    -- extensions of one lease may coexist, and a pending extension survives
-    -- its parent lease's end alongside a fresh pending request.
+    -- MemberRequestsLeaseExtension has no duplicate guard. Since PM-42500 they do
+    -- not rest at `pending` either — no approver is waited on, so an extension is
+    -- created, approved and applied in a single step and is already terminal
+    -- (`activated` or `denied`) before anything else can observe it. The exclusion
+    -- is therefore now belt-and-braces rather than load-bearing.
     for a in AccessRequest where extension_of = null:
         for b in AccessRequest where extension_of = null:
             a != b and a.requester = b.requester and a.cipher = b.cipher
@@ -1625,7 +1793,7 @@ invariant OrgUniqueRuleNames {
 -- Open questions
 -- ----------------------------------------------------------------------------
 
-open question "When an AccessRule is hard-deleted while an associated AccessLease is still active, what happens to in-flight extension requests? The lease lives out its window, but its rule reference now points to a removed rule — and an extension routes back through that rule (MemberRequestsLeaseExtension copies lease.rule onto the new request). Does an extension against a deleted rule deny, or honour the original grant? And what resolves lease.rule once the row is gone?"
+open question "When an AccessRule is hard-deleted while an associated AccessLease is still active, what happens to a later extension of that lease? The lease lives out its window, but its rule reference now points to a removed rule — and an extension routes back through that rule (MemberRequestsLeaseExtension copies lease.rule onto the new request, and ExtensionApprovedExtendsParentLease reads its default_lease_duration to size the push-out). Does an extension against a deleted rule deny, or honour the original grant? And what resolves lease.rule once the row is gone? PM-42500 sharpens this rather than settling it: with no approver in the loop there is no human left to catch the dangling reference."
 
 open question "AccessRequest.rule is pinned as an FK to AccessRule (RuleId), yet a rule is hard-deleted and the delete clears only the collection links, not the request pins — so deleting a rule that still has pinned requests fails on the AccessRequest→AccessRule foreign key (ON DELETE NO ACTION). Known issue, deferred: should the delete null the pins first (requests survive ungoverned, and the audit already snapshots the rule name), or should deleting a rule that has request history be blocked?"
 
@@ -1633,23 +1801,47 @@ open question "ApproverScope.specific names individual users. What happens if on
 
 open question "Does a vault export that carries PAM-gated credentials emit a PAM audit event? An export is a bulk, lease-free release of exactly the credentials the trail exists to account for, yet nothing in PAM writes it today (pam-audit's CredentialAccessed is itself deferred), and the organization event log records only that an export happened — never which gated ciphers it carried. Undecided: emit a PAM event per export (or per gated cipher within it), or leave export accounting to the org event log."
 
+open question "PM-42500 removes approval from lease extensions, and with it the control that used to bound a lease's cumulative life — every extension was previously a fresh authorization, so on a human_approval rule each increment needed a human. Now a member granted one human-approved lease can self-renew it indefinitely without an approver ever seeing it again, and max_lease_duration deliberately clamps only a single lease as minted, never the total. So what bounds cumulative lease life? The implementation has two controls the spec does not model — the rule's allowsExtensions toggle (may this rule be extended at all) and its per-increment maxExtensionDurationSeconds cap — but neither bounds the COUNT of extensions, which is the axis approval used to hold. Options: model a cumulative ceiling on the rule, cap the number of extensions per lease, expire the right to extend along with the original approval, or accept unbounded self-renewal as the intended trade."
+
+open question "PM-42500 stops evaluating a rule's conditions on an extension, so an ip_allowlist no longer bounds a member's period of access — only its start. A member who obtains a lease from inside the allowlist can extend it from any network, and nothing downstream re-asks: CipherLeaseGate hands over a gated cipher on the existence of an active lease alone. This is the same gap PM-42273 closed on the activation path, deliberately left open on the extension path, and it sits badly next to that fix. The argument FOR leaving it: an extension re-opens no new access, so re-litigating the network is a check on a decision already made. The argument AGAINST: an allowlist is a standing condition on where a credential may be reached from, not a one-time entry test, and an admin reading 'only from these CIDRs' will not expect a lease to outlive the network. Undecided: gate extensions on the automated conditions after all (the human stays out, the machine check returns), gate only the ip_allowlist kind while exempting the rest, cap what an extension can add so the unchecked window is bounded, or accept that an allowlist bounds the start of access and document it as such at the admin surface."
+
 open question "Does an org-wide kill switch or LeasingFreeze stop vault export? A freeze blocks STARTING leases, and an export mints none, so on the current reading export keeps working while the org is otherwise locked down — a hole in what an admin may well read as a total shutdown. Undecided: leave the two axes independent (export overrides leasing, freeze included), or have a freeze withhold gated ciphers from export too."
 
--- RESOLVED — cumulative extension duration: repeated extensions may push a lease
--- past max_lease_duration, deliberately. The control on cumulative lease life is
--- per-extension APPROVAL, not arithmetic: every extension runs the full
--- evaluation pipeline, so on a human-approval rule each increment is a fresh
--- human authorization. On an automatic rule extensions renew unattended — but
--- that grants nothing re-requesting doesn't already (a member can mint a fresh
--- auto-approved lease the moment the old one lapses, with the same automated
--- condition re-checks), so capping extensions while re-requests are unbounded
--- would be control theater. max_lease_duration therefore bounds a single lease
--- as minted, nothing more. Implementation consequences (weed targets): the wire
--- layer's "extensions are always auto-approved" (AccessLeaseExtensionRequest)
--- violates this for human-approval rules; the per-increment
--- maxExtensionDurationSeconds cap is unnecessary here (increment is
--- rule-derived, count is approval-bound); the impl's allowsExtensions toggle
--- (may this rule be extended at all) is a separate, still-unmodeled axis.
+-- SUPERSEDED by PM-42500 — cumulative extension duration. Recorded here because
+-- the reasoning matters, not just the outcome.
+--
+-- The previous resolution: repeated extensions may push a lease past
+-- max_lease_duration, deliberately, because the control on cumulative lease life is
+-- per-extension APPROVAL rather than arithmetic — every extension ran the full
+-- evaluation pipeline, so on a human-approval rule each increment was a fresh human
+-- authorization. On an automatic rule extensions renewed unattended, but that granted
+-- nothing re-requesting didn't already (a member could mint a fresh auto-approved
+-- lease the moment the old one lapsed), so capping extensions while re-requests were
+-- unbounded would have been control theater.
+--
+-- PM-42500 makes extensions never require an approval. That does two things:
+--
+--   WHAT NOW HOLDS. The wire layer's "extensions are always auto-approved"
+--   (AccessLeaseExtensionRequest) is no longer a violation of this spec — it is what
+--   the spec now says, and neither is its skipping of the rule's automated
+--   conditions: the implementation never asked them on the extension path, and the
+--   spec has come to it rather than the other way round. max_lease_duration still
+--   bounds a single lease as minted and nothing more.
+--
+--   WHAT COLLAPSED. The "control theater" argument rested on extensions and
+--   re-requests being equally unattended. That was true only on automatic rules. On a
+--   human-approval rule a re-request still needs an approver and an extension no
+--   longer does, so the two paths have come apart — and the cheaper one now wins. The
+--   control that bounded cumulative lease life is simply gone, and no arithmetic one
+--   replaced it. This is NOT re-resolved as "unbounded is fine"; it is reopened. See
+--   the cumulative-extension open question above.
+--
+-- The impl's per-increment maxExtensionDurationSeconds cap and its allowsExtensions
+-- toggle (may this rule be extended at all) are the only controls left in the code,
+-- and both remain unmodeled here. With approval gone AND the conditions no longer
+-- asked, they are now the ONLY controls on extending at all — which is why modelling
+-- them has stopped being tidy-up and become the substance of two open questions (the
+-- cumulative-life one above, and the extension-conditions one).
 
 -- RESOLVED — org suspension and governance: a suspended (disabled) organization
 -- drops out of the caller's claim-based current context, which would empty every

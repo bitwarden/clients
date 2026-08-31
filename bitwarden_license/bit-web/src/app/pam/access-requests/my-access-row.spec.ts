@@ -1,0 +1,456 @@
+import type {
+  AccessLeaseView,
+  AccessRequestDecisionView,
+  AccessRequestView,
+} from "@bitwarden/sdk-internal";
+
+import { emptyResolvedNames, ResolvedNames } from "./access-name-resolver.service";
+import {
+  buildMyAccessRequestRows,
+  extensionsByLeaseId,
+  historyDisplayStatus,
+  resolveResolver,
+  resolvedOrSubmittedMs,
+  terminalStatusBadge,
+  toLeaseRow,
+  toRequestRow,
+} from "./my-access-row";
+
+// Overrides are loosely typed (not `Partial<AccessRequestView>`): the SDK's id/cipherId/collectionId
+// fields are opaque branded types, so tests stand in plain strings and rely on the final
+// `as unknown as` cast, matching the convention in the sibling SDK specs.
+function request(id: string, overrides: Record<string, unknown> = {}): AccessRequestView {
+  return {
+    id,
+    cipherId: "cipher-1",
+    collectionId: "col-1",
+    organizationId: "org-1",
+    requesterId: "user-1",
+    ruleId: undefined,
+    status: "pending",
+    leaseNotBefore: "2024-01-01T00:00:00.000Z",
+    leaseNotAfter: "2024-01-01T01:00:00.000Z",
+    reason: undefined,
+    submittedAt: "2024-01-01T00:00:00.000Z",
+    resolvedAt: undefined,
+    decisions: [],
+    producedLeaseId: undefined,
+    producedLeaseStatus: undefined,
+    extensionOfLeaseId: undefined,
+    requesterName: undefined,
+    requesterEmail: undefined,
+    ...overrides,
+  } as unknown as AccessRequestView;
+}
+
+// Overrides use the flat `deciderKind`/`id`/`name`/`email` shorthand and are folded into the SDK's
+// nested `decider: "automatic" | { human }` shape here, so the call sites stay terse.
+function decision(overrides: Record<string, unknown> = {}): AccessRequestDecisionView {
+  const { deciderKind, id, name, email, ...rest } = overrides;
+  return {
+    decider: deciderKind === "human" ? { human: { id, name, email } } : "automatic",
+    comment: undefined,
+    verdict: "approve",
+    decidedAt: "2024-01-01T00:15:00.000Z",
+    ...rest,
+  } as unknown as AccessRequestDecisionView;
+}
+
+function lease(id: string, overrides: Record<string, unknown> = {}): AccessLeaseView {
+  return {
+    id,
+    requestId: "req-1",
+    cipherId: "cipher-1",
+    collectionId: "col-1",
+    organizationId: "org-1",
+    requesterId: "user-1",
+    status: "active",
+    notBefore: "2024-01-01T00:00:00.000Z",
+    notAfter: "2024-01-01T01:00:00.000Z",
+    termination: undefined,
+    ...overrides,
+  } as unknown as AccessLeaseView;
+}
+
+function names(overrides: Partial<ResolvedNames> = {}): ResolvedNames {
+  return { ...emptyResolvedNames(), ...overrides };
+}
+
+describe("resolvedOrSubmittedMs", () => {
+  it("keys a decided request on when it was decided", () => {
+    expect(
+      resolvedOrSubmittedMs({
+        submittedAt: "2024-01-01T00:00:00.000Z",
+        resolvedAt: "2024-01-02T00:00:00.000Z",
+      }),
+    ).toBe(Date.parse("2024-01-02T00:00:00.000Z"));
+  });
+
+  it("falls back to when an undecided request was raised", () => {
+    expect(
+      resolvedOrSubmittedMs({ submittedAt: "2024-01-01T00:00:00.000Z", resolvedAt: null }),
+    ).toBe(Date.parse("2024-01-01T00:00:00.000Z"));
+  });
+});
+
+describe("terminalStatusBadge", () => {
+  it.each([
+    ["denied", "pamStatusDenied", "danger"],
+    ["canceled", "pamStatusCanceled", "subtle"],
+    ["expired", "pamStatusExpired", "warning"],
+    ["unknown", "pamStatusUnknown", "subtle"],
+  ] as const)("maps %s to %s / %s", (status, labelKey, variant) => {
+    expect(terminalStatusBadge(status)).toEqual({ labelKey, variant });
+  });
+});
+
+describe("historyDisplayStatus", () => {
+  it("labels a still-active produced lease as Activated/success", () => {
+    const r = request("req-1", {
+      status: "approved",
+      producedLeaseId: "lease-1",
+      producedLeaseStatus: "active",
+    });
+    expect(historyDisplayStatus(r)).toEqual({
+      badgeState: null,
+      statusBadge: { labelKey: "pamStatusActivated", variant: "success" },
+    });
+  });
+
+  it("labels a canceled lease as Canceled", () => {
+    const r = request("req-1", {
+      status: "approved",
+      producedLeaseId: "lease-1",
+      producedLeaseStatus: "canceled",
+    });
+    expect(historyDisplayStatus(r)).toEqual({
+      badgeState: null,
+      statusBadge: { labelKey: "pamStatusCanceled", variant: "subtle" },
+    });
+  });
+
+  it("labels a revoked lease as Revoked", () => {
+    const r = request("req-1", {
+      status: "approved",
+      producedLeaseId: "lease-1",
+      producedLeaseStatus: "revoked",
+    });
+    expect(historyDisplayStatus(r)).toEqual({
+      badgeState: null,
+      statusBadge: { labelKey: "pamStatusRevoked", variant: "subtle" },
+    });
+  });
+
+  it("reads Revoked off the lease status even with the requester's own deny on the log", () => {
+    // The label used to be derived from the decision log; `canceled` vs `revoked` settles it now,
+    // so a self-deny recorded alongside an operator revoke must not flip it back to Canceled.
+    const r = request("req-1", {
+      status: "approved",
+      requesterId: "user-1",
+      producedLeaseId: "lease-1",
+      producedLeaseStatus: "revoked",
+      decisions: [decision({ deciderKind: "human", id: "user-1", verdict: "deny" })],
+    });
+    expect(historyDisplayStatus(r)).toEqual({
+      badgeState: null,
+      statusBadge: { labelKey: "pamStatusRevoked", variant: "subtle" },
+    });
+  });
+
+  it("defaults an activated request's lapsed/expired lease to Expired", () => {
+    const r = request("req-1", {
+      status: "approved",
+      producedLeaseId: "lease-1",
+      producedLeaseStatus: "expired",
+    });
+    expect(historyDisplayStatus(r)).toEqual({
+      badgeState: null,
+      statusBadge: { labelKey: "pamStatusExpired", variant: "warning" },
+    });
+  });
+
+  it("badges a pending request from the shared access-state model", () => {
+    const r = request("req-1", { status: "pending" });
+    expect(historyDisplayStatus(r)).toEqual({
+      badgeState: { kind: "pending" },
+      statusBadge: null,
+    });
+  });
+
+  it("badges an approved request that has not started as approved, not ready to use", () => {
+    const r = request("req-1", { status: "approved", producedLeaseId: undefined });
+    expect(historyDisplayStatus(r)).toEqual({
+      badgeState: null,
+      statusBadge: { labelKey: "pamStatusApproved", variant: "success" },
+    });
+  });
+
+  it("falls back to the base status mapping for non-activated requests", () => {
+    const r = request("req-1", { status: "denied" });
+    expect(historyDisplayStatus(r)).toEqual({
+      badgeState: null,
+      statusBadge: { labelKey: "pamStatusDenied", variant: "danger" },
+    });
+  });
+});
+
+describe("resolveResolver", () => {
+  it("returns blank for a pending request", () => {
+    expect(resolveResolver("pending", undefined)).toEqual({
+      resolverLabelKey: null,
+      resolverName: null,
+    });
+  });
+
+  it("returns the access-rule label when there is no human decision", () => {
+    expect(resolveResolver("approved", undefined)).toEqual({
+      resolverLabelKey: "pamResolverAccessRule",
+      resolverName: null,
+    });
+  });
+
+  it("returns the human decider's name", () => {
+    const human = decision({ deciderKind: "human", name: "Jane Doe", email: "jane@example.com" });
+    expect(resolveResolver("denied", human)).toEqual({
+      resolverLabelKey: null,
+      resolverName: "Jane Doe",
+    });
+  });
+
+  it("labels a cancelled request as withdrawn by the requester, not an access rule", () => {
+    // A withdrawal never enters the decision log (it is scoped to approval-authority verdicts),
+    // and even a cancel-after-approval was still ended by the requester, not the logged approver.
+    expect(resolveResolver("canceled", undefined)).toEqual({
+      resolverLabelKey: "pamResolverRequester",
+      resolverName: null,
+    });
+    const human = decision({ deciderKind: "human", name: "Jane Doe", email: "jane@example.com" });
+    expect(resolveResolver("canceled", human)).toEqual({
+      resolverLabelKey: "pamResolverRequester",
+      resolverName: null,
+    });
+  });
+
+  it("shows nobody for an expired request - the clock ended it, no party did", () => {
+    expect(resolveResolver("expired", undefined)).toEqual({
+      resolverLabelKey: null,
+      resolverName: null,
+    });
+  });
+
+  it("falls back to email, then id, when the name is unresolved", () => {
+    const byEmail = decision({ deciderKind: "human", name: undefined, email: "jane@example.com" });
+    expect(resolveResolver("denied", byEmail).resolverName).toBe("jane@example.com");
+
+    const byId = decision({
+      deciderKind: "human",
+      name: undefined,
+      email: undefined,
+      id: "user-9",
+    });
+    expect(resolveResolver("denied", byId).resolverName).toBe("user-9");
+  });
+});
+
+describe("toRequestRow", () => {
+  it("resolves cipher/collection names when known", () => {
+    const n = names({
+      cipherNameById: new Map([["cipher-1", "Prod DB"]]),
+      collectionNameById: new Map([["col-1", "Infra"]]),
+    });
+
+    const row = toRequestRow(request("req-1"), n);
+
+    expect(row.cipherName).toBe("Prod DB");
+    expect(row.collectionName).toBe("Infra");
+    expect(row.badgeState).toEqual({ kind: "pending" });
+    expect(row.statusBadge).toBeNull();
+    expect(row.id).toBe("req-1");
+  });
+
+  it("falls back to null when a name is unresolved", () => {
+    const row = toRequestRow(request("req-1"), emptyResolvedNames());
+
+    expect(row.cipherName).toBeNull();
+    expect(row.collectionName).toBeNull();
+    expect(row.cipherId).toBe("cipher-1");
+    expect(row.collectionId).toBe("col-1");
+  });
+
+  it("carries reason/submittedAt/resolvedAt/producedLeaseId through", () => {
+    const row = toRequestRow(
+      request("req-1", { resolvedAt: "2024-01-01T00:30:00.000Z", producedLeaseId: "lease-1" }),
+      emptyResolvedNames(),
+    );
+
+    expect(row.submittedAt).toBe("2024-01-01T00:00:00.000Z");
+    expect(row.resolvedAt).toBe("2024-01-01T00:30:00.000Z");
+    expect(row.producedLeaseId).toBe("lease-1");
+  });
+
+  it("carries the produced lease's status, whatever the request's own status says", () => {
+    const row = toRequestRow(
+      request("req-1", {
+        status: "denied",
+        producedLeaseId: "lease-1",
+        producedLeaseStatus: "active",
+      }),
+      emptyResolvedNames(),
+    );
+
+    expect(row.producedLeaseStatus).toBe("active");
+    expect(row.statusBadge).toEqual({ labelKey: "pamStatusDenied", variant: "danger" });
+  });
+
+  it("leaves the produced lease's status null when the request never activated", () => {
+    const row = toRequestRow(request("req-1"), emptyResolvedNames());
+
+    expect(row.producedLeaseStatus).toBeNull();
+  });
+
+  it("reads the resolver + comment from the human decision", () => {
+    const row = toRequestRow(
+      request("req-1", {
+        status: "denied",
+        decisions: [decision({ deciderKind: "human", name: "Jane Doe", comment: "Not now" })],
+      }),
+      emptyResolvedNames(),
+    );
+
+    expect(row.resolverName).toBe("Jane Doe");
+    expect(row.approverComment).toBe("Not now");
+  });
+
+  it("falls back to the automatic decision's comment when no human decided", () => {
+    // An automatically denied request has no approver to hang its explanation on, so the reason
+    // sits on the automatic decision — and is the only thing that says why (PM-42632).
+    const row = toRequestRow(
+      request("ext-1", {
+        status: "denied",
+        extensionOfLeaseId: "lease-1",
+        decisions: [decision({ verdict: "deny", comment: "The lease being extended has ended" })],
+      }),
+      emptyResolvedNames(),
+    );
+
+    expect(row.resolverLabelKey).toBe("pamResolverAccessRule");
+    expect(row.resolverName).toBeNull();
+    expect(row.approverComment).toBe("The lease being extended has ended");
+  });
+});
+
+describe("extensionsByLeaseId", () => {
+  it("sums approved extensions keyed by the parent lease id", () => {
+    const requests = [
+      request("ext-1", {
+        extensionOfLeaseId: "lease-1",
+        status: "approved",
+        leaseNotBefore: "2024-01-01T01:00:00.000Z",
+        leaseNotAfter: "2024-01-01T02:00:00.000Z",
+      }),
+      request("ext-2", {
+        extensionOfLeaseId: "lease-1",
+        status: "approved",
+        leaseNotBefore: "2024-01-01T02:00:00.000Z",
+        leaseNotAfter: "2024-01-01T03:30:00.000Z",
+      }),
+    ];
+
+    const byLease = extensionsByLeaseId(requests);
+
+    expect(byLease.get("lease-1")).toEqual({
+      addedSeconds: 3600 + 5400,
+      latestEndMs: Date.parse("2024-01-01T03:30:00.000Z"),
+    });
+  });
+
+  it("skips non-extension requests and pending/denied/canceled extensions", () => {
+    const requests = [
+      request("req-1"), // not an extension at all
+      request("ext-1", { extensionOfLeaseId: "lease-1", status: "pending" }),
+      request("ext-2", { extensionOfLeaseId: "lease-1", status: "denied" }),
+      request("ext-3", { extensionOfLeaseId: "lease-1", status: "canceled" }),
+    ];
+
+    expect(extensionsByLeaseId(requests).size).toBe(0);
+  });
+});
+
+describe("buildMyAccessRequestRows", () => {
+  it("drops extension requests and folds their added time onto the original row", () => {
+    const original = request("req-1", {
+      status: "approved",
+      producedLeaseId: "lease-1",
+    });
+    const extension = request("ext-1", {
+      extensionOfLeaseId: "lease-1",
+      status: "approved",
+      leaseNotBefore: "2024-01-01T01:00:00.000Z",
+      leaseNotAfter: "2024-01-01T03:00:00.000Z",
+    });
+
+    const rows = buildMyAccessRequestRows([original, extension], emptyResolvedNames());
+
+    expect(rows.map((r) => r.id)).toEqual(["req-1"]);
+    expect(rows[0].extendedBySeconds).toBe(7200);
+    expect(rows[0].extendedUntil).toBe(
+      new Date(Date.parse("2024-01-01T03:00:00.000Z")).toISOString(),
+    );
+  });
+
+  it("leaves extendedBySeconds/extendedUntil null when there is no extension", () => {
+    const rows = buildMyAccessRequestRows([request("req-1")], emptyResolvedNames());
+
+    expect(rows[0].extendedBySeconds).toBeNull();
+    expect(rows[0].extendedUntil).toBeNull();
+  });
+
+  it("keeps a denied extension as its own row rather than folding it away", () => {
+    const original = request("req-1", { status: "approved", producedLeaseId: "lease-1" });
+    // Refused because the parent lease ended first, so it added nothing to fold onto the original —
+    // folding it away would leave no record of the ask at all (PM-42632).
+    const denied = request("ext-1", {
+      extensionOfLeaseId: "lease-1",
+      status: "denied",
+      decisions: [decision({ verdict: "deny", comment: "The lease being extended has ended" })],
+    });
+
+    const rows = buildMyAccessRequestRows([original, denied], emptyResolvedNames());
+
+    expect(rows.map((r) => r.id)).toEqual(["req-1", "ext-1"]);
+    expect(rows[0].extendedBySeconds).toBeNull();
+    expect(rows[1].statusBadge).toEqual({ labelKey: "pamStatusDenied", variant: "danger" });
+    expect(rows[1].approverComment).toBe("The lease being extended has ended");
+  });
+});
+
+describe("toLeaseRow", () => {
+  it("resolves names and carries the originating request link", () => {
+    const n = names({ cipherNameById: new Map([["cipher-1", "Prod DB"]]) });
+
+    const row = toLeaseRow(lease("lease-1"), n);
+
+    expect(row.cipherName).toBe("Prod DB");
+    expect(row.collectionName).toBeNull();
+    expect(row.requestId).toBe("req-1");
+    expect(row.extendedBySeconds).toBeNull();
+  });
+
+  it("badges the row when an extension summary is supplied", () => {
+    const row = toLeaseRow(lease("lease-1"), emptyResolvedNames(), {
+      addedSeconds: 1800,
+      latestEndMs: Date.parse("2024-01-01T02:00:00.000Z"),
+    });
+
+    expect(row.extendedBySeconds).toBe(1800);
+    expect(row.extendedUntil).toBe(new Date(Date.parse("2024-01-01T02:00:00.000Z")).toISOString());
+  });
+
+  it("falls back to the raw id when a name is unresolved", () => {
+    const row = toLeaseRow(lease("lease-1"), emptyResolvedNames());
+
+    expect(row.cipherName).toBeNull();
+    expect(row.collectionName).toBeNull();
+    expect(row.cipherId).toBe("cipher-1");
+  });
+});

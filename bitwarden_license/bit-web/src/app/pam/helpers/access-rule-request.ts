@@ -19,6 +19,17 @@ import {
 export const NO_DURATION_CAP = 0;
 
 /**
+ * The longest name the server will store. `dbo.AccessRule.Name` is `NVARCHAR(256)` and
+ * `AccessRule_Create` declares its `@Name` parameter the same width — which means SQL Server
+ * *silently truncates* anything longer rather than rejecting it, so a name must be kept within
+ * this before it is sent, not after.
+ */
+export const ACCESS_RULE_NAME_MAX_LENGTH = 256;
+
+/** The longest description the edit form accepts. */
+export const ACCESS_RULE_DESCRIPTION_MAX_LENGTH = 512;
+
+/**
  * The flattened value of the access-rule edit form (`formGroup.getRawValue()`), as
  * consumed by {@link formValueToRequest}. Declared structurally here — rather than
  * derived from the component's `FormGroup` — so this helper stays framework-agnostic

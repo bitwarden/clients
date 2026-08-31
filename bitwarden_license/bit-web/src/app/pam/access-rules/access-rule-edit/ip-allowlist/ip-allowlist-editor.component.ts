@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, OnInit, inject, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DoCheck, OnInit, inject, input } from "@angular/core";
 import { FormArray, FormControl, ReactiveFormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -13,7 +13,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { CidrValidationService } from "./cidr-validation.service";
-import { CidrPredicate, cidrValidator } from "./cidr.validator";
+import { CidrPredicate, cidrValidator, duplicateCidrValues } from "./cidr.validator";
 
 /** A single CIDR row control, carrying the per-row {@link cidrValidator}. */
 export type CidrRowControl = FormControl<string>;
@@ -43,8 +43,9 @@ export function cidrRowControl(
  *
  * Renders a repeatable list of CIDR inputs over a {@link FormArray} owned by the host form and
  * passed in via {@link cidrArray}. The host keeps value and validity on its own control — this
- * component only manages the row UI (add/remove) and surfaces the array's validation errors.
- * Empty rows stay in the value; the host trims and drops them when serialising the rule.
+ * component manages the row UI (add/remove), surfaces the array's validation errors, and marks
+ * each row that repeats another row's range. Empty rows stay in the value; the host trims and
+ * drops them when serialising the rule.
  */
 @Component({
   selector: "app-pam-ip-allowlist-editor",
@@ -61,7 +62,7 @@ export function cidrRowControl(
     IconButtonModule,
   ],
 })
-export class IpAllowlistEditorComponent implements OnInit {
+export class IpAllowlistEditorComponent implements OnInit, DoCheck {
   /** The host-owned CIDR array this editor renders and mutates. */
   readonly cidrArray = input.required<IpAllowlistCidrsArray>();
 
@@ -76,6 +77,16 @@ export class IpAllowlistEditorComponent implements OnInit {
     if (this.cidrArray().length === 0) {
       this.appendRow();
     }
+  }
+
+  /**
+   * The row marks have to track the array's own duplicate validator, which the host can re-run
+   * without any notification: it replaces the rows and toggles the array's enabled state under
+   * `emitEvent: false`, so neither `valueChanges` nor `statusChanges` fires. Checking each cycle
+   * is what keeps the two in step; {@link syncDuplicateErrors} writes nothing once they agree.
+   */
+  ngDoCheck(): void {
+    this.syncDuplicateErrors();
   }
 
   protected addRow(): void {
@@ -93,9 +104,40 @@ export class IpAllowlistEditorComponent implements OnInit {
     this.markTouched();
   }
 
-  /** Surface the array-level errors (duplicate / at-least-one) once the user interacts. */
+  /** Surface the array-level at-least-one error once the user interacts. */
   protected markTouched(): void {
     this.cidrArray().markAsTouched();
+  }
+
+  /**
+   * Marks every row {@link duplicateCidrValues} reports as repeated, so `bit-form-field` renders
+   * `accessRuleIpAllowlistDuplicateCidr` through `bit-error` under each offending row — the same
+   * mechanism {@link cidrValidator} already gets for `invalidCidr`. A row can be both malformed and
+   * repeated; `invalidCidr` stays first in insertion order so the format error is what shows.
+   *
+   * The rows marked here and the array's own `duplicateCidrs` error come from that one function, so
+   * the array can never be rejected with no row saying why.
+   */
+  private syncDuplicateErrors(): void {
+    const controls = this.cidrArray().controls;
+    const values = controls.map((control) => control.value.trim());
+    const duplicated = duplicateCidrValues(values);
+
+    const message = this.i18n.t("accessRuleIpAllowlistDuplicateCidr");
+    controls.forEach((control, index) => {
+      const isDuplicate = duplicated.has(values[index]);
+      if (isDuplicate === control.hasError("duplicateCidr")) {
+        return;
+      }
+      if (isDuplicate) {
+        control.setErrors({ ...control.errors, duplicateCidr: { message } });
+        control.markAsTouched();
+      } else {
+        const rest = { ...control.errors };
+        delete rest.duplicateCidr;
+        control.setErrors(Object.keys(rest).length > 0 ? rest : null);
+      }
+    });
   }
 
   private appendRow(value = ""): void {

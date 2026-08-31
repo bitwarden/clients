@@ -9,6 +9,10 @@ import { RouteDataProperties } from "@bitwarden/web-vault/app/core";
 import { ProvidersModule } from "./admin-console/providers/providers.module";
 import { VerifyRecoverDeleteProviderComponent } from "./admin-console/providers/verify-recover-delete-provider.component";
 
+// Registered before OssRoutingModule, so an empty-path route here would match "/" and run its
+// guards before the root redirectGuard can send anonymous users to /login. Routes in this
+// module need a literal path segment; anything user-scoped belongs in the OSS root shell's
+// children, reached across the license boundary through an optional injection token.
 const routes: Routes = [
   {
     path: "providers",

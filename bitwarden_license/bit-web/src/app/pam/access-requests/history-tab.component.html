@@ -1,0 +1,194 @@
+<div class="tw-sr-only" role="status" aria-live="polite" data-testid="history-loading-status">
+  @if (skeletonVisible()) {
+    {{ "loading" | i18n }}
+  } @else if (announceLoaded()) {
+    {{ "pamHistoryLoaded" | i18n }}
+  }
+</div>
+
+@if (historyLoaded() && canSwitchScope()) {
+  <div class="tw-mb-4 tw-flex tw-justify-end">
+    <bit-toggle-group
+      [selected]="scope()"
+      (selectedChange)="selectScope($event)"
+      [label]="'pamHistoryScopeLabel' | i18n"
+    >
+      <bit-toggle [value]="HistoryScope.All" data-testid="history-scope-all">
+        {{ "pamHistoryScopeAll" | i18n }}
+      </bit-toggle>
+      <bit-toggle [value]="HistoryScope.Mine" data-testid="history-scope-mine">
+        {{ "pamHistoryScopeMine" | i18n }}
+      </bit-toggle>
+      <bit-toggle [value]="HistoryScope.Managed" data-testid="history-scope-managed">
+        {{ "pamHistoryScopeManaged" | i18n }}
+      </bit-toggle>
+    </bit-toggle-group>
+  </div>
+}
+
+@if (!historyLoaded()) {
+  @if (skeletonVisible()) {
+    <div data-testid="history-loading" aria-hidden="true">
+      <div class="tw-mb-4 tw-flex tw-justify-end">
+        <bit-skeleton class="tw-h-10 tw-w-64"></bit-skeleton>
+      </div>
+
+      <bit-table>
+        <ng-container header>
+          <tr>
+            <th bitCell>{{ "pamColumnItem" | i18n }}</th>
+            <th bitCell>{{ "pamColumnStatus" | i18n }}</th>
+            <th bitCell>{{ "pamColumnResolver" | i18n }}</th>
+            <th bitCell>{{ "pamColumnComment" | i18n }}</th>
+            <th bitCell>{{ "pamColumnResolved" | i18n }}</th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          @for (skeletonRow of skeletonRows; track skeletonRow) {
+            <tr bitRow>
+              <td bitCell>
+                <div class="tw-flex tw-items-center tw-gap-3">
+                  <bit-skeleton class="tw-size-6 tw-shrink-0"></bit-skeleton>
+                  <bit-skeleton-text [lines]="2" class="tw-w-40"></bit-skeleton-text>
+                </div>
+              </td>
+              <td bitCell><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></td>
+              <td bitCell><bit-skeleton-text class="tw-w-32"></bit-skeleton-text></td>
+              <td bitCell><bit-skeleton-text class="tw-w-56"></bit-skeleton-text></td>
+              <td bitCell><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></td>
+            </tr>
+          }
+        </ng-template>
+      </bit-table>
+    </div>
+  }
+} @else if (historyRows().length === 0) {
+  <bit-status-lockup class="tw-mt-2 tw-block" data-testid="my-access-history-empty">
+    <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
+    <span slot="title">{{ emptyMessageKey() | i18n }}</span>
+  </bit-status-lockup>
+} @else {
+  <bit-table [dataSource]="historyDataSource">
+    <ng-container header>
+      <tr>
+        <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
+        <th bitCell bitSortable="status">{{ "pamColumnStatus" | i18n }}</th>
+        <th bitCell>{{ "pamColumnResolver" | i18n }}</th>
+        <th bitCell>{{ "pamColumnComment" | i18n }}</th>
+        <th bitCell bitSortable="resolvedAt" default="desc" [fn]="byResolvedOrSubmitted">
+          {{ "pamColumnResolved" | i18n }}
+        </th>
+        @if (showActionsColumn()) {
+          <th bitCell>{{ "pamColumnActions" | i18n }}</th>
+        }
+      </tr>
+    </ng-container>
+    <ng-template body let-rows$>
+      <tr
+        bitRow
+        *ngFor="let row of rows$ | async"
+        [attr.data-testid]="'my-access-history-' + row.id"
+      >
+        <td bitCell>
+          <div class="tw-flex tw-items-center tw-gap-3">
+            @if (cipherFor(row.cipherId); as cipher) {
+              <app-vault-icon [cipher]="cipher" />
+            }
+            <div>
+              <a [routerLink]="['/pam/requests', row.id]">{{ row.cipherName ?? row.cipherId }}</a>
+              @if (row.collectionName) {
+                <div class="tw-text-xs tw-text-muted">
+                  {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                </div>
+              }
+              @if (row.extendedUntil) {
+                <span
+                  bitBadge
+                  variant="secondary"
+                  class="tw-mt-1 tw-inline-block"
+                  [attr.data-testid]="'my-access-history-extended-' + row.id"
+                >
+                  {{
+                    "pamExtendedBadge"
+                      | i18n
+                        : (row.extendedBySeconds | durationShort)
+                        : (row.extendedUntil | date: "short")
+                  }}
+                </span>
+              }
+            </div>
+          </div>
+        </td>
+        <td bitCell>
+          @if (row.badgeState; as state) {
+            <app-pam-access-state-badge [state]="state" />
+          } @else if (row.statusBadge; as badge) {
+            <span
+              bitBadge
+              [variant]="badge.variant"
+              [attr.data-testid]="'my-access-history-status-' + row.id"
+            >
+              {{ badge.labelKey | i18n }}
+            </span>
+          }
+        </td>
+        <td bitCell>
+          @if (row.resolverLabelKey) {
+            {{ row.resolverLabelKey | i18n }}
+          } @else if (row.resolverName) {
+            {{ row.resolverName }}
+          } @else {
+            <span class="tw-text-muted">&mdash;</span>
+          }
+        </td>
+        <td bitCell>
+          @if (row.approverComment) {
+            {{ row.approverComment }}
+          } @else {
+            <span class="tw-text-muted">&mdash;</span>
+          }
+        </td>
+        <td bitCell>
+          @if (row.resolvedAt) {
+            <span class="tw-whitespace-nowrap" [title]="row.resolvedAt | date: 'medium'">
+              {{ row.resolvedAt | relativeTime }}
+            </span>
+          }
+        </td>
+        @if (showActionsColumn()) {
+          <td bitCell>
+            @if (canRevoke(row)) {
+              <button
+                type="button"
+                bitButton
+                buttonType="danger"
+                size="small"
+                [disabled]="isActing(row)"
+                [loading]="isActing(row)"
+                (click)="revoke(row)"
+                [attr.data-testid]="'history-revoke-' + row.id"
+              >
+                {{ "pamInboxRevoke" | i18n }}
+              </button>
+            } @else if (canCancelApproval(row)) {
+              <button
+                type="button"
+                bitButton
+                buttonType="secondary"
+                size="small"
+                [disabled]="isActing(row)"
+                [loading]="isActing(row)"
+                (click)="cancelApproval(row)"
+                [attr.data-testid]="'history-cancel-approval-' + row.id"
+              >
+                {{ "pamInboxWithdrawApproval" | i18n }}
+              </button>
+            } @else {
+              <span class="tw-text-muted">&mdash;</span>
+            }
+          </td>
+        }
+      </tr>
+    </ng-template>
+  </bit-table>
+}

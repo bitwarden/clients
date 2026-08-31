@@ -8,7 +8,13 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { AccessRuleSdkService, AccessRuleView, accessRuleToRequest } from "..";
+import {
+  AccessRuleSdkService,
+  AccessRuleView,
+  accessRuleToCopyRequest,
+  accessRuleToRequest,
+  rulesChangingEnabled,
+} from "..";
 
 /**
  * Page-level data service for the access rules table: owns the org's rule list and
@@ -60,6 +66,23 @@ export class AccessRulesService {
     return this._rules$.value.find((r) => uuidAsString(r.id) === id);
   }
 
+  /**
+   * Create a copy of `rule` under `name` and add it to local state, returning the created rule
+   * so the caller can route to it.
+   *
+   * The copy is persisted immediately — the admin never gets a chance to abandon it — so the
+   * name must already be free of collisions; {@link copyRuleName} is what makes it so. The copy
+   * governs no collections; see {@link accessRuleToCopyRequest} for why.
+   */
+  async copy(rule: AccessRuleView, name: string): Promise<AccessRuleView> {
+    const created = await this.pamApi.createAccessRule(
+      this.requireOrganizationId(),
+      accessRuleToCopyRequest(rule, name),
+    );
+    this._rules$.next([...this._rules$.value, created]);
+    return created;
+  }
+
   /** Toggle a single rule's enabled flag, patching local state with the result. */
   async setEnabled(rule: AccessRuleView, enabled: boolean): Promise<void> {
     const updated = await this.pamApi.updateAccessRule(
@@ -75,7 +98,7 @@ export class AccessRulesService {
    * Returns the number of rules actually changed (0 when none needed updating).
    */
   async setManyEnabled(rules: AccessRuleView[], enabled: boolean): Promise<number> {
-    const targets = rules.filter((r) => r.enabled !== enabled);
+    const targets = rulesChangingEnabled(rules, enabled);
     if (targets.length === 0) {
       return 0;
     }

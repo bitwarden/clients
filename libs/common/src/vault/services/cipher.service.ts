@@ -147,9 +147,10 @@ export class CipherService implements CipherServiceAbstraction {
    * Internal decrypt source; never subscribed directly by feature code. Retains PAM-gated
    * ("partial") rows so each downstream stream can decide whether to keep them:
    * {@link cipherViews$} excludes partials for every full-view consumer, while the vault-list
-   * opt-in path (the non-SDK fallback of {@link cipherListViewsWithPartials$}) keeps them by
-   * design. Kept private and the sole decrypt subscription so decryption, the local
-   * decrypted-cipher cache, and the autofill-overlay refresh all run once.
+   * opt-in path (the non-SDK fallback of {@link cipherListViewsWithPartials$}) and the id-scoped
+   * {@link getAllDecryptedForIdsIncludingPartials} keep them by design. Kept private and the sole
+   * decrypt subscription so decryption, the local decrypted-cipher cache, and the
+   * autofill-overlay refresh all run once.
    *
    * Does not emit until the encrypted ciphers have loaded from state or after sync. A `null`
    * value indicates decryption is in progress; the decrypted views follow once complete.
@@ -561,8 +562,24 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]> {
+    return this.decryptedForIds(this.cipherViews$(userId), ids);
+  }
+
+  /** @inheritdoc */
+  async getAllDecryptedForIdsIncludingPartials(
+    userId: UserId,
+    ids: string[],
+  ): Promise<CipherView[]> {
+    return this.decryptedForIds(this.cipherViewsWithPartials$(userId), ids);
+  }
+
+  /** Pick the requested ids out of a decrypted-view stream, once it has decrypted. */
+  private decryptedForIds(
+    views$: Observable<CipherView[] | null>,
+    ids: string[],
+  ): Promise<CipherView[]> {
     return firstValueFrom(
-      this.cipherViews$(userId).pipe(
+      views$.pipe(
         filter((ciphers) => ciphers != null),
         map((ciphers) => ciphers.filter((cipher) => ids.includes(cipher.id))),
       ),
@@ -731,11 +748,23 @@ export class CipherService implements CipherServiceAbstraction {
     const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
     const key = orgKeys?.[organizationId as OrganizationId] ?? null;
     const ciphers = response.data.map((cr) => new Cipher(new CipherData(cr)));
+
+    // PAM-gated rows arrive with their secrets suppressed and a `partialData` envelope in their
+    // place, which only the SDK decryption (the sync pipeline's path) can turn into a named
+    // `partial` view — legacy `Cipher.decrypt` would yield a nameless, blank row. Only those
+    // rows are routed to the SDK; everything else keeps the existing org-key decrypt unchanged.
+    const gated = ciphers.filter((c) => c.partialData != null);
     const decCiphers: CipherView[] = await Promise.all(
-      ciphers.map(async (cipher) => {
-        return await cipher.decrypt(key);
-      }),
+      ciphers
+        .filter((c) => c.partialData == null)
+        .map(async (cipher) => {
+          return await cipher.decrypt(key);
+        }),
     );
+    if (gated.length > 0) {
+      const [partialViews, failedViews] = (await this.decryptCiphers(gated, userId)) ?? [[], []];
+      decCiphers.push(...partialViews, ...failedViews);
+    }
 
     decCiphers.sort(this.getLocaleSortingFunction());
     return decCiphers;
@@ -935,11 +964,18 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
+    leaseGated?: boolean,
   ): Promise<CipherView> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
 
     if (useSdk) {
-      return await this.updateWithServerUsingSdk(cipherView, userId, originalCipherView, orgAdmin);
+      return await this.updateWithServerUsingSdk(
+        cipherView,
+        userId,
+        originalCipherView,
+        orgAdmin,
+        leaseGated,
+      );
     }
 
     const encrypted = await this.encrypt(cipherView, userId);
@@ -953,6 +989,7 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
+    leaseGated?: boolean,
   ): Promise<CipherView> {
     // Clear the cache before updating the cipher. The SDK internally updates the encrypted storage
     // but the timing of the storage emitting the new values differs across platforms. Clearing the cache after
@@ -965,6 +1002,7 @@ export class CipherService implements CipherServiceAbstraction {
       userId,
       originalCipherView,
       orgAdmin,
+      leaseGated,
     );
     return resultCipherView;
   }

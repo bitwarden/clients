@@ -2921,6 +2921,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
     "placeholders": {
@@ -17221,23 +17233,38 @@
   "pamAccessRules": {
     "message": "Access rules"
   },
-  "pamAccessRuleEnabled": {
-    "message": "Enabled"
+  "pamCollectionRequiresRequest": {
+    "message": "Items in this collection require a request.",
+    "description": "Names the restriction on a collection governed by an access rule. Shared verbatim by the lock indicator in the vault's Filters sidebar and the banner shown when the collection is opened; the two must always say the same thing."
   },
-  "pamAccessRuleEnabledHint": {
-    "message": "When disabled, the rule is inactive and does not restrict access."
+  "pamGatedCollectionBannerName": {
+    "message": "Privileged access",
+    "description": "Screen-reader name for the notice shown above the item list while a collection governed by an access rule is the active filter. A short landmark label, not the notice's own sentence, which is announced separately as the notice's content."
   },
-  "pamAccessRuleEnable": {
-    "message": "Enable rule"
+  "pamNoAccessRule": {
+    "message": "No access rule",
+    "description": "Screen-reader text for a vault row in the Controlled access column that no access rule governs."
   },
-  "pamAccessRuleDisable": {
-    "message": "Disable rule"
+  "pamAccessRuleActive": {
+    "message": "Active"
   },
-  "pamAccessRuleEnableSuccess": {
-    "message": "Access rule enabled."
+  "pamAccessRuleInactive": {
+    "message": "Inactive"
   },
-  "pamAccessRuleDisableSuccess": {
-    "message": "Access rule disabled."
+  "pamAccessRuleActiveHint": {
+    "message": "When inactive, the rule does not restrict access."
+  },
+  "pamAccessRuleActivate": {
+    "message": "Activate rule"
+  },
+  "pamAccessRuleDeactivate": {
+    "message": "Deactivate rule"
+  },
+  "pamAccessRuleActivateSuccess": {
+    "message": "Access rule activated."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Access rule deactivated."
   },
   "pamAccessRuleNotFound": {
     "message": "Access rule not found."
@@ -17245,8 +17272,8 @@
   "pamAccessRulesSubheading": {
     "message": "Set rules to control who can request access to sensitive credentials, under what conditions, and for how long."
   },
-  "pamAccessRuleNew": {
-    "message": "New rule"
+  "pamAccessRuleCreate": {
+    "message": "Create access rule"
   },
   "pamAccessRuleCreateTitle": {
     "message": "New access rule"
@@ -17263,6 +17290,9 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "General info"
   },
+  "pamAccessRuleStatusHeading": {
+    "message": "Status"
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "Access duration"
   },
@@ -17275,6 +17305,12 @@
   "pamAccessRuleCollectionsHint": {
     "message": "This access rule will apply to all selected collections."
   },
+  "pamAccessRuleEventLogNotice": {
+    "message": "All requests and decisions are logged."
+  },
+  "pamAccessRuleViewAuditLog": {
+    "message": "View audit log"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Couldn't load collections. Refresh the page to try again."
   },
@@ -17285,16 +17321,16 @@
     "message": "Description"
   },
   "pamAccessRuleDefaultDuration": {
-    "message": "Default access duration"
+    "message": "Default duration"
   },
   "pamAccessRuleMaxDuration": {
-    "message": "Maximum access duration"
+    "message": "Maximum duration"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "No cap"
   },
   "pamAccessRuleMaxDurationHint": {
-    "message": "Any single lease is clamped to at most this long, whatever the requester asks for."
+    "message": "Access is limited to this length, whatever duration is requested."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 minutes"
@@ -17314,17 +17350,17 @@
   "pamAccessRuleDuration8h": {
     "message": "8 hours"
   },
-  "pamAccessRuleDuration24h": {
-    "message": "24 hours"
+  "pamAccessRuleDuration1d": {
+    "message": "1 day"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 days"
   },
-  "pamAccessRuleSingleActiveLease": {
-    "message": "Only one user can hold an active lease at a time"
+  "pamAccessRuleSingleActiveUser": {
+    "message": "Only 1 user can have active access at a time"
   },
-  "pamAccessRuleSingleActiveLeaseHint": {
-    "message": "New requests are queued until the current lease ends or is revoked."
+  "pamAccessRuleSingleActiveAccessHint": {
+    "message": "Others with approval can attempt to start access once the current access ends or is revoked."
   },
   "pamAccessRuleAllowExtensions": {
     "message": "Allow lease extensions"
@@ -17350,11 +17386,49 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Collection managers"
   },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (copy)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ (copy $NUMBER$)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Copy created. Choose the collections it applies to."
+  },
   "pamAccessRuleCreated": {
     "message": "Access rule created."
   },
   "pamAccessRuleUpdated": {
     "message": "Access rule updated."
+  },
+  "pamAccessRuleDeleted": {
+    "message": "Access rule deleted."
+  },
+  "pamAccessRuleDiscardTitle": {
+    "message": "Discard rule"
+  },
+  "pamAccessRuleDiscardContent": {
+    "message": "The details you entered won't be saved."
+  },
+  "pamAccessRuleDiscardConfirm": {
+    "message": "Discard"
   },
   "pamAccessRuleDeleteConfirmTitle": {
     "message": "Delete access rule?"
@@ -17367,6 +17441,36 @@
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDeactivateConfirmTitle": {
+    "message": "Deactivate access rule"
+  },
+  "pamAccessRuleDeactivateConfirmContent": {
+    "message": "This rule will stop applying to new access requests."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Something went wrong. Your rule wasn't saved, but your information is still here."
+  },
+  "pamAccessRuleNameRequired": {
+    "message": "Enter a name."
+  },
+  "pamAccessRuleErrorNameTaken": {
+    "message": "Another rule already uses this name. Enter a different name."
+  },
+  "pamAccessRuleErrorCollectionsGoverned": {
+    "message": "Another access rule already covers one of these collections. Select different collections."
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "One of the collections you selected no longer exists. Select a different collection."
+  },
+  "pamAccessRuleErrorCollectionsForeign": {
+    "message": "One of the collections you selected is not part of this organization. Select a different collection."
+  },
+  "pamAccessRuleErrorExtensionLengthRequired": {
+    "message": "Choose a maximum extension length, or turn off extensions."
+  },
+  "pamAccessRuleErrorMissing": {
+    "message": "This rule no longer exists. It may have been deleted by another admin."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "No access rules yet"
@@ -17386,8 +17490,8 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Just in time"
   },
-  "pamTemplateJustInTimeSummary": {
-    "message": "Auto-approved • Expires after 1h • Audit logged"
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Auto-approved"
   },
   "pamTemplateJustInTimeName": {
     "message": "Just-in-time access"
@@ -17395,8 +17499,8 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Approval required"
   },
-  "pamTemplateApprovalRequiredSummary": {
-    "message": "Human approval • 1 approver required • Audit logged"
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Human approval • 1 approver required"
   },
   "pamTemplateApprovalRequiredName": {
     "message": "Approval required"
@@ -17404,8 +17508,8 @@
   "pamTemplateIpRestrictedTitle": {
     "message": "IP-restricted"
   },
-  "pamTemplateIpRestrictedSummary": {
-    "message": "Auto-approved • IP Allowlist • Audit logged"
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Auto-approved • IP Allowlist"
   },
   "pamTemplateIpRestrictedName": {
     "message": "IP-restricted access"
@@ -17416,17 +17520,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Unassigned"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 collection"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "Search rules"
   },
   "pamAccessRuleAppliesTo": {
     "message": "Applies to"
   },
-  "pamAccessRuleConditionsColumn": {
-    "message": "Conditions"
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Approval method"
   },
-  "pamAccessWindow": {
-    "message": "Access window"
+  "pamAccessRuleDurationColumn": {
+    "message": "Maximum duration"
   },
   "pamAccessRuleLastModified": {
     "message": "Last modified"
@@ -17443,11 +17559,11 @@
   "pamAccessRulesNoResults": {
     "message": "No access rules match your filters."
   },
-  "pamAccessRuleBulkEnable": {
-    "message": "Enable"
+  "pamAccessRuleBulkActivate": {
+    "message": "Activate"
   },
-  "pamAccessRuleBulkDisable": {
-    "message": "Disable"
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Deactivate"
   },
   "pamAccessRulesUpdated": {
     "message": "Access rules updated."
@@ -17466,6 +17582,900 @@
         "example": "3"
       }
     }
+  },
+  "pamAccessRuleBulkDeactivateConfirmTitle": {
+    "message": "Deactivate access rules"
+  },
+  "pamAccessRuleBulkDeactivateConfirmContent": {
+    "message": "$COUNT$ rules will stop applying to new access requests.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamMyAccess": {
+    "message": "My access"
+  },
+  "pamAccessRequestsTitle": {
+    "message": "Access requests"
+  },
+  "pamAccessRequestsSubtitle": {
+    "message": "Approve, monitor, and audit time-limited access to your credentials."
+  },
+  "pamTabApprovals": {
+    "message": "Approvals"
+  },
+  "pamTabMyRequests": {
+    "message": "My requests"
+  },
+  "pamTabHistory": {
+    "message": "History"
+  },
+  "pamAccessRequestsSearchPlaceholder": {
+    "message": "Search credential, collection, requester"
+  },
+  "pamCollectionFilter": {
+    "message": "Collection"
+  },
+  "pamMyRequestsGroupExtensions": {
+    "message": "Extension requests"
+  },
+  "pamMyRequestsActiveAccessSection": {
+    "message": "Active access"
+  },
+  "pamMyRequestsActiveAccessEmpty": {
+    "message": "No active access"
+  },
+  "pamMyRequestsLoadError": {
+    "message": "Could not load your requests"
+  },
+  "pamMyRequestsPendingSection": {
+    "message": "Pending"
+  },
+  "pamMyRequestsPendingEmpty": {
+    "message": "No pending requests"
+  },
+  "pamMyRequestsHistoryEmpty": {
+    "message": "No request history"
+  },
+  "pamColumnItem": {
+    "message": "Item"
+  },
+  "pamColumnWindow": {
+    "message": "Window"
+  },
+  "pamColumnRequestedWindow": {
+    "message": "Requested window"
+  },
+  "pamColumnSubmitted": {
+    "message": "Submitted"
+  },
+  "pamColumnStatus": {
+    "message": "Status"
+  },
+  "pamColumnResolver": {
+    "message": "Resolver"
+  },
+  "pamColumnComment": {
+    "message": "Comment"
+  },
+  "pamColumnResolved": {
+    "message": "Resolved"
+  },
+  "pamColumnRemaining": {
+    "message": "Remaining"
+  },
+  "pamColumnActions": {
+    "message": "Actions"
+  },
+  "pamWindowUntil": {
+    "message": "Until $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "2025-06-15 14:00"
+      }
+    }
+  },
+  "pamExtendedBadge": {
+    "message": "Extended +$DURATION$ · until $DATE$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2h"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun 20, 3:00 PM"
+      }
+    }
+  },
+  "pamActivateWithin": {
+    "message": "Activate within $REMAINING$",
+    "placeholders": {
+      "remaining": {
+        "content": "$1",
+        "example": "23h 59m"
+      }
+    }
+  },
+  "pamResolverAccessRule": {
+    "message": "Access rule"
+  },
+  "pamResolverRequester": {
+    "message": "Requester"
+  },
+  "pamInboxInCollection": {
+    "message": "in $COLLECTION$",
+    "placeholders": {
+      "collection": {
+        "content": "$1",
+        "example": "Production"
+      }
+    }
+  },
+  "pamInboxReason": {
+    "message": "Reason"
+  },
+  "pamInboxReasonMissing": {
+    "message": "No reason provided"
+  },
+  "pamAccessRequestedLabel": {
+    "message": "Access requested"
+  },
+  "pamInboxRequester": {
+    "message": "Requester"
+  },
+  "pamInboxDurationMinutes": {
+    "message": "$MINUTES$ min",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "pamInboxDuration1Hour": {
+    "message": "1 hour"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "pamInboxStartAsap": {
+    "message": "starting now"
+  },
+  "pamInboxStartToday": {
+    "message": "today"
+  },
+  "pamInboxStartTomorrow": {
+    "message": "tomorrow"
+  },
+  "pamInboxStartInDays": {
+    "message": "in $DAYS$ days",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamStartLeaseButton": {
+    "message": "Start access"
+  },
+  "pamStartLeaseSuccess": {
+    "message": "Access started."
+  },
+  "pamStartLeaseError": {
+    "message": "Couldn't start access."
+  },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "The approved access window has not started yet."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "The approved access window has already ended."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "This request has not been approved yet."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "This request can no longer be activated."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "This request's access has already been used and is no longer active."
+  },
+  "pamStartLeaseErrorSingleActiveLease": {
+    "message": "Another active lease exists for this item. Try again once it ends."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Access to this item is not permitted from your current network."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Access to this item is not permitted at this time."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Access to this item is not permitted right now."
+  },
+  "pamMyRequestsCanceledToast": {
+    "message": "Request canceled"
+  },
+  "pamMyRequestsCancelError": {
+    "message": "Could not cancel request"
+  },
+  "pamEndLeaseButton": {
+    "message": "End access"
+  },
+  "pamEndLeaseTitle": {
+    "message": "End access?"
+  },
+  "pamEndLeaseConfirm": {
+    "message": "This immediately revokes your access. This action cannot be undone."
+  },
+  "pamEndLeaseSuccess": {
+    "message": "Access ended."
+  },
+  "pamExtendLeaseButton": {
+    "message": "Extend"
+  },
+  "pamExtendLeaseDialogTitle": {
+    "message": "Extend access"
+  },
+  "pamExtendLeaseDurationLabel": {
+    "message": "Extension length"
+  },
+  "pamExtendLeaseReasonLabel": {
+    "message": "Reason"
+  },
+  "pamExtendLeaseSuccess": {
+    "message": "Access extended."
+  },
+  "pamExtendLeaseError": {
+    "message": "Couldn't extend access."
+  },
+  "pamExtendLeaseEnded": {
+    "message": "Your access ended before it could be extended. The request is in your history."
+  },
+  "pamStatusApproved": {
+    "message": "Approved"
+  },
+  "pamStatusActivated": {
+    "message": "Active"
+  },
+  "pamStatusDenied": {
+    "message": "Denied"
+  },
+  "pamStatusCanceled": {
+    "message": "Canceled"
+  },
+  "pamStatusExpired": {
+    "message": "Expired"
+  },
+  "pamStatusRevoked": {
+    "message": "Revoked"
+  },
+  "pamStatusUnknown": {
+    "message": "Unknown"
+  },
+  "pamAccessBadgePrivileged": {
+    "message": "Privileged"
+  },
+  "pamAccessBadgePending": {
+    "message": "Pending approval"
+  },
+  "pamAccessBadgeUnavailable": {
+    "message": "Unavailable"
+  },
+  "pamAccessBadgeReady": {
+    "message": "Ready to use"
+  },
+  "pamAccessBadgeTimeLeft": {
+    "message": "$DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "18m"
+      }
+    }
+  },
+  "pamAccessBadgeEndingSoon": {
+    "message": "Ending soon • $DURATION$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
+  "pamAccessBadgeEnded": {
+    "message": "Access ended"
+  },
+  "pamAuditKindLeaseEndedByHolder": {
+    "message": "Lease ended by holder"
+  },
+  "pamAuditKindLeaseRevoked": {
+    "message": "Lease revoked"
+  },
+  "pamEventRequestedAccess": {
+    "message": "Requested privileged access to item $ITEM$ (request $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventApprovedAccessRequest": {
+    "message": "Approved privileged access to item $ITEM$ (request $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventDeniedAccessRequest": {
+    "message": "Denied privileged access to item $ITEM$ (request $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventActivatedAccessLease": {
+    "message": "Activated privileged access to item $ITEM$ (lease $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventRevokedAccessLease": {
+    "message": "Revoked privileged access to item $ITEM$ (lease $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamAuditLoadError": {
+    "message": "Could not load the audit trail"
+  },
+  "pamAuditEmptyTitle": {
+    "message": "No audit activity"
+  },
+  "pamAuditEmptyMessage": {
+    "message": "Privileged-access activity in this organization will appear here."
+  },
+  "pamAuditNoMatchesTitle": {
+    "message": "No matching events"
+  },
+  "pamAuditNoMatchesMessage": {
+    "message": "No events match the current filters."
+  },
+  "pamAuditColumnEvent": {
+    "message": "Event"
+  },
+  "pamAuditColumnActor": {
+    "message": "Actor"
+  },
+  "pamAuditColumnRequester": {
+    "message": "Requester"
+  },
+  "pamAuditColumnItem": {
+    "message": "Item"
+  },
+  "pamAuditColumnDuration": {
+    "message": "Duration"
+  },
+  "pamAuditColumnDetail": {
+    "message": "Detail"
+  },
+  "pamAuditDurationExtendedTo": {
+    "message": "Extended to $DATETIME$",
+    "placeholders": {
+      "datetime": {
+        "content": "$1",
+        "example": "8/20/26, 12:21 PM"
+      }
+    }
+  },
+  "pamAuditSystem": {
+    "message": "System"
+  },
+  "pamAuditIncomplete": {
+    "message": "Incomplete"
+  },
+  "pamAuditIncompleteTooltip": {
+    "message": "This action was recorded but its outcome was never confirmed — it may have failed or been interrupted."
+  },
+  "pamAuditKindRequestSubmitted": {
+    "message": "Access requested"
+  },
+  "pamAuditKindRequestApproved": {
+    "message": "Request approved"
+  },
+  "pamAuditKindRequestDenied": {
+    "message": "Request denied"
+  },
+  "pamAuditKindRequestCanceled": {
+    "message": "Request canceled"
+  },
+  "pamAuditKindRequestExpiredUnanswered": {
+    "message": "Request expired without a decision"
+  },
+  "pamAuditKindRequestExpiredUnactivated": {
+    "message": "Approval expired unused"
+  },
+  "pamAuditKindLeaseActivated": {
+    "message": "Lease activated"
+  },
+  "pamAuditKindLeaseActivationRejected": {
+    "message": "Activation rejected"
+  },
+  "pamAuditKindLeaseExtended": {
+    "message": "Lease extended"
+  },
+  "pamAuditKindLeaseExpired": {
+    "message": "Lease expired"
+  },
+  "pamAuditKindCredentialAccessed": {
+    "message": "Credential accessed"
+  },
+  "pamAuditKindCredentialAccessDenied": {
+    "message": "Credential access denied"
+  },
+  "pamAuditKindRuleCreated": {
+    "message": "Access rule created"
+  },
+  "pamAuditKindRuleUpdated": {
+    "message": "Access rule updated"
+  },
+  "pamAuditKindRuleDeleted": {
+    "message": "Access rule deleted"
+  },
+  "pamAuditKindLeasingKillSwitchTriggered": {
+    "message": "Kill switch triggered"
+  },
+  "pamAuditKindLeasingFreezeEnabled": {
+    "message": "Leasing frozen"
+  },
+  "pamAuditKindLeasingFreezeLifted": {
+    "message": "Leasing unfrozen"
+  },
+  "pamAuditKindUnknown": {
+    "message": "Unknown event"
+  },
+  "pamAuditLog": {
+    "message": "Audit log"
+  },
+  "pamAccessRequestTitle": {
+    "message": "Access request"
+  },
+  "pamAccessRequestDetailsTitle": {
+    "message": "Request details"
+  },
+  "pamAccessRequestLeaseTitle": {
+    "message": "Access"
+  },
+  "pamAccessRequestDecisionLogTitle": {
+    "message": "Decision log"
+  },
+  "pamAccessRequestNotFound": {
+    "message": "Access request not available"
+  },
+  "pamAccessRequestNotFoundDescription": {
+    "message": "This access request isn't available to you, or it no longer exists."
+  },
+  "pamAccessRequestLoadError": {
+    "message": "Couldn't load this access request."
+  },
+  "pamActiveLeaseBannerTitle": {
+    "message": "You have active access to this item — $DURATION$ remaining",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "23m"
+      }
+    }
+  },
+  "pamPendingRequestBannerHeading": {
+    "message": "Access request pending approval"
+  },
+  "pamApprovedRequestBannerHeading": {
+    "message": "Access approved"
+  },
+  "pamApprovedRequestBannerDuration": {
+    "message": "$DURATION$ of access",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 hour"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Credentials are masked until access is granted."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "You can request access"
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Access up to $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessButton": {
+    "message": "Request access"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until they're done."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
+  },
+  "cipherLeaseExpiresIn": {
+    "message": "Leased — expires in $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "47m"
+      }
+    }
+  },
+  "cipherLeaseRequiresApproval": {
+    "message": "Requires approval to view"
+  },
+  "pendingStateCancelRequest": {
+    "message": "Cancel request"
+  },
+  "pamKeepRequest": {
+    "message": "Keep request"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Cancel access request"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "This withdraws your request before an approver has decided on it. You can submit a new request at any time."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "This gives up access that has already been approved. You can submit a new request, but it will need to be approved again."
+  },
+  "pamCancelRequestCanceledToast": {
+    "message": "Request canceled"
+  },
+  "pendingStateCancelError": {
+    "message": "Couldn't cancel the request."
+  },
+  "requestAccessModalTitle": {
+    "message": "Request access"
+  },
+  "requestAccessModalSubmit": {
+    "message": "Request access"
+  },
+  "requestAccessModalDismiss": {
+    "message": "Cancel"
+  },
+  "requestAccessModalAutomaticDescription": {
+    "message": "Pick a duration. You'll get immediate access for that long."
+  },
+  "requestAccessModalHumanDescription": {
+    "message": "Pick a window and tell the approver why you need access. They'll review and decide."
+  },
+  "requestAccessModalDuration": {
+    "message": "Duration"
+  },
+  "requestAccessModalDuration15m": {
+    "message": "15 minutes"
+  },
+  "requestAccessModalDuration30m": {
+    "message": "30 minutes"
+  },
+  "requestAccessModalDuration1h": {
+    "message": "1 hour"
+  },
+  "requestAccessModalDuration4h": {
+    "message": "4 hours"
+  },
+  "requestAccessModalDuration8h": {
+    "message": "8 hours"
+  },
+  "requestAccessModalDuration1d": {
+    "message": "1 day"
+  },
+  "requestAccessModalDate": {
+    "message": "Date"
+  },
+  "requestAccessModalStart": {
+    "message": "Start time"
+  },
+  "requestAccessModalEnd": {
+    "message": "End time"
+  },
+  "requestAccessModalEndBeforeStart": {
+    "message": "End time must be after start time."
+  },
+  "requestAccessModalWindowInPast": {
+    "message": "The requested window has already ended. Pick a later date or time."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "The window can't exceed $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
+  },
+  "requestAccessModalReasonRequired": {
+    "message": "Reason"
+  },
+  "requestAccessModalReasonOptional": {
+    "message": "Reason (optional)"
+  },
+  "requestAccessModalReasonPlaceholder": {
+    "message": "Why do you need this?"
+  },
+  "requestAccessModalReasonHint": {
+    "message": "Approvers will see this reason when reviewing your request."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Could not request access."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "You already have active access to this item."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "You already have an approved request for this item."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "You already have a pending request for this item."
+  },
+  "requestAccessModalApprovedSuccess": {
+    "message": "Access approved — select Start access to begin."
+  },
+  "requestAccessModalRequestCreatedSuccess": {
+    "message": "Request submitted — awaiting approval."
+  },
+  "pamApprovalsActiveAccessEmpty": {
+    "message": "No active access"
+  },
+  "pamApprovalsActiveAccessSection": {
+    "message": "Active access"
+  },
+  "pamApprovalsCollectionFilter": {
+    "message": "Collection"
+  },
+  "pamApprovalsPendingEmpty": {
+    "message": "No requests waiting for your decision"
+  },
+  "pamApprovalsPendingSection": {
+    "message": "Pending approval"
+  },
+  "pamApprovalsRequesterFilter": {
+    "message": "Requester"
+  },
+  "pamApprovalsSearchPlaceholder": {
+    "message": "Search credential, collection, requester"
+  },
+  "pamDecideAdditionalInformation": {
+    "message": "Additional information"
+  },
+  "pamDecideCommentAuditHint": {
+    "message": "Optional, saved to the audit log"
+  },
+  "pamDecideApproveTitle": {
+    "message": "Approve access request"
+  },
+  "pamDecideDenyTitle": {
+    "message": "Deny access request"
+  },
+  "pamDecideDenyReasonLabel": {
+    "message": "Reason for denial"
+  },
+  "pamDecideDenyReasonPlaceholder": {
+    "message": "e.g. Access no longer needed"
+  },
+  "pamDecideDenyReasonRequired": {
+    "message": "A reason is required to deny this request."
+  },
+  "pamInboxApprove": {
+    "message": "Approve"
+  },
+  "pamInboxApprovedToast": {
+    "message": "Request approved"
+  },
+  "pamInboxWithdrawApproval": {
+    "message": "Withdraw approval"
+  },
+  "pamInboxCannotApproveOwn": {
+    "message": "You cannot approve your own request."
+  },
+  "pamInboxCommentLabel": {
+    "message": "Comment"
+  },
+  "pamInboxCommentPlaceholder": {
+    "message": "Add an optional comment"
+  },
+  "pamInboxConfirmApproveButton": {
+    "message": "Approve request"
+  },
+  "pamInboxConfirmDenyButton": {
+    "message": "Deny request"
+  },
+  "pamInboxDecisionFailed": {
+    "message": "Could not record decision"
+  },
+  "pamInboxDeny": {
+    "message": "Deny"
+  },
+  "pamInboxDeniedToast": {
+    "message": "Request denied"
+  },
+  "pamInboxElapsedDays": {
+    "message": "$DAYS$d ago",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedHours": {
+    "message": "$HOURS$h ago",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "Just now"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "$MINUTES$m ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "pamInboxEmptyDescription": {
+    "message": "There are no requests waiting for your decision."
+  },
+  "pamInboxEmptyTitle": {
+    "message": "Inbox zero"
+  },
+  "pamInboxHistoryEmpty": {
+    "message": "No history to display"
+  },
+  "pamInboxLoadFailed": {
+    "message": "Could not load inbox"
+  },
+  "pamInboxRequestReasonLabel": {
+    "message": "Request reason"
+  },
+  "pamInboxRevoke": {
+    "message": "Revoke"
+  },
+  "pamInboxRevokeFailed": {
+    "message": "Could not revoke access"
+  },
+  "pamInboxRevokedToast": {
+    "message": "Access revoked"
+  },
+  "pamInboxApprovalWithdrawnToast": {
+    "message": "Approval withdrawn"
+  },
+  "pamInboxWithdrawApprovalFailed": {
+    "message": "Could not withdraw approval"
+  },
+  "pamInboxWindow": {
+    "message": "Requested window"
+  },
+  "pamApprovalsNoResults": {
+    "message": "No access requests match your filters."
+  },
+  "pamApprovalsLoaded": {
+    "message": "Access requests loaded"
+  },
+  "pamHistoryLoaded": {
+    "message": "Request history loaded"
+  },
+  "pamHistoryScopeAll": {
+    "message": "All"
+  },
+  "pamHistoryScopeMine": {
+    "message": "Raised by me"
+  },
+  "pamHistoryScopeManaged": {
+    "message": "For my collections"
+  },
+  "pamHistoryScopeLabel": {
+    "message": "History scope"
+  },
+  "pamHistoryEmpty": {
+    "message": "No request history to display"
+  },
+  "pamInboxRevokeConfirm": {
+    "message": "This immediately revokes the member's access. They will need a new approval to regain it."
+  },
+  "pamInboxWithdrawApprovalConfirm": {
+    "message": "This withdraws the member's approval for $ITEM$. Access will not start, and they will need a new approval to get it.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Prod database"
+      }
+    }
+  },
+  "pamCollectionAccessRuleCalloutTitle": {
+    "message": "Access rule"
+  },
+  "pamCollectionAccessRuleCalloutBody": {
+    "message": "Access to items here is controlled by"
+  },
+  "pamRuleBypassableCiphersTitle": {
+    "message": "Some items are not protected by this rule"
+  },
+  "pamRuleBypassableCiphersBody": {
+    "message": "These credentials are accessible to some members without leasing because they belong to another collection without an access rule."
+  },
+  "pamRuleBypassableCiphersRemediation": {
+    "message": "Reachable through:"
+  },
+  "pamRuleBypassableCiphersUnnamedCollection": {
+    "message": "a collection you cannot see"
   },
   "accessRuleIpAllowlistHelpText": {
     "message": "Only requests originating from these IP ranges will be allowed."
