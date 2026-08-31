@@ -111,9 +111,12 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   `AccessRefreshService` so it cannot contradict the banner below it, the row one reads
   once so a list of gated rows does not carry a subscription each. The item-details host
   also drops the `active` state, because the banner heading under it already runs that
-  countdown on its own timer. Which badge to show is NOT decided here: the SDK ranks the
-  three states into `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
-  only adapts that onto the presentation model (a `kind` discriminant, a parsed `Date`).
+  countdown on its own timer — but it drops it on a LIVE lease (`liveActiveLease`), not on
+  the SDK's `active` ranking, or a lease the server still believes in after it lapsed would
+  hide the pill for good (see "A lease running out"). Which badge to show is NOT decided
+  here: the SDK ranks the three states into `CipherAccessStateView.badgeState`, and
+  `cipherAccessBadgeState()` only adapts that onto the presentation model (a `kind`
+  discriminant, a parsed `Date`).
   Add a state by teaching the SDK, not by re-ranking the parts client-side.
   `ENDING_SOON_THRESHOLD_MS` (`access-badge-state.ts`) is the five-minute cutoff at which an
   active lease escalates to the danger recipe — a fixed cutoff, not a fraction of the lease's
@@ -231,6 +234,29 @@ Page-level services (`MyAccessService`, `ApproverInboxService`,
 `AccessRequestDetailService`) subscribe to the push directly and reload. Use `concatMap`,
 not `switchMap`: two pushes arriving together must not interleave their loads and leave
 several subjects describing different moments.
+
+### A lease running out
+
+**Neither service fires when a lease reaches its `notAfter`** — no mutation here, and on the
+server nothing happened at all. Left to them, an item open across its own expiry keeps the
+credential revealed until a reload (PM-41837). With no event to wait for, every reader of
+`activeLease` goes through `liveActiveLease(state, nowMs)` (`helpers/lease-liveness.ts`), which
+drops a lapsed lease whatever the response said and fails closed on an unparseable `notAfter`.
+
+Something has to move that clock. **Use one of the two that already tick; do not add a third.**
+The cipher-view banner owns a 1-second interval for its countdown, live exactly while there is an
+active lease, so its clamp is one `computed`. `ItemDetailsStateBadgeComponent` and
+`PamGatedCipherReloader` take a single tick off `AccessBadgeTickerService.ticks$`, the shared
+clock the badges run on, and only while the state they hold carries a live lease.
+
+Both tick OUTSIDE the Angular zone, or NgZone never settles and `whenStable()` hangs for every
+host embedding a gated item. Signals carry out of it, so the banner and the pill need nothing
+more; the reloader re-enters explicitly, because the re-lock writes plain component fields on
+`vault-item-dialog.component.ts`.
+
+`badgeState` is NOT clamped — only the SDK ranks it, so a lapsed `active` badge falls to
+`AccessStateBadgeComponent`'s `remainingMs <= 0` recipe. The vault row stays out of all this and
+reads once, by design.
 
 ## OSS seams
 

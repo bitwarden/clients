@@ -67,6 +67,7 @@ import {
   classifyRequestAccessError,
   composeRequestWindow,
   defaultRequestWindow,
+  liveActiveLease,
   midnightCrossingEnd,
   requestDurationOptions,
   requestedWindowSeconds,
@@ -95,7 +96,8 @@ import {
  * Renders one of five states from `getCipherAccessState`: unlicensed, active lease, approved
  * request, pending request, or an inline form; unlicensed replaces every other state, since the
  * server withholds the credential from an unlicensed holder regardless of lease. Refreshes via
- * {@link AccessRefreshService}.
+ * {@link AccessRefreshService}, except expiry, which {@link activeLease} takes off this banner's
+ * own clock.
  */
 @Component({
   selector: "app-pam-cipher-view-banner",
@@ -227,7 +229,8 @@ export class CipherViewBannerComponent implements OnInit {
     { initialValue: undefined },
   );
 
-  protected readonly activeLease = computed(() => this.state()?.activeLease);
+  /** Read against {@link nowMs}: a lease is over at its `notAfter`, asked again or not. */
+  protected readonly activeLease = computed(() => liveActiveLease(this.state(), this.nowMs()));
   protected readonly approvedRequest = computed(() => this.state()?.approvedRequest);
   protected readonly pendingRequest = computed(() => this.state()?.pendingRequest);
 
@@ -314,9 +317,8 @@ export class CipherViewBannerComponent implements OnInit {
    * drops the `active` state on this surface to keep one timer on screen. Without this the heading
    * below would be the modal's only countdown and the only one that never warns.
    *
-   * Stays escalated once remaining time reaches zero: a lease that lapsed before the refresh lands
-   * is the strongest form of "ending soon", so falling back to the resting tile would read as calm
-   * at the worst moment.
+   * The `<=` is defensive only: {@link activeLease} is a clock read, so a lease with nothing left
+   * to count down leaves no active tile to escalate.
    */
   protected readonly leaseEndingSoon = computed(
     () =>
