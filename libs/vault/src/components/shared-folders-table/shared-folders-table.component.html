@@ -121,59 +121,67 @@
   </bit-column>
 
   <!-- Items -->
-  <bit-column sortable width="minmax(100px, 160px)">
+  <bit-column sortable [width]="itemsWidth()">
     <bit-header-cell>{{ "items" | i18n }}</bit-header-cell>
 
     <bit-cell *bitCellDef="table.columns.items; let row">{{ row.items }}</bit-cell>
   </bit-column>
 
   <!-- Options -->
-  <!-- The flexible track, so leftover width lands here and the right-aligned overflow trigger stays
-       pinned to the table's right edge. -->
-  <bit-column width="minmax(80px, 1fr)">
-    <bit-header-cell>
-      <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
-    </bit-header-cell>
+  <!--
+    Removed with `@if` rather than left empty: a column registers itself with the table as it's
+    created, so a client that supplies no row actions would otherwise get an Options header over
+    nothing but blank cells. Unlike the slotted content above, a column is found by injection rather
+    than by projection, so a conditional block is no obstacle to the table finding it.
+  -->
+  @if (showOptions()) {
+    <!-- The flexible track, so leftover width lands here and the right-aligned overflow trigger
+         stays pinned to the table's right edge. -->
+    <bit-column width="minmax(80px, 1fr)">
+      <bit-header-cell>
+        <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
+      </bit-header-cell>
 
-    <bit-cell *bitCellLoading>
-      <div class="tw-flex tw-justify-end">
-        <bit-skeleton-text class="tw-w-6" />
-      </div>
-    </bit-cell>
-
-    <bit-cell *bitCellDef="table.columns.options; let row">
-      <!--
-        The overflow trigger sits in the `end` slot so the cell's flex-grow middle element pushes
-        it hard right, anchoring it to the same position on every row.
-      -->
-      @let actions = visibleActions(row);
-      @if (actions.length > 0) {
-        <div slot="end">
-          <button
-            type="button"
-            bitIconButton="bwi-ellipsis-v"
-            size="small"
-            [label]="'optionsForItem' | i18n: row.name"
-            [bitMenuTriggerFor]="rowMenu"
-          ></button>
-          <bit-menu #rowMenu>
-            @for (rowAction of actions; track rowAction.id) {
-              <button
-                type="button"
-                bitMenuItem
-                [attr.id]="'shared-folders-table_menu-item_' + rowAction.id + '-' + row.id"
-                [variant]="rowAction.variant ?? 'primary'"
-                (click)="handleAction(rowAction, row)"
-              >
-                <bit-icon slot="start" fixedWidth [name]="rowAction.icon" />
-                {{ rowAction.label }}
-              </button>
-            }
-          </bit-menu>
+      <bit-cell *bitCellLoading>
+        <div class="tw-flex tw-justify-end">
+          <bit-skeleton-text class="tw-w-6" />
         </div>
-      }
-    </bit-cell>
-  </bit-column>
+      </bit-cell>
+
+      <bit-cell *bitCellDef="table.columns.options; let row">
+        <!--
+          The overflow trigger sits in the `end` slot so the cell's flex-grow middle element pushes
+          it hard right, anchoring it to the same position on every row.
+        -->
+        @let actions = visibleActions(row);
+        @if (actions.length > 0) {
+          <div slot="end">
+            <button
+              type="button"
+              bitIconButton="bwi-ellipsis-v"
+              size="small"
+              [label]="'optionsForItem' | i18n: row.name"
+              [bitMenuTriggerFor]="rowMenu"
+            ></button>
+            <bit-menu #rowMenu>
+              @for (rowAction of actions; track rowAction.id) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  [attr.id]="'shared-folders-table_menu-item_' + rowAction.id + '-' + row.id"
+                  [variant]="rowAction.variant ?? 'primary'"
+                  (click)="handleAction(rowAction, row)"
+                >
+                  <bit-icon slot="start" fixedWidth [name]="rowAction.icon" />
+                  {{ rowAction.label }}
+                </button>
+              }
+            </bit-menu>
+          </div>
+        }
+      </bit-cell>
+    </bit-column>
+  }
 
   <!--
     Pagination, sized to the window rather than to a fixed count: a page holds however many rows fit

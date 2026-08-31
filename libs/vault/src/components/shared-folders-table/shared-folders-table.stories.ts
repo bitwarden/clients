@@ -253,7 +253,13 @@ export const Loading: Story = {
   args: { loading: true },
 };
 
-/** With no `rowActions` the Options menu trigger is omitted from every row. */
+/**
+ * With no `rowActions` the Options column is dropped rather than left as a header over empty cells,
+ * and the width it held passes to Items so the columns still span the table.
+ *
+ * What the desktop client lists with — its shared folders page is read-only, every row action being
+ * a dialog it doesn't have.
+ */
 export const NoRowActions: Story = {
   args: { rowActions: [] },
 };

@@ -210,7 +210,10 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
   /** Shows skeleton rows in place of the data while the client resolves it. */
   readonly loading = input(false, { transform: booleanAttribute });
 
-  /** The actions offered in each row's Options menu, in display order. */
+  /**
+   * The actions offered in each row's Options menu, in display order. Supplying none drops the
+   * Options column altogether — see {@link showOptions}.
+   */
   readonly rowActions = input<SharedFoldersTableRowAction<R>[]>([]);
 
   /**
@@ -281,6 +284,26 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
       invoke: (): void => void action.run(rows),
     }));
   });
+
+  /**
+   * Whether the Options column is offered at all. A client that supplies no row actions gets no
+   * column rather than a header standing over empty cells — desktop lists its folders read-only.
+   *
+   * Gated on the actions supplied rather than on what each row's `show` allows, so the column holds
+   * still: a column that came and went as filtering changed which rows were on screen would resize
+   * every other column with it.
+   */
+  protected readonly showOptions = computed(() => this.rowActions().length > 0);
+
+  /**
+   * The Items column's track. The table's flexible track normally belongs to Options, so leftover
+   * width lands under the right-aligned overflow trigger; with no Options column Items is the last
+   * one, and takes the flexible track so the columns still span the table rather than stranding a
+   * gap at its right edge.
+   */
+  protected readonly itemsWidth = computed(() =>
+    this.showOptions() ? "minmax(100px, 160px)" : "minmax(100px, 1fr)",
+  );
 
   /**
    * The permissions the Permissions chip offers: those the rows actually carry, in {@link

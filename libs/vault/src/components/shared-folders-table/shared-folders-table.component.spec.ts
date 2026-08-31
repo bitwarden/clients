@@ -11,6 +11,7 @@ import {
   BitTableV2Component,
   DialogService,
   FilterControl,
+  MenuTriggerForDirective,
 } from "@bitwarden/components";
 
 import { SharedFolderPermission } from "./shared-folder-permission";
@@ -161,6 +162,9 @@ describe("SharedFoldersTableComponent", () => {
   });
 
   it("declares the name, permissions, items, and options columns in order", () => {
+    fixture.componentRef.setInput("rowActions", [
+      { id: "edit", label: "Edit", icon: "bwi-pencil-square", run: jest.fn() },
+    ]);
     fixture.detectChanges();
 
     expect(
@@ -356,11 +360,59 @@ describe("SharedFoldersTableComponent", () => {
   });
 
   describe("row actions", () => {
-    it("omits the options menu trigger when no actions are supplied", () => {
+    /**
+     * Every row's Options menu trigger. Found by directive rather than by attribute selector:
+     * `bitMenuTriggerFor` is bound, and a property binding leaves no attribute in the DOM to match.
+     */
+    function menuTriggers(): HTMLElement[] {
+      return fixture.debugElement
+        .queryAll(By.directive(MenuTriggerForDirective))
+        .map((trigger) => trigger.nativeElement as HTMLElement);
+    }
+
+    it("drops the options column entirely when no actions are supplied", () => {
       fixture.componentRef.setInput("sharedFolders", [row()]);
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector("[bitMenuTriggerFor]")).toBeNull();
+      expect(
+        bitTable()
+          .effectiveColumns()
+          .map((column) => column.name()),
+      ).toEqual(["name", "permissions", "items"]);
+      expect(menuTriggers()).toHaveLength(0);
+      expect(fixture.nativeElement.textContent as string).not.toContain("options");
+    });
+
+    it("gives the items column the flexible track while the options column is dropped", () => {
+      fixture.componentRef.setInput("sharedFolders", [row()]);
+      fixture.detectChanges();
+
+      expect(bitTable().gridTemplateColumns()).toContain("minmax(100px, 1fr)");
+
+      fixture.componentRef.setInput("rowActions", [
+        { id: "edit", label: "Edit", icon: "bwi-pencil-square", run: jest.fn() },
+      ]);
+      fixture.detectChanges();
+
+      expect(bitTable().gridTemplateColumns()).toContain("minmax(100px, 160px)");
+      expect(bitTable().gridTemplateColumns()).toContain("minmax(80px, 1fr)");
+    });
+
+    it("restores the options column once actions arrive", () => {
+      fixture.componentRef.setInput("sharedFolders", [row()]);
+      fixture.detectChanges();
+
+      fixture.componentRef.setInput("rowActions", [
+        { id: "edit", label: "Edit", icon: "bwi-pencil-square", run: jest.fn() },
+      ]);
+      fixture.detectChanges();
+
+      expect(
+        bitTable()
+          .effectiveColumns()
+          .map((column) => column.name()),
+      ).toEqual(["name", "permissions", "items", "options"]);
+      expect(menuTriggers()).toHaveLength(1);
     });
 
     it("hides an action whose show predicate rejects the row", () => {
