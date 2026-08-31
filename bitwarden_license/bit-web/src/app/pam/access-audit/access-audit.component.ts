@@ -364,9 +364,9 @@ export class AccessAuditComponent implements OnInit {
   /**
    * The member behind one of a row's identities, when the trail carries a label to render for them and
    * {@link members} resolved them to someone whose event history can be opened. Null otherwise, and the
-   * cell then renders that label as plain text — which is also what every row shows to a viewer who
-   * cannot enumerate members. An identity that cannot be resolved is ordinary, so it must never be given
-   * an anchor: a dead link on an audit surface invites a click that reports nothing.
+   * cell then renders that label as plain text — a former member, or a row whose actor is the automated
+   * bucket. An identity that cannot be resolved is ordinary, so it must never be given an anchor: a dead
+   * link on an audit surface invites a click that reports nothing.
    */
   protected linkedMember(userId: string | null, label: string | null): ResolvedMember | null {
     if (userId == null || label == null) {
