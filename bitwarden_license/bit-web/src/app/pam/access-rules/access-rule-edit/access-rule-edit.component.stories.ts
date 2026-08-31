@@ -125,9 +125,9 @@ export const Edit: Story = {
 /** Edit mode on a deactivated rule: the header badge reads "Off" and the Status checkbox is clear. */
 export const EditInactive: Story = {
   decorators: [
+    atUrl("/organizations/org-1/access-rules/rule-1"),
     moduleMetadata({
       providers: [
-        { provide: ActivatedRoute, useValue: routeStub({ accessRuleId: "rule-1" }) },
         {
           provide: AccessRuleSdkService,
           useValue: {
@@ -172,9 +172,9 @@ export const SaveError: Story = {
  */
 export const SaveErrorOnField: Story = {
   decorators: [
+    atUrl("/organizations/org-1/access-rules/rule-1"),
     moduleMetadata({
       providers: [
-        { provide: ActivatedRoute, useValue: routeStub({ accessRuleId: "rule-1" }) },
         {
           provide: AccessRuleSdkService,
           useValue: {
