@@ -3,7 +3,6 @@
 @let bulkActions = bulkMenuOptions$ | async;
 @let showConfirmBanner = showConfirmBanner$ | async;
 @let isProcessing = this.isProcessing();
-@let isSingleInvite = isSingleInvite$ | async;
 
 @if (organization && dataSource) {
   <app-organization-free-trial-warning
@@ -162,17 +161,7 @@
                       (click)="isProcessing ? null : bulkSendInvite(organization)"
                     >
                       <bit-icon fixedWidth name="bwi-envelope" slot="start" />
-                      {{ "sendInvites" | i18n }}
-                    </button>
-                  }
-                  @if (bulkActions.showBulkReinviteUsers) {
-                    <button
-                      type="button"
-                      bitMenuItem
-                      (click)="isProcessing ? null : bulkReinvite(organization)"
-                    >
-                      <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
-                      {{ (isSingleInvite ? "resendInvitation" : "reinviteSelected") | i18n }}
+                      {{ bulkActions.bulkSendInviteLabel | i18n }}
                     </button>
                   }
                   @if (bulkActions.showBulkConfirmUsers) {

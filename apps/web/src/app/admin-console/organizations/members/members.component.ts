@@ -19,6 +19,7 @@ import {
   take,
 } from "rxjs";
 
+import { OrganizationUserBulkResponse } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -73,8 +74,8 @@ interface BulkMemberFlags {
   showBulkRemoveUsers: boolean;
   showBulkDeleteUsers: boolean;
   showBulkConfirmUsers: boolean;
-  showBulkReinviteUsers: boolean;
   showBulkSendInvite: boolean;
+  bulkSendInviteLabel: string;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -128,16 +129,6 @@ export class MembersComponent {
   protected showConfirmBanner$ = this.dataSource()
     .usersUpdated()
     .pipe(map(() => showConfirmBanner(this.dataSource())));
-
-  protected selectedInvitedCount$ = this.dataSource()
-    .usersUpdated()
-    .pipe(
-      map(
-        (members) => members.filter((m) => m.status === OrganizationUserStatusType.Invited).length,
-      ),
-    );
-
-  protected isSingleInvite$ = this.selectedInvitedCount$.pipe(map((count) => count === 1));
 
   protected isProcessing = this.memberActionsService.isProcessing;
 
@@ -438,18 +429,15 @@ export class MembersComponent {
     await this.load(organization);
   }
 
-  async bulkReinvite(organization: Organization) {
-    let users: OrganizationUserView[];
-    if (this.dataSource().isIncreasedBulkLimitEnabled()) {
-      users = this.dataSource().getCheckedUsersInVisibleOrder();
-    } else {
-      users = this.dataSource().getCheckedUsers();
-    }
+  async bulkSendInvite(organization: Organization) {
+    const users = this.dataSource().isIncreasedBulkLimitEnabled()
+      ? this.dataSource().getCheckedUsersInVisibleOrder()
+      : this.dataSource().getCheckedUsers();
 
-    const allInvitedUsers = users.filter((u) => u.status === OrganizationUserStatusType.Invited);
-    const invitedCount = allInvitedUsers.length;
+    const stagedUsers = users.filter((u) => u.canSendInvite);
+    const invitedUsers = users.filter((u) => u.canReinvite);
 
-    if (invitedCount <= 0) {
+    if (stagedUsers.length === 0 && invitedUsers.length === 0) {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
@@ -458,65 +446,51 @@ export class MembersComponent {
       return;
     }
 
-    const result = await this.memberActionsService.bulkReinvite(organization, allInvitedUsers);
+    let sentCount = 0;
+    let reinvited: OrganizationUserBulkResponse[] = [];
 
-    if (result.successful.length === 0) {
-      this.validationService.showError(result.failed);
+    if (stagedUsers.length > 0) {
+      const result = await this.memberActionsService.sendInvite(
+        organization,
+        stagedUsers.map((u) => u.id),
+      );
+
+      if (result.success === false) {
+        this.validationService.showError(result.error);
+      } else {
+        sentCount += stagedUsers.length;
+      }
     }
 
-    if (this.dataSource().isIncreasedBulkLimitEnabled()) {
+    if (invitedUsers.length > 0) {
+      const result = await this.memberActionsService.bulkReinvite(organization, invitedUsers);
+      reinvited = result.successful;
+      sentCount += result.successful.length;
+
+      if (result.successful.length === 0) {
+        this.validationService.showError(result.failed);
+      }
+    }
+
+    if (sentCount > 0) {
       this.toastService.showToast({
         variant: "success",
         message:
-          invitedCount === 1
+          sentCount === 1
             ? this.i18nService.t("reinviteSuccessToast")
-            : this.i18nService.t("bulkReinviteSentToast", invitedCount.toString()),
+            : this.i18nService.t("bulkReinviteSentToast", sentCount.toString()),
       });
-    } else {
-      // In self-hosted environments, show legacy dialog
+    }
+
+    // Self-hosted keeps the per-user status dialog for the resend portion.
+    if (!this.dataSource().isIncreasedBulkLimitEnabled() && invitedUsers.length > 0) {
       await this.memberDialogManager.openBulkStatusDialog(
         users,
-        allInvitedUsers,
-        Promise.resolve(result.successful),
+        invitedUsers,
+        Promise.resolve(reinvited),
         this.i18nService.t("bulkReinviteMessage"),
       );
     }
-
-    this.dataSource().uncheckAllUsers();
-  }
-
-  async bulkSendInvite(organization: Organization) {
-    const stagedUsers = this.dataSource()
-      .getCheckedUsersWithLimit(MaxCheckedCount)
-      .filter((u) => u.canSendInvite);
-
-    if (stagedUsers.length === 0) {
-      this.toastService.showToast({
-        variant: "error",
-        title: this.i18nService.t("errorOccurred"),
-        message: this.i18nService.t("noSelectedUsersApplicable"),
-      });
-      return;
-    }
-
-    const result = await this.memberActionsService.sendInvite(
-      organization,
-      stagedUsers.map((u) => u.id),
-    );
-
-    if (result.success === false) {
-      this.toastService.showToast({ variant: "error", message: result.error });
-      this.logService.error(result.error);
-      return;
-    }
-
-    this.toastService.showToast({
-      variant: "success",
-      message:
-        stagedUsers.length === 1
-          ? this.i18nService.t("reinviteSuccessToast")
-          : this.i18nService.t("bulkReinviteSentToast", stagedUsers.length.toString()),
-    });
 
     this.dataSource().uncheckAllUsers();
     await this.load(organization);
@@ -618,10 +592,21 @@ export class MembersComponent {
       OrganizationUserStatusType.Revoked,
     ];
 
+    const invitedCount = members.filter((m) => m.canReinvite).length;
+    const hasStagedMembers = members.some((m) => m.canSendInvite);
+
+    // A selection containing staged members is a first invitation; a purely invited
+    // selection keeps the existing resend wording.
+    let bulkSendInviteLabel = "sendInvites";
+    if (!hasStagedMembers) {
+      bulkSendInviteLabel = invitedCount === 1 ? "resendInvitation" : "reinviteSelected";
+    }
+
     const result = {
       showBulkConfirmUsers: members.every((m) => m.canConfirm),
-      showBulkReinviteUsers: members.every((m) => m.canReinvite),
-      showBulkSendInvite: members.every((m) => m.canSendInvite),
+      showBulkSendInvite:
+        members.length > 0 && members.every((m) => m.canSendInvite || m.canReinvite),
+      bulkSendInviteLabel,
       showBulkRestoreUsers: members.every((m) => m.canRestore),
       showBulkRevokeUsers: members.every((m) => m.canRevoke),
       showBulkRemoveUsers: members.every((m) => m.canRemove),
