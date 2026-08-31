@@ -45,7 +45,7 @@
       [style.pointer-events]="'auto'"
     ></bit-filter-toggle>
 
-    @if (multipleVaults()) {
+    @if (showVaults()) {
       <bit-filter-menu [key]="filterKeys.vault" [placeholderText]="'vault' | i18n" multiple>
         @if (showMyVaultOption()) {
           <bit-filter-option [value]="MY_VAULT">{{ "myVault" | i18n }}</bit-filter-option>
@@ -56,11 +56,18 @@
       </bit-filter-menu>
     }
 
+    <!--
+      The pointer-events override below overrides `BaseChipDirective`'s own
+      `aria-disabled:tw-pointer-events-none` so the tooltip can fire.
+    -->
     @if (showSharedFolders()) {
       <bit-filter-menu
         [key]="filterKeys.sharedFolder"
         [placeholderText]="'sharedFolders' | i18n"
         multiple
+        [disabled]="noSharedFolderOptions()"
+        [bitTooltip]="sharedFolderDisabledTooltip()"
+        [style.pointer-events]="'auto'"
       >
         @if (groupSharedFolders()) {
           @for (group of groupedSharedFolders(); track group.organizationId) {
