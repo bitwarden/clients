@@ -116,7 +116,6 @@ export class ProductSwitcherService {
     private policyService: PolicyService,
     private i18nService: I18nService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private configService: ConfigService,
   ) {
     this.pollUntilSynced();
   }
@@ -158,20 +157,18 @@ export class ProductSwitcherService {
     this.organizations$,
     this.providers$,
     this.userHasSingleOrgPolicy$,
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    this.vfo1Enabled$,
     this.route.paramMap,
     this.triggerProductUpdate$,
-    this.vfo1Enabled$,
   ]).pipe(
     map(
-      ([orgs, providers, userHasSingleOrgPolicy, vfo1FoundationEnabled, paramMap]: [
+      ([orgs, providers, userHasSingleOrgPolicy, vfo1Enabled, paramMap]: [
         Organization[],
         Provider[],
         boolean,
         boolean,
         ParamMap,
         void,
-        boolean,
       ]) => {
         // Sort orgs by name to match the order within the sidebar
         orgs.sort((a, b) => a.name.localeCompare(b.name));
@@ -291,7 +288,7 @@ export class ProductSwitcherService {
 
         if (acOrg) {
           bento.push(products.ac);
-        } else if (!userHasSingleOrgPolicy && !vfo1FoundationEnabled) {
+        } else if (!userHasSingleOrgPolicy && !vfo1Enabled) {
           // Offered only while VFO1 is off — flag-on, "Add plan" in Settings
           // replaces the Organizations entry point.
           other.push(products.orgs);
