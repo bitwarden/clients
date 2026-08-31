@@ -99,6 +99,27 @@
   }
 </ng-template>
 
+<ng-template #noResultsState>
+  <bit-status-lockup size="small">
+    <bit-icon
+      slot="graphic"
+      name="bwi-search"
+      class="tw-text-2xl tw-text-fg-body-subtle"
+    ></bit-icon>
+    <span slot="title">{{ "noFiltersMatch" | i18n: searchTerm() }}</span>
+    <button
+      slot="button"
+      bitButton
+      buttonType="secondary"
+      size="small"
+      type="button"
+      (click)="setSearchTerm('')"
+    >
+      {{ "clearSearch" | i18n }}
+    </button>
+  </bit-status-lockup>
+</ng-template>
+
 <ng-template #optionsBody>
   @if (showSearch()) {
     <div class="tw-px-2 tw-pb-1">
@@ -194,7 +215,7 @@
         </div>
       }
       @if (noResults()) {
-        <div class="tw-px-3 tw-py-2 tw-text-sm tw-text-muted">{{ "noMatchingItems" | i18n }}</div>
+        <ng-container *ngTemplateOutlet="noResultsState"></ng-container>
       }
     </div>
   } @else {
@@ -268,7 +289,7 @@
       }
 
       @if (noResults()) {
-        <div class="tw-px-3 tw-py-2 tw-text-sm tw-text-muted">{{ "noMatchingItems" | i18n }}</div>
+        <ng-container *ngTemplateOutlet="noResultsState"></ng-container>
       }
     </div>
   }

@@ -189,6 +189,8 @@ export default {
               all: "All",
               removeItem: (name) => `Remove ${name}`,
               noMatchingItems: "No matching items",
+              noFiltersMatch: (term: string) => `No filters match "${term}"`,
+              clearSearch: "Clear search",
               search: "Search",
               resetSearch: "Reset search",
               clear: "Clear",
