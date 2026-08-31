@@ -227,7 +227,7 @@ export class AccessAuditComponent implements OnInit {
 
   /**
    * The filter chips, which own their own selections. Read through the {@link FilterControl} contract
-   * rather than a host bridge: this page is not a filterable surface with rows to facet, it is four
+   * rather than a host bridge: this page is not a filterable surface with rows to facet, it is a few
    * independent chips over one already-fetched array.
    *
    * Located by template reference rather than by matching `key()`, and only `value`, `active` and
