@@ -121,6 +121,20 @@ describe("DefaultAccessIntelligenceDataService", () => {
       expect(report?.id).toBe(newId);
     });
 
+    it("requests member items so ciphers in a member's My Items collection are loaded", async () => {
+      reportPersistenceService.loadLastReport$.mockReturnValue(
+        of({ report: testReport, hadLegacyBlobs: false }),
+      );
+      cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
+
+      await firstValueFrom(service.initializeForOrganization$(orgId));
+
+      // Without the second argument the server omits ciphers whose only
+      // collection is a member's default "My Items" collection.
+      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
+      expect(await firstValueFrom(service.ciphers$)).toEqual(testCiphers);
+    });
+
     it("should handle load errors gracefully", async () => {
       reportPersistenceService.loadLastReport$.mockReturnValue(
         throwError(() => new Error("Load failed")),
@@ -218,6 +232,20 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       const ciphers = await firstValueFrom(service.ciphers$);
       expect(ciphers).toEqual(testCiphers);
+    });
+
+    it("requests member items so ciphers in a member's My Items collection are reported on", async () => {
+      await firstValueFrom(service.generateNewReport$(orgId));
+
+      // Without the second argument the server omits ciphers whose only
+      // collection is a member's default "My Items" collection.
+      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
+    });
+
+    it("requests member items when refreshing an existing report", async () => {
+      await firstValueFrom(service.refreshReport$(orgId));
+
+      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
     });
 
     it("should handle generation errors and keep previous report", async () => {
