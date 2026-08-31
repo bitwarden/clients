@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of, take, toArray } from "rxjs";
 
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
@@ -447,8 +447,8 @@ describe("keyService", () => {
       jest.useFakeTimers();
 
       // Start listening until there have been 6 emissions
-      const promise = lastValueFrom(
-        keyService.cipherDecryptionKeys$(mockUserId).pipe(bufferCount(6), take(1)),
+      const promise = firstValueFrom(
+        keyService.cipherDecryptionKeys$(mockUserId).pipe(take(6), toArray()),
       );
 
       // User has their UserKey set
@@ -490,6 +490,7 @@ describe("keyService", () => {
       updateKeys({
         userKey: updatedUserKey,
       });
+      await jest.advanceTimersByTimeAsync(0);
 
       const emittedValues = await promise;
 
