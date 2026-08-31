@@ -151,13 +151,13 @@
         </bit-card>
       </bit-section>
 
-      <!-- Settings card -->
-      <bit-section>
-        <bit-section-header>
-          <h2 bitTypography="h5">{{ "pamRotationConfigSettingsHeading" | i18n }}</h2>
-        </bit-section-header>
-        <form [formGroup]="settingsForm" [bitSubmit]="submitSettings">
-          <bit-card>
+      <!-- Schedule + account: one form, because the server takes them in a single write. -->
+      <form [formGroup]="editForm" [bitSubmit]="submitEdit">
+        <bit-section>
+          <bit-section-header>
+            <h2 bitTypography="h5">{{ "pamRotationConfigSettingsHeading" | i18n }}</h2>
+          </bit-section-header>
+          <bit-card formGroupName="settings">
             <!-- Renders its own labeled bit-form-fields internally — must not be wrapped in one. -->
             <app-rotation-schedule-input
               formControlName="scheduleCron"
@@ -174,35 +174,20 @@
               <bit-hint>{{ "pamRotationConfigRotateOnAccessEndHint" | i18n }}</bit-hint>
             </bit-form-control>
           </bit-card>
+        </bit-section>
 
-          <div class="tw-flex tw-gap-2 tw-mb-6">
-            <button
-              type="submit"
-              bitButton
-              buttonType="primary"
-              bitFormButton
-              id="rotation-config-edit_button_save-settings"
-            >
-              {{ "save" | i18n }}
-            </button>
-          </div>
-        </form>
-      </bit-section>
+        <bit-section>
+          <bit-section-header>
+            <h2 bitTypography="h5">{{ "pamRotationConfigAccountHeading" | i18n }}</h2>
+          </bit-section-header>
 
-      <!-- Account card -->
-      <bit-section>
-        <bit-section-header>
-          <h2 bitTypography="h5">{{ "pamRotationConfigAccountHeading" | i18n }}</h2>
-        </bit-section-header>
+          @if (accountFormLocked()) {
+            <bit-callout type="info" title="{{ 'pamRotationConfigAccountLockedTitle' | i18n }}">
+              {{ "pamRotationConfigAccountLockedContent" | i18n }}
+            </bit-callout>
+          }
 
-        @if (accountFormLocked()) {
-          <bit-callout type="info" title="{{ 'pamRotationConfigAccountLockedTitle' | i18n }}">
-            {{ "pamRotationConfigAccountLockedContent" | i18n }}
-          </bit-callout>
-        }
-
-        <form [formGroup]="accountForm" [bitSubmit]="submitAccount">
-          <bit-card>
+          <bit-card formGroupName="account">
             <fieldset [disabled]="accountFormLocked()">
               <bit-form-field>
                 <bit-label>{{ "pamRotationConfigAccountIdentity" | i18n }}</bit-label>
@@ -227,21 +212,20 @@
               </bit-form-control>
             </fieldset>
           </bit-card>
+        </bit-section>
 
-          <div class="tw-flex tw-gap-2 tw-mb-6">
-            <button
-              type="submit"
-              bitButton
-              buttonType="primary"
-              bitFormButton
-              [disabled]="accountFormLocked()"
-              id="rotation-config-edit_button_save-account"
-            >
-              {{ "save" | i18n }}
-            </button>
-          </div>
-        </form>
-      </bit-section>
+        <div class="tw-flex tw-gap-2 tw-mb-6">
+          <button
+            type="submit"
+            bitButton
+            buttonType="primary"
+            bitFormButton
+            id="rotation-config-edit_button_save"
+          >
+            {{ "save" | i18n }}
+          </button>
+        </div>
+      </form>
 
       <!-- Job/attempt history -->
       <bit-section>

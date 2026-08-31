@@ -5,6 +5,7 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
 
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -111,7 +112,7 @@ export class DaemonsTabComponent {
       return;
     }
     try {
-      await this.daemonsService.assign(row.daemon, targetSystemId);
+      await this.daemonsService.assign(row.daemon, asUuid<TargetSystemId>(targetSystemId));
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamDaemonAssigned"),
@@ -137,7 +138,7 @@ export class DaemonsTabComponent {
       return;
     }
     try {
-      await this.daemonsService.unassign(daemon, targetSystemId);
+      await this.daemonsService.unassign(daemon, asUuid<TargetSystemId>(targetSystemId));
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamDaemonUnassigned"),

@@ -4,9 +4,11 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import type { CipherId } from "@bitwarden/sdk-internal";
 import {
   AsyncActionsModule,
   BreadcrumbsModule,
@@ -90,7 +92,10 @@ export class RotationConfigEditComponent {
   private readonly i18nService = inject(I18nService);
 
   private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
-  private readonly configId = this.route.snapshot.params.configId as string | undefined;
+  private readonly configId: RotationConfigId | undefined =
+    this.route.snapshot.params.configId == null
+      ? undefined
+      : asUuid<RotationConfigId>(this.route.snapshot.params.configId);
 
   protected readonly editing = this.configId != null;
 
@@ -119,11 +124,11 @@ export class RotationConfigEditComponent {
   });
 
   /** CipherIds already configured — excluded from the create picker. */
-  private readonly configuredCipherIds = signal<Set<string>>(new Set());
+  private readonly configuredCipherIds = signal<Set<CipherId>>(new Set());
 
   /** Ciphers eligible for a new config (Login type, not deleted, not already configured). */
   protected readonly availableCiphers = computed(() =>
-    this.allCiphers().filter((c) => !this.configuredCipherIds().has(c.id)),
+    this.allCiphers().filter((c) => !this.configuredCipherIds().has(asUuid<CipherId>(c.id))),
   );
 
   // --- Create form ---
@@ -146,6 +151,19 @@ export class RotationConfigEditComponent {
   protected readonly accountForm = this.formBuilder.nonNullable.group({
     accountIdentity: ["", [Validators.required, Validators.maxLength(ACCOUNT_IDENTITY_MAX_LENGTH)]],
     terminateSessions: [false],
+  });
+
+  /**
+   * The two edit cards as one form, because the server takes the schedule and the account in a
+   * single write.
+   *
+   * They stay separate groups rather than merging into a flat one: the cards are distinct
+   * sections with their own headings, and the account half is disabled on its own while a job is
+   * in flight. A parent group is what lets one `<form>` and one Save span both.
+   */
+  protected readonly editForm = this.formBuilder.group({
+    settings: this.settingsForm,
+    account: this.accountForm,
   });
 
   /** Whether the account form should be disabled (a rotation job is in progress). */
@@ -171,12 +189,12 @@ export class RotationConfigEditComponent {
   }
 
   private async initializeCreateMode(): Promise<void> {
-    const [configsResponse] = await Promise.all([
+    const [configs] = await Promise.all([
       this.rotationSdk.listConfigs(this.organizationId),
       this.targetSystemsService.load(this.organizationId),
       this.orgCiphersService.load(this.organizationId),
     ]);
-    this.configuredCipherIds.set(new Set(configsResponse.data.map((c) => c.cipherId)));
+    this.configuredCipherIds.set(new Set(configs.map((c) => c.cipherId)));
   }
 
   private async initializeEditMode(): Promise<void> {
@@ -223,7 +241,7 @@ export class RotationConfigEditComponent {
     const terminateControl = this.createForm.controls.terminateSessions;
 
     targetControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((targetId) => {
-      const target = this.activeTargetSystems().find((s) => s.id === targetId);
+      const target = this.activeTargetSystems().find((s) => String(s.id) === targetId);
       const allowed =
         target != null &&
         target.method === TargetSystemMethod.Automatic &&
@@ -245,8 +263,8 @@ export class RotationConfigEditComponent {
     }
     const value = this.createForm.getRawValue();
     const request: RotationConfigCreateRequest = {
-      cipherId: value.cipherId as CipherId,
-      targetSystemId: value.targetSystemId as TargetSystemId,
+      cipherId: asUuid<CipherId>(value.cipherId),
+      targetSystemId: asUuid<TargetSystemId>(value.targetSystemId),
       accountIdentity: value.accountIdentity,
       terminateSessions: value.terminateSessions,
       scheduleCron: value.scheduleCron,
@@ -294,7 +312,7 @@ export class RotationConfigEditComponent {
         this.configId!,
         request,
       );
-      this.existing.set(updated.config);
+      this.existingConfig.set(updated);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamRotationConfigSaved"),

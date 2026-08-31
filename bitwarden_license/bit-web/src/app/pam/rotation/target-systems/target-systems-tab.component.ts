@@ -21,7 +21,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus, TargetSystemView } from "../rotation";
+import { TargetSystemId, TargetSystemKind, TargetSystemMethod, TargetSystemStatus, TargetSystemView } from "../rotation";
 
 import {
   TargetSystemsEmptyStateComponent,
@@ -31,7 +31,7 @@ import { TargetSystemsService } from "./target-systems.service";
 
 /** A flattened, presentation-ready view of a {@link TargetSystemView}. */
 export type TargetSystemRow = {
-  id: string;
+  id: TargetSystemId;
   system: TargetSystemView;
   name: string;
   methodLabel: string;

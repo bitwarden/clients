@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@a
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -69,7 +70,7 @@ export class DaemonDetailComponent {
   protected readonly DaemonStatus = DaemonStatus;
 
   private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
-  private readonly daemonId = this.route.snapshot.params.daemonId as string;
+  private readonly daemonId = asUuid<AccessConnectorId>(this.route.snapshot.params.daemonId);
 
   protected readonly loading = signal(true);
   protected readonly daemon = signal<AccessConnectorDetailView | null>(null);

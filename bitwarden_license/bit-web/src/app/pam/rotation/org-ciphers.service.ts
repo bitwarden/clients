@@ -5,6 +5,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { getById } from "@bitwarden/common/platform/misc";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
@@ -46,7 +47,7 @@ export class OrgCiphersService {
    * Used by the configs list to resolve cipher display names.
    */
   readonly cipherNameById$: Observable<Map<CipherId, string>> = this._ciphers$.pipe(
-    map((ciphers) => new Map(ciphers.map((c) => [c.id as CipherId, c.name]))),
+    map((ciphers) => new Map(ciphers.map((c) => [asUuid<CipherId>(c.id), c.name]))),
   );
 
   /**

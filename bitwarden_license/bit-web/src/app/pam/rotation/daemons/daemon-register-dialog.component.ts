@@ -17,7 +17,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { DaemonRegistrationService } from "./daemon-registration.service";
+import { RotationSdkService } from "../rotation-sdk.service";
+
 import { DaemonTokenDialogComponent } from "./daemon-token-dialog.component";
 
 export type DaemonRegisterDialogParams = {
@@ -45,7 +46,6 @@ export type DaemonRegisterDialogResult = { registered: true } | undefined;
   selector: "app-daemon-register-dialog",
   templateUrl: "./daemon-register-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [DaemonRegistrationService],
   imports: [
     ReactiveFormsModule,
     AsyncActionsModule,
@@ -59,7 +59,7 @@ export class DaemonRegisterDialogComponent {
   protected readonly params = inject<DaemonRegisterDialogParams>(DIALOG_DATA);
   private readonly dialogRef = inject<DialogRef<DaemonRegisterDialogResult>>(DialogRef);
   private readonly dialogService = inject(DialogService);
-  private readonly registrationService = inject(DaemonRegistrationService);
+  private readonly rotationSdk = inject(RotationSdkService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly fb = inject(FormBuilder);
@@ -77,7 +77,11 @@ export class DaemonRegisterDialogComponent {
     const name = this.form.controls.name.value;
 
     try {
-      const { token } = await this.registrationService.register(this.params.organizationId, name);
+      // The SDK derives the key material, calls the server, and assembles the one-time token.
+      const { token } = await this.rotationSdk.registerConnector(
+        this.params.organizationId,
+        name,
+      );
 
       // Close the register dialog first, then open the token dialog.
       void this.dialogRef.close({ registered: true });

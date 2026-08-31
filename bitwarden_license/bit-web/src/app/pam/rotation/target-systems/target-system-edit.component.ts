@@ -13,6 +13,7 @@ import {
 } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -129,7 +130,10 @@ export class TargetSystemEditComponent {
   private readonly i18nService = inject(I18nService);
 
   private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
-  private readonly targetSystemId = this.route.snapshot.params.targetSystemId as string | undefined;
+  private readonly targetSystemId: TargetSystemId | undefined =
+    this.route.snapshot.params.targetSystemId == null
+      ? undefined
+      : asUuid<TargetSystemId>(this.route.snapshot.params.targetSystemId);
 
   protected readonly editing = this.targetSystemId != null;
   protected readonly loading = signal(true);
