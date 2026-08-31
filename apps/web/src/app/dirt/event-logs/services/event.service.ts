@@ -1017,6 +1017,70 @@ export class EventService {
         );
         break;
 
+      // PAM. These cover the subset of the PAM access-audit trail reported organization-wide. The item is named first
+      // because it is the fact an administrator reading this log wants; the trailing request or lease id is a
+      // correlation handle into PAM's own access-audit view, where the rule and the approver's comment live.
+      case EventType.Pam_AccessRequest_Submitted:
+        msg = this.i18nService.t(
+          "pamEventRequestedAccess",
+          this.formatCipherId(ev, options),
+          this.formatAccessRequestId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventRequestedAccess",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessRequestId),
+        );
+        break;
+      case EventType.Pam_AccessRequest_Approved:
+        msg = this.i18nService.t(
+          "pamEventApprovedAccessRequest",
+          this.formatCipherId(ev, options),
+          this.formatAccessRequestId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventApprovedAccessRequest",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessRequestId),
+        );
+        break;
+      case EventType.Pam_AccessRequest_Denied:
+        msg = this.i18nService.t(
+          "pamEventDeniedAccessRequest",
+          this.formatCipherId(ev, options),
+          this.formatAccessRequestId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventDeniedAccessRequest",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessRequestId),
+        );
+        break;
+      case EventType.Pam_AccessLease_Activated:
+        msg = this.i18nService.t(
+          "pamEventActivatedAccessLease",
+          this.formatCipherId(ev, options),
+          this.formatAccessLeaseId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventActivatedAccessLease",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessLeaseId),
+        );
+        break;
+      case EventType.Pam_AccessLease_Revoked:
+        msg = this.i18nService.t(
+          "pamEventRevokedAccessLease",
+          this.formatCipherId(ev, options),
+          this.formatAccessLeaseId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventRevokedAccessLease",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessLeaseId),
+        );
+        break;
+
       default:
         break;
     }
@@ -1607,6 +1671,16 @@ export class EventService {
     a.title = this.i18nService.t("viewMemberEvents", shortId);
     a.setAttribute("href", MEMBER_EVENTS_HREF_PREFIX + ev.userId);
     return a.outerHTML;
+  }
+
+  // PAM subject ids are shown as plain code, not links: the request-detail page is authorized for the requester or a
+  // managing approver, not for the AccessEventLogs permission this log is read with, so there is nowhere to link to.
+  private formatAccessRequestId(ev: EventResponse) {
+    return "<code>" + this.escapeHtml(this.getShortId(ev.accessRequestId)) + "</code>";
+  }
+
+  private formatAccessLeaseId(ev: EventResponse) {
+    return "<code>" + this.escapeHtml(this.getShortId(ev.accessLeaseId)) + "</code>";
   }
 
   private getShortId(id: string) {
