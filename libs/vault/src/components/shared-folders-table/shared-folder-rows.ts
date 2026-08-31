@@ -52,6 +52,8 @@ export function sharedFolderRows({
   collections,
   ciphers,
 }: SharedFolderRowsParams): SharedFolderCollectionRow[] {
+  const itemCounts = sharedFolderItemCounts(ciphers, organizationId);
+
   return collections
     .filter(
       (collection) =>
@@ -62,7 +64,7 @@ export function sharedFolderRows({
       organizationId: collection.organizationId,
       name: collection.name,
       permissions: sharedFolderPermission(collection, organization),
-      items: sharedFolderItemCount(ciphers, organizationId, collection),
+      items: itemCounts.get(collection.id) ?? 0,
       collection,
     }));
 }
@@ -93,20 +95,34 @@ export function sharedFolderPermission(
 }
 
 /**
- * How many items the folder holds, counted through {@link cipherInScope} rather than by matching
- * `collectionIds` directly — so the count excludes trashed and archived items on the same terms
- * the vault page's own folder drill-in does, and the two can't drift.
+ * How many items each of the organization's folders holds, keyed by collection id — folders with no
+ * items are absent rather than zero.
+ *
+ * Counted through {@link cipherInScope} rather than by matching `collectionIds` directly, so the
+ * counts exclude trashed and archived items on the same terms the vault page's own folder drill-in
+ * does, and the two can't drift. The scope names no collection, leaving `cipherInScope` to answer
+ * the organization and state dimensions while the ciphers' own `collectionIds` distribute each
+ * counted item across its folders — one pass over the ciphers for every folder rather than one pass
+ * per folder, which an enterprise vault's hundreds of folders and tens of thousands of items would
+ * otherwise multiply out on the main thread each time the cipher list re-emits.
  */
-export function sharedFolderItemCount(
+export function sharedFolderItemCounts(
   ciphers: CipherViewLike[],
   organizationId: OrganizationId,
-  collection: CollectionView,
-): number {
-  const scope: VaultScope = {
-    type: VaultScopeType.Organization,
-    organizationId,
-    collectionId: collection.id,
-  };
+): Map<string, number> {
+  const scope: VaultScope = { type: VaultScopeType.Organization, organizationId };
+  const counts = new Map<string, number>();
 
-  return ciphers.filter((cipher) => cipherInScope(cipher, scope)).length;
+  for (const cipher of ciphers) {
+    if (!cipherInScope(cipher, scope)) {
+      continue;
+    }
+
+    for (const collectionId of cipher.collectionIds ?? []) {
+      const key = String(collectionId);
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+  }
+
+  return counts;
 }

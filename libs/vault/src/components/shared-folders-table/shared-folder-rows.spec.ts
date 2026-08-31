@@ -137,4 +137,23 @@ describe("sharedFolderRows", () => {
 
     expect(row.items).toBe(2);
   });
+
+  it("counts each folder's own items when a cipher belongs to several", () => {
+    const rows = sharedFolderRows({
+      organizationId,
+      organization: undefined,
+      collections: [buildCollection("first"), buildCollection("second"), buildCollection("empty")],
+      ciphers: [
+        buildCipher("in-both", ["first", "second"]),
+        buildCipher("in-second", ["second"]),
+        buildCipher("uncollected", []),
+      ],
+    });
+
+    expect(rows.map((row) => [row.id, row.items])).toEqual([
+      ["first", 1],
+      ["second", 2],
+      ["empty", 0],
+    ]);
+  });
 });

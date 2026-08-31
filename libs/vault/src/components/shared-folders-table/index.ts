@@ -7,7 +7,7 @@ export {
 export {
   type SharedFolderCollectionRow,
   type SharedFolderRowsParams,
-  sharedFolderItemCount,
+  sharedFolderItemCounts,
   sharedFolderPermission,
   sharedFolderRows,
 } from "./shared-folder-rows";
