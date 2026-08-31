@@ -113,6 +113,8 @@ function preCheck(overrides: Partial<AccessPreCheckView> = {}): AccessPreCheckVi
     // empty and every submit path invalid.
     defaultDurationSeconds: 3600,
     maxDurationSeconds: 86_400,
+    // The SDK reads an absent canStartLease as true, so the resting fixture is the startable case.
+    canStartLease: true,
     ...overrides,
   } as unknown as AccessPreCheckView;
 }
@@ -934,6 +936,96 @@ describe("CipherViewBannerComponent", () => {
 
       expect(component["requestError"]()).toBe("requestAccessModalGenericError");
       expect(component["requestMode"]()).toBeNull();
+    });
+
+    describe("when another member holds the single-active-lease slot", () => {
+      it("warns with the time the slot frees, in place of the immediate-access copy", async () => {
+        requestsApi.preCheck.mockResolvedValue(
+          preCheck({ canStartLease: false, slotFreesAt: "2026-08-31T10:52:00Z" }),
+        );
+        await create(gatedCipher());
+
+        await component["toggleRequestForm"]();
+        fixture.detectChanges();
+
+        const text = fixture.nativeElement.textContent as string;
+        expect(text).toContain("pamRequestSlotTakenUntil");
+        // The "you'll get immediate access" line is a lie while the slot is taken, so it must be
+        // replaced rather than stacked on top of.
+        expect(text).not.toContain("requestAccessModalAutomaticDescription");
+      });
+
+      it("warns without a time when the server does not say when it frees", async () => {
+        requestsApi.preCheck.mockResolvedValue(
+          preCheck({ canStartLease: false, slotFreesAt: undefined }),
+        );
+        await create(gatedCipher());
+
+        await component["toggleRequestForm"]();
+        fixture.detectChanges();
+
+        const text = fixture.nativeElement.textContent as string;
+        expect(text).toContain("pamRequestSlotTaken");
+        expect(text).not.toContain("pamRequestSlotTakenUntil");
+      });
+
+      it("leaves the form submittable, because contention is a manual retry", async () => {
+        requestsApi.preCheck.mockResolvedValue(
+          preCheck({ canStartLease: false, slotFreesAt: "2026-08-31T10:52:00Z" }),
+        );
+        await create(gatedCipher());
+
+        await component["toggleRequestForm"]();
+        fixture.detectChanges();
+
+        // An approved request is still worth holding: it can be started the moment the slot frees.
+        expect(query("#pam-cipher-view-banner_select_duration")).not.toBeNull();
+        const submit = query("#pam-cipher-view-banner_button_request-submit");
+        expect(submit).not.toBeNull();
+        expect(submit?.hasAttribute("disabled")).toBe(false);
+      });
+
+      it("stays quiet on the human path, whose window is not now", async () => {
+        // canStartLease answers about NOW. A requester picking Thursday learns nothing from "taken
+        // until 10:52 today", and the spec scopes the warning to an otherwise-auto_approve request.
+        requestsApi.preCheck.mockResolvedValue(
+          preCheck({
+            approvalMode: "human",
+            canStartLease: false,
+            slotFreesAt: "2026-08-31T10:52:00Z",
+          }),
+        );
+        await create(gatedCipher());
+
+        await component["toggleRequestForm"]();
+        fixture.detectChanges();
+
+        expect(component["slotContention"]()).toBeNull();
+        const text = fixture.nativeElement.textContent as string;
+        expect(text).not.toContain("pamRequestSlotTaken");
+        expect(text).toContain("requestAccessModalHumanDescription");
+      });
+
+      it("clears the warning when the form is reopened against a freed slot", async () => {
+        requestsApi.preCheck.mockResolvedValue(
+          preCheck({ canStartLease: false, slotFreesAt: "2026-08-31T10:52:00Z" }),
+        );
+        await create(gatedCipher());
+
+        await component["toggleRequestForm"]();
+        expect(component["slotContention"]()).not.toBeNull();
+
+        // Collapse, then reopen once the holder is done.
+        await component["toggleRequestForm"]();
+        requestsApi.preCheck.mockResolvedValue(preCheck({ canStartLease: true }));
+        await component["toggleRequestForm"]();
+        fixture.detectChanges();
+
+        expect(component["slotContention"]()).toBeNull();
+        expect(fixture.nativeElement.textContent).toContain(
+          "requestAccessModalAutomaticDescription",
+        );
+      });
     });
   });
 
