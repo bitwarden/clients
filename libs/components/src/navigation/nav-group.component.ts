@@ -10,9 +10,17 @@ import {
   inject,
   input,
   model,
+  untracked,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, NavigationEnd, Router, RouterLinkActive, UrlTree } from "@angular/router";
+import {
+  ActivatedRoute,
+  IsActiveMatchOptions,
+  NavigationEnd,
+  Router,
+  RouterLinkActive,
+  UrlTree,
+} from "@angular/router";
 import { filter } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -148,18 +156,25 @@ export class NavGroupComponent extends NavBaseComponent {
             : this.router.createUrlTree(Array.isArray(route) ? route : [route], {
                 relativeTo,
               });
-        if (
-          this.router.isActive(urlTree, {
-            paths: "subset",
-            queryParams: "ignored",
-            fragment: "ignored",
-            matrixParams: "ignored",
-          })
-        ) {
+        const matchOptions = untracked(() =>
+          this.toIsActiveMatchOptions(this.routerLinkActiveOptions()),
+        );
+        if (this.router.isActive(urlTree, matchOptions)) {
           this.open.set(true);
         }
       }
     });
+  }
+
+  private toIsActiveMatchOptions(
+    opts: RouterLinkActive["routerLinkActiveOptions"],
+  ): IsActiveMatchOptions {
+    if ("paths" in opts) {
+      return opts;
+    }
+    return opts.exact
+      ? { paths: "exact", queryParams: "exact", fragment: "ignored", matrixParams: "ignored" }
+      : { paths: "subset", queryParams: "subset", fragment: "ignored", matrixParams: "ignored" };
   }
 
   setOpen(isOpen: boolean) {
