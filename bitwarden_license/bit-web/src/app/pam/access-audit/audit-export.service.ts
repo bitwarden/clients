@@ -90,6 +90,7 @@ export class AuditExportService {
       automated: row.automated,
       incomplete: row.inDoubt,
       requestId: row.requestId ?? "",
+      leaseId: row.leaseId ?? "",
     });
   }
 }
