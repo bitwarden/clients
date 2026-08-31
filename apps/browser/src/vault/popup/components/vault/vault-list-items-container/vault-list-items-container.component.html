@@ -116,15 +116,18 @@
               <app-vault-icon [cipher]="cipher"></app-vault-icon>
             </div>
             <span data-testid="item-name">{{ cipher.name }}</span>
-            <div slot="default-trailing" class="tw-flex tw-gap-1.5">
-              @if (cipher.organizationId) {
+            <div slot="default-trailing" class="tw-flex tw-items-center tw-gap-1.5">
+              @if (cipher.organizationId && cipher.organization) {
                 <i
                   slot="default-trailing"
                   appOrgIcon
-                  [tierType]="cipher.organization!.productTierType"
+                  [tierType]="cipher.organization.productTierType"
                   [size]="'small'"
                   [appA11yTitle]="orgIconTooltip(cipher)"
                 ></i>
+                <span class="tw-text-xs tw-text-muted tw-truncate tw-max-w-24">{{
+                  cipher.organization.name
+                }}</span>
               }
               @if (CipherViewLikeUtils.hasAttachments(cipher)) {
                 <bit-icon
