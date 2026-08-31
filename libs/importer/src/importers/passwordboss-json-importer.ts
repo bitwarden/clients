@@ -26,6 +26,33 @@ export class PasswordBossJsonImporter extends BaseImporter implements Importer {
     return Promise.resolve(this.parseLegacyExport(results));
   }
 
+  // Fields consumed explicitly below, or intentionally discarded (id/itemType/logoColor are
+  // presentational, cardType is redundant with the brand detected from cardNumber).
+  private readonly flatItemHandledKeys = new Set([
+    "id",
+    "itemType",
+    "itemTypeName",
+    "logoColor",
+    "folder",
+    "name",
+    "notes",
+    "customFields",
+    "tags",
+    "url",
+    "username",
+    "password",
+    "totp",
+    "email",
+    "cardNumber",
+    "nameOnCard",
+    "securityCode",
+    "expirationDate",
+    "cardType",
+    "issuingBank",
+    "issueDate",
+    "pin",
+  ]);
+
   private parseFlatItems(items: any[]): ImportResult {
     const result = new ImportResult();
 
@@ -55,8 +82,8 @@ export class PasswordBossJsonImporter extends BaseImporter implements Importer {
         if (!this.isNullOrWhitespace(value.expirationDate)) {
           const expDate = new Date(value.expirationDate);
           if (!isNaN(expDate.getTime())) {
-            cipher.card.expYear = expDate.getFullYear().toString();
-            cipher.card.expMonth = (expDate.getMonth() + 1).toString();
+            cipher.card.expYear = expDate.getUTCFullYear().toString();
+            cipher.card.expMonth = (expDate.getUTCMonth() + 1).toString();
           }
         }
         this.processKvp(cipher, "Issuing Bank", value.issuingBank);
@@ -66,6 +93,15 @@ export class PasswordBossJsonImporter extends BaseImporter implements Importer {
         cipher.login.uris = this.makeUriArray(value.url);
         cipher.login.username = this.getValueOrDefault(value.username);
         cipher.login.password = this.getValueOrDefault(value.password);
+        if (
+          this.isNullOrWhitespace(cipher.login.username) &&
+          !this.isNullOrWhitespace(value.email)
+        ) {
+          cipher.login.username = value.email;
+        }
+        if (!this.isNullOrWhitespace(value.totp)) {
+          cipher.login.totp = value.totp;
+        }
       }
 
       if (Array.isArray(value.customFields)) {
@@ -76,6 +112,19 @@ export class PasswordBossJsonImporter extends BaseImporter implements Importer {
 
       if (Array.isArray(value.tags) && value.tags.length > 0) {
         this.processKvp(cipher, "Tags", value.tags.join(", "));
+      }
+
+      // Anything Password Boss adds that we don't explicitly map above still ends up on the
+      // cipher, instead of silently disappearing.
+      for (const property in value) {
+        if (
+          !Object.prototype.hasOwnProperty.call(value, property) ||
+          this.flatItemHandledKeys.has(property)
+        ) {
+          continue;
+        }
+        const val = value[property];
+        this.processKvp(cipher, property, val != null ? val.toString() : null);
       }
 
       this.convertToNoteIfNeeded(cipher);

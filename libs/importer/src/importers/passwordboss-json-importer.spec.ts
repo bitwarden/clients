@@ -15,6 +15,8 @@ const flatExport = JSON.stringify([
     name: "testPW",
     notes: "",
     url: "test.com",
+    totp: "JBSWY3DPEHPK3PXP",
+    accountType: "personal",
     customFields: [{ name: "Security Question", value: "Answer" }],
     tags: [],
     itemTypeName: "Website",
@@ -30,7 +32,7 @@ const flatExport = JSON.stringify([
     notes: "",
     cardNumber: "4111111111111111",
     nameOnCard: "Jane Doe",
-    expirationDate: "2030-01-01T23:59:59.000Z",
+    expirationDate: "2030-01-31T23:59:59.000Z",
     cardType: "visa",
     issuingBank: "",
     securityCode: "",
@@ -92,16 +94,24 @@ describe("Password Boss JSON Importer", () => {
     expect(login.login.username).toEqual("usernameTest");
     expect(login.login.password).toEqual("passwordTest");
     expect(login.login.uris[0].uri).toEqual("http://test.com");
-    expect(login.fields[0].name).toEqual("Security Question");
-    expect(login.fields[0].value).toEqual("Answer");
+    expect(login.login.totp).toEqual("JBSWY3DPEHPK3PXP");
+    expect(login.fields.map((f) => [f.name, f.value])).toEqual(
+      expect.arrayContaining([
+        ["Security Question", "Answer"],
+        ["accountType", "personal"],
+      ]),
+    );
 
     const card = result.ciphers[1];
     expect(card.name).toEqual("Personal Card");
     expect(card.type).toEqual(CipherType.Card);
     expect(card.card.number).toEqual("4111111111111111");
     expect(card.card.cardholderName).toEqual("Jane Doe");
+    // Verifies expiration is parsed in UTC, not local time: under a positive-offset timezone,
+    // reading this UTC instant with local getters would roll it over into February.
     expect(card.card.expYear).toEqual("2030");
     expect(card.card.expMonth).toEqual("1");
+    expect(card.fields.some((f) => f.name === "cardType")).toBe(false);
 
     const note = result.ciphers[2];
     expect(note.name).toEqual("Wifi note");
@@ -112,6 +122,19 @@ describe("Password Boss JSON Importer", () => {
     expect(result.folders[0].name).toEqual("Personal");
     expect(result.folderRelationships.length).toEqual(1);
     expect(result.folderRelationships[0]).toEqual([0, 0]);
+  });
+
+  it("parses card expiration in UTC regardless of local timezone", async () => {
+    const originalTz = process.env.TZ;
+    process.env.TZ = "Asia/Tokyo";
+    try {
+      const result = await importer.parse(flatExport);
+      const card = result.ciphers[1];
+      expect(card.card.expYear).toEqual("2030");
+      expect(card.card.expMonth).toEqual("1");
+    } finally {
+      process.env.TZ = originalTz;
+    }
   });
 
   it("parses the older nested export format", async () => {
