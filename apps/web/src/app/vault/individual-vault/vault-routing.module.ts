@@ -5,12 +5,12 @@ import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag
 import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
+  organizationVaultGuard,
   SHARED_FOLDERS_ROUTE,
   vaultFilterLegacyRedirectGuard,
   vaultScopeGuard,
 } from "@bitwarden/vault";
 
-import { organizationVaultGuard } from "./shared-folders/organization-vault.guard";
 import { SharedFoldersComponent } from "./shared-folders/shared-folders.component";
 import { VaultNextComponent } from "./vault-next.component";
 import { VaultComponent } from "./vault.component";

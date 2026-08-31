@@ -47,7 +47,12 @@ import {
   ConfirmKeyConnectorDomainComponent,
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
-import { vaultFilterLegacyRedirectGuard, vaultScopeGuard } from "@bitwarden/vault";
+import {
+  organizationVaultGuard,
+  SHARED_FOLDERS_ROUTE,
+  vaultFilterLegacyRedirectGuard,
+  vaultScopeGuard,
+} from "@bitwarden/vault";
 
 import { AccountSwitcherV2Component } from "../auth/components/account-switcher/account-switcher-v2.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
@@ -56,6 +61,7 @@ import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
 import { MyFoldersComponent } from "../vault/app/my-folders/my-folders.component";
+import { SharedFoldersComponent } from "../vault/app/shared-folders/shared-folders.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
@@ -460,6 +466,32 @@ const routes: Routes = [
           },
           {
             path: ":vaultId",
+            component: VaultComponent,
+            canActivate: [
+              canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
+              vaultScopeGuard,
+            ],
+          },
+          // An organization vault's shared folders. Declared above `:vaultId/:collectionId` and must
+          // stay there: the router matches in declaration order rather than preferring a static
+          // segment over a parameter, so below it this path would be read as a collection named
+          // "shared-folders" and `vaultScopeGuard` would redirect away before this route was ever
+          // tried. The reverse collision can't happen — collection ids are guids.
+          {
+            path: `:vaultId/${SHARED_FOLDERS_ROUTE}`,
+            component: SharedFoldersComponent,
+            canActivate: [
+              canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
+              organizationVaultGuard,
+              vaultScopeGuard,
+            ],
+            data: { pageTitle: { key: "sharedFolders" } } satisfies RouteDataProperties,
+          },
+          // The shared folder a vault has been drilled into. Drilling deeper replaces the segment
+          // rather than nesting under it: a folder's route names the vault it lives in, not the
+          // path taken to it.
+          {
+            path: ":vaultId/:collectionId",
             component: VaultComponent,
             canActivate: [
               canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),

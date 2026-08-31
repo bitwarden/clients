@@ -18,7 +18,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
@@ -27,14 +26,12 @@ import {
   BULK_EDIT_COLLECTION_ACCESS_DIALOG,
   BulkDeleteDialogRef,
   BulkEditCollectionAccessDialogRef,
-  cipherInScope,
   parseVaultScope,
-  SharedFolderPermission,
-  SharedFolderRow,
+  SharedFolderCollectionRow,
+  sharedFolderRows,
   SharedFoldersTableBulkAction,
   SharedFoldersTableComponent,
   SharedFoldersTableRowAction,
-  VaultScope,
   VaultScopeType,
 } from "@bitwarden/vault";
 
@@ -47,13 +44,6 @@ import {
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { BulkDeleteDialogWebAdapter } from "../bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { openDeleteSharedFolderDialog } from "../bulk-action-dialogs/delete-shared-folder-dialog/delete-shared-folder-dialog.component";
-
-/**
- * The row the table is handed, carrying the `CollectionView` it was built from so the row actions
- * can act on the folder without looking it up again. The table is generic over anything assignable
- * to {@link SharedFolderRow}, so the extra field stays typed through to each action's `run`.
- */
-type WebSharedFolderRow = SharedFolderRow & { collection: CollectionView };
 
 /**
  * The shared folders of one organization vault, listed in the shared
@@ -147,34 +137,22 @@ export class SharedFoldersComponent {
   protected readonly title = computed(() => this.organization()?.name);
 
   /**
-   * The organization's shared folders, with each folder's permission and item count resolved.
-   *
-   * The organization's "My items" collection is left out: it is the member's own default
-   * collection rather than a folder shared with anyone, and the side nav already offers it as its
-   * own destination.
+   * The organization's shared folders, with each folder's permission and item count resolved by
+   * the library's own row builder — see {@link sharedFolderRows}.
    */
-  protected readonly sharedFolders = computed<WebSharedFolderRow[]>(() => {
+  protected readonly sharedFolders = computed<SharedFolderCollectionRow[]>(() => {
     const organizationId = this.organizationId();
     const data = this.loaded();
     if (organizationId == null || data == null) {
       return [];
     }
 
-    const organization = this.organization();
-
-    return data.collections
-      .filter(
-        (collection) =>
-          collection.organizationId === organizationId && !collection.isDefaultCollection,
-      )
-      .map((collection) => ({
-        id: collection.id,
-        organizationId: collection.organizationId,
-        name: collection.name,
-        permissions: resolvePermission(collection, organization),
-        items: countItems(data.ciphers, organizationId, collection),
-        collection,
-      }));
+    return sharedFolderRows({
+      organizationId,
+      organization: this.organization(),
+      collections: data.collections,
+      ciphers: data.ciphers,
+    });
   });
 
   /**
@@ -187,36 +165,36 @@ export class SharedFoldersComponent {
    */
   protected readonly canAdd = computed(() => this.organization()?.canCreateNewCollections ?? false);
 
-  protected readonly rowActions = computed<SharedFoldersTableRowAction<WebSharedFolderRow>[]>(
-    () => {
-      const organization = this.organization();
+  protected readonly rowActions = computed<
+    SharedFoldersTableRowAction<SharedFolderCollectionRow>[]
+  >(() => {
+    const organization = this.organization();
 
-      return [
-        {
-          id: "edit",
-          label: this.i18nService.t("edit"),
-          icon: "bwi-pencil-square",
-          show: (row) => row.collection.canEdit(organization),
-          run: (row) => this.editSharedFolder(row.collection, CollectionDialogTabType.Info),
-        },
-        {
-          id: "access",
-          label: this.i18nService.t("access"),
-          icon: "bwi-users",
-          show: (row) => row.collection.canEdit(organization),
-          run: (row) => this.editSharedFolder(row.collection, CollectionDialogTabType.Access),
-        },
-        {
-          id: "delete",
-          label: this.i18nService.t("delete"),
-          icon: "bwi-trash",
-          variant: "danger",
-          show: (row) => row.collection.canDelete(organization),
-          run: (row) => this.deleteSharedFolder(row.collection),
-        },
-      ];
-    },
-  );
+    return [
+      {
+        id: "edit",
+        label: this.i18nService.t("edit"),
+        icon: "bwi-pencil-square",
+        show: (row) => row.collection.canEdit(organization),
+        run: (row) => this.editSharedFolder(row.collection, CollectionDialogTabType.Info),
+      },
+      {
+        id: "access",
+        label: this.i18nService.t("access"),
+        icon: "bwi-users",
+        show: (row) => row.collection.canEdit(organization),
+        run: (row) => this.editSharedFolder(row.collection, CollectionDialogTabType.Access),
+      },
+      {
+        id: "delete",
+        label: this.i18nService.t("delete"),
+        icon: "bwi-trash",
+        variant: "danger",
+        show: (row) => row.collection.canDelete(organization),
+        run: (row) => this.deleteSharedFolder(row.collection),
+      },
+    ];
+  });
 
   /**
    * The actions the bulk actions bar offers over the selected folders — and, because the table only
@@ -229,36 +207,36 @@ export class SharedFoldersComponent {
    * and the whole bar with it — a permanently disabled button is worth less than the checkbox
    * column it would cost.
    */
-  protected readonly bulkActions = computed<SharedFoldersTableBulkAction<WebSharedFolderRow>[]>(
-    () => {
-      const organization = this.organization();
-      const rows = this.sharedFolders();
-      const actions: SharedFoldersTableBulkAction<WebSharedFolderRow>[] = [];
+  protected readonly bulkActions = computed<
+    SharedFoldersTableBulkAction<SharedFolderCollectionRow>[]
+  >(() => {
+    const organization = this.organization();
+    const rows = this.sharedFolders();
+    const actions: SharedFoldersTableBulkAction<SharedFolderCollectionRow>[] = [];
 
-      // Both dialogs re-check the batch and refuse it whole; disabling says so before the click.
-      if (rows.some((row) => row.collection.canEdit(organization))) {
-        actions.push({
-          id: "edit-access",
-          label: this.i18nService.t("editAccess"),
-          icon: "bwi-users",
-          disabled: (selected) => selected.some((row) => !row.collection.canEdit(organization)),
-          run: (selected) => this.editSharedFoldersAccess(selected.map((row) => row.collection)),
-        });
-      }
+    // Both dialogs re-check the batch and refuse it whole; disabling says so before the click.
+    if (rows.some((row) => row.collection.canEdit(organization))) {
+      actions.push({
+        id: "edit-access",
+        label: this.i18nService.t("editAccess"),
+        icon: "bwi-users",
+        disabled: (selected) => selected.some((row) => !row.collection.canEdit(organization)),
+        run: (selected) => this.editSharedFoldersAccess(selected.map((row) => row.collection)),
+      });
+    }
 
-      if (rows.some((row) => row.collection.canDelete(organization))) {
-        actions.push({
-          id: "delete",
-          label: this.i18nService.t("delete"),
-          icon: "bwi-trash",
-          disabled: (selected) => selected.some((row) => !row.collection.canDelete(organization)),
-          run: (selected) => this.deleteSharedFolders(selected.map((row) => row.collection)),
-        });
-      }
+    if (rows.some((row) => row.collection.canDelete(organization))) {
+      actions.push({
+        id: "delete",
+        label: this.i18nService.t("delete"),
+        icon: "bwi-trash",
+        disabled: (selected) => selected.some((row) => !row.collection.canDelete(organization)),
+        run: (selected) => this.deleteSharedFolders(selected.map((row) => row.collection)),
+      });
+    }
 
-      return actions;
-    },
-  );
+    return actions;
+  });
 
   protected async addSharedFolder(): Promise<void> {
     const organizationId = this.organizationId();
@@ -373,48 +351,4 @@ export class SharedFoldersComponent {
       userId,
     );
   }
-}
-
-/**
- * The member's permission over `collection`, collapsing the `manage` / `readOnly` /
- * `hidePasswords` flags onto one {@link SharedFolderPermission} — mirroring the access selector's
- * `convertToPermission`, plus the implicit Manage an organization's admins and owners hold over
- * every folder.
- */
-function resolvePermission(
-  collection: CollectionView,
-  organization: Organization | undefined,
-): SharedFolderPermission {
-  if (organization?.canEditAllCiphers || collection.manage) {
-    return SharedFolderPermission.Manage;
-  }
-
-  if (collection.readOnly) {
-    return collection.hidePasswords
-      ? SharedFolderPermission.ViewExceptPass
-      : SharedFolderPermission.View;
-  }
-
-  return collection.hidePasswords
-    ? SharedFolderPermission.EditExceptPass
-    : SharedFolderPermission.Edit;
-}
-
-/**
- * How many items the folder holds, counted through {@link cipherInScope} rather than by matching
- * `collectionIds` directly — so the count excludes trashed and archived items on the same terms
- * the vault page's own folder drill-in does, and the two can't drift.
- */
-function countItems(
-  ciphers: CipherViewLike[],
-  organizationId: OrganizationId,
-  collection: CollectionView,
-): number {
-  const scope: VaultScope = {
-    type: VaultScopeType.Organization,
-    organizationId,
-    collectionId: collection.id,
-  };
-
-  return ciphers.filter((cipher) => cipherInScope(cipher, scope)).length;
 }

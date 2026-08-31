@@ -274,16 +274,23 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     switchMap((id) => this.organizationService.organizations$(id)),
   );
 
-  /** The vault the `:vaultId` segment scopes this page to; always All items on the legacy nav. */
+  /**
+   * The vault the `:vaultId` segment scopes this page to, and the shared folder within it the
+   * `:collectionId` segment has drilled into; always All items on the legacy nav.
+   */
   private readonly vaultScope$ = this.vfo1Foundation$.pipe(
     switchMap((vfo1Foundation) =>
       vfo1Foundation
         ? combineLatest([
-            this.route.paramMap.pipe(map((params) => params.get("vaultId"))),
+            this.route.paramMap.pipe(
+              map((params) => [params.get("vaultId"), params.get("collectionId")] as const),
+            ),
             this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
           ]).pipe(
-            // Desktop has no route for drilling into a shared folder, so it names no collection.
-            map(([vaultId, nav]) => resolveVaultScope(vaultId, null, nav) ?? ALL_ITEMS_SCOPE),
+            map(
+              ([[vaultId, collectionId], nav]) =>
+                resolveVaultScope(vaultId, collectionId, nav) ?? ALL_ITEMS_SCOPE,
+            ),
           )
         : of(ALL_ITEMS_SCOPE),
     ),

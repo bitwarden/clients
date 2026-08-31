@@ -4,6 +4,13 @@ export {
   isSharedFolderPermission,
   sharedFolderPermissionMessageKey,
 } from "./shared-folder-permission";
+export {
+  type SharedFolderCollectionRow,
+  type SharedFolderRowsParams,
+  sharedFolderItemCount,
+  sharedFolderPermission,
+  sharedFolderRows,
+} from "./shared-folder-rows";
 export { type SharedFoldersTableBulkAction } from "./shared-folders-table-bulk-action";
 export { type SharedFolderRow, type SharedFoldersTableRowAction } from "./shared-folders-table-row";
 export {

@@ -1,0 +1,7 @@
+<app-header [title]="title()"></app-header>
+
+<vault-shared-folders-table
+  [sharedFolders]="sharedFolders()"
+  [loading]="loading()"
+  queryParam="sharedFolders"
+></vault-shared-folders-table>
