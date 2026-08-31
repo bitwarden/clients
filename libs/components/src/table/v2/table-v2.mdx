@@ -317,12 +317,11 @@ filter = (row: Member, f: Filters) =>
 
 Each chip or toggle registers itself with the table when projected in. **Option counts are
 automatic**: with a client-side `[filter]`, each `bit-filter-option` shows how many rows match that
-option on its own, recomputed as the data changes. The count is absolute rather than faceted — it
-ignores the other active filters, so it doesn't shift as unrelated chips change. No `[count]`
-needed. For **server-side** filtering, omit `[filter]`, read `filterValues()` off a
-`#t="bitTableV2"` template reference to build your query, feed the pre-filtered rows to `data`, and
-set an explicit `[count]` on each option (the table can't compute it without the full dataset). See
-the [Filter Menu](?path=/docs/component-library-filter-menu--docs) docs for composing the chips
+option on its own, ignoring the other active filters. No `[count]` needed. For **server-side**
+filtering, omit `[filter]`, read `filterValues()` off a `#t="bitTableV2"` template reference to
+build your query, feed the pre-filtered rows to `data`, and set an explicit `[count]` on each option
+(the table can't compute it without the full dataset). See the
+[Filter Menu](?path=/docs/component-library-filter-menu--docs) docs for composing the chips
 (sections, nested options, in-menu search, radio + checkbox groups).
 
 <Canvas of={stories.Filterable} />
@@ -343,15 +342,13 @@ filter: (row, f) =>
 `<bit-table-toolbar>` renders above the header row and lays out in two rows:
 
 - **Top row** — the `<bit-search>` (capped at ~400px on wide viewports) and any `slot="end"`
-  controls (buttons, etc.), right-aligned. Below `md` those controls drop to a row of their own and
-  split it evenly, and the search grows to fill its row.
+  controls (buttons, etc.), right-aligned. Below `md` those controls take a row of their own.
 - **Filter row** — the filter chips, with a live "N items" count at the end. Separate groups of
   chips with `<bit-filter-divider>`. Once any filter is active, a "Clear all" button appears after
   the chips to reset them in one click — search is untouched.
 
-The filter row collapses into a single trigger and dialog as soon as its contents stop fitting on
-one line — the chips, "Clear all", and the item count are measured, so it snaps before it would wrap
-rather than at a fixed width. `md` is a floor: below it the row is always collapsed.
+The filter row collapses into a single trigger and dialog once its contents stop fitting on one
+line, and always below `md`.
 
 The toolbar holds no filter state itself — chips register with the table automatically when
 projected in, and a projected `<bit-search>` is adopted as the `search` filter (see
@@ -629,7 +626,6 @@ two in one table — if you need sort, selection, or any other built-in feature,
 - Give repeating row actions a specific label — `aria-label="Edit Netflix"` rather than a bare
   "Edit".
 - Sort buttons expose `aria-sort` on the header and `aria-pressed` on the button.
-- A row carries the hover fill plus a focus ring whenever anything inside it is focused, so keyboard
-  users can see which row they're working in.
+- A row carries the hover fill and a focus ring whenever anything inside it is focused.
 - The select-all and row checkboxes are labelled for screen readers; override the label via the cell
   template if a row needs richer context.

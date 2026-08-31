@@ -44,11 +44,8 @@ A chip is single-select by default; add `multiple` for a checkbox-style multi-se
 
 ## Nesting
 
-Project `bit-filter-option`s inside one another to make an expandable parent — a collection and the
-collections beneath it, say. Selecting a parent selects everything under it and clearing it clears
-the same set, so a parent acts as a bulk control rather than a value that can drift out of step with
-its children. A parent whose subtree is only partly selected renders indeterminate, and that
-propagates up through every level.
+Project `bit-filter-option`s inside one another to make an expandable parent. Selecting a parent
+selects everything under it; a partly-selected parent renders indeterminate.
 
 ```html
 <bit-filter-menu key="collection" placeholderText="Collections" multiple>
@@ -63,22 +60,15 @@ propagates up through every level.
 </bit-filter-menu>
 ```
 
-Parents start collapsed; add `expanded` to start one open.
+Parents start collapsed; add `expanded` to start one open. Write the nesting out in markup —
+literally, or with an inline `@for` per level. Recursing through `ngTemplateOutlet` does not work.
 
 <Canvas of={stories.NestedOptions} />
 
-Write the nesting out in markup — literally, or with an inline `@for` per level. Angular resolves
-both content projection and content queries against where a template is _declared_, so recursing
-through `ngTemplateOutlet` doesn't work: the child options are neither projected past the parent's
-label nor visible to its content query. Depth is therefore whatever the template spells out.
-
 ## Keyboard
 
-A single-select menu is a group of radios: the browser gives it one tab stop, arrow keys move and
-select, and Space selects.
-
-A multi-select menu is a **tree** — rows are selectable, rows can own rows, and a parent can be
-partly selected, which is more than a listbox can express. It's one tab stop, navigated with:
+A single-select menu is a radio group: arrow keys move and select. A multi-select menu is a tree,
+one tab stop, navigated with:
 
 | Key            | Behaviour                                          |
 | -------------- | -------------------------------------------------- |
@@ -88,19 +78,11 @@ partly selected, which is more than a listbox can express. It's one tab stop, na
 | `Home` / `End` | First / last row                                   |
 | `Space`        | Select or clear the row, and everything beneath it |
 
-The expander is driven by `←`/`→` rather than being its own tab stop, and section headers are rows
-too — expandable but not selectable. Typeahead is not enabled; use the search field to narrow a long
-list.
+Section headers are rows too — expandable but not selectable. Typeahead is not enabled; use the
+search field for a long list.
 
-Navigation is CDK's `TreeKeyManager`; each row adapts itself to its item contract via
-`bitFilterTreeRow`. The row is the item rather than the `bit-filter-option` behind it, because an
-option is declared once but rendered per surface, so only the row maps one-to-one onto something
-focusable.
-
-Both surfaces sit in a `dialog`-role popover, so `Tab` reaches the search field and the footer
-instead of dismissing, and `Escape` closes and returns focus to the chip. Opening puts focus
-straight on the first row — or the search field, when there is one — rather than on the popover
-itself, so the arrow keys work without a priming `Tab`.
+Opening focuses the first row, or the search field when there is one. `Tab` reaches the search field
+and the footer instead of dismissing; `Escape` closes and returns focus to the chip.
 
 ## Value
 
@@ -143,9 +125,7 @@ never project a search field. It narrows the chip's options by their label: non-
 hide, a `bit-filter-section` collapses when all of its options are hidden, and a "no matching items"
 message shows when nothing matches. The term resets when the menu closes.
 
-A parent option stays visible while anything beneath it matches, and its children are forced open
-for the duration of the search — so a nested match is reachable through its ancestors instead of
-being hidden along with them.
+A parent stays visible while anything beneath it matches, and opens for the duration of the search.
 
 ## Driving a table
 
