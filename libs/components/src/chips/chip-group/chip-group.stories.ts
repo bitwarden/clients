@@ -161,7 +161,7 @@ export const Truncation: Story = {
         <bit-chip-group [chips]="chips" (chipSelect)="chipSelect($event)"></bit-chip-group>
       </div>
 
-      <div class="tw-mt-4 tw-w-20 tw-border tw-border-solid tw-border-secondary-300">
+      <div class="tw-mt-4 tw-w-16 tw-border tw-border-solid tw-border-secondary-300">
         <bit-chip-group [chips]="singleChip" (chipSelect)="chipSelect($event)"></bit-chip-group>
       </div>
     `,
