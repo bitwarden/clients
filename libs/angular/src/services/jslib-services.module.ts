@@ -249,6 +249,7 @@ import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/comm
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
@@ -387,6 +388,7 @@ import {
   LegacyCompatKeyService,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import { DefaultManagedSettingsService, ManagedSettingsService } from "@bitwarden/managed-settings";
 import {
   DefaultOrganizationInviteLinkApiService,
   DefaultOrganizationInviteLinkService,
@@ -1866,6 +1868,7 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       StateProvider,
       ConfigService,
+      ManagedSettingsService,
     ],
   }),
   safeProvider({
@@ -1883,7 +1886,17 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       ConfigService,
       V2UpgradeTokenStateService,
+      ManagedSettingsService,
     ],
+  }),
+  safeProvider({
+    // No Angular client pushes a management profile, so every setting reads as unmanaged here: web
+    // cannot read an OS profile from a web page, desktop has no acquisition code yet, and the
+    // browser popup will read the background's profile only once a foreground proxy exists. The
+    // browser background registers its own instance and is the only place a profile is pushed.
+    provide: ManagedSettingsService,
+    useFactory: () => new DefaultManagedSettingsService(SdkLoadService.Ready),
+    deps: [],
   }),
   safeProvider({
     provide: CipherAuthorizationService,
