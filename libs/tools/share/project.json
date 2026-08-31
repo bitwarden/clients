@@ -1,6 +1,6 @@
 {
   "name": "@bitwarden/tools-share",
-  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/tools/share/src",
   "projectType": "library",
   "tags": ["scope:tools-share", "type:lib"],
