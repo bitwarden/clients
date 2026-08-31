@@ -558,7 +558,7 @@ describe("SshAgentService – sign request authorization", () => {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: jest.fn().mockResolvedValue([makeSshCipher(CIPHER_ID, "Test Key", "pem")]),
       } as any,
-      { info: jest.fn(), error: jest.fn() } as any,
+      { info: jest.fn(), error: jest.fn(), debug: jest.fn() } as any,
       { open: mockDialogOpen } as any,
       { messages$: jest.fn().mockReturnValue(signRequestSubject.asObservable()) } as any,
       {
@@ -851,7 +851,7 @@ describe("SshAgentService – list keys request", () => {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: jest.fn().mockResolvedValue([makeSshCipher("c1", "My Key", "pem")]),
       } as any,
-      { info: jest.fn(), error: jest.fn() } as any,
+      { info: jest.fn(), error: jest.fn(), debug: jest.fn() } as any,
       { open: jest.fn() } as any,
       {
         messages$: jest
@@ -1003,7 +1003,7 @@ describe("SshAgentService – concurrent sign requests", () => {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: mockGetAllDecrypted,
       } as any,
-      { info: jest.fn(), error: jest.fn() } as any,
+      { info: jest.fn(), error: jest.fn(), debug: jest.fn() } as any,
       { open: jest.fn() } as any,
       {
         messages$: jest
@@ -1110,7 +1110,7 @@ describe("SshAgentService – concurrent list keys requests", () => {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: mockGetAllDecrypted,
       } as any,
-      { info: jest.fn(), error: jest.fn() } as any,
+      { info: jest.fn(), error: jest.fn(), debug: jest.fn() } as any,
       { open: jest.fn() } as any,
       {
         messages$: jest
