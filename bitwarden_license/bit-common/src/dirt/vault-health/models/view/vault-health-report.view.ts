@@ -33,4 +33,53 @@ export class VaultHealthReportView implements View {
     }
     Object.assign(this, init);
   }
+
+  /**
+   * Builds a report from the health of every scoped login: keeps the at-risk
+   * ones, places each in its highest risk category, and scores them against the
+   * full login count.
+   *
+   * @param healthViews every scoped login's health, at risk or not. Healthy
+   *   logins have to be included: they are the rest of the score denominator,
+   *   and they are dropped from the report only after being counted.
+   * @param totalCount the scoped login count. Passed in rather than read from
+   *   `healthViews.length` so the denominator stays the logins the caller
+   *   scoped, independent of how many the risk service returned results for.
+   */
+  static fromCipherHealth(
+    healthViews: CipherHealthView[],
+    totalCount: number,
+  ): VaultHealthReportView {
+    const atRisk = healthViews.filter((health) => health.isAtRisk());
+
+    const categoryItems = atRisk.reduce<CategoryRecord<CipherHealthView[]>>(
+      (categories, health) => {
+        categories[highestRiskCategory(health)].push(health);
+        return categories;
+      },
+      { exposed: [], weak: [], reused: [] },
+    );
+
+    return new VaultHealthReportView({
+      totalCount,
+      atRiskCount: atRisk.length,
+      score: totalCount === 0 ? 0 : atRisk.length / totalCount,
+      categoryItems,
+    });
+  }
+}
+
+/**
+ * Highest-risk-wins: Exposed > Weak > Reused. A login at risk in more than one
+ * category is counted and listed once, under the most severe. Only meaningful
+ * for a login that is at risk at all, so it is not exported.
+ */
+function highestRiskCategory(health: CipherHealthView): RiskCategory {
+  if (health.hasExposedPassword) {
+    return RiskCategory.Exposed;
+  }
+  if (health.hasWeakPassword) {
+    return RiskCategory.Weak;
+  }
+  return RiskCategory.Reused;
 }

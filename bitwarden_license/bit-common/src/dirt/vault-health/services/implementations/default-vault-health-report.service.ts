@@ -142,24 +142,10 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
 
     // Each CipherRiskResult carries its own `id`, so map results to per-login
     // views directly by id (no reliance on array position).
-    const healthViews = risks.map((risk) => this.toCipherHealthView(risk));
-    const atRisk = healthViews.filter((health) => health.isAtRisk());
-
-    const categoryItems: Record<RiskCategory, CipherHealthView[]> = atRisk.reduce(
-      (categories: Record<RiskCategory, CipherHealthView[]>, health) => {
-        const category = this.highestRiskCategory(health);
-        categories[category].push(health);
-        return categories;
-      },
-      { exposed: [], weak: [], reused: [] },
-    );
-
-    return new VaultHealthReportView({
+    return VaultHealthReportView.fromCipherHealth(
+      risks.map((risk) => this.toCipherHealthView(risk)),
       totalCount,
-      atRiskCount: atRisk.length,
-      score: atRisk.length / totalCount,
-      categoryItems,
-    });
+    );
   }
 
   private toCipherHealthView(risk: CipherRiskResult): CipherHealthView {
@@ -173,16 +159,5 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
       reuseCount: risk.reuse_count ?? 0,
       weakPasswordScore: risk.password_strength,
     });
-  }
-
-  /** Highest-risk-wins: Exposed > Weak > Reused. Only called for at-risk logins. */
-  private highestRiskCategory(health: CipherHealthView): RiskCategory {
-    if (health.hasExposedPassword) {
-      return RiskCategory.Exposed;
-    }
-    if (health.hasWeakPassword) {
-      return RiskCategory.Weak;
-    }
-    return RiskCategory.Reused;
   }
 }
