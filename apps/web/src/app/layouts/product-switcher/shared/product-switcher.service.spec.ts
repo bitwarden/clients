@@ -32,7 +32,7 @@ describe("ProductSwitcherService", () => {
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let activeRouteParams = convertToParamMap({ organizationId: "1234" });
   let singleOrgPolicyEnabled = false;
-  let vfo1Enabled = false;
+  let vfo1FoundationEnabled = false;
   const getLastSync = jest.fn().mockResolvedValue(new Date("2024-05-14"));
   const userId = Utils.newGuid() as UserId;
 
@@ -46,7 +46,8 @@ describe("ProductSwitcherService", () => {
 
   beforeEach(() => {
     jest.useFakeTimers();
-    vfo1Enabled = false;
+    singleOrgPolicyEnabled = false;
+    vfo1FoundationEnabled = false;
     getLastSync.mockResolvedValue(new Date("2024-05-14"));
     router = mock<Router>();
     organizationService = mock<OrganizationService>();
@@ -94,9 +95,7 @@ describe("ProductSwitcherService", () => {
         { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
         {
           provide: ConfigService,
-          useValue: {
-            getFeatureFlag$: () => of(vfo1Enabled),
-          },
+          useValue: { getFeatureFlag$: () => of(vfo1FoundationEnabled) },
         },
       ],
     });
@@ -221,6 +220,25 @@ describe("ProductSwitcherService", () => {
       it("does not include Organizations when the user's single org policy is enabled", async () => {
         singleOrgPolicyEnabled = true;
         initiateService();
+        const products = await firstValueFrom(service.products$);
+
+        expect(products.other.find((p) => p.name === "Organizations")).not.toBeDefined();
+      });
+
+      it("does not include Organizations when the VFO1 foundation flag is enabled", async () => {
+        vfo1FoundationEnabled = true;
+        initiateService();
+
+        const products = await firstValueFrom(service.products$);
+
+        expect(products.other.find((p) => p.name === "Organizations")).not.toBeDefined();
+      });
+
+      it("does not include Organizations on Self-Host when the VFO1 foundation flag is enabled", async () => {
+        platformUtilsService.isSelfHost.mockReturnValue(true);
+        vfo1FoundationEnabled = true;
+        initiateService();
+
         const products = await firstValueFrom(service.products$);
 
         expect(products.other.find((p) => p.name === "Organizations")).not.toBeDefined();

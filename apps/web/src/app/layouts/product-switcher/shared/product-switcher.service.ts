@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, NavigationStart, ParamMap, Router } from "@angular/router";
 import {
   combineLatest,
@@ -81,6 +81,8 @@ export type ProductSwitcherItem = {
   providedIn: "root",
 })
 export class ProductSwitcherService {
+  private configService = inject(ConfigService);
+
   /**
    * Emits when the sync service has completed a sync
    *
@@ -156,14 +158,16 @@ export class ProductSwitcherService {
     this.organizations$,
     this.providers$,
     this.userHasSingleOrgPolicy$,
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
     this.route.paramMap,
     this.triggerProductUpdate$,
     this.vfo1Enabled$,
   ]).pipe(
     map(
-      ([orgs, providers, userHasSingleOrgPolicy, paramMap, , vfo1Enabled]: [
+      ([orgs, providers, userHasSingleOrgPolicy, vfo1FoundationEnabled, paramMap]: [
         Organization[],
         Provider[],
+        boolean,
         boolean,
         ParamMap,
         void,
@@ -287,10 +291,10 @@ export class ProductSwitcherService {
 
         if (acOrg) {
           bento.push(products.ac);
-        } else {
-          if (!userHasSingleOrgPolicy) {
-            other.push(products.orgs);
-          }
+        } else if (!userHasSingleOrgPolicy && !vfo1FoundationEnabled) {
+          // Offered only while VFO1 is off — flag-on, "Add plan" in Settings
+          // replaces the Organizations entry point.
+          other.push(products.orgs);
         }
 
         if (providers.length > 0) {
