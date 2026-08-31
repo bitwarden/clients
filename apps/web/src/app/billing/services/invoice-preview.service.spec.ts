@@ -87,8 +87,8 @@ describe("InvoicePreviewService", () => {
       const cart = await sut.previewOrganizationCheckoutCart(organizationPurchase);
 
       // Same route and same tier as previewFamiliesPurchaseCart, but a different flow context,
-      // which is exactly what distinguishes the two methods.
-      expect(cart.passwordManager.seats.translationKey).toBe("membersLower");
+      // which is exactly what distinguishes the two methods (familiesMembership vs plan price).
+      expect(cart.passwordManager.seats.translationKey).toBe("passwordManagerPlanPrice");
     });
   });
 
@@ -138,7 +138,7 @@ describe("InvoicePreviewService", () => {
       });
 
       expect(cart.credit).toEqual({ translationKey: "appliedSubscriptionCredits", value: 12.5 });
-      expect(cart.passwordManager.seats.translationKey).toBe("membersLower");
+      expect(cart.passwordManager.seats.translationKey).toBe("passwordManagerPlanPrice");
       expect(mockLogService.error).not.toHaveBeenCalled();
     });
 
