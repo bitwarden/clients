@@ -302,7 +302,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected readonly vaultScope = toSignal(this.vaultScope$, { initialValue: ALL_ITEMS_SCOPE });
 
   /** The organization the page is pinned to, whichever nav the user is on. */
-  private readonly selectedOrganization$ = combineLatest([
+  protected readonly selectedOrganization$ = combineLatest([
     this.vfo1Foundation$,
     this.vaultScope$,
     this.routedVaultFilterService.filter$,
