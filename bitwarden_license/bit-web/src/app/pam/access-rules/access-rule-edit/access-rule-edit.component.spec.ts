@@ -328,6 +328,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     createAccessRule: jest.Mock;
     updateAccessRule: jest.Mock;
     deleteAccessRule: jest.Mock;
+    listBypassGaps: jest.Mock;
   };
   let showToast: jest.Mock;
   let dialog: { openSimpleDialog: jest.Mock };
@@ -345,6 +346,9 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
           ? jest.fn().mockRejectedValue(existing)
           : jest.fn().mockResolvedValue(existing),
       createAccessRule: jest.fn().mockResolvedValue(undefined),
+      // No gaps, so the warning callout stays hidden and these specs keep asserting on the
+      // save-error callout alone.
+      listBypassGaps: jest.fn().mockResolvedValue([]),
       updateAccessRule: jest.fn().mockResolvedValue(undefined),
       deleteAccessRule: jest.fn().mockResolvedValue(undefined),
     };
@@ -555,6 +559,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
       createAccessRule: jest.fn(),
       updateAccessRule: jest.fn(),
       deleteAccessRule: jest.fn(),
+      listBypassGaps: jest.fn().mockResolvedValue([]),
     };
 
     TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
@@ -590,6 +595,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
       createAccessRule: jest.fn(),
       updateAccessRule: jest.fn(),
       deleteAccessRule: jest.fn(),
+      listBypassGaps: jest.fn().mockResolvedValue([]),
     };
     showToast = jest.fn();
 
