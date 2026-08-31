@@ -7,13 +7,19 @@ import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.serv
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
-import { CIPHER_VIEW_BANNER, GATED_CIPHER_RELOADER } from "@bitwarden/vault";
+import {
+  CIPHER_VIEW_BANNER,
+  GATED_CIPHER_RELOADER,
+  ITEM_DETAILS_STATE_BADGE,
+} from "@bitwarden/vault";
 import { COLLECTION_ACCESS_RULE_CALLOUT } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/collection-dialog/collection-access-rule-callout.token";
 import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.service";
 import { PAM_ROUTES } from "@bitwarden/web-vault/app/pam/pam-routes.token";
 import { VaultRowAccessActionsService } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-access-actions.service";
 import { VAULT_ROW_LEASE_BADGE } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-lease-badge.token";
+import { VAULT_CONTROLLED_ACCESS_FILTER } from "@bitwarden/web-vault/app/vault/individual-vault/vault-controlled-access-filter.token";
 import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/components/pam/vault-filter-gated-collection-indicator.token";
+import { VAULT_GATED_COLLECTION_BANNER } from "@bitwarden/web-vault/app/vault/individual-vault/vault-gated-collection-banner.token";
 
 import { DefaultAuditApiService } from "./access-audit/default-audit-api.service";
 import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/cidr-validation.service";
@@ -21,6 +27,8 @@ import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip
 import { ApprovalPrivilegeService } from "./approvals/approval-privilege.service";
 import { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-banner.component";
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout/collection-access-rule-callout.component";
+import { GatedCollectionBannerComponent } from "./gated-collection-banner/gated-collection-banner.component";
+import { ItemDetailsStateBadgeComponent } from "./item-details-state-badge/item-details-state-badge.component";
 import { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
 import { AccessRequestCancelService } from "./services/access-request-cancel.service";
 import { AccessRequestsSdkService } from "./services/access-requests-sdk.service";
@@ -33,6 +41,7 @@ import { GovernedCollectionsService } from "./services/governed-collections.serv
 import { PamGatedCipherReloader } from "./services/pam-gated-cipher-reloader.service";
 import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
+import { ControlledAccessVaultFilterService } from "./vault-filter-controlled-access/controlled-access-vault-filter.service";
 import { GatedCollectionFilterIndicatorComponent } from "./vault-filter-gated-collection/gated-collection-filter-indicator.component";
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge/vault-row-lease-badge.component";
 
@@ -63,13 +72,19 @@ import {
  *
  * Also fills the OSS seams PAM owns, each injected `{ optional: true }` on the OSS
  * side so an unprovided token stays inert: `CIPHER_VIEW_BANNER` (the requester's
- * leasing entry point on an open cipher) and `VAULT_ROW_LEASE_BADGE` (the per-row
- * access-state pill, on cipher AND collection rows — collection rows show the
- * "Privileged" pill straight off the collection's server-derived
- * `hasEnabledAccessRule`) and `VAULT_FILTER_GATED_COLLECTION_INDICATOR` (the lock glyph
- * on a governed collection in the vault's Filters sidebar, reading that same
- * `hasEnabledAccessRule` off the sidebar's collection node), all component classes, plus `GATED_CIPHER_RELOADER` (the
- * observable that reveals a gated cipher in place once a lease covers it),
+ * leasing entry point on an open cipher), `ITEM_DETAILS_STATE_BADGE` (the access-state
+ * pill on the open item's name row), `VAULT_ROW_LEASE_BADGE` (the same pill per row, on
+ * cipher AND collection rows — collection rows show the "Privileged" pill straight off
+ * the collection's server-derived `hasEnabledAccessRule`),
+ * `VAULT_FILTER_GATED_COLLECTION_INDICATOR` (the lock glyph on a governed collection in
+ * the vault's Filters sidebar, reading that same `hasEnabledAccessRule` off the sidebar's
+ * collection node) and `VAULT_GATED_COLLECTION_BANNER` (the notice above the item list
+ * naming the same restriction while a governed collection is the active filter, backed by
+ * the shared `GovernedCollectionsService` lookup because it is handed ids alone, never a
+ * collection), all component classes, plus `VAULT_CONTROLLED_ACCESS_FILTER` (the
+ * sidebar's "Controlled access" group and the narrowing its children apply to the item
+ * list), `GATED_CIPHER_RELOADER` (the observable that reveals a gated cipher in place
+ * once a lease covers it),
  * `COLLECTION_ACCESS_RULE_CALLOUT` (the governing-rule notice in the collection
  * edit dialog), `PamNavBadgeService` (the nav badge count),
  * `VaultRowAccessActionsService` (withdrawing a gated row's outstanding access
@@ -135,6 +150,15 @@ export function providePam(): SafeProvider[] {
       provide: VAULT_FILTER_GATED_COLLECTION_INDICATOR,
       useValue: GatedCollectionFilterIndicatorComponent,
     }),
+    safeProvider({
+      provide: VAULT_GATED_COLLECTION_BANNER,
+      useValue: GatedCollectionBannerComponent,
+    }),
+    safeProvider({
+      provide: VAULT_CONTROLLED_ACCESS_FILTER,
+      useClass: ControlledAccessVaultFilterService,
+      deps: [],
+    }),
     // Root-level because the approvals route guard resolves it before any route-provided service
     // exists, and the shared stream is then reused by the tab and the page shell.
     safeProvider({
@@ -142,11 +166,12 @@ export function providePam(): SafeProvider[] {
       useClass: ApprovalPrivilegeService,
       deps: [],
     }),
-    // Root-level (not per-consumer) so repeated opens of the collection dialog share one cached
-    // per-org rules read. Neither the vault-row badge nor the sidebar's lock indicator reads it
-    // any more — both show the "Privileged" state straight off the collection's server-derived
-    // `hasEnabledAccessRule` — but the collection dialog's callout still does, because it names
-    // the governing rules rather than just counting them.
+    // Root-level (not per-consumer) so the gated-collection banner AND repeated opens of the
+    // collection dialog share one cached per-org rules read. Neither the vault-row badge nor the
+    // sidebar's lock indicator reads it any more — both show the "Privileged" state straight off
+    // the collection's server-derived `hasEnabledAccessRule`. The banner cannot take that
+    // shortcut, because it is handed ids alone, never a collection; and the callout needs the
+    // rules themselves, because it names the governing rules rather than just counting them.
     safeProvider({
       provide: GovernedCollectionsService,
       useClass: GovernedCollectionsService,
@@ -155,6 +180,10 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: CIPHER_VIEW_BANNER,
       useValue: CipherViewBannerComponent,
+    }),
+    safeProvider({
+      provide: ITEM_DETAILS_STATE_BADGE,
+      useValue: ItemDetailsStateBadgeComponent,
     }),
     safeProvider({
       provide: AccessEventService,
