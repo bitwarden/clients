@@ -55,7 +55,7 @@ import {
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
-import { InlineMenuFieldQualificationService } from "../services/inline-menu-field-qualification.service";
+import { LegacyInlineMenuFieldQualificationService } from "../services/inline-menu-field-qualification.service";
 import {
   createAutofillFieldMock,
   createAutofillPageDetailsMock,
@@ -112,7 +112,7 @@ describe("OverlayBackground", () => {
   const policyService = mock<PolicyService>();
   let fido2ActiveRequestManager: Fido2ActiveRequestManager;
   let selectedThemeMock$: BehaviorSubject<ThemeType>;
-  let inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
+  let inlineMenuFieldQualificationService: LegacyInlineMenuFieldQualificationService;
   let themeStateService: MockProxy<ThemeStateService>;
   let enableNotificationAnimationMock$: BehaviorSubject<boolean>;
   let enableInlineMenuAnimationMock$: BehaviorSubject<boolean>;
@@ -221,7 +221,7 @@ describe("OverlayBackground", () => {
     vaultSettingsServiceMock.enablePasskeys$ = enablePasskeysMock$;
     fido2ActiveRequestManager = new Fido2ActiveRequestManager();
     selectedThemeMock$ = new BehaviorSubject(ThemeType.Light);
-    inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+    inlineMenuFieldQualificationService = new LegacyInlineMenuFieldQualificationService();
     themeStateService = mock<ThemeStateService>();
     themeStateService.selectedTheme$ = selectedThemeMock$;
     totpService = mock<TotpService>({

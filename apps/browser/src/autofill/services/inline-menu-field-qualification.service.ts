@@ -10,7 +10,7 @@ import {
 } from "../utils/qualification";
 
 import {
-  InlineMenuFieldQualificationService as InlineMenuFieldQualificationServiceInterface,
+  InlineMenuFieldQualificationService,
   SubmitButtonKeywordsMap,
 } from "./abstractions/inline-menu-field-qualifications.service";
 import {
@@ -23,7 +23,16 @@ import {
 } from "./autofill-constants";
 import AutofillService from "./autofill.service";
 
-export class InlineMenuFieldQualificationService implements InlineMenuFieldQualificationServiceInterface {
+/**
+ * The keyword-and-attribute implementation the extension has always shipped.
+ *
+ * Prefixed `Legacy` because it is now one of two implementations of
+ * {@link InlineMenuFieldQualificationService} — the other being
+ * `QualificationEngineAdapter`, which routes the same predicates through a
+ * qualification engine. Consumers depend on the abstraction; only the
+ * qualification factory names this class.
+ */
+export class LegacyInlineMenuFieldQualificationService implements InlineMenuFieldQualificationService {
   private searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
   private excludedAutofillFieldTypesSet = new Set(AutoFillConstants.ExcludedAutofillLoginTypes);
   private usernameFieldTypes = new Set(["text", "email", "number", "tel"]);

@@ -258,6 +258,15 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
   ) {
+    // Engine-backed qualification implementations need pageDetails enrolled
+    // before per-field predicates can resolve a field's classification. This
+    // is the natural enrollment point: setupOverlayListeners receives both
+    // the field and the snapshot, and any field that later participates in
+    // qualifier-map lookups (qualifyUserFilledField, lines ~848) has come
+    // through here first. The legacy concrete service does not implement
+    // enroll, so this is a no-op when useEngine=false.
+    this.inlineMenuFieldQualificationService.enroll?.(pageDetails);
+
     if (
       currentlyInSandboxedIframe() ||
       this.formFieldElements.has(formFieldElement) ||
@@ -936,6 +945,23 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     autofillFieldData: AutofillField,
     qualifiers: Record<string, CallableFunction>,
   ) => {
+    // Ask the engine which role it picked, when there is an engine to ask. The
+    // predicate loop below has to run the qualifiers in some order and take the
+    // first `true`, so on a field two predicates both match the answer comes
+    // from map iteration order rather than from which role fits best. An engine
+    // that does mutual-exclusion dispatch already chose; `topQualifierFor`
+    // returns that choice, or `null` when it has none.
+    const topQualifier =
+      this.inlineMenuFieldQualificationService.topQualifierFor?.(autofillFieldData);
+    // Only accept a qualifier this fill type actually captures. The engine
+    // classifies the whole page, so on a checkout form it will happily name a
+    // card role for a field the login qualifier map would have left untagged —
+    // and tagging it would put a card value into a login save prompt.
+    if (topQualifier && qualifiers[topQualifier]) {
+      autofillFieldData.fieldQualifier = topQualifier;
+      return;
+    }
+
     for (const [fieldQualifier, fieldQualifierFunction] of Object.entries(qualifiers)) {
       if (fieldQualifierFunction(autofillFieldData)) {
         autofillFieldData.fieldQualifier = fieldQualifier as AutofillFieldQualifierType;

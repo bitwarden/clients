@@ -59,6 +59,8 @@ import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
+import { QualificationEngine } from "../qualification/abstractions/qualification-engine";
+import { QualificationEngineId } from "../qualification/types/engine-id";
 import {
   createAutofillFieldMock,
   createAutofillFormMock,
@@ -3415,6 +3417,52 @@ describe("AutofillService", () => {
       };
       options = createGenerateFillScriptOptionsMock();
       options.cipher.card = mock<CardView>();
+    });
+
+    describe("field selection routing", () => {
+      // Fill time is the highest-consequence surface in autofill. The engine
+      // path stays gated on the selected engine until parity is demonstrated,
+      // and the default path must be provably untouched.
+      it("uses the keyword tables when no engine was injected", () => {
+        const byKeyword = jest.spyOn(AutofillService as any, "selectCardFillFieldsByKeyword");
+
+        autofillService["selectCardFillFields"](pageDetails);
+
+        expect(byKeyword).toHaveBeenCalledWith(pageDetails);
+      });
+
+      it("uses the keyword tables while a legacy-mirroring engine is selected", () => {
+        const engine = mock<QualificationEngine>();
+        Object.defineProperty(engine, "id", { value: QualificationEngineId.Legacy });
+        Object.defineProperty(engine, "mirrorsLegacy", { value: true });
+        autofillService["qualificationEngine"] = engine;
+        const byKeyword = jest.spyOn(AutofillService as any, "selectCardFillFieldsByKeyword");
+
+        autofillService["selectCardFillFields"](pageDetails);
+
+        expect(byKeyword).toHaveBeenCalledWith(pageDetails);
+        expect(engine.classify).not.toHaveBeenCalled();
+      });
+
+      it("asks the engine once any other engine is selected", () => {
+        const engine = mock<QualificationEngine>();
+        Object.defineProperty(engine, "id", { value: QualificationEngineId.Scoring });
+        // The auto-mocked property is a truthy jest.fn; the routing gate reads
+        // `mirrorsLegacy`, so state it rather than inherit it from the mock.
+        Object.defineProperty(engine, "mirrorsLegacy", { value: undefined });
+        engine.classify.mockReturnValue({
+          fieldFor: () => null,
+          formFor: () => null,
+          scenario: () => null,
+        });
+        autofillService["qualificationEngine"] = engine;
+        const byKeyword = jest.spyOn(AutofillService as any, "selectCardFillFieldsByKeyword");
+
+        autofillService["selectCardFillFields"](pageDetails);
+
+        expect(engine.classify).toHaveBeenCalledWith(pageDetails);
+        expect(byKeyword).not.toHaveBeenCalled();
+      });
     });
 
     it("returns null if the passed options contains a cipher with no card view", async () => {

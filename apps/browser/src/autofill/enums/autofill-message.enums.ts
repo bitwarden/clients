@@ -22,6 +22,20 @@ export const AutofillLifecycleCommand = Object.freeze({
 export type AutofillLifecycleCommand =
   (typeof AutofillLifecycleCommand)[keyof typeof AutofillLifecycleCommand];
 
+/**
+ * Carries the selected `QualificationEngineId` between the background and the
+ * autofill content scripts. `request` is the content script asking once at
+ * init; `update` is the background pushing a change. See
+ * `background/qualification-engine.background.ts` for why both exist.
+ */
+export const QualificationEngineCommand = Object.freeze({
+  request: "getQualificationEngineId",
+  update: "updateQualificationEngineId",
+} as const);
+
+export type QualificationEngineCommand =
+  (typeof QualificationEngineCommand)[keyof typeof QualificationEngineCommand];
+
 export const AutofillerCommand = Object.freeze({
   disable: "disableAutofiller",
 } as const);

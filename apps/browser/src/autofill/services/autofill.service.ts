@@ -56,6 +56,7 @@ import { InlineMenuFillTypes, type InlineMenuFillType } from "../enums/autofill-
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
+import { QualificationEngine } from "../qualification/abstractions/qualification-engine";
 import { fieldContainsKeyword, isNonLoginUsernameField } from "../utils/qualification";
 
 import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
@@ -75,6 +76,7 @@ import {
   IdentityAutoFillConstants,
   SshKeyAutoFillConstants,
 } from "./autofill-constants";
+import { selectCardFillFields } from "./qualification/fill-field-selection";
 
 /**
  * A Login cipher stores a single `login.username` that represents whatever the
@@ -114,6 +116,13 @@ export default class AutofillService implements AutofillServiceInterface {
     private messageListener: MessageListener,
     private animationControlService: AnimationControlService,
     private autofillLifecycleService: AutofillLifecycleService,
+    /**
+     * Fill-time field selection consults this when a non-default engine is
+     * selected. Optional because construction sites that never build a fill
+     * script — and the many tests that construct this service — have no reason
+     * to stand up a qualification stack. Absent means the keyword tables.
+     */
+    private qualificationEngine?: QualificationEngine,
   ) {
     this.enableInlineMenuAnimation$ = this.animationControlService.enableInlineMenuAnimation$;
     this.enableNotificationAnimation$ = this.animationControlService.enableNotificationAnimation$;
@@ -1470,79 +1479,7 @@ export default class AutofillService implements AutofillServiceInterface {
       return null;
     }
 
-    const fillFields: { [id: string]: AutofillField } = {};
-
-    pageDetails.fields.forEach((f) => {
-      if (AutofillService.isExcludedFieldType(f, AutoFillConstants.ExcludedAutofillTypes)) {
-        return;
-      }
-
-      for (let i = 0; i < CreditCardAutoFillConstants.CardAttributes.length; i++) {
-        const attr = CreditCardAutoFillConstants.CardAttributes[i];
-        // eslint-disable-next-line
-        if (!f.hasOwnProperty(attr) || !f[attr] || !f.viewable) {
-          continue;
-        }
-
-        // ref https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill
-        // ref https://developers.google.com/web/fundamentals/design-and-ux/input/forms/
-        if (
-          !fillFields.cardholderName &&
-          AutofillService.isFieldMatch(
-            f[attr],
-            CreditCardAutoFillConstants.CardHolderFieldNames,
-            CreditCardAutoFillConstants.CardHolderFieldNameValues,
-          )
-        ) {
-          fillFields.cardholderName = f;
-          break;
-        } else if (
-          !fillFields.number &&
-          AutofillService.isFieldMatch(
-            f[attr],
-            CreditCardAutoFillConstants.CardNumberFieldNames,
-            CreditCardAutoFillConstants.CardNumberFieldNameValues,
-          )
-        ) {
-          fillFields.number = f;
-          break;
-        } else if (
-          !fillFields.exp &&
-          AutofillService.isFieldMatch(
-            f[attr],
-            CreditCardAutoFillConstants.CardExpiryFieldNames,
-            CreditCardAutoFillConstants.CardExpiryFieldNameValues,
-          )
-        ) {
-          fillFields.exp = f;
-          break;
-        } else if (
-          !fillFields.expMonth &&
-          AutofillService.isFieldMatch(f[attr], CreditCardAutoFillConstants.ExpiryMonthFieldNames)
-        ) {
-          fillFields.expMonth = f;
-          break;
-        } else if (
-          !fillFields.expYear &&
-          AutofillService.isFieldMatch(f[attr], CreditCardAutoFillConstants.ExpiryYearFieldNames)
-        ) {
-          fillFields.expYear = f;
-          break;
-        } else if (
-          !fillFields.code &&
-          AutofillService.isFieldMatch(f[attr], CreditCardAutoFillConstants.CVVFieldNames)
-        ) {
-          fillFields.code = f;
-          break;
-        } else if (
-          !fillFields.brand &&
-          AutofillService.isFieldMatch(f[attr], CreditCardAutoFillConstants.CardBrandFieldNames)
-        ) {
-          fillFields.brand = f;
-          break;
-        }
-      }
-    });
+    const fillFields = this.selectCardFillFields(pageDetails);
 
     const card = options.cipher.card;
     this.makeScriptAction(fillScript, card, fillFields, filledFields, "cardholderName");
@@ -1667,11 +1604,140 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
+   * Picks the field to fill for each card slot.
+   *
+   * Two implementations. An engine that only mirrors the legacy predicates —
+   * the default today — keeps the keyword tables that have always done this,
+   * because its verdicts come back out of those same tables but claim slots in
+   * a different order. Any other engine gets the classification it produced for
+   * this page. Nothing downstream can tell the difference: both return the same
+   * `fillFields` shape, and the fill script is built from it identically.
+   *
+   * Two independent gates, and they answer different questions. *Which* path
+   * runs is `mirrorsLegacy` — a routing question. *Whether a given field is
+   * safe to fill* is `CARD_FILL_SCORE_FLOOR`, which fill owns rather
+   * than inherits, because the inline menu's threshold was tuned against a
+   * false positive that costs a wrong dropdown and this one costs a card number
+   * in an attacker-readable input. The routing gate goes away when an engine
+   * becomes the default; the confidence floor is meant to outlive it.
+   */
+  private selectCardFillFields(pageDetails: AutofillPageDetails): {
+    [id: string]: AutofillField;
+  } {
+    if (!this.qualificationEngine || this.qualificationEngine.mirrorsLegacy) {
+      return AutofillService.selectCardFillFieldsByKeyword(pageDetails);
+    }
+
+    const eligibleFields = pageDetails.fields.filter(
+      (f) =>
+        f.viewable &&
+        !AutofillService.isExcludedFieldType(f, AutoFillConstants.ExcludedAutofillTypes),
+    );
+
+    return selectCardFillFields(eligibleFields, this.qualificationEngine.classify(pageDetails));
+  }
+
+  /**
+   * The keyword-table card selection, unchanged from before the engine existed.
+   * Every user on the default engine is on this path.
+   */
+  private static selectCardFillFieldsByKeyword(pageDetails: AutofillPageDetails): {
+    [id: string]: AutofillField;
+  } {
+    const fillFields: { [id: string]: AutofillField } = {};
+
+    pageDetails.fields.forEach((f) => {
+      if (AutofillService.isExcludedFieldType(f, AutoFillConstants.ExcludedAutofillTypes)) {
+        return;
+      }
+
+      for (let i = 0; i < CreditCardAutoFillConstants.CardAttributes.length; i++) {
+        const attr = CreditCardAutoFillConstants.CardAttributes[i];
+        // eslint-disable-next-line
+        if (!f.hasOwnProperty(attr) || !f[attr] || !f.viewable) {
+          continue;
+        }
+
+        // ref https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill
+        // ref https://developers.google.com/web/fundamentals/design-and-ux/input/forms/
+        if (
+          !fillFields.cardholderName &&
+          AutofillService.isFieldMatch(
+            f[attr],
+            CreditCardAutoFillConstants.CardHolderFieldNames,
+            CreditCardAutoFillConstants.CardHolderFieldNameValues,
+          )
+        ) {
+          fillFields.cardholderName = f;
+          break;
+        } else if (
+          !fillFields.number &&
+          AutofillService.isFieldMatch(
+            f[attr],
+            CreditCardAutoFillConstants.CardNumberFieldNames,
+            CreditCardAutoFillConstants.CardNumberFieldNameValues,
+          )
+        ) {
+          fillFields.number = f;
+          break;
+        } else if (
+          !fillFields.exp &&
+          AutofillService.isFieldMatch(
+            f[attr],
+            CreditCardAutoFillConstants.CardExpiryFieldNames,
+            CreditCardAutoFillConstants.CardExpiryFieldNameValues,
+          )
+        ) {
+          fillFields.exp = f;
+          break;
+        } else if (
+          !fillFields.expMonth &&
+          AutofillService.isFieldMatch(f[attr], CreditCardAutoFillConstants.ExpiryMonthFieldNames)
+        ) {
+          fillFields.expMonth = f;
+          break;
+        } else if (
+          !fillFields.expYear &&
+          AutofillService.isFieldMatch(f[attr], CreditCardAutoFillConstants.ExpiryYearFieldNames)
+        ) {
+          fillFields.expYear = f;
+          break;
+        } else if (
+          !fillFields.code &&
+          AutofillService.isFieldMatch(f[attr], CreditCardAutoFillConstants.CVVFieldNames)
+        ) {
+          fillFields.code = f;
+          break;
+        } else if (
+          !fillFields.brand &&
+          AutofillService.isFieldMatch(f[attr], CreditCardAutoFillConstants.CardBrandFieldNames)
+        ) {
+          fillFields.brand = f;
+          break;
+        }
+      }
+    });
+
+    return fillFields;
+  }
+
+  /**
    * Determines whether an iframe is potentially dangerous ("untrusted") to autofill
    * @param {string} pageUrl The url of the page/iframe, usually from AutofillPageDetails
    * @param {GenerateFillScriptOptions} options The GenerateFillScript options
    * @returns {boolean} `true` if the iframe is untrusted and a warning should be shown, `false` otherwise
    * @private
+   *
+   * **This is authorization, not classification, and must stay out of the
+   * qualification engine.** Origin comparison, URI match detection and
+   * equivalent domains decide whether the extension is allowed to release a
+   * secret into this frame. Qualification decides what a field *is*, from
+   * page-supplied signals — `pageDetails.url`'s path is already one of them,
+   * and a hostile page controls it. The engine port structurally keeps the two
+   * apart today: `classify()` takes a page snapshot and receives no cipher and
+   * no tab URL, so it cannot answer this question even if asked. Keep it that
+   * way. The day a fill decision is gated on `PageScenario` is the day an
+   * attacker-supplied signal reaches an authorization path.
    */
   private async inUntrustedIframe(
     pageUrl: string,

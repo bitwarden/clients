@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
-import { merge, of, Subject } from "rxjs";
+import { distinctUntilChanged, merge, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
@@ -209,9 +209,15 @@ import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/e
 import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/services/extension-two-factor-auth-webauthn-component.service";
 import { AutofillLifecycleService } from "../../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
+import { InlineMenuFieldQualificationService } from "../../autofill/services/abstractions/inline-menu-field-qualifications.service";
 import AutofillService from "../../autofill/services/autofill.service";
-import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { NoopAutofillLifecycleService } from "../../autofill/services/noop-autofill-lifecycle.service";
+import { QualificationEngineOverrideState } from "../../autofill/services/qualification/engine-override.state";
+import {
+  logEngineSelection,
+  resolveEngineId,
+} from "../../autofill/services/qualification/engine-registry";
+import { buildQualificationStack } from "../../autofill/services/qualification/qualification-service.factory";
 import { WebmapperDraftService } from "../../autofill/services/webmapper-draft.service";
 import { ForegroundEventUploadService } from "../../dirt/event-logs/foreground-event-upload.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
@@ -276,7 +282,28 @@ const safeProviders: SafeProvider[] = [
   safeProvider(DebounceNavigationService),
   safeProvider(DialogService),
   safeProvider(PopupCloseWarningService),
-  safeProvider(InlineMenuFieldQualificationService),
+  safeProvider({
+    provide: QualificationEngineOverrideState,
+    useClass: QualificationEngineOverrideState,
+    deps: [StateProvider, ConfigService],
+  }),
+  safeProvider({
+    provide: InlineMenuFieldQualificationService,
+    // Built at whatever `resolveEngineId` can answer synchronously, then
+    // corrected — the same shape the background and the content scripts use,
+    // for the same reason: an Angular factory provider can't await. The
+    // subscription is what makes the engine picker take effect in the popup
+    // that hosts it; without it the popup would keep qualifying through the
+    // engine it booted with while every other context had already swapped.
+    // No teardown: the subscription dies with the popup's injector.
+    useFactory: (engineOverride: QualificationEngineOverrideState) => {
+      const stack = buildQualificationStack(resolveEngineId());
+      logEngineSelection(stack.engine, "popup");
+      engineOverride.resolvedId$.pipe(distinctUntilChanged()).subscribe(stack.swap);
+      return stack.service;
+    },
+    deps: [QualificationEngineOverrideState],
+  }),
   safeProvider({
     provide: DEFAULT_VAULT_TIMEOUT,
     useValue: VaultTimeoutStringType.OnRestart,

@@ -98,6 +98,66 @@ describe("AutofillInit", () => {
     });
   });
 
+  describe("qualification engine selection", () => {
+    let swapQualificationEngine: jest.Mock;
+
+    beforeEach(() => {
+      swapQualificationEngine = jest.fn();
+      autofillInit = new AutofillInit(
+        domQueryService,
+        domElementVisibilityService,
+        autofillOverlayContentService,
+        inlineMenuElements,
+        overlayNotificationsContentService,
+        swapQualificationEngine,
+      );
+      sendExtensionMessageSpy = jest
+        .spyOn(autofillInit as any, "sendExtensionMessage")
+        .mockResolvedValue(null);
+    });
+
+    it("asks the background which engine to run", async () => {
+      sendExtensionMessageSpy.mockResolvedValue({ engineId: "scoring" });
+
+      autofillInit.init();
+      await flushPromises();
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("getQualificationEngineId");
+      expect(swapQualificationEngine).toHaveBeenCalledWith("scoring");
+    });
+
+    it("keeps the engine it built when the background does not answer", async () => {
+      autofillInit.init();
+      await flushPromises();
+
+      expect(swapQualificationEngine).not.toHaveBeenCalled();
+    });
+
+    it("swaps when the background pushes a change", async () => {
+      autofillInit.init();
+
+      sendMockExtensionMessage({
+        command: "updateQualificationEngineId",
+        engineId: "autocomplete",
+      });
+      await flushPromises();
+
+      expect(swapQualificationEngine).toHaveBeenCalledWith("autocomplete");
+    });
+
+    it("ignores an unrecognized id rather than breaking qualification", async () => {
+      autofillInit.init();
+
+      sendMockExtensionMessage({
+        command: "updateQualificationEngineId",
+        engineId: "scoring-v2",
+      });
+      await flushPromises();
+
+      expect(swapQualificationEngine).not.toHaveBeenCalled();
+    });
+  });
+
   describe("startMonitoring", () => {
     it("triggers a collection of page details if the document is in a `complete` ready state", () => {
       jest.useFakeTimers();
