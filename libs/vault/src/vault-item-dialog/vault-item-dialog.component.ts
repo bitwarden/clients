@@ -352,7 +352,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     if (this.cipher) {
       if (this.cipher.decryptionFailure) {
         this.dialogService.open(DecryptionFailureDialogComponent, {
-          data: { cipherIds: [this.cipher.id] },
+          data: { ids: [this.cipher.id] },
           positionStrategy: new CenterPositionStrategy(),
         });
         await this.dialogRef.close();

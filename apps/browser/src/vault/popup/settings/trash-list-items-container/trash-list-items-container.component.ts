@@ -175,7 +175,7 @@ export class TrashListItemsContainerComponent {
     // CipherListView doesn't have decryptionFailure, so we use optional chaining
     if ("decryptionFailure" in cipher && cipher.decryptionFailure) {
       DecryptionFailureDialogComponent.open(this.dialogService, {
-        cipherIds: [cipher.id as CipherId],
+        ids: [cipher.id as CipherId],
       });
       return;
     }

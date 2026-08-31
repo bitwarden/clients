@@ -156,7 +156,7 @@ describe("DefaultCollectionEncryptionService", () => {
         expect(result[1].name).toBe("Collection 2");
       });
 
-      it("logs and drops any collection the SDK returns as a failure", async () => {
+      it("logs and still returns a placeholder view for any collection the SDK returns as a failure", async () => {
         const collection1 = makeCollection();
         const collection2 = makeCollection({ id: collectionId2 });
         jest.spyOn(collection1, "toSdkCollection").mockReturnValue(stubSdkCollection);
@@ -172,11 +172,17 @@ describe("DefaultCollectionEncryptionService", () => {
           service.decryptMany([collection1, collection2], userId),
         );
 
-        expect(result).toHaveLength(1);
-        expect(result[0].name).toBe("Collection 2");
         expect(logService.error).toHaveBeenCalledWith(
           expect.stringContaining(`Failed to decrypt collection ${collection1.id}`),
         );
+
+        expect(result).toHaveLength(2);
+        const failedView = result.find((v) => v.id === collectionId)!;
+        const successView = result.find((v) => v.id === collectionId2)!;
+        expect(failedView.decryptionFailure).toBe(true);
+        expect(failedView.name).toBe("");
+        expect(successView.decryptionFailure).toBe(false);
+        expect(successView.name).toBe("Collection 2");
       });
 
       it("rejects when the batch SDK call throws", async () => {

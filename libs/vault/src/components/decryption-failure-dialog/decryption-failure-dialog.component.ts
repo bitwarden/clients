@@ -3,7 +3,7 @@ import { Component, inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId } from "@bitwarden/common/types/guid";
 import {
   DIALOG_DATA,
   DialogRef,
@@ -17,7 +17,7 @@ import {
 } from "@bitwarden/components";
 
 export type DecryptionFailureDialogParams = {
-  cipherIds: CipherId[];
+  ids: (CipherId | CollectionId)[];
 };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

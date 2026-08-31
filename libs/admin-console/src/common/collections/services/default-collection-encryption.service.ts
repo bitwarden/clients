@@ -101,10 +101,12 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
 
   /**
    * V2 implementation using the SDK's `decrypt_list_with_failures` for batch performance with
-   * per-item failure tolerance. The SDK natively separates successes from failures, so collections
-   * that fail to decrypt are logged and dropped without aborting the rest of the batch. Gated
-   * behind {@link FeatureFlag.CollectionBulkDecryptWithFailures} until the SDK bindings have
-   * rolled out everywhere this service is used.
+   * per-item failure tolerance. The SDK natively separates successes from failures. Collections
+   * that fail to decrypt are still returned to the caller as a placeholder view (empty `name`,
+   * `decryptionFailure` set) rather than being dropped, so the item remains visible instead of
+   * silently disappearing from the vault. Gated behind
+   * {@link FeatureFlag.CollectionBulkDecryptWithFailures} until the SDK bindings have rolled out
+   * everywhere this service is used.
    */
   private decryptManyV2(collections: Collection[], userId: UserId): Observable<CollectionView[]> {
     const startTime = performance.now();
@@ -122,22 +124,28 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
           .collections()
           .decrypt_list_with_failures(sdkCollections);
 
-        const success: CollectionView[] = [];
+        const views: CollectionView[] = [];
         for (const sdkView of result.successes) {
           const collection = sdkView.id
             ? collectionsById.get(uuidAsString(sdkView.id) as CollectionId)
             : undefined;
           if (collection) {
-            success.push(CollectionView.fromSdkCollectionView(sdkView, collection));
+            views.push(CollectionView.fromSdkCollectionView(sdkView, collection));
           }
         }
 
         for (const failed of result.failures) {
           const id = failed.id ? uuidAsString(failed.id) : "(unknown id)";
+          const collection = failed.id
+            ? collectionsById.get(uuidAsString(failed.id) as CollectionId)
+            : undefined;
           this.logService.error(`Failed to decrypt collection ${id}: not returned by SDK`);
+          if (collection) {
+            views.push(CollectionView.fromFailedDecryption(collection));
+          }
         }
 
-        return success;
+        return views;
       }),
       catchError((error: unknown) => {
         this.logService.error(`Failed to decrypt collections in batch: ${error}`);
@@ -151,7 +159,8 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
           "decryptMany (v2, decrypt_list_with_failures)",
           [
             ["Items", collections.length],
-            ["Successes", result.length],
+            ["Successes", result.filter((v) => !v.decryptionFailure).length],
+            ["Failures", result.filter((v) => v.decryptionFailure).length],
           ],
         );
       }),
