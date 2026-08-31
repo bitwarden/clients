@@ -43,6 +43,7 @@ describe("AuditExportService", () => {
           useValue: new I18nMockService({
             pamAuditKindLeaseActivated: "Lease activated",
             pamAuditKindRuleCreated: "Access rule created",
+            pamAuditKindLeaseExtended: "Lease extended",
             pamInboxDurationHours: "__$1__ hours",
             pamInboxDuration1Hour: "1 hour",
           }),
@@ -65,9 +66,11 @@ describe("AuditExportService", () => {
         collectionName: "production",
         ruleName: "Production access",
         grantedDuration: "4 hours",
+        extendedUntil: "",
         detail: "Approved for the incident window.",
         automated: false,
         incomplete: false,
+        requestId: "req-1",
       });
     });
 
@@ -95,6 +98,7 @@ describe("AuditExportService", () => {
           collectionName: null,
           ruleName: null,
           detail: null,
+          requestId: null,
           duration: null,
           exactWindow: null,
           extendedUntil: null,
@@ -114,9 +118,11 @@ describe("AuditExportService", () => {
         collectionName: "",
         ruleName: "",
         grantedDuration: "",
+        extendedUntil: "",
         detail: "",
         automated: true,
         incomplete: true,
+        requestId: "",
       });
       expect(JSON.stringify(exported)).not.toMatch(/null|undefined/);
     });
@@ -137,6 +143,22 @@ describe("AuditExportService", () => {
       );
 
       expect(exported.grantedDuration).toBe("1 hour");
+    });
+
+    // A LeaseExtended event carries no granted window, so without its own column the one datum the event
+    // exists to record would not reach the file at all.
+    it("writes the new lease end for an extension, which carries no duration", () => {
+      const exported = service.toAuditExport(
+        row({
+          kindLabelKey: "pamAuditKindLeaseExtended",
+          duration: null,
+          exactWindow: null,
+          extendedUntil: "2026-07-01T18:30:00.000Z",
+        }),
+      );
+
+      expect(exported.grantedDuration).toBe("");
+      expect(exported.extendedUntil).toBe("2026-07-01T18:30:00.000Z");
     });
   });
 
