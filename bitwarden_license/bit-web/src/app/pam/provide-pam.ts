@@ -1,3 +1,5 @@
+import { NgZone } from "@angular/core";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -25,6 +27,7 @@ import { VAULT_GATED_COLLECTION_BANNER } from "@bitwarden/web-vault/app/vault/in
 import { DefaultAuditApiService } from "./access-audit/default-audit-api.service";
 import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/cidr-validation.service";
 import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/default-cidr-validation.service";
+import { AccessBadgeTickerService } from "./access-state-badge/access-badge-ticker.service";
 import { ApprovalPrivilegeService } from "./approvals/approval-privilege.service";
 import { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-banner.component";
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout/collection-access-rule-callout.component";
@@ -206,7 +209,14 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: GATED_CIPHER_RELOADER,
       useClass: PamGatedCipherReloader,
-      deps: [AccessRequestSdkService, AccessRefreshService, ApiService, LogService],
+      deps: [
+        AccessRequestSdkService,
+        AccessRefreshService,
+        AccessBadgeTickerService,
+        NgZone,
+        ApiService,
+        LogService,
+      ],
     }),
     // The shared cipher-scoped cancel flow — one implementation behind both the cipher-view
     // banner and the vault-row menu, so the withdraw semantics and outcome copy cannot drift.
