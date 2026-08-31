@@ -197,7 +197,7 @@ export class AccessAuditComponent implements OnInit {
   /**
    * The organization's members, keyed by PLATFORM user id — the id an audit row carries. The entity-events
    * dialog is keyed on the ORGANIZATION USER id instead, so an identity can only be linked once this map
-   * has bridged the two. Empty whenever {@link loadMembers} was refused.
+   * has bridged the two.
    */
   private readonly members = signal(new Map<string, ResolvedMember>());
   protected readonly actorControl = new FormControl<string | null>(null);
@@ -342,26 +342,21 @@ export class AccessAuditComponent implements OnInit {
   /**
    * The organization's members, keyed by platform user id, for {@link members}.
    *
-   * A refusal here is an ordinary outcome, not an error to surface: this page is authorized by
-   * AccessEventLogs alone, which does not imply permission to enumerate the organization's members. The
-   * lookup therefore resolves to an empty map rather than rejecting, leaving every identity unlinked and
-   * the trail itself intact — an auditor who cannot enumerate members still reads the whole trail.
+   * `mini-details` is authorized for any member of the organization, which reaching this page already
+   * requires, so a failure here is a failed read rather than a permission this auditor lacks. It reaches
+   * {@link load} with the trail's own failures instead of being swallowed into an empty map.
    */
   private async loadMembers(): Promise<Map<string, ResolvedMember>> {
     const members = new Map<string, ResolvedMember>();
-    try {
-      const response = await this.organizationUserApiService.getAllMiniUserDetails(
-        this.organizationId(),
-      );
-      for (const user of response.data) {
-        members.set(user.userId, {
-          name: this.userNamePipe.transform(user),
-          email: user.email,
-          organizationUserId: user.id,
-        });
-      }
-    } catch (e) {
-      this.logService.error(e);
+    const response = await this.organizationUserApiService.getAllMiniUserDetails(
+      this.organizationId(),
+    );
+    for (const user of response.data) {
+      members.set(user.userId, {
+        name: this.userNamePipe.transform(user),
+        email: user.email,
+        organizationUserId: user.id,
+      });
     }
     return members;
   }
