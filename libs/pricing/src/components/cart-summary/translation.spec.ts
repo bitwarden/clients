@@ -42,7 +42,12 @@ describe("getCartItemTranslationKey", () => {
       "enterprise",
       "passwordManagerPlanPrice",
     ],
-    ["pm-seat", InvoicePreviewFlowContext.OrganizationSubscriptionPage, "families", "membersLower"],
+    [
+      "pm-seat",
+      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
+      "families",
+      "passwordManagerPlanPrice",
+    ],
     ["pm-seat", InvoicePreviewFlowContext.OrganizationSubscriptionPage, "teams", "membersLower"],
     [
       "pm-seat",
