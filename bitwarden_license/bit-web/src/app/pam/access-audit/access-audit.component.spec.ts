@@ -1593,8 +1593,7 @@ describe("AccessAuditComponent", () => {
       expect(cell().textContent!.trim()).toBe(medium);
     });
 
-    // The tooltip existed only to recover what `short` left out; a cell that shows the whole
-    // timestamp has nothing left to reveal on hover.
+    // The cell renders the whole timestamp, so a hover has nothing left to reveal.
     it("carries nothing to hover over", async () => {
       await renderRow();
 
