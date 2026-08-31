@@ -33,6 +33,19 @@ describe("ItemDetailsStateBadgeComponent", () => {
     fixture.detectChanges();
   }
 
+  /**
+   * A state under an active lease. The SDK ranks the badge FROM the lease, so the two always
+   * travel together; a fixture carrying only the badge is a response the server cannot produce.
+   */
+  function activeLeaseState(notAfterMs: number): CipherAccessStateView {
+    const notAfter = new Date(notAfterMs).toISOString();
+    return {
+      cipherId: "cipher-1",
+      activeLease: { id: "lease-1", notAfter },
+      badgeState: { active: { expiresAt: notAfter } },
+    } as unknown as CipherAccessStateView;
+  }
+
   function gatedCipher(): CipherView {
     const cipher = new CipherView();
     cipher.id = "cipher-1";
@@ -61,6 +74,10 @@ describe("ItemDetailsStateBadgeComponent", () => {
         },
       ],
     });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it("renders nothing for an ungoverned cipher, and reads no access state", async () => {
@@ -123,9 +140,9 @@ describe("ItemDetailsStateBadgeComponent", () => {
   });
 
   it("renders nothing for an active lease, so the banner heading is the only countdown", async () => {
-    accessRequestSdkService.getCipherAccessState.mockResolvedValue({
-      badgeState: { active: { expiresAt: new Date(Date.now() + 12 * 60 * 1000).toISOString() } },
-    } as unknown as CipherAccessStateView);
+    accessRequestSdkService.getCipherAccessState.mockResolvedValue(
+      activeLeaseState(Date.now() + 12 * 60 * 1000),
+    );
 
     create(gatedCipher());
     await settle();
@@ -134,6 +151,45 @@ describe("ItemDetailsStateBadgeComponent", () => {
     expect(
       fixture.nativeElement.querySelector("[data-testid='item-details-state-badge']"),
     ).toBeNull();
+  });
+
+  it("brings the pill back the second the lease's window closes", async () => {
+    // PM-41837: nothing announces the lapse, so this host watches the shared badge clock for it.
+    jest.useFakeTimers();
+    accessRequestSdkService.getCipherAccessState.mockResolvedValue(
+      activeLeaseState(Date.now() + 5_000),
+    );
+
+    create(gatedCipher());
+    await jest.advanceTimersByTimeAsync(0);
+    fixture.detectChanges();
+    expect(component["badge"]()).toBeNull();
+
+    await jest.advanceTimersByTimeAsync(6_000);
+    fixture.detectChanges();
+
+    // Released, not re-read; the shared badge renders its own "Access ended" recipe.
+    expect(component["badge"]()?.kind).toBe("active");
+    expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(1);
+    expect(
+      fixture.nativeElement.querySelector("[data-testid='access-state-badge-expired']"),
+    ).not.toBeNull();
+  });
+
+  it("shows the badge for a lease the server still reports past its window", async () => {
+    // Suppressed on the window, not the `active` ranking, or a trailing server clock would hide
+    // the pill for good while the banner below had already fallen back to "Request access".
+    accessRequestSdkService.getCipherAccessState.mockResolvedValue(
+      activeLeaseState(Date.now() - 1_000),
+    );
+
+    create(gatedCipher());
+    await settle();
+
+    expect(component["badge"]()?.kind).toBe("active");
+    expect(
+      fixture.nativeElement.querySelector("[data-testid='access-state-badge-expired']"),
+    ).not.toBeNull();
   });
 
   it("renders nothing when the access-state read fails", async () => {
