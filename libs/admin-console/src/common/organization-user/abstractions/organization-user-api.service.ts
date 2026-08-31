@@ -114,6 +114,13 @@ export abstract class OrganizationUserApiService {
   ): Promise<ListResponse<OrganizationUserBulkResponse>>;
 
   /**
+   * Send a first invitation to organization users currently in the Staged status, moving them to Invited.
+   * @param organizationId - Identifier for the organization
+   * @param ids - A list of staged organization user identifiers
+   */
+  abstract postOrganizationUserSendInvite(organizationId: string, ids: string[]): Promise<void>;
+
+  /**
    * Accept an invitation to initialize and join an organization created via the Admin Portal **only**.
    * This is only used once for the initial Owner, because it also creates the organization's encryption keys.
    * This should not be used for organizations created via the Web client.

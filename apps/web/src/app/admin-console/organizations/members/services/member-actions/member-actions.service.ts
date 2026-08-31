@@ -143,6 +143,21 @@ export class MemberActionsService {
     }
   }
 
+  async sendInvite(organization: Organization, userIds: string[]): Promise<MemberActionResult> {
+    this.startProcessing();
+    try {
+      await this.organizationUserApiService.postOrganizationUserSendInvite(
+        organization.id,
+        userIds,
+      );
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: (error as Error).message ?? String(error) };
+    } finally {
+      this.endProcessing();
+    }
+  }
+
   async confirmUser(
     user: OrganizationUserView,
     publicKey: Uint8Array,

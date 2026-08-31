@@ -74,6 +74,7 @@ interface BulkMemberFlags {
   showBulkDeleteUsers: boolean;
   showBulkConfirmUsers: boolean;
   showBulkReinviteUsers: boolean;
+  showBulkSendInvite: boolean;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -295,6 +296,12 @@ export class MembersComponent {
     await this.handleMemberActionResult(result, "hasBeenReinvited", user);
   }
 
+  async sendInvite(user: OrganizationUserView, organization: Organization) {
+    const sideEffect = async () => await this.load(organization);
+    const result = await this.memberActionsService.sendInvite(organization, [user.id]);
+    await this.handleMemberActionResult(result, "hasBeenInvited", user, sideEffect);
+  }
+
   async confirm(user: OrganizationUserView, organization: Organization) {
     const sideEffect = async () => await this.load(organization);
     const publicKeyResult = await this.memberActionsService.getPublicKeyForConfirm(user);
@@ -478,6 +485,43 @@ export class MembersComponent {
     this.dataSource().uncheckAllUsers();
   }
 
+  async bulkSendInvite(organization: Organization) {
+    const stagedUsers = this.dataSource()
+      .getCheckedUsersWithLimit(MaxCheckedCount)
+      .filter((u) => u.canSendInvite);
+
+    if (stagedUsers.length === 0) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("noSelectedUsersApplicable"),
+      });
+      return;
+    }
+
+    const result = await this.memberActionsService.sendInvite(
+      organization,
+      stagedUsers.map((u) => u.id),
+    );
+
+    if (result.success === false) {
+      this.toastService.showToast({ variant: "error", message: result.error });
+      this.logService.error(result.error);
+      return;
+    }
+
+    this.toastService.showToast({
+      variant: "success",
+      message:
+        stagedUsers.length === 1
+          ? this.i18nService.t("reinviteSuccessToast")
+          : this.i18nService.t("bulkReinviteSentToast", stagedUsers.length.toString()),
+    });
+
+    this.dataSource().uncheckAllUsers();
+    await this.load(organization);
+  }
+
   async bulkConfirm(organization: Organization) {
     const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
     await this.memberDialogManager.openBulkConfirmDialog(organization, users);
@@ -577,6 +621,7 @@ export class MembersComponent {
     const result = {
       showBulkConfirmUsers: members.every((m) => m.canConfirm),
       showBulkReinviteUsers: members.every((m) => m.canReinvite),
+      showBulkSendInvite: members.every((m) => m.canSendInvite),
       showBulkRestoreUsers: members.every((m) => m.canRestore),
       showBulkRevokeUsers: members.every((m) => m.canRevoke),
       showBulkRemoveUsers: members.every((m) => m.canRemove),

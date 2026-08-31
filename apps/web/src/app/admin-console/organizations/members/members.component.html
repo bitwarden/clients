@@ -155,6 +155,16 @@
                     </button>
                     <bit-menu-divider />
                   }
+                  @if (bulkActions.showBulkSendInvite) {
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="isProcessing ? null : bulkSendInvite(organization)"
+                    >
+                      <bit-icon fixedWidth name="bwi-envelope" slot="start" />
+                      {{ "sendInvites" | i18n }}
+                    </button>
+                  }
                   @if (bulkActions.showBulkReinviteUsers) {
                     <button
                       type="button"
@@ -428,6 +438,16 @@
 
                 <bit-menu #rowMenu>
                   @if (showUserManagementControls()) {
+                    @if (u.canSendInvite) {
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : sendInvite(u, organization)"
+                      >
+                        <bit-icon name="bwi-envelope" slot="start" />
+                        {{ "sendInvite" | i18n }}
+                      </button>
+                    }
                     @if (u.canReinvite) {
                       <button
                         type="button"
@@ -449,7 +469,7 @@
                         </span>
                       </button>
                     }
-                    @if (u.canConfirm || u.canReinvite) {
+                    @if (u.canConfirm || u.canReinvite || u.canSendInvite) {
                       <bit-menu-divider></bit-menu-divider>
                     }
                     @if (u.canManageMember) {

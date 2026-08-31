@@ -257,6 +257,31 @@ describe("MemberActionsService", () => {
     });
   });
 
+  describe("sendInvite", () => {
+    it("should send invites to the given staged members", async () => {
+      organizationUserApiService.postOrganizationUserSendInvite.mockResolvedValue(undefined);
+
+      const result = await service.sendInvite(mockOrganization, [userIdToManage]);
+
+      expect(result).toEqual({ success: true });
+      expect(organizationUserApiService.postOrganizationUserSendInvite).toHaveBeenCalledWith(
+        organizationId,
+        [userIdToManage],
+      );
+    });
+
+    it("should handle send invite errors", async () => {
+      const errorMessage = "Send invite failed";
+      organizationUserApiService.postOrganizationUserSendInvite.mockRejectedValue(
+        new Error(errorMessage),
+      );
+
+      const result = await service.sendInvite(mockOrganization, [userIdToManage]);
+
+      expect(result).toEqual({ success: false, error: errorMessage });
+    });
+  });
+
   describe("confirmUser", () => {
     const publicKey = new Uint8Array([1, 2, 3, 4, 5]);
 
