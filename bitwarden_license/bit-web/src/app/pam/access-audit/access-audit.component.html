@@ -24,6 +24,16 @@
       <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
       <span slot="title">{{ "pamAuditEmptyTitle" | i18n }}</span>
       <span slot="description">{{ "pamAuditEmptyMessage" | i18n }}</span>
+      <button
+        slot="button"
+        type="button"
+        bitButton
+        buttonType="primary"
+        id="access-audit_button_refresh"
+        [bitAction]="load"
+      >
+        {{ "update" | i18n }}
+      </button>
       @if (canManageAccessRules()) {
         <a
           slot="button"

@@ -553,6 +553,22 @@ describe("AccessAuditComponent", () => {
       expect(component().status()).toBe("ready");
     });
 
+    // An organization whose first PAM event has not landed yet renders the empty state, which holds no
+    // toolbar. Without Update there, the only way to see that first event is a browser reload.
+    it("re-reads the trail from the empty state", async () => {
+      await renderReady([]);
+      expect(component().status()).toBe("empty");
+
+      auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
+      clickUpdate();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledTimes(2);
+      expect(component().status()).toBe("ready");
+      expect(component().rows()).toHaveLength(1);
+    });
+
     it("re-reads the member lookup alongside the trail", async () => {
       await renderReady();
 
