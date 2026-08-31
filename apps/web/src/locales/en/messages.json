@@ -2590,6 +2590,15 @@
   "youHaveNoFolders": {
     "message": "You have no folders."
   },
+  "noFoldersMatchSearchTerm": {
+    "message": "No folders match \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyFoldersDescription": {
     "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
   },

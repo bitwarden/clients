@@ -35,13 +35,14 @@ import {
   SelectionConfig,
   ToastService,
   defineTable,
-  StatusLockupComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { buildFolderRows, FolderTableRow } from "../../models/folder-table-row";
 import { AddEditFolderDialogComponent } from "../add-edit-folder-dialog/add-edit-folder-dialog.component";
 import { openDeleteFolderDialog } from "../delete-folder-dialog/delete-folder-dialog.component";
+
+import { EmptyFoldersComponent } from "./empty-folders.component";
 
 /**
  * Self-contained My folders page. Project the client's header into the default slot:
@@ -64,10 +65,10 @@ import { openDeleteFolderDialog } from "../delete-folder-dialog/delete-folder-di
     BulkActionComponent,
     BulkActionsBarComponent,
     ButtonModule,
+    EmptyFoldersComponent,
     I18nPipe,
     IconButtonModule,
     SearchModule,
-    StatusLockupComponent,
   ],
 })
 export class MyFoldersComponent {
@@ -98,6 +99,12 @@ export class MyFoldersComponent {
   private readonly rows = computed(() => this.loadedRows() ?? []);
 
   protected readonly loading = computed(() => this.loadedRows() === undefined);
+
+  protected readonly hasItems = computed(() => this.rows().length > 0);
+
+  protected readonly search = computed(
+    () => (this.tableRef()?.filterValues() as { search?: string } | undefined)?.search,
+  );
 
   protected readonly table = defineTable<FolderTableRow, "options">(this.rows);
 
@@ -131,6 +138,13 @@ export class MyFoldersComponent {
 
   protected readonly filter = (row: FolderTableRow, values: { search?: string }) =>
     !values.search || row.name.toLowerCase().includes(values.search.toLowerCase());
+
+  protected clearSearch(): void {
+    this.tableRef()
+      ?.filterControls()
+      .find((c) => c.key() === "search")
+      ?.setValue("");
+  }
 
   protected async addFolder(): Promise<void> {
     await lastValueFrom(AddEditFolderDialogComponent.open(this.dialogService).closed);
