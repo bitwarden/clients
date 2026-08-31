@@ -35,16 +35,10 @@ export class VaultHealthReportView implements View {
   }
 
   /**
-   * Builds a report from the health of every scoped login: keeps the at-risk
-   * ones, places each in its highest risk category, and scores them against the
-   * full login count.
-   *
-   * @param healthViews every scoped login's health, at risk or not. Healthy
-   *   logins have to be included: they are the rest of the score denominator,
-   *   and they are dropped from the report only after being counted.
-   * @param totalCount the scoped login count. Passed in rather than read from
-   *   `healthViews.length` so the denominator stays the logins the caller
-   *   scoped, independent of how many the risk service returned results for.
+   * Builds a report from the health of every scoped login, at risk or not: keeps
+   * the at-risk ones, places each in its highest risk category, and scores them
+   * against `totalCount`, which is passed in rather than derived from
+   * `healthViews` so the denominator stays what the caller scoped.
    */
   static fromCipherHealth(
     healthViews: CipherHealthView[],
@@ -69,11 +63,7 @@ export class VaultHealthReportView implements View {
   }
 }
 
-/**
- * Highest-risk-wins: Exposed > Weak > Reused. A login at risk in more than one
- * category is counted and listed once, under the most severe. Only meaningful
- * for a login that is at risk at all, so it is not exported.
- */
+/** Highest-risk-wins: Exposed > Weak > Reused. Only called for at-risk logins. */
 function highestRiskCategory(health: CipherHealthView): RiskCategory {
   if (health.hasExposedPassword) {
     return RiskCategory.Exposed;
