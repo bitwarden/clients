@@ -74,6 +74,7 @@ describe("AuditExportService", () => {
         automated: false,
         incomplete: false,
         requestId: "req-1",
+        leaseId: "lease-1",
       });
     });
 
@@ -102,6 +103,7 @@ describe("AuditExportService", () => {
           ruleName: null,
           detail: null,
           requestId: null,
+          leaseId: null,
           duration: null,
           exactWindow: null,
           extendedUntil: null,
@@ -126,6 +128,7 @@ describe("AuditExportService", () => {
         automated: true,
         incomplete: true,
         requestId: "",
+        leaseId: "",
       });
       expect(JSON.stringify(exported)).not.toMatch(/null|undefined/);
     });

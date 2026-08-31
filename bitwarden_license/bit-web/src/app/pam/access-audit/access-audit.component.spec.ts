@@ -1550,6 +1550,15 @@ describe("AccessAuditComponent", () => {
       ).toHaveLength(1);
     });
 
+    // `button` marks its children presentational, so the badge is not exposed as a node of its own and
+    // an in-doubt row would otherwise announce exactly the same as a settled one.
+    it("names the in-doubt badge on the cell that carries the role", async () => {
+      await render([event({ Incomplete: true }), event({ Incomplete: false })]);
+
+      expect(activator(0).getAttribute("aria-label")).toContain("Incomplete");
+      expect(activator(1).getAttribute("aria-label")).not.toContain("Incomplete");
+    });
+
     it("opens the drawer on Enter", async () => {
       await render([event()]);
 
