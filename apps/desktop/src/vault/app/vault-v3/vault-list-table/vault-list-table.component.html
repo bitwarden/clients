@@ -37,7 +37,9 @@
         (cipherAdded)="onAddCipher.emit($event)"
         (onAddItemDialog)="onAddItemDialog.emit()"
       />
+    }
 
+    @if (showAddCipherBtn()) {
       <div slot="toolbar" class="tw-flex tw-items-center tw-gap-3">
         <button
           id="vault-list-table_button_import"
