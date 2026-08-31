@@ -9,11 +9,17 @@
 
   <div class="tw-flex tw-flex-col tw-gap-2 tw-align-middle tw-justify-center tw-text-center">
     <h2 bitTypography="h4">{{ title() }}</h2>
-    <p bitTypography="body2" class="tw-max-w-md tw-text-main">{{ description() }}</p>
+    <p bitTypography="body2" class="tw-max-w-lg tw-text-main tw-m-0">{{ description() }}</p>
   </div>
 
   @if (buttonText(); as buttonText) {
-    <button bitButton buttonType="secondary" type="button" (click)="actionClicked.emit()">
+    <button
+      bitButton
+      buttonType="secondary"
+      type="button"
+      [loading]="loading()"
+      (click)="actionClicked.emit()"
+    >
       {{ buttonText }}
     </button>
   }

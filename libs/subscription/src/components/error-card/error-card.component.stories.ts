@@ -20,6 +20,17 @@ export const SubscriptionFailedToLoad: Story = {
   },
 };
 
+export const Refreshing: Story = {
+  name: "Refreshing (button loading)",
+  args: {
+    title: "Subscription details aren't loading",
+    description: "We ran into a problem loading your subscription details. Refresh to try again.",
+    buttonText: "Refresh",
+    icon: "bwi-clear",
+    loading: true,
+  },
+};
+
 export const WithoutAction: Story = {
   name: "Without Action Button",
   args: {
