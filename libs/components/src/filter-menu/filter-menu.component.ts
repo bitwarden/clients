@@ -330,6 +330,14 @@ export class FilterMenuComponent
     // Set rather than defaulted so a consumer's own `variant` still wins.
     this.baseChip.variant.set("subtle");
     effect(() => {
+      if (!this.multiple() && this.hasNesting()) {
+        throw new Error(
+          "bit-filter-menu: nested `bit-filter-option`s require `multiple`. A single-select chip " +
+            "holds one value, so a parent could never draw as selected.",
+        );
+      }
+    });
+    effect(() => {
       const options = this.allOptions();
       if (options.length === 0) {
         return;

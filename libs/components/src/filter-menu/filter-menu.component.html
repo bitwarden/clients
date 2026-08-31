@@ -31,39 +31,15 @@
 <!-- Instantiates the projected declarations so the chip can draw rows from their data. -->
 <div class="tw-hidden"><ng-content></ng-content></div>
 
-<!-- The expander sits outside the label so it isn't interactive content nested inside it. -->
-<ng-template #optionRow let-option let-depth="depth">
-  @let selected = optionSelected(option);
-  @let partial = partiallySelected(option);
-  <div
-    data-filter-option-row
-    [class]="optionRowClasses"
-    [style.padding-inline-start.rem]="0.5 + depth * 1.75"
-  >
-    @if (option.hasChildren()) {
-      <button
-        type="button"
-        class="-tw-me-1 tw-flex tw-size-6 tw-flex-none tw-items-center tw-justify-center tw-border-none tw-bg-transparent tw-p-0 tw-text-fg-body-subtle focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-border-focus"
-        [attr.aria-expanded]="optionExpanded(option)"
-        [attr.aria-label]="option.label()"
-        (click)="option.toggleOpen()"
-      >
-        <bit-icon
-          [name]="optionExpanded(option) ? 'bwi-angle-down' : 'bwi-angle-right'"
-          class="tw-text-xs"
-          aria-hidden="true"
-        ></bit-icon>
-      </button>
-    } @else if (hasNesting()) {
-      <!-- Keeps leaves aligned with the checkboxes of siblings that do expand. -->
-      <span class="-tw-me-1 tw-size-6 tw-flex-none" aria-hidden="true"></span>
-    }
+<!-- Single-select rows are flat: nesting requires `multiple`, enforced in the component. -->
+<ng-template #optionRow let-option>
+  <div data-filter-option-row [class]="optionRowClasses">
     <label class="tw-mb-0 tw-flex tw-min-w-0 tw-flex-1 tw-items-center tw-gap-2">
       <input
         type="radio"
         [class]="radioInputClasses"
         [attr.name]="radioName"
-        [checked]="selected"
+        [checked]="optionSelected(option)"
         [disabled]="option.disabled()"
         (change)="toggleOption(option)"
       />
@@ -88,15 +64,6 @@
       }
     </label>
   </div>
-  @if (option.hasChildren() && optionExpanded(option)) {
-    @for (child of option.children(); track child.value()) {
-      @if (optionVisible(child)) {
-        <ng-container
-          *ngTemplateOutlet="optionRow; context: { $implicit: child, depth: depth + 1 }"
-        ></ng-container>
-      }
-    }
-  }
 </ng-template>
 
 <ng-template #noResultsState>
@@ -273,7 +240,7 @@
               @for (option of section.options(); track option.value()) {
                 @if (optionVisible(option)) {
                   <ng-container
-                    *ngTemplateOutlet="optionRow; context: { $implicit: option, depth: 0 }"
+                    *ngTemplateOutlet="optionRow; context: { $implicit: option }"
                   ></ng-container>
                 }
               }
@@ -282,7 +249,7 @@
         } @else if (asOption(entry); as option) {
           @if (optionVisible(option)) {
             <ng-container
-              *ngTemplateOutlet="optionRow; context: { $implicit: option, depth: 0 }"
+              *ngTemplateOutlet="optionRow; context: { $implicit: option }"
             ></ng-container>
           }
         }

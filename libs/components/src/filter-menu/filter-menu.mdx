@@ -46,7 +46,8 @@ A chip is single-select by default; add `multiple` for a checkbox-style multi-se
 
 Project `bit-filter-option`s inside one another to make an expandable parent. Selecting a parent
 selects everything under it; a partly-selected parent renders indeterminate. Parents start
-collapsed; add `expanded` to start one open.
+collapsed; add `expanded` to start one open. Requires `multiple` — a single-select chip holds one
+value, so it throws if its options nest.
 
 ```html
 <bit-filter-menu key="collection" placeholderText="Collections" multiple>

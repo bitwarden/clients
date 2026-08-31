@@ -23,7 +23,7 @@ export type FilterOptionIconTile = IconTileOptions;
  * own; the chip draws the row and handles selection.
  *
  * Project `bit-filter-option`s inside one to make it an expandable parent. Selecting a
- * parent selects everything under it.
+ * parent selects everything under it. Requires the menu to be `multiple`.
  *
  * @example
  * ```html
