@@ -25,7 +25,6 @@ import { Provider } from "@bitwarden/common/admin-console/models/domain/provider
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { BannerModule, SvgModule } from "@bitwarden/components";
@@ -68,7 +67,6 @@ export class OrganizationLayoutComponent {
   private readonly providerService = inject(ProviderService);
   private readonly accountService = inject(AccountService);
   private readonly govModeService = inject(GovModeService);
-  private readonly logService = inject(LogService);
   private readonly freeFamiliesPolicyService = inject(FreeFamiliesPolicyService);
   private readonly organizationWarningsService = inject(OrganizationWarningsService);
 
@@ -104,7 +102,7 @@ export class OrganizationLayoutComponent {
     this.userId$.pipe(
       switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
     ),
-    clientIsGovMode$(this.accountService, this.govModeService, this.logService),
+    clientIsGovMode$(this.accountService, this.govModeService),
   ]).pipe(map(([singleOrgPolicyApplies, isGovMode]) => singleOrgPolicyApplies || isGovMode));
 
   private readonly provider$: Observable<Provider | undefined> = combineLatest([

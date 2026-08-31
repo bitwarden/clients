@@ -1,14 +1,13 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, of, throwError } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -123,7 +122,6 @@ describe("VaultFilterComponent", () => {
         { provide: OrganizationWarningsService, useValue: mock<OrganizationWarningsService>() },
         { provide: Vfo1TerminologyService, useValue: { enabled: vfo1Enabled } },
         { provide: GovModeService, useValue: govModeService },
-        { provide: LogService, useValue: mock<LogService>() },
       ],
     }).compileComponents();
 
@@ -345,17 +343,6 @@ describe("VaultFilterComponent", () => {
         const section = await component.addOrganizationFilter();
 
         expect(section.add).toBeUndefined();
-      });
-
-      it("fails open and keeps the add action when the Gov mode check errors", async () => {
-        govModeService.isGovMode$.mockReturnValue(throwError(() => new Error("boom")));
-
-        const section = await component.addOrganizationFilter();
-
-        expect(section.add).toEqual({
-          text: "newOrganization",
-          route: "/create-organization",
-        });
       });
     });
   });

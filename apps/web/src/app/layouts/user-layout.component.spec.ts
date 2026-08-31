@@ -10,7 +10,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -170,7 +169,6 @@ describe("UserLayoutComponent", () => {
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
         { provide: GovModeService, useValue: govModeService },
-        { provide: LogService, useValue: mock<LogService>() },
       ],
     })
       .overrideComponent(UserLayoutComponent, {

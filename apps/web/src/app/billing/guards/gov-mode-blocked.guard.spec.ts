@@ -3,12 +3,11 @@ import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of, throwError } from "rxjs";
+import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { I18nMockService, ToastService } from "@bitwarden/components";
 
@@ -26,7 +25,6 @@ describe("govModeBlockedGuard", () => {
   let govModeService: MockProxy<GovModeService>;
   let accountService: MockProxy<AccountService>;
   let toastService: MockProxy<ToastService>;
-  let logService: MockProxy<LogService>;
 
   const setup = ({
     isGovMode = false,
@@ -40,7 +38,6 @@ describe("govModeBlockedGuard", () => {
     govModeService = mock<GovModeService>();
     accountService = mock<AccountService>();
     toastService = mock<ToastService>();
-    logService = mock<LogService>();
 
     govModeService.isGovMode$.mockReturnValue(of(isGovMode));
     govModeService.globalIsGovMode$ = of(isGovMode);
@@ -65,7 +62,6 @@ describe("govModeBlockedGuard", () => {
         { provide: GovModeService, useValue: govModeService },
         { provide: AccountService, useValue: accountService },
         { provide: ToastService, useValue: toastService },
-        { provide: LogService, useValue: logService },
         {
           provide: I18nService,
           useValue: new I18nMockService({ accessDenied: "Access denied." }),
@@ -153,16 +149,5 @@ describe("govModeBlockedGuard", () => {
     await router.navigate([guardedRoute]);
 
     expect(router.url).toBe(`/${guardedRoute}`);
-  });
-
-  it("fails open and allows navigation when the gov mode check errors", async () => {
-    const { router } = setup({ isGovMode: true });
-    govModeService.isGovMode$.mockReturnValue(throwError(() => new Error("boom")));
-
-    await router.navigate([guardedRoute]);
-
-    expect(router.url).toBe(`/${guardedRoute}`);
-    expect(logService.error).toHaveBeenCalled();
-    expect(toastService.showToast).not.toHaveBeenCalled();
   });
 });

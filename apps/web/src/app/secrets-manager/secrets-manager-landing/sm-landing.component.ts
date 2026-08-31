@@ -8,7 +8,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SearchModule } from "@bitwarden/components";
 
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -34,7 +33,6 @@ export class SMLandingComponent implements OnInit {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private govModeService: GovModeService,
-    private logService: LogService,
   ) {}
 
   async ngOnInit() {
@@ -45,11 +43,7 @@ export class SMLandingComponent implements OnInit {
 
     if (enabledOrganizations.length > 0) {
       this.handleEnabledOrganizations(enabledOrganizations);
-    } else if (
-      await firstValueFrom(
-        clientIsGovMode$(this.accountService, this.govModeService, this.logService),
-      )
-    ) {
+    } else if (await firstValueFrom(clientIsGovMode$(this.accountService, this.govModeService))) {
       // RequestSMAccessComponent redirects no-org Gov users here, so this branch must never link
       // back to /request-sm-access.
       this.showTryItNow = false;

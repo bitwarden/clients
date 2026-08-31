@@ -14,7 +14,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
@@ -48,7 +47,6 @@ const mockSyncService: Partial<SyncService> = {
   getLastSync: () => Promise.resolve(new Date()),
 } as unknown as Partial<SyncService>;
 const mockToastService = { showToast: () => {} };
-const mockLogService = { error: () => {} };
 const mockGovModeService = { isGovMode$: () => of(false), globalIsGovMode$: of(false) };
 const mockApiService: Partial<ApiService> = {};
 const mockFreeFamiliesPolicyService = { showFreeFamilies$: of(true) };
@@ -86,7 +84,6 @@ export default {
         { provide: LockService, useValue: mockLockService },
         { provide: AvatarService, useValue: mockAvatarService },
         { provide: ConfigService, useValue: mockConfigService },
-        { provide: LogService, useValue: mockLogService },
         { provide: GovModeService, useValue: mockGovModeService },
         ProductSwitcherService,
       ],

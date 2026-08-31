@@ -30,7 +30,6 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { BitwardenIcon } from "@bitwarden/components";
@@ -121,7 +120,6 @@ export class ProductSwitcherService {
     private i18nService: I18nService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private govModeService: GovModeService,
-    private logService: LogService,
   ) {
     this.pollUntilSynced();
   }
@@ -141,7 +139,7 @@ export class ProductSwitcherService {
     switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
   );
 
-  isGovMode$ = clientIsGovMode$(this.accountService, this.govModeService, this.logService);
+  isGovMode$ = clientIsGovMode$(this.accountService, this.govModeService);
 
   shouldShowPremiumUpgradeButton$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     switchMap((account) => {
@@ -295,8 +293,8 @@ export class ProductSwitcherService {
           bento.push(products.ac);
         } else if (!userHasSingleOrgPolicy && !isGovMode && !vfo1FoundationEnabled) {
           // Offered only while VFO1 is off — flag-on, "Add plan" in Settings
-          // replaces the Organizations entry point. Never offered on the Gov
-          // cloud, where organizations are sales-provisioned (PM-40490).
+          // replaces the Organizations entry point. Never offered in Gov
+          // environments (PM-40490).
           other.push(products.orgs);
         }
 

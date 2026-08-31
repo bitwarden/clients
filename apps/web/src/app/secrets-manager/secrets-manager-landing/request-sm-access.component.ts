@@ -11,7 +11,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SearchModule, ToastService } from "@bitwarden/components";
 
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -47,7 +46,6 @@ export class RequestSMAccessComponent implements OnInit {
     private toastService: ToastService,
     private accountService: AccountService,
     private govModeService: GovModeService,
-    private logService: LogService,
   ) {}
 
   async ngOnInit() {
@@ -60,7 +58,7 @@ export class RequestSMAccessComponent implements OnInit {
       // govModeBlockedGuard would bounce a Gov user off /create-organization with an
       // access-denied toast, so send them back to the landing page instead.
       const isGovMode = await firstValueFrom(
-        clientIsGovMode$(this.accountService, this.govModeService, this.logService),
+        clientIsGovMode$(this.accountService, this.govModeService),
       );
       if (isGovMode) {
         await this.router.navigate(["/sm-landing"]);

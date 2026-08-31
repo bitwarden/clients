@@ -12,7 +12,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -110,7 +109,6 @@ describe("OrganizationLayoutComponent", () => {
         { provide: FreeFamiliesPolicyService, useValue: mockFreeFamiliesPolicyService },
         { provide: OrganizationWarningsService, useValue: mockOrganizationWarningsService },
         { provide: GovModeService, useValue: mockGovModeService },
-        { provide: LogService, useValue: mock<LogService>() },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })

@@ -1,13 +1,12 @@
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of, throwError } from "rxjs";
+import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
@@ -21,7 +20,6 @@ describe("RequestSMAccessComponent", () => {
   let router: MockProxy<Router>;
   let organizationService: MockProxy<OrganizationService>;
   let govModeService: MockProxy<GovModeService>;
-  let logService: MockProxy<LogService>;
   let component: RequestSMAccessComponent;
 
   beforeEach(() => {
@@ -32,8 +30,6 @@ describe("RequestSMAccessComponent", () => {
 
     govModeService = mock<GovModeService>();
     govModeService.isGovMode$.mockReturnValue(of(false));
-
-    logService = mock<LogService>();
 
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key: string) => key);
@@ -46,7 +42,6 @@ describe("RequestSMAccessComponent", () => {
       mock<ToastService>(),
       mockAccountServiceWith(USER_ID) as unknown as AccountService,
       govModeService,
-      logService,
     );
   });
 
@@ -64,15 +59,6 @@ describe("RequestSMAccessComponent", () => {
 
       expect(router.navigate).toHaveBeenCalledWith(["/sm-landing"]);
       expect(router.navigate).not.toHaveBeenCalledWith(["/create-organization"]);
-    });
-
-    it("fails open and navigates to organization creation when the Gov mode check errors", async () => {
-      govModeService.isGovMode$.mockReturnValue(throwError(() => new Error("boom")));
-
-      await component.ngOnInit();
-
-      expect(router.navigate).toHaveBeenCalledWith(["/create-organization"]);
-      expect(logService.error).toHaveBeenCalled();
     });
   });
 

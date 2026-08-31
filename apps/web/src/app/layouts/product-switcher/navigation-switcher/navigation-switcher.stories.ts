@@ -15,7 +15,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -118,10 +117,6 @@ class MockGovModeService implements Partial<GovModeService> {
   }
 }
 
-class MockLogService implements Partial<LogService> {
-  error() {}
-}
-
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -175,7 +170,6 @@ export default {
           useClass: MockBillingAccountProfileStateService,
         },
         { provide: GovModeService, useClass: MockGovModeService },
-        { provide: LogService, useClass: MockLogService },
         ProductSwitcherService,
         {
           provide: I18nService,

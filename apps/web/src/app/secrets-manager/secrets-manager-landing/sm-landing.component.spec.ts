@@ -1,11 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { of, throwError } from "rxjs";
+import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -16,7 +15,6 @@ const USER_ID = "user-id" as UserId;
 describe("SMLandingComponent", () => {
   let organizationService: MockProxy<OrganizationService>;
   let govModeService: MockProxy<GovModeService>;
-  let logService: MockProxy<LogService>;
   let component: SMLandingComponent;
 
   beforeEach(() => {
@@ -26,13 +24,10 @@ describe("SMLandingComponent", () => {
     govModeService = mock<GovModeService>();
     govModeService.isGovMode$.mockReturnValue(of(false));
 
-    logService = mock<LogService>();
-
     component = new SMLandingComponent(
       organizationService,
       mockAccountServiceWith(USER_ID) as unknown as AccountService,
       govModeService,
-      logService,
     );
   });
 
@@ -51,16 +46,6 @@ describe("SMLandingComponent", () => {
 
       expect(component.showTryItNow).toBe(false);
       expect(component.tryItNowUrl).toBeUndefined();
-    });
-
-    it("fails open and offers organization creation when the Gov mode check errors", async () => {
-      govModeService.isGovMode$.mockReturnValue(throwError(() => new Error("boom")));
-
-      await component.ngOnInit();
-
-      expect(component.showTryItNow).toBe(true);
-      expect(component.tryItNowUrl).toBe("/create-organization");
-      expect(logService.error).toHaveBeenCalled();
     });
   });
 

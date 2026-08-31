@@ -17,7 +17,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
@@ -74,10 +73,9 @@ export class UserLayoutComponent implements OnInit {
   );
 
   private readonly govModeService = inject(GovModeService);
-  private readonly logService = inject(LogService);
 
   protected readonly isGovMode = toSignal(
-    clientIsGovMode$(this.accountService, this.govModeService, this.logService),
+    clientIsGovMode$(this.accountService, this.govModeService),
     { initialValue: false },
   );
 

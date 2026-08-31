@@ -13,7 +13,6 @@ import { of } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 
@@ -28,7 +27,7 @@ function findRoutes(candidates: Route[], path: string): Route[] {
 }
 
 describe("oss routing", () => {
-  // Self-serve organization creation is blocked on the Gov cloud (PM-40490). These assertions pin
+  // Self-serve organization creation is blocked in Gov environments (PM-40490). These assertions pin
   // the guard wiring by running each route's canActivate entries with Gov mode on: dropping the
   // canActivate entry — or registering the factory uncalled, which Angular would treat as the
   // guard and silently fail open — must fail this suite.
@@ -52,7 +51,6 @@ describe("oss routing", () => {
           { provide: GovModeService, useValue: govModeService },
           { provide: AccountService, useValue: accountService },
           { provide: ToastService, useValue: mock<ToastService>() },
-          { provide: LogService, useValue: mock<LogService>() },
           { provide: I18nService, useValue: mock<I18nService>() },
         ],
       });

@@ -20,7 +20,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -83,7 +82,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   protected organizationWarningsService = inject(OrganizationWarningsService);
   private vfo1TerminologyService = inject(Vfo1TerminologyService);
   private govModeService = inject(GovModeService);
-  private logService = inject(LogService);
 
   get searchPlaceholder() {
     if (this.activeFilter.isFavorites) {
@@ -265,7 +263,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     );
 
     const isGovMode = await firstValueFrom(
-      clientIsGovMode$(this.accountService, this.govModeService, this.logService),
+      clientIsGovMode$(this.accountService, this.govModeService),
     );
 
     const addAction =
