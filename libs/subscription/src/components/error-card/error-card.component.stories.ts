@@ -17,7 +17,6 @@ export const SubscriptionFailedToLoad: Story = {
     description: "We ran into a problem loading your subscription details. Refresh to try again.",
     buttonText: "Refresh",
     icon: "bwi-clear",
-    iconClass: "tw-text-lg tw-text-fg-warning",
   },
 };
 

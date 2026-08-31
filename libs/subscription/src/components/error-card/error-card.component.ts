@@ -33,7 +33,7 @@ export class ErrorCardComponent {
   readonly icon = input<BitwardenIcon>("bwi-error");
 
   /** Utility classes applied to the icon, e.g. to change its color for a danger vs. warning error. */
-  readonly iconClass = input<string>("tw-text-2xl tw-text-fg-warning");
+  readonly iconClass = input<string>("tw-text-lg tw-text-fg-warning");
 
   /** Emitted when the action button is clicked. */
   readonly actionClicked = output<void>();
