@@ -3,7 +3,7 @@ import { Observable } from "rxjs";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { RiskCategory, VaultHealthReportState } from "../../models";
+import { VaultHealthReportState } from "../../models";
 
 /**
  * Report builder and publisher for the browser Health tab. Scoring a login is the
@@ -44,12 +44,4 @@ export abstract class VaultHealthReportService {
    * until a build runs.
    */
   abstract getVaultHealthReport$(userId: UserId): Observable<VaultHealthReportState>;
-
-  /**
-   * Removes an item from the published report without rebuilding it, adjusting the
-   * counts and the score. `category` has to be the one the item was bucketed into
-   * (highest-risk-wins, not merely a category it is at risk in), otherwise the call
-   * is a no-op.
-   */
-  abstract deleteItemFromReport(cipherId: string, category: RiskCategory, userId: UserId): void;
 }

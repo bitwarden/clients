@@ -603,6 +603,22 @@ describe("HealthRiskCategoryDetailComponent", () => {
       expect(text()).toContain("Item 1");
     });
 
+    it("refreshes the report when a listed login is deleted", async () => {
+      // The delete dialog no longer touches the report. It soft deletes, which sets
+      // deletedDate on the cipher, and the report drops the row on the next refresh
+      // because its scope filter excludes deleted logins.
+      await initComponent();
+      await settleRefresh();
+      reportService.refreshVaultHealthReport.mockClear();
+
+      const deleted = buildLogin({ id: "cipher-1", name: "Item 1" });
+      deleted.deletedDate = new Date();
+      cipherViews$.next([deleted]);
+      await settleRefresh();
+
+      expect(reportService.refreshVaultHealthReport).toHaveBeenCalledWith([deleted], userId);
+    });
+
     it("stops watching the vault once the page is destroyed", async () => {
       await initComponent();
       await settleRefresh();

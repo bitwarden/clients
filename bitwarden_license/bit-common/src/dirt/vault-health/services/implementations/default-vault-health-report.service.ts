@@ -8,7 +8,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherRiskResult } from "@bitwarden/sdk-internal";
 
 import { CipherHealthView } from "../../../access-intelligence/models/view/cipher-health.view";
-import { RiskCategory } from "../../models/risk-category";
 import {
   VAULT_HEALTH_REPORT_IDLE,
   VaultHealthReportState,
@@ -142,48 +141,6 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
       map(({ status, report }) => ({ status, report })),
       distinctUntilChanged((a, b) => a.status === b.status && a.report === b.report),
     );
-  }
-
-  /**
-   * Delete an item from an existing vault health report, without rebuilding the
-   * report. Publishes a new report to `getVaultHealthReport$` with the item
-   * removed and the counts and score adjusted.
-   *
-   * @param cipherId the id of the cipher/item to be deleted from the report
-   * @param category the risk category the cipher/item belongs to
-   * @param userId the id of the user deleting the item
-   * @returns n/a
-   */
-  deleteItemFromReport(cipherId: string, category: RiskCategory, userId: UserId): void {
-    const state = this.stateFor(userId);
-    // Nothing to remove from until a report has been built for this user.
-    if (state.value.report == null) {
-      return;
-    }
-
-    const report = state.value.report;
-    const items = report.categoryItems[category].filter((item) => item.cipherId !== cipherId);
-    if (items.length === report.categoryItems[category].length) {
-      return;
-    }
-
-    const atRiskCount = report.atRiskCount - 1;
-    const totalCount = report.totalCount - 1;
-
-    const updated = new VaultHealthReportView({
-      ...report,
-      atRiskCount,
-      totalCount,
-      score: totalCount === 0 ? 0 : atRiskCount / totalCount,
-      categoryItems: { ...report.categoryItems, [category]: items },
-    });
-
-    // The fingerprint still names the deleted login, so the next vault change rebuilds.
-    state.next({
-      status: VaultHealthReportStatus.Success,
-      report: updated,
-      fingerprint: state.value.fingerprint,
-    });
   }
 
   /**
