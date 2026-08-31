@@ -6,7 +6,12 @@ import { mock } from "jest-mock-extended";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
-import { BitTableV2Component, DialogService, FilterControl } from "@bitwarden/components";
+import {
+  BitTablePaginatorComponent,
+  BitTableV2Component,
+  DialogService,
+  FilterControl,
+} from "@bitwarden/components";
 
 import { SharedFolderPermission } from "./shared-folder-permission";
 import { SharedFoldersTableBulkAction } from "./shared-folders-table-bulk-action";
@@ -585,6 +590,12 @@ describe("SharedFoldersTableComponent", () => {
       return element;
     }
 
+    /** The paginator's own instance, to stand in for a reader working its rows-per-page select. */
+    function paginatorComponent(): BitTablePaginatorComponent {
+      return fixture.debugElement.query(By.directive(BitTablePaginatorComponent))
+        .componentInstance as BitTablePaginatorComponent;
+    }
+
     afterEach(() => {
       jest.restoreAllMocks();
       Object.defineProperty(window, "innerHeight", {
@@ -662,6 +673,19 @@ describe("SharedFoldersTableComponent", () => {
       settle();
 
       expect(renderedRows()).toHaveLength(6);
+      expect(paginator().classList).not.toContain("tw-hidden");
+    }));
+
+    // The rows-per-page select lives in the paginator, so hiding a one-page paginator would take
+    // away the control that asked for the longer page — with nothing to restore it until a resize.
+    it("keeps the paginator while a hand-picked size fits every folder on one page", fakeAsync(() => {
+      layOutRows({ top: 300, height: 56 });
+      render(20);
+
+      paginatorComponent().pageSize.set(25);
+      settle();
+
+      expect(renderedRows()).toHaveLength(20);
       expect(paginator().classList).not.toContain("tw-hidden");
     }));
 
