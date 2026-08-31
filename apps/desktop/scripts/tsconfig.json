@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    // These scripts are run by Node's type stripping rather than compiled, so imports name the
+    // real file on disk and nothing here may emit runtime code. `preserve` keeps tsc from
+    // second-guessing the module format the way `nodenext` would.
+    "module": "preserve",
+    "types": ["node", "jest"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    // channel.js is CommonJS so the electron-builder hooks can require it; this lets the .mts
+    // modules import it and take its JSDoc types, without type-checking it as if it were TS.
+    "allowJs": true,
+    "checkJs": false,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true
+  },
+  "include": ["*.ts", "*.mts", "*.js"]
+}

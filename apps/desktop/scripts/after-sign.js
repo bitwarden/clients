@@ -6,6 +6,8 @@ const { notarize } = require("@electron/notarize");
 const { deepAssign } = require("builder-util");
 const fse = require("fs-extra");
 
+const { TEAM_ID } = require("./channel.js");
+
 exports.default = run;
 
 async function run(context) {
@@ -77,7 +79,7 @@ async function run(context) {
       return await notarize({
         tool: "notarytool",
         appPath: appPath,
-        teamId: "LTZ2PFU5D6",
+        teamId: TEAM_ID,
         appleId: appleId,
         appleIdPassword: appleIdPassword,
       });
