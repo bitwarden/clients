@@ -9,15 +9,12 @@
         {{ "collections" | vfo1I18n: "sharedFolders" }}
       </bit-breadcrumb>
       @for (crumb of collectionBreadcrumbs(); track crumb.id) {
-        <bit-breadcrumb
-          [icon]="'bwi-collection-shared' | vfo1Icon"
-          [route]="sharedFolderRoute(crumb)"
-        >
+        <bit-breadcrumb [icon]="'bwi-shared-folder'" [route]="sharedFolderRoute(crumb)">
           {{ crumb.name }}
         </bit-breadcrumb>
       }
       <bit-breadcrumb
-        [icon]="'bwi-collection-shared' | vfo1Icon"
+        [icon]="'bwi-shared-folder'"
         [route]="currentFolderRoute()"
         queryParamsHandling="preserve"
       >
