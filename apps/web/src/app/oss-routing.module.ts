@@ -62,6 +62,7 @@ import { flagEnabled, Flags } from "../utils/flags";
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
+import { addPlanRedirectGuard } from "./admin-console/settings/add-plan-redirect.guard";
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { AuthWebRoute, AuthWebRouteSegment } from "./auth/constants/auth-web-route.constant";
 import { deepLinkGuard } from "./auth/guards/deep-link/deep-link.guard";
@@ -730,6 +731,7 @@ const routes: Routes = [
       {
         path: "create-organization",
         component: CreateOrganizationComponent,
+        canActivate: [addPlanRedirectGuard],
         data: { titleId: "newOrganization" } satisfies RouteDataProperties,
       },
       {
