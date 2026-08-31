@@ -691,13 +691,75 @@ describe("CipherViewBannerComponent", () => {
       expect(glyph("bwi-clock")).not.toBeNull();
     });
 
-    it("keeps warning about a lease that lapsed before the refresh landed", async () => {
+    it("shows no active card at all for a lease that lapsed before the read landed", async () => {
+      // A lapsed lease is dropped however the server answered, leaving no active tile to escalate.
       await activeLeaseEndingIn(-60 * 1000);
 
-      expect(query('[data-testid="active-lease-ending-soon"]')?.textContent?.trim()).toBe(
-        "pamActiveLeaseBannerEndingSoonTitle 0s",
+      expect(query('bit-card[data-testid="cipher-view-banner-active"]')).toBeNull();
+      expect(query('[data-testid="active-lease-ending-soon"]')).toBeNull();
+      expect(query('bit-card[data-testid="cipher-view-banner-request"]')).not.toBeNull();
+    });
+  });
+
+  describe("a lease that runs out with the item open", () => {
+    const NOW = Date.parse("2026-01-01T15:00:00.000Z");
+    const ENDS_AT = new Date(NOW + 60_000).toISOString();
+
+    // Pinned rather than faked: a fake timer would stall `fixture.whenStable()`. Moving the pin
+    // forward is the whole event — nothing is announced and nothing is clicked.
+    beforeEach(() => {
+      jest.spyOn(Date, "now").mockReturnValue(NOW);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    /** The banner's countdown runs on a real interval; a tick is only observed by outlasting it. */
+    function waitForTick(): Promise<void> {
+      return new Promise((resolve) => setTimeout(resolve, 1_100));
+    }
+
+    async function openWithLeaseEndingAt(iso: string): Promise<void> {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ activeLease: leaseView({ notAfter: iso }) }),
       );
-      expect(glyph("bwi-clock")).toBeNull();
+      await create(gatedCipher());
+    }
+
+    it("falls back to the resting request card once the window closes", async () => {
+      await openWithLeaseEndingAt(ENDS_AT);
+      expect(query('[data-testid="cipher-view-banner-active"]')).not.toBeNull();
+
+      jest.spyOn(Date, "now").mockReturnValue(NOW + 61_000);
+      await waitForTick();
+      fixture.detectChanges();
+
+      expect(query('[data-testid="cipher-view-banner-active"]')).toBeNull();
+      expect(query('[data-testid="cipher-view-banner-request"]')).not.toBeNull();
+    });
+
+    it("locks without asking the server again", async () => {
+      // Deliberately local: a trailing server clock would answer with the lease still on it.
+      await openWithLeaseEndingAt(ENDS_AT);
+      expect(requestsApi.getCipherAccessState).toHaveBeenCalledTimes(1);
+
+      jest.spyOn(Date, "now").mockReturnValue(NOW + 61_000);
+      await waitForTick();
+      fixture.detectChanges();
+
+      expect(query('[data-testid="cipher-view-banner-active"]')).toBeNull();
+      expect(requestsApi.getCipherAccessState).toHaveBeenCalledTimes(1);
+    });
+
+    it("keeps the active card while the window is still open", async () => {
+      await openWithLeaseEndingAt(ENDS_AT);
+
+      jest.spyOn(Date, "now").mockReturnValue(NOW + 59_000);
+      await waitForTick();
+      fixture.detectChanges();
+
+      expect(query('[data-testid="cipher-view-banner-active"]')).not.toBeNull();
     });
   });
 
