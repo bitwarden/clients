@@ -98,7 +98,9 @@ option is declared once but rendered per surface, so only the row maps one-to-on
 focusable.
 
 Both surfaces sit in a `dialog`-role popover, so `Tab` reaches the search field and the footer
-instead of dismissing, and `Escape` closes and returns focus to the chip.
+instead of dismissing, and `Escape` closes and returns focus to the chip. Opening puts focus
+straight on the first row — or the search field, when there is one — rather than on the popover
+itself, so the arrow keys work without a priming `Tab`.
 
 ## Value
 
