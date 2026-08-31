@@ -35,7 +35,11 @@
 <ng-template #optionRow let-option let-depth="depth">
   @let selected = optionSelected(option);
   @let partial = partiallySelected(option);
-  <div [class]="optionRowClasses" [style.padding-inline-start.rem]="0.5 + depth * 1.25">
+  <div
+    data-filter-option-row
+    [class]="optionRowClasses"
+    [style.padding-inline-start.rem]="0.5 + depth * 1.25"
+  >
     @if (option.hasChildren()) {
       <button
         type="button"
@@ -106,7 +110,6 @@
     <div
       #tree
       role="tree"
-      aria-multiselectable="true"
       [attr.aria-label]="placeholderText()"
       tabindex="-1"
       class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
@@ -117,6 +120,7 @@
         @let checked = nodeChecked(node);
         <div
           role="treeitem"
+          data-filter-option-row
           [bitFilterTreeRow]="node"
           [class]="optionRowClasses"
           [style.padding-inline-start.rem]="0.5 + (node.level - 1) * 1.25"
@@ -198,7 +202,7 @@
     >
       @if (!multiple()) {
         @let allSelected = isSelected(clearValue);
-        <label [class]="optionRowClasses">
+        <label data-filter-option-row [class]="optionRowClasses">
           <input
             type="radio"
             [class]="radioInputClasses"

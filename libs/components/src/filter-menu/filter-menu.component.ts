@@ -274,7 +274,6 @@ export class FilterMenuComponent
 
   protected readonly disabled = computed(() => this.baseChip.disabled());
 
-  private readonly treeEl = viewChild<ElementRef<HTMLElement>>("tree");
   // `read` is explicit: the button also hosts `bit-chip-content`.
   private readonly chipTriggerEl = viewChild("chipTrigger", { read: ElementRef<HTMLElement> });
   private readonly injector = inject(Injector);

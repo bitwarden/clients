@@ -83,12 +83,12 @@ export class FilterDialogComponent {
     "tw-border",
     "tw-border-solid",
     "tw-border-border-base",
-    "[&_[role^=menuitem]]:tw-rounded-none",
-    "[&_[role^=menuitem]]:tw-border-0",
-    "[&_[role^=menuitem]]:tw-border-b",
-    "[&_[role^=menuitem]]:tw-border-solid",
-    "[&_[role^=menuitem]]:tw-border-border-base",
-    "[&_[role^=menuitem]:last-of-type]:tw-border-b-0",
+    "[&_[data-filter-option-row]]:tw-rounded-none",
+    "[&_[data-filter-option-row]]:tw-border-0",
+    "[&_[data-filter-option-row]]:tw-border-b",
+    "[&_[data-filter-option-row]]:tw-border-solid",
+    "[&_[data-filter-option-row]]:tw-border-border-base",
+    "[&_[data-filter-option-row]:last-of-type]:tw-border-b-0",
   ].join(" ");
 
   /** A row tap: drill into a filter that has options, or flip a toggle in place. */

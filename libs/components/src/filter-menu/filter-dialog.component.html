@@ -1,17 +1,14 @@
-<bit-dialog [title]="activeFilter() ? '' : ('filter' | i18n)" dialogSize="small">
-  <!-- Projected rather than `[title]` so the back chevron sits beside the title. -->
-  @if (activeFilter(); as filter) {
-    <span bitDialogTitle class="tw-flex tw-items-center tw-gap-1">
-      <button
-        type="button"
-        bitIconButton="bwi-angle-left"
-        buttonType="primaryGhost"
-        size="small"
-        [label]="'back' | i18n"
-        (click)="back()"
-      ></button>
-      {{ filter.label() }}
-    </span>
+<bit-dialog [title]="activeFilter()?.label() ?? ('filter' | i18n)" dialogSize="small">
+  @if (activeFilter()) {
+    <button
+      bitDialogHeaderStart
+      type="button"
+      bitIconButton="bwi-angle-left"
+      buttonType="primaryGhost"
+      size="small"
+      [label]="'back' | i18n"
+      (click)="back()"
+    ></button>
   }
   <div bitDialogContent>
     @if (activeFilter(); as filter) {
