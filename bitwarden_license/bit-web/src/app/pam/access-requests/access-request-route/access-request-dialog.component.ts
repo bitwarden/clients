@@ -12,6 +12,7 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { filter } from "rxjs";
 
+import { NoResults } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -23,7 +24,8 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
-  NoItemsModule,
+  StatusLockupComponent,
+  SvgComponent,
   SectionComponent,
   SectionHeaderComponent,
   ToastService,
@@ -97,7 +99,8 @@ export type AccessRequestDialogParams = {
     BadgeComponent,
     ButtonModule,
     DialogModule,
-    NoItemsModule,
+    StatusLockupComponent,
+    SvgComponent,
     SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
@@ -107,6 +110,8 @@ export type AccessRequestDialogParams = {
   ],
 })
 export class AccessRequestDialogComponent implements OnInit {
+  protected readonly noResultsSvg = NoResults;
+
   private readonly detail = inject<AccessRequestDialogParams>(DIALOG_DATA).detail;
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);

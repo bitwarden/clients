@@ -177,11 +177,17 @@ describe("AccessRuleEditComponent — page furniture", () => {
     expect(text).toContain("Production database access");
     expect(text).toContain("pamAccessRules");
 
-    const crumbs = fixture.nativeElement.querySelectorAll("bit-breadcrumbs button");
+    // `bit-breadcrumbs` renders its own responsive overflow trigger, which is a menu button; the
+    // crumbs themselves must stay links.
+    const crumbs = fixture.nativeElement.querySelectorAll(
+      'bit-breadcrumbs button:not([aria-haspopup="menu"])',
+    );
     expect(crumbs).toHaveLength(0);
 
+    // Direct child: `bit-breadcrumbs` marks its own active crumb `aria-current="page"` too, and in
+    // a test router every crumb reads as active. The page-type crumb is the slot's own span.
     const pageTypeCrumb = fixture.nativeElement.querySelector(
-      '[slot="breadcrumbs"] [aria-current="page"]',
+      '[slot="breadcrumbs"] > [aria-current="page"]',
     );
     expect(pageTypeCrumb.textContent.trim()).toBe("pamAccessRuleEditTitle");
   });
@@ -189,11 +195,17 @@ describe("AccessRuleEditComponent — page furniture", () => {
   it("shows the create-page crumb and heading in create mode", async () => {
     const fixture = await render({});
 
-    const crumbs = fixture.nativeElement.querySelectorAll("bit-breadcrumbs button");
+    // `bit-breadcrumbs` renders its own responsive overflow trigger, which is a menu button; the
+    // crumbs themselves must stay links.
+    const crumbs = fixture.nativeElement.querySelectorAll(
+      'bit-breadcrumbs button:not([aria-haspopup="menu"])',
+    );
     expect(crumbs).toHaveLength(0);
 
+    // Direct child: `bit-breadcrumbs` marks its own active crumb `aria-current="page"` too, and in
+    // a test router every crumb reads as active. The page-type crumb is the slot's own span.
     const pageTypeCrumb = fixture.nativeElement.querySelector(
-      '[slot="breadcrumbs"] [aria-current="page"]',
+      '[slot="breadcrumbs"] > [aria-current="page"]',
     );
     expect(pageTypeCrumb.textContent.trim()).toBe("pamAccessRuleCreateTitle");
 
