@@ -16,6 +16,8 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -23,7 +25,7 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { SelectComponent } from "@bitwarden/components";
+import { Option, SelectComponent } from "@bitwarden/components";
 
 import { Vfo1TerminologyService } from "../../../services/vfo1-terminology.service";
 import {
@@ -71,6 +73,7 @@ describe("ItemDetailsSectionComponent", () => {
   let mockPolicyService: MockProxy<PolicyService>;
   let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
   let mockCipherArchiveService: MockProxy<CipherArchiveService>;
+  let mockAvatarService: MockProxy<AvatarService>;
   let mockVfo1Enabled: WritableSignal<boolean>;
 
   const activeAccount$ = new BehaviorSubject<{ email: string }>({ email: "test@example.com" });
@@ -103,6 +106,8 @@ describe("ItemDetailsSectionComponent", () => {
     mockPolicyService.policiesByType$.mockReturnValue(of([]));
     mockPlatformUtilsService = mock<PlatformUtilsService>();
     mockCipherArchiveService = mock<CipherArchiveService>();
+    mockAvatarService = mock<AvatarService>();
+    mockAvatarService.getUserAvatarColor$.mockReturnValue(of("#175ddc"));
 
     await TestBed.configureTestingModule({
       imports: [ItemDetailsSectionComponent, CommonModule, ReactiveFormsModule],
@@ -110,6 +115,7 @@ describe("ItemDetailsSectionComponent", () => {
         { provide: CipherFormContainer, useValue: cipherFormProvider },
         { provide: I18nService, useValue: i18nService },
         { provide: AccountService, useValue: { activeAccount$ } },
+        { provide: AvatarService, useValue: mockAvatarService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: PolicyService, useValue: mockPolicyService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
@@ -918,7 +924,7 @@ describe("ItemDetailsSectionComponent", () => {
       expect(firstItem.description).toBe("test@example.com");
     });
 
-    it("shows the user icon on the personal ownership option", async () => {
+    it("shows the user icon tile, tinted to the avatar color, on the personal ownership option", async () => {
       component.config.mode = "edit";
       component.config.organizationDataOwnershipDisabled = true;
       fixture.componentRef.setInput("originalCipherView", {} as CipherView);
@@ -929,7 +935,55 @@ describe("ItemDetailsSectionComponent", () => {
       const select = fixture.debugElement.query(By.directive(SelectComponent));
       const firstItem = select.componentInstance.items()[0];
 
-      expect(firstItem.icon).toBe("bwi-user");
+      expect(firstItem.iconTile).toEqual({ icon: "bwi-user", color: "#175ddc" });
     });
+
+    // `bit-select` maps its options inside an `afterRenderEffect` that reads `iconTile` and writes
+    // the mapped array. A binding that built a new tile object per render would re-trigger that
+    // effect forever and hang the app, so the reference has to survive change detection.
+    it("keeps each option's icon tile reference stable across renders", async () => {
+      component.config.mode = "edit";
+      component.config.organizationDataOwnershipDisabled = true;
+      fixture.componentRef.setInput("originalCipherView", {} as CipherView);
+      component.config.organizations = [
+        { id: "134-433-22", productTierType: ProductTierType.Enterprise } as Organization,
+      ];
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const select = fixture.debugElement.query(By.directive(SelectComponent));
+      const before = select.componentInstance.items().map((item: Option<string>) => item.iconTile);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const after = select.componentInstance.items().map((item: Option<string>) => item.iconTile);
+
+      expect(after).toHaveLength(before.length);
+      after.forEach((tile: unknown, index: number) => expect(tile).toBe(before[index]));
+    });
+
+    it.each([
+      [ProductTierType.Families, "bwi-family", "teal"],
+      [ProductTierType.Free, "bwi-family", "teal"],
+      [ProductTierType.Enterprise, "bwi-business", "purple"],
+    ])(
+      "colors the organization's icon tile by product tier %s",
+      async (productTierType, icon, variant) => {
+        component.config.mode = "edit";
+        component.config.organizationDataOwnershipDisabled = true;
+        fixture.componentRef.setInput("originalCipherView", {} as CipherView);
+        component.config.organizations = [{ id: "134-433-22", productTierType } as Organization];
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        const select = fixture.debugElement.query(By.directive(SelectComponent));
+        const orgItem = select.componentInstance
+          .items()
+          .find((item: { value: string | null }) => item.value === "134-433-22");
+
+        expect(orgItem.iconTile).toEqual({ icon, variant, emphasis: "bold" });
+      },
+    );
   });
 });

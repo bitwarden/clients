@@ -33,7 +33,6 @@ const personalItem: VaultNavItemViewModel = {
 const orgA: VaultNavItemViewModel = {
   id: "org-a",
   label: "Acme corporation",
-  color: "purple",
   icon: "bwi-business",
   type: VaultNavItemType.Organization,
 };
@@ -41,7 +40,6 @@ const orgA: VaultNavItemViewModel = {
 const family: VaultNavItemViewModel = {
   id: "org-b",
   label: "Smith family",
-  color: "teal",
   icon: "bwi-family",
   type: VaultNavItemType.Family,
 };

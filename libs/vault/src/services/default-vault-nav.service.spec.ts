@@ -95,7 +95,7 @@ describe("DefaultVaultNavService", () => {
       ]);
     });
 
-    it("colors Teams and Enterprise organizations purple", async () => {
+    it("types Teams and Enterprise organizations as Organization", async () => {
       const teamsOrg = makeOrg("Teams Org", ProductTierType.Teams);
       const enterpriseOrg = makeOrg("Enterprise Org", ProductTierType.Enterprise);
       memberOrgs$.next([teamsOrg, enterpriseOrg]);
@@ -104,10 +104,9 @@ describe("DefaultVaultNavService", () => {
 
       const orgItems = vm.vaults.filter((v) => v.type === VaultNavItemType.Organization);
       expect(orgItems).toHaveLength(2);
-      expect(orgItems.every((v) => v.color === "purple")).toBe(true);
     });
 
-    it("colors Families and Free organizations teal", async () => {
+    it("types Families and Free organizations as Family", async () => {
       const familiesOrg = makeOrg("Families Org", ProductTierType.Families);
       const freeOrg = makeOrg("Free Org", ProductTierType.Free);
       memberOrgs$.next([familiesOrg, freeOrg]);
@@ -116,7 +115,19 @@ describe("DefaultVaultNavService", () => {
 
       const familyItems = vm.vaults.filter((v) => v.type === VaultNavItemType.Family);
       expect(familyItems).toHaveLength(2);
-      expect(familyItems.every((v) => v.color === "teal")).toBe(true);
+    });
+
+    it("leaves color unset on organization items", async () => {
+      memberOrgs$.next([
+        makeOrg("Families Org", ProductTierType.Families),
+        makeOrg("Enterprise Org", ProductTierType.Enterprise),
+      ]);
+
+      const vm = await firstValueFrom(service.viewModel$(userId));
+
+      const orgItems = vm.vaults.filter((v) => v.type !== VaultNavItemType.Personal);
+      expect(orgItems).toHaveLength(2);
+      expect(orgItems.every((v) => v.color === undefined)).toBe(true);
     });
 
     it("omits the personal item when OrganizationDataOwnership applies", async () => {

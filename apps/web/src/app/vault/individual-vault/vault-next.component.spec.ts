@@ -101,7 +101,6 @@ describe("VaultNextComponent", () => {
   const buildOrgNavItem = (id: OrganizationId, label: string): VaultNavItemViewModel => ({
     id,
     label,
-    color: "purple",
     icon: "bwi-business",
     type: VaultNavItemType.Organization,
   });
