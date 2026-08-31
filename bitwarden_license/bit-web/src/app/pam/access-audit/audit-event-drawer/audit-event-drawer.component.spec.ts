@@ -432,7 +432,6 @@ describe("AuditEventDrawerComponent", () => {
       expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(id);
     });
 
-    // Nothing to copy, so nothing to offer copying.
     it.each(["request-id", "lease-id"])(
       "offers no copy affordance beside an absent %s",
       async (name) => {
