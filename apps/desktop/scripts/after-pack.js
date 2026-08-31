@@ -7,26 +7,16 @@ const { flipFuses, FuseVersion, FuseV1Options } = require("@electron/fuses");
 const builder = require("electron-builder");
 const fse = require("fs-extra");
 
-const { channelForAppId } = require("./channel.js");
-
 exports.default = run;
 
-/// Where a build's entitlements live.
+/// A document written by generate-entitlements.mts for the build being packed. Every channel
+/// generates from its own application identifier, so the App Group a binary is signed into always
+/// matches the app it ships inside.
 ///
-/// Beta generates them at pack time from the application identifier it is being built with, so its
-/// App Group follows its bundle identifier instead of naming stable's. Stable still signs with the
-/// checked-in plists, which scripts/entitlements.spec.ts pins to the generator's output byte for
-/// byte -- its build path deliberately does not change here, because it ships first. Both channels
-/// converge once the generator drives all of them.
-///
-/// @param {"stable" | "beta"} channel
-/// @param {string} generated file name under intermediates/entitlements
-/// @param {string} checkedIn file name under resources
+/// @param {string} name file name under intermediates/entitlements
 /// @returns {string}
-function entitlementsPath(channel, generated, checkedIn) {
-  return channel === "beta"
-    ? path.join(__dirname, "..", "intermediates", "entitlements", generated)
-    : path.join(__dirname, "..", "resources", checkedIn);
+function entitlementsPath(name) {
+  return path.join(__dirname, "..", "intermediates", "entitlements", name);
 }
 
 /**
@@ -129,20 +119,10 @@ async function run(context) {
 
     const packageId = context.packager.appInfo.id;
 
-    // The proxy is scoped to the App Group it shares with the app, and that group is named after
-    // the app, so its entitlements have to follow the identifier actually being built. Resolved
-    // from the identifier rather than by testing for a suffix: `com.bitwarden.beta.desktop` does
-    // not end in `.beta`, and an identifier that is not one of ours should fail loudly.
-    const channel = channelForAppId(packageId);
-
     // Sandbox the proxy and scope it to the App Group on Developer ID builds as well as App Store
     // ones, so both reach the same shared container the app listens on. Without the group the
     // proxy resolves its socket to its own cache directory, which the app cannot see.
-    const proxyEntitlements = entitlementsPath(
-      channel,
-      "desktop-proxy.plist",
-      "entitlements.desktop_proxy.plist",
-    );
+    const proxyEntitlements = entitlementsPath("desktop-proxy.plist");
     child_process.execSync(
       `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${proxyEntitlements}" "${proxyPath}"`,
     );
@@ -151,22 +131,14 @@ async function run(context) {
       // The App Store build spawns the inherit helper as a child of the sandboxed app, so it
       // takes the host's sandbox -- and its App Group membership -- through the inherit
       // entitlement rather than naming the group itself.
-      const inheritEntitlements = entitlementsPath(
-        channel,
-        "desktop-proxy-inherit.plist",
-        "entitlements.desktop_proxy.inherit.plist",
-      );
+      const inheritEntitlements = entitlementsPath("desktop-proxy-inherit.plist");
       child_process.execSync(
         `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${inheritEntitlements}" "${inheritProxyPath}"`,
       );
     } else {
       // For non-Appstore builds, we don't need the inherit binary as they are not sandboxed,
       // but we sign and include it anyway for consistency. It should be removed once DDG supports the proxy directly.
-      const inheritEntitlements = entitlementsPath(
-        channel,
-        "app-inherit.plist",
-        "entitlements.mac.inherit.plist",
-      );
+      const inheritEntitlements = entitlementsPath("app-inherit.plist");
       child_process.execSync(
         `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${inheritEntitlements}" "${inheritProxyPath}"`,
       );

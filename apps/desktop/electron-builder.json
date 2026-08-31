@@ -34,8 +34,8 @@
     "darkModeSupport": true,
     "gatekeeperAssess": false,
     "hardenedRuntime": true,
-    "entitlements": "resources/entitlements.mac.plist",
-    "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
+    "entitlements": "intermediates/entitlements/app.plist",
+    "entitlementsInherit": "intermediates/entitlements/app-inherit.plist",
     "extendInfo": {
       "BitwardenAppGroupIdentifier": "LTZ2PFU5D6.com.bitwarden.desktop",
       "ITSAppUsesNonExemptEncryption": false,
@@ -170,9 +170,9 @@
   },
   "mas": {
     "identity": "Bitwarden Inc",
-    "entitlements": "resources/entitlements.mas.plist",
-    "entitlementsInherit": "resources/entitlements.mas.inherit.plist",
-    "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",
+    "entitlements": "intermediates/entitlements/app.plist",
+    "entitlementsInherit": "intermediates/entitlements/app-inherit.plist",
+    "entitlementsLoginHelper": "intermediates/entitlements/login-helper.plist",
     "hardenedRuntime": true,
     "extendInfo": {
       "LSMinimumSystemVersion": "12",

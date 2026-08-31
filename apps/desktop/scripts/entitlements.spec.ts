@@ -1,6 +1,3 @@
-import { readFileSync } from "fs";
-import { join, resolve } from "path";
-
 import { APP_IDS, TEAM_ID } from "./channel.js";
 import {
   autofillExtensionEntitlements,
@@ -15,100 +12,199 @@ import {
 } from "./entitlements.mts";
 
 const BUNDLE_ID = APP_IDS.stable;
-const projectDir = resolve(__dirname, "..");
+const GROUP = `${TEAM_ID}.${BUNDLE_ID}`;
+const AUTOFILL = "com.apple.developer.authentication-services.autofill-credential-provider";
 
-function checkedIn(file: string): string {
-  return readFileSync(join(projectDir, file), "utf8");
+/// The XML envelope around a document, so a case states only its keys. `serializePlist` has its
+/// own cases at the bottom pinning this envelope and the tab indentation, so these helpers cannot
+/// quietly agree with a broken implementation about the format.
+function plist(...body: string[]): string {
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">',
+    '<plist version="1.0">',
+    "<dict>",
+    ...body,
+    "</dict>",
+    "</plist>",
+    "",
+  ].join("\n");
 }
 
-/// The checked-in files are what is signed today, so reproducing them exactly is what makes
-/// generating them instead a no-op for every existing build. Once nothing reads them any more
-/// these cases go with them.
-describe("reproducing the checked-in entitlements", () => {
-  it("matches autofill_extension.entitlements", () => {
-    const generated = autofillExtensionEntitlements({ bundleId: BUNDLE_ID, autofill: false });
+const bool = (key: string, value: boolean): string[] => [`\t<key>${key}</key>`, `\t<${value}/>`];
+const str = (key: string, value: string): string[] => [
+  `\t<key>${key}</key>`,
+  `\t<string>${value}</string>`,
+];
+const array = (key: string, values: string[]): string[] => [
+  `\t<key>${key}</key>`,
+  "\t<array>",
+  ...values.map((value) => `\t\t<string>${value}</string>`),
+  "\t</array>",
+];
+
+const identity = [
+  ...str("com.apple.application-identifier", GROUP),
+  ...str("com.apple.developer.team-identifier", TEAM_ID),
+];
+
+/// Directories a sandboxed App Store build may write a native messaging host manifest into. Spelled
+/// out because this is the list that had drifted between two hand-copied plists: one of them was
+/// missing `/NativeMessagingHosts/` from the Helium path.
+const NATIVE_MESSAGING_HOST_DIRS = [
+  "/Library/Application Support/Mozilla/NativeMessagingHosts/",
+  "/Library/Application Support/Google/Chrome/NativeMessagingHosts/",
+  "/Library/Application Support/Google/Chrome Beta/NativeMessagingHosts/",
+  "/Library/Application Support/Google/Chrome Dev/NativeMessagingHosts/",
+  "/Library/Application Support/Google/Chrome Canary/NativeMessagingHosts/",
+  "/Library/Application Support/Chromium/NativeMessagingHosts/",
+  "/Library/Application Support/Microsoft Edge/NativeMessagingHosts/",
+  "/Library/Application Support/Microsoft Edge Beta/NativeMessagingHosts/",
+  "/Library/Application Support/Microsoft Edge Dev/NativeMessagingHosts/",
+  "/Library/Application Support/Microsoft Edge Canary/NativeMessagingHosts/",
+  "/Library/Application Support/Vivaldi/NativeMessagingHosts/",
+  "/Library/Application Support/Zen/NativeMessagingHosts/",
+  "/Library/Application Support/net.imput.helium/NativeMessagingHosts/",
+];
+
+/// Each document in full. These were checked-in plists that the spec compared against; they are
+/// generated now, so the expected text lives here. Key order is asserted because it is part of the
+/// file, and the file is what gets signed.
+describe("the entitlements documents", () => {
+  it("writes a directly distributed app", () => {
+    const generated = macAppEntitlements({ bundleId: BUNDLE_ID, autofill: false });
 
     expect(serializePlist(generated)).toBe(
-      checkedIn("macos/autofill-extension/autofill_extension.entitlements"),
+      plist(
+        ...identity,
+        ...array("com.apple.security.application-groups", [GROUP]),
+        ...bool("com.apple.security.cs.allow-jit", true),
+      ),
     );
   });
 
-  it("matches autofill_extension_enabled.entitlements", () => {
-    const generated = autofillExtensionEntitlements({ bundleId: BUNDLE_ID, autofill: true });
+  it("writes a directly distributed app that claims AutoFill", () => {
+    const generated = macAppEntitlements({ bundleId: BUNDLE_ID, autofill: true });
 
     expect(serializePlist(generated)).toBe(
-      checkedIn("macos/autofill-extension/autofill_extension_enabled.entitlements"),
+      plist(
+        ...identity,
+        ...array("com.apple.security.application-groups", [GROUP]),
+        ...bool("com.apple.security.cs.allow-jit", true),
+        ...bool(AUTOFILL, true),
+      ),
     );
   });
 
-  it("matches entitlements.mac.plist", () => {
-    const generated = macAppEntitlements({ bundleId: BUNDLE_ID, autofill: false, appGroup: true });
-
-    expect(serializePlist(generated)).toBe(checkedIn("resources/entitlements.mac.plist"));
-  });
-
-  it("matches entitlements.mac.autofill-enabled.plist", () => {
-    const generated = macAppEntitlements({ bundleId: BUNDLE_ID, autofill: true, appGroup: true });
-
-    expect(serializePlist(generated)).toBe(
-      checkedIn("resources/entitlements.mac.autofill-enabled.plist"),
-    );
-  });
-
-  it("matches entitlements.mas.plist", () => {
+  it("writes an App Store app", () => {
     const generated = masAppEntitlements({ bundleId: BUNDLE_ID, autofill: false });
 
-    expect(serializePlist(generated)).toBe(checkedIn("resources/entitlements.mas.plist"));
-  });
-
-  it("matches entitlements.mac.inherit.plist", () => {
-    expect(serializePlist(macAppInheritEntitlements())).toBe(
-      checkedIn("resources/entitlements.mac.inherit.plist"),
+    expect(serializePlist(generated)).toBe(
+      plist(
+        ...identity,
+        ...bool("com.apple.security.app-sandbox", true),
+        ...array("com.apple.security.application-groups", [GROUP]),
+        ...bool("com.apple.security.cs.allow-jit", true),
+        ...bool("com.apple.security.device.usb", true),
+        ...bool("com.apple.security.files.bookmarks.app-scope", true),
+        ...bool("com.apple.security.files.user-selected.read-write", true),
+        ...bool("com.apple.security.network.client", true),
+        ...array(
+          "com.apple.security.temporary-exception.files.home-relative-path.read-write",
+          NATIVE_MESSAGING_HOST_DIRS,
+        ),
+      ),
     );
   });
 
-  it("matches entitlements.mas.inherit.plist", () => {
-    expect(serializePlist(masAppInheritEntitlements())).toBe(
-      checkedIn("resources/entitlements.mas.inherit.plist"),
-    );
-  });
-
-  /// The only one of these that a person indented by hand: it uses four spaces and indents the
-  /// <dict> as well. Whitespace is not part of a plist, so this compares the content.
-  it("matches entitlements.mas.loginhelper.plist apart from its indentation", () => {
-    const unindented = (plist: string) =>
-      plist
-        .split("\n")
-        .map((line) => line.trim())
-        .join("\n");
-
-    expect(unindented(serializePlist(masLoginHelperEntitlements()))).toBe(
-      unindented(checkedIn("resources/entitlements.mas.loginhelper.plist")),
-    );
-  });
-
-  it("matches entitlements.desktop_proxy.plist", () => {
-    expect(serializePlist(desktopProxyEntitlements({ bundleId: BUNDLE_ID, autofill: false }))).toBe(
-      checkedIn("resources/entitlements.desktop_proxy.plist"),
-    );
-  });
-
-  it("matches entitlements.desktop_proxy.inherit.plist", () => {
-    expect(serializePlist(desktopProxyInheritEntitlements())).toBe(
-      checkedIn("resources/entitlements.desktop_proxy.inherit.plist"),
-    );
-  });
-
-  /// This file had drifted: it listed the Helium native messaging host directory as
-  /// `.../net.imput.helium`, where entitlements.mas.plist has
-  /// `.../net.imput.helium/NativeMessagingHosts/`, so the App Store autofill build could not read
-  /// it. The checked-in file is corrected in this commit, which is why this can assert equality
-  /// like every other case rather than describing the difference.
-  it("matches entitlements.mas.autofill-enabled.plist", () => {
+  it("writes an App Store app that claims AutoFill", () => {
     const generated = masAppEntitlements({ bundleId: BUNDLE_ID, autofill: true });
 
     expect(serializePlist(generated)).toBe(
-      checkedIn("resources/entitlements.mas.autofill-enabled.plist"),
+      plist(
+        ...identity,
+        ...bool("com.apple.security.app-sandbox", true),
+        ...array("com.apple.security.application-groups", [GROUP]),
+        ...bool("com.apple.security.cs.allow-jit", true),
+        ...bool("com.apple.security.device.usb", true),
+        ...bool("com.apple.security.files.bookmarks.app-scope", true),
+        ...bool("com.apple.security.files.user-selected.read-write", true),
+        ...bool("com.apple.security.network.client", true),
+        ...array(
+          "com.apple.security.temporary-exception.files.home-relative-path.read-write",
+          NATIVE_MESSAGING_HOST_DIRS,
+        ),
+        ...bool(AUTOFILL, true),
+      ),
+    );
+  });
+
+  it("writes the inherit document for a directly distributed app", () => {
+    expect(serializePlist(macAppInheritEntitlements())).toBe(
+      plist(...bool("com.apple.security.cs.allow-jit", true)),
+    );
+  });
+
+  it("writes the inherit document for an App Store app", () => {
+    expect(serializePlist(masAppInheritEntitlements())).toBe(
+      plist(
+        ...bool("com.apple.security.app-sandbox", true),
+        ...bool("com.apple.security.cs.allow-jit", true),
+        ...bool("com.apple.security.inherit", true),
+      ),
+    );
+  });
+
+  it("writes the App Store login helper", () => {
+    expect(serializePlist(masLoginHelperEntitlements())).toBe(
+      plist(...bool("com.apple.security.app-sandbox", true)),
+    );
+  });
+
+  it("writes the native messaging proxy", () => {
+    const generated = desktopProxyEntitlements({ bundleId: BUNDLE_ID, autofill: false });
+
+    expect(serializePlist(generated)).toBe(
+      plist(
+        ...bool("com.apple.security.app-sandbox", true),
+        ...array("com.apple.security.application-groups", [GROUP]),
+        ...bool("com.apple.security.cs.allow-jit", true),
+      ),
+    );
+  });
+
+  it("writes the proxy copy that inherits the app's sandbox", () => {
+    expect(serializePlist(desktopProxyInheritEntitlements())).toBe(
+      plist(
+        ...bool("com.apple.security.app-sandbox", true),
+        ...bool("com.apple.security.inherit", true),
+        ...bool("com.apple.security.cs.allow-jit", true),
+      ),
+    );
+  });
+
+  /// No application or team identifier: Xcode fills those in from the provisioning profile when it
+  /// signs the extension.
+  it("writes the autofill extension", () => {
+    const generated = autofillExtensionEntitlements({ bundleId: BUNDLE_ID, autofill: false });
+
+    expect(serializePlist(generated)).toBe(
+      plist(
+        ...bool("com.apple.security.app-sandbox", true),
+        ...array("com.apple.security.application-groups", [GROUP]),
+      ),
+    );
+  });
+
+  it("writes the autofill extension when it claims AutoFill", () => {
+    const generated = autofillExtensionEntitlements({ bundleId: BUNDLE_ID, autofill: true });
+
+    expect(serializePlist(generated)).toBe(
+      plist(
+        ...bool("com.apple.security.app-sandbox", true),
+        ...array("com.apple.security.application-groups", [GROUP]),
+        ...bool(AUTOFILL, true),
+      ),
     );
   });
 });
@@ -139,27 +235,17 @@ describe("composing entitlements", () => {
     expect(beta["com.apple.security.application-groups"]).toEqual([`${TEAM_ID}.${APP_IDS.beta}`]);
   });
 
-  /// Claiming an entitlement the provisioning profile does not authorize fails the signature, so
-  /// the group stays opt-in even though both channels now ask for it -- a build signed with a
-  /// profile that predates the App Group has to be able to leave it out.
-  it("leaves the app group out of a directly distributed app unless it is asked for", () => {
-    const without = macAppEntitlements({ bundleId: BUNDLE_ID, autofill: false });
+  /// Every document that has to reach the shared container names the group. The socket lives
+  /// there on every build, so there is nothing left for a channel to opt out of.
+  it("gives the app its group whether it is sandboxed or not", () => {
+    const options = { bundleId: BUNDLE_ID, autofill: false };
+    const group = [`${TEAM_ID}.${BUNDLE_ID}`];
 
-    expect(without["com.apple.security.application-groups"]).toBeUndefined();
-  });
-
-  it("adds the app group to a directly distributed app when asked for", () => {
-    const beta = macAppEntitlements({ bundleId: APP_IDS.beta, autofill: true, appGroup: true });
-
-    expect(beta["com.apple.security.application-groups"]).toEqual([`${TEAM_ID}.${APP_IDS.beta}`]);
-  });
-
-  /// The App Store app is sandboxed, so the group is the only way it can reach the extension --
-  /// there is nothing to opt into.
-  it("always gives the App Store app its group", () => {
-    const mas = masAppEntitlements({ bundleId: BUNDLE_ID, autofill: false });
-
-    expect(mas["com.apple.security.application-groups"]).toEqual([`${TEAM_ID}.${BUNDLE_ID}`]);
+    expect(macAppEntitlements(options)["com.apple.security.application-groups"]).toEqual(group);
+    expect(masAppEntitlements(options)["com.apple.security.application-groups"]).toEqual(group);
+    expect(desktopProxyEntitlements(options)["com.apple.security.application-groups"]).toEqual(
+      group,
+    );
   });
 
   /// The extension shares the *app's* group, so its own identifier never appears here -- which is

@@ -29,7 +29,6 @@
 		E1DF71412B342F6900F29026 /* CredentialProviderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialProviderViewController.swift; sourceTree = "<group>"; };
 		E1DF71442B342F6900F29026 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/CredentialProviderViewController.xib; sourceTree = "<group>"; };
 		E1DF71462B342F6900F29026 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E1DF71472B342F6900F29026 /* autofill_extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = autofill_extension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,7 +90,6 @@
 				E1DF71412B342F6900F29026 /* CredentialProviderViewController.swift */,
 				E1DF71432B342F6900F29026 /* CredentialProviderViewController.xib */,
 				E1DF71462B342F6900F29026 /* Info.plist */,
-				E1DF71472B342F6900F29026 /* autofill_extension.entitlements */,
 			);
 			path = "autofill-extension";
 			sourceTree = "<group>";
@@ -103,6 +101,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E1DF714E2B342F6900F29026 /* Build configuration list for PBXNativeTarget "autofill-extension" */;
 			buildPhases = (
+				BW0001002B342F6900F29026 /* Check generated entitlements */,
 				E1DF71382B342F6900F29026 /* Sources */,
 				E1DF71392B342F6900F29026 /* Frameworks */,
 				E1DF713A2B342F6900F29026 /* Resources */,
@@ -162,6 +161,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		BW0001002B342F6900F29026 /* Check generated entitlements */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Check generated entitlements";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ ! -f \"$CODE_SIGN_ENTITLEMENTS\" ]; then\n  echo \"error: The autofill extension entitlements have not been generated.\"\n  echo \"error: Expected them at: $SRCROOT/$CODE_SIGN_ENTITLEMENTS\"\n  echo \"error: Generate them by running this from apps/desktop, then build again:\"\n  echo \"error:   npm run entitlements -- --channel stable --target mac --extension-only --autofill\"\n  echo \"note: Use --channel beta for a beta build. Drop --autofill for an App Store development build.\"\n  exit 1\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		E1DF71382B342F6900F29026 /* Sources */ = {
@@ -229,7 +250,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "../intermediates/entitlements/autofill-extension.plist";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -259,7 +280,7 @@
 				BITWARDEN_APP_ID = "com.bitwarden.desktop";
 				BITWARDEN_APP_GROUP = "$(DEVELOPMENT_TEAM).$(BITWARDEN_APP_ID)";
 				BITWARDEN_PRODUCT_NAME = Bitwarden;
-				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension_enabled.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "../intermediates/entitlements/autofill-extension.plist";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				CODE_SIGN_STYLE = Manual;
@@ -320,7 +341,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "../intermediates/entitlements/autofill-extension.plist";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -385,7 +406,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "../intermediates/entitlements/autofill-extension.plist";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -415,7 +436,7 @@
 				BITWARDEN_APP_ID = "com.bitwarden.desktop";
 				BITWARDEN_APP_GROUP = "$(DEVELOPMENT_TEAM).$(BITWARDEN_APP_ID)";
 				BITWARDEN_PRODUCT_NAME = Bitwarden;
-				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension_enabled.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "../intermediates/entitlements/autofill-extension.plist";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				CODE_SIGN_STYLE = Manual;
@@ -449,7 +470,7 @@
 				BITWARDEN_APP_ID = "com.bitwarden.desktop";
 				BITWARDEN_APP_GROUP = "$(DEVELOPMENT_TEAM).$(BITWARDEN_APP_ID)";
 				BITWARDEN_PRODUCT_NAME = Bitwarden;
-				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "../intermediates/entitlements/autofill-extension.plist";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				CODE_SIGN_STYLE = Manual;

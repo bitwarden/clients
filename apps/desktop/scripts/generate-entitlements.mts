@@ -8,11 +8,13 @@
 /// application identifier, so an app signed with entitlements naming a different identifier --
 /// which Apple rejects outright -- is not something this can produce.
 ///
-/// Stable still signs with the checked-in resources/*.plist, which the spec pins to this module's
-/// output byte for byte. Only beta generates at pack time. That asymmetry is deliberate and
-/// temporary: it keeps the stable release's build path unchanged while beta takes a new identifier.
+/// Every channel generates at pack time; there are no checked-in entitlements left to drift.
 ///
-///   node scripts/generate-entitlements.mts --channel beta --target mac --autofill --app-group \
+/// `--extension-only` writes just the autofill extension's document. The extension's AutoFill
+/// claim does not have to match the app's -- the App Store build signs an extension that claims it
+/// and an app that does not -- so the extension build owns that decision and calls this separately.
+///
+///   node scripts/generate-entitlements.mts --channel beta --target mac --autofill \
 ///     --out intermediates/entitlements
 
 import { mkdirSync, writeFileSync } from "fs";
@@ -55,9 +57,8 @@ interface Options {
   channel: Channel;
   target: Target;
   autofill: boolean;
-  /// Whether a directly distributed app claims the App Group. See EntitlementsOptions.appGroup:
-  /// the sandboxed targets always have it, so this only affects `--target mac`.
-  appGroup: boolean;
+  /// Write only the autofill extension's document, leaving the app's alone.
+  extensionOnly: boolean;
   out: string;
 }
 
@@ -71,8 +72,12 @@ interface Options {
 /// place where it and the app can both reach the socket.
 function documents(options: Options): Partial<Record<keyof typeof FILES, Entitlements>> {
   const bundleId = APP_IDS[options.channel];
-  const entitlements = { bundleId, autofill: options.autofill, appGroup: options.appGroup };
+  const entitlements = { bundleId, autofill: options.autofill };
   const appStore = options.target !== "mac";
+
+  if (options.extensionOnly) {
+    return { autofillExtension: autofillExtensionEntitlements(entitlements) };
+  }
 
   return {
     app: appStore ? masAppEntitlements(entitlements) : macAppEntitlements(entitlements),
@@ -84,7 +89,6 @@ function documents(options: Options): Partial<Record<keyof typeof FILES, Entitle
           loginHelper: masLoginHelperEntitlements(),
         }
       : {}),
-    ...(options.autofill ? { autofillExtension: autofillExtensionEntitlements(entitlements) } : {}),
   };
 }
 
@@ -95,7 +99,7 @@ function parse(argv: string[]): Options {
       channel: { type: "string" },
       target: { type: "string" },
       autofill: { type: "boolean", default: false },
-      "app-group": { type: "boolean", default: false },
+      "extension-only": { type: "boolean", default: false },
       out: { type: "string" },
     },
     strict: true,
@@ -119,7 +123,7 @@ function parse(argv: string[]): Options {
     channel: channel as Channel,
     target: target as Target,
     autofill: values.autofill,
-    appGroup: values["app-group"],
+    extensionOnly: values["extension-only"],
     // Resolved against apps/desktop rather than the caller's directory, because that is what
     // every path in the electron-builder configuration is relative to.
     out: isAbsolute(values.out) ? values.out : join(projectDir, values.out),

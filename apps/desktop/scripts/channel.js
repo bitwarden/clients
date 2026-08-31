@@ -43,41 +43,10 @@ function appGroupFor(appId) {
   return `${TEAM_ID}.${appId}`;
 }
 
-/// The autofill extension's own bundle identifier. macOS requires an app extension's identifier to
-/// be prefixed by its containing app's, so this cannot be chosen independently of the channel.
-/**
- * @param {string} appId
- * @returns {string}
- */
-function autofillExtensionIdFor(appId) {
-  return `${appId}.autofill-extension`;
-}
-
-/// The channel a packaged build belongs to, from the identifier electron-builder applied.
-///
-/// Matching on the identifier rather than testing for a suffix: `com.bitwarden.beta.desktop` does
-/// not end in `.beta`, and a build whose identifier is not one of ours is a mistake worth failing
-/// on rather than silently treating as stable.
-/**
- * @param {string} appId
- * @returns {Channel}
- */
-function channelForAppId(appId) {
-  const channel = CHANNELS.find((each) => APP_IDS[each] === appId);
-  if (channel === undefined) {
-    throw new Error(
-      `Unknown application identifier '${appId}'. Add it to APP_IDS in scripts/channel.js.`,
-    );
-  }
-  return channel;
-}
-
 module.exports = {
   CHANNELS,
   TEAM_ID,
   APP_IDS,
   PRODUCT_NAMES,
   appGroupFor,
-  autofillExtensionIdFor,
-  channelForAppId,
 };

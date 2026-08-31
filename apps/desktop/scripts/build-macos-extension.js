@@ -18,6 +18,16 @@ const paths = {
   generatedEntitlements: "./intermediates/entitlements/autofill-extension.plist",
 };
 
+/// Whether the extension claims the AutoFill credential provider entitlement, per distribution.
+/// This is the extension's own claim, not the app's: the App Store build signs an extension that
+/// claims it alongside an app that does not, which is why the two are decided separately. It used
+/// to be the choice between two checked-in .entitlements files in the Xcode project.
+const extensionAutofill = {
+  "mas-dev": false,
+  mas: true,
+  mac: true,
+};
+
 /// The extension's provisioning profile, per release channel and per distribution. A profile
 /// authorizes one App ID, and the extension's App ID follows the app's, so beta cannot be signed
 /// with stable's profile even though the entitlements would otherwise look the same.
@@ -86,6 +96,29 @@ async function buildMacOs() {
 
   console.log(`### Channel '${channelArgument}', hosted by ${appId}`);
 
+  // The Xcode project names the generated document, so it has to exist before xcodebuild signs.
+  // Written here rather than by the pack script because the AutoFill claim follows the Xcode
+  // configuration, which is this script's argument, and --extension-only leaves the app's
+  // documents -- already written by the pack script with the app's own claim -- untouched.
+  const entitlements = child.spawnSync(
+    "node",
+    [
+      "scripts/generate-entitlements.mts",
+      "--channel",
+      channelArgument,
+      "--target",
+      configurationArgument,
+      "--extension-only",
+      ...(extensionAutofill[configurationArgument] ? ["--autofill"] : []),
+      "--out",
+      path.dirname(paths.generatedEntitlements),
+    ],
+    { stdio: "inherit" },
+  );
+  if (entitlements.status !== 0) {
+    throw new Error("Could not generate the autofill extension's entitlements");
+  }
+
   const proc = child.spawn("xcodebuild", [
     "-project",
     paths.macOsProject,
@@ -106,13 +139,6 @@ async function buildMacOs() {
     // name from these, so passing the app's identity is enough to retarget the whole build.
     `BITWARDEN_APP_ID=${appId}`,
     `BITWARDEN_PRODUCT_NAME=${PRODUCT_NAMES[channelArgument]}`,
-
-    // Beta signs with entitlements generated from its own identifier; stable still signs with the
-    // checked-in ones the project already names, so it is left alone. Absolute because xcodebuild
-    // resolves this against the Xcode project's directory rather than apps/desktop.
-    ...(channelArgument === "stable"
-      ? []
-      : [`CODE_SIGN_ENTITLEMENTS=${path.resolve(paths.generatedEntitlements)}`]),
   ]);
   stdOutProc(proc);
   await new Promise((resolve, reject) =>
