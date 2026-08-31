@@ -62,6 +62,13 @@
         </bit-callout>
       }
 
+      <!-- Reflects the rule as SAVED, so it appears/clears on reload rather than while the
+           collections multi-select is being edited. Renders nothing on the create page. -->
+      <app-pam-rule-bypassable-ciphers-callout
+        [organizationId]="organizationId"
+        [accessRuleId]="accessRuleId"
+      />
+
       <bit-section>
         <bit-section-header>
           <h2 bitTypography="h5">{{ "pamAccessRuleGeneralInfoHeading" | i18n }}</h2>
