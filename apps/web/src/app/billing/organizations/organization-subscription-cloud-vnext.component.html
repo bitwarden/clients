@@ -6,11 +6,7 @@
 
 <bit-container>
   @if (showSubscription()) {
-    @if (subscriptionPreview.isLoading()) {
-      <div class="tw-text-center">
-        <bit-spinner></bit-spinner>
-      </div>
-    } @else if (subscriptionPreview.error()) {
+    @if (subscriptionPreview.error()) {
       <billing-error-card
         [title]="'subscriptionDetailsNotLoading' | i18n"
         [description]="'subscriptionDetailsNotLoadingDesc' | i18n"
@@ -18,6 +14,10 @@
         icon="bwi-clear"
         (actionClicked)="refreshAll()"
       />
+    } @else if (subscriptionPreview.isLoading() || !subscription) {
+      <div class="tw-text-center">
+        <bit-spinner></bit-spinner>
+      </div>
     } @else {
       <billing-subscription-card
         [title]="cardTitle()"
