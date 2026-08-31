@@ -2,50 +2,39 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { RotationSdkService } from "../rotation-sdk.service";
 
 import { DaemonDetailComponent } from "./daemon-detail.component";
+import type { AccessConnectorDetailView, TargetSystemView } from "../rotation";
+import { ORGANIZATION_ID, accessConnectorDetailView, connectorId, sysId, targetSystemView } from "../testing/rotation-builders";
 
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string) => id,
   translate: (id: string) => id,
 };
 
-function makeDaemon(overrides: Record<string, unknown> = {}): AccessConnectorDetailView {
-  return new AccessConnectorDetailView({
-    Id: "daemon-1",
-    Name: "On-prem daemon",
-    Status: 0,
-    IsConnected: true,
-    AssignedTargetSystemIds: ["ts-1"],
-    Jobs: [],
+function makeDaemon(
+  overrides: Partial<AccessConnectorDetailView> = {},
+): AccessConnectorDetailView {
+  return accessConnectorDetailView({
+    id: connectorId("daemon-1"),
+    name: "On-prem daemon",
+    assignedTargetSystemIds: [sysId("ts-1")],
     ...overrides,
   });
 }
 
 function makeSystem(): TargetSystemView {
-  return new TargetSystemView({
-    Id: "ts-1",
-    Name: "Prod Entra",
-    Method: 0,
-    Kind: 0,
-    Status: 0,
-    PasswordPolicy: null,
-    SupportsSessionTermination: true,
-  });
+  return targetSystemView({ id: sysId("ts-1"), name: "Prod Entra" });
 }
 
-function makeListResponse(data: TargetSystemView[]): ListResponse<TargetSystemView> {
-  return { data, continuationToken: null } as unknown as ListResponse<TargetSystemView>;
-}
 
 async function setup(
   rotationSdk: ReturnType<typeof mock<RotationSdkService>>,
-  daemonId = "daemon-1",
+  daemonId = connectorId("daemon-1"),
   dialogService: ReturnType<typeof mock<DialogService>> = mock<DialogService>(),
 ) {
   TestBed.overrideComponent(DaemonDetailComponent, { set: { template: "", imports: [] } });
@@ -59,7 +48,7 @@ async function setup(
       { provide: DialogService, useValue: dialogService },
       {
         provide: ActivatedRoute,
-        useValue: { snapshot: { params: { organizationId: "org-1", daemonId } } },
+        useValue: { snapshot: { params: { organizationId: ORGANIZATION_ID, daemonId } } },
       },
     ],
   }).compileComponents();
@@ -71,7 +60,7 @@ describe("DaemonDetailComponent", () => {
 
   beforeEach(() => {
     rotationSdk = mock<RotationSdkService>();
-    rotationSdk.listTargetSystems.mockResolvedValue(makeListResponse([makeSystem()]));
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem()]);
   });
 
   it("loads the daemon on init", async () => {
@@ -81,7 +70,7 @@ describe("DaemonDetailComponent", () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(rotationSdk.getConnector).toHaveBeenCalledWith("org-1", "daemon-1");
+    expect(rotationSdk.getConnector).toHaveBeenCalledWith("org-1", connectorId("daemon-1"));
     const comp = fixture.componentInstance as unknown as { titleText: () => string };
     expect(comp.titleText()).toBe("On-prem daemon");
   });
@@ -103,7 +92,7 @@ describe("DaemonDetailComponent", () => {
     rotationSdk.disableConnector.mockResolvedValue(undefined);
     const dialog = mock<DialogService>();
     dialog.openSimpleDialog.mockResolvedValue(true);
-    await setup(rotationSdk, "daemon-1", dialog);
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
     fixture = TestBed.createComponent(DaemonDetailComponent);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -114,7 +103,7 @@ describe("DaemonDetailComponent", () => {
     };
     await comp.disable();
 
-    expect(rotationSdk.disableConnector).toHaveBeenCalledWith("org-1", "daemon-1");
+    expect(rotationSdk.disableConnector).toHaveBeenCalledWith("org-1", connectorId("daemon-1"));
     expect(comp.enabled()).toBe(false);
   });
 
@@ -123,7 +112,7 @@ describe("DaemonDetailComponent", () => {
     rotationSdk.deleteConnector.mockResolvedValue(undefined);
     const dialog = mock<DialogService>();
     dialog.openSimpleDialog.mockResolvedValue(true);
-    await setup(rotationSdk, "daemon-1", dialog);
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
     const router = TestBed.inject(Router);
     const nav = jest.spyOn(router, "navigate").mockResolvedValue(true);
     fixture = TestBed.createComponent(DaemonDetailComponent);
@@ -133,13 +122,13 @@ describe("DaemonDetailComponent", () => {
     const comp = fixture.componentInstance as unknown as { deleteDaemon: () => Promise<void> };
     await comp.deleteDaemon();
 
-    expect(rotationSdk.deleteConnector).toHaveBeenCalledWith("org-1", "daemon-1");
+    expect(rotationSdk.deleteConnector).toHaveBeenCalledWith("org-1", connectorId("daemon-1"));
     expect(nav).toHaveBeenCalled();
   });
 
   it("toasts and navigates back when the daemon is not found", async () => {
     rotationSdk.getConnector.mockRejectedValue(new Error("not found"));
-    await setup(rotationSdk, "missing");
+    await setup(rotationSdk, connectorId("missing"));
     const router = TestBed.inject(Router);
     const nav = jest.spyOn(router, "navigate").mockResolvedValue(true);
     const toast = TestBed.inject(ToastService);

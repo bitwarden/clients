@@ -28,6 +28,8 @@ import type {
 export type {
   AccessConnectorDetailView,
   AccessConnectorId,
+  RotationAttemptId,
+  RotationJobId,
   AccessConnectorRegistrationView,
   AccessConnectorView,
   PasswordPolicy,

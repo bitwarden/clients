@@ -1,23 +1,7 @@
 import type { OrganizationId } from "@bitwarden/common/types/guid";
 
-import type {
-  AccessConnectorDetailView,
-  AccessConnectorId,
-  AccessConnectorRegistrationView,
-  AccessConnectorView,
-  QuartzSchedulePreset,
-  RotationConfigActions,
-  RotationConfigCreateRequest,
-  RotationConfigDetailView,
-  RotationConfigId,
-  RotationConfigUpdateRequest,
-  RotationConfigView,
-  TargetSystemCreateRequest,
-  TargetSystemId,
-  TargetSystemStatus,
-  TargetSystemUpdateRequest,
-  TargetSystemView,
-} from "./rotation";
+import type { AccessConnectorDetailView, AccessConnectorId, AccessConnectorRegistrationView, AccessConnectorView, RotationConfigActions, RotationConfigCreateRequest, RotationConfigDetailView, RotationConfigId, RotationConfigUpdateRequest, RotationConfigView, TargetSystemCreateRequest, TargetSystemId, TargetSystemUpdateRequest, TargetSystemView } from "./rotation";
+import { QuartzSchedulePreset, TargetSystemStatus } from "./rotation";
 
 /**
  * The Admin Console's credential-rotation surface.

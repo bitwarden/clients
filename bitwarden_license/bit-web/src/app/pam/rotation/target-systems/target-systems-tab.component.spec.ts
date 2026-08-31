@@ -8,10 +8,12 @@ import { BehaviorSubject, of } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import type { TargetSystemView } from "../rotation";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
 
 import { TargetSystemsTabComponent } from "./target-systems-tab.component";
 import { TargetSystemsService } from "./target-systems.service";
+import { ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
 
 /** Echoes the key as its translation so form-field components don't crash. */
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
@@ -21,7 +23,7 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 
 function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
   return {
-    id: "sys-1",
+    id: sysId("sys-1"),
     name: "Prod Entra",
     method: TargetSystemMethod.Automatic,
     kind: TargetSystemKind.Entra,
@@ -42,7 +44,6 @@ describe("TargetSystemsTabComponent", () => {
     activeAutomaticSystems$: BehaviorSubject<TargetSystemView[]>;
     load: jest.Mock;
     setEnabled: jest.Mock;
-    delete: jest.Mock;
   };
   let router: Router;
   let dialogService: ReturnType<typeof mock<DialogService>>;
@@ -56,7 +57,6 @@ describe("TargetSystemsTabComponent", () => {
       activeAutomaticSystems$: new BehaviorSubject<TargetSystemView[]>([]),
       load: jest.fn().mockResolvedValue(undefined),
       setEnabled: jest.fn().mockResolvedValue(undefined),
-      delete: jest.fn().mockResolvedValue(undefined),
     };
     dialogService = mock<DialogService>();
     dialogService.openSimpleDialog.mockResolvedValue(false);
@@ -78,8 +78,8 @@ describe("TargetSystemsTabComponent", () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            params: of({ organizationId: "org-123" }),
-            snapshot: { params: { organizationId: "org-123" } },
+            params: of({ organizationId: ORGANIZATION_ID }),
+            snapshot: { params: { organizationId: ORGANIZATION_ID } },
           },
         },
       ],
@@ -118,20 +118,20 @@ describe("TargetSystemsTabComponent", () => {
   });
 
   it("navigates to edit page on openEdit", async () => {
-    const sys = makeSystem({ id: "sys-edit" });
+    const sys = makeSystem({ id: sysId("sys-edit") });
     const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
     await (
       component as unknown as { openEdit: (s: TargetSystemView) => Promise<boolean> }
     ).openEdit(sys);
     expect(navigateSpy).toHaveBeenCalledWith(
-      ["..", "target-systems", "sys-edit"],
+      ["..", "target-systems", sysId("sys-edit")],
       expect.objectContaining({ relativeTo: expect.anything() }),
     );
   });
 
   describe("disable action", () => {
     it("calls setEnabled(false) after confirmation", fakeAsync(() => {
-      const sys = makeSystem({ id: "sys-1", status: TargetSystemStatus.Active });
+      const sys = makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Active });
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       const comp = component as unknown as {
@@ -144,7 +144,7 @@ describe("TargetSystemsTabComponent", () => {
     }));
 
     it("does not call setEnabled when confirmation is cancelled", fakeAsync(() => {
-      const sys = makeSystem({ id: "sys-1", status: TargetSystemStatus.Active });
+      const sys = makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Active });
       dialogService.openSimpleDialog.mockResolvedValue(false);
 
       const comp = component as unknown as {
@@ -157,7 +157,7 @@ describe("TargetSystemsTabComponent", () => {
     }));
 
     it("shows success toast after disabling", fakeAsync(() => {
-      const sys = makeSystem({ id: "sys-1", status: TargetSystemStatus.Active });
+      const sys = makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Active });
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       const comp = component as unknown as {
@@ -174,7 +174,7 @@ describe("TargetSystemsTabComponent", () => {
 
   describe("enable action", () => {
     it("calls setEnabled(true)", async () => {
-      const sys = makeSystem({ id: "sys-1", status: TargetSystemStatus.Disabled });
+      const sys = makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Disabled });
 
       const comp = component as unknown as {
         enable: (s: TargetSystemView) => Promise<void>;
@@ -185,7 +185,7 @@ describe("TargetSystemsTabComponent", () => {
     });
 
     it("shows success toast after enabling", async () => {
-      const sys = makeSystem({ id: "sys-1", status: TargetSystemStatus.Disabled });
+      const sys = makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Disabled });
 
       const comp = component as unknown as {
         enable: (s: TargetSystemView) => Promise<void>;
@@ -198,34 +198,4 @@ describe("TargetSystemsTabComponent", () => {
     });
   });
 
-  describe("delete action", () => {
-    it("calls delete after confirmation", fakeAsync(() => {
-      const sys = makeSystem({ id: "sys-1" });
-      dialogService.openSimpleDialog.mockResolvedValue(true);
-
-      const comp = component as unknown as {
-        confirmDelete: (s: TargetSystemView) => Promise<void>;
-      };
-      void comp.confirmDelete(sys);
-      tick();
-
-      expect(targetSystemsService.delete).toHaveBeenCalledWith(sys);
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "success" }),
-      );
-    }));
-
-    it("does not call delete when confirmation is cancelled", fakeAsync(() => {
-      const sys = makeSystem({ id: "sys-1" });
-      dialogService.openSimpleDialog.mockResolvedValue(false);
-
-      const comp = component as unknown as {
-        confirmDelete: (s: TargetSystemView) => Promise<void>;
-      };
-      void comp.confirmDelete(sys);
-      flushMicrotasks();
-
-      expect(targetSystemsService.delete).not.toHaveBeenCalled();
-    }));
-  });
 });

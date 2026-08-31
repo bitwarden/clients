@@ -2,6 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -9,10 +10,13 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import type { CipherId } from "@bitwarden/sdk-internal";
+
+import { ORGANIZATION_ID, id } from "./testing/rotation-builders";
 
 import { OrgCiphersService } from "./org-ciphers.service";
 
-const ORG_ID = "org-1" as OrganizationId;
+const ORG_ID = ORGANIZATION_ID as OrganizationId;
 const USER_ID = "user-1" as UserId;
 
 /** Create a minimal CipherView stub. */
@@ -125,8 +129,8 @@ describe("OrgCiphersService", () => {
       await service.load(ORG_ID);
 
       const nameById = await firstValueFrom(service.cipherNameById$);
-      expect(nameById.get("c-a")).toBe("Alpha");
-      expect(nameById.get("c-b")).toBe("Bravo");
+      expect(nameById.get(asUuid<CipherId>(id("c-a")))).toBe("Alpha");
+      expect(nameById.get(asUuid<CipherId>(id("c-b")))).toBe("Bravo");
     });
 
     it("sets loading$ to false after load completes", async () => {

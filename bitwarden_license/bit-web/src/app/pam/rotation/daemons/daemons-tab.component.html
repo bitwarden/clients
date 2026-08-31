@@ -90,8 +90,8 @@
                 {{ "pamDaemonAssignTarget" | i18n }}
               </button>
             }
-            @if (r.daemon.assignments.length > 0) {
-              @for (assignmentId of r.daemon.assignments; track assignmentId; let i = $index) {
+            @if (r.daemon.assignedTargetSystemIds.length > 0) {
+              @for (assignmentId of r.daemon.assignedTargetSystemIds; track assignmentId; let i = $index) {
                 <button
                   type="button"
                   bitMenuItem

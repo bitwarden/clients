@@ -14,6 +14,7 @@ import { DaemonsService } from "./daemons/daemons.service";
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
 import { RotationShellComponent } from "./rotation-shell.component";
 import { TargetSystemsService } from "./target-systems/target-systems.service";
+import { configId } from "./testing/rotation-builders";
 
 // JSDOM has no ResizeObserver; the tab nav bar's overflow list constructs one.
 class ResizeObserverStub {
@@ -110,7 +111,7 @@ describe("RotationShellComponent", () => {
     const shell = fixture.componentInstance as unknown as { hasConfigs: () => boolean };
     expect(shell.hasConfigs()).toBe(false);
 
-    configs$.next([{ id: "config-1" }]);
+    configs$.next([{ id: configId("config-1") }]);
     fixture.detectChanges();
 
     expect(shell.hasConfigs()).toBe(true);

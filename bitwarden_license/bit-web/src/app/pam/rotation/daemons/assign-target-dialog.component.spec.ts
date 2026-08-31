@@ -9,6 +9,7 @@ import {
   AssignTargetDialogComponent,
   AssignTargetDialogParams,
 } from "./assign-target-dialog.component";
+import type { AccessConnectorView, TargetSystemView } from "../rotation";
 
 // Simple i18n stub: returns the key for any translation.
 const i18nStub: Pick<I18nService, "t"> = {

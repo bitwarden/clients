@@ -10,13 +10,14 @@ import {
   DaemonRegisterDialogComponent,
   DaemonRegisterDialogParams,
 } from "./daemon-register-dialog.component";
-import { DaemonRegistrationService } from "./daemon-registration.service";
+import { RotationSdkService } from "../rotation-sdk.service";
+
 import { DaemonTokenDialogComponent } from "./daemon-token-dialog.component";
 
 describe("DaemonRegisterDialogComponent", () => {
   let fixture: ComponentFixture<DaemonRegisterDialogComponent>;
   let component: DaemonRegisterDialogComponent;
-  let registrationService: jest.Mocked<DaemonRegistrationService>;
+  let rotationSdk: jest.Mocked<RotationSdkService>;
   let dialogRef: jest.Mocked<DialogRef>;
   let toastService: jest.Mocked<ToastService>;
   let i18nService: jest.Mocked<I18nService>;
@@ -35,9 +36,9 @@ describe("DaemonRegisterDialogComponent", () => {
   };
 
   beforeEach(async () => {
-    registrationService = {
+    rotationSdk = {
       register: jest.fn().mockResolvedValue(fakeRegistration),
-    } as unknown as jest.Mocked<DaemonRegistrationService>;
+    } as unknown as jest.Mocked<RotationSdkService>;
 
     dialogRef = {
       close: jest.fn().mockReturnValue(Promise.resolve()),
@@ -60,7 +61,7 @@ describe("DaemonRegisterDialogComponent", () => {
     })
       .overrideComponent(DaemonRegisterDialogComponent, {
         set: {
-          providers: [{ provide: DaemonRegistrationService, useValue: registrationService }],
+          providers: [{ provide: RotationSdkService, useValue: rotationSdk }],
         },
       })
       .compileComponents();
@@ -78,18 +79,18 @@ describe("DaemonRegisterDialogComponent", () => {
     expect(input).toBeTruthy();
   });
 
-  it("calls registrationService.register with the form name on submit", async () => {
+  it("calls rotationSdk.registerConnector with the form name on submit", async () => {
     (component as any).form.controls.name.setValue("My Daemon");
     await (component as any).submit();
 
-    expect(registrationService.register).toHaveBeenCalledWith(orgId, "My Daemon");
+    expect(rotationSdk.registerConnector).toHaveBeenCalledWith(orgId, "My Daemon");
   });
 
   it("does not submit when name is empty", async () => {
     (component as any).form.controls.name.setValue("");
     await (component as any).submit();
 
-    expect(registrationService.register).not.toHaveBeenCalled();
+    expect(rotationSdk.registerConnector).not.toHaveBeenCalled();
   });
 
   it("closes the dialog after successful registration", async () => {
@@ -119,7 +120,7 @@ describe("DaemonRegisterDialogComponent", () => {
   });
 
   it("shows an error toast when registration fails", async () => {
-    registrationService.register.mockRejectedValue(new ErrorResponse({ Message: "boom" }, 500));
+    rotationSdk.registerConnector.mockRejectedValue(new ErrorResponse({ Message: "boom" }, 500));
     (component as any).form.controls.name.setValue("Bad Daemon");
     await (component as any).submit();
 

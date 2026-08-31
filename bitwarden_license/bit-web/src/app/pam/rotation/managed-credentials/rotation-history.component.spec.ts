@@ -1,28 +1,24 @@
 import { TestBed } from "@angular/core/testing";
 
-import {
-  RotationAttemptStatus,
-  RotationJobStatus,
-  SessionTerminationOutcome,
-  RotationSource,
-  RotationSyncState,
-} from "../rotation";
+import type { RotationJobView } from "../rotation";
+import { RotationAttemptStatus, RotationJobStatus, RotationSource, RotationSyncState, SessionTerminationOutcome } from "../rotation";
 
 import { RotationHistoryComponent } from "./rotation-history.component";
+import { jobId, rotationJobView } from "../testing/rotation-builders";
 
 function makeJobRaw(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    Id: "job-1",
-    Source: RotationSource.Scheduled,
-    Status: RotationJobStatus.Succeeded,
-    CreationDate: "2024-06-01T10:00:00Z",
-    Attempts: [],
+    id: jobId("job-1"),
+    source: RotationSource.Scheduled,
+    status: RotationJobStatus.Succeeded,
+    createdAt: "2024-06-01T10:00:00Z",
+    attempts: [],
     ...overrides,
   };
 }
 
-function makeJob(overrides: Record<string, unknown> = {}): RotationJobView {
-  return new RotationJobView(makeJobRaw(overrides));
+function makeJob(overrides: Partial<RotationJobView> = {}): RotationJobView {
+  return rotationJobView(overrides);
 }
 
 describe("RotationHistoryComponent", () => {
@@ -51,12 +47,12 @@ describe("RotationHistoryComponent", () => {
 
   describe("sortedJobs", () => {
     it("sorts jobs newest-first by createdAt", () => {
-      const older = makeJob({ Id: "job-old", CreationDate: "2024-01-01T00:00:00Z" });
-      const newer = makeJob({ Id: "job-new", CreationDate: "2024-06-01T00:00:00Z" });
+      const older = makeJob({ id: jobId("job-old"), createdAt: "2024-01-01T00:00:00Z" });
+      const newer = makeJob({ id: jobId("job-new"), createdAt: "2024-06-01T00:00:00Z" });
       setup([older, newer]);
       const sorted = (component as any).sortedJobs();
-      expect(sorted[0].id).toBe("job-new");
-      expect(sorted[1].id).toBe("job-old");
+      expect(sorted[0].id).toBe(jobId("job-new"));
+      expect(sorted[1].id).toBe(jobId("job-old"));
     });
 
     it("returns empty array when jobs input is empty", () => {

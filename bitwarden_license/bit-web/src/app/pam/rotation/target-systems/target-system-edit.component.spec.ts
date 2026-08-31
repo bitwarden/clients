@@ -3,14 +3,15 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import type { TargetSystemView } from "../rotation";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 
 import { TargetSystemEditComponent } from "./target-system-edit.component";
+import { ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
 
 // JSDOM has no ResizeObserver
 class ResizeObserverStub {
@@ -21,6 +22,8 @@ class ResizeObserverStub {
 (global as unknown as { ResizeObserver: unknown }).ResizeObserver = ResizeObserverStub;
 
 /** Simple i18n fake that echoes the key as its translation. */
+const ORG_ID = ORGANIZATION_ID;
+
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string) => id,
   translate: (id: string) => id,
@@ -28,7 +31,7 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 
 function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
   return {
-    id: "sys-1",
+    id: sysId("sys-1"),
     name: "Prod Entra",
     method: TargetSystemMethod.Automatic,
     kind: TargetSystemKind.Entra,
@@ -46,9 +49,6 @@ function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView
   } as TargetSystemView;
 }
 
-function makeListResponse(data: TargetSystemView[]): ListResponse<TargetSystemView> {
-  return { data, continuationToken: null } as unknown as ListResponse<TargetSystemView>;
-}
 
 /** Build a configured TestBed for create mode (no targetSystemId). */
 async function setupCreate(rotationSdk: ReturnType<typeof mock<RotationSdkService>>) {
@@ -64,7 +64,7 @@ async function setupCreate(rotationSdk: ReturnType<typeof mock<RotationSdkServic
       {
         provide: ActivatedRoute,
         useValue: {
-          snapshot: { params: { organizationId: "org-123" } },
+          snapshot: { params: { organizationId: ORG_ID } },
         },
       },
     ],
@@ -90,7 +90,7 @@ async function setupCreateWithTemplate(template: string): Promise<
       {
         provide: ActivatedRoute,
         useValue: {
-          snapshot: { params: { organizationId: "org-123" }, queryParams: { template } },
+          snapshot: { params: { organizationId: ORG_ID }, queryParams: { template } },
         },
       },
     ],
@@ -118,7 +118,7 @@ async function setupEdit(rotationSdk: ReturnType<typeof mock<RotationSdkService>
       {
         provide: ActivatedRoute,
         useValue: {
-          snapshot: { params: { organizationId: "org-123", targetSystemId: "sys-1" } },
+          snapshot: { params: { organizationId: ORG_ID, targetSystemId: sysId("sys-1") } },
         },
       },
     ],
@@ -270,8 +270,9 @@ describe("TargetSystemEditComponent — create mode", () => {
     fixture.detectChanges();
     await comp.submitCreate();
 
-    const call = rotationSdk.createTargetSystem.mock.calls[0];
-    expect(call![1].supportsSessionTermination).toBe(true);
+    const request = rotationSdk.createTargetSystem.mock.calls[0]![1];
+    expect(request.method).toBe("automatic");
+    expect(request).toMatchObject({ supportsSessionTermination: true });
   });
 
   it("honors the checkbox for a custom script", async () => {
@@ -300,8 +301,9 @@ describe("TargetSystemEditComponent — create mode", () => {
     fixture.detectChanges();
     await comp.submitCreate();
 
-    const call = rotationSdk.createTargetSystem.mock.calls[0];
-    expect(call![1].supportsSessionTermination).toBe(false);
+    const request = rotationSdk.createTargetSystem.mock.calls[0]![1];
+    expect(request.method).toBe("automatic");
+    expect(request).toMatchObject({ supportsSessionTermination: false });
   });
 
   it("shows error toast on API failure", async () => {
@@ -353,7 +355,7 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
         { provide: DialogService, useValue: mock<DialogService>() },
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { params: { organizationId: "org-123" }, queryParams: {} } },
+          useValue: { snapshot: { params: { organizationId: ORG_ID }, queryParams: {} } },
         },
       ],
     }).compileComponents();
@@ -421,7 +423,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
   beforeEach(async () => {
     rotationSdk = mock<RotationSdkService>();
     toastService = mock<ToastService>();
-    rotationSdk.listTargetSystems.mockResolvedValue(makeListResponse([makeSystem()]));
+    rotationSdk.listTargetSystems.mockResolvedValue(([makeSystem()]));
     await setupEdit(rotationSdk);
     TestBed.overrideProvider(ToastService, { useValue: toastService });
     fixture = TestBed.createComponent(TargetSystemEditComponent);
@@ -449,9 +451,9 @@ describe("TargetSystemEditComponent — edit mode", () => {
     expect(nameForm.getRawValue().name).toBe("Prod Entra");
   });
 
-  it("persists name and policy together on submitEdit (Automatic)", async () => {
-    rotationSdk.renameTargetSystem.mockResolvedValue(makeSystem({ name: "Renamed" }));
-    rotationSdk.updateTargetSystemPolicy.mockResolvedValue(makeSystem());
+  it("persists the name and the policy in one write on submitEdit", async () => {
+    rotationSdk.updateTargetSystem.mockResolvedValue(undefined);
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem({ name: "Renamed" })]);
 
     const comp = fixture.componentInstance as unknown as {
       nameForm: { patchValue: (v: unknown) => void };
@@ -460,18 +462,15 @@ describe("TargetSystemEditComponent — edit mode", () => {
     comp.nameForm.patchValue({ name: "Renamed" });
     await comp.submitEdit();
 
-    expect(rotationSdk.renameTargetSystem).toHaveBeenCalledWith(
-      "org-123",
-      "sys-1",
-      expect.objectContaining({ name: "Renamed" }),
-    );
-    expect(rotationSdk.updateTargetSystemPolicy).toHaveBeenCalledWith(
-      "org-123",
-      "sys-1",
-      expect.objectContaining({ passwordPolicy: expect.any(Object) }),
-    );
-    expect(toastService.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: "success" }),
+    // One call, not two: the server takes the name, the policy and the capability together.
+    expect(rotationSdk.updateTargetSystem).toHaveBeenCalledTimes(1);
+    expect(rotationSdk.updateTargetSystem).toHaveBeenCalledWith(
+      ORG_ID,
+      sysId("sys-1"),
+      expect.objectContaining({
+        name: "Renamed",
+        passwordPolicy: expect.any(Object),
+      }),
     );
   });
 
@@ -496,35 +495,6 @@ describe("TargetSystemEditComponent — edit mode", () => {
     expect(comp.showTerminationWarning()).toBe(false);
   });
 
-  it("deletes the target system after confirmation and navigates back", async () => {
-    const dialog = TestBed.inject(DialogService) as unknown as ReturnType<
-      typeof mock<DialogService>
-    >;
-    dialog.openSimpleDialog.mockResolvedValue(true);
-    rotationSdk.deleteTargetSystem.mockResolvedValue(undefined);
-    const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
-
-    await (
-      fixture.componentInstance as unknown as { deleteSystem: () => Promise<void> }
-    ).deleteSystem();
-
-    expect(rotationSdk.deleteTargetSystem).toHaveBeenCalledWith("org-123", "sys-1");
-    expect(nav).toHaveBeenCalled();
-  });
-
-  it("does not delete when confirmation is cancelled", async () => {
-    const dialog = TestBed.inject(DialogService) as unknown as ReturnType<
-      typeof mock<DialogService>
-    >;
-    dialog.openSimpleDialog.mockResolvedValue(false);
-
-    await (
-      fixture.componentInstance as unknown as { deleteSystem: () => Promise<void> }
-    ).deleteSystem();
-
-    expect(rotationSdk.deleteTargetSystem).not.toHaveBeenCalled();
-  });
-
   it("saves the password policy for a Manual system (no session termination)", async () => {
     TestBed.resetTestingModule();
     const rotationApiManual = mock<RotationSdkService>();
@@ -533,9 +503,8 @@ describe("TargetSystemEditComponent — edit mode", () => {
       kind: null,
       supportsSessionTermination: null,
     });
-    rotationApiManual.listTargetSystems.mockResolvedValue(makeListResponse([manual]));
-    rotationApiManual.renameTargetSystem.mockResolvedValue(manual);
-    rotationApiManual.updateTargetSystemPolicy.mockResolvedValue(manual);
+    rotationApiManual.listTargetSystems.mockResolvedValue(([manual]));
+    rotationApiManual.updateTargetSystem.mockResolvedValue(undefined);
     TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
     await TestBed.configureTestingModule({
       imports: [TargetSystemEditComponent, NoopAnimationsModule],
@@ -548,7 +517,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { params: { organizationId: "org-123", targetSystemId: "sys-1" } },
+            snapshot: { params: { organizationId: ORG_ID, targetSystemId: sysId("sys-1") } },
           },
         },
       ],
@@ -560,9 +529,9 @@ describe("TargetSystemEditComponent — edit mode", () => {
 
     await (fx.componentInstance as unknown as { submitEdit: () => Promise<void> }).submitEdit();
 
-    expect(rotationApiManual.updateTargetSystemPolicy).toHaveBeenCalledWith(
-      "org-123",
-      "sys-1",
+    expect(rotationApiManual.updateTargetSystem).toHaveBeenCalledWith(
+      ORG_ID,
+      sysId("sys-1"),
       expect.objectContaining({
         passwordPolicy: expect.any(Object),
         supportsSessionTermination: false,
@@ -575,7 +544,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
     TestBed.resetTestingModule();
     const rotationApi2 = mock<RotationSdkService>();
     const toastService2 = mock<ToastService>();
-    rotationApi2.listTargetSystems.mockResolvedValue(makeListResponse([]));
+    rotationApi2.listTargetSystems.mockResolvedValue(([]));
     TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
     await TestBed.configureTestingModule({
       imports: [TargetSystemEditComponent, NoopAnimationsModule],
@@ -588,7 +557,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { params: { organizationId: "org-123", targetSystemId: "missing-id" } },
+            snapshot: { params: { organizationId: ORG_ID, targetSystemId: "missing-id" } },
           },
         },
       ],

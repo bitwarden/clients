@@ -5,41 +5,31 @@ import { BehaviorSubject, of } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import type { RotationConfigView } from "../rotation";
 import { TargetSystemMethod } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { ManagedCredentialsTabComponent } from "./managed-credentials-tab.component";
 import { RotationConfigRow, buildRotationConfigRow } from "./rotation-config-row";
 import { RotationConfigsService } from "./rotation-configs.service";
+import { ORGANIZATION_ID, configId, rotationConfigDescription, rotationConfigView } from "../testing/rotation-builders";
 
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string) => id,
   translate: (id: string) => id,
 };
 
-function makeConfigRaw(overrides: Record<string, unknown> = {}): Record<string, unknown> {
-  return {
-    Id: "cfg-1",
-    CipherId: "cipher-1",
-    TargetSystemId: "ts-1",
-    TargetSystemName: "Target",
-    TargetSystemMethod: TargetSystemMethod.Automatic,
-    AccountIdentity: "admin@example.com",
-    TerminateSessions: false,
-    ScheduleCron: null,
-    RotateOnAccessEnd: false,
-    Enabled: true,
-    LastRotationAt: null,
-    NextRotationAt: null,
-    HasActiveJob: false,
-    AwaitingManualRotation: false,
-    ...overrides,
-  };
-}
 
-function makeRow(configOverrides: Record<string, unknown> = {}): RotationConfigRow {
-  const config = new RotationConfigView(makeConfigRaw(configOverrides));
-  return buildRotationConfigRow(config, undefined, "My Cipher");
+function makeRow(
+  configOverrides: Partial<RotationConfigView> = {},
+  description = rotationConfigDescription(),
+): RotationConfigRow {
+  return buildRotationConfigRow(
+    rotationConfigView(configOverrides),
+    undefined,
+    "My Cipher",
+    description,
+  );
 }
 
 function makeConfigsServiceStub(rows: RotationConfigRow[] = [makeRow()]) {
@@ -82,7 +72,7 @@ describe("ManagedCredentialsTabComponent", () => {
       imports: [ManagedCredentialsTabComponent],
       providers: [
         provideRouter([]),
-        { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
+        { provide: ActivatedRoute, useValue: { params: of({ organizationId: ORGANIZATION_ID }) } },
         { provide: RotationConfigsService, useValue: configsService },
         { provide: TargetSystemsService, useValue: targetSystemsService },
         { provide: ToastService, useValue: toastService },
@@ -220,7 +210,7 @@ describe("ManagedCredentialsTabComponent", () => {
     beforeEach(() => setupTestBed());
 
     it("calls service.resume and shows a success toast", async () => {
-      const row = makeRow({ Enabled: false });
+      const row = makeRow({ enabled: false });
       await component.resume(row);
       expect(configsService.resume).toHaveBeenCalledWith(row.config);
       expect(toastService.showToast).toHaveBeenCalledWith(

@@ -10,6 +10,8 @@ import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { DaemonsTabComponent } from "./daemons-tab.component";
 import { DaemonsService, DaemonRow } from "./daemons.service";
+import type { AccessConnectorView, TargetSystemView } from "../rotation";
+import { ORGANIZATION_ID, connectorId } from "../testing/rotation-builders";
 
 describe("DaemonsTabComponent", () => {
   let fixture: ComponentFixture<DaemonsTabComponent>;
@@ -24,7 +26,7 @@ describe("DaemonsTabComponent", () => {
 
   function makeDaemonRow(overrides: Partial<DaemonRow> = {}): DaemonRow {
     return {
-      id: "daemon-1",
+      id: connectorId("daemon-1"),
       name: "Test Daemon",
       statusLabelKey: "pamDaemonStatusEnabled",
       isConnected: true,
@@ -32,7 +34,7 @@ describe("DaemonsTabComponent", () => {
       enabled: true,
       canAssign: true,
       daemon: {
-        id: "daemon-1",
+        id: connectorId("daemon-1"),
         name: "Test Daemon",
         assignments: [],
         status: 0,
@@ -80,7 +82,7 @@ describe("DaemonsTabComponent", () => {
         { provide: I18nService, useValue: i18nService },
         {
           provide: ActivatedRoute,
-          useValue: { params: of({ organizationId: "org-1" }) },
+          useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
         },
       ],
     }).compileComponents();
@@ -98,7 +100,7 @@ describe("DaemonsTabComponent", () => {
   it("navigates to the daemon detail page on openDetail", async () => {
     const router = TestBed.inject(Router);
     const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
-    const row = makeDaemonRow({ id: "daemon-9" });
+    const row = makeDaemonRow({ id: connectorId("daemon-9") });
 
     const component = fixture.componentInstance as unknown as {
       openDetail: (row: DaemonRow) => Promise<boolean>;
@@ -106,7 +108,7 @@ describe("DaemonsTabComponent", () => {
     await component.openDetail(row);
 
     expect(navigateSpy).toHaveBeenCalledWith(
-      ["..", "daemons", "daemon-9"],
+      ["..", "daemons", connectorId("daemon-9")],
       expect.objectContaining({ relativeTo: expect.anything() }),
     );
   });
@@ -132,7 +134,7 @@ describe("DaemonsTabComponent", () => {
 
     // The filter function should accept rows whose name contains the search text.
     const matchRow = makeDaemonRow({ name: "production-daemon" });
-    const noMatchRow = makeDaemonRow({ id: "d2", name: "staging" });
+    const noMatchRow = makeDaemonRow({ id: connectorId("d2"), name: "staging" });
 
     expect(component.dataSource.filter!(matchRow)).toBe(true);
     expect(component.dataSource.filter!(noMatchRow)).toBe(false);

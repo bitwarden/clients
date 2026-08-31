@@ -1,0 +1,214 @@
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+
+import type { AccessConnectorDetailView, AccessConnectorId, AccessConnectorView, PasswordPolicy, RotationAttemptId, RotationAttemptView, RotationConfigActions, RotationConfigDetailView, RotationConfigId, RotationConfigView, RotationJobId, RotationJobView, TargetSystemId, TargetSystemView } from "../rotation";
+import { AccessConnectorStatus } from "../rotation";
+import type { RotationConfigDescription } from "../rotation-sdk.service";
+
+/**
+ * Builders for the rotation views, shared across this module's specs.
+ *
+ * The SDK's views are branded on every id and complete on every field, so hand-rolling one in a
+ * spec means a cast that hides the next field the SDK adds. These give a valid default and take
+ * an override, so a test states only what it is actually about.
+ *
+ * The ids are fixed, well-formed UUIDs rather than `"sys-1"` strings: `asUuid` validates, so a
+ * placeholder throws at the boundary rather than failing the assertion it was meant to set up.
+ */
+
+/** A stable, well-formed UUID from a single hex digit — `id(1)` → `1111...`. */
+export function id(digit: string): string {
+  const block = digit.repeat(8);
+  return `${block}-${digit.repeat(4)}-${digit.repeat(4)}-${digit.repeat(4)}-${digit.repeat(12)}`;
+}
+
+export const ORGANIZATION_ID = id("a");
+export const TARGET_SYSTEM_ID = asUuid<TargetSystemId>(id("1"));
+export const ACCESS_CONNECTOR_ID = asUuid<AccessConnectorId>(id("2"));
+export const ROTATION_CONFIG_ID = asUuid<RotationConfigId>(id("3"));
+export const ROTATION_JOB_ID = asUuid<RotationJobId>(id("4"));
+export const ROTATION_ATTEMPT_ID = asUuid<RotationAttemptId>(id("5"));
+export const CIPHER_ID = id("6");
+
+const TIMESTAMP = "2026-01-01T00:00:00Z";
+
+export function passwordPolicy(overrides: Partial<PasswordPolicy> = {}): PasswordPolicy {
+  return {
+    minLength: 14,
+    maxLength: 64,
+    includeUppercase: true,
+    includeLowercase: true,
+    includeDigits: true,
+    includeSymbols: true,
+    ...overrides,
+  };
+}
+
+/** An active, automatic Entra target — the shape most tests want. */
+export function targetSystemView(
+  overrides: Partial<TargetSystemView> = {},
+): TargetSystemView {
+  return {
+    id: TARGET_SYSTEM_ID,
+    organizationId: ORGANIZATION_ID,
+    name: "Prod Entra",
+    method: "automatic",
+    kind: "entra",
+    status: "active",
+    passwordPolicy: passwordPolicy(),
+    supportsSessionTermination: true,
+    creationDate: TIMESTAMP,
+    revisionDate: TIMESTAMP,
+    ...overrides,
+  } as TargetSystemView;
+}
+
+/** An enabled, connected connector with no assignments. */
+export function accessConnectorView(
+  overrides: Partial<AccessConnectorView> = {},
+): AccessConnectorView {
+  return {
+    id: ACCESS_CONNECTOR_ID,
+    organizationId: ORGANIZATION_ID,
+    name: "Rotation daemon 1",
+    status: "enabled" as AccessConnectorStatus,
+    isConnected: true,
+    lastHeartbeatAt: TIMESTAMP,
+    assignedTargetSystemIds: [],
+    creationDate: TIMESTAMP,
+    revisionDate: TIMESTAMP,
+    ...overrides,
+  } as AccessConnectorView;
+}
+
+export function accessConnectorDetailView(
+  overrides: Partial<AccessConnectorDetailView> = {},
+): AccessConnectorDetailView {
+  return { ...accessConnectorView(), jobs: [], ...overrides } as AccessConnectorDetailView;
+}
+
+/** An enabled, idle, automatic config — the one shape that offers a rotation. */
+export function rotationConfigView(
+  overrides: Partial<RotationConfigView> = {},
+): RotationConfigView {
+  return {
+    id: ROTATION_CONFIG_ID,
+    organizationId: ORGANIZATION_ID,
+    cipherId: CIPHER_ID,
+    targetSystemId: TARGET_SYSTEM_ID,
+    targetSystemName: "Prod Entra",
+    targetSystemMethod: "automatic",
+    accountIdentity: "svc_rotation",
+    terminateSessions: false,
+    scheduleCron: undefined,
+    rotateOnAccessEnd: false,
+    enabled: true,
+    lastRotationAt: undefined,
+    nextRotationAt: undefined,
+    hasActiveJob: false,
+    awaitingManualRotation: false,
+    creationDate: TIMESTAMP,
+    revisionDate: TIMESTAMP,
+    ...overrides,
+  } as RotationConfigView;
+}
+
+export function rotationConfigDetailView(
+  overrides: Partial<RotationConfigDetailView> = {},
+): RotationConfigDetailView {
+  return { ...rotationConfigView(), jobs: [], ...overrides } as RotationConfigDetailView;
+}
+
+export function rotationAttemptView(
+  overrides: Partial<RotationAttemptView> = {},
+): RotationAttemptView {
+  return {
+    id: ROTATION_ATTEMPT_ID,
+    jobId: ROTATION_JOB_ID,
+    claimedByAccessConnectorId: ACCESS_CONNECTOR_ID,
+    status: "rotated",
+    failureReason: undefined,
+    cipherUpdated: true,
+    syncState: "target_updated",
+    sessionTermination: "not_requested",
+    startedAt: TIMESTAMP,
+    endedAt: TIMESTAMP,
+    ...overrides,
+  } as RotationAttemptView;
+}
+
+export function rotationJobView(overrides: Partial<RotationJobView> = {}): RotationJobView {
+  return {
+    id: ROTATION_JOB_ID,
+    rotationConfigId: ROTATION_CONFIG_ID,
+    source: "scheduled",
+    status: "succeeded",
+    claimedByAccessConnectorId: ACCESS_CONNECTOR_ID,
+    claimedAt: TIMESTAMP,
+    createdAt: TIMESTAMP,
+    nextClaimableAt: undefined,
+    expiresAt: undefined,
+    attempts: [rotationAttemptView()],
+    ...overrides,
+  } as RotationJobView;
+}
+
+/** The actions an enabled, idle, automatic config on an active target offers. */
+export function rotationConfigActions(
+  overrides: Partial<RotationConfigActions> = {},
+): RotationConfigActions {
+  return {
+    canRotateNow: true,
+    canRecordManual: false,
+    mutationsLocked: false,
+    canPause: true,
+    canResume: false,
+    ...overrides,
+  };
+}
+
+/** The SDK-derived half of a row. Defaults to a rotatable config on a daily schedule. */
+export function rotationConfigDescription(
+  overrides: Partial<RotationConfigDescription> = {},
+): RotationConfigDescription {
+  return {
+    actions: rotationConfigActions(),
+    schedulePreset: "daily",
+    ...overrides,
+  };
+}
+
+/**
+ * Branded ids from a short label, for specs that need several distinct ones.
+ *
+ * The label is hashed into a stable hex digit rather than embedded, so `sysId("sys-2")` is a real
+ * UUID that `asUuid` accepts while still being the same value on every run. Two different labels
+ * can collide onto one digit; where a test needs several ids to differ, assert on the constants
+ * above instead.
+ */
+function labelled(label: string): string {
+  let hash = 0;
+  for (const char of label) {
+    hash = (hash * 31 + char.charCodeAt(0)) % 16;
+  }
+  return id(hash.toString(16));
+}
+
+/** A branded {@link TargetSystemId} from a label. */
+export function sysId(label: string): TargetSystemId {
+  return asUuid<TargetSystemId>(labelled(label));
+}
+
+/** A branded {@link AccessConnectorId} from a label. */
+export function connectorId(label: string): AccessConnectorId {
+  return asUuid<AccessConnectorId>(labelled(label));
+}
+
+/** A branded {@link RotationConfigId} from a label. */
+export function configId(label: string): RotationConfigId {
+  return asUuid<RotationConfigId>(labelled(label));
+}
+
+/** A branded {@link RotationJobId} from a label. */
+export function jobId(label: string): RotationJobId {
+  return asUuid<RotationJobId>(labelled(label));
+}

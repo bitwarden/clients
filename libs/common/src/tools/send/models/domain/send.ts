@@ -187,6 +187,9 @@ export class Send extends Domain {
       type: SEND_TYPE_TO_SDK[this.type],
       file: this.file ? this.file.toSdk() : undefined,
       text: this.text ? this.text.toSdk() : undefined,
+      // The SDK's v2 send item (`encryptionVersion` + an embedded cipher). This domain model
+      // predates it and carries its content in `file`/`text`, so there is nothing to map yet.
+      data: undefined,
       maxAccessCount: this.maxAccessCount ?? undefined,
       accessCount: this.accessCount,
       disabled: this.disabled,
