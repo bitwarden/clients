@@ -15,12 +15,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { FormFieldModule, SelectModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import {
-  PRESET_CRONS,
-  QuartzSchedulePreset,
-  isLikelyQuartzCron,
-  presetForCron,
-} from "./helpers/quartz-cron";
+import { QuartzSchedulePreset } from "./rotation";
+import { RotationSdkService } from "./rotation-sdk.service";
+
 
 /**
  * CVA sub-editor for a Quartz cron schedule (or null for "no schedule").
@@ -30,11 +27,17 @@ import {
  * is `string | null`:
  *
  * - `null` → None (no scheduled rotation)
- * - one of {@link PRESET_CRONS} values → the matching preset
+ * - a preset's cron expression → the matching preset
  * - any other string → Custom
  *
+ * Every cron rule here — which expression a preset maps to, which preset an expression matches,
+ * and whether a custom expression is Quartz-shaped — belongs to the SDK, so this component asks
+ * rather than reimplements. Those calls are asynchronous (reaching the SDK needs a client) while
+ * `ControlValueAccessor` and `Validator` are not, so the preset table is resolved once on
+ * construction and the last shape verdict is kept, re-running validation when it lands.
+ *
  * Client validation is advisory; the server is authoritative and enforces a
- * 15-minute interval floor.  Server 400s should be surfaced via a toast.
+ * 15-minute interval floor. Server rejections should be surfaced via a toast.
  *
  * Usage: `<app-rotation-schedule-input formControlName="scheduleCron" />`
  */
@@ -59,6 +62,19 @@ import {
 export class RotationScheduleInputComponent implements ControlValueAccessor, Validator {
   private readonly fb = inject(FormBuilder);
   private readonly i18n = inject(I18nService);
+  private readonly rotationSdk = inject(RotationSdkService);
+
+  /** Preset → cron expression, resolved once from the SDK. Empty until that read lands. */
+  private readonly cronByPreset = new Map<QuartzSchedulePreset, string>();
+
+  /**
+   * Whether the custom expression currently looks like Quartz.
+   *
+   * Cached because {@link validate} is synchronous. Starts `true` so a control is never reported
+   * invalid on the strength of a check that has not run yet.
+   */
+  // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties
+  private cronShapeValid = true;
 
   /** Expose preset const for template comparisons. */
   protected readonly QuartzSchedulePreset = QuartzSchedulePreset;
@@ -77,26 +93,69 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
   private onValidatorChange: () => void = () => {};
 
   constructor() {
+    void this.loadPresetCrons();
+
     // Propagate outward whenever preset OR custom text changes.
     this.presetControl.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.emitValue();
       this.onValidatorChange();
     });
-    this.customControl.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+    this.customControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.emitValue();
-      this.onValidatorChange();
+      void this.refreshCronShape(value);
     });
+  }
+
+  /**
+   * Resolves each named preset's cron expression from the SDK.
+   *
+   * `None` and `Custom` have no fixed expression, so they are absent from the table by design —
+   * {@link currentValue} handles both before consulting it.
+   */
+  private async loadPresetCrons(): Promise<void> {
+    const named = [
+      QuartzSchedulePreset.Hourly,
+      QuartzSchedulePreset.Every6Hours,
+      QuartzSchedulePreset.Daily,
+      QuartzSchedulePreset.Weekly,
+      QuartzSchedulePreset.Monthly,
+    ];
+    const crons = await Promise.all(named.map((preset) => this.rotationSdk.cronForPreset(preset)));
+    named.forEach((preset, index) => {
+      const cron = crons[index];
+      if (cron != null) {
+        this.cronByPreset.set(preset, cron);
+      }
+    });
+    // A preset selected before the table landed emitted null; re-emit now that it resolves.
+    this.emitValue();
+  }
+
+  /** Re-checks the custom expression's shape and re-runs validation once the verdict is in. */
+  private async refreshCronShape(value: string): Promise<void> {
+    const raw = value.trim();
+    // An empty field is "no schedule", not a malformed one — see validate().
+    this.cronShapeValid = raw === "" || (await this.rotationSdk.isLikelyQuartzCron(raw));
+    this.onValidatorChange();
   }
 
   // --- ControlValueAccessor ---
 
   writeValue(value: string | null): void {
-    const preset = presetForCron(value);
+    // Asking the SDK which preset this is takes a turn; the controls settle when it answers.
+    void this.applyPreset(value);
+  }
+
+  private async applyPreset(value: string | null): Promise<void> {
+    const preset = await this.rotationSdk.presetForCron(value);
     this.presetControl.setValue(preset, { emitEvent: false });
     if (preset === QuartzSchedulePreset.Custom) {
       this.customControl.setValue(value ?? "", { emitEvent: false });
+      await this.refreshCronShape(value ?? "");
     } else {
       this.customControl.setValue("", { emitEvent: false });
+      this.cronShapeValid = true;
+      this.onValidatorChange();
     }
   }
 
@@ -125,17 +184,12 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     if (preset !== QuartzSchedulePreset.Custom) {
       return null;
     }
-    const raw = this.customControl.value.trim();
-    if (raw === "") {
-      // Empty custom field — treat same as None; caller may require a value separately.
+    if (this.cronShapeValid) {
       return null;
     }
-    if (!isLikelyQuartzCron(raw)) {
-      return {
-        invalidCron: { message: this.i18n.t("pamRotationScheduleInvalidCron") },
-      };
-    }
-    return null;
+    return {
+      invalidCron: { message: this.i18n.t("pamRotationScheduleInvalidCron") },
+    };
   }
 
   registerOnValidatorChange(fn: () => void): void {
@@ -163,6 +217,6 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
       const raw = this.customControl.value.trim();
       return raw === "" ? null : raw;
     }
-    return PRESET_CRONS[preset as keyof typeof PRESET_CRONS] ?? null;
+    return this.cronByPreset.get(preset) ?? null;
   }
 }

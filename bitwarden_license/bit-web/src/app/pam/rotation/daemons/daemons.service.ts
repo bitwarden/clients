@@ -3,21 +3,24 @@ import { BehaviorSubject, Observable, combineLatest, map } from "rxjs";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { DaemonAssignmentRequest } from "../requests/daemon-assignment.request";
-import { RotationDaemonResponse } from "../responses/rotation-daemon.response";
-import { TargetSystemResponse } from "../responses/target-system.response";
-import { DaemonStatus } from "../rotation";
-import { RotationApiService } from "../rotation-api.service";
+import {
+  AccessConnectorId,
+  AccessConnectorView,
+  DaemonStatus,
+  TargetSystemId,
+  TargetSystemView,
+} from "../rotation";
+import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 /**
- * Presentation-ready view of a single {@link RotationDaemonResponse}.
+ * Presentation-ready view of a single {@link AccessConnectorView}.
  *
  * Flattens assignment IDs into display names using the target-systems lookup,
  * and pre-computes action availability flags so the template stays declarative.
  */
 export type DaemonRow = {
-  id: string;
+  id: AccessConnectorId;
   name: string;
   /** i18n key for the status badge label: pamDaemonStatusEnabled | pamDaemonStatusDisabled. */
   statusLabelKey: string;
@@ -29,7 +32,7 @@ export type DaemonRow = {
   /** True when the daemon is enabled — only then can it be assigned a target. */
   canAssign: boolean;
   /** The raw response, kept for mutation operations. */
-  daemon: RotationDaemonResponse;
+  daemon: AccessConnectorView;
 };
 
 /**
@@ -41,16 +44,16 @@ export type DaemonRow = {
  */
 @Injectable()
 export class DaemonsService {
-  private readonly rotationApi = inject(RotationApiService);
+  private readonly rotationSdk = inject(RotationSdkService);
   private readonly targetSystemsService = inject(TargetSystemsService);
 
   /** Set by {@link load}; the org all subsequent mutations target. */
   private organizationId: OrganizationId | null = null;
 
-  private readonly _daemons$ = new BehaviorSubject<RotationDaemonResponse[]>([]);
+  private readonly _daemons$ = new BehaviorSubject<AccessConnectorView[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
 
-  readonly daemons$: Observable<RotationDaemonResponse[]> = this._daemons$.asObservable();
+  readonly daemons$: Observable<AccessConnectorView[]> = this._daemons$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
   /**
@@ -67,8 +70,7 @@ export class DaemonsService {
     this.organizationId = organizationId;
     this._loading$.next(true);
     try {
-      const response = await this.rotationApi.listRotationDaemons(organizationId);
-      this._daemons$.next(response.data);
+      this._daemons$.next(await this.rotationSdk.listConnectors(organizationId));
     } finally {
       this._loading$.next(false);
     }
@@ -79,7 +81,7 @@ export class DaemonsService {
    * Disabling stops it from claiming new jobs (running jobs are released); it is reversible via
    * enable. Rolls back and re-throws on API failure.
    */
-  async setEnabled(daemon: RotationDaemonResponse, enabled: boolean): Promise<void> {
+  async setEnabled(daemon: AccessConnectorView, enabled: boolean): Promise<void> {
     const orgId = this.requireOrganizationId();
     const prevDaemons = this._daemons$.value;
     const nextStatus = enabled ? DaemonStatus.Enabled : DaemonStatus.Disabled;
@@ -87,15 +89,15 @@ export class DaemonsService {
     // Optimistic update
     this._daemons$.next(
       prevDaemons.map((d) =>
-        d.id === daemon.id ? ({ ...d, status: nextStatus } as RotationDaemonResponse) : d,
+        d.id === daemon.id ? ({ ...d, status: nextStatus } as AccessConnectorView) : d,
       ),
     );
 
     try {
       if (enabled) {
-        await this.rotationApi.enableRotationDaemon(orgId, daemon.id);
+        await this.rotationSdk.enableConnector(orgId, daemon.id);
       } else {
-        await this.rotationApi.disableRotationDaemon(orgId, daemon.id);
+        await this.rotationSdk.disableConnector(orgId, daemon.id);
       }
     } catch (e) {
       // Rollback
@@ -109,9 +111,9 @@ export class DaemonsService {
    * This invalidates the daemon's credentials; the daemon held the org key in memory, so if
    * compromise is suspected, rotate the organization key as a remediation.
    */
-  async delete(daemon: RotationDaemonResponse): Promise<void> {
+  async delete(daemon: AccessConnectorView): Promise<void> {
     const orgId = this.requireOrganizationId();
-    await this.rotationApi.deleteRotationDaemon(orgId, daemon.id);
+    await this.rotationSdk.deleteConnector(orgId, daemon.id);
     this._daemons$.next(this._daemons$.value.filter((d) => d.id !== daemon.id));
   }
 
@@ -119,7 +121,7 @@ export class DaemonsService {
    * Assign a target system to a daemon. Optimistically pushes the target ID into
    * the daemon's assignments; rolls back and re-throws on failure.
    */
-  async assign(daemon: RotationDaemonResponse, targetSystemId: string): Promise<void> {
+  async assign(daemon: AccessConnectorView, targetSystemId: TargetSystemId): Promise<void> {
     const orgId = this.requireOrganizationId();
     const prevDaemons = this._daemons$.value;
 
@@ -129,16 +131,14 @@ export class DaemonsService {
         d.id === daemon.id
           ? ({
               ...d,
-              assignments: [...d.assignments, targetSystemId],
-            } as RotationDaemonResponse)
+              assignedTargetSystemIds: [...d.assignedTargetSystemIds, targetSystemId],
+            } as AccessConnectorView)
           : d,
       ),
     );
 
     try {
-      await this.rotationApi.assignRotationDaemon(orgId, daemon.id, {
-        targetSystemId,
-      } as DaemonAssignmentRequest);
+      await this.rotationSdk.assignTarget(orgId, daemon.id, targetSystemId);
     } catch (e) {
       // Rollback
       this._daemons$.next(prevDaemons);
@@ -150,7 +150,7 @@ export class DaemonsService {
    * Remove a target-system assignment from a daemon. Optimistically removes the
    * ID from the local state; rolls back and re-throws on failure.
    */
-  async unassign(daemon: RotationDaemonResponse, targetSystemId: string): Promise<void> {
+  async unassign(daemon: AccessConnectorView, targetSystemId: TargetSystemId): Promise<void> {
     const orgId = this.requireOrganizationId();
     const prevDaemons = this._daemons$.value;
 
@@ -160,14 +160,14 @@ export class DaemonsService {
         d.id === daemon.id
           ? ({
               ...d,
-              assignments: d.assignments.filter((id) => id !== targetSystemId),
-            } as RotationDaemonResponse)
+              assignedTargetSystemIds: d.assignedTargetSystemIds.filter((id) => id !== targetSystemId),
+            } as AccessConnectorView)
           : d,
       ),
     );
 
     try {
-      await this.rotationApi.unassignRotationDaemon(orgId, daemon.id, targetSystemId);
+      await this.rotationSdk.unassignTarget(orgId, daemon.id, targetSystemId);
     } catch (e) {
       // Rollback
       this._daemons$.next(prevDaemons);
@@ -190,8 +190,8 @@ export class DaemonsService {
   }
 
   private buildRows(
-    daemons: RotationDaemonResponse[],
-    systemById: Map<string, TargetSystemResponse>,
+    daemons: AccessConnectorView[],
+    systemById: Map<TargetSystemId, TargetSystemView>,
   ): DaemonRow[] {
     return daemons.map((daemon) => ({
       id: daemon.id,
@@ -201,7 +201,9 @@ export class DaemonsService {
           ? "pamDaemonStatusEnabled"
           : "pamDaemonStatusDisabled",
       isConnected: daemon.isConnected,
-      assignmentNames: daemon.assignments.map((id) => systemById.get(id)?.name ?? id),
+      assignmentNames: daemon.assignedTargetSystemIds.map(
+        (id) => systemById.get(id)?.name ?? String(id),
+      ),
       enabled: daemon.status === DaemonStatus.Enabled,
       canAssign: daemon.status === DaemonStatus.Enabled,
       daemon,

@@ -8,11 +8,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { OrgCiphersService } from "../org-ciphers.service";
-import { RotationConfigDetailsResponse } from "../responses/rotation-config-details.response";
-import { RotationConfigResponse } from "../responses/rotation-config.response";
-import { TargetSystemResponse } from "../responses/target-system.response";
 import { TargetSystemMethod, TargetSystemStatus } from "../rotation";
-import { RotationApiService } from "../rotation-api.service";
+import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { RotationConfigEditComponent } from "./rotation-config-edit.component";
@@ -58,41 +55,41 @@ function makeConfigDetailsRaw(overrides: Record<string, unknown> = {}): Record<s
 
 type SetupOptions = {
   configId?: string;
-  existingConfig?: RotationConfigDetailsResponse | null;
+  existingConfig?: RotationConfigDetailView | null;
 };
 
 function setup(options: SetupOptions = {}) {
   const { configId, existingConfig } = options;
 
-  const target = new TargetSystemResponse(makeTargetRaw());
+  const target = new TargetSystemView(makeTargetRaw());
 
-  const rotationApi: jest.Mocked<
+  const rotationSdk: jest.Mocked<
     Pick<
-      RotationApiService,
-      | "listRotationConfigs"
-      | "getRotationConfig"
-      | "createRotationConfig"
+      RotationSdkService,
+      | "listConfigs"
+      | "getConfig"
+      | "createConfig"
       | "updateRotationConfigSettings"
       | "updateRotationConfigAccount"
-      | "deleteRotationConfig"
+      | "deleteConfig"
     >
   > = {
-    listRotationConfigs: jest.fn().mockResolvedValue({ data: [], continuationToken: null }),
-    getRotationConfig: jest
+    listConfigs: jest.fn().mockResolvedValue({ data: [], continuationToken: null }),
+    getConfig: jest
       .fn()
       .mockResolvedValue(
-        existingConfig ?? new RotationConfigDetailsResponse(makeConfigDetailsRaw()),
+        existingConfig ?? new RotationConfigDetailView(makeConfigDetailsRaw()),
       ),
-    createRotationConfig: jest
+    createConfig: jest
       .fn()
-      .mockResolvedValue(new RotationConfigResponse(makeConfigDetailsRaw())),
+      .mockResolvedValue(new RotationConfigView(makeConfigDetailsRaw())),
     updateRotationConfigSettings: jest
       .fn()
-      .mockResolvedValue(new RotationConfigResponse(makeConfigDetailsRaw())),
+      .mockResolvedValue(new RotationConfigView(makeConfigDetailsRaw())),
     updateRotationConfigAccount: jest
       .fn()
-      .mockResolvedValue(new RotationConfigResponse(makeConfigDetailsRaw())),
-    deleteRotationConfig: jest.fn().mockResolvedValue(undefined),
+      .mockResolvedValue(new RotationConfigView(makeConfigDetailsRaw())),
+    deleteConfig: jest.fn().mockResolvedValue(undefined),
   };
 
   const dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
@@ -116,7 +113,7 @@ function setup(options: SetupOptions = {}) {
   });
 
   // Override the component-level providers (OrgCiphersService, TargetSystemsService)
-  // so the real implementations (which inject AccountService, RotationApiService, etc.)
+  // so the real implementations (which inject AccountService, RotationSdkService, etc.)
   // are never instantiated — component-level providers shadow module-level mocks.
   TestBed.overrideProvider(OrgCiphersService, { useValue: orgCiphersService });
   TestBed.overrideProvider(TargetSystemsService, { useValue: targetSystemsService });
@@ -136,7 +133,7 @@ function setup(options: SetupOptions = {}) {
           },
         },
       },
-      { provide: RotationApiService, useValue: rotationApi },
+      { provide: RotationSdkService, useValue: rotationSdk },
       { provide: TargetSystemsService, useValue: targetSystemsService },
       { provide: OrgCiphersService, useValue: orgCiphersService },
       { provide: ToastService, useValue: toastService },
@@ -152,7 +149,7 @@ function setup(options: SetupOptions = {}) {
   return {
     fixture,
     component,
-    rotationApi,
+    rotationSdk,
     targetSystemsService,
     orgCiphersService,
     toastService,
@@ -173,8 +170,8 @@ describe("RotationConfigEditComponent — CREATE mode", () => {
     expect(orgCiphersService.load).toHaveBeenCalledWith("org-1");
   });
 
-  it("calls rotationApi.createRotationConfig on valid create submit", async () => {
-    const { component, rotationApi, fixture } = setup();
+  it("calls rotationSdk.createConfig on valid create submit", async () => {
+    const { component, rotationSdk, fixture } = setup();
     await fixture.whenStable();
 
     component.createForm.setValue({
@@ -187,14 +184,14 @@ describe("RotationConfigEditComponent — CREATE mode", () => {
     });
 
     await component.submitCreate();
-    expect(rotationApi.createRotationConfig).toHaveBeenCalled();
+    expect(rotationSdk.createConfig).toHaveBeenCalled();
   });
 
-  it("does not call createRotationConfig when form is invalid", async () => {
-    const { component, rotationApi } = setup();
+  it("does not call createConfig when form is invalid", async () => {
+    const { component, rotationSdk } = setup();
     // cipherId + targetSystemId empty — form is invalid
     await component.submitCreate();
-    expect(rotationApi.createRotationConfig).not.toHaveBeenCalled();
+    expect(rotationSdk.createConfig).not.toHaveBeenCalled();
   });
 });
 
@@ -205,9 +202,9 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
   });
 
   it("fetches the rotation config details on init", async () => {
-    const { fixture, rotationApi } = setup({ configId: "cfg-1" });
+    const { fixture, rotationSdk } = setup({ configId: "cfg-1" });
     await fixture.whenStable();
-    expect(rotationApi.getRotationConfig).toHaveBeenCalledWith("org-1", "cfg-1");
+    expect(rotationSdk.getConfig).toHaveBeenCalledWith("org-1", "cfg-1");
   });
 
   it("patches settingsForm from the loaded config", async () => {
@@ -216,22 +213,22 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
     expect(component.settingsForm.controls.scheduleCron.value).toBe("0 0 0 * * ?");
   });
 
-  it("calls rotationApi.updateRotationConfigSettings on settings submit", async () => {
-    const { component, fixture, rotationApi } = setup({ configId: "cfg-1" });
+  it("calls rotationSdk.updateRotationConfigSettings on settings submit", async () => {
+    const { component, fixture, rotationSdk } = setup({ configId: "cfg-1" });
     await fixture.whenStable();
     await component.submitSettings();
-    expect(rotationApi.updateRotationConfigSettings).toHaveBeenCalledWith(
+    expect(rotationSdk.updateRotationConfigSettings).toHaveBeenCalledWith(
       "org-1",
       "cfg-1",
       expect.any(Object),
     );
   });
 
-  it("calls rotationApi.updateRotationConfigAccount on account submit", async () => {
-    const { component, fixture, rotationApi } = setup({ configId: "cfg-1" });
+  it("calls rotationSdk.updateRotationConfigAccount on account submit", async () => {
+    const { component, fixture, rotationSdk } = setup({ configId: "cfg-1" });
     await fixture.whenStable();
     await component.submitAccount();
-    expect(rotationApi.updateRotationConfigAccount).toHaveBeenCalledWith(
+    expect(rotationSdk.updateRotationConfigAccount).toHaveBeenCalledWith(
       "org-1",
       "cfg-1",
       expect.any(Object),
@@ -239,15 +236,15 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
   });
 
   it("does not submit account when form is invalid", async () => {
-    const { component, fixture, rotationApi } = setup({ configId: "cfg-1" });
+    const { component, fixture, rotationSdk } = setup({ configId: "cfg-1" });
     await fixture.whenStable();
     component.accountForm.controls.accountIdentity.setValue("");
     await component.submitAccount();
-    expect(rotationApi.updateRotationConfigAccount).not.toHaveBeenCalled();
+    expect(rotationSdk.updateRotationConfigAccount).not.toHaveBeenCalled();
   });
 
   it("sets accountFormLocked to true when hasActiveJob is true", async () => {
-    const existingConfig = new RotationConfigDetailsResponse(
+    const existingConfig = new RotationConfigDetailView(
       makeConfigDetailsRaw({ HasActiveJob: true }),
     );
     const { component, fixture } = setup({ configId: "cfg-1", existingConfig });
@@ -257,11 +254,11 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
 
   it("navigates away and toasts on not-found error", async () => {
     const rotationApiFailing: any = {
-      getRotationConfig: jest.fn().mockRejectedValue(new Error("Not found")),
-      listRotationConfigs: jest.fn().mockResolvedValue({ data: [] }),
+      getConfig: jest.fn().mockRejectedValue(new Error("Not found")),
+      listConfigs: jest.fn().mockResolvedValue({ data: [] }),
       updateRotationConfigSettings: jest.fn(),
       updateRotationConfigAccount: jest.fn(),
-      createRotationConfig: jest.fn(),
+      createConfig: jest.fn(),
     };
 
     const toastService = { showToast: jest.fn() };
@@ -290,7 +287,7 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
             snapshot: { params: { organizationId: "org-1", configId: "missing" } },
           },
         },
-        { provide: RotationApiService, useValue: rotationApiFailing },
+        { provide: RotationSdkService, useValue: rotationApiFailing },
         { provide: TargetSystemsService, useValue: targetSystemsStub },
         { provide: OrgCiphersService, useValue: orgCiphersService },
         { provide: ToastService, useValue: toastService },
@@ -309,30 +306,30 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
   });
 
   it("removes the rotation config after confirmation", async () => {
-    const { component, fixture, rotationApi, dialogService } = setup({ configId: "cfg-1" });
+    const { component, fixture, rotationSdk, dialogService } = setup({ configId: "cfg-1" });
     await fixture.whenStable();
     dialogService.openSimpleDialog.mockResolvedValue(true);
 
     await component.removeRotation();
 
-    expect(rotationApi.deleteRotationConfig).toHaveBeenCalledWith("org-1", "cfg-1");
+    expect(rotationSdk.deleteConfig).toHaveBeenCalledWith("org-1", "cfg-1");
   });
 
   it("does not remove the rotation config when confirmation is cancelled", async () => {
-    const { component, fixture, rotationApi, dialogService } = setup({ configId: "cfg-1" });
+    const { component, fixture, rotationSdk, dialogService } = setup({ configId: "cfg-1" });
     await fixture.whenStable();
     dialogService.openSimpleDialog.mockResolvedValue(false);
 
     await component.removeRotation();
 
-    expect(rotationApi.deleteRotationConfig).not.toHaveBeenCalled();
+    expect(rotationSdk.deleteConfig).not.toHaveBeenCalled();
   });
 
   it("does not remove the rotation config while a job is in progress", async () => {
-    const existingConfig = new RotationConfigDetailsResponse(
+    const existingConfig = new RotationConfigDetailView(
       makeConfigDetailsRaw({ HasActiveJob: true }),
     );
-    const { component, fixture, rotationApi, dialogService } = setup({
+    const { component, fixture, rotationSdk, dialogService } = setup({
       configId: "cfg-1",
       existingConfig,
     });
@@ -341,6 +338,6 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
     await component.removeRotation();
 
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
-    expect(rotationApi.deleteRotationConfig).not.toHaveBeenCalled();
+    expect(rotationSdk.deleteConfig).not.toHaveBeenCalled();
   });
 });

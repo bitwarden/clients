@@ -5,10 +5,8 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { OrgCiphersService } from "../org-ciphers.service";
-import { RotationConfigResponse } from "../responses/rotation-config.response";
-import { TargetSystemResponse } from "../responses/target-system.response";
 import { TargetSystemMethod, TargetSystemStatus } from "../rotation";
-import { RotationApiService } from "../rotation-api.service";
+import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { RotationConfigsService } from "./rotation-configs.service";
@@ -35,8 +33,8 @@ function makeConfigRaw(overrides: Record<string, unknown> = {}): Record<string, 
   };
 }
 
-function makeListResponse(data: RotationConfigResponse[]): ListResponse<RotationConfigResponse> {
-  return { data, continuationToken: null } as unknown as ListResponse<RotationConfigResponse>;
+function makeListResponse(data: RotationConfigView[]): ListResponse<RotationConfigView> {
+  return { data, continuationToken: null } as unknown as ListResponse<RotationConfigView>;
 }
 
 function makeTargetRaw(): Record<string, unknown> {
@@ -53,21 +51,21 @@ function makeTargetRaw(): Record<string, unknown> {
 
 describe("RotationConfigsService", () => {
   let service: RotationConfigsService;
-  let rotationApi: jest.Mocked<
+  let rotationSdk: jest.Mocked<
     Pick<
-      RotationApiService,
-      | "listRotationConfigs"
-      | "pauseRotationConfig"
-      | "resumeRotationConfig"
+      RotationSdkService,
+      | "listConfigs"
+      | "pauseConfig"
+      | "resumeConfig"
       | "rotateNow"
       | "recordManualRotation"
-      | "deleteRotationConfig"
+      | "deleteConfig"
     >
   >;
   let targetSystemsService: {
-    systemById$: BehaviorSubject<Map<string, TargetSystemResponse>>;
+    systemById$: BehaviorSubject<Map<string, TargetSystemView>>;
     load: jest.Mock;
-    systems$: BehaviorSubject<TargetSystemResponse[]>;
+    systems$: BehaviorSubject<TargetSystemView[]>;
     loading$: BehaviorSubject<boolean>;
   };
   let orgCiphersService: {
@@ -78,16 +76,16 @@ describe("RotationConfigsService", () => {
   };
 
   beforeEach(() => {
-    const config = new RotationConfigResponse(makeConfigRaw());
-    const target = new TargetSystemResponse(makeTargetRaw());
+    const config = new RotationConfigView(makeConfigRaw());
+    const target = new TargetSystemView(makeTargetRaw());
 
-    rotationApi = {
-      listRotationConfigs: jest.fn().mockResolvedValue(makeListResponse([config])),
-      pauseRotationConfig: jest.fn().mockResolvedValue(undefined),
-      resumeRotationConfig: jest.fn().mockResolvedValue(undefined),
+    rotationSdk = {
+      listConfigs: jest.fn().mockResolvedValue(makeListResponse([config])),
+      pauseConfig: jest.fn().mockResolvedValue(undefined),
+      resumeConfig: jest.fn().mockResolvedValue(undefined),
       rotateNow: jest.fn().mockResolvedValue(undefined),
       recordManualRotation: jest.fn().mockResolvedValue(undefined),
-      deleteRotationConfig: jest.fn().mockResolvedValue(undefined),
+      deleteConfig: jest.fn().mockResolvedValue(undefined),
     };
 
     targetSystemsService = {
@@ -107,7 +105,7 @@ describe("RotationConfigsService", () => {
     TestBed.configureTestingModule({
       providers: [
         RotationConfigsService,
-        { provide: RotationApiService, useValue: rotationApi },
+        { provide: RotationSdkService, useValue: rotationSdk },
         { provide: TargetSystemsService, useValue: targetSystemsService },
         { provide: OrgCiphersService, useValue: orgCiphersService },
       ],
@@ -117,7 +115,7 @@ describe("RotationConfigsService", () => {
 
   it("loads configs and kicks off sibling loads in parallel", async () => {
     await service.load(ORG_ID);
-    expect(rotationApi.listRotationConfigs).toHaveBeenCalledWith(ORG_ID);
+    expect(rotationSdk.listConfigs).toHaveBeenCalledWith(ORG_ID);
     expect(targetSystemsService.load).toHaveBeenCalledWith(ORG_ID);
     expect(orgCiphersService.load).toHaveBeenCalledWith(ORG_ID);
   });
@@ -137,8 +135,8 @@ describe("RotationConfigsService", () => {
 
   it("awaitingManualCount$ counts configs awaiting manual rotation", async () => {
     const raw = makeConfigRaw({ AwaitingManualRotation: true });
-    rotationApi.listRotationConfigs.mockResolvedValue(
-      makeListResponse([new RotationConfigResponse(raw)]),
+    rotationSdk.listConfigs.mockResolvedValue(
+      makeListResponse([new RotationConfigView(raw)]),
     );
     await service.load(ORG_ID);
     const count = await firstValueFrom(service.awaitingManualCount$);
@@ -156,7 +154,7 @@ describe("RotationConfigsService", () => {
   it("pause rolls back on API error", async () => {
     await service.load(ORG_ID);
     const configs = await firstValueFrom(service.configs$);
-    rotationApi.pauseRotationConfig.mockRejectedValue(new Error("Server error"));
+    rotationSdk.pauseConfig.mockRejectedValue(new Error("Server error"));
     await expect(service.pause(configs[0])).rejects.toThrow("Server error");
     const updated = await firstValueFrom(service.configs$);
     expect(updated[0].enabled).toBe(true);
@@ -164,8 +162,8 @@ describe("RotationConfigsService", () => {
 
   it("resume optimistically sets enabled=true", async () => {
     const raw = makeConfigRaw({ Enabled: false });
-    rotationApi.listRotationConfigs.mockResolvedValue(
-      makeListResponse([new RotationConfigResponse(raw)]),
+    rotationSdk.listConfigs.mockResolvedValue(
+      makeListResponse([new RotationConfigView(raw)]),
     );
     await service.load(ORG_ID);
     const configs = await firstValueFrom(service.configs$);
@@ -184,8 +182,8 @@ describe("RotationConfigsService", () => {
 
   it("recordManual clears awaitingManualRotation and sets lastRotationAt", async () => {
     const raw = makeConfigRaw({ AwaitingManualRotation: true });
-    rotationApi.listRotationConfigs.mockResolvedValue(
-      makeListResponse([new RotationConfigResponse(raw)]),
+    rotationSdk.listConfigs.mockResolvedValue(
+      makeListResponse([new RotationConfigView(raw)]),
     );
     await service.load(ORG_ID);
     const configs = await firstValueFrom(service.configs$);
@@ -197,12 +195,12 @@ describe("RotationConfigsService", () => {
 
   it("recordManual rolls back on API error", async () => {
     const raw = makeConfigRaw({ AwaitingManualRotation: true });
-    rotationApi.listRotationConfigs.mockResolvedValue(
-      makeListResponse([new RotationConfigResponse(raw)]),
+    rotationSdk.listConfigs.mockResolvedValue(
+      makeListResponse([new RotationConfigView(raw)]),
     );
     await service.load(ORG_ID);
     const configs = await firstValueFrom(service.configs$);
-    rotationApi.recordManualRotation.mockRejectedValue(new Error("fail"));
+    rotationSdk.recordManualRotation.mockRejectedValue(new Error("fail"));
     await expect(service.recordManual(configs[0])).rejects.toThrow("fail");
     const updated = await firstValueFrom(service.configs$);
     expect(updated[0].awaitingManualRotation).toBe(true);
@@ -219,7 +217,7 @@ describe("RotationConfigsService", () => {
   it("delete does not modify local state on API error", async () => {
     await service.load(ORG_ID);
     const configs = await firstValueFrom(service.configs$);
-    rotationApi.deleteRotationConfig.mockRejectedValue(new Error("fail"));
+    rotationSdk.deleteConfig.mockRejectedValue(new Error("fail"));
     await expect(service.delete(configs[0])).rejects.toThrow("fail");
     const updated = await firstValueFrom(service.configs$);
     expect(updated).toHaveLength(1);

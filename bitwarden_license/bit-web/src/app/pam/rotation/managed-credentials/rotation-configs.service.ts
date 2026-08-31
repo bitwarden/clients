@@ -1,11 +1,11 @@
 import { Injectable, inject } from "@angular/core";
-import { BehaviorSubject, Observable, combineLatest, map } from "rxjs";
+import { BehaviorSubject, Observable, combineLatest, map, switchMap } from "rxjs";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { OrgCiphersService } from "../org-ciphers.service";
-import { RotationConfigResponse } from "../responses/rotation-config.response";
-import { RotationApiService } from "../rotation-api.service";
+import { RotationConfigId, RotationConfigView } from "../rotation";
+import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { RotationConfigRow, buildRotationConfigRow } from "./rotation-config-row";
@@ -19,17 +19,17 @@ import { RotationConfigRow, buildRotationConfigRow } from "./rotation-config-row
  */
 @Injectable()
 export class RotationConfigsService {
-  private readonly rotationApi = inject(RotationApiService);
+  private readonly rotationSdk = inject(RotationSdkService);
   private readonly targetSystems = inject(TargetSystemsService);
   private readonly orgCiphers = inject(OrgCiphersService);
 
   /** Set by {@link load}; the org all subsequent mutations target. */
   private organizationId: OrganizationId | null = null;
 
-  private readonly _configs$ = new BehaviorSubject<RotationConfigResponse[]>([]);
+  private readonly _configs$ = new BehaviorSubject<RotationConfigView[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
 
-  readonly configs$: Observable<RotationConfigResponse[]> = this._configs$.asObservable();
+  readonly configs$: Observable<RotationConfigView[]> = this._configs$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
   /** Count of configs currently awaiting a manual rotation from the operator. */
@@ -46,15 +46,30 @@ export class RotationConfigsService {
     this.targetSystems.systemById$,
     this.orgCiphers.cipherNameById$,
   ]).pipe(
-    map(([configs, systemById, cipherNameById]) =>
-      configs.map((config) =>
-        buildRotationConfigRow(
-          config,
-          systemById.get(config.targetSystemId),
-          cipherNameById.get(config.cipherId),
-        ),
-      ),
-    ),
+    // `switchMap`, not `concatMap`: each emission describes the whole list, so a newer one wholly
+    // supersedes an in-flight older one and there is nothing to preserve by queueing.
+    switchMap(async ([configs, systemById, cipherNameById]) => {
+      const descriptions = await this.rotationSdk.describeConfigs(
+        configs,
+        new Map([...systemById].map(([id, system]) => [id, system.status])),
+      );
+      return configs.flatMap((config) => {
+        const description = descriptions.get(config.id);
+        // `describeConfigs` returns one entry per config it was handed, so a miss means the list
+        // changed underneath this pass; drop the row rather than render it with no actions, and
+        // let the next emission carry it.
+        return description
+          ? [
+              buildRotationConfigRow(
+                config,
+                systemById.get(config.targetSystemId),
+                cipherNameById.get(config.cipherId),
+                description,
+              ),
+            ]
+          : [];
+      });
+    }),
   );
 
   /**
@@ -66,12 +81,12 @@ export class RotationConfigsService {
     this.organizationId = organizationId;
     this._loading$.next(true);
     try {
-      const [configsResponse] = await Promise.all([
-        this.rotationApi.listRotationConfigs(organizationId),
+      const [configs] = await Promise.all([
+        this.rotationSdk.listConfigs(organizationId),
         this.targetSystems.load(organizationId),
         this.orgCiphers.load(organizationId),
       ]);
-      this._configs$.next(configsResponse.data);
+      this._configs$.next(configs);
     } finally {
       this._loading$.next(false);
     }
@@ -81,10 +96,10 @@ export class RotationConfigsService {
    * Pause a rotation config (set enabled = false).
    * Optimistically patches local state; rolls back + rethrows on API failure.
    */
-  async pause(config: RotationConfigResponse): Promise<void> {
+  async pause(config: RotationConfigView): Promise<void> {
     this.patchConfig(config.id, { enabled: false });
     try {
-      await this.rotationApi.pauseRotationConfig(this.requireOrganizationId(), config.id);
+      await this.rotationSdk.pauseConfig(this.requireOrganizationId(), config.id);
     } catch (e) {
       this.patchConfig(config.id, { enabled: true });
       throw e;
@@ -95,10 +110,10 @@ export class RotationConfigsService {
    * Resume a rotation config (set enabled = true).
    * Optimistically patches local state; rolls back + rethrows on API failure.
    */
-  async resume(config: RotationConfigResponse): Promise<void> {
+  async resume(config: RotationConfigView): Promise<void> {
     this.patchConfig(config.id, { enabled: true });
     try {
-      await this.rotationApi.resumeRotationConfig(this.requireOrganizationId(), config.id);
+      await this.rotationSdk.resumeConfig(this.requireOrganizationId(), config.id);
     } catch (e) {
       this.patchConfig(config.id, { enabled: false });
       throw e;
@@ -110,8 +125,8 @@ export class RotationConfigsService {
    * Optimistically sets hasActiveJob = true so the row reflects the in-progress state
    * immediately. Does not roll back on error — the list will re-reflect truth on next load.
    */
-  async rotateNow(config: RotationConfigResponse): Promise<void> {
-    await this.rotationApi.rotateNow(this.requireOrganizationId(), config.id);
+  async rotateNow(config: RotationConfigView): Promise<void> {
+    await this.rotationSdk.rotateNow(this.requireOrganizationId(), config.id);
     this.patchConfig(config.id, { hasActiveJob: true });
   }
 
@@ -120,7 +135,7 @@ export class RotationConfigsService {
    * Optimistically clears awaitingManualRotation and sets lastRotationAt to now.
    * Rolls back + rethrows on API failure.
    */
-  async recordManual(config: RotationConfigResponse): Promise<void> {
+  async recordManual(config: RotationConfigView): Promise<void> {
     const previousAwaitingManual = config.awaitingManualRotation;
     const previousLastRotationAt = config.lastRotationAt;
     this.patchConfig(config.id, {
@@ -128,7 +143,7 @@ export class RotationConfigsService {
       lastRotationAt: new Date().toISOString(),
     });
     try {
-      await this.rotationApi.recordManualRotation(this.requireOrganizationId(), config.id);
+      await this.rotationSdk.recordManualRotation(this.requireOrganizationId(), config.id);
     } catch (e) {
       this.patchConfig(config.id, {
         awaitingManualRotation: previousAwaitingManual,
@@ -143,8 +158,8 @@ export class RotationConfigsService {
    * Does not optimistically patch — waits for the server to confirm before removing.
    * Rolls back is implicit: if the API throws, _configs$ is unchanged.
    */
-  async delete(config: RotationConfigResponse): Promise<void> {
-    await this.rotationApi.deleteRotationConfig(this.requireOrganizationId(), config.id);
+  async delete(config: RotationConfigView): Promise<void> {
+    await this.rotationSdk.deleteConfig(this.requireOrganizationId(), config.id);
     this._configs$.next(this._configs$.value.filter((c) => c.id !== config.id));
   }
 
@@ -159,16 +174,12 @@ export class RotationConfigsService {
    * Apply a partial patch to the config with the given id in the local stream.
    * Creates a new object (preserves reference-equality semantics for OnPush).
    */
-  private patchConfig(id: string, patch: Partial<RotationConfigResponse>): void {
+  private patchConfig(id: RotationConfigId, patch: Partial<RotationConfigView>): void {
     this._configs$.next(
       this._configs$.value.map((c) =>
-        c.id === id
-          ? (Object.assign(
-              Object.create(Object.getPrototypeOf(c)),
-              c,
-              patch,
-            ) as RotationConfigResponse)
-          : c,
+        // A view crosses the WASM boundary as a plain object, so a spread is a faithful copy —
+        // there is no prototype to preserve, unlike the BaseResponse instances this replaced.
+        c.id === id ? { ...c, ...patch } : c,
       ),
     );
   }

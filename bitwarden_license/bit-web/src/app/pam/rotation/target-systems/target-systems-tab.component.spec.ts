@@ -8,7 +8,6 @@ import { BehaviorSubject, of } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { TargetSystemResponse } from "../responses/target-system.response";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
 
 import { TargetSystemsTabComponent } from "./target-systems-tab.component";
@@ -20,7 +19,7 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
-function makeSystem(overrides: Partial<TargetSystemResponse> = {}): TargetSystemResponse {
+function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
   return {
     id: "sys-1",
     name: "Prod Entra",
@@ -30,7 +29,7 @@ function makeSystem(overrides: Partial<TargetSystemResponse> = {}): TargetSystem
     passwordPolicy: null,
     supportsSessionTermination: true,
     ...overrides,
-  } as TargetSystemResponse;
+  } as TargetSystemView;
 }
 
 describe("TargetSystemsTabComponent", () => {
@@ -38,9 +37,9 @@ describe("TargetSystemsTabComponent", () => {
   let component: TargetSystemsTabComponent;
   let targetSystemsService: {
     loading$: BehaviorSubject<boolean>;
-    systems$: BehaviorSubject<TargetSystemResponse[]>;
-    systemById$: BehaviorSubject<Map<string, TargetSystemResponse>>;
-    activeAutomaticSystems$: BehaviorSubject<TargetSystemResponse[]>;
+    systems$: BehaviorSubject<TargetSystemView[]>;
+    systemById$: BehaviorSubject<Map<string, TargetSystemView>>;
+    activeAutomaticSystems$: BehaviorSubject<TargetSystemView[]>;
     load: jest.Mock;
     setEnabled: jest.Mock;
     delete: jest.Mock;
@@ -52,9 +51,9 @@ describe("TargetSystemsTabComponent", () => {
   beforeEach(async () => {
     targetSystemsService = {
       loading$: new BehaviorSubject<boolean>(false),
-      systems$: new BehaviorSubject<TargetSystemResponse[]>([]),
+      systems$: new BehaviorSubject<TargetSystemView[]>([]),
       systemById$: new BehaviorSubject(new Map()),
-      activeAutomaticSystems$: new BehaviorSubject<TargetSystemResponse[]>([]),
+      activeAutomaticSystems$: new BehaviorSubject<TargetSystemView[]>([]),
       load: jest.fn().mockResolvedValue(undefined),
       setEnabled: jest.fn().mockResolvedValue(undefined),
       delete: jest.fn().mockResolvedValue(undefined),
@@ -122,7 +121,7 @@ describe("TargetSystemsTabComponent", () => {
     const sys = makeSystem({ id: "sys-edit" });
     const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
     await (
-      component as unknown as { openEdit: (s: TargetSystemResponse) => Promise<boolean> }
+      component as unknown as { openEdit: (s: TargetSystemView) => Promise<boolean> }
     ).openEdit(sys);
     expect(navigateSpy).toHaveBeenCalledWith(
       ["..", "target-systems", "sys-edit"],
@@ -136,7 +135,7 @@ describe("TargetSystemsTabComponent", () => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       const comp = component as unknown as {
-        disable: (s: TargetSystemResponse) => Promise<void>;
+        disable: (s: TargetSystemView) => Promise<void>;
       };
       void comp.disable(sys);
       tick();
@@ -149,7 +148,7 @@ describe("TargetSystemsTabComponent", () => {
       dialogService.openSimpleDialog.mockResolvedValue(false);
 
       const comp = component as unknown as {
-        disable: (s: TargetSystemResponse) => Promise<void>;
+        disable: (s: TargetSystemView) => Promise<void>;
       };
       void comp.disable(sys);
       flushMicrotasks();
@@ -162,7 +161,7 @@ describe("TargetSystemsTabComponent", () => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       const comp = component as unknown as {
-        disable: (s: TargetSystemResponse) => Promise<void>;
+        disable: (s: TargetSystemView) => Promise<void>;
       };
       void comp.disable(sys);
       flushMicrotasks();
@@ -178,7 +177,7 @@ describe("TargetSystemsTabComponent", () => {
       const sys = makeSystem({ id: "sys-1", status: TargetSystemStatus.Disabled });
 
       const comp = component as unknown as {
-        enable: (s: TargetSystemResponse) => Promise<void>;
+        enable: (s: TargetSystemView) => Promise<void>;
       };
       await comp.enable(sys);
 
@@ -189,7 +188,7 @@ describe("TargetSystemsTabComponent", () => {
       const sys = makeSystem({ id: "sys-1", status: TargetSystemStatus.Disabled });
 
       const comp = component as unknown as {
-        enable: (s: TargetSystemResponse) => Promise<void>;
+        enable: (s: TargetSystemView) => Promise<void>;
       };
       await comp.enable(sys);
 
@@ -205,7 +204,7 @@ describe("TargetSystemsTabComponent", () => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       const comp = component as unknown as {
-        confirmDelete: (s: TargetSystemResponse) => Promise<void>;
+        confirmDelete: (s: TargetSystemView) => Promise<void>;
       };
       void comp.confirmDelete(sys);
       tick();
@@ -221,7 +220,7 @@ describe("TargetSystemsTabComponent", () => {
       dialogService.openSimpleDialog.mockResolvedValue(false);
 
       const comp = component as unknown as {
-        confirmDelete: (s: TargetSystemResponse) => Promise<void>;
+        confirmDelete: (s: TargetSystemView) => Promise<void>;
       };
       void comp.confirmDelete(sys);
       flushMicrotasks();

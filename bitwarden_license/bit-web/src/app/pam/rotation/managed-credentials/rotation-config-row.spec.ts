@@ -1,5 +1,3 @@
-import { RotationConfigResponse } from "../responses/rotation-config.response";
-import { TargetSystemResponse } from "../responses/target-system.response";
 import { PasswordPolicy, TargetSystemMethod, TargetSystemStatus } from "../rotation";
 
 import {
@@ -8,7 +6,7 @@ import {
   isScheduleI18nKey,
 } from "./rotation-config-row";
 
-function makeConfig(overrides: Partial<RotationConfigResponse> = {}): RotationConfigResponse {
+function makeConfig(overrides: Partial<RotationConfigView> = {}): RotationConfigView {
   const raw = {
     Id: "cfg-1",
     CipherId: "cipher-1",
@@ -28,10 +26,10 @@ function makeConfig(overrides: Partial<RotationConfigResponse> = {}): RotationCo
       Object.entries(overrides).map(([k, v]) => [k.charAt(0).toUpperCase() + k.slice(1), v]),
     ),
   };
-  return new RotationConfigResponse(raw);
+  return new RotationConfigView(raw);
 }
 
-function makeTarget(overrides: Partial<TargetSystemResponse> = {}): TargetSystemResponse {
+function makeTarget(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
   const raw = {
     Id: "ts-1",
     Name: "Test Target",
@@ -44,7 +42,7 @@ function makeTarget(overrides: Partial<TargetSystemResponse> = {}): TargetSystem
       Object.entries(overrides).map(([k, v]) => [k.charAt(0).toUpperCase() + k.slice(1), v]),
     ),
   };
-  return new TargetSystemResponse(raw);
+  return new TargetSystemView(raw);
 }
 
 describe("buildRotationConfigRow", () => {

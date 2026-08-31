@@ -27,12 +27,8 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { OrgCiphersService } from "../org-ciphers.service";
-import { RotationConfigAccountRequest } from "../requests/rotation-config-account.request";
-import { RotationConfigCreateRequest } from "../requests/rotation-config-create.request";
-import { RotationConfigSettingsRequest } from "../requests/rotation-config-settings.request";
-import { RotationConfigDetailsResponse } from "../responses/rotation-config-details.response";
-import { TargetSystemMethod, TargetSystemStatus } from "../rotation";
-import { RotationApiService } from "../rotation-api.service";
+import { RotationConfigCreateRequest, RotationConfigDetailView, RotationConfigId, RotationConfigUpdateRequest, TargetSystemId, TargetSystemMethod, TargetSystemStatus } from "../rotation";
+import { RotationSdkService } from "../rotation-sdk.service";
 import { RotationScheduleInputComponent } from "../rotation-schedule-input.component";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
@@ -47,7 +43,7 @@ const ACCOUNT_IDENTITY_MAX_LENGTH = 500;
  * ciphers, and existing configs (to exclude already-configured cipherIds). Form submits
  * to POST /configs and navigates back.
  *
- * **Edit mode** (`configId` param): fetches the full config via getRotationConfig; renders
+ * **Edit mode** (`configId` param): fetches the full config via getConfig; renders
  * cipher + target as read-only labels. Two separate save cards — settings (schedule + trigger)
  * and account (identity + session termination). The account card is disabled while
  * `hasActiveJob` is true. Below the cards shows the rotation job history.
@@ -86,7 +82,7 @@ export class RotationConfigEditComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly rotationApi = inject(RotationApiService);
+  private readonly rotationSdk = inject(RotationSdkService);
   private readonly targetSystemsService = inject(TargetSystemsService);
   private readonly orgCiphersService = inject(OrgCiphersService);
   private readonly dialogService = inject(DialogService);
@@ -99,7 +95,7 @@ export class RotationConfigEditComponent {
   protected readonly editing = this.configId != null;
 
   protected readonly loading = signal(true);
-  protected readonly existingConfig = signal<RotationConfigDetailsResponse | null>(null);
+  protected readonly existingConfig = signal<RotationConfigDetailView | null>(null);
 
   protected readonly titleText = computed(() =>
     this.i18nService.t(
@@ -176,7 +172,7 @@ export class RotationConfigEditComponent {
 
   private async initializeCreateMode(): Promise<void> {
     const [configsResponse] = await Promise.all([
-      this.rotationApi.listRotationConfigs(this.organizationId),
+      this.rotationSdk.listConfigs(this.organizationId),
       this.targetSystemsService.load(this.organizationId),
       this.orgCiphersService.load(this.organizationId),
     ]);
@@ -202,9 +198,9 @@ export class RotationConfigEditComponent {
     });
   }
 
-  private async loadConfig(): Promise<RotationConfigDetailsResponse | null> {
+  private async loadConfig(): Promise<RotationConfigDetailView | null> {
     try {
-      return await this.rotationApi.getRotationConfig(this.organizationId, this.configId!);
+      return await this.rotationSdk.getConfig(this.organizationId, this.configId!);
     } catch {
       this.toastService.showToast({
         variant: "error",
@@ -248,16 +244,16 @@ export class RotationConfigEditComponent {
       return;
     }
     const value = this.createForm.getRawValue();
-    const request = new RotationConfigCreateRequest({
-      cipherId: value.cipherId,
-      targetSystemId: value.targetSystemId,
+    const request: RotationConfigCreateRequest = {
+      cipherId: value.cipherId as CipherId,
+      targetSystemId: value.targetSystemId as TargetSystemId,
       accountIdentity: value.accountIdentity,
       terminateSessions: value.terminateSessions,
       scheduleCron: value.scheduleCron,
       rotateOnAccessEnd: value.rotateOnAccessEnd,
-    });
+    };
     try {
-      await this.rotationApi.createRotationConfig(this.organizationId, request);
+      await this.rotationSdk.createConfig(this.organizationId, request);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamRotationConfigCreated"),
@@ -268,50 +264,40 @@ export class RotationConfigEditComponent {
     }
   };
 
-  protected readonly submitSettings = async (): Promise<void> => {
+  /**
+   * Edit mode: one save for the account and the schedule together.
+   *
+   * These were two calls against two routes; the server now takes them in a single write, so a
+   * caller changing only the schedule still sends the current account identity. The page therefore
+   * shows one Save rather than one per card.
+   *
+   * The account identity is locked while a job is in flight — the form is disabled in that state,
+   * and the server rejects the write regardless.
+   */
+  protected readonly submitEdit = async (): Promise<void> => {
     this.settingsForm.markAllAsTouched();
-    if (this.settingsForm.invalid) {
-      return;
-    }
-    const value = this.settingsForm.getRawValue();
-    const request = new RotationConfigSettingsRequest({
-      scheduleCron: value.scheduleCron,
-      rotateOnAccessEnd: value.rotateOnAccessEnd,
-    });
-    try {
-      await this.rotationApi.updateRotationConfigSettings(
-        this.organizationId,
-        this.configId!,
-        request,
-      );
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamRotationConfigSettingsUpdated"),
-      });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
-
-  protected readonly submitAccount = async (): Promise<void> => {
     this.accountForm.markAllAsTouched();
-    if (this.accountForm.invalid) {
+    if (this.settingsForm.invalid || this.accountForm.invalid) {
       return;
     }
-    const value = this.accountForm.getRawValue();
-    const request = new RotationConfigAccountRequest({
-      accountIdentity: value.accountIdentity,
-      terminateSessions: value.terminateSessions,
-    });
+    const settings = this.settingsForm.getRawValue();
+    const account = this.accountForm.getRawValue();
+    const request: RotationConfigUpdateRequest = {
+      accountIdentity: account.accountIdentity,
+      terminateSessions: account.terminateSessions,
+      scheduleCron: settings.scheduleCron,
+      rotateOnAccessEnd: settings.rotateOnAccessEnd,
+    };
     try {
-      await this.rotationApi.updateRotationConfigAccount(
+      const updated = await this.rotationSdk.updateConfig(
         this.organizationId,
         this.configId!,
         request,
       );
+      this.existing.set(updated.config);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamRotationConfigAccountUpdated"),
+        message: this.i18nService.t("pamRotationConfigSaved"),
       });
     } catch (e) {
       this.showError(e);
@@ -339,7 +325,7 @@ export class RotationConfigEditComponent {
       return;
     }
     try {
-      await this.rotationApi.deleteRotationConfig(this.organizationId, this.configId!);
+      await this.rotationSdk.deleteConfig(this.organizationId, this.configId!);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamRotationConfigDeleteSuccess"),

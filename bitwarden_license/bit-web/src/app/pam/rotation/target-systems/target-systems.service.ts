@@ -3,9 +3,13 @@ import { BehaviorSubject, Observable, combineLatest, map } from "rxjs";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { TargetSystemResponse } from "../responses/target-system.response";
-import { TargetSystemMethod, TargetSystemStatus } from "../rotation";
-import { RotationApiService } from "../rotation-api.service";
+import {
+  TargetSystemId,
+  TargetSystemMethod,
+  TargetSystemStatus,
+  TargetSystemView,
+} from "../rotation";
+import { RotationSdkService } from "../rotation-sdk.service";
 
 /**
  * Page-scoped data service for the target-systems tab.
@@ -13,22 +17,25 @@ import { RotationApiService } from "../rotation-api.service";
  * Provided at the rotation shell route so all rotation tabs share one loaded instance.
  * Owns the list of target systems, exposes derived lookups (`systemById$`,
  * `activeAutomaticSystems$`), and handles the enable/disable toggle with optimistic patching.
+ *
+ * There is deliberately no delete: the server exposes no route for it, because rotation configs
+ * reference targets and a rotation's history has to stay attributable. Retiring one is `disable`.
  */
 @Injectable()
 export class TargetSystemsService {
-  private readonly rotationApi = inject(RotationApiService);
+  private readonly rotationSdk = inject(RotationSdkService);
 
   /** Set by {@link load}; the org all subsequent mutations target. */
   private organizationId: OrganizationId | null = null;
 
-  private readonly _systems$ = new BehaviorSubject<TargetSystemResponse[]>([]);
+  private readonly _systems$ = new BehaviorSubject<TargetSystemView[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
 
-  readonly systems$: Observable<TargetSystemResponse[]> = this._systems$.asObservable();
+  readonly systems$: Observable<TargetSystemView[]> = this._systems$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
-  /** A map from targetSystemId → TargetSystemResponse for O(1) lookups in derived services. */
-  readonly systemById$: Observable<Map<string, TargetSystemResponse>> = this._systems$.pipe(
+  /** A map from targetSystemId → TargetSystemView for O(1) lookups in derived services. */
+  readonly systemById$: Observable<Map<TargetSystemId, TargetSystemView>> = this._systems$.pipe(
     map((systems) => new Map(systems.map((s) => [s.id, s]))),
   );
 
@@ -36,7 +43,7 @@ export class TargetSystemsService {
    * The subset of systems that are Active and use the Automatic method — these are the valid
    * choices when selecting a target system for a new rotation config.
    */
-  readonly activeAutomaticSystems$: Observable<TargetSystemResponse[]> = combineLatest([
+  readonly activeAutomaticSystems$: Observable<TargetSystemView[]> = combineLatest([
     this._systems$,
   ]).pipe(
     map(([systems]) =>
@@ -51,8 +58,7 @@ export class TargetSystemsService {
     this.organizationId = organizationId;
     this._loading$.next(true);
     try {
-      const response = await this.rotationApi.listTargetSystems(organizationId);
-      this._systems$.next(response.data);
+      this._systems$.next(await this.rotationSdk.listTargetSystems(organizationId));
     } finally {
       this._loading$.next(false);
     }
@@ -62,30 +68,19 @@ export class TargetSystemsService {
    * Enable or disable a target system, optimistically patching local state.
    * The server returns 204 for enable/disable; state is patched by toggling the status field.
    */
-  async setEnabled(system: TargetSystemResponse, enabled: boolean): Promise<void> {
+  async setEnabled(system: TargetSystemView, enabled: boolean): Promise<void> {
     const orgId = this.requireOrganizationId();
     if (enabled) {
-      await this.rotationApi.enableTargetSystem(orgId, system.id);
+      await this.rotationSdk.enableTargetSystem(orgId, system.id);
     } else {
-      await this.rotationApi.disableTargetSystem(orgId, system.id);
+      await this.rotationSdk.disableTargetSystem(orgId, system.id);
     }
     const nextStatus = enabled ? TargetSystemStatus.Active : TargetSystemStatus.Disabled;
     this._systems$.next(
       this._systems$.value.map((s) =>
-        s.id === system.id ? ({ ...s, status: nextStatus } as TargetSystemResponse) : s,
+        s.id === system.id ? ({ ...s, status: nextStatus } as TargetSystemView) : s,
       ),
     );
-  }
-
-  /**
-   * Delete a target system, removing it from local state once the server confirms.
-   * Waits for the server (which rejects if rotation configs still reference it) before
-   * mutating local state, so a failed delete leaves the list unchanged.
-   */
-  async delete(system: TargetSystemResponse): Promise<void> {
-    const orgId = this.requireOrganizationId();
-    await this.rotationApi.deleteTargetSystem(orgId, system.id);
-    this._systems$.next(this._systems$.value.filter((s) => s.id !== system.id));
   }
 
   private requireOrganizationId(): OrganizationId {

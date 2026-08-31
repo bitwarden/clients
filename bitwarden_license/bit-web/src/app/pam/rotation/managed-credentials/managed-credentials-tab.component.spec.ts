@@ -5,7 +5,6 @@ import { BehaviorSubject, of } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { RotationConfigResponse } from "../responses/rotation-config.response";
 import { TargetSystemMethod } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
@@ -39,7 +38,7 @@ function makeConfigRaw(overrides: Record<string, unknown> = {}): Record<string, 
 }
 
 function makeRow(configOverrides: Record<string, unknown> = {}): RotationConfigRow {
-  const config = new RotationConfigResponse(makeConfigRaw(configOverrides));
+  const config = new RotationConfigView(makeConfigRaw(configOverrides));
   return buildRotationConfigRow(config, undefined, "My Cipher");
 }
 

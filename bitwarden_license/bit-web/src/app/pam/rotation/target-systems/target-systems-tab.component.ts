@@ -21,8 +21,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { TargetSystemResponse } from "../responses/target-system.response";
-import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
+import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus, TargetSystemView } from "../rotation";
 
 import {
   TargetSystemsEmptyStateComponent,
@@ -30,10 +29,10 @@ import {
 } from "./target-systems-empty-state.component";
 import { TargetSystemsService } from "./target-systems.service";
 
-/** A flattened, presentation-ready view of a {@link TargetSystemResponse}. */
+/** A flattened, presentation-ready view of a {@link TargetSystemView}. */
 export type TargetSystemRow = {
   id: string;
-  system: TargetSystemResponse;
+  system: TargetSystemView;
   name: string;
   methodLabel: string;
   kindLabel: string | null;
@@ -79,7 +78,7 @@ export class TargetSystemsTabComponent {
 
   protected readonly loading = toSignal(this.targetSystemsService.loading$, { initialValue: true });
   private readonly systems = toSignal(this.targetSystemsService.systems$, {
-    initialValue: [] as TargetSystemResponse[],
+    initialValue: [] as TargetSystemView[],
   });
 
   protected readonly dataSource = new TableDataSource<TargetSystemRow>();
@@ -121,11 +120,11 @@ export class TargetSystemsTabComponent {
     });
 
   /** Navigate to the edit page for a target system. */
-  protected readonly openEdit = (system: TargetSystemResponse): Promise<boolean> =>
+  protected readonly openEdit = (system: TargetSystemView): Promise<boolean> =>
     this.router.navigate(["..", "target-systems", system.id], { relativeTo: this.route });
 
   /** Disable a target system after confirming with the operator. */
-  protected readonly disable = async (system: TargetSystemResponse): Promise<void> => {
+  protected readonly disable = async (system: TargetSystemView): Promise<void> => {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "pamTargetSystemDisableTitle" },
       content: { key: "pamTargetSystemDisableContent" },
@@ -148,7 +147,7 @@ export class TargetSystemsTabComponent {
   };
 
   /** Re-enable a disabled target system. */
-  protected readonly enable = async (system: TargetSystemResponse): Promise<void> => {
+  protected readonly enable = async (system: TargetSystemView): Promise<void> => {
     try {
       await this.targetSystemsService.setEnabled(system, true);
       this.toastService.showToast({
@@ -160,30 +159,7 @@ export class TargetSystemsTabComponent {
     }
   };
 
-  /** Delete a target system after confirming with the operator. */
-  protected readonly confirmDelete = async (system: TargetSystemResponse): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamTargetSystemDeleteTitle" },
-      content: { key: "pamTargetSystemDeleteContent", placeholders: [system.name] },
-      acceptButtonText: { key: "delete" },
-      cancelButtonText: { key: "cancel" },
-      type: "warning",
-    });
-    if (!confirmed) {
-      return;
-    }
-    try {
-      await this.targetSystemsService.delete(system);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamTargetSystemDeleteSuccess"),
-      });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
-
-  private buildRows(systems: TargetSystemResponse[]): TargetSystemRow[] {
+  private buildRows(systems: TargetSystemView[]): TargetSystemRow[] {
     return systems.map((system) => ({
       id: system.id,
       system,

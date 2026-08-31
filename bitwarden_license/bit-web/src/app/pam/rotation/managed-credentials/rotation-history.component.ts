@@ -4,14 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from "@angular/co
 import { BadgeModule, BadgeVariant, TableModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { RotationJobResponse } from "../responses/rotation-config-details.response";
-import {
-  RotationAttemptStatus,
-  RotationJobStatus,
-  RotationSessionTermination,
-  RotationSource,
-  RotationSyncState,
-} from "../rotation";
+import { RotationAttemptStatus, RotationJobStatus, RotationJobView, SessionTerminationOutcome, RotationSource, RotationSyncState, SessionTerminationOutcome } from "../rotation";
 
 /**
  * Presentational component rendering rotation job and attempt history.
@@ -26,7 +19,7 @@ import {
   imports: [CommonModule, BadgeModule, TableModule, I18nPipe],
 })
 export class RotationHistoryComponent {
-  readonly jobs = input.required<RotationJobResponse[]>();
+  readonly jobs = input.required<RotationJobView[]>();
 
   /** Jobs sorted newest-first by createdAt. */
   protected readonly sortedJobs = computed(() =>
@@ -38,7 +31,7 @@ export class RotationHistoryComponent {
   protected readonly RotationJobStatus = RotationJobStatus;
   protected readonly RotationAttemptStatus = RotationAttemptStatus;
   protected readonly RotationSyncState = RotationSyncState;
-  protected readonly RotationSessionTermination = RotationSessionTermination;
+  protected readonly SessionTerminationOutcome = SessionTerminationOutcome;
 
   protected sourceLabelKey(source: RotationSource): string {
     switch (source) {
@@ -113,13 +106,13 @@ export class RotationHistoryComponent {
     }
   }
 
-  protected sessionTerminationLabelKey(state: RotationSessionTermination): string {
+  protected sessionTerminationLabelKey(state: SessionTerminationOutcome): string {
     switch (state) {
-      case RotationSessionTermination.NotRequested:
+      case SessionTerminationOutcome.NotRequested:
         return "pamRotationSessionTerminationNotRequested";
-      case RotationSessionTermination.Terminated:
+      case SessionTerminationOutcome.Terminated:
         return "pamRotationSessionTerminationTerminated";
-      case RotationSessionTermination.TermFailed:
+      case SessionTerminationOutcome.TermFailed:
         return "pamRotationSessionTerminationTermFailed";
       default:
         return "pamRotationSessionTerminationUnknown";

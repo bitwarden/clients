@@ -5,7 +5,6 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { PRESET_CRONS, QuartzSchedulePreset } from "./helpers/quartz-cron";
 import { RotationScheduleInputComponent } from "./rotation-schedule-input.component";
 
 describe("RotationScheduleInputComponent", () => {

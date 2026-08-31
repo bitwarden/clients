@@ -22,9 +22,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { RotationDaemonResponse } from "../responses/rotation-daemon.response";
-import { TargetSystemResponse } from "../responses/target-system.response";
-import { DaemonStatus } from "../rotation";
+import { AccessConnectorView, DaemonStatus, TargetSystemId, TargetSystemView } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { AssignTargetDialogComponent } from "./assign-target-dialog.component";
@@ -63,7 +61,7 @@ export class DaemonsTabComponent {
   private readonly rows = toSignal(this.daemonsService.rows$, { initialValue: [] as DaemonRow[] });
   private readonly activeAutomaticSystems = toSignal(
     this.targetSystemsService.activeAutomaticSystems$,
-    { initialValue: [] as TargetSystemResponse[] },
+    { initialValue: [] as TargetSystemView[] },
   );
 
   protected readonly dataSource = new TableDataSource<DaemonRow>();
@@ -102,7 +100,7 @@ export class DaemonsTabComponent {
     this.router.navigate(["..", "daemons", row.id], { relativeTo: this.route });
 
   protected readonly openAssignDialog = async (row: DaemonRow): Promise<void> => {
-    const assigned = new Set(row.daemon.assignments);
+    const assigned = new Set(row.daemon.assignedTargetSystemIds);
     const options = this.activeAutomaticSystems().filter((s) => !assigned.has(s.id));
 
     const ref = AssignTargetDialogComponent.open(this.dialogService, {
@@ -124,7 +122,7 @@ export class DaemonsTabComponent {
   };
 
   protected readonly unassign = async (
-    daemon: RotationDaemonResponse,
+    daemon: AccessConnectorView,
     targetSystemId: string,
     targetName: string,
   ): Promise<void> => {

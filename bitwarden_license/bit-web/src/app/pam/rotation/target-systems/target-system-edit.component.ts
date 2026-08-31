@@ -36,12 +36,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { TargetSystemCreateRequest } from "../requests/target-system-create.request";
-import { TargetSystemNameRequest } from "../requests/target-system-name.request";
-import { TargetSystemPolicyRequest } from "../requests/target-system-policy.request";
-import { TargetSystemResponse } from "../responses/target-system.response";
-import { PasswordPolicy, TargetSystemKind, TargetSystemMethod } from "../rotation";
-import { RotationApiService } from "../rotation-api.service";
+import { PasswordPolicy, TargetSystemId, TargetSystemKind, TargetSystemMethod, TargetSystemView } from "../rotation";
+import { RotationSdkService } from "../rotation-sdk.service";
 
 const NAME_MAX_LENGTH = 200;
 const DEFAULT_MIN_LENGTH = 14;
@@ -127,7 +123,7 @@ export class TargetSystemEditComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly rotationApi = inject(RotationApiService);
+  private readonly rotationSdk = inject(RotationSdkService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
@@ -137,7 +133,7 @@ export class TargetSystemEditComponent {
 
   protected readonly editing = this.targetSystemId != null;
   protected readonly loading = signal(true);
-  protected readonly existing = signal<TargetSystemResponse | null>(null);
+  protected readonly existing = signal<TargetSystemView | null>(null);
 
   protected readonly titleText = computed(() =>
     this.i18nService.t(this.editing ? "pamTargetSystemEditTitle" : "pamTargetSystemCreateTitle"),
@@ -285,8 +281,8 @@ export class TargetSystemEditComponent {
 
   private async loadSystem(): Promise<void> {
     try {
-      const response = await this.rotationApi.listTargetSystems(this.organizationId);
-      const system = response.data.find((s) => s.id === this.targetSystemId);
+      const systems = await this.rotationSdk.listTargetSystems(this.organizationId);
+      const system = systems.find((s) => s.id === this.targetSystemId);
       if (system == null) {
         this.toastService.showToast({
           variant: "error",
@@ -306,7 +302,7 @@ export class TargetSystemEditComponent {
     }
   }
 
-  private applySystem(system: TargetSystemResponse): void {
+  private applySystem(system: TargetSystemView): void {
     this.nameForm.patchValue({ name: system.name });
     // A policy exists for both Automatic and Manual systems; pre-fill it for either.
     if (system.passwordPolicy != null) {
@@ -363,26 +359,21 @@ export class TargetSystemEditComponent {
 
     try {
       if (method === TargetSystemMethod.Automatic) {
-        const kind = this.createForm.controls.kind.value;
-        await this.rotationApi.createTargetSystem(
-          this.organizationId,
-          new TargetSystemCreateRequest({
-            name,
-            method: TargetSystemMethod.Automatic,
-            kind,
-            passwordPolicy,
-            supportsSessionTermination: this.resolvedSessionTermination(),
-          }),
-        );
+        await this.rotationSdk.createTargetSystem(this.organizationId, {
+          method: "automatic",
+          name,
+          kind: this.createForm.controls.kind.value,
+          passwordPolicy,
+          supportsSessionTermination: this.resolvedSessionTermination(),
+        });
       } else {
-        await this.rotationApi.createTargetSystem(
-          this.organizationId,
-          new TargetSystemCreateRequest({
-            name,
-            method: TargetSystemMethod.Manual,
-            passwordPolicy,
-          }),
-        );
+        // A manual target has no integration and no session to terminate, so the union's manual
+        // arm carries neither.
+        await this.rotationSdk.createTargetSystem(this.organizationId, {
+          method: "manual",
+          name,
+          passwordPolicy,
+        });
       }
       this.toastService.showToast({
         variant: "success",
@@ -410,55 +401,21 @@ export class TargetSystemEditComponent {
 
     const { name } = this.nameForm.getRawValue();
     try {
-      await this.rotationApi.renameTargetSystem(
-        this.organizationId,
-        this.targetSystemId!,
-        new TargetSystemNameRequest({ name }),
-      );
+      // One write, not two: the server takes the name, the policy and the capability together.
+      await this.rotationSdk.updateTargetSystem(this.organizationId, this.targetSystemId!, {
+        name,
+        passwordPolicy: this.buildPasswordPolicy(),
+        // Automatic follows native/custom-script rules; Manual has no daemon session to terminate.
+        supportsSessionTermination: this.isAutomatic() && this.resolvedSessionTermination(),
+      });
 
-      const updated = await this.rotationApi.updateTargetSystemPolicy(
-        this.organizationId,
-        this.targetSystemId!,
-        new TargetSystemPolicyRequest({
-          passwordPolicy: this.buildPasswordPolicy(),
-          // Automatic follows native/custom-script rules; Manual has no daemon session to terminate.
-          supportsSessionTermination: this.isAutomatic() && this.resolvedSessionTermination(),
-        }),
-      );
-
-      this.existing.set(updated);
+      // The write answers with no content, so re-read rather than assume the request body is now
+      // the stored state.
+      await this.loadSystem();
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamTargetSystemSaved"),
       });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
-
-  /** Edit mode: delete this target system after confirming, then return to the list. */
-  protected readonly deleteSystem = async (): Promise<void> => {
-    const system = this.existing();
-    if (system == null) {
-      return;
-    }
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamTargetSystemDeleteTitle" },
-      content: { key: "pamTargetSystemDeleteContent", placeholders: [system.name] },
-      acceptButtonText: { key: "delete" },
-      cancelButtonText: { key: "cancel" },
-      type: "warning",
-    });
-    if (!confirmed) {
-      return;
-    }
-    try {
-      await this.rotationApi.deleteTargetSystem(this.organizationId, this.targetSystemId!);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamTargetSystemDeleteSuccess"),
-      });
-      await this.navigateToList();
     } catch (e) {
       this.showError(e);
     }

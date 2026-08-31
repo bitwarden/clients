@@ -29,7 +29,7 @@ import { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-bann
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout/collection-access-rule-callout.component";
 import { GatedCollectionBannerComponent } from "./gated-collection-banner/gated-collection-banner.component";
 import { ItemDetailsStateBadgeComponent } from "./item-details-state-badge/item-details-state-badge.component";
-import { DefaultRotationApiService } from "./rotation/default-rotation-api.service";
+import { DefaultRotationSdkService } from "./rotation/default-rotation-sdk.service";
 import { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
 import { AccessRequestCancelService } from "./services/access-request-cancel.service";
 import { AccessRequestsSdkService } from "./services/access-requests-sdk.service";
@@ -55,7 +55,7 @@ import {
   AccessRequestSdkService,
   AccessRuleSdkService,
   LeasingErrorService,
-  RotationApiService,
+  RotationSdkService,
 } from ".";
 
 /**
@@ -139,13 +139,14 @@ export function providePam(): SafeProvider[] {
       useClass: DefaultAuditApiService,
       deps: [ApiService, AccountService],
     }),
-    // The module's other HTTP-backed contract, for the same reason as the audit trail — see
-    // `rotation/rotation-api.service.ts`. Bound here so swapping it for an SDK-backed
-    // implementation, once the SDK exposes a rotation surface, is a change to this line alone.
+    // Credential rotation, served by the SDK's `commercial().pam().rotation()` client. This was
+    // the module's second raw-HTTP exception while the SDK had no rotation surface; the SDK now
+    // owns the domain, the wire mapping, the request validation and the registration crypto, so
+    // the exception is gone and only the audit trail remains.
     safeProvider({
-      provide: RotationApiService,
-      useClass: DefaultRotationApiService,
-      deps: [ApiService, AccountService],
+      provide: RotationSdkService,
+      useClass: DefaultRotationSdkService,
+      deps: [SdkService, AccountService, LogService],
     }),
     safeProvider({
       provide: CidrValidationService,

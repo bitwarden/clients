@@ -3,17 +3,15 @@ import { BehaviorSubject } from "rxjs";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { RotationDaemonResponse } from "../responses/rotation-daemon.response";
-import { TargetSystemResponse } from "../responses/target-system.response";
 import { DaemonStatus } from "../rotation";
-import { RotationApiService } from "../rotation-api.service";
+import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { DaemonsService } from "./daemons.service";
 
 const orgId = "org-1" as OrganizationId;
 
-function makeDaemon(overrides: Partial<RotationDaemonResponse> = {}): RotationDaemonResponse {
+function makeDaemon(overrides: Partial<AccessConnectorView> = {}): AccessConnectorView {
   return {
     id: "daemon-1",
     name: "My Daemon",
@@ -21,30 +19,30 @@ function makeDaemon(overrides: Partial<RotationDaemonResponse> = {}): RotationDa
     isConnected: true,
     assignments: [],
     ...overrides,
-  } as unknown as RotationDaemonResponse;
+  } as unknown as AccessConnectorView;
 }
 
-function makeTargetSystem(id: string, name: string): TargetSystemResponse {
-  return { id, name } as unknown as TargetSystemResponse;
+function makeTargetSystem(id: string, name: string): TargetSystemView {
+  return { id, name } as unknown as TargetSystemView;
 }
 
 describe("DaemonsService", () => {
   let service: DaemonsService;
-  let rotationApi: jest.Mocked<RotationApiService>;
+  let rotationSdk: jest.Mocked<RotationSdkService>;
   let targetSystemsService: jest.Mocked<TargetSystemsService>;
-  let systemById$: BehaviorSubject<Map<string, TargetSystemResponse>>;
+  let systemById$: BehaviorSubject<Map<string, TargetSystemView>>;
 
   beforeEach(() => {
-    systemById$ = new BehaviorSubject<Map<string, TargetSystemResponse>>(new Map());
+    systemById$ = new BehaviorSubject<Map<string, TargetSystemView>>(new Map());
 
-    rotationApi = {
-      listRotationDaemons: jest.fn().mockResolvedValue({ data: [] }),
-      enableRotationDaemon: jest.fn().mockResolvedValue(undefined),
-      disableRotationDaemon: jest.fn().mockResolvedValue(undefined),
-      deleteRotationDaemon: jest.fn().mockResolvedValue(undefined),
-      assignRotationDaemon: jest.fn().mockResolvedValue(undefined),
-      unassignRotationDaemon: jest.fn().mockResolvedValue(undefined),
-    } as unknown as jest.Mocked<RotationApiService>;
+    rotationSdk = {
+      listConnectors: jest.fn().mockResolvedValue({ data: [] }),
+      enableConnector: jest.fn().mockResolvedValue(undefined),
+      disableConnector: jest.fn().mockResolvedValue(undefined),
+      deleteConnector: jest.fn().mockResolvedValue(undefined),
+      assignTarget: jest.fn().mockResolvedValue(undefined),
+      unassignTarget: jest.fn().mockResolvedValue(undefined),
+    } as unknown as jest.Mocked<RotationSdkService>;
 
     targetSystemsService = {
       systemById$: systemById$.asObservable(),
@@ -53,7 +51,7 @@ describe("DaemonsService", () => {
     TestBed.configureTestingModule({
       providers: [
         DaemonsService,
-        { provide: RotationApiService, useValue: rotationApi },
+        { provide: RotationSdkService, useValue: rotationSdk },
         { provide: TargetSystemsService, useValue: targetSystemsService },
       ],
     });
@@ -64,7 +62,7 @@ describe("DaemonsService", () => {
   describe("load", () => {
     it("populates daemons from the API", async () => {
       const daemons = [makeDaemon()];
-      rotationApi.listRotationDaemons.mockResolvedValue({ data: daemons } as any);
+      rotationSdk.listConnectors.mockResolvedValue({ data: daemons } as any);
 
       await service.load(orgId);
 
@@ -84,7 +82,7 @@ describe("DaemonsService", () => {
     it("resolves assignment IDs to target system names", async () => {
       const system = makeTargetSystem("ts-1", "Production DB");
       systemById$.next(new Map([["ts-1", system]]));
-      rotationApi.listRotationDaemons.mockResolvedValue({
+      rotationSdk.listConnectors.mockResolvedValue({
         data: [makeDaemon({ assignments: ["ts-1"] })],
       } as any);
 
@@ -94,7 +92,7 @@ describe("DaemonsService", () => {
     });
 
     it("falls back to the raw ID when a target system is not found", async () => {
-      rotationApi.listRotationDaemons.mockResolvedValue({
+      rotationSdk.listConnectors.mockResolvedValue({
         data: [makeDaemon({ assignments: ["unknown-id"] })],
       } as any);
 
@@ -104,7 +102,7 @@ describe("DaemonsService", () => {
     });
 
     it("sets enabled and canAssign true for enabled daemons", async () => {
-      rotationApi.listRotationDaemons.mockResolvedValue({
+      rotationSdk.listConnectors.mockResolvedValue({
         data: [makeDaemon({ status: DaemonStatus.Enabled })],
       } as any);
       await service.load(orgId);
@@ -114,7 +112,7 @@ describe("DaemonsService", () => {
     });
 
     it("sets enabled and canAssign false for disabled daemons", async () => {
-      rotationApi.listRotationDaemons.mockResolvedValue({
+      rotationSdk.listConnectors.mockResolvedValue({
         data: [makeDaemon({ status: DaemonStatus.Disabled })],
       } as any);
       await service.load(orgId);
@@ -124,7 +122,7 @@ describe("DaemonsService", () => {
     });
 
     it("uses pamDaemonStatusEnabled key for enabled daemons", async () => {
-      rotationApi.listRotationDaemons.mockResolvedValue({
+      rotationSdk.listConnectors.mockResolvedValue({
         data: [makeDaemon({ status: DaemonStatus.Enabled })],
       } as any);
       await service.load(orgId);
@@ -133,7 +131,7 @@ describe("DaemonsService", () => {
     });
 
     it("uses pamDaemonStatusDisabled key for disabled daemons", async () => {
-      rotationApi.listRotationDaemons.mockResolvedValue({
+      rotationSdk.listConnectors.mockResolvedValue({
         data: [makeDaemon({ status: DaemonStatus.Disabled })],
       } as any);
       await service.load(orgId);
@@ -145,32 +143,32 @@ describe("DaemonsService", () => {
   describe("setEnabled", () => {
     it("disables via the API and patches status", async () => {
       const daemon = makeDaemon({ status: DaemonStatus.Enabled });
-      rotationApi.listRotationDaemons.mockResolvedValue({ data: [daemon] } as any);
+      rotationSdk.listConnectors.mockResolvedValue({ data: [daemon] } as any);
       await service.load(orgId);
 
       await service.setEnabled(daemon, false);
 
       const rows = await firstValue(service.rows$);
       expect(rows[0].enabled).toBe(false);
-      expect(rotationApi.disableRotationDaemon).toHaveBeenCalledWith(orgId, daemon.id);
+      expect(rotationSdk.disableConnector).toHaveBeenCalledWith(orgId, daemon.id);
     });
 
     it("enables via the API and patches status", async () => {
       const daemon = makeDaemon({ status: DaemonStatus.Disabled });
-      rotationApi.listRotationDaemons.mockResolvedValue({ data: [daemon] } as any);
+      rotationSdk.listConnectors.mockResolvedValue({ data: [daemon] } as any);
       await service.load(orgId);
 
       await service.setEnabled(daemon, true);
 
       const rows = await firstValue(service.rows$);
       expect(rows[0].enabled).toBe(true);
-      expect(rotationApi.enableRotationDaemon).toHaveBeenCalledWith(orgId, daemon.id);
+      expect(rotationSdk.enableConnector).toHaveBeenCalledWith(orgId, daemon.id);
     });
 
     it("rolls back on API failure", async () => {
       const daemon = makeDaemon({ status: DaemonStatus.Enabled });
-      rotationApi.listRotationDaemons.mockResolvedValue({ data: [daemon] } as any);
-      rotationApi.disableRotationDaemon.mockRejectedValue(new Error("fail"));
+      rotationSdk.listConnectors.mockResolvedValue({ data: [daemon] } as any);
+      rotationSdk.disableConnector.mockRejectedValue(new Error("fail"));
       await service.load(orgId);
 
       await expect(service.setEnabled(daemon, false)).rejects.toThrow();
@@ -183,7 +181,7 @@ describe("DaemonsService", () => {
   describe("delete", () => {
     it("calls API and removes the daemon from local state", async () => {
       const daemon = makeDaemon({ id: "daemon-1" });
-      rotationApi.listRotationDaemons.mockResolvedValue({
+      rotationSdk.listConnectors.mockResolvedValue({
         data: [daemon, makeDaemon({ id: "daemon-2" })],
       } as any);
       await service.load(orgId);
@@ -192,69 +190,69 @@ describe("DaemonsService", () => {
 
       const rows = await firstValue(service.rows$);
       expect(rows.map((r) => r.id)).toEqual(["daemon-2"]);
-      expect(rotationApi.deleteRotationDaemon).toHaveBeenCalledWith(orgId, daemon.id);
+      expect(rotationSdk.deleteConnector).toHaveBeenCalledWith(orgId, daemon.id);
     });
   });
 
   describe("assign", () => {
     it("optimistically adds the target system ID", async () => {
       const daemon = makeDaemon({ assignments: [] });
-      rotationApi.listRotationDaemons.mockResolvedValue({ data: [daemon] } as any);
+      rotationSdk.listConnectors.mockResolvedValue({ data: [daemon] } as any);
       await service.load(orgId);
 
       await service.assign(daemon, "ts-99");
 
       const rows = await firstValue(service.rows$);
-      expect(rows[0].daemon.assignments).toContain("ts-99");
+      expect(rows[0].daemon.assignedTargetSystemIds).toContain("ts-99");
     });
 
     it("rolls back on API failure", async () => {
       const daemon = makeDaemon({ assignments: [] });
-      rotationApi.listRotationDaemons.mockResolvedValue({ data: [daemon] } as any);
-      rotationApi.assignRotationDaemon.mockRejectedValue(new Error("fail"));
+      rotationSdk.listConnectors.mockResolvedValue({ data: [daemon] } as any);
+      rotationSdk.assignTarget.mockRejectedValue(new Error("fail"));
       await service.load(orgId);
 
       await expect(service.assign(daemon, "ts-99")).rejects.toThrow();
 
       const rows = await firstValue(service.rows$);
-      expect(rows[0].daemon.assignments).not.toContain("ts-99");
+      expect(rows[0].daemon.assignedTargetSystemIds).not.toContain("ts-99");
     });
   });
 
   describe("unassign", () => {
     it("optimistically removes the target system ID", async () => {
       const daemon = makeDaemon({ assignments: ["ts-1"] });
-      rotationApi.listRotationDaemons.mockResolvedValue({ data: [daemon] } as any);
+      rotationSdk.listConnectors.mockResolvedValue({ data: [daemon] } as any);
       await service.load(orgId);
 
       await service.unassign(daemon, "ts-1");
 
       const rows = await firstValue(service.rows$);
-      expect(rows[0].daemon.assignments).not.toContain("ts-1");
+      expect(rows[0].daemon.assignedTargetSystemIds).not.toContain("ts-1");
     });
 
     it("rolls back on API failure", async () => {
       const daemon = makeDaemon({ assignments: ["ts-1"] });
-      rotationApi.listRotationDaemons.mockResolvedValue({ data: [daemon] } as any);
-      rotationApi.unassignRotationDaemon.mockRejectedValue(new Error("fail"));
+      rotationSdk.listConnectors.mockResolvedValue({ data: [daemon] } as any);
+      rotationSdk.unassignTarget.mockRejectedValue(new Error("fail"));
       await service.load(orgId);
 
       await expect(service.unassign(daemon, "ts-1")).rejects.toThrow();
 
       const rows = await firstValue(service.rows$);
-      expect(rows[0].daemon.assignments).toContain("ts-1");
+      expect(rows[0].daemon.assignedTargetSystemIds).toContain("ts-1");
     });
   });
 
   describe("registerCompleted", () => {
     it("re-loads daemons from the API", async () => {
       await service.load(orgId);
-      rotationApi.listRotationDaemons.mockClear();
-      rotationApi.listRotationDaemons.mockResolvedValue({ data: [] } as any);
+      rotationSdk.listConnectors.mockClear();
+      rotationSdk.listConnectors.mockResolvedValue({ data: [] } as any);
 
       await service.registerCompleted(orgId);
 
-      expect(rotationApi.listRotationDaemons).toHaveBeenCalledTimes(1);
+      expect(rotationSdk.listConnectors).toHaveBeenCalledTimes(1);
     });
   });
 });

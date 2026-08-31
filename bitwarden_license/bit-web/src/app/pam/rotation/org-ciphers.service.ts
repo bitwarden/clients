@@ -9,6 +9,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import type { CipherId } from "@bitwarden/sdk-internal";
 
 /**
  * Page-scoped service that loads the organization's decrypted vault ciphers.
@@ -44,8 +45,8 @@ export class OrgCiphersService {
    * Convenience map of cipher id → decrypted name.
    * Used by the configs list to resolve cipher display names.
    */
-  readonly cipherNameById$: Observable<Map<string, string>> = this._ciphers$.pipe(
-    map((ciphers) => new Map(ciphers.map((c) => [c.id, c.name]))),
+  readonly cipherNameById$: Observable<Map<CipherId, string>> = this._ciphers$.pipe(
+    map((ciphers) => new Map(ciphers.map((c) => [c.id as CipherId, c.name]))),
   );
 
   /**

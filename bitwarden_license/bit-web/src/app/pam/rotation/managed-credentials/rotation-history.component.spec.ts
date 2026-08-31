@@ -1,10 +1,9 @@
 import { TestBed } from "@angular/core/testing";
 
-import { RotationJobResponse } from "../responses/rotation-config-details.response";
 import {
   RotationAttemptStatus,
   RotationJobStatus,
-  RotationSessionTermination,
+  SessionTerminationOutcome,
   RotationSource,
   RotationSyncState,
 } from "../rotation";
@@ -22,14 +21,14 @@ function makeJobRaw(overrides: Record<string, unknown> = {}): Record<string, unk
   };
 }
 
-function makeJob(overrides: Record<string, unknown> = {}): RotationJobResponse {
-  return new RotationJobResponse(makeJobRaw(overrides));
+function makeJob(overrides: Record<string, unknown> = {}): RotationJobView {
+  return new RotationJobView(makeJobRaw(overrides));
 }
 
 describe("RotationHistoryComponent", () => {
   let component: RotationHistoryComponent;
 
-  function setup(jobs: RotationJobResponse[]) {
+  function setup(jobs: RotationJobView[]) {
     TestBed.overrideComponent(RotationHistoryComponent, {
       set: { template: "<div>stub</div>", imports: [] },
     });
@@ -132,14 +131,14 @@ describe("RotationHistoryComponent", () => {
     it("maps Terminated correctly", () => {
       setup([]);
       expect(
-        (component as any).sessionTerminationLabelKey(RotationSessionTermination.Terminated),
+        (component as any).sessionTerminationLabelKey(SessionTerminationOutcome.Terminated),
       ).toBe("pamRotationSessionTerminationTerminated");
     });
 
     it("maps TermFailed correctly", () => {
       setup([]);
       expect(
-        (component as any).sessionTerminationLabelKey(RotationSessionTermination.TermFailed),
+        (component as any).sessionTerminationLabelKey(SessionTerminationOutcome.TermFailed),
       ).toBe("pamRotationSessionTerminationTermFailed");
     });
   });

@@ -1,14 +1,11 @@
-import { QuartzSchedulePreset, presetForCron } from "../helpers/quartz-cron";
 import {
-  canPause,
-  canRecordManual,
-  canResume,
-  canRotateNow,
-  mutationsLocked,
-} from "../helpers/rotation-config-actions";
-import { RotationConfigResponse } from "../responses/rotation-config.response";
-import { TargetSystemResponse } from "../responses/target-system.response";
-import { TargetSystemMethod } from "../rotation";
+  QuartzSchedulePreset,
+  RotationConfigId,
+  RotationConfigView,
+  TargetSystemMethod,
+  TargetSystemView,
+} from "../rotation";
+import { RotationConfigDescription } from "../rotation-sdk.service";
 
 /**
  * Presentation-ready flattened view of a rotation config row.
@@ -16,8 +13,8 @@ import { TargetSystemMethod } from "../rotation";
  * epoch milliseconds for chronological sorting + ISO strings for the date pipe.
  */
 export type RotationConfigRow = {
-  id: string;
-  config: RotationConfigResponse;
+  id: RotationConfigId;
+  config: RotationConfigView;
   /** Decrypted cipher name resolved from OrgCiphersService; falls back to config.cipherId. */
   cipherName: string;
   targetSystemName: string;
@@ -57,21 +54,25 @@ export type RotationConfigRow = {
 };
 
 /**
- * Build a presentation row from a rotation config + its resolved target system + cipher name.
+ * Build a presentation row from a rotation config, its resolved target system, its cipher name,
+ * and the SDK's description of it.
  *
- * Pure function — no side effects, no Angular dependencies.
+ * Pure function — no side effects, no Angular dependencies. Everything that is a *rule* rather than
+ * a label (which actions the config offers, which preset its cron matches) is decided by the SDK
+ * and arrives in `description`; this only maps that onto i18n keys and sortable columns.
  *
- * @param config - The raw rotation config from the API.
+ * @param config - The rotation config.
  * @param targetSystem - The resolved target system, or undefined if not yet loaded.
  * @param cipherName - The decrypted cipher name, or undefined if not yet resolved.
+ * @param description - The SDK-derived actions and schedule preset for this config.
  */
 export function buildRotationConfigRow(
-  config: RotationConfigResponse,
-  targetSystem: TargetSystemResponse | undefined,
+  config: RotationConfigView,
+  targetSystem: TargetSystemView | undefined,
   cipherName: string | undefined,
+  description: RotationConfigDescription,
 ): RotationConfigRow {
-  const preset = presetForCron(config.scheduleCron);
-  const scheduleLabelKeyOrCron = scheduleLabel(preset, config.scheduleCron);
+  const scheduleLabelKeyOrCron = scheduleLabel(description.schedulePreset, config.scheduleCron);
 
   const lastRotationAtMs = config.lastRotationAt != null ? Date.parse(config.lastRotationAt) : null;
   const nextRotationAtMs = config.nextRotationAt != null ? Date.parse(config.nextRotationAt) : null;
@@ -79,7 +80,8 @@ export function buildRotationConfigRow(
   return {
     id: config.id,
     config,
-    cipherName: cipherName ?? config.cipherId,
+    // Falls back to the raw id when the vault read has not resolved a name yet.
+    cipherName: cipherName ?? String(config.cipherId),
     targetSystemName: targetSystem?.name ?? config.targetSystemName,
     methodLabelKey: methodLabel(config.targetSystemMethod),
     statusLabelKey: config.enabled
@@ -93,15 +95,15 @@ export function buildRotationConfigRow(
     nextRotationAt: config.nextRotationAt,
     hasActiveJob: config.hasActiveJob,
     awaitingManualRotation: config.awaitingManualRotation,
-    canRotateNow: canRotateNow(config, targetSystem?.status),
-    canRecordManual: canRecordManual(config),
-    mutationsLocked: mutationsLocked(config),
-    canPause: canPause(config),
-    canResume: canResume(config),
+    canRotateNow: description.actions.canRotateNow,
+    canRecordManual: description.actions.canRecordManual,
+    mutationsLocked: description.actions.mutationsLocked,
+    canPause: description.actions.canPause,
+    canResume: description.actions.canResume,
   };
 }
 
-function methodLabel(method: RotationConfigResponse["targetSystemMethod"]): string {
+function methodLabel(method: RotationConfigView["targetSystemMethod"]): string {
   return method === TargetSystemMethod.Automatic
     ? "pamTargetSystemMethodAutomatic"
     : "pamTargetSystemMethodManual";

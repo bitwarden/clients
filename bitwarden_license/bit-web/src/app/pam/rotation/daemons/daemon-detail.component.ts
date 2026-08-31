@@ -23,9 +23,8 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { RotationHistoryComponent } from "../managed-credentials/rotation-history.component";
-import { RotationDaemonDetailsResponse } from "../responses/rotation-daemon-details.response";
-import { DaemonStatus } from "../rotation";
-import { RotationApiService } from "../rotation-api.service";
+import { AccessConnectorDetailView, AccessConnectorId, DaemonStatus, TargetSystemId } from "../rotation";
+import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 /**
@@ -60,7 +59,7 @@ import { TargetSystemsService } from "../target-systems/target-systems.service";
 export class DaemonDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly rotationApi = inject(RotationApiService);
+  private readonly rotationSdk = inject(RotationSdkService);
   private readonly targetSystemsService = inject(TargetSystemsService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
@@ -73,7 +72,7 @@ export class DaemonDetailComponent {
   private readonly daemonId = this.route.snapshot.params.daemonId as string;
 
   protected readonly loading = signal(true);
-  protected readonly daemon = signal<RotationDaemonDetailsResponse | null>(null);
+  protected readonly daemon = signal<AccessConnectorDetailView | null>(null);
 
   private readonly systemById = toSignal(this.targetSystemsService.systemById$, {
     initialValue: new Map(),
@@ -86,7 +85,7 @@ export class DaemonDetailComponent {
       return [];
     }
     const map = this.systemById();
-    return daemon.assignments.map((id) => map.get(id)?.name ?? id);
+    return daemon.assignedTargetSystemIds.map((id) => map.get(id)?.name ?? id);
   });
 
   protected readonly titleText = computed(() => this.daemon()?.name ?? "");
@@ -115,7 +114,7 @@ export class DaemonDetailComponent {
       return;
     }
     try {
-      await this.rotationApi.disableRotationDaemon(this.organizationId, daemon.id);
+      await this.rotationSdk.disableConnector(this.organizationId, daemon.id);
       this.patchStatus(DaemonStatus.Disabled);
       this.toastService.showToast({
         variant: "success",
@@ -133,7 +132,7 @@ export class DaemonDetailComponent {
       return;
     }
     try {
-      await this.rotationApi.enableRotationDaemon(this.organizationId, daemon.id);
+      await this.rotationSdk.enableConnector(this.organizationId, daemon.id);
       this.patchStatus(DaemonStatus.Enabled);
       this.toastService.showToast({
         variant: "success",
@@ -161,7 +160,7 @@ export class DaemonDetailComponent {
       return;
     }
     try {
-      await this.rotationApi.deleteRotationDaemon(this.organizationId, daemon.id);
+      await this.rotationSdk.deleteConnector(this.organizationId, daemon.id);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamDaemonDeleted"),
@@ -187,9 +186,9 @@ export class DaemonDetailComponent {
     }
   }
 
-  private async loadDaemon(): Promise<RotationDaemonDetailsResponse | null> {
+  private async loadDaemon(): Promise<AccessConnectorDetailView | null> {
     try {
-      return await this.rotationApi.getRotationDaemon(this.organizationId, this.daemonId);
+      return await this.rotationSdk.getConnector(this.organizationId, this.daemonId);
     } catch {
       this.toastService.showToast({
         variant: "error",
@@ -210,7 +209,7 @@ export class DaemonDetailComponent {
     if (daemon == null) {
       return;
     }
-    this.daemon.set({ ...daemon, status } as RotationDaemonDetailsResponse);
+    this.daemon.set({ ...daemon, status } as AccessConnectorDetailView);
   }
 
   private showError(e: unknown): void {

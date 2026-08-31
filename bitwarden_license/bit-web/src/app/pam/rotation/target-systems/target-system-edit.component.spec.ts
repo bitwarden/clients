@@ -7,9 +7,8 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { TargetSystemResponse } from "../responses/target-system.response";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
-import { RotationApiService } from "../rotation-api.service";
+import { RotationSdkService } from "../rotation-sdk.service";
 
 import { TargetSystemEditComponent } from "./target-system-edit.component";
 
@@ -27,7 +26,7 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
-function makeSystem(overrides: Partial<TargetSystemResponse> = {}): TargetSystemResponse {
+function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
   return {
     id: "sys-1",
     name: "Prod Entra",
@@ -44,21 +43,21 @@ function makeSystem(overrides: Partial<TargetSystemResponse> = {}): TargetSystem
     },
     supportsSessionTermination: true,
     ...overrides,
-  } as TargetSystemResponse;
+  } as TargetSystemView;
 }
 
-function makeListResponse(data: TargetSystemResponse[]): ListResponse<TargetSystemResponse> {
-  return { data, continuationToken: null } as unknown as ListResponse<TargetSystemResponse>;
+function makeListResponse(data: TargetSystemView[]): ListResponse<TargetSystemView> {
+  return { data, continuationToken: null } as unknown as ListResponse<TargetSystemView>;
 }
 
 /** Build a configured TestBed for create mode (no targetSystemId). */
-async function setupCreate(rotationApi: ReturnType<typeof mock<RotationApiService>>) {
+async function setupCreate(rotationSdk: ReturnType<typeof mock<RotationSdkService>>) {
   TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
   await TestBed.configureTestingModule({
     imports: [TargetSystemEditComponent, NoopAnimationsModule],
     providers: [
       provideRouter([]),
-      { provide: RotationApiService, useValue: rotationApi },
+      { provide: RotationSdkService, useValue: rotationSdk },
       { provide: I18nService, useValue: i18nFake },
       { provide: ToastService, useValue: mock<ToastService>() },
       { provide: DialogService, useValue: mock<DialogService>() },
@@ -78,13 +77,13 @@ async function setupCreateWithTemplate(template: string): Promise<
     createForm: { getRawValue: () => { method: TargetSystemMethod; kind: TargetSystemKind } };
   }
 > {
-  const rotationApi = mock<RotationApiService>();
+  const rotationSdk = mock<RotationSdkService>();
   TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
   await TestBed.configureTestingModule({
     imports: [TargetSystemEditComponent, NoopAnimationsModule],
     providers: [
       provideRouter([]),
-      { provide: RotationApiService, useValue: rotationApi },
+      { provide: RotationSdkService, useValue: rotationSdk },
       { provide: I18nService, useValue: i18nFake },
       { provide: ToastService, useValue: mock<ToastService>() },
       { provide: DialogService, useValue: mock<DialogService>() },
@@ -106,13 +105,13 @@ async function setupCreateWithTemplate(template: string): Promise<
 }
 
 /** Build a configured TestBed for edit mode (with targetSystemId). */
-async function setupEdit(rotationApi: ReturnType<typeof mock<RotationApiService>>) {
+async function setupEdit(rotationSdk: ReturnType<typeof mock<RotationSdkService>>) {
   TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
   await TestBed.configureTestingModule({
     imports: [TargetSystemEditComponent, NoopAnimationsModule],
     providers: [
       provideRouter([]),
-      { provide: RotationApiService, useValue: rotationApi },
+      { provide: RotationSdkService, useValue: rotationSdk },
       { provide: I18nService, useValue: i18nFake },
       { provide: ToastService, useValue: mock<ToastService>() },
       { provide: DialogService, useValue: mock<DialogService>() },
@@ -128,14 +127,14 @@ async function setupEdit(rotationApi: ReturnType<typeof mock<RotationApiService>
 
 describe("TargetSystemEditComponent — create mode", () => {
   let fixture: ComponentFixture<TargetSystemEditComponent>;
-  let rotationApi: ReturnType<typeof mock<RotationApiService>>;
+  let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
   let router: Router;
 
   beforeEach(async () => {
-    rotationApi = mock<RotationApiService>();
+    rotationSdk = mock<RotationSdkService>();
     toastService = mock<ToastService>();
-    await setupCreate(rotationApi);
+    await setupCreate(rotationSdk);
     // Override toast with our spy
     TestBed.overrideProvider(ToastService, { useValue: toastService });
     router = TestBed.inject(Router);
@@ -156,7 +155,7 @@ describe("TargetSystemEditComponent — create mode", () => {
   });
 
   it("calls createTargetSystem on submit with Automatic method", async () => {
-    rotationApi.createTargetSystem.mockResolvedValue(makeSystem());
+    rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
     const nav = jest.spyOn(router, "navigate").mockResolvedValue(true);
 
     // Patch form to valid state via the formGroup
@@ -187,12 +186,12 @@ describe("TargetSystemEditComponent — create mode", () => {
       fixture.componentInstance as unknown as { submitCreate: () => Promise<void> }
     ).submitCreate();
 
-    expect(rotationApi.createTargetSystem).toHaveBeenCalled();
+    expect(rotationSdk.createTargetSystem).toHaveBeenCalled();
     expect(nav).toHaveBeenCalled();
   });
 
   it("calls createTargetSystem with Manual method", async () => {
-    rotationApi.createTargetSystem.mockResolvedValue(
+    rotationSdk.createTargetSystem.mockResolvedValue(
       makeSystem({ method: TargetSystemMethod.Manual, kind: null }),
     );
     jest.spyOn(router, "navigate").mockResolvedValue(true);
@@ -208,7 +207,7 @@ describe("TargetSystemEditComponent — create mode", () => {
 
     await (comp as unknown as { submitCreate: () => Promise<void> }).submitCreate();
 
-    const call = rotationApi.createTargetSystem.mock.calls[0];
+    const call = rotationSdk.createTargetSystem.mock.calls[0];
     expect(call).toBeDefined();
     expect(call![1].method).toBe(TargetSystemMethod.Manual);
     // Manual systems now carry an editable password policy.
@@ -216,14 +215,14 @@ describe("TargetSystemEditComponent — create mode", () => {
   });
 
   it("does not submit when form is invalid (empty name)", async () => {
-    rotationApi.createTargetSystem.mockResolvedValue(makeSystem());
+    rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
     jest.spyOn(router, "navigate").mockResolvedValue(true);
 
     // Leave name empty (invalid)
     const comp = fixture.componentInstance as unknown as { submitCreate: () => Promise<void> };
     await comp.submitCreate();
 
-    expect(rotationApi.createTargetSystem).not.toHaveBeenCalled();
+    expect(rotationSdk.createTargetSystem).not.toHaveBeenCalled();
   });
 
   it("seeds Manual method from the ?template=manual query param", async () => {
@@ -245,7 +244,7 @@ describe("TargetSystemEditComponent — create mode", () => {
   });
 
   it("forces supportsSessionTermination=true for a native integration", async () => {
-    rotationApi.createTargetSystem.mockResolvedValue(makeSystem());
+    rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
     jest.spyOn(router, "navigate").mockResolvedValue(true);
 
     const comp = fixture.componentInstance as unknown as {
@@ -271,12 +270,12 @@ describe("TargetSystemEditComponent — create mode", () => {
     fixture.detectChanges();
     await comp.submitCreate();
 
-    const call = rotationApi.createTargetSystem.mock.calls[0];
+    const call = rotationSdk.createTargetSystem.mock.calls[0];
     expect(call![1].supportsSessionTermination).toBe(true);
   });
 
   it("honors the checkbox for a custom script", async () => {
-    rotationApi.createTargetSystem.mockResolvedValue(makeSystem());
+    rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
     jest.spyOn(router, "navigate").mockResolvedValue(true);
 
     const comp = fixture.componentInstance as unknown as {
@@ -301,12 +300,12 @@ describe("TargetSystemEditComponent — create mode", () => {
     fixture.detectChanges();
     await comp.submitCreate();
 
-    const call = rotationApi.createTargetSystem.mock.calls[0];
+    const call = rotationSdk.createTargetSystem.mock.calls[0];
     expect(call![1].supportsSessionTermination).toBe(false);
   });
 
   it("shows error toast on API failure", async () => {
-    rotationApi.createTargetSystem.mockRejectedValue(new Error("network fail"));
+    rotationSdk.createTargetSystem.mockRejectedValue(new Error("network fail"));
     jest.spyOn(router, "navigate").mockResolvedValue(true);
 
     const comp = fixture.componentInstance as unknown as {
@@ -343,12 +342,12 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
   let fixture: ComponentFixture<TargetSystemEditComponent>;
 
   beforeEach(async () => {
-    const rotationApi = mock<RotationApiService>();
+    const rotationSdk = mock<RotationSdkService>();
     await TestBed.configureTestingModule({
       imports: [TargetSystemEditComponent, NoopAnimationsModule],
       providers: [
         provideRouter([]),
-        { provide: RotationApiService, useValue: rotationApi },
+        { provide: RotationSdkService, useValue: rotationSdk },
         { provide: I18nService, useValue: i18nFake },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
@@ -416,14 +415,14 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
 
 describe("TargetSystemEditComponent — edit mode", () => {
   let fixture: ComponentFixture<TargetSystemEditComponent>;
-  let rotationApi: ReturnType<typeof mock<RotationApiService>>;
+  let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
 
   beforeEach(async () => {
-    rotationApi = mock<RotationApiService>();
+    rotationSdk = mock<RotationSdkService>();
     toastService = mock<ToastService>();
-    rotationApi.listTargetSystems.mockResolvedValue(makeListResponse([makeSystem()]));
-    await setupEdit(rotationApi);
+    rotationSdk.listTargetSystems.mockResolvedValue(makeListResponse([makeSystem()]));
+    await setupEdit(rotationSdk);
     TestBed.overrideProvider(ToastService, { useValue: toastService });
     fixture = TestBed.createComponent(TargetSystemEditComponent);
     fixture.detectChanges();
@@ -451,8 +450,8 @@ describe("TargetSystemEditComponent — edit mode", () => {
   });
 
   it("persists name and policy together on submitEdit (Automatic)", async () => {
-    rotationApi.renameTargetSystem.mockResolvedValue(makeSystem({ name: "Renamed" }));
-    rotationApi.updateTargetSystemPolicy.mockResolvedValue(makeSystem());
+    rotationSdk.renameTargetSystem.mockResolvedValue(makeSystem({ name: "Renamed" }));
+    rotationSdk.updateTargetSystemPolicy.mockResolvedValue(makeSystem());
 
     const comp = fixture.componentInstance as unknown as {
       nameForm: { patchValue: (v: unknown) => void };
@@ -461,12 +460,12 @@ describe("TargetSystemEditComponent — edit mode", () => {
     comp.nameForm.patchValue({ name: "Renamed" });
     await comp.submitEdit();
 
-    expect(rotationApi.renameTargetSystem).toHaveBeenCalledWith(
+    expect(rotationSdk.renameTargetSystem).toHaveBeenCalledWith(
       "org-123",
       "sys-1",
       expect.objectContaining({ name: "Renamed" }),
     );
-    expect(rotationApi.updateTargetSystemPolicy).toHaveBeenCalledWith(
+    expect(rotationSdk.updateTargetSystemPolicy).toHaveBeenCalledWith(
       "org-123",
       "sys-1",
       expect.objectContaining({ passwordPolicy: expect.any(Object) }),
@@ -502,14 +501,14 @@ describe("TargetSystemEditComponent — edit mode", () => {
       typeof mock<DialogService>
     >;
     dialog.openSimpleDialog.mockResolvedValue(true);
-    rotationApi.deleteTargetSystem.mockResolvedValue(undefined);
+    rotationSdk.deleteTargetSystem.mockResolvedValue(undefined);
     const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
 
     await (
       fixture.componentInstance as unknown as { deleteSystem: () => Promise<void> }
     ).deleteSystem();
 
-    expect(rotationApi.deleteTargetSystem).toHaveBeenCalledWith("org-123", "sys-1");
+    expect(rotationSdk.deleteTargetSystem).toHaveBeenCalledWith("org-123", "sys-1");
     expect(nav).toHaveBeenCalled();
   });
 
@@ -523,12 +522,12 @@ describe("TargetSystemEditComponent — edit mode", () => {
       fixture.componentInstance as unknown as { deleteSystem: () => Promise<void> }
     ).deleteSystem();
 
-    expect(rotationApi.deleteTargetSystem).not.toHaveBeenCalled();
+    expect(rotationSdk.deleteTargetSystem).not.toHaveBeenCalled();
   });
 
   it("saves the password policy for a Manual system (no session termination)", async () => {
     TestBed.resetTestingModule();
-    const rotationApiManual = mock<RotationApiService>();
+    const rotationApiManual = mock<RotationSdkService>();
     const manual = makeSystem({
       method: TargetSystemMethod.Manual,
       kind: null,
@@ -542,7 +541,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
       imports: [TargetSystemEditComponent, NoopAnimationsModule],
       providers: [
         provideRouter([]),
-        { provide: RotationApiService, useValue: rotationApiManual },
+        { provide: RotationSdkService, useValue: rotationApiManual },
         { provide: I18nService, useValue: i18nFake },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
@@ -574,7 +573,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
   it("navigates back when not found", async () => {
     // Rebuild for a missing id scenario
     TestBed.resetTestingModule();
-    const rotationApi2 = mock<RotationApiService>();
+    const rotationApi2 = mock<RotationSdkService>();
     const toastService2 = mock<ToastService>();
     rotationApi2.listTargetSystems.mockResolvedValue(makeListResponse([]));
     TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
@@ -582,7 +581,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
       imports: [TargetSystemEditComponent, NoopAnimationsModule],
       providers: [
         provideRouter([]),
-        { provide: RotationApiService, useValue: rotationApi2 },
+        { provide: RotationSdkService, useValue: rotationApi2 },
         { provide: I18nService, useValue: i18nFake },
         { provide: ToastService, useValue: toastService2 },
         { provide: DialogService, useValue: mock<DialogService>() },

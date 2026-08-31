@@ -6,9 +6,7 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { RotationDaemonDetailsResponse } from "../responses/rotation-daemon-details.response";
-import { TargetSystemResponse } from "../responses/target-system.response";
-import { RotationApiService } from "../rotation-api.service";
+import { RotationSdkService } from "../rotation-sdk.service";
 
 import { DaemonDetailComponent } from "./daemon-detail.component";
 
@@ -17,8 +15,8 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
-function makeDaemon(overrides: Record<string, unknown> = {}): RotationDaemonDetailsResponse {
-  return new RotationDaemonDetailsResponse({
+function makeDaemon(overrides: Record<string, unknown> = {}): AccessConnectorDetailView {
+  return new AccessConnectorDetailView({
     Id: "daemon-1",
     Name: "On-prem daemon",
     Status: 0,
@@ -29,8 +27,8 @@ function makeDaemon(overrides: Record<string, unknown> = {}): RotationDaemonDeta
   });
 }
 
-function makeSystem(): TargetSystemResponse {
-  return new TargetSystemResponse({
+function makeSystem(): TargetSystemView {
+  return new TargetSystemView({
     Id: "ts-1",
     Name: "Prod Entra",
     Method: 0,
@@ -41,12 +39,12 @@ function makeSystem(): TargetSystemResponse {
   });
 }
 
-function makeListResponse(data: TargetSystemResponse[]): ListResponse<TargetSystemResponse> {
-  return { data, continuationToken: null } as unknown as ListResponse<TargetSystemResponse>;
+function makeListResponse(data: TargetSystemView[]): ListResponse<TargetSystemView> {
+  return { data, continuationToken: null } as unknown as ListResponse<TargetSystemView>;
 }
 
 async function setup(
-  rotationApi: ReturnType<typeof mock<RotationApiService>>,
+  rotationSdk: ReturnType<typeof mock<RotationSdkService>>,
   daemonId = "daemon-1",
   dialogService: ReturnType<typeof mock<DialogService>> = mock<DialogService>(),
 ) {
@@ -55,7 +53,7 @@ async function setup(
     imports: [DaemonDetailComponent],
     providers: [
       provideRouter([]),
-      { provide: RotationApiService, useValue: rotationApi },
+      { provide: RotationSdkService, useValue: rotationSdk },
       { provide: I18nService, useValue: i18nFake },
       { provide: ToastService, useValue: mock<ToastService>() },
       { provide: DialogService, useValue: dialogService },
@@ -69,28 +67,28 @@ async function setup(
 
 describe("DaemonDetailComponent", () => {
   let fixture: ComponentFixture<DaemonDetailComponent>;
-  let rotationApi: ReturnType<typeof mock<RotationApiService>>;
+  let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
 
   beforeEach(() => {
-    rotationApi = mock<RotationApiService>();
-    rotationApi.listTargetSystems.mockResolvedValue(makeListResponse([makeSystem()]));
+    rotationSdk = mock<RotationSdkService>();
+    rotationSdk.listTargetSystems.mockResolvedValue(makeListResponse([makeSystem()]));
   });
 
   it("loads the daemon on init", async () => {
-    rotationApi.getRotationDaemon.mockResolvedValue(makeDaemon());
-    await setup(rotationApi);
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+    await setup(rotationSdk);
     fixture = TestBed.createComponent(DaemonDetailComponent);
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(rotationApi.getRotationDaemon).toHaveBeenCalledWith("org-1", "daemon-1");
+    expect(rotationSdk.getConnector).toHaveBeenCalledWith("org-1", "daemon-1");
     const comp = fixture.componentInstance as unknown as { titleText: () => string };
     expect(comp.titleText()).toBe("On-prem daemon");
   });
 
   it("resolves assignment ids to target-system names", async () => {
-    rotationApi.getRotationDaemon.mockResolvedValue(makeDaemon());
-    await setup(rotationApi);
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+    await setup(rotationSdk);
     fixture = TestBed.createComponent(DaemonDetailComponent);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -101,11 +99,11 @@ describe("DaemonDetailComponent", () => {
   });
 
   it("disables the daemon after confirmation and patches status", async () => {
-    rotationApi.getRotationDaemon.mockResolvedValue(makeDaemon());
-    rotationApi.disableRotationDaemon.mockResolvedValue(undefined);
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+    rotationSdk.disableConnector.mockResolvedValue(undefined);
     const dialog = mock<DialogService>();
     dialog.openSimpleDialog.mockResolvedValue(true);
-    await setup(rotationApi, "daemon-1", dialog);
+    await setup(rotationSdk, "daemon-1", dialog);
     fixture = TestBed.createComponent(DaemonDetailComponent);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -116,16 +114,16 @@ describe("DaemonDetailComponent", () => {
     };
     await comp.disable();
 
-    expect(rotationApi.disableRotationDaemon).toHaveBeenCalledWith("org-1", "daemon-1");
+    expect(rotationSdk.disableConnector).toHaveBeenCalledWith("org-1", "daemon-1");
     expect(comp.enabled()).toBe(false);
   });
 
   it("deletes the daemon after confirmation and navigates back", async () => {
-    rotationApi.getRotationDaemon.mockResolvedValue(makeDaemon());
-    rotationApi.deleteRotationDaemon.mockResolvedValue(undefined);
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+    rotationSdk.deleteConnector.mockResolvedValue(undefined);
     const dialog = mock<DialogService>();
     dialog.openSimpleDialog.mockResolvedValue(true);
-    await setup(rotationApi, "daemon-1", dialog);
+    await setup(rotationSdk, "daemon-1", dialog);
     const router = TestBed.inject(Router);
     const nav = jest.spyOn(router, "navigate").mockResolvedValue(true);
     fixture = TestBed.createComponent(DaemonDetailComponent);
@@ -135,13 +133,13 @@ describe("DaemonDetailComponent", () => {
     const comp = fixture.componentInstance as unknown as { deleteDaemon: () => Promise<void> };
     await comp.deleteDaemon();
 
-    expect(rotationApi.deleteRotationDaemon).toHaveBeenCalledWith("org-1", "daemon-1");
+    expect(rotationSdk.deleteConnector).toHaveBeenCalledWith("org-1", "daemon-1");
     expect(nav).toHaveBeenCalled();
   });
 
   it("toasts and navigates back when the daemon is not found", async () => {
-    rotationApi.getRotationDaemon.mockRejectedValue(new Error("not found"));
-    await setup(rotationApi, "missing");
+    rotationSdk.getConnector.mockRejectedValue(new Error("not found"));
+    await setup(rotationSdk, "missing");
     const router = TestBed.inject(Router);
     const nav = jest.spyOn(router, "navigate").mockResolvedValue(true);
     const toast = TestBed.inject(ToastService);

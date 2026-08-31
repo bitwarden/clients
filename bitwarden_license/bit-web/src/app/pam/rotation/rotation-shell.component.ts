@@ -18,9 +18,8 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { DaemonRegisterDialogComponent } from "./daemons/daemon-register-dialog.component";
 import { DaemonsService } from "./daemons/daemons.service";
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
-import { RotationConfigResponse } from "./responses/rotation-config.response";
-import { TargetSystemResponse } from "./responses/target-system.response";
 import { TargetSystemsService } from "./target-systems/target-systems.service";
+import { RotationConfigView, TargetSystemView } from "./rotation";
 
 /**
  * Rotation feature shell: renders the page header and the three routed tabs
@@ -71,7 +70,7 @@ export class RotationShellComponent {
    * exist, since the tab shows a create/template empty state that owns that action instead.
    */
   private readonly targetSystems = toSignal(this.targetSystemsService.systems$, {
-    initialValue: [] as TargetSystemResponse[],
+    initialValue: [] as TargetSystemView[],
   });
   protected readonly hasTargetSystems = computed(() => this.targetSystems().length > 0);
 
@@ -86,7 +85,7 @@ export class RotationShellComponent {
    * set up a target system first).
    */
   private readonly configs = toSignal(this.configsService.configs$, {
-    initialValue: [] as RotationConfigResponse[],
+    initialValue: [] as RotationConfigView[],
   });
   protected readonly hasConfigs = computed(() => this.configs().length > 0);
 

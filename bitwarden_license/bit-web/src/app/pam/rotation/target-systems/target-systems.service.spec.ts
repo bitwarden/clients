@@ -5,9 +5,8 @@ import { firstValueFrom } from "rxjs";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { TargetSystemResponse } from "../responses/target-system.response";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
-import { RotationApiService } from "../rotation-api.service";
+import { RotationSdkService } from "../rotation-sdk.service";
 
 import { TargetSystemsService } from "./target-systems.service";
 
@@ -15,7 +14,7 @@ import { TargetSystemsService } from "./target-systems.service";
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeSystem(overrides: Partial<TargetSystemResponse> = {}): TargetSystemResponse {
+function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
   return {
     id: "sys-1",
     name: "Prod Entra",
@@ -25,23 +24,23 @@ function makeSystem(overrides: Partial<TargetSystemResponse> = {}): TargetSystem
     passwordPolicy: null,
     supportsSessionTermination: true,
     ...overrides,
-  } as TargetSystemResponse;
+  } as TargetSystemView;
 }
 
-function makeListResponse(data: TargetSystemResponse[]): ListResponse<TargetSystemResponse> {
-  return { data, continuationToken: null } as unknown as ListResponse<TargetSystemResponse>;
+function makeListResponse(data: TargetSystemView[]): ListResponse<TargetSystemView> {
+  return { data, continuationToken: null } as unknown as ListResponse<TargetSystemView>;
 }
 
 const ORG_ID = "org-123" as OrganizationId;
 
 describe("TargetSystemsService", () => {
-  let rotationApi: ReturnType<typeof mock<RotationApiService>>;
+  let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
   let service: TargetSystemsService;
 
   beforeEach(() => {
-    rotationApi = mock<RotationApiService>();
+    rotationSdk = mock<RotationSdkService>();
     TestBed.configureTestingModule({
-      providers: [TargetSystemsService, { provide: RotationApiService, useValue: rotationApi }],
+      providers: [TargetSystemsService, { provide: RotationSdkService, useValue: rotationSdk }],
     });
     service = TestBed.inject(TargetSystemsService);
   });
@@ -51,7 +50,7 @@ describe("TargetSystemsService", () => {
       const loadingStates: boolean[] = [];
       service.loading$.subscribe((v) => loadingStates.push(v));
 
-      rotationApi.listTargetSystems.mockResolvedValue(makeListResponse([makeSystem()]));
+      rotationSdk.listTargetSystems.mockResolvedValue(makeListResponse([makeSystem()]));
       await service.load(ORG_ID);
 
       // initial true (from BehaviorSubject(true)), then false after resolve
@@ -61,7 +60,7 @@ describe("TargetSystemsService", () => {
 
     it("populates systems$ with the API response", async () => {
       const sys = makeSystem({ id: "sys-abc" });
-      rotationApi.listTargetSystems.mockResolvedValue(makeListResponse([sys]));
+      rotationSdk.listTargetSystems.mockResolvedValue(makeListResponse([sys]));
       await service.load(ORG_ID);
 
       const systems = await firstValueFrom(service.systems$);
@@ -70,7 +69,7 @@ describe("TargetSystemsService", () => {
     });
 
     it("sets loading false even when the API throws", async () => {
-      rotationApi.listTargetSystems.mockRejectedValue(new Error("network fail"));
+      rotationSdk.listTargetSystems.mockRejectedValue(new Error("network fail"));
       await expect(service.load(ORG_ID)).rejects.toThrow("network fail");
 
       const loading = await firstValueFrom(service.loading$);
@@ -82,7 +81,7 @@ describe("TargetSystemsService", () => {
     it("provides a Map keyed by id", async () => {
       const a = makeSystem({ id: "a" });
       const b = makeSystem({ id: "b" });
-      rotationApi.listTargetSystems.mockResolvedValue(makeListResponse([a, b]));
+      rotationSdk.listTargetSystems.mockResolvedValue(makeListResponse([a, b]));
       await service.load(ORG_ID);
 
       const map = await firstValueFrom(service.systemById$);
@@ -110,7 +109,7 @@ describe("TargetSystemsService", () => {
         method: TargetSystemMethod.Manual,
         kind: null,
       });
-      rotationApi.listTargetSystems.mockResolvedValue(makeListResponse([active, disabled, manual]));
+      rotationSdk.listTargetSystems.mockResolvedValue(makeListResponse([active, disabled, manual]));
       await service.load(ORG_ID);
 
       const result = await firstValueFrom(service.activeAutomaticSystems$);
@@ -121,28 +120,28 @@ describe("TargetSystemsService", () => {
 
   describe("setEnabled", () => {
     beforeEach(async () => {
-      rotationApi.listTargetSystems.mockResolvedValue(
+      rotationSdk.listTargetSystems.mockResolvedValue(
         makeListResponse([makeSystem({ id: "sys-1", status: TargetSystemStatus.Active })]),
       );
       await service.load(ORG_ID);
     });
 
     it("calls enableTargetSystem when enabling", async () => {
-      rotationApi.enableTargetSystem.mockResolvedValue(undefined);
+      rotationSdk.enableTargetSystem.mockResolvedValue(undefined);
       const sys = makeSystem({ id: "sys-1", status: TargetSystemStatus.Disabled });
       await service.setEnabled(sys, true);
-      expect(rotationApi.enableTargetSystem).toHaveBeenCalledWith(ORG_ID, "sys-1");
+      expect(rotationSdk.enableTargetSystem).toHaveBeenCalledWith(ORG_ID, "sys-1");
     });
 
     it("calls disableTargetSystem when disabling", async () => {
-      rotationApi.disableTargetSystem.mockResolvedValue(undefined);
+      rotationSdk.disableTargetSystem.mockResolvedValue(undefined);
       const sys = makeSystem({ id: "sys-1", status: TargetSystemStatus.Active });
       await service.setEnabled(sys, false);
-      expect(rotationApi.disableTargetSystem).toHaveBeenCalledWith(ORG_ID, "sys-1");
+      expect(rotationSdk.disableTargetSystem).toHaveBeenCalledWith(ORG_ID, "sys-1");
     });
 
     it("patches local status to Active when enabling", async () => {
-      rotationApi.enableTargetSystem.mockResolvedValue(undefined);
+      rotationSdk.enableTargetSystem.mockResolvedValue(undefined);
       const sys = makeSystem({ id: "sys-1", status: TargetSystemStatus.Disabled });
       await service.setEnabled(sys, true);
 
@@ -151,7 +150,7 @@ describe("TargetSystemsService", () => {
     });
 
     it("patches local status to Disabled when disabling", async () => {
-      rotationApi.disableTargetSystem.mockResolvedValue(undefined);
+      rotationSdk.disableTargetSystem.mockResolvedValue(undefined);
       const sys = makeSystem({ id: "sys-1", status: TargetSystemStatus.Active });
       await service.setEnabled(sys, false);
 
@@ -162,23 +161,23 @@ describe("TargetSystemsService", () => {
 
   describe("delete", () => {
     beforeEach(async () => {
-      rotationApi.listTargetSystems.mockResolvedValue(
+      rotationSdk.listTargetSystems.mockResolvedValue(
         makeListResponse([makeSystem({ id: "sys-1" }), makeSystem({ id: "sys-2" })]),
       );
       await service.load(ORG_ID);
     });
 
     it("calls deleteTargetSystem and removes it from local state", async () => {
-      rotationApi.deleteTargetSystem.mockResolvedValue(undefined);
+      rotationSdk.deleteTargetSystem.mockResolvedValue(undefined);
       await service.delete(makeSystem({ id: "sys-1" }));
 
-      expect(rotationApi.deleteTargetSystem).toHaveBeenCalledWith(ORG_ID, "sys-1");
+      expect(rotationSdk.deleteTargetSystem).toHaveBeenCalledWith(ORG_ID, "sys-1");
       const systems = await firstValueFrom(service.systems$);
       expect(systems.map((s) => s.id)).toEqual(["sys-2"]);
     });
 
     it("leaves local state unchanged when the API rejects", async () => {
-      rotationApi.deleteTargetSystem.mockRejectedValue(new Error("in use"));
+      rotationSdk.deleteTargetSystem.mockRejectedValue(new Error("in use"));
       await expect(service.delete(makeSystem({ id: "sys-1" }))).rejects.toThrow("in use");
 
       const systems = await firstValueFrom(service.systems$);

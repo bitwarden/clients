@@ -23,8 +23,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { TargetSystemResponse } from "../responses/target-system.response";
-import { TargetSystemMethod } from "../rotation";
+import { TargetSystemMethod, TargetSystemView } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { RotationConfigRow } from "./rotation-config-row";
@@ -75,7 +74,7 @@ export class ManagedCredentialsTabComponent {
    * with none the tab directs the user to set one up first instead of offering to create a config.
    */
   private readonly targetSystems = toSignal(this.targetSystemsService.systems$, {
-    initialValue: [] as TargetSystemResponse[],
+    initialValue: [] as TargetSystemView[],
   });
   protected readonly hasTargetSystems = computed(() => this.targetSystems().length > 0);
 
