@@ -1,3 +1,5 @@
+import { NgZone } from "@angular/core";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -34,6 +36,7 @@ import { AccessRequestCancelService } from "./services/access-request-cancel.ser
 import { AccessRequestsSdkService } from "./services/access-requests-sdk.service";
 import { AccessRulesSdkService } from "./services/access-rules-sdk.service";
 import { ApprovalsSdkService } from "./services/approvals-sdk.service";
+import { CipherAccessStateService } from "./services/cipher-access-state.service";
 import { DefaultAccessEventService } from "./services/default-access-event.service";
 import { DefaultAccessRefreshService } from "./services/default-access-refresh.service";
 import { DefaultLeasingErrorService } from "./services/default-leasing-error.service";
@@ -214,10 +217,18 @@ export function providePam(): SafeProvider[] {
       provide: COLLECTION_ACCESS_RULE_CALLOUT,
       useValue: CollectionAccessRuleCalloutComponent,
     }),
+    // The one access-state read behind every surface on an open item. Bound here rather than
+    // `providedIn: "root"`, matching the rest of this module — and required, since its own
+    // dependencies are bound here too.
+    safeProvider({
+      provide: CipherAccessStateService,
+      useClass: CipherAccessStateService,
+      deps: [AccessRequestSdkService, AccessRefreshService, LogService, NgZone],
+    }),
     safeProvider({
       provide: GATED_CIPHER_RELOADER,
       useClass: PamGatedCipherReloader,
-      deps: [AccessRequestSdkService, AccessRefreshService, ApiService, LogService],
+      deps: [CipherAccessStateService, ApiService, LogService],
     }),
     // The shared cipher-scoped cancel flow — one implementation behind both the cipher-view
     // banner and the vault-row menu, so the withdraw semantics and outcome copy cannot drift.
