@@ -13,6 +13,7 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import { map, switchMap } from "rxjs";
 
+import { NoResults } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -26,7 +27,8 @@ import {
   FilterMenuComponent,
   FilterOptionComponent,
   LinkModule,
-  NoItemsModule,
+  StatusLockupComponent,
+  SvgComponent,
   SearchModule,
   TableModule,
   TooltipDirective,
@@ -72,7 +74,8 @@ type AuditStatus = "loading" | "ready" | "empty" | "error";
     FilterOptionComponent,
     HeaderModule,
     LinkModule,
-    NoItemsModule,
+    StatusLockupComponent,
+    SvgComponent,
     SearchModule,
     TableModule,
     TooltipDirective,
@@ -80,6 +83,8 @@ type AuditStatus = "loading" | "ready" | "empty" | "error";
   ],
 })
 export class AccessAuditComponent implements OnInit {
+  protected readonly noResultsSvg = NoResults;
+
   private readonly route = inject(ActivatedRoute);
   private readonly auditApiService = inject(AuditApiService);
   private readonly nameResolver = inject(AccessNameResolverService);
