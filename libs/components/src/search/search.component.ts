@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  computed,
   input,
   model,
   signal,
@@ -24,6 +25,7 @@ import {
 import { IconComponent } from "../icon";
 import { BitIconButtonComponent } from "../icon-button";
 import { FocusableElement } from "../shared/focusable-element";
+import { injectModifierKey } from "../utils";
 
 let nextId = 0;
 
@@ -34,6 +36,9 @@ let nextId = 0;
   selector: "bit-search",
   templateUrl: "./search.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    "(document:keydown)": "handleDocumentShortcut($event)",
+  },
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -73,6 +78,17 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   readonly autocomplete = input<string>();
   readonly size = input<FieldContainerSize>("base");
 
+  /** When true, shows ⌘/Ctrl+F and Esc shortcut hints and hijacks Cmd/Ctrl+F to focus. */
+  readonly showShortcutHints = input<boolean>(false);
+
+  /** Platform-aware modifier key label; "Command" on Mac, "Ctrl" elsewhere. */
+  protected readonly modifierKey = injectModifierKey();
+
+  /** Maps "Command" → "⌘", "Ctrl" → "Ctrl" for the template badge. */
+  protected readonly modifierGlyph = computed(() =>
+    this.modifierKey() === "Command" ? "⌘" : "Ctrl",
+  );
+
   getFocusTarget() {
     return this.input()?.nativeElement;
   }
@@ -80,6 +96,27 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   onChange(searchText: string) {
     this.searchText.set(searchText);
     this.notifyOnChange()?.(searchText);
+  }
+
+  protected handleDocumentShortcut(event: KeyboardEvent): void {
+    if (!this.showShortcutHints()) {
+      return;
+    }
+
+    // Cmd+F (Mac) or Ctrl+F (Win/Linux) — exactly one of metaKey/ctrlKey
+    if (event.key.toLowerCase() !== "f" || event.metaKey === event.ctrlKey) {
+      return;
+    }
+
+    event.preventDefault();
+    this.input()?.nativeElement.focus();
+  }
+
+  protected handleInputKeydown(event: KeyboardEvent): void {
+    if (event.key === "Escape" && this.searchText()) {
+      event.preventDefault();
+      this.clearSearch();
+    }
   }
 
   // Handle the reset button click

@@ -1,3 +1,5 @@
+import { DOCUMENT } from "@angular/common";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
@@ -21,6 +23,7 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               search: "Search",
+              resetSearch: "Clear search",
             });
           },
         },
@@ -43,4 +46,65 @@ export const Default: Story = {
     `,
   }),
   args: {},
+};
+
+export const WithShortcutHints: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-search [(ngModel)]="searchText"${formatArgsForCodeSnippet<SearchComponent>(args)}></bit-search>
+    `,
+  }),
+  args: {
+    showShortcutHints: true,
+  },
+};
+
+export const WithShortcutHintsAndText: Story = {
+  render: (args) => ({
+    props: { ...args, searchText: "example query" },
+    template: `
+      <bit-search [(ngModel)]="searchText"${formatArgsForCodeSnippet<SearchComponent>(args)}></bit-search>
+    `,
+  }),
+  args: {
+    showShortcutHints: true,
+  },
+};
+
+const makeDoc = (platform: string) =>
+  ({
+    defaultView: { navigator: { platform } },
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  }) as unknown as Document;
+
+@Component({
+  standalone: true,
+  selector: "bw-windows-search-story",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [SearchComponent, FormsModule],
+  template: `<bit-search [showShortcutHints]="true"></bit-search>`,
+  providers: [{ provide: DOCUMENT, useValue: makeDoc("Win32") }],
+})
+class WindowsSearchStoryComponent {}
+
+@Component({
+  standalone: true,
+  selector: "bw-mac-search-story",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [SearchComponent, FormsModule],
+  template: `<bit-search [showShortcutHints]="true"></bit-search>`,
+  providers: [{ provide: DOCUMENT, useValue: makeDoc("MacIntel") }],
+})
+class MacSearchStoryComponent {}
+
+export const WithShortcutHintsWindows: Story = {
+  decorators: [moduleMetadata({ imports: [WindowsSearchStoryComponent] })],
+  render: () => ({ template: `<bw-windows-search-story></bw-windows-search-story>` }),
+};
+
+export const WithShortcutHintsMac: Story = {
+  decorators: [moduleMetadata({ imports: [MacSearchStoryComponent] })],
+  render: () => ({ template: `<bw-mac-search-story></bw-mac-search-story>` }),
 };

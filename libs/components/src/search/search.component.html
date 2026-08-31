@@ -18,7 +18,25 @@
     [disabled]="disabled()"
     [attr.autocomplete]="autocomplete()"
     (blur)="onTouch()"
+    (keydown)="handleInputKeydown($event)"
+    [attr.aria-keyshortcuts]="showShortcutHints() ? 'Control+f Meta+f' : null"
   />
+  @if (showShortcutHints() && !searchText()) {
+    <span
+      class="tw-flex tw-items-center tw-gap-1 tw-pe-1 tw-shrink-0 tw-select-none group-has-[:focus]/form-field:tw-hidden"
+      aria-hidden="true"
+    >
+      <kbd
+        class="tw-inline-flex tw-items-center tw-rounded tw-border tw-border-solid tw-border-border-base tw-px-1.5 tw-py-0.5 tw-font-mono tw-text-xs tw-leading-none tw-text-fg-body-subtle"
+        >{{ modifierGlyph() }}</kbd
+      >
+      <span class="tw-text-xs tw-leading-none tw-text-fg-body-subtle">+</span>
+      <kbd
+        class="tw-inline-flex tw-items-center tw-rounded tw-border tw-border-solid tw-border-border-base tw-px-1.5 tw-py-0.5 tw-font-mono tw-text-xs tw-leading-none tw-text-fg-body-subtle"
+        >F</kbd
+      >
+    </span>
+  }
   @if (searchText()) {
     <button
       bitSuffix
