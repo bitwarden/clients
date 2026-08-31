@@ -5,6 +5,7 @@ import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { getNestedCollectionTree } from "@bitwarden/common/admin-console/utils/collection-utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -25,6 +26,7 @@ import {
   IconTileComponent,
   isAvatarColor,
 } from "@bitwarden/components";
+import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
   AddItemDialogComponent,
@@ -111,7 +113,7 @@ export class VaultNextComponent {
   private readonly vaultNavService = inject(VaultNavService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly i18nService = inject(I18nService);
-
+  private readonly policyService = inject(PolicyService);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   private readonly routeParams = toSignal(this.activatedRoute.paramMap);
@@ -363,6 +365,16 @@ export class VaultNextComponent {
       this.collections(),
       this.rowMenuHandlers(),
     ),
+  );
+
+  /** Whether the `OrganizationDataOwnership` policy applies to the active user. */
+  protected readonly orgRequiresDataOwnership = toSignal(
+    this.userId$.pipe(
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+      ),
+    ),
+    { initialValue: false },
   );
 
   /**
