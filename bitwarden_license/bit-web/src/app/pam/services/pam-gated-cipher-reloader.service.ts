@@ -1,13 +1,4 @@
-import {
-  catchError,
-  distinctUntilChanged,
-  from,
-  map,
-  merge,
-  Observable,
-  of,
-  switchMap,
-} from "rxjs";
+import { distinctUntilChanged, from, map, Observable, of, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -16,7 +7,9 @@ import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { GatedCipherReloader } from "@bitwarden/vault";
 
-import { AccessRefreshService, AccessRequestSdkService } from "..";
+import { liveActiveLease } from "..";
+
+import { CipherAccessStateService } from "./cipher-access-state.service";
 
 /**
  * PAM's {@link GatedCipherReloader}: reveals a gated cipher in place once an active lease
@@ -26,6 +19,9 @@ import { AccessRefreshService, AccessRequestSdkService } from "..";
  * Reads through the STANDARD single-cipher endpoint, not a PAM-specific one, since the server
  * already decides per caller what a cipher's payload contains.
  *
+ * "Ends" includes running out of time, which nothing announces: no mutation here, no push from
+ * the server. {@link CipherAccessStateService} supplies the missing tick.
+ *
  * THIS IS THE MODULE'S LAST RAW-HTTP CALL: swap {@link fetchLeased} onto
  * `pam().leases().leased_cipher(cipherId)` once a published `sdk-internal` carries it.
  *
@@ -34,25 +30,18 @@ import { AccessRefreshService, AccessRequestSdkService } from "..";
  */
 export class PamGatedCipherReloader implements GatedCipherReloader {
   constructor(
-    private accessRequestSdkService: AccessRequestSdkService,
-    private accessRefreshService: AccessRefreshService,
+    private cipherAccessStateService: CipherAccessStateService,
     private apiService: ApiService,
     private logService: LogService,
   ) {}
 
   fullCipher$(cipherId: string): Observable<Cipher | null> {
-    return merge(of(undefined), this.accessRefreshService.accessChanged$(cipherId)).pipe(
-      switchMap(() =>
-        from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
-          catchError((error: unknown) => {
-            // An unreadable access state must leave the item gated, not reveal it.
-            this.logService.error(error);
-            return of(null);
-          }),
-        ),
-      ),
+    return this.cipherAccessStateService.state$(cipherId).pipe(
       map((state) => {
-        const leaseId = state?.activeLease?.id;
+        // Read against the clock, not off the response: the stream re-emits the same state at the
+        // lease's `notAfter`, and it is this call resolving to `undefined` on that second emission
+        // that re-locks the open item.
+        const leaseId = liveActiveLease(state, Date.now())?.id;
         return leaseId == null ? null : uuidAsString(leaseId);
       }),
       distinctUntilChanged(),

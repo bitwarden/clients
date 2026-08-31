@@ -68,6 +68,7 @@ import {
   classifyRequestAccessError,
   composeRequestWindow,
   defaultRequestWindow,
+  liveActiveLease,
   midnightCrossingEnd,
   requestDurationOptions,
   requestedWindowSeconds,
@@ -82,6 +83,7 @@ import { formatRemaining } from "../date/format-remaining";
 import { isGovernedCipher } from "../helpers/governed-cipher";
 import { isUnlicensedError } from "../helpers/pam-license-error";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
+import { CipherAccessStateService } from "../services/cipher-access-state.service";
 import { callerOrganizations$, unlicensedForPam } from "../services/pam-membership";
 
 import {
@@ -92,10 +94,13 @@ import {
 /**
  * Cipher-view banner for PAM-governed items — the requester's entry point into the leasing flow.
  *
- * Renders one of five states from `getCipherAccessState`: unlicensed, active lease, approved
- * request, pending request, or an inline form; unlicensed replaces every other state, since the
- * server withholds the credential from an unlicensed holder regardless of lease. Refreshes via
- * {@link AccessRefreshService}.
+ * Renders one of five states read through {@link CipherAccessStateService} — never
+ * `getCipherAccessState` directly: unlicensed, active lease, approved request, pending request, or
+ * an inline form; unlicensed replaces every other state, since the server withholds the credential
+ * from an unlicensed holder regardless of lease. Mutations refresh via
+ * {@link AccessRefreshService}; a lease running out is the one change nobody announces, so
+ * {@link CipherAccessStateService} supplies that tick and `liveActiveLease` decides against the
+ * clock whether the lease it carries is still access.
  */
 @Component({
   selector: "app-pam-cipher-view-banner",
@@ -124,6 +129,7 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly accessRequestCancelService = inject(AccessRequestCancelService);
   private readonly accessLeaseSdkService = inject(AccessLeaseSdkService);
   private readonly accessRefreshService = inject(AccessRefreshService);
+  private readonly cipherAccessStateService = inject(CipherAccessStateService);
   private readonly leasingErrorService = inject(LeasingErrorService);
   private readonly configService = inject(ConfigService);
   private readonly accountService = inject(AccountService);
@@ -164,8 +170,10 @@ export class CipherViewBannerComponent implements OnInit {
    * The caller's access state for the open cipher, re-read on every access change. Reads only for a
    * governed cipher (see {@link governedCipher$}).
    *
-   * The re-read trigger is {@link AccessRefreshService}, shared with the gated-cipher reloader, so
-   * starting access here also reveals the credential in the item behind this banner.
+   * The read goes through {@link CipherAccessStateService}, shared with the gated-cipher reloader
+   * and the item-details pill, so starting access here also reveals the credential in the item
+   * behind this banner and retires the pill above it — and so all three react to a lease running
+   * out.
    */
   protected readonly state = toSignal(
     this.governedCipher$.pipe(
@@ -173,19 +181,7 @@ export class CipherViewBannerComponent implements OnInit {
         if (cipher == null) {
           return of(null);
         }
-        const cipherId = String(cipher.id);
-        return merge(of(undefined), this.accessRefreshService.accessChanged$(cipherId)).pipe(
-          switchMap(() =>
-            from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
-              catchError((e: unknown) => {
-                // A gated cipher whose state can't be read renders no banner, not an error, matching the
-                // vault-row badge.
-                this.logService.error(e);
-                return of(null);
-              }),
-            ),
-          ),
-        );
+        return this.cipherAccessStateService.state$(String(cipher.id));
       }),
     ),
     { initialValue: null },
@@ -215,7 +211,13 @@ export class CipherViewBannerComponent implements OnInit {
     { initialValue: undefined },
   );
 
-  protected readonly activeLease = computed(() => this.state()?.activeLease);
+  /**
+   * Read against {@link nowMs} rather than straight off the state: a lease is over at its
+   * `notAfter` whether or not the server has been asked again, so this flips on the countdown's own
+   * tick and the banner falls through to the resting "Request access" card — the same second the
+   * credential behind it re-locks.
+   */
+  protected readonly activeLease = computed(() => liveActiveLease(this.state(), this.nowMs()));
   protected readonly approvedRequest = computed(() => this.state()?.approvedRequest);
   protected readonly pendingRequest = computed(() => this.state()?.pendingRequest);
 
@@ -302,9 +304,9 @@ export class CipherViewBannerComponent implements OnInit {
    * drops the `active` state on this surface to keep one timer on screen. Without this the heading
    * below would be the modal's only countdown and the only one that never warns.
    *
-   * Stays escalated once remaining time reaches zero: a lease that lapsed before the refresh lands
-   * is the strongest form of "ending soon", so falling back to the resting tile would read as calm
-   * at the worst moment.
+   * `<=` rather than a range is defensive only: {@link activeLease} is itself read against the
+   * clock, so a lease with nothing left to count down renders no active tile to escalate — the
+   * banner has already fallen back to the resting request card.
    */
   protected readonly leaseEndingSoon = computed(
     () =>
