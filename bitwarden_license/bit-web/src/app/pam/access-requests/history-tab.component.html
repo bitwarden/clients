@@ -63,9 +63,10 @@
     </div>
   }
 } @else if (historyRows().length === 0) {
-  <bit-no-items class="tw-mt-2 tw-block" data-testid="my-access-history-empty">
-    <span slot="title" class="tw-mt-4 tw-block">{{ emptyMessageKey() | i18n }}</span>
-  </bit-no-items>
+  <bit-status-lockup class="tw-mt-2 tw-block" data-testid="my-access-history-empty">
+    <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>
+    <span slot="title">{{ emptyMessageKey() | i18n }}</span>
+  </bit-status-lockup>
 } @else {
   <bit-table [dataSource]="historyDataSource">
     <ng-container header>

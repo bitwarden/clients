@@ -22,6 +22,7 @@ import {
 } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import { NoResults } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -31,7 +32,8 @@ import {
   BadgeComponent,
   ButtonModule,
   DialogService,
-  NoItemsModule,
+  StatusLockupComponent,
+  SvgComponent,
   SkeletonComponent,
   SkeletonTextComponent,
   TableDataSource,
@@ -100,7 +102,8 @@ const announcementHoldMs = 2000;
     BadgeComponent,
     ButtonModule,
     IconComponent,
-    NoItemsModule,
+    StatusLockupComponent,
+    SvgComponent,
     SkeletonComponent,
     SkeletonTextComponent,
     TableModule,
@@ -112,6 +115,8 @@ const announcementHoldMs = 2000;
   ],
 })
 export class HistoryTabComponent {
+  protected readonly noResultsSvg = NoResults;
+
   private readonly myAccess = inject(MyAccessService);
   private readonly inbox = inject(ApproverInboxService);
   private readonly dialogService = inject(DialogService);

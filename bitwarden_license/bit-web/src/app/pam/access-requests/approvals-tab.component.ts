@@ -13,6 +13,7 @@ import { RouterModule } from "@angular/router";
 import { EMPTY, distinctUntilChanged, filter, firstValueFrom, map, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import { NoResults } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -25,7 +26,8 @@ import {
   ChipFilterComponent,
   ChipFilterOption,
   DialogService,
-  NoItemsModule,
+  StatusLockupComponent,
+  SvgComponent,
   SearchModule,
   SkeletonComponent,
   SkeletonTextComponent,
@@ -78,7 +80,8 @@ type FilterableRow = { searchText: string; collectionName: string | null; reques
     ChipFilterComponent,
     DurationShortPipe,
     IconComponent,
-    NoItemsModule,
+    StatusLockupComponent,
+    SvgComponent,
     SearchModule,
     SkeletonComponent,
     SkeletonTextComponent,
@@ -89,6 +92,8 @@ type FilterableRow = { searchText: string; collectionName: string | null; reques
   ],
 })
 export class ApprovalsTabComponent {
+  protected readonly noResultsSvg = NoResults;
+
   private readonly inbox = inject(ApproverInboxService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
