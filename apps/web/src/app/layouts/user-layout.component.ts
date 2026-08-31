@@ -63,10 +63,6 @@ export class UserLayoutComponent implements OnInit {
     return vfo1Enabled ? "/settings/export" : "/tools/export";
   });
 
-  protected readonly vfo1Enabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
-  );
-
   protected readonly vfo1Enabled: Signal<boolean> = toSignal(
     inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
