@@ -1,12 +1,14 @@
 import { ChangeDetectionStrategy, Component, output } from "@angular/core";
 
+import { NoResults } from "@bitwarden/assets/svg";
 import {
   BitwardenIcon,
   ButtonModule,
   CardComponent,
   IconTileComponent,
   ItemModule,
-  NoItemsModule,
+  StatusLockupComponent,
+  SvgComponent,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -58,7 +60,8 @@ const TEMPLATES: TargetSystemTemplate[] = [
     CardComponent,
     IconTileComponent,
     ItemModule,
-    NoItemsModule,
+    StatusLockupComponent,
+    SvgComponent,
     I18nPipe,
   ],
   host: {
@@ -70,4 +73,5 @@ export class TargetSystemsEmptyStateComponent {
   readonly useTemplate = output<TargetSystemTemplateKey>();
 
   protected readonly templates = TEMPLATES;
+  protected readonly noItemsIcon = NoResults;
 }
