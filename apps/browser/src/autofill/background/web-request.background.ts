@@ -4,7 +4,9 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
@@ -18,11 +20,25 @@ export default class WebRequestBackground {
     private authService: AuthService,
     private accountService: AccountService,
     private readonly webRequest: typeof chrome.webRequest,
+    private configService: ConfigService,
   ) {
     this.isFirefox = platformUtilsService.isFirefox();
   }
 
-  startListening() {
+  /**
+   * Registers the handler that answers HTTP auth challenges with a matching vault credential.
+   *
+   * While registered, `webRequest.onAuthRequired` fires for any request that receives a 401.
+   */
+  async startListening() {
+    const basicAuthResponseIsEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.EnableBasicAuthResponse,
+    );
+
+    if (!basicAuthResponseIsEnabled) {
+      return;
+    }
+
     this.webRequest.onAuthRequired.addListener(
       (async (
         details: chrome.webRequest.OnAuthRequiredDetails,
