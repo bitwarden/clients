@@ -454,6 +454,82 @@ describe("SharedFoldersTableComponent", () => {
       expect(selectionModel().selected()).toEqual([first]);
     });
 
+    it("re-points the selection at rebuilt rows carrying the same folders", () => {
+      fixture.componentRef.setInput("sharedFolders", [row({ id: "a" }), row({ id: "b" })]);
+      fixture.componentRef.setInput("bulkActions", bulkActions);
+      fixture.detectChanges();
+
+      const [first] = bitTable().filtered();
+      selectionModel().select(first);
+      fixture.detectChanges();
+
+      // A client's rows come from a stream, so any sync re-emits fresh objects for the same folders.
+      const rebuilt = [row({ id: "a" }), row({ id: "b" })];
+      fixture.componentRef.setInput("sharedFolders", rebuilt);
+      fixture.detectChanges();
+
+      // The row is still selected — as the object the table now renders, not the one it replaced.
+      expect(selectionModel().count()).toBe(1);
+      expect(selectionModel().isSelected(bitTable().filtered()[0])).toBe(true);
+      expect(selectionModel().selected()).not.toContain(first);
+    });
+
+    it("hands a bulk action the rebuilt rows rather than the ones it was selected on", () => {
+      const run = jest.fn();
+      fixture.componentRef.setInput("sharedFolders", [row({ id: "a" })]);
+      fixture.componentRef.setInput("bulkActions", [
+        { id: "delete", label: "Delete", icon: "bwi-trash", run },
+      ]);
+      fixture.detectChanges();
+
+      selectionModel().select(bitTable().filtered()[0]);
+      fixture.detectChanges();
+
+      fixture.componentRef.setInput("sharedFolders", [row({ id: "a", name: "Renamed" })]);
+      fixture.detectChanges();
+
+      component["resolvedBulkActions"]()[0].invoke();
+
+      expect(run).toHaveBeenCalledWith([expect.objectContaining({ id: "a", name: "Renamed" })]);
+    });
+
+    it("drops selected folders the rows no longer hold", () => {
+      fixture.componentRef.setInput("sharedFolders", [row({ id: "a" }), row({ id: "b" })]);
+      fixture.componentRef.setInput("bulkActions", bulkActions);
+      fixture.detectChanges();
+
+      selectionModel().select(...bitTable().filtered());
+      fixture.detectChanges();
+      expect(selectionModel().count()).toBe(2);
+
+      // What a completed bulk delete leaves behind: the deleted folders are gone from the stream.
+      fixture.componentRef.setInput("sharedFolders", [row({ id: "b" })]);
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(1);
+      expect(selectionModel().isSelected(bitTable().filtered()[0])).toBe(true);
+    });
+
+    it("empties the selection, and hides the bar, once every selected folder is gone", () => {
+      fixture.componentRef.setInput("sharedFolders", [row({ id: "a" }), row({ id: "b" })]);
+      fixture.componentRef.setInput("bulkActions", bulkActions);
+      fixture.detectChanges();
+
+      selectionModel().select(...bitTable().filtered());
+      fixture.detectChanges();
+
+      fixture.componentRef.setInput("sharedFolders", []);
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(0);
+      expect(component["selectedRows"]()).toEqual([]);
+
+      // The bar takes itself out of the page at a count of zero, so a stale count would leave it
+      // announcing a selection that no longer exists.
+      const bar: HTMLElement = fixture.nativeElement.querySelector("bit-bulk-actions-bar");
+      expect(bar.querySelector("[inert]")).not.toBeNull();
+    });
+
     it("runs an action with the selected rows", () => {
       const run = jest.fn();
       fixture.componentRef.setInput("sharedFolders", [row({ id: "a" }), row({ id: "b" })]);

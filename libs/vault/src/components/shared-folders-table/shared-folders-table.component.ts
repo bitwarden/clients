@@ -4,12 +4,15 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   ElementRef,
   inject,
   input,
   output,
   signal,
   TrackByFunction,
+  untracked,
+  viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
@@ -42,6 +45,7 @@ import {
   SortFn,
   StatusLockupComponent,
   SvgComponent,
+  TableSelectionModel,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -196,6 +200,9 @@ export type SharedFoldersTableFilters = {
 export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolderRow> {
   /** The host, measured to fit the page to the window — see {@link autoPageSize}. */
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  /** The projected table, for the selection model it owns — see {@link reconcileSelection}. */
+  private readonly tableComponent = viewChild(BitTableV2Component<R>);
 
   /** The rows to display. */
   readonly sharedFolders = input<R[]>([]);
@@ -401,6 +408,49 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
       this.viewportHeight();
       this.measureRows();
     });
+
+    // Carry the selection onto each new set of rows — see `reconcileSelection` for why it can't be
+    // left alone. The rows and the model are the effect's only dependencies; the selection it reads
+    // and writes stays untracked, so the reconciliation doesn't re-run itself.
+    effect(() => {
+      const rows = this.sharedFolders();
+      const model = this.tableComponent()?.selectionModel();
+      if (model == null) {
+        return;
+      }
+      untracked(() => this.reconcileSelection(model, rows));
+    });
+  }
+
+  /**
+   * Re-points the selection at the current rows, by folder id.
+   *
+   * The selection holds row *objects*, and `bit-table-v2` rebuilds its model only when the selection
+   * config's identity changes — never when the data does. A client's rows, though, are typically
+   * derived from a stream: any sync, any edit to an item, and a completed bulk action all re-emit
+   * fresh row objects for the same folders. Left alone, the selection would keep holding the
+   * previous objects — every checkbox would render unchecked while the bar still announced a count,
+   * and each action would run against rows that no longer reflect the vault, including folders a
+   * bulk delete had just removed.
+   *
+   * Matched on id rather than cleared outright, so a background sync doesn't cost someone the
+   * selection they were assembling; a folder that's gone from the rows drops out of it.
+   */
+  private reconcileSelection(model: TableSelectionModel<R>, rows: readonly R[]): void {
+    const selected = model.selected();
+    if (selected.length === 0) {
+      return;
+    }
+
+    const current = rows.filter((row) => selected.some((selection) => selection.id === row.id));
+
+    // Already pointing at these exact objects: re-selecting would emit a no-op `selectedChange`.
+    if (current.length === selected.length && current.every((row) => selected.includes(row))) {
+      return;
+    }
+
+    model.clear();
+    model.select(...current);
   }
 
   /**
