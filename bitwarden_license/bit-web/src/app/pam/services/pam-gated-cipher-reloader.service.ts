@@ -1,12 +1,17 @@
+import { NgZone } from "@angular/core";
 import {
   catchError,
+  concat,
   distinctUntilChanged,
+  filter,
   from,
   map,
   merge,
+  MonoTypeOperatorFunction,
   Observable,
   of,
   switchMap,
+  take,
 } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -16,7 +21,9 @@ import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { GatedCipherReloader } from "@bitwarden/vault";
 
-import { AccessRefreshService, AccessRequestSdkService } from "..";
+import { AccessRefreshService, AccessRequestSdkService, liveActiveLease } from "..";
+import type { CipherAccessStateView } from "../abstractions/access-lease";
+import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 
 /**
  * PAM's {@link GatedCipherReloader}: reveals a gated cipher in place once an active lease
@@ -25,6 +32,9 @@ import { AccessRefreshService, AccessRequestSdkService } from "..";
  * Emits `null` while ungated, the full {@link Cipher} while covered, keyed off the lease id.
  * Reads through the STANDARD single-cipher endpoint, not a PAM-specific one, since the server
  * already decides per caller what a cipher's payload contains.
+ *
+ * "Ends" includes running out of time, which nothing announces; {@link whileLeaseRuns$} supplies
+ * that tick (PM-41837).
  *
  * THIS IS THE MODULE'S LAST RAW-HTTP CALL: swap {@link fetchLeased} onto
  * `pam().leases().leased_cipher(cipherId)` once a published `sdk-internal` carries it.
@@ -36,6 +46,8 @@ export class PamGatedCipherReloader implements GatedCipherReloader {
   constructor(
     private accessRequestSdkService: AccessRequestSdkService,
     private accessRefreshService: AccessRefreshService,
+    private ticker: AccessBadgeTickerService,
+    private ngZone: NgZone,
     private apiService: ApiService,
     private logService: LogService,
   ) {}
@@ -51,13 +63,53 @@ export class PamGatedCipherReloader implements GatedCipherReloader {
           }),
         ),
       ),
+      switchMap((state) => this.whileLeaseRuns$(state)),
       map((state) => {
-        const leaseId = state?.activeLease?.id;
+        // Clock read: this resolving to `undefined` on a later tick is what re-locks the item.
+        const leaseId = liveActiveLease(state, Date.now())?.id;
         return leaseId == null ? null : uuidAsString(leaseId);
       }),
       distinctUntilChanged(),
+      this.inAngularZone(),
       switchMap((leaseId) => (leaseId == null ? of(null) : from(this.fetchLeased(cipherId)))),
     );
+  }
+
+  /**
+   * `state`, re-emitted once its lease's window closes. `take(1)` because a lease lapses once, and
+   * the shared badge clock rather than a timer here, so the surfaces on one item cannot disagree
+   * about when it ended.
+   */
+  private whileLeaseRuns$(
+    state: CipherAccessStateView | null,
+  ): Observable<CipherAccessStateView | null> {
+    if (liveActiveLease(state, Date.now()) == null) {
+      return of(state);
+    }
+    return concat(
+      of(state),
+      this.ticker.ticks$.pipe(
+        filter((nowMs) => liveActiveLease(state, nowMs) == null),
+        take(1),
+        map(() => state),
+      ),
+    );
+  }
+
+  /**
+   * The clock ticks OUTSIDE the zone, since an in-zone interval never lets NgZone settle. The
+   * re-lock it drives rewrites plain component fields on the open dialog, so change detection has
+   * to run behind it. Applied after `distinctUntilChanged`, so only a real change pays for it.
+   */
+  private inAngularZone<T>(): MonoTypeOperatorFunction<T> {
+    return (source) =>
+      new Observable<T>((subscriber) =>
+        source.subscribe({
+          next: (value) => this.ngZone.run(() => subscriber.next(value)),
+          error: (error: unknown) => subscriber.error(error),
+          complete: () => subscriber.complete(),
+        }),
+      );
   }
 
   /**
