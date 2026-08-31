@@ -800,7 +800,8 @@
  * palette, so `bit-side-nav` marks its `<nav>` with `data-nav-version` and these overrides
  * redirect the shared tokens back to the original variables. Declared on the same element as the
  * secondary-variant remap (the `<nav>`) so the `var()` chains resolve per-variant, then inherit to
- * the projected nav items. */
+ * the projected nav items.  bit-layout mirrors the attribute onto its grid container when
+ * `rounded` is set, so the nav-colored wedge behind main's rounded corner matches the nav. */
 [data-nav-version="default"] {
   --color-nav-fg-body: var(--color-nav-fg-primary);
   --color-nav-fg-heading: var(--color-nav-fg-primary);
