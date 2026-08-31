@@ -175,13 +175,31 @@
         @if (loadingRequestForm()) {
           <p bitTypography="body2" class="tw-m-0">{{ "loading" | i18n }}</p>
         } @else if (requestMode() !== null) {
-          <p bitTypography="body2" class="tw-mb-4 tw-mt-0">
-            @if (requestMode() === "automatic") {
-              {{ "requestAccessModalAutomaticDescription" | i18n }}
-            } @else {
-              {{ "requestAccessModalHumanDescription" | i18n }}
-            }
-          </p>
+          @if (slotContention(); as contention) {
+            <!--
+              Replaces the description rather than stacking on top of it: the automatic path's
+              "you'll get immediate access" is false while the slot is taken, so showing both would
+              contradict itself. The form below stays enabled — the request is still worth making.
+            -->
+            <p bitTypography="body2" class="tw-mb-4 tw-mt-0 tw-flex tw-items-start tw-gap-2">
+              <bit-icon name="bwi-exclamation-triangle" class="tw-mt-0.5 tw-text-warning" />
+              <span>
+                @if (contention.freesAt) {
+                  {{ "pamRequestSlotTakenUntil" | i18n: (contention.freesAt | date: "short") }}
+                } @else {
+                  {{ "pamRequestSlotTaken" | i18n }}
+                }
+              </span>
+            </p>
+          } @else {
+            <p bitTypography="body2" class="tw-mb-4 tw-mt-0">
+              @if (requestMode() === "automatic") {
+                {{ "requestAccessModalAutomaticDescription" | i18n }}
+              } @else {
+                {{ "requestAccessModalHumanDescription" | i18n }}
+              }
+            </p>
+          }
 
           @if (requestMode() === "automatic") {
             <form [formGroup]="automaticForm" class="tw-flex tw-flex-col tw-gap-4">
