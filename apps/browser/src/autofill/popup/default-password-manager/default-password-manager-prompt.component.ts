@@ -13,6 +13,8 @@ import { firstValueFrom, map } from "rxjs";
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { BitwardenLogo } from "@bitwarden/assets/svg";
 import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import {
   BaseCardComponent,
@@ -69,11 +71,23 @@ export class DefaultPasswordManagerPromptComponent implements OnInit {
   );
   private readonly introCarouselService = inject(IntroCarouselService);
   private readonly autofillBrowserSettingsService = inject(AutofillBrowserSettingsService);
+  private readonly configService = inject(ConfigService);
 
   private readonly privacyPermissionIsGranted = signal(false);
 
   private readonly isDarkTheme = toSignal(
     this.themingService.theme$.pipe(map((theme) => theme === ThemeTypes.Dark)),
+    { initialValue: false },
+  );
+
+  /**
+   * TODO: remove with the VFO1Foundation flag, along with the header class override it gates.
+   *
+   * The two-bar header paints and pads its own bars, so the `[&_header]:` overrides that reach into
+   * the one-bar header have nothing to correct there.
+   */
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
   );
 

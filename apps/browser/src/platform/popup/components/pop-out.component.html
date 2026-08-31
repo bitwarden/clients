@@ -3,6 +3,7 @@
     bitIconButton="bwi-popout"
     size="small"
     type="button"
+    [buttonType]="buttonType()"
     label="{{ 'popOutNewWindow' | i18n }}"
     [title]="'popOutNewWindow' | i18n"
     (click)="expand()"

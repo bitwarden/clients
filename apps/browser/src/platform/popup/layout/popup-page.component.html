@@ -6,16 +6,28 @@
     to tailwind's tw-px-2) in compact mode, but stretch to fill the remainder of the container when the content reaches a maximum of
     640px in width (equivalent to tailwind's `sm` breakpoint)
   -->
+  @let hideNonScrollable = loading() || nonScrollable.childElementCount === 0;
   <div
     #nonScrollable
-    class="tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid tw-py-3 bit-compact:tw-py-2 tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))]"
-    [ngClass]="{
-      'tw-invisible !tw-p-0 !tw-border-none': loading() || nonScrollable.childElementCount === 0,
-      'tw-border-secondary-300': scrolled(),
-      'tw-border-transparent': !scrolled(),
-    }"
+    class="tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid tw-border-transparent tw-py-3 bit-compact:tw-py-2 tw-px-[max(0.75rem,calc((100%-(var(--tw-sm-breakpoint)))/2))] bit-compact:tw-px-[max(0.5rem,calc((100%-(var(--tw-sm-breakpoint)))/2))]"
+    [class.tw-invisible]="hideNonScrollable"
+    [class.!tw-p-0]="hideNonScrollable"
+    [class.!tw-border-none]="hideNonScrollable"
+    [class.!tw-border-border-base]="scrolled()"
   >
     <ng-content select="[slot=above-scroll-area]"></ng-content>
+  </div>
+  <!--
+    Declared before the scroll region so keyboard users reach it without tabbing through every row.
+    The scroll region's clearance uses `:has()` because a bound class would go stale under OnPush.
+  -->
+  <div
+    class="tw-absolute tw-inset-x-0 tw-bottom-0 tw-z-10 tw-p-3 bit-compact:tw-p-2 tw-pointer-events-none [&:has([slot=floating-action])~div]:!tw-pb-20"
+    [class.tw-invisible]="loading()"
+  >
+    <div class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-justify-end [&>*]:tw-pointer-events-auto">
+      <ng-content select="[slot=floating-action]"></ng-content>
+    </div>
   </div>
   <!--
     x padding on this container is designed to always be a minimum of 0.75rem (equivalent to tailwind's tw-px-3), or 0.5rem (equivalent

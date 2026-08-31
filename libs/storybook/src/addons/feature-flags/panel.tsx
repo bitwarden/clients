@@ -1,31 +1,43 @@
 /**
  * Manager-side (Storybook UI) "Feature Flags" panel.
  *
- * Renders a checkbox per flag from the catalog seeded into globals by the
- * preview, and writes the enabled set back to the `FEATURE_FLAGS_GLOBAL` global.
- * The preview's mock `ConfigService` reads that global. This file must not
- * import from `@bitwarden/*` — the manager bundle can't resolve those aliases,
- * which is why the catalog arrives via globals rather than a direct import. It
- * is imported directly (relatively) by `.storybook/manager.js` as a manager
- * entry, so it is intentionally not re-exported from the addon barrel.
+ * Renders a checkbox per flag from the catalog the preview publishes as a
+ * parameter, and writes the enabled set back to the `FEATURE_FLAGS_GLOBAL`
+ * global. The preview's mock `ConfigService` reads that global. This file must
+ * not import from `@bitwarden/*` — the manager bundle can't resolve those
+ * aliases, which is why the catalog arrives over the preview/manager boundary
+ * rather than via a direct import. It is imported directly (relatively) by
+ * `.storybook/manager.js` as a manager entry, so it is intentionally not
+ * re-exported from the addon barrel.
  */
 import React, { useMemo, useState } from "react";
-import { addons, types, useGlobals } from "storybook/manager-api";
+import { addons, types, useGlobals, useParameter } from "storybook/manager-api";
 
 import {
   ADDON_ID,
-  FEATURE_FLAGS_CATALOG_GLOBAL,
   FEATURE_FLAGS_GLOBAL,
+  FEATURE_FLAGS_PARAM,
   FeatureFlagOption,
+  FeatureFlagsParameter,
   PANEL_ID,
 } from "./constants";
 
+/**
+ * Reads an array off cross-boundary state, discarding anything malformed.
+ * Storybook can hand back a sparse array when a value it persists drifts from
+ * its initial value, and a bad entry here takes down the whole manager UI.
+ */
+function toArray<T>(value: unknown): T[] {
+  return Array.isArray(value) ? value.filter((entry) => entry != null) : [];
+}
+
 function FeatureFlagsPanel() {
   const [globals, updateGlobals] = useGlobals();
+  const parameter = useParameter<FeatureFlagsParameter | undefined>(FEATURE_FLAGS_PARAM, undefined);
   const [filter, setFilter] = useState("");
 
-  const catalog = (globals[FEATURE_FLAGS_CATALOG_GLOBAL] ?? []) as FeatureFlagOption[];
-  const enabled = (globals[FEATURE_FLAGS_GLOBAL] ?? []) as string[];
+  const catalog = useMemo(() => toArray<FeatureFlagOption>(parameter?.catalog), [parameter]);
+  const enabled = toArray<string>(globals[FEATURE_FLAGS_GLOBAL]);
   const enabledSet = useMemo(() => new Set(enabled), [enabled]);
 
   const visible = useMemo(() => {
@@ -66,7 +78,11 @@ function FeatureFlagsPanel() {
         <button onClick={() => setEnabled([])}>Clear all</button>
       </div>
       <div style={{ marginBottom: 8, opacity: 0.7 }}>
-        {enabledSet.size} of {catalog.length} enabled
+        {/* The panel is pre-rendered before a story is prepared, so an empty
+            catalog is a normal transient state rather than a failure. */}
+        {catalog.length === 0
+          ? "No feature flags available"
+          : `${enabledSet.size} of ${catalog.length} enabled`}
       </div>
       <ul
         style={{

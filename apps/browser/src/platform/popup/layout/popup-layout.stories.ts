@@ -5,11 +5,14 @@ import {
   Component,
   computed,
   importProvidersFrom,
+  inject,
   input,
   signal,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { of } from "rxjs";
 
 import {
   GeneratorActive,
@@ -23,6 +26,8 @@ import {
   VaultInactive,
 } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import {
@@ -37,6 +42,7 @@ import {
   BitTableV2Component,
   ChipActionComponent,
   ButtonModule,
+  type ButtonType,
   type ColumnName,
   defineTable,
   FilterMenuModule,
@@ -48,7 +54,11 @@ import {
   SectionComponent,
   ScrollLayoutDirective,
   SvgComponent,
+  IconTileComponent,
+  TypographyModule,
 } from "@bitwarden/components";
+import { enabledFlags } from "@bitwarden/storybook";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { VaultLoadingSkeletonComponent } from "../../../vault/popup/components/vault-loading-skeleton/vault-loading-skeleton.component";
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
@@ -58,10 +68,9 @@ import { PopupHeaderComponent } from "./popup-header.component";
 import { PopupPageComponent } from "./popup-page.component";
 import { PopupTabNavigationComponent } from "./popup-tab-navigation.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "extension-container",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="tw-h-[640px] tw-w-[480px] tw-border tw-border-solid tw-border-secondary-300">
       <ng-content></ng-content>
@@ -70,10 +79,9 @@ import { PopupTabNavigationComponent } from "./popup-tab-navigation.component";
 })
 class ExtensionContainerComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "extension-popped-container",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="tw-h-[640px] tw-w-[900px] tw-border tw-border-solid tw-border-secondary-300">
       <ng-content></ng-content>
@@ -83,10 +91,9 @@ class ExtensionContainerComponent {}
 })
 class ExtensionPoppedContainerComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-placeholder",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: /*html*/ `
     <bit-section>
       <bit-item-group>
@@ -118,10 +125,9 @@ class VaultComponent {
   protected data = Array.from(Array(20).keys());
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-add-button",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button bitButton size="small" buttonType="primary" type="button">
       <i class="bwi bwi-plus" aria-hidden="true"></i>
@@ -132,43 +138,78 @@ class VaultComponent {
 })
 class MockAddButtonComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+/** Mirrors the real `app-pop-out` styling and label; the click is inert in Storybook. */
 @Component({
   selector: "mock-popout-button",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <button bitIconButton="bwi-popout" size="small" type="button" label="Pop out"></button>
+    <button
+      bitIconButton="bwi-popout"
+      size="small"
+      type="button"
+      [buttonType]="buttonType()"
+      label="{{ 'popOutNewWindow' | i18n }}"
+      [title]="'popOutNewWindow' | i18n"
+    ></button>
   `,
-  imports: [IconButtonModule],
+  imports: [I18nPipe, IconButtonModule],
 })
-class MockPopoutButtonComponent {}
+class MockPopoutButtonComponent {
+  /** Optional so the mock still renders if a story runs without the feature-flag addon. */
+  private readonly configService = inject(ConfigService, { optional: true });
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+  private readonly vfo1Enabled = toSignal(
+    this.configService?.getFeatureFlag$(FeatureFlag.VFO1Foundation) ?? of(false),
+    { initialValue: false },
+  );
+
+  protected readonly buttonType = computed<ButtonType>(() =>
+    this.vfo1Enabled() ? "side-nav" : "primaryGhost",
+  );
+}
+
 @Component({
   selector: "mock-current-account",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <button class="tw-bg-transparent tw-border-none tw-p-0 tw-me-1 tw-align-middle" type="button">
-      <bit-avatar text="Ash Ketchum"></bit-avatar>
+    <!-- TODO: remove [class] binding and wrapperClasses when VFO1Foundation flag is removed -->
+    <button
+      [class]="wrapperClasses()"
+      class="tw-bg-transparent tw-border-none tw-p-0 tw-align-middle"
+      type="button"
+    >
+      <!-- TODO: remove size binding and lock to "sm" when VFO1Foundation flag is removed -->
+      <bit-avatar text="Ash Ketchum" [size]="avatarSize()"></bit-avatar>
     </button>
   `,
   imports: [AvatarModule],
 })
-class MockCurrentAccountComponent {}
+class MockCurrentAccountComponent {
+  /** Optional so the mock still renders if a story runs without the feature-flag addon. */
+  private readonly configService = inject(ConfigService, { optional: true });
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+  private readonly vfo1Enabled = toSignal(
+    this.configService?.getFeatureFlag$(FeatureFlag.VFO1Foundation) ?? of(false),
+    { initialValue: false },
+  );
+
+  protected readonly avatarSize = computed(() => (this.vfo1Enabled() ? "sm" : "base"));
+
+  /** TODO: remove with the VFO1Foundation flag. Mirrors CurrentAccountComponent.wrapperClasses. */
+  protected readonly wrapperClasses = computed(() => (this.vfo1Enabled() ? "" : "tw-me-2 tw-mt-1"));
+}
+
 @Component({
   selector: "mock-search",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: ` <bit-search placeholder="Search"> </bit-search> `,
   imports: [SearchModule],
 })
 class MockSearchComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-banner",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <bit-banner variant="primary"> This is an important note about these ciphers </bit-banner>
   `,
@@ -176,10 +217,9 @@ class MockSearchComponent {}
 })
 class MockBannerComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-vault-page",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
       <popup-header slot="header" pageTitle="Test">
@@ -205,10 +245,9 @@ class MockBannerComponent {}
 })
 class MockVaultPageComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-vault-page-popped",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
       <popup-header slot="header" pageTitle="Test">
@@ -230,10 +269,9 @@ class MockVaultPageComponent {}
 })
 class MockVaultPagePoppedComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-generator-page",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
       <popup-header slot="header" pageTitle="Test">
@@ -256,10 +294,9 @@ class MockVaultPagePoppedComponent {}
 })
 class MockGeneratorPageComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-send-page",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
       <popup-header slot="header" pageTitle="Test">
@@ -282,10 +319,9 @@ class MockGeneratorPageComponent {}
 })
 class MockSendPageComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-settings-page",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
       <popup-header slot="header" pageTitle="Test">
@@ -308,10 +344,9 @@ class MockSendPageComponent {}
 })
 class MockSettingsPageComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-vault-subpage",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
       <popup-header slot="header" pageTitle="Test" showBackButton>
@@ -344,6 +379,81 @@ class MockSettingsPageComponent {}
   ],
 })
 class MockVaultSubpageComponent {}
+
+@Component({
+  selector: "mock-vault-page-floating-action",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <popup-page [loading]="loading()">
+      <popup-header slot="header" pageTitle="Test">
+        <ng-container slot="end">
+          <mock-popout-button></mock-popout-button>
+          <mock-current-account></mock-current-account>
+        </ng-container>
+      </popup-header>
+      <mock-search slot="above-scroll-area"></mock-search>
+      <vault-placeholder></vault-placeholder>
+      <button
+        slot="floating-action"
+        bitButton
+        buttonType="primary"
+        type="button"
+        startIcon="bwi-plus"
+      >
+        Add
+      </button>
+    </popup-page>
+  `,
+  imports: [
+    PopupPageComponent,
+    PopupHeaderComponent,
+    ButtonModule,
+    MockPopoutButtonComponent,
+    MockCurrentAccountComponent,
+    MockSearchComponent,
+    VaultComponent,
+  ],
+})
+class MockVaultPageFloatingActionComponent {
+  readonly loading = input(false);
+}
+
+@Component({
+  selector: "mock-vault-subpage-floating-action",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <popup-page>
+      <popup-header slot="header" pageTitle="Test" showBackButton>
+        <ng-container slot="end">
+          <mock-popout-button></mock-popout-button>
+        </ng-container>
+      </popup-header>
+      <vault-placeholder></vault-placeholder>
+      <button
+        slot="floating-action"
+        bitButton
+        buttonType="primary"
+        type="button"
+        startIcon="bwi-plus"
+      >
+        Add
+      </button>
+      <popup-footer slot="footer">
+        <button type="button" bitButton buttonType="primary">Save</button>
+        <button type="button" bitButton buttonType="secondary">Cancel</button>
+      </popup-footer>
+    </popup-page>
+  `,
+  imports: [
+    PopupPageComponent,
+    PopupHeaderComponent,
+    PopupFooterComponent,
+    ButtonModule,
+    MockPopoutButtonComponent,
+    VaultComponent,
+  ],
+})
+class MockVaultSubpageFloatingActionComponent {}
 
 // --- Table V2 list-presentation exploration -------------------------------------
 // Duplicated from libs/components Table V2 "Filterable" story so we can iterate on
@@ -658,6 +768,141 @@ class MockVaultTablePageComponent {
   }
 }
 
+/**
+ * The VFO1 two-bar header: a branded app bar carrying the pop out button and account switcher, above
+ * a page title bar carrying the leading icon tile, title, and item count.
+ */
+@Component({
+  selector: "mock-send-page-v2",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <popup-page>
+      <popup-header slot="header" pageTitle="Send">
+        <ng-container slot="end">
+          <mock-popout-button></mock-popout-button>
+          <mock-current-account></mock-current-account>
+        </ng-container>
+        <bit-icon-tile slot="title-start" icon="bwi-send" variant="brand" size="sm"></bit-icon-tile>
+        <span slot="title-end" bitTypography="body2" class="tw-text-muted">3 Sends</span>
+      </popup-header>
+      <mock-search slot="above-scroll-area"></mock-search>
+      <div class="tw-text-main">Send content here</div>
+    </popup-page>
+  `,
+  imports: [
+    PopupPageComponent,
+    PopupHeaderComponent,
+    MockPopoutButtonComponent,
+    MockCurrentAccountComponent,
+    MockSearchComponent,
+    IconTileComponent,
+    TypographyModule,
+  ],
+})
+class MockSendPageV2Component {}
+
+/**
+ * The two-bar header over enough content to overflow the popup, so the title bar's collapse-on-scroll
+ * behavior is actually reachable.
+ */
+@Component({
+  selector: "mock-scrolling-page-v2",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <popup-page>
+      <popup-header slot="header" pageTitle="Vault">
+        <ng-container slot="end">
+          <mock-popout-button></mock-popout-button>
+          <mock-current-account></mock-current-account>
+        </ng-container>
+        <bit-icon-tile slot="title-start" icon="bwi-lock" variant="brand" size="sm"></bit-icon-tile>
+        <span slot="title-end" bitTypography="body2" class="tw-text-muted">20 items</span>
+      </popup-header>
+      <mock-search slot="above-scroll-area"></mock-search>
+      <vault-placeholder></vault-placeholder>
+    </popup-page>
+  `,
+  imports: [
+    PopupPageComponent,
+    PopupHeaderComponent,
+    MockPopoutButtonComponent,
+    MockCurrentAccountComponent,
+    MockSearchComponent,
+    IconTileComponent,
+    TypographyModule,
+    VaultComponent,
+  ],
+})
+class MockScrollingPageV2Component {}
+
+/**
+ * The standard title plus a control that belongs to it — the vault switcher — projected into
+ * `title-suffix`.
+ */
+@Component({
+  selector: "mock-vault-page-v2",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <popup-page>
+      <popup-header slot="header" pageTitle="My vault">
+        <ng-container slot="end">
+          <mock-popout-button></mock-popout-button>
+          <mock-current-account></mock-current-account>
+        </ng-container>
+        <bit-icon-tile
+          slot="title-start"
+          icon="bwi-vault"
+          variant="brand"
+          size="sm"
+        ></bit-icon-tile>
+        <button
+          slot="title-suffix"
+          type="button"
+          bitIconButton="bwi-angle-down"
+          size="xsmall"
+          label="Switch vault"
+        ></button>
+      </popup-header>
+      <vault-placeholder></vault-placeholder>
+    </popup-page>
+  `,
+  imports: [
+    PopupPageComponent,
+    PopupHeaderComponent,
+    MockPopoutButtonComponent,
+    MockCurrentAccountComponent,
+    VaultComponent,
+    IconButtonModule,
+    IconTileComponent,
+  ],
+})
+class MockVaultPageV2Component {}
+
+/** A subpage, where the back button sits at the leading edge of the title bar. */
+@Component({
+  selector: "mock-back-page-v2",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <popup-page>
+      <popup-header slot="header" pageTitle="Item details" showBackButton>
+        <ng-container slot="end">
+          <mock-popout-button></mock-popout-button>
+          <mock-current-account></mock-current-account>
+        </ng-container>
+      </popup-header>
+      <vault-placeholder></vault-placeholder>
+    </popup-page>
+  `,
+  imports: [
+    PopupPageComponent,
+    PopupHeaderComponent,
+    MockPopoutButtonComponent,
+    MockCurrentAccountComponent,
+    VaultComponent,
+  ],
+})
+class MockBackPageV2Component {}
+
 // Shared so it can be provided at BOTH the module level (page content) and the
 // application level — the responsive filter dialog opened via DialogService roots
 // its injector at the app injector, so it needs I18nService provided there too.
@@ -668,6 +913,8 @@ const popupLayoutI18nProvider = {
       back: "Back",
       loading: "Loading",
       search: "Search",
+      appLogoLabel: "Bitwarden",
+      popOutNewWindow: "Pop out to a new window",
       vault: "Vault",
       generator: "Generator",
       send: "Send",
@@ -719,12 +966,18 @@ export default {
         MockBannerComponent,
         MockSearchComponent,
         MockVaultSubpageComponent,
+        MockVaultPageFloatingActionComponent,
+        MockVaultSubpageFloatingActionComponent,
         MockVaultPageComponent,
         MockSendPageComponent,
         MockGeneratorPageComponent,
         MockSettingsPageComponent,
         MockVaultPagePoppedComponent,
         MockVaultTablePageComponent,
+        MockSendPageV2Component,
+        MockScrollingPageV2Component,
+        MockVaultPageV2Component,
+        MockBackPageV2Component,
         StatusLockupComponent,
         VaultComponent,
         ScrollingModule,
@@ -897,6 +1150,44 @@ export const PopupPageWithFooter: Story = {
   }),
 };
 
+/**
+ * The `floating-action` slot pins a single action to the bottom of the content area. It is anchored to
+ * the scroll viewport rather than the scrolled content, so it stays in place while the list scrolls,
+ * and the scroll region gains extra bottom padding so the last row is never occluded.
+ *
+ * The slot is projected *before* the scroll region in DOM order, so keyboard and screen reader users
+ * reach it right after the `above-scroll-area` controls instead of after every row. Tab from the top of
+ * the page to verify.
+ */
+export const WithFloatingAction: StoryObj = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <extension-container>
+        <popup-tab-navigation [navButtons]="navButtons">
+          <mock-vault-page-floating-action [loading]="loading"></mock-vault-page-floating-action>
+        </popup-tab-navigation>
+      </extension-container>
+    `,
+  }),
+  args: { loading: false, navButtons: navButtons() },
+};
+
+/**
+ * The floating action is anchored to the page content area, so it automatically clears
+ * `popup-footer` and the bottom tab navigation. Pages configure nothing.
+ */
+export const WithFloatingActionAndFooter: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <extension-container>
+        <mock-vault-subpage-floating-action></mock-vault-subpage-floating-action>
+      </extension-container>
+    `,
+  }),
+};
+
 export const RegularMode: Story = {
   render: (args) => ({
     props: args,
@@ -1054,11 +1345,75 @@ export const TransparentHeader: Story = {
     template: /* HTML */ `
       <extension-container>
         <popup-page>
-          <popup-header slot="header" background="alt">
+          <popup-header slot="header" background="alt" pageTitle="">
             <span class="tw-italic tw-text-main">🤠 Custom Content</span>
           </popup-header>
           <vault-placeholder></vault-placeholder>
         </popup-page>
+      </extension-container>
+    `,
+  }),
+};
+
+/**
+ * Under the `vfo1-foundation` flag, `popup-header` renders two bars: a branded app bar carrying the
+ * pop out button and account switcher, and a page title bar carrying the leading icon tile, title,
+ * and item count. Toggle the flag in the Feature Flags addon panel to compare against v1.
+ */
+export const HeaderV2: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <extension-container>
+        <mock-send-page-v2></mock-send-page-v2>
+      </extension-container>
+    `,
+  }),
+};
+
+/**
+ * The popup viewport is short, so the page title bar collapses while the user scrolls down and
+ * returns as soon as they scroll back up. The app bar stays pinned. Scroll the list to see it — the
+ * collapsed state can't be reached without interacting, so this story is excluded from snapshots.
+ */
+export const HeaderV2ScrollingTitleBar: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  parameters: { chromatic: { disableSnapshot: true } },
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <extension-container>
+        <mock-scrolling-page-v2></mock-scrolling-page-v2>
+      </extension-container>
+    `,
+  }),
+};
+
+/**
+ * A control that belongs to the title itself — the vault switcher — goes in `title-suffix`, so the
+ * page keeps the standard `pageTitle` rather than rebuilding the title region.
+ */
+export const HeaderV2TitleSuffix: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <extension-container>
+        <mock-vault-page-v2></mock-vault-page-v2>
+      </extension-container>
+    `,
+  }),
+};
+
+/** A subpage keeps its title bar, so the back button renders there, beside the title. */
+export const HeaderV2BackButton: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <extension-container>
+        <mock-back-page-v2></mock-back-page-v2>
       </extension-container>
     `,
   }),
