@@ -1447,9 +1447,14 @@ describe("AccessAuditComponent", () => {
       fixture.detectChanges();
 
       expect(component().status()).toBe("empty");
-      const noItems = fixture.nativeElement.querySelector("bit-no-items") as HTMLElement;
-      expect(noItems.querySelector("[slot=title]")!.textContent!.trim()).toBe("No audit activity");
-      expect(fixture.nativeElement.querySelector("#access-audit_link_access-rules")).not.toBeNull();
+      const accessRulesLink = fixture.nativeElement.querySelector(
+        "#access-audit_link_access-rules",
+      );
+      expect(accessRulesLink).not.toBeNull();
+      const emptyState = accessRulesLink!.closest("bit-status-lockup")!;
+      expect(emptyState.querySelector("[slot=title]")!.textContent!.trim()).toBe(
+        "No audit activity",
+      );
       expect(emptyStateClearAll()).toBeNull();
     });
 
