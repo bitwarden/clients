@@ -6,7 +6,8 @@ import { map } from "rxjs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { HeaderComponent, BannerModule } from "@bitwarden/components";
+import { HeaderComponent, BannerModule, HeaderContext, BitwardenIcon } from "@bitwarden/components";
+import { safeProvider } from "@bitwarden/ui-common";
 
 import { AccountSwitcherV2Component } from "../../../auth/components/account-switcher/account-switcher-v2.component";
 
@@ -15,6 +16,11 @@ import { AccountSwitcherV2Component } from "../../../auth/components/account-swi
   templateUrl: "./desktop-header.component.html",
   imports: [BannerModule, HeaderComponent, AccountSwitcherV2Component],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  /**
+   * Required to provide one HeaderContext instance to both the `bit-breadrumbs` declared in this
+   * template and the `bit-header`
+   */
+  providers: [safeProvider(HeaderContext)],
 })
 export class DesktopHeaderComponent {
   private readonly route = inject(ActivatedRoute);
@@ -39,7 +45,7 @@ export class DesktopHeaderComponent {
   /**
    * Icon to show before the title
    */
-  readonly icon = input<string>();
+  readonly icon = input<BitwardenIcon>();
 
   private readonly routeData = toSignal(
     this.route.data.pipe(

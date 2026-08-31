@@ -211,6 +211,39 @@ export const NestedOptions: Story = {
   },
 };
 
+/**
+ * An option's `iconTile` renders in place of its `icon`, at `size="xs"` so every row lines up. A
+ * disabled option's tile drops to the neutral `gray` family.
+ */
+export const IconTiles: Story = {
+  ...MenuOpen,
+  args: {
+    options: [
+      {
+        label: "Login",
+        value: "login",
+        iconTile: { icon: "bwi-globe", variant: "brand" },
+      },
+      {
+        label: "Card",
+        value: "card",
+        iconTile: { icon: "bwi-credit-card", variant: "teal" },
+      },
+      {
+        label: "Note with a custom color",
+        value: "note",
+        iconTile: { icon: "bwi-sticky-note", color: "#f8e71c" },
+      },
+      {
+        label: "SSH key",
+        value: "sshKey",
+        iconTile: { icon: "bwi-key", variant: "green" },
+        disabled: true,
+      },
+    ],
+  },
+};
+
 export const TextOverflow: Story = {
   ...Default,
   args: {
