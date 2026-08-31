@@ -18652,9 +18652,6 @@
       }
     }
   },
-  "pamRequestSlotTaken": {
-    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until they're done."
-  },
   "pamRequestSlotTakenUntil": {
     "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until $TIME$.",
     "placeholders": {
@@ -19856,6 +19853,9 @@
   },
   "pamRequestAccessButton": {
     "message": "Request access"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until they're done."
   },
   "cipherLeaseExpiresIn": {
     "message": "Leased — expires in $DURATION$",

@@ -344,6 +344,21 @@ export class CipherViewBannerComponent implements OnInit {
    */
   protected readonly minRequestDate = signal("");
 
+  /**
+   * When another member holds this cipher's single-active-lease slot: `freesAt` is when it ends, or
+   * `null` if the server did not say. `null` overall means the slot is free — or that we have not
+   * asked yet, or that the server predates the field, both of which read as free on purpose.
+   *
+   * Only ever set for a member the singleton actually binds; someone with an ungated or
+   * non-singleton path to the cipher is unconstrained and the server reports them startable.
+   *
+   * One signal rather than two so the pair cannot drift: "taken" and "when it frees" are only ever
+   * learnt together. The retry time is a nicety — the warning still stands without it, and either
+   * way the form stays submittable, because contention is a manual retry and holding an approved
+   * request is still worth doing.
+   */
+  protected readonly slotContention = signal<{ freesAt: string | null } | null>(null);
+
   protected readonly automaticForm = this.formBuilder.nonNullable.group({
     durationSeconds: [DEFAULT_REQUEST_ACCESS_DURATION_SECONDS, Validators.required],
     reason: [""],
@@ -434,6 +449,7 @@ export class CipherViewBannerComponent implements OnInit {
     this.requestError.set(null);
     this.requestMode.set(null);
     this.requestBounds.set(null);
+    this.slotContention.set(null);
     this.automaticForm.reset({
       durationSeconds: DEFAULT_REQUEST_ACCESS_DURATION_SECONDS,
       reason: "",
@@ -466,10 +482,18 @@ export class CipherViewBannerComponent implements OnInit {
         const { date, start, end } = defaultRequestWindow(openedAt, bounds.defaultSeconds);
         this.minRequestDate.set(toDateInputValue(openedAt));
         this.humanForm.patchValue({ date: date ?? "", start: start ?? "", end: end ?? "" });
+        // No contention warning on this path, per the spec's "an otherwise-auto_approve request":
+        // `canStartLease` answers about now, and the window being picked here is in the future, so a
+        // slot taken right now says nothing about it.
       } else {
         // Pre-select the rule's own default rather than a hardcoded hour. `requestDurationOptions`
         // guarantees it is one of the offered options, so the select cannot render blank.
         this.automaticForm.patchValue({ durationSeconds: bounds.defaultSeconds });
+
+        // The SDK owns the fail-open default (absent reads as true), so this is a plain boolean.
+        if (!preCheck.canStartLease) {
+          this.slotContention.set({ freesAt: preCheck.slotFreesAt ?? null });
+        }
       }
       this.requestMode.set(preCheck.approvalMode);
     } catch (e) {
