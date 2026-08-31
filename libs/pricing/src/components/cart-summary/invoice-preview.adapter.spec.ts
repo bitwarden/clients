@@ -36,7 +36,7 @@ describe("adaptInvoicePreviewToCart", () => {
       );
 
       expect(cart.passwordManager.seats).toEqual({
-        translationKey: "membersLower",
+        translationKey: "passwordManagerPlanPrice",
         quantity: 5,
         cost: 50,
       });
@@ -68,14 +68,14 @@ describe("adaptInvoicePreviewToCart", () => {
         logService,
       );
 
-      expect(cart.passwordManager.seats.translationKey).toBe("membersLower");
+      expect(cart.passwordManager.seats.translationKey).toBe("passwordManagerPlanPrice");
       expect(cart.passwordManager.additionalStorage).toEqual({
         translationKey: "additionalStorageGbLower",
         quantity: 2,
         cost: 10,
       });
       expect(cart.secretsManager!.seats).toEqual({
-        translationKey: "membersLower",
+        translationKey: "secretsManagerPlanPrice",
         quantity: 3,
         cost: 30,
       });

@@ -63,6 +63,8 @@ describe("cart preview translation keys", () => {
         "teamsMembership",
         "enterpriseMembership",
         "membersLower",
+        "passwordManagerPlanPrice",
+        "secretsManagerPlanPrice",
         "additionalStorageGbLower",
         "additionalServiceAccounts",
         "premiumSubscriptionCredit",
