@@ -66,11 +66,10 @@ import {
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
-import { enabledFlags, featureFlagModes } from "@bitwarden/storybook";
+import { featureFlagModes } from "@bitwarden/storybook";
 import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import AutofillService from "../../../../autofill/services/autofill.service";
-import { PopupWidthOptions } from "../../../../platform/browser/browser-popup-utils";
 import { PopupRouterCacheService } from "../../../../platform/popup/view-cache/popup-router-cache.service";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
@@ -870,32 +869,8 @@ export const WithAtRiskPasswordsAndNotifications: Story = buildStory({
 });
 
 /**
- * The org-user-notifications banner, driven end-to-end: a real, enabled
- * `OrganizationUserNotification` policy flows through the component's own service, which also gates
- * on `PM31948_OrgUserNotificationBanner`. That flag defaults to off and each mode replaces the
- * whole enabled-flag set, so it's listed explicitly in both entries below.
- *
- * No story-level `globals`: pinning them would make the Feature Flags panel inert here, since its
- * checkboxes are the same globals. To see the banner locally, tick the flag in that panel.
+ * With the org-user-notifications banner present
  */
 export const WithNotifications: Story = {
   ...buildStory({ showOrgNotification: true }),
-  parameters: {
-    chromatic: {
-      // Replaces the meta-level map wholesale, so it has to re-pin the popup width too.
-      modes: {
-        "flag off": {
-          ...enabledFlags(FeatureFlag.PM31948_OrgUserNotificationBanner),
-          viewport: { width: PopupWidthOptions.narrow },
-        },
-        "flag on": {
-          ...enabledFlags(
-            FeatureFlag.PM31948_OrgUserNotificationBanner,
-            FeatureFlag.VFO1Foundation,
-          ),
-          viewport: { width: PopupWidthOptions.narrow },
-        },
-      },
-    },
-  },
 };
