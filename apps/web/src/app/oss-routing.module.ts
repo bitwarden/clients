@@ -62,6 +62,7 @@ import { flagEnabled, Flags } from "../utils/flags";
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
+import { addPlanRedirectGuard } from "./admin-console/settings/add-plan-redirect.guard";
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { AuthWebRoute, AuthWebRouteSegment } from "./auth/constants/auth-web-route.constant";
 import { deepLinkGuard } from "./auth/guards/deep-link/deep-link.guard";
@@ -74,6 +75,7 @@ import { AccountComponent } from "./auth/settings/account/account.component";
 import { EmergencyAccessComponent } from "./auth/settings/emergency-access/emergency-access.component";
 import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/view/emergency-access-view.component";
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
+import { SsoLoginFailedComponent } from "./auth/sso/sso-login-failed.component";
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "./auth/verify-recover-delete.component";
 import { PremiumCheckoutSuccessComponent } from "./billing/individual/premium-checkout/premium-checkout-success.component";
@@ -239,6 +241,14 @@ const routes: Routes = [
         path: "organization-invite-link-invalid",
         canActivate: [canAccessFeature(FeatureFlag.GenerateInviteLink), unauthGuardFn()],
         component: OpenOrgInviteLinkInvalidComponent,
+      },
+      {
+        // Terminal page for SSO-login failure states. Variant is selected via
+        // a `kind` query param; chrome + body-copy mapping lives in
+        // `getSsoLoginFailedUi`.
+        path: "sso-login-failed",
+        canActivate: [unauthGuardFn()],
+        component: SsoLoginFailedComponent,
       },
       {
         path: AuthRoute.Login,
@@ -721,6 +731,7 @@ const routes: Routes = [
       {
         path: "create-organization",
         component: CreateOrganizationComponent,
+        canActivate: [addPlanRedirectGuard],
         data: { titleId: "newOrganization" } satisfies RouteDataProperties,
       },
       {

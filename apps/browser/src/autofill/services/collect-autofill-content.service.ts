@@ -92,7 +92,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private mutationBurstCount = 0;
   private readonly mutationCooldownMs = 500;
   private readonly maxMutationWaitMs = 5000;
-  private readonly formFieldQueryString;
+  private formFieldQueryString;
+  /**
+   * Opt-in state for the page-controlled `data-bwignore` and `data-bwautofill`
+   * attributes. Both stay `false` until {@link attributeSettingsFetched} resolves,
+   * so an unanswered or failed fetch leaves the attributes unhonored.
+   */
+  private honorBitwardenIgnoreAttribute = false;
+  private honorBitwardenAutofillAttribute = false;
+  private readonly attributeSettingsFetched: Promise<void>;
 
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
@@ -118,11 +126,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     private domQueryService: DomQueryService,
     private autofillOverlayContentService?: AutofillOverlayContentService,
   ) {
-    let inputQuery = "input:not([data-bwignore])";
-    for (const type of this.ignoredInputTypes) {
-      inputQuery += `:not([type="${type}"])`;
-    }
-    this.formFieldQueryString = `${inputQuery}, textarea:not([data-bwignore]), select:not([data-bwignore]), span[data-bwautofill]`;
+    this.formFieldQueryString = this.buildFormFieldQueryString();
+    this.attributeSettingsFetched = this.fetchAndSetBitwardenAttributeSettings();
 
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
     this.intersectionObserver = new IntersectionObserver(this.handleFormElementIntersection, {
@@ -143,6 +148,53 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.mutationObserver,
       () => this.debouncedRequirePageDetailsUpdate(),
     );
+  }
+
+  /**
+   * Builds the selector used to find candidate form fields. The page-controlled
+   * `data-bwignore` and `data-bwautofill` attributes are only considered when
+   * the user has opted into honoring them.
+   */
+  private buildFormFieldQueryString(): string {
+    const ignoreAttributeFilter = this.honorBitwardenIgnoreAttribute ? ":not([data-bwignore])" : "";
+
+    let inputQuery = `input${ignoreAttributeFilter}`;
+    for (const type of this.ignoredInputTypes) {
+      inputQuery += `:not([type="${type}"])`;
+    }
+
+    const selectors = [
+      inputQuery,
+      `textarea${ignoreAttributeFilter}`,
+      `select${ignoreAttributeFilter}`,
+    ];
+
+    if (this.honorBitwardenAutofillAttribute) {
+      selectors.push("span[data-bwautofill]");
+    }
+
+    return selectors.join(", ");
+  }
+
+  /**
+   * Reads the Bitwarden-attribute opt-in settings once per content-script lifetime.
+   * A change to either setting takes effect on the next page load.
+   */
+  private async fetchAndSetBitwardenAttributeSettings(): Promise<void> {
+    let settings;
+    try {
+      settings = (await this.sendExtensionMessage("getBitwardenAutofillAttributeSettings"))?.result;
+    } catch {
+      return;
+    }
+
+    if (!settings) {
+      return;
+    }
+
+    this.honorBitwardenIgnoreAttribute = settings.honorBitwardenIgnoreAttribute === true;
+    this.honorBitwardenAutofillAttribute = settings.honorBitwardenAutofillAttribute === true;
+    this.formFieldQueryString = this.buildFormFieldQueryString();
   }
 
   /**
@@ -216,6 +268,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     if (this.autofillOverlayContentService) {
       this.setupInitialTopLayerListeners();
     }
+
+    await this.attributeSettingsFetched;
 
     // Check for targeting rules before running heuristic collection
     if (this.pageTargetingRules === undefined) {
@@ -1409,12 +1463,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const nodeTagName = element.tagName.toLowerCase();
 
     const nodeIsSpanElementWithAutofillAttribute =
-      nodeTagName === "span" && element.hasAttribute("data-bwautofill");
+      this.honorBitwardenAutofillAttribute &&
+      nodeTagName === "span" &&
+      element.hasAttribute("data-bwautofill");
     if (nodeIsSpanElementWithAutofillAttribute) {
       return true;
     }
 
-    const nodeHasBwIgnoreAttribute = element.hasAttribute("data-bwignore");
+    const nodeHasBwIgnoreAttribute =
+      this.honorBitwardenIgnoreAttribute && element.hasAttribute("data-bwignore");
     const nodeIsValidInputElement =
       nodeTagName === "input" && !this.ignoredInputTypes.has((element as HTMLInputElement).type);
     if (nodeIsValidInputElement && !nodeHasBwIgnoreAttribute) {
