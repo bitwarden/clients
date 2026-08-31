@@ -1607,7 +1607,6 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "cc",
- "glob",
  "tokio",
  "tracing",
 ]
