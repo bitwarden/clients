@@ -512,15 +512,15 @@ export class FilterMenuComponent
 
   /**
    * CDK owns tree navigation: up/down over the rows on screen, right to open then step
-   * in, left to close then climb, home/end, typeahead, and disabled skipping. The rows
-   * adapt themselves to its item contract; this just supplies the list.
+   * in, left to close then climb, and home/end. The rows adapt themselves to its item
+   * contract; this just supplies the list. Typeahead is left off (it's opt-in, and
+   * optional for a tree) since the menu already has a search field.
    */
   private readonly keyManager = new TreeKeyManager<FilterTreeRowDirective>(
     toObservable(this.treeRows).pipe(
       map((rows) => [...(rows as readonly FilterTreeRowDirective[])]),
     ),
     {
-      typeAheadDebounceInterval: true,
       // Rows are re-created as the tree expands or a search narrows it; keying on the
       // declaration behind each row keeps the active row identified across that.
       trackBy: (row) => {

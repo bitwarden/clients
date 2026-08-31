@@ -88,9 +88,9 @@ partly selected, which is more than a listbox can express. It's one tab stop, na
 | `Home` / `End` | First / last row                                   |
 | `Space`        | Select or clear the row, and everything beneath it |
 
-Typing jumps to the row whose label starts with what you typed. The expander is driven by `←`/`→`
-rather than being its own tab stop, and section headers are rows too — expandable but not
-selectable.
+The expander is driven by `←`/`→` rather than being its own tab stop, and section headers are rows
+too — expandable but not selectable. Typeahead is not enabled; use the search field to narrow a long
+list.
 
 Navigation is CDK's `TreeKeyManager`; each row adapts itself to its item contract via
 `bitFilterTreeRow`. The row is the item rather than the `bit-filter-option` behind it, because an
