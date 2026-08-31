@@ -18,12 +18,11 @@ import {
   PasswordPreloginService,
 } from "@bitwarden/common/auth/password-prelogin";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { LegacyCompatKeyService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";

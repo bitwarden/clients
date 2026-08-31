@@ -80,13 +80,14 @@
     }
     @if (isEmpty && !performingInitialLoad) {
       <div class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start tw-flex-1">
-        <bit-no-items [icon]="(emptyState$ | async)?.icon">
+        <bit-status-lockup>
+          <bit-svg slot="graphic" [content]="(emptyState$ | async)?.icon"></bit-svg>
           <div slot="title">
             {{ (emptyState$ | async)?.title | i18n }}
           </div>
-          <p slot="description" bitTypography="body2" class="tw-max-w-md tw-text-center">
+          <div slot="description" class="tw-max-w-md">
             {{ (emptyState$ | async)?.description | i18n }}
-          </p>
+          </div>
           @if (showAddCipherBtn) {
             <button
               type="button"
@@ -99,7 +100,7 @@
               {{ (btnTextAddCreateFeatureFlag() ? "addItem" : "newItem") | i18n }}
             </button>
           }
-        </bit-no-items>
+        </bit-status-lockup>
       </div>
     }
   </div>

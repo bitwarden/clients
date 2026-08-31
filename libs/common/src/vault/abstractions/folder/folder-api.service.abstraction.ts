@@ -6,6 +6,10 @@ import { FolderResponse } from "../../models/response/folder.response";
 export abstract class FolderApiServiceAbstraction {
   abstract save(folder: Folder, userId: UserId): Promise<FolderData>;
   abstract delete(id: string, userId: UserId): Promise<any>;
+  /**
+   * Deletes several folders in one request.
+   */
+  abstract deleteMany(ids: string[], userId: UserId): Promise<any>;
   abstract get(id: string): Promise<FolderResponse>;
   abstract deleteAll(userId: UserId): Promise<void>;
 }

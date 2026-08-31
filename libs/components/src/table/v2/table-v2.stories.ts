@@ -276,6 +276,186 @@ class DemoFilterableTableComponent {
   }
 }
 
+@Component({
+  selector: "demo-kitchen-sink-table",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitTableToolbarComponent,
+    BitTablePaginatorComponent,
+    FilterMenuModule,
+    SearchModule,
+    ButtonModule,
+    LayoutComponent,
+  ],
+  template: `
+    <bit-layout>
+      <bit-table-v2 [tableDef]="table" [filter]="filter">
+        <bit-table-toolbar>
+          <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
+          <button
+            bitButton
+            buttonType="secondary"
+            type="button"
+            slot="end"
+            startIcon="bwi-download"
+          >
+            Import
+          </button>
+          <button bitButton buttonType="secondary" type="button" slot="end" startIcon="bwi-sliders">
+            Customize
+          </button>
+          <button bitButton buttonType="primary" type="button" slot="end" startIcon="bwi-plus">
+            Add
+          </button>
+
+          <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
+            @for (option of typeOptions; track option.value) {
+              <bit-filter-option [value]="option.value">
+                {{ option.label }}
+              </bit-filter-option>
+            }
+          </bit-filter-menu>
+
+          <bit-filter-divider></bit-filter-divider>
+
+          <bit-filter-menu key="vault" placeholderText="Vault" multiple>
+            @for (option of vaultOptions; track option.value) {
+              <bit-filter-option [value]="option.value">
+                {{ option.label }}
+              </bit-filter-option>
+            }
+          </bit-filter-menu>
+
+          <bit-filter-menu key="collection" placeholderText="Collections" multiple>
+            @for (org of collectionOrgs; track org.name) {
+              <bit-filter-section [label]="org.name" collapsible>
+                @for (collection of org.collections; track collection.id) {
+                  <bit-filter-option [value]="collection.id">
+                    {{ collection.name }}
+                  </bit-filter-option>
+                }
+              </bit-filter-section>
+            }
+          </bit-filter-menu>
+
+          <bit-filter-toggle
+            key="favorite"
+            label="Favorites"
+            icon="bwi-star"
+            iconActive="bwi-star-f"
+          ></bit-filter-toggle>
+        </bit-table-toolbar>
+
+        <bit-column sortable defaultSort="asc">
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+        <bit-column sortable width="120px">
+          <bit-header-cell>Type</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.type; let row">{{ row.type }}</bit-cell>
+        </bit-column>
+        <bit-column width="160px">
+          <bit-header-cell>Vault</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.vault; let row">{{ vaultName(row.vault) }}</bit-cell>
+        </bit-column>
+
+        <bit-table-paginator [pageSize]="5" [pageSizeOptions]="pageSizeOptions">
+        </bit-table-paginator>
+      </bit-table-v2>
+    </bit-layout>
+  `,
+})
+class DemoKitchenSinkTableComponent {
+  protected readonly data = signal(VAULT_ROWS);
+  protected readonly table = defineTable<VaultRow>(this.data);
+
+  protected readonly pageSizeOptions = [5, 10, 25];
+
+  protected readonly filter = (row: VaultRow, f: Partial<VaultFilters>) =>
+    (!f.search || row.name.toLowerCase().includes(f.search.toLowerCase())) &&
+    (f.type == null || row.type === f.type) &&
+    (!f.vault?.length || f.vault.includes(row.vault)) &&
+    (!f.collection?.length || f.collection.some((c) => row.collectionIds.includes(c))) &&
+    (!f.favorite || row.favorite);
+
+  protected readonly typeOptions = (["login", "card", "note"] as const).map((value) => ({
+    value,
+    label: value,
+  }));
+
+  protected readonly vaultOptions = VAULTS.map((vault) => ({
+    value: vault.id,
+    label: vault.name,
+  }));
+
+  protected readonly collectionOrgs = COLLECTION_ORGS;
+
+  protected vaultName(id: string): string {
+    return VAULTS.find((v) => v.id === id)?.name ?? id;
+  }
+}
+
+/**
+ * Search on its own, with no filter chips. A projected `<bit-search>` registers the
+ * `search` key with the table the same way a chip registers its own key, so the
+ * model's `filter` just reads `f.search` and the "no matching items" state comes for
+ * free when a query excludes everything.
+ */
+@Component({
+  selector: "demo-searchable-table",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitTableToolbarComponent,
+    SearchModule,
+    ButtonModule,
+    LayoutComponent,
+  ],
+  template: `
+    <bit-layout>
+      <bit-table-v2 [tableDef]="table" [filter]="filter">
+        <bit-table-toolbar>
+          <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
+          <button bitButton buttonType="primary" type="button" slot="end">New</button>
+        </bit-table-toolbar>
+
+        <bit-column sortable defaultSort="asc">
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+        <bit-column sortable width="120px">
+          <bit-header-cell>Type</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.type; let row">{{ row.type }}</bit-cell>
+        </bit-column>
+        <bit-column width="160px">
+          <bit-header-cell>Vault</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.vault; let row">{{ vaultName(row.vault) }}</bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    </bit-layout>
+  `,
+})
+class DemoSearchableTableComponent {
+  protected readonly data = signal(VAULT_ROWS);
+  protected readonly table = defineTable<VaultRow>(this.data);
+
+  protected readonly filter = (row: VaultRow, f: { search?: string }) =>
+    !f.search || row.name.toLowerCase().includes(f.search.toLowerCase());
+
+  protected vaultName(id: string): string {
+    return VAULTS.find((v) => v.id === id)?.name ?? id;
+  }
+}
+
 /**
  * Sync filters, sort, and pagination to the URL with **`queryParam`** — set it to a
  * namespace and the table mirrors its state to `?<namespace>.*` params. A shared
@@ -475,6 +655,8 @@ export default {
         SkeletonTextComponent,
         DemoStatusColumnComponent,
         DemoFilterableTableComponent,
+        DemoKitchenSinkTableComponent,
+        DemoSearchableTableComponent,
         DemoUrlSyncTableComponent,
         DemoFormTableComponent,
         BulkActionsBarComponent,
@@ -552,7 +734,15 @@ const basicData = signal<DemoRow[]>(
   })),
 );
 
+const sparseData = signal<DemoRow[]>([
+  { id: 0, name: "name-0", other: "other-0" },
+  { id: 1, name: "", other: "other-1" },
+  { id: 2, name: "name-2", other: "" },
+  { id: 3, name: "", other: "" },
+]);
+
 const basicTable = defineTable<DemoRow>(basicData);
+const sparseTable = defineTable<DemoRow>(sparseData);
 const emptyTable = defineTable<DemoRow>(signal<DemoRow[]>([]));
 const loadingTable = defineTable<DemoRow>(signal<DemoRow[]>([]));
 
@@ -688,6 +878,27 @@ export const RichCells: Story = {
             {{ row.email }}
             <span slot="secondary">User #{{ row.id }}</span>
           </bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    `,
+  }),
+};
+
+export const EmptyCells: Story = {
+  render: () => ({
+    props: { table: sparseTable },
+    template: `
+      <bit-table-v2 [tableDef]="table">
+        <bit-column>
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">
+            <bit-icon-tile slot="start" icon="bwi-globe" size="sm" />
+            {{ row.name }}
+          </bit-cell>
+        </bit-column>
+        <bit-column>
+          <bit-header-cell>Other</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
         </bit-column>
       </bit-table-v2>
     `,
@@ -831,6 +1042,43 @@ export const GroupedVirtualized: Story = {
   }),
 };
 
+/**
+ * A group's `collapsed` state is a two-way model. A consumer can seed the initial state with
+ * `[collapsed]` — here the "Cards" group starts collapsed — and persist user toggles by listening
+ * to `(collapsedChange)`.
+ */
+export const GroupedInitiallyCollapsed: Story = {
+  render: () => ({
+    props: {
+      table: groupedTable,
+      trackBy: (_: number, item: GroupedRow) => item.id,
+      isLogin: (row: GroupedRow) => row.type === "login",
+      isCard: (row: GroupedRow) => row.type === "card",
+      isNote: (row: GroupedRow) => row.type === "note",
+    },
+    template: `
+      <bit-layout>
+        <bit-table-v2
+          [tableDef]="table"
+          presentation="list"
+          [virtualRowHeight]="44"
+          [trackBy]="trackBy"
+          [height]="8"
+        >
+          <bit-column sortable defaultSort="asc">
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+          </bit-column>
+
+          <bit-row-group collapsible [match]="isLogin">Logins</bit-row-group>
+          <bit-row-group collapsible [collapsed]="true" [match]="isCard">Cards</bit-row-group>
+          <bit-row-group collapsible [match]="isNote">Notes</bit-row-group>
+        </bit-table-v2>
+      </bit-layout>
+    `,
+  }),
+};
+
 type WideRow = {
   id: number;
   name: string;
@@ -954,6 +1202,28 @@ export const FillPage: Story = {
 export const Filterable: Story = {
   render: () => ({
     template: `<demo-filterable-table></demo-filterable-table>`,
+  }),
+};
+
+/**
+ * The toolbar at full stretch: search, every kind of filter chip, three `slot=end`
+ * action buttons, and a paginator. Useful for checking the responsive behaviour —
+ * below `md` the chip row collapses into the filter dialog and the action buttons
+ * take a full-width row of their own, split evenly.
+ */
+export const KitchenSink: Story = {
+  render: () => ({
+    template: `<demo-kitchen-sink-table></demo-kitchen-sink-table>`,
+  }),
+};
+
+/**
+ * Search with no filter chips — the toolbar holds only `<bit-search>` and an action
+ * button. Searching is just another filter key, so nothing else has to be wired up.
+ */
+export const Searchable: Story = {
+  render: () => ({
+    template: `<demo-searchable-table></demo-searchable-table>`,
   }),
 };
 
@@ -1086,7 +1356,7 @@ export const SelectableSubset: Story = {
 
 /**
  * When no rows render (in column-def mode) — empty data, or a filter that
- * excluded everything — the table shows a default `<bit-no-items>`. Project
+ * excluded everything — the table shows a default `<bit-status-lockup>`. Project
  * `slot="empty"` to override it with your own empty state.
  */
 export const Empty: Story = {
