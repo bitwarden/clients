@@ -280,15 +280,18 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       vfo1Foundation
         ? combineLatest([
             this.route.paramMap.pipe(map((params) => params.get("vaultId"))),
-            this.vaultNavService.viewModel$,
-          ]).pipe(map(([vaultId, nav]) => resolveVaultScope(vaultId, nav) ?? ALL_ITEMS_SCOPE))
+            this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
+          ]).pipe(
+            // Desktop has no route for drilling into a shared folder, so it names no collection.
+            map(([vaultId, nav]) => resolveVaultScope(vaultId, null, nav) ?? ALL_ITEMS_SCOPE),
+          )
         : of(ALL_ITEMS_SCOPE),
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   /** The organization the page is pinned to, whichever nav the user is on. */
-  private readonly selectedOrganization$ = combineLatest([
+  protected readonly selectedOrganization$ = combineLatest([
     this.vfo1Foundation$,
     this.vaultScope$,
     this.routedVaultFilterService.filter$,
