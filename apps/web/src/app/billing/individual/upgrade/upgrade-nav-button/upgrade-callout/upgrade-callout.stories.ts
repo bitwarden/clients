@@ -1,13 +1,14 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nMockService } from "@bitwarden/components";
 import { UpgradeFlowService } from "@bitwarden/web-vault/app/billing/individual/upgrade/services/upgrade-flow.service";
-import { UpgradeNavButtonComponent } from "@bitwarden/web-vault/app/billing/individual/upgrade/upgrade-nav-button/upgrade-nav-button/upgrade-nav-button.component";
+import { UpgradeCalloutComponent } from "@bitwarden/web-vault/app/billing/individual/upgrade/upgrade-nav-button/upgrade-callout/upgrade-callout.component";
 
 export default {
-  title: "Billing/Upgrade Navigation Button",
-  component: UpgradeNavButtonComponent,
+  title: "Billing/Upgrade Callout",
+  component: UpgradeCalloutComponent,
   decorators: [
     moduleMetadata({
       providers: [
@@ -16,13 +17,19 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               upgradeYourPlan: "Upgrade your plan",
+              upgradeNow: "Upgrade now",
+              getAdvancedOnlineSecurityWithBitwardenPremium:
+                "Get advanced online security with Bitwarden premium.",
+              close: "Close",
             });
           },
         },
         {
           provide: UpgradeFlowService,
           useValue: {
+            calloutDismissed$: of(false),
             upgrade: () => Promise.resolve(),
+            dismissCallout: () => Promise.resolve(),
           },
         },
       ],
@@ -36,14 +43,14 @@ export default {
   },
 } as Meta;
 
-type Story = StoryObj<UpgradeNavButtonComponent>;
+type Story = StoryObj<UpgradeCalloutComponent>;
 
 export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="tw-p-4 tw-bg-background-alt3">
-        <app-upgrade-nav-button></app-upgrade-nav-button>
+      <div class="tw-w-64 tw-py-4 tw-bg-bg-nav">
+        <app-upgrade-callout></app-upgrade-callout>
       </div>
     `,
   }),
