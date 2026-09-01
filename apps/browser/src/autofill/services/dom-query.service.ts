@@ -19,7 +19,7 @@ const SHADOW_OBSERVER_ATTRIBUTE_FILTER = Object.values(AUTOFILL_ATTRIBUTES);
 const MAX_UNRESOLVED_SHADOW_HOSTS = 256;
 
 /** Default field detector: any input, select, or textarea element. */
-function anyField(root: Element): boolean {
+function anyField(root: ParentNode): boolean {
   return root.querySelector("input, select, textarea") != null;
 }
 
