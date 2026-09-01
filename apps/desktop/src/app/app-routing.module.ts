@@ -466,6 +466,17 @@ const routes: Routes = [
               vaultScopeGuard,
             ],
           },
+          // The shared folder a vault has been drilled into. Drilling deeper replaces the segment
+          // rather than nesting under it: a folder's route names the vault it lives in, not the
+          // path taken to it.
+          {
+            path: ":vaultId/:collectionId",
+            component: VaultComponent,
+            canActivate: [
+              canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
+              vaultScopeGuard,
+            ],
+          },
         ],
       },
       {

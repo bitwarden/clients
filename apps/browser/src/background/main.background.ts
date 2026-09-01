@@ -1362,6 +1362,7 @@ export default class MainBackground {
       this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
       this.sdkService,
     );
 
@@ -1722,6 +1723,7 @@ export default class MainBackground {
         this.authService,
         this.accountService,
         chrome.webRequest,
+        this.configService,
       );
     }
 
@@ -1767,7 +1769,9 @@ export default class MainBackground {
       this.platformUtilsService,
       this.vaultTimeoutSettingsService,
       this.environmentService,
+      this.sharedUnlockSettingsService,
       this.unlockService,
+      this.configService,
     );
 
     this.endUserNotificationService = new DefaultEndUserNotificationService(
@@ -1844,7 +1848,7 @@ export default class MainBackground {
       await BrowserApi.setSidePanelOptions({ enabled: false });
     }
     this.idleBackground.init();
-    this.webRequestBackground?.startListening();
+    await this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
     await this.autoSubmitLoginBackground.init();
     await this.targetingRulesDataService.init();

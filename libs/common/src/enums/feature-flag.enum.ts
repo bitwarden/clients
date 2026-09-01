@@ -32,6 +32,9 @@ export enum FeatureFlag {
   FillAssistTargetingRules = "fill-assist-targeting-rules",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
+  // Note: This flag gates security risks and should not be turned on without
+  // changes to the underlying experience
+  EnableBasicAuthResponse = "enable-basic-auth-response",
 
   /* Desktop Native */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -103,7 +106,6 @@ export enum FeatureFlag {
   PM28091_AddCopyAndQuickLaunchActions = "pm-28091-add-copy-and-quick-launch-actions",
   PM40435_QuickCopyIconSetting = "pm-40435-quick-copy-icon-setting",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
-  PM31948_OrgUserNotificationBanner = "pm-31948-org-user-notification-banner",
   PM29968_FillAfterSave = "pm-29968-fill-after-save",
   PM32016RemoveAtRiskCallout = "pm-32016-remove-at-risk-callout",
   PM37785_VaultBatchBar = "pm-37785-vault-batch-bar",
@@ -153,6 +155,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
+  [FeatureFlag.EnableBasicAuthResponse]: FALSE,
 
   /* Desktop Native */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
@@ -192,7 +195,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM28091_AddCopyAndQuickLaunchActions]: FALSE,
   [FeatureFlag.PM40435_QuickCopyIconSetting]: FALSE,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
-  [FeatureFlag.PM31948_OrgUserNotificationBanner]: FALSE,
   [FeatureFlag.PM29968_FillAfterSave]: FALSE,
   [FeatureFlag.PM32016RemoveAtRiskCallout]: FALSE,
   [FeatureFlag.PM37785_VaultBatchBar]: FALSE,

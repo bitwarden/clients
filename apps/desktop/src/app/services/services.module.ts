@@ -420,7 +420,9 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsServiceAbstraction,
       VaultTimeoutSettingsService,
       EnvironmentService,
+      SharedUnlockSettingsService,
       UnlockService,
+      ConfigService,
     ],
   }),
   safeProvider({
