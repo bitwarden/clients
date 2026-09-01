@@ -1859,7 +1859,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (overlayElement === AutofillOverlayElement.List && this.awaitingGeneratedPassword()) {
+    if (
+      overlayElement === AutofillOverlayElement.List &&
+      this.awaitingGeneratedPassword() &&
+      // Auth check last to avoid incurring cost every invocation
+      (await this.getAuthStatus()) === AuthenticationStatus.Unlocked
+    ) {
       try {
         await this.requestGeneratedCredential(PasswordGenerateRequestSource.InlineMenuInit);
       } catch (error) {

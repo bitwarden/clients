@@ -4571,6 +4571,31 @@ describe("OverlayBackground", () => {
 
       expect(sources).toHaveLength(0);
     });
+
+    it("appends the list without requesting a password when the vault is locked", async () => {
+      await focusField(InlineMenuFillTypes.PasswordGeneration);
+      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+      const sources: (string | undefined)[] = [];
+      overlayBackground["requestGeneratedPassword$"].subscribe((request) =>
+        sources.push(request.source),
+      );
+      let credentialWhenAppended: string | undefined;
+      tabsSendMessageSpy.mockImplementation((_tab: chrome.tabs.Tab, message: any) => {
+        if (message?.command === "appendAutofillInlineMenuToDom") {
+          credentialWhenAppended = overlayBackground["credential$"].value;
+        }
+
+        return Promise.resolve();
+      });
+
+      await overlayBackground["updateInlineMenuPosition"](
+        positionSender,
+        AutofillOverlayElement.List,
+      );
+
+      expect(sources).toHaveLength(0);
+      expect(credentialWhenAppended).toBe("");
+    });
   });
 
   describe("credential pipeline history tracking", () => {
