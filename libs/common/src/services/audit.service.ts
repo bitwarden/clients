@@ -65,6 +65,11 @@ export class AuditService implements AuditServiceAbstraction {
       headers: { "Add-Padding": "true" },
     });
     const response = await this.apiService.nativeFetch(request);
+    if (!response.ok) {
+      // An error body would otherwise be parsed as a hash list, matching nothing and reporting the
+      // password as not exposed.
+      throw new Error(`Pwned Passwords request failed with status ${response.status}.`);
+    }
     const leakedHashes = await response.text();
     const match = leakedHashes.split(/\r?\n/).find((v) => {
       return v.split(":")[0] === hashEnding;
