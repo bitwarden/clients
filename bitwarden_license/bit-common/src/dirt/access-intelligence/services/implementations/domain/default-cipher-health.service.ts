@@ -1,4 +1,4 @@
-import { forkJoin, from, map, mergeMap, Observable, of, toArray } from "rxjs";
+import { catchError, forkJoin, from, map, mergeMap, Observable, of, toArray } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -41,7 +41,15 @@ export class DefaultCipherHealthService extends CipherHealthService {
     const healthChecks$ = from(validCiphers).pipe(
       // Limit concurrent HIBP calls to avoid rate limiting
       mergeMap(
-        (cipher) => this.checkSingleCipherHealthInternal(cipher),
+        (cipher) =>
+          this.checkSingleCipherHealthInternal(cipher).pipe(
+            map((health) => ({ health, exposureCheckFailed: false })),
+            // Contain the failure per cipher. Left to reach mergeMap it would cancel the whole
+            // batch, discarding every lookup that already succeeded.
+            catchError(() =>
+              of({ health: this.healthWithoutExposure(cipher), exposureCheckFailed: true }),
+            ),
+          ),
         this.MAX_CONCURRENT_HIBP_CALLS,
       ),
       toArray(),
@@ -53,6 +61,16 @@ export class DefaultCipherHealthService extends CipherHealthService {
           ["concurrencyLimit", this.MAX_CONCURRENT_HIBP_CALLS],
         ],
       ),
+      map((results) => {
+        const failed = results.filter((r) => r.exposureCheckFailed).length;
+        if (failed > 0) {
+          this.logService.warning(
+            `[DefaultCipherHealthService] ${failed} of ${validCiphers.length} exposure checks failed; those passwords are reported as not exposed.`,
+          );
+        }
+
+        return results.map((r) => r.health);
+      }),
     );
 
     // Combine reuse detection with individual health checks
@@ -166,6 +184,26 @@ export class DefaultCipherHealthService extends CipherHealthService {
         });
       }),
     );
+  }
+
+  /**
+   * Health for a cipher whose exposure lookup failed.
+   *
+   * Strength is computed locally, so it survives; exposure reads as clean because there is no
+   * result to report. Callers get an under-report rather than a lost batch.
+   */
+  private healthWithoutExposure(cipher: CipherView): CipherHealthView {
+    const weakPasswordScore = this.getPasswordStrength(cipher);
+
+    return new CipherHealthView({
+      cipherId: cipher.id,
+      hasWeakPassword: weakPasswordScore != null && weakPasswordScore <= 2,
+      hasReusedPassword: false,
+      reuseCount: 0,
+      hasExposedPassword: false,
+      exposedCount: 0,
+      weakPasswordScore,
+    });
   }
 
   private getPasswordStrength(cipher: CipherView): number | undefined {
