@@ -1,5 +1,5 @@
-import { NgModule } from "@angular/core";
-import { Route, RouterModule, Routes } from "@angular/router";
+import { NgModule, inject } from "@angular/core";
+import { Route, Router, RouterModule, Routes } from "@angular/router";
 import { map, switchMap } from "rxjs";
 
 import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
@@ -53,6 +53,7 @@ import {
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
 import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
@@ -796,6 +797,17 @@ const routes: Routes = [
             component: SponsoredFamiliesComponent,
             data: { titleId: "sponsoredFamilies" } satisfies RouteDataProperties,
           },
+          {
+            path: "export",
+            loadComponent: () =>
+              import("./tools/vault-export/export-web.component").then(
+                (mod) => mod.ExportWebComponent,
+              ),
+            canActivate: [canAccessFeature(FeatureFlag.VFO1Foundation)],
+            data: {
+              titleId: "exportNoun",
+            } satisfies RouteDataProperties,
+          },
         ],
       },
       {
@@ -817,6 +829,7 @@ const routes: Routes = [
               import("./tools/vault-export/export-web.component").then(
                 (mod) => mod.ExportWebComponent,
               ),
+            canActivate: [vfo1ConditionalRedirect],
             data: {
               titleId: "exportNoun",
             } satisfies RouteDataProperties,
@@ -841,6 +854,14 @@ const routes: Routes = [
       import("./admin-console/organizations/organization.module").then((m) => m.OrganizationModule),
   },
 ];
+
+function vfo1ConditionalRedirect() {
+  const configService = inject(ConfigService);
+  const router = inject(Router);
+  return configService
+    .getFeatureFlag$(FeatureFlag.VFO1Foundation)
+    .pipe(map((isEnabled) => (isEnabled ? router.parseUrl("/settings/export") : true)));
+}
 
 @NgModule({
   imports: [

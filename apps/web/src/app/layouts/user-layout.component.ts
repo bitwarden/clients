@@ -56,6 +56,12 @@ export class UserLayoutComponent implements OnInit {
 
   protected readonly coachmarkService = inject(CoachmarkService);
   protected readonly sideNavService = inject(SideNavService);
+  private readonly configService = inject(ConfigService);
+
+  protected readonly exportRoute = computed(() => {
+    const vfo1Enabled = this.vfo1Enabled();
+    return vfo1Enabled ? "/settings/export" : "/tools/export";
+  });
 
   protected readonly vfo1Enabled: Signal<boolean> = toSignal(
     inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
