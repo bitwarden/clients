@@ -24,7 +24,7 @@ import { IpcClient, IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-inte
  * // Receive messages
  * ipcService.messages$.subscribe((message: IncomingMessage) => {
  *  if (message.topic === "my-topic") {
- *    const data = incomingMessage.parse_payload_as_json();
+ *    const data = message.parse_payload_as_json();
  *    console.log("Received message:", data);
  *  }
  * });

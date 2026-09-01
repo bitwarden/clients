@@ -1,30 +1,19 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import {
-  Component,
-  DestroyRef,
-  NgZone,
-  OnDestroy,
-  OnInit,
-  Type,
-  ViewChild,
-  ViewContainerRef,
-} from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Component, DestroyRef, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { filter, firstValueFrom, lastValueFrom, map, Subject, takeUntil, timeout } from "rxjs";
 
 import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
-import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import {
   AuthRequestServiceAbstraction,
   DESKTOP_SSO_CALLBACK,
-  LockService,
   LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -72,6 +61,7 @@ import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { TroubleshootingDialogComponent } from "@bitwarden/logging-angular";
+import { LockService, LockSource } from "@bitwarden/unlock";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
 import { DeviceManagementDialogComponent } from "../auth/device-management/device-management-dialog.component";
@@ -80,7 +70,6 @@ import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
 import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "../platform/services/server-communication-config/server-communication-config-platform-api.service";
 
 import { SettingsDialogComponent } from "./accounts/settings-dialog.component";
-import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "./tools/generator/credential-generator.component";
 import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
@@ -95,9 +84,8 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
   selector: "app-root",
   styles: [],
   template: `
-    <ng-template #settings></ng-template>
     @if (showHeader$ | async) {
-      <div class="header"></div>
+      <div class="header" [class.vfo1]="vfo1Enabled()"></div>
     }
 
     <div id="container">
@@ -115,15 +103,10 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
   standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("settings", { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
-
   showHeader$ = this.accountService.showHeader$;
   loading = false;
 
   private lastActivity: Date = null;
-  private modal: ModalRef = null;
   private idleTimer: number = null;
   private isIdle = false;
   private activeUserId: UserId = null;
@@ -186,6 +169,12 @@ export class AppComponent implements OnInit, OnDestroy {
     this.destroyRef.onDestroy(() => langSubscription.unsubscribe());
   }
 
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+
   ngOnInit() {
     this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
       this.activeUserId = account?.id;
@@ -244,10 +233,10 @@ export class AppComponent implements OnInit, OnDestroy {
             this.loading = false;
             break;
           case "lockVault":
-            await this.lockService.lock(message.userId ?? this.activeUserId);
+            await this.lockService.lock(message.userId ?? this.activeUserId, LockSource.Manual);
             break;
           case "lockAllVaults": {
-            await this.lockService.lockAll();
+            await this.lockService.lockAll(LockSource.Manual);
             break;
           }
           case "locked":
@@ -285,11 +274,7 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             break;
           case "openSettings": {
-            if (await this.configService.getFeatureFlag(FeatureFlag.DesktopSettingsDialog)) {
-              SettingsDialogComponent.open(this.dialogService);
-            } else {
-              await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
-            }
+            SettingsDialogComponent.open(this.dialogService);
             break;
           }
           case "openTroubleshootingDialog":
@@ -834,17 +819,6 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async openModal<T>(type: Type<T>, ref: ViewContainerRef) {
-    this.modalService.closeAll();
-
-    [this.modal] = await this.modalService.openViewRef(type, ref);
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.modal.onClosed.subscribe(() => {
-      this.modal = null;
-    });
-  }
-
   private routeToVault(action: string, cipherType: CipherType) {
     if (!this.router.url.includes("vault")) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -874,7 +848,7 @@ export class AppComponent implements OnInit, OnDestroy {
       if (options[0] === timeout) {
         options[1] === "logOut"
           ? await this.logOut("vaultTimeout", userId as UserId)
-          : await this.lockService.lock(userId as UserId);
+          : await this.lockService.lock(userId as UserId, LockSource.VaultTimeout);
       }
     }
   }
