@@ -528,6 +528,15 @@ export class FilterMenuComponent
     this.keyManager.onKeydown(event);
   }
 
+  /**
+   * Hands the manager the row the user just reached. Rows aren't tab stops of their own, so a
+   * click focuses one without the manager noticing, and the next key would act on the row it
+   * still thinks is active. No-ops when that row is already active.
+   */
+  protected onRowFocus(row: FilterTreeRowDirective): void {
+    this.keyManager.focusItem(row);
+  }
+
   /** @see FilterTreeHost.parentRow — the nearest earlier row a level above this one. */
   parentRow<T>(row: T): T | null {
     const rows = this.treeRows();

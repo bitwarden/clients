@@ -124,6 +124,8 @@
           [attr.aria-checked]="checked"
           [attr.aria-disabled]="nodeDisabled(node) ? true : null"
           (click)="nodeDisabled(node) ? null : activateNode(node)"
+          (focus)="onRowFocus(row)"
+          #row="bitFilterTreeRow"
         >
           @if (expandable) {
             <!--
