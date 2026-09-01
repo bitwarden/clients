@@ -18,6 +18,21 @@ const rustTargetsMap = {
 // Ensure the dist directory exists
 fs.mkdirSync(path.join(__dirname, "dist"), { recursive: true });
 
+/**
+ * Read a tool version pinned in [workspace.metadata.bin] so nothing here carries a
+ * second copy of it. Kept as a local regex rather than importing scripts/*.mjs
+ * because this file is CommonJS.
+ * @param {string} tool Name of the tool as it appears in [workspace.metadata.bin].
+ */
+function pinnedBinVersion(tool) {
+    const cargoToml = fs.readFileSync(path.join(__dirname, "Cargo.toml"), "utf8");
+    const match = new RegExp(`^${tool}\\s*=\\s*\\{\\s*version\\s*=\\s*"=?([^"]+)"`, "m").exec(cargoToml);
+    if (!match) {
+        throw new Error(`Could not find '${tool}' in [workspace.metadata.bin] of desktop_native/Cargo.toml`);
+    }
+    return match[1];
+}
+
 const args = process.argv.slice(2); // Get arguments passed to the script
 const mode = args.includes("--release") ? "release" : "debug";
 const isRelease = mode === "release";
@@ -48,7 +63,7 @@ function buildNapiModule(target, release = true) {
 
 /**
  * Build a Rust binary with Cargo.
- * 
+ *
  * If {@link target} is specified, cross-compilation helpers are used to build if necessary, and the resulting
  * binary is copied to the `dist` folder.
  * @param {string} bin Name of cargo binary package in `desktop_native` workspace.
@@ -59,7 +74,15 @@ function cargoBuild(bin, target, release) {
     const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
     const args = ["build", "--bin", bin, releaseArg, targetArg]
-    // Use cross-compilation helper if necessary
+    // Use cross-compilation helper if necessary. Dispatch through cargo rather than
+    // `cargo bin cargo-xwin`: installTarget() has already installed the version
+    // pinned in [workspace.metadata.bin] globally, because buildNapiModule() needs
+    // cargo-xwin on PATH anyway (see the comment there). Reusing it avoids a second
+    // build of the same pinned version, and `cargo install --version --locked` is
+    // source-only, which `cargo bin` is not when cargo-binstall is on PATH.
+    //
+    // NOTE: this relies on installTarget() running first, which every path that can
+    // reach a Windows target does (both the `--target=` and `cross-platform` flows).
     if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
         args.unshift("xwin")
     }
@@ -89,6 +112,14 @@ function buildProxyBin(target, release = true) {
     cargoBuild("desktop_proxy", target, release)
 }
 
+function buildWindowsPluginBin(target, release = true) {
+    // This is for windows, but we use effectivePlatform so we can
+    // cross-compile to Windows from other hosts.
+    if (effectivePlatform(target) == "win32") {
+        cargoBuild("windows_plugin_authenticator", target, release)
+    }
+}
+
 function buildImporterBinaries(target, release = true) {
     // These binaries are only built for Windows, so we can skip them on other platforms
     if (effectivePlatform(target) == "win32") {
@@ -109,9 +140,15 @@ function buildProcessIsolation() {
 
 function installTarget(target) {
     runCommand("rustup", ["target", "add", target]);
-    // Install cargo-xwin for cross-platform builds targeting Windows
+    // Cross-building for Windows needs cargo-xwin on PATH: buildNapiModule() hands
+    // off to the napi CLI, which spawns `cargo xwin` itself, and cargoBuild()
+    // dispatches the same way. Install the version pinned in Cargo.toml under
+    // [workspace.metadata.bin] so that stays the single source of truth for it.
+    //
+    // Nothing here goes through cargo-run-bin, so this deliberately does not
+    // bootstrap it; `cargo bin` is only used by the lint runner and CI.
     if (target.includes('windows') && process.platform !== 'win32') {
-        runCommand("cargo", ["install", "--version", "0.20.2", "--locked", "cargo-xwin"]);
+        runCommand("cargo", ["install", "--version", pinnedBinVersion("cargo-xwin"), "--locked", "cargo-xwin"]);
         // install tools needed for packaging Appx, only supported on macOS for now.
         if (process.platform === "darwin") {
             runCommand("brew", ["install", "iinuwa/msix-packaging-tap/msix-packaging", "osslsigncode"]);
@@ -126,10 +163,19 @@ function effectivePlatform(target) {
     return process.platform
 }
 
+// Commands spawned by `runCommand` inherit `process.env`, so variables set here are picked up by
+// every build tool we invoke, as well as the tools those spawn in turn (`napi` -> `cargo-xwin` -> `cargo`).
+if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
+    // In order to compile the ring crate, we need to force cargo-xwin to use the clang
+    // compiler rather than clang-cl.
+    process.env["XWIN_CROSS_COMPILER"] = "clang";
+}
+
 if (!crossPlatform && !target) {
     console.log(`Building native modules in ${mode} mode for the native architecture`);
     buildNapiModule(false, mode === "release");
     buildProxyBin(false, mode === "release");
+    buildWindowsPluginBin(false, mode === "release");
     buildImporterBinaries(false, mode === "release");
     buildProcessIsolation();
     return;
@@ -140,6 +186,7 @@ if (target) {
     installTarget(target);
     buildNapiModule(target, isRelease);
     buildProxyBin(target, isRelease);
+    buildWindowsPluginBin(target, isRelease);
     buildImporterBinaries(target, isRelease);
     buildProcessIsolation();
     return;
@@ -159,6 +206,7 @@ platformTargets.forEach(([target, _]) => {
     installTarget(target);
     buildNapiModule(target, isRelease);
     buildProxyBin(target, isRelease);
+    buildWindowsPluginBin(target, isRelease);
     buildImporterBinaries(target, isRelease);
     buildProcessIsolation();
 });

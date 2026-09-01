@@ -45,6 +45,7 @@ module.exports = {
     "<rootDir>/libs/messaging/jest.config.js",
     "<rootDir>/libs/node/jest.config.js",
     "<rootDir>/libs/platform/jest.config.js",
+    "<rootDir>/libs/pricing/jest.config.js",
     "<rootDir>/libs/serialization/jest.config.js",
     "<rootDir>/libs/state-test-utils/jest.config.js",
     "<rootDir>/libs/state/jest.config.js",
@@ -67,6 +68,9 @@ module.exports = {
     "<rootDir>/libs/scheduling/jest.config.js",
     "<rootDir>/libs/organization-invite-link/jest.config.js",
     "<rootDir>/libs/pam/jest.config.js",
+    "<rootDir>/libs/storybook/jest.config.js",
+    "<rootDir>/libs/legacy-crypto/jest.config.js",
+    "<rootDir>/libs/managed-settings/jest.config.js",
   ],
 
   // Workaround for a memory leak that crashes tests in CI:

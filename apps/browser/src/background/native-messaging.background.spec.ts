@@ -2,15 +2,16 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { BrowserApi } from "../platform/browser/browser-api";
@@ -22,14 +23,11 @@ jest.mock("../platform/browser/browser-api");
 
 describe("NativeMessagingBackground", () => {
   let sut: NativeMessagingBackground;
-  let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
-  let messagingService: MockProxy<MessagingService>;
   let appIdService: MockProxy<AppIdService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let logService: MockProxy<LogService>;
-  let biometricStateService: MockProxy<BiometricStateService>;
   let accountService: MockProxy<AccountService>;
 
   const mockAppId = "test-app-id";
@@ -60,20 +58,18 @@ describe("NativeMessagingBackground", () => {
   }
 
   beforeEach(() => {
-    keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     cryptoFunctionService = mock<CryptoFunctionService>();
-    messagingService = mock<MessagingService>();
     appIdService = mock<AppIdService>();
     platformUtilsService = mock<PlatformUtilsService>();
     logService = mock<LogService>();
-    biometricStateService = mock<BiometricStateService>();
     accountService = mock<AccountService>();
 
     appIdService.getAppId.mockResolvedValue(mockAppId);
     accountService.activeAccount$ = of(mockAccount);
     platformUtilsService.isSafari.mockReturnValue(false);
 
+    (BrowserApi.permissionsGranted as jest.Mock).mockResolvedValue(true);
     (BrowserApi.connectNative as jest.Mock).mockReturnValue({
       onMessage: {
         addListener: jest.fn(),
@@ -86,16 +82,15 @@ describe("NativeMessagingBackground", () => {
     });
 
     sut = new NativeMessagingBackground(
-      keyService,
       encryptService,
       cryptoFunctionService,
-      messagingService,
       appIdService,
       platformUtilsService,
       logService,
-      biometricStateService,
       accountService,
     );
+    // The constructor starts a reconnection loop; stop it so tests can drive connect() explicitly.
+    sut.stopConnecting();
   });
 
   describe("constructor", () => {
@@ -107,6 +102,15 @@ describe("NativeMessagingBackground", () => {
   });
 
   describe("connect", () => {
+    it("does not connect if native messaging permission is missing", async () => {
+      (BrowserApi.permissionsGranted as jest.Mock).mockResolvedValue(false);
+
+      await sut.connect();
+
+      expect(BrowserApi.connectNative).not.toHaveBeenCalled();
+      expect(sut.connected).toBe(false);
+    });
+
     it("connects immediately for Safari", async () => {
       platformUtilsService.isSafari.mockReturnValue(true);
 
@@ -116,6 +120,103 @@ describe("NativeMessagingBackground", () => {
       expect(logService.info).toHaveBeenCalledWith(
         "[Native Messaging IPC] Connection to Safari swift module established!",
       );
+    });
+  });
+
+  describe("startConnecting / stopConnecting", () => {
+    let connectSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      connectSpy = jest.spyOn(sut, "connect").mockResolvedValue(undefined);
+    });
+
+    afterEach(() => {
+      sut.stopConnecting();
+      jest.clearAllTimers();
+      jest.useRealTimers();
+    });
+
+    it("attempts to connect immediately", () => {
+      sut.startConnecting();
+
+      jest.advanceTimersByTime(0);
+
+      expect(connectSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("starts the reconnection loop on construction", () => {
+      const instance = new NativeMessagingBackground(
+        encryptService,
+        cryptoFunctionService,
+        appIdService,
+        platformUtilsService,
+        logService,
+        accountService,
+      );
+      const instanceConnectSpy = jest.spyOn(instance, "connect").mockResolvedValue(undefined);
+
+      jest.advanceTimersByTime(0);
+
+      expect(instanceConnectSpy).toHaveBeenCalledTimes(1);
+
+      instance.stopConnecting();
+    });
+
+    it("retries every 10 seconds while not connected", () => {
+      sut.startConnecting();
+
+      jest.advanceTimersByTime(0);
+      jest.advanceTimersByTime(10_000);
+      jest.advanceTimersByTime(10_000);
+
+      expect(connectSpy).toHaveBeenCalledTimes(3);
+    });
+
+    it("does not attempt to connect while already connected", () => {
+      sut.connected = true;
+
+      sut.startConnecting();
+      jest.advanceTimersByTime(20_000);
+
+      expect(connectSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not attempt to connect while a connection is already in progress", () => {
+      (sut as any).connecting = true;
+
+      sut.startConnecting();
+      jest.advanceTimersByTime(20_000);
+
+      expect(connectSpy).not.toHaveBeenCalled();
+    });
+
+    it("is a no-op when the reconnection loop is already running", () => {
+      sut.startConnecting();
+      sut.startConnecting();
+
+      jest.advanceTimersByTime(0);
+
+      expect(connectSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("swallows connection errors so the loop keeps retrying", () => {
+      connectSpy.mockRejectedValue(new Error("startDesktop"));
+
+      sut.startConnecting();
+
+      expect(() => jest.advanceTimersByTime(20_000)).not.toThrow();
+      expect(connectSpy).toHaveBeenCalledTimes(3);
+    });
+
+    it("stops attempting to connect after stopConnecting", () => {
+      sut.startConnecting();
+      jest.advanceTimersByTime(0);
+
+      sut.stopConnecting();
+      jest.advanceTimersByTime(30_000);
+
+      expect(connectSpy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -338,11 +439,10 @@ describe("NativeMessagingBackground", () => {
         await expect(connectPromise).rejects.toThrow("desktopIntegrationDisabled");
       });
 
-      it("rejects with an empty message when no error is present", async () => {
+      it("rejects with 'desktopIntegrationDisabled' even when no explicit error is present", async () => {
         disconnectListener({ error: { message: undefined } });
 
-        const err = await connectPromise.catch((e: Error) => e);
-        expect(err instanceof Error ? err.message : "").toBe("");
+        await expect(connectPromise).rejects.toThrow("desktopIntegrationDisabled");
       });
     });
   });

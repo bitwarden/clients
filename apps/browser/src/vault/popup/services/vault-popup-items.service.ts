@@ -2,8 +2,8 @@ import { inject, Injectable, NgZone } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
+  debounceTime,
   distinctUntilChanged,
-  distinctUntilKeyChanged,
   filter,
   map,
   merge,
@@ -22,6 +22,8 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -41,6 +43,7 @@ import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 import { MY_VAULT_ID, VaultPopupListFiltersService } from "./vault-popup-list-filters.service";
+import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filters.service";
 
 /**
  * Service for managing the various item lists on the new Vault tab in the browser popup.
@@ -96,6 +99,7 @@ export class VaultPopupItemsService {
         ...(showIdentities ? [CipherType.Identity] : []),
       ];
     }),
+    distinctUntilChanged((a, b) => a.length === b.length && a.every((v, i) => v === b[i])),
   );
 
   /**
@@ -108,6 +112,7 @@ export class VaultPopupItemsService {
       filter((userId): userId is UserId => userId != null),
       switchMap((userId) =>
         merge(this.cipherService.ciphers$(userId), this.cipherService.localData$(userId)).pipe(
+          debounceTime(0),
           runInsideAngular(this.ngZone),
           tap(() => this._ciphersLoading$.next()),
           waitUntilSync(this.syncService),
@@ -152,30 +157,42 @@ export class VaultPopupItemsService {
         }),
       ),
     ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  /**
+   * Observable that emits the search text when it's searchable, or an empty string when it's not.
+   * This prevents unnecessary re-renders when typing non-searchable text (e.g., single characters).
+   * @private
+   */
+  private _effectiveSearchText$ = this.searchText$.pipe(
+    switchMap(async (searchText) => {
+      const isSearchable = await this.searchService.isSearchable(searchText);
+      return isSearchable ? searchText : "";
+    }),
+    distinctUntilChanged(),
+    shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   /**
    * Observable that indicates whether there is search text present that is searchable.
    * @private
    */
-  private _hasSearchText = this.searchText$.pipe(
-    switchMap((searchText) => {
-      return this.searchService.isSearchable(searchText);
-    }),
-  );
+  private _hasSearchText = this._effectiveSearchText$.pipe(map((text) => text !== ""));
 
   private _filteredCipherList$: Observable<PopupCipherViewLike[]> = combineLatest([
     this._activeCipherList$,
-    this.searchText$,
+    this._effectiveSearchText$,
     this.vaultPopupListFiltersService.filterFunction$,
     getUserId(this.accountService.activeAccount$),
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
   ]).pipe(
     map(
-      ([ciphers, searchText, filterFunction, userId]): [PopupCipherViewLike[], string, UserId] => [
-        filterFunction(ciphers),
-        searchText,
-        userId,
-      ],
+      ([ciphers, searchText, filterFunction, userId, vfo1Enabled]): [
+        PopupCipherViewLike[],
+        string,
+        UserId,
+      ] => [vfo1Enabled ? ciphers : filterFunction(ciphers), searchText, userId],
     ),
     switchMap(
       ([ciphers, searchText, userId]) =>
@@ -249,9 +266,14 @@ export class VaultPopupItemsService {
   hasFilterApplied$ = combineLatest([
     this._hasSearchText,
     this.vaultPopupListFiltersService.filters$,
+    this.vaultPopupListTableFiltersService.hasFilterApplied$,
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
   ]).pipe(
-    map(([hasSearchText, filters]) => {
-      return hasSearchText || Object.values(filters).some((filter) => filter !== null);
+    map(([hasSearchText, filters, tableFilterApplied, vfo1Enabled]) => {
+      const filterApplied = vfo1Enabled
+        ? tableFilterApplied
+        : Object.values(filters).some((f) => f !== null);
+      return hasSearchText || filterApplied;
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -275,17 +297,27 @@ export class VaultPopupItemsService {
     map((ciphers) => !ciphers.length),
   );
 
-  /** Observable that indicates when the user should see the deactivated org state */
+  /**
+   * Observable that indicates when the user should see the deactivated org state, i.e. when the
+   * selected organization filter is suspended.
+   */
   showDeactivatedOrg$: Observable<boolean> = combineLatest([
-    this.vaultPopupListFiltersService.filters$.pipe(distinctUntilKeyChanged("organization")),
+    this.vaultPopupListFiltersService.filters$.pipe(
+      distinctUntilChanged(
+        (previous, current) => previous.organization?.id === current.organization?.id,
+      ),
+    ),
     this.organizations$,
   ]).pipe(
     map(([filters, orgs]) => {
-      if (!filters.organization || filters.organization.id === MY_VAULT_ID) {
+      const selectedOrg = filters.organization;
+
+      // "My vault" is not an organization and can never be suspended.
+      if (!selectedOrg || selectedOrg.id === MY_VAULT_ID) {
         return false;
       }
 
-      const org = orgs.find((o) => o.id === filters?.organization?.id);
+      const org = orgs.find((o) => o.id === selectedOrg.id);
       return org ? !org.enabled : false;
     }),
   );
@@ -329,6 +361,8 @@ export class VaultPopupItemsService {
     private accountService: AccountService,
     private ngZone: NgZone,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private configService: ConfigService,
+    private vaultPopupListTableFiltersService: VaultPopupListTableFiltersService,
   ) {}
 
   applyFilter(newSearchText: string) {

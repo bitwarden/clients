@@ -23,12 +23,12 @@
     "yargs": "18.0.0"
   },
   "devDependencies": {
-    "@types/node": "22.19.17",
+    "@types/node": "22.20.1",
     "typescript": "5.8.2"
   },
   "_moduleAliases": {
     "@bitwarden/common": "dist/libs/common/src",
-    "@bitwarden/node/services/node-crypto-function.service": "dist/libs/node/src/services/node-crypto-function.service",
+    "@bitwarden/legacy-crypto": "dist/libs/legacy-crypto/src",
     "@bitwarden/storage-core": "dist/libs/storage-core/src",
     "@bitwarden/logging": "dist/libs/logging/src",
     "@bitwarden/client-type": "dist/libs/client-type/src",

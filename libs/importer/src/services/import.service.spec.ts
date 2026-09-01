@@ -1,3 +1,8 @@
+// Polyfill Symbol.dispose for explicit resource management (used by the SDK client `using`)
+if (!(Symbol as any).dispose) {
+  (Symbol as any).dispose = Symbol("Symbol.dispose");
+}
+
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -9,24 +14,28 @@ import {
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { FolderWithOptionalIdRequest } from "@bitwarden/common/vault/models/request/folder-with-optional-id.request";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString, KeyGenerationService } from "@bitwarden/legacy-crypto";
 
-import { BitwardenPasswordProtectedImporter } from "../importers/bitwarden/bitwarden-password-protected-importer";
+import { BitwardenPasswordProtectedImporter } from "../importers";
 import { Importer } from "../importers/importer";
+import { ImportType } from "../models/import-options";
 import { ImportResult } from "../models/import-result";
+import { buildSdkImporterRegistry, SdkImportCredentials } from "../sdk";
 
 import { ImportApiServiceAbstraction } from "./import-api.service.abstraction";
 import { ImportService } from "./import.service";
@@ -43,6 +52,8 @@ describe("ImportService", () => {
   let keyGenerationService: MockProxy<KeyGenerationService>;
   let accountService: MockProxy<AccountService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
+  let configService: MockProxy<ConfigService>;
+  let sdkService: MockProxy<SdkService>;
 
   beforeEach(() => {
     cipherService = mock<CipherService>();
@@ -53,7 +64,10 @@ describe("ImportService", () => {
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     keyGenerationService = mock<KeyGenerationService>();
+    accountService = mock<AccountService>();
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
+    configService = mock<ConfigService>();
+    sdkService = mock<SdkService>();
 
     importService = new ImportService(
       cipherService,
@@ -66,7 +80,36 @@ describe("ImportService", () => {
       keyGenerationService,
       accountService,
       restrictedItemTypesService,
+      configService,
+      sdkService,
     );
+
+    // Feature flags are only used by certain specific importers, not the base
+    // import service, so we can disable them all for the purpose of these tests.
+    configService.getFeatureFlag.mockResolvedValue(false);
+  });
+
+  describe("importOptions data integrity", () => {
+    it("agrees with the SDK registry on which formats are SDK-backed", () => {
+      const registry = buildSdkImporterRegistry();
+      for (const option of importService.importOptions) {
+        expect(registry.has(option.id as ImportType)).toBe(option.sdk != null);
+      }
+    });
+
+    it("keeps pasteFormats a subset of acceptedFileTypes for every format", () => {
+      for (const option of importService.importOptions) {
+        for (const pasteFormat of option.pasteFormats) {
+          expect(option.acceptedFileTypes).toContain(pasteFormat);
+        }
+      }
+    });
+
+    it("pairs instructionLink and sourceName — never one without the other", () => {
+      for (const option of importService.importOptions) {
+        expect(!!option.instructionLink).toEqual(!!option.sourceName);
+      }
+    });
   });
 
   describe("getImporterInstance", () => {
@@ -395,6 +438,155 @@ describe("ImportService", () => {
       expect(request.folders[0]).toBeInstanceOf(FolderWithOptionalIdRequest);
       expect(request.folders[0].name).toBe("2.encryptedName");
       expect(request.folders[0].id).toBe("folder-id-123");
+    });
+  });
+
+  describe("importWithSdk", () => {
+    const userId = Utils.newGuid() as UserId;
+    const credentials: SdkImportCredentials = {
+      kind: "passwordWithKeyFile",
+      password: "master-pw",
+      keyFile: null,
+    };
+    const file = new Uint8Array([1, 2, 3]);
+    const summary = { ciphers: [{ type: CipherType.Login, count: 1 }], folders: 0, collections: 0 };
+
+    // The real KdbxSdkImporter strategy runs (resolved from the registry); only the SDK client is
+    // mocked, so these also cover the registry wiring + the strategy's option mapping.
+    let importKdbx: jest.Mock;
+
+    beforeEach(() => {
+      importKdbx = jest.fn().mockResolvedValue(summary);
+      const sdkValue = { importers: jest.fn().mockReturnValue({ import_kdbx: importKdbx }) };
+      const sdkClient = {
+        take: jest.fn().mockReturnValue({ value: sdkValue, [Symbol.dispose]: jest.fn() }),
+      };
+      sdkService.userClient$.mockReturnValue(of(sdkClient) as any);
+      accountService.activeAccount$ = of({ id: userId } as any);
+      (restrictedItemTypesService as any).restricted$ = of([]);
+      i18nService.t.mockImplementation((key) => key);
+    });
+
+    it("imports into the personal vault, passing the target folder", async () => {
+      const target = new FolderView();
+      target.id = Utils.newGuid();
+      target.name = "My Folder";
+
+      const result = await importService.importWithSdk(
+        "keepasskdbx",
+        file,
+        credentials,
+        null,
+        target,
+        false,
+      );
+
+      expect(result).toBe(summary);
+      expect(importKdbx).toHaveBeenCalledWith(file, "master-pw", undefined, {
+        organization_id: undefined,
+        target_folder: { id: target.id, name: "My Folder" },
+        target_collection: undefined,
+        restricted_types: [],
+      });
+    });
+
+    it("imports into an organization, passing the target collection", async () => {
+      const organizationId = Utils.newGuid() as OrganizationId;
+      const target = new CollectionView({
+        id: Utils.newGuid() as CollectionId,
+        name: "Shared",
+        organizationId,
+      });
+
+      await importService.importWithSdk(
+        "keepasskdbx",
+        file,
+        credentials,
+        organizationId,
+        target,
+        false,
+      );
+
+      expect(importKdbx).toHaveBeenCalledWith(file, "master-pw", undefined, {
+        organization_id: organizationId,
+        target_folder: undefined,
+        target_collection: { id: target.id, name: "Shared" },
+        restricted_types: [],
+      });
+    });
+
+    it("throws importUnassignedItemsError for an org import with no target and no permission", async () => {
+      const organizationId = Utils.newGuid() as OrganizationId;
+
+      await expect(
+        importService.importWithSdk("keepasskdbx", file, credentials, organizationId, null, false),
+      ).rejects.toThrow("importUnassignedItemsError");
+      expect(importKdbx).not.toHaveBeenCalled();
+    });
+
+    it("allows an org import with no target when the user has import/export permission", async () => {
+      const organizationId = Utils.newGuid() as OrganizationId;
+
+      await importService.importWithSdk(
+        "keepasskdbx",
+        file,
+        credentials,
+        organizationId,
+        null,
+        true,
+      );
+
+      expect(importKdbx).toHaveBeenCalledWith(
+        file,
+        "master-pw",
+        undefined,
+        expect.objectContaining({
+          organization_id: organizationId,
+          target_collection: undefined,
+        }),
+      );
+    });
+
+    it("forwards restricted cipher types to the SDK options", async () => {
+      (restrictedItemTypesService as any).restricted$ = of([{ cipherType: CipherType.Card }]);
+
+      await importService.importWithSdk("keepasskdbx", file, credentials, null, null, false);
+
+      expect(importKdbx).toHaveBeenCalledWith(
+        file,
+        "master-pw",
+        undefined,
+        expect.objectContaining({ restricted_types: [CipherType.Card] }),
+      );
+    });
+
+    it("forwards the key file when provided", async () => {
+      const keyFile = new Uint8Array([9, 9]);
+
+      await importService.importWithSdk(
+        "keepasskdbx",
+        file,
+        { kind: "passwordWithKeyFile", password: "pw", keyFile },
+        null,
+        null,
+        false,
+      );
+
+      expect(importKdbx).toHaveBeenCalledWith(file, "pw", keyFile, expect.anything());
+    });
+
+    it("throws for an unregistered SDK importer", async () => {
+      await expect(
+        importService.importWithSdk("bitwardencsv", file, credentials, null, null, false),
+      ).rejects.toThrow("No SDK importer registered");
+    });
+
+    it("throws when the SDK client is unavailable", async () => {
+      sdkService.userClient$.mockReturnValue(of(null) as any);
+
+      await expect(
+        importService.importWithSdk("keepasskdbx", file, credentials, null, null, false),
+      ).rejects.toThrow("SDK not available");
     });
   });
 });

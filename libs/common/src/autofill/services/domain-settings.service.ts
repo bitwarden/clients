@@ -6,12 +6,14 @@ import {
   firstValueFrom,
   map,
   Observable,
+  of,
   switchMap,
   shareReplay,
 } from "rxjs";
 
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../admin-console/enums/policy-type.enum";
+import { Policy } from "../../admin-console/models/domain/policy";
 import { getFirstPolicy } from "../../admin-console/services/policy/default-policy.service";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
@@ -36,8 +38,19 @@ import {
   UserKeyDefinition,
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
-import { FormContent, Pathname, TargetingRulesByDomain } from "../types";
-import { punycodeToUnicode } from "../utils/punycode";
+import { DEFAULT_FILL_ASSIST_RULES_URL } from "../constants";
+import { FormContent, TargetingRulesByDomain } from "../types";
+import { matchTargetingRulesForUrl } from "../utils/targeting-rules";
+
+/**
+ * Cache key for fill assist targeting rules. Compound so that two accounts on
+ * the same server with different effective rules-feed URLs (e.g. one member of
+ * an org with a custom policy, one without) get separate cache entries — no
+ * cross-account bleed during account switch.
+ */
+function fillAssistRulesCacheKey(apiUrl: string, effectiveUrl: string): string {
+  return `${apiUrl}::${effectiveUrl}`;
+}
 
 const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
   deserializer: (value: boolean) => value ?? true,
@@ -79,9 +92,16 @@ const SERVER_TARGETING_RULES = KeyDefinition.record<TargetingRulesByDomain, stri
   },
 );
 
-const ENABLE_FILL_ASSIST = new KeyDefinition(DOMAIN_SETTINGS_DISK, "enableFillAssist", {
-  deserializer: (value: boolean) => value ?? false,
-});
+// Preserve null for pristine state so `resolvedEnableFillAssist$` can
+// tell pristine from explicit false. `enableFillAssist$` still coalesces
+// to false, so existing consumers see no change.
+const ENABLE_FILL_ASSIST = new KeyDefinition<boolean | null>(
+  DOMAIN_SETTINGS_DISK,
+  "enableFillAssist",
+  {
+    deserializer: (value) => value ?? null,
+  },
+);
 
 /**
  * The Domain Settings service; provides client settings state for "active client view" URI concerns
@@ -145,7 +165,29 @@ export abstract class DomainSettingsService {
   setEnableFillAssist: (newValue: boolean) => Promise<void>;
 
   /**
-   * Resolved (concerning user setting and feature-flag) state for enabling fill assist
+   * Org policy state for fill assist. Emits `null` when no policy applies to
+   * the active account, or `{ rulesUrl?: string }` when one does — `rulesUrl`
+   * is present only for a well-formed https URL. Any-org-applies-globally: if
+   * any of the user's orgs has the policy enabled, it applies to the whole
+   * account. See {@link resolvedEnableFillAssist$} for how this combines with
+   * the user setting and feature flag.
+   */
+  fillAssistPolicy$: Observable<{ rulesUrl?: string } | null>;
+
+  /**
+   * The effective fill assist rules-feed URL, in priority order: org policy's
+   * custom URL (if it differs from the Bitwarden default) → server config's
+   * URL → hardcoded default. Always ends with a trailing slash.
+   */
+  effectiveFillAssistRulesUrl$: Observable<string>;
+
+  /**
+   * Resolved state for enabling fill assist, combining the feature flag, the
+   * user setting, and the org policy with user-explicit-wins semantics: if the
+   * user has explicitly set the toggle (true or false), their choice wins. If
+   * the user has never touched the toggle ("pristine"), the org policy default
+   * applies when active. Gated on the {@link FeatureFlag.FillAssistTargetingRules}
+   * flag.
    */
   resolvedEnableFillAssist$: Observable<boolean>;
 
@@ -155,9 +197,11 @@ export abstract class DomainSettingsService {
   targetingRules$: Observable<TargetingRulesByDomain | null>;
 
   /**
-   * Update the cached targeting rules
+   * Update the cached targeting rules. Pass `effectiveUrl` from the caller to
+   * pin the write to a snapshot of the rules-feed URL, avoiding a re-resolve
+   * that could disagree with the URL the caller actually fetched from.
    */
-  setTargetingRules: (rules: TargetingRulesByDomain) => Promise<void>;
+  setTargetingRules: (rules: TargetingRulesByDomain, effectiveUrl?: string) => Promise<void>;
 
   /**
    * Look up targeting rules for a given URL. Checks pathname-specific
@@ -190,8 +234,10 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
 
   readonly resolvedDefaultUriMatchStrategy$: Observable<UriMatchStrategySetting>;
 
-  private enableFillAssistState: GlobalState<boolean>;
+  private enableFillAssistState: GlobalState<boolean | null>;
   readonly enableFillAssist$: Observable<boolean>;
+  readonly fillAssistPolicy$: Observable<{ rulesUrl?: string } | null>;
+  readonly effectiveFillAssistRulesUrl$: Observable<string>;
   readonly resolvedEnableFillAssist$: Observable<boolean>;
 
   readonly targetingRules$: Observable<TargetingRulesByDomain | null>;
@@ -227,20 +273,93 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     this.enableFillAssistState = this.stateProvider.getGlobal(ENABLE_FILL_ASSIST);
     this.enableFillAssist$ = this.enableFillAssistState.state$.pipe(map((x) => x ?? false));
 
-    this.resolvedEnableFillAssist$ = combineLatest([
-      this.enableFillAssist$,
-      this.configService.getFeatureFlag$(FeatureFlag.FillAssistTargetingRules),
+    this.fillAssistPolicy$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) => {
+        if (account == null) {
+          // Logged-out or transient no-account state: no policy applies.
+          return of<Policy[]>([]);
+        }
+        return this.policyService.policiesByType$(PolicyType.FillAssist, account.id);
+      }),
+      getFirstPolicy,
+      map((policy) => {
+        if (!policy?.enabled) {
+          return null;
+        }
+        // URL is optional (enabled policy still applies without it). Validate
+        // https here as defense-in-depth against API-bypass paths.
+        const rulesUrl = policy.data?.rulesUrl;
+        if (typeof rulesUrl === "string" && rulesUrl) {
+          try {
+            const parsed = new URL(rulesUrl);
+            if (parsed.protocol === "https:") {
+              return { rulesUrl };
+            }
+          } catch {
+            // Malformed URL — fall through to "policy applies, no URL".
+          }
+        }
+        return {};
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+
+    this.effectiveFillAssistRulesUrl$ = combineLatest([
+      this.fillAssistPolicy$,
+      this.configService.serverConfig$,
     ]).pipe(
-      map(([userSetting, featureFlag]) => userSetting && featureFlag),
+      map(([policy, serverConfig]) => {
+        const withSlash = (u: string) => (u.endsWith("/") ? u : `${u}/`);
+        const defaultUrl = withSlash(DEFAULT_FILL_ASSIST_RULES_URL);
+
+        // Normalize before comparing so a default URL entered with a
+        // trailing slash doesn't shadow server-config on self-hosted.
+        const policyUrl = policy?.rulesUrl;
+        if (policyUrl && withSlash(policyUrl) !== defaultUrl) {
+          return withSlash(policyUrl);
+        }
+        const serverUrl = serverConfig?.environment?.fillAssistRules;
+        return serverUrl ? withSlash(serverUrl) : defaultUrl;
+      }),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
-    this.targetingRules$ = this.environmentService.environment$.pipe(
-      switchMap((env) =>
+    // Read the raw underlying state (naturally `boolean | null`) so we can
+    // distinguish pristine (never touched) from explicit-false.
+    this.resolvedEnableFillAssist$ = combineLatest([
+      this.enableFillAssistState.state$,
+      this.fillAssistPolicy$,
+      this.configService.getFeatureFlag$(FeatureFlag.FillAssistTargetingRules),
+    ]).pipe(
+      map(([rawUserSetting, policy, featureFlag]) => {
+        if (!featureFlag) {
+          return false;
+        }
+        if (rawUserSetting == null) {
+          // Pristine — policy default applies
+          return policy != null;
+        }
+        // User has explicitly set — respect their choice
+        return rawUserSetting;
+      }),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+
+    this.targetingRules$ = combineLatest([
+      this.environmentService.environment$,
+      this.effectiveFillAssistRulesUrl$,
+    ]).pipe(
+      switchMap(([env, effectiveUrl]) =>
         this.stateProvider
           .getGlobal(SERVER_TARGETING_RULES)
-          .state$.pipe(map((records) => records?.[env.getApiUrl()] ?? null)),
+          .state$.pipe(
+            map(
+              (records) =>
+                records?.[fillAssistRulesCacheKey(env.getApiUrl(), effectiveUrl)] ?? null,
+            ),
+          ),
       ),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
@@ -314,13 +433,14 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     });
   }
 
-  async setTargetingRules(rules: TargetingRulesByDomain): Promise<void> {
+  async setTargetingRules(rules: TargetingRulesByDomain, effectiveUrl?: string): Promise<void> {
     const env = await firstValueFrom(this.environmentService.environment$);
-    const apiUrl = env.getApiUrl();
+    const url = effectiveUrl ?? (await firstValueFrom(this.effectiveFillAssistRulesUrl$));
+    const key = fillAssistRulesCacheKey(env.getApiUrl(), url);
     await this.stateProvider
       .getGlobal(SERVER_TARGETING_RULES)
-      .update((existing) => ({ ...existing, [apiUrl]: rules }), {
-        shouldUpdate: (existing) => existing?.[apiUrl] !== rules,
+      .update((existing) => ({ ...existing, [key]: rules }), {
+        shouldUpdate: (existing) => existing?.[key] !== rules,
       });
   }
 
@@ -330,7 +450,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       return null;
     }
 
-    // Fill Assist requires an unlocked vault
+    // Fill assist requires an unlocked vault
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     if (!activeAccount) {
       return null;
@@ -341,63 +461,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     }
 
     const rules = await firstValueFrom(this.targetingRules$);
-    if (!rules || Object.keys(rules).length === 0) {
-      return null;
-    }
 
-    let parsed: URL;
-    try {
-      parsed = new URL(url);
-    } catch {
-      return null;
-    }
-
-    let hostRules = rules[parsed.host];
-
-    // www subdomain equivalence: if no entry for www.example.com, try example.com
-    if (hostRules === undefined && parsed.host.startsWith("www.")) {
-      hostRules = rules[parsed.host.slice(4)];
-    }
-
-    // If the direct punycode lookup missed, try the unicode form of the host.
-    // This handles rule providers that use unicode host keys (e.g. "münchen.de"
-    // instead of "xn--mnchen-3ya.de").
-    if (hostRules === undefined && parsed.host.includes("xn--")) {
-      const unicodeHost = punycodeToUnicode(parsed.host);
-      hostRules = rules[unicodeHost];
-
-      // www subdomain equivalence on the unicode form
-      if (hostRules === undefined && unicodeHost.startsWith("www.")) {
-        hostRules = rules[unicodeHost.slice(4)];
-      }
-    }
-
-    // No rules for this host; fall through to heuristics
-    if (hostRules === undefined) {
-      return null;
-    }
-
-    // Hostname blocklisted (null or empty): suppress autofill on all paths
-    if (hostRules === null || (!hostRules.forms?.length && !hostRules.pathnames)) {
-      return [];
-    }
-
-    // Check for pathname-specific rules
-    // Fall back to root path `/` to enable checking cases where
-    // a rule signals a form that is ONLY on the domain's root page
-    const pathname = (parsed.pathname.replace(/\/+$/, "") || "/") as Pathname;
-    if (hostRules.pathnames != null && pathname in hostRules.pathnames) {
-      const pathnameEntry = hostRules.pathnames[pathname];
-
-      // Pathname blocklisted (null/undefined/empty): suppress autofill on this path
-      if (!pathnameEntry?.forms?.length) {
-        return [];
-      }
-
-      return pathnameEntry.forms;
-    }
-
-    // No pathname-specific rule; fall back to hostname-level forms
-    return hostRules.forms?.length ? hostRules.forms : null;
+    return matchTargetingRulesForUrl(rules, url);
   }
 }

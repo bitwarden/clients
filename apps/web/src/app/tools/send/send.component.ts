@@ -30,7 +30,6 @@ import {
   CalloutComponent,
   DialogRef,
   DialogService,
-  NoItemsModule,
   SearchModule,
   ToastService,
   ToggleGroupModule,
@@ -46,6 +45,7 @@ import {
   SendListComponent,
   SendListState,
   SendListFiltersService,
+  SendPolicyService,
 } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -65,7 +65,6 @@ import { SendSuccessDrawerDialogComponent } from "./shared";
     AsyncActionsModule,
     FormsModule,
     SearchModule,
-    NoItemsModule,
     HeaderModule,
     NewSendDropdownComponent,
     ToggleGroupModule,
@@ -106,8 +105,7 @@ export class SendComponent implements OnDestroy {
   };
 
   private sendItemDialogRef?:
-    | DialogRef<SendItemDialogResult, SendAddEditDialogComponent>
-    | undefined;
+    DialogRef<SendItemDialogResult, SendAddEditDialogComponent> | undefined;
   noItemIcon = NoSendsIcon;
   selectedToggleValue?: SendFilterType;
 
@@ -155,6 +153,10 @@ export class SendComponent implements OnDestroy {
 
   private readonly newSendDropdowns = viewChildren(NewSendDropdownComponent);
 
+  protected readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
+    initialValue: [SendType.Text, SendType.File],
+  });
+
   constructor(
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
@@ -173,6 +175,7 @@ export class SendComponent implements OnDestroy {
     private sendItemsService: SendItemsService,
     private sendItemsFiltersService: SendListFiltersService,
     private validationService: ValidationService,
+    private sendPolicyService: SendPolicyService,
     authService: AuthService,
   ) {
     // Lock/logout always wins over the unsaved-edits guard. We listen for the
@@ -208,7 +211,6 @@ export class SendComponent implements OnDestroy {
 
   ngOnDestroy() {
     this.dialogService.closeAll();
-    void this.dialogService.closeDrawer();
   }
 
   async addSend() {

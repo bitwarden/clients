@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, NO_ERRORS_SCHEMA } from "@angular/core";
-import { TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
+import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -24,6 +24,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -35,15 +36,16 @@ import { DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 import {
   DecryptionFailureDialogComponent,
+  VaultCopyButtonsService,
   VaultItemsTransferService,
   DefaultVaultItemsTransferService,
+  VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../platform/browser/browser-popup-utils";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
-import { VaultPopupCopyButtonsService } from "../../services/vault-popup-copy-buttons.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
@@ -52,9 +54,11 @@ import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-passw
 
 import { AutofillVaultListItemsComponent } from "./autofill-vault-list-items/autofill-vault-list-items.component";
 import { BlockedInjectionBanner } from "./blocked-injection-banner/blocked-injection-banner.component";
+import { FillAssistActiveBannerComponent } from "./fill-assist-active-banner/fill-assist-active-banner.component";
 import { NewItemDropdownComponent } from "./new-item-dropdown/new-item-dropdown.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultListItemsContainerComponent } from "./vault-list-items-container/vault-list-items-container.component";
+import { VaultPopupListTableComponent } from "./vault-popup-list-table/vault-popup-list-table.component";
 import { VaultComponent } from "./vault.component";
 
 @Component({
@@ -91,6 +95,7 @@ class CurrentAccountStubComponent {}
 })
 class NewItemDropdownStubComponent {
   readonly initialValues = input();
+  readonly canCreateCipher = input();
 }
 
 @Component({
@@ -110,12 +115,28 @@ class PopOutStubComponent {}
 class BlockedInjectionBannerStubComponent {}
 
 @Component({
+  selector: "fill-assist-active-banner",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class FillAssistActiveBannerStubComponent {}
+
+@Component({
   selector: "vault-at-risk-password-callout",
   standalone: true,
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class VaultAtRiskCalloutStubComponent {}
+
+@Component({
+  selector: "vault-organization-user-notifications",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class VaultOrganizationUserNotificationsStubComponent {}
 
 @Component({
   selector: "app-autofill-vault-list-items",
@@ -138,6 +159,14 @@ class VaultListItemsContainerStubComponent {
   readonly disableSectionMargin = input<boolean>();
   readonly collapsibleKey = input<string>();
 }
+
+@Component({
+  selector: "app-vault-popup-list-table",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class VaultPopupListTableStubComponent {}
 
 const mockDialogRef = {
   close: jest.fn(),
@@ -162,6 +191,7 @@ jest.spyOn(BrowserPopupUtils, "openCurrentPagePopout").mockResolvedValue();
 
 describe("VaultComponent", () => {
   let component: VaultComponent;
+  let defaultFixture: ComponentFixture<VaultComponent>;
 
   interface FakeAccount {
     id: string;
@@ -244,6 +274,7 @@ describe("VaultComponent", () => {
     canManageAutoConfirm$: jest.fn().mockReturnValue(of(false)),
     upsert: jest.fn().mockResolvedValue(undefined),
     autoConfirmUser: jest.fn().mockResolvedValue(undefined),
+    bulkAutoConfirmPendingUsers: jest.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(async () => {
@@ -266,7 +297,7 @@ describe("VaultComponent", () => {
         { provide: IntroCarouselService, useValue: introSvc },
         { provide: NudgesService, useValue: nudgesSvc },
         {
-          provide: VaultPopupCopyButtonsService,
+          provide: VaultCopyButtonsService,
           useValue: { showQuickCopyActions$: new BehaviorSubject<boolean>(false) },
         },
         {
@@ -321,9 +352,12 @@ describe("VaultComponent", () => {
           NewItemDropdownComponent,
           PopOutComponent,
           BlockedInjectionBanner,
+          FillAssistActiveBannerComponent,
           AtRiskPasswordCalloutComponent,
           AutofillVaultListItemsComponent,
           VaultListItemsContainerComponent,
+          VaultOrganizationUserNotificationsComponent,
+          VaultPopupListTableComponent,
         ],
         providers: [
           { provide: VaultItemsTransferService, useValue: DefaultVaultItemsTransferService },
@@ -337,16 +371,19 @@ describe("VaultComponent", () => {
           NewItemDropdownStubComponent,
           PopOutStubComponent,
           BlockedInjectionBannerStubComponent,
+          FillAssistActiveBannerStubComponent,
           VaultAtRiskCalloutStubComponent,
           AutofillVaultListItemsStubComponent,
           VaultListItemsContainerStubComponent,
+          VaultOrganizationUserNotificationsStubComponent,
+          VaultPopupListTableStubComponent,
         ],
         providers: [{ provide: VaultItemsTransferService, useValue: vaultItemsTransferSvc }],
       },
     });
 
-    const fixture = TestBed.createComponent(VaultComponent);
-    component = fixture.componentInstance;
+    defaultFixture = TestBed.createComponent(VaultComponent);
+    component = defaultFixture.componentInstance;
   });
 
   describe("vaultState", () => {
@@ -393,7 +430,10 @@ describe("VaultComponent", () => {
     const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
 
     const values: boolean[] = [];
-    getObs<boolean>(component, "loading$").subscribe((v) => values.push(!!v));
+    // `loadingSvc.loading$` is shared by every test in this file, so this subscription has to be
+    // torn down explicitly — it isn't owned by a fixture, and a leaked one keeps announcing
+    // through a `LiveAnnouncer` that TestBed has already destroyed.
+    const sub = getObs<boolean>(component, "loading$").subscribe((v) => values.push(!!v));
 
     vaultLoading$.next(true);
 
@@ -404,6 +444,8 @@ describe("VaultComponent", () => {
     readySubject$.next(true);
 
     expect(values[values.length - 1]).toBe(false);
+
+    sub.unsubscribe();
   });
 
   it("passes popup-page scroll region element to scroll position service", fakeAsync(() => {
@@ -429,6 +471,161 @@ describe("VaultComponent", () => {
 
     expect(scrollSvc.start).toHaveBeenCalledWith(scrollRegion);
   }));
+
+  describe("vfo1-foundation presentation gate", () => {
+    /**
+     * The flag signal is read in a field initializer, so the mock has to be set before the
+     * component is constructed. The shared `beforeEach`'s fixture is torn down first so its
+     * subscriptions don't react to state pushed for this test.
+     */
+    function createWithFlag(enabled: boolean) {
+      defaultFixture.destroy();
+
+      configSvc.getFeatureFlag$.mockImplementation((flag: string) =>
+        of(flag === FeatureFlag.VFO1Foundation ? enabled : false),
+      );
+
+      // The populated, settled state, so the list branch renders.
+      itemsSvc.emptyVault$.next(false);
+      itemsSvc.noFilteredResults$.next(false);
+      itemsSvc.showDeactivatedOrg$.next(false);
+      itemsSvc.hasSearchText$.next(false);
+      loadingSvc.loading$.next(false);
+
+      const fixture = TestBed.createComponent(VaultComponent);
+
+      // Unblock loading
+      fixture.componentInstance["readySubject"].next(true);
+      (filtersSvc.allFilters$ as Subject<any>).next({});
+
+      tick();
+      fixture.detectChanges();
+
+      return fixture;
+    }
+
+    it("renders the table and drops the legacy header and list when the flag is on", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeTruthy();
+      expect(fixture.nativeElement.querySelector("app-vault-header")).toBeNull();
+      expect(fixture.nativeElement.querySelector("app-vault-list-items-container")).toBeNull();
+
+      flush();
+    }));
+
+    // With the flag on the table's toolbar holds the only search input, so unmounting it on a
+    // zero-result search would strand the user with no way to clear the term.
+    it("keeps the table mounted when a search returns no results", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      itemsSvc.hasSearchText$.next(true);
+      itemsSvc.noFilteredResults$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["vaultState"]).toBe(
+        fixture.componentInstance["VaultStateEnum"].NoResults,
+      );
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeTruthy();
+
+      flush();
+    }));
+
+    it("defers to the table's own empty state instead of the page-level one", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      itemsSvc.noFilteredResults$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      // The table is stubbed here, so the copy it renders is covered in its own spec.
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeTruthy();
+      expect(fixture.nativeElement.textContent).not.toContain("noItemsMatchSearch");
+
+      flush();
+    }));
+
+    // The table carries the organization filter that produces this state, and renders the notice
+    // itself, so the page-level block stands down rather than showing the message twice.
+    it("keeps the table mounted in the deactivated-org state", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      itemsSvc.showDeactivatedOrg$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeTruthy();
+      // The table is stubbed here, so the notice it renders is covered in its own spec.
+      expect(fixture.nativeElement.textContent).not.toContain("organizationIsDeactivated");
+
+      flush();
+    }));
+
+    it("still renders the page-level deactivated-org notice when the flag is off", fakeAsync(() => {
+      const fixture = createWithFlag(false);
+
+      itemsSvc.showDeactivatedOrg$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("organizationIsDeactivated");
+
+      flush();
+    }));
+
+    it("still shows the page-level no-results state when the flag is off", fakeAsync(() => {
+      const fixture = createWithFlag(false);
+
+      itemsSvc.noFilteredResults$.next(true);
+      tick();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("noItemsMatchSearch");
+
+      flush();
+    }));
+
+    it("renders the legacy header and list and no table when the flag is off", fakeAsync(() => {
+      const fixture = createWithFlag(false);
+
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeNull();
+      expect(fixture.nativeElement.querySelector("app-vault-header")).toBeTruthy();
+      expect(fixture.nativeElement.querySelector("app-vault-list-items-container")).toBeTruthy();
+
+      flush();
+    }));
+
+    /** Puts the vault into its loading state and waits out the skeleton's show delay. */
+    function enterLoading(fixture: ComponentFixture<VaultComponent>) {
+      (loadingSvc.loading$ as BehaviorSubject<boolean>).next(true);
+      // `skeletonLoadingDelay` holds the skeleton back for 1s before showing it.
+      tick(1500);
+      fixture.detectChanges();
+    }
+
+    it("shows the page-level skeleton while loading when the flag is off", fakeAsync(() => {
+      const fixture = createWithFlag(false);
+
+      enterLoading(fixture);
+
+      expect(fixture.nativeElement.querySelector("vault-loading-skeleton")).toBeTruthy();
+
+      (loadingSvc.loading$ as BehaviorSubject<boolean>).next(false);
+      flush();
+    }));
+
+    it("suppresses the page-level skeleton when the flag is on", fakeAsync(() => {
+      const fixture = createWithFlag(true);
+
+      enterLoading(fixture);
+
+      expect(fixture.nativeElement.querySelector("vault-loading-skeleton")).toBeNull();
+
+      (loadingSvc.loading$ as BehaviorSubject<boolean>).next(false);
+      flush();
+    }));
+  });
 
   it("showPremiumDialog opens PremiumUpgradeDialogComponent", () => {
     component["showPremiumDialog"]();
@@ -810,6 +1007,46 @@ describe("VaultComponent", () => {
       tick();
 
       expect(autoConfirmDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("calls bulkAutoConfirmPendingUsers when user enables auto-confirm via setup dialog", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(true));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: false,
+          showSetupDialog: true,
+          showBrowserNotification: undefined,
+        }),
+      );
+      autoConfirmDialogSpy.mockImplementation((_: DialogService) => ({ closed: of(true) }) as any);
+
+      const fixture = TestBed.createComponent(VaultComponent);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmSvc.bulkAutoConfirmPendingUsers).toHaveBeenCalledWith(expect.any(String));
+    }));
+
+    it("does not call bulkAutoConfirmPendingUsers when user dismisses setup dialog", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(true));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: false,
+          showSetupDialog: true,
+          showBrowserNotification: undefined,
+        }),
+      );
+      autoConfirmDialogSpy.mockImplementation((_: DialogService) => ({ closed: of(false) }) as any);
+
+      const fixture = TestBed.createComponent(VaultComponent);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmSvc.bulkAutoConfirmPendingUsers).not.toHaveBeenCalled();
     }));
   });
 });

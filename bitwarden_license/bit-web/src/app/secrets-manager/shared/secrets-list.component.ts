@@ -1,10 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
-import { Component, EventEmitter, Input, OnDestroy, Output, OnInit } from "@angular/core";
+import { Component, EventEmitter, Input, OnDestroy, Output, OnInit, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { catchError, concatMap, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
 
+import { NoResults } from "@bitwarden/assets/svg";
 import {
   getOrganizationById,
   OrganizationService,
@@ -31,7 +33,15 @@ import { SecretService } from "../secrets/secret.service";
   standalone: false,
 })
 export class SecretsListComponent implements OnDestroy, OnInit {
+  private readonly configService = inject(ConfigService);
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   protected dataSource = new TableDataSource<SecretListView>();
+
+  readonly noItemsIcon = NoResults;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals

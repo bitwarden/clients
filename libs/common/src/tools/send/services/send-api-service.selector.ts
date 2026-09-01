@@ -1,17 +1,18 @@
 import { Observable, firstValueFrom, map, shareReplay } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+
 import { SendAccessToken } from "../../../auth/send-access";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ListResponse } from "../../../models/response/list.response";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
-import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { Send } from "../models/domain/send";
-import { SendAccessRequest } from "../models/request/send-access.request";
 import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";
 import { SendResponse } from "../models/response/send.response";
 import { SendAccessView } from "../models/view/send-access.view";
-import { AuthType } from "../types/auth-type";
+import { SendView } from "../models/view/send.view";
 import { SendType } from "../types/send-type";
 
 import { SendApiService } from "./send-api.service";
@@ -23,14 +24,14 @@ import { SendSdkApiService } from "./send-sdk-api.service";
  * `pm-30110-sdk-sends-api` feature flag.
  *
  * Methods whose return type is a wire-encrypted shape the SDK cannot produce (`getSend`,
- * `getSends`, `putSendRemovePassword`) always route to legacy. Mutations and access-side
- * methods are flag-controlled; the SDK service refetches the encrypted form via legacy
- * after mutations to keep `InternalSendService` coherent.
+ * `getSends`, `putSendRemovePassword`) always route to legacy. Mutations are flag-controlled;
+ * the SDK service refetches the encrypted form via legacy after mutations to keep
+ * `InternalSendService` coherent.
  *
- * A "cross-instance Send" is a Send hosted on a different Bitwarden server than the
- * client is signed in to — typically the CLI receiving a self-hosted or EU-cloud Send
- * link. Callers signal this by passing `apiUrl`; the selector routes those calls to
- * legacy because the SDK client targets only its configured environment.
+ * A "cross-instance Send" is a Send hosted on a different Bitwarden server than the client is
+ * signed in to — typically the CLI receiving a self-hosted or EU-cloud Send link. Callers signal
+ * this by passing `apiUrl`; those calls always route to legacy regardless of the flag, since the
+ * SDK client only targets its own configured environment.
  */
 export class SendApiServiceSelector implements SendApiServiceAbstraction {
   private readonly service$: Observable<SendApiServiceAbstraction>;
@@ -51,21 +52,38 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
   }
 
   /**
-   * Routes saves to SDK when the flag is on, except for two cases that fall back to
-   * legacy regardless: new file sends (the SDK generates its own send key, which
-   * wouldn't match the caller's pre-encrypted file buffer) and password-protected
-   * sends (the SDK re-applies PBKDF2 to `auth.password`, double-hashing the keyB64
-   * the client already derived).
+   * Routes pre-encrypted saves to SDK when the flag is on, except for new file sends which fall
+   * back to legacy regardless: the buffer arriving here is already encrypted under a
+   * client-generated key, and the SDK generates its own key on create, so the two can never
+   * match. {@link saveView} carries the plaintext instead, and does route file creates through
+   * the flag.
+   *
+   * `plaintextPassword` is forwarded unchanged to whichever service handles the save. The
+   * legacy service ignores it; the SDK service uses it to derive the send password over the
+   * key it generates. It is Protected Data — never logged here or downstream.
    */
-  async save(sendData: [Send, EncArrayBuffer]): Promise<Send> {
+  async save(sendData: [Send, EncArrayBuffer], plaintextPassword?: string): Promise<Send> {
     const [send] = sendData;
     if (send.id == null && send.type === SendType.File) {
-      return this.sendApiService.save(sendData);
+      return this.sendApiService.save(sendData, plaintextPassword);
     }
-    if (send.authType === AuthType.Password) {
-      return this.sendApiService.save(sendData);
-    }
-    return (await this.getService()).save(sendData);
+    return (await this.getService()).save(sendData, plaintextPassword);
+  }
+
+  /**
+   * Routes plaintext saves to whichever service the flag selects, so each implementation
+   * encrypts once on the side that owns the send key: legacy client-side, the SDK in the SDK.
+   *
+   * This includes new file sends, unlike {@link save}: carrying the plaintext contents lets the
+   * SDK create and upload under the key it generates, so there is no key mismatch to work
+   * around.
+   */
+  async saveView(
+    view: SendView,
+    file: File | ArrayBuffer | null,
+    plaintextPassword?: string,
+  ): Promise<Send> {
+    return (await this.getService()).saveView(view, file, plaintextPassword);
   }
 
   async delete(id: string): Promise<any> {
@@ -97,25 +115,11 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
    * receive, e.g. the CLI opening a self-hosted Send link while signed in to a
    * different server) because the SDK client targets only its configured environment.
    */
-  async postSendAccess(
-    id: string,
-    request: SendAccessRequest,
-    apiUrl?: string,
-  ): Promise<SendAccessResponse> {
+  async postSendAccess(accessToken: SendAccessToken, apiUrl?: string): Promise<SendAccessResponse> {
     if (apiUrl != null) {
-      return this.sendApiService.postSendAccess(id, request, apiUrl);
+      return this.sendApiService.postSendAccess(accessToken, apiUrl);
     }
-    return (await this.getService()).postSendAccess(id, request);
-  }
-
-  async postSendAccessV2(
-    accessToken: SendAccessToken,
-    apiUrl?: string,
-  ): Promise<SendAccessResponse> {
-    if (apiUrl != null) {
-      return this.sendApiService.postSendAccessV2(accessToken, apiUrl);
-    }
-    return (await this.getService()).postSendAccessV2(accessToken);
+    return (await this.getService()).postSendAccess(accessToken);
   }
 
   /**
@@ -146,23 +150,12 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
   /** See {@link postSendAccess} — cross-instance callers (those passing `apiUrl`) route to legacy. */
   async getSendFileDownloadData(
     send: SendAccessView,
-    request: SendAccessRequest,
-    apiUrl?: string,
-  ): Promise<SendFileDownloadDataResponse> {
-    if (apiUrl != null) {
-      return this.sendApiService.getSendFileDownloadData(send, request, apiUrl);
-    }
-    return (await this.getService()).getSendFileDownloadData(send, request);
-  }
-
-  async getSendFileDownloadDataV2(
-    send: SendAccessView,
     accessToken: SendAccessToken,
     apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse> {
     if (apiUrl != null) {
-      return this.sendApiService.getSendFileDownloadDataV2(send, accessToken, apiUrl);
+      return this.sendApiService.getSendFileDownloadData(send, accessToken, apiUrl);
     }
-    return (await this.getService()).getSendFileDownloadDataV2(send, accessToken);
+    return (await this.getService()).getSendFileDownloadData(send, accessToken);
   }
 }

@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -12,6 +12,8 @@ import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/ci
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { DialogService } from "@bitwarden/components";
 import { KeyService, UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService, EncryptService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import { DataRecoveryComponent, StepStatus } from "./data-recovery.component";
@@ -40,6 +42,7 @@ describe("DataRecoveryComponent", () => {
   let mockLogService: MockProxy<LogService>;
   let mockCryptoFunctionService: MockProxy<CryptoFunctionService>;
   let mockFileDownloadService: MockProxy<FileDownloadService>;
+  let mockEncryptService: MockProxy<EncryptService>;
 
   const mockUserId = "user-id" as UserId;
 
@@ -55,12 +58,14 @@ describe("DataRecoveryComponent", () => {
     mockLogService = mock<LogService>();
     mockCryptoFunctionService = mock<CryptoFunctionService>();
     mockFileDownloadService = mock<FileDownloadService>();
+    mockEncryptService = mock<EncryptService>();
 
     mockI18nService.t.mockImplementation((key) => `${key}_used-i18n`);
 
     await TestBed.configureTestingModule({
       imports: [DataRecoveryComponent],
       providers: [
+        provideRouter([]),
         { provide: I18nService, useValue: mockI18nService },
         { provide: ApiService, useValue: mockApiService },
         { provide: AccountService, useValue: mockAccountService },
@@ -75,6 +80,7 @@ describe("DataRecoveryComponent", () => {
         { provide: LogService, useValue: mockLogService },
         { provide: CryptoFunctionService, useValue: mockCryptoFunctionService },
         { provide: FileDownloadService, useValue: mockFileDownloadService },
+        { provide: EncryptService, useValue: mockEncryptService },
       ],
     }).compileComponents();
 
@@ -98,12 +104,13 @@ describe("DataRecoveryComponent", () => {
 
     it("should initialize steps in correct order", () => {
       const steps = component.steps();
-      expect(steps.length).toBe(5);
+      expect(steps.length).toBe(6);
       expect(steps[0].title).toBe("recoveryStepUserInfoTitle_used-i18n");
       expect(steps[1].title).toBe("recoveryStepSyncTitle_used-i18n");
       expect(steps[2].title).toBe("recoveryStepPrivateKeyTitle_used-i18n");
       expect(steps[3].title).toBe("recoveryStepFoldersTitle_used-i18n");
       expect(steps[4].title).toBe("recoveryStepCipherTitle_used-i18n");
+      expect(steps[5].title).toBe("recoveryStepAttachmentTitle_used-i18n");
     });
   });
 
@@ -112,11 +119,13 @@ describe("DataRecoveryComponent", () => {
 
     beforeEach(() => {
       // Create mock steps
-      mockSteps = Array(5)
+      mockSteps = Array(6)
         .fill(null)
         .map(() => {
           const mockStep = mock<RecoveryStep>();
           mockStep.title = "mockStep";
+          mockStep.message = undefined;
+          mockStep.oldAttachmentCipherIds = undefined;
           mockStep.runDiagnostics.mockResolvedValue(true);
           mockStep.canRecover.mockReturnValue(false);
           return mockStep;
@@ -181,6 +190,38 @@ describe("DataRecoveryComponent", () => {
       expect(steps[3].message).toBe("Test error");
     });
 
+    it("should copy the old attachment cipher ids of a step", async () => {
+      mockSteps[5].runDiagnostics.mockResolvedValue(false);
+      mockSteps[5].oldAttachmentCipherIds = ["cipher-1", "cipher-2"];
+
+      await component.runDiagnostics();
+
+      expect(component.steps()[5].oldAttachmentCipherIds).toEqual(["cipher-1", "cipher-2"]);
+    });
+
+    it("should not copy the old attachment cipher ids of a step that throws", async () => {
+      mockSteps[5].oldAttachmentCipherIds = ["cipher-1"];
+      mockSteps[5].runDiagnostics.mockRejectedValue(new Error("Test error"));
+
+      await component.runDiagnostics();
+
+      expect(component.steps()[5].oldAttachmentCipherIds).toBeUndefined();
+    });
+
+    it("should render a vault link for every old attachment cipher id", async () => {
+      mockSteps[5].runDiagnostics.mockResolvedValue(false);
+      mockSteps[5].oldAttachmentCipherIds = ["cipher-1", "cipher-2"];
+
+      await component.runDiagnostics();
+      fixture.detectChanges();
+
+      const links = fixture.nativeElement.querySelectorAll("a[href*='itemId']");
+      expect(links.length).toBe(2);
+      expect(links[0].getAttribute("href")).toBe("/vault?itemId=cipher-1&action=edit");
+      expect(links[0].textContent.trim()).toBe("cipher-1");
+      expect(links[1].getAttribute("href")).toBe("/vault?itemId=cipher-2&action=edit");
+    });
+
     it("should continue diagnostics even if a step fails", async () => {
       mockSteps[1].runDiagnostics.mockRejectedValue(new Error("Step 1 failed"));
       mockSteps[3].runDiagnostics.mockResolvedValue(false);
@@ -230,16 +271,17 @@ describe("DataRecoveryComponent", () => {
         userId: mockUserId,
         userKey: null as any,
         isPrivateKeyCorrupt: false,
-        encryptedPrivateKey: null,
         ciphers: [],
         folders: [],
       };
 
-      mockSteps = Array(5)
+      mockSteps = Array(6)
         .fill(null)
         .map(() => {
           const mockStep = mock<RecoveryStep>();
           mockStep.title = "mockStep";
+          mockStep.message = undefined;
+          mockStep.oldAttachmentCipherIds = undefined;
           mockStep.canRecover.mockReturnValue(false);
           mockStep.runRecovery.mockResolvedValue();
           mockStep.runDiagnostics.mockResolvedValue(true);

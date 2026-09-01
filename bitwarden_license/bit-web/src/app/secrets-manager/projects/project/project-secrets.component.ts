@@ -12,6 +12,7 @@ import {
   switchMap,
 } from "rxjs";
 
+import { NoResults } from "@bitwarden/assets/svg";
 import {
   getOrganizationById,
   OrganizationService,
@@ -68,6 +69,8 @@ export class ProjectSecretsComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private logService: LogService,
   ) {}
+
+  readonly noItemsIcon = NoResults;
 
   ngOnDestroy(): void {
     void this.dialogService.closeDrawer();

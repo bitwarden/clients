@@ -71,10 +71,11 @@ jobs:
           inputs: "${{ toJson(inputs) }}"
 
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Get GitHub sha as version
         id: version
@@ -98,7 +99,6 @@ jobs:
     name: "Build [${{matrix.artifact_name}}], image tag: [${{matrix.image_name}}]"
     runs-on: ubuntu-24.04
     permissions:
-      security-events: write
       id-token: write
       packages: write
     needs: setup
@@ -110,57 +110,68 @@ jobs:
             license_type: "oss"
             image_name: web-oss
             npm_command: dist:oss:selfhost
+            description: Web vault for self-hosted installations, open source build
           - artifact_name: cloud-COMMERCIAL
             license_type: "commercial"
             image_name: web-cloud
             npm_command: dist:bit:cloud
+            description: Web vault for the US production cloud
           - artifact_name: selfhosted-COMMERCIAL
             license_type: "commercial"
             image_name: web
             npm_command: dist:bit:selfhost
+            description: Web vault for self-hosted installations
           - artifact_name: selfhosted-DEV
             license_type: "commercial"
             image_name: web-dev
             npm_command: build:bit:selfhost:dev
             git_metadata: true
+            description: Web vault for self-hosted installations, development build
           - artifact_name: cloud-QA
             license_type: "commercial"
             image_name: web-qa-cloud
             npm_command: build:bit:qa
             git_metadata: true
+            description: Web vault for the US QA cloud
           - artifact_name: cloud-usqa2
             license_type: "commercial"
             image_name: web-qa2-cloud
             npm_command: build:bit:usqa2
             git_metadata: true
+            description: Web vault for the US QA2 cloud
           - artifact_name: ee
             license_type: "commercial"
             image_name: web-ee
             npm_command: build:bit:ee
             git_metadata: true
+            description: Web vault for ephemeral environments
           - artifact_name: cloud-euprd
             license_type: "commercial"
             image_name: web-euprd
             npm_command: build:bit:euprd
+            description: Web vault for the EU production cloud
           - artifact_name: cloud-euqa
             license_type: "commercial"
             image_name: web-euqa
             npm_command: build:bit:euqa
             git_metadata: true
+            description: Web vault for the EU QA cloud
           - artifact_name: cloud-usdev
             license_type: "commercial"
             image_name: web-usdev
             npm_command: build:bit:usdev
             git_metadata: true
+            description: Web vault for the US development cloud
     env:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       _VERSION: ${{ needs.setup.outputs.version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Get Latest Server Version
         id: latest-server-version
@@ -187,7 +198,7 @@ jobs:
           echo "server_ref=$SERVER_REF" >> "$GITHUB_OUTPUT"
 
       - name: Check out Server repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: server
           repository: bitwarden/server
@@ -325,6 +336,37 @@ jobs:
             echo "tags=$ACR_NAME" >> "$GITHUB_OUTPUT"
           fi
 
+      ########## Image metadata ##########
+      - name: Build custom image metadata
+        id: custom-meta
+        env:
+          DESCRIPTION: ${{ matrix.description || 'Bitwarden web vault' }}
+          IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
+          PROJECT_NAME: ${{ matrix.image_name }}
+          REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          {
+            echo "items<<METADATA_EOF"
+            echo "org.opencontainers.image.title=Bitwarden Web Vault"
+            echo "org.opencontainers.image.description=${DESCRIPTION}"
+            echo "org.opencontainers.image.vendor=Bitwarden Inc."
+            echo "org.opencontainers.image.url=https://bitwarden.com"
+            echo "org.opencontainers.image.source=https://github.com/bitwarden/clients"
+            echo "org.opencontainers.image.version=${IMAGE_TAG}"
+            echo "org.opencontainers.image.revision=${REVISION}"
+            echo "com.bitwarden.project=${PROJECT_NAME}"
+            echo "METADATA_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Generate image metadata
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: index,manifest
+        with:
+          labels: ${{ steps.custom-meta.outputs.items }}
+          annotations: ${{ steps.custom-meta.outputs.items }}
+
       - name: Build Docker image
         id: build-container
         uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
@@ -342,6 +384,8 @@ jobs:
             linux/arm64
           push: false
           tags: ${{ steps.image-name.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
 
       - name: Push images
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -352,6 +396,43 @@ jobs:
           for tag in "${tags_array[@]}"; do
             docker push "$tag"
           done
+
+      - name: Generate image manifest fragment
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        env:
+          IMAGE_NAME: ${{ matrix.image_name }}
+          IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
+          DIGEST: ${{ steps.build-container.outputs.digest }}
+          TAGS: ${{ steps.image-name.outputs.tags }}
+        run: |
+          # One entry per registry we pushed to (same tag list the push step loops over).
+          # Each entry is a self-contained artifact: full image URI + digest, so nothing
+          # has to be reassembled downstream. Keyed "<image>-<registry base domain>",
+          # e.g. web-ghcr.io / web-azurecr.io.
+          fragment='{}'
+          IFS=',' read -r -a tags_array <<< "$TAGS"
+          for tag in "${tags_array[@]}"; do
+            image_uri="${tag%:*}"   # strip ":tag" -> full repo URI, e.g. ghcr.io/bitwarden/web
+            host="${tag%%/*}"       # registry host, e.g. bitwardenprod.azurecr.io / ghcr.io
+            base_domain=$(echo "$host" | awk -F. 'NF>=2{printf "%s.%s",$(NF-1),$NF} NF<2{printf "%s",$0}')
+            fragment=$(echo "$fragment" | jq \
+              --arg k "${IMAGE_NAME}-${base_domain}" \
+              --arg image "$image_uri" \
+              --arg tag "$IMAGE_TAG" \
+              --arg digest "$DIGEST" \
+              '. + {($k): {type: "container_image", image: $image, tag: $tag, digest: $digest}}')
+          done
+
+          mkdir -p image-manifest-fragments
+          echo "$fragment" > "image-manifest-fragments/${IMAGE_NAME}.json"
+
+      - name: Upload image manifest fragment
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: image-manifest-fragment-${{ matrix.image_name }}
+          path: image-manifest-fragments/${{ matrix.image_name }}.json
+          if-no-files-found: error
 
       - name: Zip project
         working-directory: apps/web
@@ -365,7 +446,7 @@ jobs:
           zip -r web-$_VERSION-${{ matrix.artifact_name }}.zip build
 
       - name: Upload ${{ matrix.artifact_name }} artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
           path: apps/web/web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
@@ -389,23 +470,6 @@ jobs:
           cosign sign --yes "${images[@]}"
           echo "images=${images[*]}" >> "$GITHUB_OUTPUT"
 
-      - name: Scan Docker image
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        id: container-scan
-        uses: anchore/scan-action@0d444ed77d83ee2ba7f5ced0d90d640a1281d762 # v7.3.0
-        with:
-          image: ${{ steps.image-name.outputs.name }}
-          fail-build: false
-          output-format: sarif
-
-      - name: Upload Grype results to GitHub
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: github/codeql-action/upload-sarif@573acd9552f33577783abde4acb66a1058e762e5 # codeql-bundle-v2.23.1
-        with:
-          sarif_file: ${{ steps.container-scan.outputs.sarif }}
-          sha: ${{ contains(github.event_name, 'pull_request') && github.event.pull_request.head.sha || github.sha }}
-          ref: ${{ contains(github.event_name, 'pull_request') && format('refs/pull/{0}/head', github.event.pull_request.number) || github.ref }}
-
       - name: Log out of Docker
         run: |
           docker logout "$_AZ_REGISTRY"
@@ -414,6 +478,51 @@ jobs:
       - name: Log out from Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
+
+  image-manifest:
+    name: Build image manifest
+    runs-on: ubuntu-24.04
+    needs: [setup, build-containers]
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+    permissions:
+      contents: read
+      actions: write # delete the intermediate fragment artifacts after aggregating
+    steps:
+      - name: Download image manifest fragments
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: image-manifest-fragment-*
+          path: image-manifest-fragments
+          merge-multiple: true
+
+      - name: Combine image manifest fragments
+        id: combine
+        run: |
+          additional_artifacts=$(jq -s 'add' image-manifest-fragments/*.json)
+          {
+            echo "additional_artifacts<<EOF"
+            echo "$additional_artifacts"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build and upload artifact manifest
+        uses: bitwarden/gh-actions/artifact-manifest@main
+        with:
+          mode: upload
+          additional_artifacts: ${{ steps.combine.outputs.additional_artifacts }}
+
+      - name: Delete intermediate fragment artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for f in image-manifest-fragments/*.json; do
+            name="image-manifest-fragment-$(basename "$f" .json)"
+            id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?name=${name}" --jq '.artifacts[0].id // empty')
+            if [ -n "$id" ]; then
+              gh api --method DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}"
+              echo "Deleted fragment artifact ${name} (${id})"
+            fi
+          done
 
   crowdin-push:
     name: Crowdin Push
@@ -426,10 +535,11 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -476,3 +586,73 @@ jobs:
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           task: deploy-webvault-dev
           description: "Triggered by build-web on main"
+
+  bitwarden-lite-build:
+    name: Trigger Bitwarden lite build
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    needs: build-containers
+    permissions:
+      id-token: write
+    steps:
+      - name: Compute Bitwarden lite web tag
+        id: web-tag
+        uses: bitwarden/gh-actions/sanitize-image-tag@main
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fork_repo: ${{ github.event.pull_request.head.repo.fork == true && github.event.pull_request.head.repo.full_name || '' }}
+
+      - name: Compute Bitwarden lite override tag
+        id: override-tag
+        uses: bitwarden/gh-actions/sanitize-image-tag@main
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fork_repo: ${{ github.event.pull_request.head.repo.fork == true && github.event.pull_request.head.repo.full_name || '' }}
+          prefix: "web-"
+
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-org-bitwarden
+          secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Generate GH App token
+        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        id: app-token
+        with:
+          app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
+          private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: self-host
+
+      - name: Trigger Bitwarden lite build
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          WEB_BRANCH: ${{ github.head_ref || github.ref_name }}
+          WEB_TAG: ${{ steps.web-tag.outputs.tag }}
+          OVERRIDE_TAG: ${{ steps.override-tag.outputs.tag }}
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'bitwarden',
+              repo: 'self-host',
+              workflow_id: 'build-bitwarden-lite.yml',
+              ref: 'main',
+              inputs: {
+                web_branch: process.env.WEB_BRANCH,
+                web_tag: process.env.WEB_TAG,
+                override_tag: process.env.OVERRIDE_TAG
+              }
+            });

@@ -2,12 +2,19 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { ApiService } from "../../../abstractions/api.service";
+import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordAuthenticationData,
+  MasterPasswordAuthenticationHash,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "../../../key-management/master-password/types/master-password.types";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PasswordRequest } from "../../models/request/password.request";
-import { SetPasswordRequest } from "../../models/request/set-password.request";
+import { SetInitialPasswordRequest } from "../../models/request/set-initial-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "../../models/request/update-tde-offboarding-password.request";
 import { UpdateTempPasswordRequest } from "../../models/request/update-temp-password.request";
 
@@ -33,16 +40,31 @@ describe("MasterPasswordApiService", () => {
   describe("setPassword", () => {
     it("should call apiService.send with the correct parameters", async () => {
       // Arrange
-      const request = new SetPasswordRequest(
-        "masterPasswordHash",
-        "key",
+      const salt = "salt" as MasterPasswordSalt;
+      const kdf = new PBKDF2KdfConfig(600_000);
+
+      const authenticationData: MasterPasswordAuthenticationData = {
+        salt,
+        kdf,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+
+      const unlockData = new MasterPasswordUnlockData(
+        salt,
+        kdf,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+      );
+
+      const request = new SetInitialPasswordRequest(
+        authenticationData,
+        unlockData,
         "masterPasswordHint",
         "orgIdentifier",
         {
           publicKey: "publicKey",
           encryptedPrivateKey: "encryptedPrivateKey",
         },
-        new PBKDF2KdfConfig(600_000),
       );
 
       // Act
@@ -62,12 +84,25 @@ describe("MasterPasswordApiService", () => {
   describe("postPassword", () => {
     it("should call apiService.send with the correct parameters", async () => {
       // Arrange
-      const request = {
-        newMasterPasswordHash: "newMasterPasswordHash",
-        masterPasswordHint: "masterPasswordHint",
-        key: "key",
-        masterPasswordHash: "masterPasswordHash",
-      } as PasswordRequest;
+      const salt = "salt" as MasterPasswordSalt;
+      const kdf = new PBKDF2KdfConfig(600_000);
+      const authenticationData: MasterPasswordAuthenticationData = {
+        salt,
+        kdf,
+        masterPasswordAuthenticationHash:
+          "newMasterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+      const unlockData = new MasterPasswordUnlockData(
+        salt,
+        kdf,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+      );
+      const request = new PasswordRequest(
+        "currentMasterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+        authenticationData,
+        unlockData,
+        "masterPasswordHint",
+      );
 
       // Act
       await sut.postPassword(request);
@@ -86,11 +121,27 @@ describe("MasterPasswordApiService", () => {
   describe("putUpdateTempPassword", () => {
     it("should call apiService.send with the correct parameters", async () => {
       // Arrange
-      const request = {
-        masterPasswordHint: "masterPasswordHint",
-        newMasterPasswordHash: "newMasterPasswordHash",
-        key: "key",
-      } as UpdateTempPasswordRequest;
+      const salt = "salt" as MasterPasswordSalt;
+      const kdf = new PBKDF2KdfConfig(600_000);
+
+      const authenticationData: MasterPasswordAuthenticationData = {
+        salt,
+        kdf,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+
+      const unlockData = new MasterPasswordUnlockData(
+        salt,
+        kdf,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+      );
+
+      const request = new UpdateTempPasswordRequest(
+        authenticationData,
+        unlockData,
+        "masterPasswordHint",
+      );
 
       // Act
       await sut.putUpdateTempPassword(request);
@@ -109,11 +160,27 @@ describe("MasterPasswordApiService", () => {
   describe("putUpdateTdeOffboardingPassword", () => {
     it("should call apiService.send with the correct parameters", async () => {
       // Arrange
-      const request = {
-        masterPasswordHint: "masterPasswordHint",
-        newMasterPasswordHash: "newMasterPasswordHash",
-        key: "key",
-      } as UpdateTdeOffboardingPasswordRequest;
+      const salt = "salt" as MasterPasswordSalt;
+      const kdf = new PBKDF2KdfConfig(600_000);
+
+      const authenticationData: MasterPasswordAuthenticationData = {
+        salt,
+        kdf,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+
+      const unlockData = new MasterPasswordUnlockData(
+        salt,
+        kdf,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+      );
+
+      const request = new UpdateTdeOffboardingPasswordRequest(
+        authenticationData,
+        unlockData,
+        "masterPasswordHint",
+      );
 
       // Act
       await sut.putUpdateTdeOffboardingPassword(request);

@@ -3,7 +3,14 @@
 import { firstValueFrom, from, iif, map, Observable, of, switchMap } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig } from "@bitwarden/key-management";
+import {
+  CryptoFunctionService,
+  EncryptedString,
+  EncString,
+  KdfConfig,
+  KeyGenerationService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -13,21 +20,17 @@ import { FeatureFlag, getFeatureFlagValue } from "../../../enums/feature-flag.en
 import { LogService } from "../../../platform/abstractions/log.service";
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
 import {
   MASTER_PASSWORD_DISK,
   MASTER_PASSWORD_MEMORY,
-  MASTER_PASSWORD_UNLOCK_DISK,
   StateProvider,
   UserKeyDefinition,
 } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
-import { KeyGenerationService } from "../../crypto";
-import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
-import { EncryptedString, EncString } from "../../crypto/models/enc-string";
 import { USES_KEY_CONNECTOR } from "../../key-connector/services/key-connector.service";
+import { MASTER_PASSWORD_UNLOCK_DATA } from "../../state-definitions";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 import {
   MasterKeyWrappedUserKey,
@@ -59,16 +62,6 @@ export const FORCE_SET_PASSWORD_REASON = new UserKeyDefinition<ForceSetPasswordR
   "forceSetPasswordReason",
   {
     deserializer: (reason) => reason,
-    clearOn: ["logout"],
-  },
-);
-
-/** Disk to persist through lock */
-export const MASTER_PASSWORD_UNLOCK_KEY = new UserKeyDefinition<MasterPasswordUnlockData>(
-  MASTER_PASSWORD_UNLOCK_DISK,
-  "masterPasswordUnlockKey",
-  {
-    deserializer: (obj) => MasterPasswordUnlockData.fromJSON(obj),
     clearOn: ["logout"],
   },
 );
@@ -338,20 +331,20 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     assertNonNullish(userId, "userId");
 
     await this.stateProvider
-      .getUser(userId, MASTER_PASSWORD_UNLOCK_KEY)
+      .getUser(userId, MASTER_PASSWORD_UNLOCK_DATA)
       .update(() => masterPasswordUnlockData.toJSON());
   }
 
   async clearMasterPasswordUnlockData(userId: UserId): Promise<void> {
     assertNonNullish(userId, "userId");
 
-    await this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).update(() => null);
+    await this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_DATA).update(() => null);
   }
 
   masterPasswordUnlockData$(userId: UserId): Observable<MasterPasswordUnlockData | null> {
     assertNonNullish(userId, "userId");
 
-    return this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).state$;
+    return this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_DATA).state$;
   }
 
   async setLegacyMasterKeyFromUnlockData(

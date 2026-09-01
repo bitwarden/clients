@@ -9,11 +9,14 @@ import {
   queryByRole,
   fireEvent,
   getAllByLabelText,
+  findByTestId,
 } from "storybook/test";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { GlobalStateProvider } from "@bitwarden/state";
+import { enabledFlags } from "@bitwarden/storybook";
 
 import { I18nMockService } from "../../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../../utils/state-mock";
@@ -131,6 +134,40 @@ export const Default: Story = {
   parameters: {
     chromatic: {
       viewports: [640, 1280],
+    },
+  },
+};
+
+export const DefaultVfo1: Story = {
+  ...Default,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
+export const DefaultNoBanner: Story = {
+  ...Default,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const bannerClose = await findByTestId(canvas, "bit-banner-close-btn");
+    await userEvent.click(bannerClose);
+  },
+  parameters: {
+    chromatic: {
+      viewports: [1280],
+    },
+  },
+};
+
+export const DefaultVfo1NoBanner: Story = {
+  ...Default,
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const bannerClose = await findByTestId(canvas, "bit-banner-close-btn");
+    await userEvent.click(bannerClose);
+  },
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  parameters: {
+    chromatic: {
+      viewports: [1280],
     },
   },
 };

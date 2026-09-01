@@ -18,7 +18,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { DialogService, SimpleDialogCloseType } from "@bitwarden/components";
-import { All, RoutedVaultFilterModel } from "@bitwarden/vault";
+import { All, RoutedVaultFilterModel, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../shared/components/collection-dialog";
 
@@ -33,6 +33,7 @@ describe("VaultHeaderComponent", () => {
   let mockCollectionAdminService: MockProxy<CollectionAdminService>;
   let mockAccountService: ReturnType<typeof mockAccountServiceWith>;
   let router: Router;
+  let vfo1Enabled: boolean;
 
   const userId = "test-user-id" as UserId;
   const orgId = "org-1" as any;
@@ -101,14 +102,18 @@ describe("VaultHeaderComponent", () => {
     mockDialogService = mock<DialogService>();
     mockCollectionAdminService = mock<CollectionAdminService>();
     mockAccountService = mockAccountServiceWith(userId);
+    vfo1Enabled = false;
 
     mockI18nService.t.mockImplementation((key: string, ...args: any[]) => {
       const map: Record<string, string> = {
         collections: "Collections",
+        sharedFolders: "Shared folders",
         unassigned: "Unassigned",
         upgradeOrganization: "Upgrade Organization",
         freeOrgMaxCollectionReachedManageBilling: "Max collections reached (billing)",
         freeOrgMaxCollectionReachedNoManageBilling: "Max collections reached",
+        freeOrgMaxSharedFolderReachedManageBilling: "Max shared folders reached (billing)",
+        freeOrgMaxSharedFolderReachedNoManageBilling: "Max shared folders reached",
         upgrade: "Upgrade",
         ok: "Ok",
       };
@@ -123,6 +128,10 @@ describe("VaultHeaderComponent", () => {
         { provide: DialogService, useValue: mockDialogService },
         { provide: CollectionAdminService, useValue: mockCollectionAdminService },
         { provide: AccountService, useValue: mockAccountService },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: { iconClass: (icon: string) => icon, enabled: () => vfo1Enabled },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -164,6 +173,18 @@ describe("VaultHeaderComponent", () => {
       });
       expect((component as any).title()).toBe("Special");
     });
+
+    it("returns '<OrgName> shared folders' when the VFO1 flag is on", () => {
+      vfo1Enabled = true;
+      setInputs({ organization: makeOrg({ name: "Acme Corp" }) });
+      expect((component as any).title()).toBe("Acme Corp shared folders");
+    });
+
+    it("returns 'Shared folders' when the VFO1 flag is on and org has no name", () => {
+      vfo1Enabled = true;
+      setInputs({ organization: makeOrg({ name: "" }) });
+      expect((component as any).title()).toBe("Shared folders");
+    });
   });
 
   describe("icon", () => {
@@ -172,9 +193,9 @@ describe("VaultHeaderComponent", () => {
       expect((component as any).icon()).toBe("bwi-collection-shared");
     });
 
-    it("returns empty string when no collectionId is set", () => {
+    it("returns undefined when no collectionId is set", () => {
       setInputs({ filter: { organizationId: orgId } });
-      expect((component as any).icon()).toBe("");
+      expect((component as any).icon()).toBe(undefined);
     });
   });
 
@@ -333,6 +354,13 @@ describe("VaultHeaderComponent", () => {
       setInputs({ organization: makeOrg({ isProviderUser: true, isMember: true }) });
       expect((component as any).canCreateCipher()).toBe(true);
     });
+
+    it("returns false when the organization is suspended (disabled)", () => {
+      setInputs({
+        organization: makeOrg({ enabled: false, isProviderUser: false, isMember: true }),
+      });
+      expect((component as any).canCreateCipher()).toBe(false);
+    });
   });
 
   describe("handleAddCipher", () => {
@@ -458,6 +486,40 @@ describe("VaultHeaderComponent", () => {
 
       expect(mockDialogService.openSimpleDialogRef).toHaveBeenCalled();
       expect(spy).not.toHaveBeenCalled();
+    });
+
+    it("shows the shared folder upgrade dialog content when the VFO1 flag is on", async () => {
+      vfo1Enabled = true;
+      const col1 = makeCollection("Col1", { id: "c1" as any });
+      const col2 = makeCollection("Col2", { id: "c2" as any });
+      mockCollectionAdminService.collectionAdminViews$.mockReturnValue(of([col1, col2]));
+      mockAccountService.activeAccountSubject.next({
+        id: userId,
+        email: "test@example.com",
+        name: "Test",
+        emailVerified: true,
+      });
+
+      const closedSubject = new BehaviorSubject<SimpleDialogCloseType | undefined>(undefined);
+      mockDialogService.openSimpleDialogRef.mockReturnValue({
+        closed: closedSubject.asObservable(),
+      } as any);
+
+      setInputs({
+        organization: makeOrg({
+          productTierType: ProductTierType.Free,
+          maxCollections: 2,
+          canEditSubscription: true,
+        }),
+      });
+
+      const promise = component.handleAddCollection();
+      closedSubject.next(false as any);
+      await promise;
+
+      expect(mockDialogService.openSimpleDialogRef).toHaveBeenCalledWith(
+        expect.objectContaining({ content: "Max shared folders reached (billing)" }),
+      );
     });
 
     it("navigates to billing when free org owner accepts upgrade dialog", async () => {

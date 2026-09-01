@@ -3,7 +3,7 @@ import { Component } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
@@ -13,13 +13,23 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { BitPasswordInputToggleDirective, ToastService } from "@bitwarden/components";
+import {
+  BitPasswordInputToggleDirective,
+  CenterPositionStrategy,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { CipherFormGenerationService } from "../../abstractions/cipher-form-generation.service";
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 import { AutofillOptionsComponent } from "../autofill-options/autofill-options.component";
 
+import {
+  DeletePasskeyDialogComponent,
+  DeletePasskeyDialogResult,
+} from "./delete-passkey-dialog/delete-passkey-dialog.component";
 import { LoginDetailsSectionComponent } from "./login-details-section.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -41,6 +51,7 @@ describe("LoginDetailsSectionComponent", () => {
   let totpCaptureService: MockProxy<TotpCaptureService>;
   let i18nService: MockProxy<I18nService>;
   let configService: MockProxy<ConfigService>;
+  let dialogService: MockProxy<DialogService>;
 
   const collect = jest.fn().mockResolvedValue(null);
   const getInitialCipherView = jest.fn((): any => null);
@@ -59,6 +70,7 @@ describe("LoginDetailsSectionComponent", () => {
     totpCaptureService = mock<TotpCaptureService>();
     i18nService = mock<I18nService>();
     configService = mock<ConfigService>();
+    dialogService = mock<DialogService>();
     collect.mockClear();
 
     await TestBed.configureTestingModule({
@@ -74,6 +86,7 @@ describe("LoginDetailsSectionComponent", () => {
         { provide: EventCollectionService, useValue: { collect } },
       ],
     })
+      .overrideProvider(DialogService, { useValue: dialogService })
       .overrideComponent(LoginDetailsSectionComponent, {
         remove: {
           imports: [AutofillOptionsComponent],
@@ -587,13 +600,19 @@ describe("LoginDetailsSectionComponent", () => {
       expect(getPasskeyField()).toBeNull();
     });
 
-    it("should remove the passkey when the remove button is clicked", fakeAsync(() => {
+    it("should remove the passkey when the user confirms the dialog", fakeAsync(() => {
+      dialogService.open.mockReturnValue({
+        closed: of(DeletePasskeyDialogResult.Delete),
+      } as DialogRef<DeletePasskeyDialogResult>);
       fixture.detectChanges();
 
       getRemovePasskeyBtn().click();
 
       tick();
 
+      expect(dialogService.open).toHaveBeenCalledWith(DeletePasskeyDialogComponent, {
+        positionStrategy: expect.any(CenterPositionStrategy),
+      });
       expect(cipherFormContainer.patchCipher).toHaveBeenCalled();
       const patchFn = cipherFormContainer.patchCipher.mock.lastCall[0];
 
@@ -601,6 +620,21 @@ describe("LoginDetailsSectionComponent", () => {
 
       expect(updatedCipher.login.fido2Credentials).toBeNull();
       expect(component.hasPasskey).toBe(false);
+    }));
+
+    it("should not remove the passkey when the user cancels the dialog", fakeAsync(() => {
+      dialogService.open.mockReturnValue({
+        closed: of(DeletePasskeyDialogResult.Cancel),
+      } as DialogRef<DeletePasskeyDialogResult>);
+      fixture.detectChanges();
+      cipherFormContainer.patchCipher.mockClear();
+
+      getRemovePasskeyBtn().click();
+
+      tick();
+
+      expect(cipherFormContainer.patchCipher).not.toHaveBeenCalled();
+      expect(component.hasPasskey).toBe(true);
     }));
   });
 });

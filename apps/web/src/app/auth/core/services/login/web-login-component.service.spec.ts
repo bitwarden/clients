@@ -1,4 +1,5 @@
 import { TestBed } from "@angular/core/testing";
+import { Router } from "@angular/router";
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
@@ -8,9 +9,12 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/reset-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import {
+  DirectOrganizationInvite,
+  OpenOrganizationInvite,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -21,6 +25,8 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
@@ -48,6 +54,7 @@ describe("WebLoginComponentService", () => {
   let configService: MockProxy<ConfigService>;
   let toastService: MockProxy<ToastService>;
   let i18nService: MockProxy<I18nService>;
+  let router: MockProxy<Router>;
 
   beforeEach(() => {
     organizationInviteService = mock<OrganizationInviteService>();
@@ -63,6 +70,7 @@ describe("WebLoginComponentService", () => {
     configService = mock<ConfigService>();
     toastService = mock<ToastService>();
     i18nService = mock<I18nService>();
+    router = mock<Router>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -81,6 +89,7 @@ describe("WebLoginComponentService", () => {
         { provide: ConfigService, useValue: configService },
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: i18nService },
+        { provide: Router, useValue: router },
       ],
     });
     service = TestBed.inject(WebLoginComponentService);
@@ -92,7 +101,7 @@ describe("WebLoginComponentService", () => {
 
   describe("getOrgPoliciesFromOrgInvite", () => {
     const mockEmail = "test@example.com";
-    const orgInvite = new OrganizationInvite({
+    const orgInvite = new DirectOrganizationInvite({
       organizationId: "org-id",
       token: "token",
       email: mockEmail,
@@ -109,9 +118,9 @@ describe("WebLoginComponentService", () => {
       expect(result).toBeUndefined();
     });
 
-    it("returns undefined if getInvitePolicies returns undefined", async () => {
+    it("returns undefined if getOrgPoliciesForInvite returns undefined", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      organizationInviteService.getInvitePolicies.mockResolvedValue(undefined);
+      organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(undefined);
       const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
       expect(result).toBeUndefined();
     });
@@ -128,7 +137,7 @@ describe("WebLoginComponentService", () => {
         resetPasswordPolicyOptions.autoEnrollEnabled = autoEnrollEnabled;
 
         organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-        organizationInviteService.getInvitePolicies.mockResolvedValue(policies);
+        organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(policies);
 
         internalPolicyService.getResetPasswordPolicyOptions.mockReturnValue([
           resetPasswordPolicyOptions,
@@ -184,14 +193,64 @@ describe("WebLoginComponentService", () => {
         expect(result).toBeUndefined();
       });
     });
+
+    describe("given an open organization invite is in state", () => {
+      const openOrgInvite = new OpenOrganizationInvite({
+        organizationId: "11111111-1111-1111-1111-111111111111",
+        inviteLinkCode: "link-code",
+        inviteKey: "link-key",
+        organizationName: "Acme Corp",
+      });
+
+      it("returns undefined when the GenerateInviteLink flag is off", async () => {
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(openOrgInvite);
+        configService.getFeatureFlag
+          .calledWith(FeatureFlag.GenerateInviteLink)
+          .mockResolvedValue(false);
+
+        const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
+
+        expect(result).toBeUndefined();
+        expect(organizationInviteService.getOrgPoliciesForInvite).not.toHaveBeenCalled();
+      });
+
+      it("returns PasswordPolicies when flag is on", async () => {
+        const policies: Policy[] = [new Policy()];
+        const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
+        const resetPasswordPolicyOptions = new ResetPasswordPolicyOptions();
+
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(openOrgInvite);
+        configService.getFeatureFlag
+          .calledWith(FeatureFlag.GenerateInviteLink)
+          .mockResolvedValue(true);
+        organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(policies);
+        internalPolicyService.getResetPasswordPolicyOptions.mockReturnValue([
+          resetPasswordPolicyOptions,
+          false,
+        ]);
+        internalPolicyService.combinePoliciesIntoMasterPasswordPolicyOptions.mockReturnValue(
+          masterPasswordPolicyOptions,
+        );
+
+        const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
+
+        expect(result).toEqual({
+          policies,
+          isPolicyAndAutoEnrollEnabled: false,
+          enforcedPasswordPolicyOptions: masterPasswordPolicyOptions,
+        });
+      });
+    });
   });
 
   describe("handleQueryParamErrors", () => {
     const mockOrganizationName = "Acme Corp";
     const mockOrganizationId = "11111111-1111-1111-1111-111111111111";
+    const otherOrganizationId = "22222222-2222-2222-2222-222222222222";
     const mockEmail = "test@example.com";
-    const orgInviteFor = (overrides: { email?: string; organizationId?: string } = {}) =>
-      new OrganizationInvite({
+
+    const directOrgInviteFor = (overrides: { email?: string; organizationId?: string } = {}) =>
+      new DirectOrganizationInvite({
         organizationId: overrides.organizationId ?? mockOrganizationId,
         token: "token",
         email: overrides.email ?? mockEmail,
@@ -202,141 +261,175 @@ describe("WebLoginComponentService", () => {
         organizationName: mockOrganizationName,
       });
 
-    describe("when error code is ssoOrgInviteAcceptanceRequired", () => {
-      it("returns autoSubmit=true with the MP-entry layout override when stash org id + email match", async () => {
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInviteFor());
-
-        const result = await service.handleQueryParamErrors({
-          error: "ssoOrgInviteAcceptanceRequired",
-          organizationId: mockOrganizationId,
-          organizationName: mockOrganizationName,
-          email: mockEmail,
-        });
-
-        expect(result.autoSubmit).toBe(true);
-        expect(result.mpEntryLayoutOverride).toEqual({
-          pageTitle: { key: "joinOrganizationName", placeholders: [mockOrganizationName] },
-          pageSubtitle: { key: "acceptInviteWithMasterPassword" },
-          pageIcon: expect.anything(),
-        });
-        expect(toastService.showToast).not.toHaveBeenCalled();
+    const openOrgInviteFor = (overrides: { organizationId?: string } = {}) =>
+      new OpenOrganizationInvite({
+        organizationId: overrides.organizationId ?? mockOrganizationId,
+        inviteLinkCode: "link-code",
+        inviteKey: "link-key",
+        organizationName: mockOrganizationName,
       });
 
-      it("treats email match as case-insensitive", async () => {
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(
-          orgInviteFor({ email: "User@Example.com" }),
-        );
-
-        const result = await service.handleQueryParamErrors({
-          error: "ssoOrgInviteAcceptanceRequired",
-          organizationId: mockOrganizationId,
-          organizationName: mockOrganizationName,
-          email: "user@example.com",
-        });
-
-        expect(result.autoSubmit).toBe(true);
-        expect(result.mpEntryLayoutOverride).toBeDefined();
-        expect(toastService.showToast).not.toHaveBeenCalled();
+    // All three SSO redirect error codes share the same client-side match handler
+    // (server intent differs but "match invite → auto-progress" is identical). The
+    // no-match branch splits: two codes surface a toast, the third routes to a
+    // full-page error view. `describe.each` enforces parity for the shared shape
+    // and per-row fallback config keeps the split explicit.
+    describe.each([
+      { errorCode: "ssoOrgInviteAcceptanceRequired", fallback: "toast" },
+      { errorCode: "ssoOrgMembershipRequired", fallback: "toast" },
+      { errorCode: "ssoStagedOrgUserInviteAcceptanceRequired", fallback: "navigate" },
+    ] as const)("when error code is $errorCode", ({ errorCode, fallback }) => {
+      const paramsFor = (overrides: Partial<Record<string, string>> = {}) => ({
+        error: errorCode,
+        organizationId: mockOrganizationId,
+        organizationName: mockOrganizationName,
+        email: mockEmail,
+        ...overrides,
       });
 
-      it("returns autoSubmit=false and fires the warning toast when no invite is stashed", async () => {
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-        i18nService.t.mockReturnValue("translated message");
+      const expectedNoMatchResult =
+        fallback === "toast" ? { kind: "none" } : { kind: "redirected" };
 
-        const result = await service.handleQueryParamErrors({
-          error: "ssoOrgInviteAcceptanceRequired",
-          organizationId: mockOrganizationId,
-          organizationName: mockOrganizationName,
-          email: mockEmail,
+      const expectNoMatchFallback = () => {
+        if (fallback === "toast") {
+          expect(toastService.showToast).toHaveBeenCalled();
+          expect(router.navigate).not.toHaveBeenCalled();
+        } else {
+          expect(router.navigate).toHaveBeenCalledWith(["/sso-login-failed"], {
+            queryParams: {
+              kind: "staged-org-user-direct-invite-sent",
+              organizationName: mockOrganizationName,
+            },
+          });
+          expect(toastService.showToast).not.toHaveBeenCalled();
+        }
+      };
+
+      describe("with a matching stashed invite", () => {
+        it("auto-progresses to MP entry with the join-org layout when a direct invite matches on org id + email", async () => {
+          organizationInviteService.getOrganizationInvite.mockResolvedValue(directOrgInviteFor());
+
+          const result = await service.handleQueryParamErrors(paramsFor());
+
+          expect(result).toEqual({
+            kind: "auto-submit",
+            mpEntryLayoutOverride: {
+              pageTitle: { key: "joinOrganizationName", placeholders: [mockOrganizationName] },
+              pageSubtitle: { key: "acceptInviteWithMasterPassword" },
+              pageIcon: expect.anything(),
+            },
+          });
+          expect(toastService.showToast).not.toHaveBeenCalled();
+          expect(router.navigate).not.toHaveBeenCalled();
         });
 
-        expect(result).toEqual({ autoSubmit: false });
-        expect(i18nService.t).toHaveBeenCalledWith(
-          "ssoLoginRequiresInviteAcceptance",
-          mockOrganizationName,
-        );
-        expect(toastService.showToast).toHaveBeenCalledWith({
-          variant: "warning",
-          title: null,
-          message: "translated message",
-          timeout: 10000,
+        it("treats the direct-invite email match as case-insensitive", async () => {
+          organizationInviteService.getOrganizationInvite.mockResolvedValue(
+            directOrgInviteFor({ email: "User@Example.com" }),
+          );
+
+          const result = await service.handleQueryParamErrors(
+            paramsFor({ email: "user@example.com" }),
+          );
+
+          expect(result.kind).toBe("auto-submit");
+          expect(toastService.showToast).not.toHaveBeenCalled();
+          expect(router.navigate).not.toHaveBeenCalled();
+        });
+
+        it("auto-progresses to MP entry when an open invite matches on org id", async () => {
+          organizationInviteService.getOrganizationInvite.mockResolvedValue(openOrgInviteFor());
+
+          const result = await service.handleQueryParamErrors(paramsFor());
+
+          expect(result.kind).toBe("auto-submit");
+          expect(toastService.showToast).not.toHaveBeenCalled();
+          expect(router.navigate).not.toHaveBeenCalled();
         });
       });
 
-      it("returns autoSubmit=false and fires the warning toast when the stash email does not match", async () => {
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(
-          orgInviteFor({ email: "other@example.com" }),
-        );
+      describe("with no matching stashed invite", () => {
+        it("fires the expected fallback when no invite is stashed", async () => {
+          organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+          i18nService.t.mockReturnValue("translated message");
 
-        const result = await service.handleQueryParamErrors({
-          error: "ssoOrgInviteAcceptanceRequired",
-          organizationId: mockOrganizationId,
-          organizationName: mockOrganizationName,
-          email: mockEmail,
+          const result = await service.handleQueryParamErrors(paramsFor());
+
+          expect(result).toEqual(expectedNoMatchResult);
+          if (fallback === "toast") {
+            expect(i18nService.t).toHaveBeenCalledWith(
+              "ssoLoginRequiresInviteAcceptance",
+              mockOrganizationName,
+            );
+            expect(toastService.showToast).toHaveBeenCalledWith({
+              variant: "warning",
+              title: null,
+              message: "translated message",
+              timeout: 10000,
+            });
+            expect(router.navigate).not.toHaveBeenCalled();
+          } else {
+            expectNoMatchFallback();
+          }
         });
 
-        expect(result).toEqual({ autoSubmit: false });
-        expect(toastService.showToast).toHaveBeenCalled();
-      });
+        it("fires the expected fallback when a stashed direct invite's email doesn't match", async () => {
+          organizationInviteService.getOrganizationInvite.mockResolvedValue(
+            directOrgInviteFor({ email: "other@example.com" }),
+          );
 
-      it("returns autoSubmit=false and fires the warning toast when the stash org id does not match", async () => {
-        // User has Org A's invite stashed but is being redirected for Org B (same email).
-        // We must not auto-progress, because the deep-link guard would replay Org A's
-        // /accept-organization while the UI claims they're joining Org B.
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(
-          orgInviteFor({ organizationId: "22222222-2222-2222-2222-222222222222" }),
-        );
+          const result = await service.handleQueryParamErrors(paramsFor());
 
-        const result = await service.handleQueryParamErrors({
-          error: "ssoOrgInviteAcceptanceRequired",
-          organizationId: mockOrganizationId,
-          organizationName: mockOrganizationName,
-          email: mockEmail,
+          expect(result).toEqual(expectedNoMatchResult);
+          expectNoMatchFallback();
         });
 
-        expect(result).toEqual({ autoSubmit: false });
-        expect(toastService.showToast).toHaveBeenCalled();
-      });
+        it("fires the expected fallback when a stashed direct invite's org id doesn't match", async () => {
+          // User has Org A's invite stashed but is being redirected for Org B (same email).
+          // We must not auto-progress, because the deep-link guard would replay Org A's
+          // /accept-organization while the UI claims they're joining Org B.
+          organizationInviteService.getOrganizationInvite.mockResolvedValue(
+            directOrgInviteFor({ organizationId: otherOrganizationId }),
+          );
 
-      it("does nothing when organizationName is missing", async () => {
-        const result = await service.handleQueryParamErrors({
-          error: "ssoOrgInviteAcceptanceRequired",
-          organizationId: mockOrganizationId,
-          email: mockEmail,
+          const result = await service.handleQueryParamErrors(paramsFor());
+
+          expect(result).toEqual(expectedNoMatchResult);
+          expectNoMatchFallback();
         });
 
-        expect(result).toEqual({ autoSubmit: false });
-        expect(organizationInviteService.getOrganizationInvite).not.toHaveBeenCalled();
-        expect(toastService.showToast).not.toHaveBeenCalled();
-      });
+        it("fires the expected fallback when a stashed open invite's org id doesn't match", async () => {
+          organizationInviteService.getOrganizationInvite.mockResolvedValue(
+            openOrgInviteFor({ organizationId: otherOrganizationId }),
+          );
 
-      it("does nothing when organizationId is missing", async () => {
-        const result = await service.handleQueryParamErrors({
-          error: "ssoOrgInviteAcceptanceRequired",
-          organizationName: mockOrganizationName,
-          email: mockEmail,
+          const result = await service.handleQueryParamErrors(paramsFor());
+
+          expect(result).toEqual(expectedNoMatchResult);
+          expectNoMatchFallback();
         });
-
-        expect(result).toEqual({ autoSubmit: false });
-        expect(organizationInviteService.getOrganizationInvite).not.toHaveBeenCalled();
-        expect(toastService.showToast).not.toHaveBeenCalled();
       });
 
-      it("does nothing when the email query param is missing", async () => {
-        const result = await service.handleQueryParamErrors({
-          error: "ssoOrgInviteAcceptanceRequired",
-          organizationId: mockOrganizationId,
-          organizationName: mockOrganizationName,
-        });
+      describe.each(["organizationName", "organizationId", "email"] as const)(
+        "with the %s query param missing",
+        (missingParam) => {
+          it("returns kind=none without reading the stash or firing a fallback", async () => {
+            const paramsWithout = { ...paramsFor() };
+            delete paramsWithout[missingParam];
 
-        expect(result).toEqual({ autoSubmit: false });
-        expect(organizationInviteService.getOrganizationInvite).not.toHaveBeenCalled();
-        expect(toastService.showToast).not.toHaveBeenCalled();
-      });
+            const result = await service.handleQueryParamErrors(paramsWithout);
+
+            expect(result).toEqual({ kind: "none" });
+            expect(organizationInviteService.getOrganizationInvite).not.toHaveBeenCalled();
+            expect(toastService.showToast).not.toHaveBeenCalled();
+            expect(router.navigate).not.toHaveBeenCalled();
+          });
+        },
+      );
     });
 
-    describe("when error code is unrecognized or missing", () => {
-      it("returns autoSubmit=false with no toast for an unknown error code", async () => {
+    describe("when the error code is unrecognized or absent", () => {
+      it("returns kind=none with no side effects for an unknown error code", async () => {
         const result = await service.handleQueryParamErrors({
           error: "someUnknownErrorCode",
           organizationId: mockOrganizationId,
@@ -344,19 +437,21 @@ describe("WebLoginComponentService", () => {
           email: mockEmail,
         });
 
-        expect(result).toEqual({ autoSubmit: false });
+        expect(result).toEqual({ kind: "none" });
         expect(toastService.showToast).not.toHaveBeenCalled();
+        expect(router.navigate).not.toHaveBeenCalled();
       });
 
-      it("returns autoSubmit=false when the error param is absent", async () => {
+      it("returns kind=none with no side effects when the error param is absent", async () => {
         const result = await service.handleQueryParamErrors({
           organizationId: mockOrganizationId,
           organizationName: mockOrganizationName,
           email: mockEmail,
         });
 
-        expect(result).toEqual({ autoSubmit: false });
+        expect(result).toEqual({ kind: "none" });
         expect(toastService.showToast).not.toHaveBeenCalled();
+        expect(router.navigate).not.toHaveBeenCalled();
       });
     });
   });

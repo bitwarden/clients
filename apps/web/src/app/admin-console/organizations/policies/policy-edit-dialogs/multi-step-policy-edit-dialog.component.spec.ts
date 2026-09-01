@@ -1,20 +1,48 @@
+// bit-dialog uses IntersectionObserver, which isn't available in jsdom.
+global.IntersectionObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+})) as any;
+
 import { DialogRef as CdkDialogRef } from "@angular/cdk/dialog";
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule, UntypedFormGroup } from "@angular/forms";
+import { Router } from "@angular/router";
 import { MockProxy, mock } from "jest-mock-extended";
 import { NEVER, of } from "rxjs";
 
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { BasePolicyEditComponent, BasePolicyEditDefinition } from "../base-policy-edit.component";
-import { PolicyEditDialogData, PolicyEditDialogResult } from "../policy-edit-dialog.component";
+import {
+  AutoConfirmPolicy,
+  AutoConfirmPolicyEditComponent,
+} from "../policy-edit-definitions/auto-confirm-policy.component";
+import {
+  MasterPasswordPolicy,
+  MasterPasswordPolicyComponent,
+} from "../policy-edit-definitions/master-password.component";
+import {
+  OrganizationDataOwnershipPolicy,
+  OrganizationDataOwnershipPolicyComponent,
+} from "../policy-edit-definitions/organization-data-ownership.component";
+import { PolicyEditDialogData, PolicyEditDialogResult } from "../policy-edit-drawer.component";
 
 import { PolicyStep } from "./models";
 import { MultiStepPolicyEditDialogComponent } from "./multi-step-policy-edit-dialog.component";
@@ -36,7 +64,7 @@ describe("MultiStepPolicyEditDialogComponent", () => {
       showDescription: true,
       display$: () => of(true),
     } as BasePolicyEditDefinition,
-    organizationId: "org-1",
+    organization: { id: "org-1" } as Organization,
   };
 
   beforeEach(async () => {
@@ -45,8 +73,6 @@ describe("MultiStepPolicyEditDialogComponent", () => {
     i18nService.t.mockReturnValue("translated");
     dialogRef = mock<DialogRef<PolicyEditDialogResult>>();
     policyComponent = mock<BasePolicyEditComponent>();
-    const configService = mock<ConfigService>();
-    configService.getFeatureFlag.mockResolvedValue(false);
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
@@ -61,7 +87,7 @@ describe("MultiStepPolicyEditDialogComponent", () => {
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: CdkDialogRef, useValue: { backdropClick: NEVER, keydownEvents: NEVER } },
-        { provide: ConfigService, useValue: configService },
+        { provide: Vfo1TerminologyService, useValue: { enabled: () => false } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -193,6 +219,116 @@ describe("MultiStepPolicyEditDialogComponent", () => {
       TestBed.flushEffects();
 
       expect((component as any).saveDisabled()).toBe(true);
+    });
+  });
+
+  /**
+   * End-to-end regression tests for the production policies that use this dialog
+   * (MasterPasswordPolicy, OrganizationDataOwnershipPolicy, AutoConfirmPolicy). These render
+   * the REAL policy components (not test doubles) through the REAL dialog.
+   */
+  describe("Real policy rendering", () => {
+    async function setupRealPolicy(policy: BasePolicyEditDefinition) {
+      const data: PolicyEditDialogData = {
+        policy,
+        organization: {
+          id: "org-1",
+          keyConnectorEnabled: false,
+          useMyItems: false,
+        } as Organization,
+      };
+
+      const i18n = mock<I18nService>();
+      i18n.t.mockImplementation((key: any) => key);
+      const policyApiService = mock<PolicyApiServiceAbstraction>();
+      policyApiService.getPolicy.mockResolvedValue(new PolicyResponse({ Enabled: false }));
+      const accountService = mock<AccountService>();
+      accountService.activeAccount$ = of({ id: "user-1", email: "user@example.com" } as any);
+      const organizationService = mock<OrganizationService>();
+      organizationService.organizations$.mockReturnValue(
+        of([{ id: "org-1", keyConnectorEnabled: false, useMyItems: false } as any]),
+      );
+      const dRef = mock<DialogRef<PolicyEditDialogResult>>();
+      const authService = mock<AuthService>();
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+      const policyService = mock<PolicyService>();
+      policyService.policies$.mockReturnValue(of([]));
+      const router = mock<Router>();
+      // DrawerService reads router.url synchronously at construction time.
+      (router as any).url = "/";
+      (router as any).events = NEVER;
+
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [ReactiveFormsModule],
+        providers: [
+          { provide: DIALOG_DATA, useValue: data },
+          { provide: AccountService, useValue: accountService },
+          { provide: OrganizationService, useValue: organizationService },
+          { provide: AuthService, useValue: authService },
+          { provide: PolicyApiServiceAbstraction, useValue: policyApiService },
+          { provide: I18nService, useValue: i18n },
+          { provide: DialogRef, useValue: dRef },
+          { provide: ToastService, useValue: mock<ToastService>() },
+          { provide: KeyService, useValue: mock<KeyService>() },
+          { provide: DialogService, useValue: mock<DialogService>() },
+          { provide: CdkDialogRef, useValue: { backdropClick: NEVER, keydownEvents: NEVER } },
+          { provide: EncryptService, useValue: mock<EncryptService>() },
+          // Only AutoConfirmPolicy's component injects these, but providing them unconditionally
+          // is harmless for every other policy rendered through this same helper.
+          { provide: PolicyService, useValue: policyService },
+          {
+            provide: AutomaticUserConfirmationService,
+            useValue: mock<AutomaticUserConfirmationService>(),
+          },
+          { provide: Router, useValue: router },
+          { provide: Vfo1TerminologyService, useValue: { enabled: () => false } },
+        ],
+        schemas: [NO_ERRORS_SCHEMA],
+      }).compileComponents();
+
+      const fx = TestBed.createComponent(MultiStepPolicyEditDialogComponent);
+      fx.detectChanges();
+      await fx.whenStable();
+      // The async ngAfterViewInit chain (load() -> createComponent()) resolves signal writes
+      // (loading, policyComponent, etc.) after the initial detectChanges() call - a second pass
+      // is needed to render those updates into the DOM.
+      fx.detectChanges();
+      return { fixture: fx, component: fx.componentInstance as any };
+    }
+
+    it("renders MasterPasswordPolicyComponent with the policy name as the title and an On/Off badge", async () => {
+      const { fixture, component } = await setupRealPolicy(new MasterPasswordPolicy());
+
+      expect(component.policyComponent()).toBeInstanceOf(MasterPasswordPolicyComponent);
+      expect(component.dialogTitle()).toBe("masterPassPolicyTitle");
+      expect(fixture.nativeElement.querySelector("[bitBadge]")).not.toBeNull();
+    });
+
+    it("renders OrganizationDataOwnershipPolicyComponent with the policy name as the title and an On/Off badge", async () => {
+      const { fixture, component } = await setupRealPolicy(new OrganizationDataOwnershipPolicy());
+
+      expect(component.policyComponent()).toBeInstanceOf(OrganizationDataOwnershipPolicyComponent);
+      expect(component.dialogTitle()).toBe("centralizeDataOwnership");
+      expect(fixture.nativeElement.querySelector("[bitBadge]")).not.toBeNull();
+    });
+
+    describe("AutoConfirmPolicy", () => {
+      // Regression test: AutoConfirmPolicyEditComponent previously threw NG0951 ("Child query
+      // result is required but no value is available") when advancing to step 1, because the
+      // inherited viewChild.required(...) queries for #step1Title/#step1Content/#step1Footer must
+      // resolve against whichever concrete component's view is actually rendered.
+      it("renders AutoConfirmPolicyEditComponent and can advance through both steps without throwing", async () => {
+        const { fixture, component } = await setupRealPolicy(new AutoConfirmPolicy());
+
+        expect(component.policyComponent()).toBeInstanceOf(AutoConfirmPolicyEditComponent);
+        expect(fixture.nativeElement.querySelector("[bitBadge]")).not.toBeNull();
+
+        component.currentStep.set(1);
+        expect(() => fixture.detectChanges()).not.toThrow();
+        // Step 1's own titleContent takes over from the generic dialogTitle() once rendered.
+        expect(component.dialogTitle()).toBeUndefined();
+      });
     });
   });
 });

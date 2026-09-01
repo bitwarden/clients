@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import {
@@ -53,6 +53,7 @@ import {
 } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { BitwardenIcon, ChipFilterOption } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
@@ -95,6 +96,8 @@ const INITIAL_FILTERS: PopupListFilter = {
   providedIn: "root",
 })
 export class VaultPopupListFiltersService {
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+
   /**
    * UI form for all filters
    */
@@ -105,6 +108,9 @@ export class VaultPopupListFiltersService {
    */
   filters$ = this.filterForm.valueChanges.pipe(
     startWith(this.filterForm.value),
+    distinctUntilChanged(
+      (previous, current) => JSON.stringify(previous) === JSON.stringify(current),
+    ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
@@ -503,9 +509,11 @@ export class VaultPopupListFiltersService {
         tree.nestedList.map((c) =>
           this.convertToChipFilterOption(
             c,
-            c.node.type === CollectionTypes.DefaultUserCollection
-              ? "bwi-user"
-              : "bwi-collection-shared",
+            this.vfo1TerminologyService.iconClass(
+              c.node.type === CollectionTypes.DefaultUserCollection
+                ? "bwi-user"
+                : "bwi-collection-shared",
+            ),
           ),
         ),
       ),

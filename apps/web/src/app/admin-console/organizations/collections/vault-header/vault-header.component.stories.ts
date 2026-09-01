@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
-import { ActivatedRoute, provideRouter } from "@angular/router";
-import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { provideRouter, withHashLocation } from "@angular/router";
+import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import { LockService, LogoutService } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -14,14 +14,16 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService } from "@bitwarden/components";
+import { enabledFlags } from "@bitwarden/storybook";
+import { LockService } from "@bitwarden/unlock";
 import { RoutedVaultFilterModel } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
@@ -72,10 +74,24 @@ function mockTreeNode(
   return new TreeNode<CollectionAdminView>(collection, parent as TreeNode<CollectionAdminView>);
 }
 
+/** "Frontend", nested under "Engineering". */
+function nestedCollection(): TreeNode<CollectionAdminView> {
+  const parent = mockTreeNode(mockCollection("Engineering", "col-1" as CollectionId));
+  const child = mockTreeNode(mockCollection("Frontend", "col-2" as CollectionId), parent);
+  parent.children = [child];
+  return child;
+}
+
+/** A collection the current user can view but not manage. */
+function readOnlyCollection(): TreeNode<CollectionAdminView> {
+  const collection = mockCollection("Read-Only Vault");
+  collection.manage = false;
+  return mockTreeNode(collection);
+}
+
 const mockCollectionAdminService: Partial<CollectionAdminService> = {};
 const mockDialogService: Partial<DialogService> = {};
 const mockRestrictedItemTypesService: Partial<RestrictedItemTypesService> = { restricted$: of([]) };
-const mockConfigService = { getFeatureFlag$: () => of(false) } as unknown as ConfigService;
 
 const noop = () => of([]);
 const rootProviders = [
@@ -115,6 +131,22 @@ type StoryArgs = {
   searchText: string;
 };
 
+/**
+ * Puts the router at a URL matching the story's `filter`, the way the real vault route does.
+ * The crumbs navigate by query param (`[route]="[]"` plus a differing `collectionId`), so their
+ * active-route check is only meaningful when the URL actually carries those params. Hash routing
+ * keeps Storybook's own query string (`?id=…`) out of the comparison.
+ */
+const atFilterUrl: Decorator<StoryArgs> = (storyFn, context) => {
+  const filter = context.args.filter;
+  const params = new URLSearchParams(
+    Object.entries(filter).filter((entry): entry is [string, string] => entry[1] != null),
+  );
+  window.location.hash = `/organizations/${filter.organizationId}/vault?${params}`;
+
+  return storyFn(context);
+};
+
 const render: StoryObj<StoryArgs>["render"] = (args) => ({
   props: args,
   template: `
@@ -139,23 +171,21 @@ export default {
     searchText: "",
   },
   decorators: [
+    atFilterUrl,
     moduleMetadata({
       imports: [VaultHeaderComponent, StubHeaderComponent],
       providers: [
-        {
-          provide: ActivatedRoute,
-          useValue: { data: of({ titleId: "" }), snapshot: { data: {} } },
-        },
         { provide: CollectionAdminService, useValue: mockCollectionAdminService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: RestrictedItemTypesService, useValue: mockRestrictedItemTypesService },
-        { provide: ConfigService, useValue: mockConfigService },
       ],
     }),
     applicationConfig({
       providers: [
         importProvidersFrom(PreloadedEnglishI18nModule),
-        provideRouter([]),
+        // A catch-all route so the filter URL resolves; the header itself isn't routed, so the
+        // crumbs and `app-header` read the root `ActivatedRoute`.
+        provideRouter([{ path: "**", children: [] }], withHashLocation()),
         ...rootProviders,
       ],
     }),
@@ -176,24 +206,16 @@ export const CollectionSelected: Story = {
   render,
 };
 
-/** Nested collection — breadcrumbs show parent → child chain. */
+/**
+ * Nested collection — the trail shows the ancestors (org → parent) as links, with the selected
+ * collection rendered as the page title rather than a crumb.
+ */
 export const NestedCollection: Story = {
-  render: (args) => {
-    const parent = mockTreeNode(mockCollection("Engineering", "col-1" as CollectionId));
-    const child = mockTreeNode(mockCollection("Frontend", "col-2" as CollectionId), parent);
-    parent.children = [child];
-    return {
-      props: {
-        ...args,
-        filter: {
-          organizationId: "org-1" as OrganizationId,
-          collectionId: "col-2" as CollectionId,
-        },
-        collection: child,
-      },
-      template: `<app-org-vault-header [filter]="filter" [organization]="organization" [collection]="collection" [loading]="loading" [searchText]="searchText"></app-org-vault-header>`,
-    };
+  args: {
+    filter: { organizationId: "org-1" as OrganizationId, collectionId: "col-2" as CollectionId },
+    collection: nestedCollection(),
   },
+  render,
 };
 
 /** Loading state — spinner shown next to the title. */
@@ -220,22 +242,34 @@ export const ProviderUserNotMember: Story = {
   render,
 };
 
+/**
+ * Org-level view with the VFO1 terminology flag on — header, breadcrumbs, and search
+ * placeholder render "shared folder(s)" instead of "collection(s)".
+ */
+export const OrgRootVfo1Enabled: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render,
+};
+
+/**
+ * Collection selected with the VFO1 terminology flag on — breadcrumbs and the edit menu
+ * render "shared folder" terminology.
+ */
+export const CollectionSelectedVfo1Enabled: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  args: {
+    filter: { organizationId: "org-1" as OrganizationId, collectionId: "col-1" as CollectionId },
+    collection: mockTreeNode(mockCollection("Engineering")),
+  },
+  render,
+};
+
 /** Collection selected but the current user only has read access — view-only info/access buttons shown. */
 export const ReadOnlyCollection: Story = {
-  render: (args) => {
-    const col = mockCollection("Read-Only Vault");
-    col.manage = false;
-    return {
-      props: {
-        ...args,
-        filter: { organizationId: "org-1" as OrganizationId, collectionId: col.id },
-        organization: mockOrganization({
-          canEditAnyCollection: false,
-          canDeleteAnyCollection: false,
-        }),
-        collection: mockTreeNode(col),
-      },
-      template: `<app-org-vault-header [filter]="filter" [organization]="organization" [collection]="collection" [loading]="loading" [searchText]="searchText"></app-org-vault-header>`,
-    };
+  args: {
+    filter: { organizationId: "org-1" as OrganizationId, collectionId: "col-1" as CollectionId },
+    organization: mockOrganization({ canEditAnyCollection: false, canDeleteAnyCollection: false }),
+    collection: readOnlyCollection(),
   },
+  render,
 };

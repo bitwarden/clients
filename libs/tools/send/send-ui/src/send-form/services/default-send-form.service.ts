@@ -122,28 +122,30 @@ export class DefaultSendFormService implements SendFormService {
       }
     }
 
-    let sendView: SendView;
     try {
-      const sendData = await this.sendService.encrypt(
-        this.updatedSendView(),
+      const plaintextPassword = this._updatedSendView().password;
+      // Hand over the plaintext view and let the API service encrypt: both paths generate their
+      // own send key and encrypt in-process, but the legacy path does so in this TypeScript code
+      // (SendService.encrypt), while the SDK path does it inside the SDK's own WASM boundary,
+      // where this code never sees the key or the ciphertext-generation step.
+      // Forward the plaintext password (null when preserving an existing password) so the SDK
+      // path can derive the send password over that same key; the legacy path ignores it.
+      const newSend = await this.sendApiService.saveView(
+        this._updatedSendView(),
         this.file,
-        this.updatedSendView().password,
-        null,
+        plaintextPassword,
       );
-      const newSend = await this.sendApiService.save(sendData);
-      sendView = await this.decryptSend(newSend);
+      const sendView = await this.decryptSend(newSend);
+      this._originalSendView.set(null);
+      this._updatedSendView.set(null);
+      this._submitting.set(false);
+      return sendView;
     } catch (err) {
       // We surface any errors but make sure that the submitting
       // status signal is set to false before we do
       this._submitting.set(false);
       throw err;
     }
-
-    this._originalSendView.set(null);
-    this._updatedSendView.set(null);
-    this._submitting.set(false);
-
-    return sendView;
   }
 
   sendFormHasEdits() {

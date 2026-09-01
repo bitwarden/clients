@@ -65,12 +65,8 @@ import {
 import { AdvancedUriOptionDialogComponent } from "@bitwarden/vault";
 
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
-import {
-  getPendingDefaultPasswordManagerApply,
-  setPendingDefaultPasswordManagerApply,
-} from "../../../autofill/utils/pending-default-password-manager.storage";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
+import { devFlagEnabled } from "../../../platform/flags";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -145,8 +141,18 @@ export class AutofillComponent implements OnInit {
     defaultAutofill: new FormControl(),
   });
 
+  /**
+   * Gates the settings UI for controlling if `data-bwignore` and
+   * `data-bwautofill` attributes should be honored by autofill heuristics.
+   */
+  protected bitwardenAutofillAttributesSettingsVisible = devFlagEnabled(
+    "useBitwardenAutofillAttributes",
+  );
+
   protected additionalOptionsForm = new FormGroup({
     enableFillAssist: new FormControl(),
+    honorBitwardenIgnoreAttribute: new FormControl(),
+    honorBitwardenAutofillAttribute: new FormControl(),
     enableContextMenuItem: new FormControl(),
     enableAutoTotpCopy: new FormControl(),
     clearClipboard: new FormControl(),
@@ -161,6 +167,7 @@ export class AutofillComponent implements OnInit {
   enableInlineMenuOnIconSelect: boolean = false;
   showInlineMenuIdentities: boolean = true;
   showInlineMenuCards: boolean = true;
+  showInlineMenuSshKeys: boolean = true;
   autofillOnPageLoadDefault: boolean = false;
   autofillOnPageLoadOptions: { name: string; value: boolean }[];
   enableContextMenuItem: boolean = false;
@@ -236,24 +243,15 @@ export class AutofillComponent implements OnInit {
         this.browserClientVendor,
       );
 
-    if (await getPendingDefaultPasswordManagerApply()) {
-      if (await this.privacyPermissionGranted()) {
-        if (
-          !(await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
-            this.browserClientVendor,
-          ))
-        ) {
-          await BrowserApi.updateDefaultBrowserAutofillSettings(false);
-        }
-
-        await setPendingDefaultPasswordManagerApply(false);
-        this.defaultBrowserAutofillDisabled =
-          await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
-            this.browserClientVendor,
-          );
-      } else {
-        await setPendingDefaultPasswordManagerApply(false);
-      }
+    if (
+      (await this.autofillBrowserSettingsService.resumeGrantedPendingDefaultPasswordManagerApply(
+        this.browserClientVendor,
+      )) !== null
+    ) {
+      this.defaultBrowserAutofillDisabled =
+        await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
+          this.browserClientVendor,
+        );
     }
 
     this.inlineMenuVisibility = await firstValueFrom(
@@ -266,6 +264,10 @@ export class AutofillComponent implements OnInit {
 
     this.showInlineMenuCards = await firstValueFrom(
       this.autofillSettingsService.showInlineMenuCards$,
+    );
+
+    this.showInlineMenuSshKeys = await firstValueFrom(
+      this.autofillSettingsService.showInlineMenuSshKeys$,
     );
 
     this.enableInlineMenuOnIconSelect =
@@ -320,7 +322,11 @@ export class AutofillComponent implements OnInit {
 
     /** Additional options form */
 
-    const enableFillAssist = await firstValueFrom(this.domainSettingsService.enableFillAssist$);
+    // Seed from the resolved state so the checkbox reflects effective behavior
+    // — a pristine member whose org enables the fill assist policy sees "on"
+    const enableFillAssist = await firstValueFrom(
+      this.domainSettingsService.resolvedEnableFillAssist$,
+    );
 
     this.additionalOptionsForm.controls.enableFillAssist.patchValue(enableFillAssist, {
       emitEvent: false,
@@ -330,6 +336,36 @@ export class AutofillComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         void this.domainSettingsService.setEnableFillAssist(value);
+      });
+
+    const honorBitwardenIgnoreAttribute = await firstValueFrom(
+      this.autofillSettingsService.honorBitwardenIgnoreAttribute$,
+    );
+
+    this.additionalOptionsForm.controls.honorBitwardenIgnoreAttribute.patchValue(
+      honorBitwardenIgnoreAttribute,
+      { emitEvent: false },
+    );
+
+    this.additionalOptionsForm.controls.honorBitwardenIgnoreAttribute.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setHonorBitwardenIgnoreAttribute(value);
+      });
+
+    const honorBitwardenAutofillAttribute = await firstValueFrom(
+      this.autofillSettingsService.honorBitwardenAutofillAttribute$,
+    );
+
+    this.additionalOptionsForm.controls.honorBitwardenAutofillAttribute.patchValue(
+      honorBitwardenAutofillAttribute,
+      { emitEvent: false },
+    );
+
+    this.additionalOptionsForm.controls.honorBitwardenAutofillAttribute.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setHonorBitwardenAutofillAttribute(value);
       });
 
     this.enableContextMenuItem = await firstValueFrom(
@@ -548,16 +584,12 @@ export class AutofillComponent implements OnInit {
 
   async updateDefaultBrowserAutofillDisabled() {
     if (
-      this.browserClientVendor === BrowserClientVendors.Firefox &&
+      BrowserApi.isFirefox &&
       this.defaultBrowserAutofillDisabled &&
       !this.privacyPermissionIsGranted
     ) {
-      void BrowserApi.requestPermission({ permissions: ["privacy"] });
-      await setPendingDefaultPasswordManagerApply(true);
-
-      if (BrowserPopupUtils.inPopup(window) || BrowserPopupUtils.inPopout(window)) {
-        BrowserApi.closePopup(window);
-      }
+      void this.autofillBrowserSettingsService.requestPrivacyPermissionFromUserGesture();
+      await this.autofillBrowserSettingsService.completeFirefoxPopupPermissionFlow(window);
 
       return;
     }
@@ -569,10 +601,9 @@ export class AutofillComponent implements OnInit {
     }
 
     if (!privacyPermissionGranted) {
-      await setPendingDefaultPasswordManagerApply(true);
-      const granted = await BrowserApi.requestPermission({ permissions: ["privacy"] });
+      const granted =
+        await this.autofillBrowserSettingsService.ensurePrivacyPermissionForOverride();
       if (!granted) {
-        await setPendingDefaultPasswordManagerApply(false);
         await this.dialogService.openSimpleDialog({
           title: { key: "privacyPermissionAdditionNotGrantedTitle" },
           content: { key: "privacyPermissionAdditionNotGrantedDescription" },
@@ -663,6 +694,10 @@ export class AutofillComponent implements OnInit {
 
   async updateShowInlineMenuIdentities() {
     await this.autofillSettingsService.setShowInlineMenuIdentities(this.showInlineMenuIdentities);
+  }
+
+  async updateShowInlineMenuSshKeys() {
+    await this.autofillSettingsService.setShowInlineMenuSshKeys(this.showInlineMenuSshKeys);
   }
 
   getMatchHints() {

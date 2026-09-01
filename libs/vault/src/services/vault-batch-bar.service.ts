@@ -39,7 +39,7 @@ import {
   BulkMoveDialogResult,
   openBulkMoveDialog,
 } from "../components/bulk-action-dialogs/bulk-move-dialog/bulk-move-dialog.component";
-import { VaultItem } from "../components/vault-item";
+import { compareVaultItems, VaultItem } from "../components/vault-item";
 import { All } from "../models/routed-vault-filter.model";
 import {
   ASSIGN_COLLECTIONS_DIALOG,
@@ -143,7 +143,11 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   );
 
   /** The Angular CDK selection model. Add, remove, or clear items directly. */
-  readonly selection = new SelectionModel<VaultItem<C>>(true, [], true);
+  readonly selection = new SelectionModel<VaultItem<C>>(true, [], true, compareVaultItems);
+
+  private readonly _cleared$ = new Subject<void>();
+  /** Emits whenever the selection is cleared via {@link clear} — the "Clear" button, a filter change, or a completed bulk action. */
+  readonly cleared$ = this._cleared$.asObservable();
 
   private readonly _completed$ = new Subject<void>();
   /** Emits once after each successful bulk action. Subscribe to trigger a list refresh. */
@@ -198,21 +202,25 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   readonly canArchive = computed(() => {
     const selected = this.selected();
     const hasCollections = selected.some((i) => i.collection);
-    if (selected.length === 0 || !this.userCanArchive() || hasCollections || this.inTrash()) {
+    if (
+      selected.length === 0 ||
+      !this.userCanArchive() ||
+      hasCollections ||
+      this.inTrash() ||
+      this.config().isOrgVault
+    ) {
       return false;
     }
-    return !selected.find(
-      (item) => item.cipher && (item.cipher.organizationId || item.cipher.archivedDate),
-    );
+    return !selected.find((item) => item.cipher && item.cipher.archivedDate);
   });
 
   /** True when all selected ciphers can be unarchived. */
   readonly canUnarchive = computed(() => {
     const selected = this.selected();
-    if (selected.length === 0 || this.inTrash()) {
+    if (selected.length === 0 || this.inTrash() || this.config().isOrgVault) {
       return false;
     }
-    return !selected.find((i) => !i.cipher?.archivedDate || i.cipher?.organizationId);
+    return !selected.find((i) => !i.cipher?.archivedDate);
   });
 
   /** True when all selected ciphers can be restored from trash. */
@@ -374,13 +382,19 @@ export class VaultBatchBarService<C extends CipherViewLike> {
         takeUntilDestroyed(),
       )
       .subscribe(() => {
-        this.selection.clear();
+        this.clear();
       });
   }
 
   /** Update the vault context. Call in `ngOnChanges` or when configuration values change so permission signals stay current. */
   setConfig(config: VaultBatchBarConfig): void {
     this.config.set(config);
+  }
+
+  /** Clear the selection and notify subscribers (e.g. the table component) to uncheck rows. */
+  clear(): void {
+    this.selection.clear();
+    this._cleared$.next();
   }
 
   /** Archive the selected ciphers after confirmation. No-op if reprompt is cancelled. */
@@ -391,9 +405,15 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       return;
     }
 
+    const titleKey = ciphers.length === 1 ? "archiveItemTitle" : "archiveItemsPlural";
+    const contentKey =
+      ciphers.length === 1 ? "archiveItemDialogContent" : "archiveItemsPluralDescription";
+    const successKey = ciphers.length === 1 ? "itemArchiveToast" : "bulkArchiveItems";
+
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "archiveBulkItems" },
-      content: { key: "archiveBulkItemsConfirmDesc" },
+      title: { key: titleKey, placeholders: [ciphers.length] },
+      content: { key: contentKey },
+      acceptButtonText: { key: "archiveVerb" },
       type: "info",
     });
 
@@ -407,9 +427,9 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       await this.cipherArchiveService.archiveWithServer(cipherIds, userId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("bulkArchiveItems"),
+        message: this.i18nService.t(successKey),
       });
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     } catch (e) {
       this.logService.error("Error archiving ciphers", e);
@@ -434,9 +454,11 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       await this.cipherArchiveService.unarchiveWithServer(cipherIds, userId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("bulkUnarchiveItems"),
+        message: this.i18nService.t(
+          ciphers.length === 1 ? "itemUnarchivedToast" : "bulkUnarchiveItems",
+        ),
       });
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     } catch (e) {
       this.logService.error("Error unarchiving ciphers", e);
@@ -469,8 +491,8 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     }
 
     const toastMessage = ciphers.some((c) => !CipherViewLikeUtils.isArchived(c))
-      ? this.i18nService.t("restoredItems")
-      : this.i18nService.t("archivedItemsRestored");
+      ? this.i18nService.t(ciphers.length === 1 ? "restoredItem" : "restoredItems")
+      : this.i18nService.t(ciphers.length === 1 ? "archivedItemRestored" : "archivedItemsRestored");
 
     if (!(await this.reprompt(ciphers))) {
       return;
@@ -522,7 +544,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       }
 
       this.toastService.showToast({ variant: "success", message: toastMessage });
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     } catch (e) {
       this.logService.error("Error restoring ciphers", e);
@@ -610,7 +632,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     });
 
     if (result === BulkDeleteDialogResult.Deleted) {
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     }
   }
@@ -638,7 +660,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
     const result = await lastValueFrom(dialog.closed);
     if (result === BulkMoveDialogResult.Moved) {
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     }
   }
@@ -713,7 +735,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     });
 
     if (result === AssignCollectionsResult.Saved) {
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     }
   }
@@ -749,7 +771,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     });
 
     if (result === BulkEditCollectionAccessResult.Saved) {
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     }
   }

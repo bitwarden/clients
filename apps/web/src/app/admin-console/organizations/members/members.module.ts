@@ -9,6 +9,7 @@ import {
   ScrollLayoutDirective,
   TooltipDirective,
 } from "@bitwarden/components";
+import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 
@@ -17,6 +18,7 @@ import { SharedOrganizationModule } from "../shared";
 
 import { BulkConfirmDialogComponent } from "./components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "./components/bulk/bulk-delete-dialog.component";
+import { BulkEnablePrivilegedControlsDialogComponent } from "./components/bulk/bulk-enable-privileged-controls-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "./components/bulk/bulk-enable-sm-dialog.component";
 import { BulkProgressDialogComponent } from "./components/bulk/bulk-progress-dialog.component";
 import { BulkReinviteFailureDialogComponent } from "./components/bulk/bulk-reinvite-failure-dialog.component";
@@ -27,7 +29,7 @@ import { InviteMembersDialogComponent } from "./components/invite-members-dialog
 import { UserDialogModule } from "./components/member-dialog";
 import { MembersRoutingModule } from "./members-routing.module";
 import { MembersComponent } from "./members.component";
-import { UserStatusPipe } from "./pipes";
+import { AvatarIdPipe, UserStatusPipe } from "./pipes";
 import {
   OrganizationMembersService,
   MemberActionsService,
@@ -50,17 +52,21 @@ import {
     IconModule,
     BerryComponent,
     TooltipDirective,
-  ],
-  declarations: [
+    AvatarIdPipe,
     BulkConfirmDialogComponent,
+    BulkDeleteDialogComponent,
+    BulkEnablePrivilegedControlsDialogComponent,
     BulkEnableSecretsManagerDialogComponent,
     BulkRemoveDialogComponent,
     BulkRestoreRevokeComponent,
     BulkStatusComponent,
+    Vfo1IconPipe,
+    Vfo1I18nPipe,
+  ],
+  declarations: [
     BulkProgressDialogComponent,
     BulkReinviteFailureDialogComponent,
     MembersComponent,
-    BulkDeleteDialogComponent,
     UserStatusPipe,
   ],
   providers: [

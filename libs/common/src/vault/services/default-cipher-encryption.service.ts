@@ -1,4 +1,4 @@
-import { EMPTY, catchError, concatMap, firstValueFrom, map } from "rxjs";
+import { EMPTY, catchError, concatMap, firstValueFrom, map, throwError } from "rxjs";
 
 import { CipherListView, DecryptCipherListResult } from "@bitwarden/sdk-internal";
 
@@ -32,6 +32,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
             encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
+            encryptedByKeyId: encryptionContext.encryptedByKeyId,
           };
         }),
         catchError((error: unknown) => {
@@ -61,11 +62,14 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           return results.map((encryptionContext) => ({
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
             encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
+            encryptedByKeyId: encryptionContext.encryptedByKeyId,
           }));
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to encrypt ciphers in batch: ${error}`);
-          return EMPTY;
+          // Propagate the underlying failure. Returning EMPTY here would make firstValueFrom
+          // reject with an opaque "no elements in sequence" EmptyError.
+          return throwError(() => (error instanceof Error ? error : new Error(String(error))));
         }),
       ),
     );
@@ -92,6 +96,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
             encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
+            encryptedByKeyId: encryptionContext.encryptedByKeyId,
           };
         }),
         catchError((error: unknown) => {
@@ -121,6 +126,8 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
             encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
+            // Rotation encrypts under the new key, so this is the new key's id, not the current one.
+            encryptedByKeyId: encryptionContext.encryptedByKeyId,
           };
         }),
         catchError((error: unknown) => {

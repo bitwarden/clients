@@ -5,7 +5,6 @@ import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/adm
 import { OrganizationConnectionType } from "../admin-console/enums";
 import {
   CollectionAccessDetailsResponse,
-  CollectionDetailsResponse,
   CollectionResponse,
 } from "../admin-console/models/collections";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
@@ -61,7 +60,6 @@ import { EventRequest, EventResponse } from "../dirt/event-logs";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
-import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
@@ -132,10 +130,7 @@ export abstract class ApiService {
 
   abstract postIdentityToken(
     request:
-      | PasswordTokenRequest
-      | SsoTokenRequest
-      | UserApiTokenRequest
-      | WebAuthnLoginTokenRequest,
+      PasswordTokenRequest | SsoTokenRequest | UserApiTokenRequest | WebAuthnLoginTokenRequest,
   ): Promise<
     | IdentityTokenResponse
     | IdentityTwoFactorResponse
@@ -159,7 +154,6 @@ export abstract class ApiService {
   abstract postAccountVerifyEmailToken(request: VerifyEmailRequest): Promise<any>;
   abstract postAccountRecoverDelete(request: DeleteRecoverRequest): Promise<any>;
   abstract postAccountRecoverDeleteToken(request: VerifyDeleteRecoverRequest): Promise<any>;
-  abstract postAccountKdf(request: KdfRequest): Promise<any>;
   abstract postUserApiKey(id: string, request: SecretVerificationRequest): Promise<ApiKeyResponse>;
   abstract postUserRotateApiKey(
     id: string,
@@ -276,12 +270,12 @@ export abstract class ApiService {
   abstract postCollection(
     organizationId: string,
     request: CreateCollectionRequest,
-  ): Promise<CollectionDetailsResponse>;
+  ): Promise<CollectionAccessDetailsResponse>;
   abstract putCollection(
     organizationId: string,
     id: string,
     request: UpdateCollectionRequest,
-  ): Promise<CollectionDetailsResponse>;
+  ): Promise<CollectionAccessDetailsResponse>;
   abstract deleteCollection(organizationId: string, id: string): Promise<any>;
   abstract deleteManyCollections(organizationId: string, collectionIds: string[]): Promise<any>;
 
@@ -437,8 +431,9 @@ export abstract class ApiService {
    * Posts events for a user
    * @param request The array of events to upload
    * @param userId The optional user id the events belong to. If no user id is provided the active user id is used.
+   * @returns The list of events that failed to upload, or an empty array if all events were uploaded successfully.
    */
-  abstract postEventsCollect(request: EventRequest[], userId?: UserId): Promise<any>;
+  abstract postEventsCollect(request: EventRequest[], userId?: UserId): Promise<EventRequest[]>;
 
   abstract deleteSsoUser(organizationId: string): Promise<void>;
   abstract getSsoUserIdentifier(): Promise<string>;
