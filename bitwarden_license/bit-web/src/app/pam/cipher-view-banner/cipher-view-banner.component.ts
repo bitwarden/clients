@@ -18,8 +18,21 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { catchError, combineLatest, firstValueFrom, from, map, merge, of, switchMap } from "rxjs";
+import {
+  catchError,
+  combineLatest,
+  distinctUntilChanged,
+  firstValueFrom,
+  from,
+  map,
+  merge,
+  of,
+  shareReplay,
+  switchMap,
+} from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -66,7 +79,9 @@ import { DurationShortPipe } from "../date/duration-short.pipe";
 import { formatDuration } from "../date/format-duration";
 import { formatRemaining } from "../date/format-remaining";
 import { isGovernedCipher } from "../helpers/governed-cipher";
+import { isUnlicensedError } from "../helpers/pam-license-error";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
+import { callerOrganizations$, unlicensedForPam } from "../services/pam-membership";
 
 import {
   REQUEST_WINDOW_ERROR_KEY,
@@ -77,12 +92,19 @@ import {
  * Cipher-view banner for PAM-governed items — the requester's entry point into the leasing flow,
  * bound to `CIPHER_VIEW_BANNER` (see `provide-pam.ts`) so `libs/vault` renders it without depending
  * on this library. Reads the caller's access state for the open cipher via
- * `AccessRequestSdkService.getCipherAccessState` and renders exactly one of four states:
+ * `AccessRequestSdkService.getCipherAccessState` and renders exactly one of five states:
  *
+ *  - unlicensed       — the caller holds no PAM seat, so nothing here applies to them
  *  - active lease     — the live countdown, plus Extend and End
  *  - approved request — Start access, or withdraw it
  *  - pending request  — Cancel request while it awaits an approver
  *  - neither          — Request access, folding out an inline form
+ *
+ * The unlicensed state comes FIRST and is the only one not derived from the access-state read (see
+ * {@link unlicensed}). It replaces every other state rather than sitting among them, because the
+ * server withholds the credential from an unlicensed holder whatever lease they hold
+ * (`CipherLeaseGate.LeaseCanRelease`) — so a countdown here would be describing access that is no
+ * longer being served.
  *
  * The fold-out's shape comes from a side-effect-free `preCheck`: the `automatic` path collects a
  * duration only, the `human` path a window plus a justification. Every mutation ends by announcing
@@ -124,6 +146,8 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly accessRefreshService = inject(AccessRefreshService);
   private readonly leasingErrorService = inject(LeasingErrorService);
   private readonly configService = inject(ConfigService);
+  private readonly accountService = inject(AccountService);
+  private readonly organizationService = inject(OrganizationService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
@@ -139,19 +163,35 @@ export class CipherViewBannerComponent implements OnInit {
 
   private readonly enabled$ = this.configService.getFeatureFlag$(FeatureFlag.Pam);
 
+  private readonly organizations$ = callerOrganizations$(
+    this.accountService,
+    this.organizationService,
+  );
+
   /**
-   * The caller's access state for the open cipher, re-read on every access change.
-   *
-   * Reads only for a PAM-governed cipher, per {@link isGovernedCipher}, and only while the flag
-   * is on.
+   * The open cipher once PAM has anything to say about it: governed per {@link isGovernedCipher} and the flag on,
+   * `null` otherwise. One home for the precondition, shared by {@link state} and {@link unlicensed} — two surfaces
+   * that must agree on what counts as governed, and would otherwise each subscribe `enabled$` and re-derive it.
+   */
+  private readonly governedCipher$ = combineLatest([toObservable(this.cipher), this.enabled$]).pipe(
+    map(([cipher, enabled]) =>
+      !enabled || cipher.id == null || !isGovernedCipher(cipher) ? null : cipher,
+    ),
+    distinctUntilChanged(),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  /**
+   * The caller's access state for the open cipher, re-read on every access change. Reads only for a
+   * governed cipher (see {@link governedCipher$}).
    *
    * The re-read trigger is {@link AccessRefreshService}, shared with the gated-cipher reloader, so
    * starting access here also reveals the credential in the item behind this banner.
    */
   protected readonly state = toSignal(
-    combineLatest([toObservable(this.cipher), this.enabled$]).pipe(
-      switchMap(([cipher, enabled]) => {
-        if (!enabled || cipher.id == null || !isGovernedCipher(cipher)) {
+    this.governedCipher$.pipe(
+      switchMap((cipher) => {
+        if (cipher == null) {
           return of(null);
         }
         const cipherId = String(cipher.id);
@@ -171,6 +211,40 @@ export class CipherViewBannerComponent implements OnInit {
       }),
     ),
     { initialValue: null },
+  );
+
+  /**
+   * Whether the caller is blocked from privileged access on this item by their own licensing
+   * (PM-39423) — see {@link unlicensedForPam} for what that means and what it deliberately does not
+   * claim.
+   *
+   * Read from local membership state, so it costs no round trip: licensing is a property of the
+   * member, not of the cipher. Keyed on the organization id rather than the cipher, because a fresh
+   * `CipherView` reference (the parent re-decrypts on every access change) would otherwise tear down
+   * and rebuild the membership read for an answer that cannot have changed.
+   *
+   * Deliberately independent of {@link state}: the block must render even when that read fails, and
+   * an unlicensed caller has no access state worth waiting for.
+   */
+  protected readonly unlicensed = toSignal(
+    this.governedCipher$.pipe(
+      map((cipher) => cipher?.organizationId ?? null),
+      distinctUntilChanged(),
+      switchMap((organizationId) =>
+        organizationId == null
+          ? of(false)
+          : this.organizations$.pipe(
+              map((organizations) =>
+                unlicensedForPam(organizations.find((o) => o.id === organizationId)),
+              ),
+            ),
+      ),
+    ),
+    // `undefined` until the membership read lands — NOT `false`. The order this and the access-state
+    // read settle in is not guaranteed (a cold storage hydration, a signed-out-to-signed-in
+    // transition), and treating "not yet known" as "licensed" flashes the request card and fires its
+    // pre-check round trip at someone who is about to be blocked. Readers test against `false`.
+    { initialValue: undefined },
   );
 
   protected readonly activeLease = computed(() => this.state()?.activeLease);
@@ -203,14 +277,15 @@ export class CipherViewBannerComponent implements OnInit {
   protected readonly canExtendLease = computed(() => this.state()?.extensionsAllowed === true);
 
   /**
-   * Offer "Request access" only for a still-gated cipher with nothing already in play. A cipher
-   * that is `leaseGated` but has no active lease has just lapsed; its state stream re-drives the
-   * resting banner instead.
+   * Offer "Request access" only for a still-gated cipher with nothing already in play, held by
+   * someone licensed to ask. A cipher that is `leaseGated` but has no active lease has just lapsed;
+   * its state stream re-drives the resting banner instead.
    */
   protected readonly canRequestAccess = computed(
     () =>
       this.state() != null &&
       this.cipher().partial &&
+      this.unlicensed() === false &&
       this.activeLease() == null &&
       this.approvedRequest() == null &&
       this.pendingRequest() == null,
@@ -655,7 +730,11 @@ export class CipherViewBannerComponent implements OnInit {
       this.logService.error(e);
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("pamExtendLeaseError"),
+        // Only reachable if the seat is withdrawn between render and click — `canExtendLease`
+        // hides the button otherwise — but the generic copy would leave that unexplained.
+        message: this.i18nService.t(
+          isUnlicensedError(e) ? "pamLeaseErrorUnlicensed" : "pamExtendLeaseError",
+        ),
       });
     } finally {
       this.notifyAccessChanged();
