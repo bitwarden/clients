@@ -118,7 +118,7 @@ export class VaultNextComponent {
 
   private readonly vaultIdParam = computed(() => this.routeParams()?.get("vaultId"));
 
-  private readonly collectionIdParam = computed(() => this.routeParams()?.get("collectionId"));
+  protected readonly collectionIdParam = computed(() => this.routeParams()?.get("collectionId"));
 
   private readonly vaultNav = toSignal(
     this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),

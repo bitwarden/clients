@@ -13,13 +13,16 @@
           {{ crumb.name }}
         </bit-breadcrumb>
       }
-      <bit-breadcrumb
-        [icon]="'bwi-shared-folder'"
-        [route]="currentFolderRoute()"
-        queryParamsHandling="preserve"
-      >
-        {{ sharedFolderName() }}
-      </bit-breadcrumb>
+      <!-- @for forces BreadcrumbComponent to recreate on folder change so ngOnInit re-checks the active route -->
+      @for (id of [collectionIdParam()]; track id) {
+        <bit-breadcrumb
+          [icon]="'bwi-shared-folder'"
+          [route]="currentFolderRoute()"
+          queryParamsHandling="preserve"
+        >
+          {{ sharedFolderName() }}
+        </bit-breadcrumb>
+      }
     </bit-breadcrumbs>
   }
 </app-header>
