@@ -474,6 +474,12 @@ export class MembersComponent {
     await this.load(organization);
   }
 
+  /**
+   * Promotes staged members to invited. Capped at {@link MaxCheckedCount} because the request
+   * reserves seats for the whole set in one call, so it cannot be split into batches.
+   *
+   * @returns The number of invites sent, or 0 when the request failed.
+   */
   private async sendStagedInvites(
     organization: Organization,
     stagedUsers: OrganizationUserView[],
