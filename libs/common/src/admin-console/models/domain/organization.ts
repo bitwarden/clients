@@ -38,6 +38,11 @@ export class Organization {
   useSecretsManager: boolean;
   usePasswordManager: boolean;
   usePam: boolean;
+  /**
+   * This member's own Privileged Access Manager license, drawn against the organization's {@link usePam}
+   * subscription. Both are needed to act on a governed item -- see {@link canAccessPrivilegedAccess}.
+   */
+  accessPam: boolean;
   useActivateAutofillPolicy: boolean;
   useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
@@ -130,6 +135,7 @@ export class Organization {
     this.useSecretsManager = obj.useSecretsManager;
     this.usePasswordManager = obj.usePasswordManager;
     this.usePam = obj.usePam;
+    this.accessPam = obj.accessPam;
     this.useActivateAutofillPolicy = obj.useActivateAutofillPolicy;
     this.useAutomaticUserConfirmation = obj.useAutomaticUserConfirmation;
     this.selfHost = obj.selfHost;
@@ -378,6 +384,17 @@ export class Organization {
 
   get hasReseller() {
     return this.hasProvider && this.providerType === ProviderType.Reseller;
+  }
+  /**
+   * Whether this member may take out privileged access: the organization is subscribed and they hold a seat
+   * against it. Mirrors the server's own AND in `CurrentContextOrganization.AccessPam`, and the shape of
+   * {@link canAccessSecretsManager} — the other per-seat entitlement.
+   *
+   * Distinct from {@link canManageAccessRules}, which is about authoring the rules rather than requesting access
+   * under them: an admin without a seat administers PAM but cannot use it.
+   */
+  get canAccessPrivilegedAccess() {
+    return this.usePam && this.accessPam;
   }
 
   get canAccessSecretsManager() {
