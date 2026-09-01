@@ -16,4 +16,5 @@ export class SingleOrgPolicy extends BasePolicyEditDefinition {
   priority = 10;
   component = SimpleTogglePolicyComponent;
   warningKey = "singleOrgPolicyMemberWarning";
+  hideWarningVfo1 = true;
 }
