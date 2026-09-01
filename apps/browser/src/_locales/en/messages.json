@@ -1534,6 +1534,9 @@
     "message": "Import",
     "description": "The verb form of the word Import"
   },
+  "importItems": {
+    "message": "Import items"
+  },
   "fileFormat": {
     "message": "File format"
   },

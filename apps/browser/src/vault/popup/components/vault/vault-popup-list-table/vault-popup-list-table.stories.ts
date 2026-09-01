@@ -321,6 +321,8 @@ const buildProviders = (args: StoryArgs) => {
         hasSearchText$: hasSearchText$.asObservable(),
         // No story exercises the suspended-organization notice.
         showDeactivatedOrg$: of(false),
+        // Mirrors the real service: whether the account has any items at all, ignoring search/filters.
+        emptyVault$: of(allItems.length === 0),
         applyFilter,
       },
     },

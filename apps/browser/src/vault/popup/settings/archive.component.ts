@@ -11,6 +11,8 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
@@ -25,9 +27,9 @@ import {
   IconButtonModule,
   ItemModule,
   MenuModule,
-  StatusLockupComponent,
   SectionComponent,
   SectionHeaderComponent,
+  StatusLockupComponent,
   SvgComponent,
   ToastService,
   TypographyModule,
@@ -38,6 +40,7 @@ import {
 import {
   CanDeleteCipherDirective,
   DecryptionFailureDialogComponent,
+  EmptyVaultComponent,
   OrgIconDirective,
   PasswordRepromptService,
   Vfo1I18nPipe,
@@ -59,7 +62,9 @@ import { ROUTES_AFTER_EDIT_DELETION } from "../services/vault-popup-after-deleti
     PopupPageComponent,
     PopupHeaderComponent,
     PopOutComponent,
+    EmptyVaultComponent,
     StatusLockupComponent,
+    SvgComponent,
     ItemModule,
     MenuModule,
     IconButtonModule,
@@ -72,7 +77,6 @@ import { ROUTES_AFTER_EDIT_DELETION } from "../services/vault-popup-after-deleti
     ButtonComponent,
     IconModule,
     Vfo1I18nPipe,
-    SvgComponent,
   ],
 })
 export class ArchiveComponent {
@@ -90,7 +94,14 @@ export class ArchiveComponent {
 
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
-  readonly noItemsIcon = NoResults;
+  /** Legacy (flag-off) empty-archive icon — see {@link vfo1Enabled}. */
+  protected readonly noItemsIcon = NoResults;
+
+  /** When enabled, the empty-archive state renders via the shared `EmptyVaultComponent`. */
+  protected readonly vfo1Enabled = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   private readonly orgMap = toSignal(
     this.userId$.pipe(
