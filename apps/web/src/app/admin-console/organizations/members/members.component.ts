@@ -46,7 +46,10 @@ import { getById } from "@bitwarden/common/platform/misc";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
-import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
+import {
+  BillingConstraintService,
+  SeatLimitAction,
+} from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import {
@@ -288,8 +291,12 @@ export class MembersComponent {
   }
 
   async sendInvite(user: OrganizationUserView, organization: Organization) {
+    if (await this.seatLimitBlocks(organization)) {
+      return;
+    }
+
     const sideEffect = async () => await this.load(organization);
-    const result = await this.memberActionsService.sendInvite(organization, [user.id]);
+    const result = await this.memberActionsService.sendInvite(organization, user.id);
     await this.handleMemberActionResult(result, "hasBeenInvited", user, sideEffect);
   }
 
@@ -319,9 +326,7 @@ export class MembersComponent {
   }
 
   async restore(user: OrganizationUserView, organization: Organization) {
-    const billingMetadata = await firstValueFrom(this.billingMetadata$);
-    const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
-    if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization, "restore")) {
+    if (await this.seatLimitBlocks(organization, "restore")) {
       return;
     }
 
@@ -416,12 +421,8 @@ export class MembersComponent {
   }
 
   async bulkRevokeOrRestore(isRevoking: boolean, organization: Organization) {
-    if (!isRevoking) {
-      const billingMetadata = await firstValueFrom(this.billingMetadata$);
-      const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
-      if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization, "restore")) {
-        return;
-      }
+    if (!isRevoking && (await this.seatLimitBlocks(organization, "restore"))) {
+      return;
     }
 
     const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
@@ -434,7 +435,10 @@ export class MembersComponent {
       ? this.dataSource().getCheckedUsersInVisibleOrder()
       : this.dataSource().getCheckedUsers();
 
-    const stagedUsers = users.filter((u) => u.canSendInvite);
+    const stagedUsers = this.dataSource().limitAndUncheckExcess(
+      users.filter((u) => u.canSendInvite),
+      MaxCheckedCount,
+    );
     const invitedUsers = users.filter((u) => u.canReinvite);
 
     if (stagedUsers.length === 0 && invitedUsers.length === 0) {
@@ -446,9 +450,14 @@ export class MembersComponent {
       return;
     }
 
-    const stagedSentCount = await this.sendStagedInvites(organization, stagedUsers);
+    // Only the staged half consumes seats; a pure resend must not be blocked by the seat limit.
+    if (stagedUsers.length > 0 && (await this.seatLimitBlocks(organization))) {
+      return;
+    }
+
+    const invited = await this.sendStagedInvites(organization, stagedUsers);
     const reinvited = await this.resendInvites(organization, invitedUsers);
-    const sentCount = stagedSentCount + reinvited.length;
+    const sentCount = invited.length + reinvited.length;
 
     if (sentCount > 0) {
       this.toastService.showToast({
@@ -475,31 +484,39 @@ export class MembersComponent {
   }
 
   /**
-   * Promotes staged members to invited. Capped at {@link MaxCheckedCount} because the request
-   * reserves seats for the whole set in one call, so it cannot be split into batches.
+   * Prompts to upgrade when the organization has no seat available and its plan cannot autoscale.
+   * Gates every action that moves a member into a seat-occupying status: inviting a staged member,
+   * and restoring a revoked one.
+   */
+  private async seatLimitBlocks(
+    organization: Organization,
+    action: SeatLimitAction = "invite",
+  ): Promise<boolean> {
+    const billingMetadata = await firstValueFrom(this.billingMetadata$);
+    const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
+    return await this.billingConstraint.seatLimitReached(seatLimitResult, organization, action);
+  }
+
+  /**
+   * Promotes staged members to invited.
    *
-   * @returns The number of invites sent, or 0 when the request failed.
+   * @returns The responses for the members that were successfully invited.
    */
   private async sendStagedInvites(
     organization: Organization,
     stagedUsers: OrganizationUserView[],
-  ): Promise<number> {
+  ): Promise<OrganizationUserBulkResponse[]> {
     if (stagedUsers.length === 0) {
-      return 0;
+      return [];
     }
 
-    const cappedUsers = this.dataSource().limitAndUncheckExcess(stagedUsers, MaxCheckedCount);
-    const result = await this.memberActionsService.sendInvite(
-      organization,
-      cappedUsers.map((u) => u.id),
-    );
+    const result = await this.memberActionsService.bulkSendInvite(organization, stagedUsers);
 
-    if (result.success === false) {
-      this.validationService.showError(result.error);
-      return 0;
+    if (result.successful.length === 0) {
+      this.validationService.showError(result.failed);
     }
 
-    return cappedUsers.length;
+    return result.successful;
   }
 
   private async resendInvites(

@@ -585,6 +585,8 @@ describe("MembersComponent", () => {
       canReinvite: true,
     };
 
+    const sent = (id: string) => ({ id, error: "" });
+
     beforeEach(() => {
       jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(true);
     });
@@ -593,11 +595,14 @@ describe("MembersComponent", () => {
       jest
         .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
         .mockReturnValue([stagedUser]);
-      mockMemberActionsService.sendInvite.mockResolvedValue({ success: true });
+      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
+        successful: [sent(stagedUser.id)],
+        failed: [],
+      });
 
       await component.bulkSendInvite(mockOrg);
 
-      expect(mockMemberActionsService.sendInvite).toHaveBeenCalledWith(mockOrg, [stagedUser.id]);
+      expect(mockMemberActionsService.bulkSendInvite).toHaveBeenCalledWith(mockOrg, [stagedUser]);
       expect(mockMemberActionsService.bulkReinvite).not.toHaveBeenCalled();
     });
 
@@ -610,24 +615,46 @@ describe("MembersComponent", () => {
       await component.bulkSendInvite(mockOrg);
 
       expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser]);
-      expect(mockMemberActionsService.sendInvite).not.toHaveBeenCalled();
+      expect(mockMemberActionsService.bulkSendInvite).not.toHaveBeenCalled();
     });
 
     it("routes each member to the matching endpoint for a mixed selection", async () => {
       jest
         .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
         .mockReturnValue([stagedUser, invitedUser]);
-      mockMemberActionsService.sendInvite.mockResolvedValue({ success: true });
+      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
+        successful: [sent(stagedUser.id)],
+        failed: [],
+      });
       mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [{}], failed: [] });
 
       await component.bulkSendInvite(mockOrg);
 
-      expect(mockMemberActionsService.sendInvite).toHaveBeenCalledWith(mockOrg, [stagedUser.id]);
+      expect(mockMemberActionsService.bulkSendInvite).toHaveBeenCalledWith(mockOrg, [stagedUser]);
       expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser]);
       expect(mockToastService.showToast).toHaveBeenCalledWith({
         variant: "success",
         message: "bulkReinviteSentToast",
       });
+    });
+
+    it("counts only the staged members the server actually invited", async () => {
+      const skippedUser = { ...stagedUser, id: "no-longer-staged-user-id" };
+      jest
+        .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
+        .mockReturnValue([stagedUser, skippedUser]);
+      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
+        successful: [sent(stagedUser.id)],
+        failed: [{ id: skippedUser.id, error: "Only staged members can be sent an invitation." }],
+      });
+
+      await component.bulkSendInvite(mockOrg);
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "reinviteSuccessToast",
+      });
+      expect(mockValidationService.showError).not.toHaveBeenCalled();
     });
 
     it("shows an error when no selected member can be invited", async () => {
@@ -648,7 +675,7 @@ describe("MembersComponent", () => {
         title: "errorOccurred",
         message: "noSelectedUsersApplicable",
       });
-      expect(mockMemberActionsService.sendInvite).not.toHaveBeenCalled();
+      expect(mockMemberActionsService.bulkSendInvite).not.toHaveBeenCalled();
       expect(mockMemberActionsService.bulkReinvite).not.toHaveBeenCalled();
     });
 
@@ -656,15 +683,17 @@ describe("MembersComponent", () => {
       jest
         .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
         .mockReturnValue([stagedUser, invitedUser]);
-      mockMemberActionsService.sendInvite.mockResolvedValue({
-        success: false,
-        error: "No seats available",
+      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
+        successful: [],
+        failed: [{ id: stagedUser.id, error: "No seats available" }],
       });
       mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [{}], failed: [] });
 
       await component.bulkSendInvite(mockOrg);
 
-      expect(mockValidationService.showError).toHaveBeenCalledWith("No seats available");
+      expect(mockValidationService.showError).toHaveBeenCalledWith([
+        { id: stagedUser.id, error: "No seats available" },
+      ]);
       expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser]);
     });
 
@@ -683,7 +712,10 @@ describe("MembersComponent", () => {
       jest
         .spyOn(component["dataSource"](), "getCheckedUsers")
         .mockReturnValue([stagedUser, invitedUser]);
-      mockMemberActionsService.sendInvite.mockResolvedValue({ success: true });
+      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
+        successful: [sent(stagedUser.id)],
+        failed: [],
+      });
       mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [{}], failed: [] });
 
       await component.bulkSendInvite(mockOrg);
@@ -696,7 +728,49 @@ describe("MembersComponent", () => {
       );
     });
 
-    it("caps the staged portion because the request cannot be batched", async () => {
+    it("checks the seat limit before promoting staged members", async () => {
+      mockBillingConstraint.seatLimitReached.mockResolvedValue(false);
+      jest
+        .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
+        .mockReturnValue([stagedUser]);
+      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
+        successful: [sent(stagedUser.id)],
+        failed: [],
+      });
+
+      await component.bulkSendInvite(mockOrg);
+
+      expect(mockBillingConstraint.checkSeatLimit).toHaveBeenCalledWith(
+        mockOrg,
+        mockBillingMetadata,
+      );
+    });
+
+    it("does not promote staged members when the seat limit is reached", async () => {
+      mockBillingConstraint.seatLimitReached.mockResolvedValue(true);
+      jest
+        .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
+        .mockReturnValue([stagedUser, invitedUser]);
+
+      await component.bulkSendInvite(mockOrg);
+
+      expect(mockMemberActionsService.bulkSendInvite).not.toHaveBeenCalled();
+      expect(mockMemberActionsService.bulkReinvite).not.toHaveBeenCalled();
+    });
+
+    it("does not check the seat limit for a resend-only selection", async () => {
+      jest
+        .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
+        .mockReturnValue([invitedUser]);
+      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [{}], failed: [] });
+
+      await component.bulkSendInvite(mockOrg);
+
+      expect(mockBillingConstraint.checkSeatLimit).not.toHaveBeenCalled();
+      expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser]);
+    });
+
+    it("caps the staged portion because seats are reserved in one call", async () => {
       const cappedUsers = [stagedUser];
       jest
         .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
@@ -704,12 +778,57 @@ describe("MembersComponent", () => {
       const limitAndUncheckExcess = jest
         .spyOn(component["dataSource"](), "limitAndUncheckExcess")
         .mockReturnValue(cappedUsers);
-      mockMemberActionsService.sendInvite.mockResolvedValue({ success: true });
+      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
+        successful: [sent(stagedUser.id)],
+        failed: [],
+      });
 
       await component.bulkSendInvite(mockOrg);
 
       expect(limitAndUncheckExcess).toHaveBeenCalledWith(expect.anything(), MaxCheckedCount);
-      expect(mockMemberActionsService.sendInvite).toHaveBeenCalledWith(mockOrg, [stagedUser.id]);
+      expect(mockMemberActionsService.bulkSendInvite).toHaveBeenCalledWith(mockOrg, cappedUsers);
+    });
+  });
+
+  describe("sendInvite", () => {
+    const stagedUser = {
+      ...mockUser,
+      status: OrganizationUserStatusType.Staged,
+      canSendInvite: true,
+      canReinvite: false,
+    };
+
+    it("sends an invite for a single staged member", async () => {
+      mockMemberActionsService.sendInvite.mockResolvedValue({ success: true });
+
+      await component.sendInvite(stagedUser, mockOrg);
+
+      expect(mockMemberActionsService.sendInvite).toHaveBeenCalledWith(mockOrg, stagedUser.id);
+      expect(mockToastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+    });
+
+    it("does not send an invite when the seat limit is reached", async () => {
+      mockBillingConstraint.seatLimitReached.mockResolvedValue(true);
+
+      await component.sendInvite(stagedUser, mockOrg);
+
+      expect(mockMemberActionsService.sendInvite).not.toHaveBeenCalled();
+    });
+
+    it("surfaces the error when the member is no longer staged", async () => {
+      mockMemberActionsService.sendInvite.mockResolvedValue({
+        success: false,
+        error: "Only staged members can be sent an invitation.",
+      });
+
+      await component.sendInvite(stagedUser, mockOrg);
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "Only staged members can be sent an invitation.",
+      });
     });
   });
 

@@ -115,10 +115,16 @@ export abstract class OrganizationUserApiService {
 
   /**
    * Send a first invitation to organization users currently in the Staged status, moving them to Invited.
+   * Members that are no longer staged are reported individually rather than failing the request; a seat
+   * expansion failure fails the whole request because seats are reserved once for the entire selection.
    * @param organizationId - Identifier for the organization
    * @param ids - A list of staged organization user identifiers
+   * @return List of user ids, including both those that were successfully invited and those that had an error
    */
-  abstract postOrganizationUserSendInvite(organizationId: string, ids: string[]): Promise<void>;
+  abstract postOrganizationUserSendInvite(
+    organizationId: string,
+    ids: string[],
+  ): Promise<ListResponse<OrganizationUserBulkResponse>>;
 
   /**
    * Accept an invitation to initialize and join an organization created via the Admin Portal **only**.

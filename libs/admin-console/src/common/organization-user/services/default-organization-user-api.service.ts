@@ -155,14 +155,18 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     return new ListResponse(r, OrganizationUserBulkResponse);
   }
 
-  postOrganizationUserSendInvite(organizationId: string, ids: string[]): Promise<void> {
-    return this.apiService.send(
+  async postOrganizationUserSendInvite(
+    organizationId: string,
+    ids: string[],
+  ): Promise<ListResponse<OrganizationUserBulkResponse>> {
+    const r = await this.apiService.send(
       "POST",
       "/organizations/" + organizationId + "/users/send-invite",
       new OrganizationUserBulkRequest(ids),
       true,
-      false,
+      true,
     );
+    return new ListResponse(r, OrganizationUserBulkResponse);
   }
 
   postOrganizationUserAcceptInit(
