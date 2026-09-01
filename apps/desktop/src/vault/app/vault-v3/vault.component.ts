@@ -983,7 +983,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
   }
 
-  protected openImport(): void {
+  protected async openImport(): Promise<void> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      await this.router.navigate(["/import"]);
+      return;
+    }
     this.dialogService.open(ImportDesktopComponent);
   }
 

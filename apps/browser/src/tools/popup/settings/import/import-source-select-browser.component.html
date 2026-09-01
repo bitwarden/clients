@@ -4,12 +4,16 @@
        otherwise it only paints the centered content column and popup-page's own ambient
        tw-bg-background-alt shows through on either side. -->
   <div slot="header" class="tw-w-full tw-bg-bg-primary">
-    <div class="tw-max-w-6xl tw-mx-auto tw-p-4 tw-pb-0">
-      <bit-svg
-        [content]="logo"
-        [ariaLabel]="'appLogoLabel' | i18n"
-        class="tw-mb-2 tw-block tw-w-32"
-      ></bit-svg>
+    <!-- The logo sits at the true left edge of its own full-width strip, independent of the
+         tw-max-w-6xl centered content column below — matching how the real app (e.g. bit-nav-logo,
+         apps/desktop/src/app/layout/desktop-layout.component.html) pins the logo to the far left,
+         decoupled from the main content's own inset, rather than aligning it with page content. -->
+    <bit-svg
+      [content]="logo"
+      [ariaLabel]="'appLogoLabel' | i18n"
+      class="tw-mb-2 tw-block tw-w-40 tw-pl-4 tw-pt-4"
+    ></bit-svg>
+    <div class="tw-max-w-6xl tw-mx-auto tw-p-4 tw-py-0">
       <h1 bitTypography="h1" noMargin>{{ "importNoun" | i18n }}</h1>
     </div>
   </div>

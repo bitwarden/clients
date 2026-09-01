@@ -26,6 +26,7 @@ export default {
               importSourceSelectDescription:
                 "Choose the password manager or browser you are importing from.",
               importSourceShowAll: "Show all",
+              importSourceShowLess: "Show less",
               importSourceStepCount: (current?: string, total?: string) =>
                 `Step ${current} of ${total}`,
               noMatchingItems: "No matching items",
