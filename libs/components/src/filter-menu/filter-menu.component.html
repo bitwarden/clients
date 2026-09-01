@@ -270,7 +270,11 @@
 
 <bit-menu #menu ariaRole="dialog" [ariaLabel]="placeholderText()" (closed)="onMenuClosed()">
   <div class="tw-flex tw-max-h-96 tw-min-w-52 tw-max-w-80 tw-flex-col">
-    <ng-container *ngTemplateOutlet="optionsBody"></ng-container>
+    <!-- Gated on open: the overlay keeps this view alive between openings, so ungated rows would
+         outlive their popover and still count as the menu's once the dialog owns the options. -->
+    @if (menuTrigger.isOpen) {
+      <ng-container *ngTemplateOutlet="optionsBody"></ng-container>
+    }
   </div>
   <!-- In `bit-menu`'s slot, not the body, so the divider runs the full popover width. -->
   @if (multiple() && active()) {
