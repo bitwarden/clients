@@ -104,6 +104,7 @@ export {
 } from "./helpers/request-access-window";
 export type { RequestWindowFormValue, RequestWindowProblem } from "./helpers/request-access-window";
 export {
+  REQUEST_ACCESS_SDK_ERRORS,
   REQUEST_ACCESS_SERVER_ERRORS,
   classifyRequestAccessError,
 } from "./helpers/request-access-error";
