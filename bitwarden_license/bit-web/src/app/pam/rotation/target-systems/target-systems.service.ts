@@ -3,12 +3,7 @@ import { BehaviorSubject, Observable, combineLatest, map } from "rxjs";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import {
-  TargetSystemId,
-  TargetSystemMethod,
-  TargetSystemStatus,
-  TargetSystemView,
-} from "../rotation";
+import { TargetSystemId, TargetSystemMethod, TargetSystemStatus, TargetSystem } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 
 /**
@@ -18,8 +13,10 @@ import { RotationSdkService } from "../rotation-sdk.service";
  * Owns the list of target systems, exposes derived lookups (`systemById$`,
  * `activeAutomaticSystems$`), and handles the enable/disable toggle with optimistic patching.
  *
- * There is deliberately no delete: the server exposes no route for it, because rotation configs
- * reference targets and a rotation's history has to stay attributable. Retiring one is `disable`.
+ * Delete and disable are not interchangeable: `disable` retires a target that is merely
+ * unavailable, leaving it and its configs intact, while `delete` is for one that has left the
+ * estate. The server refuses a delete while any rotation config still names the target, so it —
+ * not this service — is the authority on whether one is allowed.
  */
 @Injectable()
 export class TargetSystemsService {
@@ -28,14 +25,14 @@ export class TargetSystemsService {
   /** Set by {@link load}; the org all subsequent mutations target. */
   private organizationId: OrganizationId | null = null;
 
-  private readonly _systems$ = new BehaviorSubject<TargetSystemView[]>([]);
+  private readonly _systems$ = new BehaviorSubject<TargetSystem[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
 
-  readonly systems$: Observable<TargetSystemView[]> = this._systems$.asObservable();
+  readonly systems$: Observable<TargetSystem[]> = this._systems$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
-  /** A map from targetSystemId → TargetSystemView for O(1) lookups in derived services. */
-  readonly systemById$: Observable<Map<TargetSystemId, TargetSystemView>> = this._systems$.pipe(
+  /** A map from targetSystemId → TargetSystem for O(1) lookups in derived services. */
+  readonly systemById$: Observable<Map<TargetSystemId, TargetSystem>> = this._systems$.pipe(
     map((systems) => new Map(systems.map((s) => [s.id, s]))),
   );
 
@@ -43,7 +40,7 @@ export class TargetSystemsService {
    * The subset of systems that are Active and use the Automatic method — these are the valid
    * choices when selecting a target system for a new rotation config.
    */
-  readonly activeAutomaticSystems$: Observable<TargetSystemView[]> = combineLatest([
+  readonly activeAutomaticSystems$: Observable<TargetSystem[]> = combineLatest([
     this._systems$,
   ]).pipe(
     map(([systems]) =>
@@ -68,7 +65,7 @@ export class TargetSystemsService {
    * Enable or disable a target system, optimistically patching local state.
    * The server returns 204 for enable/disable; state is patched by toggling the status field.
    */
-  async setEnabled(system: TargetSystemView, enabled: boolean): Promise<void> {
+  async setEnabled(system: TargetSystem, enabled: boolean): Promise<void> {
     const orgId = this.requireOrganizationId();
     if (enabled) {
       await this.rotationSdk.enableTargetSystem(orgId, system.id);
@@ -78,9 +75,22 @@ export class TargetSystemsService {
     const nextStatus = enabled ? TargetSystemStatus.Active : TargetSystemStatus.Disabled;
     this._systems$.next(
       this._systems$.value.map((s) =>
-        s.id === system.id ? ({ ...s, status: nextStatus } as TargetSystemView) : s,
+        s.id === system.id ? ({ ...s, status: nextStatus } as TargetSystem) : s,
       ),
     );
+  }
+
+  /**
+   * Permanently delete a target system, dropping it from local state once the server confirms.
+   *
+   * Not optimistic: the server refuses while a rotation config still names the target, and that
+   * refusal is the common case rather than the exceptional one, so the row stays until it is
+   * genuinely gone. Callers surface the rejection to the operator.
+   */
+  async delete(system: TargetSystem): Promise<void> {
+    const orgId = this.requireOrganizationId();
+    await this.rotationSdk.deleteTargetSystem(orgId, system.id);
+    this._systems$.next(this._systems$.value.filter((s) => s.id !== system.id));
   }
 
   private requireOrganizationId(): OrganizationId {

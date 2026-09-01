@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 
-import type { RotationJobView } from "../rotation";
+import type { RotationJob } from "../rotation";
 import {
   RotationAttemptStatus,
   RotationJobStatus,
@@ -8,18 +8,18 @@ import {
   RotationSyncState,
   SessionTerminationOutcome,
 } from "../rotation";
-import { jobId, rotationJobView } from "../testing/rotation-builders";
+import { jobId, rotationJob } from "../testing/rotation-builders";
 
 import { RotationHistoryComponent } from "./rotation-history.component";
 
-function makeJob(overrides: Partial<RotationJobView> = {}): RotationJobView {
-  return rotationJobView(overrides);
+function makeJob(overrides: Partial<RotationJob> = {}): RotationJob {
+  return rotationJob(overrides);
 }
 
 describe("RotationHistoryComponent", () => {
   let component: RotationHistoryComponent;
 
-  function setup(jobs: RotationJobView[]) {
+  function setup(jobs: RotationJob[]) {
     TestBed.overrideComponent(RotationHistoryComponent, {
       set: { template: "<div>stub</div>", imports: [] },
     });

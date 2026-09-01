@@ -8,7 +8,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { OrgCiphersService } from "../org-ciphers.service";
-import type { RotationConfigDetailView, RotationConfigId } from "../rotation";
+import type { RotationConfigDetail, RotationConfigId } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import {
@@ -16,8 +16,8 @@ import {
   ORGANIZATION_ID,
   TARGET_SYSTEM_ID,
   configId,
-  rotationConfigDetailView,
-  targetSystemView,
+  rotationConfigDetail,
+  targetSystem,
 } from "../testing/rotation-builders";
 
 import { RotationConfigEditComponent } from "./rotation-config-edit.component";
@@ -30,8 +30,8 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 const ORG_ID = ORGANIZATION_ID;
 
 /** The config the edit page loads: daily schedule, idle, automatic. */
-function loadedConfig(overrides: Partial<RotationConfigDetailView> = {}): RotationConfigDetailView {
-  return rotationConfigDetailView({
+function loadedConfig(overrides: Partial<RotationConfigDetail> = {}): RotationConfigDetail {
+  return rotationConfigDetail({
     id: configId("cfg-1"),
     accountIdentity: "admin@example.com",
     scheduleCron: "0 0 0 * * ?",
@@ -41,13 +41,13 @@ function loadedConfig(overrides: Partial<RotationConfigDetailView> = {}): Rotati
 
 type SetupOptions = {
   configId?: RotationConfigId;
-  existingConfig?: RotationConfigDetailView | null;
+  existingConfig?: RotationConfigDetail | null;
 };
 
 function setup(options: SetupOptions = {}) {
   const { configId, existingConfig } = options;
 
-  const target = targetSystemView();
+  const target = targetSystem();
 
   const rotationSdk: jest.Mocked<
     Pick<

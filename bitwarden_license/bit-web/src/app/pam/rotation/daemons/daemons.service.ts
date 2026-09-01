@@ -5,16 +5,16 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import {
   AccessConnectorId,
-  AccessConnectorView,
+  AccessConnector,
   DaemonStatus,
   TargetSystemId,
-  TargetSystemView,
+  TargetSystem,
 } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 /**
- * Presentation-ready view of a single {@link AccessConnectorView}.
+ * Presentation-ready view of a single {@link AccessConnector}.
  *
  * Flattens assignment IDs into display names using the target-systems lookup,
  * and pre-computes action availability flags so the template stays declarative.
@@ -32,7 +32,7 @@ export type DaemonRow = {
   /** True when the daemon is enabled — only then can it be assigned a target. */
   canAssign: boolean;
   /** The raw response, kept for mutation operations. */
-  daemon: AccessConnectorView;
+  daemon: AccessConnector;
 };
 
 /**
@@ -50,10 +50,10 @@ export class DaemonsService {
   /** Set by {@link load}; the org all subsequent mutations target. */
   private organizationId: OrganizationId | null = null;
 
-  private readonly _daemons$ = new BehaviorSubject<AccessConnectorView[]>([]);
+  private readonly _daemons$ = new BehaviorSubject<AccessConnector[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
 
-  readonly daemons$: Observable<AccessConnectorView[]> = this._daemons$.asObservable();
+  readonly daemons$: Observable<AccessConnector[]> = this._daemons$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
   /**
@@ -81,7 +81,7 @@ export class DaemonsService {
    * Disabling stops it from claiming new jobs (running jobs are released); it is reversible via
    * enable. Rolls back and re-throws on API failure.
    */
-  async setEnabled(daemon: AccessConnectorView, enabled: boolean): Promise<void> {
+  async setEnabled(daemon: AccessConnector, enabled: boolean): Promise<void> {
     const orgId = this.requireOrganizationId();
     const prevDaemons = this._daemons$.value;
     const nextStatus = enabled ? DaemonStatus.Enabled : DaemonStatus.Disabled;
@@ -89,7 +89,7 @@ export class DaemonsService {
     // Optimistic update
     this._daemons$.next(
       prevDaemons.map((d) =>
-        d.id === daemon.id ? ({ ...d, status: nextStatus } as AccessConnectorView) : d,
+        d.id === daemon.id ? ({ ...d, status: nextStatus } as AccessConnector) : d,
       ),
     );
 
@@ -111,17 +111,40 @@ export class DaemonsService {
    * This invalidates the daemon's credentials; the daemon held the org key in memory, so if
    * compromise is suspected, rotate the organization key as a remediation.
    */
-  async delete(daemon: AccessConnectorView): Promise<void> {
+  async delete(daemon: AccessConnector): Promise<void> {
     const orgId = this.requireOrganizationId();
     await this.rotationSdk.deleteConnector(orgId, daemon.id);
     this._daemons$.next(this._daemons$.value.filter((d) => d.id !== daemon.id));
   }
 
   /**
+   * Drop a deleted target system from every daemon's assignments.
+   *
+   * Deleting a target takes its connector assignments with it server-side — an assignment is only
+   * that edge. Without this, {@link rows$} would keep projecting the dangling ID and fall back to
+   * rendering the raw UUID as an assignment name. Purely local: the delete itself is
+   * {@link TargetSystemsService.delete}'s call, and this reconciles what it implies here.
+   */
+  forgetTargetSystem(targetSystemId: TargetSystemId): void {
+    this._daemons$.next(
+      this._daemons$.value.map((d) =>
+        d.assignedTargetSystemIds.includes(targetSystemId)
+          ? ({
+              ...d,
+              assignedTargetSystemIds: d.assignedTargetSystemIds.filter(
+                (id) => id !== targetSystemId,
+              ),
+            } as AccessConnector)
+          : d,
+      ),
+    );
+  }
+
+  /**
    * Assign a target system to a daemon. Optimistically pushes the target ID into
    * the daemon's assignments; rolls back and re-throws on failure.
    */
-  async assign(daemon: AccessConnectorView, targetSystemId: TargetSystemId): Promise<void> {
+  async assign(daemon: AccessConnector, targetSystemId: TargetSystemId): Promise<void> {
     const orgId = this.requireOrganizationId();
     const prevDaemons = this._daemons$.value;
 
@@ -132,7 +155,7 @@ export class DaemonsService {
           ? ({
               ...d,
               assignedTargetSystemIds: [...d.assignedTargetSystemIds, targetSystemId],
-            } as AccessConnectorView)
+            } as AccessConnector)
           : d,
       ),
     );
@@ -150,7 +173,7 @@ export class DaemonsService {
    * Remove a target-system assignment from a daemon. Optimistically removes the
    * ID from the local state; rolls back and re-throws on failure.
    */
-  async unassign(daemon: AccessConnectorView, targetSystemId: TargetSystemId): Promise<void> {
+  async unassign(daemon: AccessConnector, targetSystemId: TargetSystemId): Promise<void> {
     const orgId = this.requireOrganizationId();
     const prevDaemons = this._daemons$.value;
 
@@ -163,7 +186,7 @@ export class DaemonsService {
               assignedTargetSystemIds: d.assignedTargetSystemIds.filter(
                 (id) => id !== targetSystemId,
               ),
-            } as AccessConnectorView)
+            } as AccessConnector)
           : d,
       ),
     );
@@ -192,8 +215,8 @@ export class DaemonsService {
   }
 
   private buildRows(
-    daemons: AccessConnectorView[],
-    systemById: Map<TargetSystemId, TargetSystemView>,
+    daemons: AccessConnector[],
+    systemById: Map<TargetSystemId, TargetSystem>,
   ): DaemonRow[] {
     return daemons.map((daemon) => ({
       id: daemon.id,

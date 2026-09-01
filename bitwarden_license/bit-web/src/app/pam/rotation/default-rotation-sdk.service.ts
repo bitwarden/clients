@@ -8,19 +8,19 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import type { RotationClient, OrganizationId as SdkOrganizationId } from "@bitwarden/sdk-internal";
 
 import type {
-  AccessConnectorDetailView,
+  AccessConnectorDetail,
   AccessConnectorId,
-  AccessConnectorRegistrationView,
-  AccessConnectorView,
+  AccessConnectorRegistrationResponse,
+  AccessConnector,
   RotationConfigCreateRequest,
-  RotationConfigDetailView,
+  RotationConfigDetail,
   RotationConfigId,
   RotationConfigUpdateRequest,
-  RotationConfigView,
+  RotationConfig,
   TargetSystemCreateRequest,
   TargetSystemId,
   TargetSystemUpdateRequest,
-  TargetSystemView,
+  TargetSystem,
 } from "./rotation";
 import { QuartzSchedulePreset, TargetSystemStatus } from "./rotation";
 import { RotationConfigDescription, RotationSdkService } from "./rotation-sdk.service";
@@ -72,7 +72,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
 
   // Access connectors ————————————————————————————————————————————————————————
 
-  async listConnectors(organizationId: OrganizationId): Promise<AccessConnectorView[]> {
+  async listConnectors(organizationId: OrganizationId): Promise<AccessConnector[]> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     return this.withRotationClient("list access connectors", (rotation) =>
       rotation.connectors().list(orgId),
@@ -82,7 +82,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
   async getConnector(
     organizationId: OrganizationId,
     id: AccessConnectorId,
-  ): Promise<AccessConnectorDetailView> {
+  ): Promise<AccessConnectorDetail> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     return this.withRotationClient("get access connector", (rotation) =>
       rotation.connectors().get(orgId, id),
@@ -92,7 +92,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
   async registerConnector(
     organizationId: OrganizationId,
     name: string,
-  ): Promise<AccessConnectorRegistrationView> {
+  ): Promise<AccessConnectorRegistrationResponse> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     // The resolved value carries the one-time token. Nothing here logs it, and callers must not
     // persist it — see RotationSdkService.registerConnector.
@@ -146,7 +146,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
 
   // Target systems ———————————————————————————————————————————————————————————
 
-  async listTargetSystems(organizationId: OrganizationId): Promise<TargetSystemView[]> {
+  async listTargetSystems(organizationId: OrganizationId): Promise<TargetSystem[]> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     return this.withRotationClient("list target systems", (rotation) =>
       rotation.target_systems().list(orgId),
@@ -156,7 +156,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
   async createTargetSystem(
     organizationId: OrganizationId,
     request: TargetSystemCreateRequest,
-  ): Promise<TargetSystemView> {
+  ): Promise<TargetSystem> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     return this.withRotationClient("create a target system", (rotation) =>
       rotation.target_systems().create(orgId, request),
@@ -188,9 +188,16 @@ export class DefaultRotationSdkService extends RotationSdkService {
     );
   }
 
+  async deleteTargetSystem(organizationId: OrganizationId, id: TargetSystemId): Promise<void> {
+    const orgId = asUuid<SdkOrganizationId>(organizationId);
+    await this.withRotationClient("delete a target system", (rotation) =>
+      rotation.target_systems().delete(orgId, id),
+    );
+  }
+
   // Managed credentials (rotation configs) ————————————————————————————————————
 
-  async listConfigs(organizationId: OrganizationId): Promise<RotationConfigView[]> {
+  async listConfigs(organizationId: OrganizationId): Promise<RotationConfig[]> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     return this.withRotationClient("list rotation configs", (rotation) =>
       rotation.configs().list(orgId),
@@ -200,7 +207,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
   async getConfig(
     organizationId: OrganizationId,
     id: RotationConfigId,
-  ): Promise<RotationConfigDetailView> {
+  ): Promise<RotationConfigDetail> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     return this.withRotationClient("get a rotation config", (rotation) =>
       rotation.configs().get(orgId, id),
@@ -210,7 +217,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
   async createConfig(
     organizationId: OrganizationId,
     request: RotationConfigCreateRequest,
-  ): Promise<RotationConfigDetailView> {
+  ): Promise<RotationConfigDetail> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     return this.withRotationClient("create a rotation config", (rotation) =>
       rotation.configs().create(orgId, request),
@@ -221,7 +228,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
     organizationId: OrganizationId,
     id: RotationConfigId,
     request: RotationConfigUpdateRequest,
-  ): Promise<RotationConfigDetailView> {
+  ): Promise<RotationConfigDetail> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     return this.withRotationClient("update a rotation config", (rotation) =>
       rotation.configs().update(orgId, id, request),
@@ -266,7 +273,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
   // Derived logic ————————————————————————————————————————————————————————————
 
   async describeConfigs(
-    configs: readonly RotationConfigView[],
+    configs: readonly RotationConfig[],
     targetStatusById: ReadonlyMap<TargetSystemId, TargetSystemStatus>,
   ): Promise<Map<RotationConfigId, RotationConfigDescription>> {
     // One client take for the whole list: both predicates are synchronous once it is in hand.

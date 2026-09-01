@@ -29,7 +29,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AccessConnectorView, DaemonStatus, TargetSystemId, TargetSystemView } from "../rotation";
+import { AccessConnector, DaemonStatus, TargetSystemId, TargetSystem } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { AssignTargetDialogComponent } from "./assign-target-dialog.component";
@@ -76,7 +76,7 @@ export class DaemonsTabComponent {
   private readonly rows = toSignal(this.daemonsService.rows$, { initialValue: [] as DaemonRow[] });
   private readonly activeAutomaticSystems = toSignal(
     this.targetSystemsService.activeAutomaticSystems$,
-    { initialValue: [] as TargetSystemView[] },
+    { initialValue: [] as TargetSystem[] },
   );
 
   protected readonly dataSource = new TableDataSource<DaemonRow>();
@@ -156,7 +156,7 @@ export class DaemonsTabComponent {
   };
 
   protected readonly unassign = async (
-    daemon: AccessConnectorView,
+    daemon: AccessConnector,
     targetSystemId: string,
     targetName: string,
   ): Promise<void> => {

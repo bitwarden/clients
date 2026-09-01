@@ -7,7 +7,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import {
   RotationAttemptStatus,
   RotationJobStatus,
-  RotationJobView,
+  RotationJob,
   RotationSource,
   RotationSyncState,
   SessionTerminationOutcome,
@@ -26,7 +26,7 @@ import {
   imports: [CommonModule, BadgeModule, TableModule, I18nPipe],
 })
 export class RotationHistoryComponent {
-  readonly jobs = input.required<RotationJobView[]>();
+  readonly jobs = input.required<RotationJob[]>();
 
   /** Jobs sorted newest-first by createdAt. */
   protected readonly sortedJobs = computed(() =>

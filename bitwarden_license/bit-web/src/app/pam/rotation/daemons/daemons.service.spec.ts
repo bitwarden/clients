@@ -3,7 +3,7 @@ import { BehaviorSubject } from "rxjs";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import type { AccessConnectorView, TargetSystemId, TargetSystemView } from "../rotation";
+import type { AccessConnector, TargetSystemId, TargetSystem } from "../rotation";
 import { DaemonStatus } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
@@ -13,7 +13,7 @@ import { DaemonsService } from "./daemons.service";
 
 const orgId = ORGANIZATION_ID as OrganizationId;
 
-function makeDaemon(overrides: Partial<AccessConnectorView> = {}): AccessConnectorView {
+function makeDaemon(overrides: Partial<AccessConnector> = {}): AccessConnector {
   return {
     id: connectorId("daemon-1"),
     name: "My Daemon",
@@ -21,21 +21,21 @@ function makeDaemon(overrides: Partial<AccessConnectorView> = {}): AccessConnect
     isConnected: true,
     assignedTargetSystemIds: [],
     ...overrides,
-  } as unknown as AccessConnectorView;
+  } as unknown as AccessConnector;
 }
 
-function makeTargetSystem(id: TargetSystemId, name: string): TargetSystemView {
-  return { id, name } as unknown as TargetSystemView;
+function makeTargetSystem(id: TargetSystemId, name: string): TargetSystem {
+  return { id, name } as unknown as TargetSystem;
 }
 
 describe("DaemonsService", () => {
   let service: DaemonsService;
   let rotationSdk: jest.Mocked<RotationSdkService>;
   let targetSystemsService: jest.Mocked<TargetSystemsService>;
-  let systemById$: BehaviorSubject<Map<TargetSystemId, TargetSystemView>>;
+  let systemById$: BehaviorSubject<Map<TargetSystemId, TargetSystem>>;
 
   beforeEach(() => {
-    systemById$ = new BehaviorSubject<Map<TargetSystemId, TargetSystemView>>(new Map());
+    systemById$ = new BehaviorSubject<Map<TargetSystemId, TargetSystem>>(new Map());
 
     rotationSdk = {
       listConnectors: jest.fn().mockResolvedValue([]),
@@ -186,6 +186,50 @@ describe("DaemonsService", () => {
       const rows = await firstValue(service.rows$);
       expect(rows.map((r) => r.id)).toEqual([connectorId("daemon-2")]);
       expect(rotationSdk.deleteConnector).toHaveBeenCalledWith(orgId, daemon.id);
+    });
+  });
+
+  describe("forgetTargetSystem", () => {
+    it("removes the target from every daemon that had it assigned", async () => {
+      rotationSdk.listConnectors.mockResolvedValue([
+        makeDaemon({
+          id: connectorId("daemon-1"),
+          assignedTargetSystemIds: [sysId("ts-1"), sysId("ts-2")],
+        }),
+        makeDaemon({ id: connectorId("daemon-2"), assignedTargetSystemIds: [sysId("ts-1")] }),
+      ]);
+      await service.load(orgId);
+
+      service.forgetTargetSystem(sysId("ts-1"));
+
+      const rows = await firstValue(service.rows$);
+      expect(rows[0].daemon.assignedTargetSystemIds).toEqual([sysId("ts-2")]);
+      expect(rows[1].daemon.assignedTargetSystemIds).toEqual([]);
+    });
+
+    it("leaves daemons without that assignment untouched", async () => {
+      const untouched = makeDaemon({
+        id: connectorId("daemon-1"),
+        assignedTargetSystemIds: [sysId("ts-2")],
+      });
+      rotationSdk.listConnectors.mockResolvedValue([untouched]);
+      await service.load(orgId);
+
+      service.forgetTargetSystem(sysId("ts-1"));
+
+      const rows = await firstValue(service.rows$);
+      expect(rows[0].daemon).toBe(untouched);
+    });
+
+    it("does not reach the server — the delete already took the assignments", async () => {
+      rotationSdk.listConnectors.mockResolvedValue([
+        makeDaemon({ assignedTargetSystemIds: [sysId("ts-1")] }),
+      ]);
+      await service.load(orgId);
+
+      service.forgetTargetSystem(sysId("ts-1"));
+
+      expect(rotationSdk.unassignTarget).not.toHaveBeenCalled();
     });
   });
 

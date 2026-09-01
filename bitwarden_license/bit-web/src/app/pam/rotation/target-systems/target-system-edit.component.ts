@@ -44,7 +44,7 @@ import {
   TargetSystemKind,
   TargetSystemMethod,
   TargetSystemStatus,
-  TargetSystemView,
+  TargetSystem,
 } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 
@@ -147,7 +147,7 @@ export class TargetSystemEditComponent {
 
   protected readonly editing = this.targetSystemId != null;
   protected readonly loading = signal(true);
-  protected readonly existing = signal<TargetSystemView | null>(null);
+  protected readonly existing = signal<TargetSystem | null>(null);
 
   protected readonly titleText = computed(() =>
     this.i18nService.t(this.editing ? "pamTargetSystemEditTitle" : "pamTargetSystemCreateTitle"),
@@ -316,7 +316,7 @@ export class TargetSystemEditComponent {
     }
   }
 
-  private applySystem(system: TargetSystemView): void {
+  private applySystem(system: TargetSystem): void {
     this.nameForm.patchValue({ name: system.name });
     // A policy exists for both Automatic and Manual systems; pre-fill it for either.
     if (system.passwordPolicy != null) {

@@ -1,11 +1,11 @@
-import type { RotationConfigView, TargetSystemView } from "../rotation";
+import type { RotationConfig, TargetSystem } from "../rotation";
 import type { RotationConfigDescription } from "../rotation-sdk.service";
 import {
   CIPHER_ID,
   rotationConfigActions,
   rotationConfigDescription,
-  rotationConfigView,
-  targetSystemView,
+  rotationConfig,
+  targetSystem,
 } from "../testing/rotation-builders";
 
 import {
@@ -31,15 +31,15 @@ describe("buildRotationConfigRow", () => {
    */
   const row = (
     options: {
-      config?: Partial<RotationConfigView>;
-      target?: TargetSystemView;
+      config?: Partial<RotationConfig>;
+      target?: TargetSystem;
       cipherName?: string;
       description?: RotationConfigDescription;
     } = {},
   ) =>
     buildRotationConfigRow(
-      rotationConfigView(options.config ?? {}),
-      "target" in options ? options.target : targetSystemView(),
+      rotationConfig(options.config ?? {}),
+      "target" in options ? options.target : targetSystem(),
       "cipherName" in options ? options.cipherName : "My Cipher",
       options.description ?? rotationConfigDescription(),
     );
@@ -54,7 +54,7 @@ describe("buildRotationConfigRow", () => {
     });
 
     it("prefers the resolved target system's name over the config's denormalized copy", () => {
-      const target = targetSystemView({ name: "Resolved Name" });
+      const target = targetSystem({ name: "Resolved Name" });
       expect(row({ config: { targetSystemName: "Stale Name" }, target }).targetSystemName).toBe(
         "Resolved Name",
       );

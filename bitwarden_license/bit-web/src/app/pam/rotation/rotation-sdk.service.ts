@@ -1,20 +1,20 @@
 import type { OrganizationId } from "@bitwarden/common/types/guid";
 
 import type {
-  AccessConnectorDetailView,
+  AccessConnectorDetail,
   AccessConnectorId,
-  AccessConnectorRegistrationView,
-  AccessConnectorView,
+  AccessConnectorRegistrationResponse,
+  AccessConnector,
   RotationConfigActions,
   RotationConfigCreateRequest,
-  RotationConfigDetailView,
+  RotationConfigDetail,
   RotationConfigId,
   RotationConfigUpdateRequest,
-  RotationConfigView,
+  RotationConfig,
   TargetSystemCreateRequest,
   TargetSystemId,
   TargetSystemUpdateRequest,
-  TargetSystemView,
+  TargetSystem,
 } from "./rotation";
 import { QuartzSchedulePreset, TargetSystemStatus } from "./rotation";
 
@@ -45,13 +45,13 @@ export abstract class RotationSdkService {
   // Access connectors ————————————————————————————————————————————————————————
 
   /** Lists the organization's access connectors. */
-  abstract listConnectors(organizationId: OrganizationId): Promise<AccessConnectorView[]>;
+  abstract listConnectors(organizationId: OrganizationId): Promise<AccessConnector[]>;
 
   /** Reads one connector with its recent rotation activity. */
   abstract getConnector(
     organizationId: OrganizationId,
     id: AccessConnectorId,
-  ): Promise<AccessConnectorDetailView>;
+  ): Promise<AccessConnectorDetail>;
 
   /**
    * Registers a connector and returns its one-time token.
@@ -63,7 +63,7 @@ export abstract class RotationSdkService {
   abstract registerConnector(
     organizationId: OrganizationId,
     name: string,
-  ): Promise<AccessConnectorRegistrationView>;
+  ): Promise<AccessConnectorRegistrationResponse>;
 
   /** Re-enables a disabled connector so it can claim jobs again. */
   abstract enableConnector(organizationId: OrganizationId, id: AccessConnectorId): Promise<void>;
@@ -96,13 +96,13 @@ export abstract class RotationSdkService {
   // Target systems ———————————————————————————————————————————————————————————
 
   /** Lists the organization's target systems. */
-  abstract listTargetSystems(organizationId: OrganizationId): Promise<TargetSystemView[]>;
+  abstract listTargetSystems(organizationId: OrganizationId): Promise<TargetSystem[]>;
 
   /** Creates a target system. */
   abstract createTargetSystem(
     organizationId: OrganizationId,
     request: TargetSystemCreateRequest,
-  ): Promise<TargetSystemView>;
+  ): Promise<TargetSystem>;
 
   /**
    * Updates a target system's name, password policy, and session-termination capability in one
@@ -123,22 +123,36 @@ export abstract class RotationSdkService {
   /** Stops new rotation jobs being dispatched for a target system. In-flight jobs finish. */
   abstract disableTargetSystem(organizationId: OrganizationId, id: TargetSystemId): Promise<void>;
 
+  /**
+   * Permanently deletes a target system.
+   *
+   * The server refuses this while any rotation config still names the target — deleting it would
+   * leave that config, and the credential it manages, pointing at nothing. Delete those configs
+   * first, which is also what releases each cipher. Connector assignments are the opposite case
+   * and go with it: an assignment is only that edge, and means nothing once the target is gone.
+   *
+   * Deliberately narrower than {@link disableTargetSystem}, which stops new rotations while the
+   * target and its configs stay intact. Disable is for a target that is merely unavailable;
+   * delete is for one that has left the estate.
+   */
+  abstract deleteTargetSystem(organizationId: OrganizationId, id: TargetSystemId): Promise<void>;
+
   // Managed credentials (rotation configs) ————————————————————————————————————
 
   /** Lists the organization's rotation configs. */
-  abstract listConfigs(organizationId: OrganizationId): Promise<RotationConfigView[]>;
+  abstract listConfigs(organizationId: OrganizationId): Promise<RotationConfig[]>;
 
   /** Reads one config with its rotation history. */
   abstract getConfig(
     organizationId: OrganizationId,
     id: RotationConfigId,
-  ): Promise<RotationConfigDetailView>;
+  ): Promise<RotationConfigDetail>;
 
   /** Creates a rotation config. */
   abstract createConfig(
     organizationId: OrganizationId,
     request: RotationConfigCreateRequest,
-  ): Promise<RotationConfigDetailView>;
+  ): Promise<RotationConfigDetail>;
 
   /**
    * Updates a config's account identity and schedule in one write — again, the server takes them
@@ -151,7 +165,7 @@ export abstract class RotationSdkService {
     organizationId: OrganizationId,
     id: RotationConfigId,
     request: RotationConfigUpdateRequest,
-  ): Promise<RotationConfigDetailView>;
+  ): Promise<RotationConfigDetail>;
 
   /** Pauses a config, so no new rotation jobs are dispatched. */
   abstract pauseConfig(organizationId: OrganizationId, id: RotationConfigId): Promise<void>;
@@ -186,7 +200,7 @@ export abstract class RotationSdkService {
    * refuse.
    */
   abstract describeConfigs(
-    configs: readonly RotationConfigView[],
+    configs: readonly RotationConfig[],
     targetStatusById: ReadonlyMap<TargetSystemId, TargetSystemStatus>,
   ): Promise<Map<RotationConfigId, RotationConfigDescription>>;
 

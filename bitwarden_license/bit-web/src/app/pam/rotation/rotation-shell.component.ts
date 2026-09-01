@@ -18,7 +18,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { DaemonRegisterDialogComponent } from "./daemons/daemon-register-dialog.component";
 import { DaemonsService } from "./daemons/daemons.service";
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
-import { AccessConnectorView, RotationConfigView, TargetSystemView } from "./rotation";
+import { AccessConnector, RotationConfig, TargetSystem } from "./rotation";
 import { TargetSystemsService } from "./target-systems/target-systems.service";
 
 /**
@@ -70,7 +70,7 @@ export class RotationShellComponent {
    * exist, since the tab shows a create/template empty state that owns that action instead.
    */
   private readonly targetSystems = toSignal(this.targetSystemsService.systems$, {
-    initialValue: [] as TargetSystemView[],
+    initialValue: [] as TargetSystem[],
   });
   protected readonly hasTargetSystems = computed(() => this.targetSystems().length > 0);
 
@@ -85,7 +85,7 @@ export class RotationShellComponent {
    * set up a target system first).
    */
   private readonly configs = toSignal(this.configsService.configs$, {
-    initialValue: [] as RotationConfigView[],
+    initialValue: [] as RotationConfig[],
   });
   protected readonly hasConfigs = computed(() => this.configs().length > 0);
 
@@ -94,7 +94,7 @@ export class RotationShellComponent {
    * tab shows an empty state that owns that action.
    */
   private readonly daemons = toSignal(this.daemonsService.daemons$, {
-    initialValue: [] as AccessConnectorView[],
+    initialValue: [] as AccessConnector[],
   });
   protected readonly hasDaemons = computed(() => this.daemons().length > 0);
 

@@ -4,16 +4,16 @@ import { firstValueFrom } from "rxjs";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import type { TargetSystemView } from "../rotation";
+import type { TargetSystem } from "../rotation";
 import { TargetSystemMethod, TargetSystemStatus } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
-import { ORGANIZATION_ID, sysId, targetSystemView } from "../testing/rotation-builders";
+import { ORGANIZATION_ID, sysId, targetSystem } from "../testing/rotation-builders";
 
 import { TargetSystemsService } from "./target-systems.service";
 
 const ORG_ID = ORGANIZATION_ID as OrganizationId;
 
-const makeSystem = (overrides: Partial<TargetSystemView> = {}) => targetSystemView(overrides);
+const makeSystem = (overrides: Partial<TargetSystem> = {}) => targetSystem(overrides);
 
 describe("TargetSystemsService", () => {
   let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
@@ -138,6 +138,43 @@ describe("TargetSystemsService", () => {
 
       const systems = await firstValueFrom(service.systems$);
       expect(systems[0].status).toBe(TargetSystemStatus.Disabled);
+    });
+  });
+
+  describe("delete", () => {
+    beforeEach(async () => {
+      rotationSdk.listTargetSystems.mockResolvedValue([
+        makeSystem({ id: sysId("sys-1") }),
+        makeSystem({ id: sysId("sys-2") }),
+      ]);
+      await service.load(ORG_ID);
+    });
+
+    it("calls deleteTargetSystem with the org and target id", async () => {
+      rotationSdk.deleteTargetSystem.mockResolvedValue(undefined);
+      await service.delete(makeSystem({ id: sysId("sys-1") }));
+
+      expect(rotationSdk.deleteTargetSystem).toHaveBeenCalledWith(ORG_ID, sysId("sys-1"));
+    });
+
+    it("drops only the deleted system from local state", async () => {
+      rotationSdk.deleteTargetSystem.mockResolvedValue(undefined);
+      await service.delete(makeSystem({ id: sysId("sys-1") }));
+
+      const systems = await firstValueFrom(service.systems$);
+      expect(systems.map((s) => s.id)).toEqual([sysId("sys-2")]);
+    });
+
+    it("keeps the system when the server refuses, and re-throws", async () => {
+      // The server refuses while a rotation config still names the target; the row must stay.
+      rotationSdk.deleteTargetSystem.mockRejectedValue(new Error("target system in use"));
+
+      await expect(service.delete(makeSystem({ id: sysId("sys-1") }))).rejects.toThrow(
+        "target system in use",
+      );
+
+      const systems = await firstValueFrom(service.systems$);
+      expect(systems.map((s) => s.id)).toEqual([sysId("sys-1"), sysId("sys-2")]);
     });
   });
 });

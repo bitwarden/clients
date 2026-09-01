@@ -22,12 +22,13 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { DaemonsService } from "../daemons/daemons.service";
 import {
   TargetSystemId,
   TargetSystemKind,
   TargetSystemMethod,
   TargetSystemStatus,
-  TargetSystemView,
+  TargetSystem,
 } from "../rotation";
 
 import {
@@ -36,10 +37,10 @@ import {
 } from "./target-systems-empty-state.component";
 import { TargetSystemsService } from "./target-systems.service";
 
-/** A flattened, presentation-ready view of a {@link TargetSystemView}. */
+/** A flattened, presentation-ready view of a {@link TargetSystem}. */
 export type TargetSystemRow = {
   id: TargetSystemId;
-  system: TargetSystemView;
+  system: TargetSystem;
   name: string;
   methodLabel: string;
   kindLabel: string | null;
@@ -50,7 +51,8 @@ export type TargetSystemRow = {
 /**
  * Tab component for the target-systems list in the PAM Rotation shell.
  *
- * Shows a searchable table of all target systems, with row menus for Edit, Enable, and Disable.
+ * Shows a searchable table of all target systems, with row menus for Edit, Enable, Disable, and
+ * Delete.
  * Row edit navigates to the sibling routed page (outside the shell, which has no tab bar); the
  * "New target system" create action lives in the shell header.
  */
@@ -75,6 +77,7 @@ export class TargetSystemsTabComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly targetSystemsService = inject(TargetSystemsService);
+  private readonly daemonsService = inject(DaemonsService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
@@ -86,7 +89,7 @@ export class TargetSystemsTabComponent {
 
   protected readonly loading = toSignal(this.targetSystemsService.loading$, { initialValue: true });
   private readonly systems = toSignal(this.targetSystemsService.systems$, {
-    initialValue: [] as TargetSystemView[],
+    initialValue: [] as TargetSystem[],
   });
 
   protected readonly dataSource = new TableDataSource<TargetSystemRow>();
@@ -128,11 +131,11 @@ export class TargetSystemsTabComponent {
     });
 
   /** Navigate to the edit page for a target system. */
-  protected readonly openEdit = (system: TargetSystemView): Promise<boolean> =>
+  protected readonly openEdit = (system: TargetSystem): Promise<boolean> =>
     this.router.navigate(["..", "target-systems", system.id], { relativeTo: this.route });
 
   /** Disable a target system after confirming with the operator. */
-  protected readonly disable = async (system: TargetSystemView): Promise<void> => {
+  protected readonly disable = async (system: TargetSystem): Promise<void> => {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "pamTargetSystemDisableTitle" },
       content: { key: "pamTargetSystemDisableContent" },
@@ -155,7 +158,7 @@ export class TargetSystemsTabComponent {
   };
 
   /** Re-enable a disabled target system. */
-  protected readonly enable = async (system: TargetSystemView): Promise<void> => {
+  protected readonly enable = async (system: TargetSystem): Promise<void> => {
     try {
       await this.targetSystemsService.setEnabled(system, true);
       this.toastService.showToast({
@@ -167,7 +170,40 @@ export class TargetSystemsTabComponent {
     }
   };
 
-  private buildRows(systems: TargetSystemView[]): TargetSystemRow[] {
+  /**
+   * Permanently delete a target system after confirming with the operator.
+   *
+   * The server, not this component, decides whether the delete is allowed: it refuses while any
+   * rotation config still names the target, and that refusal arrives as an ordinary error for
+   * {@link showError} to surface. Offering the action unconditionally and letting the server
+   * reject it keeps one authority on the rule rather than a client-side copy that can drift.
+   */
+  protected readonly confirmDelete = async (system: TargetSystem): Promise<void> => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "pamTargetSystemDeleteTitle" },
+      content: { key: "pamTargetSystemDeleteContent", placeholders: [system.name] },
+      acceptButtonText: { key: "delete" },
+      cancelButtonText: { key: "cancel" },
+      type: "danger",
+    });
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await this.targetSystemsService.delete(system);
+      // The server drops the connector assignments with the target; mirror that locally so the
+      // daemons tab does not keep projecting the dangling ID.
+      this.daemonsService.forgetTargetSystem(system.id);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamTargetSystemDeleteSuccess"),
+      });
+    } catch (e) {
+      this.showError(e);
+    }
+  };
+
+  private buildRows(systems: TargetSystem[]): TargetSystemRow[] {
     return systems.map((system) => ({
       id: system.id,
       system,

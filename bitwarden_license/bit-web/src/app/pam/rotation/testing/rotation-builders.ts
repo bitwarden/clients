@@ -3,20 +3,20 @@ import type { OrganizationId } from "@bitwarden/common/types/guid";
 import type { CipherId } from "@bitwarden/sdk-internal";
 
 import type {
-  AccessConnectorDetailView,
+  AccessConnectorDetail,
   AccessConnectorId,
-  AccessConnectorView,
+  AccessConnector,
   PasswordPolicy,
   RotationAttemptId,
-  RotationAttemptView,
+  RotationAttempt,
   RotationConfigActions,
-  RotationConfigDetailView,
+  RotationConfigDetail,
   RotationConfigId,
-  RotationConfigView,
+  RotationConfig,
   RotationJobId,
-  RotationJobView,
+  RotationJob,
   TargetSystemId,
-  TargetSystemView,
+  TargetSystem,
 } from "../rotation";
 import { AccessConnectorStatus } from "../rotation";
 import type { RotationConfigDescription } from "../rotation-sdk.service";
@@ -73,7 +73,7 @@ export function passwordPolicy(overrides: Partial<PasswordPolicy> = {}): Passwor
 }
 
 /** An active, automatic Entra target — the shape most tests want. */
-export function targetSystemView(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
+export function targetSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
   return {
     id: TARGET_SYSTEM_ID,
     organizationId: ORGANIZATION_ID,
@@ -86,13 +86,11 @@ export function targetSystemView(overrides: Partial<TargetSystemView> = {}): Tar
     creationDate: TIMESTAMP,
     revisionDate: TIMESTAMP,
     ...overrides,
-  } as TargetSystemView;
+  } as TargetSystem;
 }
 
 /** An enabled, connected connector with no assignments. */
-export function accessConnectorView(
-  overrides: Partial<AccessConnectorView> = {},
-): AccessConnectorView {
+export function accessConnector(overrides: Partial<AccessConnector> = {}): AccessConnector {
   return {
     id: ACCESS_CONNECTOR_ID,
     organizationId: ORGANIZATION_ID,
@@ -104,19 +102,17 @@ export function accessConnectorView(
     creationDate: TIMESTAMP,
     revisionDate: TIMESTAMP,
     ...overrides,
-  } as AccessConnectorView;
+  } as AccessConnector;
 }
 
-export function accessConnectorDetailView(
-  overrides: Partial<AccessConnectorDetailView> = {},
-): AccessConnectorDetailView {
-  return { ...accessConnectorView(), jobs: [], ...overrides } as AccessConnectorDetailView;
+export function accessConnectorDetail(
+  overrides: Partial<AccessConnectorDetail> = {},
+): AccessConnectorDetail {
+  return { ...accessConnector(), jobs: [], ...overrides } as AccessConnectorDetail;
 }
 
 /** An enabled, idle, automatic config — the one shape that offers a rotation. */
-export function rotationConfigView(
-  overrides: Partial<RotationConfigView> = {},
-): RotationConfigView {
+export function rotationConfig(overrides: Partial<RotationConfig> = {}): RotationConfig {
   return {
     id: ROTATION_CONFIG_ID,
     organizationId: ORGANIZATION_ID,
@@ -136,18 +132,16 @@ export function rotationConfigView(
     creationDate: TIMESTAMP,
     revisionDate: TIMESTAMP,
     ...overrides,
-  } as RotationConfigView;
+  } as RotationConfig;
 }
 
-export function rotationConfigDetailView(
-  overrides: Partial<RotationConfigDetailView> = {},
-): RotationConfigDetailView {
-  return { ...rotationConfigView(), jobs: [], ...overrides } as RotationConfigDetailView;
+export function rotationConfigDetail(
+  overrides: Partial<RotationConfigDetail> = {},
+): RotationConfigDetail {
+  return { ...rotationConfig(), jobs: [], ...overrides } as RotationConfigDetail;
 }
 
-export function rotationAttemptView(
-  overrides: Partial<RotationAttemptView> = {},
-): RotationAttemptView {
+export function rotationAttempt(overrides: Partial<RotationAttempt> = {}): RotationAttempt {
   return {
     id: ROTATION_ATTEMPT_ID,
     jobId: ROTATION_JOB_ID,
@@ -160,10 +154,10 @@ export function rotationAttemptView(
     startedAt: TIMESTAMP,
     endedAt: TIMESTAMP,
     ...overrides,
-  } as RotationAttemptView;
+  } as RotationAttempt;
 }
 
-export function rotationJobView(overrides: Partial<RotationJobView> = {}): RotationJobView {
+export function rotationJob(overrides: Partial<RotationJob> = {}): RotationJob {
   return {
     id: ROTATION_JOB_ID,
     rotationConfigId: ROTATION_CONFIG_ID,
@@ -174,9 +168,9 @@ export function rotationJobView(overrides: Partial<RotationJobView> = {}): Rotat
     createdAt: TIMESTAMP,
     nextClaimableAt: undefined,
     expiresAt: undefined,
-    attempts: [rotationAttemptView()],
+    attempts: [rotationAttempt()],
     ...overrides,
-  } as RotationJobView;
+  } as RotationJob;
 }
 
 /** The actions an enabled, idle, automatic config on an active target offers. */

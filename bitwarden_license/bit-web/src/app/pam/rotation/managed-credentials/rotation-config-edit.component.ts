@@ -32,7 +32,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { OrgCiphersService } from "../org-ciphers.service";
 import {
   RotationConfigCreateRequest,
-  RotationConfigDetailView,
+  RotationConfigDetail,
   RotationConfigId,
   RotationConfigUpdateRequest,
   TargetSystemId,
@@ -110,7 +110,7 @@ export class RotationConfigEditComponent {
   protected readonly editing = this.configId != null;
 
   protected readonly loading = signal(true);
-  protected readonly existingConfig = signal<RotationConfigDetailView | null>(null);
+  protected readonly existingConfig = signal<RotationConfigDetail | null>(null);
 
   protected readonly titleText = computed(() =>
     this.i18nService.t(
@@ -226,7 +226,7 @@ export class RotationConfigEditComponent {
     });
   }
 
-  private async loadConfig(): Promise<RotationConfigDetailView | null> {
+  private async loadConfig(): Promise<RotationConfigDetail | null> {
     try {
       return await this.rotationSdk.getConfig(this.organizationId, this.configId!);
     } catch {

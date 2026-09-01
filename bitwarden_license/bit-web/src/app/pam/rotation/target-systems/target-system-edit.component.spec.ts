@@ -6,7 +6,7 @@ import { mock } from "jest-mock-extended";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import type { TargetSystemView } from "../rotation";
+import type { TargetSystem } from "../rotation";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
@@ -29,7 +29,7 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
-function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
+function makeSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
   return {
     id: sysId("sys-1"),
     name: "Prod Entra",
@@ -46,7 +46,7 @@ function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView
     },
     supportsSessionTermination: true,
     ...overrides,
-  } as TargetSystemView;
+  } as TargetSystem;
 }
 
 /** Build a configured TestBed for create mode (no targetSystemId). */

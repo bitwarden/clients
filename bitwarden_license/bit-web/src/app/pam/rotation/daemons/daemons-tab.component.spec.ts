@@ -6,7 +6,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import type { AccessConnectorView, TargetSystemId, TargetSystemView } from "../rotation";
+import type { AccessConnector, TargetSystemId, TargetSystem } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import { ORGANIZATION_ID, connectorId, sysId } from "../testing/rotation-builders";
 
@@ -39,7 +39,7 @@ describe("DaemonsTabComponent", () => {
         assignments: [],
         status: 0,
         isConnected: true,
-      } as unknown as AccessConnectorView,
+      } as unknown as AccessConnector,
       ...overrides,
     };
   }
@@ -57,7 +57,7 @@ describe("DaemonsTabComponent", () => {
     } as unknown as jest.Mocked<DaemonsService>;
 
     targetSystemsService = {
-      activeAutomaticSystems$: of([] as TargetSystemView[]),
+      activeAutomaticSystems$: of([] as TargetSystem[]),
       load: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<TargetSystemsService>;
 
@@ -204,11 +204,7 @@ describe("DaemonsTabComponent", () => {
     const daemon = makeDaemonRow().daemon;
 
     const component = fixture.componentInstance as unknown as {
-      unassign: (
-        daemon: AccessConnectorView,
-        targetId: TargetSystemId,
-        name: string,
-      ) => Promise<void>;
+      unassign: (daemon: AccessConnector, targetId: TargetSystemId, name: string) => Promise<void>;
     };
     await component.unassign(daemon, sysId("ts-1"), "Prod");
 

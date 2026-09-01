@@ -1,9 +1,9 @@
 import {
   QuartzSchedulePreset,
   RotationConfigId,
-  RotationConfigView,
+  RotationConfig,
   TargetSystemMethod,
-  TargetSystemView,
+  TargetSystem,
 } from "../rotation";
 import { RotationConfigDescription } from "../rotation-sdk.service";
 
@@ -14,7 +14,7 @@ import { RotationConfigDescription } from "../rotation-sdk.service";
  */
 export type RotationConfigRow = {
   id: RotationConfigId;
-  config: RotationConfigView;
+  config: RotationConfig;
   /** Decrypted cipher name resolved from OrgCiphersService; falls back to config.cipherId. */
   cipherName: string;
   targetSystemName: string;
@@ -67,8 +67,8 @@ export type RotationConfigRow = {
  * @param description - The SDK-derived actions and schedule preset for this config.
  */
 export function buildRotationConfigRow(
-  config: RotationConfigView,
-  targetSystem: TargetSystemView | undefined,
+  config: RotationConfig,
+  targetSystem: TargetSystem | undefined,
   cipherName: string | undefined,
   description: RotationConfigDescription,
 ): RotationConfigRow {
@@ -103,7 +103,7 @@ export function buildRotationConfigRow(
   };
 }
 
-function methodLabel(method: RotationConfigView["targetSystemMethod"]): string {
+function methodLabel(method: RotationConfig["targetSystemMethod"]): string {
   return method === TargetSystemMethod.Automatic
     ? "pamTargetSystemMethodAutomatic"
     : "pamTargetSystemMethodManual";

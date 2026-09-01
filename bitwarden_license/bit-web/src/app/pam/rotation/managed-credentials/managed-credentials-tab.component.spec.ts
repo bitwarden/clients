@@ -5,12 +5,12 @@ import { BehaviorSubject, of } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import type { RotationConfigView } from "../rotation";
+import type { RotationConfig } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import {
   ORGANIZATION_ID,
   rotationConfigDescription,
-  rotationConfigView,
+  rotationConfig,
 } from "../testing/rotation-builders";
 
 import { ManagedCredentialsTabComponent } from "./managed-credentials-tab.component";
@@ -23,11 +23,11 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 };
 
 function makeRow(
-  configOverrides: Partial<RotationConfigView> = {},
+  configOverrides: Partial<RotationConfig> = {},
   description = rotationConfigDescription(),
 ): RotationConfigRow {
   return buildRotationConfigRow(
-    rotationConfigView(configOverrides),
+    rotationConfig(configOverrides),
     undefined,
     "My Cipher",
     description,

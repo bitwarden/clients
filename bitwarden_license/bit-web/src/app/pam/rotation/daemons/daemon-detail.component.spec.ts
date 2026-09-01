@@ -5,14 +5,14 @@ import { mock } from "jest-mock-extended";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import type { AccessConnectorDetailView, TargetSystemView } from "../rotation";
+import type { AccessConnectorDetail, TargetSystem } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import {
   ORGANIZATION_ID,
-  accessConnectorDetailView,
+  accessConnectorDetail,
   connectorId,
   sysId,
-  targetSystemView,
+  targetSystem,
 } from "../testing/rotation-builders";
 
 import { DaemonDetailComponent } from "./daemon-detail.component";
@@ -22,8 +22,8 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
-function makeDaemon(overrides: Partial<AccessConnectorDetailView> = {}): AccessConnectorDetailView {
-  return accessConnectorDetailView({
+function makeDaemon(overrides: Partial<AccessConnectorDetail> = {}): AccessConnectorDetail {
+  return accessConnectorDetail({
     id: connectorId("daemon-1"),
     name: "On-prem daemon",
     assignedTargetSystemIds: [sysId("ts-1")],
@@ -31,8 +31,8 @@ function makeDaemon(overrides: Partial<AccessConnectorDetailView> = {}): AccessC
   });
 }
 
-function makeSystem(): TargetSystemView {
-  return targetSystemView({ id: sysId("ts-1"), name: "Prod Entra" });
+function makeSystem(): TargetSystem {
+  return targetSystem({ id: sysId("ts-1"), name: "Prod Entra" });
 }
 
 async function setup(

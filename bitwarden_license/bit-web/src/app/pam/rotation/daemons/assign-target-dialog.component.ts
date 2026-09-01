@@ -13,17 +13,17 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AccessConnectorView, TargetSystemView } from "../rotation";
+import { AccessConnector, TargetSystem } from "../rotation";
 
 export type AssignTargetDialogParams = {
   /** The daemon being assigned a target system. */
-  daemon: AccessConnectorView;
+  daemon: AccessConnector;
   /**
    * The set of active+automatic target systems that are NOT already assigned to
    * this daemon. Callers (the tab component) compute this from
    * `activeAutomaticSystems$` filtered against `daemon.assignedTargetSystemIds`.
    */
-  options: TargetSystemView[];
+  options: TargetSystem[];
 };
 
 /**

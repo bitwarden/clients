@@ -5,12 +5,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherId } from "@bitwarden/sdk-internal";
 
 import { OrgCiphersService } from "../org-ciphers.service";
-import type {
-  RotationConfigView,
-  TargetSystemId,
-  TargetSystemStatus,
-  TargetSystemView,
-} from "../rotation";
+import type { RotationConfig, TargetSystemId, TargetSystemStatus, TargetSystem } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import {
@@ -18,8 +13,8 @@ import {
   ORGANIZATION_ID,
   ROTATION_CONFIG_ID,
   rotationConfigDescription,
-  rotationConfigView,
-  targetSystemView,
+  rotationConfig,
+  targetSystem,
 } from "../testing/rotation-builders";
 
 import { RotationConfigsService } from "./rotation-configs.service";
@@ -41,9 +36,9 @@ describe("RotationConfigsService", () => {
     >
   >;
   let targetSystemsService: {
-    systemById$: BehaviorSubject<Map<TargetSystemId, TargetSystemView>>;
+    systemById$: BehaviorSubject<Map<TargetSystemId, TargetSystem>>;
     load: jest.Mock;
-    systems$: BehaviorSubject<TargetSystemView[]>;
+    systems$: BehaviorSubject<TargetSystem[]>;
     loading$: BehaviorSubject<boolean>;
   };
   let orgCiphersService: {
@@ -54,8 +49,8 @@ describe("RotationConfigsService", () => {
   };
 
   beforeEach(() => {
-    const config = rotationConfigView();
-    const target = targetSystemView();
+    const config = rotationConfig();
+    const target = targetSystem();
 
     rotationSdk = {
       listConfigs: jest.fn().mockResolvedValue([config]),
@@ -68,7 +63,7 @@ describe("RotationConfigsService", () => {
       // Signature matches the contract exactly, so jest infers the mock rather than widening it.
       describeConfigs: jest.fn(
         async (
-          configs: readonly RotationConfigView[],
+          configs: readonly RotationConfig[],
           _targetStatusById: ReadonlyMap<TargetSystemId, TargetSystemStatus>,
         ) => new Map(configs.map((c) => [c.id, rotationConfigDescription()])),
       ),
@@ -122,9 +117,7 @@ describe("RotationConfigsService", () => {
   });
 
   it("awaitingManualCount$ counts configs awaiting manual rotation", async () => {
-    rotationSdk.listConfigs.mockResolvedValue([
-      rotationConfigView({ awaitingManualRotation: true }),
-    ]);
+    rotationSdk.listConfigs.mockResolvedValue([rotationConfig({ awaitingManualRotation: true })]);
     await service.load(ORG_ID);
     const count = await firstValueFrom(service.awaitingManualCount$);
     expect(count).toBe(1);
@@ -148,7 +141,7 @@ describe("RotationConfigsService", () => {
   });
 
   it("resume optimistically sets enabled=true", async () => {
-    rotationSdk.listConfigs.mockResolvedValue([rotationConfigView({ enabled: false })]);
+    rotationSdk.listConfigs.mockResolvedValue([rotationConfig({ enabled: false })]);
     await service.load(ORG_ID);
     const configs = await firstValueFrom(service.configs$);
     await service.resume(configs[0]);
@@ -165,9 +158,7 @@ describe("RotationConfigsService", () => {
   });
 
   it("recordManual clears awaitingManualRotation and sets lastRotationAt", async () => {
-    rotationSdk.listConfigs.mockResolvedValue([
-      rotationConfigView({ awaitingManualRotation: true }),
-    ]);
+    rotationSdk.listConfigs.mockResolvedValue([rotationConfig({ awaitingManualRotation: true })]);
     await service.load(ORG_ID);
     const configs = await firstValueFrom(service.configs$);
     await service.recordManual(configs[0]);
@@ -177,9 +168,7 @@ describe("RotationConfigsService", () => {
   });
 
   it("recordManual rolls back on API error", async () => {
-    rotationSdk.listConfigs.mockResolvedValue([
-      rotationConfigView({ awaitingManualRotation: true }),
-    ]);
+    rotationSdk.listConfigs.mockResolvedValue([rotationConfig({ awaitingManualRotation: true })]);
     await service.load(ORG_ID);
     const configs = await firstValueFrom(service.configs$);
     rotationSdk.recordManualRotation.mockRejectedValue(new Error("fail"));

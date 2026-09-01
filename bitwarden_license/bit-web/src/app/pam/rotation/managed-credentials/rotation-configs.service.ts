@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, combineLatest, map, switchMap } from "rxjs
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { OrgCiphersService } from "../org-ciphers.service";
-import { RotationConfigId, RotationConfigView } from "../rotation";
+import { RotationConfigId, RotationConfig } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
@@ -26,10 +26,10 @@ export class RotationConfigsService {
   /** Set by {@link load}; the org all subsequent mutations target. */
   private organizationId: OrganizationId | null = null;
 
-  private readonly _configs$ = new BehaviorSubject<RotationConfigView[]>([]);
+  private readonly _configs$ = new BehaviorSubject<RotationConfig[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
 
-  readonly configs$: Observable<RotationConfigView[]> = this._configs$.asObservable();
+  readonly configs$: Observable<RotationConfig[]> = this._configs$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
   /** Count of configs currently awaiting a manual rotation from the operator. */
@@ -96,7 +96,7 @@ export class RotationConfigsService {
    * Pause a rotation config (set enabled = false).
    * Optimistically patches local state; rolls back + rethrows on API failure.
    */
-  async pause(config: RotationConfigView): Promise<void> {
+  async pause(config: RotationConfig): Promise<void> {
     this.patchConfig(config.id, { enabled: false });
     try {
       await this.rotationSdk.pauseConfig(this.requireOrganizationId(), config.id);
@@ -110,7 +110,7 @@ export class RotationConfigsService {
    * Resume a rotation config (set enabled = true).
    * Optimistically patches local state; rolls back + rethrows on API failure.
    */
-  async resume(config: RotationConfigView): Promise<void> {
+  async resume(config: RotationConfig): Promise<void> {
     this.patchConfig(config.id, { enabled: true });
     try {
       await this.rotationSdk.resumeConfig(this.requireOrganizationId(), config.id);
@@ -125,7 +125,7 @@ export class RotationConfigsService {
    * Optimistically sets hasActiveJob = true so the row reflects the in-progress state
    * immediately. Does not roll back on error — the list will re-reflect truth on next load.
    */
-  async rotateNow(config: RotationConfigView): Promise<void> {
+  async rotateNow(config: RotationConfig): Promise<void> {
     await this.rotationSdk.rotateNow(this.requireOrganizationId(), config.id);
     this.patchConfig(config.id, { hasActiveJob: true });
   }
@@ -135,7 +135,7 @@ export class RotationConfigsService {
    * Optimistically clears awaitingManualRotation and sets lastRotationAt to now.
    * Rolls back + rethrows on API failure.
    */
-  async recordManual(config: RotationConfigView): Promise<void> {
+  async recordManual(config: RotationConfig): Promise<void> {
     const previousAwaitingManual = config.awaitingManualRotation;
     const previousLastRotationAt = config.lastRotationAt;
     this.patchConfig(config.id, {
@@ -158,7 +158,7 @@ export class RotationConfigsService {
    * Does not optimistically patch — waits for the server to confirm before removing.
    * Rolls back is implicit: if the API throws, _configs$ is unchanged.
    */
-  async delete(config: RotationConfigView): Promise<void> {
+  async delete(config: RotationConfig): Promise<void> {
     await this.rotationSdk.deleteConfig(this.requireOrganizationId(), config.id);
     this._configs$.next(this._configs$.value.filter((c) => c.id !== config.id));
   }
@@ -174,7 +174,7 @@ export class RotationConfigsService {
    * Apply a partial patch to the config with the given id in the local stream.
    * Creates a new object (preserves reference-equality semantics for OnPush).
    */
-  private patchConfig(id: RotationConfigId, patch: Partial<RotationConfigView>): void {
+  private patchConfig(id: RotationConfigId, patch: Partial<RotationConfig>): void {
     this._configs$.next(
       this._configs$.value.map((c) =>
         // A view crosses the WASM boundary as a plain object, so a spread is a faithful copy —

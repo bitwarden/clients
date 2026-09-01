@@ -8,7 +8,8 @@ import { BehaviorSubject, of } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import type { TargetSystemView } from "../rotation";
+import { DaemonsService } from "../daemons/daemons.service";
+import type { TargetSystem } from "../rotation";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
 import { ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
 
@@ -21,7 +22,7 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
-function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
+function makeSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
   return {
     id: sysId("sys-1"),
     name: "Prod Entra",
@@ -31,7 +32,7 @@ function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView
     passwordPolicy: null,
     supportsSessionTermination: true,
     ...overrides,
-  } as TargetSystemView;
+  } as TargetSystem;
 }
 
 describe("TargetSystemsTabComponent", () => {
@@ -39,12 +40,14 @@ describe("TargetSystemsTabComponent", () => {
   let component: TargetSystemsTabComponent;
   let targetSystemsService: {
     loading$: BehaviorSubject<boolean>;
-    systems$: BehaviorSubject<TargetSystemView[]>;
-    systemById$: BehaviorSubject<Map<string, TargetSystemView>>;
-    activeAutomaticSystems$: BehaviorSubject<TargetSystemView[]>;
+    systems$: BehaviorSubject<TargetSystem[]>;
+    systemById$: BehaviorSubject<Map<string, TargetSystem>>;
+    activeAutomaticSystems$: BehaviorSubject<TargetSystem[]>;
     load: jest.Mock;
     setEnabled: jest.Mock;
+    delete: jest.Mock;
   };
+  let daemonsService: { forgetTargetSystem: jest.Mock };
   let router: Router;
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
@@ -52,12 +55,14 @@ describe("TargetSystemsTabComponent", () => {
   beforeEach(async () => {
     targetSystemsService = {
       loading$: new BehaviorSubject<boolean>(false),
-      systems$: new BehaviorSubject<TargetSystemView[]>([]),
+      systems$: new BehaviorSubject<TargetSystem[]>([]),
       systemById$: new BehaviorSubject(new Map()),
-      activeAutomaticSystems$: new BehaviorSubject<TargetSystemView[]>([]),
+      activeAutomaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
       load: jest.fn().mockResolvedValue(undefined),
       setEnabled: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
     };
+    daemonsService = { forgetTargetSystem: jest.fn() };
     dialogService = mock<DialogService>();
     dialogService.openSimpleDialog.mockResolvedValue(false);
     toastService = mock<ToastService>();
@@ -72,6 +77,7 @@ describe("TargetSystemsTabComponent", () => {
       providers: [
         provideRouter([]),
         { provide: TargetSystemsService, useValue: targetSystemsService },
+        { provide: DaemonsService, useValue: daemonsService },
         { provide: I18nService, useValue: i18nFake },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
@@ -120,9 +126,9 @@ describe("TargetSystemsTabComponent", () => {
   it("navigates to edit page on openEdit", async () => {
     const sys = makeSystem({ id: sysId("sys-edit") });
     const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
-    await (
-      component as unknown as { openEdit: (s: TargetSystemView) => Promise<boolean> }
-    ).openEdit(sys);
+    await (component as unknown as { openEdit: (s: TargetSystem) => Promise<boolean> }).openEdit(
+      sys,
+    );
     expect(navigateSpy).toHaveBeenCalledWith(
       ["..", "target-systems", sysId("sys-edit")],
       expect.objectContaining({ relativeTo: expect.anything() }),
@@ -135,7 +141,7 @@ describe("TargetSystemsTabComponent", () => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       const comp = component as unknown as {
-        disable: (s: TargetSystemView) => Promise<void>;
+        disable: (s: TargetSystem) => Promise<void>;
       };
       void comp.disable(sys);
       tick();
@@ -148,7 +154,7 @@ describe("TargetSystemsTabComponent", () => {
       dialogService.openSimpleDialog.mockResolvedValue(false);
 
       const comp = component as unknown as {
-        disable: (s: TargetSystemView) => Promise<void>;
+        disable: (s: TargetSystem) => Promise<void>;
       };
       void comp.disable(sys);
       flushMicrotasks();
@@ -161,7 +167,7 @@ describe("TargetSystemsTabComponent", () => {
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       const comp = component as unknown as {
-        disable: (s: TargetSystemView) => Promise<void>;
+        disable: (s: TargetSystem) => Promise<void>;
       };
       void comp.disable(sys);
       flushMicrotasks();
@@ -177,7 +183,7 @@ describe("TargetSystemsTabComponent", () => {
       const sys = makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Disabled });
 
       const comp = component as unknown as {
-        enable: (s: TargetSystemView) => Promise<void>;
+        enable: (s: TargetSystem) => Promise<void>;
       };
       await comp.enable(sys);
 
@@ -188,7 +194,7 @@ describe("TargetSystemsTabComponent", () => {
       const sys = makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Disabled });
 
       const comp = component as unknown as {
-        enable: (s: TargetSystemView) => Promise<void>;
+        enable: (s: TargetSystem) => Promise<void>;
       };
       await comp.enable(sys);
 
@@ -196,5 +202,72 @@ describe("TargetSystemsTabComponent", () => {
         expect.objectContaining({ variant: "success" }),
       );
     });
+  });
+
+  describe("delete action", () => {
+    type DeleteComp = { confirmDelete: (s: TargetSystem) => Promise<void> };
+
+    it("deletes after confirmation and shows a success toast", fakeAsync(() => {
+      const sys = makeSystem({ id: sysId("sys-1") });
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      void (component as unknown as DeleteComp).confirmDelete(sys);
+      flushMicrotasks();
+
+      expect(targetSystemsService.delete).toHaveBeenCalledWith(sys);
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+    }));
+
+    it("confirms with a danger dialog naming the target system", fakeAsync(() => {
+      const sys = makeSystem({ id: sysId("sys-1"), name: "Prod Entra" });
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      void (component as unknown as DeleteComp).confirmDelete(sys);
+      flushMicrotasks();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "danger",
+          content: { key: "pamTargetSystemDeleteContent", placeholders: ["Prod Entra"] },
+        }),
+      );
+    }));
+
+    it("does not delete when confirmation is cancelled", fakeAsync(() => {
+      const sys = makeSystem({ id: sysId("sys-1") });
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+
+      void (component as unknown as DeleteComp).confirmDelete(sys);
+      flushMicrotasks();
+
+      expect(targetSystemsService.delete).not.toHaveBeenCalled();
+      expect(daemonsService.forgetTargetSystem).not.toHaveBeenCalled();
+    }));
+
+    it("prunes the deleted target from daemon assignments", fakeAsync(() => {
+      const sys = makeSystem({ id: sysId("sys-1") });
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      void (component as unknown as DeleteComp).confirmDelete(sys);
+      flushMicrotasks();
+
+      expect(daemonsService.forgetTargetSystem).toHaveBeenCalledWith(sysId("sys-1"));
+    }));
+
+    it("surfaces an error toast and leaves daemon assignments alone when the server refuses", fakeAsync(() => {
+      const sys = makeSystem({ id: sysId("sys-1") });
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      targetSystemsService.delete.mockRejectedValue(new Error("target system in use"));
+
+      void (component as unknown as DeleteComp).confirmDelete(sys);
+      flushMicrotasks();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error" }),
+      );
+      expect(daemonsService.forgetTargetSystem).not.toHaveBeenCalled();
+    }));
   });
 });

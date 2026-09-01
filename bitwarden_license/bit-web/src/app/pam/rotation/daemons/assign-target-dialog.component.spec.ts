@@ -4,7 +4,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
-import type { AccessConnectorView, TargetSystemView } from "../rotation";
+import type { AccessConnector, TargetSystem } from "../rotation";
 
 import {
   AssignTargetDialogComponent,
@@ -16,8 +16,8 @@ const i18nStub: Pick<I18nService, "t"> = {
   t: (id: string) => id,
 };
 
-function makeSystem(id: string, name: string): TargetSystemView {
-  return { id, name } as unknown as TargetSystemView;
+function makeSystem(id: string, name: string): TargetSystem {
+  return { id, name } as unknown as TargetSystem;
 }
 
 describe("AssignTargetDialogComponent", () => {
@@ -29,9 +29,9 @@ describe("AssignTargetDialogComponent", () => {
     id: "d-1",
     name: "My Daemon",
     assignments: [],
-  } as unknown as AccessConnectorView;
+  } as unknown as AccessConnector;
 
-  function createComponent(options: TargetSystemView[]): Promise<void> {
+  function createComponent(options: TargetSystem[]): Promise<void> {
     const params: AssignTargetDialogParams = { daemon, options };
     dialogRef = {
       close: jest.fn().mockReturnValue(Promise.resolve()),

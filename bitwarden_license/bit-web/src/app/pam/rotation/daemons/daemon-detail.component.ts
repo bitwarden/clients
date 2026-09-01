@@ -25,7 +25,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { RotationHistoryComponent } from "../managed-credentials/rotation-history.component";
-import { AccessConnectorDetailView, AccessConnectorId, DaemonStatus } from "../rotation";
+import { AccessConnectorDetail, AccessConnectorId, DaemonStatus } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
@@ -75,7 +75,7 @@ export class DaemonDetailComponent {
   private readonly daemonId = asUuid<AccessConnectorId>(this.route.snapshot.params.daemonId);
 
   protected readonly loading = signal(true);
-  protected readonly daemon = signal<AccessConnectorDetailView | null>(null);
+  protected readonly daemon = signal<AccessConnectorDetail | null>(null);
 
   private readonly systemById = toSignal(this.targetSystemsService.systemById$, {
     initialValue: new Map(),
@@ -189,7 +189,7 @@ export class DaemonDetailComponent {
     }
   }
 
-  private async loadDaemon(): Promise<AccessConnectorDetailView | null> {
+  private async loadDaemon(): Promise<AccessConnectorDetail | null> {
     try {
       return await this.rotationSdk.getConnector(this.organizationId, this.daemonId);
     } catch {
@@ -212,7 +212,7 @@ export class DaemonDetailComponent {
     if (daemon == null) {
       return;
     }
-    this.daemon.set({ ...daemon, status } as AccessConnectorDetailView);
+    this.daemon.set({ ...daemon, status } as AccessConnectorDetail);
   }
 
   private showError(e: unknown): void {

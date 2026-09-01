@@ -26,25 +26,25 @@ import type {
 } from "@bitwarden/sdk-internal";
 
 export type {
-  AccessConnectorDetailView,
+  AccessConnector,
+  AccessConnectorDetail,
   AccessConnectorId,
-  RotationAttemptId,
-  RotationJobId,
-  AccessConnectorRegistrationView,
-  AccessConnectorView,
+  AccessConnectorRegistrationResponse,
   PasswordPolicy,
-  RotationAttemptView,
+  RotationAttempt,
+  RotationAttemptId,
+  RotationConfig,
   RotationConfigActions,
   RotationConfigCreateRequest,
-  RotationConfigDetailView,
+  RotationConfigDetail,
   RotationConfigId,
   RotationConfigUpdateRequest,
-  RotationConfigView,
-  RotationJobView,
+  RotationJob,
+  RotationJobId,
+  TargetSystem,
   TargetSystemCreateRequest,
   TargetSystemId,
   TargetSystemUpdateRequest,
-  TargetSystemView,
 } from "@bitwarden/sdk-internal";
 
 /**
