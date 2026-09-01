@@ -59,7 +59,7 @@
       }
 
       @if (browsers().length > 0) {
-        <p bitTypography="h6" noMargin class="tw-col-span-full tw-mt-6 !tw-text-fg-heading">
+        <p bitTypography="h6" noMargin class="tw-col-span-full tw-mt-6 tw-mb-2 !tw-text-fg-heading">
           {{ "importSourceBrowsers" | i18n }}
         </p>
         @for (option of browsers(); track option.id) {
@@ -68,7 +68,7 @@
       }
 
       @if (featuredPasswordManagers().length > 0) {
-        <p bitTypography="h6" noMargin class="tw-col-span-full tw-mt-6 !tw-text-fg-heading">
+        <p bitTypography="h6" noMargin class="tw-col-span-full tw-mt-6 tw-mb-2 !tw-text-fg-heading">
           {{ "importSourcePasswordManagers" | i18n }}
         </p>
         @for (option of featuredPasswordManagers(); track option.id) {
