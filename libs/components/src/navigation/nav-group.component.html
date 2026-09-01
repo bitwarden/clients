@@ -27,7 +27,7 @@
     [ariaLabel]="ariaLabel()"
     [hideActiveStyles]="parentHideActiveStyles()"
     [ariaCurrentWhenActive]="ariaCurrent()"
-    [forceActiveStyles]="forceActiveStyles() || routeIsActive()"
+    [forceActiveStyles]="forceActiveStyles() || (routeIsActive() && !parentHideActiveStyles())"
     [ariaCurrentValue]="routeIsActive() ? ariaCurrent() : undefined"
     [ariaExpanded]="!toggleInStartSlot() ? open() : undefined"
     [ariaControls]="!toggleInStartSlot() ? contentId : undefined"
