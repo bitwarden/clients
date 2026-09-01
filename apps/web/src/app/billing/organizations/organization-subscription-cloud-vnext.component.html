@@ -6,7 +6,31 @@
 
 <bit-container>
   @if (showSubscription()) {
-    @if (subscriptionPreview.error()) {
+    @if (isFreeOrg()) {
+      @if (showManagementActions()) {
+        <strong
+          class="tw-flex tw-items-center tw-gap-3 tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 tw-pb-2"
+        >
+          {{ "details" | i18n }}
+        </strong>
+        <bit-table>
+          <ng-template body>
+            @if (org?.usePasswordManager) {
+              <tr bitRow>
+                <td bitCell>{{ "passwordManager" | i18n }} - {{ "freeOrganization" | i18n }}</td>
+                <td bitCell class="tw-text-right">{{ "free" | i18n }}</td>
+              </tr>
+            }
+            @if (org?.useSecretsManager) {
+              <tr bitRow>
+                <td bitCell>{{ "secretsManager" | i18n }} - {{ "freeOrganization" | i18n }}</td>
+                <td bitCell class="tw-text-right">{{ "free" | i18n }}</td>
+              </tr>
+            }
+          </ng-template>
+        </bit-table>
+      }
+    } @else if (subscriptionPreview.error()) {
       <billing-error-card
         [title]="'subscriptionDetailsNotLoading' | i18n"
         [description]="'subscriptionDetailsNotLoadingDesc' | i18n"

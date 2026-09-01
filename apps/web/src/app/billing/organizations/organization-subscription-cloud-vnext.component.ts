@@ -27,6 +27,7 @@ import {
   FormControlModule,
   ProgressBarComponent,
   SpinnerComponent,
+  TableModule,
   ToastService,
   TypographyModule,
   IconComponent,
@@ -91,6 +92,7 @@ const QUERY_PARAM_PRODUCT_TIER = "productTierType";
     FormControlModule,
     ProgressBarComponent,
     SpinnerComponent,
+    TableModule,
     TypographyModule,
     I18nPipe,
     HeaderModule,
@@ -146,7 +148,8 @@ export class OrganizationSubscriptionCloudVNextComponent {
    */
   readonly subscriptionPreview = resource({
     // Keyed on the id, not the object: organizations$ emits a new instance on every sync.
-    params: () => this.organization()?.id,
+    // Free orgs have no paid subscription to preview, so they are skipped entirely.
+    params: () => (this.isFreeOrg() ? undefined : this.organization()?.id),
     loader: async ({ params: organizationId }) => {
       return organizationId ? await this.data.getSubscriptionPreview(organizationId) : null;
     },
@@ -174,6 +177,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
   readonly showConsolidatedBillingMsp = computed(
     () => this.access()?.showConsolidatedBillingMsp ?? false,
   );
+  readonly isFreeOrg = computed(() => this.access()?.isFreeOrg ?? false);
 
   readonly cardTitle = computed(() => {
     const plan = this.organizationSubscription()?.plan;
@@ -289,7 +293,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
 
   readonly canAdjustStorage = computed(() => {
     const org = this.organization();
-    if (org == null) {
+    if (org == null || this.isFreeOrg()) {
       return false;
     }
     const discount = this.customerDiscount();
