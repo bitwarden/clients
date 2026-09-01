@@ -360,12 +360,12 @@ describe("SshAgentService", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    (service as any).authorizedKeys = new Map([["cipher-abc", new Set(["local"])]]);
+    (service as any).authorizedHosts = new Map([["cipher-abc", new Set(["local"])]]);
 
     service.ngOnDestroy();
     await flush();
 
-    expect((service as any).authorizedKeys).toEqual(new Map());
+    expect((service as any).authorizedHosts).toEqual(new Map());
   });
 
   it("when server is already loaded, does not call init again on unlock", async () => {
@@ -384,24 +384,24 @@ describe("SshAgentService", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    (service as any).authorizedKeys = new Map([["cipher-abc", new Set(["local"])]]);
+    (service as any).authorizedHosts = new Map([["cipher-abc", new Set(["local"])]]);
 
     accountSubject.next({ id: "user-2" as UserId });
     await flush();
 
-    expect((service as any).authorizedKeys).toEqual(new Map());
+    expect((service as any).authorizedHosts).toEqual(new Map());
   });
 
   it("when the active account changes with feature disabled, still resets in-memory approval state", async () => {
     accountSubject.next({ id: "user-1" as UserId });
     await flush();
 
-    (service as any).authorizedKeys = new Map([["cipher-abc", new Set(["local"])]]);
+    (service as any).authorizedHosts = new Map([["cipher-abc", new Set(["local"])]]);
 
     accountSubject.next({ id: "user-2" as UserId });
     await flush();
 
-    expect((service as any).authorizedKeys).toEqual(new Map());
+    expect((service as any).authorizedHosts).toEqual(new Map());
   });
 
   it("when activeAccount$ re-emits with the same id, does not reset approval state", async () => {
@@ -410,12 +410,12 @@ describe("SshAgentService", () => {
     await flush();
 
     const seeded = new Map([["cipher-abc", new Set(["local"])]]);
-    (service as any).authorizedKeys = seeded;
+    (service as any).authorizedHosts = seeded;
 
     accountSubject.next({ id: "user-1" as UserId });
     await flush();
 
-    expect((service as any).authorizedKeys).toBe(seeded);
+    expect((service as any).authorizedHosts).toBe(seeded);
   });
 
   it("when a key push fails, it is attempted once and not retried in a loop", async () => {
@@ -763,7 +763,7 @@ describe("SshAgentService – sign request authorization", () => {
     expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
-  it("RememberUntilLock: authorizedKeys cleared on account switch", async () => {
+  it("RememberUntilLock: authorizedHosts cleared on account switch", async () => {
     promptBehaviorSubject.next(SshAgentPromptType.RememberUntilLock);
 
     // Approve under user-1

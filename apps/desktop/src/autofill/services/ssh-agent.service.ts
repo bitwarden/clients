@@ -41,6 +41,15 @@ import { ApproveSshRequestComponent } from "../components/approve-ssh-request";
 import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
 
+/**
+ * Namespacing for cached sign authorizations.
+ */
+const AuthorizationScope = Object.freeze({
+  Local: "local",
+  Forwarded: "forwarded",
+} as const);
+type AuthorizationScope = (typeof AuthorizationScope)[keyof typeof AuthorizationScope];
+
 @Injectable({
   providedIn: "root",
 })
@@ -48,10 +57,8 @@ export class SshAgentService implements OnDestroy {
   SSH_REFRESH_INTERVAL = 1000;
   SSH_VAULT_UNLOCK_REQUEST_TIMEOUT = 60_000;
 
-  private static readonly LOCAL_HOST_KEY = "local";
-
-  // map of cipherId to set of authorized host keys
-  private authorizedKeys: Map<string, Set<string>> = new Map();
+  // map of cipherId to set of host key fingerprints who's sign requests have been authorized.
+  private authorizedHosts: Map<string, Set<string>> = new Map();
 
   private destroy$ = new Subject<void>();
 
@@ -197,7 +204,7 @@ export class SshAgentService implements OnDestroy {
             );
 
             if (await firstValueFrom(dialogRef.closed)) {
-              await this.rememberAuthorization(cipherId, isAgentForwarding, hostFingerprint);
+              await this.storeAuthorizedHost(cipherId, isAgentForwarding, hostFingerprint);
               return ipc.autofill.sshAgent.signRequestResponse(requestId, true);
             } else {
               return ipc.autofill.sshAgent.signRequestResponse(requestId, false);
@@ -228,7 +235,7 @@ export class SshAgentService implements OnDestroy {
         withLatestFrom(this.desktopSettingsService.sshAgentEnabled$),
         concatMap(async ([, enabled]) => {
           this.logService.debug("Active account changed, resetting SSH sign approval state");
-          this.authorizedKeys = new Map();
+          this.authorizedHosts = new Map();
           // the V1 sshagent.clearkeys handler isn't registered in the main process
           // until sshagent.init is called (which only happens when the feature is enabled).
           if (enabled && !useV2) {
@@ -245,11 +252,11 @@ export class SshAgentService implements OnDestroy {
       .subscribe({
         error: (e: unknown) => {
           this.logService.error("Error in active account observable", e);
-          this.authorizedKeys = new Map();
+          this.authorizedHosts = new Map();
         },
         // on completion the service is being torn down with the rest of the app and the main process will release agent state on exit.
         complete: () => {
-          this.authorizedKeys = new Map();
+          this.authorizedHosts = new Map();
         },
       });
 
@@ -260,7 +267,7 @@ export class SshAgentService implements OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe(() => {
-        this.authorizedKeys = new Map();
+        this.authorizedHosts = new Map();
       });
 
     // V1 only: periodic key refresh. V2 manages keys reactively — see block below.
@@ -481,71 +488,107 @@ export class SshAgentService implements OnDestroy {
       .map((c) => ({ name: c.name, privateKey: c.sshKey.privateKey, cipherId: c.id }));
   }
 
-  // Builds the key for caching RememberUntilLock approvals, via the target host.
-  // Returns undefined when there is nothing safe to cache against, which forces a re-prompt.
-  private static authorizationKey(
+  private static authorizationScope(isForwarded: boolean): AuthorizationScope {
+    return isForwarded ? AuthorizationScope.Forwarded : AuthorizationScope.Local;
+  }
+
+  // Builds the cache's key for storing RememberUntilLock authorizations.
+  // The agent supplies a fingerprint whenever it verified a session-bind@openssh.com extension.
+  // These are the four cache key formats and the scenarios that lead to them:
+  //
+  //   # | isForwarded | fingerprint | cache key
+  //   --|-------------|-------------|----------------
+  //   1 | true        | present     | forwarded:<fingerprint>
+  //   2 | true        | absent      | undefined
+  //   3 | false       | present     | local:<fingerprint>
+  //   4 | false       | absent      | local
+  //
+  // 1. Agent forwarded request to a host (`ssh -A <host>`)
+  // 2. Only reachable if an error happens in IPC.
+  // 3. Non-forwarded request to a host (`ssh <host>`)
+  // 4. Sign request without a host. (e.g. Local git/file signing)
+  private static authorizedHostsCacheKey(
     isForwarded: boolean,
     hostFingerprint?: string,
   ): string | undefined {
-    if (isForwarded) {
-      return hostFingerprint ? `forwarded:${hostFingerprint}` : undefined;
+    const scope = SshAgentService.authorizationScope(isForwarded);
+
+    if (hostFingerprint) {
+      return `${scope}:${hostFingerprint}`;
     }
-    return hostFingerprint
-      ? `${SshAgentService.LOCAL_HOST_KEY}:${hostFingerprint}`
-      : SshAgentService.LOCAL_HOST_KEY;
+
+    // defensive check- in practice, isForwarded is only populated when hostFingerprint is also provided.
+    if (isForwarded) {
+      return undefined;
+    }
+
+    return AuthorizationScope.Local;
   }
 
-  private async rememberAuthorization(
+  // Stores the authorized host in the cache.
+  private async storeAuthorizedHost(
     cipherId: string,
     isForwarded: boolean,
     hostFingerprint?: string,
   ): Promise<void> {
-    const key = SshAgentService.authorizationKey(isForwarded, hostFingerprint);
+    const key = SshAgentService.authorizedHostsCacheKey(isForwarded, hostFingerprint);
     if (!key) {
       return;
     }
-    const approved = this.authorizedKeys.get(cipherId) ?? new Set<string>();
-    approved.add(key);
-    this.authorizedKeys.set(cipherId, approved);
+
+    // get the set of host fingerprints for this cipher or create if this is the first.
+    const authorized = this.authorizedHosts.get(cipherId) ?? new Set<string>();
+    authorized.add(key);
+
+    this.authorizedHosts.set(cipherId, authorized);
   }
 
+  private logAuthorizationDecision(
+    scope: AuthorizationScope,
+    promptType: SshAgentPromptType,
+    outcome: string,
+  ) {
+    this.logService.debug(
+      `SSH sign authorization (${scope}, prompt setting: ${promptType}): ${outcome}`,
+    );
+  }
+
+  // Evaluates the request's parameters in conjunction with the user's setting for Authorization.
+  // True if authorization from the user is required, false otherwise.
   private async needsAuthorization(
     cipherId: string,
     isForwarded: boolean,
     hostFingerprint?: string,
   ): Promise<boolean> {
-    const scope = isForwarded ? "forwarded" : "local";
-
+    const scope = SshAgentService.authorizationScope(isForwarded);
     const promptType = await firstValueFrom(this.desktopSettingsService.sshAgentPromptBehavior$);
+
     switch (promptType) {
       case SshAgentPromptType.Never:
-        this.logService.debug(
-          `SSH sign approval (${scope}, prompt setting: ${promptType}): approving.`,
-        );
+        this.logAuthorizationDecision(scope, promptType, "approving.");
         return false;
+
       case SshAgentPromptType.Always:
-        this.logService.debug(
-          `SSH sign approval (${scope}, prompt setting:  ${promptType}): prompting.`,
-        );
+        this.logAuthorizationDecision(scope, promptType, "prompting.");
         return true;
+
       case SshAgentPromptType.RememberUntilLock: {
-        const key = SshAgentService.authorizationKey(isForwarded, hostFingerprint);
-        // This is a defensive check. While the API for the agent doesn't allow `key` to not be defined, if an IPC error or otherwise resulted in the key not being defined, then without this guard we'd silently approve forwarded requests to any host for this vault item.
+        const key = SshAgentService.authorizedHostsCacheKey(isForwarded, hostFingerprint);
+
+        // defensive check. The API for the agent doesn't allow `key` to not be defined, thus if an IPC
+        // error resulted in the key not being defined, then without this guard we'd
+        // silently approve forwarded requests to any host for this vault item.
         if (!key) {
-          this.logService.debug(
-            `SSH sign approval (${scope}, prompt setting: ${promptType}): prompting- no host key from request.`,
-          );
+          this.logAuthorizationDecision(scope, promptType, "prompting- no host key from request.");
           return true;
         }
-        if (this.authorizedKeys.get(cipherId)?.has(key) ?? false) {
-          this.logService.debug(
-            `SSH sign approval (${scope}, prompt setting: ${promptType}): approving remembered host.`,
-          );
+
+        if (this.authorizedHosts.get(cipherId)?.has(key) ?? false) {
+          this.logAuthorizationDecision(scope, promptType, "approving remembered host.");
           return false;
         }
-        this.logService.debug(
-          `SSH sign approval (${scope}, prompt setting: ${promptType}): prompting- new host.`,
-        );
+
+        this.logAuthorizationDecision(scope, promptType, "prompting- new host.");
         return true;
       }
     }
