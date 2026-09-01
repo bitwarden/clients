@@ -6,19 +6,21 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import type { RotationConfigView } from "../rotation";
-import { TargetSystemMethod } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
+import {
+  ORGANIZATION_ID,
+  rotationConfigDescription,
+  rotationConfigView,
+} from "../testing/rotation-builders";
 
 import { ManagedCredentialsTabComponent } from "./managed-credentials-tab.component";
 import { RotationConfigRow, buildRotationConfigRow } from "./rotation-config-row";
 import { RotationConfigsService } from "./rotation-configs.service";
-import { ORGANIZATION_ID, configId, rotationConfigDescription, rotationConfigView } from "../testing/rotation-builders";
 
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string) => id,
   translate: (id: string) => id,
 };
-
 
 function makeRow(
   configOverrides: Partial<RotationConfigView> = {},
@@ -89,12 +91,12 @@ describe("ManagedCredentialsTabComponent", () => {
   describe("initialization", () => {
     it("calls configsService.load with the organizationId from route params", () => {
       setupTestBed();
-      expect(configsService.load).toHaveBeenCalledWith("org-1");
+      expect(configsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
     });
 
     it("also loads target systems so the empty state can gate on them", () => {
       setupTestBed();
-      expect(targetSystemsService.load).toHaveBeenCalledWith("org-1");
+      expect(targetSystemsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
     });
   });
 

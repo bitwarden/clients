@@ -160,7 +160,9 @@ export class DaemonsService {
         d.id === daemon.id
           ? ({
               ...d,
-              assignedTargetSystemIds: d.assignedTargetSystemIds.filter((id) => id !== targetSystemId),
+              assignedTargetSystemIds: d.assignedTargetSystemIds.filter(
+                (id) => id !== targetSystemId,
+              ),
             } as AccessConnectorView)
           : d,
       ),

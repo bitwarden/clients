@@ -9,9 +9,9 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import type { TargetSystemView } from "../rotation";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
+import { ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
 
 import { TargetSystemEditComponent } from "./target-system-edit.component";
-import { ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
 
 // JSDOM has no ResizeObserver
 class ResizeObserverStub {
@@ -48,7 +48,6 @@ function makeSystem(overrides: Partial<TargetSystemView> = {}): TargetSystemView
     ...overrides,
   } as TargetSystemView;
 }
-
 
 /** Build a configured TestBed for create mode (no targetSystemId). */
 async function setupCreate(rotationSdk: ReturnType<typeof mock<RotationSdkService>>) {
@@ -423,7 +422,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
   beforeEach(async () => {
     rotationSdk = mock<RotationSdkService>();
     toastService = mock<ToastService>();
-    rotationSdk.listTargetSystems.mockResolvedValue(([makeSystem()]));
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem()]);
     await setupEdit(rotationSdk);
     TestBed.overrideProvider(ToastService, { useValue: toastService });
     fixture = TestBed.createComponent(TargetSystemEditComponent);
@@ -503,7 +502,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
       kind: null,
       supportsSessionTermination: null,
     });
-    rotationApiManual.listTargetSystems.mockResolvedValue(([manual]));
+    rotationApiManual.listTargetSystems.mockResolvedValue([manual]);
     rotationApiManual.updateTargetSystem.mockResolvedValue(undefined);
     TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
     await TestBed.configureTestingModule({
@@ -544,7 +543,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
     TestBed.resetTestingModule();
     const rotationApi2 = mock<RotationSdkService>();
     const toastService2 = mock<ToastService>();
-    rotationApi2.listTargetSystems.mockResolvedValue(([]));
+    rotationApi2.listTargetSystems.mockResolvedValue([]);
     TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
     await TestBed.configureTestingModule({
       imports: [TargetSystemEditComponent, NoopAnimationsModule],
@@ -557,7 +556,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { params: { organizationId: ORG_ID, targetSystemId: "missing-id" } },
+            snapshot: { params: { organizationId: ORG_ID, targetSystemId: sysId("missing-id") } },
           },
         },
       ],

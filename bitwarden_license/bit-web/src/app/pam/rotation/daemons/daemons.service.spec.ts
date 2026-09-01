@@ -7,11 +7,11 @@ import type { AccessConnectorView, TargetSystemId, TargetSystemView } from "../r
 import { DaemonStatus } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
+import { ORGANIZATION_ID, connectorId, sysId } from "../testing/rotation-builders";
 
 import { DaemonsService } from "./daemons.service";
-import { connectorId, sysId } from "../testing/rotation-builders";
 
-const orgId = "org-1" as OrganizationId;
+const orgId = ORGANIZATION_ID as OrganizationId;
 
 function makeDaemon(overrides: Partial<AccessConnectorView> = {}): AccessConnectorView {
   return {
@@ -84,9 +84,9 @@ describe("DaemonsService", () => {
     it("resolves assignment IDs to target system names", async () => {
       const system = makeTargetSystem(sysId("ts-1"), "Production DB");
       systemById$.next(new Map([[sysId("ts-1"), system]]));
-      rotationSdk.listConnectors.mockResolvedValue({
-        data: [makeDaemon({ assignedTargetSystemIds: [sysId("ts-1")] })],
-      } as any);
+      rotationSdk.listConnectors.mockResolvedValue([
+        makeDaemon({ assignedTargetSystemIds: [sysId("ts-1")] }),
+      ]);
 
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
@@ -94,19 +94,17 @@ describe("DaemonsService", () => {
     });
 
     it("falls back to the raw ID when a target system is not found", async () => {
-      rotationSdk.listConnectors.mockResolvedValue({
-        data: [makeDaemon({ assignedTargetSystemIds: [sysId("unknown-id")] })],
-      } as any);
+      rotationSdk.listConnectors.mockResolvedValue([
+        makeDaemon({ assignedTargetSystemIds: [sysId("unknown-id")] }),
+      ]);
 
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
-      expect(rows[0].assignmentNames).toEqual(["unknown-id"]);
+      expect(rows[0].assignmentNames).toEqual([String(sysId("unknown-id"))]);
     });
 
     it("sets enabled and canAssign true for enabled daemons", async () => {
-      rotationSdk.listConnectors.mockResolvedValue({
-        data: [makeDaemon({ status: DaemonStatus.Enabled })],
-      } as any);
+      rotationSdk.listConnectors.mockResolvedValue([makeDaemon({ status: DaemonStatus.Enabled })]);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
       expect(rows[0].enabled).toBe(true);
@@ -114,9 +112,7 @@ describe("DaemonsService", () => {
     });
 
     it("sets enabled and canAssign false for disabled daemons", async () => {
-      rotationSdk.listConnectors.mockResolvedValue({
-        data: [makeDaemon({ status: DaemonStatus.Disabled })],
-      } as any);
+      rotationSdk.listConnectors.mockResolvedValue([makeDaemon({ status: DaemonStatus.Disabled })]);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
       expect(rows[0].enabled).toBe(false);
@@ -124,18 +120,14 @@ describe("DaemonsService", () => {
     });
 
     it("uses pamDaemonStatusEnabled key for enabled daemons", async () => {
-      rotationSdk.listConnectors.mockResolvedValue({
-        data: [makeDaemon({ status: DaemonStatus.Enabled })],
-      } as any);
+      rotationSdk.listConnectors.mockResolvedValue([makeDaemon({ status: DaemonStatus.Enabled })]);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
       expect(rows[0].statusLabelKey).toBe("pamDaemonStatusEnabled");
     });
 
     it("uses pamDaemonStatusDisabled key for disabled daemons", async () => {
-      rotationSdk.listConnectors.mockResolvedValue({
-        data: [makeDaemon({ status: DaemonStatus.Disabled })],
-      } as any);
+      rotationSdk.listConnectors.mockResolvedValue([makeDaemon({ status: DaemonStatus.Disabled })]);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
       expect(rows[0].statusLabelKey).toBe("pamDaemonStatusDisabled");
@@ -183,9 +175,10 @@ describe("DaemonsService", () => {
   describe("delete", () => {
     it("calls API and removes the daemon from local state", async () => {
       const daemon = makeDaemon({ id: connectorId("daemon-1") });
-      rotationSdk.listConnectors.mockResolvedValue({
-        data: [daemon, makeDaemon({ id: connectorId("daemon-2") })],
-      } as any);
+      rotationSdk.listConnectors.mockResolvedValue([
+        daemon,
+        makeDaemon({ id: connectorId("daemon-2") }),
+      ]);
       await service.load(orgId);
 
       await service.delete(daemon);
@@ -205,7 +198,7 @@ describe("DaemonsService", () => {
       await service.assign(daemon, sysId("ts-99"));
 
       const rows = await firstValue(service.rows$);
-      expect(rows[0].daemon.assignedTargetSystemIds).toContain("ts-99");
+      expect(rows[0].daemon.assignedTargetSystemIds).toContain(sysId("ts-99"));
     });
 
     it("rolls back on API failure", async () => {
@@ -217,7 +210,7 @@ describe("DaemonsService", () => {
       await expect(service.assign(daemon, sysId("ts-99"))).rejects.toThrow();
 
       const rows = await firstValue(service.rows$);
-      expect(rows[0].daemon.assignedTargetSystemIds).not.toContain("ts-99");
+      expect(rows[0].daemon.assignedTargetSystemIds).not.toContain(sysId("ts-99"));
     });
   });
 

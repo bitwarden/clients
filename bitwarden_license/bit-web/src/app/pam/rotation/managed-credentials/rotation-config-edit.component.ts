@@ -4,11 +4,10 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import type { CipherId } from "@bitwarden/sdk-internal";
 import {
   AsyncActionsModule,
   BreadcrumbsModule,
@@ -26,12 +25,21 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
+import type { CipherId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { OrgCiphersService } from "../org-ciphers.service";
-import { RotationConfigCreateRequest, RotationConfigDetailView, RotationConfigId, RotationConfigUpdateRequest, TargetSystemId, TargetSystemMethod, TargetSystemStatus } from "../rotation";
-import { RotationSdkService } from "../rotation-sdk.service";
+import {
+  RotationConfigCreateRequest,
+  RotationConfigDetailView,
+  RotationConfigId,
+  RotationConfigUpdateRequest,
+  TargetSystemId,
+  TargetSystemMethod,
+  TargetSystemStatus,
+} from "../rotation";
 import { RotationScheduleInputComponent } from "../rotation-schedule-input.component";
+import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { RotationHistoryComponent } from "./rotation-history.component";

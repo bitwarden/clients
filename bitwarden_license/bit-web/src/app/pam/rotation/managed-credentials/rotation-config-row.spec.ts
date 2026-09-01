@@ -1,4 +1,5 @@
-import type { RotationConfigView } from "../rotation";
+import type { RotationConfigView, TargetSystemView } from "../rotation";
+import type { RotationConfigDescription } from "../rotation-sdk.service";
 import {
   CIPHER_ID,
   rotationConfigActions,
@@ -23,12 +24,25 @@ import {
  * the pass-through, not the rules.
  */
 describe("buildRotationConfigRow", () => {
+  /**
+   * Takes an options object rather than positional arguments so a test can pass an explicit
+   * `undefined` for the target or the cipher name — the two "not loaded yet" cases — which a
+   * default parameter would silently fill back in.
+   */
   const row = (
-    config: Partial<RotationConfigView> = {},
-    target = targetSystemView(),
-    cipherName: string | undefined = "My Cipher",
-    description = rotationConfigDescription(),
-  ) => buildRotationConfigRow(rotationConfigView(config), target, cipherName, description);
+    options: {
+      config?: Partial<RotationConfigView>;
+      target?: TargetSystemView;
+      cipherName?: string;
+      description?: RotationConfigDescription;
+    } = {},
+  ) =>
+    buildRotationConfigRow(
+      rotationConfigView(options.config ?? {}),
+      "target" in options ? options.target : targetSystemView(),
+      "cipherName" in options ? options.cipherName : "My Cipher",
+      options.description ?? rotationConfigDescription(),
+    );
 
   describe("naming", () => {
     it("uses the resolved cipher name", () => {
@@ -36,52 +50,60 @@ describe("buildRotationConfigRow", () => {
     });
 
     it("falls back to the cipher id when the vault read has not resolved a name", () => {
-      expect(row({}, targetSystemView(), undefined).cipherName).toBe(CIPHER_ID);
+      expect(row({ cipherName: undefined }).cipherName).toBe(CIPHER_ID);
     });
 
     it("prefers the resolved target system's name over the config's denormalized copy", () => {
       const target = targetSystemView({ name: "Resolved Name" });
-      expect(row({ targetSystemName: "Stale Name" }, target).targetSystemName).toBe(
+      expect(row({ config: { targetSystemName: "Stale Name" }, target }).targetSystemName).toBe(
         "Resolved Name",
       );
     });
 
     /** The server denormalizes the name onto the config, so it can lag a rename. */
     it("falls back to the config's copy when the target system has not loaded", () => {
-      expect(row({ targetSystemName: "My Target" }, undefined).targetSystemName).toBe("My Target");
+      expect(
+        row({ config: { targetSystemName: "My Target" }, target: undefined }).targetSystemName,
+      ).toBe("My Target");
     });
   });
 
   describe("status label", () => {
     it("reads active when enabled", () => {
-      expect(row({ enabled: true }).statusLabelKey).toBe("pamRotationConfigStatusActive");
+      expect(row({ config: { enabled: true } }).statusLabelKey).toBe(
+        "pamRotationConfigStatusActive",
+      );
     });
 
     it("reads paused when disabled", () => {
-      expect(row({ enabled: false }).statusLabelKey).toBe("pamRotationConfigStatusPaused");
+      expect(row({ config: { enabled: false } }).statusLabelKey).toBe(
+        "pamRotationConfigStatusPaused",
+      );
     });
   });
 
   describe("schedule label", () => {
     it("maps a named preset to its i18n key", () => {
-      const built = row({}, targetSystemView(), "C", rotationConfigDescription({
-        schedulePreset: "daily",
-      }));
+      const built = row({ description: rotationConfigDescription({ schedulePreset: "daily" }) });
       expect(built.scheduleLabelKeyOrCron).toBe("pamRotationScheduleDaily");
       expect(isScheduleI18nKey(built)).toBe(true);
     });
 
     it("maps no schedule to the none key", () => {
-      const built = row({ scheduleCron: undefined }, targetSystemView(), "C",
-        rotationConfigDescription({ schedulePreset: "none" }));
+      const built = row({
+        config: { scheduleCron: undefined },
+        description: rotationConfigDescription({ schedulePreset: "none" }),
+      });
       expect(built.scheduleLabelKeyOrCron).toBe(SCHEDULE_NONE_KEY);
       expect(isScheduleI18nKey(built)).toBe(true);
     });
 
     /** A custom expression is shown verbatim — there is no key that describes it. */
     it("shows a custom expression as its raw cron", () => {
-      const built = row({ scheduleCron: "0 */30 * * * ?" }, targetSystemView(), "C",
-        rotationConfigDescription({ schedulePreset: "custom" }));
+      const built = row({
+        config: { scheduleCron: "0 */30 * * * ?" },
+        description: rotationConfigDescription({ schedulePreset: "custom" }),
+      });
       expect(built.scheduleLabelKeyOrCron).toBe("0 */30 * * * ?");
       expect(isScheduleI18nKey(built)).toBe(false);
     });
@@ -90,13 +112,13 @@ describe("buildRotationConfigRow", () => {
   describe("date columns", () => {
     it("exposes epoch milliseconds alongside the ISO string for sorting", () => {
       const iso = "2024-01-15T12:00:00Z";
-      const built = row({ lastRotationAt: iso });
+      const built = row({ config: { lastRotationAt: iso } });
       expect(built.lastRotationAtMs).toBe(Date.parse(iso));
       expect(built.lastRotationAt).toBe(iso);
     });
 
     it("leaves the sort key null when the date is unset", () => {
-      expect(row({ lastRotationAt: undefined }).lastRotationAtMs).toBeNull();
+      expect(row({ config: { lastRotationAt: undefined } }).lastRotationAtMs).toBeNull();
     });
   });
 
@@ -113,7 +135,7 @@ describe("buildRotationConfigRow", () => {
         canPause: false,
         canResume: true,
       });
-      const built = row({}, targetSystemView(), "C", rotationConfigDescription({ actions }));
+      const built = row({ description: rotationConfigDescription({ actions }) });
 
       expect(built.canRotateNow).toBe(false);
       expect(built.canRecordManual).toBe(true);
@@ -125,11 +147,11 @@ describe("buildRotationConfigRow", () => {
 
   describe("pass-through fields", () => {
     it("carries rotateOnAccessEnd", () => {
-      expect(row({ rotateOnAccessEnd: true }).rotateOnAccessEnd).toBe(true);
+      expect(row({ config: { rotateOnAccessEnd: true } }).rotateOnAccessEnd).toBe(true);
     });
 
     it("carries awaitingManualRotation", () => {
-      expect(row({ awaitingManualRotation: true }).awaitingManualRotation).toBe(true);
+      expect(row({ config: { awaitingManualRotation: true } }).awaitingManualRotation).toBe(true);
     });
   });
 });

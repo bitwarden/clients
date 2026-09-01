@@ -78,10 +78,7 @@ export class DaemonRegisterDialogComponent {
 
     try {
       // The SDK derives the key material, calls the server, and assembles the one-time token.
-      const { token } = await this.rotationSdk.registerConnector(
-        this.params.organizationId,
-        name,
-      );
+      const { token } = await this.rotationSdk.registerConnector(this.params.organizationId, name);
 
       // Close the register dialog first, then open the token dialog.
       void this.dialogRef.close({ registered: true });

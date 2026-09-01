@@ -2,50 +2,29 @@ import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import type { CipherId } from "@bitwarden/sdk-internal";
 
 import { OrgCiphersService } from "../org-ciphers.service";
-import type { RotationConfigView, TargetSystemId, TargetSystemView } from "../rotation";
-import { TargetSystemMethod, TargetSystemStatus } from "../rotation";
+import type {
+  RotationConfigView,
+  TargetSystemId,
+  TargetSystemStatus,
+  TargetSystemView,
+} from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
+import {
+  CIPHER_ID,
+  ORGANIZATION_ID,
+  ROTATION_CONFIG_ID,
+  rotationConfigDescription,
+  rotationConfigView,
+  targetSystemView,
+} from "../testing/rotation-builders";
 
 import { RotationConfigsService } from "./rotation-configs.service";
-import { ORGANIZATION_ID, configId, rotationConfigView, targetSystemView } from "../testing/rotation-builders";
 
 const ORG_ID = ORGANIZATION_ID;
-
-function makeConfigRaw(overrides: Record<string, unknown> = {}): Record<string, unknown> {
-  return {
-    Id: configId("cfg-1"),
-    CipherId: "cipher-1",
-    TargetSystemId: "ts-1",
-    TargetSystemName: "Target",
-    TargetSystemMethod: TargetSystemMethod.Automatic,
-    AccountIdentity: "admin@example.com",
-    TerminateSessions: false,
-    ScheduleCron: null,
-    RotateOnAccessEnd: false,
-    Enabled: true,
-    LastRotationAt: null,
-    NextRotationAt: null,
-    HasActiveJob: false,
-    AwaitingManualRotation: false,
-    ...overrides,
-  };
-}
-
-
-function makeTargetRaw(): Record<string, unknown> {
-  return {
-    Id: "ts-1",
-    Name: "Target",
-    Method: TargetSystemMethod.Automatic,
-    Kind: 0,
-    Status: TargetSystemStatus.Active,
-    PasswordPolicy: null,
-    SupportsSessionTermination: true,
-  };
-}
 
 describe("RotationConfigsService", () => {
   let service: RotationConfigsService;
@@ -58,6 +37,7 @@ describe("RotationConfigsService", () => {
       | "rotateNow"
       | "recordManualRotation"
       | "deleteConfig"
+      | "describeConfigs"
     >
   >;
   let targetSystemsService: {
@@ -67,7 +47,7 @@ describe("RotationConfigsService", () => {
     loading$: BehaviorSubject<boolean>;
   };
   let orgCiphersService: {
-    cipherNameById$: BehaviorSubject<Map<string, string>>;
+    cipherNameById$: BehaviorSubject<Map<CipherId, string>>;
     load: jest.Mock;
     ciphers$: BehaviorSubject<CipherView[]>;
     loading$: BehaviorSubject<boolean>;
@@ -78,12 +58,20 @@ describe("RotationConfigsService", () => {
     const target = targetSystemView();
 
     rotationSdk = {
-      listConfigs: jest.fn().mockResolvedValue(([config])),
+      listConfigs: jest.fn().mockResolvedValue([config]),
       pauseConfig: jest.fn().mockResolvedValue(undefined),
       resumeConfig: jest.fn().mockResolvedValue(undefined),
       rotateNow: jest.fn().mockResolvedValue(undefined),
       recordManualRotation: jest.fn().mockResolvedValue(undefined),
       deleteConfig: jest.fn().mockResolvedValue(undefined),
+      // rows$ asks the SDK to derive each config's actions and schedule preset in one call.
+      // Signature matches the contract exactly, so jest infers the mock rather than widening it.
+      describeConfigs: jest.fn(
+        async (
+          configs: readonly RotationConfigView[],
+          _targetStatusById: ReadonlyMap<TargetSystemId, TargetSystemStatus>,
+        ) => new Map(configs.map((c) => [c.id, rotationConfigDescription()])),
+      ),
     };
 
     targetSystemsService = {
@@ -94,7 +82,9 @@ describe("RotationConfigsService", () => {
     };
 
     orgCiphersService = {
-      cipherNameById$: new BehaviorSubject(new Map([["cipher-1", "My Cipher"]])),
+      cipherNameById$: new BehaviorSubject<Map<CipherId, string>>(
+        new Map([[CIPHER_ID, "My Cipher"]]),
+      ),
       load: jest.fn().mockResolvedValue(undefined),
       ciphers$: new BehaviorSubject([] as CipherView[]),
       loading$: new BehaviorSubject(false),
@@ -122,7 +112,7 @@ describe("RotationConfigsService", () => {
     await service.load(ORG_ID);
     const configs = await firstValueFrom(service.configs$);
     expect(configs).toHaveLength(1);
-    expect(configs[0].id).toBe(configId("cfg-1"));
+    expect(configs[0].id).toBe(ROTATION_CONFIG_ID);
   });
 
   it("projects rows with cipher name from orgCiphers", async () => {
@@ -132,10 +122,9 @@ describe("RotationConfigsService", () => {
   });
 
   it("awaitingManualCount$ counts configs awaiting manual rotation", async () => {
-    const raw = makeConfigRaw({ AwaitingManualRotation: true });
-    rotationSdk.listConfigs.mockResolvedValue(
-      ([rotationConfigView()]),
-    );
+    rotationSdk.listConfigs.mockResolvedValue([
+      rotationConfigView({ awaitingManualRotation: true }),
+    ]);
     await service.load(ORG_ID);
     const count = await firstValueFrom(service.awaitingManualCount$);
     expect(count).toBe(1);
@@ -159,10 +148,7 @@ describe("RotationConfigsService", () => {
   });
 
   it("resume optimistically sets enabled=true", async () => {
-    const raw = makeConfigRaw({ Enabled: false });
-    rotationSdk.listConfigs.mockResolvedValue(
-      ([rotationConfigView()]),
-    );
+    rotationSdk.listConfigs.mockResolvedValue([rotationConfigView({ enabled: false })]);
     await service.load(ORG_ID);
     const configs = await firstValueFrom(service.configs$);
     await service.resume(configs[0]);
@@ -179,10 +165,9 @@ describe("RotationConfigsService", () => {
   });
 
   it("recordManual clears awaitingManualRotation and sets lastRotationAt", async () => {
-    const raw = makeConfigRaw({ AwaitingManualRotation: true });
-    rotationSdk.listConfigs.mockResolvedValue(
-      ([rotationConfigView()]),
-    );
+    rotationSdk.listConfigs.mockResolvedValue([
+      rotationConfigView({ awaitingManualRotation: true }),
+    ]);
     await service.load(ORG_ID);
     const configs = await firstValueFrom(service.configs$);
     await service.recordManual(configs[0]);
@@ -192,10 +177,9 @@ describe("RotationConfigsService", () => {
   });
 
   it("recordManual rolls back on API error", async () => {
-    const raw = makeConfigRaw({ AwaitingManualRotation: true });
-    rotationSdk.listConfigs.mockResolvedValue(
-      ([rotationConfigView()]),
-    );
+    rotationSdk.listConfigs.mockResolvedValue([
+      rotationConfigView({ awaitingManualRotation: true }),
+    ]);
     await service.load(ORG_ID);
     const configs = await firstValueFrom(service.configs$);
     rotationSdk.recordManualRotation.mockRejectedValue(new Error("fail"));

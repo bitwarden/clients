@@ -21,7 +21,13 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { TargetSystemId, TargetSystemKind, TargetSystemMethod, TargetSystemStatus, TargetSystemView } from "../rotation";
+import {
+  TargetSystemId,
+  TargetSystemKind,
+  TargetSystemMethod,
+  TargetSystemStatus,
+  TargetSystemView,
+} from "../rotation";
 
 import {
   TargetSystemsEmptyStateComponent,

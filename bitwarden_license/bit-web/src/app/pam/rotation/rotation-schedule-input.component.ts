@@ -18,7 +18,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { QuartzSchedulePreset } from "./rotation";
 import { RotationSdkService } from "./rotation-sdk.service";
 
-
 /**
  * CVA sub-editor for a Quartz cron schedule (or null for "no schedule").
  *

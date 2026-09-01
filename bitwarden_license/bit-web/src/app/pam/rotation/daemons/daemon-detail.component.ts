@@ -3,9 +3,9 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@a
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -24,7 +24,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { RotationHistoryComponent } from "../managed-credentials/rotation-history.component";
-import { AccessConnectorDetailView, AccessConnectorId, DaemonStatus, TargetSystemId } from "../rotation";
+import { AccessConnectorDetailView, AccessConnectorId, DaemonStatus } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 

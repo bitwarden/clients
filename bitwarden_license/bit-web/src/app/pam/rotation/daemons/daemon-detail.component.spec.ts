@@ -5,20 +5,24 @@ import { mock } from "jest-mock-extended";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import type { AccessConnectorDetailView, TargetSystemView } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
+import {
+  ORGANIZATION_ID,
+  accessConnectorDetailView,
+  connectorId,
+  sysId,
+  targetSystemView,
+} from "../testing/rotation-builders";
 
 import { DaemonDetailComponent } from "./daemon-detail.component";
-import type { AccessConnectorDetailView, TargetSystemView } from "../rotation";
-import { ORGANIZATION_ID, accessConnectorDetailView, connectorId, sysId, targetSystemView } from "../testing/rotation-builders";
 
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string) => id,
   translate: (id: string) => id,
 };
 
-function makeDaemon(
-  overrides: Partial<AccessConnectorDetailView> = {},
-): AccessConnectorDetailView {
+function makeDaemon(overrides: Partial<AccessConnectorDetailView> = {}): AccessConnectorDetailView {
   return accessConnectorDetailView({
     id: connectorId("daemon-1"),
     name: "On-prem daemon",
@@ -30,7 +34,6 @@ function makeDaemon(
 function makeSystem(): TargetSystemView {
   return targetSystemView({ id: sysId("ts-1"), name: "Prod Entra" });
 }
-
 
 async function setup(
   rotationSdk: ReturnType<typeof mock<RotationSdkService>>,
@@ -70,7 +73,7 @@ describe("DaemonDetailComponent", () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(rotationSdk.getConnector).toHaveBeenCalledWith("org-1", connectorId("daemon-1"));
+    expect(rotationSdk.getConnector).toHaveBeenCalledWith(ORGANIZATION_ID, connectorId("daemon-1"));
     const comp = fixture.componentInstance as unknown as { titleText: () => string };
     expect(comp.titleText()).toBe("On-prem daemon");
   });
@@ -103,7 +106,10 @@ describe("DaemonDetailComponent", () => {
     };
     await comp.disable();
 
-    expect(rotationSdk.disableConnector).toHaveBeenCalledWith("org-1", connectorId("daemon-1"));
+    expect(rotationSdk.disableConnector).toHaveBeenCalledWith(
+      ORGANIZATION_ID,
+      connectorId("daemon-1"),
+    );
     expect(comp.enabled()).toBe(false);
   });
 
@@ -122,7 +128,10 @@ describe("DaemonDetailComponent", () => {
     const comp = fixture.componentInstance as unknown as { deleteDaemon: () => Promise<void> };
     await comp.deleteDaemon();
 
-    expect(rotationSdk.deleteConnector).toHaveBeenCalledWith("org-1", connectorId("daemon-1"));
+    expect(rotationSdk.deleteConnector).toHaveBeenCalledWith(
+      ORGANIZATION_ID,
+      connectorId("daemon-1"),
+    );
     expect(nav).toHaveBeenCalled();
   });
 

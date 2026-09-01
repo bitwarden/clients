@@ -6,9 +6,8 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { QuartzSchedulePreset } from "./rotation";
-import { RotationSdkService } from "./rotation-sdk.service";
-
 import { RotationScheduleInputComponent } from "./rotation-schedule-input.component";
+import { RotationSdkService } from "./rotation-sdk.service";
 
 /**
  * The preset table as the SDK defines it.
@@ -42,7 +41,9 @@ function scheduleStub(): Pick<
     isLikelyQuartzCron: jest.fn(async (value: string) => {
       const fields = value.trim().split(/\s+/);
       return (
-        fields.length >= 6 && fields.length <= 7 && fields.every((f) => /^[0-9A-Za-z*/,\-?#LW]+$/.test(f))
+        fields.length >= 6 &&
+        fields.length <= 7 &&
+        fields.every((f) => /^[0-9A-Za-z*/,\-?#LW]+$/.test(f))
       );
     }),
   };

@@ -1,21 +1,16 @@
 import { TestBed } from "@angular/core/testing";
 
 import type { RotationJobView } from "../rotation";
-import { RotationAttemptStatus, RotationJobStatus, RotationSource, RotationSyncState, SessionTerminationOutcome } from "../rotation";
-
-import { RotationHistoryComponent } from "./rotation-history.component";
+import {
+  RotationAttemptStatus,
+  RotationJobStatus,
+  RotationSource,
+  RotationSyncState,
+  SessionTerminationOutcome,
+} from "../rotation";
 import { jobId, rotationJobView } from "../testing/rotation-builders";
 
-function makeJobRaw(overrides: Record<string, unknown> = {}): Record<string, unknown> {
-  return {
-    id: jobId("job-1"),
-    source: RotationSource.Scheduled,
-    status: RotationJobStatus.Succeeded,
-    createdAt: "2024-06-01T10:00:00Z",
-    attempts: [],
-    ...overrides,
-  };
-}
+import { RotationHistoryComponent } from "./rotation-history.component";
 
 function makeJob(overrides: Partial<RotationJobView> = {}): RotationJobView {
   return rotationJobView(overrides);

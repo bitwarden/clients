@@ -13,9 +13,9 @@ import {
 } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -37,7 +37,13 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { PasswordPolicy, TargetSystemId, TargetSystemKind, TargetSystemMethod, TargetSystemView } from "../rotation";
+import {
+  PasswordPolicy,
+  TargetSystemId,
+  TargetSystemKind,
+  TargetSystemMethod,
+  TargetSystemView,
+} from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 
 const NAME_MAX_LENGTH = 200;

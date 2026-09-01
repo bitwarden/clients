@@ -102,9 +102,9 @@ describe("TargetSystemsService", () => {
 
   describe("setEnabled", () => {
     beforeEach(async () => {
-      rotationSdk.listTargetSystems.mockResolvedValue(
-        [makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Active })],
-      );
+      rotationSdk.listTargetSystems.mockResolvedValue([
+        makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Active }),
+      ]);
       await service.load(ORG_ID);
     });
 
@@ -140,5 +140,4 @@ describe("TargetSystemsService", () => {
       expect(systems[0].status).toBe(TargetSystemStatus.Disabled);
     });
   });
-
 });

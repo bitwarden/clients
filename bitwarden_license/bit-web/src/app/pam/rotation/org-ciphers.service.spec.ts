@@ -2,19 +2,18 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherId } from "@bitwarden/sdk-internal";
 
-import { ORGANIZATION_ID, id } from "./testing/rotation-builders";
-
 import { OrgCiphersService } from "./org-ciphers.service";
+import { ORGANIZATION_ID, id } from "./testing/rotation-builders";
 
 const ORG_ID = ORGANIZATION_ID as OrganizationId;
 const USER_ID = "user-1" as UserId;
@@ -70,7 +69,7 @@ describe("OrgCiphersService", () => {
     it("calls getManyFromApiForOrganization when canEditAllCiphers is false", async () => {
       organizationService.organizations$.mockReturnValue(new BehaviorSubject([makeOrg(false)]));
       cipherService.getManyFromApiForOrganization.mockResolvedValue([
-        makeCipher("c-1", "My Login"),
+        makeCipher(id("c-1"), "My Login"),
       ]);
 
       await service.load(ORG_ID);
@@ -82,7 +81,7 @@ describe("OrgCiphersService", () => {
     it("calls getAllFromApiForOrganization when canEditAllCiphers is true", async () => {
       organizationService.organizations$.mockReturnValue(new BehaviorSubject([makeOrg(true)]));
       cipherService.getAllFromApiForOrganization.mockResolvedValue([
-        makeCipher("c-2", "Admin Login"),
+        makeCipher(id("c-2"), "Admin Login"),
       ]);
 
       await service.load(ORG_ID);
@@ -93,37 +92,37 @@ describe("OrgCiphersService", () => {
     it("filters out non-Login ciphers", async () => {
       organizationService.organizations$.mockReturnValue(new BehaviorSubject([makeOrg(false)]));
       cipherService.getManyFromApiForOrganization.mockResolvedValue([
-        makeCipher("c-login", "Login", CipherType.Login),
-        makeCipher("c-note", "Note", CipherType.SecureNote),
-        makeCipher("c-card", "Card", CipherType.Card),
+        makeCipher(id("c-login"), "Login", CipherType.Login),
+        makeCipher(id("c-note"), "Note", CipherType.SecureNote),
+        makeCipher(id("c-card"), "Card", CipherType.Card),
       ]);
 
       await service.load(ORG_ID);
 
       const ciphers = await firstValueFrom(service.ciphers$);
       expect(ciphers).toHaveLength(1);
-      expect(ciphers[0].id).toBe("c-login");
+      expect(ciphers[0].id).toBe(id("c-login"));
     });
 
     it("filters out deleted (soft-deleted) ciphers", async () => {
       organizationService.organizations$.mockReturnValue(new BehaviorSubject([makeOrg(false)]));
       cipherService.getManyFromApiForOrganization.mockResolvedValue([
-        makeCipher("c-live", "Live Login", CipherType.Login, null),
-        makeCipher("c-deleted", "Deleted Login", CipherType.Login, "2024-01-01T00:00:00Z"),
+        makeCipher(id("c-live"), "Live Login", CipherType.Login, null),
+        makeCipher(id("c-deleted"), "Deleted Login", CipherType.Login, "2024-01-01T00:00:00Z"),
       ]);
 
       await service.load(ORG_ID);
 
       const ciphers = await firstValueFrom(service.ciphers$);
       expect(ciphers).toHaveLength(1);
-      expect(ciphers[0].id).toBe("c-live");
+      expect(ciphers[0].id).toBe(id("c-live"));
     });
 
     it("exposes ciphers via cipherNameById$ as a Map of id to name", async () => {
       organizationService.organizations$.mockReturnValue(new BehaviorSubject([makeOrg(false)]));
       cipherService.getManyFromApiForOrganization.mockResolvedValue([
-        makeCipher("c-a", "Alpha"),
-        makeCipher("c-b", "Bravo"),
+        makeCipher(id("c-a"), "Alpha"),
+        makeCipher(id("c-b"), "Bravo"),
       ]);
 
       await service.load(ORG_ID);

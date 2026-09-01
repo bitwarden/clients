@@ -91,7 +91,11 @@
               </button>
             }
             @if (r.daemon.assignedTargetSystemIds.length > 0) {
-              @for (assignmentId of r.daemon.assignedTargetSystemIds; track assignmentId; let i = $index) {
+              @for (
+                assignmentId of r.daemon.assignedTargetSystemIds;
+                track assignmentId;
+                let i = $index
+              ) {
                 <button
                   type="button"
                   bitMenuItem

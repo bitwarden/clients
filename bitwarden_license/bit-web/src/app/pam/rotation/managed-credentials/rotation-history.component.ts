@@ -4,7 +4,14 @@ import { ChangeDetectionStrategy, Component, computed, input } from "@angular/co
 import { BadgeModule, BadgeVariant, TableModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { RotationAttemptStatus, RotationJobStatus, RotationJobView, RotationSource, RotationSyncState, SessionTerminationOutcome } from "../rotation";
+import {
+  RotationAttemptStatus,
+  RotationJobStatus,
+  RotationJobView,
+  RotationSource,
+  RotationSyncState,
+  SessionTerminationOutcome,
+} from "../rotation";
 
 /**
  * Presentational component rendering rotation job and attempt history.

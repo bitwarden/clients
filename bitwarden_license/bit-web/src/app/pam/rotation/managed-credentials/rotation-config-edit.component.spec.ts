@@ -12,7 +12,9 @@ import type { RotationConfigDetailView, RotationConfigId } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import {
+  CIPHER_ID,
   ORGANIZATION_ID,
+  TARGET_SYSTEM_ID,
   configId,
   rotationConfigDetailView,
   targetSystemView,
@@ -50,11 +52,7 @@ function setup(options: SetupOptions = {}) {
   const rotationSdk: jest.Mocked<
     Pick<
       RotationSdkService,
-      | "listConfigs"
-      | "getConfig"
-      | "createConfig"
-      | "updateConfig"
-      | "deleteConfig"
+      "listConfigs" | "getConfig" | "createConfig" | "updateConfig" | "deleteConfig"
     >
   > = {
     listConfigs: jest.fn().mockResolvedValue([]),
@@ -148,8 +146,8 @@ describe("RotationConfigEditComponent — CREATE mode", () => {
     await fixture.whenStable();
 
     component.createForm.setValue({
-      cipherId: "cipher-1",
-      targetSystemId: "ts-1",
+      cipherId: CIPHER_ID,
+      targetSystemId: TARGET_SYSTEM_ID,
       accountIdentity: "admin@example.com",
       terminateSessions: false,
       scheduleCron: null,
@@ -258,7 +256,9 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { params: { organizationId: ORGANIZATION_ID, configId: configId("missing") } },
+            snapshot: {
+              params: { organizationId: ORGANIZATION_ID, configId: configId("missing") },
+            },
           },
         },
         { provide: RotationSdkService, useValue: rotationApiFailing },
@@ -280,7 +280,9 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
   });
 
   it("removes the rotation config after confirmation", async () => {
-    const { component, fixture, rotationSdk, dialogService } = setup({ configId: configId("cfg-1") });
+    const { component, fixture, rotationSdk, dialogService } = setup({
+      configId: configId("cfg-1"),
+    });
     await fixture.whenStable();
     dialogService.openSimpleDialog.mockResolvedValue(true);
 
@@ -290,7 +292,9 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
   });
 
   it("does not remove the rotation config when confirmation is cancelled", async () => {
-    const { component, fixture, rotationSdk, dialogService } = setup({ configId: configId("cfg-1") });
+    const { component, fixture, rotationSdk, dialogService } = setup({
+      configId: configId("cfg-1"),
+    });
     await fixture.whenStable();
     dialogService.openSimpleDialog.mockResolvedValue(false);
 

@@ -5,12 +5,23 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import type {
-  RotationClient,
-  OrganizationId as SdkOrganizationId,
-} from "@bitwarden/sdk-internal";
+import type { RotationClient, OrganizationId as SdkOrganizationId } from "@bitwarden/sdk-internal";
 
-import type { AccessConnectorDetailView, AccessConnectorId, AccessConnectorRegistrationView, AccessConnectorView, RotationConfigCreateRequest, RotationConfigDetailView, RotationConfigId, RotationConfigUpdateRequest, RotationConfigView, TargetSystemCreateRequest, TargetSystemId, TargetSystemUpdateRequest, TargetSystemView } from "./rotation";
+import type {
+  AccessConnectorDetailView,
+  AccessConnectorId,
+  AccessConnectorRegistrationView,
+  AccessConnectorView,
+  RotationConfigCreateRequest,
+  RotationConfigDetailView,
+  RotationConfigId,
+  RotationConfigUpdateRequest,
+  RotationConfigView,
+  TargetSystemCreateRequest,
+  TargetSystemId,
+  TargetSystemUpdateRequest,
+  TargetSystemView,
+} from "./rotation";
 import { QuartzSchedulePreset, TargetSystemStatus } from "./rotation";
 import { RotationConfigDescription, RotationSdkService } from "./rotation-sdk.service";
 
@@ -238,10 +249,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
     );
   }
 
-  async recordManualRotation(
-    organizationId: OrganizationId,
-    id: RotationConfigId,
-  ): Promise<void> {
+  async recordManualRotation(organizationId: OrganizationId, id: RotationConfigId): Promise<void> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
     await this.withRotationClient("record a manual rotation", (rotation) =>
       rotation.configs().record_manual_rotation(orgId, id),

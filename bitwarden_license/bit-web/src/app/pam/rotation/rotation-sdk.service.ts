@@ -1,6 +1,21 @@
 import type { OrganizationId } from "@bitwarden/common/types/guid";
 
-import type { AccessConnectorDetailView, AccessConnectorId, AccessConnectorRegistrationView, AccessConnectorView, RotationConfigActions, RotationConfigCreateRequest, RotationConfigDetailView, RotationConfigId, RotationConfigUpdateRequest, RotationConfigView, TargetSystemCreateRequest, TargetSystemId, TargetSystemUpdateRequest, TargetSystemView } from "./rotation";
+import type {
+  AccessConnectorDetailView,
+  AccessConnectorId,
+  AccessConnectorRegistrationView,
+  AccessConnectorView,
+  RotationConfigActions,
+  RotationConfigCreateRequest,
+  RotationConfigDetailView,
+  RotationConfigId,
+  RotationConfigUpdateRequest,
+  RotationConfigView,
+  TargetSystemCreateRequest,
+  TargetSystemId,
+  TargetSystemUpdateRequest,
+  TargetSystemView,
+} from "./rotation";
 import { QuartzSchedulePreset, TargetSystemStatus } from "./rotation";
 
 /**
@@ -51,16 +66,10 @@ export abstract class RotationSdkService {
   ): Promise<AccessConnectorRegistrationView>;
 
   /** Re-enables a disabled connector so it can claim jobs again. */
-  abstract enableConnector(
-    organizationId: OrganizationId,
-    id: AccessConnectorId,
-  ): Promise<void>;
+  abstract enableConnector(organizationId: OrganizationId, id: AccessConnectorId): Promise<void>;
 
   /** Stops a connector claiming new jobs and releases its running ones. Reversible. */
-  abstract disableConnector(
-    organizationId: OrganizationId,
-    id: AccessConnectorId,
-  ): Promise<void>;
+  abstract disableConnector(organizationId: OrganizationId, id: AccessConnectorId): Promise<void>;
 
   /**
    * Permanently deletes a connector and invalidates its credential.
@@ -68,10 +77,7 @@ export abstract class RotationSdkService {
    * The connector held the plaintext organization key, so if compromise is suspected, rotating the
    * organization key — not this — is the remediation.
    */
-  abstract deleteConnector(
-    organizationId: OrganizationId,
-    id: AccessConnectorId,
-  ): Promise<void>;
+  abstract deleteConnector(organizationId: OrganizationId, id: AccessConnectorId): Promise<void>;
 
   /** Assigns a target system to a connector. */
   abstract assignTarget(
@@ -112,16 +118,10 @@ export abstract class RotationSdkService {
   ): Promise<void>;
 
   /** Returns a disabled target system to service. */
-  abstract enableTargetSystem(
-    organizationId: OrganizationId,
-    id: TargetSystemId,
-  ): Promise<void>;
+  abstract enableTargetSystem(organizationId: OrganizationId, id: TargetSystemId): Promise<void>;
 
   /** Stops new rotation jobs being dispatched for a target system. In-flight jobs finish. */
-  abstract disableTargetSystem(
-    organizationId: OrganizationId,
-    id: TargetSystemId,
-  ): Promise<void>;
+  abstract disableTargetSystem(organizationId: OrganizationId, id: TargetSystemId): Promise<void>;
 
   // Managed credentials (rotation configs) ————————————————————————————————————
 

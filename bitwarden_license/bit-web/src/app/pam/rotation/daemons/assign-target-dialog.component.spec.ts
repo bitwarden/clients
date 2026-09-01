@@ -4,12 +4,12 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
+import type { AccessConnectorView, TargetSystemView } from "../rotation";
 
 import {
   AssignTargetDialogComponent,
   AssignTargetDialogParams,
 } from "./assign-target-dialog.component";
-import type { AccessConnectorView, TargetSystemView } from "../rotation";
 
 // Simple i18n stub: returns the key for any translation.
 const i18nStub: Pick<I18nService, "t"> = {

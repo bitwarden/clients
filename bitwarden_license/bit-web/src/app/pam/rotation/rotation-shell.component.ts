@@ -18,8 +18,8 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { DaemonRegisterDialogComponent } from "./daemons/daemon-register-dialog.component";
 import { DaemonsService } from "./daemons/daemons.service";
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
-import { TargetSystemsService } from "./target-systems/target-systems.service";
 import { RotationConfigView, TargetSystemView } from "./rotation";
+import { TargetSystemsService } from "./target-systems/target-systems.service";
 
 /**
  * Rotation feature shell: renders the page header and the three routed tabs

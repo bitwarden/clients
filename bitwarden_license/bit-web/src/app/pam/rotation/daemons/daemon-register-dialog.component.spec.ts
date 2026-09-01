@@ -6,12 +6,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
+import { RotationSdkService } from "../rotation-sdk.service";
+import { ORGANIZATION_ID, connectorId } from "../testing/rotation-builders";
+
 import {
   DaemonRegisterDialogComponent,
   DaemonRegisterDialogParams,
 } from "./daemon-register-dialog.component";
-import { RotationSdkService } from "../rotation-sdk.service";
-
 import { DaemonTokenDialogComponent } from "./daemon-token-dialog.component";
 
 describe("DaemonRegisterDialogComponent", () => {
@@ -27,17 +28,21 @@ describe("DaemonRegisterDialogComponent", () => {
    */
   let injectedDialogService: DialogService;
 
-  const orgId = "org-1" as OrganizationId;
+  const orgId = ORGANIZATION_ID as OrganizationId;
   const params: DaemonRegisterDialogParams = { organizationId: orgId };
 
   const fakeRegistration = {
+    id: connectorId("d-1"),
+    organizationId: ORGANIZATION_ID,
+    name: "Good Daemon",
+    status: "enabled",
+    creationDate: "2026-01-01T00:00:00Z",
     token: "0.daemon.api-id.secret:keyb64",
-    daemon: { id: "d-1", apiKeyId: "api-id", clientSecret: "secret" },
   };
 
   beforeEach(async () => {
     rotationSdk = {
-      register: jest.fn().mockResolvedValue(fakeRegistration),
+      registerConnector: jest.fn().mockResolvedValue(fakeRegistration),
     } as unknown as jest.Mocked<RotationSdkService>;
 
     dialogRef = {

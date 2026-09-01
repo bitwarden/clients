@@ -1,6 +1,23 @@
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import type { OrganizationId } from "@bitwarden/common/types/guid";
+import type { CipherId } from "@bitwarden/sdk-internal";
 
-import type { AccessConnectorDetailView, AccessConnectorId, AccessConnectorView, PasswordPolicy, RotationAttemptId, RotationAttemptView, RotationConfigActions, RotationConfigDetailView, RotationConfigId, RotationConfigView, RotationJobId, RotationJobView, TargetSystemId, TargetSystemView } from "../rotation";
+import type {
+  AccessConnectorDetailView,
+  AccessConnectorId,
+  AccessConnectorView,
+  PasswordPolicy,
+  RotationAttemptId,
+  RotationAttemptView,
+  RotationConfigActions,
+  RotationConfigDetailView,
+  RotationConfigId,
+  RotationConfigView,
+  RotationJobId,
+  RotationJobView,
+  TargetSystemId,
+  TargetSystemView,
+} from "../rotation";
 import { AccessConnectorStatus } from "../rotation";
 import type { RotationConfigDescription } from "../rotation-sdk.service";
 
@@ -15,19 +32,31 @@ import type { RotationConfigDescription } from "../rotation-sdk.service";
  * placeholder throws at the boundary rather than failing the assertion it was meant to set up.
  */
 
-/** A stable, well-formed UUID from a single hex digit — `id(1)` → `1111...`. */
-export function id(digit: string): string {
+/**
+ * A stable, well-formed UUID for a label.
+ *
+ * `asUuid` validates, so a spec cannot use `"sys-1"` as an id any more. This hashes any label into
+ * a real UUID that is the same on every run, so tests keep their readable names. A single hex digit
+ * maps to the all-same-digit UUID (`id("1")` → `1111...`), which is what the constants below use.
+ *
+ * Distinct labels can collide onto the same UUID; where a test needs ids to differ, use two
+ * different single digits or the exported constants.
+ */
+export function id(label: string): string {
+  const digit = /^[0-9a-f]$/.test(label)
+    ? label
+    : [...label].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) % 16, 7).toString(16);
   const block = digit.repeat(8);
   return `${block}-${digit.repeat(4)}-${digit.repeat(4)}-${digit.repeat(4)}-${digit.repeat(12)}`;
 }
 
-export const ORGANIZATION_ID = id("a");
+export const ORGANIZATION_ID = asUuid<OrganizationId>(id("a"));
 export const TARGET_SYSTEM_ID = asUuid<TargetSystemId>(id("1"));
 export const ACCESS_CONNECTOR_ID = asUuid<AccessConnectorId>(id("2"));
 export const ROTATION_CONFIG_ID = asUuid<RotationConfigId>(id("3"));
 export const ROTATION_JOB_ID = asUuid<RotationJobId>(id("4"));
 export const ROTATION_ATTEMPT_ID = asUuid<RotationAttemptId>(id("5"));
-export const CIPHER_ID = id("6");
+export const CIPHER_ID = asUuid<CipherId>(id("6"));
 
 const TIMESTAMP = "2026-01-01T00:00:00Z";
 
@@ -44,9 +73,7 @@ export function passwordPolicy(overrides: Partial<PasswordPolicy> = {}): Passwor
 }
 
 /** An active, automatic Entra target — the shape most tests want. */
-export function targetSystemView(
-  overrides: Partial<TargetSystemView> = {},
-): TargetSystemView {
+export function targetSystemView(overrides: Partial<TargetSystemView> = {}): TargetSystemView {
   return {
     id: TARGET_SYSTEM_ID,
     organizationId: ORGANIZATION_ID,
@@ -177,38 +204,22 @@ export function rotationConfigDescription(
   };
 }
 
-/**
- * Branded ids from a short label, for specs that need several distinct ones.
- *
- * The label is hashed into a stable hex digit rather than embedded, so `sysId("sys-2")` is a real
- * UUID that `asUuid` accepts while still being the same value on every run. Two different labels
- * can collide onto one digit; where a test needs several ids to differ, assert on the constants
- * above instead.
- */
-function labelled(label: string): string {
-  let hash = 0;
-  for (const char of label) {
-    hash = (hash * 31 + char.charCodeAt(0)) % 16;
-  }
-  return id(hash.toString(16));
-}
-
 /** A branded {@link TargetSystemId} from a label. */
 export function sysId(label: string): TargetSystemId {
-  return asUuid<TargetSystemId>(labelled(label));
+  return asUuid<TargetSystemId>(id(label));
 }
 
 /** A branded {@link AccessConnectorId} from a label. */
 export function connectorId(label: string): AccessConnectorId {
-  return asUuid<AccessConnectorId>(labelled(label));
+  return asUuid<AccessConnectorId>(id(label));
 }
 
 /** A branded {@link RotationConfigId} from a label. */
 export function configId(label: string): RotationConfigId {
-  return asUuid<RotationConfigId>(labelled(label));
+  return asUuid<RotationConfigId>(id(label));
 }
 
 /** A branded {@link RotationJobId} from a label. */
 export function jobId(label: string): RotationJobId {
-  return asUuid<RotationJobId>(labelled(label));
+  return asUuid<RotationJobId>(id(label));
 }

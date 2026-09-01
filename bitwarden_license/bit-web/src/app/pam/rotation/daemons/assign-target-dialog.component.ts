@@ -12,8 +12,8 @@ import {
   SelectModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { AccessConnectorView, TargetSystemId, TargetSystemView } from "../rotation";
 
+import { AccessConnectorView, TargetSystemView } from "../rotation";
 
 export type AssignTargetDialogParams = {
   /** The daemon being assigned a target system. */

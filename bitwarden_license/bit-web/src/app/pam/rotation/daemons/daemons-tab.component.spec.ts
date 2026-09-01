@@ -6,12 +6,12 @@ import { BehaviorSubject, of } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import type { AccessConnectorView, TargetSystemId, TargetSystemView } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
+import { ORGANIZATION_ID, connectorId, sysId } from "../testing/rotation-builders";
 
 import { DaemonsTabComponent } from "./daemons-tab.component";
 import { DaemonsService, DaemonRow } from "./daemons.service";
-import type { AccessConnectorView, TargetSystemView } from "../rotation";
-import { ORGANIZATION_ID, connectorId } from "../testing/rotation-builders";
 
 describe("DaemonsTabComponent", () => {
   let fixture: ComponentFixture<DaemonsTabComponent>;
@@ -94,7 +94,7 @@ describe("DaemonsTabComponent", () => {
   });
 
   it("calls daemonsService.load on init", async () => {
-    expect(daemonsService.load).toHaveBeenCalledWith("org-1");
+    expect(daemonsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
   });
 
   it("navigates to the daemon detail page on openDetail", async () => {
@@ -204,10 +204,14 @@ describe("DaemonsTabComponent", () => {
     const daemon = makeDaemonRow().daemon;
 
     const component = fixture.componentInstance as unknown as {
-      unassign: (daemon: AccessConnectorView, targetId: string, name: string) => Promise<void>;
+      unassign: (
+        daemon: AccessConnectorView,
+        targetId: TargetSystemId,
+        name: string,
+      ) => Promise<void>;
     };
-    await component.unassign(daemon, "ts-1", "Prod");
+    await component.unassign(daemon, sysId("ts-1"), "Prod");
 
-    expect(daemonsService.unassign).toHaveBeenCalledWith(daemon, "ts-1");
+    expect(daemonsService.unassign).toHaveBeenCalledWith(daemon, sysId("ts-1"));
   });
 });

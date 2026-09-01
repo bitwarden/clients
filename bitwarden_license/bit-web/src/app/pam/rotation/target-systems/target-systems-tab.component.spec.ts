@@ -10,10 +10,10 @@ import { DialogService, ToastService } from "@bitwarden/components";
 
 import type { TargetSystemView } from "../rotation";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
+import { ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
 
 import { TargetSystemsTabComponent } from "./target-systems-tab.component";
 import { TargetSystemsService } from "./target-systems.service";
-import { ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
 
 /** Echoes the key as its translation so form-field components don't crash. */
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
@@ -94,7 +94,7 @@ describe("TargetSystemsTabComponent", () => {
   });
 
   it("calls load with the organization id on init", () => {
-    expect(targetSystemsService.load).toHaveBeenCalledWith("org-123");
+    expect(targetSystemsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
   });
 
   it("navigates to the create page on openCreate", async () => {
@@ -197,5 +197,4 @@ describe("TargetSystemsTabComponent", () => {
       );
     });
   });
-
 });
