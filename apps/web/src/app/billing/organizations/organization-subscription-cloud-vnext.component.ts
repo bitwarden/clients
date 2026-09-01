@@ -439,7 +439,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
       this.toastService.showToast({
         variant: "success",
         title: undefined,
-        message: this.i18nService.t("reinstated"),
+        message: this.i18nService.t("subscriptionIsNowActive"),
       });
       this.refreshAll();
     } catch (e) {
