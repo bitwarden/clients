@@ -1,0 +1,24 @@
+<bit-breadcrumbs>
+  @if (vaultCrumb(); as crumb) {
+    <bit-breadcrumb [route]="crumb.route">
+      <!-- Decorative: the vault name beside it already names the crumb. -->
+      <bit-icon-tile
+        slot="start"
+        [icon]="crumb.tile.icon"
+        [variant]="crumb.tile.variant ?? 'primary'"
+        [emphasis]="crumb.tile.emphasis ?? 'subtle'"
+        aria-hidden="true"
+      />
+      {{ crumb.name }}
+    </bit-breadcrumb>
+  }
+
+  <!--
+    The page's own crumb, so it's the active one and stands in for the header's `<h1>`. `[route]="[]"`
+    plus `merge` resolves to the current URL query params and all, which is what keeps it active once
+    the table writes its filter state there.
+  -->
+  <bit-breadcrumb icon="bwi-shared-folder" [route]="[]" queryParamsHandling="merge">
+    {{ "sharedFolders" | i18n }}
+  </bit-breadcrumb>
+</bit-breadcrumbs>
