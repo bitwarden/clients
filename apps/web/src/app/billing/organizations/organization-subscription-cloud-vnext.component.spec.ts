@@ -485,6 +485,41 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     });
   });
 
+  describe("free organization", () => {
+    it("shows the free-plan details table instead of the preview card", async () => {
+      // A free org has no Stripe subscription, so the preview is never the source of truth.
+      dataService.getSubscriptionPreview.mockRejectedValue(new Error("no subscription"));
+
+      createComponent({
+        organization: buildOrganization({
+          isFreeOrg: true,
+          canEditSubscription: true,
+          usePasswordManager: true,
+          useSecretsManager: true,
+        }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const rows = fixture.nativeElement.querySelectorAll("tr");
+      expect(rows).toHaveLength(2);
+      expect(fixture.nativeElement.textContent).toContain("passwordManager");
+      expect(fixture.nativeElement.textContent).toContain("secretsManager");
+      expect(fixture.nativeElement.textContent).toContain("freeOrganization");
+      expect(fixture.nativeElement.querySelector("billing-subscription-card")).toBeNull();
+      expect(fixture.nativeElement.textContent).not.toContain("subscriptionDetailsNotLoading");
+    });
+
+    it("does not offer storage adjustment for a free organization", () => {
+      createComponent({
+        organization: buildOrganization({ isFreeOrg: true, canEditSubscription: true }),
+      });
+
+      expect(component.canAdjustStorage()).toBe(false);
+    });
+  });
+
   describe("upgrade deep link", () => {
     it("does not auto-open change plan without the upgrade query param", async () => {
       createComponent();
