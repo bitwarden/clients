@@ -39,6 +39,7 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
     // --- Shared table / search ---
     search: "Search",
     resetSearch: "Reset search",
+    clearSearch: "Clear by clicking here or pressing Esc.",
     searchApps: "Search apps",
     selectAll: "Select all",
     deselectAll: "Deselect all",
