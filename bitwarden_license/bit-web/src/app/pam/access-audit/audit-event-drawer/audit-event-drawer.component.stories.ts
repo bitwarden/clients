@@ -183,3 +183,26 @@ export const WithoutLinkPermissions: Story = {
     template: `<pam-audit-event-drawer />`,
   }),
 };
+
+/**
+ * A reason with no break opportunity anywhere — a pasted token or a correlation id rather than prose.
+ * This is the shape PM-42588 reported: unwrapped, it dragged a horizontal scrollbar onto the whole
+ * page while Detail was still a column in the table. The pane holds it because its width comes from
+ * the dialog's size token rather than its content, so the field wraps instead of widening.
+ */
+export const LongUnbrokenReason: Story = {
+  render: () => ({
+    moduleMetadata: {
+      providers: [
+        {
+          provide: DIALOG_DATA,
+          useValue: params(
+            { ...POPULATED, detail: "Xk9Qw2Zr7Lm4Vb8Ns3Ty6Hj1Pd5Gf0Cx".repeat(13) },
+            true,
+          ),
+        },
+      ],
+    },
+    template: `<pam-audit-event-drawer />`,
+  }),
+};
