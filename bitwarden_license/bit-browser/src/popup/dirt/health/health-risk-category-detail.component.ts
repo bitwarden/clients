@@ -1,3 +1,4 @@
+import { CdkVirtualScrollViewport, ScrollingModule } from "@angular/cdk/scrolling";
 import { Component, ChangeDetectionStrategy, inject, computed, effect } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -38,6 +39,7 @@ import {
   CenterPositionStrategy,
   StatusLockupComponent,
   SvgComponent,
+  ScrollLayoutDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -75,6 +77,9 @@ const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
     SvgComponent,
     HealthScanningComponent,
     HealthScanErrorComponent,
+    ScrollingModule,
+    CdkVirtualScrollViewport,
+    ScrollLayoutDirective,
   ],
 })
 export class HealthRiskCategoryDetailComponent {
