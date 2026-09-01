@@ -105,7 +105,7 @@
         </button>
       }
 
-      @if (canAdjustStorage()) {
+      @if (showStorage()) {
         <h4 bitTypography="h4" class="tw-mt-9">{{ "storage" | i18n }}</h4>
         <p bitTypography="body1">
           {{ "subscriptionStorage" | i18n: maxStorageGb() : storageName() }}

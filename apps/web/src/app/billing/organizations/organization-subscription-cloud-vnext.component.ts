@@ -291,9 +291,9 @@ export class OrganizationSubscriptionCloudVNextComponent {
     );
   });
 
-  readonly canAdjustStorage = computed(() => {
+  readonly showStorage = computed(() => {
     const org = this.organization();
-    if (org == null || this.isFreeOrg()) {
+    if (org == null) {
       return false;
     }
     const discount = this.customerDiscount();
