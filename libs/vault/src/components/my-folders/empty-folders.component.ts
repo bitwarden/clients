@@ -65,7 +65,7 @@ export class EmptyFoldersComponent {
         return {
           key: EMPTY_FOLDERS_STATE.noSearchMatches,
           icon: SearchFolder,
-          title: this.i18nService.t("noFoldersMatchSearchTerm", this.search()),
+          title: this.i18nService.t("noItemsMatchSearchTerm", this.search()),
         };
       case EMPTY_FOLDERS_STATE.emptyFolders:
         return {
