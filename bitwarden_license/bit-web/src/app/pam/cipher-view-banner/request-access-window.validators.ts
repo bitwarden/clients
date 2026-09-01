@@ -16,8 +16,10 @@ export const REQUEST_WINDOW_ERROR_KEY = "requestWindow";
 export type RequestWindowError = { problem: RequestWindowProblem; message: string };
 
 /**
- * End-time validator for the human-path window: rejects an end at or before the start, a window
- * that has already elapsed, and a span past the cap the governing rule allows. The rules themselves
+ * End-time validator for the human-path window: rejects an end equal to the start, a window that
+ * has already elapsed, and a span past the cap the governing rule allows. An end EARLIER than the
+ * start is not rejected — it is a window crossing midnight, which `composeRequestWindow` resolves
+ * onto the following day. The rules themselves
  * live in `helpers/request-access-window` (`requestWindowProblem`) so they stay Angular-free and
  * unit-testable without a form; this is only the reactive-forms adapter. Stays quiet while the
  * window is incomplete.
