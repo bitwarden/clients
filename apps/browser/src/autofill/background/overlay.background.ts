@@ -3562,12 +3562,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
     );
     const extensionOrigin = iframeUrl ? new URL(iframeUrl).origin : null;
-    const showAnimations = await firstValueFrom(this.autofillService.enableInlineMenuAnimation$);
-    const theme = await firstValueFrom(this.themeStateService.selectedTheme$);
-    const ciphers = isInlineMenuListPort ? await this.getInlineMenuCipherData() : null;
-    const useLitComponents = isInlineMenuListPort
-      ? await firstValueFrom(this.useLitInlineMenuComponents$)
-      : undefined;
+    const [showAnimations, theme, ciphers, useLitComponents] = await Promise.all([
+      firstValueFrom(this.autofillService.enableInlineMenuAnimation$),
+      firstValueFrom(this.themeStateService.selectedTheme$),
+      isInlineMenuListPort ? this.getInlineMenuCipherData() : null,
+      isInlineMenuListPort ? firstValueFrom(this.useLitInlineMenuComponents$) : undefined,
+    ]);
 
     // The port can be superseded, disconnected, or its field can lose focus while the
     // data above is gathered. Initializing or positioning the menu at that point renders
