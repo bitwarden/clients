@@ -1,0 +1,77 @@
+@if (sortedJobs().length === 0) {
+  <p class="tw-m-0 tw-text-sm tw-text-muted">{{ "pamRotationHistoryEmpty" | i18n }}</p>
+} @else {
+  <table class="tw-w-full tw-border-collapse tw-text-sm">
+    <thead>
+      <tr class="tw-border-b tw-border-secondary-300">
+        <th class="tw-py-2 tw-pr-4 tw-text-left tw-font-semibold">
+          {{ "pamRotationHistoryColumnSource" | i18n }}
+        </th>
+        <th class="tw-py-2 tw-pr-4 tw-text-left tw-font-semibold">
+          {{ "status" | i18n }}
+        </th>
+        <th class="tw-py-2 tw-pr-4 tw-text-left tw-font-semibold">
+          {{ "pamRotationHistoryColumnCreated" | i18n }}
+        </th>
+        <th class="tw-py-2 tw-text-left tw-font-semibold">
+          {{ "pamRotationHistoryColumnAttempts" | i18n }}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (job of sortedJobs(); track job.id) {
+        <!-- Job row -->
+        <tr class="tw-border-b tw-border-secondary-100">
+          <td class="tw-py-2 tw-pr-4">{{ sourceLabelKey(job.source) | i18n }}</td>
+          <td class="tw-py-2 tw-pr-4">
+            <span bitBadge [variant]="jobStatusVariant(job.status)">
+              {{ jobStatusLabelKey(job.status) | i18n }}
+            </span>
+          </td>
+          <td class="tw-py-2 tw-pr-4 tw-text-muted">
+            {{ job.createdAt | date: "medium" }}
+          </td>
+          <td class="tw-py-2 tw-text-muted">{{ job.attempts.length }}</td>
+        </tr>
+
+        <!-- Attempt rows (nested, indented) -->
+        @for (attempt of job.attempts; track attempt.id) {
+          <tr class="tw-border-b tw-border-secondary-100 tw-bg-background-alt">
+            <td class="tw-py-1 tw-pl-6 tw-pr-4 tw-text-xs tw-text-muted" colspan="2">
+              <span class="tw-font-medium">{{ attemptStatusLabelKey(attempt.status) | i18n }}</span>
+              @if (attempt.failureReason) {
+                <span class="tw-ml-2 tw-truncate tw-text-danger" [title]="attempt.failureReason">
+                  — {{ attempt.failureReason }}
+                </span>
+              }
+              @if (attempt.status === RotationAttemptStatus.Errored && attempt.syncState !== null) {
+                <span class="tw-ml-2 tw-text-muted">
+                  ({{ syncStateLabelKey(attempt.syncState) | i18n }})
+                </span>
+              }
+              @if (
+                attempt.status === RotationAttemptStatus.Rotated &&
+                attempt.sessionTermination !== null &&
+                attempt.sessionTermination !== SessionTerminationOutcome.NotRequested
+              ) {
+                <span class="tw-ml-2 tw-text-muted">
+                  — {{ sessionTerminationLabelKey(attempt.sessionTermination) | i18n }}
+                </span>
+              }
+            </td>
+            <td class="tw-py-1 tw-pr-4 tw-text-xs tw-text-muted">
+              {{ attempt.startedAt | date: "medium" }}
+            </td>
+            <td class="tw-py-1 tw-text-xs tw-text-muted">
+              @if (attempt.endedAt) {
+                {{ attempt.endedAt | date: "medium" }}
+              } @else {
+                <span class="tw-italic">{{ "pamRotationAttemptInProgress" | i18n }}</span>
+              }
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+}
