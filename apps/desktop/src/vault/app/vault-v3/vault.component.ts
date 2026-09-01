@@ -124,6 +124,7 @@ import {
   FilterFunction,
   organizationInScope,
   resolveVaultScope,
+  SharedFolderCardGridComponent,
   VaultNavService,
   VaultScopeType,
 } from "@bitwarden/vault";
@@ -166,6 +167,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     VaultBatchActionComponent,
     VaultOrganizationUserNotificationsComponent,
     AutofocusDirective,
+    SharedFolderCardGridComponent,
   ],
   providers: [
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
@@ -275,27 +277,29 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   );
 
   /**
-   * The vault `:vaultId` scopes this page to, and the shared folder `:collectionId` has drilled
-   * into; always All items on the legacy nav.
+   * The vault the `:vaultId` segment scopes this page to, and the shared folder within it the
+   * `:collectionId` segment has drilled into; always All items on the legacy nav.
    */
   private readonly vaultScope$ = this.vfo1Foundation$.pipe(
     switchMap((vfo1Foundation) =>
       vfo1Foundation
         ? combineLatest([
-            this.route.paramMap.pipe(
-              map((params) => [params.get("vaultId"), params.get("collectionId")] as const),
-            ),
+            this.route.paramMap,
             this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
           ]).pipe(
             map(
-              ([[vaultId, collectionId], nav]) =>
-                resolveVaultScope(vaultId, collectionId, nav) ?? ALL_ITEMS_SCOPE,
+              ([params, nav]) =>
+                resolveVaultScope(params.get("vaultId"), params.get("collectionId"), nav) ??
+                ALL_ITEMS_SCOPE,
             ),
           )
         : of(ALL_ITEMS_SCOPE),
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
+
+  /** {@link vaultScope$} for the template — the card grid renders the folder it has drilled into. */
+  protected readonly vaultScope = toSignal(this.vaultScope$, { initialValue: ALL_ITEMS_SCOPE });
 
   /** The organization the page is pinned to, whichever nav the user is on. */
   protected readonly selectedOrganization$ = combineLatest([
