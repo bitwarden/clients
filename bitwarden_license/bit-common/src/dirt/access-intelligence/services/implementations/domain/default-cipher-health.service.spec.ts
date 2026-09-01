@@ -350,7 +350,9 @@ describe("DefaultCipherHealthService", () => {
       expect(logService.warning).not.toHaveBeenCalled();
     });
 
-    it("should limit concurrent HIBP calls", async () => {
+    it("should not impose its own concurrency limit", async () => {
+      // AuditService owns the only limiter on this path. A second one here would shadow it, and
+      // whichever was tighter would silently win, so this service hands off every lookup at once.
       const ciphers = Array.from({ length: 20 }, (_, i) =>
         createMockCipher({ id: `${i}`, password: `password${i}` }),
       );
@@ -372,7 +374,7 @@ describe("DefaultCipherHealthService", () => {
 
       await firstValueFrom(service.checkCipherHealth(ciphers));
 
-      expect(maxConcurrent).toBeLessThanOrEqual(5);
+      expect(maxConcurrent).toBe(ciphers.length);
     });
 
     it("should filter out invalid ciphers", (done) => {

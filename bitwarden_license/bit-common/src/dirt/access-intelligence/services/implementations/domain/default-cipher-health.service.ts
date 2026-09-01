@@ -20,11 +20,11 @@ type PasswordExposure = {
 /**
  * Default implementation of CipherHealthService.
  *
- * Concurrency-limits HIBP calls to prevent rate limiting.
+ * Exposure lookups are not concurrency-limited here. {@link AuditService} owns the only limiter, so
+ * a second one at this layer would just hide it: whichever is tighter wins, and neither is
+ * discoverable from the other.
  */
 export class DefaultCipherHealthService extends CipherHealthService {
-  private readonly MAX_CONCURRENT_HIBP_CALLS = 5;
-
   constructor(
     private auditService: AuditService,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
@@ -51,8 +51,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
     );
 
     return from(passwords).pipe(
-      // Limit concurrent HIBP calls to avoid rate limiting
-      mergeMap((password) => this.lookupExposure(password), this.MAX_CONCURRENT_HIBP_CALLS),
+      mergeMap((password) => this.lookupExposure(password)),
       toArray(),
       map((exposures) => this.buildHealthMap(ciphersByPassword, exposures)),
     );

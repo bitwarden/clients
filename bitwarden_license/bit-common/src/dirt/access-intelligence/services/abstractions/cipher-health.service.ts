@@ -13,9 +13,10 @@ export abstract class CipherHealthService {
   /**
    * Analyzes password health for multiple ciphers.
    *
-   * Checks all ciphers for weak passwords (zxcvbn score <= 2), password reuse,
-   * and HIBP exposure. HIBP calls are concurrency-limited (max 5 concurrent) to
-   * prevent rate limiting.
+   * Checks all ciphers for weak passwords (zxcvbn score <= 2), password reuse, and HIBP exposure.
+   *
+   * Exposure is looked up once per distinct password, not once per cipher, so the number of
+   * requests tracks reuse rather than vault size.
    *
    * A failed exposure lookup does not fail the batch: that cipher is reported as not exposed and
    * its strength and reuse results still stand. Every cipher is present in the returned map.
