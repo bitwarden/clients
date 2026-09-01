@@ -93,15 +93,12 @@
       <span slot="description">{{ "contactYourOrgAdmin" | i18n }}</span>
     </bit-status-lockup>
   } @else {
-    <!-- organizationName / hasMultipleVaults / sharedFolderName inputs intentionally omitted here —
-         future integration point (no browser equivalent of vault-scope.ts yet). isMyVaultScope
-         stays a placeholder default until that lands. -->
     <vault-empty-vault
       slot="empty"
       class="tw-mx-3 tw-my-auto"
       [hasItems]="hasItems()"
       [filterValues]="emptyStateFilterValues()"
-      [isMyVaultScope]="true"
+      [hasMultipleVaults]="true"
       (clearSearch)="clearSearch()"
       (clearFilters)="clearFilters()"
     >
