@@ -498,7 +498,9 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsService,
       VaultTimeoutSettingsService,
       EnvironmentService,
+      SharedUnlockSettingsService,
       UnlockService,
+      ConfigService,
     ],
   }),
   safeProvider({
