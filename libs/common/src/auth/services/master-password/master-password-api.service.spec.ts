@@ -14,7 +14,7 @@ import {
 } from "../../../key-management/master-password/types/master-password.types";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PasswordRequest } from "../../models/request/password.request";
-import { SetPasswordRequest } from "../../models/request/set-password.request";
+import { SetInitialPasswordRequest } from "../../models/request/set-initial-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "../../models/request/update-tde-offboarding-password.request";
 import { UpdateTempPasswordRequest } from "../../models/request/update-temp-password.request";
 
@@ -40,16 +40,31 @@ describe("MasterPasswordApiService", () => {
   describe("setPassword", () => {
     it("should call apiService.send with the correct parameters", async () => {
       // Arrange
-      const request = new SetPasswordRequest(
-        "masterPasswordHash",
-        "key",
+      const salt = "salt" as MasterPasswordSalt;
+      const kdf = new PBKDF2KdfConfig(600_000);
+
+      const authenticationData: MasterPasswordAuthenticationData = {
+        salt,
+        kdf,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+
+      const unlockData = new MasterPasswordUnlockData(
+        salt,
+        kdf,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+      );
+
+      const request = new SetInitialPasswordRequest(
+        authenticationData,
+        unlockData,
         "masterPasswordHint",
         "orgIdentifier",
         {
           publicKey: "publicKey",
           encryptedPrivateKey: "encryptedPrivateKey",
         },
-        new PBKDF2KdfConfig(600_000),
       );
 
       // Act
@@ -80,7 +95,7 @@ describe("MasterPasswordApiService", () => {
       const unlockData = new MasterPasswordUnlockData(
         salt,
         kdf,
-        "masterKeyWrappedUserKey" as unknown as MasterKeyWrappedUserKey,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
       );
       const request = new PasswordRequest(
         "currentMasterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
@@ -106,11 +121,27 @@ describe("MasterPasswordApiService", () => {
   describe("putUpdateTempPassword", () => {
     it("should call apiService.send with the correct parameters", async () => {
       // Arrange
-      const request = {
-        masterPasswordHint: "masterPasswordHint",
-        newMasterPasswordHash: "newMasterPasswordHash",
-        key: "key",
-      } as UpdateTempPasswordRequest;
+      const salt = "salt" as MasterPasswordSalt;
+      const kdf = new PBKDF2KdfConfig(600_000);
+
+      const authenticationData: MasterPasswordAuthenticationData = {
+        salt,
+        kdf,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+
+      const unlockData = new MasterPasswordUnlockData(
+        salt,
+        kdf,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+      );
+
+      const request = new UpdateTempPasswordRequest(
+        authenticationData,
+        unlockData,
+        "masterPasswordHint",
+      );
 
       // Act
       await sut.putUpdateTempPassword(request);
@@ -129,11 +160,27 @@ describe("MasterPasswordApiService", () => {
   describe("putUpdateTdeOffboardingPassword", () => {
     it("should call apiService.send with the correct parameters", async () => {
       // Arrange
-      const request = {
-        masterPasswordHint: "masterPasswordHint",
-        newMasterPasswordHash: "newMasterPasswordHash",
-        key: "key",
-      } as UpdateTdeOffboardingPasswordRequest;
+      const salt = "salt" as MasterPasswordSalt;
+      const kdf = new PBKDF2KdfConfig(600_000);
+
+      const authenticationData: MasterPasswordAuthenticationData = {
+        salt,
+        kdf,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+
+      const unlockData = new MasterPasswordUnlockData(
+        salt,
+        kdf,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+      );
+
+      const request = new UpdateTdeOffboardingPasswordRequest(
+        authenticationData,
+        unlockData,
+        "masterPasswordHint",
+      );
 
       // Act
       await sut.putUpdateTdeOffboardingPassword(request);
