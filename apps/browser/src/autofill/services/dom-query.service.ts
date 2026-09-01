@@ -411,8 +411,9 @@ export class DomQueryService implements DomQueryServiceInterface {
   }
 
   // Roots with no fields use shallow observation (childList only) to avoid watching attributes.
-  // Direct injection into the root triggers immediate re-query and promotion to full observation.
-  // Injection into wrapper elements defers detection to the next collection batch.
+  // If a field is added as a direct child of the root, the shallow watch detects it and triggers re-query and
+  // promotion to full observation. If a field is added nested inside a wrapper element, detection defers to the
+  // next collection batch.
   private observeShadowRoot(
     mutationObserver: MutationObserver,
     shadowRoot: ShadowRoot,
