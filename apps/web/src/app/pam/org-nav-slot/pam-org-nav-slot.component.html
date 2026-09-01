@@ -1,10 +1,13 @@
 @if (showPam()) {
   <bit-nav-group icon="bwi-shield" [text]="'pam' | i18n" route="pam">
     @if (showAccessRules()) {
-      <bit-nav-item [text]="'pamAccessRules' | i18n" route="pam/access-rules"></bit-nav-item>
+      <bit-nav-item [text]="'pamAccessRules' | i18n" route="pam/access-rules" />
     }
     @if (showAuditLog()) {
-      <bit-nav-item [text]="'pamAuditLog' | i18n" route="pam/audit"></bit-nav-item>
+      <bit-nav-item [text]="'pamAuditLog' | i18n" route="pam/audit" />
+    }
+    @if (showRotation()) {
+      <bit-nav-item [text]="'pamRotationNav' | i18n" route="pam/rotation" />
     }
   </bit-nav-group>
 }

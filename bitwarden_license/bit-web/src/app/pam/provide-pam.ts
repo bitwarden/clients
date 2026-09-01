@@ -29,6 +29,7 @@ import { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-bann
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout/collection-access-rule-callout.component";
 import { GatedCollectionBannerComponent } from "./gated-collection-banner/gated-collection-banner.component";
 import { ItemDetailsStateBadgeComponent } from "./item-details-state-badge/item-details-state-badge.component";
+import { DefaultRotationSdkService } from "./rotation/default-rotation-sdk.service";
 import { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
 import { AccessRequestCancelService } from "./services/access-request-cancel.service";
 import { AccessRequestsSdkService } from "./services/access-requests-sdk.service";
@@ -54,6 +55,7 @@ import {
   AccessRequestSdkService,
   AccessRuleSdkService,
   LeasingErrorService,
+  RotationSdkService,
 } from ".";
 
 /**
@@ -136,6 +138,11 @@ export function providePam(): SafeProvider[] {
       provide: AuditApiService,
       useClass: DefaultAuditApiService,
       deps: [ApiService, AccountService],
+    }),
+    safeProvider({
+      provide: RotationSdkService,
+      useClass: DefaultRotationSdkService,
+      deps: [SdkService, AccountService, LogService],
     }),
     safeProvider({
       provide: CidrValidationService,
