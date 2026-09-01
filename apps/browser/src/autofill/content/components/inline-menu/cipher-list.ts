@@ -1,13 +1,19 @@
 import { css } from "@emotion/css";
-import { html, TemplateResult } from "lit";
+import { html, nothing, TemplateResult } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { InlineMenuCipherData } from "../../../background/abstractions/overlay.background";
 import { scrollbarStyles, spacing, themes, typography } from "../constants/styles";
 
+import { InlineMenuAction, InlineMenuActionProps } from "./action";
 import { InlineMenuCipherItem, InlineMenuCipherItemProps } from "./cipher-item";
 import { InlineMenuContainer } from "./container";
+
+export type InlineMenuCipherListNewItem = Pick<
+  InlineMenuActionProps,
+  "actionText" | "i18n" | "handleAction" | "handleKeyUp" | "icon" | "actionDataTestId"
+>;
 
 export type InlineMenuCipherListProps = Omit<
   InlineMenuCipherItemProps,
@@ -19,6 +25,7 @@ export type InlineMenuCipherListProps = Omit<
   passkeysText?: string;
   passwordsText?: string;
   showPasskeysLabels?: boolean;
+  newItem?: InlineMenuCipherListNewItem;
 };
 
 export function InlineMenuCipherList({
@@ -29,6 +36,7 @@ export function InlineMenuCipherList({
   showPasskeysLabels,
   handleFillCipher,
   handleViewCipher,
+  newItem,
   ...itemProps
 }: InlineMenuCipherListProps) {
   const showTotpUsername =
@@ -43,7 +51,7 @@ export function InlineMenuCipherList({
     theme,
     dataTestId: "inline-menu-cipher-list",
     children: html`
-      <div role="list" data-cipher-list-scroll class=${cipherListStyles(theme)}>
+      <div role="list" data-cipher-list-scroll class=${cipherListStyles(theme, !!newItem)}>
         ${renderItems(ordered, withHeadings, theme, passkeysText, passwordsText, (cipher, index) =>
           InlineMenuCipherItem({
             ...itemProps,
@@ -56,6 +64,15 @@ export function InlineMenuCipherList({
           }),
         )}
       </div>
+      ${
+        newItem
+          ? InlineMenuAction({
+              ...newItem,
+              theme,
+              borderedTop: true,
+            })
+          : nothing
+      }
     `,
   });
 }
@@ -105,12 +122,16 @@ function heading(theme: Theme, text: string) {
   `;
 }
 
-const cipherListStyles = (theme: Theme) => {
+const cipherListStyles = (theme: Theme, withNewItem: boolean) => {
   const scrollbars = scrollbarStyles(theme);
 
   return css`
     box-sizing: border-box;
-    max-height: calc(${spacing["4"]} * 11 + ${spacing["1"]});
+    max-height: ${
+      withNewItem
+        ? `calc(${spacing["4"]} * 8 + ${spacing["2"]})`
+        : `calc(${spacing["4"]} * 11 + ${spacing["1"]})`
+    };
     overflow-x: hidden;
     overflow-y: auto;
     background-color: ${themes[theme].background.DEFAULT};
