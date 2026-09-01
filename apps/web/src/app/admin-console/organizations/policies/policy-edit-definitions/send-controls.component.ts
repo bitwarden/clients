@@ -38,6 +38,7 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { OrgKey } from "@bitwarden/common/types/key";
 import {
   FormFieldModule,
+  LinkModule,
   Option,
   SelectItemView,
   SelectModule,
@@ -45,8 +46,10 @@ import {
   CheckboxModule,
   MultiSelectModule,
   RadioButtonModule,
+  TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
@@ -60,6 +63,9 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.DataControl;
   priority = 30;
   component = SendControlsPolicyComponent;
+  // SendControlsPolicyComponent renders its own description inline so the "Learn more" link can
+  // be included; suppress the framework's plain-text rendering.
+  showDescription = false;
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return configService.getFeatureFlag$(FeatureFlag.SendControls);
@@ -88,10 +94,13 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
     I18nPipe,
     CheckboxModule,
     FormFieldModule,
+    LinkModule,
     MultiSelectModule,
     RadioButtonModule,
     SwitchComponent,
     SelectModule,
+    TypographyModule,
+    Vfo1I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

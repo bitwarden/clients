@@ -8001,7 +8001,7 @@
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
   },
   "requireSsoPolicyDescV2Vfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
+    "message": "Require members to log in using SSO. This policy won't be enforced for owners and admins.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
   },
   "requireSsoPolicyTitle": {
@@ -8721,8 +8721,12 @@
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescVfo1": {
-    "message": "Set Send configuration options.",
-    "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
+    "message": "Manage how members use Send and share vault items. This policy won't be enforced for owners and admins.",
+    "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list and drawer. 'Send' is the name of a Bitwarden feature and should not be translated."
+  },
+  "learnMoreAboutSend": {
+    "message": "Learn more about Send",
+    "description": "Used as a hyperlink to Send policy documentation. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
     "message": "Send options",
