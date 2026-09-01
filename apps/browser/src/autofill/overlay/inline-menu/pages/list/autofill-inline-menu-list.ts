@@ -10,9 +10,10 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
-import { Lock } from "../../../../content/components/icons";
+import { Lock, Plus } from "../../../../content/components/icons";
 import {
   InlineMenuCipherList,
+  InlineMenuCipherListNewItem,
   InlineMenuPrompt,
   InlineMenuPasswordGenerator,
 } from "../../../../content/components/inline-menu";
@@ -721,22 +722,15 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
         onListEdgeReached: this.showInlineMenuAccountCreation
           ? () => this.newItemButtonElement?.focus()
           : undefined,
+        newItem: this.showInlineMenuAccountCreation
+          ? this.buildNewItemActionProps(true)
+          : undefined,
       }),
     );
     this.setupLitCipherListScrollListeners();
-
-    if (!this.showInlineMenuAccountCreation) {
-      return;
-    }
-
-    if (this.newItemButtonElement) {
-      return;
-    }
-
-    const addNewLoginButtonContainer = this.buildNewItemButton();
-    this.inlineMenuListContainer.appendChild(addNewLoginButtonContainer);
-    this.inlineMenuListContainer.classList.add("inline-menu-list-container--with-new-item-button");
-    this.newItemButtonElement!.addEventListener(EVENTS.KEYUP, this.handleNewItemButtonKeyUpEvent);
+    this.newItemButtonElement = this.showInlineMenuAccountCreation
+      ? this.queryNewItemButtonElement()
+      : undefined;
   }
 
   private loadLitPageOfCiphers() {
@@ -831,6 +825,19 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Facilitates the ability to add a new vault item from the inline menu.
    */
   private buildNoResultsInlineMenuList() {
+    if (this.useLitComponents) {
+      this.renderLit(
+        InlineMenuPrompt({
+          message: this.getTranslation("noItemsToShow"),
+          theme: this.theme,
+          dataTestId: "inline-menu-empty-state",
+          ...this.buildNewItemActionProps(false),
+        }),
+      );
+      this.newItemButtonElement = this.queryNewItemButtonElement();
+      return;
+    }
+
     const noItemsMessage = globalThis.document.createElement("div");
     noItemsMessage.classList.add("no-items", "inline-menu-list-message");
     noItemsMessage.textContent = this.getTranslation("noItemsToShow");
@@ -896,6 +903,32 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     return this.getTranslation("addNewVaultItem");
+  }
+
+  /**
+   * Builds the shared props for the Lit "New Item" action, used by both the
+   * empty-state prompt and the action rendered below the cipher list.
+   */
+  private buildNewItemActionProps(showLogin: boolean): InlineMenuCipherListNewItem {
+    return {
+      actionText: this.getNewItemButtonText(showLogin),
+      i18n: { actionAria: this.getNewItemAriaLabel(showLogin) },
+      icon: Plus,
+      handleAction: (event) => this.handleNewLoginVaultItemAction(event as MouseEvent),
+      handleKeyUp: this.handleNewItemButtonKeyUpEvent,
+      actionDataTestId: "inline-menu-new-item-button",
+    };
+  }
+
+  /**
+   * Looks up the rendered "New Item" button within the current Lit host.
+   */
+  private queryNewItemButtonElement() {
+    return (
+      this.litHost?.querySelector<HTMLButtonElement>(
+        "[data-testid='inline-menu-new-item-button']",
+      ) ?? undefined
+    );
   }
 
   /**
@@ -1852,7 +1885,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     const firstListElement = this.inlineMenuListContainer.querySelector(
-      ".inline-menu-list-action, [data-testid='inline-menu-save-login-button'], [data-fill-cipher], [data-fill-generated-password]",
+      ".inline-menu-list-action, [data-testid='inline-menu-save-login-button'], [data-testid='inline-menu-new-item-button'], [data-fill-cipher], [data-fill-generated-password]",
     ) as HTMLElement;
     firstListElement?.focus();
   }
