@@ -29,13 +29,20 @@ export class AuditService implements AuditServiceAbstraction {
     reject: (err: any) => void;
   }>();
 
+  /**
+   * @param maxConcurrent Ceiling on in-flight range lookups, shared by every caller of
+   * {@link passwordLeaked}. This is the only limiter on that path — callers fanning out over a
+   * vault should not add their own, or the effective ceiling stops being discoverable from either
+   * place. The Pwned Passwords API imposes no rate limit, needs no key, and asks for no
+   * attribution; the ceiling exists for self-hosted deployments, whose own network, proxy, or
+   * gateway may object to the volume.
+   */
   constructor(
     private cryptoFunctionService: CryptoFunctionService,
     private apiService: ApiService,
     private hibpApiService: HibpApiService,
-    private readonly maxConcurrent: number = 100, // default to 100, can be overridden
+    private readonly maxConcurrent: number = 100,
   ) {
-    this.maxConcurrent = maxConcurrent;
     this.passwordLeakedSubject
       .pipe(
         mergeMap(
@@ -48,7 +55,7 @@ export class AuditService implements AuditServiceAbstraction {
               req.reject(err);
             }
           },
-          this.maxConcurrent, // Limit concurrent API calls
+          this.maxConcurrent,
         ),
       )
       .subscribe();
