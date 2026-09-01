@@ -76,7 +76,6 @@ const buildNavItem = (
 ): VaultNavItemViewModel => ({
   id,
   label: id,
-  color: "purple",
   icon: "bwi-user",
   type,
   defaultUserCollectionId: navDefaultUserCollectionId,
