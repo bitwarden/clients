@@ -113,6 +113,47 @@ describe("sharedFolderRows", () => {
     expect(row.permissions).toBe(SharedFolderPermission.Manage);
   });
 
+  describe("what the member may do with a folder", () => {
+    const permissionsOf = (
+      flags: CollectionFlags,
+      organization: Organization | undefined = undefined,
+    ) => {
+      const [row] = sharedFolderRows({
+        organizationId,
+        organization,
+        collections: [buildCollection("folder", flags)],
+        ciphers: [],
+      });
+      return { canEdit: row.canEdit, canDelete: row.canDelete };
+    };
+
+    it("lets a member who manages the folder edit and delete it", () => {
+      expect(permissionsOf({ manage: true })).toEqual({ canEdit: true, canDelete: true });
+    });
+
+    it("lets a member who does not manage the folder do neither", () => {
+      expect(permissionsOf({ manage: false })).toEqual({ canEdit: false, canDelete: false });
+      expect(permissionsOf({ readOnly: true })).toEqual({ canEdit: false, canDelete: false });
+    });
+
+    // Deletion is the organization's to withhold; editing is not.
+    it("withholds deletion while the organization limits it to its admins", () => {
+      expect(
+        permissionsOf(
+          { manage: true },
+          buildOrganization({ limitCollectionDeletion: true, isAdmin: false }),
+        ),
+      ).toEqual({ canEdit: true, canDelete: false });
+
+      expect(
+        permissionsOf(
+          { manage: true },
+          buildOrganization({ limitCollectionDeletion: true, isAdmin: true }),
+        ),
+      ).toEqual({ canEdit: true, canDelete: true });
+    });
+  });
+
   it("counts the folder's own active items", () => {
     const trashed = Object.assign(buildCipher("trashed", ["folder"]), {
       deletedDate: new Date(),

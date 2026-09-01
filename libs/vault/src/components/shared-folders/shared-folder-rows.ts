@@ -1,19 +1,37 @@
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { cipherInScope, VaultScope, VaultScopeType } from "../../models/vault-scope";
 
 import { SharedFolderPermission } from "./shared-folder-permission";
-import { SharedFolderRow } from "./shared-folders-table-row";
 
-/**
- * A row carrying the `CollectionView` it was built from, so row and bulk actions can act on the
- * folder without looking it up again. The table is generic over {@link SharedFolderRow}, so the
- * extra field stays typed through to each action's callbacks.
- */
-export type SharedFolderCollectionRow = SharedFolderRow & { collection: CollectionView };
+/** A row of the shared folders table. */
+export type SharedFolderRow = {
+  /** The folder's collection id. Drives tracking, QA ids, and the row's drill-in route. */
+  id: CollectionId;
+
+  /** The organization the folder belongs to — the vault the row's drill-in route scopes to. */
+  organizationId: OrganizationId;
+
+  name: string;
+
+  /** What the member may do with the folder, as the permissions column reports it. */
+  permissions: SharedFolderPermission;
+
+  /** How many vault items the folder holds. */
+  items: number;
+
+  /** Whether the member may edit the folder's details and access — gates Edit and Edit access. */
+  canEdit: boolean;
+
+  /** Whether the member may delete the folder — gates Delete. */
+  canDelete: boolean;
+
+  /** The collection the row was built from, so an action can act on the folder without a lookup. */
+  collection: CollectionView;
+};
 
 /** The data one organization's shared folder rows are derived from. */
 export type SharedFolderRowsParams = {
@@ -34,8 +52,9 @@ export type SharedFolderRowsParams = {
 };
 
 /**
- * The organization's shared folders as table rows, with each folder's permission and item count
- * resolved. Shared across clients so they can't disagree on either.
+ * The organization's shared folders as table rows, with each folder's permission, item count, and
+ * what the member may do with it resolved. Shared across clients so they can't disagree on any of
+ * the three.
  *
  * The organization's "My items" collection is left out: it's the member's own default collection
  * rather than a shared folder, and the side nav already offers it as its own destination.
@@ -45,7 +64,7 @@ export function sharedFolderRows({
   organization,
   collections,
   ciphers,
-}: SharedFolderRowsParams): SharedFolderCollectionRow[] {
+}: SharedFolderRowsParams): SharedFolderRow[] {
   const itemCounts = sharedFolderItemCounts(ciphers, organizationId);
 
   return collections
@@ -59,6 +78,8 @@ export function sharedFolderRows({
       name: collection.name,
       permissions: sharedFolderPermission(collection, organization),
       items: itemCounts.get(collection.id) ?? 0,
+      canEdit: collection.canEdit(organization),
+      canDelete: collection.canDelete(organization),
       collection,
     }));
 }

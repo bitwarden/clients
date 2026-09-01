@@ -1,14 +1,11 @@
 import {
   afterRenderEffect,
-  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
   effect,
   ElementRef,
   inject,
-  input,
-  output,
   signal,
   TrackByFunction,
   untracked,
@@ -16,9 +13,18 @@ import {
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
-import { auditTime, fromEvent, map } from "rxjs";
+import { auditTime, combineLatest, fromEvent, map, switchMap } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { NoFolders, NoResults } from "@bitwarden/assets/svg";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   BitCellComponent,
   BitCellDefDirective,
@@ -50,20 +56,30 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { vaultScopeCommands, VaultScopeType } from "../../models/vault-scope";
+import { BULK_DELETE_DIALOG, BulkDeleteDialogRef } from "../../tokens/bulk-delete-dialog.token";
+import {
+  BULK_EDIT_COLLECTION_ACCESS_DIALOG,
+  BulkEditCollectionAccessDialogRef,
+} from "../../tokens/bulk-edit-collection-access-dialog.token";
+import {
+  COLLECTION_DIALOG,
+  CollectionDialogRef,
+  CollectionDialogTab,
+} from "../../tokens/collection-dialog.token";
 
+import { injectVaultOrganizationId } from "./inject-vault-organization";
 import {
   SHARED_FOLDER_PERMISSIONS,
   SharedFolderPermission,
   sharedFolderPermissionMessageKey,
   sharedFolderPermissionOrder,
 } from "./shared-folder-permission";
-import { SharedFoldersTableBulkAction } from "./shared-folders-table-bulk-action";
-import { SharedFolderRow, SharedFoldersTableRowAction } from "./shared-folders-table-row";
+import { SharedFolderRow, sharedFolderRows } from "./shared-folder-rows";
 
 /**
  * Every column the table declares, in display order. Synthetic (`defineTable`'s second type
- * parameter) rather than sourced from the row type, so `table.columns.*` stays resolvable while
- * the row type is an unbound generic.
+ * parameter) rather than sourced from the row type, so `table.columns.*` names the columns rather
+ * than the row's fields — the two don't line up.
  */
 export const SHARED_FOLDERS_COLUMNS = Object.freeze([
   "name",
@@ -119,41 +135,38 @@ export type SharedFoldersTableFilters = {
 };
 
 /**
- * A shared folders table: name, permissions, item count, and a per-row Options menu, with a search
- * field, a Permissions filter chip, and — with {@link SharedFoldersTableComponent.canAdd} — an Add
- * button. Supply {@link SharedFoldersTableComponent.bulkActions} and the rows also take checkboxes,
- * backed by a bulk actions bar.
+ * The shared folders of one organization vault: name, permissions, item count, and a per-row
+ * Options menu, with a search field, a Permissions filter chip, an Add button, and a bulk actions
+ * bar. Self-contained — it reads the route, loads the folders, and owns its dialogs. Project the
+ * client's page header into the default slot:
  *
- * Presentational: it sorts and searches the rows it is handed and reports intent back through
- * {@link add} and each action's `run`. Loading the folders, resolving permissions, acting on a row,
- * and deciding who may add one all stay with the client.
+ * ```html
+ * <vault-shared-folders><app-header /></vault-shared-folders>
+ * ```
+ *
+ * Reached at `/vault/:vaultId/shared-folders`, guarded by `organizationVaultGuard`. A sibling of
+ * the item list rather than a mode of it: the vault page shows ciphers, and nothing it derives from
+ * them applies here. The two share the vault scope and the `:vaultId` segment, and nothing else.
+ *
+ * ## What a client provides
+ *
+ * Every write goes through a dialog the client supplies as a token, so a client that provides none
+ * lists its folders read-only and offers no action it can't carry out — see {@link COLLECTION_DIALOG},
+ * {@link BULK_DELETE_DIALOG}, and {@link BULK_EDIT_COLLECTION_ACCESS_DIALOG}. `COLLECTION_DIALOG`
+ * gates the single-folder actions as a set: without it the Options column is dropped altogether.
  *
  * Each folder's name links to its organization's vault, drilled into that folder.
  *
  * The rows page themselves against the window, so the paginator shows only when the folders don't
- * all fit — see {@link autoPageSize}. Nothing to configure, but note the fit owns the page size, so
- * a `pageSize` in a URL-synced link gives way to whatever the reader's window fits.
- *
- * Requires `DialogService` (for `bit-table-toolbar`'s small-screen filter dialog) and a configured
- * `Router` (for the name column's `routerLink`) in the injector. Clients get both from their module
- * graph; a story or bare `TestBed` has to supply them.
- *
- * @example
- * ```html
- * <vault-shared-folders-table
- *   [sharedFolders]="sharedFolders()"
- *   [loading]="loading()"
- *   [rowActions]="rowActions()"
- *   [bulkActions]="bulkActions()"
- *   [canAdd]="canAdd()"
- *   (add)="addSharedFolder()"
- * />
- * ```
+ * all fit — see {@link autoPageSize}.
  */
 @Component({
-  selector: "vault-shared-folders-table",
-  templateUrl: "./shared-folders-table.component.html",
+  selector: "vault-shared-folders",
+  templateUrl: "./shared-folders.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "tw-flex tw-flex-col tw-h-full tw-min-h-0",
+  },
   imports: [
     BitCellComponent,
     BitCellDefDirective,
@@ -180,100 +193,147 @@ export type SharedFoldersTableFilters = {
     SvgComponent,
   ],
 })
-export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolderRow> {
+export class SharedFoldersComponent {
+  private readonly accountService = inject(AccountService);
+  private readonly cipherService = inject(CipherService);
+  private readonly collectionService = inject(CollectionService);
+  private readonly organizationService = inject(OrganizationService);
+
   /** Measured to fit the page to the window — see {@link autoPageSize}. */
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /** The projected table, for the selection model it owns — see {@link reconcileSelection}. */
-  private readonly tableComponent = viewChild(BitTableV2Component<R>);
+  private readonly tableComponent = viewChild(BitTableV2Component<SharedFolderRow>);
 
-  /** The rows to display. */
-  readonly sharedFolders = input<R[]>([]);
+  private readonly collectionDialog = inject<CollectionDialogRef>(COLLECTION_DIALOG, {
+    optional: true,
+  });
 
-  /** Shows skeleton rows in place of the data while the client resolves it. */
-  readonly loading = input(false, { transform: booleanAttribute });
+  private readonly bulkDeleteDialog = inject<BulkDeleteDialogRef>(BULK_DELETE_DIALOG, {
+    optional: true,
+  });
+
+  private readonly bulkEditAccessDialog = inject<BulkEditCollectionAccessDialogRef>(
+    BULK_EDIT_COLLECTION_ACCESS_DIALOG,
+    { optional: true },
+  );
+
+  private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+  private readonly organizationId = injectVaultOrganizationId();
+
+  /** `undefined` until each stream first emits, which is what drives {@link loading}. */
+  private readonly loaded = toSignal(
+    this.userId$.pipe(
+      switchMap((userId) =>
+        combineLatest([
+          this.collectionService.decryptedCollections$(userId),
+          // Emits null until the first decrypt completes.
+          this.cipherService.cipherListViews$(userId).pipe(filterOutNullish()),
+          this.organizationService.organizations$(userId),
+        ]),
+      ),
+      map(([collections, ciphers, organizations]) => ({ collections, ciphers, organizations })),
+    ),
+  );
+
+  protected readonly loading = computed(() => this.loaded() === undefined);
+
+  private readonly organization = computed<Organization | undefined>(() =>
+    this.loaded()?.organizations.find((organization) => organization.id === this.organizationId()),
+  );
+
+  /** The organization's shared folders — see {@link sharedFolderRows}. */
+  protected readonly sharedFolders = computed<SharedFolderRow[]>(() => {
+    const organizationId = this.organizationId();
+    const data = this.loaded();
+    if (organizationId == null || data == null) {
+      return [];
+    }
+
+    return sharedFolderRows({
+      organizationId,
+      organization: this.organization(),
+      collections: data.collections,
+      ciphers: data.ciphers,
+    });
+  });
+
+  protected readonly table = defineTable<SharedFolderRow, SharedFoldersTableColumn>(
+    this.sharedFolders,
+  );
+
+  protected readonly trackById: TrackByFunction<SharedFolderRow> = (_index, row) => row.id;
 
   /**
-   * The actions offered in each row's Options menu, in display order. Supplying none drops the
-   * Options column altogether — see {@link showOptions}.
+   * The selected rows, read off the table's own model so a bulk action can be handed the rows it
+   * acts on. Read rather than mirrored through `selectedChange`, so it empties with the model when
+   * selection turns off — see {@link selection}. The bar reads its own count off the table.
    */
-  readonly rowActions = input<SharedFoldersTableRowAction<R>[]>([]);
+  protected readonly selectedRows = computed<readonly SharedFolderRow[]>(
+    () => this.tableComponent()?.selectionModel()?.selected() ?? [],
+  );
 
   /**
-   * The actions the bulk actions bar offers while rows are selected, in display order. Supplying at
-   * least one also turns selection on — the rows take checkboxes only once there's something to act
-   * on. The bar packs whatever doesn't fit into its own overflow menu.
+   * Whether the Options column is offered at all. Gated on the client having a collection dialog
+   * rather than on what each row allows, so filtering can't make the column come and go and resize
+   * every other column with it.
    */
-  readonly bulkActions = input<SharedFoldersTableBulkAction<R>[]>([]);
+  protected readonly showOptions = this.collectionDialog != null;
 
   /**
-   * Syncs the search term and sort to the URL under this prefix — see
-   * {@link BitTableV2Component.queryParam}. Omit to leave the URL untouched.
+   * Whether the toolbar offers its Add button, on the organization's own collection creation
+   * permission — so this page and the organization vault's Add agree on who may add a folder.
+   * `false` while the organization list loads, and for a `:vaultId` that resolves to nothing:
+   * either way the dialog would have no organization to save to.
    */
-  readonly queryParam = input<string>();
+  protected readonly canAdd = computed(
+    () => this.showOptions && (this.organization()?.canCreateNewCollections ?? false),
+  );
 
   /**
-   * Whether the toolbar offers its Add button. Off by default: creating a shared folder is
-   * privileged, so a client opts in once it has checked. Prefixed because `add` already names the
-   * output the button emits.
+   * Whether the bulk actions bar offers Edit access. Left out entirely when the member can edit
+   * none of the listed folders: a permanently disabled button is worth less than the checkbox
+   * column it would cost.
    */
-  readonly canAdd = input(false, { transform: booleanAttribute });
+  protected readonly showBulkEditAccess = computed(
+    () => this.bulkEditAccessDialog != null && this.sharedFolders().some((row) => row.canEdit),
+  );
 
-  /** Emitted when the toolbar's Add button is pressed. */
-  readonly add = output<void>();
+  /** Whether the bulk actions bar offers Delete — see {@link showBulkEditAccess}. */
+  protected readonly showBulkDelete = computed(
+    () => this.bulkDeleteDialog != null && this.sharedFolders().some((row) => row.canDelete),
+  );
 
-  protected readonly table = defineTable<R, SharedFoldersTableColumn>(this.sharedFolders);
+  // Both dialogs re-check the batch and refuse it whole; disabling says so before the click.
+  protected readonly bulkEditAccessDisabled = computed(() =>
+    this.selectedRows().some((row) => !row.canEdit),
+  );
 
-  protected readonly trackById: TrackByFunction<R> = (_index, row) => row.id;
-
-  /**
-   * The selected rows, mirrored from the table's `selectedChange` output so a bulk action can be
-   * handed the rows it acts on. The bar reads its own count off the table directly.
-   */
-  protected readonly selectedRows = signal<readonly R[]>([]);
+  protected readonly bulkDeleteDisabled = computed(() =>
+    this.selectedRows().some((row) => !row.canDelete),
+  );
 
   /**
    * A field rather than an inline template literal: the table rebuilds its selection model whenever
    * this config's identity changes, so a fresh object per change detection pass would drop the
    * selection as fast as it was made.
    */
-  private readonly multiSelect: SelectionConfig<R> = { multiple: true };
+  private readonly multiSelect: SelectionConfig<SharedFolderRow> = { multiple: true };
 
-  /** Row selection, on only while there are bulk actions to act on it. */
-  protected readonly selection = computed<SelectionConfig<R> | undefined>(() =>
-    this.bulkActions().length > 0 ? this.multiSelect : undefined,
+  /**
+   * Row selection, on only while there's a bulk action to act on it — the rows take checkboxes
+   * only once there's something to run against them.
+   */
+  protected readonly selection = computed<SelectionConfig<SharedFolderRow> | undefined>(() =>
+    this.showBulkEditAccess() || this.showBulkDelete() ? this.multiSelect : undefined,
   );
-
-  /**
-   * The bulk actions bound to the current selection. `bit-bulk-action` takes a bare `() => void`
-   * and an already-resolved `disabled`, so the callbacks are applied here — once per selection
-   * change, rather than on every change detection pass.
-   */
-  protected readonly resolvedBulkActions = computed(() => {
-    const rows = this.selectedRows();
-    return this.bulkActions().map((action) => ({
-      id: action.id,
-      label: action.label,
-      icon: action.icon,
-      disabled: action.disabled?.(rows) ?? false,
-      invoke: (): void => void action.run(rows),
-    }));
-  });
-
-  /**
-   * Whether the Options column is offered at all — no row actions, no column. Gated on the actions
-   * supplied rather than on what each row's `show` allows, so filtering can't make the column come
-   * and go and resize every other column with it.
-   */
-  protected readonly showOptions = computed(() => this.rowActions().length > 0);
 
   /**
    * The Items column's track. The flexible track normally belongs to Options; with no Options
    * column Items takes it, so the columns still span the table.
    */
-  protected readonly itemsWidth = computed(() =>
-    this.showOptions() ? "minmax(100px, 160px)" : "minmax(100px, 1fr)",
-  );
+  protected readonly itemsWidth = this.showOptions ? "minmax(100px, 160px)" : "minmax(100px, 1fr)";
 
   /**
    * The permissions the chip offers: those the rows carry, in {@link SHARED_FOLDER_PERMISSIONS}
@@ -320,11 +380,11 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
    * Orders the permissions column by {@link SHARED_FOLDER_PERMISSIONS}. The default accessor would
    * sort on the raw permission — an internal, untranslated string — which reads as arbitrary.
    */
-  protected readonly sortByPermission: SortFn = (a: R, b: R) =>
+  protected readonly sortByPermission: SortFn = (a: SharedFolderRow, b: SharedFolderRow) =>
     sharedFolderPermissionOrder(a.permissions) - sharedFolderPermissionOrder(b.permissions);
 
   /** The single predicate the table derives its rows, counts, and empty state from. */
-  protected readonly filter = (row: R, values: SharedFoldersTableFilters): boolean =>
+  protected readonly filter = (row: SharedFolderRow, values: SharedFoldersTableFilters): boolean =>
     this.matchesSearch(row, values.search) && this.matchesPermissions(row, values.permissions);
 
   /**
@@ -398,19 +458,89 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
     });
   }
 
+  protected async addSharedFolder(): Promise<void> {
+    const organizationId = this.organizationId();
+    if (organizationId == null) {
+      return;
+    }
+
+    // The route fixes the organization, so unlike the legacy vault's Add there's no org selector.
+    await this.collectionDialog?.open({ organizationId });
+  }
+
+  protected async editSharedFolder(row: SharedFolderRow): Promise<void> {
+    await this.openSharedFolder(row, CollectionDialogTab.Info);
+  }
+
+  protected async editSharedFolderAccess(row: SharedFolderRow): Promise<void> {
+    await this.openSharedFolder(row, CollectionDialogTab.Access);
+  }
+
+  private async openSharedFolder(
+    row: SharedFolderRow,
+    initialTab: CollectionDialogTab,
+  ): Promise<void> {
+    await this.collectionDialog?.open({
+      organizationId: row.organizationId,
+      collectionId: row.id,
+      initialTab,
+    });
+  }
+
+  /**
+   * Deletes one folder through the shared bulk delete dialog, which owns the whole sequence —
+   * confirmation, requests, resync, and toast. It clears the deleted folder from
+   * `CollectionService`, so the table's stream re-emits without it.
+   */
+  protected async deleteSharedFolder(row: SharedFolderRow): Promise<void> {
+    await this.deleteSharedFolders([row.collection]);
+  }
+
+  /**
+   * Opens the shared access editor over every selected folder — the same dialog the organization
+   * vault's Edit access reaches. It writes through `CollectionAdminService` and shows its own
+   * toast, so nothing is written back here.
+   */
+  protected readonly editSelectedAccess = async (): Promise<void> => {
+    const organizationId = this.organizationId();
+    const collections = this.selectedRows().map((row) => row.collection);
+    if (organizationId == null || collections.length === 0) {
+      return;
+    }
+
+    await this.bulkEditAccessDialog?.open({ organizationId, collections });
+  };
+
+  protected readonly deleteSelected = async (): Promise<void> => {
+    await this.deleteSharedFolders(this.selectedRows().map((row) => row.collection));
+  };
+
+  private async deleteSharedFolders(collections: CollectionView[]): Promise<void> {
+    const organization = this.organization();
+    if (organization == null || collections.length === 0) {
+      return;
+    }
+
+    // `organization` rather than `organizations`: the route scopes this page to a single org.
+    await this.bulkDeleteDialog?.open({ organization, collections });
+  }
+
   /**
    * Re-points the selection at the current rows, by folder id.
    *
    * The selection holds row *objects*, and `bit-table-v2` rebuilds its model only when the selection
-   * config's identity changes — never when the data does. But a client's rows come from a stream,
-   * so any sync re-emits fresh objects for the same folders. Left alone, the selection would keep
-   * holding the stale ones: checkboxes would render unchecked while the bar still announced a
-   * count, and actions would run against rows that no longer reflect the vault.
+   * config's identity changes — never when the data does. But the rows come from a stream, so any
+   * sync re-emits fresh objects for the same folders. Left alone, the selection would keep holding
+   * the stale ones: checkboxes would render unchecked while the bar still announced a count, and
+   * actions would run against rows that no longer reflect the vault.
    *
    * Matched on id rather than cleared outright, so a background sync doesn't cost an in-progress
    * selection. A folder that's gone from the rows drops out of it.
    */
-  private reconcileSelection(model: TableSelectionModel<R>, rows: readonly R[]): void {
+  private reconcileSelection(
+    model: TableSelectionModel<SharedFolderRow>,
+    rows: readonly SharedFolderRow[],
+  ): void {
     const selected = model.selected();
     if (selected.length === 0) {
       return;
@@ -447,7 +577,7 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
   }
 
   /** Matches a row against the search term, on name only. */
-  private matchesSearch(row: R, search: string | undefined): boolean {
+  private matchesSearch(row: SharedFolderRow, search: string | undefined): boolean {
     const term = search?.trim().toLowerCase();
     return !term || row.name.toLowerCase().includes(term);
   }
@@ -456,13 +586,20 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
    * The chip is multi-select, so a row matches if it carries *any* of the chosen permissions.
    * `undefined` and `[]` both mean unfiltered.
    */
-  private matchesPermissions(row: R, permissions: SharedFolderPermission[] | undefined): boolean {
+  private matchesPermissions(
+    row: SharedFolderRow,
+    permissions: SharedFolderPermission[] | undefined,
+  ): boolean {
     return !permissions?.length || permissions.includes(row.permissions);
   }
 
   /** Whether at least one chip filter is active, excluding the reserved search key. */
   protected hasActiveChipFilters(
-    table: BitTableV2Component<R, SharedFoldersTableColumn, SharedFoldersTableFilters>,
+    table: BitTableV2Component<
+      SharedFolderRow,
+      SharedFoldersTableColumn,
+      SharedFoldersTableFilters
+    >,
   ): boolean {
     return table
       .filterControls()
@@ -471,21 +608,16 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
 
   /** Clears every chip filter, leaving the search term untouched. */
   protected clearChipFilters(
-    table: BitTableV2Component<R, SharedFoldersTableColumn, SharedFoldersTableFilters>,
+    table: BitTableV2Component<
+      SharedFolderRow,
+      SharedFoldersTableColumn,
+      SharedFoldersTableFilters
+    >,
   ): void {
     for (const control of table.filterControls()) {
       if (control.key() !== SEARCH_FILTER_KEY) {
         control.setValue(undefined);
       }
     }
-  }
-
-  /** The actions visible for `row`, honouring each action's optional `show` predicate. */
-  protected visibleActions(row: R): SharedFoldersTableRowAction<R>[] {
-    return this.rowActions().filter((action) => action.show?.(row) ?? true);
-  }
-
-  protected handleAction(action: SharedFoldersTableRowAction<R>, row: R): void {
-    void action.run(row);
   }
 }

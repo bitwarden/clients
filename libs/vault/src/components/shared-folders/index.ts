@@ -1,3 +1,4 @@
+export { injectVaultOrganization, injectVaultOrganizationId } from "./inject-vault-organization";
 export {
   SHARED_FOLDER_PERMISSIONS,
   SharedFolderPermission,
@@ -5,17 +6,15 @@ export {
   sharedFolderPermissionMessageKey,
 } from "./shared-folder-permission";
 export {
-  type SharedFolderCollectionRow,
+  type SharedFolderRow,
   type SharedFolderRowsParams,
   sharedFolderItemCounts,
   sharedFolderPermission,
   sharedFolderRows,
 } from "./shared-folder-rows";
-export { type SharedFoldersTableBulkAction } from "./shared-folders-table-bulk-action";
-export { type SharedFolderRow, type SharedFoldersTableRowAction } from "./shared-folders-table-row";
 export {
   SHARED_FOLDERS_COLUMNS,
   type SharedFoldersTableColumn,
-  SharedFoldersTableComponent,
+  SharedFoldersComponent,
   type SharedFoldersTableFilters,
-} from "./shared-folders-table.component";
+} from "./shared-folders.component";

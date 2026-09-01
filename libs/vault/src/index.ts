@@ -39,6 +39,7 @@ export { VaultItemCopyActionsComponent } from "./components/item-copy-actions/it
 export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";
 export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.component";
 export * from "./components/delete-folder-dialog/delete-folder-dialog.component";
+export * from "./components/delete-shared-folder-dialog/delete-shared-folder-dialog.component";
 export * from "./components/my-folders/my-folders.component";
 export * from "./components/add-item-grid/add-item-grid.component";
 export * from "./components/add-item-dialog/add-item-dialog.component";
@@ -55,7 +56,7 @@ export {
   OrganizationUserNotificationBannerData,
 } from "./services/vault-organization-user-notifications.service";
 export { VaultItemEvent } from "./components/vault-item-event";
-export * from "./components/shared-folders-table";
+export * from "./components/shared-folders";
 export * from "./components/vault-items-table";
 export * from "./components/organization-name-badge/organization-name-badge.component";
 
@@ -119,6 +120,14 @@ export {
   BulkEditCollectionAccessParams,
   BulkEditCollectionAccessResult,
 } from "./tokens/bulk-edit-collection-access-dialog.token";
+
+export {
+  COLLECTION_DIALOG,
+  CollectionDialogOpenParams,
+  CollectionDialogOutcome,
+  CollectionDialogRef,
+  CollectionDialogTab,
+} from "./tokens/collection-dialog.token";
 
 export { VaultBatchBarService, VaultBatchBarConfig } from "./services/vault-batch-bar.service";
 export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-batch-action.component";

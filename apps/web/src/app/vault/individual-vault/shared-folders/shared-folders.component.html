@@ -1,11 +1,3 @@
-<app-header [title]="title()"></app-header>
-
-<vault-shared-folders-table
-  [sharedFolders]="sharedFolders()"
-  [loading]="loading()"
-  [rowActions]="rowActions()"
-  [bulkActions]="bulkActions()"
-  [canAdd]="canAdd()"
-  queryParam="sharedFolders"
-  (add)="addSharedFolder()"
-></vault-shared-folders-table>
+<vault-shared-folders>
+  <app-header [title]="title()"></app-header>
+</vault-shared-folders>
