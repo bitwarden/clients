@@ -5,18 +5,24 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
 
+import { NoResults } from "@bitwarden/assets/svg";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
+  AsyncActionsModule,
   BadgeModule,
+  ButtonModule,
   DialogService,
   IconButtonModule,
   IconModule,
   LinkModule,
   MenuModule,
   SearchModule,
+  SpinnerComponent,
+  StatusLockupComponent,
+  SvgComponent,
   TableDataSource,
   TableModule,
   ToastService,
@@ -27,6 +33,7 @@ import { AccessConnectorView, DaemonStatus, TargetSystemId, TargetSystemView } f
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { AssignTargetDialogComponent } from "./assign-target-dialog.component";
+import { DaemonRegisterDialogComponent } from "./daemon-register-dialog.component";
 import { DaemonRow, DaemonsService } from "./daemons.service";
 
 @Component({
@@ -36,12 +43,17 @@ import { DaemonRow, DaemonsService } from "./daemons.service";
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    AsyncActionsModule,
     BadgeModule,
+    ButtonModule,
     IconButtonModule,
     IconModule,
     LinkModule,
     MenuModule,
     SearchModule,
+    SpinnerComponent,
+    StatusLockupComponent,
+    SvgComponent,
     TableModule,
     I18nPipe,
   ],
@@ -49,6 +61,8 @@ import { DaemonRow, DaemonsService } from "./daemons.service";
 export class DaemonsTabComponent {
   /** Exposed for template comparisons (status badge variant). */
   protected readonly DaemonStatus = DaemonStatus;
+
+  protected readonly noItemsIcon = NoResults;
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -99,6 +113,25 @@ export class DaemonsTabComponent {
   /** Navigate to the daemon detail page (sibling of the shell). */
   protected readonly openDetail = (row: DaemonRow): Promise<boolean> =>
     this.router.navigate(["..", "daemons", row.id], { relativeTo: this.route });
+
+  /**
+   * Open the daemon registration dialog and refresh the shared list on success.
+   * Owned by the empty state; the shell's header button covers the non-empty list.
+   */
+  protected readonly registerDaemon = async (): Promise<void> => {
+    const orgId = this.organizationId();
+    const ref = DaemonRegisterDialogComponent.open(this.dialogService, {
+      data: { organizationId: orgId },
+    });
+    const result = await ref.closed.toPromise();
+    if (result) {
+      await this.daemonsService.registerCompleted(orgId);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamDaemonRegistered"),
+      });
+    }
+  };
 
   protected readonly openAssignDialog = async (row: DaemonRow): Promise<void> => {
     const assigned = new Set(row.daemon.assignedTargetSystemIds);

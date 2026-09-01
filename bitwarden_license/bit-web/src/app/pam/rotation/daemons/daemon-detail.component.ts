@@ -18,6 +18,7 @@ import {
   IconModule,
   SectionComponent,
   SectionHeaderComponent,
+  SpinnerComponent,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -53,6 +54,7 @@ import { TargetSystemsService } from "../target-systems/target-systems.service";
     RotationHistoryComponent,
     SectionComponent,
     SectionHeaderComponent,
+    SpinnerComponent,
     TypographyModule,
     I18nPipe,
   ],

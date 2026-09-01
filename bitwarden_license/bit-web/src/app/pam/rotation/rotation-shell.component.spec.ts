@@ -29,7 +29,8 @@ describe("RotationShellComponent", () => {
   let awaitingManualCount$: BehaviorSubject<number>;
   let configs$: BehaviorSubject<unknown[]>;
   let loadMock: jest.Mock;
-  let daemonsService: { registerCompleted: jest.Mock };
+  let daemons$: BehaviorSubject<unknown[]>;
+  let daemonsService: { daemons$: BehaviorSubject<unknown[]>; registerCompleted: jest.Mock };
   let targetSystemsService: { systems$: BehaviorSubject<unknown[]> };
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
@@ -40,7 +41,8 @@ describe("RotationShellComponent", () => {
     awaitingManualCount$ = new BehaviorSubject<number>(0);
     configs$ = new BehaviorSubject<unknown[]>([]);
     loadMock = jest.fn().mockResolvedValue(undefined);
-    daemonsService = { registerCompleted: jest.fn().mockResolvedValue(undefined) };
+    daemons$ = new BehaviorSubject<unknown[]>([]);
+    daemonsService = { daemons$, registerCompleted: jest.fn().mockResolvedValue(undefined) };
     targetSystemsService = { systems$: new BehaviorSubject<unknown[]>([]) };
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
@@ -115,6 +117,17 @@ describe("RotationShellComponent", () => {
     fixture.detectChanges();
 
     expect(shell.hasConfigs()).toBe(true);
+  });
+
+  it("exposes hasDaemons from the daemons stream", async () => {
+    await init();
+    const shell = fixture.componentInstance as unknown as { hasDaemons: () => boolean };
+    expect(shell.hasDaemons()).toBe(false);
+
+    daemons$.next([{ id: "daemon-1" }]);
+    fixture.detectChanges();
+
+    expect(shell.hasDaemons()).toBe(true);
   });
 
   it("navigates to the managed-credential create page on createManagedCredential", async () => {
@@ -224,7 +237,10 @@ describe("RotationShellComponent (real router)", () => {
             load: jest.fn(),
           },
         },
-        { provide: DaemonsService, useValue: { registerCompleted: jest.fn() } },
+        {
+          provide: DaemonsService,
+          useValue: { daemons$: new BehaviorSubject<unknown[]>([]), registerCompleted: jest.fn() },
+        },
         {
           provide: TargetSystemsService,
           useValue: { systems$: new BehaviorSubject<unknown[]>([]) },

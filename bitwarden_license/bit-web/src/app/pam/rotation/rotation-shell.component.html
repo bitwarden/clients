@@ -27,15 +27,17 @@
       }
     }
     @case ("daemons") {
-      <button
-        type="button"
-        bitButton
-        buttonType="primary"
-        [bitAction]="registerDaemon"
-        id="rotation-shell_button_new-daemon"
-      >
-        {{ "pamDaemonNew" | i18n }}
-      </button>
+      @if (hasDaemons()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          [bitAction]="registerDaemon"
+          id="rotation-shell_button_new-daemon"
+        >
+          {{ "pamDaemonNew" | i18n }}
+        </button>
+      }
     }
   }
   <bit-tab-nav-bar slot="tabs" [label]="'pamRotationTitle' | i18n">

@@ -125,7 +125,7 @@
 </ng-template>
 
 @if (loading()) {
-  <bit-icon name="bwi-spinner" class="bwi-spin tw-text-muted"></bit-icon>
+  <bit-spinner />
 } @else {
   @if (!editing) {
     <!-- ================================================================
@@ -289,6 +289,31 @@
         >
           {{ "cancel" | i18n }}
         </button>
+        <!-- Retiring a target system is disable, not delete: configs reference it and its
+             rotation history has to stay attributable. Reversible, hence the paired action. -->
+        @if (isActive()) {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            [bitAction]="disableSystem"
+            id="target-system-edit_button_disable"
+            class="tw-ms-auto"
+          >
+            {{ "pamTargetSystemDisable" | i18n }}
+          </button>
+        } @else {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            [bitAction]="enableSystem"
+            id="target-system-edit_button_enable"
+            class="tw-ms-auto"
+          >
+            {{ "pamTargetSystemEnable" | i18n }}
+          </button>
+        }
       </div>
     </div>
   }

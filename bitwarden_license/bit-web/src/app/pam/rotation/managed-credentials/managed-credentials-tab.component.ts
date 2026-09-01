@@ -5,6 +5,7 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
 
+import { NoResults } from "@bitwarden/assets/svg";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -16,6 +17,9 @@ import {
   IconModule,
   MenuModule,
   SearchModule,
+  SpinnerComponent,
+  StatusLockupComponent,
+  SvgComponent,
   TableDataSource,
   TableModule,
   ToastService,
@@ -49,12 +53,17 @@ import { RotationConfigsService } from "./rotation-configs.service";
     IconModule,
     MenuModule,
     SearchModule,
+    SpinnerComponent,
+    StatusLockupComponent,
+    SvgComponent,
     TableModule,
     TooltipDirective,
     I18nPipe,
   ],
 })
 export class ManagedCredentialsTabComponent {
+  protected readonly noItemsIcon = NoResults;
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly configsService = inject(RotationConfigsService);

@@ -418,13 +418,16 @@ describe("TargetSystemEditComponent — edit mode", () => {
   let fixture: ComponentFixture<TargetSystemEditComponent>;
   let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
+  let dialogService: ReturnType<typeof mock<DialogService>>;
 
   beforeEach(async () => {
     rotationSdk = mock<RotationSdkService>();
     toastService = mock<ToastService>();
+    dialogService = mock<DialogService>();
     rotationSdk.listTargetSystems.mockResolvedValue([makeSystem()]);
     await setupEdit(rotationSdk);
     TestBed.overrideProvider(ToastService, { useValue: toastService });
+    TestBed.overrideProvider(DialogService, { useValue: dialogService });
     fixture = TestBed.createComponent(TargetSystemEditComponent);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -471,6 +474,88 @@ describe("TargetSystemEditComponent — edit mode", () => {
         passwordPolicy: expect.any(Object),
       }),
     );
+  });
+
+  // Retirement — a target system has no delete route, so taking one out of service is disable.
+  it("isActive is true for a system in service", () => {
+    const comp = fixture.componentInstance as unknown as { isActive: () => boolean };
+    expect(comp.isActive()).toBe(true);
+  });
+
+  it("disables the target system and re-reads once the operator confirms", async () => {
+    dialogService.openSimpleDialog.mockResolvedValue(true);
+    rotationSdk.disableTargetSystem.mockResolvedValue(undefined);
+    rotationSdk.listTargetSystems.mockResolvedValue([
+      makeSystem({ status: TargetSystemStatus.Disabled }),
+    ]);
+
+    const comp = fixture.componentInstance as unknown as {
+      disableSystem: () => Promise<void>;
+      isActive: () => boolean;
+    };
+    await comp.disableSystem();
+
+    expect(rotationSdk.disableTargetSystem).toHaveBeenCalledWith(ORG_ID, sysId("sys-1"));
+    // Disable answers 204, so the page must re-read to learn the new status.
+    expect(rotationSdk.listTargetSystems).toHaveBeenCalled();
+    expect(comp.isActive()).toBe(false);
+    expect(toastService.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "success" }),
+    );
+  });
+
+  it("leaves the system alone when the confirmation is dismissed", async () => {
+    dialogService.openSimpleDialog.mockResolvedValue(false);
+
+    await (
+      fixture.componentInstance as unknown as { disableSystem: () => Promise<void> }
+    ).disableSystem();
+
+    expect(rotationSdk.disableTargetSystem).not.toHaveBeenCalled();
+  });
+
+  it("shows an error toast when disable fails", async () => {
+    dialogService.openSimpleDialog.mockResolvedValue(true);
+    rotationSdk.disableTargetSystem.mockRejectedValue(new Error("boom"));
+
+    await (
+      fixture.componentInstance as unknown as { disableSystem: () => Promise<void> }
+    ).disableSystem();
+
+    expect(toastService.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "error" }),
+    );
+  });
+
+  it("offers the reverse action for a retired system and returns it to service", async () => {
+    // Rebuild against a system that is already out of service.
+    TestBed.resetTestingModule();
+    const retiredSdk = mock<RotationSdkService>();
+    const retiredToast = mock<ToastService>();
+    const retired = makeSystem({ status: TargetSystemStatus.Disabled });
+    retiredSdk.listTargetSystems.mockResolvedValue([retired]);
+    await setupEdit(retiredSdk);
+    TestBed.overrideProvider(ToastService, { useValue: retiredToast });
+    const fx = TestBed.createComponent(TargetSystemEditComponent);
+    fx.detectChanges();
+    await fx.whenStable();
+    fx.detectChanges();
+
+    const comp = fx.componentInstance as unknown as {
+      isActive: () => boolean;
+      enableSystem: () => Promise<void>;
+    };
+    expect(comp.isActive()).toBe(false);
+
+    retiredSdk.enableTargetSystem.mockResolvedValue(undefined);
+    retiredSdk.listTargetSystems.mockResolvedValue([
+      makeSystem({ status: TargetSystemStatus.Active }),
+    ]);
+    // No confirmation: enable is the recoverable direction.
+    await comp.enableSystem();
+
+    expect(retiredSdk.enableTargetSystem).toHaveBeenCalledWith(ORG_ID, sysId("sys-1"));
+    expect(comp.isActive()).toBe(true);
   });
 
   it("shows termination withdrawal warning when supportsSessionTermination unchecked", async () => {

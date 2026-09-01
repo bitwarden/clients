@@ -22,6 +22,7 @@ import {
   SectionComponent,
   SectionHeaderComponent,
   SelectModule,
+  SpinnerComponent,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -84,6 +85,7 @@ const ACCOUNT_IDENTITY_MAX_LENGTH = 500;
     SectionComponent,
     SectionHeaderComponent,
     SelectModule,
+    SpinnerComponent,
     TypographyModule,
     I18nPipe,
   ],

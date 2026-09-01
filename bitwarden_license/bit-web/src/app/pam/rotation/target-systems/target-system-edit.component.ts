@@ -32,6 +32,7 @@ import {
   SectionComponent,
   SectionHeaderComponent,
   SelectModule,
+  SpinnerComponent,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -42,6 +43,7 @@ import {
   TargetSystemId,
   TargetSystemKind,
   TargetSystemMethod,
+  TargetSystemStatus,
   TargetSystemView,
 } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
@@ -101,7 +103,8 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
  * Edit mode (targetSystemId param present): method/kind are display-only (immutable once
  * created). A single Save action persists the name and — for Automatic systems — the
  * password policy together (with a withdrawal warning for supportsSessionTermination when
- * unchecking).
+ * unchecking). The footer also carries the retirement action: Disable when the system is in
+ * service, Enable when it is not. There is no delete — see {@link disableSystem}.
  */
 @Component({
   templateUrl: "./target-system-edit.component.html",
@@ -122,6 +125,7 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
     SectionComponent,
     SectionHeaderComponent,
     SelectModule,
+    SpinnerComponent,
     TypographyModule,
     I18nPipe,
   ],
@@ -425,6 +429,61 @@ export class TargetSystemEditComponent {
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamTargetSystemSaved"),
+      });
+    } catch (e) {
+      this.showError(e);
+    }
+  };
+
+  /**
+   * Whether the loaded system is currently in service. Picks which of the paired retirement
+   * actions the edit footer offers. Only read from the edit branch, which renders after
+   * {@link loadSystem} has resolved, so the unloaded case never reaches the template.
+   */
+  protected readonly isActive = computed(
+    () => this.existing()?.status === TargetSystemStatus.Active,
+  );
+
+  /**
+   * Take a target system out of service from the edit page.
+   *
+   * This is how a target system is retired: there is no delete, because rotation configs
+   * reference targets and a rotation's history has to stay attributable. Disable is reversible,
+   * so the page stays put and re-reads rather than navigating away — the operator can put it
+   * straight back with {@link enableSystem}.
+   */
+  protected readonly disableSystem = async (): Promise<void> => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "pamTargetSystemDisableTitle" },
+      content: { key: "pamTargetSystemDisableContent" },
+      acceptButtonText: { key: "pamTargetSystemDisableConfirm" },
+      cancelButtonText: { key: "cancel" },
+      type: "warning",
+    });
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await this.rotationSdk.disableTargetSystem(this.organizationId, this.targetSystemId!);
+      // Disable answers with no content, so re-read rather than patching the status locally.
+      await this.loadSystem();
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamTargetSystemDisableSuccess"),
+      });
+    } catch (e) {
+      this.showError(e);
+    }
+  };
+
+  /** Return a retired target system to service. No confirmation: it is the recoverable direction. */
+  protected readonly enableSystem = async (): Promise<void> => {
+    try {
+      await this.rotationSdk.enableTargetSystem(this.organizationId, this.targetSystemId!);
+      await this.loadSystem();
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamTargetSystemEnableSuccess"),
       });
     } catch (e) {
       this.showError(e);

@@ -7,12 +7,23 @@
 </div>
 
 @if (loading()) {
-  <bit-icon name="bwi-spinner" class="bwi-spin tw-text-muted"></bit-icon>
+  <bit-spinner />
 } @else if (totalRows() === 0) {
-  <div class="tw-py-12 tw-text-center tw-text-muted">
-    <bit-icon name="bwi-terminal" class="tw-mb-2 tw-block tw-text-4xl"></bit-icon>
-    <p class="tw-m-0">{{ "pamDaemonEmptyState" | i18n }}</p>
-  </div>
+  <bit-status-lockup>
+    <bit-svg slot="graphic" [content]="noItemsIcon"></bit-svg>
+    <span slot="title">{{ "pamDaemonEmptyStateTitle" | i18n }}</span>
+    <span slot="description">{{ "pamDaemonEmptyStateDescription" | i18n }}</span>
+    <button
+      slot="button"
+      type="button"
+      bitButton
+      buttonType="primary"
+      [bitAction]="registerDaemon"
+      id="daemons-tab_button_register-empty"
+    >
+      {{ "pamDaemonNew" | i18n }}
+    </button>
+  </bit-status-lockup>
 } @else {
   <bit-table [dataSource]="dataSource">
     <ng-container header>

@@ -18,7 +18,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { DaemonRegisterDialogComponent } from "./daemons/daemon-register-dialog.component";
 import { DaemonsService } from "./daemons/daemons.service";
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
-import { RotationConfigView, TargetSystemView } from "./rotation";
+import { AccessConnectorView, RotationConfigView, TargetSystemView } from "./rotation";
 import { TargetSystemsService } from "./target-systems/target-systems.service";
 
 /**
@@ -88,6 +88,15 @@ export class RotationShellComponent {
     initialValue: [] as RotationConfigView[],
   });
   protected readonly hasConfigs = computed(() => this.configs().length > 0);
+
+  /**
+   * Whether any daemons exist. The "New daemon" header button is hidden when none do, since the
+   * tab shows an empty state that owns that action.
+   */
+  private readonly daemons = toSignal(this.daemonsService.daemons$, {
+    initialValue: [] as AccessConnectorView[],
+  });
+  protected readonly hasDaemons = computed(() => this.daemons().length > 0);
 
   constructor() {
     // Load the configs service whenever the org changes. The effect also re-runs

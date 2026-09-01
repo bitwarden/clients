@@ -122,7 +122,7 @@ export enum FeatureFlag {
 
   /* PAM */
   Pam = "pm-37044-pam-v-0",
-  PamRotation = "pm-39040-pam-rotation",
+  PamRotation = "pm-42354-rotation-daemon",
 
   /* VFO */
   VFO1Foundation = "vfo1-foundation",

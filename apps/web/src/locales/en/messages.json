@@ -18790,8 +18790,11 @@
   "pamDaemonRegister": {
     "message": "Register daemon"
   },
-  "pamDaemonEmptyState": {
-    "message": "No daemons registered. Register a daemon to start rotating credentials."
+  "pamDaemonEmptyStateTitle": {
+    "message": "No daemons registered"
+  },
+  "pamDaemonEmptyStateDescription": {
+    "message": "Register a daemon to start rotating credentials."
   },
   "pamDaemonConnection": {
     "message": "Connection"
@@ -18950,7 +18953,10 @@
     "message": "Search managed credentials"
   },
   "pamRotationConfigEmptyState": {
-    "message": "No managed credentials configured."
+    "message": "No managed credentials configured"
+  },
+  "pamRotationConfigEmptyStateDescription": {
+    "message": "Add a managed credential to start rotating it automatically."
   },
   "pamRotationConfigNoTargetSystems": {
     "message": "Set up a target system before you can rotate credentials. A target system defines where a credential lives and how Bitwarden rotates it."
