@@ -101,7 +101,7 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   }
 
   protected handleDocumentShortcut(event: KeyboardEvent): void {
-    if (!this.showShortcutHints()) {
+    if (!this.showShortcutHints() || this.disabled()) {
       return;
     }
 
