@@ -1,17 +1,13 @@
-import { Component, OnInit } from "@angular/core";
-import { combineLatest, firstValueFrom, map, switchMap } from "rxjs";
+import { Component, inject } from "@angular/core";
+import { firstValueFrom, map } from "rxjs";
 
-import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
-import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { DialogService } from "@bitwarden/components";
 
 import { ChangeKdfModule } from "../../../key-management/change-kdf/change-kdf.module";
 import { KeyRotationComponent } from "../../../key-management/key-rotation/key-rotation.component";
-import { UserKeyRotationService } from "../../../key-management/key-rotation/user-key-rotation.service";
+import { SecurityKeysComponentService } from "../../../key-management/services/security-keys-component.service";
 import { SharedModule } from "../../../shared";
 
 import { ApiKeyComponent } from "./api-key.component";
@@ -21,54 +17,16 @@ import { ApiKeyComponent } from "./api-key.component";
 @Component({
   templateUrl: "security-keys.component.html",
   imports: [SharedModule, ChangeKdfModule, KeyRotationComponent],
+  providers: [SecurityKeysComponentService],
 })
-export class SecurityKeysComponent implements OnInit {
-  showChangeKdf = true;
+export class SecurityKeysComponent {
+  private readonly accountService = inject(AccountService);
+  private readonly apiService = inject(ApiService);
+  private readonly dialogService = inject(DialogService);
+  private readonly securityKeysComponentService = inject(SecurityKeysComponentService);
 
-  protected readonly showKeyRotation$ = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) =>
-      combineLatest([
-        this.userDecryptionOptionsService.hasMasterPasswordById$(userId),
-        this.keyConnectorService.getUsesKeyConnector(userId),
-        this.keyConnectorService.getManagingOrganization(userId),
-        this.deviceTrustService.supportsDeviceTrustByUserId$(userId),
-        this.userKeyRotationService.shouldUseSdkKeyRotation$(userId),
-      ]),
-    ),
-    map(
-      ([
-        hasMasterPassword,
-        usesKeyConnector,
-        managingOrganization,
-        hasTdeKeys,
-        useSdkKeyRotation,
-      ]) => {
-        const hasManagingKeyConnectorOrganization =
-          usesKeyConnector && managingOrganization != null;
-        const canRotate = hasMasterPassword || hasManagingKeyConnectorOrganization || hasTdeKeys;
-        return canRotate && useSdkKeyRotation;
-      },
-    ),
-  );
-
-  constructor(
-    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
-    private accountService: AccountService,
-    private apiService: ApiService,
-    private dialogService: DialogService,
-    private keyConnectorService: KeyConnectorService,
-    private deviceTrustService: DeviceTrustServiceAbstraction,
-    private userKeyRotationService: UserKeyRotationService,
-  ) {}
-
-  async ngOnInit() {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
-    this.showChangeKdf = await firstValueFrom(
-      this.userDecryptionOptionsService.hasMasterPasswordById$(userId),
-    );
-  }
+  protected readonly showChangeKdf$ = this.securityKeysComponentService.showChangeKdf$;
+  protected readonly showKeyRotation$ = this.securityKeysComponentService.showKeyRotation$;
 
   async viewUserApiKey() {
     const entityId = await firstValueFrom(
