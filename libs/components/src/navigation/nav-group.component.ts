@@ -10,6 +10,7 @@ import {
   inject,
   input,
   model,
+  signal,
   untracked,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -70,6 +71,13 @@ export class NavGroupComponent extends NavBaseComponent {
   protected readonly hasStartSlotTile = computed(() => this.startSlotTiles().length > 0);
 
   protected readonly sideNavOpen = this.sideNavService.open;
+
+  /**
+   * True when the router matches this group's route in vfo1 top-level position.
+   * Kept separate from `open()` because a group can be open without being the active section
+   * and active without being open (e.g. collapsed rail).
+   */
+  protected readonly routeIsActive = signal(false);
 
   readonly sideNavAndGroupOpen = computed(() => {
     return this.open() && this.sideNavOpen();
@@ -159,9 +167,13 @@ export class NavGroupComponent extends NavBaseComponent {
         const matchOptions = untracked(() =>
           this.toIsActiveMatchOptions(this.routerLinkActiveOptions()),
         );
-        if (this.router.isActive(urlTree, matchOptions)) {
+        const isActive = this.router.isActive(urlTree, matchOptions);
+        if (isActive) {
           this.open.set(true);
         }
+        this.routeIsActive.set(isActive);
+      } else {
+        this.routeIsActive.set(false);
       }
     });
   }

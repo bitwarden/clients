@@ -58,6 +58,7 @@
               data-fvw
               [attr.aria-expanded]="ariaExpanded()"
               [attr.aria-controls]="ariaControls()"
+              [attr.aria-current]="ariaCurrentValue()"
               (click)="mainContentClicked.emit()"
               data-testid="nav-item-interactive"
             >
@@ -148,6 +149,7 @@
               data-fvw
               [attr.aria-expanded]="ariaExpanded()"
               [attr.aria-controls]="ariaControls()"
+              [attr.aria-current]="ariaCurrentValue()"
               (click)="mainContentClicked.emit()"
               data-testid="nav-item-interactive"
             >
