@@ -15,6 +15,9 @@ export interface OrgSubscriptionAccess {
 
   /** Whether the organization is managed by a consolidated billing MSP. */
   showConsolidatedBillingMsp: boolean;
+
+  /** Whether the organization is on the free plan (no paid Stripe subscription to preview). */
+  isFreeOrg: boolean;
 }
 
 /**
@@ -31,5 +34,6 @@ export function resolveOrgSubscriptionAccess(org: Organization): OrgSubscription
     showManagementActions: org.canEditSubscription && !managedByConsolidatedBillingMsp,
     showSelfHost: org.selfHost,
     showConsolidatedBillingMsp: managedByConsolidatedBillingMsp,
+    isFreeOrg: org.isFreeOrg,
   };
 }
