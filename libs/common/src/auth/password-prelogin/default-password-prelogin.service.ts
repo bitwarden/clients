@@ -76,6 +76,6 @@ export class DefaultPasswordPreloginService implements PasswordPreloginService {
     const sdkResponse: SdkPasswordPreloginResponse = await loginClient.get_password_prelogin(email);
     const kdfConfig = fromSdkKdfConfig(sdkResponse.kdf);
     kdfConfig.validateKdfConfigForPrelogin();
-    return new PasswordPreloginData(kdfConfig);
+    return new PasswordPreloginData(kdfConfig, sdkResponse.salt);
   }
 }
