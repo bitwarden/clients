@@ -1,4 +1,15 @@
-<app-header></app-header>
+<app-header>
+  @if (showBreadcrumbs()) {
+    <bit-breadcrumbs slot="breadcrumbs">
+      <bit-breadcrumb [route]="orgSettingsRoute" icon="bwi-cog">{{
+        "settings" | i18n
+      }}</bit-breadcrumb>
+      <bit-breadcrumb [route]="[]" queryParamsHandling="preserve">{{
+        "organizationInfo" | i18n
+      }}</bit-breadcrumb>
+    </bit-breadcrumbs>
+  }
+</app-header>
 <bit-container>
   <div *ngIf="loading">
     <i

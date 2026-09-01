@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -26,6 +27,8 @@ import { OrganizationResponse } from "@bitwarden/common/admin-console/models/res
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -83,6 +86,17 @@ export class AccountComponent implements OnInit, OnDestroy {
   protected organizationId!: string;
   protected publicKeyBuffer!: Uint8Array;
 
+  protected readonly showBreadcrumbs = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+
+  protected readonly orgSettingsRoute = [
+    "/organizations",
+    this.route.snapshot.params["organizationId"],
+    "settings",
+  ];
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -99,6 +113,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private toastService: ToastService,
     private vfo1TerminologyService: Vfo1TerminologyService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
