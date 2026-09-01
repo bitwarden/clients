@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, map, of } from "rxjs";
+import { BehaviorSubject, combineLatest, map, of } from "rxjs";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { BitSvg, ReportExposedPasswords, LockIcon, NoCredentialsIcon } from "@bitwarden/assets/svg";
@@ -20,6 +20,7 @@ import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/p
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -33,6 +34,8 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { HealthDeleteAtRiskItemDialogComponent } from "./health-delete-at-risk-item-dialog.component";
 import { HealthRiskCategoryDetailComponent } from "./health-risk-category-detail.component";
+import { HealthScanErrorComponent } from "./health-scan-error.component";
+import { HealthScanningComponent } from "./health-scanning.component";
 
 // eslint-disable-next-line no-console
 const originalError = console.error;
@@ -83,6 +86,22 @@ class MockCurrentAccountComponent {}
 
 /** The real vault icon needs domain settings, config and environment services to resolve favicons. */
 @Component({
+  selector: "dirt-health-scanning",
+  template: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockHealthScanningComponent {}
+
+@Component({
+  selector: "dirt-health-scan-error",
+  template: ``,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockHealthScanErrorComponent {
+  readonly retry = output<void>();
+}
+
+@Component({
   selector: "app-vault-icon",
   template: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -124,7 +143,10 @@ describe("HealthRiskCategoryDetailComponent", () => {
   let fixture: ComponentFixture<HealthRiskCategoryDetailComponent>;
   let params$: BehaviorSubject<Params>;
   let report$: BehaviorSubject<VaultHealthReportView | null>;
+  /** Overrides the status the report mock derives; null means derive it. */
+  let status$: BehaviorSubject<VaultHealthReportStatus | null>;
   let cipherViews$: BehaviorSubject<CipherView[]>;
+  let logService: MockProxy<LogService>;
   let reportService: MockProxy<VaultHealthReportService>;
   let cipherService: MockProxy<CipherService>;
   let router: MockProxy<Router>;
@@ -208,6 +230,38 @@ describe("HealthRiskCategoryDetailComponent", () => {
     return Array.from(fixture.nativeElement.querySelectorAll("bit-item"));
   }
 
+  /** The scan progress view, rendered while a scan is in flight. */
+  function scanning(): HTMLElement | null {
+    return fixture.nativeElement.querySelector("dirt-health-scanning");
+  }
+
+  /** The scan failure view, rendered when a scan does not complete. */
+  function scanError(): HTMLElement | null {
+    return fixture.nativeElement.querySelector("dirt-health-scan-error");
+  }
+
+  /** The scan failure view's instance, for driving its retry output. */
+  function scanErrorComponent(): MockHealthScanErrorComponent | null {
+    const el = fixture.debugElement.query((n) => n.name === "dirt-health-scan-error");
+    return el ? (el.componentInstance as MockHealthScanErrorComponent) : null;
+  }
+
+  /** Settles pending work and re-renders. */
+  async function settle() {
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  /**
+   * Settles, having first waited out the vault-change debounce inside
+   * HealthScanService. Real timers, so the fixture's stability tracking is
+   * left alone.
+   */
+  async function settleRefresh() {
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    await settle();
+  }
+
   function rowButton(index: number): HTMLButtonElement {
     return rows()[index].querySelector("button[bit-item-content]")!;
   }
@@ -264,17 +318,23 @@ describe("HealthRiskCategoryDetailComponent", () => {
     params$ = new BehaviorSubject<Params>({ category: RiskCategory.Exposed });
 
     report$ = new BehaviorSubject<VaultHealthReportView | null>(null);
+    status$ = new BehaviorSubject<VaultHealthReportStatus | null>(null);
     reportService = mock<VaultHealthReportService>();
-    // The service emits { status, report }; wrap the report-only subject so a
-    // present report reads as success and a null one as idle.
+    // The service emits { status, report }. By default a present report reads as
+    // success and a null one as idle; a test that needs loading or error sets
+    // status$ explicitly.
     reportService.getVaultHealthReport$.mockReturnValue(
-      report$.pipe(
-        map((report) => ({
-          status: report ? VaultHealthReportStatus.Success : VaultHealthReportStatus.Idle,
+      combineLatest([report$, status$]).pipe(
+        map(([report, status]) => ({
+          status:
+            status ?? (report ? VaultHealthReportStatus.Success : VaultHealthReportStatus.Idle),
           report,
         })),
       ),
     );
+    reportService.buildVaultHealthReport.mockResolvedValue(undefined);
+    // The auto-mock returns undefined, which the refresh pipeline cannot consume.
+    reportService.refreshVaultHealthReport.mockResolvedValue(undefined);
 
     cipherViews$ = new BehaviorSubject<CipherView[]>([]);
     cipherService = mock<CipherService>();
@@ -283,6 +343,8 @@ describe("HealthRiskCategoryDetailComponent", () => {
     setReport(RiskCategory.Exposed, [
       buildLogin({ id: "cipher-1", name: "Item 1", uris: ["https://example.com"] }),
     ]);
+
+    logService = mock<LogService>();
 
     router = mock<Router>();
     router.navigate.mockResolvedValue(true);
@@ -317,6 +379,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
         { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
+        { provide: LogService, useValue: logService },
       ],
     })
       .overrideComponent(HealthRiskCategoryDetailComponent, {
@@ -327,6 +390,8 @@ describe("HealthRiskCategoryDetailComponent", () => {
             PopOutComponent,
             CurrentAccountComponent,
             AppVaultIconComponent,
+            HealthScanningComponent,
+            HealthScanErrorComponent,
           ],
         },
         add: {
@@ -336,6 +401,8 @@ describe("HealthRiskCategoryDetailComponent", () => {
             MockPopOutComponent,
             MockCurrentAccountComponent,
             MockAppVaultIcon,
+            MockHealthScanningComponent,
+            MockHealthScanErrorComponent,
           ],
         },
       })
@@ -458,10 +525,110 @@ describe("HealthRiskCategoryDetailComponent", () => {
       report$.next(null);
     });
 
-    it("routes back to the health overview", async () => {
+    it("stays put instead of routing back to the health overview", async () => {
+      // The popup restores the last route, so this page can be the first thing the
+      // user sees. Ejecting them to the overview read as a crash.
       await initComponent();
 
-      expect(router.navigate).toHaveBeenCalledWith(["/tabs/health"]);
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it("runs a scan and shows the progress view while it runs", async () => {
+      await initComponent();
+
+      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
+      expect(scanning()).not.toBeNull();
+      expect(rows()).toHaveLength(0);
+    });
+
+    it("renders the category once that scan succeeds", async () => {
+      await initComponent();
+
+      setReport(RiskCategory.Exposed, [buildLogin({ id: "cipher-1", name: "Restored" })]);
+      await settle();
+
+      expect(scanning()).toBeNull();
+      expect(router.navigate).not.toHaveBeenCalled();
+      expect(text()).toContain("Restored");
+    });
+
+    it("shows the failure view when the scan does not complete", async () => {
+      status$.next(VaultHealthReportStatus.Error);
+
+      await initComponent();
+
+      expect(scanError()).not.toBeNull();
+      expect(scanning()).toBeNull();
+    });
+
+    it("starts another scan when the failure view is retried", async () => {
+      status$.next(VaultHealthReportStatus.Error);
+      await initComponent();
+      reportService.buildVaultHealthReport.mockClear();
+
+      scanErrorComponent()!.retry.emit();
+      await settle();
+
+      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("with a report already published", () => {
+    it("does not re-run the scan, so navigating in does not repeat the breach lookups", async () => {
+      await initComponent();
+
+      expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
+      expect(text()).toContain("Item 1");
+    });
+
+    it("shows the progress view while a scan is running", async () => {
+      status$.next(VaultHealthReportStatus.Loading);
+
+      await initComponent();
+
+      expect(scanning()).not.toBeNull();
+    });
+
+    it("keeps the list on screen with no progress view while a vault change is applied", async () => {
+      await initComponent();
+
+      cipherViews$.next([
+        buildLogin({ id: "cipher-1", name: "Item 1" }),
+        buildLogin({ id: "new" }),
+      ]);
+      await settleRefresh();
+
+      expect(reportService.refreshVaultHealthReport).toHaveBeenCalled();
+      expect(scanning()).toBeNull();
+      expect(text()).toContain("Item 1");
+    });
+
+    it("refreshes the report when a listed login is deleted", async () => {
+      // The delete dialog no longer touches the report. It soft deletes, which sets
+      // deletedDate on the cipher, and the report drops the row on the next refresh
+      // because its scope filter excludes deleted logins.
+      await initComponent();
+      await settleRefresh();
+      reportService.refreshVaultHealthReport.mockClear();
+
+      const deleted = buildLogin({ id: "cipher-1", name: "Item 1" });
+      deleted.deletedDate = new Date();
+      cipherViews$.next([deleted]);
+      await settleRefresh();
+
+      expect(reportService.refreshVaultHealthReport).toHaveBeenCalledWith([deleted], userId);
+    });
+
+    it("stops watching the vault once the page is destroyed", async () => {
+      await initComponent();
+      await settleRefresh();
+      reportService.refreshVaultHealthReport.mockClear();
+
+      fixture.destroy();
+      cipherViews$.next([buildLogin({ id: "other" })]);
+      await settleRefresh();
+
+      expect(reportService.refreshVaultHealthReport).not.toHaveBeenCalled();
     });
   });
 

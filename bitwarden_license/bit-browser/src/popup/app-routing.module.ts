@@ -7,7 +7,10 @@ import { TabsV2Component } from "@bitwarden/browser/popup/tabs-v2.component";
 
 import { HealthRiskCategoryDetailComponent } from "./dirt/health/health-risk-category-detail.component";
 import { HealthComponent } from "./dirt/health/health.component";
-import { canAccessHealth } from "./dirt/health/services/health-access.service";
+import {
+  canAccessHealth,
+  canAccessHealthDetail,
+} from "./dirt/health/services/health-access.service";
 
 /**
  * Routes for features that only ship with the commercial extension.
@@ -33,7 +36,7 @@ const routes: Routes = [
   {
     path: "health/:category",
     component: HealthRiskCategoryDetailComponent,
-    canActivate: [authGuard, canAccessHealth],
+    canActivate: [authGuard, canAccessHealth, canAccessHealthDetail],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
 ];

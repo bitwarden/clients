@@ -55,6 +55,13 @@ describe("DefaultVaultHealthReportService", () => {
 
   // --- helpers -------------------------------------------------------------
 
+  /**
+   * Fixed so a login rebuilt with the same arguments fingerprints identically.
+   * `new CipherView()` stamps `revisionDate` with the current time, which would
+   * make "has the vault changed" comparisons depend on the clock.
+   */
+  const BASE_REVISION = "2026-01-01T00:00:00.000Z";
+
   const login = (
     id: string,
     opts: {
@@ -62,6 +69,10 @@ describe("DefaultVaultHealthReportService", () => {
       organizationId?: string | null;
       deleted?: boolean;
       type?: CipherType;
+      /** Bump to model the login having been saved. */
+      revision?: string;
+      /** Client-only usage data, written by autofill and by launching a URI. */
+      lastUsedDate?: number;
     } = {},
   ): CipherView => {
     const cipher = new CipherView();
@@ -69,10 +80,18 @@ describe("DefaultVaultHealthReportService", () => {
     cipher.type = opts.type ?? CipherType.Login;
     cipher.organizationId = (opts.organizationId ?? null) as CipherView["organizationId"];
     cipher.deletedDate = opts.deleted ? new Date() : (null as unknown as Date);
+    cipher.revisionDate = new Date(opts.revision ?? BASE_REVISION);
+    if (opts.lastUsedDate != null) {
+      cipher.localData = { lastUsedDate: opts.lastUsedDate };
+    }
     cipher.login = new LoginView();
     cipher.login.password = opts.password ?? `pw-${id}`;
     return cipher;
   };
+
+  /** A login saved since the last scan, so the vault fingerprint has moved. */
+  const editedLogin = (id: string, opts: Parameters<typeof login>[1] = {}): CipherView =>
+    login(id, { ...opts, revision: "2026-06-01T00:00:00.000Z" });
 
   const risk = (
     id: string,
@@ -454,115 +473,415 @@ describe("DefaultVaultHealthReportService", () => {
     });
   });
 
-  describe("deleteItemFromReport", () => {
-    /** Collects every report emitted from now on, so missed emissions are visible. */
-    const observeReports = (): VaultHealthReportView[] => {
-      const emitted: VaultHealthReportView[] = [];
+  describe("refreshVaultHealthReport", () => {
+    /** Collects every state emitted from now on, so a missed or extra publish shows. */
+    const observeStates = (): VaultHealthReportState[] => {
+      const seen: VaultHealthReportState[] = [];
       service
         .getVaultHealthReport$(userId)
         .pipe(takeUntil(destroy$))
-        .subscribe((state) => {
-          if (state.report != null) {
-            emitted.push(state.report);
-          }
-        });
-      return emitted;
+        .subscribe((state) => seen.push(state));
+      return seen;
     };
 
-    it("removes the item from the report and decrements counts", async () => {
-      const ciphers = withRisks([
-        { cipher: login("a"), risk: risk("a", { exposed: 3 }) },
-        { cipher: login("b"), risk: risk("b", { strength: 1 }) },
-        { cipher: login("c"), risk: risk("c", { exposed: 2 }) },
-      ]);
-      await service.buildVaultHealthReport(ciphers, userId);
+    /** The exposed/weak/reused ids of the currently published report. */
+    const buckets = async () => {
+      const report = await currentReport();
+      return {
+        exposed: cipherIds(report!.categoryItems.exposed),
+        weak: cipherIds(report!.categoryItems.weak),
+        reused: cipherIds(report!.categoryItems.reused),
+      };
+    };
 
-      service.deleteItemFromReport("a", "exposed", userId);
-      const updated = await currentReport();
+    it("does nothing before a scan has published a report", async () => {
+      const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { strength: 1 }) }]);
 
-      expect(updated!.atRiskCount).toBe(2);
-      expect(updated!.totalCount).toBe(2);
-      expect(cipherIds(updated!.categoryItems.exposed)).toEqual(["c"]);
-      expect(cipherIds(updated!.categoryItems.weak)).toEqual(["b"]);
+      await service.refreshVaultHealthReport(ciphers, userId);
+
+      await expect(firstValueFrom(service.getVaultHealthReport$(userId))).resolves.toEqual(
+        VAULT_HEALTH_REPORT_IDLE,
+      );
+      expect(cipherRiskService.computeRiskForCiphers).not.toHaveBeenCalled();
     });
 
-    // Guards against mutating the published report in place: subscribers already
-    // attached must see the delete, so a new report instance has to be emitted.
-    it("emits the updated report to subscribers attached before the delete", async () => {
-      const ciphers = withRisks([
-        { cipher: login("a"), risk: risk("a", { exposed: 3 }) },
-        { cipher: login("b"), risk: risk("b", { strength: 1 }) },
-        { cipher: login("c"), risk: risk("c", { exposed: 2 }) },
-      ]);
-      await service.buildVaultHealthReport(ciphers, userId);
+    it("publishes nothing when the vault is unchanged", async () => {
+      // The vault watch replays its current value the moment it subscribes, right
+      // after the scan that already consumed it. That must not cost a rebuild.
+      const scanned = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+      await service.buildVaultHealthReport(scanned, userId);
+      const seen = observeStates();
+      cipherRiskService.computeRiskForCiphers.mockClear();
+      cipherRiskService.buildPasswordReuseMap.mockClear();
 
-      const emitted = observeReports();
-      service.deleteItemFromReport("a", "exposed", userId);
+      await service.refreshVaultHealthReport([login("a")], userId);
 
-      expect(emitted).toHaveLength(2);
-      expect(cipherIds(emitted[1].categoryItems.exposed)).toEqual(["c"]);
-      expect(emitted[1].atRiskCount).toBe(2);
-      expect(emitted[1].totalCount).toBe(2);
+      expect(seen).toHaveLength(1);
+      // Returns before touching the risk service at all, so an unchanged vault
+      // costs neither a breach lookup nor a reuse map.
+      expect(cipherRiskService.computeRiskForCiphers).not.toHaveBeenCalled();
+      expect(cipherRiskService.buildPasswordReuseMap).not.toHaveBeenCalled();
+    });
+
+    it("publishes nothing when only a login's usage data changed", async () => {
+      // This is what the fingerprint earns its keep on. cipherViews$ combines
+      // localData$, so autofilling a login or launching its URI re-emits the whole
+      // vault. That never changes risk and never moves a revision, so it must not
+      // cost a rebuild: without this gate every autofill is a full round of breach
+      // lookups.
+      const scanned = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+      await service.buildVaultHealthReport(scanned, userId);
+      const seen = observeStates();
+      cipherRiskService.computeRiskForCiphers.mockClear();
+
+      await service.refreshVaultHealthReport([login("a", { lastUsedDate: 1767225600000 })], userId);
+
+      expect(seen).toHaveLength(1);
+      expect(cipherRiskService.computeRiskForCiphers).not.toHaveBeenCalled();
+    });
+
+    it("never publishes loading, so no scan progress appears over a background update", async () => {
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
+        userId,
+      );
+      const seen = observeStates();
+
+      await service.refreshVaultHealthReport(
+        withRisks([{ cipher: editedLogin("a"), risk: risk("a") }]),
+        userId,
+      );
+
+      expect(seen.map((state) => state.status)).toEqual(["success", "success"]);
+    });
+
+    it("keeps the report on screen throughout, never emitting a null report", async () => {
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
+        userId,
+      );
+      const seen = observeStates();
+
+      await service.refreshVaultHealthReport(
+        withRisks([{ cipher: editedLogin("a"), risk: risk("a") }]),
+        userId,
+      );
+
+      expect(seen.every((state) => state.report != null)).toBe(true);
+    });
+
+    it("drops a login from its category once its password is fixed", async () => {
+      await service.buildVaultHealthReport(
+        withRisks([
+          { cipher: login("a"), risk: risk("a", { exposed: 3 }) },
+          { cipher: login("b"), risk: risk("b", { strength: 1 }) },
+        ]),
+        userId,
+      );
+
+      await service.refreshVaultHealthReport(
+        withRisks([
+          { cipher: editedLogin("a"), risk: risk("a") },
+          { cipher: login("b"), risk: risk("b", { strength: 1 }) },
+        ]),
+        userId,
+      );
+
+      expect(await buckets()).toEqual({ exposed: [], weak: ["b"], reused: [] });
+      const report = await currentReport();
+      expect(report!.atRiskCount).toBe(1);
+      expect(report!.totalCount).toBe(2);
+    });
+
+    it("moves a login into its new highest category when its risk worsens", async () => {
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("a"), risk: risk("a", { strength: 1 }) }]),
+        userId,
+      );
+
+      await service.refreshVaultHealthReport(
+        withRisks([{ cipher: editedLogin("a"), risk: risk("a", { strength: 1, exposed: 9 }) }]),
+        userId,
+      );
+
+      expect(await buckets()).toEqual({ exposed: ["a"], weak: [], reused: [] });
+    });
+
+    it("clears the partner login's reuse when one of two shared passwords changes", async () => {
+      // Reuse is a whole-vault property, so the login that was not edited has to
+      // change too. This is why a refresh rebuilds rather than patching one item.
+      await service.buildVaultHealthReport(
+        withRisks([
+          { cipher: login("a", { password: "shared" }), risk: risk("a", { reuse: 2 }) },
+          { cipher: login("b", { password: "shared" }), risk: risk("b", { reuse: 2 }) },
+        ]),
+        userId,
+      );
+      expect((await buckets()).reused).toEqual(["a", "b"]);
+
+      await service.refreshVaultHealthReport(
+        withRisks([
+          { cipher: editedLogin("a", { password: "unique" }), risk: risk("a") },
+          { cipher: login("b", { password: "shared" }), risk: risk("b") },
+        ]),
+        userId,
+      );
+
+      expect(await buckets()).toEqual({ exposed: [], weak: [], reused: [] });
+      expect((await currentReport())!.atRiskCount).toBe(0);
+    });
+
+    it("rebuilds the reuse map across the whole vault, not just the changed login", async () => {
+      await service.buildVaultHealthReport(
+        withRisks([
+          { cipher: login("a"), risk: risk("a", { strength: 1 }) },
+          { cipher: login("b"), risk: risk("b") },
+        ]),
+        userId,
+      );
+      cipherRiskService.buildPasswordReuseMap.mockClear();
+
+      await service.refreshVaultHealthReport(
+        withRisks([
+          { cipher: editedLogin("a"), risk: risk("a") },
+          { cipher: login("b"), risk: risk("b") },
+        ]),
+        userId,
+      );
+
+      const passed = cipherRiskService.buildPasswordReuseMap.mock.calls[0][0];
+      expect(passed.map((c) => c.id)).toEqual(["a", "b"]);
+    });
+
+    it("leaves the list and the counts alone when an edit does not affect risk", async () => {
+      // A rename moves the login's revision, so this does rebuild. What matters
+      // is that the user sees no change.
+      await service.buildVaultHealthReport(
+        withRisks([
+          { cipher: login("a"), risk: risk("a", { exposed: 3 }) },
+          { cipher: login("b"), risk: risk("b", { strength: 1 }) },
+        ]),
+        userId,
+      );
+      const before = await currentReport();
+
+      await service.refreshVaultHealthReport(
+        withRisks([
+          { cipher: editedLogin("a"), risk: risk("a", { exposed: 3 }) },
+          { cipher: login("b"), risk: risk("b", { strength: 1 }) },
+        ]),
+        userId,
+      );
+
+      const after = await currentReport();
+      expect(after!.atRiskCount).toBe(before!.atRiskCount);
+      expect(after!.totalCount).toBe(before!.totalCount);
+      expect(await buckets()).toEqual({ exposed: ["a"], weak: ["b"], reused: [] });
+    });
+
+    it("surfaces a login that was healthy when the scan ran", async () => {
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("a"), risk: risk("a") }]),
+        userId,
+      );
+      expect((await currentReport())!.atRiskCount).toBe(0);
+
+      await service.refreshVaultHealthReport(
+        withRisks([{ cipher: editedLogin("a"), risk: risk("a", { strength: 1 }) }]),
+        userId,
+      );
+
+      expect(await buckets()).toEqual({ exposed: [], weak: ["a"], reused: [] });
+    });
+
+    it("picks up a login added to the vault", async () => {
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("a"), risk: risk("a", { strength: 1 }) }]),
+        userId,
+      );
+
+      await service.refreshVaultHealthReport(
+        withRisks([
+          { cipher: login("a"), risk: risk("a", { strength: 1 }) },
+          { cipher: login("new"), risk: risk("new", { exposed: 2 }) },
+        ]),
+        userId,
+      );
+
+      const report = await currentReport();
+      expect(report!.totalCount).toBe(2);
+      expect(report!.atRiskCount).toBe(2);
+      expect((await buckets()).exposed).toEqual(["new"]);
+    });
+
+    it("removes a soft-deleted login without spending a breach lookup on it", async () => {
+      // This is what replaces the delete flow's own report surgery.
+      await service.buildVaultHealthReport(
+        withRisks([
+          { cipher: login("a"), risk: risk("a", { exposed: 3 }) },
+          { cipher: login("b"), risk: risk("b", { strength: 1 }) },
+        ]),
+        userId,
+      );
+
+      await service.refreshVaultHealthReport([login("a", { deleted: true }), login("b")], userId);
+
+      expect(await buckets()).toEqual({ exposed: [], weak: ["b"], reused: [] });
+      const report = await currentReport();
+      expect(report!.atRiskCount).toBe(1);
+      expect(report!.totalCount).toBe(1);
+      const scored = cipherRiskService.computeRiskForCiphers.mock.calls.at(-1)![0];
+      expect(scored.map((c) => c.id)).toEqual(["b"]);
+    });
+
+    it("scores an emptied vault as 0 rather than NaN", async () => {
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
+        userId,
+      );
+
+      await service.refreshVaultHealthReport([login("a", { deleted: true })], userId);
+
+      const report = await currentReport();
+      expect(report!.totalCount).toBe(0);
+      expect(report!.atRiskCount).toBe(0);
+      expect(report!.score).toBe(0);
+    });
+
+    it("publishes a new report instance, so subscribers already attached see the update", async () => {
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
+        userId,
+      );
+      const seen = observeStates();
+
+      await service.refreshVaultHealthReport(
+        withRisks([{ cipher: editedLogin("a"), risk: risk("a") }]),
+        userId,
+      );
+
+      expect(seen).toHaveLength(2);
+      expect(seen[1].report).not.toBe(seen[0].report);
       // the previously published report is left untouched
-      expect(cipherIds(emitted[0].categoryItems.exposed)).toEqual(["a", "c"]);
-      expect(emitted[0].atRiskCount).toBe(3);
+      expect(cipherIds(seen[0].report!.categoryItems.exposed)).toEqual(["a"]);
     });
 
-    it("recomputes the score from the adjusted counts", async () => {
-      const ciphers = withRisks([
-        { cipher: login("a"), risk: risk("a", { exposed: 3 }) },
-        { cipher: login("b"), risk: risk("b", { strength: 1 }) },
-        { cipher: login("c"), risk: risk("c", { exposed: 2 }) },
-        { cipher: login("d"), risk: risk("d") },
-      ]);
-      await service.buildVaultHealthReport(ciphers, userId);
-      expect((await currentReport())!.score).toBe(0.75);
+    it("keeps the published report and logs when the refresh fails", async () => {
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
+        userId,
+      );
+      const seen = observeStates();
+      const failure = new Error("HIBP unavailable");
+      cipherRiskService.computeRiskForCiphers.mockRejectedValueOnce(failure);
 
-      service.deleteItemFromReport("a", "exposed", userId);
-      const updated = await currentReport();
+      await expect(
+        service.refreshVaultHealthReport([editedLogin("a")], userId),
+      ).resolves.toBeUndefined();
 
-      expect(updated!.score).toBeCloseTo(2 / 3);
+      // Nothing published: a background update must not put a failure view over
+      // results the user is already reading.
+      expect(seen).toHaveLength(1);
+      expect(seen[0].status).toBe(VaultHealthReportStatus.Success);
+      expect(cipherIds(seen[0].report!.categoryItems.exposed)).toEqual(["a"]);
+      expect(logService.error).toHaveBeenCalledWith("Vault health report refresh failed", failure);
     });
 
-    it("scores an emptied report as 0 rather than NaN", async () => {
-      const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
-      await service.buildVaultHealthReport(ciphers, userId);
+    it("retries the same change after a failed refresh", async () => {
+      // The fingerprint must not advance on failure, or the change would be
+      // treated as already handled and never reflected.
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
+        userId,
+      );
+      cipherRiskService.computeRiskForCiphers.mockRejectedValueOnce(new Error("HIBP unavailable"));
+      const changed = withRisks([{ cipher: editedLogin("a"), risk: risk("a") }]);
+      await service.refreshVaultHealthReport(changed, userId);
 
-      service.deleteItemFromReport("a", "exposed", userId);
-      const updated = await currentReport();
+      await service.refreshVaultHealthReport(changed, userId);
 
-      expect(updated!.totalCount).toBe(0);
-      expect(updated!.score).toBe(0);
+      expect(await buckets()).toEqual({ exposed: [], weak: [], reused: [] });
     });
 
-    it("does nothing if the item is not in the given category", async () => {
-      const ciphers = withRisks([
-        { cipher: login("a"), risk: risk("a", { exposed: 3 }) },
-        { cipher: login("b"), risk: risk("b", { strength: 1 }) },
-      ]);
-      await service.buildVaultHealthReport(ciphers, userId);
+    it("skips while a scan is already in flight", async () => {
+      // The scan will publish fresher results, and publishing over it would
+      // replace its progress view with a stale report.
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
+        userId,
+      );
 
-      const emitted = observeReports();
-      // "b" is bucketed as weak, so the exposed list must be left alone
-      service.deleteItemFromReport("b", "exposed", userId);
+      let release!: () => void;
+      const hangs = new Promise<void>((resolve) => (release = resolve));
+      const computeRisk = cipherRiskService.computeRiskForCiphers.getMockImplementation()!;
+      cipherRiskService.computeRiskForCiphers.mockImplementationOnce(async (given, id, options) => {
+        await hangs;
+        return computeRisk(given, id, options);
+      });
 
-      expect(emitted).toHaveLength(1);
-      expect(cipherIds(emitted[0].categoryItems.exposed)).toEqual(["a"]);
-      expect(cipherIds(emitted[0].categoryItems.weak)).toEqual(["b"]);
-      expect(emitted[0].atRiskCount).toBe(2);
-      expect(emitted[0].totalCount).toBe(2);
+      const seen = observeStates();
+      // buildVaultHealthReport publishes loading before its first await, so the
+      // scan is observably in flight by the time the refresh is called.
+      const scanning = service.buildVaultHealthReport(
+        withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
+        userId,
+      );
+
+      await service.refreshVaultHealthReport([editedLogin("a")], userId);
+
+      // The refresh added nothing of its own; the scan still owns the state.
+      expect(seen.map((state) => state.status)).toEqual(["success", "loading"]);
+      release();
+      await scanning;
     });
 
-    it("does nothing if the userId does not match the current report", async () => {
-      const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
-      await service.buildVaultHealthReport(ciphers, userId);
+    it("drops a refresh that a scan superseded while it was in flight", async () => {
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
+        userId,
+      );
 
-      service.deleteItemFromReport("a", "exposed", "other-user-id" as UserId);
-      const updated = await currentReport();
+      let release!: () => void;
+      const hangs = new Promise<void>((resolve) => (release = resolve));
+      const computeRisk = cipherRiskService.computeRiskForCiphers.getMockImplementation()!;
+      // Only the refresh's own computation hangs; the scan that overtakes it runs.
+      cipherRiskService.computeRiskForCiphers.mockImplementationOnce(async (given, id, options) => {
+        await hangs;
+        return computeRisk(given, id, options);
+      });
 
-      expect(updated!.atRiskCount).toBe(1);
-      expect(updated!.totalCount).toBe(1);
-      expect(updated!.categoryItems.exposed).toHaveLength(1);
+      const refreshing = service.refreshVaultHealthReport(
+        withRisks([{ cipher: editedLogin("a"), risk: risk("a") }]),
+        userId,
+      );
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("b"), risk: risk("b", { strength: 1 }) }]),
+        userId,
+      );
+      release();
+      await refreshing;
+
+      // The scan's report stands; the stale refresh did not overwrite it.
+      expect(await buckets()).toEqual({ exposed: [], weak: ["b"], reused: [] });
+    });
+
+    it("does not publish one user's refresh into another user's stream", async () => {
+      const otherUserId = "other-user-id" as UserId;
+      await service.buildVaultHealthReport(
+        withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
+        userId,
+      );
+
+      await service.refreshVaultHealthReport(
+        withRisks([{ cipher: editedLogin("a"), risk: risk("a") }]),
+        otherUserId,
+      );
+
+      // The other user has no report to refresh, and this user's is untouched.
+      await expect(firstValueFrom(service.getVaultHealthReport$(otherUserId))).resolves.toEqual(
+        VAULT_HEALTH_REPORT_IDLE,
+      );
+      expect((await buckets()).exposed).toEqual(["a"]);
     });
   });
 });
