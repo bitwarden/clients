@@ -204,6 +204,9 @@ export class FilterMenuComponent
   /** The chip's value, read by the host bridge. */
   readonly value = computed<unknown>(() => this._value());
 
+  /** @see FilterControl.clearedValue */
+  readonly clearedValue = computed<unknown>(() => (this.multiple() ? [] : null));
+
   /** Whether the chip has a selection. */
   readonly active = computed(() => {
     const value = this._value();
@@ -749,7 +752,7 @@ export class FilterMenuComponent
 
   /** Clears the selection. Wired to the dismiss button, the menu's Clear footer, and the dialog. */
   clear(): void {
-    this._value.set(this.multiple() ? [] : null);
+    this._value.set(this.clearedValue());
     this.labels.set([]);
     this.committedCount.set(0);
   }

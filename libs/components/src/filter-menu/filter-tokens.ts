@@ -17,6 +17,8 @@ export interface FilterControl {
   readonly key: Signal<string>;
   /** The chip's value: the selected value (single-select) or an array (multi-select). */
   readonly value: Signal<unknown>;
+  /** The chip's value with nothing selected — `[]`, `null`, or `false`, never `undefined`. */
+  readonly clearedValue: Signal<unknown>;
   /** Whether the chip has a selection. */
   readonly active: Signal<boolean>;
   /** Sets the chip's value — used to seed initial filters. */

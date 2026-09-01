@@ -86,6 +86,9 @@ export class FilterToggleComponent implements FilterControl, FilterPresenter, On
   /** The toggle's boolean value. */
   readonly value = computed<unknown>(() => this._value());
 
+  /** @see FilterControl.clearedValue */
+  readonly clearedValue = computed<unknown>(() => false);
+
   /** Whether the toggle is on. */
   readonly active = computed(() => this._value());
 

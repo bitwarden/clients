@@ -369,11 +369,20 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (!filter) {
       return undefined;
     }
-    const values = { [key]: value } as F;
+    const values = { ...this.clearedFilterValues(), [key]: value } as F;
     return this.tableDef()
       .data()
       .filter((row) => filter(row, values)).length;
   }
+
+  /** Every chip at its cleared value — the baseline {@link optionCount} counts against. */
+  private readonly clearedFilterValues = computed<Record<string, unknown>>(() => {
+    const values: Record<string, unknown> = {};
+    for (const control of this._filters()) {
+      values[control.key()] = control.clearedValue();
+    }
+    return values;
+  });
 
   /** Chips already seeded from {@link filters}, so each is seeded at most once. */
   private readonly seeded = new WeakSet<FilterControl>();
@@ -395,6 +404,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       const control: FilterControl = {
         key: signal(SEARCH_FILTER_KEY),
         value: search.value,
+        clearedValue: signal(""),
         active: computed(() => (search.value() ?? "") !== ""),
         setValue: (value) => search.writeValue(value == null ? "" : String(value)),
       };
