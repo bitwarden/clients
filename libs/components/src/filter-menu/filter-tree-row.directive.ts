@@ -20,7 +20,6 @@ export class FilterTreeRowDirective implements TreeKeyManagerItem {
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly host = inject<FilterTreeHost>(FILTER_TREE_HOST);
 
-  /** The node this row draws. */
   readonly node = input.required<FilterTreeNode>({ alias: "bitFilterTreeRow" });
 
   /** Whether this row currently holds the tree's single tab stop. */

@@ -44,8 +44,8 @@
         (change)="toggleOption(option)"
       />
       @if (option.iconTile(); as tile) {
-        <!-- tw-flex on the host: its inner box is inline-flex, so an inline host would add a line
-             box's worth of descender space below the tile and push it above the row's center. -->
+        <!-- Flex on the host: an inline host adds descender space below the tile, pushing it
+             above the row's center. -->
         <bit-icon-tile
           class="!tw-flex tw-flex-none"
           [icon]="tile.icon"
@@ -127,10 +127,7 @@
           #row="bitFilterTreeRow"
         >
           @if (expandable) {
-            <!--
-              Driven by the row's own Left/Right keys, so it isn't a tab stop of its own.
-              24px wide with a 4px trailing gap, so the leading columns step by 28px per level.
-            -->
+            <!-- Driven by the row's own Left/Right keys, so it isn't a tab stop of its own. -->
             <span
               class="-tw-me-1 tw-flex tw-size-6 tw-flex-none tw-items-center tw-justify-center tw-text-fg-body-subtle"
               aria-hidden="true"

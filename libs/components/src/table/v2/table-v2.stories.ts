@@ -1252,8 +1252,7 @@ async function filterSurface() {
  */
 async function openCollectionsFilter(canvasElement: HTMLElement): Promise<void> {
   // Above `md` the chip is on screen; below it the row collapses to one icon trigger. The hidden
-  // chips inherit `visibility: hidden`, so they are out of the accessibility tree and never match
-  // here — the toolbar avoids `display: none`, which would zero the widths `bitOverflowList` measures.
+  // chips inherit `visibility: hidden`, so they are out of the accessibility tree and never match here.
   const trigger = await within(canvasElement).findByRole("button", {
     name: /^(Collections|Filters)$/,
   });

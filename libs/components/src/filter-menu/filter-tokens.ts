@@ -129,9 +129,8 @@ type FilterTreeNodeBase = {
   setsize: number;
   posinset: number;
   /**
-   * Whether a row without a chevron still reserves its column, so checkboxes line up. Scoped to the
-   * row's own group — a section with nothing to expand sits at the base indent, per the spec's
-   * `Nesting section` variant.
+   * Whether a row without a chevron still reserves its column, so checkboxes line up.
+   * Scoped to the row's own group, so a section with nothing to expand sits at the base indent.
    */
   reserveExpander: boolean;
 };

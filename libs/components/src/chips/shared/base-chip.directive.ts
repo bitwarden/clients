@@ -44,7 +44,6 @@ const inactiveStyles = [
   "aria-disabled:tw-pointer-events-none",
 ];
 
-// Variant color mappings using design token system.
 // Matched on the trigger's `aria-expanded` because the host element isn't the trigger.
 const variantStyles: Record<ChipVariant, string[]> = {
   primary: [

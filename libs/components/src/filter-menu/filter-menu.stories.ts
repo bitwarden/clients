@@ -54,12 +54,8 @@ class FilterMenuDemoComponent {}
 
 /**
  * Options nest by projection: put `bit-filter-option`s inside one to make it an
- * expandable parent.
- *
- * Projection and content queries are both static relative to where a template is
- * declared, so nesting is spelled out in markup (literally, or with an inline
- * `@for` per level) rather than recursed through `ngTemplateOutlet` — depth is
- * whatever the template writes out.
+ * expandable parent. Each level is written out in markup (literally, or an inline
+ * `@for`), so depth is whatever the template declares.
  */
 @Component({
   selector: "filter-menu-nested-demo",

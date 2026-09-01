@@ -109,8 +109,7 @@ export class FilterToggleComponent implements FilterControl, FilterPresenter, On
   protected readonly disabled = computed(() => this.baseChip.disabled());
 
   constructor() {
-    // Unselected filter chips are white with a grey border, not brand-tinted; the
-    // base chip only routes to `primary` while selected, so `subtle` is the resting
+    // The base chip only routes to `primary` while selected, so `subtle` is the resting
     // variant. Set rather than defaulted so a consumer's `variant` still wins.
     this.baseChip.variant.set("subtle");
     effect(() => this.baseChip.selectedState.set(this._value()));

@@ -394,7 +394,7 @@ export class FilterMenuComponent
     return entry.kind === "option" ? (entry as FilterOptionComponent) : null;
   }
 
-  /** Whether an option shows for the search term. A parent stays visible if a child matches. */
+  /** A parent stays visible when a child matches the search term. */
   protected optionVisible(option: FilterOptionComponent): boolean {
     const term = this._searchTerm().trim().toLowerCase();
     if (term === "") {
@@ -532,9 +532,8 @@ export class FilterMenuComponent
   }
 
   /**
-   * Hands the manager the row the user just reached. Rows aren't tab stops of their own, so a
-   * click focuses one without the manager noticing, and the next key would act on the row it
-   * still thinks is active. No-ops when that row is already active.
+   * Rows aren't tab stops of their own, so a click focuses one without the manager
+   * noticing and the next key would act on whichever row it still thinks is active.
    */
   protected onRowFocus(row: FilterTreeRowDirective): void {
     this.keyManager.focusItem(row);
@@ -573,7 +572,6 @@ export class FilterMenuComponent
     return children;
   }
 
-  /** Whether a row expands, and whether it currently is. */
   protected nodeExpandable(node: FilterTreeNode): boolean {
     return node.kind === "section"
       ? (node.section as FilterSectionComponent).collapsible()
@@ -608,7 +606,6 @@ export class FilterMenuComponent
     return node.kind === "option" && (node.option as FilterOptionComponent).disabled();
   }
 
-  /** Expand or collapse a row, whichever it currently isn't. */
   toggleNodeExpanded(node: FilterTreeNode): void {
     if (node.kind === "section") {
       (node.section as FilterSectionComponent).toggle();
@@ -617,7 +614,7 @@ export class FilterMenuComponent
     }
   }
 
-  /** Select or clear a row. Section headers only expand, so they toggle instead. */
+  /** Section headers aren't selectable, so they expand instead. */
   activateNode(node: FilterTreeNode): void {
     if (node.kind === "option") {
       this.toggleOption(node.option as FilterOptionComponent);
@@ -626,7 +623,6 @@ export class FilterMenuComponent
     }
   }
 
-  /** An option's own value followed by every value nested beneath it. */
   private subtreeValues(option: FilterOptionComponent): unknown[] {
     const own = this.optionValue(option);
     const values = own ? [own.value] : [];
@@ -642,7 +638,6 @@ export class FilterMenuComponent
     return values.length > 0 && values.every((value) => this.isSelected(value));
   }
 
-  /** Whether some — but not all — of a parent's subtree is selected. */
   protected partiallySelected(option: FilterOptionComponent): boolean {
     const values = this.subtreeValues(option);
     return (

@@ -359,10 +359,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   /**
    * Count for a chip option: rows matching {@link filter} with `key` pinned to
    * `value` and no other filter applied. `undefined` with no `[filter]`
-   * (server-side) — the chip then shows an explicit `count` instead.
-   *
-   * Absolute rather than faceted, per the 14AUG2026 design review, so a count doesn't
-   * move as unrelated filters change.
+   * (server-side) — the chip then shows an explicit `count` instead. Absolute rather
+   * than faceted, so a count doesn't move as unrelated filters change.
    */
   optionCount(key: string, value: unknown): number | undefined {
     const filter = this.filter();
