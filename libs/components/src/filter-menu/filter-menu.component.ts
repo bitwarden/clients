@@ -692,12 +692,18 @@ export class FilterMenuComponent
    * Clearing from the menu's footer removes that button, so hand focus back to the
    * option list rather than letting it fall to the document body.
    */
-  protected clearFromMenu(): void {
+  protected clearFromMenu(event: Event): void {
+    const surface = (event.currentTarget as HTMLElement).closest<HTMLElement>("[role=dialog]");
     this.clear();
     focusAfterRender(this.injector, () => {
       const active = this.keyManager.getActiveItem() ?? this.treeRows()[0];
-      active?.focus();
-      return null;
+      if (active) {
+        active.focus();
+        return null;
+      }
+      // A search matching nothing leaves no row to return to, so fall back to the field that
+      // produced the empty list, then to the surface itself.
+      return surface?.querySelector<HTMLElement>("[data-filter-search] input") ?? surface;
     });
   }
 
