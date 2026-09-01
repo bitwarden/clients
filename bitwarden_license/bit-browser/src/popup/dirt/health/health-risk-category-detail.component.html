@@ -25,7 +25,7 @@
         <span slot="end">{{ items().length }}</span>
       </bit-section-header>
 
-      <cdk-virtual-scroll-viewport itemSize="68" bitScrollLayout>
+      <cdk-virtual-scroll-viewport [itemSize]="rowSize()" bitScrollLayout>
         <bit-item *cdkVirtualFor="let row of rows()" class="tw-flex tw-gap-2 tw-items-center">
           @let health = row.health;
           @let cipher = row.cipher;

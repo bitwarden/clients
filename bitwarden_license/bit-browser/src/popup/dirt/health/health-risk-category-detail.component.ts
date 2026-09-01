@@ -40,6 +40,7 @@ import {
   StatusLockupComponent,
   SvgComponent,
   ScrollLayoutDirective,
+  CompactModeService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -93,6 +94,7 @@ export class HealthRiskCategoryDetailComponent {
   readonly vaultHealthReportService = inject(VaultHealthReportService);
   readonly dialogService = inject(DialogService);
   private readonly healthScanService = inject(HealthScanService);
+  private readonly compactModeService = inject(CompactModeService);
 
   readonly category = toSignal<RiskCategory>(
     this.route.params.pipe(map((params) => params["category"])),
@@ -100,6 +102,10 @@ export class HealthRiskCategoryDetailComponent {
 
   /** A category the route does not name, or names wrongly. The only reason to leave. */
   protected readonly invalidCategory = computed(() => !isRiskCategory(this.category()));
+
+  protected readonly rowSize = toSignal<number>(
+    this.compactModeService.enabled$.pipe(map((enabled) => (enabled ? 58 : 68))),
+  );
 
   private readonly userId = toSignal(
     this.accountService.activeAccount$.pipe(map((account) => account?.id)),
