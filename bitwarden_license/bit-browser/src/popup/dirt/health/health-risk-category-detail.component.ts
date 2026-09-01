@@ -177,6 +177,16 @@ export class HealthRiskCategoryDetailComponent {
     ),
     { initialValue: new Map<string, CipherView>() },
   );
+  readonly rows = computed(() => {
+    const items = this.items();
+    const cipherMap = this.cipherMap();
+    return items
+      .map((item) => ({
+        health: item,
+        cipher: cipherMap.get(item.cipherId),
+      }))
+      .filter((row) => row.cipher != null);
+  });
 
   protected readonly handleRetry = () => {
     const userId = this.userId();

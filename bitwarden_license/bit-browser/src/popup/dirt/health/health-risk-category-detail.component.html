@@ -25,10 +25,10 @@
         <span slot="end">{{ items().length }}</span>
       </bit-section-header>
 
-      <!-- itemSize 68 = 62 row height + 6 margin bottom -->
       <cdk-virtual-scroll-viewport itemSize="68" bitScrollLayout>
-        <bit-item *cdkVirtualFor="let item of items()" class="tw-flex tw-gap-2 tw-items-center">
-          @let cipher = cipherMap().get(item.cipherId);
+        <bit-item *cdkVirtualFor="let row of rows()" class="tw-flex tw-gap-2 tw-items-center">
+          @let health = row.health;
+          @let cipher = row.cipher;
 
           <button bit-item-content type="button" (click)="onItemClick(cipher)">
             <div slot="start" class="tw-pr-2 tw-flex tw-items-center">
@@ -69,7 +69,7 @@
                   bitMenuItem
                   type="button"
                   variant="danger"
-                  (click)="onDeleteItem(item, cipher)"
+                  (click)="onDeleteItem(health, cipher)"
                 >
                   <bit-icon name="bwi-delete" slot="start" />
                   {{ "deleteItem" | i18n }}
