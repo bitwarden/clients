@@ -18240,8 +18240,17 @@
   "requestAccessModalEnd": {
     "message": "End time"
   },
-  "requestAccessModalEndBeforeStart": {
-    "message": "End time must be after start time."
+  "requestAccessModalEndEqualsStart": {
+    "message": "End time can't be the same as the start time."
+  },
+  "requestAccessModalEndsNextDay": {
+    "message": "Ends $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "9/2/26, 1:30 AM"
+      }
+    }
   },
   "requestAccessModalWindowInPast": {
     "message": "The requested window has already ended. Pick a later date or time."

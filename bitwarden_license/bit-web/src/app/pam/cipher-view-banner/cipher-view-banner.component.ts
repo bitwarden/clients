@@ -55,6 +55,7 @@ import {
   classifyRequestAccessError,
   composeRequestWindow,
   defaultRequestWindow,
+  midnightCrossingEnd,
   requestDurationOptions,
   requestedWindowSeconds,
   toDateInputValue,
@@ -383,6 +384,22 @@ export class CipherViewBannerComponent implements OnInit {
     reason: ["", [Validators.required, nonBlank]],
   });
 
+  /**
+   * The human form's live values. Read through a signal rather than off the controls so the
+   * next-day hint below recomputes as the requester types; the form's own validity is not enough,
+   * since the hint has to move on edits that leave the window perfectly valid.
+   */
+  private readonly humanFormValue = toSignal(this.humanForm.valueChanges, {
+    initialValue: this.humanForm.value,
+  });
+
+  /**
+   * The end instant when the requested window crosses midnight, `null` when it does not. An end
+   * time earlier than the start is read as the following day (PM-42593), which is an inference —
+   * so the resolved end is spelled out under the End time field rather than left to be assumed.
+   */
+  protected readonly nextDayEnd = computed(() => midnightCrossingEnd(this.humanFormValue()));
+
   constructor() {
     // The resting request card is the only thing that renders the fold-out, so an access change
     // that retires the card — a lease granted from another surface, say — has to close it too.
@@ -507,8 +524,8 @@ export class CipherViewBannerComponent implements OnInit {
 
   private windowProblemMessage(problem: RequestWindowProblem, maxWindowSeconds: number): string {
     switch (problem) {
-      case "endBeforeStart":
-        return this.i18nService.t("requestAccessModalEndBeforeStart");
+      case "zeroLengthWindow":
+        return this.i18nService.t("requestAccessModalEndEqualsStart");
       case "endInPast":
         return this.i18nService.t("requestAccessModalWindowInPast");
       case "exceedsMaxWindow":
