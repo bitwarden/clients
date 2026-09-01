@@ -80,7 +80,7 @@
       buttonType="secondary"
       size="small"
       type="button"
-      (click)="setSearchTerm('')"
+      (click)="clearSearch($event)"
     >
       {{ "clearSearch" | i18n }}
     </button>
@@ -90,7 +90,11 @@
 <ng-template #optionsBody>
   @if (showSearch()) {
     <div class="tw-px-2 tw-pb-1">
-      <bit-search [ngModel]="searchTerm()" (ngModelChange)="setSearchTerm($event)"></bit-search>
+      <bit-search
+        data-filter-search
+        [ngModel]="searchTerm()"
+        (ngModelChange)="setSearchTerm($event)"
+      ></bit-search>
     </div>
   }
   @if (multiple()) {

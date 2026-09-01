@@ -658,6 +658,21 @@ export class FilterMenuComponent
     this._searchTerm.set(term);
   }
 
+  /**
+   * Clears the search from the no-results state. That state — and the button in it — unmounts as
+   * soon as the term goes, so focus returns to the search field instead of falling to the body.
+   *
+   * Found from the button rather than a view query: this template is also stamped by the responsive
+   * dialog, and a view query only sees the copy in the chip's own view.
+   */
+  protected clearSearch(event: Event): void {
+    const surface = (event.currentTarget as HTMLElement).closest("[role=dialog]");
+    this.setSearchTerm("");
+    focusAfterRender(this.injector, () =>
+      surface?.querySelector<HTMLElement>("[data-filter-search] input"),
+    );
+  }
+
   /** Resets the search and commits the selected count to the berry when the menu closes. */
   protected onMenuClosed(): void {
     this.setSearchTerm("");
