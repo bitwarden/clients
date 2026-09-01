@@ -410,9 +410,9 @@ export class DomQueryService implements DomQueryServiceInterface {
     return Array.from(root.querySelectorAll(queryString)) as T[];
   }
 
-  // Field-less roots get a shallow childList watch (root-only mutations, no subtree) to avoid attribute churn.
-  // Direct injection to the root will promote on re-query. Injection into wrapper elements defers promotion to the
-  // next full collection, trading shallow-case latency for the performance gain of excluding attribute-flood overhead.
+  // Roots with no fields use shallow observation (childList only) to avoid watching attributes.
+  // Direct injection into the root triggers immediate re-query and promotion to full observation.
+  // Injection into wrapper elements defers detection to the next collection batch.
   private observeShadowRoot(
     mutationObserver: MutationObserver,
     shadowRoot: ShadowRoot,
