@@ -17,6 +17,9 @@ export abstract class CipherHealthService {
    * and HIBP exposure. HIBP calls are concurrency-limited (max 5 concurrent) to
    * prevent rate limiting.
    *
+   * A failed exposure lookup does not fail the batch: that cipher is reported as not exposed and
+   * its strength and reuse results still stand. Every cipher is present in the returned map.
+   *
    * @param ciphers - Array of ciphers to analyze
    * @returns Map of cipher ID to health results for O(1) lookups
    *
@@ -40,6 +43,9 @@ export abstract class CipherHealthService {
    *
    * Checks for weak password and HIBP exposure. Cannot detect password reuse
    * without other ciphers for comparison (use checkCipherHealth for reuse detection).
+   *
+   * Unlike {@link checkCipherHealth}, a failed exposure lookup errors the observable, leaving the
+   * single caller to decide how to handle it.
    *
    * @param cipher - Single cipher to analyze
    * @returns Health results for the cipher
