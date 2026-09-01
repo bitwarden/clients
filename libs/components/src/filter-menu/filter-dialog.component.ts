@@ -88,7 +88,7 @@ export class FilterDialogComponent {
     "[&_[data-filter-option-row]]:tw-border-b",
     "[&_[data-filter-option-row]]:tw-border-solid",
     "[&_[data-filter-option-row]]:tw-border-border-base",
-    "[&_[data-filter-option-row]:last-of-type]:tw-border-b-0",
+    "[&_[data-filter-option-row]:last-child]:tw-border-b-0",
   ].join(" ");
 
   /** A row tap: drill into a filter that has options, or flip a toggle in place. */
