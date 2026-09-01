@@ -47,6 +47,36 @@
     }
   }
 
+  bit-layout {
+    height: calc(100vh - var(--private-access-banner-height, 0px)) !important;
+  }
+
+  bit-landing-layout > div {
+    min-height: calc(100vh - var(--private-access-banner-height, 0px)) !important;
+  }
+
+  bit-side-nav.tw-fixed {
+    top: var(--private-access-banner-height, 0px);
+    height: calc(100% - var(--private-access-banner-height, 0px));
+  }
+
+  @keyframes private-access-pill-in {
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem) scale(0.9);
+    }
+  }
+
+  .private-access-pill-in {
+    animation: private-access-pill-in 200ms ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .private-access-pill-in {
+      animation-duration: 1ms;
+    }
+  }
+
   /**
    * Loading page
    */

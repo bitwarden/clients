@@ -1,0 +1,31 @@
+<div #container resizeObserver (resize)="publishHeight()">
+  <bit-banner class="[&_span]:tw-max-w-none xl:tw-hidden" variant="warning">
+    {{ "privateAccessBanner" | i18n }}
+    <a bitLink linkType="warning" [href]="helpUrl" target="_blank" rel="noreferrer">
+      {{ "viewUserGuide" | i18n }}
+    </a>
+  </bit-banner>
+
+  <div
+    class="tw-pointer-events-none tw-fixed tw-inset-x-0 tw-top-3 tw-z-40 tw-hidden tw-justify-center xl:tw-flex"
+    animate.enter="private-access-pill-in"
+    data-testid="private-access-pill"
+  >
+    <div
+      class="tw-pointer-events-auto tw-flex tw-items-center tw-gap-2 tw-rounded-full tw-border tw-border-solid tw-border-border-warning-soft tw-bg-bg-warning-soft tw-px-3 tw-py-1.5 tw-text-xs tw-text-main tw-shadow-lg"
+    >
+      <bit-icon name="bwi-exclamation-triangle"></bit-icon>
+      <span>{{ "privateAccessBanner" | i18n }}</span>
+      <a
+        bitLink
+        linkType="warning"
+        class="tw-text-xs"
+        [href]="helpUrl"
+        target="_blank"
+        rel="noreferrer"
+      >
+        {{ "viewUserGuide" | i18n }}
+      </a>
+    </div>
+  </div>
+</div>
