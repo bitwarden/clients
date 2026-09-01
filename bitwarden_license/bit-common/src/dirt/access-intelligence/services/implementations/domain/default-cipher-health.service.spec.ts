@@ -240,6 +240,44 @@ describe("DefaultCipherHealthService", () => {
       });
     });
 
+    it("should look up each distinct password once rather than each cipher", async () => {
+      // Reuse is the premise of the report, so lookups track distinct passwords. Every request
+      // also costs a CORS preflight, making each one saved worth two round trips.
+      const ciphers = [
+        createMockCipher({ id: "1", password: "shared" }),
+        createMockCipher({ id: "2", password: "shared" }),
+        createMockCipher({ id: "3", password: "shared" }),
+        createMockCipher({ id: "4", password: "unique" }),
+      ];
+
+      await firstValueFrom(service.checkCipherHealth(ciphers));
+
+      expect(auditService.passwordLeaked).toHaveBeenCalledTimes(2);
+      expect(auditService.passwordLeaked).toHaveBeenCalledWith("shared");
+      expect(auditService.passwordLeaked).toHaveBeenCalledWith("unique");
+    });
+
+    it("should apply one lookup result to every cipher sharing the password", async () => {
+      const ciphers = [
+        createMockCipher({ id: "1", password: "shared" }),
+        createMockCipher({ id: "2", password: "shared" }),
+        createMockCipher({ id: "3", password: "unique" }),
+      ];
+
+      auditService.passwordLeaked.mockImplementation((password: string) =>
+        Promise.resolve(password === "shared" ? 42 : 0),
+      );
+
+      const healthMap = await firstValueFrom(service.checkCipherHealth(ciphers));
+
+      expect(healthMap.size).toBe(3);
+      expect(healthMap.get("1")?.exposedCount).toBe(42);
+      expect(healthMap.get("2")?.exposedCount).toBe(42);
+      expect(healthMap.get("1")?.hasExposedPassword).toBe(true);
+      expect(healthMap.get("3")?.exposedCount).toBe(0);
+      expect(healthMap.get("3")?.hasExposedPassword).toBe(false);
+    });
+
     it("should complete the batch when an exposure check fails", async () => {
       // A single rejection used to cancel the whole fan-out, discarding every lookup that had
       // already succeeded and failing report generation outright.
@@ -276,9 +314,9 @@ describe("DefaultCipherHealthService", () => {
       expect(healthMap.get("1")?.weakPasswordScore).toBe(1);
     });
 
-    it("should log once with a count rather than per failed cipher", async () => {
+    it("should log once with a count rather than per failed lookup", async () => {
       const ciphers = Array.from({ length: 3 }, (_, i) =>
-        createMockCipher({ id: `${i}`, password: "unreachable" }),
+        createMockCipher({ id: `${i}`, password: `unreachable${i}` }),
       );
 
       auditService.passwordLeaked.mockRejectedValue(new Error("network down"));
@@ -287,6 +325,21 @@ describe("DefaultCipherHealthService", () => {
 
       expect(logService.warning).toHaveBeenCalledTimes(1);
       expect(logService.warning).toHaveBeenCalledWith(expect.stringContaining("3 of 3"));
+    });
+
+    it("should report the cipher count a failed lookup affects, not the lookup count", async () => {
+      // One shared password is one lookup, but the failure degrades every cipher holding it.
+      const ciphers = Array.from({ length: 4 }, (_, i) =>
+        createMockCipher({ id: `${i}`, password: "shared" }),
+      );
+
+      auditService.passwordLeaked.mockRejectedValue(new Error("network down"));
+
+      await firstValueFrom(service.checkCipherHealth(ciphers));
+
+      expect(logService.warning).toHaveBeenCalledWith(
+        expect.stringContaining("1 of 1 exposure lookups failed, affecting 4 ciphers"),
+      );
     });
 
     it("should not log when every exposure check succeeds", async () => {

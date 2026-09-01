@@ -1,4 +1,4 @@
-import { catchError, forkJoin, from, map, mergeMap, Observable, of, toArray } from "rxjs";
+import { catchError, from, map, mergeMap, Observable, of, toArray } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -9,6 +9,13 @@ import { LogService } from "@bitwarden/logging";
 
 import { CipherHealthView } from "../../../models";
 import { CipherHealthService } from "../../abstractions/cipher-health.service";
+
+/** One password's exposure result, carrying the password so it can be fanned back out to ciphers. */
+type PasswordExposure = {
+  password: string;
+  exposedCount: number;
+  failed: boolean;
+};
 
 /**
  * Default implementation of CipherHealthService.
@@ -33,59 +40,21 @@ export class DefaultCipherHealthService extends CipherHealthService {
       return of(new Map());
     }
 
-    // Detect password reuse across all ciphers
-    const reuseMap$ = this.detectPasswordReuse(validCiphers);
+    // One grouping drives everything below: the exposure lookups, the reuse counts, and the
+    // password each cipher maps back to. Reuse is the premise of the report, so grouping first
+    // means the number of lookups tracks distinct passwords rather than cipher count.
+    const ciphersByPassword = this.groupByPassword(validCiphers);
+    const passwords = Array.from(ciphersByPassword.keys());
 
-    // Check each cipher's health (weak password + HIBP exposure)
-    const healthChecks$ = from(validCiphers).pipe(
-      // Limit concurrent HIBP calls to avoid rate limiting
-      mergeMap(
-        (cipher) =>
-          this.checkSingleCipherHealthInternal(cipher).pipe(
-            map((health) => ({ health, exposureCheckFailed: false })),
-            // Contain the failure per cipher. Left to reach mergeMap it would cancel the whole
-            // batch, discarding every lookup that already succeeded.
-            catchError(() =>
-              of({ health: this.healthWithoutExposure(cipher), exposureCheckFailed: true }),
-            ),
-          ),
-        this.MAX_CONCURRENT_HIBP_CALLS,
-      ),
-      toArray(),
-      map((results) => {
-        const failed = results.filter((r) => r.exposureCheckFailed).length;
-        if (failed > 0) {
-          this.logService.warning(
-            `[DefaultCipherHealthService] ${failed} of ${validCiphers.length} exposure checks failed; those passwords are reported as not exposed.`,
-          );
-        }
-
-        return results.map((r) => r.health);
-      }),
+    this.logService.debug(
+      `[DefaultCipherHealthService] Exposure lookups: ciphers=${validCiphers.length} distinctPasswords=${passwords.length}`,
     );
 
-    // Combine reuse detection with individual health checks
-    return forkJoin({
-      reuseMap: reuseMap$,
-      healthResults: healthChecks$,
-    }).pipe(
-      map(({ reuseMap, healthResults }) => {
-        const healthMap = new Map<string, CipherHealthView>();
-
-        healthResults.forEach((health) => {
-          // Check if this cipher's password is reused
-          const password = this.getCipherPassword(
-            validCiphers.find((c) => c.id === health.cipherId)!,
-          );
-          const reusedCipherIds = password ? reuseMap.get(password) : undefined;
-          health.hasReusedPassword = reusedCipherIds ? reusedCipherIds.length > 1 : false;
-          health.reuseCount = reusedCipherIds ? reusedCipherIds.length : 0;
-
-          healthMap.set(health.cipherId, health);
-        });
-
-        return healthMap;
-      }),
+    return from(passwords).pipe(
+      // Limit concurrent HIBP calls to avoid rate limiting
+      mergeMap((password) => this.lookupExposure(password), this.MAX_CONCURRENT_HIBP_CALLS),
+      toArray(),
+      map((exposures) => this.buildHealthMap(ciphersByPassword, exposures)),
     );
   }
 
@@ -107,33 +76,104 @@ export class DefaultCipherHealthService extends CipherHealthService {
   }
 
   detectPasswordReuse(ciphers: CipherView[]): Observable<Map<string, string[]>> {
-    const passwordMap = new Map<string, string[]>();
-
-    ciphers.forEach((cipher) => {
-      if (!this.isValidCipher(cipher)) {
-        return;
-      }
-
-      const password = this.getCipherPassword(cipher);
-      if (!password) {
-        return;
-      }
-
-      if (!passwordMap.has(password)) {
-        passwordMap.set(password, []);
-      }
-      passwordMap.get(password)!.push(cipher.id);
-    });
-
-    // Only keep passwords that are reused (2+ ciphers)
     const reuseMap = new Map<string, string[]>();
-    passwordMap.forEach((cipherIds, password) => {
-      if (cipherIds.length > 1) {
-        reuseMap.set(password, cipherIds);
-      }
-    });
+
+    this.groupByPassword(ciphers.filter((c) => this.isValidCipher(c))).forEach(
+      (cipherGroup, password) => {
+        // Only keep passwords that are reused (2+ ciphers)
+        if (cipherGroup.length > 1) {
+          reuseMap.set(
+            password,
+            cipherGroup.map((c) => c.id),
+          );
+        }
+      },
+    );
 
     return of(reuseMap);
+  }
+
+  /** Groups ciphers by their password. Ciphers without one are dropped. */
+  private groupByPassword(ciphers: CipherView[]): Map<string, CipherView[]> {
+    const grouped = new Map<string, CipherView[]>();
+
+    for (const cipher of ciphers) {
+      const password = this.getCipherPassword(cipher);
+      if (!password) {
+        continue;
+      }
+
+      const cipherGroup = grouped.get(password);
+      if (cipherGroup) {
+        cipherGroup.push(cipher);
+      } else {
+        grouped.set(password, [cipher]);
+      }
+    }
+
+    return grouped;
+  }
+
+  /**
+   * Looks up one password's exposure count.
+   *
+   * Never errors: a failed lookup reports zero, so one unreachable request cannot cancel the batch
+   * and discard every lookup that already succeeded.
+   */
+  private lookupExposure(password: string): Observable<PasswordExposure> {
+    return from(this.auditService.passwordLeaked(password)).pipe(
+      map((exposedCount) => ({ password, exposedCount, failed: false })),
+      catchError(() => of({ password, exposedCount: 0, failed: true })),
+    );
+  }
+
+  /**
+   * Fans each password's exposure result back out across every cipher sharing it, and folds in the
+   * locally computed strength and reuse results.
+   */
+  private buildHealthMap(
+    ciphersByPassword: Map<string, CipherView[]>,
+    exposures: PasswordExposure[],
+  ): Map<string, CipherHealthView> {
+    const exposureByPassword = new Map(exposures.map((e) => [e.password, e]));
+    const failed = exposures.filter((e) => e.failed);
+
+    if (failed.length > 0) {
+      const affectedCiphers = failed.reduce(
+        (total, e) => total + (ciphersByPassword.get(e.password)?.length ?? 0),
+        0,
+      );
+      this.logService.warning(
+        `[DefaultCipherHealthService] ${failed.length} of ${exposures.length} exposure lookups failed, affecting ${affectedCiphers} ciphers; those passwords are reported as not exposed.`,
+      );
+    }
+
+    const healthMap = new Map<string, CipherHealthView>();
+
+    ciphersByPassword.forEach((cipherGroup, password) => {
+      const exposedCount = exposureByPassword.get(password)?.exposedCount ?? 0;
+      // A password held by a single cipher is not reuse, and reports a count of zero rather than one.
+      const reuseCount = cipherGroup.length > 1 ? cipherGroup.length : 0;
+
+      for (const cipher of cipherGroup) {
+        const weakPasswordScore = this.getPasswordStrength(cipher);
+
+        healthMap.set(
+          cipher.id,
+          new CipherHealthView({
+            cipherId: cipher.id,
+            hasWeakPassword: weakPasswordScore != null && weakPasswordScore <= 2,
+            hasReusedPassword: reuseCount > 1,
+            reuseCount,
+            hasExposedPassword: exposedCount > 0,
+            exposedCount,
+            weakPasswordScore,
+          }),
+        );
+      }
+    });
+
+    return healthMap;
   }
 
   private checkSingleCipherHealthInternal(cipher: CipherView): Observable<CipherHealthView> {
@@ -169,26 +209,6 @@ export class DefaultCipherHealthService extends CipherHealthService {
         });
       }),
     );
-  }
-
-  /**
-   * Health for a cipher whose exposure lookup failed.
-   *
-   * Strength is computed locally, so it survives; exposure reads as clean because there is no
-   * result to report. Callers get an under-report rather than a lost batch.
-   */
-  private healthWithoutExposure(cipher: CipherView): CipherHealthView {
-    const weakPasswordScore = this.getPasswordStrength(cipher);
-
-    return new CipherHealthView({
-      cipherId: cipher.id,
-      hasWeakPassword: weakPasswordScore != null && weakPasswordScore <= 2,
-      hasReusedPassword: false,
-      reuseCount: 0,
-      hasExposedPassword: false,
-      exposedCount: 0,
-      weakPasswordScore,
-    });
   }
 
   private getPasswordStrength(cipher: CipherView): number | undefined {
