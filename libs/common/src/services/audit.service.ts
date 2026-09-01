@@ -96,11 +96,13 @@ export class AuditService implements AuditServiceAbstraction {
         throw new Error(`Pwned Passwords request failed with status ${response.status}.`);
       }
       const leakedHashes = await response.text();
-      const match = leakedHashes.split(/\r?\n/).find((v) => {
-        return v.split(":")[0] === hashEnding;
-      });
+      // Matched in place rather than by splitting. Padding makes every body ~1,000 lines, and
+      // splitting allocated an array of lines and then a second array per line, for one hit. The
+      // hash is hex, so it carries no regex metacharacters. Anchored so a suffix appearing inside
+      // another line cannot match.
+      const match = new RegExp(`^${hashEnding}:(\\d+)`, "m").exec(leakedHashes);
 
-      return match != null ? parseInt(match.split(":")[1], 10) : 0;
+      return match != null ? parseInt(match[1], 10) : 0;
     } finally {
       clearTimeout(abortTimer);
     }

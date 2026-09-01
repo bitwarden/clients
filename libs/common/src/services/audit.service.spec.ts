@@ -98,6 +98,39 @@ describe("AuditService", () => {
     expect(request.headers).toEqual(expect.objectContaining({ "Add-Padding": "true" }));
   });
 
+  it.each([
+    ["LF", "CDDEEFF:4\nDDEEFF:2\n123456:1"],
+    ["CRLF", "CDDEEFF:4\r\nDDEEFF:2\r\n123456:1"],
+    ["not the first line", "DDEEFF:2\r\nCDDEEFF:4\r\n123456:1"],
+  ])("should read the leak count from a %s response", async (_label, body) => {
+    mockApi.nativeFetch.mockResolvedValueOnce({
+      ok: true,
+      text: jest.fn().mockResolvedValue(body),
+    } as unknown as Response);
+
+    await expect(auditService.passwordLeaked("password")).resolves.toBe(4);
+  });
+
+  it("should not match a hash suffix that appears mid-line", async () => {
+    // Counts and suffixes are only distinguishable by position, so the match has to be anchored to
+    // the start of a line.
+    mockApi.nativeFetch.mockResolvedValueOnce({
+      ok: true,
+      text: jest.fn().mockResolvedValue("AACDDEEFF:99\r\nCDDEEFF:4"),
+    } as unknown as Response);
+
+    await expect(auditService.passwordLeaked("password")).resolves.toBe(4);
+  });
+
+  it("should report not exposed when the hash is absent from the range", async () => {
+    mockApi.nativeFetch.mockResolvedValueOnce({
+      ok: true,
+      text: jest.fn().mockResolvedValue("DDEEFF:2\r\n123456:1"),
+    } as unknown as Response);
+
+    await expect(auditService.passwordLeaked("password")).resolves.toBe(0);
+  });
+
   it("should reject rather than report not exposed when the range request fails", async () => {
     // An error body parses as a hash list that matches nothing, which would otherwise report a
     // leaked password as safe.
