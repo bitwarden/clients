@@ -729,7 +729,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     );
     this.setupLitCipherListScrollListeners();
     this.newItemButtonElement = this.showInlineMenuAccountCreation
-      ? this.queryNewItemButtonElement()
+      ? (this.litHost?.querySelector<HTMLButtonElement>(
+          "[data-testid='inline-menu-new-item-button']",
+        ) ?? undefined)
       : undefined;
   }
 
@@ -834,7 +836,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
           ...this.buildNewItemActionProps(false),
         }),
       );
-      this.newItemButtonElement = this.queryNewItemButtonElement();
+      this.newItemButtonElement =
+        this.litHost?.querySelector<HTMLButtonElement>(
+          "[data-testid='inline-menu-new-item-button']",
+        ) ?? undefined;
       return;
     }
 
@@ -906,8 +911,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   }
 
   /**
-   * Builds the shared props for the Lit "New Item" action, used by both the
-   * empty-state prompt and the action rendered below the cipher list.
+   * Builds the shared props for the Lit New Item action, used by both the
+   * empty state prompt and the action rendered below the cipher list.
    */
   private buildNewItemActionProps(showLogin: boolean): InlineMenuCipherListNewItem {
     return {
@@ -918,17 +923,6 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       handleKeyUp: this.handleNewItemButtonKeyUpEvent,
       actionDataTestId: "inline-menu-new-item-button",
     };
-  }
-
-  /**
-   * Looks up the rendered "New Item" button within the current Lit host.
-   */
-  private queryNewItemButtonElement() {
-    return (
-      this.litHost?.querySelector<HTMLButtonElement>(
-        "[data-testid='inline-menu-new-item-button']",
-      ) ?? undefined
-    );
   }
 
   /**
