@@ -187,13 +187,15 @@ export class RiskInsightsEncryptionService {
       const decryptedData = await this.encryptService.decryptString(encryptedData, key);
       const parsedData = JSON.parse(decryptedData);
 
-      // Validate parsed data structure with runtime type guards
-      return validateApplicationHealthReportDetailArray(parsedData);
+      const { data, errors } = validateApplicationHealthReportDetailArray(parsedData);
+      if (errors.length > 0) {
+        this.logService.warning(
+          `[RiskInsightsEncryptionService] Dropped ${errors.length} invalid report element(s):\n${errors.join("\n")}`,
+        );
+      }
+      return data;
     } catch (error: unknown) {
-      // Log detailed error for debugging
       this.logService.error("[RiskInsightsEncryptionService] Failed to decrypt report", error);
-      // Always throw generic message to prevent information disclosure
-      // Original error with detailed validation info is logged, not exposed to caller
       throw new Error(
         "Report data validation failed. This may indicate data corruption or tampering.",
       );
@@ -212,16 +214,18 @@ export class RiskInsightsEncryptionService {
       const decryptedData = await this.encryptService.decryptString(encryptedData, key);
       const parsedData = JSON.parse(decryptedData);
 
-      // Validate parsed data structure with runtime type guards
-      return validateOrganizationReportSummary(parsedData);
+      const { data, errors } = validateOrganizationReportSummary(parsedData);
+      if (errors.length > 0) {
+        this.logService.warning(
+          `[RiskInsightsEncryptionService] Defaulted ${errors.length} invalid summary field(s) to 0:\n${errors.join("\n")}`,
+        );
+      }
+      return data;
     } catch (error: unknown) {
-      // Log detailed error for debugging
       this.logService.error(
         "[RiskInsightsEncryptionService] Failed to decrypt report summary",
         error,
       );
-      // Always throw generic message to prevent information disclosure
-      // Original error with detailed validation info is logged, not exposed to caller
       throw new Error(
         "Summary data validation failed. This may indicate data corruption or tampering.",
       );
@@ -240,16 +244,18 @@ export class RiskInsightsEncryptionService {
       const decryptedData = await this.encryptService.decryptString(encryptedData, key);
       const parsedData = JSON.parse(decryptedData);
 
-      // Validate parsed data structure with runtime type guards
-      return validateOrganizationReportApplicationArray(parsedData);
+      const { data, errors } = validateOrganizationReportApplicationArray(parsedData);
+      if (errors.length > 0) {
+        this.logService.warning(
+          `[RiskInsightsEncryptionService] Dropped ${errors.length} invalid application element(s):\n${errors.join("\n")}`,
+        );
+      }
+      return data;
     } catch (error: unknown) {
-      // Log detailed error for debugging
       this.logService.error(
         "[RiskInsightsEncryptionService] Failed to decrypt report applications",
         error,
       );
-      // Always throw generic message to prevent information disclosure
-      // Original error with detailed validation info is logged, not exposed to caller
       throw new Error(
         "Application data validation failed. This may indicate data corruption or tampering.",
       );

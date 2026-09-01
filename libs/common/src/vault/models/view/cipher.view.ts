@@ -1,15 +1,15 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { ItemView } from "@bitwarden/common/vault/models/view/item.view";
 import {
   CipherCreateRequest,
   CipherEditRequest,
+  CipherPartialEditRequest,
   CiphersClient,
   CipherViewType,
   CipherView as SdkCipherView,
 } from "@bitwarden/sdk-internal";
 
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
+import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { DeepJsonify } from "../../../types/deep-jsonify";
@@ -26,7 +26,9 @@ import { DriversLicenseView } from "./drivers-license.view";
 import { Fido2CredentialView } from "./fido2-credential.view";
 import { FieldView } from "./field.view";
 import { IdentityView } from "./identity.view";
+import { ItemView } from "./item.view";
 import { LoginView } from "./login.view";
+import { PassportView } from "./passport.view";
 import { PasswordHistoryView } from "./password-history.view";
 import { SecureNoteView } from "./secure-note.view";
 import { SshKeyView } from "./ssh-key.view";
@@ -53,6 +55,7 @@ export class CipherView implements View, InitializerMetadata {
   sshKey = new SshKeyView();
   bankAccount = new BankAccountView();
   driversLicense = new DriversLicenseView();
+  passport = new PassportView();
   attachments: AttachmentView[] = [];
   fields: FieldView[] = [];
   passwordHistory: PasswordHistoryView[] = [];
@@ -113,6 +116,8 @@ export class CipherView implements View, InitializerMetadata {
         return this.bankAccount;
       case CipherType.DriversLicense:
         return this.driversLicense;
+      case CipherType.Passport:
+        return this.passport;
       default:
         break;
     }
@@ -144,13 +149,13 @@ export class CipherView implements View, InitializerMetadata {
 
   get hasOldAttachments(): boolean {
     if (this.hasAttachments) {
-      for (let i = 0; i < this.attachments.length; i++) {
-        if (this.attachments[i].key == null && this.attachments[i].encryptedKey == null) {
-          return true;
-        }
-      }
+      return this.attachments.some((a) => a.isLegacyAttachment());
     }
     return false;
+  }
+
+  get isUserOwnedCipher(): boolean {
+    return this.organizationId == null;
   }
 
   get hasFields(): boolean {
@@ -281,6 +286,9 @@ export class CipherView implements View, InitializerMetadata {
       case CipherType.DriversLicense:
         view.driversLicense = DriversLicenseView.fromJSON(obj.driversLicense);
         break;
+      case CipherType.Passport:
+        view.passport = PassportView.fromJSON(obj.passport);
+        break;
       default:
         break;
     }
@@ -379,6 +387,11 @@ export class CipherView implements View, InitializerMetadata {
           ? DriversLicenseView.fromSdkDriversLicenseView(obj.driversLicense)
           : new DriversLicenseView();
         break;
+      case CipherType.Passport:
+        cipherView.passport = obj.passport
+          ? PassportView.fromSdkPassportView(obj.passport)
+          : new PassportView();
+        break;
       default:
         break;
     }
@@ -402,6 +415,7 @@ export class CipherView implements View, InitializerMetadata {
       reprompt: this.reprompt ?? CipherRepromptType.None,
       fields: this.fields?.map((f) => f.toSdkFieldView()),
       type: this.getSdkCipherViewType(),
+      archivedDate: this.archivedDate?.toISOString(),
     };
 
     // If the cipher has FIDO2 credentials, we need to set them on the SDK create request
@@ -447,6 +461,21 @@ export class CipherView implements View, InitializerMetadata {
   }
 
   /**
+   * Maps CipherView to an SDK CipherPartialEditRequest
+   *
+   * @returns {CipherPartialEditRequest} The SDK cipher edit request object
+   */
+  toSdkPartialUpdateCipherRequest(): CipherPartialEditRequest {
+    const sdkCipherPartialEditRequest: CipherPartialEditRequest = {
+      id: asUuid(this.id),
+      folderId: this.folderId ? asUuid(this.folderId) : undefined,
+      favorite: this.favorite ?? false,
+    };
+
+    return sdkCipherPartialEditRequest;
+  }
+
+  /**
    * Returns the SDK CipherViewType object for the cipher.
    *
    * @returns {CipherViewType} The SDK CipherViewType for the cipher.t
@@ -474,6 +503,9 @@ export class CipherView implements View, InitializerMetadata {
         break;
       case CipherType.DriversLicense:
         viewType = { driversLicense: this.driversLicense?.toSdkDriversLicenseView() };
+        break;
+      case CipherType.Passport:
+        viewType = { passport: this.passport?.toSdkPassportView() };
         break;
       default:
         viewType = {
@@ -555,6 +587,9 @@ export class CipherView implements View, InitializerMetadata {
         break;
       case CipherType.DriversLicense:
         sdkCipherView.driversLicense = this.driversLicense?.toSdkDriversLicenseView();
+        break;
+      case CipherType.Passport:
+        sdkCipherView.passport = this.passport?.toSdkPassportView();
         break;
       default:
         break;

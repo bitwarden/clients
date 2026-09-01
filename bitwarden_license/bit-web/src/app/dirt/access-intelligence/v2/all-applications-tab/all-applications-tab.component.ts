@@ -153,15 +153,15 @@ export class AllApplicationsTabComponent {
   }
 
   protected openOrgAtRiskMembersDrawer(): void {
-    this.drawerStateService.openDrawer(DrawerType.OrgAtRiskMembers, "allAppsOrgAtRiskMembers");
+    this.drawerStateService.toggleDrawer(DrawerType.OrgAtRiskMembers, "allAppsOrgAtRiskMembers");
   }
 
   protected openOrgAtRiskAppsDrawer(): void {
-    this.drawerStateService.openDrawer(DrawerType.OrgAtRiskApps, "allAppsOrgAtRiskApplications");
+    this.drawerStateService.toggleDrawer(DrawerType.OrgAtRiskApps, "allAppsOrgAtRiskApplications");
   }
 
   readonly showAppAtRiskMembers = (applicationName: string): void => {
-    this.drawerStateService.openDrawer(DrawerType.AppAtRiskMembers, applicationName);
+    this.drawerStateService.toggleDrawer(DrawerType.AppAtRiskMembers, applicationName);
   };
 
   readonly onCheckboxChange = ({

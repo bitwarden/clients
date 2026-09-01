@@ -88,24 +88,9 @@ export class NativeMessagingBackground {
     private logService: LogService,
     private biometricStateService: BiometricStateService,
     private accountService: AccountService,
-  ) {
-    if (chrome?.permissions?.onAdded) {
-      // Reload extension to activate nativeMessaging
-      chrome.permissions.onAdded.addListener((permissions) => {
-        if (permissions.permissions?.includes("nativeMessaging")) {
-          BrowserApi.reloadExtension();
-        }
-      });
-    }
-  }
+  ) {}
 
   async connect() {
-    if (!(await BrowserApi.permissionsGranted(["nativeMessaging"]))) {
-      this.logService.warning(
-        "[Native Messaging IPC] Native messaging permission is missing for biometrics",
-      );
-      return;
-    }
     if (this.connected || this.connecting) {
       return;
     }

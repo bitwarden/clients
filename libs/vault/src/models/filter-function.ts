@@ -38,6 +38,9 @@ export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunc
     if (filter.type === "bankAccount" && type !== CipherType.BankAccount) {
       return false;
     }
+    if (filter.type === "passport" && type !== CipherType.Passport) {
+      return false;
+    }
     if (filter.type === "trash" && !isDeleted) {
       return false;
     }

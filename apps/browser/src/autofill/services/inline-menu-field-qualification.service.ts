@@ -944,6 +944,10 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
    * @param field - The field to validate
    */
   isEmailField = (field: AutofillField): boolean => {
+    if (this.isTotpField(field)) {
+      return false;
+    }
+
     if (field.type === "email") {
       return true;
     }

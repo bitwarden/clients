@@ -8,6 +8,7 @@ import {
   SelectModule,
   NoItemsModule,
   FormFieldModule,
+  IconModule,
 } from "@bitwarden/components";
 import { CoreOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/core";
 import { DynamicAvatarComponent } from "@bitwarden/web-vault/app/components/dynamic-avatar.component";
@@ -37,6 +38,7 @@ import { SecretsListComponent } from "./secrets-list.component";
     CardComponent,
     FormFieldModule,
     ItemModule,
+    IconModule,
   ],
   exports: [
     AccessPolicySelectorComponent,

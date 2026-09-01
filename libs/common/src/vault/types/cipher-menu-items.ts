@@ -57,6 +57,13 @@ const bankAccountItem: CipherMenuItem = {
   subtitleKey: "typeBankAccountSubtitle",
 };
 
+const passportItem: CipherMenuItem = {
+  type: CipherType.Passport,
+  icon: "bwi-passport",
+  labelKey: "typePassport",
+  subtitleKey: "typePassportSubtitle",
+};
+
 const driversLicenseItem: CipherMenuItem = {
   type: CipherType.DriversLicense,
   icon: "bwi-id-card",
@@ -74,6 +81,7 @@ export const DIALOG_CIPHER_MENU_ITEMS = [
   bankAccountItem,
   ...CIPHER_MENU_ITEMS.slice(2, 3),
   driversLicenseItem,
+  passportItem,
   ...CIPHER_MENU_ITEMS.slice(3),
 ].map((item) => {
   if (item.type === CipherType.Login) {
@@ -89,5 +97,13 @@ export const DIALOG_CIPHER_MENU_ITEMS = [
       icon: "bwi-user",
     };
   }
+
+  if (item.type === CipherType.SecureNote) {
+    return {
+      ...item,
+      labelKey: "typeSecureNote",
+    };
+  }
+
   return item;
 });

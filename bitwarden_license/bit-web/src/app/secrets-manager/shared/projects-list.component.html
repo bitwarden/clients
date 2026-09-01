@@ -21,15 +21,13 @@
   <ng-container header>
     <tr>
       <th bitCell class="tw-w-0" *ngIf="showMenus">
-        <label class="!tw-mb-0 tw-flex tw-w-fit tw-gap-2 !tw-font-medium !tw-text-muted">
-          <input
-            type="checkbox"
-            (change)="$event ? toggleAll() : null"
-            [checked]="selection.hasValue() && isAllSelected()"
-            [indeterminate]="selection.hasValue() && !isAllSelected()"
-          />
-          {{ "all" | i18n }}
-        </label>
+        <input
+          type="checkbox"
+          (change)="$event ? toggleAll() : null"
+          [checked]="selection.hasValue() && isAllSelected()"
+          [indeterminate]="selection.hasValue() && !isAllSelected()"
+          [attr.aria-label]="'selectAll' | i18n"
+        />
       </th>
       <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
       <th bitCell bitSortable="revisionDate" *ngIf="showMenus">{{ "lastEdited" | i18n }}</th>
@@ -136,9 +134,15 @@
           <i class="bwi bwi-fw bwi-billing" aria-hidden="true"></i>
           <span> {{ "viewEvents" | i18n }} </span>
         </button>
-        <button *ngIf="project.write" type="button" bitMenuItem (click)="deleteProject(project.id)">
-          <i class="bwi bwi-fw bwi-trash tw-text-danger" aria-hidden="true"></i>
-          <span class="tw-text-danger">{{ "deleteProject" | i18n }}</span>
+        <button
+          *ngIf="project.write"
+          type="button"
+          bitMenuItem
+          variant="danger"
+          (click)="deleteProject(project.id)"
+        >
+          <bit-icon fixedWidth name="bwi-trash" slot="start" />
+          {{ "deleteProject" | i18n }}
         </button>
       </bit-menu>
     </tr>
@@ -146,8 +150,8 @@
 </bit-table>
 
 <bit-menu #tableMenu>
-  <button type="button" bitMenuItem (click)="bulkDeleteProjects()">
-    <i class="bwi bwi-fw bwi-trash tw-text-danger" aria-hidden="true"></i>
-    <span class="tw-text-danger">{{ "deleteProjects" | i18n }}</span>
+  <button type="button" bitMenuItem variant="danger" (click)="bulkDeleteProjects()">
+    <bit-icon fixedWidth name="bwi-trash" slot="start" />
+    {{ "deleteProjects" | i18n }}
   </button>
 </bit-menu>

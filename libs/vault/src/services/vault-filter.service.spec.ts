@@ -90,7 +90,7 @@ describe("vault filter service", () => {
       .calledWith(PolicyType.SingleOrg, mockUserId)
       .mockReturnValue(singleOrgPolicy);
     policyService.policyAppliesToUser$
-      .calledWith(PolicyType.AutoConfirm, mockUserId)
+      .calledWith(PolicyType.AutomaticUserConfirmation, mockUserId)
       .mockReturnValue(autoConfirmPolicy);
     cipherService.cipherListViews$.mockReturnValue(cipherViews);
 
@@ -416,6 +416,7 @@ describe("vault filter service", () => {
           "bankAccount",
           "identity",
           "driversLicense",
+          "passport",
           "note",
           "sshKey",
         ]);

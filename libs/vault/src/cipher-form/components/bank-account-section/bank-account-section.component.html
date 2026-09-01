@@ -1,7 +1,7 @@
 <section [formGroup]="bankAccountForm" class="tw-mb-5 bit-compact:tw-mb-4">
   <bit-section-header>
     <h2 bitTypography="h6">
-      {{ "bankAccount" | i18n }}
+      {{ "bankAccountDetails" | i18n }}
     </h2>
   </bit-section-header>
   <bit-card>
@@ -53,7 +53,7 @@
 
     <bit-form-field>
       <bit-label>{{ "pin" | i18n }}</bit-label>
-      <input bitInput formControlName="pin" type="password" data-testid="pin" />
+      <input bitInput formControlName="pin" type="password" data-testid="pin" inputmode="numeric" />
       <button
         type="button"
         bitIconButton

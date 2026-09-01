@@ -22,19 +22,17 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
   TooltipDirective,
@@ -154,7 +152,6 @@ export class LockComponent implements OnInit, OnDestroy {
 
   constructor(
     private accountService: AccountService,
-    private pinService: PinServiceAbstraction,
     private keyService: KeyService,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
@@ -182,7 +179,6 @@ export class LockComponent implements OnInit, OnDestroy {
     // desktop deps
     private broadcasterService: BroadcasterService,
     private unlockService: UnlockService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -220,7 +216,7 @@ export class LockComponent implements OnInit, OnDestroy {
             } else if (!prevBiometricsEnabled && this.unlockOptions?.biometrics.enabled) {
               await this.setDefaultActiveUnlockOption(this.unlockOptions);
               if (this.activeUnlockOption === UnlockOption.Biometrics) {
-                await this.handleBiometricsUnlockEnabled();
+                await this.handleBiometricsUnlockEnabled(this.activeAccount.id);
               }
             }
           }
@@ -297,7 +293,7 @@ export class LockComponent implements OnInit, OnDestroy {
     await this.setDefaultActiveUnlockOption(this.unlockOptions);
 
     if (this.unlockOptions?.biometrics.enabled) {
-      await this.handleBiometricsUnlockEnabled();
+      await this.handleBiometricsUnlockEnabled(activeAccount.id);
     }
   }
 
@@ -337,11 +333,11 @@ export class LockComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async handleBiometricsUnlockEnabled() {
+  private async handleBiometricsUnlockEnabled(userId: UserId) {
     this.biometricUnlockBtnText = this.lockComponentService.getBiometricsUnlockBtnText();
 
     const autoPromptBiometrics = await firstValueFrom(
-      this.biometricStateService.promptAutomatically$,
+      this.biometricStateService.promptAutomatically$(userId),
     );
 
     // TODO: PM-12546 - we need to make our biometric autoprompt experience consistent between the
@@ -349,7 +345,7 @@ export class LockComponent implements OnInit, OnDestroy {
     if (this.clientType === "desktop") {
       if (autoPromptBiometrics) {
         this.loading = false;
-        await this.desktopAutoPromptBiometrics();
+        await this.desktopAutoPromptBiometrics(userId);
       }
     }
 
@@ -387,6 +383,14 @@ export class LockComponent implements OnInit, OnDestroy {
     }
   };
 
+  async swapUnlockOption(unlockOption: UnlockOptionValue): Promise<void> {
+    this.activeUnlockOption = unlockOption;
+
+    if (unlockOption === UnlockOption.Biometrics) {
+      await this.unlockViaBiometrics();
+    }
+  }
+
   async logOut() {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "logOut" },
@@ -403,38 +407,33 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   async unlockViaBiometrics(): Promise<void> {
-    this.unlockingViaBiometrics = true;
-
-    if (
-      this.unlockOptions == null ||
-      !this.unlockOptions.biometrics.enabled ||
-      this.activeAccount == null
-    ) {
-      this.unlockingViaBiometrics = false;
+    if (this.unlockingViaBiometrics) {
       return;
     }
 
-    try {
-      await this.biometricStateService.setUserPromptCancelled();
+    this.unlockingViaBiometrics = true;
 
-      let userKey: UserKey | null;
-      if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
-        await this.unlockService.unlockWithBiometrics(this.activeAccount.id);
-        userKey = await firstValueFrom(this.keyService.userKey$(this.activeAccount.id));
-      } else {
-        userKey = await this.biometricService.unlockWithBiometricsForUser(this.activeAccount.id);
+    try {
+      if (
+        this.unlockOptions == null ||
+        !this.unlockOptions.biometrics.enabled ||
+        this.activeAccount == null
+      ) {
+        return;
       }
+
+      await this.biometricStateService.setUserPromptCancelled(this.activeAccount.id);
+
+      await this.unlockService.unlockWithBiometrics(this.activeAccount.id);
+      const userKey = await firstValueFrom(this.keyService.userKey$(this.activeAccount.id));
 
       // If user cancels biometric prompt, userKey is undefined.
       if (userKey) {
         await this.setUserKeyAndContinue(userKey);
       }
-
-      this.unlockingViaBiometrics = false;
     } catch (e) {
       // Cancelling is a valid action.
       if (e instanceof Error && e.message === "canceled") {
-        this.unlockingViaBiometrics = false;
         return;
       }
 
@@ -464,9 +463,11 @@ export class LockComponent implements OnInit, OnDestroy {
 
       if (confirmed) {
         // try again
+        this.unlockingViaBiometrics = false;
         await this.unlockViaBiometrics();
+        return;
       }
-
+    } finally {
       this.unlockingViaBiometrics = false;
     }
   }
@@ -501,63 +502,29 @@ export class LockComponent implements OnInit, OnDestroy {
 
     const MAX_INVALID_PIN_ENTRY_ATTEMPTS = 5;
 
-    if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
-      try {
-        await this.unlockService.unlockWithPin(this.activeAccount.id, pin);
-        const userKey = await this.keyService.getUserKey(this.activeAccount.id);
-        await this.setUserKeyAndContinue(userKey!);
-      } catch {
-        // Failure state: invalid PIN or failed decryption
-        this.invalidPinAttempts++;
+    try {
+      await this.unlockService.unlockWithPin(this.activeAccount.id, pin);
+      const userKey = await this.keyService.getUserKey(this.activeAccount.id);
+      await this.setUserKeyAndContinue(userKey!);
+    } catch {
+      // Failure state: invalid PIN or failed decryption
+      this.invalidPinAttempts++;
 
-        // Log user out if they have entered an invalid PIN too many times
-        if (this.invalidPinAttempts >= MAX_INVALID_PIN_ENTRY_ATTEMPTS) {
-          this.toastService.showToast({
-            variant: "error",
-            message: this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
-          });
-          this.messagingService.send("logout");
-          return;
-        }
-
+      // Log user out if they have entered an invalid PIN too many times
+      if (this.invalidPinAttempts >= MAX_INVALID_PIN_ENTRY_ATTEMPTS) {
         this.toastService.showToast({
           variant: "error",
-          title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("invalidPin"),
+          message: this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
         });
+        this.messagingService.send("logout");
+        return;
       }
-    } else {
-      try {
-        const userKey = await this.pinService.decryptUserKeyWithPin(pin, this.activeAccount.id);
-        if (userKey) {
-          await this.setUserKeyAndContinue(userKey);
-          return; // successfully unlocked
-        }
-        // Failure state: invalid PIN or failed decryption
-        this.invalidPinAttempts++;
 
-        // Log user out if they have entered an invalid PIN too many times
-        if (this.invalidPinAttempts >= MAX_INVALID_PIN_ENTRY_ATTEMPTS) {
-          this.toastService.showToast({
-            variant: "error",
-            message: this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
-          });
-          this.messagingService.send("logout");
-          return;
-        }
-
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("invalidPin"),
-        });
-      } catch {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccurred"),
-          message: this.i18nService.t("unexpectedError"),
-        });
-      }
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("invalidPin"),
+      });
     }
   }
 
@@ -591,7 +558,6 @@ export class LockComponent implements OnInit, OnDestroy {
     this.logService.mark("Vault unlocked");
 
     await this.keyService.setUserKey(key, this.activeAccount.id);
-    await this.pinService.userUnlocked(this.activeAccount.id);
 
     // Now that we have a decrypted user key in memory, we can check if we
     // need to establish trust on the current device
@@ -605,7 +571,7 @@ export class LockComponent implements OnInit, OnDestroy {
       throw new Error("No active user.");
     }
 
-    await this.biometricStateService.resetUserPromptCancelled();
+    await this.biometricStateService.resetUserPromptCancelled(this.activeAccount.id);
 
     try {
       await this.encryptedMigrator.runMigrations(
@@ -756,7 +722,7 @@ export class LockComponent implements OnInit, OnDestroy {
     this.messagingService.send("getWindowIsFocused");
   }
 
-  private async desktopAutoPromptBiometrics() {
+  private async desktopAutoPromptBiometrics(userId: UserId) {
     if (!this.unlockOptions?.biometrics?.enabled || this.biometricAsked) {
       return;
     }
@@ -766,7 +732,7 @@ export class LockComponent implements OnInit, OnDestroy {
     }
 
     // prevent the biometric prompt from showing if the user has already cancelled it
-    if (await firstValueFrom(this.biometricStateService.promptCancelled$)) {
+    if (await firstValueFrom(this.biometricStateService.promptCancelled$(userId))) {
       return;
     }
 

@@ -76,7 +76,9 @@ export class AddEditCustomFieldDialogComponent {
       const omitLinkedFieldTypeForCiphers: number[] = [
         CipherType.SecureNote,
         CipherType.SshKey,
+        CipherType.BankAccount,
         CipherType.DriversLicense,
+        CipherType.Passport,
       ];
       if (omitLinkedFieldTypeForCiphers.includes(this.data.cipherType)) {
         return option.value !== FieldType.Linked;

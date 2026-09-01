@@ -784,7 +784,10 @@ describe("AutofillInlineMenuContentService", () => {
 
       autofillInlineMenuContentService["observePageAttributes"]();
 
-      expect(observeSpy).toHaveBeenCalledWith(document.documentElement, { attributes: true });
+      expect(observeSpy).toHaveBeenCalledWith(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["style", "hidden", "popover", "width", "height"],
+      });
     });
 
     it("observes the body element for attribute mutations", () => {
@@ -795,7 +798,10 @@ describe("AutofillInlineMenuContentService", () => {
 
       autofillInlineMenuContentService["observePageAttributes"]();
 
-      expect(observeSpy).toHaveBeenCalledWith(document.body, { attributes: true });
+      expect(observeSpy).toHaveBeenCalledWith(document.body, {
+        attributes: true,
+        attributeFilter: ["style", "hidden", "popover", "width", "height"],
+      });
     });
   });
 

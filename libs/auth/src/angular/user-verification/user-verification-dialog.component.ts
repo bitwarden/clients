@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Inject } from "@angular/core";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { Component, Inject, ViewChild } from "@angular/core";
+import { FormBuilder, FormGroupDirective, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -46,6 +46,10 @@ import { UserVerificationFormInputComponent } from "./user-verification-form-inp
   ],
 })
 export class UserVerificationDialogComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ViewChild(FormGroupDirective) private formGroupDirective: FormGroupDirective;
+
   verificationForm = this.formBuilder.group({
     secret: this.formBuilder.control<VerificationWithSecret | null>(null),
   });
@@ -288,6 +292,10 @@ export class UserVerificationDialogComponent {
       return;
     }
   };
+
+  submitFromPaste(): void {
+    this.formGroupDirective?.onSubmit(new Event("submit"));
+  }
 
   cancel() {
     this.close({

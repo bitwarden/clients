@@ -93,6 +93,9 @@ export class EmergencyViewDialogComponent {
       case CipherType.BankAccount:
         this.title = this.i18nService.t("viewItemHeaderBankAccount");
         break;
+      case CipherType.Passport:
+        this.title = this.i18nService.t("viewItemHeaderPassport");
+        break;
       case CipherType.DriversLicense:
         this.title = this.i18nService.t("viewItemHeaderLicense");
         break;

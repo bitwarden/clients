@@ -9,47 +9,66 @@
   >
     @if (config?.originalCipher?.archivedDate) {
       <ng-container slot="end">
-        <span bitBadge variant="secondary" [appA11yTitle]="'archived' | i18n">
-          {{ "archived" | i18n }}
-        </span>
+        <button type="button" bit-chip-action [label]="'archived' | i18n"></button>
       </ng-container>
     }
     <app-pop-out slot="end" />
   </popup-header>
 
-  <vault-cipher-form
-    *ngIf="!loading"
-    formId="cipherForm"
-    [config]="config"
-    (cipherSaved)="onCipherSaved($event)"
-    [beforeSubmit]="checkFido2UserVerification"
-    [submitBtn]="submitBtn"
-  >
-    <app-open-attachments
-      slot="attachment-button"
-      [cipherId]="originalCipherId"
-    ></app-open-attachments>
-  </vault-cipher-form>
+  @if (!loading) {
+    <vault-cipher-form
+      formId="cipherForm"
+      [config]="config"
+      (cipherSaved)="onCipherSaved($event)"
+      [beforeSubmit]="checkFido2UserVerification"
+      [submitBtn]="submitBtn"
+    >
+      <app-open-attachments
+        slot="attachment-button"
+        [cipherId]="originalCipherId"
+      ></app-open-attachments>
+    </vault-cipher-form>
+  }
 
   <popup-footer slot="footer">
-    <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtn>
+    @if (saveAndFillEnabled) {
+      <button [bitAction]="submitAndFill" type="button" bitButton buttonType="primary">
+        {{ "saveAndFill" | i18n }}
+      </button>
+    }
+    <button
+      bitButton
+      type="submit"
+      form="cipherForm"
+      [buttonType]="saveAndFillEnabled ? 'secondary' : 'primary'"
+      #submitBtn
+    >
       {{ (previouslyCouldArchive ? "unarchiveAndSave" : "save") | i18n }}
     </button>
-
-    <button (click)="handleBackButton()" bitButton type="button" buttonType="secondary">
-      {{ "cancel" | i18n }}
-    </button>
-
-    <ng-container slot="end">
-      @if (canDeleteCipher$ | async) {
-        <button
-          [bitAction]="delete"
-          type="button"
-          buttonType="dangerGhost"
-          bitIconButton="bwi-trash"
-          [label]="'delete' | i18n"
-        ></button>
-      }
-    </ng-container>
+    @if (saveAndFillEnabled) {
+      <button
+        (click)="handleBackButton()"
+        bitButton
+        type="button"
+        buttonType="subtleGhost"
+        slot="end"
+      >
+        {{ "cancel" | i18n }}
+      </button>
+    } @else {
+      <button (click)="handleBackButton()" bitButton type="button" buttonType="secondary">
+        {{ "cancel" | i18n }}
+      </button>
+    }
+    @if (canDeleteCipher$ | async) {
+      <button
+        [bitAction]="delete"
+        type="button"
+        slot="end"
+        buttonType="dangerGhost"
+        bitIconButton="bwi-trash"
+        [label]="'delete' | i18n"
+      ></button>
+    }
   </popup-footer>
 </popup-page>

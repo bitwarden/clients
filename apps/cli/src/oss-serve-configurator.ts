@@ -158,6 +158,8 @@ export class OssServeConfigurator {
     this.shareCommand = new ShareCommand(
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
+      this.serviceContainer.collectionService,
+      this.serviceContainer.organizationService,
     );
     this.lockCommand = new LockCommand(
       serviceContainer.lockService,
@@ -165,7 +167,6 @@ export class OssServeConfigurator {
     );
     this.unlockCommand = new UnlockCommand(
       this.serviceContainer.accountService,
-      this.serviceContainer.keyService,
       this.serviceContainer.cryptoFunctionService,
       this.serviceContainer.logService,
       this.serviceContainer.keyConnectorService,
@@ -174,9 +175,7 @@ export class OssServeConfigurator {
       async () => await this.serviceContainer.logout(),
       this.serviceContainer.i18nService,
       this.serviceContainer.encryptedMigrator,
-      this.serviceContainer.masterPasswordUnlockService,
       this.serviceContainer.unlockService,
-      this.serviceContainer.configService,
     );
 
     this.sendCreateCommand = new SendCreateCommand(
@@ -185,6 +184,8 @@ export class OssServeConfigurator {
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.accountService,
+      this.serviceContainer.policyService,
+      this.serviceContainer.configService,
     );
     this.sendDeleteCommand = new SendDeleteCommand(
       this.serviceContainer.sendService,

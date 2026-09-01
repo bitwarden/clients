@@ -375,6 +375,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
+  protected get isPassportCipher(): boolean {
+    return CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Passport && !this.isDeleted;
+  }
+
   protected get isSecureNoteCipher() {
     return (
       CipherViewLikeUtils.getType(this.cipher) === this.CipherType.SecureNote &&
@@ -404,6 +408,12 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
+  protected get hasPassportOptions(): boolean {
+    return (
+      this.isPassportCipher && CipherViewLikeUtils.hasCopyableValue(this.cipher, "passportNumber")
+    );
+  }
+
   protected get hasVisibleDriversLicenseOptions(): boolean {
     return (
       this.isDriversLicenseCipher &&
@@ -421,7 +431,8 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
       this.hasVisibleIdentityOptions ||
       this.hasVisibleSecureNoteOptions ||
       this.hasBankAccountOptions ||
-      this.hasVisibleDriversLicenseOptions
+      this.hasVisibleDriversLicenseOptions ||
+      this.hasPassportOptions
     );
   }
 

@@ -1,17 +1,14 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { PasswordInputResult } from "@bitwarden/auth/angular";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
-import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -21,7 +18,6 @@ import {
   MasterPasswordAuthenticationHash,
   MasterKeyWrappedUserKey,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
@@ -34,8 +30,6 @@ describe("WebRegistrationFinishService", () => {
   let keyService: MockProxy<KeyService>;
   let accountApiService: MockProxy<AccountApiService>;
   let organizationInviteService: MockProxy<OrganizationInviteService>;
-  let policyApiService: MockProxy<PolicyApiServiceAbstraction>;
-  let logService: MockProxy<LogService>;
   let policyService: MockProxy<PolicyService>;
   let masterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
 
@@ -43,8 +37,6 @@ describe("WebRegistrationFinishService", () => {
     keyService = mock<KeyService>();
     accountApiService = mock<AccountApiService>();
     organizationInviteService = mock<OrganizationInviteService>();
-    policyApiService = mock<PolicyApiServiceAbstraction>();
-    logService = mock<LogService>();
     policyService = mock<PolicyService>();
     masterPasswordService = mock<MasterPasswordServiceAbstraction>();
 
@@ -53,8 +45,6 @@ describe("WebRegistrationFinishService", () => {
       accountApiService,
       masterPasswordService,
       organizationInviteService,
-      policyApiService,
-      logService,
       policyService,
     );
   });
@@ -67,11 +57,15 @@ describe("WebRegistrationFinishService", () => {
     let orgInvite: OrganizationInvite | null;
 
     beforeEach(() => {
-      orgInvite = new OrganizationInvite();
-      orgInvite.organizationId = "organizationId";
-      orgInvite.organizationUserId = "organizationUserId";
-      orgInvite.token = "orgInviteToken";
-      orgInvite.email = "email";
+      orgInvite = new OrganizationInvite({
+        organizationId: "organizationId",
+        organizationUserId: "organizationUserId",
+        token: "orgInviteToken",
+        email: "email",
+        organizationName: "organizationName",
+        initOrganization: false,
+        orgUserHasExistingUser: false,
+      });
     });
 
     it("returns null when the org invite is null", async () => {
@@ -97,11 +91,15 @@ describe("WebRegistrationFinishService", () => {
     let orgInvite: OrganizationInvite | null;
 
     beforeEach(() => {
-      orgInvite = new OrganizationInvite();
-      orgInvite.organizationId = "organizationId";
-      orgInvite.organizationUserId = "organizationUserId";
-      orgInvite.token = "orgInviteToken";
-      orgInvite.email = "email";
+      orgInvite = new OrganizationInvite({
+        organizationId: "organizationId",
+        organizationUserId: "organizationUserId",
+        token: "orgInviteToken",
+        email: "email",
+        organizationName: "organizationName",
+        initOrganization: false,
+        orgUserHasExistingUser: false,
+      });
     });
 
     it("returns null when the org invite is null", async () => {
@@ -113,37 +111,15 @@ describe("WebRegistrationFinishService", () => {
       expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
     });
 
-    it("returns null when the policies are null", async () => {
+    it("returns null when the policies are undefined", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      policyApiService.getPoliciesByToken.mockResolvedValue(null);
+      organizationInviteService.getInvitePolicies.mockResolvedValue(undefined);
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toBeNull();
       expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledWith(
-        orgInvite.organizationId,
-        orgInvite.token,
-        orgInvite.email,
-        orgInvite.organizationUserId,
-      );
-    });
-
-    it("logs an error and returns null when policies cannot be fetched", async () => {
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      policyApiService.getPoliciesByToken.mockRejectedValue(new Error("error"));
-
-      const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
-
-      expect(result).toBeNull();
-      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledWith(
-        orgInvite.organizationId,
-        orgInvite.token,
-        orgInvite.email,
-        orgInvite.organizationUserId,
-      );
-      expect(logService.error).toHaveBeenCalled();
+      expect(organizationInviteService.getInvitePolicies).toHaveBeenCalledWith(orgInvite);
     });
 
     it("returns the master password policy options from the organization invite when it exists", async () => {
@@ -151,19 +127,14 @@ describe("WebRegistrationFinishService", () => {
       const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
 
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      policyApiService.getPoliciesByToken.mockResolvedValue(masterPasswordPolicies);
+      organizationInviteService.getInvitePolicies.mockResolvedValue(masterPasswordPolicies);
       policyService.masterPasswordPolicyOptions$.mockReturnValue(of(masterPasswordPolicyOptions));
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toEqual(masterPasswordPolicyOptions);
       expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledWith(
-        orgInvite.organizationId,
-        orgInvite.token,
-        orgInvite.email,
-        orgInvite.organizationUserId,
-      );
+      expect(organizationInviteService.getInvitePolicies).toHaveBeenCalledWith(orgInvite);
     });
   });
 
@@ -204,9 +175,15 @@ describe("WebRegistrationFinishService", () => {
       userKeyEncString = new EncString("userKeyEncrypted");
       userKeyPair = ["publicKey", new EncString("privateKey")];
 
-      orgInvite = new OrganizationInvite();
-      orgInvite.organizationUserId = "organizationUserId";
-      orgInvite.token = "orgInviteToken";
+      orgInvite = new OrganizationInvite({
+        organizationId: "organizationId",
+        organizationUserId: "organizationUserId",
+        token: "orgInviteToken",
+        email: "email",
+        organizationName: "organizationName",
+        initOrganization: false,
+        orgUserHasExistingUser: false,
+      });
 
       orgSponsoredFreeFamilyPlanToken = "orgSponsoredFreeFamilyPlanToken";
       acceptEmergencyAccessInviteToken = "acceptEmergencyAccessInviteToken";

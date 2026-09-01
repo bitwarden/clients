@@ -16,6 +16,7 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
   customerDiscount: BillingCustomerDiscount;
   expiration: string;
   expirationWithoutGracePeriod: string;
+  exemptFromBillingAutomation: boolean;
 
   constructor(response: any) {
     super(response);
@@ -33,6 +34,7 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
       customerDiscount == null ? null : new BillingCustomerDiscount(customerDiscount);
     this.expiration = this.getResponseProperty("Expiration");
     this.expirationWithoutGracePeriod = this.getResponseProperty("ExpirationWithoutGracePeriod");
+    this.exemptFromBillingAutomation = this.getResponseProperty("ExemptFromBillingAutomation");
   }
 }
 
@@ -41,6 +43,8 @@ export class BillingCustomerDiscount extends BaseResponse {
   active: boolean;
   percentOff?: number;
   amountOff?: number;
+  end?: string;
+  durationInMonths?: number;
   appliesTo: string[];
 
   constructor(response: any) {
@@ -49,6 +53,8 @@ export class BillingCustomerDiscount extends BaseResponse {
     this.active = this.getResponseProperty("Active");
     this.percentOff = this.getResponseProperty("PercentOff");
     this.amountOff = this.getResponseProperty("AmountOff");
+    this.end = this.getResponseProperty("End");
+    this.durationInMonths = this.getResponseProperty("DurationInMonths");
     this.appliesTo = this.getResponseProperty("AppliesTo") || [];
   }
 }

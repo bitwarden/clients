@@ -268,7 +268,7 @@ module.exports.buildConfig = function buildConfig(params) {
         __dirname,
         "src/platform/ipc/content/ipc-content-script.ts",
       ),
-      "notification/bar": path.resolve(__dirname, "src/autofill/notification/bar.ts"),
+      "notification/bar": path.resolve(__dirname, "src/autofill/notification/bootstrap-bar.ts"),
       "overlay/menu-button": path.resolve(
         __dirname,
         "src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",

@@ -12,7 +12,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/messaging";
-import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
@@ -27,6 +26,11 @@ import {
 } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
+import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
+import {
+  getPendingDefaultPasswordManagerApply,
+  setPendingDefaultPasswordManagerApply,
+} from "../autofill/utils/pending-default-password-manager.storage";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
@@ -61,10 +65,16 @@ export default class RuntimeBackground {
       this.onInstalledReason = details.reason;
     });
 
-    if (chrome?.permissions?.onAdded) {
-      chrome.permissions.onAdded.addListener((permissions) => {
-        void this.handleSetBitwardenAsDefaultPasswordManager(permissions);
-      });
+    const onPrivacyPermissionAdded = (
+      permissions: chrome.permissions.Permissions | browser.permissions.Permissions,
+    ) => {
+      void this.handleSetBitwardenAsDefaultPasswordManager(permissions);
+    };
+
+    if (BrowserApi.isWebExtensionsApi && browser?.permissions?.onAdded) {
+      browser.permissions.onAdded.addListener(onPrivacyPermissionAdded);
+    } else if (chrome?.permissions?.onAdded) {
+      chrome.permissions.onAdded.addListener(onPrivacyPermissionAdded);
     }
   }
 
@@ -222,30 +232,55 @@ export default class RuntimeBackground {
         return result;
       }
       case "getUrlAutofillTargetingRules": {
-        return await this.main.domainSettingsService.getTargetingRulesForUrl(sender.tab?.url);
+        return await this.main.domainSettingsService.getTargetingRulesForUrl(
+          // Because content scripts are injected into all _frames_, we give precedence
+          // to targeting rules matching by frame URI (`sender.url`) over tab URI, to avoid
+          // selector collision with coincidentally-matching in-frame structures.
+          sender.url ?? sender.tab?.url,
+        );
+      }
+      case "authResult": {
+        if (!(await this.isValidVaultReferrer(msg.referrer))) {
+          return;
+        }
+
+        if (msg.lastpass) {
+          this.messagingService.send("importCallbackLastPass", {
+            code: msg.code,
+            state: msg.state,
+          });
+        } else {
+          try {
+            await openSsoAuthResultPopout(msg);
+          } catch {
+            this.logService.error("Unable to open sso popout tab");
+          }
+        }
+
+        if (sender.tab?.id) {
+          await BrowserApi.closeTab(sender.tab.id).catch((error) => {
+            this.logService.error("Unable to close SSO tab", error);
+          });
+        }
+        break;
       }
     }
   }
 
   private async handleSetBitwardenAsDefaultPasswordManager(
-    permissions: chrome.permissions.Permissions,
+    permissions: chrome.permissions.Permissions | browser.permissions.Permissions,
   ) {
-    if (!permissions.permissions?.includes("privacy")) {
+    if (!(permissions.permissions as string[] | undefined)?.includes("privacy")) {
       return;
     }
 
-    if (!chrome.storage?.session) {
-      return;
-    }
-
-    const result = await chrome.storage.session.get("pendingDefaultPasswordManagerApply");
-    if (!result.pendingDefaultPasswordManagerApply) {
+    if (!(await getPendingDefaultPasswordManagerApply())) {
       return;
     }
 
     try {
       await BrowserApi.updateDefaultBrowserAutofillSettings(false);
-      await chrome.storage.session.remove("pendingDefaultPasswordManagerApply");
+      await setPendingDefaultPasswordManagerApply(false);
     } catch (error) {
       this.logService.error(error);
     }
@@ -323,8 +358,10 @@ export default class RuntimeBackground {
           await this.main.updateOverlayCiphers();
 
           await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
-          void this.main.targetingRulesDataService.forceUpdate();
         }
+        break;
+      case FORCE_TARGETING_RULES_UPDATE_COMMAND:
+        this.main.targetingRulesDataService.forceUpdate();
         break;
       case "openPopup":
         await this.executeMessageActionOrOpenPopup(msg, this.openPopup.bind(this));
@@ -353,25 +390,6 @@ export default class RuntimeBackground {
         break;
       case "bgReseedStorage": {
         await this.main.reseedStorage();
-        break;
-      }
-      case "authResult": {
-        if (!(await this.isValidVaultReferrer(msg.referrer))) {
-          return;
-        }
-
-        if (msg.lastpass) {
-          this.messagingService.send("importCallbackLastPass", {
-            code: msg.code,
-            state: msg.state,
-          });
-        } else {
-          try {
-            await openSsoAuthResultPopout(msg);
-          } catch {
-            this.logService.error("Unable to open sso popout tab");
-          }
-        }
         break;
       }
       case "webAuthnResult": {
@@ -494,9 +512,7 @@ export default class RuntimeBackground {
           this.onInstalledReason === "install" &&
           !(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))
         ) {
-          if (!devFlagEnabled("skipWelcomeOnInstall")) {
-            void BrowserApi.createNewTab("https://bitwarden.com/browser-start/");
-          }
+          await this.browserInitialInstallService.displayWelcomePage();
 
           await this.autofillSettingsService.setInlineMenuVisibility(
             AutofillOverlayVisibility.OnFieldFocus,

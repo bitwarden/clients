@@ -3,4 +3,4 @@ export { LogLevel } from "./log-level";
 export { ConsoleLogService } from "./console-log.service";
 export { FlightRecorder } from "./flight-recorder";
 export { buildFlightRecorderCsvExport } from "./flight-recorder-export";
-export { FlightRecorderEvent } from "@bitwarden/sdk-internal";
+export type { FlightRecorderEvent } from "@bitwarden/sdk-internal";

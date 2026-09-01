@@ -9,8 +9,10 @@ finish-args:
   - --share=ipc
   - --share=network
   - --socket=wayland
-  # This should be fallback-x11, but on gnome/mutter, zwlr_data_control_manager_v1 is not implemented
-  # so we need to use x11 as a fallback to make copy paste work
+  # A bug in Electron 39 (which now enables Wayland by default) causes a crash on
+  # systems using Wayland with hardware acceleration. Platform decided to
+  # configure Electron to use X11 (with an opt-out) until the upstream bug is
+  # fixed. The follow-up task is https://bitwarden.atlassian.net/browse/PM-31080.
   - --socket=x11
   - --device=dri
   - --env=XDG_CURRENT_DESKTOP=Unity
@@ -20,12 +22,28 @@ finish-args:
   - --talk-name=org.freedesktop.secrets
   - --talk-name=com.canonical.AppMenu.Registrar
   - --system-talk-name=org.freedesktop.PolicyKit1
-    # Lock on lockscreen
+  # Lock on lockscreen
   - --talk-name=org.gnome.ScreenSaver
   - --talk-name=org.freedesktop.ScreenSaver
   - --system-talk-name=org.freedesktop.login1
   - --filesystem=xdg-download
   - --device=all
+
+  # Browser integration
+  # The config directory is needed to write manifests for non-flatpak
+  # Sockets are mounted in each app's directory
+  #
+  # Non-sandboxed
+  - --filesystem=xdg-config/google-chrome/NativeMessagingHosts/
+  - --filesystem=xdg-config/chromium/NativeMessagingHosts/
+  - --filesystem=xdg-config/microsoft-edge/NativeMessagingHosts/
+  - --filesystem=home/.mozilla
+  # Flatpak-sandboxed
+  - --filesystem=~/.var/app/org.chromium.Chromium/config/chromium/NativeMessagingHosts/
+  - --filesystem=~/.var/app/com.google.Chrome/config/google-chrome/NativeMessagingHosts/
+  - --filesystem=~/.var/app/com.microsoft.Edge/config/microsoft-edge/NativeMessagingHosts/
+  # Firefox does not create NMHS directory by default
+  - --filesystem=~/.var/app/org.mozilla.firefox/.mozilla/
 modules:
   - name: bitwarden-desktop
     buildsystem: simple
@@ -37,6 +55,7 @@ modules:
       - cp com.bitwarden.desktop.desktop ${FLATPAK_DEST}/share/applications/
       - install bitwarden.sh /app/bin/bitwarden.sh
       - desktop-file-edit --set-key=Exec --set-value="bitwarden.sh %U" ${FLATPAK_DEST}/share/applications/com.bitwarden.desktop.desktop
+      - for s in 16 32 64 128 256 512; do install -Dm644 icons/${s}x${s}.png ${FLATPAK_DEST}/share/icons/hicolor/${s}x${s}/apps/com.bitwarden.desktop.png; done
     sources:
       - type: dir
         only-arches: [x86_64]
@@ -46,6 +65,9 @@ modules:
         path: ../dist/linux-arm64-unpacked
       - type: file
         path: ./com.bitwarden.desktop.desktop
+      - type: dir
+        path: ./icons
+        dest: icons
       - type: script
         dest-filename: bitwarden.sh
         commands:

@@ -1,8 +1,6 @@
 import { mock } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { MockProxy } from "@bitwarden/common/platform/spec/mock-deep";
 import {
   CipherType as SdkCipherType,
   UriMatchType,
@@ -21,7 +19,9 @@ import {
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
+import { MockProxy } from "../../../platform/spec/mock-deep";
 import { UserId } from "../../../types/guid";
 import { CipherService } from "../../abstractions/cipher.service";
 import { FieldType, LoginLinkedId, SecureNoteType } from "../../enums";

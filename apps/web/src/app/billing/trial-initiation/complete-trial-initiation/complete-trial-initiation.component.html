@@ -13,7 +13,6 @@
       [flow]="inputPasswordFlow"
       [email]="email"
       [loading]="submitting"
-      [masterPasswordPolicyOptions]="enforcedPolicyOptions"
       (onPasswordFormSubmit)="handlePasswordSubmit($event)"
       [primaryButtonText]="{ key: 'createAccount' }"
     ></auth-input-password>
@@ -25,7 +24,6 @@
           [flow]="inputPasswordFlow"
           [email]="email"
           [loading]="submitting"
-          [masterPasswordPolicyOptions]="enforcedPolicyOptions"
           (onPasswordFormSubmit)="handlePasswordSubmit($event)"
           [primaryButtonText]="{ key: 'createAccount' }"
         ></auth-input-password>
@@ -37,7 +35,7 @@
           bitButton
           buttonType="primary"
           [disabled]="orgInfoFormGroup.controls.name.invalid"
-          [loading]="loading && !paymentOptional"
+          [loading]="loading"
           (click)="orgNameEntrySubmit()"
         >
           {{ paymentOptional && trialLength > 0 ? ("startTrial" | i18n) : ("next" | i18n) }}

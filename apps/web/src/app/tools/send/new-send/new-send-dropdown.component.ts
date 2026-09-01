@@ -4,8 +4,6 @@ import { firstValueFrom, Observable, of, switchMap, lastValueFrom } from "rxjs";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   ButtonModule,
@@ -54,7 +52,6 @@ export class NewSendDropdownComponent {
     private accountService: AccountService,
     private dialogService: DialogService,
     private addEditFormConfigService: DefaultSendFormConfigService,
-    private configService: ConfigService,
     private sendFormService: SendFormService,
   ) {
     this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
@@ -76,26 +73,18 @@ export class NewSendDropdownComponent {
       return;
     }
     const formConfig = await this.addEditFormConfigService.buildConfig("add", undefined, type);
-    const useRefresh = await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh);
-    if (useRefresh) {
-      const sendFormDialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
-        formConfig,
-        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
-      });
-      if (sendFormDialogRef) {
-        this.sendFormDialogRef = sendFormDialogRef;
-        const result = await lastValueFrom(this.sendFormDialogRef.closed);
-        if (result?.result === SendItemDialogResult.Created && result?.send) {
-          await this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
-            data: result.send,
-          });
-        }
+    const sendFormDialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      formConfig,
+      closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
+    });
+    if (sendFormDialogRef) {
+      this.sendFormDialogRef = sendFormDialogRef;
+      const result = await lastValueFrom(this.sendFormDialogRef.closed);
+      if (result?.result === SendItemDialogResult.Created && result?.send) {
+        await this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
+          data: result.send,
+        });
       }
-    } else {
-      SendAddEditDialogComponent.open(this.dialogService, {
-        formConfig,
-        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
-      });
     }
   }
 

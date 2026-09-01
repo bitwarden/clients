@@ -133,7 +133,29 @@ export class DateFieldGroupComponent implements OnInit, ControlValueAccessor, Va
   }
 
   validate(): ValidationErrors | null {
-    return this.internalForm.invalid ? { invalidDate: true } : null;
+    const monthControl = this.internalForm.get("month")! as AbstractControl<string>;
+    const dayControl = this.internalForm.get("day")! as AbstractControl<string>;
+    const yearControl = this.internalForm.get("year")! as AbstractControl<string>;
+
+    const values = [
+      monthControl.value?.trim(),
+      dayControl.value?.trim(),
+      yearControl.value?.trim(),
+    ];
+
+    const anyFilled = values.some((v) => !!v);
+    const allFilled = values.every((v) => !!v);
+
+    if (!anyFilled) {
+      return null;
+    }
+
+    if (!allFilled || this.internalForm.invalid) {
+      const fieldCount = values.filter((v) => !v).length || 1;
+      return { invalidDate: true, fieldCount };
+    }
+
+    return null;
   }
 
   registerOnValidatorChange(fn: () => void): void {

@@ -136,7 +136,8 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
 
   groupForm = this.formBuilder.group({
     name: ["", [Validators.required, Validators.maxLength(100)]],
-    externalId: this.formBuilder.control({ value: "", disabled: true }),
+    // set to readonly in the template
+    externalId: this.formBuilder.control({ value: "", disabled: false }),
     members: [[] as AccessItemValue[]],
     collections: [[] as AccessItemValue[]],
   });

@@ -106,6 +106,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     if (this.activeFilter.cipherType === CipherType.BankAccount) {
       return "searchBankAccount";
     }
+    if (this.activeFilter.cipherType === CipherType.Passport) {
+      return "searchPassport";
+    }
     if (this.activeFilter.cipherType === CipherType.DriversLicense) {
       return "searchDriversLicense";
     }
@@ -159,7 +162,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         switchMap((userId) =>
           merge(
             this.policyService.policiesByType$(PolicyType.SingleOrg, userId).pipe(getFirstPolicy),
-            this.policyService.policiesByType$(PolicyType.AutoConfirm, userId).pipe(getFirstPolicy),
+            this.policyService
+              .policiesByType$(PolicyType.AutomaticUserConfirmation, userId)
+              .pipe(getFirstPolicy),
             this.policyService
               .policiesByType$(PolicyType.OrganizationDataOwnership, userId)
               .pipe(getFirstPolicy),

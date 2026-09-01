@@ -3,6 +3,7 @@ import { firstValueFrom } from "rxjs";
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { Utils } from "../../../platform/misc/utils";
 import { OrganizationId, UserId } from "../../../types/guid";
+import { OrganizationUserStatusType } from "../../enums";
 import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
 
@@ -52,7 +53,11 @@ describe("OrganizationService", () => {
    * @returns an `OrganizationData[]` array that can be used to populate
    * stateProvider.
    */
-  function buildMockOrganizations(count = 1, suffix?: string): OrganizationData[] {
+  function buildMockOrganizations(
+    count = 1,
+    suffix?: string,
+    status: OrganizationUserStatusType = OrganizationUserStatusType.Confirmed,
+  ): OrganizationData[] {
     if (count < 1) {
       return undefined;
     }
@@ -62,6 +67,7 @@ describe("OrganizationService", () => {
       data.id = id;
       data.name = name;
       data.identifier = identifier;
+      data.status = status;
 
       return data;
     }
@@ -144,6 +150,54 @@ describe("OrganizationService", () => {
         const result = await firstValueFrom(organizationService.organizations$(fakeUserId));
         expect(result).toEqual(mockData);
       });
+    });
+
+    describe("status filtering", () => {
+      it("includes only Confirmed organizations", async () => {
+        const confirmed = buildMockOrganizations(
+          2,
+          "confirmed-",
+          OrganizationUserStatusType.Confirmed,
+        );
+        const accepted = buildMockOrganizations(
+          2,
+          "accepted-",
+          OrganizationUserStatusType.Accepted,
+        );
+        const invited = buildMockOrganizations(1, "invited-", OrganizationUserStatusType.Invited);
+        const revoked = buildMockOrganizations(1, "revoked-", OrganizationUserStatusType.Revoked);
+        await setOrganizationsState([...confirmed, ...accepted, ...invited, ...revoked]);
+
+        const result = await firstValueFrom(organizationService.organizations$(fakeUserId));
+
+        expect(result.map((o) => o.id).sort()).toEqual(confirmed.map((o) => o.id).sort());
+      });
+    });
+  });
+
+  describe("acceptedOrganizations$", () => {
+    it("publishes an empty array when no organizations are in the Accepted status", async () => {
+      const mockData = buildMockOrganizations(3, undefined, OrganizationUserStatusType.Confirmed);
+      await setOrganizationsState(mockData);
+
+      const result = await firstValueFrom(organizationService.acceptedOrganizations$(fakeUserId));
+
+      expect(result).toEqual([]);
+    });
+
+    it("includes only Accepted organizations", async () => {
+      const confirmed = buildMockOrganizations(
+        2,
+        "confirmed-",
+        OrganizationUserStatusType.Confirmed,
+      );
+      const accepted = buildMockOrganizations(2, "accepted-", OrganizationUserStatusType.Accepted);
+      const invited = buildMockOrganizations(1, "invited-", OrganizationUserStatusType.Invited);
+      await setOrganizationsState([...confirmed, ...accepted, ...invited]);
+
+      const result = await firstValueFrom(organizationService.acceptedOrganizations$(fakeUserId));
+
+      expect(result.map((o) => o.id).sort()).toEqual(accepted.map((o) => o.id).sort());
     });
   });
 

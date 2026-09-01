@@ -19,6 +19,7 @@ import {
   MenuModule,
   TableModule,
   ToastService,
+  IconModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -27,7 +28,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "[sponsoring-org-row]",
   templateUrl: "sponsoring-org-row.component.html",
-  imports: [CommonModule, I18nPipe, TableModule, IconButtonModule, MenuModule],
+  imports: [CommonModule, I18nPipe, TableModule, IconButtonModule, MenuModule, IconModule],
 })
 export class SponsoringOrgRowComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -70,7 +71,7 @@ export class SponsoringOrgRowComponent implements OnInit {
     this.isFreeFamilyPolicyEnabled$ = this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
-        this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
+        this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorship, userId),
       ),
       map(
         (policies) =>

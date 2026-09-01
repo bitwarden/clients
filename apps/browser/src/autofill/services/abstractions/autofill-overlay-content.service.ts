@@ -1,6 +1,7 @@
 import { ModifyLoginCipherFormData } from "../../background/abstractions/overlay-notifications.background";
 import { SubFrameOffsetData } from "../../background/abstractions/overlay.background";
 import { AutofillExtensionMessageParam } from "../../content/abstractions/autofill-init";
+import { AutofillMonitor } from "../../content/abstractions/autofill-monitor";
 import AutofillField from "../../models/autofill-field";
 import AutofillPageDetails from "../../models/autofill-page-details";
 import { ElementWithOpId, FormFieldElement } from "../../types";
@@ -29,10 +30,9 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
   }: AutofillExtensionMessageParam) => Promise<ModifyLoginCipherFormData | void>;
 };
 
-export interface AutofillOverlayContentService {
+export interface AutofillOverlayContentService extends AutofillMonitor {
   pageDetailsUpdateRequired: boolean;
   messageHandlers: AutofillOverlayContentExtensionMessageHandlers;
-  init(): void;
   setupOverlayListeners(
     autofillFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,

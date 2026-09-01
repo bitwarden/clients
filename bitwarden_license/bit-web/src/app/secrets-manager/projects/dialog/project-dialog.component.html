@@ -1,22 +1,20 @@
-<form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog dialogSize="default">
-    <span bitDialogTitle>{{ title | i18n }}</span>
-    <span bitDialogContent>
-      <div *ngIf="loading" class="tw-text-center">
-        <i class="bwi bwi-spinner bwi-spin bwi-3x"></i>
-      </div>
-      <bit-form-field *ngIf="!loading">
-        <bit-label>{{ "projectName" | i18n }}</bit-label>
-        <input appAutofocus formControlName="name" bitInput />
-      </bit-form-field>
-    </span>
-    <ng-container bitDialogFooter>
-      <button type="submit" bitButton buttonType="primary" bitFormButton>
-        {{ "save" | i18n }}
-      </button>
-      <button type="button" bitButton buttonType="secondary" bitFormButton bitDialogClose>
-        {{ "cancel" | i18n }}
-      </button>
-    </ng-container>
-  </bit-dialog>
+<form [formGroup]="formGroup" [bitSubmit]="submit" bit-dialog dialogSize="default">
+  <span bitDialogTitle>{{ title | i18n }}</span>
+  <span bitDialogContent>
+    <div *ngIf="loading" class="tw-text-center">
+      <i class="bwi bwi-spinner bwi-spin bwi-3x"></i>
+    </div>
+    <bit-form-field *ngIf="!loading">
+      <bit-label>{{ "projectName" | i18n }}</bit-label>
+      <input appAutofocus formControlName="name" bitInput />
+    </bit-form-field>
+  </span>
+  <ng-container bitDialogFooter>
+    <button type="submit" bitButton buttonType="primary" bitFormButton>
+      {{ "save" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" bitFormButton bitDialogClose>
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
 </form>

@@ -2,23 +2,24 @@ import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/reset-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 // FIXME: remove `src` and fix import
@@ -35,7 +36,6 @@ describe("WebLoginComponentService", () => {
   let service: WebLoginComponentService;
   let organizationInviteService: MockProxy<OrganizationInviteService>;
   let logService: MockProxy<LogService>;
-  let policyApiService: MockProxy<PolicyApiServiceAbstraction>;
   let internalPolicyService: MockProxy<InternalPolicyService>;
   let routerService: MockProxy<RouterService>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
@@ -46,11 +46,12 @@ describe("WebLoginComponentService", () => {
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
   let configService: MockProxy<ConfigService>;
+  let toastService: MockProxy<ToastService>;
+  let i18nService: MockProxy<I18nService>;
 
   beforeEach(() => {
     organizationInviteService = mock<OrganizationInviteService>();
     logService = mock<LogService>();
-    policyApiService = mock<PolicyApiServiceAbstraction>();
     internalPolicyService = mock<InternalPolicyService>();
     routerService = mock<RouterService>();
     cryptoFunctionService = mock<CryptoFunctionService>();
@@ -60,6 +61,8 @@ describe("WebLoginComponentService", () => {
     ssoLoginService = mock<SsoLoginServiceAbstraction>();
     accountService = mockAccountServiceWith(mockUserId);
     configService = mock<ConfigService>();
+    toastService = mock<ToastService>();
+    i18nService = mock<I18nService>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -67,7 +70,6 @@ describe("WebLoginComponentService", () => {
         { provide: DefaultLoginComponentService, useClass: WebLoginComponentService },
         { provide: OrganizationInviteService, useValue: organizationInviteService },
         { provide: LogService, useValue: logService },
-        { provide: PolicyApiServiceAbstraction, useValue: policyApiService },
         { provide: InternalPolicyService, useValue: internalPolicyService },
         { provide: RouterService, useValue: routerService },
         { provide: CryptoFunctionService, useValue: cryptoFunctionService },
@@ -77,6 +79,8 @@ describe("WebLoginComponentService", () => {
         { provide: SsoLoginServiceAbstraction, useValue: ssoLoginService },
         { provide: AccountService, useValue: accountService },
         { provide: ConfigService, useValue: configService },
+        { provide: ToastService, useValue: toastService },
+        { provide: I18nService, useValue: i18nService },
       ],
     });
     service = TestBed.inject(WebLoginComponentService);
@@ -88,7 +92,7 @@ describe("WebLoginComponentService", () => {
 
   describe("getOrgPoliciesFromOrgInvite", () => {
     const mockEmail = "test@example.com";
-    const orgInvite: OrganizationInvite = {
+    const orgInvite = new OrganizationInvite({
       organizationId: "org-id",
       token: "token",
       email: mockEmail,
@@ -97,7 +101,7 @@ describe("WebLoginComponentService", () => {
       orgSsoIdentifier: "sso-id",
       orgUserHasExistingUser: false,
       organizationName: "org-name",
-    };
+    });
 
     it("returns undefined if organization invite is null", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
@@ -105,12 +109,11 @@ describe("WebLoginComponentService", () => {
       expect(result).toBeUndefined();
     });
 
-    it("logs an error if getPoliciesByToken throws an error", async () => {
-      const error = new Error("Test error");
+    it("returns undefined if getInvitePolicies returns undefined", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      policyApiService.getPoliciesByToken.mockRejectedValue(error);
-      await service.getOrgPoliciesFromOrgInvite(mockEmail);
-      expect(logService.error).toHaveBeenCalledWith(error);
+      organizationInviteService.getInvitePolicies.mockResolvedValue(undefined);
+      const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
+      expect(result).toBeUndefined();
     });
 
     it.each([
@@ -125,7 +128,7 @@ describe("WebLoginComponentService", () => {
         resetPasswordPolicyOptions.autoEnrollEnabled = autoEnrollEnabled;
 
         organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-        policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+        organizationInviteService.getInvitePolicies.mockResolvedValue(policies);
 
         internalPolicyService.getResetPasswordPolicyOptions.mockReturnValue([
           resetPasswordPolicyOptions,
@@ -161,7 +164,7 @@ describe("WebLoginComponentService", () => {
 
         // Assert
         expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
-        expect(organizationInviteService.clearOrganizationInvitation).toHaveBeenCalledTimes(1);
+        expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
       });
 
       it("should log an error and return undefined", async () => {
@@ -179,6 +182,181 @@ describe("WebLoginComponentService", () => {
           `WebLoginComponentService.getOrgPoliciesFromOrgInvite: Email mismatch. Expected: ${mockMismatchedEmail}, Received: ${mockEmail}`,
         );
         expect(result).toBeUndefined();
+      });
+    });
+  });
+
+  describe("handleQueryParamErrors", () => {
+    const mockOrganizationName = "Acme Corp";
+    const mockOrganizationId = "11111111-1111-1111-1111-111111111111";
+    const mockEmail = "test@example.com";
+    const orgInviteFor = (overrides: { email?: string; organizationId?: string } = {}) =>
+      new OrganizationInvite({
+        organizationId: overrides.organizationId ?? mockOrganizationId,
+        token: "token",
+        email: overrides.email ?? mockEmail,
+        organizationUserId: "org-user-id",
+        initOrganization: false,
+        orgSsoIdentifier: "sso-id",
+        orgUserHasExistingUser: false,
+        organizationName: mockOrganizationName,
+      });
+
+    describe("when error code is ssoOrgInviteAcceptanceRequired", () => {
+      it("returns autoSubmit=true with the MP-entry layout override when stash org id + email match", async () => {
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInviteFor());
+
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgInviteAcceptanceRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result.autoSubmit).toBe(true);
+        expect(result.mpEntryLayoutOverride).toEqual({
+          pageTitle: { key: "joinOrganizationName", placeholders: [mockOrganizationName] },
+          pageSubtitle: { key: "acceptInviteWithMasterPassword" },
+          pageIcon: expect.anything(),
+        });
+        expect(toastService.showToast).not.toHaveBeenCalled();
+      });
+
+      it("treats email match as case-insensitive", async () => {
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(
+          orgInviteFor({ email: "User@Example.com" }),
+        );
+
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgInviteAcceptanceRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: "user@example.com",
+        });
+
+        expect(result.autoSubmit).toBe(true);
+        expect(result.mpEntryLayoutOverride).toBeDefined();
+        expect(toastService.showToast).not.toHaveBeenCalled();
+      });
+
+      it("returns autoSubmit=false and fires the warning toast when no invite is stashed", async () => {
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+        i18nService.t.mockReturnValue("translated message");
+
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgInviteAcceptanceRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result).toEqual({ autoSubmit: false });
+        expect(i18nService.t).toHaveBeenCalledWith(
+          "ssoLoginRequiresInviteAcceptance",
+          mockOrganizationName,
+        );
+        expect(toastService.showToast).toHaveBeenCalledWith({
+          variant: "warning",
+          title: null,
+          message: "translated message",
+          timeout: 10000,
+        });
+      });
+
+      it("returns autoSubmit=false and fires the warning toast when the stash email does not match", async () => {
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(
+          orgInviteFor({ email: "other@example.com" }),
+        );
+
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgInviteAcceptanceRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result).toEqual({ autoSubmit: false });
+        expect(toastService.showToast).toHaveBeenCalled();
+      });
+
+      it("returns autoSubmit=false and fires the warning toast when the stash org id does not match", async () => {
+        // User has Org A's invite stashed but is being redirected for Org B (same email).
+        // We must not auto-progress, because the deep-link guard would replay Org A's
+        // /accept-organization while the UI claims they're joining Org B.
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(
+          orgInviteFor({ organizationId: "22222222-2222-2222-2222-222222222222" }),
+        );
+
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgInviteAcceptanceRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result).toEqual({ autoSubmit: false });
+        expect(toastService.showToast).toHaveBeenCalled();
+      });
+
+      it("does nothing when organizationName is missing", async () => {
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgInviteAcceptanceRequired",
+          organizationId: mockOrganizationId,
+          email: mockEmail,
+        });
+
+        expect(result).toEqual({ autoSubmit: false });
+        expect(organizationInviteService.getOrganizationInvite).not.toHaveBeenCalled();
+        expect(toastService.showToast).not.toHaveBeenCalled();
+      });
+
+      it("does nothing when organizationId is missing", async () => {
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgInviteAcceptanceRequired",
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result).toEqual({ autoSubmit: false });
+        expect(organizationInviteService.getOrganizationInvite).not.toHaveBeenCalled();
+        expect(toastService.showToast).not.toHaveBeenCalled();
+      });
+
+      it("does nothing when the email query param is missing", async () => {
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgInviteAcceptanceRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+        });
+
+        expect(result).toEqual({ autoSubmit: false });
+        expect(organizationInviteService.getOrganizationInvite).not.toHaveBeenCalled();
+        expect(toastService.showToast).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("when error code is unrecognized or missing", () => {
+      it("returns autoSubmit=false with no toast for an unknown error code", async () => {
+        const result = await service.handleQueryParamErrors({
+          error: "someUnknownErrorCode",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result).toEqual({ autoSubmit: false });
+        expect(toastService.showToast).not.toHaveBeenCalled();
+      });
+
+      it("returns autoSubmit=false when the error param is absent", async () => {
+        const result = await service.handleQueryParamErrors({
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result).toEqual({ autoSubmit: false });
+        expect(toastService.showToast).not.toHaveBeenCalled();
       });
     });
   });

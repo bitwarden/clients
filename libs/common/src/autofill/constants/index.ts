@@ -44,7 +44,7 @@ export const AUTOFILL_ATTRIBUTES = {
   AUTOCOMPLETE_TYPE: "autocompletetype",
   X_AUTOCOMPLETE_TYPE: "x-autocompletetype",
   CHECKED: "checked",
-  CLASS: "class",
+  // CLASS intentionally omitted because it can cause a callback storm on dynamic pages.
   DATA_LABEL: "data-label",
   DATA_STRIPE: "data-stripe",
   DISABLED: "disabled",
@@ -110,6 +110,7 @@ export const AutofillOverlayVisibility = {
 
 export const BrowserClientVendors = {
   Chrome: "Chrome",
+  Firefox: "Firefox",
   Opera: "Opera",
   Edge: "Edge",
   Vivaldi: "Vivaldi",
@@ -118,6 +119,7 @@ export const BrowserClientVendors = {
 
 export const BrowserShortcutsUris = {
   Chrome: "chrome://extensions/shortcuts",
+  Firefox: "https://bitwarden.com/help/keyboard-shortcuts",
   Opera: "opera://extensions/shortcuts",
   Edge: "edge://extensions/shortcuts",
   Vivaldi: "vivaldi://extensions/shortcuts",
@@ -126,6 +128,7 @@ export const BrowserShortcutsUris = {
 
 export const DisablePasswordManagerUris = {
   Chrome: "chrome://settings/autofill",
+  Firefox: "https://bitwarden.com/help/disable-browser-autofill/",
   Opera: "opera://settings/autofill",
   Edge: "edge://settings/passwords",
   Vivaldi: "vivaldi://settings/autofill",
@@ -151,6 +154,31 @@ export const CLEAR_NOTIFICATION_LOGIN_DATA_DURATION = 60 * 1000; // 1 minute
 export const MAX_DEEP_QUERY_RECURSION_DEPTH = 4;
 
 export const DEEP_QUERY_SELECTOR_COMBINATOR = ">>>";
+
+// this list is derived from the `attachShadow` candidate elements list
+// https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow
+export const SHADOW_ROOT_CANDIDATE_NODE_NAMES = Object.freeze(
+  new Set([
+    "ARTICLE",
+    "ASIDE",
+    "BLOCKQUOTE",
+    "BODY",
+    "DIV",
+    "FOOTER",
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H5",
+    "H6",
+    "HEADER",
+    "MAIN",
+    "NAV",
+    "P",
+    "SECTION",
+    "SPAN",
+  ]),
+);
 
 /**
  * Field keys for targeting rules. These MUST match the `fieldKey` enum in

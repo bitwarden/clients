@@ -34,7 +34,7 @@ import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/or
 
 import { OrganizationUserView } from "../core/views/organization-user.view";
 
-import { AccountRecoveryDialogResultType } from "./components/account-recovery/account-recovery-dialog.component";
+import { AccountRecoveryDialogResultType } from "./components/account-recovery";
 import { MemberDialogResult } from "./components/member-dialog";
 import { MembersComponent } from "./members.component";
 import {
@@ -102,7 +102,7 @@ describe("MembersComponent", () => {
     name: "Test User",
     resetPasswordEnrolled: false,
     accessSecretsManager: false,
-    managedByOrganization: false,
+    claimedByOrganization: false,
     twoFactorEnabled: false,
     usesKeyConnector: false,
     hasMasterPassword: true,

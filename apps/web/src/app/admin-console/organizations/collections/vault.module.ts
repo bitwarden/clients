@@ -7,7 +7,7 @@ import { CollectionDialogComponent } from "../shared/components/collection-dialo
 import { CollectionNameBadgeComponent } from "./collection-badge";
 import { GroupBadgeModule } from "./group-badge/group-badge.module";
 import { VaultRoutingModule } from "./vault-routing.module";
-import { VaultComponent } from "./vault.component";
+import { VaultV2Component } from "./vault-v2.component";
 
 @NgModule({
   imports: [
@@ -17,7 +17,7 @@ import { VaultComponent } from "./vault.component";
     CollectionNameBadgeComponent,
     OrganizationBadgeModule,
     CollectionDialogComponent,
-    VaultComponent,
+    VaultV2Component,
   ],
 })
 export class VaultModule {}

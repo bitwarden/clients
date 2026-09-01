@@ -157,6 +157,8 @@ export type OverlayBackgroundExtensionMessage = {
   isOpeningFullInlineMenu?: boolean;
   styles?: Partial<CSSStyleDeclaration>;
   data?: LockedVaultPendingNotificationsData;
+  iframeSrc?: string;
+  iframeTargetedFields?: { selector: string; fieldType: string }[];
 } & OverlayAddNewItemMessage &
   CloseInlineMenuMessage &
   ToggleInlineMenuHiddenMessage &
@@ -216,6 +218,7 @@ export type InlineMenuCipherData = {
 export type BuildCipherDataParams = {
   inlineMenuCipherId: string;
   cipher: CipherView;
+  iconsServerUrl: string | null;
   showFavicons?: boolean;
   showInlineMenuAccountCreation?: boolean;
   hasPasskey?: boolean;
@@ -277,6 +280,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   bgSaveCipher: () => void;
   updateOverlayCiphers: () => void;
   fido2AbortRequest: ({ sender }: BackgroundSenderParam) => void;
+  routeTargetedFieldsToFrame: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
 };
 
 export type PortMessageParam = {

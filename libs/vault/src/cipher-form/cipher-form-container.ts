@@ -3,7 +3,8 @@
 import { Observable } from "rxjs";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CipherFormConfig } from "@bitwarden/vault";
+
+import { CipherFormConfig } from "..";
 
 import { AdditionalOptionsSectionComponent } from "./components/additional-options/additional-options-section.component";
 import { AutofillOptionsComponent } from "./components/autofill-options/autofill-options.component";
@@ -14,6 +15,7 @@ import { DriversLicenseSectionComponent } from "./components/drivers-license-sec
 import { IdentitySectionComponent } from "./components/identity/identity.component";
 import { ItemDetailsSectionComponent } from "./components/item-details/item-details-section.component";
 import { LoginDetailsSectionComponent } from "./components/login-details-section/login-details-section.component";
+import { PassportSectionComponent } from "./components/passport-section/passport-section.component";
 import { SshKeySectionComponent } from "./components/sshkey-section/sshkey-section.component";
 
 /**
@@ -29,6 +31,7 @@ export type CipherForm = {
   sshKeyDetails?: SshKeySectionComponent["sshKeyForm"];
   bankAccountDetails?: BankAccountSectionComponent["bankAccountForm"];
   driversLicenseDetails?: DriversLicenseSectionComponent["driversLicenseForm"];
+  passportDetails?: PassportSectionComponent["passportForm"];
   customFields?: CustomFieldsComponent["customFieldsForm"];
 };
 

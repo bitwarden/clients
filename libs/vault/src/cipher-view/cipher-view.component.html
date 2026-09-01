@@ -5,29 +5,31 @@
     </bit-callout>
   }
 
-  @if (!hasLoginUri() && hadPendingChangePasswordTask()) {
-    <bit-callout type="warning" [title]="'missingWebsite' | i18n">
-      {{ "changeAtRiskPasswordAndAddWebsite" | i18n }}
-    </bit-callout>
-  }
+  @if (!removeAtRiskCallout()) {
+    @if (!hasLoginUri() && hadPendingChangePasswordTask()) {
+      <bit-callout type="warning" [title]="'missingWebsite' | i18n">
+        {{ "changeAtRiskPasswordAndAddWebsite" | i18n }}
+      </bit-callout>
+    }
 
-  @if (showChangePasswordLink()) {
-    <bit-callout type="warning" [title]="''">
-      @if (changePasswordLink()) {
-        <a
-          bitLink
-          [href]="changePasswordLink()"
-          appStopClick
-          (click)="launchChangePassword()"
-          linkType="secondary"
-          endIcon="bwi-external-link"
-        >
+    @if (showChangePasswordLink()) {
+      <bit-callout type="warning" [title]="''">
+        @if (changePasswordLink()) {
+          <a
+            bitLink
+            [href]="changePasswordLink()"
+            appStopClick
+            (click)="launchChangePassword()"
+            linkType="secondary"
+            endIcon="bwi-external-link"
+          >
+            {{ "changeAtRiskPassword" | i18n }}
+          </a>
+        } @else {
           {{ "changeAtRiskPassword" | i18n }}
-        </a>
-      } @else {
-        {{ "changeAtRiskPassword" | i18n }}
-      }
-    </bit-callout>
+        }
+      </bit-callout>
+    }
   }
 
   <!-- HELPER TEXT -->
@@ -94,6 +96,11 @@
       [driversLicense]="cipher()!.driversLicense"
       [cipher]="cipher()!"
     ></app-drivers-license-view>
+  }
+
+  <!-- PASSPORT SECTIONS -->
+  @if (hasPassport()) {
+    <app-passport-view [passport]="cipher()!.passport" [cipher]="cipher()!"></app-passport-view>
   }
 
   <!-- ADDITIONAL OPTIONS -->

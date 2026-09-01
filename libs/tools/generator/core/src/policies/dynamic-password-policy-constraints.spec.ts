@@ -275,5 +275,31 @@ describe("DynamicPasswordPolicyConstraints", () => {
 
       expect(calibrated.constraints.minSpecial).toEqual(Zero);
     });
+
+    it("preserves the minSpecial constraint when the policy sets specialCount and the state's special flag is false", () => {
+      const policy = { ...disabledPolicy, specialCount: 3 };
+      const dynamic = new DynamicPasswordPolicyConstraints(policy, someConstraints);
+      const state = {
+        ...defaultOptions,
+        special: false,
+      };
+
+      const calibrated = dynamic.calibrate(state);
+
+      expect(calibrated.constraints.minSpecial).toEqual({ min: 3, max: 9 });
+    });
+
+    it("preserves the minNumber constraint when the policy sets numberCount and the state's number flag is false", () => {
+      const policy = { ...disabledPolicy, numberCount: 3 };
+      const dynamic = new DynamicPasswordPolicyConstraints(policy, someConstraints);
+      const state = {
+        ...defaultOptions,
+        number: false,
+      };
+
+      const calibrated = dynamic.calibrate(state);
+
+      expect(calibrated.constraints.minNumber).toEqual({ min: 3, max: 9 });
+    });
   });
 });

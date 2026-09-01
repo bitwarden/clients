@@ -14,9 +14,9 @@ export class OrganizationUserResponse extends BaseResponse {
   type: OrganizationUserType;
   revocationReason: RevocationReasonType;
   status: OrganizationUserStatusType;
+  permissions: PermissionsApi;
   externalId: string;
   accessSecretsManager: boolean;
-  permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   hasMasterPassword: boolean;
   collections: SelectionReadOnlyResponse[] = [];
@@ -31,9 +31,13 @@ export class OrganizationUserResponse extends BaseResponse {
     this.status = this.getResponseProperty("Status");
     this.permissions = new PermissionsApi(this.getResponseProperty("Permissions"));
     this.externalId = this.getResponseProperty("ExternalId");
-    this.accessSecretsManager = this.getResponseProperty("AccessSecretsManager");
-    this.resetPasswordEnrolled = this.getResponseProperty("ResetPasswordEnrolled");
-    this.hasMasterPassword = this.getResponseProperty("HasMasterPassword");
+    this.accessSecretsManager = this.getResponseProperty("AccessSecretsManager") ?? false;
+    this.resetPasswordEnrolled = this.getResponseProperty("ResetPasswordEnrolled") ?? false;
+    this.hasMasterPassword = this.getResponseProperty("HasMasterPassword") ?? false;
+
+    if (this.id == null) {
+      throw new Error("Missing required property: Id");
+    }
 
     const collections = this.getResponseProperty("Collections");
     if (collections != null) {
@@ -52,26 +56,30 @@ export class OrganizationUserUserDetailsResponse extends OrganizationUserRespons
   avatarColor: string;
   twoFactorEnabled: boolean;
   usesKeyConnector: boolean;
-  managedByOrganization: boolean;
+  claimedByOrganization: boolean;
 
   constructor(response: any) {
     super(response);
     this.name = this.getResponseProperty("Name");
     this.email = this.getResponseProperty("Email");
     this.avatarColor = this.getResponseProperty("AvatarColor");
-    this.twoFactorEnabled = this.getResponseProperty("TwoFactorEnabled");
+    this.twoFactorEnabled = this.getResponseProperty("TwoFactorEnabled") ?? false;
     this.usesKeyConnector = this.getResponseProperty("UsesKeyConnector") ?? false;
-    this.managedByOrganization = this.getResponseProperty("ManagedByOrganization") ?? false;
+    this.claimedByOrganization = this.getResponseProperty("ClaimedByOrganization") ?? false;
+
+    if (this.email == null) {
+      throw new Error("Missing required property: email");
+    }
   }
 }
 
 export class OrganizationUserDetailsResponse extends OrganizationUserResponse {
-  managedByOrganization: boolean;
+  claimedByOrganization: boolean;
   ssoExternalId: string;
 
   constructor(response: any) {
     super(response);
-    this.managedByOrganization = this.getResponseProperty("ManagedByOrganization") ?? false;
+    this.claimedByOrganization = this.getResponseProperty("ClaimedByOrganization") ?? false;
     this.ssoExternalId = this.getResponseProperty("SsoExternalId");
   }
 }
@@ -80,8 +88,9 @@ export class OrganizationUserResetPasswordDetailsResponse extends BaseResponse {
   organizationUserId: string;
   kdf: KdfType;
   kdfIterations: number;
-  kdfMemory?: number;
-  kdfParallelism?: number;
+  kdfMemory: number | undefined;
+  kdfParallelism: number | undefined;
+  masterPasswordSalt: string | undefined;
   resetPasswordKey: string;
   encryptedPrivateKey: string;
 
@@ -92,6 +101,7 @@ export class OrganizationUserResetPasswordDetailsResponse extends BaseResponse {
     this.kdfIterations = this.getResponseProperty("KdfIterations");
     this.kdfMemory = this.getResponseProperty("KdfMemory");
     this.kdfParallelism = this.getResponseProperty("KdfParallelism");
+    this.masterPasswordSalt = this.getResponseProperty("MasterPasswordSalt");
     this.resetPasswordKey = this.getResponseProperty("ResetPasswordKey");
     this.encryptedPrivateKey = this.getResponseProperty("EncryptedPrivateKey");
   }

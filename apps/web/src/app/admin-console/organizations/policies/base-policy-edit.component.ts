@@ -1,5 +1,5 @@
 import { Directive, OnInit, Signal, inject, input, signal } from "@angular/core";
-import { FormControl, UntypedFormGroup } from "@angular/forms";
+import { FormControl, FormGroup } from "@angular/forms";
 import { Observable, firstValueFrom, of, switchMap } from "rxjs";
 import { Constructor } from "type-fest";
 
@@ -82,6 +82,18 @@ export abstract class BasePolicyEditDefinition {
   showDescription: boolean = true;
 
   /**
+   * If true, the dialog header shows an On/Off badge reflecting the saved policy state
+   * and uses the policy name as the sole title (no "Edit policy" label).
+   */
+  showEnabledBadge: boolean = false;
+
+  /**
+   * Optional i18n key for a warning callout rendered above the enable/disable toggle.
+   * Used by {@link SimpleTogglePolicyComponent} to avoid per-policy component boilerplate.
+   */
+  warningKey?: string;
+
+  /**
    * A method that determines whether to display this policy in the Admin Console Policies page.
    * The default implementation will always display the policy.
    * This can be used to hide the policy based on the organization's plan features or a feature flag value.
@@ -118,7 +130,7 @@ export abstract class BasePolicyEditComponent implements OnInit {
   /**
    * An optional FormGroup for additional policy configuration. Required for more complex policies only.
    */
-  data: UntypedFormGroup | undefined;
+  data: FormGroup | undefined;
 
   /**
    * Optional multi-step configuration for policies that require multiple steps to complete.

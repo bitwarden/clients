@@ -16,6 +16,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -33,8 +35,8 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   AsyncActionsModule,
-  BadgeModule,
   BitIconButtonComponent,
+  ChipActionComponent,
   ButtonModule,
   CenterPositionStrategy,
   DIALOG_DATA,
@@ -129,7 +131,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     CommonModule,
     CipherFormModule,
     AsyncActionsModule,
-    BadgeModule,
+    ChipActionComponent,
     ItemModule,
     PremiumBadgeComponent,
     I18nPipe,
@@ -218,6 +220,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   );
 
   private readonly userCanArchive = toSignal(this.userCanArchive$, { initialValue: false });
+
+  private readonly pm32009NewItemTypes = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    { initialValue: false },
+  );
 
   protected get isTrashFilter() {
     return !!this.cipher?.isDeleted;
@@ -324,6 +331,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
     private archiveService: CipherArchiveService,
+    private configService: ConfigService,
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$
@@ -574,6 +582,13 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Refresh from local state so attachments modified during edit aren't stale in view mode.
+    const activeUserId = await firstValueFrom(this.userId$);
+    const latestCipher = await this.cipherService.get(this.cipher.id, activeUserId);
+    if (latestCipher != null) {
+      this.cipher = await this.cipherService.decrypt(latestCipher, activeUserId);
+    }
+
     // We're in Form mode, and we have a cipher, switch back to View mode.
     await this.changeMode("view");
   };
@@ -657,7 +672,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.Login]: "viewItemHeaderLogin",
         [CipherType.Card]: "viewItemHeaderCard",
         [CipherType.Identity]: "viewItemHeaderIdentity",
-        [CipherType.SecureNote]: "viewItemHeaderNote",
+        [CipherType.SecureNote]: this.pm32009NewItemTypes()
+          ? "viewItemHeaderSecureNote"
+          : "viewItemHeaderNote",
         [CipherType.SshKey]: "viewItemHeaderSshKey",
         [CipherType.BankAccount]: "viewItemHeaderBankAccount",
         [CipherType.DriversLicense]: "viewItemHeaderLicense",
@@ -667,7 +684,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.Login]: "newItemHeaderLogin",
         [CipherType.Card]: "newItemHeaderCard",
         [CipherType.Identity]: "newItemHeaderIdentity",
-        [CipherType.SecureNote]: "newItemHeaderNote",
+        [CipherType.SecureNote]: this.pm32009NewItemTypes()
+          ? "newItemHeaderSecureNote"
+          : "newItemHeaderNote",
         [CipherType.SshKey]: "newItemHeaderSshKey",
         [CipherType.BankAccount]: "newItemHeaderBankAccount",
         [CipherType.DriversLicense]: "newItemHeaderDriversLicense",
@@ -677,7 +696,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.Login]: "editItemHeaderLogin",
         [CipherType.Card]: "editItemHeaderCard",
         [CipherType.Identity]: "editItemHeaderIdentity",
-        [CipherType.SecureNote]: "editItemHeaderNote",
+        [CipherType.SecureNote]: this.pm32009NewItemTypes()
+          ? "editItemHeaderSecureNote"
+          : "editItemHeaderNote",
         [CipherType.SshKey]: "editItemHeaderSshKey",
         [CipherType.BankAccount]: "editItemHeaderBankAccount",
         [CipherType.DriversLicense]: "editItemHeaderLicense",

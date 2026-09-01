@@ -29,13 +29,9 @@
             <input
               type="checkbox"
               bitCheckbox
-              class="tw-mr-2"
               (change)="toggleAllVisible($event)"
-              id="selectAll"
+              [attr.aria-label]="'selectAll' | i18n"
             />
-            <label class="tw-mb-0 !tw-font-medium !tw-text-muted" for="selectAll">{{
-              "all" | i18n
-            }}</label>
           </th>
           <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
           <th bitCell>{{ "collections" | i18n }}</th>
@@ -49,10 +45,9 @@
             ></button>
 
             <bit-menu #headerMenu>
-              <button type="button" bitMenuItem (click)="deleteAllSelected()">
-                <span class="tw-text-danger"
-                  ><i aria-hidden="true" class="bwi bwi-trash"></i> {{ "delete" | i18n }}</span
-                >
+              <button type="button" bitMenuItem variant="danger" (click)="deleteAllSelected()">
+                <bit-icon name="bwi-trash" slot="start" />
+                {{ "delete" | i18n }}
               </button>
             </bit-menu>
           </th>
@@ -95,10 +90,9 @@
                 <i aria-hidden="true" class="bwi bwi-collection-shared"></i>
                 {{ "collections" | i18n }}
               </button>
-              <button type="button" bitMenuItem (click)="delete(g)">
-                <span class="tw-text-danger"
-                  ><i aria-hidden="true" class="bwi bwi-trash"></i> {{ "delete" | i18n }}</span
-                >
+              <button type="button" bitMenuItem variant="danger" (click)="delete(g)">
+                <bit-icon name="bwi-trash" slot="start" />
+                {{ "delete" | i18n }}
               </button>
             </bit-menu>
           </td>
