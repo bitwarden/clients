@@ -39,6 +39,7 @@ import { AccessRequestSdkService } from "../abstractions/access-request-sdk.serv
 import { LeasingErrorService } from "../abstractions/leasing-error.service";
 import { ItemDetailsStateBadgeComponent } from "../item-details-state-badge/item-details-state-badge.component";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
+import { CipherAccessStateService } from "../services/cipher-access-state.service";
 import {
   HOUR,
   accessRequest,
@@ -184,6 +185,9 @@ function gated(state: () => Record<string, unknown>) {
         useValue: { cancelOutstandingRequest: () => Promise.resolve() },
       },
       { provide: LeasingErrorService, useValue: { isLeasingError: () => false } },
+      // Explicit, because the stubs above live in the module injector: a `providedIn: "root"`
+      // service would be built in the environment injector and never see them.
+      CipherAccessStateService,
     ],
   });
 }

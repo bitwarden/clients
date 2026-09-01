@@ -25,6 +25,7 @@ import type {
 } from "../abstractions/access-lease";
 import { formatDuration } from "../date/format-duration";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
+import { CipherAccessStateService } from "../services/cipher-access-state.service";
 import { DefaultAccessRefreshService } from "../services/default-access-refresh.service";
 
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
@@ -230,6 +231,7 @@ describe("CipherViewBannerComponent", () => {
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: logService },
         { provide: I18nService, useValue: i18nService },
+        CipherAccessStateService,
       ],
     });
   });
@@ -372,6 +374,79 @@ describe("CipherViewBannerComponent", () => {
 
       expect(query('[data-testid="cipher-view-banner-active"]')).not.toBeNull();
       expect(query('[data-testid="cipher-view-banner-pending"]')).toBeNull();
+    });
+  });
+
+  describe("a lease that runs out with the item open", () => {
+    /**
+     * Real time, like the countdown cases below: the banner's clock is a real `setInterval` and the
+     * state stream arms a real timeout, so the only way to observe either is to outlast them.
+     * Faking the clock instead is what the spec above warns against — it stalls `whenStable()`.
+     */
+    const WINDOW_MS = 900;
+
+    function waitPastExpiry(): Promise<void> {
+      return new Promise((resolve) => setTimeout(resolve, WINDOW_MS + 900));
+    }
+
+    /**
+     * A lease closing `WINDOW_MS` from now. Generous rather than tight: `create()` below runs
+     * several change-detection rounds and a pre-check round trip before the first assertion, and a
+     * window that could close during setup would make these cases flaky on a loaded worker.
+     */
+    function closingSoon() {
+      return leaseView({ notAfter: new Date(Date.now() + WINDOW_MS).toISOString() });
+    }
+
+    async function settleView(): Promise<void> {
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    }
+
+    it("falls back to the resting request card once the window closes", async () => {
+      // PM-41837. Nothing is announced and nothing is clicked — the moment simply passes, which is
+      // exactly why the banner used to sit on the expired lease until the page was reloaded. The
+      // re-read still answers with the lease on it, standing in for a server whose clock trails
+      // this one; the banner must lock anyway.
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ activeLease: closingSoon() }),
+      );
+
+      await create(gatedCipher());
+      expect(query('[data-testid="cipher-view-banner-active"]')).not.toBeNull();
+
+      await waitPastExpiry();
+      await settleView();
+
+      expect(query('[data-testid="cipher-view-banner-active"]')).toBeNull();
+      expect(query('[data-testid="cipher-view-banner-request"]')).not.toBeNull();
+    });
+
+    it("re-reads the access state at the moment the window closes", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ activeLease: closingSoon() }),
+      );
+
+      await create(gatedCipher());
+      expect(requestsApi.getCipherAccessState).toHaveBeenCalledTimes(1);
+
+      await waitPastExpiry();
+      await settleView();
+
+      expect(requestsApi.getCipherAccessState).toHaveBeenCalledTimes(2);
+    });
+
+    it("keeps the active card while the window is still open", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(accessState({ activeLease: leaseView() }));
+
+      await create(gatedCipher());
+
+      await waitPastExpiry();
+      await settleView();
+
+      expect(query('[data-testid="cipher-view-banner-active"]')).not.toBeNull();
+      expect(requestsApi.getCipherAccessState).toHaveBeenCalledTimes(1);
     });
   });
 

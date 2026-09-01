@@ -101,11 +101,13 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   `narrow$`.
 - `access-state-badge/`, `vault-row-lease-badge/`, `item-details-state-badge/` — the one
   access-state pill, and the two hosts that render it: a vault row, and the open item's
-  name row. The hosts differ only in how they refresh — the item-details one re-reads on
-  `AccessRefreshService` so it cannot contradict the banner below it, the row one reads
-  once so a list of gated rows does not carry a subscription each. The item-details host
-  also drops the `active` state, because the banner heading under it already runs that
-  countdown on its own timer. Which badge to show is NOT decided here: the SDK ranks the
+  name row. The hosts differ only in how they refresh — the item-details one reads through
+  `CipherAccessStateService` (see "Refresh model") so it cannot contradict the banner below
+  it, the row one reads once so a list of gated rows does not carry a subscription each. The
+  item-details host also drops the `active` state, because the banner heading under it already
+  runs that countdown on its own timer — but it drops it on a LIVE lease (`liveActiveLease`),
+  not on the SDK's `active` ranking, or a lease the server still believes in after it lapsed
+  would hide the pill for good. Which badge to show is NOT decided here: the SDK ranks the
   three states into `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
   only adapts that onto the presentation model (a `kind` discriminant, a parsed `Date`).
   Add a state by teaching the SDK, not by re-ranking the parts client-side.
@@ -183,12 +185,27 @@ which spells out which happened and when; the row builders have no need for it, 
 ## Refresh model
 
 `cipher_access_state()` and the list reads are one-shot, so nothing re-reads on its own.
-Two services drive every refresh:
+Three services drive every refresh:
 
 - `AccessEventService` — the server's `RefreshAccessRequest` push, filtered to a bare tick.
 - `AccessRefreshService` — merges that push with this client's own mutations and fans it
   out per cipher, so the cipher-view banner and the gated-cipher reloader react to a local
   change and a remote one through exactly the same path.
+- `CipherAccessStateService` — the per-cipher access state itself, read off that fan-out
+  AND re-emitted at an active lease's `notAfter`. **Every surface on an open item reads
+  through it; do not call `getCipherAccessState` directly from a new one.** A lease running
+  out is the one state change nobody announces — no mutation here, no push from the server,
+  because on the server nothing happened — so an item left open across its own expiry used
+  to keep the credential revealed until the page was reloaded (PM-41837). Two halves fix
+  that and both are needed: the timer, so the surfaces hear about the moment at all, and
+  `liveActiveLease()`, which every reader of `activeLease` must go through so a lease is
+  dropped the instant it lapses whatever a response fetched a second earlier still says.
+  The timer is armed OUTSIDE the Angular zone — an in-zone one would hold NgZone unsettled
+  for the lease's whole length and hang `whenStable()` for every host embedding a gated
+  item — and its emission re-enters the zone, because the re-lock behind it writes plain
+  component fields on the dialog. `badgeState` is deliberately NOT clamped: only the SDK
+  ranks it, so a lapsed `active` badge is retired by the re-read, not re-derived here.
+  The vault row stays outside all this and reads once, by design.
 
 Page-level services (`MyAccessService`, `ApproverInboxService`,
 `AccessRequestDetailService`) subscribe to the push directly and reload. Use `concatMap`,
