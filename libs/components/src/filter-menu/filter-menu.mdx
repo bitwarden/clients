@@ -6,15 +6,7 @@ import * as stories from "./filter-menu.stories";
 
 # Filter Menu
 
-A composable family of filter chips for narrowing a list or table. A `bit-filter-menu` is a chip
-trigger with a popover menu of options (optionally grouped by sections). A `bit-filter-toggle` is a
-single on/off chip with no menu.
-
-The chips work like a reactive form: each chip has a `key`, owns its own selection, and reports its
-value up. The chips are **host-agnostic** — outside a table they just track their selection. Inside
-a `bit-table-v2`, a chip registers itself automatically and its value lands in
-`table.filterValues()` — see
-[Table V2 › Filtering](?path=/docs/component-library-table-v2-beta--docs).
+A composable family of filter chips for narrowing a list or table.
 
 <Canvas of={stories.Default} />
 
@@ -70,8 +62,8 @@ work.
 ## Value
 
 A chip is a named form control. It owns its selection — **no `ngModel`** — and exposes it under its
-`key`: a single value for single-select, an array for `multiple`. Options may be grouped into
-`bit-filter-section`s for display; they all feed the chip's one selection.
+`key`: a single value for single-select, an array for `multiple`. Sections group options for display
+only; they all feed the chip's one selection.
 
 The chip builds its label from the selected options (`placeholderText`, or
 `placeholderText: unsetLabel` while empty). While active it shows a clear (`x`) on the chip; a
@@ -96,8 +88,7 @@ Usage guidelines:
 - Use a tile on every option in a chip, or on none of them — a partial set leaves the labels ragged.
   On a single-select chip, remember the auto-injected "All" row has no tile.
 - The tile is decorative; the option label carries the meaning, so no `ariaLabel` is applied.
-- A disabled option's tile renders in the neutral `gray` family and ignores any custom `color`, so
-  it reads as inactive alongside the muted label.
+- A disabled option's tile renders in the neutral `gray` family and ignores any custom `color`.
 
 <Canvas of={stories.IconTiles} />
 
@@ -110,13 +101,7 @@ message shows when nothing matches. The term resets when the menu closes.
 
 ## Driving a table
 
-Project a chip into a `bit-table-v2` and it registers itself. The chip's value lands in
-`table.filterValues()` under its `key`; the table's `filter(row, values)` reads it. There are no
-matchers and no per-chip state — see
+Chips are host-agnostic: on their own they just track their selection. Project one into a
+`bit-table-v2` and it registers itself — its value lands in `table.filterValues()` under its `key`,
+where the table's `filter(row, values)` reads it. See
 [Table V2 › Filtering](?path=/docs/component-library-table-v2-beta--docs).
-
-```html
-<bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
-  <bit-filter-option [value]="'login'">Login</bit-filter-option>
-</bit-filter-menu>
-```
