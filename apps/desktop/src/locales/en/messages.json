@@ -117,6 +117,9 @@
   "resetSearch": {
     "message": "Reset search"
   },
+  "clearSearch": {
+    "message": "Clear by clicking here or pressing Esc."
+  },
   "addItem": {
     "message": "Add item"
   },

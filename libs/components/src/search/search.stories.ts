@@ -23,7 +23,8 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               search: "Search",
-              resetSearch: "Clear search",
+              resetSearch: "Reset search",
+              clearSearch: "Clear by clicking here or pressing Esc.",
             });
           },
         },

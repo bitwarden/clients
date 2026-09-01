@@ -1080,6 +1080,9 @@
   "resetSearch": {
     "message": "Reset search"
   },
+  "clearSearch": {
+    "message": "Clear by clicking here or pressing Esc."
+  },
   "allItems": {
     "message": "All items"
   },
