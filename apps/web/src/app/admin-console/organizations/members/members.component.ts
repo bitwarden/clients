@@ -446,31 +446,9 @@ export class MembersComponent {
       return;
     }
 
-    let sentCount = 0;
-    let reinvited: OrganizationUserBulkResponse[] = [];
-
-    if (stagedUsers.length > 0) {
-      const result = await this.memberActionsService.sendInvite(
-        organization,
-        stagedUsers.map((u) => u.id),
-      );
-
-      if (result.success === false) {
-        this.validationService.showError(result.error);
-      } else {
-        sentCount += stagedUsers.length;
-      }
-    }
-
-    if (invitedUsers.length > 0) {
-      const result = await this.memberActionsService.bulkReinvite(organization, invitedUsers);
-      reinvited = result.successful;
-      sentCount += result.successful.length;
-
-      if (result.successful.length === 0) {
-        this.validationService.showError(result.failed);
-      }
-    }
+    const stagedSentCount = await this.sendStagedInvites(organization, stagedUsers);
+    const reinvited = await this.resendInvites(organization, invitedUsers);
+    const sentCount = stagedSentCount + reinvited.length;
 
     if (sentCount > 0) {
       this.toastService.showToast({
@@ -485,7 +463,7 @@ export class MembersComponent {
     // Self-hosted keeps the per-user status dialog for the resend portion.
     if (!this.dataSource().isIncreasedBulkLimitEnabled() && invitedUsers.length > 0) {
       await this.memberDialogManager.openBulkStatusDialog(
-        users,
+        invitedUsers,
         invitedUsers,
         Promise.resolve(reinvited),
         this.i18nService.t("bulkReinviteMessage"),
@@ -494,6 +472,45 @@ export class MembersComponent {
 
     this.dataSource().uncheckAllUsers();
     await this.load(organization);
+  }
+
+  private async sendStagedInvites(
+    organization: Organization,
+    stagedUsers: OrganizationUserView[],
+  ): Promise<number> {
+    if (stagedUsers.length === 0) {
+      return 0;
+    }
+
+    const cappedUsers = this.dataSource().limitAndUncheckExcess(stagedUsers, MaxCheckedCount);
+    const result = await this.memberActionsService.sendInvite(
+      organization,
+      cappedUsers.map((u) => u.id),
+    );
+
+    if (result.success === false) {
+      this.validationService.showError(result.error);
+      return 0;
+    }
+
+    return cappedUsers.length;
+  }
+
+  private async resendInvites(
+    organization: Organization,
+    invitedUsers: OrganizationUserView[],
+  ): Promise<OrganizationUserBulkResponse[]> {
+    if (invitedUsers.length === 0) {
+      return [];
+    }
+
+    const result = await this.memberActionsService.bulkReinvite(organization, invitedUsers);
+
+    if (result.successful.length === 0) {
+      this.validationService.showError(result.failed);
+    }
+
+    return result.successful;
   }
 
   async bulkConfirm(organization: Organization) {

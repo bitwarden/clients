@@ -270,6 +270,14 @@ describe("MemberActionsService", () => {
       );
     });
 
+    it("should refresh the metadata cache because promotion occupies a seat", async () => {
+      organizationUserApiService.postOrganizationUserSendInvite.mockResolvedValue(undefined);
+
+      await service.sendInvite(mockOrganization, [userIdToManage]);
+
+      expect(organizationMetadataService.refreshMetadataCache).toHaveBeenCalled();
+    });
+
     it("should handle send invite errors", async () => {
       const errorMessage = "Send invite failed";
       organizationUserApiService.postOrganizationUserSendInvite.mockRejectedValue(
@@ -279,6 +287,7 @@ describe("MemberActionsService", () => {
       const result = await service.sendInvite(mockOrganization, [userIdToManage]);
 
       expect(result).toEqual({ success: false, error: errorMessage });
+      expect(organizationMetadataService.refreshMetadataCache).not.toHaveBeenCalled();
     });
   });
 

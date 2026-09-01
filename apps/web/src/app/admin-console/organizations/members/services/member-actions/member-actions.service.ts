@@ -150,6 +150,8 @@ export class MemberActionsService {
         organization.id,
         userIds,
       );
+
+      this.organizationMetadataService.refreshMetadataCache();
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };

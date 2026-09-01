@@ -32,6 +32,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
+import { MaxCheckedCount } from "../../common/people-table-data-source";
 import { OrganizationUserView } from "../core/views/organization-user.view";
 
 import { AccountRecoveryDialogResultType } from "./components/account-recovery";
@@ -675,6 +676,40 @@ describe("MembersComponent", () => {
       await component.bulkSendInvite(mockOrg);
 
       expect(mockMemberDialogManager.openBulkStatusDialog).toHaveBeenCalled();
+    });
+
+    it("keeps staged members out of the self-hosted status dialog", async () => {
+      jest.spyOn(component["dataSource"](), "isIncreasedBulkLimitEnabled").mockReturnValue(false);
+      jest
+        .spyOn(component["dataSource"](), "getCheckedUsers")
+        .mockReturnValue([stagedUser, invitedUser]);
+      mockMemberActionsService.sendInvite.mockResolvedValue({ success: true });
+      mockMemberActionsService.bulkReinvite.mockResolvedValue({ successful: [{}], failed: [] });
+
+      await component.bulkSendInvite(mockOrg);
+
+      expect(mockMemberDialogManager.openBulkStatusDialog).toHaveBeenCalledWith(
+        [invitedUser],
+        [invitedUser],
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+
+    it("caps the staged portion because the request cannot be batched", async () => {
+      const cappedUsers = [stagedUser];
+      jest
+        .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
+        .mockReturnValue([stagedUser, { ...stagedUser, id: "excess-staged-user-id" }]);
+      const limitAndUncheckExcess = jest
+        .spyOn(component["dataSource"](), "limitAndUncheckExcess")
+        .mockReturnValue(cappedUsers);
+      mockMemberActionsService.sendInvite.mockResolvedValue({ success: true });
+
+      await component.bulkSendInvite(mockOrg);
+
+      expect(limitAndUncheckExcess).toHaveBeenCalledWith(expect.anything(), MaxCheckedCount);
+      expect(mockMemberActionsService.sendInvite).toHaveBeenCalledWith(mockOrg, [stagedUser.id]);
     });
   });
 
