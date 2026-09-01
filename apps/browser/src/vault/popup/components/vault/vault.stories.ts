@@ -701,6 +701,7 @@ const buildProviders = (args: StoryArgs) => {
           itemCount: "__$1__ items",
           // Table presentation (flag on)
           resetSearch: "Reset search",
+          clearSearch: "Clear by clicking here or pressing Esc.",
           name: "Name",
           autofillSuggestions: "Autofill suggestions",
           itemSuggestions: "Suggested items",
