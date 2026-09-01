@@ -511,12 +511,20 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       expect(fixture.nativeElement.textContent).not.toContain("subscriptionDetailsNotLoading");
     });
 
-    it("does not offer storage adjustment for a free organization", () => {
+    it("shows storage usage but no add/remove buttons for a free organization", async () => {
+      // Matches the legacy page: free orgs see the usage bar, but have no subscription to modify.
       createComponent({
         organization: buildOrganization({ isFreeOrg: true, canEditSubscription: true }),
+        subscription: buildSubscriptionResponse({ subscription: null }),
+        detectChanges: true,
       });
+      await fixture.whenStable();
+      fixture.detectChanges();
 
-      expect(component.canAdjustStorage()).toBe(false);
+      expect(component.showStorage()).toBe(true);
+      expect(component.canModifySubscription()).toBe(false);
+      expect(fixture.nativeElement.textContent).toContain("storage");
+      expect(fixture.nativeElement.textContent).not.toContain("addStorage");
     });
   });
 
