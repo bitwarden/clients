@@ -122,21 +122,21 @@ export interface FilterEntry {
 }
 
 /** One row of a multi-select menu's flattened tree — a section header or an option. */
+type FilterTreeNodeBase = {
+  level: number;
+  setsize: number;
+  posinset: number;
+  /**
+   * Whether a row without a chevron still reserves its column, so checkboxes line up. Scoped to the
+   * row's own group — a section with nothing to expand sits at the base indent, per the spec's
+   * `Nesting section` variant.
+   */
+  reserveExpander: boolean;
+};
+
 export type FilterTreeNode =
-  | {
-      kind: "section";
-      section: FilterSectionComponent;
-      level: number;
-      setsize: number;
-      posinset: number;
-    }
-  | {
-      kind: "option";
-      option: FilterOptionComponent;
-      level: number;
-      setsize: number;
-      posinset: number;
-    };
+  | (FilterTreeNodeBase & { kind: "section"; section: FilterSectionComponent })
+  | (FilterTreeNodeBase & { kind: "option"; option: FilterOptionComponent });
 
 /** What a multi-select filter menu exposes to its tree rows. */
 export interface FilterTreeHost {

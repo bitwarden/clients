@@ -426,10 +426,19 @@ export class FilterMenuComponent
     }).length;
   }
 
+  /** Whether anything in this run of options, at any depth, can expand. */
+  private groupExpands(options: readonly FilterOptionComponent[]): boolean {
+    return options.some((option) => option.hasChildren() || this.groupExpands(option.children()));
+  }
+
   /** The multi-select rows, flattened in document order, each carrying its own level. */
   protected readonly treeNodes = computed<FilterTreeNode[]>(() => {
     const nodes: FilterTreeNode[] = [];
-    const pushOptions = (options: readonly FilterOptionComponent[], level: number) => {
+    const pushOptions = (
+      options: readonly FilterOptionComponent[],
+      level: number,
+      reserveExpander: boolean,
+    ) => {
       const visible = options.filter((option) => this.optionVisible(option));
       visible.forEach((option, index) => {
         nodes.push({
@@ -438,9 +447,10 @@ export class FilterMenuComponent
           level,
           setsize: visible.length,
           posinset: index + 1,
+          reserveExpander,
         });
         if (option.hasChildren() && this.optionExpanded(option)) {
-          pushOptions(option.children(), level + 1);
+          pushOptions(option.children(), level + 1, reserveExpander);
         }
       });
     };
@@ -449,6 +459,18 @@ export class FilterMenuComponent
       const section = this.asSection(entry);
       return section ? this.sectionVisible(section) : this.optionVisible(entry as never);
     });
+
+    // Top-level rows align with each other: a collapsible section header or an expandable option
+    // anywhere on that line means every row on it reserves the column.
+    const topLevelReserve = entries.some((entry) => {
+      const section = this.asSection(entry);
+      if (section) {
+        return section.collapsible();
+      }
+      const option = this.asOption(entry);
+      return option ? option.hasChildren() : false;
+    });
+
     entries.forEach((entry, index) => {
       const section = this.asSection(entry);
       if (section) {
@@ -458,9 +480,11 @@ export class FilterMenuComponent
           level: 1,
           setsize: entries.length,
           posinset: index + 1,
+          reserveExpander: topLevelReserve,
         });
         if (this.sectionExpanded(section)) {
-          pushOptions(section.options(), 2);
+          // A section is its own group: it reserves only if something inside it expands.
+          pushOptions(section.options(), 2, this.groupExpands(section.options()));
         }
         return;
       }
@@ -474,9 +498,10 @@ export class FilterMenuComponent
         level: 1,
         setsize: entries.length,
         posinset: index + 1,
+        reserveExpander: topLevelReserve,
       });
       if (option.hasChildren() && this.optionExpanded(option)) {
-        pushOptions(option.children(), 2);
+        pushOptions(option.children(), 2, true);
       }
     });
     return nodes;
