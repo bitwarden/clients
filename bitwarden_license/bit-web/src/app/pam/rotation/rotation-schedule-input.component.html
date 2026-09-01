@@ -1,0 +1,51 @@
+<bit-form-field disableMargin>
+  <bit-label>{{ "pamRotationScheduleLabel" | i18n }}</bit-label>
+  <bit-select
+    id="rotation-schedule-input_select_preset"
+    [formControl]="presetControl"
+    (blur)="markTouched()"
+  >
+    <bit-option
+      [value]="QuartzSchedulePreset.None"
+      [label]="'pamRotationScheduleNone' | i18n"
+    ></bit-option>
+    <bit-option
+      [value]="QuartzSchedulePreset.Hourly"
+      [label]="'pamRotationScheduleHourly' | i18n"
+    ></bit-option>
+    <bit-option
+      [value]="QuartzSchedulePreset.Every6Hours"
+      [label]="'pamRotationScheduleEvery6Hours' | i18n"
+    ></bit-option>
+    <bit-option
+      [value]="QuartzSchedulePreset.Daily"
+      [label]="'pamRotationScheduleDaily' | i18n"
+    ></bit-option>
+    <bit-option
+      [value]="QuartzSchedulePreset.Weekly"
+      [label]="'pamRotationScheduleWeekly' | i18n"
+    ></bit-option>
+    <bit-option
+      [value]="QuartzSchedulePreset.Monthly"
+      [label]="'pamRotationScheduleMonthly' | i18n"
+    ></bit-option>
+    <bit-option
+      [value]="QuartzSchedulePreset.Custom"
+      [label]="'pamRotationScheduleCustom' | i18n"
+    ></bit-option>
+  </bit-select>
+</bit-form-field>
+
+@if (presetControl.value === QuartzSchedulePreset.Custom) {
+  <bit-form-field>
+    <bit-label>{{ "pamRotationScheduleCustomLabel" | i18n }}</bit-label>
+    <input
+      bitInput
+      id="rotation-schedule-input_input_custom-cron"
+      type="text"
+      [formControl]="customControl"
+      (blur)="markTouched()"
+    />
+    <bit-hint>{{ "pamRotationScheduleCustomHint" | i18n }}</bit-hint>
+  </bit-form-field>
+}
