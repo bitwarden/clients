@@ -265,6 +265,11 @@
                     formControlName="end"
                     id="pam-cipher-view-banner_input_end"
                   />
+                  @if (nextDayEnd(); as nextDay) {
+                    <bit-hint data-testid="request-window-next-day">
+                      {{ "requestAccessModalEndsNextDay" | i18n: (nextDay | date: "short") }}
+                    </bit-hint>
+                  }
                 </bit-form-field>
               </div>
 
