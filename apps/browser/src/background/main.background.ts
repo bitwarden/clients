@@ -961,8 +961,6 @@ export default class MainBackground {
       : new NoopSdkClientFactory();
     this.sdkLoadService = new BrowserSdkLoadService(this.logService);
 
-    // The background is the only place a management profile is ever pushed, so it owns the host
-    // handle. Both SDK services share this one instance.
     this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
 
     this.sdkService = new DefaultSdkService(
