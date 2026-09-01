@@ -18,6 +18,11 @@ const SHADOW_OBSERVER_ATTRIBUTE_FILTER = Object.values(AUTOFILL_ATTRIBUTES);
 // Per-scan cap; the persistent cap lives in ShadowHostHydrationTracker.
 const MAX_UNRESOLVED_SHADOW_HOSTS = 256;
 
+/** Default field detector: any input, select, or textarea element. */
+function anyField(root: Element): boolean {
+  return root.querySelector("input, select, textarea") != null;
+}
+
 /**
  * The two bins one shadow-root scan fills — hosts to re-scan, roots not seen before — plus the
  * observer to enroll discovered roots with. With no `observer` the scan still reports what it
@@ -27,7 +32,7 @@ type ShadowScanContext = {
   unresolvedHosts: Set<Element>;
   discoveredRoots: Set<ShadowRoot>;
   observer?: MutationObserver;
-  fieldDetector?: (root: ShadowRoot) => boolean;
+  fieldDetector: (root: ShadowRoot) => boolean;
 };
 
 export class DomQueryService implements DomQueryServiceInterface {
@@ -165,7 +170,7 @@ export class DomQueryService implements DomQueryServiceInterface {
       unresolvedHosts: new Set(),
       discoveredRoots: new Set(),
       observer: mutationObserver,
-      fieldDetector,
+      fieldDetector: fieldDetector ?? anyField,
     };
     // No batch ⇒ short-circuit; never a full-document walk (O(document), re-pierces roots).
     if (!addedElements?.length) {
@@ -488,12 +493,9 @@ export class DomQueryService implements DomQueryServiceInterface {
   private enrollShadowRoot = (
     root: ShadowRoot,
     observer: MutationObserver,
-    fieldDetector?: (root: ShadowRoot) => boolean,
+    fieldDetector: (root: ShadowRoot) => boolean,
   ): void => {
-    // Use caller's field detector if provided; fall back to simple heuristic for backward compatibility
-    const hasFields = fieldDetector
-      ? fieldDetector(root)
-      : root.querySelector("input, select, textarea") != null;
+    const hasFields = fieldDetector(root);
     this.observeShadowRoot(observer, root, hasFields);
     this.knownShadowRoots.add(root);
   };
