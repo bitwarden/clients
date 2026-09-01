@@ -50,6 +50,7 @@ import {
   AutofillOverlayElement,
   AutofillOverlayPort,
   InlineMenuAccountCreationFieldType,
+  InlineMenuFillType,
   InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
@@ -4509,6 +4510,66 @@ describe("OverlayBackground", () => {
       );
 
       expect(sources).toHaveLength(2);
+    });
+  });
+
+  describe("positioning the inline menu list for a password generation field", () => {
+    let positionSender: chrome.runtime.MessageSender;
+
+    beforeEach(async () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      positionSender = mock<chrome.runtime.MessageSender>({
+        tab: createChromeTabMock({ id: 1 }),
+        frameId: 0,
+      });
+      await flushPromises();
+    });
+
+    function focusField(inlineMenuFillType: InlineMenuFillType) {
+      sendMockExtensionMessage(
+        {
+          command: "updateFocusedFieldData",
+          focusedFieldData: createFocusedFieldDataMock({ inlineMenuFillType }),
+        },
+        positionSender,
+      );
+
+      return flushPromises();
+    }
+
+    it("appends the list only once a generated password exists", async () => {
+      await focusField(InlineMenuFillTypes.PasswordGeneration);
+      let credentialWhenAppended: string | undefined;
+      tabsSendMessageSpy.mockImplementation((_tab: chrome.tabs.Tab, message: any) => {
+        if (message?.command === "appendAutofillInlineMenuToDom") {
+          credentialWhenAppended = overlayBackground["credential$"].value;
+        }
+
+        return Promise.resolve();
+      });
+      expect(overlayBackground["credential$"].value).toBe("");
+
+      await overlayBackground["updateInlineMenuPosition"](
+        positionSender,
+        AutofillOverlayElement.List,
+      );
+
+      expect(credentialWhenAppended).toBe(generatedPassword);
+    });
+
+    it("does not request a password when positioning the list for a login field", async () => {
+      await focusField(CipherType.Login);
+      const sources: (string | undefined)[] = [];
+      overlayBackground["requestGeneratedPassword$"].subscribe((request) =>
+        sources.push(request.source),
+      );
+
+      await overlayBackground["updateInlineMenuPosition"](
+        positionSender,
+        AutofillOverlayElement.List,
+      );
+
+      expect(sources).toHaveLength(0);
     });
   });
 

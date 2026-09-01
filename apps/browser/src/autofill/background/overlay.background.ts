@@ -1859,6 +1859,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    if (overlayElement === AutofillOverlayElement.List && this.awaitingGeneratedPassword()) {
+      try {
+        await this.requestGeneratedCredential(PasswordGenerateRequestSource.InlineMenuInit);
+      } catch (error) {
+        this.logService.error(error);
+      }
+    }
+
     this.cancelInlineMenuFadeInAndPositionUpdate();
 
     await BrowserApi.tabSendMessage(
@@ -2234,6 +2242,21 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private waitForNextCredential() {
     return firstValueFrom(this.credential$.pipe(skip(1), filter(Boolean), timeout(10_000)));
+  }
+
+  /**
+   * Identifies if the focused field is waiting for a generated password or not
+   */
+  private awaitingGeneratedPassword() {
+    if (this.credential$.value) {
+      return false;
+    }
+
+    return (
+      this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration) ||
+      (this.shouldShowInlineMenuAccountCreation() &&
+        this.focusedFieldMatchesAccountCreationType(InlineMenuAccountCreationFieldType.Password))
+    );
   }
 
   /**
@@ -3585,7 +3608,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.generateInlineMenuPasswordForPort(port).catch((error) => this.logService.error(error));
     }
 
-    if (port.sender) {
+    if (port.sender && this.isCurrentInlineMenuPort(port)) {
       this.updateInlineMenuPosition(
         port.sender,
         isInlineMenuListPort ? AutofillOverlayElement.List : AutofillOverlayElement.Button,
