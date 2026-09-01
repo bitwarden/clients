@@ -2,6 +2,9 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { EMPTY, of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -24,12 +27,28 @@ import {
 
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
 
+const ORGANIZATION_ID = "org-1";
+
+/** The caller's membership, with their Privileged Access Manager seat under the story's control. */
+function organization(licensed: boolean): Organization {
+  return Object.assign(new Organization(), {
+    id: ORGANIZATION_ID,
+    enabled: true,
+    usePam: true,
+    accessPam: licensed,
+    isProviderUser: false,
+  });
+}
+
 /** A gated cipher: `partial` is what marks it as governed and still unrevealed. */
 function gatedCipher(): CipherView {
   const cipher = new CipherView();
   cipher.id = "cipher-1";
   cipher.name = "Prod database";
   cipher.partial = true;
+  // Only an organization-owned cipher can be governed, and it is the organization the licensing
+  // check reads the caller's seat from.
+  cipher.organizationId = ORGANIZATION_ID;
   return cipher;
 }
 
@@ -53,13 +72,28 @@ function pam(
     mode?: "automatic" | "human";
     enabled?: boolean;
     maxDurationSeconds?: number;
+    /** The caller's own Privileged Access Manager seat. Licensed unless a story says otherwise. */
+    licensed?: boolean;
   } = {},
 ) {
-  const { state, mode = "automatic", enabled = true, maxDurationSeconds = 4 * 60 * 60 } = options;
+  const {
+    state,
+    mode = "automatic",
+    enabled = true,
+    maxDurationSeconds = 4 * 60 * 60,
+    licensed = true,
+  } = options;
   return moduleMetadata({
     imports: [CipherViewBannerComponent],
     providers: [
       { provide: ConfigService, useValue: { getFeatureFlag$: () => of(enabled) } },
+      { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+      {
+        provide: OrganizationService,
+        useValue: {
+          organizations$: () => of([organization(licensed)]),
+        },
+      },
       {
         provide: AccessRequestSdkService,
         useValue: {
@@ -137,6 +171,16 @@ export const PrivilegedHumanApproval: Story = {
       maxDurationSeconds: 24 * 60 * 60,
     }),
   ],
+};
+
+/**
+ * The caller belongs to a Privileged Access organization but holds no seat of their own. This card
+ * replaces every other state, including an active lease: the server stops releasing the credential
+ * to an unlicensed holder whatever lease they hold, so there is no access left to describe
+ * (PM-39423).
+ */
+export const Unlicensed: Story = {
+  decorators: [pam({ state: () => ({ badgeState: "privileged" }), licensed: false })],
 };
 
 /** A request is with an approver. Request access is not offered again; the request can be cancelled. */
@@ -239,6 +283,11 @@ export const StateReadFails: Story = {
       imports: [CipherViewBannerComponent],
       providers: [
         { provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        {
+          provide: OrganizationService,
+          useValue: { organizations$: () => of([organization(true)]) },
+        },
         {
           provide: AccessRequestSdkService,
           useValue: { getCipherAccessState: () => Promise.reject(new Error("read failed")) },
