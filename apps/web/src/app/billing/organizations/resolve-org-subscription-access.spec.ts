@@ -212,6 +212,7 @@ describe("resolveOrgSubscriptionAccess", () => {
         showManagementActions: true,
         showSelfHost: true,
         showConsolidatedBillingMsp: false,
+        isFreeOrg: false,
       });
     });
 
@@ -229,6 +230,7 @@ describe("resolveOrgSubscriptionAccess", () => {
         showManagementActions: true,
         showSelfHost: false,
         showConsolidatedBillingMsp: false,
+        isFreeOrg: false,
       });
     });
 
@@ -246,6 +248,7 @@ describe("resolveOrgSubscriptionAccess", () => {
         showManagementActions: false,
         showSelfHost: true,
         showConsolidatedBillingMsp: false,
+        isFreeOrg: false,
       });
     });
 
@@ -263,6 +266,7 @@ describe("resolveOrgSubscriptionAccess", () => {
         showManagementActions: true,
         showSelfHost: false,
         showConsolidatedBillingMsp: false,
+        isFreeOrg: false,
       });
     });
 
@@ -281,6 +285,7 @@ describe("resolveOrgSubscriptionAccess", () => {
         showManagementActions: false,
         showSelfHost: true,
         showConsolidatedBillingMsp: true,
+        isFreeOrg: false,
       });
     });
 
@@ -299,7 +304,22 @@ describe("resolveOrgSubscriptionAccess", () => {
         showManagementActions: false,
         showSelfHost: false,
         showConsolidatedBillingMsp: false,
+        isFreeOrg: false,
       });
+    });
+  });
+
+  describe("isFreeOrg", () => {
+    it("returns true for a free organization", () => {
+      const org = createOrganization({ isOwner: true, isFreeOrg: true });
+
+      expect(resolveOrgSubscriptionAccess(org).isFreeOrg).toBe(true);
+    });
+
+    it("returns false for a paid organization", () => {
+      const org = createOrganization({ isOwner: true, isFreeOrg: false });
+
+      expect(resolveOrgSubscriptionAccess(org).isFreeOrg).toBe(false);
     });
   });
 });
@@ -327,6 +347,7 @@ function createOrganization(
     canManageBilling?: boolean;
     hasSelfHost?: boolean;
     isProviderManaged?: boolean;
+    isFreeOrg?: boolean;
   } = {},
 ): Organization {
   const org = new Organization();
@@ -339,6 +360,9 @@ function createOrganization(
   org.isMember = config.isMember ?? true;
   org.productTierType = config.productTierType ?? ProductTierType.Teams;
   org.selfHost = config.selfHost ?? false;
+  // `isFreeOrg` is a getter (`!useTotp`), so drive it through its backing flag. Default to a paid
+  // org so existing tests keep asserting the non-free path.
+  org.useTotp = !(config.isFreeOrg ?? false);
 
   // Set provider properties to drive hasProvider, hasBillableProvider, hasReseller
   const needsProvider = config.hasProvider || config.hasBillableProvider || config.hasReseller;
