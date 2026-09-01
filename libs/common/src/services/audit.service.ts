@@ -12,6 +12,16 @@ import { Utils } from "../platform/misc/utils";
 
 const PwnedPasswordsApi = "https://api.pwnedpasswords.com/range/";
 
+/**
+ * Ceiling on a single range lookup.
+ *
+ * This is a safety valve, not a latency target: a request that never settles holds its slot in the
+ * concurrency limiter forever, so a caller fanning out over a whole vault silently loses throughput
+ * until nothing is left. Deliberately generous, because padded responses are ~40 kB and a slow
+ * network is not a failure.
+ */
+export const RangeRequestTimeoutMs = 30_000;
+
 export class AuditService implements AuditServiceAbstraction {
   private passwordLeakedSubject = new Subject<{
     password: string;
@@ -52,6 +62,9 @@ export class AuditService implements AuditServiceAbstraction {
 
   /**
    * Fetches the count of leaked passwords from the Pwned Passwords API.
+   *
+   * Always settles, within {@link RangeRequestTimeoutMs}.
+   *
    * @param password The password to check.
    * @returns A promise that resolves to the number of times the password has been leaked.
    */
@@ -61,21 +74,29 @@ export class AuditService implements AuditServiceAbstraction {
     const hashStart = hash.substr(0, 5);
     const hashEnding = hash.substr(5);
 
-    const request = new Request(PwnedPasswordsApi + hashStart, {
-      headers: { "Add-Padding": "true" },
-    });
-    const response = await this.apiService.nativeFetch(request);
-    if (!response.ok) {
-      // An error body would otherwise be parsed as a hash list, matching nothing and reporting the
-      // password as not exposed.
-      throw new Error(`Pwned Passwords request failed with status ${response.status}.`);
-    }
-    const leakedHashes = await response.text();
-    const match = leakedHashes.split(/\r?\n/).find((v) => {
-      return v.split(":")[0] === hashEnding;
-    });
+    const abortController = new AbortController();
+    const abortTimer = setTimeout(() => abortController.abort(), RangeRequestTimeoutMs);
 
-    return match != null ? parseInt(match.split(":")[1], 10) : 0;
+    try {
+      const request = new Request(PwnedPasswordsApi + hashStart, {
+        headers: { "Add-Padding": "true" },
+        signal: abortController.signal,
+      });
+      const response = await this.apiService.nativeFetch(request);
+      if (!response.ok) {
+        // An error body would otherwise be parsed as a hash list, matching nothing and reporting
+        // the password as not exposed.
+        throw new Error(`Pwned Passwords request failed with status ${response.status}.`);
+      }
+      const leakedHashes = await response.text();
+      const match = leakedHashes.split(/\r?\n/).find((v) => {
+        return v.split(":")[0] === hashEnding;
+      });
+
+      return match != null ? parseInt(match.split(":")[1], 10) : 0;
+    } finally {
+      clearTimeout(abortTimer);
+    }
   }
 
   async breachedAccounts(username: string): Promise<BreachAccountResponse[]> {
