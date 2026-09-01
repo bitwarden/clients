@@ -6,7 +6,7 @@ import { fromEvent } from "rxjs";
 /**
  * Returns a readonly signal tracking the platform modifier key label
  * ("Command" on Mac, "Ctrl" elsewhere). Seeded from navigator at injection
- * time; refined to ground-truth on the first real Cmd/Ctrl keydown.
+ * time; refined to ground-truth on the first Cmd/Ctrl chord keydown (bare modifier presses are ignored).
  *
  * Must be called in an injection context (e.g. a component field initializer
  * or constructor).
@@ -18,6 +18,9 @@ export function injectModifierKey(): Signal<"Command" | "Ctrl"> {
   fromEvent<KeyboardEvent>(document, "keydown")
     .pipe(takeUntilDestroyed())
     .subscribe((event) => {
+      if (event.key === "Meta" || event.key === "Control") {
+        return;
+      }
       if (event.metaKey && !event.ctrlKey) {
         modifierKey.set("Command");
       } else if (event.ctrlKey && !event.metaKey) {
