@@ -17976,17 +17976,11 @@
   "pamAuditEmptyMessage": {
     "message": "Privileged-access activity in this organization will appear here."
   },
-  "pamAuditSearchPlaceholder": {
-    "message": "Search the audit log"
-  },
   "pamAuditNoMatchesTitle": {
     "message": "No matching events"
   },
   "pamAuditNoMatchesMessage": {
     "message": "No events match the current filters."
-  },
-  "pamAuditColumnTime": {
-    "message": "Time"
   },
   "pamAuditColumnEvent": {
     "message": "Event"
@@ -18155,6 +18149,18 @@
   },
   "pamRequestAccessButton": {
     "message": "Request access"
+  },
+  "pamRequestSlotTaken": {
+    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until they're done."
+  },
+  "pamRequestSlotTakenUntil": {
+    "message": "Someone else has access to this item right now. You can request access, but you won't be able to start it until $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "8/31/26, 10:52 AM"
+      }
+    }
   },
   "cipherLeaseExpiresIn": {
     "message": "Leased — expires in $DURATION$",

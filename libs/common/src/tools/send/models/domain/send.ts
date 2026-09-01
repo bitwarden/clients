@@ -187,8 +187,9 @@ export class Send extends Domain {
       type: SEND_TYPE_TO_SDK[this.type],
       file: this.file ? this.file.toSdk() : undefined,
       text: this.text ? this.text.toSdk() : undefined,
-      // The SDK's v2 send item (`encryptionVersion` + an embedded cipher). This domain model
-      // predates it and carries its content in `file`/`text`, so there is nothing to map yet.
+      // Always absent: `SendItem` is the SDK's send-an-item payload, and this domain model has no field
+      // for it — a Send here is text or file. Spelled out rather than omitted because the SDK declares
+      // `data` as required-but-nullable, so leaving the key off is a type error rather than a default.
       data: undefined,
       maxAccessCount: this.maxAccessCount ?? undefined,
       accessCount: this.accessCount,
