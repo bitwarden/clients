@@ -3,7 +3,7 @@
     <app-change-kdf></app-change-kdf>
   }
 
-  @if (showKeyRotation && sdkKeyRotationFlag$ | async) {
+  @if (showKeyRotation$ | async) {
     <app-user-key-rotation></app-user-key-rotation>
   }
 
