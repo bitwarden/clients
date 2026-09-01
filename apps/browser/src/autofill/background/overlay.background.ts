@@ -146,6 +146,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private readonly requestGeneratedPassword$ = new Subject<GenerateRequest>();
   private readonly clearGeneratedPassword$ = new Subject<void>();
   private credential$ = new BehaviorSubject<string>("");
+  private pendingGeneratedCredential: Promise<string> | null = null;
   private credentialPipelineSubscription: Subscription | undefined;
   private pageDetailsForTab: PageDetailsForTab = {};
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
@@ -2236,17 +2237,45 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
+   * Requests a generated password and resolves with it once the credential pipeline
+   * emits.
+   *
+   * @param source - Identifies the caller requesting the password
+   * @param refreshPassword - Requests a new password rather than joining an in-flight request
+   */
+  private requestGeneratedCredential(
+    source: PasswordGenerateRequestSource,
+    refreshPassword: boolean = false,
+  ) {
+    if (!refreshPassword && this.pendingGeneratedCredential !== null) {
+      return this.pendingGeneratedCredential;
+    }
+
+    const pendingCredential = this.waitForNextCredential();
+    this.pendingGeneratedCredential = pendingCredential;
+    this.requestGeneratedPassword$.next({ source, type: Type.password });
+
+    const clearPendingCredential = () => {
+      if (this.pendingGeneratedCredential === pendingCredential) {
+        this.pendingGeneratedCredential = null;
+      }
+    };
+    void pendingCredential.then(clearPendingCredential, clearPendingCredential);
+
+    return pendingCredential;
+  }
+
+  /**
    * Updates the generated password in the inline menu list.
    *
    * @param refreshPassword - Identifies whether the generated password should be refreshed
    */
   private async updateGeneratedPassword(refreshPassword: boolean = false) {
     if (!this.credential$.value || refreshPassword) {
-      this.requestGeneratedPassword$.next({
-        source: PasswordGenerateRequestSource.InlineMenu,
-        type: Type.password,
-      });
-      const generatedPassword = await this.waitForNextCredential();
+      const generatedPassword = await this.requestGeneratedCredential(
+        PasswordGenerateRequestSource.InlineMenu,
+        refreshPassword,
+      );
       this.postMessageToPort(this.inlineMenuListPort, {
         command: "updateAutofillInlineMenuGeneratedPassword",
         generatedPassword,
@@ -3704,11 +3733,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    this.requestGeneratedPassword$.next({
-      source: PasswordGenerateRequestSource.InlineMenuInit,
-      type: Type.password,
-    });
-    const generatedPassword = await this.waitForNextCredential();
+    const generatedPassword = await this.requestGeneratedCredential(
+      PasswordGenerateRequestSource.InlineMenuInit,
+    );
 
     // The list can be torn down or replaced while generation is in flight; only the
     // port that is still the active list should receive the generated password.

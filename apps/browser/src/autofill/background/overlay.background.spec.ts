@@ -4459,6 +4459,59 @@ describe("OverlayBackground", () => {
     });
   });
 
+  describe("requestGeneratedCredential", () => {
+    function trackGenerateRequestSources() {
+      const sources: (string | undefined)[] = [];
+      overlayBackground["requestGeneratedPassword$"].subscribe((request) =>
+        sources.push(request.source),
+      );
+
+      return sources;
+    }
+
+    it("shares a single in-flight request across concurrent callers", async () => {
+      const sources = trackGenerateRequestSources();
+
+      const [focusCredential, portCredential] = await Promise.all([
+        overlayBackground["requestGeneratedCredential"](PasswordGenerateRequestSource.InlineMenu),
+        overlayBackground["requestGeneratedCredential"](
+          PasswordGenerateRequestSource.InlineMenuInit,
+        ),
+      ]);
+
+      expect(sources).toEqual([PasswordGenerateRequestSource.InlineMenu]);
+      expect(focusCredential).toBe(generatedPassword);
+      expect(portCredential).toBe(generatedPassword);
+    });
+
+    it("requests a new password when refreshing while a request is in flight", async () => {
+      const sources = trackGenerateRequestSources();
+
+      await Promise.all([
+        overlayBackground["requestGeneratedCredential"](PasswordGenerateRequestSource.InlineMenu),
+        overlayBackground["requestGeneratedCredential"](
+          PasswordGenerateRequestSource.InlineMenu,
+          true,
+        ),
+      ]);
+
+      expect(sources).toHaveLength(2);
+    });
+
+    it("requests a new password once the previous request has settled", async () => {
+      const sources = trackGenerateRequestSources();
+
+      await overlayBackground["requestGeneratedCredential"](
+        PasswordGenerateRequestSource.InlineMenu,
+      );
+      await overlayBackground["requestGeneratedCredential"](
+        PasswordGenerateRequestSource.InlineMenu,
+      );
+
+      expect(sources).toHaveLength(2);
+    });
+  });
+
   describe("credential pipeline history tracking", () => {
     it("tracks history for InlineMenuInit-sourced credentials", async () => {
       await flushPromises();
