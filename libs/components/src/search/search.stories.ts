@@ -60,18 +60,6 @@ export const WithShortcutHints: Story = {
   },
 };
 
-export const WithShortcutHintsAndText: Story = {
-  render: (args) => ({
-    props: { ...args, searchText: "example query" },
-    template: `
-      <bit-search [(ngModel)]="searchText"${formatArgsForCodeSnippet<SearchComponent>(args)}></bit-search>
-    `,
-  }),
-  args: {
-    showShortcutHints: true,
-  },
-};
-
 const makeDoc = (platform: string) =>
   ({
     defaultView: { navigator: { platform } },

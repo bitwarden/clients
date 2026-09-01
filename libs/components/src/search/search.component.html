@@ -26,15 +26,15 @@
       class="tw-flex tw-items-center tw-gap-1 tw-pe-1 tw-shrink-0 tw-select-none group-has-[:focus]/form-field:tw-hidden"
       aria-hidden="true"
     >
-      <kbd
-        class="tw-inline-flex tw-items-center tw-rounded tw-border tw-border-solid tw-border-border-base tw-px-1.5 tw-py-0.5 tw-font-mono tw-text-xs tw-leading-none tw-text-fg-body-subtle"
-        >{{ modifierGlyph() }}</kbd
-      >
+      <kbd bitKbd>{{ modifierGlyph() }}</kbd>
       <span class="tw-text-xs tw-leading-none tw-text-fg-body-subtle">+</span>
-      <kbd
-        class="tw-inline-flex tw-items-center tw-rounded tw-border tw-border-solid tw-border-border-base tw-px-1.5 tw-py-0.5 tw-font-mono tw-text-xs tw-leading-none tw-text-fg-body-subtle"
-        >F</kbd
-      >
+      <kbd bitKbd>F</kbd>
+    </span>
+    <span
+      class="tw-hidden tw-items-center tw-pe-1 tw-shrink-0 tw-select-none group-has-[:focus]/form-field:tw-flex"
+      aria-hidden="true"
+    >
+      <kbd bitKbd>ESC</kbd>
     </span>
   }
   @if (searchText()) {

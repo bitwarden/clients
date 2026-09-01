@@ -24,6 +24,7 @@ import {
 } from "../form-field/field-container.directive";
 import { IconComponent } from "../icon";
 import { BitIconButtonComponent } from "../icon-button";
+import { KbdDirective } from "../kbd";
 import { FocusableElement } from "../shared/focusable-element";
 import { injectModifierKey } from "../utils";
 
@@ -57,6 +58,7 @@ let nextId = 0;
     FormsModule,
     I18nPipe,
     BitIconButtonComponent,
+    KbdDirective,
   ],
 })
 export class SearchComponent implements ControlValueAccessor, FocusableElement {
@@ -112,6 +114,7 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
     this.input()?.nativeElement.focus();
   }
 
+  // Safari uses type="text" so Escape won't natively clear the field; handle it manually.
   protected handleInputKeydown(event: KeyboardEvent): void {
     if (event.key === "Escape" && this.searchText()) {
       event.preventDefault();
