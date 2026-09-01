@@ -1,4 +1,6 @@
-import { apiErrorBodyMessage } from "../abstractions/api-error";
+import { serverErrorSentence } from "../abstractions/api-error";
+
+import { UNLICENSED_SERVER_MESSAGE } from "./pam-license-error";
 
 /**
  * The activation endpoint's error catalog, as the server words it, paired with the copy we show
@@ -50,12 +52,21 @@ export const ACTIVATE_ACCESS_SERVER_ERRORS = Object.freeze({
     serverMessage: "Access to this item is not permitted right now.",
     messageKey: "pamStartLeaseErrorNotPermitted",
   },
+  /**
+   * The caller holds no Privileged Controls license (PM-39423, `PamLicenseGuard`). Reachable from
+   * surfaces that have no licensing block of their own — the My requests tab and the shared
+   * request dialog both offer Start off a request row, with no cipher in hand to check licensing
+   * against — as well as from the banner when the seat is withdrawn between render and click.
+   */
+  Unlicensed: {
+    serverMessage: UNLICENSED_SERVER_MESSAGE,
+    messageKey: "pamLeaseErrorUnlicensed",
+  },
 } as const satisfies Record<string, { serverMessage: string; messageKey: string }>);
 
 /** The i18n key to toast for a rejected activation, generic copy included. */
 export function activateAccessErrorMessageKey(e: unknown): string {
-  const message = e instanceof Error ? e.message : "";
-  const candidate = apiErrorBodyMessage(message) ?? message;
+  const candidate = serverErrorSentence(e);
   const mapped = Object.values(ACTIVATE_ACCESS_SERVER_ERRORS).find((entry) =>
     candidate.includes(entry.serverMessage),
   );
