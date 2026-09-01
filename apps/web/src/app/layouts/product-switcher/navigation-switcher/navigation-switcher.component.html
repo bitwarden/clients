@@ -127,7 +127,7 @@
   }
 }
 
-@if (shouldShowPremiumUpgradeButton$ | async) {
+@if (version() !== "vfo1" && (shouldShowPremiumUpgradeButton$ | async)) {
   <app-upgrade-nav-button></app-upgrade-nav-button>
 }
 

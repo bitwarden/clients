@@ -135,6 +135,10 @@ export class ProductSwitcherService {
     switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
   );
 
+  private vfo1Enabled$: Observable<boolean> = this.configService.getFeatureFlag$(
+    FeatureFlag.VFO1Foundation,
+  );
+
   shouldShowPremiumUpgradeButton$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     switchMap((account) => {
       if (!account) {
@@ -153,12 +157,12 @@ export class ProductSwitcherService {
     this.organizations$,
     this.providers$,
     this.userHasSingleOrgPolicy$,
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    this.vfo1Enabled$,
     this.route.paramMap,
     this.triggerProductUpdate$,
   ]).pipe(
     map(
-      ([orgs, providers, userHasSingleOrgPolicy, vfo1FoundationEnabled, paramMap]: [
+      ([orgs, providers, userHasSingleOrgPolicy, vfo1Enabled, paramMap]: [
         Organization[],
         Provider[],
         boolean,
@@ -241,6 +245,7 @@ export class ProductSwitcherService {
             },
             isActive: this.router.url.includes("/sm/"),
             otherProductOverrides: {
+              name: vfo1Enabled ? this.i18nService.t("getSecretsManager") : undefined,
               supportingText: this.i18nService.t("secureYourInfrastructure"),
             },
           },
@@ -283,7 +288,7 @@ export class ProductSwitcherService {
 
         if (acOrg) {
           bento.push(products.ac);
-        } else if (!userHasSingleOrgPolicy && !vfo1FoundationEnabled) {
+        } else if (!userHasSingleOrgPolicy && !vfo1Enabled) {
           // Offered only while VFO1 is off — flag-on, "Add plan" in Settings
           // replaces the Organizations entry point.
           other.push(products.orgs);
