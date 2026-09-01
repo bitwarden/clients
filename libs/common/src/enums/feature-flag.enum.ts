@@ -123,11 +123,6 @@ export enum FeatureFlag {
   /* Innovation */
   ElectronStorageCache = "pm-32783-electron-storage-cache",
 
-  /* Desktop */
-  DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
-  DesktopUiMigrationMilestone4 = "desktop-ui-migration-milestone-4",
-  DesktopSettingsDialog = "desktop-ui-settings-dialog",
-
   /* Secrets Manager */
   SecretVersioning = "sm-1587-secrets-versioning",
 
@@ -258,11 +253,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Innovation */
   [FeatureFlag.ElectronStorageCache]: FALSE,
-
-  /* Desktop */
-  [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
-  [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
-  [FeatureFlag.DesktopSettingsDialog]: FALSE,
 
   /* Secrets Manager */
   [FeatureFlag.SecretVersioning]: FALSE,
