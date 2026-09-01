@@ -124,6 +124,8 @@ export class SendView implements View {
               hidden: this.text?.hidden ?? false,
             }
           : undefined,
+      // Item-type sends are not yet modeled client-side; see PM-41095.
+      data: undefined,
       maxAccessCount: this.maxAccessCount ?? undefined,
       accessCount: this.accessCount,
       disabled: this.disabled,
