@@ -25,7 +25,8 @@
         <span slot="end">{{ items().length }}</span>
       </bit-section-header>
 
-      <cdk-virtual-scroll-viewport itemSize="62" bitScrollLayout>
+      <!-- itemSize 68 = 62 row height + 6 margin bottom -->
+      <cdk-virtual-scroll-viewport itemSize="68" bitScrollLayout>
         <bit-item *cdkVirtualFor="let item of items()" class="tw-flex tw-gap-2 tw-items-center">
           @let cipher = cipherMap().get(item.cipherId);
 
