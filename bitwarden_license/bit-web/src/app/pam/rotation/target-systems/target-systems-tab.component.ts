@@ -1,160 +1,83 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  computed,
-  effect,
-  inject,
-  signal,
-} from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, effect, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { filter, firstValueFrom, map } from "rxjs";
+import { map } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
-  AsyncActionsModule,
   BadgeModule,
-  BitCellComponent,
-  BitCellDefDirective,
-  BitCellLoadingDirective,
-  BitColumnComponent,
-  BitHeaderCellComponent,
-  BitTableToolbarComponent,
-  BitTableV2Component,
-  ButtonModule,
-  CopyClickDirective,
   DialogService,
-  FilterMenuModule,
   IconButtonModule,
   IconModule,
-  LinkModule,
   MenuModule,
   SearchModule,
-  SkeletonComponent,
-  SkeletonTextComponent,
+  SpinnerComponent,
+  TableDataSource,
+  TableModule,
   ToastService,
-  TooltipDirective,
-  defineTable,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
-import { assignableConnectors, eligibleConnectors } from "../assignable";
-import { TARGET_SYSTEM_QUERY_PARAM } from "../create-flow";
-import { filterOptions } from "../filter-options";
+import { DaemonsService } from "../daemons/daemons.service";
 import {
-  AccessConnector,
-  AccessConnectorId,
   TargetSystemId,
   TargetSystemKind,
   TargetSystemMethod,
   TargetSystemStatus,
-  TargetSystemView,
+  TargetSystem,
 } from "../rotation";
-import { rotationErrorMessage } from "../rotation-error";
-import { RotationLoadErrorComponent } from "../rotation-load-error.component";
-import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
-import { RowBusyTracker } from "../row-busy-tracker";
-import { showSkeletonWhile } from "../skeleton-delay";
 
-import { AssignConnectorDialogComponent } from "./assign-connector-dialog.component";
-import { targetSystemKindLabelKey, targetSystemMethodLabelKey } from "./target-system-label";
 import {
   TargetSystemsEmptyStateComponent,
   TargetSystemTemplateKey,
 } from "./target-systems-empty-state.component";
 import { TargetSystemsService } from "./target-systems.service";
 
-/** The three lifecycle states a row's status badge can show. */
-export type TargetSystemRowStatus = "active" | "inactive" | "pendingSeal";
-
+/** A flattened, presentation-ready view of a {@link TargetSystem}. */
 export type TargetSystemRow = {
   id: TargetSystemId;
-  /** {@link id} as the string the copy control hands the clipboard. */
-  idText: string;
-  system: TargetSystemView;
+  system: TargetSystem;
   name: string;
-  /**
-   * Null for a method this SDK can't model. The Method chip keys on this rather than
-   * `system.method`, so an unlabelled method can't borrow another's label.
-   */
-  methodLabelKey: string | null;
-  methodLabel: string | null;
-  /** `system.sealed?.kind`, null for a manual target or one with no verified sealed fields. */
-  kind: TargetSystemKind | null;
+  methodLabel: string;
   kindLabel: string | null;
-  status: TargetSystemRowStatus;
-  statusLabelKey:
-    | "pamTargetSystemStatusActive"
-    | "pamTargetSystemStatusInactive"
-    | "pamTargetSystemStatusPendingSeal";
   statusLabel: string;
   active: boolean;
-  /**
-   * Whether the integration can terminate sessions, when known. `unknown` means `sealed` is
-   * absent on a row that isn't `pendingSeal` — unverified, distinct from confirming it cannot.
-   */
-  sessionTermination: "yes" | "no" | "unknown";
-  /**
-   * True when `sealed` is absent on a row that isn't `pendingSeal`: the blob exists but failed to
-   * verify. Surfaced as an icon beside the name, since the status column can't show it.
-   */
-  integrityCheckFailed: boolean;
-  /** Only an automatic-method target can claim a connector assignment. */
-  canAssignConnectors: boolean;
-  /** Only an active target can take a new managed credential. */
-  canAddManagedCredential: boolean;
-  /** The i18n key for why the menu can't assign an access connector now, or null when it can. */
-  assignConnectorsBlockedKey: string | null;
-  /**
-   * The i18n key for why Activate/Deactivate are disabled, or null when either is live. A
-   * `pendingSeal` target has no confirmed capability to toggle until setup finishes.
-   */
-  activationBlockedKey: string | null;
 };
 
+/**
+ * Tab component for the target-systems list in the PAM Rotation shell.
+ *
+ * Shows a searchable table of all target systems, with row menus for Edit, Enable, Disable, and
+ * Delete.
+ * Row edit navigates to the sibling routed page (outside the shell, which has no tab bar); the
+ * "New target system" create action lives in the shell header.
+ */
 @Component({
   templateUrl: "./target-systems-tab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    CommonModule,
     ReactiveFormsModule,
-    AsyncActionsModule,
     BadgeModule,
-    ButtonModule,
-    CopyClickDirective,
-    FilterMenuModule,
     IconButtonModule,
     IconModule,
-    LinkModule,
     MenuModule,
     SearchModule,
-    SkeletonComponent,
-    SkeletonTextComponent,
-    BitTableToolbarComponent,
-    BitTableV2Component,
-    BitColumnComponent,
-    BitHeaderCellComponent,
-    BitCellComponent,
-    BitCellDefDirective,
-    BitCellLoadingDirective,
-    TooltipDirective,
-    RotationLoadErrorComponent,
-    RotationLoadingAnnouncerComponent,
+    SpinnerComponent,
+    TableModule,
     TargetSystemsEmptyStateComponent,
     I18nPipe,
   ],
 })
 export class TargetSystemsTabComponent {
-  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly targetSystemsService = inject(TargetSystemsService);
-  private readonly accessConnectorsService = inject(AccessConnectorsService);
+  private readonly daemonsService = inject(DaemonsService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
@@ -165,374 +88,163 @@ export class TargetSystemsTabComponent {
   );
 
   protected readonly loading = toSignal(this.targetSystemsService.loading$, { initialValue: true });
-  protected readonly loadError = toSignal(this.targetSystemsService.loadError$, {
-    initialValue: null,
-  });
-
-  /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
-  protected readonly showSkeleton = showSkeletonWhile(this.loading);
-
-  protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
-
-  protected readonly skeletonRows = [0, 1, 2, 3, 4];
-
   private readonly systems = toSignal(this.targetSystemsService.systems$, {
-    initialValue: [] as TargetSystemView[],
-  });
-  private readonly accessConnectors = toSignal(this.accessConnectorsService.accessConnectors$, {
-    initialValue: [] as AccessConnector[],
-  });
-  private readonly accessConnectorsLoading = toSignal(this.accessConnectorsService.loading$, {
-    initialValue: true,
-  });
-  private readonly accessConnectorsLoadError = toSignal(this.accessConnectorsService.loadError$, {
-    initialValue: null,
+    initialValue: [] as TargetSystem[],
   });
 
-  /** Whether the connector list has been read successfully. */
-  private readonly connectorsKnown = computed(
-    () => !this.accessConnectorsLoading() && this.accessConnectorsLoadError() == null,
-  );
-
-  /** Whether the connector read has landed and failed, so there is no list to offer. */
-  private readonly connectorsUnavailable = computed(
-    () => !this.accessConnectorsLoading() && this.accessConnectorsLoadError() != null,
-  );
-
-  private readonly rows = computed(() => this.buildRows(this.systems(), this.accessConnectors()));
-
-  /**
-   * Gates the table and the toolbar's create button. A search term keeps the table on screen
-   * over an empty list, so the toolbar alone doesn't mean the org has target systems.
-   */
-  protected readonly hasSystems = computed(() => this.rows().length > 0);
-
-  protected readonly table = defineTable<TargetSystemRow, "sessionTermination" | "actions">(
-    this.rows,
-  );
-  /**
-   * Model for the loading placeholder, with no rows, so rows from an earlier load don't show
-   * through before the skeleton's delay.
-   */
-  protected readonly loadingTable = defineTable<TargetSystemRow, "sessionTermination" | "actions">(
-    signal<TargetSystemRow[]>([]),
-  );
+  protected readonly dataSource = new TableDataSource<TargetSystemRow>();
   protected readonly searchControl = new FormControl("", { nonNullable: true });
 
-  /** A method this SDK can't name adds no option, so this chip can be empty. */
-  protected readonly methodOptions = computed(() =>
-    filterOptions(
-      this.rows().flatMap((row) =>
-        row.methodLabelKey != null && row.methodLabel != null
-          ? [[row.methodLabelKey, row.methodLabel] as const]
-          : [],
-      ),
-    ),
-  );
+  private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
 
-  protected readonly kindOptions = computed(() =>
-    filterOptions(
-      this.rows().flatMap((row) =>
-        row.kind != null && row.kindLabel != null ? [[row.kind, row.kindLabel] as const] : [],
-      ),
-    ),
-  );
-
-  protected readonly statusOptions = computed(() =>
-    filterOptions(this.rows().map((row) => [row.statusLabelKey, row.statusLabel] as const)),
-  );
-
-  /** The table's row test; the toolbar hands over the search and chip values as `values`. */
-  protected readonly rowMatchesFilter = (
-    row: TargetSystemRow,
-    values: TargetSystemFilterValues,
-  ): boolean => matchesFilter(row, toTargetSystemFilter(values));
-
-  private readonly busyRows = new RowBusyTracker<TargetSystemId>();
-
-  protected readonly isRowBusy = this.busyRows.isBusy;
+  /** Expose const objects for template comparisons. */
+  protected readonly TargetSystemStatus = TargetSystemStatus;
+  protected readonly TargetSystemMethod = TargetSystemMethod;
 
   constructor() {
     effect(() => {
-      void this.loadAll(this.organizationId());
+      void this.targetSystemsService.load(this.organizationId());
+    });
+
+    effect(() => {
+      this.dataSource.data = this.buildRows(this.systems());
+    });
+
+    effect(() => {
+      const text = this.searchText().trim().toLowerCase();
+      this.dataSource.filter = (row) =>
+        text === "" ||
+        row.name.toLowerCase().includes(text) ||
+        (row.kindLabel?.toLowerCase().includes(text) ?? false);
     });
   }
 
-  private async loadAll(organizationId: OrganizationId): Promise<void> {
-    await Promise.all([
-      this.targetSystemsService.load(organizationId),
-      this.accessConnectorsService.load(organizationId),
-    ]);
-  }
-
-  /** Whether the operator has asked for a retry. */
-  protected readonly retried = signal(false);
-
-  protected readonly retryLoad = (): Promise<void> => {
-    this.retried.set(true);
-    return this.loadAll(this.organizationId());
-  };
-
+  /** Navigate to the create page (sibling of the shell), shown from the empty state. */
   protected readonly openCreate = (): Promise<boolean> =>
     this.router.navigate(["..", "target-systems", "new"], { relativeTo: this.route });
 
+  /** Navigate to the create page seeded from a starter template. */
   protected readonly openFromTemplate = (key: TargetSystemTemplateKey): Promise<boolean> =>
     this.router.navigate(["..", "target-systems", "new"], {
       relativeTo: this.route,
       queryParams: { template: key },
     });
 
-  protected readonly openEdit = (system: TargetSystemView): Promise<boolean> =>
+  /** Navigate to the edit page for a target system. */
+  protected readonly openEdit = (system: TargetSystem): Promise<boolean> =>
     this.router.navigate(["..", "target-systems", system.id], { relativeTo: this.route });
 
-  protected readonly openCreateManagedCredential = (system: TargetSystemView): Promise<boolean> =>
-    this.router.navigate(["..", "managed-credentials", "new"], {
-      relativeTo: this.route,
-      queryParams: { [TARGET_SYSTEM_QUERY_PARAM]: system.id },
+  /** Disable a target system after confirming with the operator. */
+  protected readonly disable = async (system: TargetSystem): Promise<void> => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "pamTargetSystemDisableTitle" },
+      content: { key: "pamTargetSystemDisableContent" },
+      acceptButtonText: { key: "pamTargetSystemDisableConfirm" },
+      cancelButtonText: { key: "cancel" },
+      type: "warning",
     });
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await this.targetSystemsService.setEnabled(system, false);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamTargetSystemDisableSuccess"),
+      });
+    } catch (e) {
+      this.showError(e);
+    }
+  };
+
+  /** Re-enable a disabled target system. */
+  protected readonly enable = async (system: TargetSystem): Promise<void> => {
+    try {
+      await this.targetSystemsService.setEnabled(system, true);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamTargetSystemEnableSuccess"),
+      });
+    } catch (e) {
+      this.showError(e);
+    }
+  };
 
   /**
-   * Waits for the connector read to settle, since the menu item is live while it is in flight; a
-   * failed read toasts instead. The row stays busy throughout, so a delete can't race the
-   * assignment's optimistic patch.
+   * Permanently delete a target system after confirming with the operator.
+   *
+   * The server, not this component, decides whether the delete is allowed: it refuses while any
+   * rotation config still names the target, and that refusal arrives as an ordinary error for
+   * {@link showError} to surface. Offering the action unconditionally and letting the server
+   * reject it keeps one authority on the rule rather than a client-side copy that can drift.
    */
-  protected readonly openAssignConnectorDialog = (system: TargetSystemView): Promise<void> =>
-    this.busyRows.run(system.id, async () => {
-      const stillMounted = await firstValueFrom(
-        this.accessConnectorsService.loading$.pipe(
-          filter((inFlight) => !inFlight),
-          map(() => true),
-          takeUntilDestroyed(this.destroyRef),
-        ),
-        { defaultValue: false },
-      );
-      if (!stillMounted) {
-        return;
-      }
-      if (this.connectorsUnavailable()) {
-        this.toastService.showToast({
-          variant: "error",
-          message: this.i18nService.t("pamTargetSystemConnectorAssignmentsLoadError"),
-        });
-        return;
-      }
-
-      const connectors = this.accessConnectors();
-      const options = assignableConnectors(system.id, connectors);
-      const noneEligible = eligibleConnectors(connectors).length === 0;
-
-      const ref = AssignConnectorDialogComponent.open(this.dialogService, {
-        data: { targetSystem: system, options, noneEligible },
+  protected readonly confirmDelete = async (system: TargetSystem): Promise<void> => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "pamTargetSystemDeleteTitle" },
+      content: { key: "pamTargetSystemDeleteContent", placeholders: [system.name] },
+      acceptButtonText: { key: "delete" },
+      cancelButtonText: { key: "cancel" },
+      type: "danger",
+    });
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await this.targetSystemsService.delete(system);
+      // The server drops the connector assignments with the target; mirror that locally so the
+      // daemons tab does not keep projecting the dangling ID.
+      this.daemonsService.forgetTargetSystem(system.id);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamTargetSystemDeleteSuccess"),
       });
-      const selectedId = await ref.closed.toPromise();
-      if (!selectedId) {
-        return;
-      }
-      const accessConnectorId = asUuid<AccessConnectorId>(selectedId);
-      const accessConnector = this.accessConnectors().find((d) => d.id === accessConnectorId);
-      if (!accessConnector) {
-        return;
-      }
-      try {
-        await this.accessConnectorsService.assign(accessConnector, system.id);
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t("pamTargetSystemAssignConnectorSuccess"),
-        });
-      } catch (e) {
-        this.showError(e);
-      }
-    });
+    } catch (e) {
+      this.showError(e);
+    }
+  };
 
-  protected readonly disable = (system: TargetSystemView): Promise<void> =>
-    this.busyRows.run(system.id, async () => {
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "pamTargetSystemDeactivateTitle" },
-        content: { key: "pamTargetSystemDeactivateContent" },
-        acceptButtonText: { key: "pamTargetSystemDeactivateConfirm" },
-        cancelButtonText: { key: "cancel" },
-        type: "warning",
-      });
-      if (!confirmed) {
-        return;
-      }
-      try {
-        await this.targetSystemsService.setEnabled(system, false);
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t("pamTargetSystemDeactivateSuccess"),
-        });
-      } catch (e) {
-        this.showError(e);
-      }
-    });
-
-  protected readonly enable = (system: TargetSystemView): Promise<void> =>
-    this.busyRows.run(system.id, async () => {
-      try {
-        await this.targetSystemsService.setEnabled(system, true);
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t("pamTargetSystemActivateSuccess"),
-        });
-      } catch (e) {
-        this.showError(e);
-      }
-    });
-
-  /**
-   * Offered on every row; the server refuses while a rotation config names the target. The
-   * confirmation also warns of dropped connector assignments, or suggests deactivating an active
-   * target instead.
-   */
-  protected readonly confirmDelete = (system: TargetSystemView): Promise<void> =>
-    this.busyRows.run(system.id, async () => {
-      const dropsAssignments =
-        this.connectorsKnown() &&
-        this.accessConnectors().some((connector) =>
-          connector.assignedTargetSystemIds.includes(system.id),
-        );
-      const active = system.status === TargetSystemStatus.Active;
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "pamTargetSystemDeleteTitle" },
-        content: {
-          key: dropsAssignments
-            ? "pamTargetSystemDeleteAssignedConnectorsContent"
-            : active
-              ? "pamTargetSystemDeleteContentDeactivateInstead"
-              : "pamTargetSystemDeleteContent",
-          placeholders: [system.name],
-        },
-        acceptButtonText: { key: "delete" },
-        cancelButtonText: { key: "cancel" },
-        type: "danger",
-      });
-      if (!confirmed) {
-        return;
-      }
-      try {
-        await this.targetSystemsService.delete(system);
-        this.accessConnectorsService.forgetTargetSystem(system.id);
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t("pamTargetSystemDeleteSuccess"),
-        });
-      } catch (e) {
-        this.showError(e);
-      }
-    });
-
-  private buildRows(systems: TargetSystemView[], connectors: AccessConnector[]): TargetSystemRow[] {
-    const connectorsKnown = this.connectorsKnown();
-    const connectorsUnavailable = this.connectorsUnavailable();
-    const hasActiveConnector = eligibleConnectors(connectors).length > 0;
-    return systems.map((system) => {
-      const methodLabelKey = targetSystemMethodLabelKey(system.method);
-      const pendingSeal = system.status === TargetSystemStatus.PendingSeal;
-      const active = system.status === TargetSystemStatus.Active;
-      const status: TargetSystemRowStatus = pendingSeal
-        ? "pendingSeal"
-        : active
-          ? "active"
-          : "inactive";
-      const statusLabelKey = pendingSeal
-        ? ("pamTargetSystemStatusPendingSeal" as const)
-        : active
-          ? ("pamTargetSystemStatusActive" as const)
-          : ("pamTargetSystemStatusInactive" as const);
-      const kind = system.sealed?.kind ?? null;
-      const integrityCheckFailed = system.sealed == null && !pendingSeal;
-      const sessionTermination: TargetSystemRow["sessionTermination"] =
-        system.sealed == null
-          ? "unknown"
-          : system.sealed.supportsSessionTermination === true
-            ? "yes"
-            : "no";
-      return {
-        id: system.id,
-        idText: uuidAsString(system.id),
-        system,
-        name: system.name,
-        methodLabelKey,
-        methodLabel: methodLabelKey == null ? null : this.i18nService.t(methodLabelKey),
-        kind,
-        kindLabel: kind != null ? this.kindLabel(kind) : null,
-        status,
-        statusLabelKey,
-        statusLabel: this.i18nService.t(statusLabelKey),
-        active,
-        sessionTermination,
-        integrityCheckFailed,
-        canAssignConnectors: system.method === TargetSystemMethod.Automatic,
-        canAddManagedCredential: active,
-        assignConnectorsBlockedKey: connectorsUnavailable
-          ? "pamTargetSystemConnectorAssignmentsLoadError"
-          : !connectorsKnown || assignableConnectors(system.id, connectors).length > 0
-            ? null
-            : hasActiveConnector
-              ? "pamTargetSystemAssignConnectorNoOptions"
-              : "pamTargetSystemAssignConnectorNone",
-        activationBlockedKey: pendingSeal ? "pamTargetSystemActivationBlockedPendingSeal" : null,
-      };
-    });
+  private buildRows(systems: TargetSystem[]): TargetSystemRow[] {
+    return systems.map((system) => ({
+      id: system.id,
+      system,
+      name: system.name,
+      methodLabel: this.methodLabel(system.method),
+      kindLabel: system.kind != null ? this.kindLabel(system.kind) : null,
+      statusLabel: this.i18nService.t(
+        system.status === TargetSystemStatus.Active
+          ? "pamTargetSystemStatusActive"
+          : "pamTargetSystemStatusDisabled",
+      ),
+      active: system.status === TargetSystemStatus.Active,
+    }));
   }
 
-  /** Null for a kind with no label, such as one this SDK can't model. */
-  private kindLabel(kind: TargetSystemKind): string | null {
-    const key = targetSystemKindLabelKey(kind);
-    return key == null ? null : this.i18nService.t(key);
+  private methodLabel(method: TargetSystemMethod): string {
+    return this.i18nService.t(
+      method === TargetSystemMethod.Automatic
+        ? "pamTargetSystemMethodAutomatic"
+        : "pamTargetSystemMethodManual",
+    );
+  }
+
+  private kindLabel(kind: TargetSystemKind): string {
+    switch (kind) {
+      case TargetSystemKind.Entra:
+        return this.i18nService.t("pamTargetSystemKindEntra");
+      case TargetSystemKind.Mssql:
+        return this.i18nService.t("pamTargetSystemKindMssql");
+      case TargetSystemKind.CustomScript:
+        return this.i18nService.t("pamTargetSystemKindCustomScript");
+      default:
+        return "";
+    }
   }
 
   private showError(e: unknown): void {
     const message =
-      rotationErrorMessage(e) ??
-      (e instanceof ErrorResponse ? e.message : undefined) ??
-      this.i18nService.t("unexpectedError");
+      e instanceof ErrorResponse
+        ? (e.message ?? this.i18nService.t("unexpectedError"))
+        : this.i18nService.t("unexpectedError");
     this.toastService.showToast({ variant: "error", message });
   }
-}
-
-/** The toolbar's raw values by filter key, untyped because each chip reports its own shape. */
-type TargetSystemFilterValues = {
-  search?: string;
-  method?: unknown;
-  kind?: unknown;
-  status?: unknown;
-};
-
-type TargetSystemFilter = {
-  text: string;
-  methodLabelKey: string | null;
-  kind: TargetSystemKind | null;
-  statusLabelKey: string | null;
-};
-
-function toTargetSystemFilter(values: TargetSystemFilterValues): TargetSystemFilter {
-  return {
-    text: (values.search ?? "").trim().toLowerCase(),
-    methodLabelKey: typeof values.method === "string" ? values.method : null,
-    kind: typeof values.kind === "string" ? (values.kind as TargetSystemKind) : null,
-    statusLabelKey: typeof values.status === "string" ? values.status : null,
-  };
-}
-
-function matchesFilter(row: TargetSystemRow, filter: TargetSystemFilter): boolean {
-  const { text, methodLabelKey, kind, statusLabelKey } = filter;
-  if (
-    text !== "" &&
-    !row.name.toLowerCase().includes(text) &&
-    !(row.kindLabel?.toLowerCase().includes(text) ?? false)
-  ) {
-    return false;
-  }
-  if (methodLabelKey != null && row.methodLabelKey !== methodLabelKey) {
-    return false;
-  }
-  if (kind != null && row.kind !== kind) {
-    return false;
-  }
-  if (statusLabelKey != null && row.statusLabelKey !== statusLabelKey) {
-    return false;
-  }
-  return true;
 }

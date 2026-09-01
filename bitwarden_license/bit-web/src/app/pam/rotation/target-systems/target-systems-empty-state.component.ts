@@ -13,7 +13,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-/** Starter templates on the empty state; the parent maps each key to a create-form prefill. */
+/** Starter templates offered on the empty state; the parent maps each key to a create-form prefill. */
 export type TargetSystemTemplateKey = "manual" | "entra" | "custom-script";
 
 type TargetSystemTemplate = {
@@ -33,20 +33,22 @@ const TEMPLATES: TargetSystemTemplate[] = [
   {
     key: "entra",
     icon: "bwi-globe",
-    titleKey: "pamTargetSystemTypeEntra",
+    titleKey: "pamTargetSystemKindEntra",
     summaryKey: "pamTargetSystemTemplateEntraSummary",
   },
   {
     key: "custom-script",
     icon: "bwi-terminal",
-    titleKey: "pamTargetSystemTypeCustomScript",
-    summaryKey: "pamTargetSystemTemplateCustomScriptSummaryConnector",
+    titleKey: "pamTargetSystemKindCustomScript",
+    summaryKey: "pamTargetSystemTemplateCustomScriptSummary",
   },
 ];
 
 /**
- * The target systems tab's empty state: a create prompt plus starter templates. The parent
- * navigates on {@link create} and {@link useTemplate}.
+ * Empty state shown on the target-systems tab when an organization has no target systems yet:
+ * a hero prompt to create one from scratch, plus a list of starter templates. Emits {@link create}
+ * for the custom action and {@link useTemplate} with the chosen template key; the parent owns
+ * navigation (and any create-form prefill). Mirrors the access-rules empty state.
  */
 @Component({
   selector: "pam-target-systems-empty-state",

@@ -1,0 +1,44 @@
+<form [formGroup]="form" bit-dialog dialogSize="default">
+  <ng-container bitDialogTitle>
+    {{ "pamDaemonAssignTargetTitle" | i18n }}
+    <span class="tw-text-sm tw-normal-case tw-text-muted">{{ params.daemon.name }}</span>
+  </ng-container>
+
+  <div bitDialogContent>
+    @if (params.options.length === 0) {
+      <p class="tw-text-muted">{{ "pamDaemonAssignNoOptions" | i18n }}</p>
+    } @else {
+      <bit-form-field>
+        <bit-label>{{ "pamDaemonAssignTargetLabel" | i18n }}</bit-label>
+        <bit-select formControlName="targetSystemId" id="assign-target-dialog_select_target">
+          @for (system of params.options; track system.id) {
+            <bit-option [value]="system.id" [label]="system.name"></bit-option>
+          }
+        </bit-select>
+      </bit-form-field>
+    }
+  </div>
+
+  <ng-container bitDialogFooter>
+    @if (params.options.length > 0) {
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        (click)="confirm()"
+        id="assign-target-dialog_button_confirm"
+      >
+        {{ "pamDaemonAssignConfirm" | i18n }}
+      </button>
+    }
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      (click)="cancel()"
+      id="assign-target-dialog_button_cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</form>

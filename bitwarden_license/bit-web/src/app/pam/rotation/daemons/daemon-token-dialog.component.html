@@ -1,0 +1,44 @@
+<bit-dialog
+  [title]="'pamDaemonTokenTitle' | i18n"
+  [subtitle]="params.daemonName"
+  dialogSize="large"
+>
+  <ng-container bitDialogContent>
+    <bit-callout type="warning" [title]="'pamDaemonTokenWarningTitle' | i18n">
+      {{ "pamDaemonTokenWarningBody" | i18n }}
+    </bit-callout>
+
+    <bit-form-field class="tw-mb-0">
+      <bit-label>{{ "pamDaemonTokenLabel" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="text"
+        readonly
+        class="tw-font-mono tw-text-sm"
+        id="daemon-token-dialog_input_token"
+        [value]="params.token"
+      />
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        bitSuffix
+        [label]="'pamDaemonTokenCopy' | i18n"
+        (click)="copyToken()"
+        id="daemon-token-dialog_button_copy"
+      ></button>
+      <bit-hint>{{ "pamDaemonTokenHint" | i18n }}</bit-hint>
+    </bit-form-field>
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      (click)="close()"
+      id="daemon-token-dialog_button_close"
+    >
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

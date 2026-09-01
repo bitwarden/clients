@@ -1,13 +1,14 @@
 <bit-header [title]="titleText()" icon="bwi-desktop">
-  <pam-detail-breadcrumb
-    slot="breadcrumbs"
-    [route]="['..']"
-    parentLabelKey="pamRotationTabTargetSystems"
-    [current]="titleText()"
-  />
+  <bit-breadcrumbs slot="breadcrumbs">
+    <bit-breadcrumb [route]="['..']">{{ "pamRotationTabTargetSystems" | i18n }}</bit-breadcrumb>
+  </bit-breadcrumbs>
 </bit-header>
 
-<!-- Shared by create and edit; its controls gate themselves on the method. -->
+<!--
+  Shared password-policy card, used by both create and edit modes. The manual hint, the
+  session-termination control, and the withdrawal warning are all self-gating (the warning is only
+  ever true in edit mode), so one template serves both.
+-->
 <ng-template #policyCard>
   <bit-section [formGroup]="policyForm">
     <bit-section-header>
@@ -27,8 +28,7 @@
             type="number"
             id="target-system-edit_input_min-length"
             formControlName="minLength"
-            min="5"
-            max="128"
+            min="1"
           />
         </bit-form-field>
         <bit-form-field>
@@ -38,8 +38,7 @@
             type="number"
             id="target-system-edit_input_max-length"
             formControlName="maxLength"
-            min="5"
-            max="128"
+            min="1"
           />
         </bit-form-field>
       </div>
@@ -83,18 +82,8 @@
         />
         <bit-label>{{ "pamTargetSystemPolicySymbols" | i18n }}</bit-label>
       </bit-form-control>
-      @if (policyForm.errors?.["noCharacterClass"] && policyForm.touched) {
-        <div id="target-system-edit_error_character-class">
-          <bit-error>{{ "pamTargetSystemPolicyNoCharacterClass" | i18n }}</bit-error>
-        </div>
-      }
-      @if (policyForm.errors?.["belowStrengthFloor"] && policyForm.touched) {
-        <div id="target-system-edit_error_strength-floor">
-          <bit-error>{{ "pamTargetSystemPolicyBelowStrengthFloor" | i18n }}</bit-error>
-        </div>
-      }
 
-      <!-- Session termination: intrinsic for native integrations, opt-in for custom scripts. -->
+      <!-- Session termination (Automatic only): intrinsic for native integrations, opt-in for custom scripts -->
       @if (isAutomatic()) {
         @if (isNativeIntegration()) {
           <div>
@@ -121,14 +110,12 @@
               id="target-system-edit_checkbox_session-termination"
             />
             <bit-label>{{ "pamTargetSystemSupportsSessionTermination" | i18n }}</bit-label>
-            <bit-hint>{{
-              "pamTargetSystemSupportsSessionTerminationHintConnector" | i18n
-            }}</bit-hint>
+            <bit-hint>{{ "pamTargetSystemSupportsSessionTerminationHint" | i18n }}</bit-hint>
           </bit-form-control>
 
           @if (showTerminationWarning()) {
             <bit-callout type="warning" class="tw-mt-4">
-              {{ "pamTargetSystemTerminationWithdrawalCredentialWarning" | i18n }}
+              {{ "pamTargetSystemTerminationWithdrawalWarning" | i18n }}
             </bit-callout>
           }
         }
@@ -137,58 +124,13 @@
   </bit-section>
 </ng-template>
 
-<pam-rotation-loading-announcer
-  [loading]="loading()"
-  [failed]="loadError() != null || (editing && existing() == null)"
-  loadedKey="pamRotationPageLoaded"
-/>
-
-@if (loadError()) {
-  <pam-rotation-load-error [focusRetry]="retried()" (retry)="retryLoad()" />
-} @else if (loadingVisible()) {
-  <div aria-hidden="true" data-testid="target-system-edit-loading" class="tw-max-w-4xl">
-    @if (showSkeleton()) {
-      <bit-section>
-        <bit-section-header>
-          <h2 bitTypography="h5">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
-        </bit-section-header>
-        <bit-card>
-          <div class="tw-mb-4">
-            <bit-skeleton-text class="tw-mb-2 tw-w-24"></bit-skeleton-text>
-            <bit-skeleton class="tw-h-10 tw-w-full"></bit-skeleton>
-          </div>
-          <bit-skeleton-text [lines]="2" class="tw-w-72"></bit-skeleton-text>
-        </bit-card>
-      </bit-section>
-
-      <bit-section>
-        <bit-section-header>
-          <h2 bitTypography="h5">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
-        </bit-section-header>
-        <bit-card>
-          <div class="tw-grid tw-grid-cols-2 tw-gap-4">
-            @for (skeletonField of skeletonFields; track skeletonField) {
-              <div>
-                <bit-skeleton-text class="tw-mb-2 tw-w-32"></bit-skeleton-text>
-                <bit-skeleton class="tw-h-10 tw-w-full"></bit-skeleton>
-              </div>
-            }
-          </div>
-        </bit-card>
-      </bit-section>
-
-      <bit-section>
-        <bit-section-header>
-          <h2 bitTypography="h5">{{ "pamTargetSystemConnectorAssignments" | i18n }}</h2>
-        </bit-section-header>
-        <bit-card>
-          <bit-skeleton-text [lines]="3" class="tw-w-full"></bit-skeleton-text>
-        </bit-card>
-      </bit-section>
-    }
-  </div>
+@if (loading()) {
+  <bit-spinner />
 } @else {
   @if (!editing) {
+    <!-- ================================================================
+         CREATE MODE — single form for name + method + (automatic fields)
+         ================================================================ -->
     <form [formGroup]="createForm" [bitSubmit]="submitCreate" class="tw-max-w-4xl">
       <bit-section>
         <bit-section-header>
@@ -206,21 +148,19 @@
             />
           </bit-form-field>
 
-          <bit-radio-group formControlName="method" [block]="true">
+          <bit-radio-group formControlName="method">
             <bit-label>{{ "pamTargetSystemMethodLabel" | i18n }}</bit-label>
             <bit-radio-button
               id="target-system-edit_radio_automatic"
               [value]="TargetSystemMethod.Automatic"
             >
               <bit-label>{{ "pamTargetSystemMethodAutomatic" | i18n }}</bit-label>
-              <bit-hint>{{ "pamTargetSystemMethodAutomaticHint" | i18n }}</bit-hint>
             </bit-radio-button>
             <bit-radio-button
               id="target-system-edit_radio_manual"
               [value]="TargetSystemMethod.Manual"
             >
               <bit-label>{{ "pamTargetSystemMethodManual" | i18n }}</bit-label>
-              <bit-hint>{{ "pamTargetSystemMethodManualHint" | i18n }}</bit-hint>
             </bit-radio-button>
           </bit-radio-group>
         </bit-card>
@@ -229,11 +169,11 @@
       @if (isAutomatic()) {
         <bit-section [formGroup]="policyForm">
           <bit-section-header>
-            <h2 bitTypography="h5">{{ "pamTargetSystemTypeHeading" | i18n }}</h2>
+            <h2 bitTypography="h5">{{ "pamTargetSystemKindHeading" | i18n }}</h2>
           </bit-section-header>
           <bit-card>
             <bit-form-field>
-              <bit-label>{{ "pamTargetSystemTypeLabel" | i18n }}</bit-label>
+              <bit-label>{{ "pamTargetSystemKindLabel" | i18n }}</bit-label>
               <select
                 bitInput
                 id="target-system-edit_select_kind"
@@ -275,159 +215,62 @@
       </div>
     </form>
   } @else {
+    <!-- ================================================================
+         EDIT MODE — one Save action persists name + (automatic) policy
+         ================================================================ -->
+
     <div class="tw-max-w-4xl">
-      @if (sealIssue(); as issue) {
-        @if (issue !== "ok") {
-          <bit-callout
-            type="warning"
-            [accessibleName]="
-              (issue === 'pending'
-                ? 'pamTargetSystemSetupIncompleteTitle'
-                : 'pamTargetSystemIntegrityCheckFailedTitle'
-              ) | i18n
-            "
-            id="target-system-edit_callout_seal-issue"
-          >
-            {{
-              (issue === "pending"
-                ? "pamTargetSystemSetupIncompleteContent"
-                : "pamTargetSystemIntegrityCheckFailedContent"
-              ) | i18n
-            }}
-          </bit-callout>
+      <!-- Setup guidance: how to connect this target system to a daemon + add a credential -->
+      <bit-callout type="info" [title]="'pamTargetSystemSetupGuidanceTitle' | i18n">
+        @if (existing()?.method === TargetSystemMethod.Automatic) {
+          <ol class="tw-mb-0 tw-ps-4">
+            <li>{{ "pamTargetSystemSetupGuidanceAutomaticDaemon" | i18n }}</li>
+            <li>{{ "pamTargetSystemSetupGuidanceAutomaticCredential" | i18n }}</li>
+          </ol>
+        } @else {
+          <p class="tw-mb-0">{{ "pamTargetSystemSetupGuidanceManual" | i18n }}</p>
         }
-      }
+      </bit-callout>
 
-      @let setupSteps = outstandingSetupSteps();
-      @if (setupSteps.length > 0) {
-        <bit-callout
-          type="subtle"
-          [accessibleName]="'pamTargetSystemSetupGuidanceTitle' | i18n"
-          id="target-system-edit_callout_setup-guidance"
-        >
-          @if (setupSteps.length === 1) {
-            <p class="tw-mb-0">{{ setupSteps[0] | i18n }}</p>
-          } @else {
-            <ol class="tw-mb-0 tw-ps-4">
-              @for (step of setupSteps; track step) {
-                <li>{{ step | i18n }}</li>
-              }
-            </ol>
-          }
-        </bit-callout>
-      }
-
+      <!-- Name card -->
       <bit-section [formGroup]="nameForm">
         <bit-section-header>
           <h2 bitTypography="h5">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
         </bit-section-header>
         <bit-card>
           @if (existing()?.method === TargetSystemMethod.Automatic) {
-            @if (showEditKindPicker()) {
-              <bit-form-field>
-                <bit-label>{{ "pamTargetSystemTypeLabel" | i18n }}</bit-label>
-                <select
-                  bitInput
-                  id="target-system-edit_select_kind"
-                  [formControl]="editKindControl"
-                >
-                  @for (opt of kindOptions; track opt.value) {
-                    <option [ngValue]="opt.value">{{ opt.label | i18n }}</option>
-                  }
-                </select>
-                <bit-hint>{{ "pamTargetSystemTypeUnverifiedHint" | i18n }}</bit-hint>
-              </bit-form-field>
-            } @else {
-              <p bitTypography="body2" class="tw-text-muted">
-                {{ "pamTargetSystemMethodAutomatic" | i18n }}
-                @if (kindLabelKey(); as kindKey) {
-                  ·
-                  {{ kindKey | i18n }}
-                }
-              </p>
-            }
+            <p bitTypography="body2" class="tw-text-muted">
+              {{ "pamTargetSystemMethodAutomatic" | i18n }}
+              @if (existing()?.kind != null) {
+                ·
+                {{
+                  existing()!.kind === TargetSystemKind.Entra
+                    ? ("pamTargetSystemKindEntra" | i18n)
+                    : existing()!.kind === TargetSystemKind.Mssql
+                      ? ("pamTargetSystemKindMssql" | i18n)
+                      : ("pamTargetSystemKindCustomScript" | i18n)
+                }}
+              }
+            </p>
           } @else {
             <p bitTypography="body2" class="tw-text-muted">
               {{ "pamTargetSystemMethodManual" | i18n }}
             </p>
           }
 
-          <bit-form-field>
+          <bit-form-field disableMargin>
             <bit-label>{{ "name" | i18n }}</bit-label>
             <input bitInput type="text" id="target-system-edit_input_name" formControlName="name" />
           </bit-form-field>
-
-          @if (systemIdText(); as systemId) {
-            <div data-testid="target-system-edit-system-id">
-              <p class="tw-mb-0 tw-text-sm tw-font-bold tw-text-muted">
-                {{ "pamTargetSystemIdLabel" | i18n }}
-              </p>
-              <div class="tw-flex tw-items-center tw-gap-1">
-                <span class="tw-font-mono tw-text-sm tw-break-all">{{ systemId }}</span>
-                <button
-                  type="button"
-                  bitIconButton="bwi-clone"
-                  buttonType="subtleGhost"
-                  size="small"
-                  id="target-system-edit_button_copy-id"
-                  [appCopyClick]="systemId"
-                  showToast
-                  [valueLabel]="'pamTargetSystemIdLabel' | i18n"
-                  [label]="'pamTargetSystemCopyId' | i18n"
-                ></button>
-              </div>
-            </div>
-          }
         </bit-card>
       </bit-section>
 
+      <!-- Policy card (Automatic + Manual) -->
       @if (showPolicyCard()) {
         <ng-container *ngTemplateOutlet="policyCard"></ng-container>
       }
 
-      @if (isAutomatic()) {
-        <ng-template #connectorRow let-row>
-          <bit-cell>
-            <span [class.tw-line-through]="row.removing" [class.tw-text-muted]="row.removing">{{
-              row.connector.name
-            }}</span>
-            @if (row.stagedLabelKey !== null) {
-              <span slot="end" bitBadge variant="subtle">{{ row.stagedLabelKey | i18n }}</span>
-            }
-          </bit-cell>
-          <bit-cell>
-            <span bitBadge [variant]="row.enabled ? 'success' : 'secondary'">{{
-              row.statusLabelKey | i18n
-            }}</span>
-          </bit-cell>
-          <bit-cell>
-            <span bitBadge [variant]="row.connector.isConnected ? 'success' : 'secondary'">{{
-              row.connectionLabelKey | i18n
-            }}</span>
-          </bit-cell>
-        </ng-template>
-
-        <pam-assignment-picker
-          idPrefix="target-system-edit"
-          headingKey="pamTargetSystemConnectorAssignments"
-          selectLabelKey="pamTargetSystemAssignConnectors"
-          unassignLabelKey="pamAccessConnectorUnassign"
-          emptyKey="pamTargetSystemConnectorAssignmentsEmpty"
-          goToLabelKey="pamTargetSystemAssignGoToConnectors"
-          [options]="connectorOptions()"
-          [assignments]="assignedConnectorRows()"
-          [columns]="connectorColumns"
-          [rowTemplate]="connectorRow"
-          [hints]="connectorHints"
-          [assign]="stageAssign"
-          [unassign]="stageUnassign"
-          [loadError]="connectorsUnavailable()"
-          [noneEligible]="noConnectorsEligible()"
-          [goToRoute]="connectorsRoute"
-        />
-      }
-
-      <div class="tw-flex tw-items-center tw-gap-2">
+      <div class="tw-flex tw-gap-2">
         <button
           type="button"
           bitButton
@@ -446,17 +289,31 @@
         >
           {{ "cancel" | i18n }}
         </button>
-        <button
-          type="button"
-          bitButton
-          buttonType="danger"
-          startIcon="bwi-trash"
-          [bitAction]="deleteSystem"
-          id="target-system-edit_button_delete"
-          class="tw-ms-auto"
-        >
-          {{ "pamTargetSystemDeleteTarget" | i18n }}
-        </button>
+        <!-- Retiring a target system is disable, not delete: configs reference it and its
+             rotation history has to stay attributable. Reversible, hence the paired action. -->
+        @if (isActive()) {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            [bitAction]="disableSystem"
+            id="target-system-edit_button_disable"
+            class="tw-ms-auto"
+          >
+            {{ "pamTargetSystemDisable" | i18n }}
+          </button>
+        } @else {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            [bitAction]="enableSystem"
+            id="target-system-edit_button_enable"
+            class="tw-ms-auto"
+          >
+            {{ "pamTargetSystemEnable" | i18n }}
+          </button>
+        }
       </div>
     </div>
   }
