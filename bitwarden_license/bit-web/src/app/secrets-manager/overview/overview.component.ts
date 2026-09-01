@@ -229,7 +229,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    void this.dialogService.closeDrawer();
+    this.dialogService.closeAll();
   }
 
   private getRecentItems<T extends { revisionDate: string }[]>(items: T, length: number): T {
@@ -319,7 +319,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   openEditSecret(secretId: string) {
-    void this.dialogService.closeDrawer();
+    this.dialogService.closeAll();
     void this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
       data: {
         organizationId: this.organizationId,
@@ -349,7 +349,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   openNewSecretDialog() {
-    void this.dialogService.closeDrawer();
+    this.dialogService.closeAll();
     void this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
       data: {
         organizationId: this.organizationId,

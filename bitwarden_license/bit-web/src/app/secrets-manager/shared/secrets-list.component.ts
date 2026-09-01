@@ -114,7 +114,6 @@ export class SecretsListComponent implements OnDestroy, OnInit {
     private activatedRoute: ActivatedRoute,
     private accountService: AccountService,
     private logService: LogService,
-    private configService: ConfigService,
   ) {
     this.selection.changed
       .pipe(takeUntil(this.destroy$))

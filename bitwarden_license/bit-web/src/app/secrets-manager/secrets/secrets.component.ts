@@ -68,7 +68,7 @@ export class SecretsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnDestroy(): void {
-    void this.dialogService.closeDrawer();
+    this.dialogService.closeAll();
   }
 
   ngOnInit() {
@@ -166,7 +166,7 @@ export class SecretsComponent implements OnInit, OnDestroy {
   }
 
   openEditSecret(secretId: string) {
-    void this.dialogService.closeDrawer();
+    this.dialogService.closeAll();
     void this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
       data: {
         organizationId: this.organizationId,
@@ -210,7 +210,7 @@ export class SecretsComponent implements OnInit, OnDestroy {
   }
 
   openNewSecretDialog() {
-    void this.dialogService.closeDrawer();
+    this.dialogService.closeAll();
     void this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
       data: {
         organizationId: this.organizationId,
