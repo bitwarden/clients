@@ -32,6 +32,7 @@ describe("Organization", () => {
       useSecretsManager: true,
       usePasswordManager: true,
       usePam: false,
+      accessPam: false,
       useActivateAutofillPolicy: false,
       useAutomaticUserConfirmation: false,
       selfHost: false,

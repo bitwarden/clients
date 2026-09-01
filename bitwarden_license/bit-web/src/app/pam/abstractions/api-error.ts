@@ -26,3 +26,13 @@ export function apiErrorBodyMessage(message: string): string | undefined {
     return undefined;
   }
 }
+
+/**
+ * The server sentence behind a thrown SDK error: the decoded {@link apiErrorBodyMessage} when the
+ * payload is an `ErrorResponseModel`, else the raw message, else empty. The one prologue every
+ * error catalog in this module opens with.
+ */
+export function serverErrorSentence(e: unknown): string {
+  const message = e instanceof Error ? e.message : "";
+  return apiErrorBodyMessage(message) ?? message;
+}
