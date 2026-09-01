@@ -26,6 +26,23 @@ import {
 import { VaultNavService } from "../../services/vault-nav.service";
 
 /**
+ * Route matching that ignores every dimension a vault route never varies in, leaving the path as
+ * the only thing compared.
+ */
+const pathMatch = (paths: "exact" | "subset"): IsActiveMatchOptions => ({
+  paths,
+  queryParams: "ignored",
+  fragment: "ignored",
+  matrixParams: "ignored",
+});
+
+/** The route itself and nothing nested beneath it. */
+const EXACT_PATH = pathMatch("exact");
+
+/** The route or anything nested beneath it — `routerLinkActive`'s own default. */
+const NESTED_PATH = pathMatch("subset");
+
+/**
  * Renders the Password Manager side-nav Vaults section from the shared {@link VaultNavService}
  * view-model, linking each entry to the vault route that scopes the page to it.
  */
@@ -55,12 +72,7 @@ export class VaultNavSectionComponent {
    * Every scoped vault route nests under the unscoped one, so a subset match would leave the item
    * pointing at `/vault` lit alongside the destination the user actually picked.
    */
-  protected readonly allItemsActiveOptions: IsActiveMatchOptions = {
-    paths: "exact",
-    queryParams: "ignored",
-    fragment: "ignored",
-    matrixParams: "ignored",
-  };
+  protected readonly allItemsActiveOptions: IsActiveMatchOptions = EXACT_PATH;
 
   /**
    * Each vault's route commands, by vault id. Precomputed rather than built per call so the
@@ -113,24 +125,29 @@ export class VaultNavSectionComponent {
   );
 
   /**
-   * The vault whose shared folders list is the page in view, if any.
+   * The vault whose shared folders are the page in view, if any — either the list itself or the
+   * drill-in to one of them.
    *
-   * The page nests under its vault's own route, so the default subset match would leave All vault
-   * items lit alongside it. Suppressing that on this one route — rather than matching All vault
-   * items exactly — keeps it lit for a shared folder drill-in, which nests under the same route and
-   * has no nav entry of its own.
+   * Both nest under the vault's own route, so the test is a match deeper than that route rather
+   * than a match on either page's own path: the drill-in's `:collectionId` segment can't be told
+   * apart from anything else that might nest there, and it has no nav entry of its own to light.
+   * The vault route matching as a subset but not exactly says the page is one of the two.
    */
   private readonly sharedFoldersVaultId = computed(() => {
     this.currentUrl();
 
-    return Array.from(this.sharedFolderRoutes()).find(([, commands]) =>
-      this.router.isActive(this.router.createUrlTree(commands), {
-        paths: "exact",
-        queryParams: "ignored",
-        fragment: "ignored",
-        matrixParams: "ignored",
-      }),
-    )?.[0];
+    return Array.from(this.sharedFolderRoutes().keys()).find((id) => {
+      const commands = this.vaultRoutes().get(id);
+      if (commands == null) {
+        return false;
+      }
+
+      const vaultRoute = this.router.createUrlTree(commands);
+      return (
+        this.router.isActive(vaultRoute, NESTED_PATH) &&
+        !this.router.isActive(vaultRoute, EXACT_PATH)
+      );
+    });
   });
 
   protected vaultRoute(vault: VaultNavItemViewModel): string[] | undefined {
@@ -141,7 +158,7 @@ export class VaultNavSectionComponent {
     return this.sharedFolderRoutes().get(vault.id);
   }
 
-  /** Whether the page in view is this vault's shared folders list. */
+  /** Whether the page in view is this vault's shared folders list or a folder within it. */
   protected sharedFoldersActive(vault: VaultNavItemViewModel): boolean {
     return this.sharedFoldersVaultId() === vault.id;
   }

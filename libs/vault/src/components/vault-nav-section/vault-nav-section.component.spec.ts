@@ -142,6 +142,10 @@ describe("VaultNavSectionComponent", () => {
   const navItemIsCurrent = (root: HTMLElement, text: string) =>
     navItem(root, text).querySelector("a")?.getAttribute("aria-current") === "page";
 
+  /** Whether the nav item labelled `text` carries active styles. */
+  const navItemIsLit = (root: HTMLElement, text: string) =>
+    navItem(root, text).querySelector(".tw-font-semibold") != null;
+
   const navigateTo = async (url: string) => {
     await TestBed.inject(Router).navigateByUrl(url);
     fixture.detectChanges();
@@ -247,6 +251,14 @@ describe("VaultNavSectionComponent", () => {
       expect(navItemHref(group, "sharedFolders")).toBe("/vault/org-a/shared-folders");
     });
 
+    it("lights only All vault items on the vault's own route", async () => {
+      await navigateTo("/vault/org-a");
+      const group = expandGroup("Acme corporation");
+
+      expect(navItemIsCurrent(group, "allVaultItems")).toBe(true);
+      expect(navItemIsLit(group, "sharedFolders")).toBe(false);
+    });
+
     it("lights only Shared folders on the shared folders route", async () => {
       await navigateTo("/vault/org-a/shared-folders");
       const group = expandGroup("Acme corporation");
@@ -254,18 +266,27 @@ describe("VaultNavSectionComponent", () => {
       expect(navItemIsCurrent(group, "sharedFolders")).toBe(true);
       // The route nests under the vault's own, so the default subset match would light this too.
       expect(navItemIsCurrent(group, "allVaultItems")).toBe(false);
-      expect(navItem(group, "allVaultItems").querySelector(".tw-font-semibold")).toBeNull();
+      expect(navItemIsLit(group, "allVaultItems")).toBe(false);
     });
 
-    it("leaves All vault items lit on a shared folder drill-in", async () => {
-      // The drill-in nests under the vault route too, and has no nav entry of its own — so
-      // suppressing the parent there would leave nothing lit.
+    it("lights Shared folders on a shared folder drill-in", async () => {
+      // The drill-in nests under the vault route the way the shared folders list does, and has no
+      // nav entry of its own — the list it was reached from stands in for it.
       await navigateTo("/vault/org-a/22222222-2222-4222-8222-222222222222");
       const group = expandGroup("Acme corporation");
 
-      expect(navItemIsCurrent(group, "allVaultItems")).toBe(true);
-      expect(navItemIsCurrent(group, "sharedFolders")).toBe(false);
-      expect(navItem(group, "allVaultItems").querySelector(".tw-font-semibold")).not.toBeNull();
+      expect(navItemIsLit(group, "sharedFolders")).toBe(true);
+      expect(navItemIsLit(group, "allVaultItems")).toBe(false);
+      expect(navItemIsCurrent(group, "allVaultItems")).toBe(false);
+    });
+
+    it("lights Shared folders on a drill-in to the organization's My items collection", async () => {
+      // The one drill-in a URL names by sentinel rather than by collection id.
+      await navigateTo("/vault/org-a/my-items");
+      const group = expandGroup("Acme corporation");
+
+      expect(navItemIsLit(group, "sharedFolders")).toBe(true);
+      expect(navItemIsLit(group, "allVaultItems")).toBe(false);
     });
 
     it("lights Shared folders under only the organization whose route is active", async () => {
@@ -273,7 +294,16 @@ describe("VaultNavSectionComponent", () => {
       const family = expandGroup("Smith family");
 
       expect(navItemIsCurrent(family, "sharedFolders")).toBe(false);
+      expect(navItemIsLit(family, "sharedFolders")).toBe(false);
       expect(navItemIsCurrent(family, "allVaultItems")).toBe(false);
+    });
+
+    it("leaves Shared folders unlit under another organization on a drill-in", async () => {
+      await navigateTo("/vault/org-a/22222222-2222-4222-8222-222222222222");
+      const family = expandGroup("Smith family");
+
+      expect(navItemIsLit(family, "sharedFolders")).toBe(false);
+      expect(navItemIsLit(family, "allVaultItems")).toBe(false);
     });
   });
 

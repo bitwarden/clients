@@ -27,10 +27,16 @@
             [hideActiveStyles]="sharedFoldersLit"
             [ariaCurrentWhenActive]="sharedFoldersLit ? false : 'page'"
           ></bit-nav-item>
+          <!--
+            A drill-in has no nav entry of its own and isn't the route this entry links to, so its
+            styles are forced rather than left to `routerLinkActive`. On the list route the entry is
+            active anyway, which is what still marks it `aria-current`.
+          -->
           <bit-nav-item
             icon="bwi-shared-folder"
             [text]="'sharedFolders' | i18n"
             [route]="sharedFoldersRoute(vault)"
+            [forceActiveStyles]="sharedFoldersLit"
           ></bit-nav-item>
         </bit-nav-group>
       }
