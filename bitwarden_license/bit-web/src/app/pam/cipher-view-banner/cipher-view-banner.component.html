@@ -1,4 +1,30 @@
-@if (activeLease(); as lease) {
+@if (unlicensed()) {
+  <!--
+    First, replacing every other state. The server withholds a gated cipher's secrets from an
+    unlicensed caller whatever lease they hold (`CipherLeaseGate.LeaseCanRelease`), so there is no
+    access left to describe: a countdown or a Start button here would be narrating something that is
+    no longer being served. Withdrawing an outstanding request stays reachable from the vault-row
+    menu and the My requests tab, neither of which is licensing-gated.
+  -->
+  <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-unlicensed">
+    <div class="tw-flex tw-items-start tw-gap-4">
+      <bit-icon-tile icon="bwi-info-circle" variant="primary" size="sm" />
+      <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
+        <div class="tw-flex tw-flex-col">
+          <h3 bitTypography="h5" noMargin>{{ "pamUnlicensedBannerHeading" | i18n }}</h3>
+
+          <p bitTypography="helper" class="tw-m-0 tw-text-fg-body-subtle">
+            {{ "pamUnlicensedBannerBody" | i18n }}
+          </p>
+        </div>
+
+        <p bitTypography="helper" class="tw-m-0 tw-text-fg-body-subtle">
+          {{ "pamUnlicensedBannerRequestUnavailable" | i18n }}
+        </p>
+      </div>
+    </div>
+  </bit-card>
+} @else if (activeLease(); as lease) {
   <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-active">
     <div class="tw-flex tw-items-start tw-gap-4">
       <bit-icon-tile icon="bwi-clock" variant="teal" size="sm" />

@@ -72,8 +72,29 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   `DialogService` builds the dialog's injector from the root one.
 - `approvals/` — the approver side: the SDK-backed inbox data service, the decide
   dialog, the privilege check, and the route guard.
-- `cipher-view-banner/` — the requester's entry point on an open gated cipher: four
-  states off `cipher_access_state()`, with an inline request form.
+- `cipher-view-banner/` — the requester's entry point on an open gated cipher: five
+  states, four off `cipher_access_state()` plus an inline request form, and the licensing
+  block (PM-39423). The block comes FIRST and replaces every other state, active lease
+  included, because the server stops releasing a gated cipher's secrets to an unlicensed
+  holder whatever lease they hold (`CipherLeaseGate.LeaseCanRelease`) — withdrawing a seat
+  withdraws what the outstanding leases were carrying, so a countdown here would narrate
+  access no longer being served. Withdrawing an outstanding request stays reachable from the
+  vault-row menu and the My requests tab, neither of which is licensing-gated. It is also the
+  one state not derived from the access-state read: licensing is per-member, so it comes off
+  local membership state via `services/pam-membership.ts` with no round trip, and renders even
+  when that read fails. The signal is tri-state — `undefined` until membership lands — so
+  readers test `=== false`, not truthiness; treating "not yet known" as licensed flashes the
+  request card and fires its pre-check at someone about to be blocked.
+- `services/pam-membership.ts` — `callerOrganizations$` (the `getOptionalUserId` +
+  `organizations$` pipeline several surfaces here hand-rolled) and `unlicensedForPam`. The
+  latter is PRESENTATION policy, which is why it is not on `Organization`: only
+  `Organization.canAccessPrivilegedAccess` (`usePam && accessPam`, shaped like
+  `canAccessSecretsManager`) is the entitlement the server evaluates. The other three
+  conditions decide whether it is honest to say anything at all — no `usePam` (no license to
+  be missing), `accessPam !== false` (an un-synced persisted blob is not an answer), not
+  `enabled` (a lapsed subscription is the wrong reason), and never a provider user
+  (`ProfileProviderOrganizationResponseModel` hardcodes `AccessPam = false` while still
+  reporting the client org's `UsePam`). Do not "simplify" it to `!accessPam`.
 - `vault-filter-gated-collection/` — the lock glyph beside a governed collection in the
   vault's Filters sidebar. Reads the same server-derived `hasEnabledAccessRule` the
   collection-row badge does, off the sidebar's own collection node.
@@ -145,6 +166,14 @@ All three carry an `Api` variant holding the server's message. That variant's pa
 serialized response, so `abstractions/api-error.ts` owns the one `apiErrorBodyMessage()` decode of
 the `ErrorResponseModel` body — use it rather than re-parsing; what a miss means (generic copy, or
 the raw string) stays with the caller.
+
+`helpers/pam-license-error.ts` owns the one copy of the server's licensing refusal
+(`PamLicenseGuard.UnlicensedMessage`), which all three acquiring paths throw. The submit and
+activate catalogs and the extend handler all match through it rather than spelling the sentence
+again — only its FIRST sentence, so the "ask your admin" half can be reworded server-side without
+degrading three surfaces to generic copy. Note the two surfaces with no licensing block of their
+own — the My requests tab and the shared request dialog — reach it only through that toast, since
+they offer Start off a request row with no cipher in hand.
 
 A rejected access-request submit is interpreted by
 `helpers/request-access-error.ts`. Three of the server's messages mean the caller already

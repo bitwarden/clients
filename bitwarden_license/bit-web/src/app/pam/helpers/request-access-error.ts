@@ -1,3 +1,5 @@
+import { UNLICENSED_SERVER_MESSAGE } from "./pam-license-error";
+
 /**
  * The PAM lease-request endpoint's error catalog, as the server words it. Two jobs:
  *
@@ -42,6 +44,12 @@ export const REQUEST_ACCESS_SERVER_ERRORS = Object.freeze({
   DurationExceedsMax: "The requested duration exceeds the maximum of 86400 seconds.",
   WindowExceedsMax: "The requested window exceeds the maximum of 86400 seconds.",
   NotLeasingGated: "This item does not require a lease.",
+  /**
+   * The caller holds no Privileged Controls license (PM-39423). The banner blocks the form before
+   * a submit can be attempted, so reaching this means the license lapsed between render and
+   * submit — surface it inline rather than as the generic failure, since the reason is actionable.
+   */
+  Unlicensed: UNLICENSED_SERVER_MESSAGE,
 } as const);
 
 /**
@@ -106,6 +114,7 @@ const INLINE_MESSAGES: ReadonlyArray<string> = [
   REQUEST_ACCESS_SDK_ERRORS.WindowInPast,
   REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax,
   REQUEST_ACCESS_SERVER_ERRORS.NotLeasingGated,
+  REQUEST_ACCESS_SERVER_ERRORS.Unlicensed,
 ];
 
 /**
