@@ -1,5 +1,5 @@
 import { inject, NgModule } from "@angular/core";
-import { Route, RouterModule, Routes } from "@angular/router";
+import { Route, Router, RouterModule, Routes } from "@angular/router";
 import { map, switchMap } from "rxjs";
 
 import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
@@ -797,6 +797,17 @@ const routes: Routes = [
             component: SponsoredFamiliesComponent,
             data: { titleId: "sponsoredFamilies" } satisfies RouteDataProperties,
           },
+          {
+            path: "export",
+            loadComponent: () =>
+              import("./tools/vault-export/export-web.component").then(
+                (mod) => mod.ExportWebComponent,
+              ),
+            canActivate: [canAccessFeature(FeatureFlag.VFO1Foundation)],
+            data: {
+              titleId: "exportNoun",
+            } satisfies RouteDataProperties,
+          },
         ],
       },
       {
@@ -834,6 +845,7 @@ const routes: Routes = [
               import("./tools/vault-export/export-web.component").then(
                 (mod) => mod.ExportWebComponent,
               ),
+            canActivate: [vfo1ConditionalRedirect],
             data: {
               titleId: "exportNoun",
             } satisfies RouteDataProperties,
@@ -858,6 +870,14 @@ const routes: Routes = [
       import("./admin-console/organizations/organization.module").then((m) => m.OrganizationModule),
   },
 ];
+
+function vfo1ConditionalRedirect() {
+  const configService = inject(ConfigService);
+  const router = inject(Router);
+  return configService
+    .getFeatureFlag$(FeatureFlag.VFO1Foundation)
+    .pipe(map((isEnabled) => (isEnabled ? router.parseUrl("/settings/export") : true)));
+}
 
 @NgModule({
   imports: [
