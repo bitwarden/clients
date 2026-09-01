@@ -170,9 +170,9 @@ export class NavGroupComponent extends NavBaseComponent {
     opts: RouterLinkActive["routerLinkActiveOptions"],
   ): IsActiveMatchOptions {
     if ("paths" in opts) {
-      return opts;
+      return opts as IsActiveMatchOptions;
     }
-    return opts.exact
+    return (opts as { exact: boolean }).exact
       ? { paths: "exact", queryParams: "exact", fragment: "ignored", matrixParams: "ignored" }
       : { paths: "subset", queryParams: "subset", fragment: "ignored", matrixParams: "ignored" };
   }
