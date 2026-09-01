@@ -234,6 +234,20 @@ describe("AuditEventDrawerComponent", () => {
 
       expect(text("duration")).toContain("Extended to");
     });
+
+    // The reason is the pane's one unbounded field, and the drawer column is a fixed 24rem that no
+    // content can widen — so this wrap is the whole of what keeps a reason offering no break
+    // opportunity (a pasted token, a correlation id) inside the column. Unwrapped, the same value
+    // dragged a horizontal scrollbar onto the entire page back when Detail was still a table
+    // column, which is what PM-42588 reported.
+    it("wraps a reason that offers no break opportunity", async () => {
+      const unbroken = "Xk9Qw2Zr7Lm4Vb8Ns3Ty6Hj1Pd5Gf0Cx".repeat(13);
+
+      await render({ row: row({ detail: unbroken }) });
+
+      expect(text("detail")).toBe(unbroken);
+      expect(field("detail").classList.contains("tw-break-words")).toBe(true);
+    });
   });
 
   // A pane that dropped its empty rows would read as a different event each time, and an auditor
