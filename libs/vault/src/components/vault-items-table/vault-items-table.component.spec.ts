@@ -8,6 +8,7 @@ import { of } from "rxjs";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -141,6 +142,9 @@ describe("VaultItemsTableComponent", () => {
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = of({ id: "user-1" } as Account);
 
+    const avatarService = mock<AvatarService>();
+    avatarService.getUserAvatarColor$.mockReturnValue(of("#175ddc"));
+
     const environmentService = mock<EnvironmentService>();
     environmentService.environment$ = of({
       getIconsUrl: () => "https://icons.example.com",
@@ -161,6 +165,7 @@ describe("VaultItemsTableComponent", () => {
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: AccountService, useValue: accountService },
+        { provide: AvatarService, useValue: avatarService },
         // The real search service, not a double — the table's contract is that its search matches
         // what a client's own vault search matches, and a double could only assert fiction.
         { provide: SearchService, useValue: searchService },

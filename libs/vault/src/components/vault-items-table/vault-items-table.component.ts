@@ -9,11 +9,16 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { map, of, switchMap } from "rxjs";
 
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -35,7 +40,10 @@ import {
   defineTable,
   FilterControl,
   FilterMenuModule,
+  getAvatarDefaultColor,
   IconModule,
+  IconTileComponent,
+  IconTileOptions,
   LinkModule,
   SearchModule,
   SelectionConfig,
@@ -47,6 +55,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { orgIconTile, personalIconTile } from "../../models/vault-icon-tile";
 import {
   idString,
   matchesFavorite,
@@ -202,6 +211,7 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
     FilterMenuModule,
     I18nPipe,
     IconModule,
+    IconTileComponent,
     LinkModule,
     SearchModule,
     SkeletonTextComponent,
@@ -215,6 +225,25 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
 })
 export class VaultItemsTableComponent<C extends CipherViewLike> {
   private readonly i18nService = inject(I18nService);
+  private readonly accountService = inject(AccountService);
+  private readonly avatarService = inject(AvatarService);
+
+  /**
+   * The active user's avatar color, so the "My vault" tile matches their avatar and the side nav's
+   * personal entry. Resolved here rather than taken as an input so every client's table stays in
+   * sync with the avatar without each host plumbing it through.
+   */
+  private readonly userAvatarColor = toSignal(
+    this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        account
+          ? this.avatarService
+              .getUserAvatarColor$(account.id)
+              .pipe(map((color) => color ?? getAvatarDefaultColor(account.id, account.name)))
+          : of(undefined),
+      ),
+    ),
+  );
 
   protected readonly filterNamespace = VAULT_FILTER_NAMESPACE;
   protected readonly filterKeys = VAULT_FILTER_KEYS;
@@ -386,6 +415,18 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   private readonly organizationNames = computed(() => this.nameMap(this.organizations()));
 
+  /** Product tier per organization id, for the tier-appropriate Vault column tile. */
+  private readonly organizationTiers = computed(() => {
+    const tiers = new Map<string, ProductTierType>();
+    for (const organization of this.organizations()) {
+      const id = idString(organization.id);
+      if (id) {
+        tiers.set(id, organization.productTierType);
+      }
+    }
+    return tiers;
+  });
+
   /** Indexes named entities by id, widened to plain strings, skipping any that lack one. */
   private nameMap(items: readonly { id?: unknown; name: string }[]): Map<string, string> {
     const map = new Map<string, string>();
@@ -506,6 +547,21 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
       return this.i18nService.t("myVault");
     }
     return this.organizationNames().get(organizationId) ?? this.i18nService.t("organization");
+  }
+
+  /**
+   * The owning vault's icon tile, matching the color and icon the side nav gives that same vault:
+   * the user's avatar color for their own vault, the tier's color for an organization.
+   *
+   * An organization missing from {@link organizations} has no tier to key off, so it falls back to
+   * the generic business tile rather than guessing a color.
+   */
+  protected vaultIconTile(cipher: C): IconTileOptions {
+    const organizationId = idString(cipher.organizationId);
+    if (!organizationId) {
+      return personalIconTile(this.userAvatarColor() ?? "brand");
+    }
+    return orgIconTile(this.organizationTiers().get(organizationId) ?? ProductTierType.Enterprise);
   }
 
   /**
