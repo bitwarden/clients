@@ -181,10 +181,11 @@
           }
         </div>
       }
-      @if (noResults()) {
-        <ng-container *ngTemplateOutlet="noResultsState"></ng-container>
-      }
     </div>
+    <!-- Outside the tree: `role="tree"` only permits `treeitem`/`group` children. -->
+    @if (noResults()) {
+      <ng-container *ngTemplateOutlet="noResultsState"></ng-container>
+    }
   } @else {
     <div
       role="group"
