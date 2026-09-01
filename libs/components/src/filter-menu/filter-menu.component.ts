@@ -79,15 +79,8 @@ let nextRadioGroupId = 0;
 const CLEAR_FILTER = Symbol("clear-filter");
 
 /**
- * A filter chip with a popover menu of `bit-filter-option`s (optionally grouped
- * by `bit-filter-section`). Single-select by default; set `multiple` for a
- * checkbox-style multi-select. Once the menu has more than ten options the chip
- * renders a `bit-search` at the top to narrow them.
- *
- * The chip owns its selection and exposes it as {@link FILTER_CONTROL} under its
- * `key`. When projected into a filterable surface (e.g. `bit-table-v2`) it resolves
- * that surface's {@link FILTER_HOST} by DI and self-registers, so its value folds
- * into the host's `filterValues`. Usable outside a table, where the host is absent.
+ * A filter chip with a popover menu of `bit-filter-option`s. Single-select by
+ * default; set `multiple` for a checkbox-style multi-select.
  *
  * @example
  * ```html
@@ -164,9 +157,8 @@ export class FilterMenuComponent
   readonly searchTerm = this._searchTerm.asReadonly();
 
   /**
-   * Top-level entries (loose options and sections) in document order — the chip
-   * renders the menu rows from these. Options are instantiated eagerly (in a hidden
-   * slot), so this is populated before the menu or dialog ever opens.
+   * Top-level entries (loose options and sections) in document order. Instantiated
+   * eagerly in a hidden slot, so this is populated before the menu ever opens.
    */
   protected readonly entries = contentChildren(FILTER_ENTRY);
 
@@ -233,9 +225,8 @@ export class FilterMenuComponent
   });
 
   /**
-   * The count shown in the chip's trailing berry. Snapshotted from {@link selectedCount}
-   * on menu close (and on clear/seed) — not live — so the chip's width doesn't shift
-   * while the user toggles options in the open menu.
+   * Snapshotted from {@link selectedCount} on menu close, so the chip's width doesn't
+   * shift while the user toggles options.
    */
   protected readonly committedCount = signal(0);
 
@@ -256,8 +247,8 @@ export class FilterMenuComponent
   readonly summaryLabels = this.labels.asReadonly();
 
   /**
-   * The menu body (search + options) as a template, so the responsive filter dialog
-   * can stamp the same options on a drill-in page. Also stamped in the popover on wide viewports.
+   * The menu body as a template, so the popover and the dialog's drill-in stamp the
+   * same options.
    */
   readonly optionsTemplate = viewChild<TemplateRef<unknown>>("optionsBody");
 

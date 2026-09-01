@@ -7,11 +7,7 @@ import { BitwardenIcon } from "../shared/icon";
 import type { FilterOptionComponent } from "./filter-option.component";
 import type { FilterSectionComponent } from "./filter-section.component";
 
-/**
- * What a chip exposes to a host bridge: a keyed, aggregated value. A filterable
- * host (e.g. `bit-table-v2`) collects these into a `{ key: value }` object, the
- * way a `FormGroup` exposes its `.value`.
- */
+/** What a chip exposes to a host bridge: a keyed, aggregated value. */
 export interface FilterControl {
   /** The chip's key — the property its value occupies in the host's value object. */
   readonly key: Signal<string>;
@@ -28,27 +24,14 @@ export interface FilterControl {
 /** Provided by a filter chip / toggle; injected by a filter host. */
 export const FILTER_CONTROL = new InjectionToken<FilterControl>("FilterControl");
 
-/**
- * What a filterable surface (e.g. `bit-table-v2`) exposes so filter chips can
- * register against it. The host collects the registered controls' keyed values
- * into a single `{ key: value }` object (the way a `FormGroup` exposes `.value`)
- * and applies the consumer's filter function.
- *
- * Lives here, beside {@link FilterControl}, so a chip can self-register by
- * injecting {@link FILTER_HOST} (optionally) without `filter-menu` depending on
- * any host type — the chip stays usable outside a table, and the dependency
- * arrow runs host → filter-menu, never the reverse.
- */
+/** What a filterable surface (e.g. `bit-table-v2`) exposes so filter chips can register. */
 export interface FilterHost {
   registerFilter(control: FilterControl): void;
   unregisterFilter(control: FilterControl): void;
   /**
-   * Count for one of a chip's options: how many rows match if the chip's `key` is
-   * pinned to `value`, ignoring every other filter — an absolute count, not a
-   * faceted one, so it doesn't shift as unrelated filters change. Returns
-   * `undefined` when the host can't compute it (e.g. server-side, with no
-   * client-side predicate), so the chip falls back to an option's explicit `count`.
-   * Optional — a host that can't count omits it.
+   * How many rows match if the chip's `key` is pinned to `value`, ignoring every other
+   * filter. `undefined` when the host can't count, so the chip falls back to an
+   * option's explicit `count`.
    */
   optionCount?(key: string, value: unknown): number | undefined;
 }
@@ -59,11 +42,7 @@ export interface FilterHost {
  */
 export const FILTER_HOST = new InjectionToken<FilterHost>("FilterHost");
 
-/**
- * The selection surface a `bit-filter-menu` provides to its projected
- * `bit-filter-option`s — single- or multi-select, the current selection, a
- * toggle, and the in-menu search term (options self-hide when it doesn't match).
- */
+/** The selection surface a `bit-filter-menu` provides to its projected `bit-filter-option`s. */
 export interface FilterGroup {
   /** `true` for multi-select (checkbox), `false` for single-select (radio). */
   readonly multiple: Signal<boolean>;
@@ -78,13 +57,7 @@ export interface FilterGroup {
 /** Provided by `bit-filter-menu`; injected by `bit-filter-option`. */
 export const FILTER_GROUP = new InjectionToken<FilterGroup>("FilterGroup");
 
-/**
- * How a filter (`bit-filter-menu` / `bit-filter-toggle`) presents itself in the
- * responsive filter dialog — the small-screen view where the chip row collapses
- * into a single trigger and each filter becomes a row that drills into its
- * options. The dialog reads these off the projected filters; the wide-viewport
- * chip row doesn't use it.
- */
+/** How a filter presents itself in the responsive filter dialog. */
 export interface FilterPresenter {
   /** Stable identity for the dialog's row list. */
   readonly key: Signal<string>;
@@ -112,13 +85,7 @@ export interface FilterPresenter {
 /** Provided by a filter chip / toggle; injected by the responsive filter dialog. */
 export const FILTER_PRESENTER = new InjectionToken<FilterPresenter>("FilterPresenter");
 
-/**
- * A top-level entry projected into a `bit-filter-menu` — a `bit-filter-option` or a
- * `bit-filter-section`. The chip queries these (in document order) to render the menu
- * rows itself, branching on `kind`. Options and sections are declarative: they hold
- * data, the chip draws the UI, so the same rows re-render cleanly in the popover and
- * the responsive dialog.
- */
+/** A top-level entry projected into a `bit-filter-menu` — an option or a section. */
 export interface FilterEntry {
   readonly kind: "option" | "section";
 }

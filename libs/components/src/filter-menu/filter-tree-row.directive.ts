@@ -3,12 +3,7 @@ import { Directive, ElementRef, computed, inject, input, signal } from "@angular
 
 import { FILTER_TREE_HOST, FilterTreeHost, FilterTreeNode } from "./filter-tokens";
 
-/**
- * One row of a multi-select filter menu's tree, adapting it to CDK's
- * {@link TreeKeyManagerItem}. The row is the item rather than the `bit-filter-option`
- * behind it: an option is declared once but rendered per surface, so only the row maps
- * one-to-one onto something focusable.
- */
+/** One row of a multi-select filter menu's tree, adapting it to CDK's {@link TreeKeyManagerItem}. */
 @Directive({
   selector: "[bitFilterTreeRow]",
   exportAs: "bitFilterTreeRow",

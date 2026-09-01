@@ -26,12 +26,7 @@ import {
 } from "./filter-tokens";
 
 /**
- * A single on/off filter chip — no menu. Use it when a filter is one element
- * rather than a category (e.g. "Favorites"). Clicking toggles it; supply
- * `iconActive` to swap the icon while active. Its value is a boolean, exposed under its `key` via
- * {@link FILTER_CONTROL}. Projected into a filterable surface (e.g. `bit-table-v2`)
- * it resolves the surface's {@link FILTER_HOST} by DI and self-registers, so its
- * value joins the host's `filterValues`; inert when there's no host.
+ * A single on/off filter chip — no menu. Its value is a boolean.
  *
  * @example
  * ```html

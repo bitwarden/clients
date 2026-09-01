@@ -3,8 +3,7 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { OverflowItemDirective } from "../overflow-list";
 
 /**
- * A vertical rule for separating groups of filter chips in a `bit-table-v2`'s
- * chrome. Purely presentational — drop it between chips in the chip row.
+ * A vertical rule for separating groups of filter chips.
  *
  * @example
  * ```html

@@ -19,11 +19,7 @@ import { FILTER_ENTRY, FilterEntry } from "./filter-tokens";
 export type FilterOptionIconTile = IconTileOptions;
 
 /**
- * A selectable option inside a `bit-filter-menu`. Declarative — it renders no UI of its
- * own; the chip draws the row and handles selection.
- *
- * Project `bit-filter-option`s inside one to make it an expandable parent. Selecting a
- * parent selects everything under it. Requires the menu to be `multiple`.
+ * A selectable option inside a `bit-filter-menu`. Nesting requires `multiple`.
  *
  * @example
  * ```html

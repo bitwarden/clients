@@ -31,11 +31,7 @@ export interface FilterDialogParams {
   readonly filters: readonly FilterPresenter[];
 }
 
-/**
- * The small-screen filter view: the toolbar's chip row collapsed into a dialog. The list
- * page shows one row per filter; a filter with options drills into a page stamping that
- * filter's own options template, and a toggle flips in place. Opened by `bit-table-toolbar`.
- */
+/** The small-screen filter view. Opened by `bit-table-toolbar`. */
 @Component({
   selector: "bit-filter-dialog",
   templateUrl: "./filter-dialog.component.html",

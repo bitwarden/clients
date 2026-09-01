@@ -11,12 +11,7 @@ import {
 import { FilterOptionComponent } from "./filter-option.component";
 import { FILTER_ENTRY, FilterEntry } from "./filter-tokens";
 
-/**
- * A labelled group of options within a `bit-filter-menu` (e.g. one org's collections).
- * Declarative, like `bit-filter-option`: it holds the label, collapse state, and child
- * options, and the chip renders the header and rows. Its {@link open} state is shared
- * across the popover and the dialog.
- */
+/** A labelled group of options within a `bit-filter-menu`. */
 @Component({
   selector: "bit-filter-section",
   template: `<ng-content></ng-content>`,
