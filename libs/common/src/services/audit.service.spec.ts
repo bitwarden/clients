@@ -15,6 +15,11 @@ if (typeof global.Request === "undefined") {
   }) as any;
 }
 
+/** Typed view of the protected members the concurrency test needs to spy on. */
+type AuditServiceInternals = {
+  fetchLeakedPasswordCount(password: string): Promise<number>;
+};
+
 describe("AuditService", () => {
   let auditService: AuditService;
   let mockCrypto: jest.Mocked<CryptoFunctionService>;
@@ -28,6 +33,7 @@ describe("AuditService", () => {
 
     mockApi = {
       nativeFetch: jest.fn().mockResolvedValue({
+        ok: true,
         text: jest.fn().mockResolvedValue(`CDDEEFF:4\nDDEEFF:2\n123456:1`),
       }),
     } as unknown as jest.Mocked<ApiService>;
@@ -44,9 +50,10 @@ describe("AuditService", () => {
     const maxInFlight: number[] = [];
 
     // Patch fetchLeakedPasswordCount to track concurrency
-    const origFetch = (auditService as any).fetchLeakedPasswordCount.bind(auditService);
+    const internals = auditService as unknown as AuditServiceInternals;
+    const origFetch = internals.fetchLeakedPasswordCount.bind(auditService);
     jest
-      .spyOn(auditService as any, "fetchLeakedPasswordCount")
+      .spyOn(internals, "fetchLeakedPasswordCount")
       .mockImplementation(async (password: string) => {
         inFlight.push(password);
         maxInFlight.push(inFlight.length);
@@ -69,7 +76,7 @@ describe("AuditService", () => {
 
     // The max value in maxInFlight should not exceed 2 (the concurrency limit)
     expect(Math.max(...maxInFlight)).toBeLessThanOrEqual(2);
-    expect((auditService as any).fetchLeakedPasswordCount).toHaveBeenCalledTimes(4);
+    expect(internals.fetchLeakedPasswordCount).toHaveBeenCalledTimes(4);
     expect(mockCrypto.hash).toHaveBeenCalledTimes(4);
     expect(mockApi.nativeFetch).toHaveBeenCalledTimes(4);
   });
@@ -82,6 +89,18 @@ describe("AuditService", () => {
     const request = mockApi.nativeFetch.mock.calls[0][0] as any;
     expect(request.url).toBe("https://api.pwnedpasswords.com/range/AABBC");
     expect(request.headers).toEqual(expect.objectContaining({ "Add-Padding": "true" }));
+  });
+
+  it("should reject rather than report not exposed when the range request fails", async () => {
+    // An error body parses as a hash list that matches nothing, which would otherwise report a
+    // leaked password as safe.
+    mockApi.nativeFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 429,
+      text: jest.fn().mockResolvedValue("rate limited"),
+    } as unknown as Response);
+
+    await expect(auditService.passwordLeaked("password")).rejects.toThrow("status 429");
   });
 
   it("should return empty array for breachedAccounts when no breaches found", async () => {
