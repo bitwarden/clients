@@ -32,11 +32,9 @@ export interface FilterDialogParams {
 }
 
 /**
- * The small-screen filter view: the toolbar's chip row collapsed into a dialog
- * (a bottom sheet on small screens, via the dialog service's responsive position).
- * The list page shows one row per filter; tapping a filter with options drills
- * into a page that stamps that filter's own options template (the same options its
- * desktop popover shows), and a toggle flips in place. Opened by `bit-table-toolbar`.
+ * The small-screen filter view: the toolbar's chip row collapsed into a dialog. The list
+ * page shows one row per filter; a filter with options drills into a page stamping that
+ * filter's own options template, and a toggle flips in place. Opened by `bit-table-toolbar`.
  */
 @Component({
   selector: "bit-filter-dialog",

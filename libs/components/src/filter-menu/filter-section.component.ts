@@ -12,12 +12,10 @@ import { FilterOptionComponent } from "./filter-option.component";
 import { FILTER_ENTRY, FilterEntry } from "./filter-tokens";
 
 /**
- * A labelled group of options within a `bit-filter-menu` menu (e.g. one org's
- * collections). Like `bit-filter-option`, it's **declarative**: it holds the label,
- * collapse state, and its child options; the chip renders the header (with a
- * selected-count berry and, when `collapsible`, a toggle) and the option rows. Its
- * {@link open} state is shared across the popover and the dialog, so collapsing in one
- * is reflected in the other.
+ * A labelled group of options within a `bit-filter-menu` (e.g. one org's collections).
+ * Declarative, like `bit-filter-option`: it holds the label, collapse state, and child
+ * options, and the chip renders the header and rows. Its {@link open} state is shared
+ * across the popover and the dialog.
  */
 @Component({
   selector: "bit-filter-section",

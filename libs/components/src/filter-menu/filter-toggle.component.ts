@@ -69,9 +69,8 @@ export class FilterToggleComponent implements FilterControl, FilterPresenter, On
   readonly icon = input<BitwardenIcon>();
 
   /**
-   * Icon shown while active — e.g. the filled `bwi-star-f` for an outline
-   * `bwi-star`. Falls back to {@link icon} when omitted, so the same icon is used
-   * in both states.
+   * Icon shown while active — e.g. `bwi-star-f` for an outline `bwi-star`. Falls
+   * back to {@link icon} when omitted.
    */
   readonly iconActive = input<BitwardenIcon>();
 

@@ -87,8 +87,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
  * The chip owns its selection and exposes it as {@link FILTER_CONTROL} under its
  * `key`. When projected into a filterable surface (e.g. `bit-table-v2`) it resolves
  * that surface's {@link FILTER_HOST} by DI and self-registers, so its value folds
- * into the host's `filterValues`. It speaks only to the token contracts — never the
- * host type — so it stays usable outside a table (where the host is simply absent).
+ * into the host's `filterValues`. Usable outside a table, where the host is absent.
  *
  * @example
  * ```html
@@ -284,10 +283,8 @@ export class FilterMenuComponent
   private readonly injector = inject(Injector);
 
   /**
-   * The count shown on each option row, keyed by the option: its explicit `count`
-   * if set, else the host's faceted count (this chip's `key` pinned to the option's
-   * value). Reads the host's signals, so it recomputes as the data and other filters
-   * change.
+   * The count shown on each option row, keyed by the option: its explicit `count` if
+   * set, else the host's count for this chip's `key` pinned to the option's value.
    */
   protected readonly optionCounts = computed(() => {
     const counts = new Map<FilterOptionComponent, number | undefined>();
@@ -314,12 +311,9 @@ export class FilterMenuComponent
   protected readonly unsetCount = computed(() => this.filterHost?.optionCount?.(this.key(), null));
 
   /**
-   * Safely reads an option's `value` input. An option can appear in {@link allOptions}
-   * one tick before Angular finishes binding its required `value` input — e.g. when an
-   * async list (like a collections stream) appends a `bit-filter-option` after this chip
-   * has already rendered. Reading the input here still registers it as a signal
-   * dependency even though it throws, so the consuming effect/computed re-runs on its
-   * own once the value resolves.
+   * An option can appear in {@link allOptions} a tick before Angular binds its required
+   * `value`. Reading the input still registers a signal dependency even though it throws,
+   * so the caller re-runs once the value resolves.
    */
   private optionValue(option: FilterOptionComponent): { value: unknown } | undefined {
     try {
@@ -354,7 +348,6 @@ export class FilterMenuComponent
       }
       this.labels.set(labels);
     });
-    // Reflect the active state as the chip's pressed (selected) styling.
     effect(() => this.baseChip.selectedState.set(this.active()));
     // Otherwise only committed on menu close, leaving a stale berry on the chip.
     effect(() => {
@@ -691,11 +684,9 @@ export class FilterMenuComponent
   }
 
   /**
-   * Clears the search from the no-results state. That state — and the button in it — unmounts as
-   * soon as the term goes, so focus returns to the search field instead of falling to the body.
-   *
-   * Found from the button rather than a view query: this template is also stamped by the responsive
-   * dialog, and a view query only sees the copy in the chip's own view.
+   * The no-results state unmounts with the term, taking this button with it, so focus
+   * returns to the search field. Found from the button rather than a view query: the
+   * responsive dialog stamps this template too, and a view query only sees the chip's copy.
    */
   protected clearSearch(event: Event): void {
     const surface = (event.currentTarget as HTMLElement).closest("[role=dialog]");

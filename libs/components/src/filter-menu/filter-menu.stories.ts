@@ -11,8 +11,7 @@ import { FilterOptionIconTile } from "./filter-option.component";
 
 /**
  * Each chip declares a `key` and owns its own selection — no `ngModel`. Inside a
- * `bit-table-v2` the chips self-register with the table and their values land in
- * `table.filterValues()`; here they simply display their selection.
+ * `bit-table-v2` the chips self-register and their values land in `table.filterValues()`.
  */
 @Component({
   selector: "filter-menu-demo",
@@ -54,8 +53,7 @@ class FilterMenuDemoComponent {}
 
 /**
  * Options nest by projection: put `bit-filter-option`s inside one to make it an
- * expandable parent. Each level is written out in markup (literally, or an inline
- * `@for`), so depth is whatever the template declares.
+ * expandable parent.
  */
 @Component({
   selector: "filter-menu-nested-demo",
@@ -88,9 +86,7 @@ class FilterMenuDemoComponent {}
 class FilterMenuNestedDemoComponent {}
 
 /**
- * The menu spec's variant column, minus the radio: nine rows alternating individual, group,
- * individual, group, with each group opening the next level down. Every row carries the same tile,
- * count, and placeholder label.
+ * Nine rows alternating individual and group, each group opening the next level down.
  */
 @Component({
   selector: "filter-menu-nested-tiles-demo",
@@ -134,7 +130,7 @@ class FilterMenuNestedTilesDemoComponent {
   protected readonly tile: FilterOptionIconTile = { icon: "bwi-clock", variant: "brand" };
 }
 
-/** Enough options to bring out the in-menu search, so a search can be made to match nothing. */
+/** Enough options to bring out the in-menu search. */
 @Component({
   selector: "filter-menu-empty-demo",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -211,8 +207,8 @@ export const Default: Story = {
 };
 
 /**
- * Options can render a leading icon tile. The chip forces `size="xs"` so every row lines up, and a
- * disabled option's tile drops to the neutral `gray` family.
+ * Options can render a leading icon tile. The chip forces `size="xs"`; a disabled option's
+ * tile drops to `gray`.
  */
 export const IconTiles: Story = {
   render: () => ({
@@ -231,13 +227,8 @@ export const IconTiles: Story = {
 };
 
 /**
- * Nested options. Selecting a parent selects everything beneath it; clearing it
- * clears the same set. A parent whose subtree is only partly selected draws
- * indeterminate, and that propagates up through every level — uncheck CI/CD and
- * both Infrastructure and Engineering go indeterminate.
- *
- * Searching keeps a parent visible while anything beneath it matches, so a nested
- * match is reachable through its ancestors instead of being hidden with them.
+ * Selecting a parent selects everything beneath it; a partly selected subtree draws
+ * indeterminate up every level. Searching keeps a parent visible while a child matches.
  */
 export const NestedOptions: Story = {
   render: () => ({
@@ -246,8 +237,8 @@ export const NestedOptions: Story = {
 };
 
 /**
- * Nested options with a leading icon tile on every row, mirroring the menu spec's variant column.
- * Parents take a chevron and leaves reserve its column, so the tiles stay in one line at each level.
+ * Nested options with a leading icon tile on every row. Leaves reserve the chevron's
+ * column, so the tiles line up at each level.
  */
 export const NestedIconTiles: Story = {
   render: () => ({
@@ -261,8 +252,7 @@ export const NestedIconTiles: Story = {
 };
 
 /**
- * No option matches the search term. The in-menu search appears once a chip has more than ten
- * options, so it is reachable here.
+ * No option matches the search term. The in-menu search needs more than ten options.
  */
 export const NoMatchingItems: Story = {
   render: () => ({
