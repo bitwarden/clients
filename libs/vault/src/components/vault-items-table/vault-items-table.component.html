@@ -176,10 +176,14 @@
   <bit-column sortable [sortFn]="sortByVault" width="minmax(176px, 280px)">
     <bit-header-cell>{{ "vault" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.vault; let row">
-      <bit-icon
+      @let vaultTile = vaultIconTile(row);
+      <bit-icon-tile
         slot="start"
-        [name]="row.organizationId ? 'bwi-business' : 'bwi-user'"
-        class="tw-text-muted"
+        [icon]="vaultTile.icon"
+        [variant]="vaultTile.variant ?? 'primary'"
+        [color]="vaultTile.color"
+        [emphasis]="vaultTile.emphasis ?? 'subtle'"
+        size="xs"
       />
       {{ vaultName(row) }}
     </bit-cell>

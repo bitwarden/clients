@@ -9,11 +9,16 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { map, of, switchMap } from "rxjs";
 
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { NoResults } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -35,7 +40,10 @@ import {
   defineTable,
   FilterControl,
   FilterMenuModule,
+  getAvatarDefaultColor,
   IconModule,
+  IconTileComponent,
+  IconTileOptions,
   LinkModule,
   SearchModule,
   SelectionConfig,
@@ -46,6 +54,18 @@ import {
   TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { orgIconTile, personalIconTile } from "../../models/vault-icon-tile";
+import {
+  idString,
+  matchesFavorite,
+  matchesFolder,
+  matchesSharedFolder,
+  matchesType,
+  matchesVault,
+  MY_VAULT,
+  NO_FOLDER,
+} from "../../utils/vault-filter-predicates";
 
 import { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
 import {
@@ -58,15 +78,6 @@ import {
 } from "./vault-items-table-copy-presentation";
 import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
 import { cipherSearchMatches } from "./vault-items-table-search";
-
-/**
- * Sentinel for the Vault chip's "my vault" option — organizations are identified by id, and the
- * individual vault has none.
- */
-export const MY_VAULT = "myVault";
-
-/** Sentinel for the My folders chip's "no folder" option. */
-export const NO_FOLDER = "noFolder";
 
 /** The `queryParam` namespace shared by every filter chip in the vault table. */
 export const VAULT_FILTER_NAMESPACE = "vault";
@@ -132,15 +143,6 @@ export type VaultItemsTableFilters = {
  * step as types are added.
  */
 const ALL_CIPHER_TYPES: CipherType[] = DIALOG_CIPHER_MENU_ITEMS.map((item) => item.type);
-
-/**
- * Widens an id to a plain string.
- *
- * Cipher ids are branded SDK types on `CipherListView` (`OrganizationId`, `CollectionId`,
- * `FolderId`) but plain strings on `CipherView`, so reading one off `CipherViewLike` yields a
- * union that can't key a lookup or be compared to a filter value until it's normalized.
- */
-const idString = (id: unknown): string | undefined => (id == null ? undefined : String(id));
 
 /**
  * i18n key per cipher type, for the Type chip's options — taken from the same menu items
@@ -209,6 +211,7 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
     FilterMenuModule,
     I18nPipe,
     IconModule,
+    IconTileComponent,
     LinkModule,
     SearchModule,
     SkeletonTextComponent,
@@ -222,6 +225,25 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
 })
 export class VaultItemsTableComponent<C extends CipherViewLike> {
   private readonly i18nService = inject(I18nService);
+  private readonly accountService = inject(AccountService);
+  private readonly avatarService = inject(AvatarService);
+
+  /**
+   * The active user's avatar color, so the "My vault" tile matches their avatar and the side nav's
+   * personal entry. Resolved here rather than taken as an input so every client's table stays in
+   * sync with the avatar without each host plumbing it through.
+   */
+  private readonly userAvatarColor = toSignal(
+    this.accountService.activeAccount$.pipe(
+      switchMap((account) =>
+        account
+          ? this.avatarService
+              .getUserAvatarColor$(account.id)
+              .pipe(map((color) => color ?? getAvatarDefaultColor(account.id, account.name)))
+          : of(undefined),
+      ),
+    ),
+  );
 
   protected readonly filterNamespace = VAULT_FILTER_NAMESPACE;
   protected readonly filterKeys = VAULT_FILTER_KEYS;
@@ -393,6 +415,18 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   private readonly organizationNames = computed(() => this.nameMap(this.organizations()));
 
+  /** Product tier per organization id, for the tier-appropriate Vault column tile. */
+  private readonly organizationTiers = computed(() => {
+    const tiers = new Map<string, ProductTierType>();
+    for (const organization of this.organizations()) {
+      const id = idString(organization.id);
+      if (id) {
+        tiers.set(id, organization.productTierType);
+      }
+    }
+    return tiers;
+  });
+
   /** Indexes named entities by id, widened to plain strings, skipping any that lack one. */
   private nameMap(items: readonly { id?: unknown; name: string }[]): Map<string, string> {
     const map = new Map<string, string>();
@@ -516,6 +550,21 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   }
 
   /**
+   * The owning vault's icon tile, matching the color and icon the side nav gives that same vault:
+   * the user's avatar color for their own vault, the tier's color for an organization.
+   *
+   * An organization missing from {@link organizations} has no tier to key off, so it falls back to
+   * the generic business tile rather than guessing a color.
+   */
+  protected vaultIconTile(cipher: C): IconTileOptions {
+    const organizationId = idString(cipher.organizationId);
+    if (!organizationId) {
+      return personalIconTile(this.userAvatarColor() ?? "brand");
+    }
+    return orgIconTile(this.organizationTiers().get(organizationId) ?? ProductTierType.Enterprise);
+  }
+
+  /**
    * The collections this cipher belongs to, as chips ordered by name. Collections missing from
    * {@link collections} are dropped, so every chip carries a value the Shared folders filter
    * actually offers.
@@ -619,11 +668,11 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   protected readonly filter = (cipher: C, values: VaultItemsTableFilters): boolean =>
     this.matchesSearch(cipher) &&
-    this.matchesType(cipher, values.type) &&
-    this.matchesFavorite(cipher, values.favorites) &&
-    this.matchesVault(cipher, values.vault) &&
-    this.matchesSharedFolder(cipher, values.sharedFolder) &&
-    this.matchesFolder(cipher, values.folder);
+    matchesType(cipher, values.type) &&
+    matchesFavorite(cipher, values.favorites) &&
+    matchesVault(cipher, values.vault) &&
+    matchesSharedFolder(cipher, values.sharedFolder) &&
+    matchesFolder(cipher, values.folder);
 
   /**
    * Whether the cipher is among the active search's matches. `undefined` matches means no
@@ -632,56 +681,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   private matchesSearch(cipher: C): boolean {
     const matches = this.searchMatches();
     return matches === undefined || matches.has(String(cipher.id));
-  }
-
-  private matchesType(cipher: C, type: CipherType | undefined): boolean {
-    // `type` differs between CipherView and CipherListView, so it must go through the utils.
-    return type == null || CipherViewLikeUtils.getType(cipher) === type;
-  }
-
-  private matchesFavorite(cipher: C, favorites: boolean | undefined): boolean {
-    return !favorites || cipher.favorite;
-  }
-
-  /**
-   * The Vault chip is multi-select: `vault` is an array of organization ids and/or
-   * {@link MY_VAULT}. A cipher matches if it satisfies *any* selected value (OR).
-   * `undefined` and `[]` both mean "no filter, match everything".
-   */
-  private matchesVault(cipher: C, vault: string[] | undefined): boolean {
-    if (!vault || vault.length === 0) {
-      return true;
-    }
-    return vault.some((value) =>
-      value === MY_VAULT ? !cipher.organizationId : idString(cipher.organizationId) === value,
-    );
-  }
-
-  /**
-   * The Shared folders chip is multi-select: `sharedFolder` is an array of collection ids. As
-   * with {@link matchesVault}, `undefined` and `[]` both mean unfiltered, and a cipher matches if
-   * it belongs to *any* selected collection.
-   */
-  private matchesSharedFolder(cipher: C, sharedFolder: string[] | undefined): boolean {
-    if (!sharedFolder || sharedFolder.length === 0) {
-      return true;
-    }
-    const collectionIds = (cipher.collectionIds ?? []).map((id) => idString(id));
-    return sharedFolder.some((value) => collectionIds.includes(value));
-  }
-
-  /**
-   * The My folders chip is multi-select: `folder` is an array of folder ids and/or
-   * {@link NO_FOLDER}. As with {@link matchesVault}, `undefined` and `[]` both mean unfiltered,
-   * and a cipher matches if it satisfies *any* selected value.
-   */
-  private matchesFolder(cipher: C, folder: string[] | undefined): boolean {
-    if (!folder || folder.length === 0) {
-      return true;
-    }
-    return folder.some((value) =>
-      value === NO_FOLDER ? !cipher.folderId : idString(cipher.folderId) === value,
-    );
   }
 
   /**
