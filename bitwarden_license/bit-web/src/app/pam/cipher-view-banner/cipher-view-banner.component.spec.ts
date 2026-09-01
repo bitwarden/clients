@@ -1,8 +1,11 @@
 import { formatDate } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, NEVER, of } from "rxjs";
+import { BehaviorSubject, NEVER, of, Subject } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -120,6 +123,22 @@ function preCheck(overrides: Partial<AccessPreCheckView> = {}): AccessPreCheckVi
   } as unknown as AccessPreCheckView;
 }
 
+const ORGANIZATION_ID = "org-1";
+
+/**
+ * A membership as the banner reads it. Goes through the real `Organization` so the licensing
+ * predicate under test is the shipped one rather than a stand-in. Every field is an override, so a
+ * case can omit `accessPam` entirely — the un-synced blob the tri-state exists for.
+ */
+function organization(overrides: Partial<Organization> = {}): Organization {
+  return Object.assign(new Organization(), {
+    id: ORGANIZATION_ID,
+    enabled: true,
+    isProviderUser: false,
+    ...overrides,
+  });
+}
+
 describe("CipherViewBannerComponent", () => {
   let fixture: ComponentFixture<CipherViewBannerComponent>;
   let component: CipherViewBannerComponent;
@@ -129,6 +148,7 @@ describe("CipherViewBannerComponent", () => {
   let leasingErrors: MockProxy<LeasingErrorService>;
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
+  let organizations$: BehaviorSubject<Organization[]>;
 
   function gatedCipher(overrides: Partial<CipherView> = {}): CipherView {
     const cipher = new CipherView();
@@ -188,6 +208,10 @@ describe("CipherViewBannerComponent", () => {
     leasingErrors = mock<LeasingErrorService>();
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
+    // Licensed by default, so only the licensing tests below concern themselves with it.
+    organizations$ = new BehaviorSubject<Organization[]>([
+      organization({ usePam: true, accessPam: true }),
+    ]);
 
     requestsApi.getCipherAccessState.mockResolvedValue(accessState());
     // The resting banner pre-checks on its own to render the rule's maximum duration, so every
@@ -210,6 +234,8 @@ describe("CipherViewBannerComponent", () => {
       imports: [CipherViewBannerComponent],
       providers: [
         { provide: ConfigService, useValue: { getFeatureFlag$: () => enabled$ } },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
         { provide: AccessRequestSdkService, useValue: requestsApi },
         { provide: AccessLeaseSdkService, useValue: leasesApi },
         { provide: AccessRefreshService, useValue: accessRefresh },
@@ -232,6 +258,120 @@ describe("CipherViewBannerComponent", () => {
         { provide: LogService, useValue: logService },
         { provide: I18nService, useValue: i18nService },
       ],
+    });
+  });
+
+  describe("licensing", () => {
+    // The cipher has to name an organization for licensing to apply at all; the shared
+    // `gatedCipher()` deliberately leaves it unset so the rest of the suite is about the rule.
+    function orgGatedCipher(overrides: Partial<CipherView> = {}): CipherView {
+      return gatedCipher({ organizationId: ORGANIZATION_ID, ...overrides });
+    }
+
+    it("blocks an unlicensed member with an explanation instead of a request form", async () => {
+      organizations$.next([organization({ usePam: true, accessPam: false })]);
+
+      await create(orgGatedCipher());
+
+      expect(query("[data-testid='cipher-view-banner-unlicensed']")).not.toBeNull();
+      expect(query("[data-testid='cipher-view-banner-request']")).toBeNull();
+      expect(query("#pam-cipher-view-banner_button_request-toggle")).toBeNull();
+      expect(text()).toContain("pamUnlicensedBannerHeading");
+      expect(text()).toContain("pamUnlicensedBannerBody");
+      expect(text()).toContain("pamUnlicensedBannerRequestUnavailable");
+    });
+
+    it("spends no pre-check on a member who cannot request anything", async () => {
+      organizations$.next([organization({ usePam: true, accessPam: false })]);
+
+      await create(orgGatedCipher());
+
+      expect(requestsApi.preCheck).not.toHaveBeenCalled();
+    });
+
+    it("offers the request form to a licensed member", async () => {
+      await create(orgGatedCipher());
+
+      expect(query("[data-testid='cipher-view-banner-unlicensed']")).toBeNull();
+      expect(query("[data-testid='cipher-view-banner-request']")).not.toBeNull();
+    });
+
+    it("replaces even an active lease with the block", async () => {
+      organizations$.next([organization({ usePam: true, accessPam: false })]);
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ activeLease: leaseView(), extensionsAllowed: true }),
+      );
+
+      await create(orgGatedCipher());
+
+      // The server stops releasing the credential to an unlicensed holder whatever lease they hold
+      // (CipherLeaseGate.LeaseCanRelease), so a countdown here would narrate access that is no
+      // longer being served.
+      expect(query("[data-testid='cipher-view-banner-unlicensed']")).not.toBeNull();
+      expect(query("[data-testid='cipher-view-banner-active']")).toBeNull();
+      expect(query("#pam-cipher-view-banner_button_extend")).toBeNull();
+    });
+
+    it("replaces an approved request's card with the block", async () => {
+      organizations$.next([organization({ usePam: true, accessPam: false })]);
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView() }),
+      );
+
+      await create(orgGatedCipher());
+
+      // Activation is refused server-side, so offering Start would be the dead end this story is
+      // about. Withdrawing the grant stays reachable from the vault-row menu and the My requests
+      // tab, neither of which is licensing-gated, so nothing is stranded by dropping it here.
+      expect(query("[data-testid='cipher-view-banner-unlicensed']")).not.toBeNull();
+      expect(query("#pam-cipher-view-banner_button_start")).toBeNull();
+    });
+
+    it("replaces a pending request's card with the block", async () => {
+      organizations$.next([organization({ usePam: true, accessPam: false })]);
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ pendingRequest: requestView() }),
+      );
+
+      await create(orgGatedCipher());
+
+      expect(query("[data-testid='cipher-view-banner-unlicensed']")).not.toBeNull();
+      expect(query("[data-testid='cipher-view-banner-pending']")).toBeNull();
+    });
+
+    it("offers no request card until licensing is known", async () => {
+      // `organizations$` has not emitted, so the answer is neither true nor false yet. Treating the
+      // gap as "licensed" would flash the request card and fire its pre-check at someone about to
+      // be blocked.
+      organizations$ = new BehaviorSubject<Organization[]>([]);
+      const pending$ = new Subject<Organization[]>();
+      TestBed.overrideProvider(OrganizationService, {
+        useValue: { organizations$: () => pending$ },
+      });
+
+      await create(orgGatedCipher());
+
+      expect(query("[data-testid='cipher-view-banner-request']")).toBeNull();
+      expect(requestsApi.preCheck).not.toHaveBeenCalled();
+
+      pending$.next([organization({ usePam: true, accessPam: true })]);
+      await fixture.whenStable();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(query("[data-testid='cipher-view-banner-request']")).not.toBeNull();
+    });
+
+    it("still blocks when the access-state read fails", async () => {
+      // The block is derived from the caller's own membership, so it does not depend on a read that
+      // an unlicensed member has no particular reason to trust.
+      organizations$.next([organization({ usePam: true, accessPam: false })]);
+      requestsApi.getCipherAccessState.mockRejectedValue(new Error("boom"));
+
+      await create(orgGatedCipher());
+
+      expect(query("[data-testid='cipher-view-banner-unlicensed']")).not.toBeNull();
     });
   });
 
