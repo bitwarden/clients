@@ -3492,7 +3492,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     const authStatus = await this.getAuthStatus();
     const showInlineMenuAccountCreation = this.shouldShowInlineMenuAccountCreation();
-    const showInlineMenuPasswordGenerator = await this.shouldInitInlineMenuPasswordGenerator(
+    const showInlineMenuPasswordGenerator = this.shouldShowInlineMenuPasswordGenerator(
       authStatus,
       isInlineMenuListPort,
       showInlineMenuAccountCreation,
@@ -3536,6 +3536,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         ? await firstValueFrom(this.useLitInlineMenuComponents$)
         : undefined,
     });
+    if (showInlineMenuPasswordGenerator && !this.credential$.value) {
+      this.generateInlineMenuPasswordForPort(port).catch((error) => this.logService.error(error));
+    }
+
     if (port.sender) {
       this.updateInlineMenuPosition(
         port.sender,
@@ -3615,7 +3619,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param isInlineMenuListPort - Identifies if the port is for the inline menu list
    * @param showInlineMenuAccountCreation - Identifies if the inline menu account creation should be shown
    */
-  private async shouldInitInlineMenuPasswordGenerator(
+  private shouldShowInlineMenuPasswordGenerator(
     authStatus: AuthenticationStatus,
     isInlineMenuListPort: boolean,
     showInlineMenuAccountCreation: boolean,
@@ -3624,33 +3628,46 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return false;
     }
 
-    const focusFieldShouldShowPasswordGenerator =
+    return (
       this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration) ||
       (showInlineMenuAccountCreation &&
-        this.focusedFieldMatchesAccountCreationType(InlineMenuAccountCreationFieldType.Password));
-    if (!focusFieldShouldShowPasswordGenerator) {
-      return false;
-    }
+        this.focusedFieldMatchesAccountCreationType(InlineMenuAccountCreationFieldType.Password))
+    );
+  }
 
+  /**
+   * Requests a generated password for a newly connected inline menu list and forwards
+   * it to the list once it is available.
+   *
+   * @param port - The inline menu list port awaiting a generated password
+   */
+  private async generateInlineMenuPasswordForPort(port: chrome.runtime.Port) {
     const { capabilities } = await firstValueFrom(
       this.generatorService.preferredAlgorithm$("password", {
         account$: this.accountService.activeAccount$.pipe(filter((a): a is Account => a !== null)),
       }),
     );
 
-    if (!this.credential$.value && capabilities.autogenerate) {
-      this.requestGeneratedPassword$.next({
-        source: PasswordGenerateRequestSource.InlineMenuInit,
-        type: Type.password,
-      });
-      try {
-        await this.waitForNextCredential();
-      } catch (e) {
-        this.logService.error(e);
-      }
+    if (!capabilities.autogenerate || this.credential$.value) {
+      return;
     }
 
-    return true;
+    this.requestGeneratedPassword$.next({
+      source: PasswordGenerateRequestSource.InlineMenuInit,
+      type: Type.password,
+    });
+    const generatedPassword = await this.waitForNextCredential();
+
+    // The list can be torn down or replaced while generation is in flight; only the
+    // port that is still the active list should receive the generated password.
+    if (port !== this.inlineMenuListPort) {
+      return;
+    }
+
+    this.postMessageToPort(port, {
+      command: "updateAutofillInlineMenuGeneratedPassword",
+      generatedPassword,
+    });
   }
 
   /**

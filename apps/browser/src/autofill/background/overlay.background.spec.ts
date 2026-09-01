@@ -4379,6 +4379,45 @@ describe("OverlayBackground", () => {
 
       expect(generatorService.generate$).toHaveBeenCalled();
     });
+
+    it("initializes the list port before a generated password is available", async () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      const focusedFieldData = createFocusedFieldDataMock({
+        inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
+      });
+      const sender = mock<chrome.runtime.MessageSender>({
+        tab: createChromeTabMock({ id: 1 }),
+        frameId: 0,
+      });
+      sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+
+      await initOverlayElementPorts({ initList: true, initButton: false });
+      await flushPromises();
+
+      const postedCommands = (listPortSpy.postMessage as jest.Mock).mock.calls.map(
+        (call) => call[0].command,
+      );
+      expect(postedCommands).toEqual(
+        expect.arrayContaining([
+          "initAutofillInlineMenuList",
+          "updateAutofillInlineMenuGeneratedPassword",
+        ]),
+      );
+      expect(postedCommands.indexOf("initAutofillInlineMenuList")).toBeLessThan(
+        postedCommands.indexOf("updateAutofillInlineMenuGeneratedPassword"),
+      );
+    });
+
+    it("skips sending a generated password to a list port that is no longer active", async () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      const stalePort = createPortSpyMock(AutofillOverlayPort.List);
+      overlayBackground["inlineMenuListPort"] = createPortSpyMock(AutofillOverlayPort.List);
+
+      await overlayBackground["generateInlineMenuPasswordForPort"](stalePort);
+
+      expect(overlayBackground["credential$"].value).toBe(generatedPassword);
+      expect(stalePort.postMessage).not.toHaveBeenCalled();
+    });
   });
 
   describe("credential pipeline history tracking", () => {
