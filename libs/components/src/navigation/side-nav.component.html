@@ -22,6 +22,7 @@
       [attr.data-nav-version]="version"
       class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-nav tw-text-fg-nav tw-outline-none"
       [style.width.rem]="open ? (sideNavService.width$ | async) : sideNavService.CLOSED_WIDTH"
+      [style.transition]="sideNavService.isDragging() ? 'none' : 'width 150ms ease-out'"
       [style]="
         variant() === 'secondary'
           ? '--color-nav-bg-brand: var(--color-nav-bg-admin); --color-nav-bg-brand-soft: var(--color-nav-bg-admin-soft); --color-nav-bg-brand-hover: var(--color-nav-bg-admin-hover);'
@@ -92,8 +93,9 @@
     <div
       cdkDrag
       (cdkDragMoved)="onDragMoved($event)"
+      (cdkDragEnded)="onDragEnded($event)"
       class="tw-absolute tw-top-0 -tw-right-0.5 tw-z-30 tw-h-full tw-w-1 tw-cursor-col-resize tw-transition-colors tw-duration-[250ms] hover:tw-ease-in-out hover:tw-delay-[250ms] hover:tw-bg-primary-300 focus:tw-outline-none focus-visible:tw-bg-primary-300 before:tw-content-[''] before:tw-absolute before:tw-block before:tw-inset-y-0 before:-tw-left-0.5 before:-tw-right-1"
-      [class.tw-hidden]="!open"
+      [cdkDragDisabled]="isTouchDevice()"
       tabindex="0"
       (keydown)="onKeydown($event)"
       role="separator"
@@ -118,6 +120,7 @@
       [attr.data-nav-version]="version"
       class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-nav tw-text-fg-nav tw-outline-none"
       [style.width.rem]="open ? (sideNavService.width$ | async) : undefined"
+      [style.transition]="sideNavService.isDragging() ? 'none' : 'width 150ms ease-out'"
       [style]="
         variant() === 'secondary'
           ? '--color-nav-fg-primary: var(--color-nav-fg-secondary); --color-nav-bg-primary: var(--color-nav-bg-secondary); --color-nav-bg-primary-strong: var(--color-nav-bg-secondary-strong); --color-nav-bg-primary-hover: var(--color-nav-bg-secondary-hover); --color-nav-bg-primary-hover-strong: var(--color-nav-bg-secondary-hover-strong); --color-nav-border-primary-focus: var(--color-nav-border-secondary-focus); --color-nav-border-primary: var(--color-nav-border-secondary);'
@@ -169,8 +172,9 @@
     <div
       cdkDrag
       (cdkDragMoved)="onDragMoved($event)"
+      (cdkDragEnded)="onDragEnded($event)"
       class="tw-absolute tw-top-0 -tw-right-0.5 tw-z-30 tw-h-full tw-w-1 tw-cursor-col-resize tw-transition-colors tw-duration-[250ms] hover:tw-ease-in-out hover:tw-delay-[250ms] hover:tw-bg-primary-300 focus:tw-outline-none focus-visible:tw-bg-primary-300 before:tw-content-[''] before:tw-absolute before:tw-block before:tw-inset-y-0 before:-tw-left-0.5 before:-tw-right-1"
-      [class.tw-hidden]="!open"
+      [cdkDragDisabled]="isTouchDevice()"
       tabindex="0"
       (keydown)="onKeydown($event)"
       role="separator"

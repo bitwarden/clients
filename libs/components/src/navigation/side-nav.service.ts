@@ -17,9 +17,10 @@ export type SideNavVersion = "default" | "vfo1";
 })
 export class SideNavService {
   // Units in rem
-  readonly DEFAULT_OPEN_WIDTH = 18;
-  readonly MIN_OPEN_WIDTH = 15;
-  readonly MAX_OPEN_WIDTH = 24;
+  readonly DEFAULT_OPEN_WIDTH = 18.5; // 296px
+  readonly MIN_OPEN_WIDTH = 15; // 240px
+  readonly MAX_OPEN_WIDTH = 37.5; // 600px
+  readonly SNAP_TO_CLOSED_THRESHOLD = 2; // 32px — ~208px of tension past the 240px minimum
 
   /**
    * Width of the collapsed nav (icon strip / siderail).
@@ -56,6 +57,17 @@ export class SideNavService {
    * toggles the nav. Null means no preference (auto-open when push mode allows).
    */
   readonly userCollapsePreference = signal<"open" | "closed" | null>(null);
+
+  /** True while the user is actively dragging the resize handle. Disables CSS transitions during drag. */
+  readonly isDragging = signal(false);
+
+  /**
+   * True while the user is dragging from a collapsed state but hasn't yet crossed
+   * MIN_OPEN_WIDTH. The nav is temporarily opened so _width$ can drive its visual width
+   * using the same BehaviorSubject path as the working open-state resize.
+   * Reverted to closed on drag end if the user releases before the threshold.
+   */
+  private readonly _previewOpen = signal(false);
 
   /**
    * Local component state width
@@ -109,9 +121,48 @@ export class SideNavService {
    * @param dragElementXCoordinate x coordinate of the drag element's bounding client rect
    */
   setWidthFromDrag(eventXPointer: number, dragElementXCoordinate: number) {
-    const newWidthInPixels = eventXPointer - dragElementXCoordinate;
+    this.isDragging.set(true);
 
+    const newWidthInPixels = eventXPointer - dragElementXCoordinate;
     const newWidthInRem = newWidthInPixels / this.rootFontSizePx;
+
+    if (this._previewOpen() || !this.open()) {
+      // Dragging from collapsed state — show immediate feedback by temporarily opening
+      // the nav and driving width via _width$, the same path used by open-state resize.
+      if (newWidthInRem < this.CLOSED_WIDTH) {
+        return;
+      }
+
+      if (newWidthInRem >= this.MIN_OPEN_WIDTH) {
+        // Crossed the threshold — commit to genuinely open
+        this._previewOpen.set(false);
+        this.userCollapsePreference.set("open");
+        this.open.set(true);
+        this._setWidthWithinMinMax(newWidthInRem);
+      } else {
+        // Still in preview zone — open temporarily and track cursor width
+        if (!this._previewOpen()) {
+          this._previewOpen.set(true);
+          this.open.set(true);
+        }
+        this._width$.next(newWidthInRem);
+      }
+      return;
+    }
+
+    // Snap to collapsed only after dragging far enough past the minimum (tension zone)
+    if (newWidthInRem < this.SNAP_TO_CLOSED_THRESHOLD) {
+      this.userCollapsePreference.set("closed");
+      this.open.set(false);
+      return;
+    }
+
+    // Tension zone: visually shrink at half speed to signal the snap threshold is approaching
+    if (newWidthInRem < this.MIN_OPEN_WIDTH) {
+      const overflow = this.MIN_OPEN_WIDTH - newWidthInRem;
+      this._width$.next(this.MIN_OPEN_WIDTH - overflow * 0.075);
+      return;
+    }
 
     this._setWidthWithinMinMax(newWidthInRem);
   }
@@ -128,6 +179,26 @@ export class SideNavService {
     const newWidth = currentWidth + delta;
 
     this._setWidthWithinMinMax(newWidth);
+  }
+
+  /**
+   * Called when a drag ends. If released in the tension zone, spring back to the minimum width.
+   * If released during a preview open, revert the nav to closed.
+   */
+  onDragEnd() {
+    this.isDragging.set(false);
+
+    if (this._previewOpen()) {
+      // User started dragging to expand — commit to open at default width
+      this._previewOpen.set(false);
+      this.userCollapsePreference.set("open");
+      this._width$.next(this.DEFAULT_OPEN_WIDTH);
+      return;
+    }
+
+    if (this.open() && this._width$.getValue() < this.MIN_OPEN_WIDTH) {
+      this._width$.next(this.MIN_OPEN_WIDTH);
+    }
   }
 
   /**

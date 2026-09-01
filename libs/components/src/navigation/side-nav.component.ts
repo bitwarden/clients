@@ -1,5 +1,5 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
-import { DragDropModule, CdkDragMove } from "@angular/cdk/drag-drop";
+import { DragDropModule, CdkDragEnd, CdkDragMove } from "@angular/cdk/drag-drop";
 import { AsyncPipe, NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
@@ -19,7 +19,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 
 import { NavDividerComponent } from "./nav-divider.component";
-import { SideNavService } from "./side-nav.service";
+import { media, SideNavService } from "./side-nav.service";
 
 export type SideNavVariant = "primary" | "secondary";
 
@@ -72,6 +72,8 @@ export class SideNavComponent {
     { initialValue: false },
   );
 
+  protected readonly isTouchDevice = toSignal(media("(pointer: coarse)"), { initialValue: false });
+
   protected readonly handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
       this.sideNavService.open.set(false);
@@ -88,9 +90,17 @@ export class SideNavComponent {
 
     this.sideNavService.setWidthFromDrag(eventXPointer, rectX);
 
-    // Fix for CDK applying a transform that can cause visual drifting
-    const element = event.source.element.nativeElement;
-    element.style.transform = "none";
+    // Neutralize CDK's accumulated transform to prevent the handle from drifting
+    // away from the nav's right edge as the nav width changes.
+    event.source.element.nativeElement.style.transform = "none";
+  }
+
+  protected onDragEnded(event: CdkDragEnd) {
+    this.sideNavService.onDragEnd();
+    // Reset CDK's accumulated position so the next drag starts clean,
+    // then clear the inline transform so the handle returns to its CSS position.
+    event.source.reset();
+    event.source.element.nativeElement.style.transform = "none";
   }
 
   protected onKeydown(event: KeyboardEvent) {

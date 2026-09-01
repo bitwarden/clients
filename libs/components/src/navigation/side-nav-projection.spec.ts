@@ -46,6 +46,22 @@ class HostComponent {
   endActionClicked = false;
 }
 
+// SideNavComponent uses window.matchMedia to detect touch devices. JSDOM does not implement it,
+// so we provide a minimal stub for all tests in this file.
+beforeEach(() => {
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: jest.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  });
+});
+
 // Regression: duplicating `<ng-content>` across the side-nav version `@if`/`@else` branches broke
 // projection in v1 — nav-group children rendered into an empty slot and `bit-nav-logo` (a selector
 // present only in the v2 branch) was dropped entirely. Each slot must appear once in the template.
