@@ -1,4 +1,13 @@
-import { Component, computed, effect, ElementRef, inject, input, model } from "@angular/core";
+import {
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  model,
+  untracked,
+} from "@angular/core";
 
 import { AriaDisableDirective } from "../a11y";
 import { setA11yTitleAndAriaLabel } from "../a11y/set-a11y-title-and-aria-label";
@@ -40,7 +49,7 @@ type IconButtonSize = "default" | "xsmall" | "small" | "large";
   },
   hostDirectives: [
     AriaDisableDirective,
-    { directive: TooltipDirective, inputs: ["tooltipPosition"] },
+    { directive: TooltipDirective, inputs: ["tooltipPosition", "bitTooltip"] },
     {
       directive: BaseButtonDirective,
       inputs: ["loading", "disabled"],
@@ -117,7 +126,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
       const tooltipContent: string = originalTitle || this.label();
 
-      if (tooltipContent) {
+      if (tooltipContent && !untracked(() => this.tooltip?.tooltipContent())) {
         this.tooltip?.tooltipContent.set(tooltipContent);
       }
     });
