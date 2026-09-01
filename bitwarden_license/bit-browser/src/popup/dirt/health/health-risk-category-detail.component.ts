@@ -194,6 +194,11 @@ export class HealthRiskCategoryDetailComponent {
       .filter((row) => row.cipher != null);
   });
 
+  protected readonly trackByCipherId = (
+    _: number,
+    row: { health: CipherHealthView; cipher: CipherView },
+  ) => row.health.cipherId;
+
   protected readonly handleRetry = () => {
     const userId = this.userId();
     if (!userId) {

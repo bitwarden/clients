@@ -26,7 +26,10 @@
       </bit-section-header>
 
       <cdk-virtual-scroll-viewport [itemSize]="rowSize()" bitScrollLayout>
-        <bit-item *cdkVirtualFor="let row of rows()" class="tw-flex tw-gap-2 tw-items-center">
+        <bit-item
+          *cdkVirtualFor="let row of rows(); trackBy: trackByCipherId"
+          class="tw-flex tw-gap-2 tw-items-center"
+        >
           @let health = row.health;
           @let cipher = row.cipher;
 
