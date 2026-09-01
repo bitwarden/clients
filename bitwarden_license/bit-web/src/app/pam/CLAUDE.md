@@ -151,6 +151,22 @@ A rejected access-request submit is interpreted by
 has what they asked for; those are reconciled (collapse the form, re-read the state) rather
 than surfaced as errors.
 
+That file carries TWO catalogs, and the split is deliberate. `REQUEST_ACCESS_SERVER_ERRORS`
+holds the sentences `SubmitAccessRequestCommand` throws; `REQUEST_ACCESS_SDK_ERRORS` holds the
+ones the SDK raises locally, before the wire, which reach `.message` verbatim because
+`AccessRequestError::Validation` is `#[error(transparent)]`. The two are NOT kept in step — an
+elapsed window is "The end date must be in the future." from the server and "The requested
+window has already ended." from the SDK. They were once assumed identical, so only the SDK's
+spelling was listed and every server-side refusal fell through to the generic toast
+(PM-42592). A condition refused on both sides needs an entry in both catalogs; the literal
+sentences are pinned in `request-access-error.spec.ts` rather than compared against themselves,
+so drift fails a test instead of degrading the copy silently.
+
+Both `*ExceedsMax` entries are still exact sentences carrying the GLOBAL 24h cap, while the
+server interpolates the governing rule's own `EffectiveMax` — so a rule with a narrower
+`MaxLeaseDurationSeconds` misses them. Only reachable on skew, since the form narrows its own
+picker to that cap; matching on the prefix is the fix when it is worth doing.
+
 ## `export type` matters
 
 `abstractions/access-rule.ts` and `abstractions/access-lease.ts` re-export SDK shapes
