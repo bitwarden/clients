@@ -4448,6 +4448,50 @@ describe("OverlayBackground", () => {
       expect(port.postMessage).not.toHaveBeenCalled();
     });
 
+    it("tears down the port when the focused field changes while the port is connecting", async () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      const sender = mock<chrome.runtime.MessageSender>({
+        tab: createChromeTabMock({ id: 1 }),
+        frameId: 0,
+      });
+      sendMockExtensionMessage(
+        {
+          command: "updateFocusedFieldData",
+          focusedFieldData: createFocusedFieldDataMock({ focusedFieldOpid: "field-1" }),
+        },
+        sender,
+      );
+      await flushPromises();
+      overlayBackground["isInlineMenuListVisible"] = true;
+
+      const port = createPortSpyMock(AutofillOverlayPort.List);
+      triggerPortOnConnectEvent(port);
+      sendMockExtensionMessage(
+        {
+          command: "updateFocusedFieldData",
+          focusedFieldData: createFocusedFieldDataMock({ focusedFieldOpid: "field-2" }),
+        },
+        sender,
+      );
+      await flushPromises();
+
+      expect(port.disconnect).toHaveBeenCalled();
+      expect(overlayBackground["inlineMenuListPort"]).toBeNull();
+      expect(overlayBackground["isInlineMenuListVisible"]).toBe(false);
+    });
+
+    it("resets the button visibility status when tearing down an uninitialized button port", () => {
+      const port = createPortSpyMock(AutofillOverlayPort.Button);
+      overlayBackground["inlineMenuButtonPort"] = port;
+      overlayBackground["isInlineMenuButtonVisible"] = true;
+
+      overlayBackground["tearDownUninitializedInlineMenuPort"](port);
+
+      expect(port.disconnect).toHaveBeenCalled();
+      expect(overlayBackground["inlineMenuButtonPort"]).toBeNull();
+      expect(overlayBackground["isInlineMenuButtonVisible"]).toBe(false);
+    });
+
     it("skips sending a generated password to a list port that is no longer active", async () => {
       activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
       const stalePort = createPortSpyMock(AutofillOverlayPort.List);

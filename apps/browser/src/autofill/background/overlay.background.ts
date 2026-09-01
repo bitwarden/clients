@@ -3574,14 +3574,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       isInlineMenuListPort ? firstValueFrom(this.useLitInlineMenuComponents$) : undefined,
     ]);
 
-    // The port can be superseded, disconnected, or its field can lose focus while the
-    // data above is gathered. Initializing or positioning the menu at that point renders
-    // it against a field that is no longer focused, which leaves the menu on screen at
-    // stale coordinates.
-    if (
-      !this.isCurrentInlineMenuPort(port) ||
-      (focusedFieldOnConnect && !this.focusedFieldMatchesConnectedField(focusedFieldOnConnect))
-    ) {
+    // A newer port has superseded this one while the data above was gathered. That port
+    // carries its own initialization, and this one is torn down when it disconnects.
+    if (!this.isCurrentInlineMenuPort(port)) {
+      return;
+    }
+
+    // The focused field changed while the data above was gathered, so initializing and
+    // positioning this port would render the menu against a field that is no longer
+    // focused. The element is appended before its port connects, so abandoning the port
+    // here would leave an uninitialized iframe that nothing re-appends; it is torn down
+    // instead, which lets the next focus rebuild it.
+    if (focusedFieldOnConnect && !this.focusedFieldMatchesConnectedField(focusedFieldOnConnect)) {
+      this.tearDownUninitializedInlineMenuPort(port);
+
       return;
     }
 
@@ -3724,6 +3730,25 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     return false;
+  }
+
+  /**
+   * Tears down an inline menu port that will not be initialized. Disconnecting a port
+   * from this end does not fire this end's `onDisconnect` listener, so the stored port
+   * state is reset through the disconnect handler directly. The reset visibility status
+   * is what allows the content script to append the element again on the next focus.
+   *
+   * @param port - The port that will not be initialized
+   */
+  private tearDownUninitializedInlineMenuPort(port: chrome.runtime.Port) {
+    port.disconnect();
+    this.handlePortOnDisconnect(port);
+
+    // The disconnect handler reports the list element for both port names, so the
+    // button's visibility status is reset here to keep it appendable again.
+    if (port.name === AutofillOverlayPort.Button) {
+      this.isInlineMenuButtonVisible = false;
+    }
   }
 
   /**
