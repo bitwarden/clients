@@ -98,6 +98,7 @@ export {
   MAX_REQUEST_ACCESS_WINDOW_SECONDS,
   composeRequestWindow,
   defaultRequestWindow,
+  midnightCrossingEnd,
   requestWindowProblem,
   toDateInputValue,
   toTimeInputValue,
