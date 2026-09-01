@@ -164,13 +164,13 @@ export class DomQueryService implements DomQueryServiceInterface {
   checkForNewShadowRoots = (
     addedElements?: Element[],
     mutationObserver?: MutationObserver,
-    fieldDetector?: (root: ShadowRoot) => boolean,
+    fieldDetector: (root: ShadowRoot) => boolean = anyField,
   ): ShadowRootScanResult => {
     const scan: ShadowScanContext = {
       unresolvedHosts: new Set(),
       discoveredRoots: new Set(),
       observer: mutationObserver,
-      fieldDetector: fieldDetector ?? anyField,
+      fieldDetector,
     };
     // No batch ⇒ short-circuit; never a full-document walk (O(document), re-pierces roots).
     if (!addedElements?.length) {
