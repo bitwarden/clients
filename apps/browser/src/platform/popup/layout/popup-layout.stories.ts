@@ -922,6 +922,7 @@ const popupLayoutI18nProvider = {
       labelWithNotification: (label: string | undefined) => `${label}: New Notification`,
       // Table V2 + filter-menu keys for the list-presentation exploration.
       resetSearch: "Reset search",
+      clearSearch: "Clear by clicking here or pressing Esc.",
       removeItem: (name) => `Remove ${name}`,
       viewItemsIn: (name) => `View items in ${name}`,
       backTo: (name) => `Back to ${name}`,

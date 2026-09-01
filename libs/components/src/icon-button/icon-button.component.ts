@@ -116,6 +116,7 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
     ariaDisableElement(element, this.baseButton.disabledAttr);
 
     const originalTitle = element.getAttribute("title");
+    let appliedFromLabel: string | undefined;
 
     effect(() => {
       setA11yTitleAndAriaLabel({
@@ -125,9 +126,11 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
       });
 
       const tooltipContent: string = originalTitle || this.label();
+      const current = untracked(() => this.tooltip?.tooltipContent());
 
-      if (tooltipContent && !untracked(() => this.tooltip?.tooltipContent())) {
+      if (tooltipContent && (!current || current === appliedFromLabel)) {
         this.tooltip?.tooltipContent.set(tooltipContent);
+        appliedFromLabel = tooltipContent;
       }
     });
   }

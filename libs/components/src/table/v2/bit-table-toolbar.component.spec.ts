@@ -52,6 +52,7 @@ describe("BitTableToolbarComponent", () => {
               clearAll: "Clear all",
               search: "Search",
               resetSearch: "Reset search",
+              clearSearch: "Clear by clicking here or pressing Esc.",
               removeItem: (name?: string) => `Remove ${name}`,
             }),
         },
