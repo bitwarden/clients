@@ -45,7 +45,10 @@ const DEFAULT_FOLDERS = childFolders([
   "People Ops",
 ]);
 
-/** Fourteen children — nine fill the first three rows, five collapse behind the trigger. */
+/**
+ * Fourteen children — more than the three rows on show hold at any width, so the rest always
+ * collapse behind the trigger: five of them at three columns, eight at two, eleven at one.
+ */
 const MANY_FOLDERS = childFolders([
   "Engineering",
   "Design",
@@ -64,10 +67,12 @@ const MANY_FOLDERS = childFolders([
 ]);
 
 /**
- * Narrow enough to drop the grid to two columns: below 744px each track bottoms out at 240px, so the
- * container fits `floor((width + 24px) / 264px)` of them — two anywhere from 504px to 744px.
+ * Narrow enough to drop the grid to two columns, and to one: below 744px each track bottoms out at
+ * 240px, so the container fits `floor((width + 12px) / 252px)` of them — two from 492px to 744px,
+ * one below that. `tw-max-w-xl` is 576px and `tw-max-w-sm` 384px.
  */
 const NARROW_WRAPPER = "tw-max-w-xl";
+const NARROWEST_WRAPPER = "tw-max-w-sm";
 
 const LONG_NAME_FOLDERS = childFolders([
   "Engineering — Platform, Infrastructure, and Developer Experience",
@@ -155,8 +160,8 @@ export const AccordionCollapsed: Story = {
 };
 
 /**
- * Two columns, so the nine collapsed cards span five rows and the last one sits alone — the slot
- * beside it is empty while the grid is collapsed.
+ * Two columns, so three rows are six cards rather than nine — the cutoff follows the width instead
+ * of leaving the same nine cards to spill over five rows.
  */
 export const NarrowContainerCollapsed: Story = {
   decorators: [
@@ -168,9 +173,9 @@ export const NarrowContainerCollapsed: Story = {
 };
 
 /**
- * The same two-column grid expanded. The tenth card fills the empty slot left beside the ninth
- * rather than starting a row of its own, because the revealed cards join the grid that is already
- * there instead of forming a second one beneath it.
+ * The same two-column grid expanded. The revealed cards join the grid that is already there instead
+ * of forming a second one beneath it, so they carry on from the seventh slot rather than restarting
+ * at a column of their own.
  */
 export const NarrowContainerExpanded: Story = {
   decorators: [
@@ -179,6 +184,16 @@ export const NarrowContainerExpanded: Story = {
   args: {
     collections: MANY_FOLDERS,
     initiallyExpanded: true,
+  },
+};
+
+/** One column, the narrowest the grid goes — three rows are three cards, and the rest collapse. */
+export const SingleColumnCollapsed: Story = {
+  decorators: [
+    componentWrapperDecorator((story) => `<div class="${NARROWEST_WRAPPER}">${story}</div>`),
+  ],
+  args: {
+    collections: MANY_FOLDERS,
   },
 };
 

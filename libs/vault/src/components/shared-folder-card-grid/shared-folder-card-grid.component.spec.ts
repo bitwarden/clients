@@ -11,8 +11,19 @@ import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 
 import { SharedFolderCardGridComponent } from "./shared-folder-card-grid.component";
 
-/** Nine cards — three columns × three rows at full width — render before the rest collapse. */
+/**
+ * Nine cards — three columns × three rows — render before the rest collapse. jsdom lays nothing out,
+ * so a grid no suite has sized reports no width and falls back to its widest layout; the suites that
+ * exercise narrower grids drive {@link resizeGridTo} instead.
+ */
 const COLLAPSED_CARD_COUNT = 9;
+
+/** Widths that fit each column count, and the three rows of cards the grid shows at it. */
+const WIDTHS = [
+  { width: 300, columns: 1, collapsedCards: 3 },
+  { width: 600, columns: 2, collapsedCards: 6 },
+  { width: 1200, columns: 3, collapsedCards: 9 },
+];
 
 const TRIGGER_SELECTOR = "#shared-folder-card-grid_button_toggle-overflow";
 
@@ -24,6 +35,28 @@ const PARENT = { id: "engineering" as CollectionId, name: "Engineering" };
 describe("SharedFolderCardGridComponent", () => {
   let fixture: ComponentFixture<SharedFolderCardGridComponent>;
   let liveAnnouncer: MockProxy<LiveAnnouncer>;
+
+  /**
+   * The observers the component has attached to its grid, and what each is watching. jsdom has no
+   * layout of its own, so widths reach the component through these rather than off the element.
+   */
+  let observers: { callback: ResizeObserverCallback; targets: Element[] }[];
+  const realResizeObserver = global.ResizeObserver;
+
+  /** Lays the grid out at `width` px, as a browser resized to fit it would report. */
+  function resizeGridTo(width: number) {
+    observers.forEach(({ callback, targets }) => {
+      const entries = targets.map(
+        (target) =>
+          ({
+            target,
+            contentBoxSize: [{ inlineSize: width, blockSize: 0 }],
+          }) as unknown as ResizeObserverEntry,
+      );
+      callback(entries, {} as ResizeObserver);
+    });
+    fixture.detectChanges();
+  }
 
   /** The organization vault, drilled into a shared folder — the only scope that holds one. */
   const scopeTo = (collectionId?: CollectionId): VaultScope => ({
@@ -101,6 +134,28 @@ describe("SharedFolderCardGridComponent", () => {
   beforeEach(async () => {
     liveAnnouncer = mock<LiveAnnouncer>();
 
+    observers = [];
+    global.ResizeObserver = class implements ResizeObserver {
+      private readonly observed: { callback: ResizeObserverCallback; targets: Element[] };
+
+      constructor(callback: ResizeObserverCallback) {
+        this.observed = { callback, targets: [] };
+        observers.push(this.observed);
+      }
+
+      observe(target: Element) {
+        this.observed.targets.push(target);
+      }
+
+      unobserve(target: Element) {
+        this.observed.targets = this.observed.targets.filter((observed) => observed !== target);
+      }
+
+      disconnect() {
+        this.observed.targets = [];
+      }
+    };
+
     await TestBed.configureTestingModule({
       imports: [SharedFolderCardGridComponent],
       providers: [
@@ -118,6 +173,10 @@ describe("SharedFolderCardGridComponent", () => {
         { provide: LiveAnnouncer, useValue: liveAnnouncer },
       ],
     }).compileComponents();
+  });
+
+  afterEach(() => {
+    global.ResizeObserver = realResizeObserver;
   });
 
   describe("rendering child folders", () => {
@@ -240,6 +299,74 @@ describe("SharedFolderCardGridComponent", () => {
       createComponent(children(1));
 
       expect(cards()[0].id).toBe("shared-folder-card-grid_link_folder-engineering-folder-0");
+    });
+  });
+
+  // The grid keeps three rows on show whatever it is wide enough to fit in one, so the cutoff moves
+  // with the window instead of leaving nine cards to spill over five rows at two columns.
+  describe("the three rows on show", () => {
+    it.each(WIDTHS)(
+      "shows three rows — $collapsedCards cards — at $columns column(s)",
+      ({ width, collapsedCards }) => {
+        createComponent(children(COLLAPSED_CARD_COUNT + 3));
+
+        resizeGridTo(width);
+
+        expect(cards()).toHaveLength(collapsedCards);
+        expect(trigger()).not.toBeNull();
+      },
+    );
+
+    it("drops rows of cards as the window narrows, and restores them as it widens", () => {
+      createComponent(children(COLLAPSED_CARD_COUNT + 3));
+
+      resizeGridTo(1200);
+      expect(cards()).toHaveLength(9);
+
+      resizeGridTo(600);
+      expect(cards()).toHaveLength(6);
+
+      resizeGridTo(300);
+      expect(cards()).toHaveLength(3);
+
+      resizeGridTo(1200);
+      expect(cards()).toHaveLength(9);
+    });
+
+    it("keeps every card on show while expanded, however narrow the window", () => {
+      createComponent(children(COLLAPSED_CARD_COUNT + 3), scopeTo(PARENT.id), {
+        initiallyExpanded: true,
+      });
+
+      resizeGridTo(300);
+
+      expect(cards()).toHaveLength(COLLAPSED_CARD_COUNT + 3);
+    });
+
+    it("hides the trigger once the window is wide enough for three rows to hold every child", () => {
+      createComponent(children(7));
+
+      resizeGridTo(600);
+      expect(cards()).toHaveLength(6);
+      expect(trigger()).not.toBeNull();
+
+      resizeGridTo(1200);
+      expect(cards()).toHaveLength(7);
+      expect(trigger()).toBeNull();
+    });
+
+    it("announces the overflow the current width leaves behind", () => {
+      createComponent(children(8));
+
+      resizeGridTo(600);
+      trigger()?.click();
+      fixture.detectChanges();
+
+      // Two cards past the six the two-column grid shows, rather than the none a wider one hides.
+      expect(liveAnnouncer.announce).toHaveBeenCalledWith(
+        "moreSharedFoldersShownAbove:2",
+        "polite",
+      );
     });
   });
 
