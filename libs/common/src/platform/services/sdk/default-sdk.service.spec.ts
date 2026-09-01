@@ -7,7 +7,7 @@ import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptedString, PBKDF2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { ManagedSettingsService } from "@bitwarden/managed-settings";
-import { PasswordManagerClient } from "@bitwarden/sdk-internal";
+import { ManagedSettingsClient, PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import {
   ObservableTracker,
@@ -87,7 +87,7 @@ describe("DefaultSdkService", () => {
         fakeStateProvider,
         configService,
         upgradeTokenStateService,
-        mock<ManagedSettingsService>(),
+        mockManagedSettingsService(),
       );
     });
 
@@ -307,6 +307,15 @@ describe("DefaultSdkService", () => {
     });
   });
 });
+
+// `client$` is assigned after construction rather than passed to `mock()`, because a partial passed
+// to `mock()` is itself deep-mocked: the resulting `subscribe` exists but never emits, which hangs
+// every caller awaiting the handle.
+function mockManagedSettingsService(): MockProxy<ManagedSettingsService> {
+  const managedSettingsService = mock<ManagedSettingsService>();
+  managedSettingsService.client$ = of(mock<ManagedSettingsClient>());
+  return managedSettingsService;
+}
 
 function createMockClient(): MockProxy<PasswordManagerClient> {
   const client = mock<PasswordManagerClient>();

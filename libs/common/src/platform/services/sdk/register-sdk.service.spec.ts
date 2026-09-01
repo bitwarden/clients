@@ -2,7 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { ManagedSettingsService } from "@bitwarden/managed-settings";
-import { BitwardenClient } from "@bitwarden/sdk-internal";
+import { BitwardenClient, ManagedSettingsClient } from "@bitwarden/sdk-internal";
 
 import {
   ObservableTracker,
@@ -67,7 +67,7 @@ describe("DefaultRegisterSdkService", () => {
         apiService,
         fakeStateProvider,
         configService,
-        mock<ManagedSettingsService>(),
+        mock<ManagedSettingsService>({ client$: of(mock<ManagedSettingsClient>()) }),
       );
     });
 
