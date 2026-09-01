@@ -4,7 +4,7 @@ import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 import { ApiService } from "../abstractions/api.service";
 import { HibpApiService } from "../dirt/services/hibp-api.service";
 
-import { AuditService } from "./audit.service";
+import { AuditService, RangeRequestTimeoutMs } from "./audit.service";
 
 jest.useFakeTimers();
 
@@ -19,6 +19,13 @@ if (typeof global.Request === "undefined") {
 type AuditServiceInternals = {
   fetchLeakedPasswordCount(password: string): Promise<number>;
 };
+
+/** A request that never responds, rejecting on abort the way a real fetch does. */
+function stalledFetch(request: Request): Promise<Response> {
+  return new Promise<Response>((_resolve, reject) => {
+    request.signal.addEventListener("abort", () => reject(new Error("aborted")));
+  });
+}
 
 describe("AuditService", () => {
   let auditService: AuditService;
@@ -101,6 +108,31 @@ describe("AuditService", () => {
     } as unknown as Response);
 
     await expect(auditService.passwordLeaked("password")).rejects.toThrow("status 429");
+  });
+
+  it("should reject when a range request never responds", async () => {
+    mockApi.nativeFetch.mockImplementationOnce((request) => stalledFetch(request));
+
+    // Attach the expectation before advancing timers, or the rejection escapes as unhandled.
+    const leaked = expect(auditService.passwordLeaked("password")).rejects.toThrow("aborted");
+    await jest.advanceTimersByTimeAsync(RangeRequestTimeoutMs);
+
+    await leaked;
+  });
+
+  it("should release the concurrency slot when a request times out", async () => {
+    // A request that never settles used to hold its slot for the lifetime of the service, so a
+    // report fanning out over a whole vault silently lost throughput until nothing was left.
+    const service = new AuditService(mockCrypto, mockApi, mockHibpApi, 1);
+    mockApi.nativeFetch.mockImplementationOnce((request) => stalledFetch(request));
+
+    const stalled = expect(service.passwordLeaked("stalled")).rejects.toThrow("aborted");
+    const queuedBehindIt = service.passwordLeaked("queued");
+
+    await jest.advanceTimersByTimeAsync(RangeRequestTimeoutMs);
+
+    await stalled;
+    await expect(queuedBehindIt).resolves.toBe(4);
   });
 
   it("should return empty array for breachedAccounts when no breaches found", async () => {
