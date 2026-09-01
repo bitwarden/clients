@@ -1,0 +1,274 @@
+<bit-header [title]="titleText()" icon="bwi-key">
+  <bit-breadcrumbs slot="breadcrumbs">
+    <bit-breadcrumb [route]="['..']">{{
+      "pamRotationTabManagedCredentials" | i18n
+    }}</bit-breadcrumb>
+  </bit-breadcrumbs>
+</bit-header>
+
+@if (loading()) {
+  <bit-spinner />
+} @else if (!editing) {
+  <!-- ====== CREATE MODE ====== -->
+  <form [formGroup]="createForm" [bitSubmit]="submitCreate" class="tw-max-w-4xl">
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h5">{{ "pamRotationConfigCreateHeading" | i18n }}</h2>
+      </bit-section-header>
+      <bit-card>
+        <bit-form-field>
+          <bit-label>{{ "pamRotationConfigCipher" | i18n }}</bit-label>
+          <select bitInput id="rotation-config-edit_select_cipher" formControlName="cipherId">
+            <option value="">{{ "pamRotationConfigCipherPlaceholder" | i18n }}</option>
+            @for (cipher of availableCiphers(); track cipher.id) {
+              <option [value]="cipher.id">{{ cipher.name }}</option>
+            }
+          </select>
+          <bit-hint>{{ "pamRotationConfigCipherHint" | i18n }}</bit-hint>
+        </bit-form-field>
+
+        <bit-form-field>
+          <bit-label>{{ "pamRotationConfigTargetSystem" | i18n }}</bit-label>
+          <select
+            bitInput
+            id="rotation-config-edit_select_target-system"
+            formControlName="targetSystemId"
+          >
+            <option value="">{{ "pamRotationConfigTargetSystemPlaceholder" | i18n }}</option>
+            @for (system of activeTargetSystems(); track system.id) {
+              <option [value]="system.id">{{ system.name }}</option>
+            }
+          </select>
+        </bit-form-field>
+
+        <bit-form-field>
+          <bit-label>{{ "pamRotationConfigAccountIdentity" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            id="rotation-config-edit_input_account-identity"
+            formControlName="accountIdentity"
+          />
+          <bit-hint>{{ "pamRotationConfigAccountIdentityHint" | i18n }}</bit-hint>
+        </bit-form-field>
+
+        <bit-form-control>
+          <input
+            type="checkbox"
+            bitCheckbox
+            id="rotation-config-edit_checkbox_terminate-sessions"
+            formControlName="terminateSessions"
+          />
+          <bit-label>{{ "pamRotationConfigTerminateSessions" | i18n }}</bit-label>
+          <bit-hint>{{ "pamRotationConfigTerminateSessionsHint" | i18n }}</bit-hint>
+        </bit-form-control>
+
+        <!-- Renders its own labeled bit-form-fields internally — must not be wrapped in one. -->
+        <app-rotation-schedule-input formControlName="scheduleCron"></app-rotation-schedule-input>
+
+        <bit-form-control disableMargin>
+          <input
+            type="checkbox"
+            bitCheckbox
+            id="rotation-config-edit_checkbox_rotate-on-access-end"
+            formControlName="rotateOnAccessEnd"
+          />
+          <bit-label>{{ "pamRotationConfigRotateOnAccessEnd" | i18n }}</bit-label>
+          <bit-hint>{{ "pamRotationConfigRotateOnAccessEndHint" | i18n }}</bit-hint>
+        </bit-form-control>
+      </bit-card>
+    </bit-section>
+
+    <div class="tw-flex tw-gap-2">
+      <button
+        type="submit"
+        bitButton
+        buttonType="primary"
+        bitFormButton
+        id="rotation-config-edit_button_save"
+      >
+        {{ "save" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        bitFormButton
+        id="rotation-config-edit_button_cancel"
+        (click)="cancel()"
+      >
+        {{ "cancel" | i18n }}
+      </button>
+    </div>
+  </form>
+} @else {
+  <!-- ====== EDIT MODE ====== -->
+
+  <!-- Read-only cipher + target labels -->
+  @if (existingConfig(); as detail) {
+    <div class="tw-max-w-4xl">
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h5">{{ "pamRotationConfigDetailsHeading" | i18n }}</h2>
+        </bit-section-header>
+        <bit-card>
+          <div class="tw-mb-4">
+            <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+              {{ "pamRotationConfigCipher" | i18n }}
+            </p>
+            <p bitTypography="body1" class="tw-m-0">{{ detail.config.cipherId }}</p>
+          </div>
+          <div class="tw-mb-4">
+            <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+              {{ "pamRotationConfigTargetSystem" | i18n }}
+            </p>
+            <p bitTypography="body1" class="tw-m-0">{{ detail.config.targetSystemName }}</p>
+          </div>
+          <div class="tw-mb-4">
+            <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+              {{ "pamRotationConfigColumnLastRotation" | i18n }}
+            </p>
+            <p bitTypography="body1" class="tw-m-0">
+              @if (detail.config.lastRotationAt) {
+                {{ detail.config.lastRotationAt | date: "medium" }}
+              } @else {
+                <span class="tw-text-muted">{{ "pamRotationConfigNeverRotated" | i18n }}</span>
+              }
+            </p>
+          </div>
+          <div>
+            <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+              {{ "pamRotationConfigColumnNextRotation" | i18n }}
+            </p>
+            <p bitTypography="body1" class="tw-m-0">
+              @if (detail.config.nextRotationAt) {
+                {{ detail.config.nextRotationAt | date: "medium" }}
+              } @else {
+                <span class="tw-text-muted">&mdash;</span>
+              }
+            </p>
+          </div>
+        </bit-card>
+      </bit-section>
+
+      <!-- Schedule + account: one form, because the server takes them in a single write. -->
+      <form [formGroup]="editForm" [bitSubmit]="submitEdit">
+        <bit-section>
+          <bit-section-header>
+            <h2 bitTypography="h5">{{ "pamRotationConfigSettingsHeading" | i18n }}</h2>
+          </bit-section-header>
+          <bit-card formGroupName="settings">
+            <!-- Renders its own labeled bit-form-fields internally — must not be wrapped in one. -->
+            <app-rotation-schedule-input
+              formControlName="scheduleCron"
+            ></app-rotation-schedule-input>
+
+            <bit-form-control disableMargin>
+              <input
+                type="checkbox"
+                bitCheckbox
+                id="rotation-config-edit_checkbox_rotate-on-access-end-edit"
+                formControlName="rotateOnAccessEnd"
+              />
+              <bit-label>{{ "pamRotationConfigRotateOnAccessEnd" | i18n }}</bit-label>
+              <bit-hint>{{ "pamRotationConfigRotateOnAccessEndHint" | i18n }}</bit-hint>
+            </bit-form-control>
+          </bit-card>
+        </bit-section>
+
+        <bit-section>
+          <bit-section-header>
+            <h2 bitTypography="h5">{{ "pamRotationConfigAccountHeading" | i18n }}</h2>
+          </bit-section-header>
+
+          @if (accountFormLocked()) {
+            <bit-callout type="info" title="{{ 'pamRotationConfigAccountLockedTitle' | i18n }}">
+              {{ "pamRotationConfigAccountLockedContent" | i18n }}
+            </bit-callout>
+          }
+
+          <bit-card formGroupName="account">
+            <fieldset [disabled]="accountFormLocked()">
+              <bit-form-field>
+                <bit-label>{{ "pamRotationConfigAccountIdentity" | i18n }}</bit-label>
+                <input
+                  bitInput
+                  type="text"
+                  id="rotation-config-edit_input_account-identity-edit"
+                  formControlName="accountIdentity"
+                />
+                <bit-hint>{{ "pamRotationConfigAccountIdentityHint" | i18n }}</bit-hint>
+              </bit-form-field>
+
+              <bit-form-control disableMargin>
+                <input
+                  type="checkbox"
+                  bitCheckbox
+                  id="rotation-config-edit_checkbox_terminate-sessions-edit"
+                  formControlName="terminateSessions"
+                />
+                <bit-label>{{ "pamRotationConfigTerminateSessions" | i18n }}</bit-label>
+                <bit-hint>{{ "pamRotationConfigTerminateSessionsHint" | i18n }}</bit-hint>
+              </bit-form-control>
+            </fieldset>
+          </bit-card>
+        </bit-section>
+
+        <div class="tw-flex tw-gap-2 tw-mb-6">
+          <button
+            type="submit"
+            bitButton
+            buttonType="primary"
+            bitFormButton
+            id="rotation-config-edit_button_save"
+          >
+            {{ "save" | i18n }}
+          </button>
+        </div>
+      </form>
+
+      <!-- Job/attempt history -->
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h5">{{ "pamRotationConfigHistoryHeading" | i18n }}</h2>
+        </bit-section-header>
+        @if (detail.jobs.length > 0) {
+          <app-rotation-history [jobs]="detail.jobs"></app-rotation-history>
+        } @else {
+          <bit-card>
+            <p bitTypography="body2" class="tw-m-0 tw-text-muted">
+              {{ "pamRotationConfigHistoryEmpty" | i18n }}
+            </p>
+          </bit-card>
+        }
+      </bit-section>
+
+      <!-- Remove rotation (keeps the credential) -->
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h5">{{ "pamRotationConfigRemoveHeading" | i18n }}</h2>
+        </bit-section-header>
+        <bit-card>
+          <p bitTypography="body2" class="tw-mt-0 tw-text-muted">
+            {{ "pamRotationConfigDeleteConfirmContent" | i18n }}
+          </p>
+          @if (detail.config.hasActiveJob) {
+            <bit-callout type="info" class="tw-mb-3">
+              {{ "pamRotationConfigRemoveLockedContent" | i18n }}
+            </bit-callout>
+          }
+          <button
+            type="button"
+            bitButton
+            buttonType="danger"
+            [bitAction]="removeRotation"
+            [disabled]="detail.config.hasActiveJob"
+            id="rotation-config-edit_button_remove"
+          >
+            {{ "pamRotationConfigRemove" | i18n }}
+          </button>
+        </bit-card>
+      </bit-section>
+    </div>
+  }
+}
