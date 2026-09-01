@@ -48,7 +48,7 @@
       <bit-card>
         <div class="tw-mb-4">
           <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">{{ "status" | i18n }}</p>
-          @if (d.status === DaemonStatus.Enabled) {
+          @if (d.connector.status === DaemonStatus.Enabled) {
             <span bitBadge variant="success">{{ "pamDaemonStatusEnabled" | i18n }}</span>
           } @else {
             <span bitBadge variant="secondary">{{ "pamDaemonStatusDisabled" | i18n }}</span>
@@ -59,7 +59,7 @@
           <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
             {{ "pamDaemonConnection" | i18n }}
           </p>
-          @if (d.isConnected) {
+          @if (d.connector.isConnected) {
             <span bitBadge variant="success">{{ "pamDaemonConnected" | i18n }}</span>
           } @else {
             <span bitBadge variant="secondary">{{ "pamDaemonOffline" | i18n }}</span>

@@ -108,7 +108,7 @@ export function accessConnector(overrides: Partial<AccessConnector> = {}): Acces
 export function accessConnectorDetail(
   overrides: Partial<AccessConnectorDetail> = {},
 ): AccessConnectorDetail {
-  return { ...accessConnector(), jobs: [], ...overrides } as AccessConnectorDetail;
+  return { connector: accessConnector(), jobs: [], ...overrides };
 }
 
 /** An enabled, idle, automatic config — the one shape that offers a rotation. */
@@ -138,7 +138,7 @@ export function rotationConfig(overrides: Partial<RotationConfig> = {}): Rotatio
 export function rotationConfigDetail(
   overrides: Partial<RotationConfigDetail> = {},
 ): RotationConfigDetail {
-  return { ...rotationConfig(), jobs: [], ...overrides } as RotationConfigDetail;
+  return { config: rotationConfig(), jobs: [], ...overrides };
 }
 
 export function rotationAttempt(overrides: Partial<RotationAttempt> = {}): RotationAttempt {

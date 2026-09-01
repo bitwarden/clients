@@ -5,10 +5,11 @@ import { mock } from "jest-mock-extended";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import type { AccessConnectorDetail, TargetSystem } from "../rotation";
+import type { AccessConnector, AccessConnectorDetail, TargetSystem } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import {
   ORGANIZATION_ID,
+  accessConnector,
   accessConnectorDetail,
   connectorId,
   sysId,
@@ -22,12 +23,14 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
-function makeDaemon(overrides: Partial<AccessConnectorDetail> = {}): AccessConnectorDetail {
+function makeDaemon(overrides: Partial<AccessConnector> = {}): AccessConnectorDetail {
   return accessConnectorDetail({
-    id: connectorId("daemon-1"),
-    name: "On-prem daemon",
-    assignedTargetSystemIds: [sysId("ts-1")],
-    ...overrides,
+    connector: accessConnector({
+      id: connectorId("daemon-1"),
+      name: "On-prem daemon",
+      assignedTargetSystemIds: [sysId("ts-1")],
+      ...overrides,
+    }),
   });
 }
 

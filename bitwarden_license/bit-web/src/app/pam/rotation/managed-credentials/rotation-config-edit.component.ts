@@ -112,6 +112,9 @@ export class RotationConfigEditComponent {
   protected readonly loading = signal(true);
   protected readonly existingConfig = signal<RotationConfigDetail | null>(null);
 
+  /** The config itself; the detail's other half is its job history. */
+  private readonly config = computed(() => this.existingConfig()?.config ?? null);
+
   protected readonly titleText = computed(() =>
     this.i18nService.t(
       this.editing ? "pamRotationConfigEditTitle" : "pamRotationConfigCreateTitle",
@@ -177,9 +180,7 @@ export class RotationConfigEditComponent {
   });
 
   /** Whether the account form should be disabled (a rotation job is in progress). */
-  protected readonly accountFormLocked = computed(
-    () => this.existingConfig()?.hasActiveJob ?? false,
-  );
+  protected readonly accountFormLocked = computed(() => this.config()?.hasActiveJob ?? false);
 
   constructor() {
     this.coupleTerminateSessions();
@@ -208,21 +209,21 @@ export class RotationConfigEditComponent {
   }
 
   private async initializeEditMode(): Promise<void> {
-    const [config] = await Promise.all([
+    const [detail] = await Promise.all([
       this.loadConfig(),
       this.targetSystemsService.load(this.organizationId),
     ]);
-    if (config == null) {
+    if (detail == null) {
       return; // loadConfig already toasted + navigated away
     }
-    this.existingConfig.set(config);
+    this.existingConfig.set(detail);
     this.settingsForm.patchValue({
-      scheduleCron: config.scheduleCron,
-      rotateOnAccessEnd: config.rotateOnAccessEnd,
+      scheduleCron: detail.config.scheduleCron,
+      rotateOnAccessEnd: detail.config.rotateOnAccessEnd,
     });
     this.accountForm.patchValue({
-      accountIdentity: config.accountIdentity,
-      terminateSessions: config.terminateSessions,
+      accountIdentity: detail.config.accountIdentity,
+      terminateSessions: detail.config.terminateSessions,
     });
   }
 
@@ -338,7 +339,7 @@ export class RotationConfigEditComponent {
    * stays in the vault; only rotation management is removed.
    */
   protected readonly removeRotation = async (): Promise<void> => {
-    const config = this.existingConfig();
+    const config = this.config();
     if (config == null || config.hasActiveJob) {
       return;
     }

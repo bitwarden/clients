@@ -8,7 +8,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { OrgCiphersService } from "../org-ciphers.service";
-import type { RotationConfigDetail, RotationConfigId } from "../rotation";
+import type { RotationConfig, RotationConfigDetail, RotationConfigId } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import {
@@ -16,6 +16,7 @@ import {
   ORGANIZATION_ID,
   TARGET_SYSTEM_ID,
   configId,
+  rotationConfig,
   rotationConfigDetail,
   targetSystem,
 } from "../testing/rotation-builders";
@@ -30,12 +31,14 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 const ORG_ID = ORGANIZATION_ID;
 
 /** The config the edit page loads: daily schedule, idle, automatic. */
-function loadedConfig(overrides: Partial<RotationConfigDetail> = {}): RotationConfigDetail {
+function loadedConfig(overrides: Partial<RotationConfig> = {}): RotationConfigDetail {
   return rotationConfigDetail({
-    id: configId("cfg-1"),
-    accountIdentity: "admin@example.com",
-    scheduleCron: "0 0 0 * * ?",
-    ...overrides,
+    config: rotationConfig({
+      id: configId("cfg-1"),
+      accountIdentity: "admin@example.com",
+      scheduleCron: "0 0 0 * * ?",
+      ...overrides,
+    }),
   });
 }
 

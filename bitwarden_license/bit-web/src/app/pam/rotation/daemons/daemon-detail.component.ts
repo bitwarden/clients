@@ -81,20 +81,23 @@ export class DaemonDetailComponent {
     initialValue: new Map(),
   });
 
+  /** The connector itself; the detail's other half is its recent job history. */
+  private readonly connector = computed(() => this.daemon()?.connector ?? null);
+
   /** Assigned target-system display names, falling back to the raw ID when not yet resolved. */
   protected readonly assignmentNames = computed(() => {
-    const daemon = this.daemon();
-    if (daemon == null) {
+    const connector = this.connector();
+    if (connector == null) {
       return [];
     }
     const map = this.systemById();
-    return daemon.assignedTargetSystemIds.map((id) => map.get(id)?.name ?? id);
+    return connector.assignedTargetSystemIds.map((id) => map.get(id)?.name ?? id);
   });
 
-  protected readonly titleText = computed(() => this.daemon()?.name ?? "");
+  protected readonly titleText = computed(() => this.connector()?.name ?? "");
 
   /** True when the daemon is enabled — drives Disable vs Enable in the header. */
-  protected readonly enabled = computed(() => this.daemon()?.status === DaemonStatus.Enabled);
+  protected readonly enabled = computed(() => this.connector()?.status === DaemonStatus.Enabled);
 
   constructor() {
     void this.initialize();
@@ -102,13 +105,13 @@ export class DaemonDetailComponent {
 
   /** Disable the daemon (reversible); confirms first. */
   protected readonly disable = async (): Promise<void> => {
-    const daemon = this.daemon();
-    if (daemon == null) {
+    const connector = this.connector();
+    if (connector == null) {
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "pamDaemonDisableConfirmTitle" },
-      content: { key: "pamDaemonDisableConfirmContent", placeholders: [daemon.name] },
+      content: { key: "pamDaemonDisableConfirmContent", placeholders: [connector.name] },
       acceptButtonText: { key: "pamDaemonDisable" },
       cancelButtonText: { key: "cancel" },
       type: "warning",
@@ -117,7 +120,7 @@ export class DaemonDetailComponent {
       return;
     }
     try {
-      await this.rotationSdk.disableConnector(this.organizationId, daemon.id);
+      await this.rotationSdk.disableConnector(this.organizationId, connector.id);
       this.patchStatus(DaemonStatus.Disabled);
       this.toastService.showToast({
         variant: "success",
@@ -130,12 +133,12 @@ export class DaemonDetailComponent {
 
   /** Re-enable a disabled daemon. */
   protected readonly enable = async (): Promise<void> => {
-    const daemon = this.daemon();
-    if (daemon == null) {
+    const connector = this.connector();
+    if (connector == null) {
       return;
     }
     try {
-      await this.rotationSdk.enableConnector(this.organizationId, daemon.id);
+      await this.rotationSdk.enableConnector(this.organizationId, connector.id);
       this.patchStatus(DaemonStatus.Enabled);
       this.toastService.showToast({
         variant: "success",
@@ -148,13 +151,13 @@ export class DaemonDetailComponent {
 
   /** Delete the daemon permanently after confirming, then return to the list. */
   protected readonly deleteDaemon = async (): Promise<void> => {
-    const daemon = this.daemon();
-    if (daemon == null) {
+    const connector = this.connector();
+    if (connector == null) {
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "pamDaemonDeleteConfirmTitle" },
-      content: { key: "pamDaemonDeleteConfirmContent", placeholders: [daemon.name] },
+      content: { key: "pamDaemonDeleteConfirmContent", placeholders: [connector.name] },
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
       type: "danger",
@@ -163,7 +166,7 @@ export class DaemonDetailComponent {
       return;
     }
     try {
-      await this.rotationSdk.deleteConnector(this.organizationId, daemon.id);
+      await this.rotationSdk.deleteConnector(this.organizationId, connector.id);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamDaemonDeleted"),
@@ -212,7 +215,7 @@ export class DaemonDetailComponent {
     if (daemon == null) {
       return;
     }
-    this.daemon.set({ ...daemon, status } as AccessConnectorDetail);
+    this.daemon.set({ ...daemon, connector: { ...daemon.connector, status } });
   }
 
   private showError(e: unknown): void {

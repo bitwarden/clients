@@ -105,7 +105,7 @@
   <!-- ====== EDIT MODE ====== -->
 
   <!-- Read-only cipher + target labels -->
-  @if (existingConfig(); as config) {
+  @if (existingConfig(); as detail) {
     <div class="tw-max-w-4xl">
       <bit-section>
         <bit-section-header>
@@ -116,21 +116,21 @@
             <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
               {{ "pamRotationConfigCipher" | i18n }}
             </p>
-            <p bitTypography="body1" class="tw-m-0">{{ config.cipherId }}</p>
+            <p bitTypography="body1" class="tw-m-0">{{ detail.config.cipherId }}</p>
           </div>
           <div class="tw-mb-4">
             <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
               {{ "pamRotationConfigTargetSystem" | i18n }}
             </p>
-            <p bitTypography="body1" class="tw-m-0">{{ config.targetSystemName }}</p>
+            <p bitTypography="body1" class="tw-m-0">{{ detail.config.targetSystemName }}</p>
           </div>
           <div class="tw-mb-4">
             <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
               {{ "pamRotationConfigColumnLastRotation" | i18n }}
             </p>
             <p bitTypography="body1" class="tw-m-0">
-              @if (config.lastRotationAt) {
-                {{ config.lastRotationAt | date: "medium" }}
+              @if (detail.config.lastRotationAt) {
+                {{ detail.config.lastRotationAt | date: "medium" }}
               } @else {
                 <span class="tw-text-muted">{{ "pamRotationConfigNeverRotated" | i18n }}</span>
               }
@@ -141,8 +141,8 @@
               {{ "pamRotationConfigColumnNextRotation" | i18n }}
             </p>
             <p bitTypography="body1" class="tw-m-0">
-              @if (config.nextRotationAt) {
-                {{ config.nextRotationAt | date: "medium" }}
+              @if (detail.config.nextRotationAt) {
+                {{ detail.config.nextRotationAt | date: "medium" }}
               } @else {
                 <span class="tw-text-muted">&mdash;</span>
               }
@@ -232,8 +232,8 @@
         <bit-section-header>
           <h2 bitTypography="h5">{{ "pamRotationConfigHistoryHeading" | i18n }}</h2>
         </bit-section-header>
-        @if (config.jobs.length > 0) {
-          <app-rotation-history [jobs]="config.jobs"></app-rotation-history>
+        @if (detail.jobs.length > 0) {
+          <app-rotation-history [jobs]="detail.jobs"></app-rotation-history>
         } @else {
           <bit-card>
             <p bitTypography="body2" class="tw-m-0 tw-text-muted">
@@ -252,7 +252,7 @@
           <p bitTypography="body2" class="tw-mt-0 tw-text-muted">
             {{ "pamRotationConfigDeleteConfirmContent" | i18n }}
           </p>
-          @if (config.hasActiveJob) {
+          @if (detail.config.hasActiveJob) {
             <bit-callout type="info" class="tw-mb-3">
               {{ "pamRotationConfigRemoveLockedContent" | i18n }}
             </bit-callout>
@@ -262,7 +262,7 @@
             bitButton
             buttonType="danger"
             [bitAction]="removeRotation"
-            [disabled]="config.hasActiveJob"
+            [disabled]="detail.config.hasActiveJob"
             id="rotation-config-edit_button_remove"
           >
             {{ "pamRotationConfigRemove" | i18n }}
