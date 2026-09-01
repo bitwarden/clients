@@ -4408,6 +4408,45 @@ describe("OverlayBackground", () => {
       );
     });
 
+    it("skips initializing an inline menu port that is no longer the active port", async () => {
+      const stalePort = createPortSpyMock(AutofillOverlayPort.List);
+
+      triggerPortOnConnectEvent(stalePort);
+      overlayBackground["inlineMenuListPort"] = createPortSpyMock(AutofillOverlayPort.List);
+      await flushPromises();
+
+      expect(stalePort.postMessage).not.toHaveBeenCalled();
+    });
+
+    it("skips initializing when the focused field changes while the port is connecting", async () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      const sender = mock<chrome.runtime.MessageSender>({
+        tab: createChromeTabMock({ id: 1 }),
+        frameId: 0,
+      });
+      sendMockExtensionMessage(
+        {
+          command: "updateFocusedFieldData",
+          focusedFieldData: createFocusedFieldDataMock({ focusedFieldOpid: "field-1" }),
+        },
+        sender,
+      );
+      await flushPromises();
+
+      const port = createPortSpyMock(AutofillOverlayPort.List);
+      triggerPortOnConnectEvent(port);
+      sendMockExtensionMessage(
+        {
+          command: "updateFocusedFieldData",
+          focusedFieldData: createFocusedFieldDataMock({ focusedFieldOpid: "field-2" }),
+        },
+        sender,
+      );
+      await flushPromises();
+
+      expect(port.postMessage).not.toHaveBeenCalled();
+    });
+
     it("skips sending a generated password to a list port that is no longer active", async () => {
       activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
       const stalePort = createPortSpyMock(AutofillOverlayPort.List);

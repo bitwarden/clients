@@ -3490,6 +3490,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     port.onDisconnect.addListener(this.handlePortOnDisconnect);
 
+    const focusedFieldOnConnect = this.focusedFieldData;
     const authStatus = await this.getAuthStatus();
     const showInlineMenuAccountCreation = this.shouldShowInlineMenuAccountCreation();
     const showInlineMenuPasswordGenerator = this.shouldShowInlineMenuPasswordGenerator(
@@ -3509,6 +3510,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
     );
     const extensionOrigin = iframeUrl ? new URL(iframeUrl).origin : null;
+    const showAnimations = await firstValueFrom(this.autofillService.enableInlineMenuAnimation$);
+    const theme = await firstValueFrom(this.themeStateService.selectedTheme$);
+    const ciphers = isInlineMenuListPort ? await this.getInlineMenuCipherData() : null;
+    const useLitComponents = isInlineMenuListPort
+      ? await firstValueFrom(this.useLitInlineMenuComponents$)
+      : undefined;
+
+    // The port can be superseded, disconnected, or its field can lose focus while the
+    // data above is gathered. Initializing or positioning the menu at that point renders
+    // it against a field that is no longer focused, which leaves the menu on screen at
+    // stale coordinates.
+    if (
+      !this.isCurrentInlineMenuPort(port) ||
+      (focusedFieldOnConnect && !this.focusedFieldMatchesConnectedField(focusedFieldOnConnect))
+    ) {
+      return;
+    }
 
     this.postMessageToPort(port, {
       command: `initAutofillInlineMenu${isInlineMenuListPort ? "List" : "Button"}`,
@@ -3517,10 +3535,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         isInlineMenuListPort ? "bitwardenVault" : "bitwardenOverlayButton",
       ),
       styleSheetUrl,
-      showAnimations: await firstValueFrom(this.autofillService.enableInlineMenuAnimation$),
-      theme: await firstValueFrom(this.themeStateService.selectedTheme$),
+      showAnimations,
+      theme,
       translations: this.getInlineMenuTranslations(),
-      ciphers: isInlineMenuListPort ? await this.getInlineMenuCipherData() : null,
+      ciphers,
       portKey: this.portKeyForTab[port.sender.tab.id],
       portName: isInlineMenuListPort
         ? AutofillOverlayPort.ListMessageConnector
@@ -3532,9 +3550,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       showInlineMenuAccountCreation,
       authStatus,
       extensionOrigin,
-      useLitComponents: isInlineMenuListPort
-        ? await firstValueFrom(this.useLitInlineMenuComponents$)
-        : undefined,
+      useLitComponents,
     });
     if (showInlineMenuPasswordGenerator && !this.credential$.value) {
       this.generateInlineMenuPasswordForPort(port).catch((error) => this.logService.error(error));
@@ -3636,6 +3652,42 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
+   * Identifies whether the port is still the active inline menu port for its element. A
+   * port that has disconnected or been superseded by a newer connection is not current.
+   *
+   * @param port - The port to check against the stored inline menu ports
+   */
+  private isCurrentInlineMenuPort(port: chrome.runtime.Port) {
+    if (port.name === AutofillOverlayPort.List) {
+      return port === this.inlineMenuListPort;
+    }
+
+    if (port.name === AutofillOverlayPort.Button) {
+      return port === this.inlineMenuButtonPort;
+    }
+
+    return false;
+  }
+
+  /**
+   * Identifies whether the currently focused field is the same field that was focused
+   * when an inline menu port connected.
+   *
+   * @param connectedField - The field data captured when the port connected
+   */
+  private focusedFieldMatchesConnectedField(connectedField: FocusedFieldData) {
+    if (!this.focusedFieldData) {
+      return false;
+    }
+
+    return (
+      this.focusedFieldData.tabId === connectedField.tabId &&
+      this.focusedFieldData.frameId === connectedField.frameId &&
+      this.focusedFieldData.focusedFieldOpid === connectedField.focusedFieldOpid
+    );
+  }
+
+  /**
    * Requests a generated password for a newly connected inline menu list and forwards
    * it to the list once it is available.
    *
@@ -3660,7 +3712,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     // The list can be torn down or replaced while generation is in flight; only the
     // port that is still the active list should receive the generated password.
-    if (port !== this.inlineMenuListPort) {
+    if (!this.isCurrentInlineMenuPort(port)) {
       return;
     }
 
