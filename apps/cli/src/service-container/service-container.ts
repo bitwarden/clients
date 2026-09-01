@@ -1092,6 +1092,7 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
       this.sdkService,
     );
 
@@ -1176,6 +1177,7 @@ export class ServiceContainer {
       new CliUserKeyRotationService(),
       this.cipherService,
       this.sdkService,
+      this.stateProvider,
     );
   }
 

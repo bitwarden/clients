@@ -6,6 +6,7 @@ import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -42,6 +43,12 @@ describe("VaultNextComponent", () => {
   const userId = "user-1" as UserId;
   const organizationId = "1b2c3d4e-5f60-4a1b-8c2d-3e4f5a6b7c8d" as OrganizationId;
   const otherOrganizationId = "9a8b7c6d-5e4f-4a3b-8c2d-1e2f3a4b5c6d" as OrganizationId;
+
+  // The `:collectionId` segment only names a guid, so the shared folders the drill-in tests use
+  // need real ones rather than readable stand-ins.
+  const designId = "aaaa2222-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
+  const engineeringId = "aaaa3333-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
+  const platformId = "aaaa4444-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
 
   let fixture: ComponentFixture<VaultNextComponent>;
   let itemActions: MockProxy<WebVaultItemActionsService>;
@@ -94,14 +101,21 @@ describe("VaultNextComponent", () => {
   const buildOrgNavItem = (id: OrganizationId, label: string): VaultNavItemViewModel => ({
     id,
     label,
-    color: "purple",
     icon: "bwi-business",
     type: VaultNavItemType.Organization,
   });
 
-  /** Navigates the page to a vault scope, as the `:vaultId` route segment would. */
-  const scopeTo = (vaultId?: string) => {
-    paramMap$.next(convertToParamMap(vaultId == null ? {} : { vaultId }));
+  /**
+   * Navigates the page to a vault scope, as the `:vaultId` and `:collectionId` route segments
+   * would.
+   */
+  const scopeTo = (vaultId?: string, collectionId?: string) => {
+    paramMap$.next(
+      convertToParamMap({
+        ...(vaultId == null ? {} : { vaultId }),
+        ...(collectionId == null ? {} : { collectionId }),
+      }),
+    );
     fixture.detectChanges();
   };
 
@@ -171,6 +185,9 @@ describe("VaultNextComponent", () => {
     const organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(organizations$);
 
+    const policyService = mock<PolicyService>();
+    policyService.policyAppliesToUser$.mockReturnValue(of(false));
+
     const copyButtonsService = mock<VaultCopyButtonsService>();
     // `showQuickCopyActions$` is readonly on the service, so it can't be assigned onto the mock.
     Object.defineProperty(copyButtonsService, "showQuickCopyActions$", {
@@ -193,9 +210,10 @@ describe("VaultNextComponent", () => {
         { provide: FolderService, useValue: folderService },
         { provide: I18nService, useValue: i18nService },
         { provide: OrganizationService, useValue: organizationService },
+        { provide: PolicyService, useValue: policyService },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
         { provide: VaultCopyButtonsService, useValue: copyButtonsService },
-        { provide: VaultNavService, useValue: { viewModel$: vaultNav$ } },
+        { provide: VaultNavService, useValue: { viewModel$: () => vaultNav$ } },
       ],
     })
       .overrideComponent(VaultNextComponent, {
@@ -527,6 +545,51 @@ describe("VaultNextComponent", () => {
       fixture.detectChanges();
 
       expect(component().copyPresentation()).toBe("expanded");
+    });
+  });
+
+  describe("scoped collections", () => {
+    const collection = (id: CollectionId, name: string) =>
+      new CollectionView({ id, organizationId, name });
+
+    const engineering = collection(engineeringId, "Departments/Engineering");
+    const platform = collection(platformId, "Departments/Engineering/Platform");
+    const design = collection(designId, "Departments/Design");
+
+    beforeEach(() => {
+      collections$.next([design, engineering, platform]);
+      fixture.detectChanges();
+    });
+
+    it("offers the collections of the vault the page is scoped to", () => {
+      scopeTo(organizationId);
+
+      expect(component().scopedCollections()).toEqual([design, engineering, platform]);
+    });
+
+    // An item belongs to as many shared folders as it was assigned to, so a row in the folder being
+    // viewed may live in others too — the column has to be able to name them, and the chip to
+    // offer them.
+    it("keeps the whole vault on offer once the route drills into a folder", () => {
+      scopeTo(organizationId, engineeringId);
+
+      expect(component().scopedCollections()).toEqual([design, engineering, platform]);
+    });
+  });
+
+  describe("rows for a shared folder", () => {
+    it("keeps only the drilled-into folder's items", () => {
+      const inFolder = buildCipher({ id: "in-folder", collectionIds: [engineeringId] });
+      const inChildFolder = buildCipher({ id: "in-child", collectionIds: [platformId] });
+      const elsewhere = buildCipher({ id: "elsewhere", collectionIds: [designId] });
+      for (const cipher of [inFolder, inChildFolder, elsewhere]) {
+        cipher.organizationId = organizationId;
+      }
+
+      ciphers$.next([inFolder, inChildFolder, elsewhere]);
+      scopeTo(organizationId, engineeringId);
+
+      expect(component().ciphers()).toEqual([inFolder]);
     });
   });
 
