@@ -18129,6 +18129,22 @@
   "pamRequestAccessBannerHeading": {
     "message": "You can request access"
   },
+  "pamUnlicensedBannerHeading": {
+    "message": "Privileged Controls license required",
+    "description": "Heading of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerBody": {
+    "message": "You need a Privileged Controls license to view this item. Ask your admin to activate your license.",
+    "description": "Body of the message shown on a privileged item to a member who has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
+  "pamUnlicensedBannerRequestUnavailable": {
+    "message": "Requesting access is not available while unlicensed.",
+    "description": "Explains to a member without a Privileged Controls license why no request button is offered on a privileged item."
+  },
+  "pamLeaseErrorUnlicensed": {
+    "message": "A Privileged Controls license is required. Ask your admin to activate your license.",
+    "description": "Toast shown when starting or extending privileged access fails because the member has no Privileged Controls license. 'Privileged Controls' is a product name and should not be translated."
+  },
   "pamRequestAccessBannerMaxDuration": {
     "message": "Access up to $DURATION$",
     "placeholders": {
