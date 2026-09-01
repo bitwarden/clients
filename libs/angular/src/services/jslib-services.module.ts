@@ -1890,10 +1890,6 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    // No Angular client pushes a management profile, so every setting reads as unmanaged here: web
-    // cannot read an OS profile from a web page, desktop has no acquisition code yet, and the
-    // browser popup will read the background's profile only once a foreground proxy exists. The
-    // browser background registers its own instance and is the only place a profile is pushed.
     provide: ManagedSettingsService,
     useFactory: () => new DefaultManagedSettingsService(SdkLoadService.Ready),
     deps: [],

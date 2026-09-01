@@ -700,8 +700,6 @@ export class ServiceContainer {
       : new NoopSdkClientFactory();
     this.sdkLoadService = new CliSdkLoadService();
 
-    // The CLI has no code to read an operating system management profile yet, so nothing pushes one
-    // and every setting reads as unmanaged.
     const managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
 
     this.sdkService = new DefaultSdkService(
