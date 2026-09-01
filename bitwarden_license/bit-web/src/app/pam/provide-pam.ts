@@ -139,10 +139,6 @@ export function providePam(): SafeProvider[] {
       useClass: DefaultAuditApiService,
       deps: [ApiService, AccountService],
     }),
-    // Credential rotation, served by the SDK's `commercial().pam().rotation()` client. This was
-    // the module's second raw-HTTP exception while the SDK had no rotation surface; the SDK now
-    // owns the domain, the wire mapping, the request validation and the registration crypto, so
-    // the exception is gone and only the audit trail remains.
     safeProvider({
       provide: RotationSdkService,
       useClass: DefaultRotationSdkService,

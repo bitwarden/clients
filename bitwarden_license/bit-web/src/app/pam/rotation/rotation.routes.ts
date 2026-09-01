@@ -47,7 +47,6 @@ export const rotationRoutes: Routes = [
     component: DaemonDetailComponent,
     data: { titleId: "pamDaemonDetailTitle" },
   },
-  // Shell: tabbed container that provides the page-scoped services
   {
     path: "",
     component: RotationShellComponent,
