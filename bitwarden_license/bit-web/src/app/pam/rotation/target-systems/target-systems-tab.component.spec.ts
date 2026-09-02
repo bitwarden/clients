@@ -13,7 +13,7 @@ import type { TargetSystem } from "../rotation";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
 import { ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
 
-import { TargetSystemsTabComponent } from "./target-systems-tab.component";
+import { TargetSystemRow, TargetSystemsTabComponent } from "./target-systems-tab.component";
 import { TargetSystemsService } from "./target-systems.service";
 
 /** Echoes the key as its translation so form-field components don't crash. */
@@ -201,6 +201,44 @@ describe("TargetSystemsTabComponent", () => {
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success" }),
       );
+    });
+  });
+
+  // A blank kind cell is indistinguishable from a manual target, which has no integration at all,
+  // so every kind the SDK models has to name itself.
+  describe("kind column", () => {
+    function rowsFor(systems: TargetSystem[]): TargetSystemRow[] {
+      targetSystemsService.systems$.next(systems);
+      fixture.detectChanges();
+      return (component as unknown as { dataSource: { data: TargetSystemRow[] } }).dataSource.data;
+    }
+
+    it("gives every modelled kind its own label", () => {
+      const rows = rowsFor([
+        makeSystem({ id: sysId("1"), kind: TargetSystemKind.Entra }),
+        makeSystem({ id: sysId("2"), kind: TargetSystemKind.Mssql }),
+        makeSystem({ id: sysId("3"), kind: TargetSystemKind.CustomScript }),
+      ]);
+
+      expect(rows.map((row) => row.kindLabel)).toEqual([
+        "pamTargetSystemKindEntra",
+        "pamTargetSystemKindMssql",
+        "pamTargetSystemKindCustomScript",
+      ]);
+    });
+
+    it("names a kind only a newer server knows rather than leaving the cell blank", () => {
+      const [row] = rowsFor([makeSystem({ id: sysId("sys-new"), kind: TargetSystemKind.Unknown })]);
+
+      expect(row!.kindLabel).toBe("unknown");
+    });
+
+    it("leaves the kind unset for a manual target, which has no integration", () => {
+      const [row] = rowsFor([
+        makeSystem({ id: sysId("sys-manual"), method: TargetSystemMethod.Manual, kind: null }),
+      ]);
+
+      expect(row!.kindLabel).toBeNull();
     });
   });
 
