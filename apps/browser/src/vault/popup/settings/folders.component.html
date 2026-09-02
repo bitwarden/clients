@@ -1,16 +1,27 @@
 <popup-page>
+  @if (vfo1Enabled()) {
+    <button
+      type="button"
+      slot="floating-action"
+      [vaultFab]="'bwi-plus'"
+      [label]="'newFolder' | i18n"
+      (click)="openAddEditFolderDialog()"
+    ></button>
+  }
   <popup-header slot="header" [pageTitle]="'folders' | vfo1I18n: 'myFolders'" showBackButton>
     <ng-container slot="end">
-      <button
-        bitButton
-        size="small"
-        buttonType="primary"
-        type="button"
-        (click)="openAddEditFolderDialog()"
-        startIcon="bwi-plus"
-      >
-        {{ "new" | i18n }}
-      </button>
+      @if (!vfo1Enabled()) {
+        <button
+          bitButton
+          size="small"
+          buttonType="primary"
+          type="button"
+          (click)="openAddEditFolderDialog()"
+          startIcon="bwi-plus"
+        >
+          {{ "new" | i18n }}
+        </button>
+      }
       <app-pop-out></app-pop-out>
     </ng-container>
   </popup-header>
