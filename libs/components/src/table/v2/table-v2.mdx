@@ -6,8 +6,8 @@ import * as stories from "./table-v2.stories";
 
 # Table V2 (Beta)
 
-> **Beta — not yet approved for production.** `bit-table-v2` is still stabilizing; its still getting
-> some polish. Do not adopt it in production without approval from the UI Foundation team.
+> **Beta — not yet approved for production.** `bit-table-v2` is still stabilizing. Do not adopt it
+> in production without approval from the UI Foundation team.
 
 `bit-table-v2` renders tabular data with sorting, filtering, selection, pagination, loading and
 empty states, and virtual scrolling built in. You declare each column once — its header and its
@@ -316,13 +316,13 @@ filter = (row: Member, f: Filters) =>
 ```
 
 Each chip or toggle registers itself with the table when projected in. **Option counts are
-automatic**: with a client-side `[filter]`, each `bit-filter-option` shows a faceted count — how
-many rows it would match given the other active filters — recomputed as filters and data change. No
-`[count]` needed. For **server-side** filtering, omit `[filter]`, read `filterValues()` off a
-`#t="bitTableV2"` template reference to build your query, feed the pre-filtered rows to `data`, and
-set an explicit `[count]` on each option (the table can't compute it without the full dataset). See
-the [Filter Menu](?path=/docs/component-library-filter-menu--docs) docs for composing the chips
-(sections, in-menu search, radio + checkbox groups).
+automatic**: with a client-side `[filter]`, each `bit-filter-option` shows how many rows match that
+option on its own, ignoring the other active filters. No `[count]` needed. For **server-side**
+filtering, omit `[filter]`, read `filterValues()` off a `#t="bitTableV2"` template reference to
+build your query, feed the pre-filtered rows to `data`, and set an explicit `[count]` on each option
+(the table can't compute it without the full dataset). See the
+[Filter Menu](?path=/docs/component-library-filter-menu--docs) docs for composing the chips
+(sections, nested options, in-menu search, radio + checkbox groups).
 
 <Canvas of={stories.Filterable} />
 
@@ -341,16 +341,14 @@ filter: (row, f) =>
 
 `<bit-table-toolbar>` renders above the header row and lays out in two rows:
 
-- **Top row** — the `<bit-search>` (capped at ~400px) and any `slot="end"` controls (buttons, etc.),
-  right-aligned.
+- **Top row** — the `<bit-search>` (capped at ~400px on wide viewports) and any `slot="end"`
+  controls (buttons, etc.), right-aligned. Below `md` those controls take a row of their own.
 - **Filter row** — the filter chips, with a live "N items" count at the end. Separate groups of
   chips with `<bit-filter-divider>`. Once any filter is active, a "Clear all" button appears after
-  the chips to reset them in one click — search is untouched. On small screens this row collapses
-  into a single trigger and dialog.
+  the chips to reset them in one click — search is untouched.
 
-The toolbar holds no filter state itself — chips register with the table automatically when
-projected in, and a projected `<bit-search>` is adopted as the `search` filter (see
-[Search](#search)).
+The filter row collapses into a single trigger and dialog once its contents stop fitting on one
+line, and always below `md`.
 
 ```html
 <bit-table-v2 [tableDef]="table">
@@ -494,9 +492,8 @@ inactive facets leave no param behind, so the URL stays clean.
 Each filter chip syncs under its own `key`; sort, direction, page, and pageSize use those reserved
 keys within the namespace — so don't give a chip one of those keys. Give each table on a page a
 distinct prefix. Values are read back by shape (`true`/`false` → boolean, integers → number, a
-repeated key → array), which is lossy at the edges (a literal `"true"` string, a numeric-string id)
-— the trade for readable URLs. URL sync needs a router in context; without one (e.g. in a dialog)
-it's a no-op.
+repeated key → array), which is lossy at the edges: a literal `"true"` string, a numeric-string id.
+URL sync needs a router in context; without one (e.g. in a dialog) it's a no-op.
 
 ## List presentation
 
@@ -624,5 +621,6 @@ two in one table — if you need sort, selection, or any other built-in feature,
 - Give repeating row actions a specific label — `aria-label="Edit Netflix"` rather than a bare
   "Edit".
 - Sort buttons expose `aria-sort` on the header and `aria-pressed` on the button.
+- A row carries the hover fill and a focus ring whenever anything inside it is focused.
 - The select-all and row checkboxes are labelled for screen readers; override the label via the cell
   template if a row needs richer context.
