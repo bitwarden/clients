@@ -61,27 +61,25 @@
                 aria-controls="bit-side-nav"
               ></button>
             </div>
-            <div class="tw-w-full tw-bg-bg-nav tw-pt-3 tw-px-2">
+            <div class="tw-w-full tw-bg-bg-nav tw-p-2 tw-pb-0">
               <ng-container *ngTemplateOutlet="productSwitcherContent"></ng-container>
             </div>
             <div
               data-testid="side-nav-body"
-              class="tw-flex tw-flex-col tw-gap-2 tw-p-3 group-has-[[data-footer]_*:not(:empty)]/side-nav:tw-pb-0"
+              class="tw-flex tw-flex-col tw-gap-2 tw-p-3 tw-pt-2 group-has-[[data-footer]_*:not(:empty)]/side-nav:tw-pb-0"
             >
               <ng-container *ngTemplateOutlet="navContent"></ng-container>
             </div>
           </nav>
           <div
-            class="tw-w-full tw-bg-bg-nav tw-group/side-nav-footer [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"
+            class="tw-w-full tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"
           >
-            <bit-nav-divider
-              class="tw-hidden group-has-[[data-footer]_*:not(:empty)]/side-nav-footer:tw-block"
-            ></bit-nav-divider>
-            <div data-footer>
+            <div
+              data-footer
+              class="tw-p-3 tw-flex tw-flex-col tw-gap-2 tw-border-solid tw-border-0 tw-border-t tw-border-border-nav-divider empty:tw-hidden"
+            >
               @if (open) {
-                <div class="tw-py-3 empty:tw-hidden">
-                  <ng-content select="[slot=callout]"></ng-content>
-                </div>
+                <ng-content select="[slot=callout]"></ng-content>
               }
               <ng-content select="[slot=account]"></ng-content>
             </div>

@@ -2,16 +2,15 @@ import { NgTemplateOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { IsActiveMatchOptions } from "@angular/router";
+import { switchMap } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import {
-  defaultAvatarColors,
-  IconTileComponent,
-  isAvatarColor,
-  NavigationModule,
-} from "@bitwarden/components";
+import { IconTileComponent, IconTileOptions, NavigationModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { navIconTile } from "../../models/vault-icon-tile";
 import { VaultNavItemType, VaultNavItemViewModel } from "../../models/vault-nav-view-model";
 import {
   ALL_ITEMS_SCOPE,
@@ -35,8 +34,14 @@ export class VaultNavSectionComponent {
   protected readonly VaultNavItemType = VaultNavItemType;
 
   private readonly vaultNavService = inject(VaultNavService);
+  private readonly accountService = inject(AccountService);
 
-  protected readonly vaultNav = toSignal(this.vaultNavService.viewModel$);
+  protected readonly vaultNav = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.vaultNavService.viewModel$(userId)),
+    ),
+  );
 
   protected readonly allItemsRoute = vaultScopeCommands(ALL_ITEMS_SCOPE);
 
@@ -80,7 +85,11 @@ export class VaultNavSectionComponent {
     return this.vaultRoutes().get(vault.id);
   }
 
-  protected vaultTileColor(vault: VaultNavItemViewModel): string {
-    return isAvatarColor(vault.color) ? defaultAvatarColors[vault.color] : vault.color;
+  /**
+   * The nav entry's icon tile. Organization entries resolve through the themed decorative variants;
+   * the personal entry keeps its avatar-matched hex. See `vault-icon-tile.ts` for why they differ.
+   */
+  protected tile(vault: VaultNavItemViewModel): IconTileOptions {
+    return navIconTile(vault);
   }
 }
