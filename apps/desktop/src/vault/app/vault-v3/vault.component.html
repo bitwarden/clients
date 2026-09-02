@@ -19,6 +19,19 @@
     </app-header>
   </div>
   @if (vfo1Foundation()) {
+    <!--
+      Padded to the page gutters rather than the table's own container, so it lines up with the
+      header above it. Renders nothing outside a shared folder, leaving no gap in its place.
+
+      Kept at its natural height: the table below absorbs the space it takes, and the grid's own
+      overflow is already capped by the accordion it sits in — shrinking it would clip cards
+      instead.
+    -->
+    <vault-shared-folder-card-grid
+      class="tw-block tw-shrink-0 tw-px-8"
+      [collections]="scopedCollections"
+      [scope]="vaultScope()"
+    ></vault-shared-folder-card-grid>
     <app-vault-list-table
       class="tw-flex-1 tw-min-h-0"
       [ciphers]="ciphers"

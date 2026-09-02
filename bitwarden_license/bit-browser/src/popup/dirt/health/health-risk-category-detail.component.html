@@ -6,8 +6,15 @@
       <app-current-account />
     </ng-container>
   </popup-header>
-  @if (report() == null) {
+  @if (invalidCategory()) {
     <!-- shown while page routes back to health overview -->
+  } @else if (loading()) {
+    <dirt-health-scanning />
+  } @else if (scanFailed()) {
+    <dirt-health-scan-error (retry)="handleRetry()" />
+  } @else if (report() == null) {
+    <!-- a scan is about to start; showing the empty state here would read as "all clear" -->
+    <dirt-health-scanning />
   } @else if (items().length > 0) {
     <p>
       {{ contentKeys?.descriptionKey | i18n }}

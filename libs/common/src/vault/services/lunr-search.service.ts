@@ -319,7 +319,7 @@ function uriExtractor(c: CipherViewLike): string[] {
     const port = portMatch?.[1];
 
     const hostname = CipherViewLikeUtils.getUriHostname(u);
-    if (hostname !== undefined) {
+    if (hostname) {
       uris.push(hostname);
       if (port) {
         uris.push(`${hostname}:${port}`);
