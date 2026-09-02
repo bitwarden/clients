@@ -1,4 +1,5 @@
 import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
@@ -7,6 +8,7 @@ import { of } from "rxjs";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -26,14 +28,18 @@ import {
   SearchTextDebounceInterval,
 } from "@bitwarden/common/vault/services/search.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { BitTableV2Component, DialogService, FilterControl } from "@bitwarden/components";
+import {
+  BitTableV2Component,
+  ButtonModule,
+  DialogService,
+  FilterControl,
+} from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
+import { MY_VAULT, NO_FOLDER } from "../../utils/vault-filter-predicates";
 
 import {
-  MY_VAULT,
-  NO_FOLDER,
   VaultItemsTableColumn,
   VaultItemsTableComponent,
   VaultItemsTableFilters,
@@ -75,6 +81,43 @@ function cipherListView(overrides: Partial<CipherListView> = {}): CipherListView
   } as unknown as CipherListView;
 }
 
+/** Projects conditional toolbar actions the supported way — inside a static `slot="toolbar"`. */
+@Component({
+  selector: "test-wrapped-toolbar-host",
+  template: `
+    <vault-items-table [ciphers]="[]">
+      <div slot="toolbar">
+        @if (show()) {
+          <button id="toolbar-action" type="button">Add</button>
+        }
+      </div>
+    </vault-items-table>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [VaultItemsTableComponent],
+})
+class WrappedToolbarHostComponent {
+  readonly show = signal(true);
+}
+
+/** Projects the same actions with the control flow block itself as the projected node. */
+@Component({
+  selector: "test-bare-toolbar-host",
+  template: `
+    <vault-items-table [ciphers]="[]">
+      @if (show()) {
+        <button slot="toolbar" id="toolbar-action" type="button" bitButton>Import</button>
+        <span slot="toolbar" id="toolbar-second">Add</span>
+      }
+    </vault-items-table>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [VaultItemsTableComponent, ButtonModule],
+})
+class BareToolbarHostComponent {
+  readonly show = signal(true);
+}
+
 describe("VaultItemsTableComponent", () => {
   let fixture: ComponentFixture<VaultItemsTableComponent<CipherViewLike>>;
   let component: VaultItemsTableComponent<CipherViewLike>;
@@ -99,6 +142,9 @@ describe("VaultItemsTableComponent", () => {
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = of({ id: "user-1" } as Account);
 
+    const avatarService = mock<AvatarService>();
+    avatarService.getUserAvatarColor$.mockReturnValue(of("#175ddc"));
+
     const environmentService = mock<EnvironmentService>();
     environmentService.environment$ = of({
       getIconsUrl: () => "https://icons.example.com",
@@ -119,6 +165,7 @@ describe("VaultItemsTableComponent", () => {
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: AccountService, useValue: accountService },
+        { provide: AvatarService, useValue: avatarService },
         // The real search service, not a double — the table's contract is that its search matches
         // what a client's own vault search matches, and a double could only assert fiction.
         { provide: SearchService, useValue: searchService },
@@ -194,6 +241,31 @@ describe("VaultItemsTableComponent", () => {
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain("Amazon");
     expect(text).toContain("Apple ID");
+  });
+
+  describe("projected toolbar content", () => {
+    /** The projected action, as it lands inside the rendered toolbar. */
+    const toolbarAction = (host: ComponentFixture<unknown>) =>
+      host.nativeElement.querySelector("bit-table-toolbar #toolbar-action");
+
+    it("reaches the toolbar when it is conditional within a static slot element", () => {
+      const host = TestBed.createComponent(WrappedToolbarHostComponent);
+      host.detectChanges();
+
+      expect(toolbarAction(host)).not.toBeNull();
+
+      host.componentInstance.show.set(false);
+      host.detectChanges();
+
+      expect(toolbarAction(host)).toBeNull();
+    });
+
+    it("drops a multi-node control flow block projected as the slot itself", () => {
+      const host = TestBed.createComponent(BareToolbarHostComponent);
+      host.detectChanges();
+
+      expect(toolbarAction(host)).toBeNull();
+    });
   });
 
   describe("filtering", () => {
@@ -575,6 +647,38 @@ describe("VaultItemsTableComponent", () => {
         expect(component["foldersDisabledTooltip"]()).toBe("");
       });
     });
+
+    describe("Shared folders", () => {
+      it("is disabled with a tooltip when no cipher belongs to an organization", () => {
+        fixture.componentRef.setInput("ciphers", [cipherView({ organizationId: undefined })]);
+
+        expect(component["noSharedFolderOptions"]()).toBe(true);
+        expect(component["sharedFolderDisabledTooltip"]()).toBe("sharedFolderFilterTooltip");
+      });
+
+      it("is disabled with a tooltip when org ciphers exist but no collections are provided", () => {
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ organizationId: "org-1" as never }),
+        ]);
+        fixture.componentRef.setInput("collections", []);
+
+        expect(component["noSharedFolderOptions"]()).toBe(true);
+        expect(component["sharedFolderDisabledTooltip"]()).toBe("sharedFolderFilterTooltip");
+      });
+
+      it("is enabled with an empty tooltip when org ciphers exist and collections are provided", () => {
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ organizationId: "org-1" as never }),
+        ]);
+        fixture.componentRef.setInput("collections", [
+          { id: "col-1", name: "Engineering", organizationId: "org-1" } as CollectionView,
+        ]);
+
+        expect(component["noSharedFolderOptions"]()).toBe(false);
+        // Empty, not just falsy — bitTooltip only renders nothing for an empty string.
+        expect(component["sharedFolderDisabledTooltip"]()).toBe("");
+      });
+    });
   });
 
   describe("vaults present in the rows", () => {
@@ -585,85 +689,23 @@ describe("VaultItemsTableComponent", () => {
       ]);
     });
 
-    describe("multipleVaults", () => {
-      it("is false when every cipher is in the individual vault", () => {
-        fixture.componentRef.setInput("ciphers", [cipherView({ organizationId: undefined })]);
-
-        expect(component["multipleVaults"]()).toBe(false);
-      });
-
-      /** The side-nav pre-filter case: one vault on screen, so the chip can't narrow anything. */
-      it("is false when every cipher is in the same organization", () => {
-        fixture.componentRef.setInput("ciphers", [
-          cipherView({ id: "a", organizationId: "org-1" as never }),
-          cipherView({ id: "b", organizationId: "org-1" as never }),
-        ]);
-
-        expect(component["multipleVaults"]()).toBe(false);
-      });
-
-      it("is true when ciphers span the individual vault and an organization", () => {
-        fixture.componentRef.setInput("ciphers", [
-          cipherView({ id: "a", organizationId: undefined }),
-          cipherView({ id: "b", organizationId: "org-1" as never }),
-        ]);
-
-        expect(component["multipleVaults"]()).toBe(true);
-      });
-
-      it("is true when ciphers span two organizations", () => {
-        fixture.componentRef.setInput("ciphers", [
-          cipherView({ id: "a", organizationId: "org-1" as never }),
-          cipherView({ id: "b", organizationId: "org-2" as never }),
-        ]);
-
-        expect(component["multipleVaults"]()).toBe(true);
-      });
-
-      /** Nothing to name the organizations with, so the chip would have no options to offer. */
-      it("stays false when the caller supplies no organizations", () => {
-        fixture.componentRef.setInput("organizations", []);
-        fixture.componentRef.setInput("ciphers", [
-          cipherView({ id: "a", organizationId: undefined }),
-          cipherView({ id: "b", organizationId: "org-1" as never }),
-        ]);
-
-        expect(component["multipleVaults"]()).toBe(false);
-      });
-
-      it("ignores an organization the caller didn't supply, since the chip can't offer it", () => {
-        fixture.componentRef.setInput("ciphers", [
-          cipherView({ id: "a", organizationId: undefined }),
-          cipherView({ id: "b", organizationId: "org-unknown" as never }),
-        ]);
-
-        expect(component["multipleVaults"]()).toBe(false);
-      });
-
-      it("is false when there are no ciphers", () => {
-        fixture.componentRef.setInput("ciphers", []);
-
-        expect(component["multipleVaults"]()).toBe(false);
-      });
-    });
-
     describe("chip options", () => {
-      it("omits an organization that holds no ciphers", () => {
+      it("includes all organizations regardless of which hold ciphers", () => {
         fixture.componentRef.setInput("ciphers", [
           cipherView({ id: "a", organizationId: undefined }),
           cipherView({ id: "b", organizationId: "org-2" as never }),
         ]);
 
-        expect(component["sortedOrganizations"]().map((o) => o.id)).toEqual(["org-2"]);
+        expect(component["sortedOrganizations"]().map((o) => o.id)).toEqual(["org-1", "org-2"]);
       });
 
-      it("omits My vault when every cipher is organization-owned", () => {
+      it("offers My vault when every cipher is organization-owned but the view is unscoped", () => {
         fixture.componentRef.setInput("ciphers", [
           cipherView({ id: "a", organizationId: "org-1" as never }),
           cipherView({ id: "b", organizationId: "org-2" as never }),
         ]);
 
-        expect(component["showMyVaultOption"]()).toBe(false);
+        expect(component["showMyVaultOption"]()).toBe(true);
       });
 
       it("offers My vault when some cipher is individually owned", () => {
@@ -674,14 +716,35 @@ describe("VaultItemsTableComponent", () => {
 
         expect(component["showMyVaultOption"]()).toBe(true);
       });
+
+      it("offers My vault when the vault is empty and not org-scoped", () => {
+        fixture.componentRef.setInput("ciphers", []);
+
+        expect(component["showMyVaultOption"]()).toBe(true);
+      });
+
+      it("omits My vault in the empty-vault fallback when scoped to an organization", () => {
+        fixture.componentRef.setInput("ciphers", []);
+        fixture.componentRef.setInput("scopedOrganizationId", "org-1");
+
+        expect(component["showMyVaultOption"]()).toBe(false);
+      });
+
+      it("omits My vault in the empty-vault fallback when the org requires data ownership", () => {
+        fixture.componentRef.setInput("ciphers", []);
+        fixture.componentRef.setInput("orgRequiresDataOwnership", true);
+
+        expect(component["showMyVaultOption"]()).toBe(false);
+      });
     });
 
     describe("visibleColumns", () => {
-      it("drops the Vault column when every row is in the same vault", () => {
-        fixture.componentRef.setInput("ciphers", [
-          cipherView({ id: "a", organizationId: "org-1" as never }),
-          cipherView({ id: "b", organizationId: "org-1" as never }),
+      it("drops the Vault column when there is one organization and no personal vault option", () => {
+        fixture.componentRef.setInput("organizations", [
+          { id: "org-1", name: "Acme corporation" } as Organization,
         ]);
+        // Scoping to the org suppresses the My vault option, leaving nothing to distinguish.
+        fixture.componentRef.setInput("scopedOrganizationId", "org-1" as never);
 
         expect(component["visibleColumns"]()).not.toContain("vault");
       });
@@ -704,7 +767,7 @@ describe("VaultItemsTableComponent", () => {
   });
 
   describe("showSharedFolders", () => {
-    it("is false when every row is individually owned, which can't be in a collection", () => {
+    it("is false when no organizations are provided, regardless of cipher ownership", () => {
       fixture.componentRef.setInput("ciphers", [
         cipherView({ id: "a", organizationId: undefined }),
         cipherView({ id: "b", organizationId: undefined }),
@@ -714,10 +777,9 @@ describe("VaultItemsTableComponent", () => {
       expect(component["visibleColumns"]()).not.toContain("sharedFolders");
     });
 
-    it("is true when any row is organization-owned", () => {
-      fixture.componentRef.setInput("ciphers", [
-        cipherView({ id: "a", organizationId: undefined }),
-        cipherView({ id: "b", organizationId: "org-1" as never }),
+    it("is true when organizations are provided", () => {
+      fixture.componentRef.setInput("organizations", [
+        { id: "org-1", name: "Acme corporation" } as Organization,
       ]);
 
       expect(component["showSharedFolders"]()).toBe(true);
@@ -725,19 +787,19 @@ describe("VaultItemsTableComponent", () => {
     });
 
     /**
-     * Collection membership doesn't depend on the caller naming the organization, so this differs
-     * from `multipleVaults` — which ignores organizations it can't name.
+     * Unlike the vault column, the shared folders chip does not require org-owned ciphers to be
+     * visible — organizations alone determine visibility, so the chip stays stable as rows filter.
      */
-    it("is true for an organization the caller didn't supply", () => {
+    it("is false when org-owned ciphers exist but no organizations are provided", () => {
       fixture.componentRef.setInput("organizations", []);
       fixture.componentRef.setInput("ciphers", [
         cipherView({ organizationId: "org-unknown" as never }),
       ]);
 
-      expect(component["showSharedFolders"]()).toBe(true);
+      expect(component["showSharedFolders"]()).toBe(false);
     });
 
-    it("is false when there are no ciphers", () => {
+    it("is false when no organizations are provided and there are no ciphers", () => {
       fixture.componentRef.setInput("ciphers", []);
 
       expect(component["showSharedFolders"]()).toBe(false);
@@ -806,6 +868,9 @@ describe("VaultItemsTableComponent", () => {
 
   describe("filtering from a membership chip", () => {
     beforeEach(() => {
+      fixture.componentRef.setInput("organizations", [
+        { id: "org-1", name: "Acme" } as Organization,
+      ]);
       fixture.componentRef.setInput("collections", [
         { id: "col-1", name: "Operations" } as CollectionView,
         { id: "col-2", name: "Engineering" } as CollectionView,
@@ -901,6 +966,8 @@ describe("VaultItemsTableComponent", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
         { id: "org-1", name: "Acme" } as Organization,
+        // Two orgs ensure the Vault chip renders via the multiple-vaults path.
+        { id: "org-2", name: "Contoso" } as Organization,
       ]);
       fixture.componentRef.setInput("collections", [
         { id: "col-1", name: "Engineering", organizationId: "org-1" } as CollectionView,

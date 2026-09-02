@@ -1,14 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
-
 import {
   DefaultRegistrationFinishService,
   PasswordInputResult,
   RegistrationFinishService,
 } from "@bitwarden/auth/angular";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { OpenOrgInviteRequest } from "@bitwarden/common/auth/models/request/registration/open-org-invite.request";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
@@ -17,13 +13,12 @@ import {
   OrgInviteKind,
 } from "@bitwarden/common/auth/organization-invite";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncString, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import {
   OrganizationId as SdkOrganizationId,
   UserMasterPasswordRegistrationRequest,
@@ -40,7 +35,6 @@ export class WebRegistrationFinishService
     protected configService: ConfigService,
     protected sdkService: SdkService,
     private organizationInviteService: OrganizationInviteService,
-    private policyService: PolicyService,
   ) {
     super(
       legacyCompatKeyService,
@@ -49,46 +43,6 @@ export class WebRegistrationFinishService
       configService,
       sdkService,
     );
-  }
-
-  // TODO PM-41523: delete this method + inline `OrganizationInviteService` usage in
-  // `RegistrationFinishComponent`. Required DI landscape change:
-  // (1) create a no-op `OrganizationInviteService` implementation in libs/angular and
-  //     register it in `jslib-services.module.ts`, replacing the current global binding
-  //     to `DefaultOrganizationInviteService`;
-  // (2) register `DefaultOrganizationInviteService` in web's core module only.
-  // Applies equally to `getMasterPasswordPolicyOptsFromOrgInvite` below.
-  override async getOrgNameFromOrgInvite(): Promise<string | null> {
-    const orgInvite = await this.organizationInviteService.getOrganizationInvite();
-    if (orgInvite == null) {
-      return null;
-    }
-
-    return orgInvite.organizationName;
-  }
-
-  // TODO PM-41523: delete this method too — see the plan on `getOrgNameFromOrgInvite` above.
-  // `OrganizationInviteService.getMasterPasswordPolicyOptionsForInvite(orgInvite)` is
-  // already cross-platform, so the component can do this read inline.
-  override async getMasterPasswordPolicyOptsFromOrgInvite(): Promise<MasterPasswordPolicyOptions | null> {
-    // If there's a deep linked org invite, use it to get the password policies
-    const orgInvite = await this.organizationInviteService.getOrganizationInvite();
-
-    if (orgInvite == null) {
-      return null;
-    }
-
-    const policies = await this.organizationInviteService.getOrgPoliciesForInvite(orgInvite);
-
-    if (policies == null) {
-      return null;
-    }
-
-    const masterPasswordPolicyOpts: MasterPasswordPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(null, policies),
-    );
-
-    return masterPasswordPolicyOpts;
   }
 
   override async buildSdkRegisterRequest(

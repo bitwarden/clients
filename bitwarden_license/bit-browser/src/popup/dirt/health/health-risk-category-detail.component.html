@@ -6,8 +6,15 @@
       <app-current-account />
     </ng-container>
   </popup-header>
-  @if (report() == null) {
+  @if (invalidCategory()) {
     <!-- shown while page routes back to health overview -->
+  } @else if (loading()) {
+    <dirt-health-scanning />
+  } @else if (scanFailed()) {
+    <dirt-health-scan-error (retry)="handleRetry()" />
+  } @else if (report() == null) {
+    <!-- a scan is about to start; showing the empty state here would read as "all clear" -->
+    <dirt-health-scanning />
   } @else if (items().length > 0) {
     <p>
       {{ contentKeys?.descriptionKey | i18n }}
@@ -74,12 +81,11 @@
     </bit-section>
   } @else {
     <div class="tw-flex tw-flex-col tw-justify-center tw-h-full tw-items-center">
-      <bit-no-items [icon]="contentKeys?.emptyIcon" class="tw-text-main">
+      <bit-status-lockup class="tw-text-main">
+        <bit-svg slot="graphic" [content]="contentKeys?.emptyIcon"></bit-svg>
         <ng-container slot="title">{{ "youreAllSet" | i18n }}</ng-container>
-        <ng-container slot="description">
-          <p bitTypography="body2" class="tw-mx-6 tw-mt-2">{{ contentKeys?.emptyKey | i18n }}</p>
-        </ng-container>
-      </bit-no-items>
+        <ng-container slot="description">{{ contentKeys?.emptyKey | i18n }}</ng-container>
+      </bit-status-lockup>
     </div>
   }
 </popup-page>

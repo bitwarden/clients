@@ -41,7 +41,7 @@ component_management:
       name: Key Management - Process Reload
       paths:
         - apps/web/src/app/key-management/services/web-process-reload.service.ts
-        - libs/common/src/key-management/services/default-process-reload.service.ts
+        - libs/common/src/key-management/process-reload/**
     - component_id: key-management-keys
       name: Key Management - Keys
       paths:

@@ -54,7 +54,7 @@ export default {
   title: "Component Library/Filter Menu",
   decorators: [
     moduleMetadata({
-      imports: [FilterMenuDemoComponent],
+      imports: [FilterMenuDemoComponent, FilterMenuModule],
       providers: [
         {
           provide: I18nService,
@@ -82,5 +82,25 @@ type Story = StoryObj;
 export const Default: Story = {
   render: () => ({
     template: `<filter-menu-demo></filter-menu-demo>`,
+  }),
+};
+
+/**
+ * Options can render a leading icon tile. The chip forces `size="xs"` so every row lines up, and a
+ * disabled option's tile drops to the neutral `gray` family.
+ */
+export const IconTiles: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2 tw-p-4">
+        <bit-filter-menu key="type" placeholderText="Type" multiple>
+          <bit-filter-option [value]="'login'" [count]="12" [iconTile]="{ icon: 'bwi-globe', variant: 'brand' }">Login</bit-filter-option>
+          <bit-filter-option [value]="'card'" [count]="3" [iconTile]="{ icon: 'bwi-credit-card', variant: 'teal' }">Card</bit-filter-option>
+          <bit-filter-option [value]="'identity'" [iconTile]="{ icon: 'bwi-id-card', variant: 'purple', emphasis: 'bold' }">Identity</bit-filter-option>
+          <bit-filter-option [value]="'note'" [iconTile]="{ icon: 'bwi-sticky-note', color: '#f8e71c' }">Note with a custom color</bit-filter-option>
+          <bit-filter-option [value]="'sshKey'" [iconTile]="{ icon: 'bwi-key', variant: 'green' }" disabled>SSH key</bit-filter-option>
+        </bit-filter-menu>
+      </div>
+    `,
   }),
 };

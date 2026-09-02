@@ -1,8 +1,9 @@
 import { importProvidersFrom } from "@angular/core";
-import { ActivatedRoute, RouterModule } from "@angular/router";
+import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/router";
 import {
   applicationConfig,
   componentWrapperDecorator,
+  Decorator,
   Meta,
   moduleMetadata,
   StoryObj,
@@ -50,28 +51,43 @@ const pamApi: Partial<AccessRuleSdkService> = {
   updateAccessRule: () => Promise.resolve(SAMPLE_RULE),
 };
 
-/** The routed page reads its mode from `route.snapshot`; vary it per story. */
-function routeStub(
-  params: Record<string, string> = {},
-  queryParams: Record<string, string> = {},
-): Partial<ActivatedRoute> {
-  return {
-    snapshot: {
-      params: { organizationId: "org-1", ...params },
-      queryParams,
-    },
-  } as unknown as ActivatedRoute;
-}
+/**
+ * Mirrors `pam-routing.module.ts` (minus its guards) so the page reads `organizationId` /
+ * `accessRuleId` from real route params. A stubbed `ActivatedRoute` can't resolve the page's
+ * `['..']` breadcrumb, which then falls back to the current URL and renders as the active page
+ * instead of a link back to the list.
+ */
+const routes: Routes = [
+  {
+    path: "organizations/:organizationId/access-rules",
+    children: [
+      { path: "", children: [] },
+      // List "new" before ":accessRuleId" so the literal path wins.
+      { path: "new", component: AccessRuleEditComponent },
+      { path: ":accessRuleId", component: AccessRuleEditComponent },
+    ],
+  },
+];
+
+/** Renders the story at `url`; hash routing keeps Storybook's own query string intact. */
+const atUrl =
+  (url: string): Decorator =>
+  (storyFn, context) => {
+    window.location.hash = url;
+    return storyFn(context);
+  };
 
 export default {
   title: "Web/PAM/Access Rule Edit",
   component: AccessRuleEditComponent,
+  render: () => ({ template: `<router-outlet></router-outlet>` }),
   decorators: [
     componentWrapperDecorator((story) => `<div class="tw-p-6">${story}</div>`),
+    moduleMetadata({ imports: [RouterOutlet] }),
     applicationConfig({
       providers: [
         importProvidersFrom(PreloadedEnglishI18nModule),
-        importProvidersFrom(RouterModule.forRoot([])),
+        provideRouter(routes, withHashLocation()),
         { provide: AccessRuleSdkService, useValue: pamApi },
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
@@ -80,8 +96,6 @@ export default {
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
         { provide: CidrValidationService, useValue: { isValid: () => true } },
-        // Default to create mode; the Edit/Template stories override this.
-        { provide: ActivatedRoute, useValue: routeStub() },
       ],
     }),
   ],
@@ -90,24 +104,16 @@ export default {
 type Story = StoryObj<AccessRuleEditComponent>;
 
 /** Create mode: an empty form with default durations. */
-export const Create: Story = {};
+export const Create: Story = {
+  decorators: [atUrl("/organizations/org-1/access-rules/new")],
+};
 
 /** Create mode seeded from the "approval required" starter template. */
 export const CreateFromTemplate: Story = {
-  decorators: [
-    moduleMetadata({
-      providers: [
-        { provide: ActivatedRoute, useValue: routeStub({}, { template: "approval-required" }) },
-      ],
-    }),
-  ],
+  decorators: [atUrl("/organizations/org-1/access-rules/new?template=approval-required")],
 };
 
 /** Edit mode: the form is populated from an existing rule (conditions + extensions enabled). */
 export const Edit: Story = {
-  decorators: [
-    moduleMetadata({
-      providers: [{ provide: ActivatedRoute, useValue: routeStub({ accessRuleId: "rule-1" }) }],
-    }),
-  ],
+  decorators: [atUrl("/organizations/org-1/access-rules/rule-1")],
 };

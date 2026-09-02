@@ -5,7 +5,6 @@ import {
   DestroyRef,
   OnInit,
   TemplateRef,
-  afterNextRender,
   booleanAttribute,
   computed,
   contentChildren,
@@ -26,9 +25,16 @@ import { BaseChipDirective } from "../chips/shared/base-chip.directive";
 import { ChipContentComponent } from "../chips/shared/chip-content.component";
 import { ChipDismissButtonComponent } from "../chips/shared/chip-dismiss-button.component";
 import { IconComponent } from "../icon";
+import {
+  IconTileComponent,
+  IconTileVariant,
+  resolveIconTileColor,
+  resolveIconTileVariant,
+} from "../icon-tile";
 import { menuItemBaseStyles, menuItemPrimaryStyles } from "../menu/menu-item.component";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { MenuComponent } from "../menu/menu.component";
+import { OverflowItemDirective } from "../overflow-list";
 import { SearchComponent } from "../search/search.component";
 
 import { FilterOptionComponent } from "./filter-option.component";
@@ -88,6 +94,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
     I18nPipe,
     NgTemplateOutlet,
     IconComponent,
+    IconTileComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
@@ -97,6 +104,8 @@ const CLEAR_FILTER = Symbol("clear-filter");
   ],
   hostDirectives: [
     { directive: BaseChipDirective, inputs: ["disabled", "size", "fullWidth", "maxWidthClass"] },
+    // Lets a `bitOverflowList` ancestor measure the chip; inert with no such ancestor.
+    OverflowItemDirective,
   ],
 })
 export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPresenter, OnInit {
@@ -219,14 +228,10 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
    * The count shown on each option row, keyed by the option: its explicit `count`
    * if set, else the host's faceted count (this chip's `key` pinned to the option's
    * value). Reads the host's signals, so it recomputes as the data and other filters
-   * change; gated on first render like {@link labels} to avoid reading options'
-   * required `value` input too early (NG0950).
+   * change.
    */
   protected readonly optionCounts = computed(() => {
     const counts = new Map<FilterOptionComponent, number | undefined>();
-    if (!this.rendered()) {
-      return counts;
-    }
     const host = this.filterHost;
     const key = this.key();
     const multiple = this.multiple();
@@ -236,30 +241,46 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
         counts.set(option, explicit);
         continue;
       }
-      const pinned = multiple ? [option.value()] : option.value();
+      const resolved = this.optionValue(option);
+      if (!resolved) {
+        continue;
+      }
+      const pinned = multiple ? [resolved.value] : resolved.value;
       counts.set(option, host?.optionCount?.(key, pinned));
     }
     return counts;
   });
 
   /**
-   * Gates the summary effect until after the first render, so it doesn't read the
-   * projected options' required `value` input before Angular has set it (NG0950).
+   * Safely reads an option's `value` input. An option can appear in {@link allOptions}
+   * one tick before Angular finishes binding its required `value` input — e.g. when an
+   * async list (like a collections stream) appends a `bit-filter-option` after this chip
+   * has already rendered. Reading the input here still registers it as a signal
+   * dependency even though it throws, so the consuming effect/computed re-runs on its
+   * own once the value resolves.
    */
-  private readonly rendered = signal(false);
+  private optionValue(option: FilterOptionComponent): { value: unknown } | undefined {
+    try {
+      return { value: option.value() };
+    } catch {
+      return undefined;
+    }
+  }
 
   constructor() {
-    afterNextRender(() => this.rendered.set(true));
-    // Keep the selected-options summary in sync with the selection (post first render).
     effect(() => {
-      if (!this.rendered()) {
-        return;
-      }
       const options = this.allOptions();
       if (options.length === 0) {
         return;
       }
-      this.labels.set(options.filter((o) => this.isSelected(o.value())).map((o) => o.label()));
+      const labels: string[] = [];
+      for (const option of options) {
+        const resolved = this.optionValue(option);
+        if (resolved && this.isSelected(resolved.value)) {
+          labels.push(option.label());
+        }
+      }
+      this.labels.set(labels);
     });
     // Reflect the active state as the chip's pressed (selected) styling.
     effect(() => this.baseChip.selectedState.set(this.active()));
@@ -275,6 +296,14 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
     }
     host.registerFilter(this);
     this.destroyRef.onDestroy(() => host.unregisterFilter(this));
+  }
+
+  protected tileVariant(option: FilterOptionComponent): IconTileVariant {
+    return resolveIconTileVariant(option.iconTile(), option.disabled());
+  }
+
+  protected tileColor(option: FilterOptionComponent): string | undefined {
+    return resolveIconTileColor(option.iconTile(), option.disabled());
   }
 
   /** Narrows an entry to a section for the template (else `null`). */
@@ -300,7 +329,10 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
 
   /** How many of a section's options are selected — shown as the header berry. */
   protected sectionSelectedCount(section: FilterSectionComponent): number {
-    return section.options().filter((option) => this.isSelected(option.value())).length;
+    return section.options().filter((option) => {
+      const resolved = this.optionValue(option);
+      return resolved != null && this.isSelected(resolved.value);
+    }).length;
   }
 
   isSelected(value: unknown): boolean {

@@ -13,16 +13,13 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
+import { SetInitialPasswordRequest } from "@bitwarden/common/auth/models/request/set-initial-password.request";
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterPasswordAuthenticationData,
-  MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
@@ -30,17 +27,18 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
+  EncryptService,
+  EncString,
   fromSdkKdfConfig,
   KdfConfig,
-  KdfConfigService,
-  KeyService,
-} from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { OrganizationId as SdkOrganizationId, UserId as SdkUserId } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 
@@ -80,8 +78,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     userId: UserId,
   ): Promise<void> {
     const {
-      newMasterKey,
-      newServerMasterKeyHash,
       newPasswordHint,
       kdfConfig,
       orgSsoIdentifier,
@@ -102,6 +98,12 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     if (userType == null) {
       throw new Error("userType not found. Could not set password.");
     }
+
+    const newMasterKey = await this.legacyCompatKeyService.makeMasterKey(
+      newPassword,
+      salt,
+      kdfConfig,
+    );
 
     const masterKeyEncryptedUserKey = await this.makeMasterKeyEncryptedUserKey(
       newMasterKey,
@@ -160,13 +162,27 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
     }
 
-    const request = new SetPasswordRequest(
-      newServerMasterKeyHash,
-      masterKeyEncryptedUserKey[1].encryptedString,
+    const authenticationData: MasterPasswordAuthenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        newPassword,
+        kdfConfig,
+        salt,
+      );
+
+    const unlockData: MasterPasswordUnlockData =
+      await this.masterPasswordService.makeMasterPasswordUnlockData(
+        newPassword,
+        kdfConfig,
+        salt,
+        masterKeyEncryptedUserKey[0],
+      );
+
+    const request = new SetInitialPasswordRequest(
+      authenticationData,
+      unlockData,
       newPasswordHint,
       orgSsoIdentifier,
       keysRequest,
-      kdfConfig,
     );
 
     await this.masterPasswordApiService.setPassword(request);
@@ -182,19 +198,12 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       userId,
     );
 
-    // Set master password unlock data for unlock path pointed to with
-    // MasterPasswordUnlockData feature development
-    // (requires: password, salt, kdf, userKey).
-    // As migration to this strategy continues, both unlock paths need supported.
-    // Several invocations in this file become redundant and can be removed once
-    // the feature is enshrined/unwound. These are marked with [PM-23246] below.
-    await this.setMasterPasswordUnlockData(
-      newPassword,
-      salt,
-      kdfConfig,
-      masterKeyEncryptedUserKey[0],
-      userId,
-    );
+    // [PM-23246] Set master password unlock data to state to prevent a race condition with sync
+    // (see PM-28494). Sync will eventually set this data, but setting it right away allows
+    // immediate unlock after setting the password. This call (and several others in this file
+    // marked [PM-23246]) can be cleaned up once the MasterPasswordUnlockData unlock path is
+    // fully rolled out in production.
+    await this.masterPasswordService.setMasterPasswordUnlockData(unlockData, userId);
 
     /**
      * Set the private key only for new JIT provisioned users in MP encryption orgs.
@@ -220,7 +229,11 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.unlockService.unlockWithDecryptedUserKey(userId, masterKeyEncryptedUserKey[0]);
 
     if (resetPasswordAutoEnroll) {
-      await this.handleResetPasswordAutoEnrollOld(newServerMasterKeyHash, orgId, userId);
+      await this.handleResetPasswordAutoEnrollOld(
+        authenticationData.masterPasswordAuthenticationHash,
+        orgId,
+        userId,
+      );
     }
   }
 
@@ -260,7 +273,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         userKey,
       );
 
-    const request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
+    const request = new UpdateTdeOffboardingPasswordRequest(
       authenticationData,
       unlockData,
       newPasswordHint,
@@ -403,7 +416,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         userKey,
       );
 
-    const request = SetPasswordRequest.newConstructor(
+    const request = new SetInitialPasswordRequest(
       authenticationData,
       unlockData,
       newPasswordHint,
@@ -515,32 +528,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       masterPasswordUnlockData,
       userId,
     );
-  }
-
-  /**
-   * @deprecated along with `setInitialPassword()` deprecation
-   *
-   * As part of [PM-28494], adding this setting path to accommodate the changes that are
-   * emerging with pm-23246-unlock-with-master-password-unlock-data.
-   * Without this, immediately locking/unlocking the vault with the new password _may_ still fail
-   * if sync has not completed. Sync will eventually set this data, but we want to ensure it's
-   * set right away here to prevent a race condition UX issue that prevents immediate unlock.
-   */
-  private async setMasterPasswordUnlockData(
-    password: string,
-    salt: MasterPasswordSalt,
-    kdfConfig: KdfConfig,
-    userKey: UserKey,
-    userId: UserId,
-  ): Promise<void> {
-    const masterPasswordUnlockData = await this.masterPasswordService.makeMasterPasswordUnlockData(
-      password,
-      kdfConfig,
-      salt,
-      userKey,
-    );
-
-    await this.masterPasswordService.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
   }
 
   /**
