@@ -14,7 +14,7 @@
       {{ "contactCSToAvoidDataLossPart2" | i18n }}
     </p>
     <ul class="tw-list-none tw-pl-0">
-      @for (id of params.cipherIds; track id) {
+      @for (id of params.ids; track id) {
         <li class="tw-text-code tw-font-mono tw-py-0.5" (click)="selectText(listItem)" #listItem>
           {{ id }}
         </li>

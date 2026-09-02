@@ -27,6 +27,8 @@ export class CollectionView implements View, ITreeNodeObject {
   assigned: boolean = false;
   type: CollectionType = CollectionTypes.SharedCollection;
   defaultUserCollectionEmail: string | undefined;
+  /** True when this collection's data could not be decrypted; fields dependent on decryption are empty. */
+  decryptionFailure: boolean = false;
 
   private _name: string;
 
@@ -200,6 +202,30 @@ export class CollectionView implements View, ITreeNodeObject {
     view.assigned = true;
     view.defaultUserCollectionEmail = sourceCollection.defaultUserCollectionEmail;
     view.type = sdkView.type;
+
+    return view;
+  }
+
+  /**
+   * Creates a placeholder CollectionView for a collection the SDK could not decrypt.
+   * Fields dependent on decryption (e.g. `name`) are left empty and `decryptionFailure` is set
+   * so the item is still shown rather than silently dropped from the list.
+   */
+  static fromFailedDecryption(collection: Collection): CollectionView {
+    const view = new CollectionView({
+      id: collection.id,
+      organizationId: collection.organizationId,
+      name: "",
+    });
+
+    view.externalId = collection.externalId;
+    view.readOnly = collection.readOnly;
+    view.hidePasswords = collection.hidePasswords;
+    view.manage = collection.manage;
+    view.type = collection.type;
+    view.defaultUserCollectionEmail = collection.defaultUserCollectionEmail;
+    view.assigned = true;
+    view.decryptionFailure = true;
 
     return view;
   }

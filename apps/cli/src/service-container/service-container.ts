@@ -760,6 +760,7 @@ export class ServiceContainer {
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
       this.sdkService,
       this.logService,
+      this.configService,
     );
 
     this.collectionService = new DefaultCollectionService(

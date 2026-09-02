@@ -12,6 +12,7 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   GenerateInviteLink = "pm-32497-generate-invite-link",
+  CollectionBulkDecryptWithFailures = "collection-bulk-decrypt-with-failures",
   StagedStatus = "pm-34423-staged-status",
 
   /* Auth */
@@ -145,6 +146,7 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.GenerateInviteLink]: FALSE,
+  [FeatureFlag.CollectionBulkDecryptWithFailures]: FALSE,
   [FeatureFlag.StagedStatus]: FALSE,
 
   /* Autofill */

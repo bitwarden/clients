@@ -550,7 +550,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
               if (action == "showFailedToDecrypt") {
                 DecryptionFailureDialogComponent.open(this.dialogService, {
-                  cipherIds: [cipherId as CipherId],
+                  ids: [cipherId as CipherId],
                 });
                 await this.router.navigate([], {
                   queryParams: { itemId: null, cipherId: null, action: null },
@@ -585,7 +585,21 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       )
       .subscribe((ciphers) => {
         DecryptionFailureDialogComponent.open(this.dialogService, {
-          cipherIds: ciphers.map((c) => c.id as CipherId),
+          ids: ciphers.map((c) => c.id as CipherId),
+        });
+      });
+
+    firstSetup$
+      .pipe(
+        switchMap(() => this.collectionService.decryptedCollections$(activeUserId)),
+        map((collections) => collections.filter((c) => c.decryptionFailure)),
+        filter((collections) => collections.length > 0),
+        take(1),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((collections) => {
+        DecryptionFailureDialogComponent.open(this.dialogService, {
+          ids: collections.map((c) => c.id as CollectionId),
         });
       });
 
