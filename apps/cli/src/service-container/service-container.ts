@@ -207,6 +207,7 @@ import {
 } from "@bitwarden/legacy-crypto";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
+import { DefaultManagedSettingsService } from "@bitwarden/managed-settings";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -698,6 +699,9 @@ export class ServiceContainer {
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
     this.sdkLoadService = new CliSdkLoadService();
+
+    const managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
@@ -710,6 +714,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       this.v2UpgradeTokenStateService,
+      managedSettingsService,
       customUserAgent,
     );
 
@@ -746,6 +751,7 @@ export class ServiceContainer {
       this.apiService,
       this.stateProvider,
       this.configService,
+      managedSettingsService,
       customUserAgent,
     );
 
