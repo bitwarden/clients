@@ -1,4 +1,4 @@
-import { catchError, from, map, mergeMap, Observable, of, toArray } from "rxjs";
+import { catchError, from, map, mergeMap, Observable, of, tap, toArray } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -10,11 +10,15 @@ import { LogService } from "@bitwarden/logging";
 import { CipherHealthView } from "../../../models";
 import { CipherHealthService } from "../../abstractions/cipher-health.service";
 
-/** One password's exposure result, carrying the password so it can be fanned back out to ciphers. */
-type PasswordExposure = {
+/**
+ * One password group's analysis: the exposure result shared by the whole group, plus a strength
+ * score per cipher in it. Carries the password so the group can be found again when assembling.
+ */
+type PasswordGroupHealth = {
   password: string;
   exposedCount: number;
   failed: boolean;
+  strengthByCipherId: Map<string, number | undefined>;
 };
 
 /**
@@ -46,14 +50,20 @@ export class DefaultCipherHealthService extends CipherHealthService {
     const ciphersByPassword = this.groupByPassword(validCiphers);
     const passwords = Array.from(ciphersByPassword.keys());
 
+    const startedAt = performance.now();
     this.logService.debug(
-      `[DefaultCipherHealthService] Exposure lookups: ciphers=${validCiphers.length} distinctPasswords=${passwords.length}`,
+      `[Cipher Health Perf] exposure lookups start: ciphers=${validCiphers.length} distinctPasswords=${passwords.length} (saved ${validCiphers.length - passwords.length} lookups)`,
     );
 
-    return from(passwords).pipe(
-      mergeMap((password) => this.lookupExposure(password)),
+    return from(ciphersByPassword.entries()).pipe(
+      mergeMap(([password, cipherGroup]) => this.analyzeGroup(password, cipherGroup)),
       toArray(),
-      map((exposures) => this.buildHealthMap(ciphersByPassword, exposures)),
+      tap(() =>
+        this.logService.debug(
+          `[Cipher Health Perf] exposure lookups done: ${Math.round(performance.now() - startedAt)}ms`,
+        ),
+      ),
+      map((groupHealths) => this.buildHealthMap(ciphersByPassword, groupHealths)),
     );
   }
 
@@ -114,48 +124,69 @@ export class DefaultCipherHealthService extends CipherHealthService {
   }
 
   /**
-   * Looks up one password's exposure count.
+   * Analyzes one password group: looks up its exposure count and scores each cipher's strength.
    *
    * Never errors: a failed lookup reports zero, so one unreachable request cannot cancel the batch
    * and discard every lookup that already succeeded.
    */
-  private lookupExposure(password: string): Observable<PasswordExposure> {
+  private analyzeGroup(
+    password: string,
+    cipherGroup: CipherView[],
+  ): Observable<PasswordGroupHealth> {
     return from(this.auditService.passwordLeaked(password)).pipe(
-      map((exposedCount) => ({ password, exposedCount, failed: false })),
-      catchError(() => of({ password, exposedCount: 0, failed: true })),
+      map((exposedCount) => ({ exposedCount, failed: false })),
+      catchError(() => of({ exposedCount: 0, failed: true })),
+      map(({ exposedCount, failed }) => ({
+        password,
+        exposedCount,
+        failed,
+        // Scored inside the fan-out on purpose. zxcvbn is synchronous and costs roughly a
+        // millisecond per cipher, so scoring the whole vault after the last lookup returns lands as
+        // one visible ~1s freeze. Here each group's scoring fills a gap between network responses.
+        strengthByCipherId: this.scoreGroup(cipherGroup),
+      })),
     );
   }
 
+  private scoreGroup(cipherGroup: CipherView[]): Map<string, number | undefined> {
+    const strengthByCipherId = new Map<string, number | undefined>();
+
+    for (const cipher of cipherGroup) {
+      strengthByCipherId.set(cipher.id, this.getPasswordStrength(cipher));
+    }
+
+    return strengthByCipherId;
+  }
+
   /**
-   * Fans each password's exposure result back out across every cipher sharing it, and folds in the
-   * locally computed strength and reuse results.
+   * Fans each group's exposure result back out across every cipher sharing the password, and folds
+   * in the strength scores computed during the fan-out.
    */
   private buildHealthMap(
     ciphersByPassword: Map<string, CipherView[]>,
-    exposures: PasswordExposure[],
+    groupHealths: PasswordGroupHealth[],
   ): Map<string, CipherHealthView> {
-    const exposureByPassword = new Map(exposures.map((e) => [e.password, e]));
-    const failed = exposures.filter((e) => e.failed);
+    const failed = groupHealths.filter((g) => g.failed);
 
     if (failed.length > 0) {
       const affectedCiphers = failed.reduce(
-        (total, e) => total + (ciphersByPassword.get(e.password)?.length ?? 0),
+        (total, g) => total + (ciphersByPassword.get(g.password)?.length ?? 0),
         0,
       );
       this.logService.warning(
-        `[DefaultCipherHealthService] ${failed.length} of ${exposures.length} exposure lookups failed, affecting ${affectedCiphers} ciphers; those passwords are reported as not exposed.`,
+        `[DefaultCipherHealthService] ${failed.length} of ${groupHealths.length} exposure lookups failed, affecting ${affectedCiphers} ciphers; those passwords are reported as not exposed.`,
       );
     }
 
     const healthMap = new Map<string, CipherHealthView>();
 
-    ciphersByPassword.forEach((cipherGroup, password) => {
-      const exposedCount = exposureByPassword.get(password)?.exposedCount ?? 0;
+    for (const { password, exposedCount, strengthByCipherId } of groupHealths) {
+      const cipherGroup = ciphersByPassword.get(password) ?? [];
       // A password held by a single cipher is not reuse, and reports a count of zero rather than one.
       const reuseCount = cipherGroup.length > 1 ? cipherGroup.length : 0;
 
       for (const cipher of cipherGroup) {
-        const weakPasswordScore = this.getPasswordStrength(cipher);
+        const weakPasswordScore = strengthByCipherId.get(cipher.id);
 
         healthMap.set(
           cipher.id,
@@ -170,7 +201,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
           }),
         );
       }
-    });
+    }
 
     return healthMap;
   }
