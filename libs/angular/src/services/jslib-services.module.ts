@@ -117,7 +117,7 @@ import {
   NoopDeepLinkRedirectService,
 } from "@bitwarden/common/auth/deep-link-redirect";
 import {
-  DefaultOrganizationInviteService,
+  NoopOrganizationInviteService,
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
 import {
@@ -193,7 +193,6 @@ import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/e
 import { PasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service";
 import { DefaultPasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/default-passkey-directory-api.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
@@ -217,6 +216,7 @@ import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-manage
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import {
@@ -416,6 +416,8 @@ import {
 } from "@bitwarden/state-internal";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 import {
+  AutoUnlockService,
+  DefaultAutoUnlockService,
   DefaultLockService,
   LockService,
   DefaultUnlockService,
@@ -601,6 +603,7 @@ const safeProviders: SafeProvider[] = [
       UserKeyRotationServiceAbstraction,
       CipherServiceAbstraction,
       SdkService,
+      StateProvider,
     ],
   }),
   safeProvider({
@@ -1053,11 +1056,20 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       LogService,
       BiometricsService,
-      PlatformUtilsServiceAbstraction,
-      StateServiceAbstraction,
       BiometricStateService,
       V2UpgradeTokenStateService,
+      AutoUnlockService,
+    ],
+  }),
+  safeProvider({
+    provide: AutoUnlockService,
+    useClass: DefaultAutoUnlockService,
+    deps: [
       KeyService,
+      StateServiceAbstraction,
+      StateProvider,
+      PlatformUtilsServiceAbstraction,
+      LogService,
     ],
   }),
   safeProvider({
@@ -1071,7 +1083,7 @@ const safeProviders: SafeProvider[] = [
     deps: [
       AccountServiceAbstraction,
       UserDecryptionOptionsServiceAbstraction,
-      KeyService,
+      AutoUnlockService,
       TokenServiceAbstraction,
       PolicyServiceAbstraction,
       BiometricStateService,
@@ -1763,25 +1775,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: OrganizationInviteService,
-    useClass: DefaultOrganizationInviteService,
-    deps: [
-      ApiServiceAbstraction,
-      LogoutService,
-      KeyService,
-      LegacyCompatKeyService,
-      EncryptService,
-      PolicyApiServiceAbstraction,
-      InternalPolicyService,
-      LogService,
-      OrganizationApiServiceAbstraction,
-      OrganizationUserApiService,
-      OrganizationInviteLinkApiService,
-      I18nServiceAbstraction,
-      GlobalStateProvider,
-      SdkService,
-      ConfigService,
-      DeepLinkRedirectService,
-    ],
+    useClass: NoopOrganizationInviteService,
+    deps: [],
   }),
   safeProvider({
     provide: SetInitialPasswordService,

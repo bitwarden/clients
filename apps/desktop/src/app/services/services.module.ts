@@ -60,21 +60,23 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
+import {
+  DefaultProcessReloadService,
+  ProcessReloadServiceAbstraction,
+} from "@bitwarden/common/key-management/process-reload";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
-  SharedUnlockLeaderService,
+  SharedUnlockPeerService,
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
-import { DefaultSharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-leader.service";
+import { DefaultSharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-peer.service";
 import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
@@ -146,7 +148,9 @@ import { LockService, UnlockService } from "@bitwarden/unlock";
 import {
   CipherFormGenerationService,
   DefaultSshImportPromptService,
+  DefaultVaultNavService,
   SshImportPromptService,
+  VaultNavService,
   VaultFilterServiceAbstraction,
   VaultFilterService,
   RoutedVaultFilterService,
@@ -205,8 +209,6 @@ import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
 import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop-set-initial-password.service";
 
-const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
-
 /**
  * Provider definitions used in the ngModule.
  * Add your provider definition here using the safeProvider function as a wrapper. This will give you type safety.
@@ -244,10 +246,6 @@ const safeProviders: SafeProvider[] = [
     multi: true,
   }),
   safeProvider({
-    provide: RELOAD_CALLBACK,
-    useValue: null,
-  }),
-  safeProvider({
     provide: LogServiceAbstraction,
     useClass: ElectronLogRendererService,
     deps: [],
@@ -272,7 +270,7 @@ const safeProviders: SafeProvider[] = [
     //
     // Setting the ACCESS_TOKEN_LOCATION=DISK environment variable forces the same disk-backed
     // behavior on any platform, for environments where the OS keyring is unavailable or
-    // undesirable (see `accessTokenLocation` in apps/desktop/src/utils.ts).
+    // undesirable (see `accessTokenLocation` in apps/desktop/src/main/platform-utils.main.ts).
     provide: SUPPORTS_SECURE_STORAGE,
     useValue:
       ELECTRON_SUPPORTS_SECURE_STORAGE &&
@@ -340,9 +338,7 @@ const safeProviders: SafeProvider[] = [
     deps: [
       PinServiceAbstraction,
       MessagingServiceAbstraction,
-      RELOAD_CALLBACK,
       VaultTimeoutSettingsService,
-      BiometricStateService,
       AccountServiceAbstraction,
       LogService,
       AuthServiceAbstraction,
@@ -410,18 +406,18 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: SharedUnlockLeaderService,
-    useClass: DefaultSharedUnlockLeaderService,
+    provide: SharedUnlockPeerService,
+    useClass: DefaultSharedUnlockPeerService,
     deps: [
       IpcService,
       AccountService,
       LockService,
-      KeyServiceAbstraction,
       PlatformUtilsServiceAbstraction,
       VaultTimeoutSettingsService,
       EnvironmentService,
       SharedUnlockSettingsService,
       UnlockService,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -584,6 +580,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SsoComponentService,
     useClass: DefaultSsoComponentService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: VaultNavService,
+    useClass: DefaultVaultNavService,
     deps: [],
   }),
   safeProvider({

@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/angular/auth/guards";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
@@ -39,13 +40,14 @@ import {
   TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import {
   LockComponent,
   ConfirmKeyConnectorDomainComponent,
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
-import { vaultFilterLegacyRedirectGuard } from "@bitwarden/vault";
+import { vaultFilterLegacyRedirectGuard, vaultScopeGuard } from "@bitwarden/vault";
 
 import { AccountSwitcherV2Component } from "../auth/components/account-switcher/account-switcher-v2.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
@@ -53,6 +55,7 @@ import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guar
 import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
+import { MyFoldersComponent } from "../vault/app/my-folders/my-folders.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
@@ -448,9 +451,39 @@ const routes: Routes = [
     children: [
       {
         path: "vault",
-        component: VaultComponent,
         canActivate: [vaultFilterLegacyRedirectGuard],
         data: { pageTitle: { key: "vault" } } satisfies RouteDataProperties,
+        children: [
+          {
+            path: "",
+            component: VaultComponent,
+          },
+          {
+            path: ":vaultId",
+            component: VaultComponent,
+            canActivate: [
+              canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
+              vaultScopeGuard,
+            ],
+          },
+          // The shared folder a vault has been drilled into. Drilling deeper replaces the segment
+          // rather than nesting under it: a folder's route names the vault it lives in, not the
+          // path taken to it.
+          {
+            path: ":vaultId/:collectionId",
+            component: VaultComponent,
+            canActivate: [
+              canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
+              vaultScopeGuard,
+            ],
+          },
+        ],
+      },
+      {
+        path: "folders",
+        component: MyFoldersComponent,
+        canActivate: [canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault")],
+        data: { pageTitle: { key: "myFolders" } } satisfies RouteDataProperties,
       },
       {
         path: "send",

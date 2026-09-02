@@ -43,10 +43,12 @@ import {
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
+  LogoutService,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
   PolicyService,
@@ -59,26 +61,29 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { DeepLinkRedirectService } from "@bitwarden/common/auth/deep-link-redirect";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
+import {
+  DefaultOrganizationInviteService,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
 import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/noop-auth-request-answering.service";
 import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
 import { DefaultChangeEmailService } from "@bitwarden/common/auth/services/change-email/default-change-email.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   DefaultSharedUnlockSettingsService,
-  SharedUnlockFollowerService,
+  SharedUnlockPeerService,
   SharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
-import { DefaultSharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-follower.service";
+import { DefaultSharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-peer.service";
 import {
   VaultTimeout,
   VaultTimeoutSettingsService,
@@ -144,6 +149,7 @@ import {
   EncryptService,
   LegacyCompatKeyService,
 } from "@bitwarden/legacy-crypto";
+import { OrganizationInviteLinkApiService } from "@bitwarden/organization-invite-link";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { LockService, UnlockService } from "@bitwarden/unlock";
 import {
@@ -206,6 +212,30 @@ const safeProviders: SafeProvider[] = [
     provide: DeepLinkRedirectService,
     useClass: WebDeepLinkRedirectService,
     deps: [RouterService],
+  }),
+  // Web-only override of the shared noop binding. Only web has routes that
+  // populate invite state or drive the accept flows; other clients use the noop.
+  safeProvider({
+    provide: OrganizationInviteService,
+    useClass: DefaultOrganizationInviteService,
+    deps: [
+      ApiService,
+      LogoutService,
+      KeyServiceAbstraction,
+      LegacyCompatKeyService,
+      EncryptService,
+      PolicyApiServiceAbstraction,
+      InternalPolicyService,
+      LogService,
+      OrganizationApiServiceAbstraction,
+      OrganizationUserApiService,
+      OrganizationInviteLinkApiService,
+      I18nServiceAbstraction,
+      GlobalStateProvider,
+      SdkService,
+      ConfigService,
+      DeepLinkRedirectService,
+    ],
   }),
   safeProvider(EventService),
   safeProvider({
@@ -314,7 +344,6 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       SdkService,
       OrganizationInviteService,
-      PolicyService,
     ],
   }),
   safeProvider({
@@ -460,18 +489,18 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: SharedUnlockFollowerService,
-    useClass: DefaultSharedUnlockFollowerService,
+    provide: SharedUnlockPeerService,
+    useClass: DefaultSharedUnlockPeerService,
     deps: [
       IpcService,
       AccountService,
       LockService,
-      KeyServiceAbstraction,
       PlatformUtilsService,
       VaultTimeoutSettingsService,
       EnvironmentService,
       SharedUnlockSettingsService,
       UnlockService,
+      ConfigService,
     ],
   }),
   safeProvider({
