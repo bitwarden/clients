@@ -4,7 +4,6 @@ import {
   SendView as SdkSendView,
   SendClient,
   SendAccessView as SdkSendAccessView,
-  SymmetricKey,
 } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
@@ -35,10 +34,7 @@ export class SendSdkDecryptionService {
     );
   }
 
-  async decryptSendAccess(
-    sendAccess: SendAccessResponse,
-    key: SymmetricKey,
-  ): Promise<SdkSendAccessView> {
+  async decryptSendAccess(sendAccess: SendAccessResponse, key: string): Promise<SdkSendAccessView> {
     const sdkAccessResponse = SendAccessResponse.toSdkAccessResponse(sendAccess);
     return SendClient.decrypt_send_access(key, sdkAccessResponse);
   }

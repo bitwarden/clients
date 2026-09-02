@@ -104,7 +104,7 @@ export class SendViewComponent implements OnInit {
       const useSendSdk = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
       const decSend = useSendSdk
         ? SendAccessView.fromSdk(
-            await this.sendSdkDecryptionService.decryptSendAccess(response, this.decKey.toSdk()),
+            await this.sendSdkDecryptionService.decryptSendAccess(response, this.key()),
           )
         : await sendAccess.decrypt(this.decKey);
       this.send.set(decSend);
