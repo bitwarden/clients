@@ -35,7 +35,8 @@ export class AppVaultFabComponent {
   private readonly router = inject(Router);
   private readonly dialogService = inject(DialogService);
 
-  private readonly tab?: chrome.tabs.Tab;
+  /* eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties */
+  private tab?: chrome.tabs.Tab;
 
   constructor() {
     void BrowserApi.getTabFromCurrentWindow()?.then((tab) => (this.tab = tab));
