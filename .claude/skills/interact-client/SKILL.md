@@ -170,6 +170,8 @@ Driver capabilities are documented in the references:
 - **Biometrics** → [references/biometrics.md](references/biometrics.md)
 - **Flight recorder** → [references/flight-recorder.md](references/flight-recorder.md)
 - **Log buffer** → [references/log-buffer.md](references/log-buffer.md)
+- **SDK debug capabilities** → [references/sdk-debug.md](references/sdk-debug.md) — read/write internal
+  SDK state (login method, key-store slots, state-registry get/set/list) via the typed `debug()` tree
 
 ### Messaging / menubar
 

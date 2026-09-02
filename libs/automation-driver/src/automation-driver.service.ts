@@ -2,6 +2,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { FlightRecorder } from "@bitwarden/logging";
 import { StorageServiceProvider } from "@bitwarden/storage-core";
@@ -16,6 +17,7 @@ import {
   LoggingCapability,
   ProcessReloadCapability,
   ReloadProcess,
+  SdkDebugCapability,
   StateCapability,
   ToastCapability,
 } from "./capabilities";
@@ -32,6 +34,7 @@ export class AutomationDriver {
   private readonly desktopNavigationCapability?: DesktopNavigationCapability;
   private readonly lockCapability: LockCapability;
   private readonly toastCapability?: ToastCapability;
+  private readonly sdkDebugCapability?: SdkDebugCapability;
 
   /**
    * Every parameter is required. The `undefined`-able ones are capabilities not every client
@@ -42,6 +45,8 @@ export class AutomationDriver {
    * @param biometricsController - Desktop only.
    * @param messagingService - Desktop only; backs menubar navigation.
    * @param toastService - `undefined` on clients without a UI.
+   * @param sdkService - `undefined` on clients without the WASM SDK; enables the debug
+   *   capabilities. Trailing and optional so existing call sites need not change.
    */
   constructor(
     configService: ConfigService,
@@ -56,6 +61,7 @@ export class AutomationDriver {
     private biometricsController: AutomationBiometricsController | undefined,
     messagingService: MessagingService | undefined,
     toastService: AutomationToastController | undefined,
+    sdkService?: SdkService,
   ) {
     this.featureFlagsCapability = new FeatureFlagsCapability(configService, stateProvider);
     this.stateCapability = new StateCapability(storageServiceProvider);
@@ -74,6 +80,10 @@ export class AutomationDriver {
 
     if (toastService != null) {
       this.toastCapability = new ToastCapability(toastService);
+    }
+
+    if (sdkService != null) {
+      this.sdkDebugCapability = new SdkDebugCapability(sdkService);
     }
 
     this.lockCapability = new LockCapability(
@@ -99,6 +109,7 @@ export class AutomationDriver {
     biometrics: AutomationBiometricsController | undefined,
     messagingService: MessagingService | undefined,
     toastService: AutomationToastController | undefined,
+    sdkService?: SdkService,
   ): void {
     new AutomationDriver(
       configService,
@@ -113,6 +124,7 @@ export class AutomationDriver {
       biometrics,
       messagingService,
       toastService,
+      sdkService,
     ).attachToGlobal(global);
   }
 
@@ -154,5 +166,9 @@ export class AutomationDriver {
 
   get toast(): ToastCapability | undefined {
     return this.toastCapability;
+  }
+
+  get debug(): SdkDebugCapability | undefined {
+    return this.sdkDebugCapability;
   }
 }
