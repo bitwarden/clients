@@ -16,12 +16,6 @@ interface VaultCrumb {
   route: string[];
 }
 
-/**
- * The shared folders page's breadcrumb trail: the organization vault, then the page itself.
- *
- * Projected into each client's `<app-header>` through its `breadcrumbs` slot, so the crumbs resolve
- * the `HeaderContext` that lets the active crumb stand in for the page's `<h1>`.
- */
 @Component({
   selector: "vault-shared-folders-breadcrumbs",
   templateUrl: "./shared-folders-breadcrumbs.component.html",
@@ -35,12 +29,6 @@ interface VaultCrumb {
 export class SharedFoldersBreadcrumbsComponent {
   private readonly organization = injectVaultOrganization();
 
-  /**
-   * The organization crumb, or `undefined` until the organization list loads. The trail then opens
-   * on the shared folders crumb rather than flashing a nameless vault.
-   *
-   * Its tile is {@link orgIconTile}, matching the side nav's vault entry.
-   */
   protected readonly vaultCrumb = computed<VaultCrumb | undefined>(() => {
     const organization = this.organization();
 

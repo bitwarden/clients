@@ -1,7 +1,6 @@
 <bit-breadcrumbs>
   @if (vaultCrumb(); as crumb) {
     <bit-breadcrumb [route]="crumb.route">
-      <!-- Decorative: the vault name beside it already names the crumb. -->
       <bit-icon-tile
         slot="start"
         [icon]="crumb.tile.icon"
