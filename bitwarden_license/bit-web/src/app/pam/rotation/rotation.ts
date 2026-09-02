@@ -71,6 +71,32 @@ export const TargetSystemKind = Object.freeze({
 } as const satisfies Record<string, SdkTargetSystemKind>);
 export type TargetSystemKind = SdkTargetSystemKind;
 
+/**
+ * The i18n id naming each {@link TargetSystemKind}, for every surface that shows one.
+ *
+ * An exhaustive `Record` rather than a switch with a default, because a default is what lets a kind
+ * nobody has named yet borrow another kind's label. Here a kind the SDK gains fails to compile
+ * until someone says what to call it.
+ *
+ * `Unknown` reuses the generic `unknown` message: the kind arrived from a newer server, so there is
+ * no honest name for it, and "Unknown" says that where an empty cell would read as a target with no
+ * integration at all.
+ */
+export const TargetSystemKindLabel = Object.freeze({
+  entra: "pamTargetSystemKindEntra",
+  mssql: "pamTargetSystemKindMssql",
+  custom_script: "pamTargetSystemKindCustomScript",
+  active_directory: "pamTargetSystemKindActiveDirectory",
+  unknown: "unknown",
+} as const satisfies Record<TargetSystemKind, string>);
+
+/** The kinds offered when creating an automatic target system, in presentation order. */
+export const SELECTABLE_TARGET_SYSTEM_KINDS = [
+  TargetSystemKind.Entra,
+  TargetSystemKind.Mssql,
+  TargetSystemKind.CustomScript,
+] as const;
+
 /** Lifecycle state of a target system. `Disabled` stops new jobs; in-flight jobs finish. */
 export const TargetSystemStatus = Object.freeze({
   Active: "active",

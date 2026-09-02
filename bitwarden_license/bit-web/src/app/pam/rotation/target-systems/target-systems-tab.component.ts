@@ -26,6 +26,7 @@ import { DaemonsService } from "../daemons/daemons.service";
 import {
   TargetSystemId,
   TargetSystemKind,
+  TargetSystemKindLabel,
   TargetSystemMethod,
   TargetSystemStatus,
   TargetSystem,
@@ -97,7 +98,10 @@ export class TargetSystemsTabComponent {
 
   private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
 
-  /** Expose const objects for template comparisons. */
+  /**
+   * An Angular template can only resolve names against the component instance, so a module-level
+   * const has to be held as a field before the template can reference it.
+   */
   protected readonly TargetSystemStatus = TargetSystemStatus;
   protected readonly TargetSystemMethod = TargetSystemMethod;
 
@@ -228,16 +232,7 @@ export class TargetSystemsTabComponent {
   }
 
   private kindLabel(kind: TargetSystemKind): string {
-    switch (kind) {
-      case TargetSystemKind.Entra:
-        return this.i18nService.t("pamTargetSystemKindEntra");
-      case TargetSystemKind.Mssql:
-        return this.i18nService.t("pamTargetSystemKindMssql");
-      case TargetSystemKind.CustomScript:
-        return this.i18nService.t("pamTargetSystemKindCustomScript");
-      default:
-        return "";
-    }
+    return this.i18nService.t(TargetSystemKindLabel[kind]);
   }
 
   private showError(e: unknown): void {
