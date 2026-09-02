@@ -4,5 +4,6 @@ export * from "./feature-flags";
 export * from "./lock";
 export * from "./logging";
 export * from "./process-reload";
+export * from "./sdk-introspect";
 export * from "./state";
 export * from "./toast";

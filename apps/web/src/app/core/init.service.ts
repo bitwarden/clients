@@ -15,6 +15,7 @@ import { SharedUnlockPeerService } from "@bitwarden/common/key-management/shared
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
@@ -66,6 +67,7 @@ export class InitService {
     private logService: LogService,
     private configService: ConfigService,
     private toastService: ToastService,
+    private sdkService: SdkService,
   ) {}
 
   init() {
@@ -133,6 +135,7 @@ export class InitService {
         undefined,
         undefined,
         this.toastService,
+        this.sdkService,
       );
     };
   }
