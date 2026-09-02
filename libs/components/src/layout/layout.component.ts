@@ -158,7 +158,7 @@ export class LayoutComponent {
     if (!this.hasSideNav()) {
       col1 = "0px"; // no side nav projected — collapse the column entirely
     } else if (navOpen && navPush) {
-      col1 = `${this.sideNavService.widthRem()}rem`; // full nav, push+open
+      col1 = `${this.sideNavService.dragDisplayWidth() ?? this.sideNavService.widthRem()}rem`;
     } else if (navPush || siderailPush) {
       col1 = "auto"; // siderail in flow, size naturally
     } else {

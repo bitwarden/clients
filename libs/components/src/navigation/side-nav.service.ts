@@ -165,6 +165,7 @@ export class SideNavService {
       // Dragging from collapsed state — drive visual width via dragDisplayWidth without
       // changing `open`, so no component adopts open-state styling prematurely.
       if (newWidthInRem < this.CLOSED_WIDTH) {
+        this.dragDisplayWidth.set(null);
         this.open.set(false);
         return;
       }
