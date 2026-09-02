@@ -1093,6 +1093,13 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
     expect(el.querySelector("#target-system-edit_checkbox_session-termination")).toBeNull();
   });
 
+  it("keeps the not-supported notice off a kind that does terminate sessions", () => {
+    const el = fixture.nativeElement as HTMLElement;
+    patchKind(TargetSystemKind.Entra);
+
+    expect(el.querySelector("#target-system-edit_session-termination-unsupported")).toBeNull();
+  });
+
   it("renders the character-class error only once every class is cleared", () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector("#target-system-edit_error_character-class")).toBeNull();
@@ -1322,6 +1329,75 @@ describe("TargetSystemEditComponent — edit mode", () => {
       expect(caseToast.showToast).not.toHaveBeenCalled();
     },
   );
+
+  async function buildEditFixture(
+    system: TargetSystemView,
+  ): Promise<
+    [ComponentFixture<TargetSystemEditComponent>, ReturnType<typeof mock<RotationSdkService>>]
+  > {
+    TestBed.resetTestingModule();
+    const sdk = mock<RotationSdkService>();
+    sdk.listTargetSystems.mockResolvedValue([system]);
+    sdk.updateTargetSystem.mockResolvedValue(undefined);
+    await setupEdit(sdk);
+    const fx = TestBed.createComponent(TargetSystemEditComponent);
+    fx.detectChanges();
+    await fx.whenStable();
+    fx.detectChanges();
+    return [fx, sdk];
+  }
+
+  it("keeps a stored session-termination capability the form cannot express", async () => {
+    const [fx, sdk] = await buildEditFixture(
+      makeSystem({
+        sealed: targetSystemSealedFields({
+          kind: TargetSystemKind.Unknown,
+          supportsSessionTermination: true,
+        }),
+      }),
+    );
+    const comp = fx.componentInstance as unknown as {
+      nameForm: { patchValue: (v: unknown) => void };
+      showRetainedTermination: () => boolean;
+      submitEdit: () => Promise<void>;
+    };
+
+    comp.nameForm.patchValue({ name: "Renamed" });
+    await comp.submitEdit();
+
+    expect(sdk.updateTargetSystem).toHaveBeenCalledWith(
+      ORG_ID,
+      sysId("sys-1"),
+      expect.objectContaining({ name: "Renamed", supportsSessionTermination: true }),
+    );
+    expect(comp.showRetainedTermination()).toBe(true);
+  });
+
+  it("claims no session-termination capability the target was not sealed with", async () => {
+    const [fx, sdk] = await buildEditFixture(
+      makeSystem({
+        sealed: targetSystemSealedFields({
+          kind: TargetSystemKind.Unknown,
+          supportsSessionTermination: false,
+        }),
+      }),
+    );
+    const comp = fx.componentInstance as unknown as {
+      policyForm: { patchValue: (v: unknown) => void };
+      showRetainedTermination: () => boolean;
+      submitEdit: () => Promise<void>;
+    };
+
+    comp.policyForm.patchValue({ supportsSessionTermination: true });
+    await comp.submitEdit();
+
+    expect(sdk.updateTargetSystem).toHaveBeenCalledWith(
+      ORG_ID,
+      sysId("sys-1"),
+      expect.objectContaining({ supportsSessionTermination: false }),
+    );
+    expect(comp.showRetainedTermination()).toBe(false);
+  });
 });
 
 describe("TargetSystemEditComponent — system id (rendered)", () => {
