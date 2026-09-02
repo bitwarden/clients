@@ -54,11 +54,8 @@ import { TableVirtualScrollStrategy } from "./table-virtual-scroll.strategy";
 const SELECTION_COLUMN_WIDTH = "56px";
 
 /**
- * Fixed heights (px) of group headers when virtualized. The scroll strategy needs
- * known item heights, and the rendered header is pinned to these — so they must
- * match the header chrome defined in {@link BitTableV2Component.groupHeaderClass}.
- * The projected header content is a single-line label, so the height is the table's
- * to define, not the consumer's.
+ * Fixed heights (px) of group headers when virtualized. Must match the header chrome
+ * in {@link BitTableV2Component.groupHeaderClass}.
  */
 const GROUP_HEADER_HEIGHT = 40;
 const SUBGROUP_HEADER_HEIGHT = 28;
@@ -89,8 +86,7 @@ function sortAccessor<T>(row: T, column: string): string | number {
  * Returns a sorted copy of `data` by `column`/`direction`, using `fn` when the
  * column supplies one. The default comparison (number/string coercion, null
  * handling) is ported from Angular Material's `MatTableDataSource` (MIT,
- * Copyright (c) 2024 Google LLC). v1's `TableDataSource` carries its own copy;
- * the two are intentionally kept separate since v1 is on its way out.
+ * Copyright (c) 2024 Google LLC).
  */
 function sortRows<T>(
   data: readonly T[],
@@ -140,18 +136,14 @@ function sortRows<T>(
   });
 }
 
-/**
- * A flattened body item: either a data row, or a group header (with its source
- * row-group and the number of rows in that group). Iterated by the non-virtualized
- * body so grouped and ungrouped rendering share one path.
- */
+/** A flattened body item: a data row, or a group header with its row-group and count. */
 type RenderItem<T> =
   | { kind: "row"; row: T }
   | { kind: "group"; group: BitRowGroupComponent<T>; count: number; level: number };
 
 /**
- * **Beta.** `bit-table-v2` is still stabilizing; its still getting some polish.
- * Do not adopt it in production without approval from the UI Foundation team.
+ * **Beta.** `bit-table-v2` is still stabilizing. Do not adopt it in production
+ * without approval from the UI Foundation team.
  */
 @Component({
   selector: "bit-table-v2",
@@ -210,24 +202,20 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 {
   protected readonly noResultsSvg = NoResults;
   /**
-   * The typed contract — row type `T`, synthetic columns `S`, filter shape `F` —
-   * plus the row data and the typed `columns.*` references bound to `*bitCellDef`.
-   * See {@link TableDef} / {@link defineTable}. Defaults to an empty definition, so
-   * manual-mode tables need not bind it.
+   * The typed contract — row type `T`, synthetic columns `S`, filter shape `F` — plus
+   * the row data. See {@link defineTable}. Optional; manual-mode tables need not bind it.
    */
   readonly tableDef = input(new TableDef<T, S>(signal<T[]>([])));
 
   /**
-   * The columns to display, in order — a column shows iff it's listed, at the
-   * position it's listed. Omit to show every projected `<bit-column>` in
-   * declaration order. Set a new array to reorder or hide at runtime.
+   * The columns to display, in order. Omit to show every projected `<bit-column>` in
+   * declaration order.
    */
   readonly displayedColumns = input<readonly ColumnName<T, S>[]>();
 
   /**
-   * Render style. `"table"` (default) draws the bordered column grid; `"list"`
-   * drops the table chrome and renders each row as a standalone `bit-item`-style
-   * card. The data, filtering, sort, and selection engine is identical in both.
+   * Render style. `"table"` draws the bordered column grid; `"list"` renders each row
+   * as a standalone card.
    */
   readonly presentation = input<"table" | "list">("table");
 
@@ -238,11 +226,9 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   readonly loading = input(false, { transform: booleanAttribute });
 
   /**
-   * Client-side row test, given a row and the chips' combined value object
-   * ({@link filterValues}). The table's filter-values type `F` is inferred from
+   * Client-side row test, given a row and {@link filterValues}. `F` is inferred from
    * this fn's `values` parameter — annotate it (`(row, f: Filters) => …`) to type
-   * `filterValues()`. Omit for server-side filtering (read `filterValues` to build
-   * a query and feed pre-filtered rows to the def's `data`).
+   * `filterValues()`. Omit for server-side filtering.
    */
   readonly filter = input<(row: T, values: F) => boolean>();
 
@@ -256,19 +242,15 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   readonly selectedChange = output<readonly T[]>();
 
   /**
-   * Fixed row height in pixels for virtual scrolling. Setting it turns the
-   * table into a virtual scroll viewport — virtual scrolling needs predictable
-   * row geometry, so give columns explicit widths. Needs a bounded height —
-   * set {@link height}.
+   * Fixed row height in pixels. Setting it turns the table into a virtual scroll
+   * viewport; give columns explicit widths, and set {@link height}.
    */
   readonly virtualRowHeight = input<number>();
 
   /**
-   * How tall the table is. Omit to grow to content (manual tables size via a CSS
-   * class instead). `"fill"` grows to the host's height and scrolls the body within
-   * it — use inside a bounded, full-height container. A number caps the body at that
-   * many rows (minimum 4) before it scrolls; that cap needs a known row height, so it
-   * applies only when {@link virtualRowHeight} is set and is otherwise a no-op.
+   * How tall the table is. Omit to grow to content. `"fill"` grows to the host's
+   * height and scrolls the body within it. A number caps the body at that many rows
+   * (minimum 4), and applies only when {@link virtualRowHeight} is set.
    */
   readonly height = input<"fill" | number>();
 
@@ -279,20 +261,15 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   readonly loadingRows = input(3);
 
   /**
-   * Syncs sort, filters, and pagination to the URL query string, namespaced under
-   * this prefix — e.g. `queryParam="vault"` yields `?vault.sort=name&vault.direction=asc&vault.type=login`.
-   * Set it to enable URL sync (omit to disable); a distinct prefix per table lets
-   * several coexist on one page. On load, params restore state (winning over
-   * `[filters]` and `defaultSort`); changes write back with `replaceUrl`. Requires
-   * a router in context — a no-op without one (e.g. Storybook, a dialog).
+   * Syncs sort, filters, and pagination to the URL query string under this prefix —
+   * e.g. `queryParam="vault"` yields `?vault.sort=name&vault.type=login`. On load,
+   * params win over `[filters]` and `defaultSort`. A no-op without a router in context.
    */
   readonly queryParam = input<string>();
 
   /**
-   * The table's combined URL state — filter values plus the sort/direction/page/
-   * pageSize keys — mirrored to the `queryParam` namespace. Seeds from the URL on
-   * first read (so restore and chip seeding pull the shared-link values) and writes
-   * back on change. A no-op signal when `queryParam` is unset or there's no router.
+   * The table's combined URL state, mirrored to the `queryParam` namespace. Seeds from
+   * the URL on first read. A no-op signal when `queryParam` is unset or there's no router.
    */
   private readonly urlStore = queryParamStore<ParamState>(this.queryParam);
 
@@ -312,8 +289,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   readonly filterControls = this._filters.asReadonly();
 
   /**
-   * The chips' combined value, keyed by each chip's `key` — like a `FormGroup`'s
-   * `.value`. Drives {@link filter} and is what you read for a server query.
+   * The chips' combined value, keyed by each chip's `key`. Drives {@link filter}, and
+   * is what you read for a server query.
    */
   readonly filterValues = computed<F>(() => {
     const values: Record<string, unknown> = {};
@@ -324,9 +301,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   });
 
   /**
-   * Rows passing {@link filter} given {@link filterValues} (pre-sort). The render
-   * set, the scope for select-all, and the paginator's total. With no `filter`
-   * configured this is the model's data unchanged.
+   * Rows passing {@link filter} given {@link filterValues}, pre-sort. Also the scope
+   * for select-all and the paginator's total.
    */
   readonly filtered = computed<T[]>(() => {
     const filter = this.filter();
@@ -357,28 +333,37 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   }
 
   /**
-   * Faceted count for a chip option: rows matching {@link filter} with `key` pinned
-   * to `value` and every other active filter still applied. `undefined` with no
-   * `[filter]` (server-side) — the chip then shows an explicit `count` instead.
+   * Count for a chip option: rows matching {@link filter} with `key` pinned to
+   * `value` and no other filter applied. `undefined` with no `[filter]`
+   * (server-side) — the chip then shows an explicit `count` instead. Absolute rather
+   * than faceted, so a count doesn't move as unrelated filters change.
    */
   optionCount(key: string, value: unknown): number | undefined {
     const filter = this.filter();
     if (!filter) {
       return undefined;
     }
-    const values = { ...(this.filterValues() as Record<string, unknown>), [key]: value } as F;
+    const values = { ...this.clearedFilterValues(), [key]: value } as F;
     return this.tableDef()
       .data()
       .filter((row) => filter(row, values)).length;
   }
 
+  /** Every chip at its cleared value — the baseline {@link optionCount} counts against. */
+  private readonly clearedFilterValues = computed<Record<string, unknown>>(() => {
+    const values: Record<string, unknown> = {};
+    for (const control of this._filters()) {
+      values[control.key()] = control.clearedValue();
+    }
+    return values;
+  });
+
   /** Chips already seeded from {@link filters}, so each is seeded at most once. */
   private readonly seeded = new WeakSet<FilterControl>();
 
   /**
-   * A `bit-search` projected anywhere into the table (e.g. its toolbar). Adopted
-   * automatically as a `search` filter — no bridge directive — so its term joins
-   * {@link filterValues} under {@link SEARCH_FILTER_KEY}.
+   * A `bit-search` projected anywhere into the table. Adopted automatically, so its
+   * term joins {@link filterValues} under {@link SEARCH_FILTER_KEY}.
    */
   private readonly search = contentChild(SearchComponent, { descendants: true });
 
@@ -392,6 +377,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       const control: FilterControl = {
         key: signal(SEARCH_FILTER_KEY),
         value: search.value,
+        clearedValue: signal(""),
         active: computed(() => (search.value() ?? "") !== ""),
         setValue: (value) => search.writeValue(value == null ? "" : String(value)),
       };
@@ -510,8 +496,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   /**
    * Applies URL state to sort and pagination once, then opens the write-back gate.
-   * Filters restore in the seeding effect as their chips register. Runs before the
-   * `defaultSort` fallback so a sorted link wins.
+   * Runs before the `defaultSort` fallback so a sorted link wins.
    */
   private restoreFromUrl(): void {
     const fromUrl = this.urlStore();
@@ -540,10 +525,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   private readonly _columns = signal<BitColumnComponent[]>([]);
 
   /**
-   * Whether any `<bit-column>` has been projected. When false, the table renders
-   * in manual mode — the consumer's `<bit-header-row>` / `<bit-row>` render
-   * directly with no column registry. Use column-def mode for sort, selection,
-   * filter, or virtualization.
+   * Whether any `<bit-column>` has been projected. When false the table renders in
+   * manual mode, which has no sort, selection, filter, or virtualization.
    */
   protected readonly hasColumns = computed(() => this._columns().length > 0);
 
@@ -551,9 +534,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   private readonly _groups = signal<BitRowGroupComponent<T>[]>([]);
 
   /**
-   * Whether groups actually render. `<bit-row-group>` is a `list`-presentation
-   * feature; in `table` presentation groups are ignored (and a warning is logged),
-   * so the body falls back to flat rows.
+   * Whether groups actually render. `<bit-row-group>` is `list`-only; in `table`
+   * presentation groups are ignored and a warning is logged.
    */
   protected readonly groupingActive = computed(
     () => this.presentation() === "list" && this._groups().length > 0,
@@ -570,9 +552,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   }
 
   /**
-   * Header chrome for a group at `level` (0 = top, 1 = subgroup). A muted subheader
-   * in `list`; subgroups are indented. (Grouping no-ops in `table` presentation, so
-   * the table-mode style is kept only for coherence.)
+   * Header chrome for a group at `level` (0 = top, 1 = subgroup).
    */
   protected groupHeaderClass(level: number): string {
     if (this.presentation() !== "list") {
@@ -598,9 +578,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   }
 
   /**
-   * Registered columns resolved against {@link displayedColumns}: shown in its
-   * order, omitting any name with no registered `<bit-column>`. When
-   * `displayedColumns` is omitted, every registered column shows in declaration order.
+   * Registered columns resolved against {@link displayedColumns}, omitting any name
+   * with no registered `<bit-column>`.
    */
   readonly effectiveColumns = computed(() => {
     const registered = this._columns();
@@ -639,11 +618,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   });
 
   /**
-   * The table's horizontal scroll position, shared across its scroll containers —
-   * the header row and the body (the non-virtualized scroll div or the CDK
-   * viewport). {@link SyncScrollLeftDirective} two-way binds each to this signal,
-   * so scrolling any one moves them all in lockstep: the columns stay aligned
-   * while the header stays pinned vertically.
+   * The table's horizontal scroll position, shared across the header row and the body.
+   * {@link SyncScrollLeftDirective} two-way binds each to this signal.
    */
   protected readonly horizontalScroll = signal(0);
 
@@ -685,9 +661,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   ]);
 
   /**
-   * Rendered rows: {@link filtered} sorted by {@link sort} (using the column's
-   * `sortFn` or the default), then sliced to a projected paginator's page (unless
-   * it's in server-side mode, where the data already holds only the page).
+   * Rendered rows: {@link filtered} sorted by {@link sort}, then sliced to a projected
+   * paginator's page unless it's in server-side mode.
    */
   protected readonly rows = computed(() => {
     const filtered = this.filtered();
@@ -706,10 +681,9 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   });
 
   /**
-   * The non-virtualized body's render list: {@link rows} as-is when ungrouped, or
-   * interleaved group headers and rows when `<bit-row-group>`s are projected. Each
-   * row joins the first group whose `match` claims it (declaration order); empty
-   * groups are skipped, and rows no group claims trail in a headerless block.
+   * The non-virtualized body's render list: {@link rows} as-is when ungrouped, else
+   * interleaved headers and rows. A row joins the first group whose `match` claims it;
+   * empty groups are skipped, and unclaimed rows trail in a headerless block.
    */
   protected readonly renderItems = computed<RenderItem<T>[]>(() => {
     const rows = this.rows();
@@ -778,9 +752,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   });
 
   /**
-   * Per-item pixel heights for {@link TableVirtualScrollStrategy}, in render order:
-   * data rows use {@link virtualRowHeight}, group headers use the fixed
-   * {@link headerHeight} for their level. Empty until {@link virtualRowHeight} is set.
+   * Per-item pixel heights for {@link TableVirtualScrollStrategy}, in render order.
+   * Empty until {@link virtualRowHeight} is set.
    */
   protected readonly itemHeights = computed<number[]>(() => {
     const rowHeight = this.virtualRowHeight();
@@ -804,8 +777,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   /**
    * trackBy for the render list — a header by its group, a row by the consumer's
-   * {@link trackBy} (falling back to row identity). Shared by the virtualized
-   * `cdkVirtualFor` and the non-virtualized `@for`.
+   * {@link trackBy}, falling back to row identity.
    */
   protected readonly trackRenderItem: TrackByFunction<RenderItem<T>> = (index, item) => {
     if (item.kind !== "row") {
@@ -816,9 +788,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   };
 
   /**
-   * Virtual-scroll strategy for the viewport, provided to it via
-   * `VIRTUAL_SCROLL_STRATEGY`. Reads {@link itemHeights} lazily; the constructor
-   * effect nudges it to re-render when heights change.
+   * Virtual-scroll strategy, provided to the viewport via `VIRTUAL_SCROLL_STRATEGY`.
+   * Reads {@link itemHeights} lazily; the constructor effect re-renders on change.
    */
   readonly scrollStrategy = new TableVirtualScrollStrategy(this.itemHeights);
 
@@ -836,8 +807,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   );
 
   /**
-   * Pixel height for the virtual-scroll viewport: the rows' natural height capped
-   * at {@link maxRows} rows. The viewport needs an explicit height because CDK
+   * Pixel height for the virtual-scroll viewport, capped at {@link maxRows} rows. CDK
    * positions rows absolutely, so they contribute no in-flow height.
    */
   protected readonly viewportHeight = computed<string | undefined>(() => {
@@ -903,9 +873,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   }
 
   /**
-   * Cycles the sort on a header click. The column name is a plain `string` (the
-   * key is type-erased off the projected `<bit-column>`), so it's cast to the
-   * typed sort state.
+   * Cycles the sort on a header click. The column name is type-erased off the
+   * projected `<bit-column>`, so it's cast to the typed sort state.
    */
   toggleSort(col: BitColumnComponent): void {
     const name = col.name();

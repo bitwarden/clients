@@ -44,7 +44,6 @@ const inactiveStyles = [
   "aria-disabled:tw-pointer-events-none",
 ];
 
-// Variant color mappings using design token system
 const variantStyles: Record<ChipVariant, string[]> = {
   primary: [
     "tw-bg-bg-brand-softer",
@@ -56,6 +55,7 @@ const variantStyles: Record<ChipVariant, string[]> = {
     "has-[a:hover]:tw-bg-bg-brand-soft",
     "has-[button:focus-visible:not([bit-chip-dismiss-button])]:tw-bg-bg-brand-soft",
     "has-[a:focus-visible]:tw-bg-bg-brand-soft",
+    "has-[[aria-expanded=true]]:tw-bg-bg-brand-soft",
   ],
   subtle: [
     "tw-bg-bg-primary",
@@ -67,6 +67,7 @@ const variantStyles: Record<ChipVariant, string[]> = {
     "has-[a:hover]:tw-bg-bg-quaternary",
     "has-[button:focus-visible:not([bit-chip-dismiss-button])]:tw-bg-bg-quaternary",
     "has-[a:focus-visible]:tw-bg-bg-quaternary",
+    "has-[[aria-expanded=true]]:tw-bg-bg-quaternary",
   ],
   "accent-primary": [
     "tw-bg-bg-accent-primary-soft",
@@ -78,6 +79,7 @@ const variantStyles: Record<ChipVariant, string[]> = {
     "has-[a:hover]:tw-bg-bg-accent-primary-medium",
     "has-[button:focus-visible:not([bit-chip-dismiss-button])]:tw-bg-bg-accent-primary-medium",
     "has-[a:focus-visible]:tw-bg-bg-accent-primary-medium",
+    "has-[[aria-expanded=true]]:tw-bg-bg-accent-primary-medium",
   ],
   "accent-secondary": [
     "tw-bg-bg-accent-secondary-soft",
@@ -89,6 +91,7 @@ const variantStyles: Record<ChipVariant, string[]> = {
     "has-[a:hover]:tw-bg-bg-accent-secondary-medium",
     "has-[button:focus-visible:not([bit-chip-dismiss-button])]:tw-bg-bg-accent-secondary-medium",
     "has-[a:focus-visible]:tw-bg-bg-accent-secondary-medium",
+    "has-[[aria-expanded=true]]:tw-bg-bg-accent-secondary-medium",
   ],
 };
 

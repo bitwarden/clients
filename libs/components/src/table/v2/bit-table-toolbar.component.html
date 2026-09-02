@@ -34,7 +34,7 @@
     removed) below md so the chips stay instantiated to back the dialog and the
     small-screen active-filter chips below.
   -->
-  <div bitOverflowList [gap]="8" [items]="overflowItems()" [class]="filterRowClasses()">
+  <div #filterRow bitOverflowList [gap]="8" [items]="overflowItems()" [class]="filterRowClasses()">
     <ng-content select="bit-filter-menu, bit-filter-toggle, bit-filter-divider"></ng-content>
     @if (appliedCount()) {
       <button
