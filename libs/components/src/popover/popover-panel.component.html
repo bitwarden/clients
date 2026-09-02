@@ -1,0 +1,14 @@
+<ng-template>
+  <bit-popover-base
+    [accessibleName]="accessibleName()"
+    class="has-[:focus-visible]:tw-outline tw-outline-border-focus tw-outline-2 tw-outline-offset-2 tw-rounded-xl"
+  >
+    <div
+      class="tw-p-6 [outline:none] tw-overflow-auto tw-max-h-[25rem]"
+      tabindex="0"
+      cdkFocusInitial
+    >
+      <ng-content></ng-content>
+    </div>
+  </bit-popover-base>
+</ng-template>

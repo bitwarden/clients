@@ -3,6 +3,8 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
+import { TooltipDirective } from "../tooltip";
+
 import { BadgeComponent } from "./badge.component";
 
 export default {
@@ -21,7 +23,9 @@ export default {
   },
 } as Meta<BadgeComponent>;
 
-type Story = StoryObj<BadgeComponent>;
+type BadgeArgs = BadgeComponent & Pick<TooltipDirective, "tooltipPosition">;
+
+type Story = StoryObj<BadgeArgs>;
 
 export const Default: Story = {
   render: (args) => ({
@@ -50,7 +54,7 @@ export const NoStartIcon: Story = {
 
 export const AllVariants: Story = {
   render: () => ({
-    template: `
+    template: /*html*/ `
       <div class="tw-space-y-4">
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Primary</h3>
@@ -108,11 +112,7 @@ export const Truncated: Story = {
     template: /*html*/ `
       <div class="tw-flex tw-flex-col tw-gap-4">
         <div>
-          <span class="tw-text-main tw-block tw-mb-2">Short text (no truncation, no tooltip):</span>
-          <bit-badge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>Short</bit-badge>
-        </div>
-        <div>
-          <span class="tw-text-main tw-block tw-mb-2">Long text (auto-truncates with title on hover):</span>
+          <span class="tw-text-main tw-block tw-mb-2">Long text (auto-truncates with tooltip on hover; default behavior):</span>
           <bit-badge ${formatArgsForCodeSnippet<BadgeComponent>(args)}>This is a very long badge text that will automatically truncate</bit-badge>
         </div>
         <div>
@@ -122,4 +122,27 @@ export const Truncated: Story = {
       </div>
     `,
   }),
+};
+
+export const CustomTooltip = {
+  // typing removed because TS doesn't know about aliased inputs (bitTooltip)
+  render: (args: any) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-ms-10">
+        <bit-badge ${formatArgsForCodeSnippet<BadgeArgs>(args)}>
+          Custom text and position
+        </bit-badge>
+      </div>
+    `,
+  }),
+  args: {
+    variant: "primary",
+    bitTooltip: "Different text than badge text",
+    tooltipPosition: "below-center",
+  },
+  parameters: {
+    // Snapshot does not provide any value in this story since the tooltip is the purpose
+    chromatic: { disableSnapshot: true },
+  },
 };

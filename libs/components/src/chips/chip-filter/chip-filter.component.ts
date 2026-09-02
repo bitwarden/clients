@@ -133,7 +133,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
   private pendingValue?: T;
 
   constructor() {
-    this.baseChip.variant.set("subtle");
+    this.baseChip.variant.set("filter");
     this.baseChip.hasTrailingIcon.set(true);
 
     // Sync component's disabled state to BaseChipDirective
