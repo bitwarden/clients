@@ -11161,6 +11161,10 @@
     "message": "Version history",
     "description": "Menu option to view the version history of a secret."
   },
+  "noVersionHistory": {
+    "message": "No version history",
+    "description": "Empty state shown when a secret has no current value and no previous versions."
+  },
   "secretProjectAssociationDescription": {
     "message": "Select projects that the secret will be associated with. Only organization users with access to these projects will be able to see the secret.",
     "description": "A prompt explaining how secrets can be associated with projects."

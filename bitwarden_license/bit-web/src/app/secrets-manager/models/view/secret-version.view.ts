@@ -3,5 +3,4 @@ export class SecretVersionView {
   secretId!: string;
   value!: string;
   versionDate!: string;
-  editorName!: string;
 }

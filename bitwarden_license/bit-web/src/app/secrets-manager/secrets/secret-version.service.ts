@@ -8,7 +8,12 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import {
+  DECRYPT_ERROR,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { SecretVersionView } from "../models/view/secret-version.view";
 
@@ -43,17 +48,13 @@ export class SecretVersionService {
     const r = await this.apiService.send("GET", `/secrets/${secretId}/versions`, null, true, true);
 
     const response = new SecretVersionListResponse(r);
-    return await this.createSecretVersionViews(organizationId, response.versions);
-  }
+    const views = await this.createSecretVersionViews(organizationId, response.versions);
 
-  /**
-   * Restores a secret to a specific version
-   * @param secretId - Secret ID to restore
-   * @param versionId - Version ID to restore to
-   */
-  async restoreVersion(secretId: string, versionId: string): Promise<void> {
-    const request = { versionId };
-    await this.apiService.send("PUT", `/secrets/${secretId}/versions/restore`, request, true, true);
+    // The API does not guarantee an order, so sort newest first to match how the
+    // history is presented.
+    return views.sort(
+      (a, b) => new Date(b.versionDate).getTime() - new Date(a.versionDate).getTime(),
+    );
   }
 
   private async createSecretVersionViews(
@@ -77,11 +78,22 @@ export class SecretVersionService {
     view.id = response.id;
     view.secretId = response.secretId;
     view.versionDate = response.versionDate;
-    view.editorName = response.editorName;
 
     // Decrypt the value
-    view.value = await this.encryptService.decryptString(new EncString(response.value), orgKey);
+    view.value = await this.decryptField(new EncString(response.value), orgKey);
 
     return view;
+  }
+
+  /**
+   * Decrypts a single field, returning a sentinel rather than throwing so that one
+   * undecryptable version does not discard the entire history.
+   */
+  private async decryptField(encString: EncString, orgKey: SymmetricCryptoKey): Promise<string> {
+    try {
+      return await this.encryptService.decryptString(encString, orgKey);
+    } catch {
+      return DECRYPT_ERROR;
+    }
   }
 }

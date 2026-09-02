@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, Inject, OnInit, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  Inject,
+  OnInit,
+  signal,
+} from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -25,6 +32,20 @@ export interface SecretVersionDialogParams {
   canWrite?: boolean;
 }
 
+/**
+ * A single row of version history. The date and the action callbacks are built once when
+ * the history loads so the template binds stable references instead of allocating a new
+ * Date and new closures on every change detection pass.
+ */
+interface SecretVersionRow {
+  id: string;
+  value: string;
+  date: Date | null;
+  copy: () => Promise<void>;
+  toggleVisibility: () => Promise<void>;
+  restore: () => Promise<void>;
+}
+
 @Component({
   templateUrl: "./secret-version.component.html",
   standalone: false,
@@ -32,23 +53,20 @@ export interface SecretVersionDialogParams {
 })
 export class SecretVersionDialogComponent implements OnInit {
   readonly loading = signal(true);
-  protected readonly flatVersions = signal<SecretVersionView[]>([]);
+  protected readonly rows = signal<SecretVersionRow[]>([]);
   protected readonly visibleVersionIds = signal(new Set<string>());
   protected readonly expandedVersionIds = signal(new Set<string>());
   protected readonly currentValueVisible = signal(false);
   protected readonly currentValue = signal<string | null>(null);
   protected readonly revisionDate = signal<Date | null>(null);
 
+  /** Uses a null check so a secret whose value is an empty string still renders. */
+  protected readonly hasCurrentValue = computed(() => this.currentValue() != null);
+  protected readonly hasVersions = computed(() => this.rows().length > 0);
+  protected readonly isEmpty = computed(() => !this.hasCurrentValue() && !this.hasVersions());
+
   get name() {
     return this.params.name;
-  }
-
-  get hasCurrentValue(): boolean {
-    return !!this.currentValue();
-  }
-
-  get hasVersions(): boolean {
-    return this.flatVersions().length > 0;
   }
 
   get canWrite(): boolean {
@@ -68,58 +86,57 @@ export class SecretVersionDialogComponent implements OnInit {
     readonly dialogRef: DialogRef,
   ) {}
 
-  protected isValueVisible(versionId: string): boolean {
-    return this.visibleVersionIds().has(versionId);
-  }
+  protected readonly toggleCurrentValueVisibility = async (): Promise<void> => {
+    this.currentValueVisible.update((v) => !v);
+  };
 
-  protected toggleCurrentValueVisibility(): () => Promise<void> {
-    return async () => {
-      this.currentValueVisible.update((v) => !v);
-    };
-  }
+  protected readonly copyCurrentValue = async (): Promise<void> => {
+    await this.copyValue(this.currentValue() ?? "");
+  };
 
   protected toggleVersionExpansion(versionId: string): void {
     if (this.expandedVersionIds().has(versionId)) {
-      this.expandedVersionIds.update((s: Set<string>) => {
+      this.expandedVersionIds.update((s) => {
         const n = new Set(s);
         n.delete(versionId);
         return n;
       });
       // Hide the value when collapsing the accordion
-      this.visibleVersionIds.update((s: Set<string>) => {
+      this.visibleVersionIds.update((s) => {
         const n = new Set(s);
         n.delete(versionId);
         return n;
       });
     } else {
-      this.expandedVersionIds.update((s: Set<string>) => new Set([...s, versionId]));
+      this.expandedVersionIds.update((s) => new Set([...s, versionId]));
     }
-  }
-
-  protected getToggleVisibilityAction(version: SecretVersionView): () => Promise<void> {
-    return async () => {
-      // If accordion is collapsed, expand it first
-      if (!this.expandedVersionIds().has(version.id)) {
-        this.expandedVersionIds.update((s: Set<string>) => new Set([...s, version.id]));
-      }
-
-      // Toggle visibility
-      if (this.visibleVersionIds().has(version.id)) {
-        this.visibleVersionIds.update((s: Set<string>) => {
-          const n = new Set(s);
-          n.delete(version.id);
-          return n;
-        });
-      } else {
-        this.visibleVersionIds.update((s: Set<string>) => new Set([...s, version.id]));
-      }
-    };
   }
 
   async ngOnInit() {
     this.currentValue.set(this.params.currentValue ?? null);
     this.revisionDate.set(this.params.revisionDate ? new Date(this.params.revisionDate) : null);
     await this.load();
+  }
+
+  private createRow(version: SecretVersionView): SecretVersionRow {
+    return {
+      id: version.id,
+      value: version.value,
+      date: version.versionDate ? new Date(version.versionDate) : null,
+      copy: () => this.copyValue(version.value),
+      toggleVisibility: async () => {
+        this.visibleVersionIds.update((s) => {
+          const n = new Set(s);
+          if (n.has(version.id)) {
+            n.delete(version.id);
+          } else {
+            n.add(version.id);
+          }
+          return n;
+        });
+      },
+      restore: () => this.restoreVersion(version),
+    };
   }
 
   private async load(refreshCurrentSecret = false) {
@@ -145,7 +162,7 @@ export class SecretVersionDialogComponent implements OnInit {
         );
       }
 
-      this.flatVersions.set(versions);
+      this.rows.set(versions.map((version) => this.createRow(version)));
     } catch (e) {
       this.logService.error("Retrieving secret versions failed", e);
       this.validationService.showError(e);
@@ -154,52 +171,40 @@ export class SecretVersionDialogComponent implements OnInit {
     this.loading.set(false);
   }
 
-  protected trackVersionById(_index: number, version: SecretVersionView): string {
-    return version.id;
+  private async copyValue(value: string): Promise<void> {
+    this.platformUtilsService.copyToClipboard(value);
+    this.toastService.showToast({
+      variant: "success",
+      title: undefined,
+      message: this.i18nService.t("secretValueCopied"),
+    });
   }
 
-  protected getVersionDate(version: SecretVersionView): Date | null {
-    return version.versionDate ? new Date(version.versionDate) : null;
-  }
+  private async restoreVersion(version: SecretVersionView): Promise<void> {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "restoreVersionConfirmTitle" },
+      content: { key: "restoreVersionConfirmMessage" },
+      acceptButtonText: { key: "restore" },
+      cancelButtonText: { key: "cancel" },
+      type: "warning",
+    });
 
-  protected getCopyAction(value: string): () => Promise<void> {
-    return async () => {
-      this.platformUtilsService.copyToClipboard(value);
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await this.secretService.restoreVersion(this.params.secretId, version.id);
       this.toastService.showToast({
         variant: "success",
         title: undefined,
-        message: this.i18nService.t("secretValueCopied"),
+        message: this.i18nService.t("secretVersionRestored"),
       });
-    };
-  }
-
-  protected getRestoreAction(version: SecretVersionView): () => Promise<void> {
-    return async () => {
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "restoreVersionConfirmTitle" },
-        content: { key: "restoreVersionConfirmMessage" },
-        acceptButtonText: { key: "restore" },
-        cancelButtonText: { key: "cancel" },
-        type: "warning",
-      });
-
-      if (!confirmed) {
-        return;
-      }
-
-      try {
-        await this.secretVersionService.restoreVersion(this.params.secretId, version.id);
-        this.toastService.showToast({
-          variant: "success",
-          title: undefined,
-          message: this.i18nService.t("secretVersionRestored"),
-        });
-        await this.load(true);
-      } catch (e) {
-        this.logService.error("secret restoration failed", e);
-        this.validationService.showError(e);
-      }
-    };
+      await this.load(true);
+    } catch (e) {
+      this.logService.error("secret restoration failed", e);
+      this.validationService.showError(e);
+    }
   }
 }
 
