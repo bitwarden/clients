@@ -316,7 +316,7 @@ export class FilterMenuComponent
   }
 
   constructor() {
-    // Set rather than defaulted so a consumer's own `variant` still wins.
+    // The base chip defaults to `primary`, which it only draws while selected.
     this.baseChip.variant.set("subtle");
     effect(() => {
       if (!this.multiple() && this.hasNesting()) {
