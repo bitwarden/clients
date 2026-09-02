@@ -3,6 +3,7 @@ import { firstValueFrom } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { AutomationDriver } from "@bitwarden/automation-driver";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
@@ -69,6 +70,7 @@ export class InitService {
     private serverCommunicationConfigService: ServerCommunicationConfigService,
     private updateRestartService: UpdateRestartService,
     private logService: LogService,
+    private automationDriver: AutomationDriver,
   ) {}
 
   init() {
@@ -120,6 +122,7 @@ export class InitService {
         this.legacyCompatKeyService,
       );
       containerService.attachToGlobal(this.win);
+      this.automationDriver.attachToGlobal(this.win);
 
       await this.sharedUnlockPeerService.start();
       await this.biometricMessageHandlerService.init();
