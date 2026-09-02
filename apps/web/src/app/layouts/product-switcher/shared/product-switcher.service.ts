@@ -251,7 +251,7 @@ export class ProductSwitcherService {
           },
           ac: {
             name: "Admin Console",
-            icon: vfo1FoundationEnabled ? "bwi-admin-console" : "bwi-business",
+            icon: vfo1Enabled ? "bwi-admin-console" : "bwi-business",
             appRoute: ["/organizations", acOrg?.id],
             marketingRoute: {
               route: "https://bitwarden.com/products/business/",
