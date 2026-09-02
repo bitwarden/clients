@@ -49,7 +49,7 @@
       <vault-at-risk-password-callout></vault-at-risk-password-callout>
       <vault-organization-user-notifications></vault-organization-user-notifications>
     </ng-container>
-  } @else {
+  } @else if (vfo1Enabled()) {
     <ng-container slot="full-width-notice">
       <vault-organization-user-notifications></vault-organization-user-notifications>
     </ng-container>
