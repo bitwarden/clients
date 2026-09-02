@@ -36,6 +36,7 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
     border: "none",
     backgroundColor: "transparent",
     overflow: "hidden",
+    pointerEvents: "auto",
     transition: "box-shadow 0.15s ease",
     transitionDelay: "0.15s",
   };
