@@ -1230,6 +1230,7 @@ export class ServiceContainer {
       undefined,
       undefined,
       undefined,
+      this.sdkService,
     );
 
     await this.i18nService.init();
