@@ -14,6 +14,7 @@ import {
   firstValueFrom,
 } from "rxjs";
 
+import { ManagedSettingsService } from "@bitwarden/managed-settings";
 import { PasswordManagerClient, ClientSettings, TokenProvider } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
@@ -82,6 +83,10 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     private apiService: ApiService,
     private stateProvider: StateProvider,
     private configService: ConfigService,
+    // Not yet read. The SDK's `PasswordManagerClient` constructor gains a `ManagedSettingsClient`
+    // parameter in sdk-internal#1405; once that publishes, `client$` is resolved here and passed to
+    // `createSdkClient`.
+    private managedSettingsService: ManagedSettingsService,
     private userAgent: string | null = null,
   ) {}
 

@@ -12,7 +12,7 @@ import {
 import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { BitwardenLogo, BitSvg } from "@bitwarden/assets/svg";
+import { BitSvg } from "@bitwarden/assets/svg";
 import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -80,7 +80,6 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
    */
   readonly maxWidth = model<LandingContentMaxWidthType>(ANON_LAYOUT_DEFAULTS.maxWidth);
 
-  protected logo = BitwardenLogo;
   protected year: string;
   protected clientType: ClientType;
   protected hostname?: string;

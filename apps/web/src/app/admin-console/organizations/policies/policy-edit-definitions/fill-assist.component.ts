@@ -103,6 +103,8 @@ export class FillAssistPolicy extends BasePolicyEditDefinition {
   // The component renders its own description paragraph so the "Learn more"
   // link can be inlined; suppress the framework's plain-text rendering.
   showDescription = false;
+  prerequisiteKey = "requireSingleOrganizationPolicy";
+  prerequisiteKeyVfo1 = "requireSingleOrganizationPolicyVfo1";
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return configService.getFeatureFlag$(FeatureFlag.FillAssistTargetingRules);

@@ -539,6 +539,9 @@
   "foldersFilterTooltip": {
     "message": "Add folders to items to filter them here."
   },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
+  },
   "editItemWithName": {
     "message": "Edit item - $NAME$",
     "placeholders": {
@@ -754,6 +757,15 @@
   },
   "launchWebsite": {
     "message": "Launch website"
+  },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Website"
@@ -2752,6 +2764,18 @@
   },
   "noMatchingItems": {
     "message": "No matching items"
+  },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
   },
   "selected": {
     "message": "Selected"
