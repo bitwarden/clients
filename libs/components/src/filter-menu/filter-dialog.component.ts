@@ -52,7 +52,6 @@ export class FilterDialogComponent {
   private readonly dialogRef = inject(DialogRef);
   private readonly injector = inject(Injector);
 
-  // `read` is explicit: the element hosts `bitButton`.
   private readonly doneButtonEl = viewChild("doneButton", { read: ElementRef<HTMLElement> });
 
   /** The filters to present, in row order. */

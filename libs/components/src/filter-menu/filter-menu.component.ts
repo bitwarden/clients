@@ -395,7 +395,6 @@ export class FilterMenuComponent
     return this._searchTerm().trim() !== "" || option.open();
   }
 
-  /** @see optionExpanded — same forcing-open while searching, for a section header. */
   protected sectionExpanded(section: FilterSectionComponent): boolean {
     return this._searchTerm().trim() !== "" || section.open();
   }
@@ -515,10 +514,6 @@ export class FilterMenuComponent
     this.keyManager.onKeydown(event);
   }
 
-  /**
-   * Rows aren't tab stops of their own, so a click focuses one without the manager
-   * noticing and the next key would act on whichever row it still thinks is active.
-   */
   protected onRowFocus(row: FilterTreeRowDirective): void {
     this.keyManager.focusItem(row);
   }

@@ -98,7 +98,6 @@
     </div>
   }
   @if (multiple()) {
-    <!-- Flattened: each row declares its own level and sibling position. -->
     <div
       role="tree"
       aria-multiselectable="true"
@@ -127,7 +126,6 @@
           #row="bitFilterTreeRow"
         >
           @if (expandable) {
-            <!-- Driven by the row's own Left/Right keys, so it isn't a tab stop of its own. -->
             <span
               class="-tw-me-1 tw-flex tw-size-6 tw-flex-none tw-items-center tw-justify-center tw-text-fg-body-subtle"
               aria-hidden="true"
@@ -185,7 +183,6 @@
         </div>
       }
     </div>
-    <!-- Outside the tree: `role="tree"` only permits `treeitem`/`group` children. -->
     @if (noResults()) {
       <ng-container *ngTemplateOutlet="noResultsState"></ng-container>
     }
@@ -274,7 +271,6 @@
       <ng-container *ngTemplateOutlet="optionsBody"></ng-container>
     }
   </div>
-  <!-- In `bit-menu`'s slot, not the body, so the divider runs the full popover width. -->
   @if (multiple() && active()) {
     <div slot="footer" class="tw-flex tw-items-center tw-gap-2">
       <span class="tw-flex-1 tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{

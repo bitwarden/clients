@@ -51,10 +51,6 @@ import { FilterOptionIconTile } from "./filter-option.component";
 })
 class FilterMenuDemoComponent {}
 
-/**
- * Options nest by projection: put `bit-filter-option`s inside one to make it an
- * expandable parent.
- */
 @Component({
   selector: "filter-menu-nested-demo",
   changeDetection: ChangeDetectionStrategy.OnPush,

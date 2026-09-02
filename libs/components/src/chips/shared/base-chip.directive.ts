@@ -44,7 +44,6 @@ const inactiveStyles = [
   "aria-disabled:tw-pointer-events-none",
 ];
 
-// Matched on the trigger's `aria-expanded` because the host element isn't the trigger.
 const variantStyles: Record<ChipVariant, string[]> = {
   primary: [
     "tw-bg-bg-brand-softer",
