@@ -510,7 +510,10 @@ export class MembersComponent {
       return [];
     }
 
-    const result = await this.memberActionsService.bulkSendInvite(organization, stagedUsers);
+    const result = await this.memberActionsService.bulkSendInvite(
+      organization,
+      stagedUsers.map((u) => u.id),
+    );
 
     if (result.successful.length === 0) {
       this.validationService.showError(result.failed);

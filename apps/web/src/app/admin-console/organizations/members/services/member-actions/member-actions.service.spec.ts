@@ -315,32 +315,32 @@ describe("MemberActionsService", () => {
   });
 
   describe("bulkSendInvite", () => {
-    const stagedUser = { id: userIdToManage } as OrganizationUserView;
-    const skippedUser = { id: "no-longer-staged-user-id" } as OrganizationUserView;
+    const stagedUserId = userIdToManage;
+    const skippedUserId = "no-longer-staged-user-id";
 
     it("should split the response into successful and failed members", async () => {
       organizationUserApiService.postOrganizationUserSendInvite.mockResolvedValue({
         data: [
-          { id: stagedUser.id, error: "" },
-          { id: skippedUser.id, error: "Only staged members can be sent an invitation." },
+          { id: stagedUserId, error: "" },
+          { id: skippedUserId, error: "Only staged members can be sent an invitation." },
         ],
       } as ListResponse<OrganizationUserBulkResponse>);
 
-      const result = await service.bulkSendInvite(mockOrganization, [stagedUser, skippedUser]);
+      const result = await service.bulkSendInvite(mockOrganization, [stagedUserId, skippedUserId]);
 
-      expect(result.successful.map((r) => r.id)).toEqual([stagedUser.id]);
+      expect(result.successful.map((r) => r.id)).toEqual([stagedUserId]);
       expect(result.failed).toEqual([
-        { id: skippedUser.id, error: "Only staged members can be sent an invitation." },
+        { id: skippedUserId, error: "Only staged members can be sent an invitation." },
       ]);
       expect(organizationMetadataService.refreshMetadataCache).toHaveBeenCalled();
     });
 
     it("should not refresh the metadata cache when no member was invited", async () => {
       organizationUserApiService.postOrganizationUserSendInvite.mockResolvedValue({
-        data: [{ id: skippedUser.id, error: "Only staged members can be sent an invitation." }],
+        data: [{ id: skippedUserId, error: "Only staged members can be sent an invitation." }],
       } as ListResponse<OrganizationUserBulkResponse>);
 
-      const result = await service.bulkSendInvite(mockOrganization, [skippedUser]);
+      const result = await service.bulkSendInvite(mockOrganization, [skippedUserId]);
 
       expect(result.successful).toHaveLength(0);
       expect(organizationMetadataService.refreshMetadataCache).not.toHaveBeenCalled();
@@ -351,12 +351,12 @@ describe("MemberActionsService", () => {
         new Error("Seat limit reached"),
       );
 
-      const result = await service.bulkSendInvite(mockOrganization, [stagedUser, skippedUser]);
+      const result = await service.bulkSendInvite(mockOrganization, [stagedUserId, skippedUserId]);
 
       expect(result.successful).toHaveLength(0);
       expect(result.failed).toEqual([
-        { id: stagedUser.id, error: "Seat limit reached" },
-        { id: skippedUser.id, error: "Seat limit reached" },
+        { id: stagedUserId, error: "Seat limit reached" },
+        { id: skippedUserId, error: "Seat limit reached" },
       ]);
     });
   });

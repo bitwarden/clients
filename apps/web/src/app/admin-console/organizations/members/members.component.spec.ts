@@ -602,7 +602,9 @@ describe("MembersComponent", () => {
 
       await component.bulkSendInvite(mockOrg);
 
-      expect(mockMemberActionsService.bulkSendInvite).toHaveBeenCalledWith(mockOrg, [stagedUser]);
+      expect(mockMemberActionsService.bulkSendInvite).toHaveBeenCalledWith(mockOrg, [
+        stagedUser.id,
+      ]);
       expect(mockMemberActionsService.bulkReinvite).not.toHaveBeenCalled();
     });
 
@@ -630,7 +632,9 @@ describe("MembersComponent", () => {
 
       await component.bulkSendInvite(mockOrg);
 
-      expect(mockMemberActionsService.bulkSendInvite).toHaveBeenCalledWith(mockOrg, [stagedUser]);
+      expect(mockMemberActionsService.bulkSendInvite).toHaveBeenCalledWith(mockOrg, [
+        stagedUser.id,
+      ]);
       expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser]);
       expect(mockToastService.showToast).toHaveBeenCalledWith({
         variant: "success",
@@ -786,7 +790,9 @@ describe("MembersComponent", () => {
       await component.bulkSendInvite(mockOrg);
 
       expect(limitAndUncheckExcess).toHaveBeenCalledWith(expect.anything(), MaxCheckedCount);
-      expect(mockMemberActionsService.bulkSendInvite).toHaveBeenCalledWith(mockOrg, cappedUsers);
+      expect(mockMemberActionsService.bulkSendInvite).toHaveBeenCalledWith(mockOrg, [
+        stagedUser.id,
+      ]);
     });
   });
 

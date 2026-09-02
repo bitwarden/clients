@@ -144,25 +144,10 @@ export class MemberActionsService {
   }
 
   async sendInvite(organization: Organization, userId: string): Promise<MemberActionResult> {
-    this.startProcessing();
-    try {
-      const response = await this.organizationUserApiService.postOrganizationUserSendInvite(
-        organization.id,
-        [userId],
-      );
+    const result = await this.bulkSendInvite(organization, [userId]);
+    const failure = result.failed[0];
 
-      const failure = response.data.find((memberResult) => memberResult.error);
-      if (failure != null) {
-        return { success: false, error: failure.error };
-      }
-
-      this.organizationMetadataService.refreshMetadataCache();
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: (error as Error).message ?? String(error) };
-    } finally {
-      this.endProcessing();
-    }
+    return failure ? { success: false, error: failure.error } : { success: true };
   }
 
   /**
@@ -170,17 +155,14 @@ export class MemberActionsService {
    * them per row, so a stale selection degrades to a partial send. A seat expansion failure still fails
    * the whole call, because seats are reserved once for the entire set.
    */
-  async bulkSendInvite(
-    organization: Organization,
-    users: OrganizationUserView[],
-  ): Promise<BulkActionResult> {
+  async bulkSendInvite(organization: Organization, userIds: string[]): Promise<BulkActionResult> {
     const result = new BulkActionResult();
     this.startProcessing();
 
     try {
       const response = await this.organizationUserApiService.postOrganizationUserSendInvite(
         organization.id,
-        users.map((user) => user.id),
+        userIds,
       );
 
       for (const memberResult of response.data) {
@@ -195,8 +177,8 @@ export class MemberActionsService {
         this.organizationMetadataService.refreshMetadataCache();
       }
     } catch (error) {
-      result.failed = users.map((user) => ({
-        id: user.id,
+      result.failed = userIds.map((id) => ({
+        id,
         error: (error as Error).message ?? String(error),
       }));
     } finally {
