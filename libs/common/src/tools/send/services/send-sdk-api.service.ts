@@ -1,4 +1,4 @@
-import { catchError, firstValueFrom, switchMap } from "rxjs";
+import { catchError, concatMap, firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
@@ -153,7 +153,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
+        concatMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -175,7 +175,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
+        concatMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -239,7 +239,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
+        concatMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -272,7 +272,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   ): Promise<SdkSendView> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
+        concatMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -329,7 +329,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
 
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
+        concatMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
