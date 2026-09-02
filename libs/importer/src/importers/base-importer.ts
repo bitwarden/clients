@@ -457,10 +457,12 @@ export abstract class BaseImporter {
     if (/<!ENTITY/i.test(data)) {
       return false;
     }
-    // Block DOCTYPE declarations that reference an external DTD subset via SYSTEM or PUBLIC
+    // Block DOCTYPE declarations that reference an external DTD subset via SYSTEM
     // (e.g. <!DOCTYPE foo SYSTEM "http://evil.com/evil.dtd">). An internal-only subset
     // (<!DOCTYPE foo [...]>) is safe and is not blocked: [^>[]* stops at '['.
-    if (/<!DOCTYPE[^>[]*(?:SYSTEM|PUBLIC)\b/i.test(data)) {
+    // PUBLIC is intentionally not blocked: XHTML exports (e.g. Clipperz) carry a
+    // PUBLIC identifier, and modern DOMParsers never fetch external DTDs from PUBLIC IDs.
+    if (/<!DOCTYPE[^>[]*\bSYSTEM\b/i.test(data)) {
       return false;
     }
     return true;

@@ -307,14 +307,14 @@ describe("BaseImporter class", () => {
       expect(result).toBe(null);
     });
 
-    it("parse XML should reject DOCTYPE with external PUBLIC DTD reference", async () => {
+    it("parse XML should accept DOCTYPE with PUBLIC identifier (e.g. XHTML exports like Clipperz)", async () => {
+      // PUBLIC-only DOCTYPEs are used by XHTML exports; modern DOMParsers never fetch
+      // external DTDs from PUBLIC identifiers, so blocking them would break real imports.
       const xml = `<?xml version="1.0" encoding="ISO-8859-1"?>
-        <!DOCTYPE passwordsafe PUBLIC "-//Evil//DTD Evil//EN" "http://evil.example.com/evil.dtd">
-        <passwordsafe delimiter=";">
-        <entry><title>PoC</title></entry>
-        </passwordsafe>`;
+        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+        <html xmlns="http://www.w3.org/1999/xhtml"><body><textarea>[]</textarea></body></html>`;
       const result = importer.parseXml(xml);
-      expect(result).toBe(null);
+      expect(result).not.toBe(null);
     });
 
     it("parse XML should accept DOCTYPE with internal subset only", async () => {
