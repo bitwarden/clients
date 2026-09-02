@@ -60,6 +60,9 @@ export class SideNavComponent {
 
   private readonly toggleButton = viewChild("toggleButton", { read: ElementRef });
 
+  private readonly scrollContainer = viewChild<ElementRef<HTMLElement>>("scrollContainer");
+  private readonly footerWrapper = viewChild<ElementRef<HTMLElement>>("footerWrapper");
+
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   private readonly configService = inject(ConfigService);
@@ -106,6 +109,22 @@ export class SideNavComponent {
   protected onKeydown(event: KeyboardEvent) {
     if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
       this.sideNavService.setWidthFromKeys(event.key);
+    }
+  }
+
+  protected scrollFocusedIntoView(event: FocusEvent) {
+    const scrollContainer = this.scrollContainer()?.nativeElement;
+    const footerWrapper = this.footerWrapper()?.nativeElement;
+    if (!scrollContainer || !footerWrapper) {
+      return;
+    }
+
+    const overlap =
+      (event.target as HTMLElement).getBoundingClientRect().bottom -
+      footerWrapper.getBoundingClientRect().top;
+
+    if (overlap > 0) {
+      scrollContainer.scrollBy({ top: overlap, behavior: "instant" });
     }
   }
 

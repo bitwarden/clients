@@ -39,9 +39,11 @@
       (keydown)="handleKeyDown($event)"
     >
       <div
+        #scrollContainer
         class="tw-flex-1 tw-min-h-0 tw-overflow-auto tw-overscroll-none"
         style="container-type: size"
         id="bit-side-nav--scroll"
+        (focusin)="scrollFocusedIntoView($event)"
       >
         <div class="tw-flex tw-flex-col tw-min-h-full tw-group/side-nav">
           <nav class="tw-flex-1" [attr.aria-label]="'sideNavigation' | i18n">
@@ -81,7 +83,8 @@
             </div>
           </nav>
           <div
-            class="tw-w-full tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"
+            #footerWrapper
+            class="tw-w-full tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0 [@container_(min-height:600px)]:tw-z-10"
           >
             <div
               data-footer
