@@ -86,6 +86,7 @@ export class ShareLinkService {
     sendView.authType = AuthType.Email;
     sendView.emails = emails;
     sendView.deletionDate = new Date(Date.now() + expiryHours * 60 * 60 * 1000);
+    sendView.expirationDate = sendView.deletionDate;
     if (oneTimeShare) {
       sendView.maxAccessCount = 1;
     }

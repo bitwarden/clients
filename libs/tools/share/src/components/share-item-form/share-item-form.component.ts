@@ -92,7 +92,7 @@ export class ShareItemFormComponent implements OnDestroy {
 
   protected readonly activeLinks = signal<ShareLink[]>([]);
   protected readonly collections = signal<CollectionView[]>([]);
-  protected readonly folder = signal<FolderView | null>(null);
+  protected readonly folder = signal<FolderView | undefined>(undefined);
 
   protected readonly cipherTypeIcon = computed<BitwardenIcon>(() => {
     const currentCipher = this.cipher();
@@ -194,7 +194,7 @@ export class ShareItemFormComponent implements OnDestroy {
   });
 
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
-  private readonly policyAllowedDomains = signal<string[] | null>(null);
+  private readonly policyAllowedDomains = signal<string[] | undefined>(undefined);
 
   constructor() {
     this.sendPolicyService.deletionDatePolicyInfo$.pipe(takeUntilDestroyed()).subscribe((dh) => {
@@ -212,7 +212,7 @@ export class ShareItemFormComponent implements OnDestroy {
         if (allowedDomains && allowedDomains.length > 0) {
           this.policyAllowedDomains.set(allowedDomains);
         } else {
-          this.policyAllowedDomains.set(null);
+          this.policyAllowedDomains.set(undefined);
         }
         emailsControl?.updateValueAndValidity();
       });
@@ -240,7 +240,9 @@ export class ShareItemFormComponent implements OnDestroy {
       .pipe(takeUntilDestroyed())
       .subscribe(([cipher, allFolders]) => {
         this.folder.set(
-          cipher.folderId ? (allFolders.find((f) => f.id === cipher.folderId) ?? null) : null,
+          cipher.folderId
+            ? (allFolders.find((f) => f.id === cipher.folderId) ?? undefined)
+            : undefined,
         );
       });
 

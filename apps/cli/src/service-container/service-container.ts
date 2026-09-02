@@ -156,6 +156,7 @@ import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
+import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -339,6 +340,7 @@ export class ServiceContainer {
   userVerificationApiService: UserVerificationApiService;
   organizationApiService: OrganizationApiServiceAbstraction;
   sendApiService: SendApiServiceSelector;
+  sendSdkDecryptionService: SendSdkDecryptionService;
   sendTokenService: SendTokenService;
   sendPasswordService: SendPasswordService;
   devicesApiService: DevicesApiServiceAbstraction;
@@ -703,6 +705,8 @@ export class ServiceContainer {
       this.logService,
     );
 
+    this.sendSdkDecryptionService = new SendSdkDecryptionService(this.sdkService);
+
     this.sendService = new SendService(
       this.accountService,
       this.keyService,
@@ -710,7 +714,8 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.sendStateProvider,
       this.encryptService,
-      this.cipherEncryptionService,
+      this.configService,
+      this.sendSdkDecryptionService,
     );
 
     const legacySendApiService = new SendApiService(

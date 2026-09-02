@@ -187,6 +187,7 @@ export class OssServeConfigurator {
       this.serviceContainer.accountService,
       this.serviceContainer.policyService,
       this.serviceContainer.configService,
+      this.serviceContainer.sendSdkDecryptionService,
     );
     this.sendDeleteCommand = new SendDeleteCommand(
       this.serviceContainer.sendService,
@@ -199,6 +200,8 @@ export class OssServeConfigurator {
       this.serviceContainer.encryptService,
       this.serviceContainer.apiService,
       this.serviceContainer.accountService,
+      this.serviceContainer.configService,
+      this.serviceContainer.sendSdkDecryptionService,
     );
     this.sendEditCommand = new SendEditCommand(
       this.serviceContainer.sendService,
@@ -206,6 +209,8 @@ export class OssServeConfigurator {
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.accountService,
+      this.serviceContainer.configService,
+      this.serviceContainer.sendSdkDecryptionService,
     );
     this.sendListCommand = new SendListCommand(
       this.serviceContainer.sendService,
@@ -218,6 +223,8 @@ export class OssServeConfigurator {
       this.serviceContainer.sendApiService,
       this.serviceContainer.environmentService,
       this.serviceContainer.accountService,
+      this.serviceContainer.configService,
+      this.serviceContainer.sendSdkDecryptionService,
     );
   }
 

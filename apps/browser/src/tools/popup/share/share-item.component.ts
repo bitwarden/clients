@@ -1,15 +1,13 @@
 import { Location } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ChangeDetectionStrategy, Component, inject, viewChild } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { switchMap } from "rxjs";
+import { combineLatest, of, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ButtonModule } from "@bitwarden/components";
+import { ButtonModule, IconModule } from "@bitwarden/components";
 import { ShareItemFormComponent } from "@bitwarden/tools-share";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -28,6 +26,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     ButtonModule,
     I18nPipe,
     ShareItemFormComponent,
+    IconModule,
   ],
 })
 export class ShareItemComponent {
@@ -36,28 +35,21 @@ export class ShareItemComponent {
   private readonly cipherService = inject(CipherService);
   private readonly accountService = inject(AccountService);
 
-  protected readonly cipher = signal<CipherView | null>(null);
-  protected readonly shareItemForm = viewChild(ShareItemFormComponent);
-
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
-  constructor() {
-    this.route.queryParams
-      .pipe(
-        takeUntilDestroyed(),
-        switchMap((params) => {
-          const cipherId = params.cipherId as CipherId;
-          return this.activeUserId$.pipe(
-            switchMap((userId) => this.cipherService.cipherView$(userId, cipherId)),
-          );
-        }),
-      )
-      .subscribe((cipherView) => {
-        if (cipherView) {
-          this.cipher.set(cipherView);
+  protected readonly cipher = toSignal(
+    combineLatest([this.route.queryParams, this.activeUserId$]).pipe(
+      switchMap(([qp, userId]) => {
+        if (qp.cipherId && userId) {
+          return this.cipherService.cipherView$(userId, qp.cipherId);
+        } else {
+          return of(undefined);
         }
-      });
-  }
+      }),
+    ),
+    { initialValue: undefined },
+  );
+  protected readonly shareItemForm = viewChild(ShareItemFormComponent);
 
   protected async createAndCopyLink(): Promise<void> {
     const copySuccessful = await this.shareItemForm()?.createAndCopyLink();

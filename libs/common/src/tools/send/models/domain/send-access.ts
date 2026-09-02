@@ -58,6 +58,10 @@ export class SendAccess extends Domain {
   }
 
   async decrypt(key: SymmetricCryptoKey): Promise<SendAccessView> {
+    if (this.type === SendType.Item) {
+      throw new Error("Item type Sends require the SDK to decrypt");
+    }
+
     const model = new SendAccessView(this);
 
     await this.decryptObj<SendAccess, SendAccessView>(this, model, ["name"], key);
@@ -68,9 +72,6 @@ export class SendAccess extends Domain {
         break;
       case SendType.Text:
         model.text = await this.text.decrypt(key);
-        break;
-      case SendType.Item:
-        model.data = await this.data.decrypt(key);
         break;
       default:
         break;

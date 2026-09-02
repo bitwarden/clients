@@ -31,7 +31,7 @@ const SEND_TYPE_TO_SDK = {
   [SendType.Item]: SdkSendType.Item,
 };
 
-const SEND_TYPE_FROM_SDK = {
+export const SEND_TYPE_FROM_SDK = {
   [SdkSendType.Text]: SendType.Text,
   [SdkSendType.File]: SendType.File,
   [SdkSendType.Item]: SendType.Item,
@@ -43,7 +43,7 @@ const AUTH_TYPE_TO_SDK: Record<AuthType, SdkAuthType> = {
   [AuthType.None]: SdkAuthType.None,
 };
 
-const AUTH_TYPE_FROM_SDK: Record<SdkAuthType, AuthType> = {
+export const AUTH_TYPE_FROM_SDK: Record<SdkAuthType, AuthType> = {
   [SdkAuthType.Email]: AuthType.Email,
   [SdkAuthType.Password]: AuthType.Password,
   [SdkAuthType.None]: AuthType.None,
@@ -122,6 +122,10 @@ export class Send extends Domain {
       throw new Error("User ID must not be null or undefined");
     }
 
+    if (this.type === SendType.Item) {
+      throw new Error("Item type Sends require the SDK to decrypt");
+    }
+
     const model = new SendView(this);
     const keyService = Utils.getContainerService().getKeyService();
     const encryptService = Utils.getContainerService().getEncryptService();
@@ -148,10 +152,6 @@ export class Send extends Domain {
       case SendType.Text:
         model.text = await this.text.decrypt(model.cryptoKey);
         break;
-      case SendType.Item: {
-        model.data = await this.data.decrypt(model.cryptoKey);
-        break;
-      }
       default:
         break;
     }

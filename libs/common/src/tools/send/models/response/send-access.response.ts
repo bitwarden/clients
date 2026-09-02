@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { SendAccessResponse as SdkSendAccessResponse } from "@bitwarden/sdk-internal";
+
 import { BaseResponse } from "../../../../models/response/base.response";
 import { SendType } from "../../types/send-type";
 import { SendFileApi } from "../api/send-file.api";
@@ -37,7 +39,23 @@ export class SendAccessResponse extends BaseResponse {
       this.data = new SendItemApi(data);
     }
 
-    this.expirationDate = this.getResponseProperty("ExpirationDate");
+    const expirationDate = this.getResponseProperty("ExpirationDate");
+    if (expirationDate != null) {
+      this.expirationDate = new Date(expirationDate);
+    }
     this.creatorIdentifier = this.getResponseProperty("CreatorIdentifier");
+  }
+
+  static toSdkAccessResponse(obj: SendAccessResponse): SdkSendAccessResponse {
+    return {
+      id: obj.id,
+      name: obj.name,
+      type: obj.type,
+      creatorIdentifier: obj.creatorIdentifier,
+      expirationDate: obj.expirationDate ? obj.expirationDate.toISOString() : undefined,
+      text: obj.text,
+      file: obj.file,
+      data: obj.data,
+    };
   }
 }

@@ -16,21 +16,22 @@ import {
 } from "@bitwarden/legacy-crypto";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
-import { CipherEncryptionService } from "../../../vault/abstractions/cipher-encryption.service";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendFile } from "../models/domain/send-file";
-import { SendItem } from "../models/domain/send-item";
 import { SendText } from "../models/domain/send-text";
 import { SendWithIdRequest } from "../models/request/send-with-id.request";
 import { SendView } from "../models/view/send.view";
 import { SEND_KDF_ITERATIONS } from "../send-kdf";
 import { SendType } from "../types/send-type";
 
+import { SendSdkDecryptionService } from "./send-sdk-decryption.service";
 import { SendStateProvider } from "./send-state.provider.abstraction";
 import { InternalSendService as InternalSendServiceAbstraction } from "./send.service.abstraction";
 
@@ -57,7 +58,8 @@ export class SendService implements InternalSendServiceAbstraction {
     private keyGenerationService: KeyGenerationService,
     private stateProvider: SendStateProvider,
     private encryptService: EncryptService,
-    private cipherEncryptionService: CipherEncryptionService,
+    private configService: ConfigService,
+    private sendSdkDecryptionService: SendSdkDecryptionService,
   ) {}
 
   async encrypt(
@@ -153,14 +155,7 @@ export class SendService implements InternalSendServiceAbstraction {
         );
       }
     } else if (send.type === SendType.Item) {
-      // Since we're encrypting the cipher under the Send's key, not the cipher's, we need to use this method
-      const encryptionContext = await this.cipherEncryptionService.encryptCipherForRotation(
-        model.data.data,
-        userId,
-        model.cryptoKey as any,
-      );
-      send.data = new SendItem();
-      send.data.data = encryptionContext.cipher;
+      throw new Error("Item type Sends require the SDK to encrypt");
     }
 
     send.authType = model.authType;
@@ -272,8 +267,17 @@ export class SendService implements InternalSendServiceAbstraction {
 
     const promises: Promise<any>[] = [];
     const sends = await this.getAll();
+    const useSdkForSends = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
     sends.forEach((send) => {
-      promises.push(send.decrypt(userId).then((f) => decSends.push(f)));
+      if (useSdkForSends) {
+        promises.push(
+          this.sendSdkDecryptionService
+            .decryptSend(send, userId)
+            .then((s) => decSends.push(SendView.fromSdkSend(s))),
+        );
+      } else {
+        promises.push(send.decrypt(userId).then((f) => decSends.push(f)));
+      }
     });
 
     await Promise.all(promises);
@@ -406,7 +410,16 @@ export class SendService implements InternalSendServiceAbstraction {
   }
 
   private async decryptSends(sends: Send[], userId: UserId) {
-    const decryptSendPromises = sends.map((s) => s.decrypt(userId));
+    const useSdkForSends = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
+    const decryptSendPromises = sends.map((s) => {
+      if (useSdkForSends) {
+        return this.sendSdkDecryptionService
+          .decryptSend(s, userId)
+          .then((s) => SendView.fromSdkSend(s));
+      } else {
+        return s.decrypt(userId);
+      }
+    });
     const decryptedSends = await Promise.all(decryptSendPromises);
 
     decryptedSends.sort(Utils.getSortFunction(this.i18nService, "name"));

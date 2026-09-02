@@ -21,6 +21,7 @@ import {
   mockAccountServiceWith,
   mockAccountInfoWith,
 } from "../../../../spec";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { EnvironmentService } from "../../../platform/abstractions/environment.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
@@ -28,7 +29,6 @@ import { ContainerService } from "../../../platform/services/container.service";
 import { SelfHostedEnvironment } from "../../../platform/services/default-environment.service";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
-import { CipherEncryptionService } from "../../../vault/abstractions/cipher-encryption.service";
 import { SendFileApi } from "../models/api/send-file.api";
 import { SendTextApi } from "../models/api/send-text.api";
 import { SendFileData } from "../models/data/send-file.data";
@@ -39,6 +39,7 @@ import { SendView } from "../models/view/send.view";
 import { SendType } from "../types/send-type";
 
 import { SEND_USER_DECRYPTED, SEND_USER_ENCRYPTED } from "./key-definitions";
+import { SendSdkDecryptionService } from "./send-sdk-decryption.service";
 import { SendStateProvider } from "./send-state.provider";
 import { SendService } from "./send.service";
 import {
@@ -55,7 +56,8 @@ describe("SendService", () => {
   const keyGenerationService = mock<KeyGenerationService>();
   const encryptService = mock<EncryptService>();
   const environmentService = mock<EnvironmentService>();
-  const cipherEncryptionService = mock<CipherEncryptionService>();
+  const configService = mock<ConfigService>();
+  const sendSdkDecryptionService = mock<SendSdkDecryptionService>();
   let sendStateProvider: SendStateProvider;
   let sendService: SendService;
 
@@ -98,6 +100,9 @@ describe("SendService", () => {
     decryptedState = stateProvider.activeUser.getFake(SEND_USER_DECRYPTED);
     decryptedState.nextState([testSendViewData("1", "Test Send")]);
 
+    // Disable all feature flags
+    configService.getFeatureFlag.mockResolvedValue(false);
+
     sendService = new SendService(
       accountService,
       keyService,
@@ -105,7 +110,8 @@ describe("SendService", () => {
       keyGenerationService,
       sendStateProvider,
       encryptService,
-      cipherEncryptionService,
+      configService,
+      sendSdkDecryptionService,
     );
   });
 

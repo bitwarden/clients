@@ -1,18 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { AsyncPipe, NgClass } from "@angular/common";
-import {
-  Component,
-  HostListener,
-  computed,
-  inject,
-  input,
-  output,
-  viewChild,
-  effect,
-} from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { Observable } from "rxjs";
+import { Component, HostListener, computed, inject, input, output, viewChild } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { switchMap } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge/premium-badge.component";
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
@@ -111,13 +102,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   private vaultCopyButtonsService = inject(VaultCopyButtonsService);
   private configService = inject(ConfigService);
   private shareLinkService = inject(ShareLinkService);
-  protected showShareViaLink$: Observable<boolean>;
-
-  constructor() {
-    effect(() => {
-      this.showShareViaLink$ = this.shareLinkService.cipherCanBeShared$(this.cipher());
-    });
-  }
+  protected showShareViaLink$ = toObservable(this.cipher).pipe(
+    switchMap((c) => this.shareLinkService.cipherCanBeShared$(c)),
+  );
 
   private readonly quickCopyActionsSetting = toSignal(
     this.vaultCopyButtonsService.showQuickCopyActions$,

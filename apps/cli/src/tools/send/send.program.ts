@@ -196,6 +196,8 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.encryptService,
           this.serviceContainer.apiService,
           this.serviceContainer.accountService,
+          this.serviceContainer.configService,
+          this.serviceContainer.sendSdkDecryptionService,
         );
         const response = await cmd.run(id, options);
         this.processResponse(response);
@@ -256,6 +258,8 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.encryptService,
           this.serviceContainer.apiService,
           this.serviceContainer.accountService,
+          this.serviceContainer.configService,
+          this.serviceContainer.sendSdkDecryptionService,
         );
         const cmd = new SendEditCommand(
           this.serviceContainer.sendService,
@@ -263,6 +267,8 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.sendApiService,
           this.serviceContainer.billingAccountProfileStateService,
           this.serviceContainer.accountService,
+          this.serviceContainer.configService,
+          this.serviceContainer.sendSdkDecryptionService,
         );
 
         const mergedOptions = {
@@ -302,6 +308,8 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.sendApiService,
           this.serviceContainer.environmentService,
           this.serviceContainer.accountService,
+          this.serviceContainer.configService,
+          this.serviceContainer.sendSdkDecryptionService,
         );
         const response = await cmd.run(id);
         this.processResponse(response);
@@ -348,6 +356,7 @@ export class SendProgram extends BaseProgram {
       this.serviceContainer.accountService,
       this.serviceContainer.policyService,
       this.serviceContainer.configService,
+      this.serviceContainer.sendSdkDecryptionService,
     );
     return await cmd.run(encodedJson, options);
   }

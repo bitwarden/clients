@@ -1,4 +1,3 @@
-import { AsyncPipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -21,7 +20,7 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { map, Observable } from "rxjs";
+import { Observable } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
@@ -94,7 +93,6 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
     RadioButtonModule,
     SwitchComponent,
     SelectModule,
-    AsyncPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -120,39 +118,38 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
 
   protected readonly sendFeatureAllowed = computed(() => !this.dataFormValue()?.disableSend);
 
-  protected readonly allSendTypeOptions$ = this.configService
-    .getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing)
-    .pipe(
-      map((isEnabled) => {
-        const options: (SelectItemView & { value: SendType })[] = [
-          {
-            id: SendType.Text.toString(),
-            icon: "bwi-file-text",
-            listName: this.i18nService.t("sendTypeText"),
-            labelName: this.i18nService.t("sendTypeText"),
-            value: SendType.Text,
-          },
-          {
-            id: SendType.File.toString(),
-            icon: "bwi-file",
-            listName: this.i18nService.t("sendTypeFile"),
-            labelName: this.i18nService.t("sendTypeFile"),
-            value: SendType.File,
-          },
-        ];
-        if (isEnabled) {
-          options.push({
-            id: SendType.Item.toString(),
-            icon: "bwi-lock",
-            listName: this.i18nService.t("vaultItems"),
-            labelName: this.i18nService.t("vaultItems"),
-            value: SendType.Item,
-          });
-        }
-        return options;
-      }),
-    );
-  protected readonly allSendTypeOptions = toSignal(this.allSendTypeOptions$, { initialValue: [] });
+  protected readonly temporaryItemSharingEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing),
+  );
+
+  protected readonly allSendTypeOptions = computed(() => {
+    const options: (SelectItemView & { value: SendType })[] = [
+      {
+        id: SendType.Text.toString(),
+        icon: "bwi-file-text",
+        listName: this.i18nService.t("sendTypeText"),
+        labelName: this.i18nService.t("sendTypeText"),
+        value: SendType.Text,
+      },
+      {
+        id: SendType.File.toString(),
+        icon: "bwi-file",
+        listName: this.i18nService.t("sendTypeFile"),
+        labelName: this.i18nService.t("sendTypeFile"),
+        value: SendType.File,
+      },
+    ];
+    if (this.temporaryItemSharingEnabled()) {
+      options.push({
+        id: SendType.Item.toString(),
+        icon: "bwi-lock",
+        listName: this.i18nService.t("vaultItems"),
+        labelName: this.i18nService.t("vaultItems"),
+        value: SendType.Item,
+      });
+    }
+    return options;
+  });
 
   protected readonly sendAccessOptions: Option<WhoCanAccessType>[] = [
     { label: this.i18nService.t("any"), value: WhoCanAccessType.Any },
@@ -180,10 +177,6 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
 
   protected readonly showDeletionHours = new FormControl<boolean>(false);
 
-  protected readonly temporaryItemSharingEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing),
-  );
-
   constructor(
     private readonly formBuilder: UntypedFormBuilder,
     private readonly orgDomainApiService: OrgDomainApiServiceAbstraction,
@@ -201,19 +194,12 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       { label: this.i18nService.t("days", "30"), value: SendDeletionDatePreset.ThirtyDays },
     ];
     // The possible values for Send Type options depend on whether the temporary item sharing feature flag is enabled
-    // Therefore we use this effect to initialize the multi-select form control and update it whenever those possible
-    // values or the values from the policy data we fetched from the server change
+    // Therefore we use this effect to re-initialize the form whenever those options or the policy data from the server change
     effect(() => {
       const allSendTypeOptions = this.allSendTypeOptions();
       const policyResponse = this.policyResponse();
-      if (policyResponse) {
-        this.allowedSendTypesMultiSelectControl.patchValue(
-          allSendTypeOptions.filter((sto) =>
-            (policyResponse.data.allowedSendTypes ?? []).includes(sto.value),
-          ),
-        );
-      } else {
-        this.allowedSendTypesMultiSelectControl.patchValue(allSendTypeOptions);
+      if (allSendTypeOptions && policyResponse) {
+        this.loadData();
       }
     });
   }
@@ -287,8 +273,12 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     this.data.patchValue(policyResponseData);
 
     // The two separate form controls (enabled toggle and Send Types multi-select) must be initialized separately
-    // The Send Types multi-select is initialized by the `effect` in the constructor
     this.enableSendControl.patchValue(!(policyResponseData.disableSend ?? false));
+    this.allowedSendTypesMultiSelectControl.patchValue(
+      this.allSendTypeOptions().filter((sto) =>
+        policyResponseData.allowedSendTypes.includes(sto.value),
+      ),
+    );
   }
 
   /** Fetches the organization's claimed domains */

@@ -29,8 +29,8 @@
       buttonType="primary"
       (click)="createAndCopyLink()"
       [disabled]="shareItemForm()?.form?.invalid"
+      startIcon="bwi-share-link"
     >
-      <i class="bwi bwi-share-link tw-mr-1" aria-hidden="true"></i>
       {{ "copyLink" | i18n }}
     </button>
   </popup-footer>

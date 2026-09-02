@@ -1099,6 +1099,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       this.cipherService.cipherView$(activeUserId, cipher.id as CipherId),
     );
     if (!cipherView) {
+      await this.handleUnknownCipher();
       return;
     }
     await this.dialogService.openDrawer(ShareItemDrawerComponent, { data: { cipher: cipherView } });

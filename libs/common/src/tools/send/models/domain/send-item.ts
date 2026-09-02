@@ -1,35 +1,25 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { SendEncryptionType, SendItem as SdkSendItem } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../../platform/models/domain/domain-base";
 import { Cipher } from "../../../../vault/models/domain/cipher";
 import { SendItemData } from "../data/send-item.data";
-import { SendItemView } from "../view/send-item.view";
 
 export class SendItem extends Domain {
-  encryptionVersion: SendEncryptionType = SendEncryptionType.V1;
+  encryptionVersion: SendEncryptionType;
   data: Cipher;
 
   constructor(obj?: SendItemData) {
     super();
-    if (obj == null) {
-      return;
+    this.encryptionVersion = obj?.encryptionVersion ?? SendEncryptionType.V1;
+    const cipher = Cipher.fromJSON(JSON.parse(obj?.data ?? "{}"));
+
+    if (!cipher) {
+      throw new Error("Unable to parse Send Item data");
     }
 
-    this.encryptionVersion = obj.encryptionVersion;
-    this.data = Cipher.fromJSON(JSON.parse(obj.data));
-  }
-
-  async decrypt(key: SymmetricCryptoKey): Promise<SendItemView> {
-    const cipherView = await this.data.decrypt(key);
-    return {
-      data: cipherView,
-    };
+    this.data = cipher;
   }
 
   static fromJSON(json: Jsonify<SendItem>) {
@@ -49,11 +39,7 @@ export class SendItem extends Domain {
   }
 
   /** Maps an SDK `SendItem` back to a domain `SendItem`. */
-  static fromSdk(obj?: SdkSendItem): SendItem {
-    if (obj == null) {
-      return null;
-    }
-
+  static fromSdk(obj: SdkSendItem): SendItem {
     return Object.assign(new SendItem(), {
       encryptionVersion: obj.encryptionVersion,
       data: Cipher.fromSdkCipher(obj.data),
