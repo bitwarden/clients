@@ -4964,6 +4964,9 @@
   "chooseYourPlan": {
     "message": "Choose your plan"
   },
+  "choosePlan": {
+    "message": "Choose plan"
+  },
   "users": {
     "message": "Users"
   },
