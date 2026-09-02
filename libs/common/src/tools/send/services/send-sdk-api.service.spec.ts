@@ -69,7 +69,7 @@ describe("SendSdkApiService", () => {
       fileId: "server-file-id",
       // The SDK encrypted these internally under the key it generated; the caller only relays them.
       encryptedFileName: "2.encrypted-file-name",
-      encryptedFileBuffer: [9, 8, 7],
+      encryptedFileBuffer: new Uint8Array([9, 8, 7]),
     };
     sendsClient = {
       create: jest.fn().mockResolvedValue(sdkView),
