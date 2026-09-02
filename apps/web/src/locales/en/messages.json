@@ -4964,6 +4964,9 @@
   "chooseYourPlan": {
     "message": "Choose your plan"
   },
+  "choosePlan": {
+    "message": "Choose plan"
+  },
   "users": {
     "message": "Users"
   },
@@ -14193,6 +14196,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Get Secrets Manager"
+  },
   "secureYourInfrastructure": {
     "message": "Secure your infrastructure"
   },
@@ -16019,6 +16025,9 @@
   },
   "upgradeNow": {
     "message": "Upgrade now"
+  },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Get advanced online security with Bitwarden premium."
   },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."

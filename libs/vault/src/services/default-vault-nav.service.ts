@@ -13,7 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { getAvatarDefaultColor } from "@bitwarden/components";
 
-import { getOrgIconForTier, getOrgTileColorForTier } from "../components/org-icon.directive";
+import { getOrgIconForTier } from "../components/org-icon.directive";
 import {
   VaultNavColor,
   VaultNavItemType,
@@ -101,7 +101,6 @@ export class DefaultVaultNavService extends VaultNavService {
       .map((org) => ({
         id: org.id,
         label: org.name,
-        color: this.orgColor(org),
         icon: getOrgIconForTier(org.productTierType),
         type: this.orgType(org),
         defaultUserCollectionId: defaultUserCollectionIds.get(org.id),
@@ -124,9 +123,5 @@ export class DefaultVaultNavService extends VaultNavService {
       default:
         return VaultNavItemType.Organization;
     }
-  }
-
-  private orgColor(org: Organization): VaultNavColor {
-    return getOrgTileColorForTier(org.productTierType);
   }
 }

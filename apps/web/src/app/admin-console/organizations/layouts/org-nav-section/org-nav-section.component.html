@@ -5,7 +5,12 @@
       [ariaLabel]="['organization' | i18n, org.name].join(' ')"
       [open]="org.id === activeOrganizationId()"
     >
-      <bit-icon-tile [icon]="org.icon" [color]="org.color" size="sm" />
+      <bit-icon-tile
+        [icon]="org.tile.icon"
+        [variant]="org.tile.variant ?? 'primary'"
+        [emphasis]="org.tile.emphasis ?? 'subtle'"
+        size="sm"
+      />
       @if (!org.enabled) {
         <bit-icon
           slot="end"
@@ -33,7 +38,12 @@
       [ariaLabel]="['organization' | i18n, org.name].join(' ')"
       [route]="org.root"
     >
-      <bit-icon-tile [icon]="org.icon" [color]="org.color" size="sm" />
+      <bit-icon-tile
+        [icon]="org.tile.icon"
+        [variant]="org.tile.variant ?? 'primary'"
+        [emphasis]="org.tile.emphasis ?? 'subtle'"
+        size="sm"
+      />
       @if (!org.enabled) {
         <bit-icon
           slot="end"

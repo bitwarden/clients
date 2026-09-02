@@ -7,13 +7,12 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import {
-  MY_VAULT,
-  NO_FOLDER,
   VAULT_FILTER_KEYS,
   VAULT_FILTER_NAMESPACE,
 } from "../components/vault-items-table/vault-items-table.component";
 import { All } from "../models/routed-vault-filter.model";
 import { VaultScope, VaultScopeType, vaultScopeCommands } from "../models/vault-scope";
+import { NO_FOLDER, MY_VAULT } from "../utils/vault-filter-predicates";
 
 /** Maps the legacy `?type=` string values to their numeric CipherType equivalents. */
 const LEGACY_TYPE_MAP: Record<string, CipherType> = {

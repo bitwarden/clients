@@ -3,10 +3,15 @@ import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
   computed,
+  effect,
   inject,
   input,
   linkedSignal,
+  signal,
+  viewChild,
 } from "@angular/core";
 import { RouterLink } from "@angular/router";
 
@@ -32,22 +37,31 @@ import {
 } from "../../models/vault-scope";
 
 /**
- * The grid never grows past three columns, and nine cards — three full rows at that width — stay
- * visible before the rest collapse. Narrower containers fit fewer columns, so the same nine cards
- * spill over more (and a partially filled) rows.
+ * Three full rows stay visible before the rest collapse, however many columns the grid is currently
+ * laid out in — so the cutoff is three, six, or nine cards rather than a fixed nine that spills over
+ * five rows once the container drops to two columns.
  */
 const MAX_COLUMNS = 3;
 const VISIBLE_ROWS = 3;
-const COLLAPSED_CARD_COUNT = MAX_COLUMNS * VISIBLE_ROWS;
+
+/** The narrowest a track may be before the grid drops a column — the `minmax` floor below, in px. */
+const MIN_CARD_WIDTH = 240;
+
+/** The `tw-gap-3` gap applied in the template, in px. */
+const GRID_GAP = 12;
 
 /**
- * Track sizing for the card grid, kept in sync with {@link MAX_COLUMNS} and the `tw-gap-3` (0.75rem)
- * gap applied in the template.
+ * Track sizing for the card grid, kept in sync with {@link MAX_COLUMNS}, {@link MIN_CARD_WIDTH}, and
+ * {@link GRID_GAP} — `1.5rem` below is the two 12px gaps that sit between three columns.
  *
  * `auto-fill` wraps cards to whatever the container can hold, and the lower bound of the `minmax`
- * caps the column count: a track can be no narrower than one third of the container (less the two
- * gaps that sit between three columns), nor narrower than 240px. The outer `min(100%, …)` keeps a
- * card from overflowing containers narrower than 240px.
+ * caps the column count: a track can be no narrower than one third of the container (less those two
+ * gaps), nor narrower than 240px. The outer `min(100%, …)` keeps a card from overflowing containers
+ * narrower than 240px.
+ *
+ * `auto-fill` rather than `auto-fit` so the track count depends only on the container's width, never
+ * on how many cards are in the grid — otherwise {@link SharedFolderCardGridComponent.columns}, which
+ * decides that card count, would be measuring its own output.
  */
 const GRID_TEMPLATE_COLUMNS =
   "repeat(auto-fill, minmax(min(100%, max(240px, (100% - 1.5rem) / 3)), 1fr))";
@@ -122,6 +136,63 @@ export class SharedFolderCardGridComponent {
   readonly initiallyExpanded = input(false);
 
   protected readonly gridTemplateColumns = GRID_TEMPLATE_COLUMNS;
+
+  /** The list the cards render into. Absent whenever the grid renders nothing. */
+  private readonly gridList = viewChild<ElementRef<HTMLElement>>("gridList");
+
+  /**
+   * The width of the grid itself, in px, kept current as the window resizes. 0 until first measured.
+   *
+   * The grid's own width rather than the window's: it sits in a container the page sizes and pads,
+   * so the two only track each other loosely, and it is the grid's width that CSS lays the columns
+   * out against.
+   */
+  private readonly gridWidth = signal(0);
+
+  constructor() {
+    const observer = new ResizeObserver(([entry]) =>
+      // `contentBoxSize` is the spec'd read; `contentRect` is the older, always-present equivalent,
+      // and covers engines that hand back an empty box array.
+      this.gridWidth.set(entry.contentBoxSize?.[0]?.inlineSize ?? entry.contentRect.width),
+    );
+    inject(DestroyRef).onDestroy(() => observer.disconnect());
+
+    // Re-resolved rather than measured once: hosts load their collections after the first render, so
+    // the list is usually absent then and arrives — or leaves again, on a drill-in to a folder with
+    // no children — later.
+    effect(() => {
+      const list = this.gridList()?.nativeElement;
+      observer.disconnect();
+      if (list == null) {
+        return;
+      }
+      // Primed here so the change-detection pass that follows already has a width, rather than
+      // painting the widest layout and reflowing once the observer's first callback lands.
+      this.gridWidth.set(list.clientWidth);
+      observer.observe(list);
+    });
+  }
+
+  /**
+   * How many columns the grid is laid out in, from one to {@link MAX_COLUMNS}. Mirrors what
+   * `auto-fill` resolves {@link GRID_TEMPLATE_COLUMNS} to at the measured width: no track is
+   * narrower than {@link MIN_CARD_WIDTH}, so a row holds as many of those — plus the gap between
+   * each pair — as fit, and the `minmax` floor growing with the container caps that at three.
+   *
+   * Falls back to the widest layout until the grid has been measured.
+   */
+  private readonly columns = computed(() => {
+    const width = this.gridWidth();
+    if (width === 0) {
+      return MAX_COLUMNS;
+    }
+
+    const fit = Math.floor((width + GRID_GAP) / (MIN_CARD_WIDTH + GRID_GAP));
+    return Math.min(Math.max(fit, 1), MAX_COLUMNS);
+  });
+
+  /** The cards left on show while the grid is collapsed: three full rows at the current width. */
+  private readonly collapsedCardCount = computed(() => this.columns() * VISIBLE_ROWS);
 
   /**
    * {@link collections} as a tree — the collections of the vault the drill-in sits inside, so the
@@ -214,16 +285,15 @@ export class SharedFolderCardGridComponent {
     return { before, count: this.count(), after };
   });
 
-  protected readonly overflowCards = computed(() => this.cards().slice(COLLAPSED_CARD_COUNT));
+  protected readonly overflowCards = computed(() => this.cards().slice(this.collapsedCardCount()));
 
   /**
    * The cards currently in the grid. Overflow cards are appended to the same list rather than
    * rendered in a grid of their own, so a partially filled last row is topped up before a new row
-   * starts — otherwise a narrower container that fits only two columns leaves a permanent gap
-   * beside the ninth card.
+   * starts — the cutoff fills whole rows, but the children rarely run out on a row boundary.
    */
   protected readonly displayedCards = computed(() =>
-    this.expanded() ? this.cards() : this.cards().slice(0, COLLAPSED_CARD_COUNT),
+    this.expanded() ? this.cards() : this.cards().slice(0, this.collapsedCardCount()),
   );
 
   protected toggleExpanded() {

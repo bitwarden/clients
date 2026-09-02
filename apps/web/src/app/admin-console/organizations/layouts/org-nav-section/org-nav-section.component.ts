@@ -19,14 +19,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   A11yTitleDirective,
-  BitwardenIcon,
-  defaultAvatarColors,
   IconModule,
   IconTileComponent,
+  IconTileOptions,
   NavigationModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { All, getOrgIconForTier, getOrgTileColorForTier } from "@bitwarden/vault";
+import { All, orgIconTile } from "@bitwarden/vault";
 
 interface OrgVaultRoutes {
   allItems: UrlTree;
@@ -37,9 +36,8 @@ interface OrgNavItemViewModel {
   id: string;
   name: string;
   enabled: boolean;
-  icon: BitwardenIcon;
-  /** Hex, not a palette name — matches the tiles the Password Manager nav renders. */
-  color: string;
+  /** Resolved once per organization: `bit-icon-tile` re-runs its own effect on a fresh object. */
+  tile: IconTileOptions;
   /** The organization's own pages, for one with no vault entries to link to. */
   root: UrlTree;
   /** Absent when the user administers the organization but cannot access its vault. */
@@ -142,8 +140,7 @@ export class OrgNavSectionComponent {
       id: org.id,
       name: org.name,
       enabled: org.enabled,
-      icon: getOrgIconForTier(org.productTierType),
-      color: defaultAvatarColors[getOrgTileColorForTier(org.productTierType)],
+      tile: orgIconTile(org.productTierType),
       root: this.router.createUrlTree(["/organizations", org.id]),
       vault: canAccessVaultTab(org)
         ? {

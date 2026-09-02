@@ -16,11 +16,7 @@ export {
   VaultCopyButtonsService,
   CopyButtonDisplayMode,
 } from "./services/vault-copy-buttons.service";
-export {
-  OrgIconDirective,
-  getOrgIconForTier,
-  getOrgTileColorForTier,
-} from "./components/org-icon.directive";
+export { OrgIconDirective, getOrgIconForTier } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
 export { DarkImageSourceDirective } from "./components/dark-image-source.directive";
 export { GetOrgNameFromIdPipe } from "./pipes/get-organization-name.pipe";
@@ -76,6 +72,7 @@ export * from "./models/routed-vault-filter-bridge.model";
 export * from "./models/vault-filter-section.type";
 export * from "./models/filter-function";
 export * from "./models/vault-nav-view-model";
+export * from "./models/vault-icon-tile";
 export * from "./models/folder-table-row";
 export * from "./models/vault-scope";
 export { VaultFilterService as VaultFilterServiceAbstraction } from "./abstractions/vault-filter.service";
@@ -130,3 +127,11 @@ export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
 export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
 export { vaultScopeGuard } from "./routing/vault-scope.guard";
+export {
+  matchesType,
+  matchesFavorite,
+  matchesVault,
+  matchesSharedFolder,
+  matchesFolder,
+  idString,
+} from "./utils/vault-filter-predicates";

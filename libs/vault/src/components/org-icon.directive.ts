@@ -1,7 +1,7 @@
 import { Directive, ElementRef, HostBinding, Input, Renderer2 } from "@angular/core";
 
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { AvatarColor, BitwardenIcon } from "@bitwarden/components";
+import { BitwardenIcon } from "@bitwarden/components";
 
 export function getOrgIconForTier(tier: ProductTierType): BitwardenIcon {
   switch (tier) {
@@ -14,17 +14,6 @@ export function getOrgIconForTier(tier: ProductTierType): BitwardenIcon {
       return "bwi-business";
     default:
       return "bwi-business";
-  }
-}
-
-/** The tile color an organization is given wherever it appears in a side nav. */
-export function getOrgTileColorForTier(tier: ProductTierType): AvatarColor {
-  switch (tier) {
-    case ProductTierType.Free:
-    case ProductTierType.Families:
-      return "teal";
-    default:
-      return "purple";
   }
 }
 

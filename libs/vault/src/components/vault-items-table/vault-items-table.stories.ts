@@ -5,6 +5,7 @@ import { action } from "storybook/actions";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -515,6 +516,10 @@ export default {
         {
           provide: AccountService,
           useValue: { activeAccount$: of({ id: "user-1" }) },
+        },
+        {
+          provide: AvatarService,
+          useValue: { getUserAvatarColor$: () => of("#175ddc") },
         },
         // The real search service, so the search box behaves here exactly as it does in a client —
         // including `>`-prefixed lunr queries. It's built directly rather than injected so it can
