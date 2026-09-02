@@ -2,13 +2,15 @@
 // @ts-strict-ignore
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { SendId as SdkSendId, SendView as SdkSendView } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../../models/view/view";
+import { asUuid } from "../../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../../platform/misc/utils";
 import { DeepJsonify } from "../../../../types/deep-jsonify";
 import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
-import { Send } from "../domain/send";
+import { AUTH_TYPE_TO_SDK, Send, SEND_TYPE_TO_SDK } from "../domain/send";
 
 import { SendFileView } from "./send-file.view";
 import { SendTextView } from "./send-text.view";
@@ -83,6 +85,57 @@ export class SendView implements View {
         key: Utils.fromBufferToB64(this.key),
       },
     );
+  }
+
+  /**
+   * Maps this decrypted `SendView` to the SDK's `SendView` shape, for the key-rotation flow
+   * (`SendClient.encrypt_send_for_rotation`). Mirrors `CipherView.toSdkCipherView`: dates become
+   * ISO strings and enum-likes are translated via the shared mapping tables.
+   *
+   * `key` is the URL-safe base64 form of the 16-byte send-key seed — the encoding the SDK's
+   * `SendView` expects (it decodes it as `B64Url`). `newPassword` is left `undefined`: it is the
+   * SDK's field for a *plaintext* password to (re)derive the send's proof-of-knowledge, which this
+   * view does not carry (`this.password` is the already-derived hash), and rotation never changes
+   * the send key seed the hash is salted with.
+   */
+  toSdkSendView(): SdkSendView {
+    return {
+      id: this.id ? asUuid<SdkSendId>(this.id) : undefined,
+      accessId: this.accessId ?? undefined,
+      name: this.name ?? "",
+      notes: this.notes ?? undefined,
+      key: this.key != null ? this.urlB64Key : undefined,
+      newPassword: undefined,
+      hasPassword: this.password != null,
+      type: SEND_TYPE_TO_SDK[this.type],
+      file:
+        this.type === SendType.File
+          ? {
+              id: this.file?.id ?? undefined,
+              fileName: this.file?.fileName ?? "",
+              size: this.file?.size ?? undefined,
+              sizeName: this.file?.sizeName ?? undefined,
+            }
+          : undefined,
+      text:
+        this.type === SendType.Text
+          ? {
+              text: this.text?.text ?? undefined,
+              hidden: this.text?.hidden ?? false,
+            }
+          : undefined,
+      // Item-type sends are not yet modeled client-side; see PM-41095.
+      data: undefined,
+      maxAccessCount: this.maxAccessCount ?? undefined,
+      accessCount: this.accessCount,
+      disabled: this.disabled,
+      hideEmail: this.hideEmail,
+      revisionDate: this.revisionDate?.toISOString(),
+      deletionDate: this.deletionDate?.toISOString(),
+      expirationDate: this.expirationDate?.toISOString() ?? undefined,
+      emails: this.emails ?? [],
+      authType: AUTH_TYPE_TO_SDK[this.authType],
+    };
   }
 
   static fromJSON(json: DeepJsonify<SendView>) {
