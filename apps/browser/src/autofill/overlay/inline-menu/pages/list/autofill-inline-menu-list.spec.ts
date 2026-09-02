@@ -29,6 +29,7 @@ jest.mock("../../../../content/components/inline-menu", () => ({
 }));
 jest.mock("../../../../content/components/icons", () => ({
   Lock: jest.fn(),
+  Plus: jest.fn(),
   ExternalLink: jest.fn(),
   Key: jest.fn(),
   Refresh: jest.fn(),
@@ -155,6 +156,70 @@ describe("AutofillInlineMenuList", () => {
         );
       });
 
+      it("renders the Lit empty-state prompt", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [],
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuPrompt).toHaveBeenCalledWith(
+          expect.objectContaining({
+            dataTestId: "inline-menu-empty-state",
+            actionDataTestId: "inline-menu-new-item-button",
+          }),
+        );
+        expect(
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector(".no-items"),
+        ).toBeNull();
+      });
+
+      it("allows the user to add a vault item from the Lit empty-state prompt", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [],
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        const { handleAction } = (InlineMenuPrompt as jest.Mock).mock.calls[0][0];
+        handleAction(new Event("click"));
+
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+          {
+            command: "addNewVaultItem",
+            portKey,
+            addNewCipherType: CipherType.Login,
+            token: "test-token",
+          },
+          expectedOrigin,
+        );
+      });
+
+      it("keeps the legacy empty-state DOM when useLitComponents is false", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [],
+            portKey,
+            useLitComponents: false,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuPrompt).not.toHaveBeenCalled();
+        expect(
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector(".no-items"),
+        ).not.toBeNull();
+      });
+
       it("renders the Lit save-login prompt", async () => {
         postWindowMessage(
           createInitAutofillInlineMenuListMessageMock({
@@ -250,6 +315,58 @@ describe("AutofillInlineMenuList", () => {
             ".inline-menu-list-actions",
           ),
         ).toBeNull();
+      });
+
+      it("renders the Lit new item action when account creation is enabled", async () => {
+        const ciphers = [createAutofillOverlayCipherDataMock(1)];
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers,
+            portKey,
+            useLitComponents: true,
+            showInlineMenuAccountCreation: true,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuCipherList).toHaveBeenCalledWith(
+          expect.objectContaining({
+            newItem: expect.objectContaining({
+              actionDataTestId: "inline-menu-new-item-button",
+            }),
+          }),
+        );
+        expect(
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector("#new-item-button"),
+        ).toBeNull();
+      });
+
+      it("adds a vault item from the Lit cipher list new item action", async () => {
+        const ciphers = [createAutofillOverlayCipherDataMock(1)];
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers,
+            portKey,
+            useLitComponents: true,
+            showInlineMenuAccountCreation: true,
+          }),
+        );
+        await flushPromises();
+
+        const { newItem } = (InlineMenuCipherList as jest.Mock).mock.calls[0][0];
+        newItem.handleAction(new Event("click"));
+
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+          {
+            command: "addNewVaultItem",
+            portKey,
+            addNewCipherType: CipherType.Login,
+            token: "test-token",
+          },
+          expectedOrigin,
+        );
       });
 
       it("fills a cipher from the Lit cipher list", async () => {
