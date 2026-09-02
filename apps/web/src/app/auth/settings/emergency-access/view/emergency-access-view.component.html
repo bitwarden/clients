@@ -4,8 +4,9 @@
       <bit-breadcrumb [route]="['/settings']" icon="bwi-cog">{{
         "settings" | i18n
       }}</bit-breadcrumb>
+      <bit-breadcrumb [route]="['..']">{{ "emergencyAccess" | i18n }}</bit-breadcrumb>
       <bit-breadcrumb [route]="[]" queryParamsHandling="preserve">{{
-        "emergencyAccess" | i18n
+        "vault" | i18n
       }}</bit-breadcrumb>
     </bit-breadcrumbs>
   </app-header>
