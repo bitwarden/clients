@@ -34,7 +34,7 @@ describe("ImportUpgradeNavigationService", () => {
     it("focuses the new tab's window, so it doesn't open behind a pop-out window", async () => {
       await service.openImportSourceSelectTab();
 
-      expect(BrowserApi.focusWindow).toHaveBeenCalledWith(42);
+      expect(BrowserApi.focusWindow).toHaveBeenCalledWith(1);
     });
   });
 });
