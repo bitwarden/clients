@@ -1,9 +1,8 @@
 <popup-page disablePadding>
-  <!-- Plain title, no popup-header: popup-header always renders a distinct background bar (undesired).
-       The bg-bg-primary override goes on the full-width outer wrapper, not the inner max-w-6xl one —
-       otherwise it only paints the centered content column and popup-page's own ambient
-       tw-bg-background-alt shows through on either side. -->
-  <div slot="header" class="tw-w-full tw-bg-bg-primary">
+  <!-- No slot="header": popup-page's [slot=header] projects outside the scrollable region (fixed
+       to the top), which suits its usual small-popup toolbar but not this full-page tab, where the
+       header should scroll away with the rest of the content like a normal page. -->
+  <div class="tw-min-h-full tw-bg-bg-primary">
     <!-- The logo sits at the true left edge of its own full-width strip, independent of the
          tw-max-w-6xl centered content column below — matching how the real app (e.g. bit-nav-logo,
          apps/desktop/src/app/layout/desktop-layout.component.html) pins the logo to the far left,
@@ -16,9 +15,6 @@
     <div class="tw-max-w-6xl tw-mx-auto tw-p-4 tw-py-0">
       <h1 bitTypography="h1" noMargin>{{ "importNoun" | i18n }}</h1>
     </div>
-  </div>
-
-  <div class="tw-min-h-full tw-bg-bg-primary">
     <div class="tw-max-w-6xl tw-mx-auto tw-p-4">
       <importer-source-select></importer-source-select>
     </div>
