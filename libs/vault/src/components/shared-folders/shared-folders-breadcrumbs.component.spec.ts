@@ -36,8 +36,7 @@ type SetupOptions = {
 /**
  * A crumb is projected into `bit-breadcrumbs` as a template rather than an element, so the
  * `bit-breadcrumb` hosts never reach the DOM — these assert on what each crumb renders as instead:
- * a link for a crumb pointing elsewhere, and the `aria-current="page"` element for the active one,
- * which is the crumb `bit-header` promotes to the page's `<h1>`.
+ * a link for a crumb pointing elsewhere, and the `aria-current="page"` element for the active one.
  */
 describe("SharedFoldersBreadcrumbsComponent", () => {
   let harness: RouterTestingHarness;
@@ -73,17 +72,14 @@ describe("SharedFoldersBreadcrumbsComponent", () => {
     TestBed.resetTestingModule();
   });
 
-  /** The crumbs rendered as links — every crumb but the active one. */
   function links(): DebugElement[] {
     return harness.fixture.debugElement.queryAll(By.css("a[href]"));
   }
 
-  /** The active crumb, which is the page's own. */
   function activeCrumb(): DebugElement {
     return harness.fixture.debugElement.query(By.css('[aria-current="page"]'));
   }
 
-  /** The icon tile projected into the organization crumb's `start` slot. */
   function organizationTile(): IconTileComponent {
     return harness.fixture.debugElement.query(By.directive(IconTileComponent))
       .componentInstance as IconTileComponent;

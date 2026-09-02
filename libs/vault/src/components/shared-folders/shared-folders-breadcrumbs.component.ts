@@ -9,7 +9,6 @@ import { vaultScopeCommands, VaultScopeType } from "../../models/vault-scope";
 
 import { injectVaultOrganization } from "./inject-vault-organization";
 
-/** The organization crumb's parts, resolved together so the template reads one signal. */
 interface VaultCrumb {
   name: string;
   tile: IconTileOptions;
@@ -22,9 +21,6 @@ interface VaultCrumb {
  *
  * Projected into each client's `<app-header>` through its `breadcrumbs` slot, so the crumbs resolve
  * the `HeaderContext` that lets the active crumb stand in for the page's `<h1>`.
- *
- * Lives here rather than in either client because both build the same trail from the same route —
- * see the web and desktop `SharedFoldersComponent`s.
  */
 @Component({
   selector: "vault-shared-folders-breadcrumbs",
@@ -43,8 +39,7 @@ export class SharedFoldersBreadcrumbsComponent {
    * The organization crumb, or `undefined` until the organization list loads. The trail then opens
    * on the shared folders crumb rather than flashing a nameless vault.
    *
-   * Its tile is {@link orgIconTile}, the same tile the side nav's vault entry renders, so the crumb
-   * and the nav entry it was reached from read as the same vault.
+   * Its tile is {@link orgIconTile}, matching the side nav's vault entry.
    */
   protected readonly vaultCrumb = computed<VaultCrumb | undefined>(() => {
     const organization = this.organization();
