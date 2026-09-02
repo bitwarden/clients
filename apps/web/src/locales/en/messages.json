@@ -20345,6 +20345,9 @@
   "pamTargetSystemTypeCustomScript": {
     "message": "Custom script"
   },
+  "pamTargetSystemTypeActiveDirectory": {
+    "message": "Active Directory (on-premises)"
+  },
   "pamTargetSystemNameWithDetail": {
     "message": "$NAME$ ($DETAIL$)",
     "description": "A target system's name followed by the detail that tells it apart from another target system with the same name, such as its integration.",
@@ -20419,6 +20422,12 @@
   },
   "pamTargetSystemSessionTerminationSupported": {
     "message": "Supported"
+  },
+  "pamTargetSystemSessionTerminationUnsupportedHint": {
+    "message": "This integration cannot end sessions that are already open. Rotating the credential blocks new sign-ins, but existing sessions continue until they expire."
+  },
+  "pamTargetSystemSessionTerminationRetainedHint": {
+    "message": "This target system is recorded as supporting session termination, and its managed credentials can still use it. Saving here leaves that record as it is."
   },
   "pamTargetSystemCreated": {
     "message": "Target system created."
