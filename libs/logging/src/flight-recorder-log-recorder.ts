@@ -7,13 +7,25 @@ import { safeStringify } from "./safe-stringify";
 /** Cap on records buffered before the SDK is ready. Later records are dropped. */
 const MAX_QUEUE = 1000;
 
-/** The SDK carries a `Trace` level the clients have no equivalent for. */
-const SDK_LEVEL: Record<LogLevel, SdkLogLevel> = {
-  [LogLevel.Debug]: SdkLogLevel.Debug,
-  [LogLevel.Info]: SdkLogLevel.Info,
-  [LogLevel.Warning]: SdkLogLevel.Warn,
-  [LogLevel.Error]: SdkLogLevel.Error,
-};
+/**
+ * The SDK carries a `Trace` level the clients have no equivalent for.
+ *
+ * Read at call time: `libs/common` re-exports the `@bitwarden/logging` barrel, so touching
+ * the SDK enum during module evaluation breaks every spec that stubs
+ * `@bitwarden/sdk-internal` with a partial mock.
+ */
+function toSdkLevel(level: LogLevel): SdkLogLevel {
+  switch (level) {
+    case LogLevel.Debug:
+      return SdkLogLevel.Debug;
+    case LogLevel.Info:
+      return SdkLogLevel.Info;
+    case LogLevel.Warning:
+      return SdkLogLevel.Warn;
+    case LogLevel.Error:
+      return SdkLogLevel.Error;
+  }
+}
 
 interface QueuedRecord {
   timestamp: number;
@@ -59,7 +71,7 @@ export class FlightRecorderLogRecorder implements LogRecorder {
   record(level: LogLevel, message?: any, ...optionalParams: any[]): void {
     try {
       const timestamp = Date.now();
-      const sdkLevel = SDK_LEVEL[level];
+      const sdkLevel = toSdkLevel(level);
       const text = this.format(message, optionalParams);
 
       if (this.client != null) {
