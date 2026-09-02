@@ -11,6 +11,8 @@ import { logging } from "@bitwarden/desktop-napi";
 
 import { isDev } from "../../utils";
 
+const EPIPE_ERROR_CODE = "EPIPE";
+
 export class ElectronLogMainService extends BaseLogService {
   constructor(
     protected filter: (level: LogLevelType) => boolean = null,
@@ -21,6 +23,8 @@ export class ElectronLogMainService extends BaseLogService {
     if (log.transports == null) {
       return;
     }
+
+    this.guardConsoleAgainstClosedPipe();
 
     log.transports.file.level = isDev() ? "debug" : "info";
     if (this.logDir != null) {
@@ -33,6 +37,25 @@ export class ElectronLogMainService extends BaseLogService {
     });
 
     logging.initNapiLog((error, level, message) => this.writeNapiLog(level, message));
+  }
+
+  // stdout/stderr may be a pipe owned by whatever launched the app (a terminal,
+  // an updater, a parent process). Once that pipe is gone, console writes throw
+  // EPIPE, which Electron surfaces to the user as an uncaught exception dialog
+  // during shutdown. Console logs are best-effort, so drop them instead.
+  private guardConsoleAgainstClosedPipe() {
+    const consoleTransport = log.transports.console;
+    const write = consoleTransport.writeFn;
+
+    consoleTransport.writeFn = (options) => {
+      try {
+        write.call(consoleTransport, options);
+      } catch (e) {
+        if (e?.code !== EPIPE_ERROR_CODE) {
+          throw e;
+        }
+      }
+    };
   }
 
   private writeNapiLog(level: logging.LogLevel, message: string) {
