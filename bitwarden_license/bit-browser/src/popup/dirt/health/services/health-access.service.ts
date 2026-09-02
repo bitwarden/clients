@@ -4,6 +4,7 @@ import { Observable, of, combineLatest, map, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -99,6 +100,8 @@ export class HealthAccessService {
   }
 }
 
+const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
+
 const HEALTH_TAB_OPENED_KEY = new UserKeyDefinition<boolean>(
   BROWSER_HEALTH_DISK,
   "healthTabOpened",
@@ -137,5 +140,30 @@ export const canAccessHealth: CanActivateFn = () => {
       }
       return true;
     }),
+  );
+};
+
+/**
+ * Guards the Health risk-category detail routes, which are the Premium part of the
+ * feature: the Health tab itself is open to everyone {@link canAccessHealth} lets
+ * through, showing the gauge with the categories locked.
+ *
+ * The check cannot live in the Health Overview's locked state alone, because these
+ * routes are reachable without passing through it: the popup restores the last route
+ * it was on, and popping out gives an address bar.
+ *
+ * Redirects silently rather than toasting. Route restoration can land a lapsed user
+ * here having done nothing, and an error toast for that reads as a fault.
+ */
+export const canAccessHealthDetail: CanActivateFn = () => {
+  const router = inject(Router);
+  const accountService = inject(AccountService);
+  const billingAccountProfileStateService = inject(BillingAccountProfileStateService);
+
+  return accountService.activeAccount$.pipe(
+    switchMap((user) =>
+      user?.id ? billingAccountProfileStateService.hasPremiumFromAnySource$(user.id) : of(false),
+    ),
+    map((hasPremium) => hasPremium || router.createUrlTree([HEALTH_OVERVIEW_ROUTE])),
   );
 };
