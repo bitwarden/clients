@@ -278,6 +278,40 @@ describe("DefaultCipherHealthService", () => {
       expect(healthMap.get("3")?.hasExposedPassword).toBe(false);
     });
 
+    it("should score strength as each lookup resolves, not after the whole batch", async () => {
+      // zxcvbn is synchronous and costs about a millisecond per cipher. Scoring the whole vault
+      // after the last lookup returns lands as one visible freeze; scoring per group fills the gaps
+      // between network responses instead.
+      const ciphers = [
+        createMockCipher({ id: "1", password: "fast" }),
+        createMockCipher({ id: "2", password: "slow" }),
+      ];
+
+      let releaseSlowLookup: (count: number) => void = () => {};
+      const slowLookup = new Promise<number>((resolve) => {
+        releaseSlowLookup = resolve;
+      });
+      auditService.passwordLeaked.mockImplementation((password: string) =>
+        password === "slow" ? slowLookup : Promise.resolve(0),
+      );
+
+      const scored: string[] = [];
+      passwordStrengthService.getPasswordStrength.mockImplementation((password: string) => {
+        scored.push(password);
+        return { score: 3 } as ZXCVBNResult;
+      });
+
+      const healthMap = firstValueFrom(service.checkCipherHealth(ciphers));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(scored).toEqual(["fast"]);
+
+      releaseSlowLookup(0);
+      await healthMap;
+
+      expect(scored).toEqual(["fast", "slow"]);
+    });
+
     it("should complete the batch when an exposure check fails", async () => {
       // A single rejection used to cancel the whole fan-out, discarding every lookup that had
       // already succeeded and failing report generation outright.
