@@ -2418,8 +2418,22 @@
   "noMatchingItems": {
     "message": "No matching items"
   },
+  "oneFilterResult": {
+    "message": "1 result",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ results",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
   "noFiltersMatch": {
-    "message": "No filters match \"$SEARCH$\"",
+    "message": "No filters match \u201c$SEARCH$\u201d",
     "placeholders": {
       "search": {
         "content": "$1",

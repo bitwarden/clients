@@ -80,6 +80,7 @@
       buttonType="secondary"
       size="small"
       type="button"
+      startIcon="bwi-clear"
       (click)="clearSearch($event)"
     >
       {{ "clearSearch" | i18n }}
@@ -95,6 +96,16 @@
         [ngModel]="searchTerm()"
         (ngModelChange)="setSearchTerm($event)"
       ></bit-search>
+    </div>
+  }
+  @if (resultCount() != null) {
+    <div
+      class="tw-px-4 tw-pb-1 tw-text-xs tw-font-normal tw-text-fg-body-subtle"
+      aria-live="polite"
+    >
+      {{
+        resultCount() === 1 ? ("oneFilterResult" | i18n) : ("filterResults" | i18n: resultCount())
+      }}
     </div>
   }
   @if (multiple()) {
@@ -114,6 +125,7 @@
           data-filter-option-row
           [bitFilterTreeRow]="node"
           [class]="optionRowClasses"
+          [class.tw-py-3]="node.row.kind === 'option'"
           [style.padding-inline-start.rem]="0.5 + (node.level - 1) * 1.75"
           [attr.aria-level]="node.level"
           [attr.aria-setsize]="node.setsize"

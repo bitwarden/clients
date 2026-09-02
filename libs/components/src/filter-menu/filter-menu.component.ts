@@ -259,6 +259,19 @@ export class FilterMenuComponent
   /** Whether the menu has enough options to warrant the in-menu search box. */
   protected readonly showSearch = computed(() => this.allOptions().length > SEARCH_THRESHOLD);
 
+  /**
+   * How many options the running search matched, or `undefined` when no search is running. Shown
+   * above the list, which is where the spec puts it.
+   */
+  protected readonly resultCount = computed(() => {
+    if (this._searchTerm().trim() === "") {
+      return undefined;
+    }
+    const matches = this.allOptions().filter((option) => this.rowVisible(option)).length;
+    // No count at zero: the "no results" state below already names the term.
+    return matches === 0 ? undefined : matches;
+  });
+
   /** A search term is entered but no option matches — show a "no results" message. */
   protected readonly noResults = computed(() => {
     if (this._searchTerm().trim() === "") {
