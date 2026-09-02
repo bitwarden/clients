@@ -382,7 +382,7 @@ export const RealisticSideNavV2: Story = {
           <ng-container slot="product-switcher">
             <navigation-product-switcher [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></navigation-product-switcher>
           </ng-container>
-          <bit-nav-group text="My vault" [open]="true">
+          <bit-nav-group text="My vault" route="vault" [open]="true">
             <bit-icon-tile icon="bwi-vault" variant="primary" size="sm"></bit-icon-tile>
             <bit-nav-item text="All vault items" route="all-items" icon="bwi-list"></bit-nav-item>
             <bit-nav-item text="My items" route="my-items" icon="bwi-user"></bit-nav-item>
@@ -415,7 +415,7 @@ export const RealisticSideNavV2: Story = {
             <app-upgrade-callout></app-upgrade-callout>
           </ng-container>
           <ng-container slot="account">
-            <div class="tw-p-3">Account section would go here</div>
+            <div>Account section would go here</div>
           </ng-container>
         </bit-side-nav>
         <router-outlet></router-outlet>
