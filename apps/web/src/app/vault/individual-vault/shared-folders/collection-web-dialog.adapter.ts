@@ -2,11 +2,7 @@ import { Injectable, inject } from "@angular/core";
 import { firstValueFrom, lastValueFrom } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import {
-  CollectionData,
-  CollectionDetailsResponse,
-  CollectionView,
-} from "@bitwarden/common/admin-console/models/collections";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DialogService } from "@bitwarden/components";
@@ -47,8 +43,10 @@ export class CollectionWebDialogAdapter implements CollectionDialogRef {
 
     const result = await lastValueFrom(dialog.closed);
 
-    if (result?.action === CollectionDialogAction.Saved && result.collection != null) {
-      await this.upsert(result.collection);
+    if (result?.action === CollectionDialogAction.Saved) {
+      // `CollectionAdminService.update`/`create` already reconciled `CollectionService` — including
+      // dropping the collection when the save left the active user unassigned — so any stream over
+      // it has re-emitted; writing it back here would resurrect it.
       return CollectionDialogOutcome.Saved;
     }
 
@@ -59,14 +57,5 @@ export class CollectionWebDialogAdapter implements CollectionDialogRef {
     }
 
     return CollectionDialogOutcome.Canceled;
-  }
-
-  /** Writes a saved collection back to `CollectionService`, so any stream over it re-emits. */
-  private async upsert(collection: unknown): Promise<void> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    await this.collectionService.upsert(
-      new CollectionData(collection as CollectionDetailsResponse),
-      userId,
-    );
   }
 }
