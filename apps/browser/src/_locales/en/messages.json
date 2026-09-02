@@ -2765,6 +2765,18 @@
   "noMatchingItems": {
     "message": "No matching items"
   },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
+  },
   "selected": {
     "message": "Selected"
   },
@@ -7287,6 +7299,15 @@
   },
   "showMore": {
     "message": "Show more"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Show less"
