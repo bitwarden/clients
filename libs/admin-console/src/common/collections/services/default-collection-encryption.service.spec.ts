@@ -11,7 +11,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { DECRYPT_ERROR, EncString } from "@bitwarden/legacy-crypto";
 import {
   Collection as SdkCollection,
   CollectionView as SdkCollectionView,
@@ -180,7 +180,7 @@ describe("DefaultCollectionEncryptionService", () => {
         const failedView = result.find((v) => v.id === collectionId)!;
         const successView = result.find((v) => v.id === collectionId2)!;
         expect(failedView.decryptionFailure).toBe(true);
-        expect(failedView.name).toBe("");
+        expect(failedView.name).toBe(DECRYPT_ERROR);
         expect(successView.decryptionFailure).toBe(false);
         expect(successView.name).toBe("Collection 2");
       });

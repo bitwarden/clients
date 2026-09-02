@@ -589,19 +589,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         });
       });
 
-    firstSetup$
-      .pipe(
-        switchMap(() => this.collectionService.decryptedCollections$(activeUserId)),
-        map((collections) => collections.filter((c) => c.decryptionFailure)),
-        filter((collections) => collections.length > 0),
-        take(1),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((collections) => {
-        DecryptionFailureDialogComponent.open(this.dialogService, {
-          ids: collections.map((c) => c.id as CollectionId),
-        });
-      });
+    // Note: collections that fail to decrypt intentionally do not raise this dialog. Unlike a
+    // cipher, a collection's only encrypted field is its name, so there is no data loss to warn
+    // about — the row surfaces the failure in place and offers a re-name to repair it.
 
     this.organizations$
       .pipe(

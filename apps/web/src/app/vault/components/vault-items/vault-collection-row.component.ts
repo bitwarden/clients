@@ -129,6 +129,25 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
     return false;
   }
 
+  /** True when the collection's name could not be decrypted, so it has no usable label. */
+  protected get decryptionFailure() {
+    return this.collection.decryptionFailure;
+  }
+
+  /**
+   * A collection's name is its only encrypted field, so re-naming and saving re-encrypts it with
+   * the current organization key and repairs the collection. Only offer that remedy when the user
+   * is actually allowed to change the name — `canEditName` also enforces the security restriction
+   * that offboarded default-user collections keep the email as their name.
+   */
+  protected get canRepairDecryptionFailure() {
+    return (
+      this.decryptionFailure &&
+      this.canEditCollection &&
+      this.collection.canEditName(this.organization)
+    );
+  }
+
   get permissionText() {
     if (this.collection.id == Unassigned && this.organization?.canEditUnassignedCiphers) {
       return this.i18nService.t("editItems");

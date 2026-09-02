@@ -25,22 +25,57 @@
 </td>
 <td bitCell [ngClass]="RowHeightClass">
   <div class="tw-flex">
-    <button
-      bitLink
-      [disabled]="disabled"
-      type="button"
-      class="tw-flex tw-text-start tw-leading-snug tw-max-w-56 tw-overflow-hidden"
-      linkType="secondary"
-      title="{{
-        'viewCollectionWithName' | vfo1I18n: 'viewSharedFolderWithName' : collection.name
-      }}"
-      [routerLink]="[]"
-      [queryParams]="{ collectionId: collection.id }"
-      queryParamsHandling="merge"
-      appStopProp
-    >
-      <div class="tw-truncate tw-mr-1 tw-max-w-56">{{ collection.name }}</div>
-    </button>
+    @if (decryptionFailure) {
+      <!--
+        A collection's name is its only encrypted field, so there is nothing to navigate into and
+        nothing to show. Surface the failure in place and, when the user is allowed to change the
+        name, let them click through to re-name it, which re-encrypts the collection.
+      -->
+      @if (canRepairDecryptionFailure) {
+        <span
+          bitBadge
+          variant="warning"
+          role="button"
+          tabindex="0"
+          class="tw-cursor-pointer"
+          title="{{
+            'cannotDecryptCollectionNameClickToRename'
+              | vfo1I18n: 'cannotDecryptSharedFolderNameClickToRename'
+          }}"
+          (click)="edit(false)"
+          (keydown.enter)="edit(false)"
+          (keydown.space)="edit(false); $event.preventDefault()"
+          appStopProp
+        >
+          {{ "errorCannotDecrypt" | i18n }}
+        </span>
+      } @else {
+        <span
+          bitBadge
+          variant="warning"
+          title="{{ 'cannotDecryptCollectionName' | vfo1I18n: 'cannotDecryptSharedFolderName' }}"
+        >
+          {{ "errorCannotDecrypt" | i18n }}
+        </span>
+      }
+    } @else {
+      <button
+        bitLink
+        [disabled]="disabled"
+        type="button"
+        class="tw-flex tw-text-start tw-leading-snug tw-max-w-56 tw-overflow-hidden"
+        linkType="secondary"
+        title="{{
+          'viewCollectionWithName' | vfo1I18n: 'viewSharedFolderWithName' : collection.name
+        }}"
+        [routerLink]="[]"
+        [queryParams]="{ collectionId: collection.id }"
+        queryParamsHandling="merge"
+        appStopProp
+      >
+        <div class="tw-truncate tw-mr-1 tw-max-w-56">{{ collection.name }}</div>
+      </button>
+    }
     @if (showAddAccess) {
       <span
         bitBadge

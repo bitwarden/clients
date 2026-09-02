@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
+import { DECRYPT_ERROR, EncryptService, EncString } from "@bitwarden/legacy-crypto";
 
 import { OrgKey } from "../../../types/key";
 import { Organization } from "../domain/organization";
@@ -123,8 +123,8 @@ export class CollectionAdminView extends CollectionView {
     try {
       view.name = await encryptService.decryptString(new EncString(view.name), orgKey);
     } catch (e) {
-      view.name = "[error: cannot decrypt]";
-      // Note: This should be replaced by the owning team with appropriate, domain-specific behavior.
+      view.name = DECRYPT_ERROR;
+      view.decryptionFailure = true;
       // eslint-disable-next-line no-console
       console.error(
         "[CollectionAdminView/fromCollectionAccessDetails] Error decrypting collection name",
