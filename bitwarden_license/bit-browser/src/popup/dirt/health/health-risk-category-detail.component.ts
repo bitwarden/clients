@@ -104,7 +104,7 @@ export class HealthRiskCategoryDetailComponent {
   protected readonly invalidCategory = computed(() => !isRiskCategory(this.category()));
 
   protected readonly rowSize = toSignal<number>(
-    this.compactModeService.enabled$.pipe(map((enabled) => (enabled ? 58 : 68))),
+    this.compactModeService.enabled$.pipe(map((enabled) => (enabled ? 54 : 60))),
   );
 
   private readonly userId = toSignal(

@@ -33,7 +33,7 @@
           @let health = row.health;
           @let cipher = row.cipher;
 
-          <button bit-item-content type="button" (click)="onItemClick(cipher)">
+          <button bit-item-content type="button" (click)="onItemClick(cipher)" class="tw-h-[52px]">
             <div slot="start" class="tw-pr-2 tw-flex tw-items-center">
               <app-vault-icon [cipher]="cipher"></app-vault-icon>
             </div>
