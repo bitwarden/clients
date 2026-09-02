@@ -253,7 +253,7 @@ export class FilterMenuComponent
    */
   readonly optionsTemplate = viewChild<TemplateRef<unknown>>("optionsBody");
 
-  /** Whether any option has children; leaves then reserve the expander's width. */
+  /** Whether any option has children — nesting requires `multiple`. */
   protected readonly hasNesting = computed(() => this.allOptions().some((o) => o.hasChildren()));
 
   /** Whether the menu has enough options to warrant the in-menu search box. */
