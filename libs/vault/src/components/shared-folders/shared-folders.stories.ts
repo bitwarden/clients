@@ -1,7 +1,7 @@
-import { ActivatedRoute, convertToParamMap } from "@angular/router";
-import { RouterTestingModule } from "@angular/router/testing";
-import { Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
-import { defer, of } from "rxjs";
+import { importProvidersFrom } from "@angular/core";
+import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/router";
+import { applicationConfig, Decorator, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { of } from "rxjs";
 import { action } from "storybook/actions";
 
 // eslint-disable-next-line no-restricted-imports
@@ -16,6 +16,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogModule, I18nMockService } from "@bitwarden/components";
 
+import { SHARED_FOLDERS_ROUTE } from "../../models/vault-scope";
 import { BULK_DELETE_DIALOG, BulkDeleteDialogResult } from "../../tokens/bulk-delete-dialog.token";
 import {
   BULK_EDIT_COLLECTION_ACCESS_DIALOG,
@@ -26,7 +27,7 @@ import { COLLECTION_DIALOG, CollectionDialogOutcome } from "../../tokens/collect
 import { SharedFolderPermission } from "./shared-folder-permission";
 import { SharedFoldersComponent } from "./shared-folders.component";
 
-/** A guid, because `parseVaultScope` only reads a `:vaultId` segment that is one. */
+/** A guid: that's how a `:vaultId` segment names an organization vault — see `parseVaultScope`. */
 const organizationId = "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa" as OrganizationId;
 
 type FolderFixture = {
@@ -95,29 +96,29 @@ function toCiphers(fixtures: FolderFixture[]): CipherView[] {
   );
 }
 
-/**
- * The vault the stubbed services report. Mutated by the decorator below from each story's args,
- * since the services are registered once for the whole file but read lazily on subscribe.
- */
-const vault = {
-  collections: [] as CollectionView[],
-  ciphers: [] as CipherView[],
-  organizations: [] as Organization[],
-  loading: false,
-};
-
 type StoryProps = {
   folders: FolderFixture[];
   loading: boolean;
   canCreateNewCollections: boolean;
 };
 
-/** Loads the story's args into {@link vault} before the component subscribes. */
+/**
+ * The vault the stubbed services report, built per story from its args and closed over by that
+ * story's providers. Deliberately not one shared object mutated by the decorator: the docs page
+ * renders every story into the same iframe, so a shared object would have been overwritten by the
+ * last story's args before the first story's services were ever subscribed to, and every block
+ * would list the same folders.
+ *
+ * Application providers rather than module ones, for the same reason as {@link routes} — a routed
+ * page is built outside the injector Storybook gives the story's own template.
+ */
 const withVault: Decorator = (storyFn, context) => {
   const args = context.args as StoryProps;
-  vault.collections = args.folders.map(toCollection);
-  vault.ciphers = toCiphers(args.folders);
-  vault.organizations = [
+
+  const collections = args.folders.map(toCollection);
+  // `null` stands for "not decrypted yet", which is what leaves the table loading.
+  const ciphers = args.loading ? null : toCiphers(args.folders);
+  const organizations = [
     {
       id: organizationId,
       name: "Acme corporation",
@@ -127,13 +128,47 @@ const withVault: Decorator = (storyFn, context) => {
       isAdmin: false,
     } as Organization,
   ];
-  vault.loading = args.loading;
+
+  return applicationConfig({
+    providers: [
+      { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" as UserId }) } },
+      { provide: CollectionService, useValue: { decryptedCollections$: () => of(collections) } },
+      { provide: CipherService, useValue: { cipherListViews$: () => of(ciphers) } },
+      { provide: OrganizationService, useValue: { organizations$: () => of(organizations) } },
+    ],
+  })(storyFn, context);
+};
+
+/**
+ * The page's own route, mirroring `vault-routing.module.ts` (minus its guards), so the page reads
+ * its organization from a real `:vaultId` param.
+ *
+ * Routed for real rather than given a stubbed `ActivatedRoute`: the table mirrors its sort, page,
+ * and filters to the query string, and it does so with `router.navigate([], { relativeTo: route })`
+ * — see `queryParamStore`. Against a stub that call can't build a segment group, so it silently
+ * falls back to the current URL and rewrites it to `/`, taking Storybook's own `?id=` with it and
+ * leaving the frame unreloadable. See `.claude/rules/storybook-routing.md`.
+ *
+ * The router builds the page from the *application* injector, not from the one Storybook gives the
+ * story's own template, so everything the page injects has to be an application provider —
+ * `moduleMetadata` reaches only the wrapper component the story template renders in.
+ */
+const routes: Routes = [
+  { path: `vault/:vaultId/${SHARED_FOLDERS_ROUTE}`, component: SharedFoldersComponent },
+  // Where a folder's name links. Componentless, since the drill-in is the vault page rather than
+  // anything this story covers — registered only so the links resolve instead of failing to match.
+  { path: `vault/:vaultId/${SHARED_FOLDERS_ROUTE}/:collectionId`, children: [] },
+];
+
+/** The URL every story renders at; hash routing keeps Storybook's own query string intact. */
+const atSharedFolders: Decorator = (storyFn, context) => {
+  window.location.hash = `/vault/${organizationId}/${SHARED_FOLDERS_ROUTE}`;
   return storyFn(context);
 };
 
 const template = /* HTML */ `
   <div class="tw-bg-background-alt tw-p-6">
-    <vault-shared-folders></vault-shared-folders>
+    <router-outlet></router-outlet>
   </div>
 `;
 
@@ -148,34 +183,15 @@ export default {
   },
   decorators: [
     withVault,
-    moduleMetadata({
-      // `DialogService` for `bit-table-toolbar`'s small-screen filter dialog, and a router for the
-      // name column's `routerLink`. Apps get both from their module graph; a story has to supply
-      // them.
-      imports: [DialogModule, RouterTestingModule],
+    atSharedFolders,
+    // The outlet the route renders the page into, for the story's own template.
+    moduleMetadata({ imports: [RouterOutlet] }),
+    applicationConfig({
       providers: [
-        // The page reads its organization off `:vaultId`. Only absolute links are built from it, so
-        // a `paramMap`-only stub is enough — see `.claude/rules/storybook-routing.md`.
-        {
-          provide: ActivatedRoute,
-          useValue: { paramMap: of(convertToParamMap({ vaultId: organizationId })) },
-        },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" as UserId }) } },
-        {
-          provide: CollectionService,
-          useValue: { decryptedCollections$: () => defer(() => of(vault.collections)) },
-        },
-        {
-          provide: CipherService,
-          // `null` stands for "not decrypted yet", which is what leaves the table loading.
-          useValue: {
-            cipherListViews$: () => defer(() => of(vault.loading ? null : vault.ciphers)),
-          },
-        },
-        {
-          provide: OrganizationService,
-          useValue: { organizations$: () => defer(() => of(vault.organizations)) },
-        },
+        provideRouter(routes, withHashLocation()),
+        // `DialogService`, for `bit-table-toolbar`'s small-screen filter dialog. An app gets it
+        // from its module graph; a story has to supply it.
+        importProvidersFrom(DialogModule),
         // The client's dialogs, stubbed to log rather than open. Withhold `COLLECTION_DIALOG` and
         // the page lists its folders read-only — see the ReadOnly story.
         {
@@ -217,16 +233,13 @@ export default {
               clearAll: "Clear all",
               filter: "Filter",
               filters: "Filters",
-              // Permissions filter chip, and its small-screen dialog
-              filterByName: (name) => `Filter by ${name}`,
+              // Permissions filter menu, and its small-screen dialog
               removeItem: (name) => `Remove ${name}`,
               filtersSelected: (count) => `${count} selected`,
               clear: "Clear",
               done: "Done",
               all: "All",
               back: "Back",
-              backTo: (name) => `Back to ${name}`,
-              viewItemsIn: (name) => `View items in ${name}`,
               // Columns and rows
               name: "Name",
               permissions: "Permissions",
@@ -260,8 +273,8 @@ export default {
               selectionCleared: "Selection cleared",
               selectedLowercase: "selected",
               additionalActions: "Additional actions",
-              // Empty state
-              nothingToShow: "Nothing to show",
+              // Empty state. `noMatchingItems` doubles as the filter menu's own no-options copy;
+              // the table's fallback lockup never renders, since the page always projects its own.
               noMatchingItems: "No matching items",
               clearFiltersOrTryAnother: "Clear filters or try another search term",
               noSharedFoldersAdded: "No shared folders added",
@@ -287,7 +300,7 @@ export const Default: Story = {};
 
 /**
  * The Permissions chip is omitted when every folder carries the same permission: with one option it
- * has nothing to narrow.
+ * has nothing to narrow. That takes the whole filter row with it, item count included.
  */
 export const SinglePermission: Story = {
   args: {
@@ -298,18 +311,24 @@ export const SinglePermission: Story = {
   },
 };
 
-/** Skeleton rows stand in for the data until the vault's ciphers first decrypt. */
+/**
+ * Skeleton rows stand in for the data until the vault's ciphers first decrypt. The Add button waits
+ * with them: until the organization has loaded there's nothing for the dialog to save to.
+ */
 export const Loading: Story = {
   args: { loading: true },
 };
 
 /**
- * A client that provides no `COLLECTION_DIALOG` drops the Options column and the Add button
- * altogether — the desktop page, whose every write action opens a dialog it doesn't have.
+ * The desktop page, which provides no dialog at all: every write action opens one it doesn't have.
+ * Without `COLLECTION_DIALOG` the Options column and the Add button go, and without either bulk
+ * dialog so do the bulk actions bar and the checkbox column it would need. What's left lists the
+ * folders and offers no action the client can't carry out.
  */
 export const ReadOnly: Story = {
   decorators: [
-    moduleMetadata({
+    // A story's own providers are merged after the meta's, so these win over the stubs above.
+    applicationConfig({
       providers: [
         { provide: COLLECTION_DIALOG, useValue: null },
         { provide: BULK_DELETE_DIALOG, useValue: null },
@@ -323,6 +342,9 @@ export const ReadOnly: Story = {
  * With no folder the member manages, both bulk actions drop — and with them the checkbox column,
  * since a selection with nothing to act on would only raise an empty bar. An action the member
  * could never run is dropped rather than offered permanently disabled.
+ *
+ * The Options column stays: it's gated on the client having a collection dialog rather than on what
+ * the rows allow, so filtering can't make it come and go and resize every other column with it.
  */
 export const NoBulkActions: Story = {
   args: {
@@ -336,9 +358,12 @@ export const NoAdd: Story = {
 };
 
 /**
- * With no folders at all the empty state invites the Add button. Filter the populated table down to
- * nothing instead and the same slot switches to the no-matches copy, with a Clear all that leaves
- * the search term alone.
+ * With no folders at all the empty state invites the Add button, which the toolbar still offers.
+ *
+ * The no-matches copy shares the same slot — filter the Default story down to nothing to see it,
+ * with a Clear all that clears the chips and leaves the search term alone. It branches on whether
+ * the organization has folders rather than on whether any row survived the filters, so searching
+ * *this* story keeps the copy below.
  */
 export const Empty: Story = {
   args: { folders: [] },
