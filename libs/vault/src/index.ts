@@ -72,6 +72,7 @@ export * from "./models/routed-vault-filter-bridge.model";
 export * from "./models/vault-filter-section.type";
 export * from "./models/filter-function";
 export * from "./models/vault-nav-view-model";
+export * from "./models/vault-icon-tile";
 export * from "./models/folder-table-row";
 export * from "./models/vault-scope";
 export { VaultFilterService as VaultFilterServiceAbstraction } from "./abstractions/vault-filter.service";
@@ -129,3 +130,11 @@ export * from "./components/totp-countdown/totp-countdown.component";
 export * from "./pipes/credit-card-number.pipe";
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
 export { vaultScopeGuard } from "./routing/vault-scope.guard";
+export {
+  matchesType,
+  matchesFavorite,
+  matchesVault,
+  matchesSharedFolder,
+  matchesFolder,
+  idString,
+} from "./utils/vault-filter-predicates";

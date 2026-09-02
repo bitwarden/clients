@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -63,7 +64,9 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   readonly folders = input<FolderView[]>([]);
   readonly collections = input<CollectionView[]>([]);
   readonly allCollections = input<CollectionView[]>([]);
+  readonly scopedOrganizationId = input<OrganizationId | undefined>();
   readonly organizations = input<Organization[]>([]);
+  readonly orgRequiresDataOwnership = input<boolean>(false);
   readonly loading = input<boolean>(false);
   readonly showPremiumCallout = input<boolean>(false);
   readonly canCreateCipher = input<boolean>(true);
