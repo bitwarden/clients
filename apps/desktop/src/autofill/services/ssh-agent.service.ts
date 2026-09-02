@@ -16,17 +16,15 @@ import {
   Subject,
   switchMap,
   takeUntil,
+  tap,
   timeout,
   TimeoutError,
-  timer,
   withLatestFrom,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
@@ -45,7 +43,6 @@ import { SshAgentPromptType } from "../models/ssh-agent-setting";
   providedIn: "root",
 })
 export class SshAgentService implements OnDestroy {
-  SSH_REFRESH_INTERVAL = 1000;
   SSH_VAULT_UNLOCK_REQUEST_TIMEOUT = 60_000;
 
   private static readonly LOCAL_HOST_KEY = "local";
@@ -65,32 +62,14 @@ export class SshAgentService implements OnDestroy {
     private i18nService: I18nService,
     private desktopSettingsService: DesktopSettingsService,
     private accountService: AccountService,
-    private configService: ConfigService,
   ) {}
 
   async init() {
-    const useV2 = await this.configService.getFeatureFlag(FeatureFlag.SSHAgentV2);
-
-    // V1 only: eagerly start the server on enable; v2 defers to first vault unlock.
-    if (!useV2) {
-      this.desktopSettingsService.sshAgentEnabled$
-        .pipe(
-          concatMap(async (enabled) => {
-            if (!(await ipc.autofill.sshAgent.isLoaded()) && enabled) {
-              await ipc.autofill.sshAgent.init(useV2);
-            }
-          }),
-          takeUntil(this.destroy$),
-        )
-        .subscribe();
-    }
-
-    await this.initListeners(useV2);
+    await this.initListeners();
   }
 
-  private async initListeners(useV2: boolean) {
-    // Shared: sign request approval — renderer shows the approval dialog.
-    // Contains v1-only sections marked below.
+  private async initListeners() {
+    // Sign request approval — renderer shows the approval dialog.
     this.messageListener
       .messages$(new CommandDefinition(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST))
       .pipe(
@@ -111,9 +90,7 @@ export class SshAgentService implements OnDestroy {
         // switchMap is used here to prevent multiple requests from being processed at the same time,
         // and will cancel the previous request if a new one is received.
         //
-        // V1, delete with PM-30758: in v2 sign requests arrive only after the user
-        // has been prompted via the native sign callback flow.
-        // When v1 is removed, replace this entire switchMap with: of([message, account.id])
+        // Keys are retained in the agent's keystore across vault lock, so the agent can serve a sign request while the vault is locked without ever firing the list callback.
         switchMap(([message, status, account]) => {
           if (status !== AuthenticationStatus.Unlocked || account == null) {
             ipc.platform.focusWindow();
@@ -162,7 +139,6 @@ export class SshAgentService implements OnDestroy {
         // This concatMap handles showing the dialog to approve the request.
         concatMap(async ([message, ciphers]) => {
           const cipherId = message.cipherId as string;
-          const isListRequest = message.isListRequest as boolean;
           const requestId = message.requestId as number;
           let application = message.processName as string;
           const namespace = message.namespace as string;
@@ -170,13 +146,6 @@ export class SshAgentService implements OnDestroy {
           const hostFingerprint = message.hostFingerprint as string | undefined;
           if (application == "") {
             application = this.i18nService.t("unknownApplication");
-          }
-
-          // V1, delete with PM-30758: isListRequest is not present in v2.
-          if (isListRequest) {
-            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers));
-            await ipc.autofill.sshAgent.signRequestResponse(requestId, true);
-            return;
           }
 
           if (ciphers === undefined) {
@@ -217,7 +186,6 @@ export class SshAgentService implements OnDestroy {
     // Reset sign-approval state on account switch.
     // account switch is a vault-lock boundary and RememberUntilLock approvals must not survive
     // it regardless of the user's current SSH-agent setting.
-    // v1 clears the agent keystore here; v2 handles it in the reactive block below.
     this.accountService.activeAccount$
       .pipe(
         // Dedupe by id because activeAccount$ also re-emits when
@@ -225,20 +193,9 @@ export class SshAgentService implements OnDestroy {
         distinctUntilChanged((a, b) => a?.id === b?.id),
         // prevents from triggering on the initial account load
         skip(1),
-        withLatestFrom(this.desktopSettingsService.sshAgentEnabled$),
-        concatMap(async ([, enabled]) => {
+        tap(() => {
           this.logService.debug("Active account changed, resetting SSH sign approval state");
           this.authorizedKeys = new Map();
-          // the V1 sshagent.clearkeys handler isn't registered in the main process
-          // until sshagent.init is called (which only happens when the feature is enabled).
-          if (enabled && !useV2) {
-            this.logService.info("Active account changed, clearing SSH keys");
-            try {
-              await ipc.autofill.sshAgent.clearKeys();
-            } catch (e) {
-              this.logService.error("Failed to clear SSH keys", e);
-            }
-          }
         }),
         takeUntil(this.destroy$),
       )
@@ -263,187 +220,146 @@ export class SshAgentService implements OnDestroy {
         this.authorizedKeys = new Map();
       });
 
-    // V1 only: periodic key refresh. V2 manages keys reactively — see block below.
-    if (!useV2) {
-      combineLatest([
-        timer(0, this.SSH_REFRESH_INTERVAL),
-        this.desktopSettingsService.sshAgentEnabled$,
-      ])
-        .pipe(
-          concatMap(async ([, enabled]) => {
-            if (!enabled) {
-              await ipc.autofill.sshAgent.clearKeys();
-              return;
-            }
-
-            const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-            const authStatus = await firstValueFrom(
-              this.authService.authStatusFor$(activeAccount.id),
-            );
-            if (authStatus !== AuthenticationStatus.Unlocked) {
-              return;
-            }
-
-            const ciphers = await this.cipherService.getAllDecrypted(activeAccount.id);
-            if (ciphers == null) {
-              await ipc.autofill.sshAgent.lock();
-              return;
-            }
-
-            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers));
-          }),
-          takeUntil(this.destroy$),
-        )
-        .subscribe();
-    }
-
-    // V2: handle list-keys requests when the vault is locked (BFU case).
+    // Handle list-keys requests when the vault is locked (BFU case).
     // The Rust agent fires a list callback when its keystore is empty. The renderer then prompts
     // for unlock, pushes keys once unlocked, and signals the agent to return them.
-    if (useV2) {
-      this.messageListener
-        .messages$(new CommandDefinition(SSH_AGENT_IPC_CHANNELS.LIST_KEYS_REQUEST))
-        .pipe(
-          withLatestFrom(this.authService.activeAccountStatus$, this.accountService.activeAccount$),
-          switchMap(([message, status, account]) => {
-            const requestId = message.requestId as number;
-            if (status !== AuthenticationStatus.Unlocked || account == null) {
-              ipc.platform.focusWindow();
-              this.toastService.showToast({
-                variant: "info",
-                title: null,
-                message: this.i18nService.t("sshAgentUnlockRequired"),
-              });
-              return this.authService.activeAccountStatus$.pipe(
-                filter((s) => s === AuthenticationStatus.Unlocked),
-                timeout({ first: this.SSH_VAULT_UNLOCK_REQUEST_TIMEOUT }),
-                catchError((error: unknown) => {
-                  if (error instanceof TimeoutError) {
-                    return from(ipc.autofill.sshAgent.listRequestResponse(requestId, false)).pipe(
-                      switchMap(() => EMPTY),
-                    );
-                  }
-                  throw error;
-                }),
-                concatMap(async () => {
-                  const updatedAccount = await firstValueFrom(this.accountService.activeAccount$);
-                  return [message, updatedAccount.id] as const;
-                }),
-              );
-            }
-            return of([message, account.id] as const);
-          }),
-          concatMap(([message, userId]: [Record<string, unknown>, UserId]) =>
-            from(this.cipherService.getAllDecrypted(userId)).pipe(
-              map((ciphers) => [message, ciphers] as const),
-            ),
-          ),
-          concatMap(async ([message, ciphers]) => {
-            const requestId = message.requestId as number;
-            try {
-              await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers ?? []));
-            } catch (e) {
-              // Refuse the request rather than leaving the agent's list callback unresolved, which
-              // would hang the SSH client that is waiting on it.
-              this.logService.error("Failed to push SSH keys to the agent", e);
-              await ipc.autofill.sshAgent.listRequestResponse(requestId, false);
-              return;
-            }
-            await ipc.autofill.sshAgent.listRequestResponse(requestId, true);
-          }),
-          catchError((error: unknown, source) => {
-            this.logService.error("Unexpected error during SSH agent list keys request", error);
-            return source;
-          }),
-          takeUntil(this.destroy$),
-        )
-        .subscribe();
-    }
-
-    // V2: push SSH keys to the agent reactively whenever cipher data changes while unlocked.
-    // Keys are kept in the agent's keystore on vault lock so ssh-add -L still works locked.
-    // Keys are cleared only when the feature is disabled or the active account changes.
-    if (useV2) {
-      this.accountService.activeAccount$
-        .pipe(
-          // Re-evaluate the entire pipeline whenever the active account changes or is cleared.
-          switchMap((account) => {
-            // All accounts logged out: clear keys and stop the server if it was running.
-            if (account == null) {
-              return from(this.stopAgent());
-            }
-            // React to vault status and feature toggle changes for the active account.
-            return combineLatest([
-              this.authService.authStatusFor$(account.id),
-              this.desktopSettingsService.sshAgentEnabled$,
-            ]).pipe(
-              // Cancel the previous inner pipeline whenever status or enabled changes.
-              switchMap(([status, enabled]) => {
-                // Feature disabled: stop the server if running, then idle.
-                if (!enabled) {
-                  return from(this.stopAgent());
+    this.messageListener
+      .messages$(new CommandDefinition(SSH_AGENT_IPC_CHANNELS.LIST_KEYS_REQUEST))
+      .pipe(
+        withLatestFrom(this.authService.activeAccountStatus$, this.accountService.activeAccount$),
+        switchMap(([message, status, account]) => {
+          const requestId = message.requestId as number;
+          if (status !== AuthenticationStatus.Unlocked || account == null) {
+            ipc.platform.focusWindow();
+            this.toastService.showToast({
+              variant: "info",
+              title: null,
+              message: this.i18nService.t("sshAgentUnlockRequired"),
+            });
+            return this.authService.activeAccountStatus$.pipe(
+              filter((s) => s === AuthenticationStatus.Unlocked),
+              timeout({ first: this.SSH_VAULT_UNLOCK_REQUEST_TIMEOUT }),
+              catchError((error: unknown) => {
+                if (error instanceof TimeoutError) {
+                  return from(ipc.autofill.sshAgent.listRequestResponse(requestId, false)).pipe(
+                    switchMap(() => EMPTY),
+                  );
                 }
-                // Logged out: no vault present, nothing to serve.
-                if (status === AuthenticationStatus.LoggedOut) {
-                  return EMPTY;
-                }
-                // Start the agent socket server if not already running.
-                // Covers the locked-at-startup case: socket must be up so SSH clients
-                // can connect and the app can prompt for vault unlock when needed.
-                // When locked, cipherViews$ emits null (caught by the filter below),
-                // so replace() is not called and existing keys are left in the native store.
-                return from(this.ensureAgentRunning(useV2)).pipe(
-                  // Subscribe to live cipher data for the active account.
-                  switchMap(() => this.cipherService.cipherViews$(account.id)),
-                  // Skip emissions before cipher data is available (e.g. during initial decrypt).
-                  filter((views) => views != null),
-                  // Project to the SSH key fields needed by the agent.
-                  map((views) => this.toAgentKeys(views)),
-                  // Skip re-push when the SSH key set hasn't actually changed.
-                  distinctUntilChanged((prev, curr) => {
-                    // if the length is different, replace keys
-                    if (prev.length !== curr.length) {
-                      return false;
-                    }
-                    const prevMap = new Map(
-                      prev.map((k) => [k.cipherId, { privateKey: k.privateKey, name: k.name }]),
-                    );
-                    // if any has either private key changed or the name changed, replace keys
-                    return curr.every((k) => {
-                      const p = prevMap.get(k.cipherId);
-                      return p?.privateKey === k.privateKey && p?.name === k.name;
-                    });
-                  }),
-                  concatMap(async (keys) => {
-                    try {
-                      await ipc.autofill.sshAgent.replace(keys);
-                    } catch (e) {
-                      // if the agent fails to parse the keys and errors out, it's a deterministic
-                      // error state, we don't want to retry without the input keys changing
-                      this.logService.error("Failed to push SSH keys to the agent", e);
-                    }
-                  }),
-                  // calls in this chain should not be re-tried as they're deterministic in their scope
-                  catchError((error: unknown) => {
-                    this.logService.error("Unexpected error while syncing SSH keys", error);
-                    return EMPTY;
-                  }),
-                );
+                throw error;
+              }),
+              concatMap(async () => {
+                const updatedAccount = await firstValueFrom(this.accountService.activeAccount$);
+                return [message, updatedAccount.id] as const;
               }),
             );
-          }),
-          // calls in this chain should not be re-tried as they're deterministic in their scope
-          catchError((error: unknown) => {
-            this.logService.error(
-              "SSH agent key pipeline stopped by an unrecoverable error",
-              error,
-            );
-            return EMPTY;
-          }),
-          takeUntil(this.destroy$),
-        )
-        .subscribe();
-    }
+          }
+          return of([message, account.id] as const);
+        }),
+        concatMap(([message, userId]: [Record<string, unknown>, UserId]) =>
+          from(this.cipherService.getAllDecrypted(userId)).pipe(
+            map((ciphers) => [message, ciphers] as const),
+          ),
+        ),
+        concatMap(async ([message, ciphers]) => {
+          const requestId = message.requestId as number;
+          try {
+            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers ?? []));
+          } catch (e) {
+            // Refuse the request rather than leaving the agent's list callback unresolved, which
+            // would hang the SSH client that is waiting on it.
+            this.logService.error("Failed to push SSH keys to the agent", e);
+            await ipc.autofill.sshAgent.listRequestResponse(requestId, false);
+            return;
+          }
+          await ipc.autofill.sshAgent.listRequestResponse(requestId, true);
+        }),
+        catchError((error: unknown, source) => {
+          this.logService.error("Unexpected error during SSH agent list keys request", error);
+          return source;
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    // Push SSH keys to the agent reactively whenever cipher data changes while unlocked.
+    // Keys are kept in the agent's keystore on vault lock so ssh-add -L still works locked.
+    // Keys are cleared only when the feature is disabled or the active account changes.
+    this.accountService.activeAccount$
+      .pipe(
+        // Re-evaluate the entire pipeline whenever the active account changes or is cleared.
+        switchMap((account) => {
+          // All accounts logged out: clear keys and stop the server if it was running.
+          if (account == null) {
+            return from(this.stopAgent());
+          }
+          // React to vault status and feature toggle changes for the active account.
+          return combineLatest([
+            this.authService.authStatusFor$(account.id),
+            this.desktopSettingsService.sshAgentEnabled$,
+          ]).pipe(
+            // Cancel the previous inner pipeline whenever status or enabled changes.
+            switchMap(([status, enabled]) => {
+              // Feature disabled: stop the server if running, then idle.
+              if (!enabled) {
+                return from(this.stopAgent());
+              }
+              // Logged out: no vault present, nothing to serve.
+              if (status === AuthenticationStatus.LoggedOut) {
+                return EMPTY;
+              }
+              // Start the agent socket server if not already running.
+              // Covers the locked-at-startup case: socket must be up so SSH clients
+              // can connect and the app can prompt for vault unlock when needed.
+              // When locked, cipherViews$ emits null (caught by the filter below),
+              // so replace() is not called and existing keys are left in the native store.
+              return from(this.ensureAgentRunning()).pipe(
+                // Subscribe to live cipher data for the active account.
+                switchMap(() => this.cipherService.cipherViews$(account.id)),
+                // Skip emissions before cipher data is available (e.g. during initial decrypt).
+                filter((views) => views != null),
+                // Project to the SSH key fields needed by the agent.
+                map((views) => this.toAgentKeys(views)),
+                // Skip re-push when the SSH key set hasn't actually changed.
+                distinctUntilChanged((prev, curr) => {
+                  // if the length is different, replace keys
+                  if (prev.length !== curr.length) {
+                    return false;
+                  }
+                  const prevMap = new Map(
+                    prev.map((k) => [k.cipherId, { privateKey: k.privateKey, name: k.name }]),
+                  );
+                  // if any has either private key changed or the name changed, replace keys
+                  return curr.every((k) => {
+                    const p = prevMap.get(k.cipherId);
+                    return p?.privateKey === k.privateKey && p?.name === k.name;
+                  });
+                }),
+                concatMap(async (keys) => {
+                  try {
+                    await ipc.autofill.sshAgent.replace(keys);
+                  } catch (e) {
+                    // if the agent fails to parse the keys and errors out, it's a deterministic
+                    // error state, we don't want to retry without the input keys changing
+                    this.logService.error("Failed to push SSH keys to the agent", e);
+                  }
+                }),
+                // calls in this chain should not be re-tried as they're deterministic in their scope
+                catchError((error: unknown) => {
+                  this.logService.error("Unexpected error while syncing SSH keys", error);
+                  return EMPTY;
+                }),
+              );
+            }),
+          );
+        }),
+        // calls in this chain should not be re-tried as they're deterministic in their scope
+        catchError((error: unknown) => {
+          this.logService.error("SSH agent key pipeline stopped by an unrecoverable error", error);
+          return EMPTY;
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
   }
 
   ngOnDestroy() {
@@ -452,10 +368,10 @@ export class SshAgentService implements OnDestroy {
   }
 
   // Starts the agent server unless it is already running.
-  private async ensureAgentRunning(useV2: boolean): Promise<void> {
+  private async ensureAgentRunning(): Promise<void> {
     try {
       if (!(await ipc.autofill.sshAgent.isLoaded())) {
-        await ipc.autofill.sshAgent.init(useV2);
+        await ipc.autofill.sshAgent.init();
       }
     } catch (e) {
       this.logService.error("Failed to start the SSH agent server", e);
@@ -500,19 +416,43 @@ export class SshAgentService implements OnDestroy {
     isForwarded: boolean,
     hostFingerprint?: string,
   ): Promise<boolean> {
+    // These logs deliberately omit cipherId and hostFingerprint. They identify a vault item and
+    // the remote hosts the user connects to, neither of which belongs in a log file.
+    const scope = isForwarded ? "forwarded" : "local";
     const promptType = await firstValueFrom(this.desktopSettingsService.sshAgentPromptBehavior$);
+
     switch (promptType) {
       case SshAgentPromptType.Never:
+        this.logService.debug(
+          `SSH sign approval (${scope}, prompt setting: ${promptType}): approving.`,
+        );
         return false;
+
       case SshAgentPromptType.Always:
+        this.logService.debug(
+          `SSH sign approval (${scope}, prompt setting:  ${promptType}): prompting.`,
+        );
         return true;
+
       case SshAgentPromptType.RememberUntilLock: {
         const key = isForwarded ? hostFingerprint : SshAgentService.LOCAL_HOST_KEY;
-        // key will only ever be undefined for forwarded requests in the v1, re-prompt.
+        // This is a defensive check. While the API for the agent doesn't allow `key` to not be defined, if an IPC error or otherwise resulted in the key not being defined, then without this guard we'd silently approve forwarded requests to any host for this vault item.
         if (!key) {
+          this.logService.debug(
+            `SSH sign approval (${scope}, prompt setting: ${promptType}): prompting- no host key from request.`,
+          );
           return true;
         }
-        return !(this.authorizedKeys.get(cipherId)?.has(key) ?? false);
+        if (this.authorizedKeys.get(cipherId)?.has(key) ?? false) {
+          this.logService.debug(
+            `SSH sign approval (${scope}, prompt setting: ${promptType}): approving remembered host.`,
+          );
+          return false;
+        }
+        this.logService.debug(
+          `SSH sign approval (${scope}, prompt setting: ${promptType}): prompting, new host.`,
+        );
+        return true;
       }
     }
   }

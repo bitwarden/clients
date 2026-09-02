@@ -408,35 +408,6 @@ export declare namespace processisolations {
 }
 
 export declare namespace sshagent {
-  export class SshAgentState {
-
-  }
-  export function clearKeys(agentState: SshAgentState): void
-  export function isRunning(agentState: SshAgentState): boolean
-  export function lock(agentState: SshAgentState): void
-  export interface PrivateKey {
-    privateKey: string
-    name: string
-    cipherId: string
-  }
-  export function serve(callback: ((err: Error | null, arg: SshUiRequest) => Promise<boolean>)): Promise<SshAgentState>
-  export function setKeys(agentState: SshAgentState, newKeys: Array<PrivateKey>): void
-  export interface SshKey {
-    privateKey: string
-    publicKey: string
-    keyFingerprint: string
-  }
-  export interface SshUiRequest {
-    cipherId?: string
-    isList: boolean
-    processName: string
-    isForwarding: boolean
-    namespace?: string
-  }
-  export function stop(agentState: SshAgentState): void
-}
-
-export declare namespace sshagent_v2 {
   /** Wrapper for Electron to be able to interface with the agent directly. */
   export class SshAgentState {
     /**

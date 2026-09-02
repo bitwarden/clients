@@ -1,155 +1,228 @@
+//! SSH Agent napi:
+//! - Wraps the agent to provide access from Electron.
+//! - Sets up the callback handlers for the agent to request approval for ssh agent server
+//!   operations to Electron.
+
 #[napi]
 pub mod sshagent {
-    use std::sync::Arc;
+    use std::{sync::Arc, time::Duration};
 
+    use async_trait::async_trait;
     use napi::{
-        bindgen_prelude::Promise,
-        threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode},
+        bindgen_prelude::{JsValuesTupleIntoVec, Promise},
+        threadsafe_function::ThreadsafeFunction,
     };
-    use tokio::{self, sync::Mutex};
-    use tracing::error;
+    use ssh_agent::{
+        ApprovalError, ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
+        SIGNamespace as SSHSIGNamespace, SignApprovalRequest as SSHSignApprovalRequest,
+        UnparsedSSHKeyData,
+    };
+    use tokio::time::timeout;
+    use tracing::{debug, error};
 
-    #[napi]
-    pub struct SshAgentState {
-        state: desktop_core::ssh_agent::BitwardenDesktopAgent,
-    }
+    /// Timeout for Electron approval callbacks
+    const APPROVAL_CALLBACK_TIMEOUT: Duration = Duration::from_secs(60);
 
+    /// SSH key data, sent from Electron.
+    // NOTE: the public key is derived from the private key.
     #[napi(object)]
-    pub struct PrivateKey {
+    pub struct SSHKeyData {
         pub private_key: String,
         pub name: String,
         pub cipher_id: String,
     }
 
+    /// SSH public key data
     #[napi(object)]
-    pub struct SshKey {
-        pub private_key: String,
-        pub public_key: String,
-        pub key_fingerprint: String,
+    #[derive(Debug, Clone)]
+    pub struct PublicKey {
+        pub alg: String,
+        pub blob: Vec<u8>,
     }
 
-    #[napi(object)]
-    pub struct SshUIRequest {
-        pub cipher_id: Option<String>,
-        pub is_list: bool,
-        pub process_name: String,
-        pub is_forwarding: bool,
-        pub namespace: Option<String>,
+    /// A sign request's SIG namespace
+    #[napi(string_enum = "camelCase")]
+    #[derive(Debug)]
+    pub enum SIGNamespace {
+        Git,
+        File,
+        Unsupported,
     }
 
-    #[allow(clippy::unused_async)] // FIXME: Remove unused async!
-    #[napi]
-    pub async fn serve(
-        callback: ThreadsafeFunction<SshUIRequest, Promise<bool>>,
-    ) -> napi::Result<SshAgentState> {
-        let (auth_request_tx, mut auth_request_rx) =
-            tokio::sync::mpsc::channel::<desktop_core::ssh_agent::SshAgentUIRequest>(32);
-        let (auth_response_tx, auth_response_rx) =
-            tokio::sync::broadcast::channel::<(u32, bool)>(32);
-        let auth_response_tx_arc = Arc::new(Mutex::new(auth_response_tx));
-        // Wrap callback in Arc so it can be shared across spawned tasks
-        let callback = Arc::new(callback);
-        tokio::spawn(async move {
-            let _ = auth_response_rx;
-
-            while let Some(request) = auth_request_rx.recv().await {
-                let cloned_response_tx_arc = auth_response_tx_arc.clone();
-                let cloned_callback = callback.clone();
-                tokio::spawn(async move {
-                    let auth_response_tx_arc = cloned_response_tx_arc;
-                    let callback = cloned_callback;
-                    // In NAPI v3, obtain the JS callback return as a Promise<boolean> and await it
-                    // in Rust
-                    let (tx, rx) = std::sync::mpsc::channel::<Promise<bool>>();
-                    let status = callback.call_with_return_value(
-                        Ok(SshUIRequest {
-                            cipher_id: request.cipher_id,
-                            is_list: request.is_list,
-                            process_name: request.process_name,
-                            is_forwarding: request.is_forwarding,
-                            namespace: request.namespace,
-                        }),
-                        ThreadsafeFunctionCallMode::Blocking,
-                        move |ret: Result<Promise<bool>, napi::Error>, _env| {
-                            if let Ok(p) = ret {
-                                let _ = tx.send(p);
-                            }
-                            Ok(())
-                        },
-                    );
-
-                    let result = if status == napi::Status::Ok {
-                        match rx.recv() {
-                            Ok(promise) => match promise.await {
-                                Ok(v) => v,
-                                Err(e) => {
-                                    error!(error = %e, "UI callback promise rejected");
-                                    false
-                                }
-                            },
-                            Err(e) => {
-                                error!(error = %e, "Failed to receive UI callback promise");
-                                false
-                            }
-                        }
-                    } else {
-                        error!(error = ?status, "Calling UI callback failed");
-                        false
-                    };
-
-                    let _ = auth_response_tx_arc
-                        .lock()
-                        .await
-                        .send((request.request_id, result))
-                        .expect("should be able to send auth response to agent");
-                });
+    impl From<SSHSIGNamespace> for SIGNamespace {
+        fn from(ns: SSHSIGNamespace) -> Self {
+            match ns {
+                SSHSIGNamespace::Git => Self::Git,
+                SSHSIGNamespace::File => Self::File,
+                SSHSIGNamespace::Unsupported => Self::Unsupported,
             }
-        });
+        }
+    }
 
-        let state = desktop_core::ssh_agent::BitwardenDesktopAgent::start_server(
-            auth_request_tx,
-            Arc::new(Mutex::new(auth_response_rx)),
-        )?;
-        Ok(SshAgentState { state })
+    /// SSH sign request fields.
+    #[napi(object)]
+    #[derive(Debug)]
+    pub struct SignRequest {
+        pub public_key: PublicKey,
+        pub process_name: Option<String>,
+        pub is_forwarding: bool,
+        pub namespace: Option<SIGNamespace>,
+        pub host_fingerprint: Option<String>,
+    }
+
+    impl From<ssh_agent::SignRequest> for SignRequest {
+        fn from(r: ssh_agent::SignRequest) -> Self {
+            Self {
+                public_key: PublicKey {
+                    alg: r.public_key.alg,
+                    blob: r.public_key.blob,
+                },
+                process_name: r.connection.process_name,
+                is_forwarding: r
+                    .connection
+                    .session_bind
+                    .as_ref()
+                    .is_some_and(|s| s.is_forwarding),
+                namespace: r.namespace.map(Into::into),
+                host_fingerprint: r.connection.session_bind.map(|s| s.host_fingerprint),
+            }
+        }
+    }
+
+    /// Data for a sign request, including vault cipher context.
+    #[napi(object)]
+    #[derive(Debug)]
+    pub struct SignRequestData {
+        pub sign_request: SignRequest,
+        pub cipher_id: Option<String>,
+    }
+
+    impl From<SSHSignApprovalRequest> for SignRequestData {
+        fn from(request: SSHSignApprovalRequest) -> Self {
+            Self {
+                sign_request: request.sign_request.into(),
+                cipher_id: request.cipher_id,
+            }
+        }
+    }
+
+    /// Wrapper for Electron to be able to interface with the agent directly.
+    #[napi]
+    pub struct SSHAgentState {
+        agent: BitwardenSSHAgent<InMemoryEncryptedKeyStore, ElectronApprovalRequester>,
+    }
+
+    /// Interface for the agent to request approval for ssh operations from Electron.
+    struct ElectronApprovalRequester {
+        sign_callback: Arc<ThreadsafeFunction<SignRequestData, Promise<bool>>>,
+        list_callback: Arc<ThreadsafeFunction<(), Promise<bool>>>,
+    }
+
+    async fn invoke_callback<T: 'static + JsValuesTupleIntoVec>(
+        callback: &ThreadsafeFunction<T, Promise<bool>>,
+        arg: T,
+    ) -> Result<bool, ApprovalError> {
+        timeout(APPROVAL_CALLBACK_TIMEOUT, async {
+            let promise = callback
+                .call_async(Ok(arg))
+                .await
+                .map_err(|e| ApprovalError::HandlerFailed(e.into()))?;
+            promise
+                .await
+                .map_err(|e| ApprovalError::HandlerFailed(e.into()))
+        })
+        .await
+        .map_err(|_| ApprovalError::Timeout)
+        .flatten()
+    }
+
+    #[async_trait]
+    impl ApprovalRequester for ElectronApprovalRequester {
+        async fn request_sign_approval(
+            &self,
+            request: SSHSignApprovalRequest,
+        ) -> Result<bool, ApprovalError> {
+            debug!("Sending sign approval request to Electron.");
+
+            let is_approved =
+                invoke_callback(&self.sign_callback, SignRequestData::from(request)).await?;
+
+            debug!(%is_approved, "Sign approval response from Electron.");
+
+            Ok(is_approved)
+        }
+
+        async fn request_list_approval(&self) -> Result<bool, ApprovalError> {
+            debug!("Sending list approval request to Electron.");
+
+            let is_approved = invoke_callback(&self.list_callback, ()).await?;
+
+            debug!(%is_approved, "List approval response from Electron.");
+
+            Ok(is_approved)
+        }
     }
 
     #[napi]
-    pub fn stop(agent_state: &mut SshAgentState) -> napi::Result<()> {
-        let bitwarden_agent_state = &mut agent_state.state;
-        bitwarden_agent_state.stop();
-        Ok(())
-    }
+    impl SSHAgentState {
+        /// Creates a new [`BitwardenSSHAgent`] and starts the server.
+        ///
+        /// # Arguments
+        ///
+        /// * `sign_callback` - Allows agent to get approval for sign requests
+        /// * `list_callback` - Allows agent to get approval for list key requests
+        #[napi(factory)]
+        #[allow(clippy::unused_async)]
+        pub async fn serve(
+            sign_callback: ThreadsafeFunction<SignRequestData, Promise<bool>>,
+            list_callback: ThreadsafeFunction<(), Promise<bool>>,
+        ) -> napi::Result<Self> {
+            debug!("Creating agent and starting server.");
 
-    #[napi]
-    pub fn is_running(agent_state: &mut SshAgentState) -> bool {
-        let bitwarden_agent_state = agent_state.state.clone();
-        bitwarden_agent_state.is_running()
-    }
+            let approval_handler = ElectronApprovalRequester {
+                sign_callback: Arc::new(sign_callback),
+                list_callback: Arc::new(list_callback),
+            };
 
-    #[napi]
-    pub fn set_keys(
-        agent_state: &mut SshAgentState,
-        new_keys: Vec<PrivateKey>,
-    ) -> napi::Result<()> {
-        let bitwarden_agent_state = &mut agent_state.state;
-        bitwarden_agent_state.set_keys(
-            new_keys
-                .iter()
-                .map(|k| (k.private_key.clone(), k.name.clone(), k.cipher_id.clone()))
-                .collect(),
-        )?;
-        Ok(())
-    }
+            let keystore = InMemoryEncryptedKeyStore::default();
 
-    #[napi]
-    pub fn lock(agent_state: &mut SshAgentState) -> napi::Result<()> {
-        let bitwarden_agent_state = &mut agent_state.state;
-        Ok(bitwarden_agent_state.lock()?)
-    }
+            let mut agent = ssh_agent::BitwardenSSHAgent::new(keystore, approval_handler);
 
-    #[napi]
-    pub fn clear_keys(agent_state: &mut SshAgentState) -> napi::Result<()> {
-        let bitwarden_agent_state = &mut agent_state.state;
-        Ok(bitwarden_agent_state.clear_keys()?)
+            // TODO after PM-31827 is merged, can use simplified error conversion
+            agent.start().map_err(|error| {
+                error!(%error, "Failed to start the server.");
+                napi::Error::from_reason(error.to_string())
+            })?;
+
+            debug!("Server started, returning agent state object.");
+
+            Ok(Self { agent })
+        }
+
+        #[napi]
+        pub fn stop(&mut self) {
+            self.agent.stop();
+        }
+
+        #[napi]
+        pub fn is_running(&self) -> bool {
+            self.agent.is_running()
+        }
+
+        #[napi]
+        pub fn replace(&mut self, new_keys: Vec<SSHKeyData>) -> napi::Result<()> {
+            let keys = new_keys
+                .into_iter()
+                .map(|k| UnparsedSSHKeyData {
+                    private_key_pem: k.private_key,
+                    name: k.name,
+                    cipher_id: k.cipher_id,
+                })
+                .collect();
+
+            self.agent
+                .replace(ssh_agent::SSHKeyData::from_private_key_pems(keys))
+                .map_err(|e| napi::Error::from_reason(e.to_string()))
+        }
     }
 }
