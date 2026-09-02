@@ -213,15 +213,17 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   /** create an organization on trial without payment method */
   async createOrganizationOnTrial(activeUserId: UserId) {
     this.loading = true;
-    let trialInitiationPath: InitiationPath =
-      InitiationPath.PasswordManagerTrialFromMarketingWebsite;
+    const trialInitiationPath: InitiationPath = this.salesAssistedToken
+      ? InitiationPath.SalesAssistedTrialFromAdminPortal
+      : this.product === ProductType.SecretsManager
+        ? InitiationPath.SecretsManagerTrialFromMarketingWebsite
+        : InitiationPath.PasswordManagerTrialFromMarketingWebsite;
     let plan: PlanInformation = {
       type: await this.getPlanType(),
       passwordManagerSeats: 1,
     };
 
     if (this.product === ProductType.SecretsManager) {
-      trialInitiationPath = InitiationPath.SecretsManagerTrialFromMarketingWebsite;
       plan = {
         ...plan,
         subscribeToSecretsManager: true,

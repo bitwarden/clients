@@ -1,17 +1,26 @@
+import { AsyncPipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 
 import { SideNavVariant, NavigationModule, SideNavService } from "@bitwarden/components";
 
 import { AccountMenuComponent } from "./header/account-menu.component";
+import { UpgradeCalloutComponent } from "../billing/individual/upgrade/upgrade-nav-button/upgrade-callout/upgrade-callout.component";
+
 import { ProductSwitcherModule } from "./product-switcher/product-switcher.module";
+import { ProductSwitcherService } from "./product-switcher/shared/product-switcher.service";
 
 @Component({
   selector: "app-side-nav",
   templateUrl: "web-side-nav.component.html",
-  imports: [NavigationModule, ProductSwitcherModule, AccountMenuComponent],
+  imports: [AccountMenuComponent, AsyncPipe, NavigationModule, ProductSwitcherModule, UpgradeCalloutComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WebSideNavComponent {
   readonly variant = input<SideNavVariant>("primary");
   protected readonly sideNavService = inject(SideNavService);
+
+  private readonly productSwitcherService = inject(ProductSwitcherService);
+
+  protected readonly shouldShowPremiumUpgradeButton$ =
+    this.productSwitcherService.shouldShowPremiumUpgradeButton$;
 }
