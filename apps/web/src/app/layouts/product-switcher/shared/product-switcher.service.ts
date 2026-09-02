@@ -141,6 +141,10 @@ export class ProductSwitcherService {
 
   isGovMode$ = clientIsGovMode$(this.accountService, this.govModeService);
 
+  private vfo1Enabled$: Observable<boolean> = this.configService.getFeatureFlag$(
+    FeatureFlag.VFO1Foundation,
+  );
+
   shouldShowPremiumUpgradeButton$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     switchMap((account) => {
       if (!account) {
@@ -160,12 +164,12 @@ export class ProductSwitcherService {
     this.providers$,
     this.userHasSingleOrgPolicy$,
     this.isGovMode$,
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    this.vfo1Enabled$,
     this.route.paramMap,
     this.triggerProductUpdate$,
   ]).pipe(
     map(
-      ([orgs, providers, userHasSingleOrgPolicy, isGovMode, vfo1FoundationEnabled, paramMap]: [
+      ([orgs, providers, userHasSingleOrgPolicy, isGovMode, vfo1Enabled, paramMap]: [
         Organization[],
         Provider[],
         boolean,
@@ -249,6 +253,7 @@ export class ProductSwitcherService {
             },
             isActive: this.router.url.includes("/sm/"),
             otherProductOverrides: {
+              name: vfo1Enabled ? this.i18nService.t("getSecretsManager") : undefined,
               supportingText: this.i18nService.t("secureYourInfrastructure"),
             },
           },
@@ -291,7 +296,7 @@ export class ProductSwitcherService {
 
         if (acOrg) {
           bento.push(products.ac);
-        } else if (!userHasSingleOrgPolicy && !isGovMode && !vfo1FoundationEnabled) {
+        } else if (!userHasSingleOrgPolicy && !isGovMode && !vfo1Enabled) {
           // Offered only while VFO1 is off — flag-on, "Add plan" in Settings
           // replaces the Organizations entry point. Never offered in Gov
           // environments (PM-40490).

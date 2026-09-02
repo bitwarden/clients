@@ -34,7 +34,7 @@ describe("ProductSwitcherService", () => {
   let activeRouteParams = convertToParamMap({ organizationId: "1234" });
   let singleOrgPolicyEnabled = false;
   let isGovModeEnabled = false;
-  let vfo1FoundationEnabled = false;
+  let vfo1Enabled = false;
   const getLastSync = jest.fn().mockResolvedValue(new Date("2024-05-14"));
   const userId = Utils.newGuid() as UserId;
 
@@ -49,7 +49,7 @@ describe("ProductSwitcherService", () => {
   beforeEach(() => {
     jest.useFakeTimers();
     singleOrgPolicyEnabled = false;
-    vfo1FoundationEnabled = false;
+    vfo1Enabled = false;
     getLastSync.mockResolvedValue(new Date("2024-05-14"));
     isGovModeEnabled = false;
     router = mock<Router>();
@@ -104,7 +104,7 @@ describe("ProductSwitcherService", () => {
         },
         {
           provide: ConfigService,
-          useValue: { getFeatureFlag$: () => of(vfo1FoundationEnabled) },
+          useValue: { getFeatureFlag$: () => of(vfo1Enabled) },
         },
       ],
     });
@@ -150,6 +150,18 @@ describe("ProductSwitcherService", () => {
         const products = await firstValueFrom(service.products$);
 
         expect(products.other.find((p) => p.name === "Secrets Manager")).toBeDefined();
+      });
+
+      it("overrides the other section name when the VFO1 flag is enabled", async () => {
+        vfo1Enabled = true;
+
+        initiateService();
+
+        const products = await firstValueFrom(service.products$);
+
+        expect(
+          products.other.find((p) => p.name === "Secrets Manager").otherProductOverrides.name,
+        ).toBe("getSecretsManager");
       });
 
       it("is included in bento when there is an organization with SM", async () => {
@@ -246,7 +258,7 @@ describe("ProductSwitcherService", () => {
       });
 
       it("does not include Organizations when the VFO1 foundation flag is enabled", async () => {
-        vfo1FoundationEnabled = true;
+        vfo1Enabled = true;
         initiateService();
 
         const products = await firstValueFrom(service.products$);
@@ -256,7 +268,7 @@ describe("ProductSwitcherService", () => {
 
       it("does not include Organizations on Self-Host when the VFO1 foundation flag is enabled", async () => {
         platformUtilsService.isSelfHost.mockReturnValue(true);
-        vfo1FoundationEnabled = true;
+        vfo1Enabled = true;
         initiateService();
 
         const products = await firstValueFrom(service.products$);
