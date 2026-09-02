@@ -77,9 +77,12 @@ jobs:
           persist-credentials: false
           allow-unsafe-pr-checkout: true
 
-      - name: Get GitHub sha as version
+      - name: Get checked-out commit as version
         id: version
-        run: echo "value=$(git rev-parse HEAD | cut -c1-7)" >> "$GITHUB_OUTPUT"
+        run: |
+          sha="$(git rev-parse HEAD)"
+          echo "value=${sha:0:7}" >> "$GITHUB_OUTPUT"
+          echo "### Build git hash: \`${sha:0:7}\`" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Get Node Version
         id: retrieve-node-version
