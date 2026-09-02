@@ -296,5 +296,35 @@ describe("BaseImporter class", () => {
       const result = importer.parseXml(xml);
       expect(result).toBe(null);
     });
+
+    it("parse XML should reject DOCTYPE with external SYSTEM DTD reference", async () => {
+      const xml = `<?xml version="1.0" encoding="ISO-8859-1"?>
+        <!DOCTYPE passwordsafe SYSTEM "http://evil.example.com/evil.dtd">
+        <passwordsafe delimiter=";">
+        <entry><title>PoC</title></entry>
+        </passwordsafe>`;
+      const result = importer.parseXml(xml);
+      expect(result).toBe(null);
+    });
+
+    it("parse XML should reject DOCTYPE with external PUBLIC DTD reference", async () => {
+      const xml = `<?xml version="1.0" encoding="ISO-8859-1"?>
+        <!DOCTYPE passwordsafe PUBLIC "-//Evil//DTD Evil//EN" "http://evil.example.com/evil.dtd">
+        <passwordsafe delimiter=";">
+        <entry><title>PoC</title></entry>
+        </passwordsafe>`;
+      const result = importer.parseXml(xml);
+      expect(result).toBe(null);
+    });
+
+    it("parse XML should accept DOCTYPE with internal subset only", async () => {
+      const xml = `<?xml version="1.0"?>
+        <!DOCTYPE passwordsafe [<!ELEMENT passwordsafe ANY>]>
+        <passwordsafe delimiter=";">
+        <entry><title>Safe</title></entry>
+        </passwordsafe>`;
+      const result = importer.parseXml(xml);
+      expect(result).not.toBe(null);
+    });
   });
 });
