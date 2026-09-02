@@ -269,6 +269,47 @@ describe("TargetSystemEditComponent — create mode", () => {
     expect(request).toMatchObject({ supportsSessionTermination: true });
   });
 
+  it("submits supportsSessionTermination=false for Active Directory even when the control is checked", async () => {
+    rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    const comp = fixture.componentInstance as unknown as {
+      createForm: { patchValue: (v: unknown) => void };
+      policyForm: { patchValue: (v: unknown) => void };
+      submitCreate: () => Promise<void>;
+    };
+    comp.createForm.patchValue({
+      name: "Corp DC",
+      method: TargetSystemMethod.Automatic,
+      kind: TargetSystemKind.ActiveDirectory,
+    });
+    // A stale true, as if the operator had checked it while a custom script was selected.
+    comp.policyForm.patchValue({
+      minLength: 14,
+      maxLength: 64,
+      includeUppercase: true,
+      includeLowercase: true,
+      includeDigits: true,
+      includeSymbols: true,
+      supportsSessionTermination: true,
+    });
+    fixture.detectChanges();
+    await comp.submitCreate();
+
+    const request = rotationSdk.createTargetSystem.mock.calls[0]![1];
+    expect(request.method).toBe("automatic");
+    expect(request).toMatchObject({ supportsSessionTermination: false });
+  });
+
+  it("seeds Automatic + Active Directory from the ?template=active-directory query param", async () => {
+    TestBed.resetTestingModule();
+    const comp = await setupCreateWithTemplate("active-directory");
+    const value = comp.createForm.getRawValue();
+
+    expect(value.method).toBe(TargetSystemMethod.Automatic);
+    expect(value.kind).toBe(TargetSystemKind.ActiveDirectory);
+  });
+
   it("honors the checkbox for a custom script", async () => {
     rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
     jest.spyOn(router, "navigate").mockResolvedValue(true);
@@ -406,6 +447,17 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
     const el = fixture.nativeElement as HTMLElement;
     patchKind(TargetSystemKind.CustomScript);
     expect(el.querySelector("#target-system-edit_checkbox_session-termination")).toBeTruthy();
+  });
+
+  // An LDAP password write cannot revoke a Kerberos ticket that has already been issued, so
+  // Active Directory offers neither the checkbox nor the "Supported" claim a native integration
+  // makes — it says so instead.
+  it("offers no session termination at all for Active Directory", () => {
+    const el = fixture.nativeElement as HTMLElement;
+    patchKind(TargetSystemKind.ActiveDirectory);
+
+    expect(el.querySelector("#target-system-edit_checkbox_session-termination")).toBeNull();
+    expect(el.querySelector("#target-system-edit_session-termination-unsupported")).toBeTruthy();
   });
 
   it("keeps the not-supported notice off a kind that does terminate sessions", () => {
@@ -718,5 +770,60 @@ describe("TargetSystemEditComponent — edit mode", () => {
     expect(toastService2.showToast).toHaveBeenCalledWith(
       expect.objectContaining({ variant: "error" }),
     );
+  });
+});
+
+// A stored supportsSessionTermination=true can reach the form on a kind that offers no control
+// for it — the server holds whatever was written before this kind was named. Active Directory
+// declines the capability at creation; it does not take back one an existing system was granted.
+describe("TargetSystemEditComponent — Active Directory edit mode", () => {
+  let fixture: ComponentFixture<TargetSystemEditComponent>;
+  let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
+
+  const activeDirectorySystem = makeSystem({
+    name: "Corp DC",
+    kind: TargetSystemKind.ActiveDirectory,
+    supportsSessionTermination: true,
+  });
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    rotationSdk = mock<RotationSdkService>();
+    rotationSdk.listTargetSystems.mockResolvedValue([activeDirectorySystem]);
+    rotationSdk.updateTargetSystem.mockResolvedValue(undefined);
+    await setupEdit(rotationSdk);
+    fixture = TestBed.createComponent(TargetSystemEditComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  });
+
+  it("leaves the stored supportsSessionTermination=true standing on save", async () => {
+    const comp = fixture.componentInstance as unknown as {
+      nameForm: { patchValue: (v: unknown) => void };
+      showRetainedTermination: () => boolean;
+      submitEdit: () => Promise<void>;
+    };
+
+    comp.nameForm.patchValue({ name: "Corp DC (Frankfurt)" });
+    await comp.submitEdit();
+
+    expect(rotationSdk.updateTargetSystem).toHaveBeenCalledWith(
+      ORG_ID,
+      activeDirectorySystem.id,
+      expect.objectContaining({
+        name: "Corp DC (Frankfurt)",
+        supportsSessionTermination: true,
+      }),
+    );
+    expect(comp.showRetainedTermination()).toBe(true);
+  });
+
+  it("names the integration on the loaded system rather than falling back to a custom script", () => {
+    const comp = fixture.componentInstance as unknown as {
+      existingKindLabel: () => string | null;
+    };
+
+    expect(comp.existingKindLabel()).toBe("pamTargetSystemKindActiveDirectory");
   });
 });
