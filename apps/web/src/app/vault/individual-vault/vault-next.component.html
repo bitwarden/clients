@@ -2,7 +2,12 @@
   @if (collectionSelected()) {
     <bit-breadcrumbs slot="breadcrumbs">
       <bit-breadcrumb [route]="orgRootRoute()">
-        <bit-icon-tile slot="start" [icon]="orgNavItem()?.icon" [color]="orgTileColor()" />
+        <bit-icon-tile
+          slot="start"
+          [icon]="orgTile()?.icon"
+          [variant]="orgTile()?.variant ?? 'primary'"
+          [emphasis]="orgTile()?.emphasis ?? 'subtle'"
+        />
         {{ orgNavItem()?.label }}
       </bit-breadcrumb>
       <bit-breadcrumb [icon]="'bwi-list-alt'" [route]="orgRootRoute()">

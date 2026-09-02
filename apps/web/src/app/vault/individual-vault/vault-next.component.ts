@@ -21,10 +21,9 @@ import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utili
 import {
   BreadcrumbsModule,
   ButtonModule,
-  defaultAvatarColors,
   DialogService,
   IconTileComponent,
-  isAvatarColor,
+  IconTileOptions,
 } from "@bitwarden/components";
 import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
@@ -47,6 +46,7 @@ import {
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
+  navIconTile,
   organizationInScope,
   resolveVaultScope,
   scopedSharedFolderId,
@@ -277,13 +277,9 @@ export class VaultNextComponent {
     return this.vaultNav()?.vaults.find((v) => v.id === scope.organizationId);
   });
 
-  /** AvatarColor names ("teal" etc.) are resolved to hex; already-hex values pass through. */
-  protected readonly orgTileColor = computed((): string | undefined => {
+  protected readonly orgTile = computed((): IconTileOptions | undefined => {
     const item = this.orgNavItem();
-    if (item == null) {
-      return undefined;
-    }
-    return isAvatarColor(item.color) ? defaultAvatarColors[item.color] : item.color;
+    return item == null ? undefined : navIconTile(item);
   });
 
   /** Route to the org vault root. */

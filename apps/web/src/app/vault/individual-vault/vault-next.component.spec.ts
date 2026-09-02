@@ -35,7 +35,6 @@ import {
   VaultNavService,
   VaultsNavViewModel,
   Vfo1I18nPipe,
-  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
@@ -233,7 +232,7 @@ describe("VaultNextComponent", () => {
           // be declared here rather than on the TestBed module — a standalone component resolves
           // schemas from its own metadata. The i18n pipe stays, since a schema does not cover an
           // unresolved pipe.
-          imports: [I18nPipe, Vfo1I18nPipe, Vfo1IconPipe],
+          imports: [I18nPipe, Vfo1I18nPipe],
           schemas: [NO_ERRORS_SCHEMA],
           providers: [{ provide: WebVaultItemActionsService, useValue: itemActions }],
         },
