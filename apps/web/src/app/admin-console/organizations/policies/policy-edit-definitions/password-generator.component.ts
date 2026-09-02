@@ -23,7 +23,8 @@ import { PolicyCategory } from "../pipes/policy-category";
 export class PasswordGeneratorPolicy extends BasePolicyEditDefinition {
   name = "passwordGenerator";
   description = "passwordGeneratorPolicyDescV2";
-  descriptionVfo1 = "passwordGeneratorPolicyDescVfo1";
+  descriptionVfo1 = "passwordGeneratorPolicyDescListVfo1";
+  drawerDescriptionVfo1 = "passwordGeneratorPolicyDescVfo1";
   type = PolicyType.PasswordGenerator;
   category = PolicyCategory.VaultManagement;
   priority = 10;
