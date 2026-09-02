@@ -1,0 +1,414 @@
+<div class="tw-flex-col">
+  <!-- Header: icon + name + subtitle -->
+  <div class="tw-flex tw-items-center tw-mb-5">
+    <app-vault-icon [cipher]="cipher()"></app-vault-icon>
+    <div class="tw-flex-col tw-ml-4 tw-min-w-0">
+      <div class="tw-text-main">{{ cipher().name }}</div>
+      <div class="tw-text-muted tw-text-xs tw-truncate">{{ subtitle(cipher()) }}</div>
+    </div>
+  </div>
+
+  <!-- Login fields -->
+  @if (cipher().login.username) {
+    <app-send-access-item-field
+      [value]="cipher().login.username"
+      [label]="'username' | i18n"
+      copyButtonLabel="copyUsername"
+    ></app-send-access-item-field>
+  }
+  @if (cipher().login.password) {
+    <bit-form-field>
+      <bit-label [appTextDrag]="cipher().login.password" id="password-label">
+        {{ "password" | i18n }}
+      </bit-label>
+      <input
+        id="password"
+        [ngClass]="{ 'tw-hidden': passwordRevealed() }"
+        readonly
+        bitInput
+        type="password"
+        [value]="passwordRevealed() ? cipher().login.password : cipher().login.maskedPassword"
+        aria-readonly="true"
+      />
+      @if (passwordRevealed()) {
+        <div class="tw-flex tw-items-center tw-h-full">
+          <bit-color-password
+            class="tw-font-mono"
+            [password]="cipher().login.password"
+          ></bit-color-password>
+        </div>
+      }
+      <button
+        bitSuffix
+        type="button"
+        bitIconButton
+        bitPasswordInputToggle
+        [toggled]="passwordRevealed()"
+        (toggledChange)="pwToggleValue($event)"
+      ></button>
+      <button
+        bitIconButton="bwi-clone"
+        bitSuffix
+        type="button"
+        [appCopyClick]="cipher().login.password"
+        [valueLabel]="'password' | i18n"
+        showToast
+        [label]="'copyPassword' | i18n"
+      ></button>
+    </bit-form-field>
+  }
+  @if (cipher().login.totp) {
+    <bit-form-field>
+      <bit-label [appTextDrag]="totpCodeCopyObj?.totpCode">
+        {{ "verificationCodeTotp" | i18n }}
+      </bit-label>
+      <input
+        id="totp"
+        readonly
+        bitInput
+        type="text"
+        [value]="totpCodeCopyObj?.totpCodeFormatted || '*** ***'"
+        aria-readonly="true"
+        class="tw-font-mono"
+      />
+      <div
+        bitTotpCountdown
+        [cipher]="cipher()"
+        bitSuffix
+        (sendCopyCode)="setTotpCopyCode($event)"
+      ></div>
+      <button
+        bitIconButton="bwi-clone"
+        bitSuffix
+        type="button"
+        [appCopyClick]="totpCodeCopyObj?.totpCode"
+        [valueLabel]="'verificationCodeTotp' | i18n"
+        showToast
+        [label]="'copyVerificationCode' | i18n"
+        class="disabled:tw-cursor-default"
+      ></button>
+    </bit-form-field>
+  }
+  @if (cipher().login.uris) {
+    @for (login of cipher().login.uris; track $index) {
+      <bit-form-field>
+        <bit-label>
+          {{ "website" | i18n }}
+        </bit-label>
+        <input readonly bitInput type="text" [value]="login.hostOrUri" aria-readonly="true" />
+        <button
+          bitIconButton="bwi-external-link"
+          bitSuffix
+          type="button"
+          (click)="openWebsite(login.launchUri)"
+          [label]="('launch' | i18n) + ' ' + login.hostOrUri"
+        ></button>
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [appCopyClick]="login.uri"
+          [valueLabel]="'website' | i18n"
+          showToast
+          [label]="'copyWebsite' | i18n"
+        ></button>
+      </bit-form-field>
+    }
+  }
+
+  <!-- Credit card fields -->
+  @if (cipher().type === CipherType.Card) {
+    <app-send-access-item-field
+      [value]="cipher().card.cardholderName"
+      [label]="'cardholderName' | i18n"
+      copyButtonLabel="copyCardholderName"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().card.number | creditCardNumber: cipher().card.brand"
+      [label]="'number' | i18n"
+      copyButtonLabel="copyNumber"
+      [hideable]="true"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().card.expiration"
+      [label]="'expiration' | i18n"
+      copyButtonLabel="copyExpirationDate"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().card.code"
+      [label]="'securityCode' | i18n"
+      copyButtonLabel="copySecurityCode"
+      [hideable]="true"
+    ></app-send-access-item-field>
+  }
+
+  <!-- Bank account fields -->
+  @if (cipher().type === CipherType.BankAccount) {
+    <app-send-access-item-field
+      [value]="cipher().bankAccount.bankName"
+      [label]="'bankName' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().bankAccount.nameOnAccount"
+      [label]="'nameOnAccount' | i18n"
+      copyButtonLabel="copyNameOnAccount"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().bankAccount.accountType"
+      [label]="'bankAccountType' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().bankAccount.accountNumber"
+      [label]="'accountNumber' | i18n"
+      copyButtonLabel="copyAccountNumber"
+      [hideable]="true"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().bankAccount.routingNumber"
+      [label]="'bankRoutingNumber' | i18n"
+      copyButtonLabel="copyRoutingNumber"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().bankAccount.branchNumber"
+      [label]="'branchNumber' | i18n"
+      copyButtonLabel="copyBranchNumber"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().bankAccount.pin"
+      [label]="'pin' | i18n"
+      copyButtonLabel="copyPin"
+      [hideable]="true"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().bankAccount.swiftCode"
+      [label]="'swiftCode' | i18n"
+      copyButtonLabel="copySwiftCode"
+      [hideable]="true"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().bankAccount.iban"
+      [label]="'iban' | i18n"
+      copyButtonLabel="copyIban"
+      [hideable]="true"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().bankAccount.bankContactPhone"
+      [label]="'bankContactPhone' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+  }
+
+  <!-- Identity fields -->
+  @if (cipher().type === CipherType.Identity) {
+    <app-send-access-item-field
+      [value]="cipher().identity.fullName"
+      [label]="'name' | i18n"
+      copyButtonLabel="copyName"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().identity.username"
+      [label]="'username' | i18n"
+      copyButtonLabel="copyUsername"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().identity.company"
+      [label]="'company' | i18n"
+      copyButtonLabel="copyCompany"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().identity.ssn"
+      [label]="'ssn' | i18n"
+      copyButtonLabel="copySSN"
+      [hideable]="true"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().identity.passportNumber"
+      [label]="'passportNumber' | i18n"
+      copyButtonLabel="copyPassportNumber"
+      [hideable]="true"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().identity.licenseNumber"
+      [label]="'licenseNumber' | i18n"
+      copyButtonLabel="copyLicenseNumber"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().identity.email"
+      [label]="'email' | i18n"
+      copyButtonLabel="copyEmail"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().identity.phone"
+      [label]="'phone' | i18n"
+      copyButtonLabel="copyPhone"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().identity.fullAddressForCopy"
+      [label]="'address' | i18n"
+      copyButtonLabel="copyAddress"
+    ></app-send-access-item-field>
+  }
+
+  <!-- Driver's License fields -->
+  @if (cipher().type === CipherType.DriversLicense) {
+    <app-send-access-item-field
+      [value]="cipher().driversLicense.firstName"
+      [label]="'firstName' | i18n"
+      copyButtonLabel="copyFirstName"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().driversLicense.middleName"
+      [label]="'middleName' | i18n"
+      copyButtonLabel="copyMiddleName"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().driversLicense.lastName"
+      [label]="'lastName' | i18n"
+      copyButtonLabel="copyLastName"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().driversLicense.licenseNumber"
+      [label]="'licenseNumber' | i18n"
+      copyButtonLabel="copyLicenseNumber"
+      [hideable]="true"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().driversLicense.dateOfBirth"
+      [label]="'dateOfBirth' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().driversLicense.issuingCountry"
+      [label]="'issuingCountry' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().driversLicense.issuingState"
+      [label]="'issuingState' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().driversLicense.issuingAuthority"
+      [label]="'issuingAuthority' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().driversLicense.issueDate"
+      [label]="'issueDate' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().driversLicense.expirationDate"
+      [label]="'expirationDate' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().driversLicense.licenseClass"
+      [label]="'licenseClass' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+  }
+
+  <!-- Passport fields -->
+  @if (cipher().type === CipherType.Passport) {
+    <app-send-access-item-field
+      [value]="cipher().passport.givenName"
+      [label]="'firstName' | i18n"
+      copyButtonLabel="copyFirstName"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().passport.surname"
+      [label]="'lastName' | i18n"
+      copyButtonLabel="copyLastName"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().passport.dateOfBirth"
+      [label]="'dateOfBirth' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().passport.sex"
+      [label]="'sex' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().passport.birthPlace"
+      [label]="'birthPlace' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().passport.nationality"
+      [label]="'nationality' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().passport.passportNumber"
+      [label]="'passportNumber' | i18n"
+      copyButtonLabel="copyPassportNumber"
+      [hideable]="true"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().passport.passportType"
+      [label]="'passportType' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().passport.nationalIdentificationNumber"
+      [label]="'nationalIdentificationNumber' | i18n"
+      copyButtonLabel="copyNationalIdentificationNumber"
+      [hideable]="true"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().passport.issuingCountry"
+      [label]="'issuingCountry' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().passport.issuingAuthority"
+      [label]="'issuingAuthority' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().passport.issueDate"
+      [label]="'issueDate' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+    <app-send-access-item-field
+      [value]="cipher().passport.expirationDate"
+      [label]="'expirationDate' | i18n"
+      [copyable]="false"
+    ></app-send-access-item-field>
+  }
+
+  <!-- Notes -->
+  @if (cipher().notes) {
+    <bit-form-field [disableMargin]="true">
+      <bit-label [appTextDrag]="cipher().notes">{{ "note" | i18n }}</bit-label>
+      <textarea readonly id="notes" bitInput rows="5" aria-readonly="true">{{
+        cipher().notes
+      }}</textarea>
+      <button
+        bitSuffix
+        bitIconButton="bwi-clone"
+        size="small"
+        type="button"
+        [appCopyClick]="cipher().notes"
+        showToast
+        [valueLabel]="'note' | i18n"
+        [label]="'copyNotes' | i18n"
+      ></button>
+    </bit-form-field>
+  }
+
+  <!-- Custom fields -->
+  @for (field of cipher().fields; track field.name) {
+    <app-send-access-item-field
+      [value]="field.value"
+      [label]="field.name"
+      [hideable]="field.type === FieldType.Hidden"
+    ></app-send-access-item-field>
+  }
+</div>

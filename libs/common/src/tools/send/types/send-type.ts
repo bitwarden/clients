@@ -4,7 +4,7 @@ export const SendType = Object.freeze({
   Text: 0,
   /** Send contains a file. */
   File: 1,
-  /** Send contains an item */
+  /** Send contains a vault item. */
   Item: 2,
 } as const);
 

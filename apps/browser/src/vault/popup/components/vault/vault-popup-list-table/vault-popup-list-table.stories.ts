@@ -37,6 +37,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import { MY_VAULT, PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { PopupWidthOptions } from "../../../../../platform/browser/browser-popup-utils";
@@ -514,6 +515,7 @@ const buildProviders = (args: StoryArgs) => {
       useValue: { hasPremiumFromAnySource$: () => of(true) },
     },
     { provide: Router, useValue: { navigate: () => Promise.resolve(true) } },
+    { provide: ShareLinkService, useValue: { cipherCanBeShared$: () => of(true) } },
   ];
 };
 

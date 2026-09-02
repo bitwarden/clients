@@ -156,6 +156,7 @@ import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
+import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -340,6 +341,7 @@ export class ServiceContainer {
   userVerificationApiService: UserVerificationApiService;
   organizationApiService: OrganizationApiServiceAbstraction;
   sendApiService: SendApiServiceSelector;
+  sendSdkDecryptionService: SendSdkDecryptionService;
   sendTokenService: SendTokenService;
   sendPasswordService: SendPasswordService;
   devicesApiService: DevicesApiServiceAbstraction;
@@ -680,21 +682,6 @@ export class ServiceContainer {
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
 
-    this.sendService = new SendService(
-      this.accountService,
-      this.keyService,
-      this.i18nService,
-      this.keyGenerationService,
-      this.sendStateProvider,
-      this.encryptService,
-      this.configService,
-    );
-
-    const legacySendApiService = new SendApiService(
-      this.apiService,
-      this.fileUploadService,
-      this.sendService,
-    );
     const sdkClientFactory = flagEnabled("sdk")
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
@@ -716,6 +703,30 @@ export class ServiceContainer {
       this.v2UpgradeTokenStateService,
       managedSettingsService,
       customUserAgent,
+    );
+
+    this.cipherEncryptionService = new DefaultCipherEncryptionService(
+      this.sdkService,
+      this.logService,
+    );
+
+    this.sendSdkDecryptionService = new SendSdkDecryptionService(this.sdkService);
+
+    this.sendService = new SendService(
+      this.accountService,
+      this.keyService,
+      this.i18nService,
+      this.keyGenerationService,
+      this.sendStateProvider,
+      this.encryptService,
+      this.configService,
+      this.sendSdkDecryptionService,
+    );
+
+    const legacySendApiService = new SendApiService(
+      this.apiService,
+      this.fileUploadService,
+      this.sendService,
     );
 
     this.sendApiService = new SendApiServiceSelector(
@@ -937,11 +948,6 @@ export class ServiceContainer {
       this.policyService,
       this.accountService,
       this.restrictedItemTypesService,
-    );
-
-    this.cipherEncryptionService = new DefaultCipherEncryptionService(
-      this.sdkService,
-      this.logService,
     );
 
     this.cipherSdkService = new DefaultCipherSdkService(this.sdkService, this.logService);

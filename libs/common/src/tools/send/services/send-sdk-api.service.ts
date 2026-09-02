@@ -265,7 +265,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return new SendFileDownloadDataResponse(data);
   }
 
-  private async mutateSend(
+  async mutateSend(
     sendView: SendView,
     userId: UserId,
     plaintextPassword?: string,
@@ -418,7 +418,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   // After the SDK executes a mutation server-side, refetch the wire-encrypted form via
   // the legacy API so InternalSendService stores EncString-shaped data and consumers
   // that decrypt the returned Send work correctly.
-  private async refreshSendFromServer(id: string): Promise<Send> {
+  async refreshSendFromServer(id: string): Promise<Send> {
     const response = await this.legacySendApiService.getSend(id);
     const data = new SendData(response);
     await this.sendService.upsert(data);
@@ -504,6 +504,15 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
           fileName: resolvedFileName,
           size: sendView.file?.size?.toString() ?? undefined,
           sizeName: sendView.file?.sizeName ?? undefined,
+        },
+      };
+    } else if (sendView.type === SendType.Item) {
+      if (!sendView.data?.data) {
+        throw new Error("Item Send is missing data");
+      }
+      return {
+        Item: {
+          data: sendView.data.data.toSdkCipherView(),
         },
       };
     }

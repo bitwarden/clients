@@ -47,6 +47,7 @@ import {
   SearchModule,
   ToastService,
 } from "@bitwarden/components";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import {
   ArchiveCipherUtilitiesService,
   CipherViewComponent,
@@ -140,6 +141,8 @@ export class ViewComponent {
   protected userCanArchive$ = this.accountService.activeAccount$
     .pipe(getUserId)
     .pipe(switchMap((userId) => this.archiveService.userCanArchive$(userId)));
+  protected showShareButton$: Observable<boolean>;
+
   constructor(
     private passwordRepromptService: PasswordRepromptService,
     private route: ActivatedRoute,
@@ -159,6 +162,7 @@ export class ViewComponent {
     private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
     private domainSettingsService: DomainSettingsService,
     private afterDeletionNavigationService: VaultPopupAfterDeletionNavigationService,
+    private shareLinkService: ShareLinkService,
   ) {
     this.subscribeToParams();
   }
@@ -213,6 +217,8 @@ export class ViewComponent {
               (!cipher.isDeleted ||
                 (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete))),
           );
+
+          this.showShareButton$ = this.shareLinkService.cipherCanBeShared$(this.cipher);
 
           await this.eventCollectionService.collect(
             EventType.Cipher_ClientViewed,
@@ -425,6 +431,16 @@ export class ViewComponent {
       equivalentDomains,
       defaultMatch,
     );
+  }
+
+  async doShare() {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(this.cipher);
+    if (!repromptPassed) {
+      return;
+    }
+    await this.router.navigate(["/share-item"], {
+      queryParams: { cipherId: this.cipher.id },
+    });
   }
 
   /**

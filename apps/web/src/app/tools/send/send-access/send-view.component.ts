@@ -11,12 +11,15 @@ import {
 } from "@angular/core";
 
 import { SendAccessToken } from "@bitwarden/common/auth/send-access";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   AnonLayoutWrapperDataService,
@@ -29,12 +32,19 @@ import { LegacyCompatKeyService, SymmetricCryptoKey } from "@bitwarden/legacy-cr
 import { SharedModule } from "../../../shared";
 
 import { SendAccessFileComponent } from "./send-access-file.component";
+import { SendAccessItemComponent } from "./send-access-item.component";
 import { SendAccessTextComponent } from "./send-access-text.component";
 
 @Component({
   selector: "app-send-view",
   templateUrl: "send-view.component.html",
-  imports: [SendAccessFileComponent, SendAccessTextComponent, SharedModule, SpinnerComponent],
+  imports: [
+    SendAccessFileComponent,
+    SendAccessItemComponent,
+    SendAccessTextComponent,
+    SharedModule,
+    SpinnerComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendViewComponent implements OnInit {
@@ -65,6 +75,8 @@ export class SendViewComponent implements OnInit {
     private toastService: ToastService,
     private i18nService: I18nService,
     private layoutWrapperDataService: AnonLayoutWrapperDataService,
+    private configService: ConfigService,
+    private sendSdkDecryptionService: SendSdkDecryptionService,
   ) {}
 
   ngOnInit() {
@@ -89,7 +101,12 @@ export class SendViewComponent implements OnInit {
       const keyArray = Utils.fromUrlB64ToArray(this.key());
       const sendAccess = new SendAccess(response);
       this.decKey = await this.legacyCompatKeyService.makeSendKey(keyArray);
-      const decSend = await sendAccess.decrypt(this.decKey);
+      const useSendSdk = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
+      const decSend = useSendSdk
+        ? SendAccessView.fromSdk(
+            await this.sendSdkDecryptionService.decryptSendAccess(response, this.decKey.toSdk()),
+          )
+        : await sendAccess.decrypt(this.decKey);
       this.send.set(decSend);
     } catch (e) {
       this.send.set(null);
@@ -114,11 +131,22 @@ export class SendViewComponent implements OnInit {
       this.loading.set(false);
     }
 
+    const decSendAfterLoad = this.send();
+    if (decSendAfterLoad?.type === SendType.Item) {
+      this.layoutWrapperDataService.setAnonLayoutWrapperData({
+        pageTitle: { key: "viewItem" },
+      });
+    }
+
     const creatorIdentifier = this.creatorIdentifier();
     if (creatorIdentifier != null) {
+      const subtitleKey =
+        decSendAfterLoad?.type === SendType.Item
+          ? "sendAccessItemSubtitle"
+          : "sendAccessCreatorIdentifier";
       this.layoutWrapperDataService.setAnonLayoutWrapperData({
         pageSubtitle: {
-          key: "sendAccessCreatorIdentifier",
+          key: subtitleKey,
           placeholders: [creatorIdentifier],
         },
       });

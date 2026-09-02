@@ -48,6 +48,7 @@ import { LayoutComponent, StorybookGlobalStateProvider, ToastService } from "@bi
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { GlobalStateProvider } from "@bitwarden/state";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import { RoutedVaultFilterService, PasswordRepromptService } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
@@ -202,6 +203,7 @@ export default {
           provide: CipherService,
           useValue: () => {},
         },
+        { provide: ShareLinkService, useValue: { cipherCanBeShared$: () => of(true) } },
       ],
     }),
     applicationConfig({

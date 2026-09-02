@@ -654,6 +654,9 @@ export class VaultComponent implements OnInit, OnDestroy {
         case "editCipher":
           await this.cipherActions.editCipher(event.item);
           break;
+        case "shareViaLink":
+          await this.cipherActions.shareViaLink(event.item);
+          break;
       }
     } finally {
       this.processingEvent$.next(false);

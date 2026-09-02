@@ -12,11 +12,14 @@ import {
   concatMap,
   switchMap,
   tap,
+  combineLatest,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -29,12 +32,11 @@ import { SendFileView } from "@bitwarden/common/tools/send/models/view/send-file
 import { SendTextView } from "@bitwarden/common/tools/send/models/view/send-text.view";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-// eslint-disable-next-line no-restricted-imports
-import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
 import { SendPolicyService } from "@bitwarden/send-ui";
 
 // Value = hours
@@ -147,6 +149,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected accountService: AccountService,
     protected toastService: ToastService,
     protected premiumUpgradePromptService: PremiumUpgradePromptService,
+    protected configService: ConfigService,
+    protected sendSdkDecryptionService: SendSdkDecryptionService,
   ) {
     this.typeOptions = [
       { name: i18nService.t("sendTypeFile"), value: SendType.File, premium: true },
@@ -267,19 +271,24 @@ export class AddEditComponent implements OnInit, OnDestroy {
       });
 
       if (this.editMode) {
-        this.accountService.activeAccount$
+        combineLatest([
+          this.accountService.activeAccount$.pipe(getUserId),
+          this.configService.getFeatureFlag$(FeatureFlag.Pm30110SdkSendsApi),
+        ])
           .pipe(
-            getUserId,
-            switchMap((userId) =>
-              this.sendService
-                .get$(this.sendId)
-                .pipe(
-                  concatMap((s) =>
-                    s instanceof Send
-                      ? s.decrypt(userId)
-                      : Promise.reject(new Error("Failed to load send.")),
-                  ),
-                ),
+            switchMap(([userId, useSendsSdk]) =>
+              this.sendService.get$(this.sendId).pipe(
+                concatMap((s) => {
+                  if (s instanceof Send) {
+                    return useSendsSdk
+                      ? this.sendSdkDecryptionService
+                          .decryptSend(s, userId)
+                          .then((sdkView) => SendView.fromSdkSend(sdkView))
+                      : s.decrypt(userId);
+                  }
+                  return Promise.reject(new Error("Failed to load send."));
+                }),
+              ),
             ),
             takeUntil(this.destroy$),
           )
@@ -318,6 +327,19 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.send.hideEmail = this.formGroup.controls.hideEmail.value;
     this.send.disabled = this.formGroup.controls.disabled.value;
     this.send.type = this.type;
+    // Parse dates
+    try {
+      this.send.deletionDate =
+        this.formattedDeletionDate == null ? null : new Date(this.formattedDeletionDate);
+    } catch {
+      this.send.deletionDate = null;
+    }
+    try {
+      this.send.expirationDate =
+        this.formattedExpirationDate == null ? null : new Date(this.formattedExpirationDate);
+    } catch {
+      this.send.expirationDate = null;
+    }
 
     if (Utils.isNullOrWhitespace(this.send.name)) {
       this.toastService.showToast({
@@ -357,31 +379,25 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.send.password = null;
     }
 
-    // Capture the plaintext password before encryptSend consumes it. `this.send` is a SendView
-    // whose `password` holds the plaintext typed into the form (null when preserving an existing
-    // password). Forward it so the SDK path can derive the send password over the key it
-    // generates; the legacy path ignores it.
-    const plaintextPassword = this.send.password;
-
-    this.formPromise = this.encryptSend(file).then(async (encSend) => {
-      const uploadPromise = this.sendApiService.save(encSend, plaintextPassword);
-      await uploadPromise;
-      if (this.send.id == null) {
-        this.send.id = encSend[0].id;
-      }
-      if (this.send.accessId == null) {
-        this.send.accessId = encSend[0].accessId;
-      }
-      this.onSavedSend.emit(this.send);
-      if (this.formGroup.controls.copyLink.value && this.link != null) {
-        await this.handleCopyLinkToClipboard();
-        return;
-      }
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t(this.editMode ? "editedSend" : "createdSend"),
-      });
+    // `this.send` is a SendView whose `password` holds the plaintext typed into the form
+    // (null when preserving an existing password). Forward it so the SDK path can derive
+    // the Send password over the key it generates; the legacy path ignores it.
+    const sendView = await this.sendApiService.saveView(this.send, file, this.send.password);
+    if (this.send.id == null) {
+      this.send.id = sendView.id;
+    }
+    if (this.send.accessId == null) {
+      this.send.accessId = sendView.accessId;
+    }
+    this.onSavedSend.emit(this.send);
+    if (this.formGroup.controls.copyLink.value && this.link != null) {
+      await this.handleCopyLinkToClipboard();
+      return;
+    }
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t(this.editMode ? "editedSend" : "createdSend"),
     });
     try {
       await this.formPromise;
@@ -450,26 +466,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
   protected loadSend(): Promise<Send> {
     return firstValueFrom(this.sendService.get$(this.sendId));
-  }
-
-  protected async encryptSend(file: File): Promise<[Send, EncArrayBuffer]> {
-    const sendData = await this.sendService.encrypt(this.send, file, this.send.password, null);
-
-    // Parse dates
-    try {
-      sendData[0].deletionDate =
-        this.formattedDeletionDate == null ? null : new Date(this.formattedDeletionDate);
-    } catch {
-      sendData[0].deletionDate = null;
-    }
-    try {
-      sendData[0].expirationDate =
-        this.formattedExpirationDate == null ? null : new Date(this.formattedExpirationDate);
-    } catch {
-      sendData[0].expirationDate = null;
-    }
-
-    return sendData;
   }
 
   protected togglePasswordVisible() {

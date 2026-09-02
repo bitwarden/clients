@@ -49,6 +49,7 @@ import {
   ItemModule,
   ToastService,
 } from "@bitwarden/components";
+import { ShareItemDrawerComponent, ShareLinkService } from "@bitwarden/tools-share";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { CipherFormComponent, CipherFormConfig, CipherFormModule } from "../cipher-form";
@@ -319,6 +320,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     { initialValue: false },
   );
 
+  protected showShareButton$: Observable<boolean>;
+
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
     private dialogRef: DialogRef<VaultItemDialogResult>,
@@ -337,6 +340,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private eventCollectionService: EventCollectionService,
     private archiveService: CipherArchiveService,
     private configService: ConfigService,
+    private shareLinkService: ShareLinkService,
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$
@@ -386,6 +390,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         this.loadForm = false;
         this.updateTitle();
       }
+
+      this.showShareButton$ = this.shareLinkService.cipherCanBeShared$(this.cipher);
 
       await this.eventCollectionService.collect(
         EventType.Cipher_ClientViewed,
@@ -664,6 +670,13 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       });
     }
   };
+
+  protected async openSharePanel() {
+    await this.dialogService.openDrawer(ShareItemDrawerComponent, {
+      data: { cipher: this.cipher },
+    });
+    await this.dialogRef.close();
+  }
 
   private async getDecryptedCipherView(config: CipherFormConfig) {
     if (config.originalCipher == null) {

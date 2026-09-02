@@ -96,6 +96,13 @@ export class SendApiService implements SendApiServiceAbstraction {
   // `SendService.encrypt` before `save` and carries the result on `Send.password`, so it ignores
   // the plaintext here — behavior is unchanged.
   async save(sendData: [Send, EncArrayBuffer], _plaintextPassword?: string): Promise<Send> {
+    // Item-type Send encryption is mostly centralized in the SDK, so we
+    // only want to have support for creating them when we're using the SDK
+    if (sendData[0].type === SendType.Item) {
+      throw new Error(
+        "SendApiService.save: item-type Send creation and editing requires SendSdkApiService",
+      );
+    }
     const response = await this.upload(sendData);
 
     const data = new SendData(response);
@@ -166,9 +173,7 @@ export class SendApiService implements SendApiServiceAbstraction {
 
     let response: SendResponse;
     if (sendData[0].id == null) {
-      if (sendData[0].type === SendType.Text) {
-        response = await this.postSend(request);
-      } else {
+      if (sendData[0].type === SendType.File) {
         try {
           const uploadDataResponse = await this.postFileTypeSend(request);
           response = uploadDataResponse.sendResponse;
@@ -185,6 +190,8 @@ export class SendApiService implements SendApiServiceAbstraction {
             throw e;
           }
         }
+      } else {
+        response = await this.postSend(request);
       }
       sendData[0].id = response.id;
       sendData[0].accessId = response.accessId;

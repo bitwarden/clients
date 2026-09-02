@@ -32,6 +32,7 @@ import {
   ToastService,
   IconModule,
 } from "@bitwarden/components";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import { PasswordRepromptService, Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
@@ -138,6 +139,10 @@ export class ItemMoreOptionsComponent {
     switchMap((cipher) => this.cipherAuthorizationService.canDeleteCipher$(cipher)),
   );
 
+  protected readonly showShareViaLink$ = this._cipher$.pipe(
+    switchMap((cipher) => this.shareLinkService.cipherCanBeShared$(cipher)),
+  );
+
   constructor(
     private cipherService: CipherService,
     private passwordRepromptService: PasswordRepromptService,
@@ -153,6 +158,7 @@ export class ItemMoreOptionsComponent {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private cipherArchiveService: CipherArchiveService,
     private domainSettingsService: DomainSettingsService,
+    private shareLinkService: ShareLinkService,
   ) {}
 
   get canEdit() {
@@ -314,6 +320,16 @@ export class ItemMoreOptionsComponent {
         cipherId: this.cipher.id,
         type: CipherViewLikeUtils.getType(this.cipher).toString(),
       } as AddEditQueryParams,
+    });
+  }
+
+  async shareViaLink() {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(this.cipher);
+    if (!repromptPassed) {
+      return;
+    }
+    await this.router.navigate(["/share-item"], {
+      queryParams: { cipherId: this.cipher.id },
     });
   }
 

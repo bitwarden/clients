@@ -39,6 +39,7 @@ import { SendView } from "../models/view/send.view";
 import { SendType } from "../types/send-type";
 
 import { SEND_USER_DECRYPTED, SEND_USER_ENCRYPTED } from "./key-definitions";
+import { SendSdkDecryptionService } from "./send-sdk-decryption.service";
 import { SendStateProvider } from "./send-state.provider";
 import { SendService } from "./send.service";
 import {
@@ -56,6 +57,7 @@ describe("SendService", () => {
   const encryptService = mock<EncryptService>();
   const environmentService = mock<EnvironmentService>();
   const configService = mock<ConfigService>();
+  const sendSdkDecryptionService = mock<SendSdkDecryptionService>();
   let sendStateProvider: SendStateProvider;
   let sendService: SendService;
 
@@ -98,6 +100,9 @@ describe("SendService", () => {
     decryptedState = stateProvider.activeUser.getFake(SEND_USER_DECRYPTED);
     decryptedState.nextState([testSendViewData("1", "Test Send")]);
 
+    // Disable all feature flags
+    configService.getFeatureFlag.mockResolvedValue(false);
+
     sendService = new SendService(
       accountService,
       keyService,
@@ -106,6 +111,7 @@ describe("SendService", () => {
       sendStateProvider,
       encryptService,
       configService,
+      sendSdkDecryptionService,
     );
   });
 

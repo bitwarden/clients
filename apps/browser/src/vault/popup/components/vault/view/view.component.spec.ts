@@ -39,6 +39,7 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import {
   ArchiveCipherUtilitiesService,
   CopyCipherFieldService,
@@ -256,6 +257,10 @@ describe("ViewComponent", () => {
         {
           provide: ChangeLoginPasswordService,
           useValue: mock<ChangeLoginPasswordService>(),
+        },
+        {
+          provide: ShareLinkService,
+          useValue: mock<ShareLinkService>(),
         },
       ],
     })

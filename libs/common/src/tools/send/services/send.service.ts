@@ -16,6 +16,7 @@ import {
 } from "@bitwarden/legacy-crypto";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
@@ -30,6 +31,7 @@ import { SendView } from "../models/view/send.view";
 import { SEND_KDF_ITERATIONS } from "../send-kdf";
 import { SendType } from "../types/send-type";
 
+import { SendSdkDecryptionService } from "./send-sdk-decryption.service";
 import { SendStateProvider } from "./send-state.provider.abstraction";
 import { InternalSendService as InternalSendServiceAbstraction } from "./send.service.abstraction";
 
@@ -57,6 +59,7 @@ export class SendService implements InternalSendServiceAbstraction {
     private stateProvider: SendStateProvider,
     private encryptService: EncryptService,
     private configService: ConfigService,
+    private sendSdkDecryptionService: SendSdkDecryptionService,
   ) {}
 
   async encrypt(
@@ -151,6 +154,8 @@ export class SendService implements InternalSendServiceAbstraction {
           model.cryptoKey,
         );
       }
+    } else if (send.type === SendType.Item) {
+      throw new Error("Item type Sends require the SDK to encrypt");
     }
 
     send.authType = model.authType;
@@ -208,6 +213,9 @@ export class SendService implements InternalSendServiceAbstraction {
                 return true;
               }
               return oldSend[key].getTime() === newSend[key].getTime();
+            case "data":
+              // Item Sends should never be updated, so they never will be changed
+              return true;
             default:
               // For other properties, compare directly
               return oldSend[key as keyof Send] === newSend[key as keyof Send];
@@ -259,8 +267,17 @@ export class SendService implements InternalSendServiceAbstraction {
 
     const promises: Promise<any>[] = [];
     const sends = await this.getAll();
+    const useSdkForSends = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
     sends.forEach((send) => {
-      promises.push(send.decrypt(userId).then((f) => decSends.push(f)));
+      if (useSdkForSends) {
+        promises.push(
+          this.sendSdkDecryptionService
+            .decryptSend(send, userId)
+            .then((s) => decSends.push(SendView.fromSdkSend(s))),
+        );
+      } else {
+        promises.push(send.decrypt(userId).then((f) => decSends.push(f)));
+      }
     });
 
     await Promise.all(promises);
@@ -393,7 +410,16 @@ export class SendService implements InternalSendServiceAbstraction {
   }
 
   private async decryptSends(sends: Send[], userId: UserId) {
-    const decryptSendPromises = sends.map((s) => s.decrypt(userId));
+    const useSdkForSends = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
+    const decryptSendPromises = sends.map((s) => {
+      if (useSdkForSends) {
+        return this.sendSdkDecryptionService
+          .decryptSend(s, userId)
+          .then((s) => SendView.fromSdkSend(s));
+      } else {
+        return s.decrypt(userId);
+      }
+    });
     const decryptedSends = await Promise.all(decryptSendPromises);
 
     decryptedSends.sort(Utils.getSortFunction(this.i18nService, "name"));

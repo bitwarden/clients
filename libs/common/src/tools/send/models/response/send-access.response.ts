@@ -1,8 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { SendAccessResponse as SdkSendAccessResponse } from "@bitwarden/sdk-internal";
+
 import { BaseResponse } from "../../../../models/response/base.response";
 import { SendType } from "../../types/send-type";
 import { SendFileApi } from "../api/send-file.api";
+import { SendItemApi } from "../api/send-item.api";
 import { SendTextApi } from "../api/send-text.api";
 
 export class SendAccessResponse extends BaseResponse {
@@ -11,6 +14,7 @@ export class SendAccessResponse extends BaseResponse {
   name: string;
   file: SendFileApi;
   text: SendTextApi;
+  data: SendItemApi;
   expirationDate: Date;
   creatorIdentifier: string;
 
@@ -30,7 +34,28 @@ export class SendAccessResponse extends BaseResponse {
       this.file = new SendFileApi(file);
     }
 
-    this.expirationDate = this.getResponseProperty("ExpirationDate");
+    const data = this.getResponseProperty("Data");
+    if (data != null) {
+      this.data = new SendItemApi(data);
+    }
+
+    const expirationDate = this.getResponseProperty("ExpirationDate");
+    if (expirationDate != null) {
+      this.expirationDate = new Date(expirationDate);
+    }
     this.creatorIdentifier = this.getResponseProperty("CreatorIdentifier");
+  }
+
+  static toSdkAccessResponse(obj: SendAccessResponse): SdkSendAccessResponse {
+    return {
+      id: obj.id,
+      name: obj.name,
+      type: obj.type,
+      creatorIdentifier: obj.creatorIdentifier,
+      expirationDate: obj.expirationDate ? obj.expirationDate.toISOString() : undefined,
+      text: obj.text,
+      file: obj.file,
+      data: obj.data,
+    };
   }
 }

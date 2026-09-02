@@ -9,6 +9,7 @@ import { SendAccessResponse } from "../response/send-access.response";
 import { SendAccessView } from "../view/send-access.view";
 
 import { SendFile } from "./send-file";
+import { SendItem } from "./send-item";
 import { SendText } from "./send-text";
 
 export class SendAccess extends Domain {
@@ -17,6 +18,7 @@ export class SendAccess extends Domain {
   name: EncString;
   file: SendFile;
   text: SendText;
+  data: SendItem;
   expirationDate: Date;
   creatorIdentifier: string;
 
@@ -47,12 +49,19 @@ export class SendAccess extends Domain {
       case SendType.File:
         this.file = new SendFile(obj.file);
         break;
+      case SendType.Item:
+        this.data = new SendItem(obj.data);
+        break;
       default:
         break;
     }
   }
 
   async decrypt(key: SymmetricCryptoKey): Promise<SendAccessView> {
+    if (this.type === SendType.Item) {
+      throw new Error("Item type Sends require the SDK to decrypt");
+    }
+
     const model = new SendAccessView(this);
 
     await this.decryptObj<SendAccess, SendAccessView>(this, model, ["name"], key);

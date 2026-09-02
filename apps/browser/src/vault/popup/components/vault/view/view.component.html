@@ -23,6 +23,20 @@
           {{ "autofillVerb" | i18n }}
         </button>
       }
+      @if (showShareButton$ | async) {
+        <button
+          type="button"
+          class="tw-mt-4"
+          slot="button"
+          bitButton
+          buttonType="secondary"
+          startIcon="bwi-share-link"
+          block
+          (click)="doShare()"
+        >
+          {{ "shareVerb" | i18n }}
+        </button>
+      }
     </app-cipher-view>
   }
 

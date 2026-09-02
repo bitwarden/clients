@@ -30,6 +30,7 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuTriggerForDirective } from "@bitwarden/components";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import { VaultCopyButtonsService, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import {
@@ -165,6 +166,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   protected organization?: Organization;
 
   protected showCopyAndLaunchActions$: Observable<boolean>;
+  protected showShareViaLink$: Observable<boolean>;
 
   constructor(
     private i18nService: I18nService,
@@ -172,6 +174,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     private cipherService: CipherService,
     private platformUtilsService: PlatformUtilsService,
     private configService: ConfigService,
+    private shareLinkService: ShareLinkService,
   ) {
     this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
@@ -185,6 +188,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     if (this.cipher.organizationId != null) {
       this.organization = this.organizations.find((o) => o.id === this.cipher.organizationId);
     }
+    this.showShareViaLink$ = this.shareLinkService.cipherCanBeShared$(this.cipher);
   }
 
   // Archive button will not show in Admin Console
@@ -501,6 +505,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected assignToCollections() {
     this.onEvent.emit({ type: "assignToCollections", items: [this.cipher] });
+  }
+
+  protected shareViaLink() {
+    this.onEvent.emit({ type: "shareViaLink", item: this.cipher });
   }
 
   async openUri(selectedUri: string) {

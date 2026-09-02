@@ -17,6 +17,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { ShareLinkService } from "@bitwarden/tools-share";
 import { CopyCipherFieldService, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-cipher-row.component";
@@ -74,6 +75,10 @@ describe("VaultCipherRowComponent", () => {
         {
           provide: VaultCopyButtonsService,
           useValue: { showQuickCopyActions$: showQuickCopyActions$.asObservable() },
+        },
+        {
+          provide: ShareLinkService,
+          useValue: mock<ShareLinkService>(),
         },
       ],
     }).compileComponents();

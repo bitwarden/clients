@@ -6042,6 +6042,22 @@
   "assignToCollections": {
     "message": "Assign to collections"
   },
+  "share": {
+    "message": "Share",
+    "description": "Page title for the share vault item panel"
+  },
+  "shareViaLink": {
+    "message": "Share via link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
+  "shareEmailVerificationDescription": {
+    "message": "After sharing this link, recipients will need to verify their email with a code to view the item.",
+    "description": "Description explaining that recipients must verify their email before viewing a shared vault item"
+  },
+  "shareLinkExpiryHint": {
+    "message": "This link expires after this date, but recipients may retain previously shared information. Regenerate the credential to revoke access.",
+    "description": "Hint text explaining share link expiry behavior and how to revoke access"
+  },
   "addToSharedFolder": {
     "message": "Add to shared folder"
   },
@@ -7786,6 +7802,50 @@
       }
     }
   },
+  "peopleWhoCanView": {
+    "message": "People who can view",
+    "description": "Heading for the section listing who has access to view a shared vault item"
+  },
+  "linkExpiresAfter": {
+    "message": "Link expires after",
+    "description": "Label for the expiry duration select field when creating a share link"
+  },
+  "oneTimeShare": {
+    "message": "One time share",
+    "description": "Checkbox label indicating the share link can only be viewed once by the recipient"
+  },
+  "activeLinks": {
+    "message": "Active links",
+    "description": "Heading for the list of currently active share links for a vault item"
+  },
+  "linkCopiedToClipboard": {
+    "message": "Link copied to clipboard",
+    "description": "Toast message shown when a share link URL is successfully copied to the clipboard"
+  },
+  "linkSaveFailed": {
+    "message": "Unable to create share link",
+    "description": "Toast message shown after a new share link fails to create"
+  },
+  "linkSavedAndCopied": {
+    "message": "Link saved and copied to clipboard",
+    "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
+  },
+  "linkSavedCopyFailed": {
+    "message": "Failed to copy share link to clipboard",
+    "description": "Toas message shown after a new share link is created but we were unable to copy it to the clipboard"
+  },
+  "shareLinkDeleted": {
+    "message": "Share link deleted",
+    "description": "Toast message shown when an active share link is successfully deleted"
+  },
+  "shareLinkDeleteFailed": {
+    "message": "Failed to delete share link",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
+  "expires": {
+    "message": "Expires",
+    "description": "Label prefix shown before the expiry date of an active share link"
+  },
   "health": {
     "message": "Health"
   },
@@ -7946,6 +8006,18 @@
   },
   "reusedPasswordsDescription": {
     "message": "These logins have a reused password. Create a unique password for each account to prevent someone accessing multiple accounts with one password."
+  },
+  "itemSendTitle": {
+    "message": "Share for vault item $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareVerb": {
+    "message": "Share"
   },
   "deleteAtRiskItemDescription": {
     "message": "Deleting this login removes it from your vault but doesn't fix the risk. To protect your account, change your password first."

@@ -2,15 +2,18 @@
 // @ts-strict-ignore
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { SendView as SdkSendView } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../../models/view/view";
+import { uuidAsString } from "../../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../../platform/misc/utils";
 import { DeepJsonify } from "../../../../types/deep-jsonify";
 import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
-import { Send } from "../domain/send";
+import { AUTH_TYPE_FROM_SDK, Send, SEND_TYPE_FROM_SDK } from "../domain/send";
 
 import { SendFileView } from "./send-file.view";
+import { SendItemView } from "./send-item.view";
 import { SendTextView } from "./send-text.view";
 
 export class SendView implements View {
@@ -23,6 +26,7 @@ export class SendView implements View {
   type: SendType = null;
   text = new SendTextView();
   file = new SendFileView();
+  data = new SendItemView();
   maxAccessCount?: number = null;
   accessCount = 0;
   revisionDate: Date = null;
@@ -95,9 +99,37 @@ export class SendView implements View {
       cryptoKey: SymmetricCryptoKey.fromJSON(json.cryptoKey),
       text: SendTextView.fromJSON(json.text),
       file: SendFileView.fromJSON(json.file),
+      data: SendItemView.fromJSON(json.data),
       revisionDate: json.revisionDate == null ? null : new Date(json.revisionDate),
       deletionDate: json.deletionDate == null ? null : new Date(json.deletionDate),
       expirationDate: json.expirationDate == null ? null : new Date(json.expirationDate),
     });
+  }
+
+  /** Maps an SDK `SendView` back to a domain `SendView`. */
+  static fromSdkSend(obj?: SdkSendView): SendView {
+    if (obj == null) {
+      return null;
+    }
+    const send = new SendView();
+    send.id = obj.id ? uuidAsString(obj.id) : null;
+    send.accessId = obj.accessId ?? null;
+    send.name = obj.name;
+    send.notes = obj.notes;
+    send.key = Utils.fromUrlB64ToArray(obj.key);
+    send.type = SEND_TYPE_FROM_SDK[obj.type];
+    send.maxAccessCount = obj.maxAccessCount ?? undefined;
+    send.accessCount = obj.accessCount;
+    send.disabled = obj.disabled;
+    send.hideEmail = obj.hideEmail;
+    send.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
+    send.deletionDate = obj.deletionDate != null ? new Date(obj.deletionDate) : null;
+    send.expirationDate = obj.expirationDate != null ? new Date(obj.expirationDate) : null;
+    send.emails = obj.emails ?? null;
+    send.authType = AUTH_TYPE_FROM_SDK[obj.authType];
+    send.text = obj.text != null ? SendTextView.fromSdk(obj.text) : null;
+    send.file = obj.file != null ? SendFileView.fromSdk(obj.file) : null;
+    send.data = obj.data != null ? SendItemView.fromSdk(obj.data) : null;
+    return send;
   }
 }
