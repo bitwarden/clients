@@ -9,7 +9,6 @@ CLI is not supported.
 
 The driver is a registry. It holds a set of named capabilities and never constructs them itself, so
 a capability can live in whichever library owns its dependencies.
-
 Extend `AutomationCapability` and register it against that same class as a multi-provider token — in `jslib-services.module.ts` for a capability every client supports, or in
 a single client's provider module for one only that client can offer:
 
