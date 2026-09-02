@@ -10,10 +10,12 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
+import { ActionButton } from "../../../../content/components/buttons/action-button";
 import { Lock, Plus } from "../../../../content/components/icons";
 import {
   InlineMenuCipherList,
   InlineMenuCipherListNewItem,
+  InlineMenuContainer,
   InlineMenuPrompt,
   InlineMenuPasswordGenerator,
 } from "../../../../content/components/inline-menu";
@@ -1780,12 +1782,28 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.isPasskeyAuthInProgress = true;
     this.resetInlineMenuContainer();
 
-    const passkeyAuthenticatingLoader = globalThis.document.createElement("div");
-    passkeyAuthenticatingLoader.classList.add("passkey-authenticating-loader");
-    passkeyAuthenticatingLoader.textContent = this.getTranslation("authenticating");
-    passkeyAuthenticatingLoader.appendChild(buildSvgDomElement(spinnerIcon));
+    if (this.useLitComponents) {
+      this.renderLit(
+        InlineMenuContainer({
+          theme: this.theme,
+          dataTestId: "inline-menu-passkey-authenticating",
+          children: ActionButton({
+            buttonText: this.getTranslation("authenticating"),
+            isLoading: true,
+            theme: this.theme,
+            handleClick: () => {},
+            dataTestId: "inline-menu-passkey-authenticating-button",
+          }),
+        }),
+      );
+    } else {
+      const passkeyAuthenticatingLoader = globalThis.document.createElement("div");
+      passkeyAuthenticatingLoader.classList.add("passkey-authenticating-loader");
+      passkeyAuthenticatingLoader.textContent = this.getTranslation("authenticating");
+      passkeyAuthenticatingLoader.appendChild(buildSvgDomElement(spinnerIcon));
 
-    this.inlineMenuListContainer.appendChild(passkeyAuthenticatingLoader);
+      this.inlineMenuListContainer.append(passkeyAuthenticatingLoader);
+    }
 
     globalThis.setTimeout(() => {
       this.isPasskeyAuthInProgress = false;

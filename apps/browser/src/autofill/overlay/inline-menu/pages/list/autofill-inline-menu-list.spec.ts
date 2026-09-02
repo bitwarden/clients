@@ -6,6 +6,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
+import { ActionButton } from "../../../../content/components/buttons/action-button";
 import {
   InlineMenuCipherList,
   InlineMenuPasswordGenerator,
@@ -23,9 +24,13 @@ import { AutofillInlineMenuList } from "./autofill-inline-menu-list";
 jest.mock("lit", () => ({ render: jest.fn(), nothing: Symbol("nothing") }));
 jest.mock("@emotion/css", () => ({ css: jest.fn(() => "") }));
 jest.mock("../../../../content/components/inline-menu", () => ({
+  InlineMenuContainer: jest.fn(({ children }) => children),
   InlineMenuPrompt: jest.fn(() => "prompt"),
   InlineMenuCipherList: jest.fn(() => "cipher-list"),
   InlineMenuPasswordGenerator: jest.fn(() => "password-generator"),
+}));
+jest.mock("../../../../content/components/buttons/action-button", () => ({
+  ActionButton: jest.fn(() => "action-button"),
 }));
 jest.mock("../../../../content/components/icons", () => ({
   Lock: jest.fn(),
@@ -394,6 +399,43 @@ describe("AutofillInlineMenuList", () => {
           },
           expectedOrigin,
         );
+      });
+
+      it("renders the Lit action button loader when a passkey cipher is filled", async () => {
+        const ciphers = [
+          createAutofillOverlayCipherDataMock(1, {
+            login: {
+              username: "username1",
+              passkey: {
+                rpName: "https://example.com",
+                userName: "username1",
+              },
+            },
+          }),
+        ];
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers,
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        const { handleFillCipher } = (InlineMenuCipherList as jest.Mock).mock.calls[0][0];
+        handleFillCipher(ciphers[0], new Event("click"));
+
+        expect(ActionButton).toHaveBeenCalledWith(
+          expect.objectContaining({
+            isLoading: true,
+          }),
+        );
+        expect(
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector(
+            ".passkey-authenticating-loader",
+          ),
+        ).toBeNull();
       });
 
       it("views a cipher from the Lit cipher list", async () => {
