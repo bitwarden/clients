@@ -146,9 +146,6 @@ export class EditMemberDialogComponent {
   readonly isRevoked = signal(false);
   readonly showNoMasterPasswordWarning = signal(false);
   protected readonly tabIndex = signal<number>(this.params.initialTab);
-  protected readonly detailsTabEnabled = toSignal(
-    from(this.configService.getFeatureFlag(FeatureFlag.PM28365_ChangeMemberEmail)),
-  );
 
   protected readonly privilegedControlsEnabled = toSignal(
     from(this.configService.getFeatureFlag(FeatureFlag.Pam)),
@@ -530,14 +527,10 @@ export class EditMemberDialogComponent {
     this.formGroup.markAllAsTouched();
 
     if (this.formGroup.invalid) {
-      const detailsTab = this.detailsTabEnabled() ? MemberDialogTab.Details : MemberDialogTab.Role;
-      if (this.tabIndex() !== detailsTab) {
-        const tabName = this.detailsTabEnabled()
-          ? this.i18nService.t("details")
-          : this.i18nService.t("role");
+      if (this.tabIndex() !== MemberDialogTab.Details) {
         this.toastService.showToast({
           variant: "error",
-          message: this.i18nService.t("fieldOnTabRequiresAttention", tabName),
+          message: this.i18nService.t("fieldOnTabRequiresAttention", this.i18nService.t("details")),
         });
       }
       return;
