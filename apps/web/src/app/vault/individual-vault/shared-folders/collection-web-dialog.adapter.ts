@@ -19,7 +19,6 @@ import {
   CollectionDialogTabType,
 } from "../../../admin-console/organizations/shared/components/collection-dialog/collection-dialog.models";
 
-/** The dialog's own tab enum, keyed by the token's client-independent one. */
 const TABS: Readonly<Record<CollectionDialogTab, CollectionDialogTabType>> = Object.freeze({
   [CollectionDialogTab.Info]: CollectionDialogTabType.Info,
   [CollectionDialogTab.Access]: CollectionDialogTabType.Access,

@@ -88,7 +88,6 @@ export const SHARED_FOLDERS_COLUMNS = Object.freeze([
   "options",
 ] as const);
 
-/** Passed as `defineTable`'s second type parameter. */
 export type SharedFoldersTableColumn = (typeof SHARED_FOLDERS_COLUMNS)[number];
 
 /**
@@ -107,7 +106,7 @@ const ROW_HEIGHT_PX = 56;
 /** The chrome below the rows, in px: the paginator's height plus a gutter. */
 const FOOTER_HEIGHT_PX = 84;
 
-/** The fewest rows a page holds. Below this a page costs more in paginator than it returns. */
+/** The fewest rows a page holds. Below this the paginator isn't worth showing. */
 const MIN_PAGE_SIZE = 5;
 
 /** Rows per page until the first row has been measured. */
@@ -144,9 +143,7 @@ export type SharedFoldersTableFilters = {
  * <vault-shared-folders><app-header /></vault-shared-folders>
  * ```
  *
- * Reached at `/vault/:vaultId/shared-folders`, guarded by `organizationVaultGuard`. A sibling of
- * the item list rather than a mode of it: the vault page shows ciphers, and nothing it derives from
- * them applies here. The two share the vault scope and the `:vaultId` segment, and nothing else.
+ * Reached at `/vault/:vaultId/shared-folders`, guarded by `organizationVaultGuard`.
  *
  * ## What a client provides
  *
@@ -349,10 +346,8 @@ export class SharedFoldersComponent {
   /** Whether the chip has anything to narrow. One distinct permission can't exclude a row. */
   protected readonly showPermissions = computed(() => this.permissionOptions().length > 1);
 
-  /** The i18n key naming `permission`, for the cells and the Permissions chip's options. */
   protected readonly permissionMessageKey = sharedFolderPermissionMessageKey;
 
-  /** Builds the route a folder's name links to, so the link and the route parser can't drift. */
   protected readonly vaultScopeCommands = vaultScopeCommands;
 
   protected readonly VaultScopeType = VaultScopeType;
@@ -383,7 +378,6 @@ export class SharedFoldersComponent {
   protected readonly sortByPermission: SortFn = (a: SharedFolderRow, b: SharedFolderRow) =>
     sharedFolderPermissionOrder(a.permissions) - sharedFolderPermissionOrder(b.permissions);
 
-  /** The single predicate the table derives its rows, counts, and empty state from. */
   protected readonly filter = (row: SharedFolderRow, values: SharedFoldersTableFilters): boolean =>
     this.matchesSearch(row, values.search) && this.matchesPermissions(row, values.permissions);
 
@@ -464,7 +458,6 @@ export class SharedFoldersComponent {
       return;
     }
 
-    // The route fixes the organization, so unlike the legacy vault's Add there's no org selector.
     await this.collectionDialog?.open({ organizationId });
   }
 
@@ -530,9 +523,7 @@ export class SharedFoldersComponent {
    *
    * The selection holds row *objects*, and `bit-table-v2` rebuilds its model only when the selection
    * config's identity changes — never when the data does. But the rows come from a stream, so any
-   * sync re-emits fresh objects for the same folders. Left alone, the selection would keep holding
-   * the stale ones: checkboxes would render unchecked while the bar still announced a count, and
-   * actions would run against rows that no longer reflect the vault.
+   * sync re-emits fresh objects for the same folders.
    *
    * Matched on id rather than cleared outright, so a background sync doesn't cost an in-progress
    * selection. A folder that's gone from the rows drops out of it.
@@ -576,7 +567,6 @@ export class SharedFoldersComponent {
     }
   }
 
-  /** Matches a row against the search term, on name only. */
   private matchesSearch(row: SharedFolderRow, search: string | undefined): boolean {
     const term = search?.trim().toLowerCase();
     return !term || row.name.toLowerCase().includes(term);
@@ -593,7 +583,6 @@ export class SharedFoldersComponent {
     return !permissions?.length || permissions.includes(row.permissions);
   }
 
-  /** Whether at least one chip filter is active, excluding the reserved search key. */
   protected hasActiveChipFilters(
     table: BitTableV2Component<
       SharedFolderRow,
@@ -606,7 +595,6 @@ export class SharedFoldersComponent {
       .some((control: FilterControl) => control.key() !== SEARCH_FILTER_KEY && control.active());
   }
 
-  /** Clears every chip filter, leaving the search term untouched. */
   protected clearChipFilters(
     table: BitTableV2Component<
       SharedFolderRow,

@@ -9,24 +9,12 @@ import { SharedFolderPermission } from "./shared-folder-permission";
 
 /** A row of the shared folders table. */
 export type SharedFolderRow = {
-  /** The folder's collection id. Drives tracking, QA ids, and the row's drill-in route. */
   id: CollectionId;
-
-  /** The organization the folder belongs to — the vault the row's drill-in route scopes to. */
   organizationId: OrganizationId;
-
   name: string;
-
-  /** What the member may do with the folder, as the permissions column reports it. */
   permissions: SharedFolderPermission;
-
-  /** How many vault items the folder holds. */
   items: number;
-
-  /** Whether the member may edit the folder's details and access — gates Edit and Edit access. */
   canEdit: boolean;
-
-  /** Whether the member may delete the folder — gates Delete. */
   canDelete: boolean;
 
   /** The collection the row was built from, so an action can act on the folder without a lookup. */
@@ -35,7 +23,6 @@ export type SharedFolderRow = {
 
 /** The data one organization's shared folder rows are derived from. */
 export type SharedFolderRowsParams = {
-  /** The organization whose folders to list, as the route names it. */
   organizationId: OrganizationId;
 
   /**

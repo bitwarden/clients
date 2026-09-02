@@ -18,7 +18,6 @@ export type CollectionDialogOutcome =
   (typeof CollectionDialogOutcome)[keyof typeof CollectionDialogOutcome];
 
 export interface CollectionDialogOpenParams {
-  /** The organization the collection belongs to, or is to be created in. */
   organizationId: OrganizationId;
 
   /** The collection to edit. Omit to create one. */

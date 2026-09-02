@@ -200,9 +200,6 @@
   <!--
     Sized to the window rather than to a fixed count — see `autoPageSize`.
 
-    Hidden rather than removed, since projection only matches static top-level nodes. Hiding is
-    enough: at one page the table's slice already spans every row.
-
     Hidden on the *fitted* size rather than the effective one, because the rows-per-page select
     lives in the footer — hiding on the effective size would take away the control just used to ask
     for a longer page, with nothing to restore it until the next resize.

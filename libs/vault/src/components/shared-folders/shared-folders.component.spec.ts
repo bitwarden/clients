@@ -106,7 +106,6 @@ function collectionWith(
   return collection({ ...flags[permission], ...overrides });
 }
 
-/** An organization-owned item in `collectionIds`, for the Items column's counts. */
 function cipher(id: string, collectionIds: string[]): CipherView {
   const view = new CipherView();
   view.id = id;
@@ -132,9 +131,8 @@ type SetupOptions = {
   /** `null` withholds the first emission, which is what leaves the table loading. */
   ciphers?: CipherView[] | null;
   organizations?: Organization[];
-  /** The `:vaultId` route segment. */
   vaultId?: string;
-  /** Which dialogs the client provides. Web provides all three; desktop provides none. */
+  /** Which dialogs the client provides. */
   dialogs?: {
     collection?: boolean;
     bulkDelete?: boolean;
@@ -215,12 +213,10 @@ describe("SharedFoldersComponent", () => {
     TestBed.resetTestingModule();
   });
 
-  /** The component's filter predicate, which the table derives its rendered rows from. */
   function applyFilter(row: SharedFolderRow, values: SharedFoldersTableFilters): boolean {
     return component["filter"](row, values);
   }
 
-  /** The projected `bit-table-v2` instance. */
   function bitTable(): BitTableV2Component<
     SharedFolderRow,
     SharedFoldersTableColumn,
@@ -229,7 +225,6 @@ describe("SharedFoldersComponent", () => {
     return fixture.debugElement.query(By.directive(BitTableV2Component)).componentInstance;
   }
 
-  /** The registered `FilterControl` for a given key. */
   function filterControl(key: string): FilterControl {
     const control = bitTable()
       .filterControls()
@@ -240,12 +235,10 @@ describe("SharedFoldersComponent", () => {
     return control;
   }
 
-  /** The registered `FilterControl` for the adopted `bit-search`. */
   function searchControl(): FilterControl {
     return filterControl("search");
   }
 
-  /** A row the component built, by folder id. */
   function row(id: string): SharedFolderRow {
     const found = component["sharedFolders"]().find((r) => r.id === id);
     if (!found) {
@@ -402,7 +395,6 @@ describe("SharedFoldersComponent", () => {
   });
 
   describe("the empty state", () => {
-    /** The empty state's Clear all button, hidden rather than removed while no chip is active. */
     function clearFiltersButton(): HTMLButtonElement {
       const button = fixture.nativeElement.querySelector(
         "#shared-folders_button_clear-filters",
@@ -476,7 +468,6 @@ describe("SharedFoldersComponent", () => {
   });
 
   describe("filtering", () => {
-    /** A bare row, for exercising the predicate directly. */
     const stub = (overrides: Partial<SharedFolderRow> = {}): SharedFolderRow =>
       ({
         name: "Engineering",
@@ -691,7 +682,6 @@ describe("SharedFoldersComponent", () => {
   });
 
   describe("the Add button", () => {
-    /** The toolbar's Add button, hidden rather than removed while the member may not add. */
     function addButton(): HTMLButtonElement {
       const button = fixture.nativeElement.querySelector(
         "#shared-folders_button_add",
@@ -734,7 +724,6 @@ describe("SharedFoldersComponent", () => {
   });
 
   describe("bulk actions", () => {
-    /** The table's selection model, present only while selection is configured. */
     function selectionModel() {
       const model = bitTable().selectionModel();
       if (!model) {
@@ -952,12 +941,10 @@ describe("SharedFoldersComponent", () => {
       fixture.detectChanges();
     }
 
-    /** The rendered data rows. */
     function renderedRows(): HTMLElement[] {
       return fixture.debugElement.queryAll(By.css("bit-row")).map((r) => r.nativeElement);
     }
 
-    /** The paginator, hidden rather than removed when the window fits every folder. */
     function paginator(): HTMLElement {
       const element = fixture.nativeElement.querySelector(
         "bit-table-paginator",
@@ -968,7 +955,6 @@ describe("SharedFoldersComponent", () => {
       return element;
     }
 
-    /** The paginator instance, standing in for someone working its rows-per-page select. */
     function paginatorComponent(): BitTablePaginatorComponent {
       return fixture.debugElement.query(By.directive(BitTablePaginatorComponent))
         .componentInstance as BitTablePaginatorComponent;

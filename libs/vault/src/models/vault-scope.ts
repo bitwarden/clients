@@ -26,9 +26,6 @@ export const MY_VAULT_ROUTE = "my-vault";
  * {@link MY_VAULT_ROUTE} exists: the nav offers one "My items" entry per organization, and the id
  * behind it differs per member, so only the segment is a link that can be written down — see
  * {@link resolveVaultScope}, which trades it for the id.
- *
- * A page rather than a folder within Shared folders, so it hangs off the vault directly rather
- * than under {@link SHARED_FOLDERS_ROUTE}.
  */
 export const MY_ITEMS_ROUTE = "my-items";
 
@@ -248,9 +245,6 @@ export function vaultScopeCommands(scope: VaultScope): string[] {
  * {@link cipherInScope}, {@link collectionInScope}, and {@link organizationInScope} would each have
  * to answer that for a page that lists folders instead. They switch on the scope type with a
  * `default` branch, so a new member would compile silently and fall through to All items' behavior.
- *
- * Composing on `vaultScopeCommands` still keeps the `/vault` prefix and the organization segment in
- * one place.
  */
 export function sharedFoldersCommands(organizationId: OrganizationId): string[] {
   return [

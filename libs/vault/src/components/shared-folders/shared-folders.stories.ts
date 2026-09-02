@@ -109,8 +109,7 @@ type StoryProps = {
  * last story's args before the first story's services were ever subscribed to, and every block
  * would list the same folders.
  *
- * Application providers rather than module ones, for the same reason as {@link routes} — a routed
- * page is built outside the injector Storybook gives the story's own template.
+ * Application providers rather than module ones — see {@link routes}.
  */
 const withVault: Decorator = (storyFn, context) => {
   const args = context.args as StoryProps;
@@ -343,8 +342,7 @@ export const ReadOnly: Story = {
  * since a selection with nothing to act on would only raise an empty bar. An action the member
  * could never run is dropped rather than offered permanently disabled.
  *
- * The Options column stays: it's gated on the client having a collection dialog rather than on what
- * the rows allow, so filtering can't make it come and go and resize every other column with it.
+ * The Options column stays — see `showOptions`.
  */
 export const NoBulkActions: Story = {
   args: {

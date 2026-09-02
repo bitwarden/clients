@@ -30,7 +30,6 @@ export const SHARED_FOLDER_PERMISSIONS: readonly SharedFolderPermission[] = Obje
   SharedFolderPermission.Manage,
 ]);
 
-/** The i18n key naming each permission. */
 const PERMISSION_MESSAGE_KEYS: Readonly<Record<SharedFolderPermission, string>> = Object.freeze({
   [SharedFolderPermission.ViewExceptPass]: "viewItemsHidePass",
   [SharedFolderPermission.View]: "viewItems",
@@ -39,7 +38,6 @@ const PERMISSION_MESSAGE_KEYS: Readonly<Record<SharedFolderPermission, string>> 
   [SharedFolderPermission.Manage]: "manage",
 });
 
-/** Type guard for {@link SharedFolderPermission}. */
 export function isSharedFolderPermission(value: unknown): value is SharedFolderPermission {
   return SHARED_FOLDER_PERMISSIONS.includes(value as SharedFolderPermission);
 }

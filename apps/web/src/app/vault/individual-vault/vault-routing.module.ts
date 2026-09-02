@@ -59,9 +59,8 @@ const routes: Routes = [
     ],
     data: { titleId: "sharedFolders" },
   },
-  // The shared folder a vault has been drilled into, nested under the list it was reached from.
-  // Drilling deeper replaces the `:collectionId` segment rather than adding to it: a folder's
-  // route names the vault it lives in, not the path taken through its ancestors.
+  // The shared folder a vault has been drilled into. Drilling deeper replaces the `:collectionId`
+  // segment rather than adding to it — see `vaultScopeCommands`.
   {
     path: `:vaultId/${SHARED_FOLDERS_ROUTE}/:collectionId`,
     component: VaultNextComponent,

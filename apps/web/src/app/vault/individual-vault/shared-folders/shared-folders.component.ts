@@ -18,9 +18,6 @@ import { CollectionWebDialogAdapter } from "./collection-web-dialog.adapter";
 /**
  * The web client's shared folders page: the shared {@link VaultSharedFoldersComponent} with the
  * web header projected into it, and the dialogs its actions open.
- *
- * Reached at `/vault/:vaultId/shared-folders`, guarded by `organizationVaultGuard` — see the route
- * in `VaultRoutingModule`.
  */
 @Component({
   selector: "app-shared-folders",

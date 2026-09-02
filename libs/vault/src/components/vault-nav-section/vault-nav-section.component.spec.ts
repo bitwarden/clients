@@ -121,13 +121,11 @@ describe("VaultNavSectionComponent", () => {
     return group.nativeElement as HTMLElement;
   };
 
-  /** The nav item labelled `text`, within `root`. */
   const navItem = (root: HTMLElement, text: string) =>
     Array.from(root.querySelectorAll("bit-nav-item")).find((el) =>
       (el as HTMLElement).textContent?.includes(text),
     ) as HTMLElement;
 
-  /** The `href` the nav item labelled `text` links to. */
   const navItemHref = (root: HTMLElement, text: string) =>
     navItem(root, text).querySelector("a")?.getAttribute("href");
 
@@ -138,7 +136,6 @@ describe("VaultNavSectionComponent", () => {
   const navItemIsCurrent = (root: HTMLElement, text: string) =>
     navItem(root, text).querySelector("a")?.getAttribute("aria-current") === "page";
 
-  /** Whether the nav item labelled `text` carries active styles. */
   const navItemIsLit = (root: HTMLElement, text: string) =>
     navItem(root, text).querySelector(".tw-font-semibold") != null;
 

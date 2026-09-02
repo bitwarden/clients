@@ -14,9 +14,6 @@ import { DesktopHeaderComponent } from "../../../app/layout/header";
  * Read-only for now. Every Add, row, and bulk action opens a collection dialog desktop doesn't
  * have, so no dialog token is provided and the page lists the folders without offering an action it
  * can't carry out.
- *
- * Reached at `/vault/:vaultId/shared-folders`, guarded by `organizationVaultGuard` — see the route
- * in `AppRoutingModule`.
  */
 @Component({
   templateUrl: "./shared-folders.component.html",

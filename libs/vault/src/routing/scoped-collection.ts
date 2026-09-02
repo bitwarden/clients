@@ -5,8 +5,6 @@ import { MY_ITEMS_ROUTE } from "../models/vault-scope";
 /**
  * The route data marking the "My items" route as naming a collection, since its path has no
  * `:collectionId` to carry one — see {@link scopedCollectionSegment}.
- *
- * Exported so every client declares the route the same way rather than repeating the key.
  */
 export const MY_ITEMS_ROUTE_DATA: Data = { collectionId: MY_ITEMS_ROUTE };
 

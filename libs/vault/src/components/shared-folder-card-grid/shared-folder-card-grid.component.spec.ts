@@ -275,7 +275,6 @@ describe("SharedFolderCardGridComponent", () => {
       ]);
     });
 
-    // A folder's route names the vault it lives in, not the path taken through its ancestors.
     it("replaces the folder segment rather than nesting under it", () => {
       const engineering = collection(PARENT.id, "Departments/Engineering");
       const platform = collection("platform", "Departments/Engineering/Platform");
