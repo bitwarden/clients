@@ -208,6 +208,13 @@ export class SideNavService {
    * @param key event key, must be either ArrowRight or ArrowLeft
    */
   setWidthFromKeys(key: "ArrowRight" | "ArrowLeft") {
+    if (key === "ArrowRight" && !this.open()) {
+      this.userCollapsePreference.set("open");
+      this.open.set(true);
+      this._width$.next(this.DEFAULT_OPEN_WIDTH);
+      return;
+    }
+
     const currentWidth = this._width$.getValue();
 
     const delta = key === "ArrowLeft" ? -1 : 1;

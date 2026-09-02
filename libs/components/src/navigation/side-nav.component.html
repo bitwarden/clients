@@ -1,4 +1,5 @@
 @let open = sideNavService.open();
+@let showLabels = sideNavService.open();
 @let isOverlay = sideNavService.isOverlay();
 @let version = sideNavService.version();
 
@@ -21,8 +22,15 @@
       id="bit-side-nav"
       [attr.data-nav-version]="version"
       class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-nav tw-text-fg-nav tw-outline-none"
-      [style.width.rem]="open ? (sideNavService.width$ | async) : sideNavService.CLOSED_WIDTH"
-      [style.transition]="sideNavService.isDragging() ? 'none' : 'width 150ms ease-out'"
+      [style.width.rem]="
+        sideNavService.dragDisplayWidth() ??
+        (open ? (sideNavService.width$ | async) : sideNavService.CLOSED_WIDTH)
+      "
+      [style.transition]="
+        sideNavService.isDragging() || !sideNavService.transitionsEnabled()
+          ? 'none'
+          : 'width 150ms ease-out'
+      "
       [style]="
         variant() === 'secondary'
           ? '--color-nav-bg-brand: var(--color-nav-bg-admin); --color-nav-bg-brand-soft: var(--color-nav-bg-admin-soft); --color-nav-bg-brand-hover: var(--color-nav-bg-admin-hover);'
@@ -41,10 +49,10 @@
               data-testid="side-nav-header"
               class="tw-flex tw-px-3 tw-pb-3 tw-justify-between tw-items-center tw-border-0 tw-border-solid tw-border-b tw-border-border-nav-divider"
               [class.tw-pt-3]="!isOverlay"
-              [class.tw-flex-col]="!sideNavService.open()"
-              [class.tw-gap-1]="!sideNavService.open()"
-              [class.tw-gap-2]="sideNavService.open()"
-              [class.tw-pe-3]="sideNavService.open()"
+              [class.tw-flex-col]="!showLabels"
+              [class.tw-gap-1]="!showLabels"
+              [class.tw-gap-2]="showLabels"
+              [class.tw-pe-3]="showLabels"
               [style.padding-top]="
                 isOverlay ? 'calc(0.75rem + var(--bit-sidenav-extra-top-padding, 0px))' : null
               "
@@ -53,7 +61,7 @@
               <button
                 #toggleButton
                 type="button"
-                [bitIconButton]="open ? 'bwi-collapse-nav' : 'bwi-expand-nav'"
+                [bitIconButton]="showLabels ? 'bwi-collapse-nav' : 'bwi-expand-nav'"
                 buttonType="side-nav"
                 size="small"
                 (click)="sideNavService.toggle()"
@@ -79,7 +87,7 @@
               data-footer
               class="tw-p-3 tw-flex tw-flex-col tw-gap-2 tw-border-solid tw-border-0 tw-border-t tw-border-border-nav-divider empty:tw-hidden"
             >
-              @if (open) {
+              @if (showLabels) {
                 <ng-content select="[slot=callout]"></ng-content>
               }
               <ng-content select="[slot=account]"></ng-content>
@@ -97,7 +105,7 @@
       tabindex="0"
       (keydown)="onKeydown($event)"
       role="separator"
-      [attr.aria-valuenow]="sideNavService.width$ | async"
+      [attr.aria-valuenow]="open ? (sideNavService.width$ | async) : sideNavService.CLOSED_WIDTH"
       [attr.aria-valuemax]="sideNavService.MAX_OPEN_WIDTH"
       [attr.aria-valuemin]="sideNavService.MIN_OPEN_WIDTH"
       aria-orientation="vertical"
@@ -117,8 +125,14 @@
       id="bit-side-nav"
       [attr.data-nav-version]="version"
       class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-nav tw-text-fg-nav tw-outline-none"
-      [style.width.rem]="open ? (sideNavService.width$ | async) : undefined"
-      [style.transition]="sideNavService.isDragging() ? 'none' : 'width 150ms ease-out'"
+      [style.width.rem]="
+        sideNavService.dragDisplayWidth() ?? (open ? (sideNavService.width$ | async) : undefined)
+      "
+      [style.transition]="
+        sideNavService.isDragging() || !sideNavService.transitionsEnabled()
+          ? 'none'
+          : 'width 150ms ease-out'
+      "
       [style]="
         variant() === 'secondary'
           ? '--color-nav-fg-primary: var(--color-nav-fg-secondary); --color-nav-bg-primary: var(--color-nav-bg-secondary); --color-nav-bg-primary-strong: var(--color-nav-bg-secondary-strong); --color-nav-bg-primary-hover: var(--color-nav-bg-secondary-hover); --color-nav-bg-primary-hover-strong: var(--color-nav-bg-secondary-hover-strong); --color-nav-border-primary-focus: var(--color-nav-border-secondary-focus); --color-nav-border-primary: var(--color-nav-border-secondary);'
@@ -137,7 +151,7 @@
             <ng-container *ngTemplateOutlet="logoContent"></ng-container>
             <ng-container *ngTemplateOutlet="navContent"></ng-container>
           </div>
-          @if (open) {
+          @if (showLabels) {
             <div
               class="tw-w-full tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"
             >
@@ -148,7 +162,7 @@
       </div>
       <div class="tw-w-full tw-bg-bg-nav">
         <bit-nav-divider></bit-nav-divider>
-        @if (open) {
+        @if (showLabels) {
           <ng-container *ngTemplateOutlet="footerContent"></ng-container>
         }
         <div class="tw-m-4">
@@ -156,7 +170,7 @@
             #toggleButton
             type="button"
             class="tw-mx-auto tw-block"
-            [bitIconButton]="open ? 'bwi-angle-left' : 'bwi-angle-right'"
+            [bitIconButton]="showLabels ? 'bwi-angle-left' : 'bwi-angle-right'"
             buttonType="side-nav"
             size="small"
             (click)="sideNavService.toggle()"
@@ -176,7 +190,7 @@
       tabindex="0"
       (keydown)="onKeydown($event)"
       role="separator"
-      [attr.aria-valuenow]="sideNavService.width$ | async"
+      [attr.aria-valuenow]="open ? (sideNavService.width$ | async) : sideNavService.CLOSED_WIDTH"
       [attr.aria-valuemax]="sideNavService.MAX_OPEN_WIDTH"
       [attr.aria-valuemin]="sideNavService.MIN_OPEN_WIDTH"
       aria-orientation="vertical"
