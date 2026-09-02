@@ -13,7 +13,7 @@ import {
 
 import { IconTileOptions } from "../icon-tile";
 
-import { FILTER_ENTRY, FilterEntry } from "./filter-tokens";
+import { FILTER_ENTRY, FilterRow } from "./filter-tokens";
 
 /** Icon tile configuration for a `bit-filter-option` row. */
 export type FilterOptionIconTile = IconTileOptions;
@@ -37,7 +37,7 @@ export type FilterOptionIconTile = IconTileOptions;
   host: { class: "tw-hidden" },
   providers: [{ provide: FILTER_ENTRY, useExisting: forwardRef(() => FilterOptionComponent) }],
 })
-export class FilterOptionComponent<T = unknown> implements FilterEntry {
+export class FilterOptionComponent<T = unknown> implements FilterRow {
   readonly kind = "option" as const;
 
   /** The value contributed to the chip's selection when chosen. */
@@ -67,6 +67,9 @@ export class FilterOptionComponent<T = unknown> implements FilterEntry {
   /** Whether this option has anything nested under it. */
   readonly hasChildren = computed(() => this.children().length > 0);
 
+  /** @see FilterRow.expandable — an option expands when something is nested under it. */
+  readonly expandable = this.hasChildren;
+
   /** Expansion state, seeded from `expanded` and thereafter driven by the chip's row. */
   readonly open = linkedSignal(() => this.expanded());
 
@@ -77,7 +80,7 @@ export class FilterOptionComponent<T = unknown> implements FilterEntry {
     return this.labelEl()?.nativeElement.textContent?.trim() ?? "";
   }
 
-  toggleOpen(): void {
+  toggleExpanded(): void {
     this.open.update((isOpen) => !isOpen);
   }
 }

@@ -20,11 +20,11 @@ export class FilterTreeRowDirective implements TreeKeyManagerItem {
   /** Whether this row currently holds the tree's single tab stop. */
   readonly tabbable = signal(false);
 
-  readonly isDisabled = computed(() => this.host.nodeDisabled(this.node()));
+  readonly isDisabled = computed(() => this.node().row.disabled());
 
   /** @see TreeKeyManagerItem.getLabel — the manager's typeahead matches on this. */
   getLabel(): string {
-    return this.host.nodeLabel(this.node());
+    return this.node().row.label();
   }
 
   activate(): void {
@@ -41,17 +41,17 @@ export class FilterTreeRowDirective implements TreeKeyManagerItem {
     return this.host.childRows(this);
   }
 
-  isExpanded = (): boolean => this.host.nodeExpanded(this.node());
+  isExpanded = (): boolean => this.node().expanded;
 
   expand(): void {
     if (!this.isExpanded()) {
-      this.host.toggleNodeExpanded(this.node());
+      this.node().row.toggleExpanded();
     }
   }
 
   collapse(): void {
     if (this.isExpanded()) {
-      this.host.toggleNodeExpanded(this.node());
+      this.node().row.toggleExpanded();
     }
   }
 

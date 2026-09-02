@@ -59,6 +59,7 @@ import {
   FILTER_TREE_HOST,
   FilterControl,
   FilterEntry,
+  FilterRow,
   FilterGroup,
   FilterPresenter,
   FilterTreeHost,
@@ -264,7 +265,7 @@ export class FilterMenuComponent
       return false;
     }
     const options = this.allOptions();
-    return options.length > 0 && options.every((o) => !this.optionVisible(o));
+    return options.length > 0 && options.every((o) => !this.rowVisible(o));
   });
 
   protected readonly disabled = computed(() => this.baseChip.disabled());
@@ -378,30 +379,22 @@ export class FilterMenuComponent
     return entry.kind === "option" ? (entry as FilterOptionComponent) : null;
   }
 
-  /** A parent stays visible when a child matches the search term. */
-  protected optionVisible(option: FilterOptionComponent): boolean {
+  /** A parent stays visible when a child matches; a section has no label of its own to match. */
+  protected rowVisible(row: FilterRow): boolean {
     const term = this._searchTerm().trim().toLowerCase();
-    if (term === "") {
-      return true;
+    if (row.kind === "section") {
+      return row.children().some((child) => this.rowVisible(child));
     }
     return (
-      option.label().toLowerCase().includes(term) ||
-      option.children().some((child) => this.optionVisible(child))
+      term === "" ||
+      row.label().toLowerCase().includes(term) ||
+      row.children().some((child) => this.rowVisible(child))
     );
   }
 
-  /** Whether a parent's children show — its own state, or forced open while searching. */
-  protected optionExpanded(option: FilterOptionComponent): boolean {
-    return this._searchTerm().trim() !== "" || option.open();
-  }
-
-  protected sectionExpanded(section: FilterSectionComponent): boolean {
-    return this._searchTerm().trim() !== "" || section.open();
-  }
-
-  /** Whether a section has any option matching the search — hides empty sections while searching. */
-  protected sectionVisible(section: FilterSectionComponent): boolean {
-    return section.options().some((option) => this.optionVisible(option));
+  /** A row's own state, or forced open while searching so matches aren't buried. */
+  protected rowExpanded(row: FilterRow): boolean {
+    return this._searchTerm().trim() !== "" || row.open();
   }
 
   /** How many of a section's options are selected, nesting included — the header berry. */
@@ -420,76 +413,44 @@ export class FilterMenuComponent
   /** The multi-select rows, flattened in document order, each carrying its own level. */
   protected readonly treeNodes = computed<FilterTreeNode[]>(() => {
     const nodes: FilterTreeNode[] = [];
-    const pushOptions = (
-      options: readonly FilterOptionComponent[],
+    const push = (
+      rows: readonly FilterRow[],
       level: number,
+      parent: number | null,
       reserveExpander: boolean,
     ) => {
-      const visible = options.filter((option) => this.optionVisible(option));
-      visible.forEach((option, index) => {
+      const visible = rows.filter((row) => this.rowVisible(row));
+      visible.forEach((row, index) => {
+        const expanded = this.rowExpanded(row);
+        const self = nodes.length;
         nodes.push({
-          kind: "option",
-          option,
+          row,
+          parent,
+          expanded,
           level,
           setsize: visible.length,
           posinset: index + 1,
           reserveExpander,
         });
-        if (option.hasChildren() && this.optionExpanded(option)) {
-          pushOptions(option.children(), level + 1, reserveExpander);
+        // Children, not `expandable()`: a non-collapsible section still shows its options.
+        if (expanded && row.children().length > 0) {
+          // A section is its own group: it reserves only if something inside it expands.
+          const children = row.children();
+          const reserve = row.kind === "section" ? this.groupExpands(children) : reserveExpander;
+          push(children, level + 1, self, reserve);
         }
       });
     };
 
-    const entries = this.entries().filter((entry) => {
-      const section = this.asSection(entry);
-      return section ? this.sectionVisible(section) : this.optionVisible(entry as never);
-    });
-
-    // Top-level rows align with each other: a collapsible section header or an expandable option
-    // anywhere on that line means every row on it reserves the column.
-    const topLevelReserve = entries.some((entry) => {
-      const section = this.asSection(entry);
-      if (section) {
-        return section.collapsible();
-      }
-      const option = this.asOption(entry);
-      return option ? option.hasChildren() : false;
-    });
-
-    entries.forEach((entry, index) => {
-      const section = this.asSection(entry);
-      if (section) {
-        nodes.push({
-          kind: "section",
-          section,
-          level: 1,
-          setsize: entries.length,
-          posinset: index + 1,
-          reserveExpander: topLevelReserve,
-        });
-        if (this.sectionExpanded(section)) {
-          // A section is its own group: it reserves only if something inside it expands.
-          pushOptions(section.options(), 2, this.groupExpands(section.options()));
-        }
-        return;
-      }
-      const option = this.asOption(entry);
-      if (!option) {
-        return;
-      }
-      nodes.push({
-        kind: "option",
-        option,
-        level: 1,
-        setsize: entries.length,
-        posinset: index + 1,
-        reserveExpander: topLevelReserve,
-      });
-      if (option.hasChildren() && this.optionExpanded(option)) {
-        pushOptions(option.children(), 2, true);
-      }
-    });
+    // Top-level rows align with each other: anything expandable on that line means every
+    // row on it reserves the column.
+    const entries = (this.entries() as readonly FilterRow[]).filter((row) => this.rowVisible(row));
+    push(
+      entries,
+      1,
+      null,
+      entries.some((row) => row.expandable()),
+    );
     return nodes;
   });
 
@@ -505,7 +466,7 @@ export class FilterMenuComponent
       // Rows are re-created as the tree expands, so key on the declaration behind each.
       trackBy: (row) => {
         const node = row.node();
-        return node.kind === "section" ? node.section : node.option;
+        return node.row;
       },
     },
   );
@@ -518,87 +479,38 @@ export class FilterMenuComponent
     this.keyManager.focusItem(row);
   }
 
-  /** @see FilterTreeHost.parentRow — the nearest earlier row a level above this one. */
+  /** @see FilterTreeHost.parentRow */
   parentRow<T>(row: T): T | null {
     const rows = this.treeRows();
-    const index = rows.indexOf(row as never);
-    if (index < 0) {
-      return null;
-    }
-    const level = rows[index].node().level;
-    for (let i = index - 1; i >= 0; i--) {
-      if (rows[i].node().level < level) {
-        return rows[i] as never;
-      }
-    }
-    return null;
+    const parent = rows[rows.indexOf(row as never)]?.node().parent;
+    return parent == null ? null : (rows[parent] as never);
   }
 
-  /** @see FilterTreeHost.childRows — the run of rows one level deeper, before the next sibling. */
+  /** @see FilterTreeHost.childRows */
   childRows<T>(row: T): T[] {
     const rows = this.treeRows();
     const index = rows.indexOf(row as never);
-    if (index < 0) {
-      return [];
-    }
-    const level = rows[index].node().level;
-    const children: T[] = [];
-    for (let i = index + 1; i < rows.length && rows[i].node().level > level; i++) {
-      if (rows[i].node().level === level + 1) {
-        children.push(rows[i] as never);
-      }
-    }
-    return children;
-  }
-
-  protected nodeExpandable(node: FilterTreeNode): boolean {
-    return node.kind === "section"
-      ? (node.section as FilterSectionComponent).collapsible()
-      : (node.option as FilterOptionComponent).hasChildren();
-  }
-
-  nodeExpanded(node: FilterTreeNode): boolean {
-    return node.kind === "section"
-      ? this.sectionExpanded(node.section as FilterSectionComponent)
-      : this.optionExpanded(node.option as FilterOptionComponent);
+    return index < 0 ? [] : (rows.filter((r) => r.node().parent === index) as never);
   }
 
   /** A section header isn't selectable; only options carry a checked state. */
   protected nodeChecked(node: FilterTreeNode): "true" | "false" | "mixed" | null {
-    if (node.kind === "section") {
+    if (node.row.kind === "section") {
       return null;
     }
-    const option = node.option as FilterOptionComponent;
+    const option = node.row as FilterOptionComponent;
     if (this.partiallySelected(option)) {
       return "mixed";
     }
     return this.optionSelected(option) ? "true" : "false";
   }
 
-  nodeLabel(node: FilterTreeNode): string {
-    return node.kind === "section"
-      ? (node.section as FilterSectionComponent).label()
-      : (node.option as FilterOptionComponent).label();
-  }
-
-  nodeDisabled(node: FilterTreeNode): boolean {
-    return node.kind === "option" && (node.option as FilterOptionComponent).disabled();
-  }
-
-  toggleNodeExpanded(node: FilterTreeNode): void {
-    if (node.kind === "section") {
-      (node.section as FilterSectionComponent).toggle();
-    } else {
-      (node.option as FilterOptionComponent).toggleOpen();
-    }
-  }
-
   /** Section headers aren't selectable, so they expand instead. */
   activateNode(node: FilterTreeNode): void {
-    if (node.kind === "option") {
-      this.toggleOption(node.option as FilterOptionComponent);
+    if (node.row.kind === "option") {
+      this.toggleOption(node.row as FilterOptionComponent);
     } else {
-      this.toggleNodeExpanded(node);
+      node.row.toggleExpanded();
     }
   }
 

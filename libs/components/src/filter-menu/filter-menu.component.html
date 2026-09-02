@@ -107,7 +107,7 @@
       (keydown)="onTreeKeydown($event)"
     >
       @for (node of treeNodes(); track $index) {
-        @let expandable = nodeExpandable(node);
+        @let expandable = node.row.expandable();
         @let checked = nodeChecked(node);
         <div
           role="treeitem"
@@ -118,10 +118,10 @@
           [attr.aria-level]="node.level"
           [attr.aria-setsize]="node.setsize"
           [attr.aria-posinset]="node.posinset"
-          [attr.aria-expanded]="expandable ? nodeExpanded(node) : null"
+          [attr.aria-expanded]="expandable ? node.expanded : null"
           [attr.aria-checked]="checked"
-          [attr.aria-disabled]="nodeDisabled(node) ? true : null"
-          (click)="nodeDisabled(node) ? null : activateNode(node)"
+          [attr.aria-disabled]="node.row.disabled() ? true : null"
+          (click)="node.row.disabled() ? null : activateNode(node)"
           (focus)="onRowFocus(row)"
           #row="bitFilterTreeRow"
         >
@@ -129,10 +129,10 @@
             <span
               class="-tw-me-1 tw-flex tw-size-6 tw-flex-none tw-items-center tw-justify-center tw-text-fg-body-subtle"
               aria-hidden="true"
-              (click)="toggleNodeExpanded(node); $event.stopPropagation()"
+              (click)="node.row.toggleExpanded(); $event.stopPropagation()"
             >
               <bit-icon
-                [name]="nodeExpanded(node) ? 'bwi-angle-down' : 'bwi-angle-right'"
+                [name]="node.expanded ? 'bwi-angle-down' : 'bwi-angle-right'"
                 class="tw-text-xs"
               ></bit-icon>
             </span>
@@ -149,17 +149,17 @@
               tabindex="-1"
               [checked]="checked === 'true'"
               [indeterminate]="checked === 'mixed'"
-              [disabled]="nodeDisabled(node)"
+              [disabled]="node.row.disabled()"
             />
           }
-          @if (node.kind === "option") {
-            @let tile = node.option.iconTile();
+          @if (asOption(node.row); as option) {
+            @let tile = option.iconTile();
             @if (tile) {
               <bit-icon-tile
                 class="!tw-flex tw-flex-none"
                 [icon]="tile.icon"
-                [variant]="tileVariant(node.option)"
-                [color]="tileColor(node.option)"
+                [variant]="tileVariant(option)"
+                [color]="tileColor(option)"
                 [emphasis]="tile.emphasis ?? 'subtle'"
                 size="xs"
               />
@@ -167,13 +167,13 @@
           }
           <span
             class="tw-min-w-0 tw-flex-1 tw-truncate"
-            [class.tw-font-semibold]="node.kind === 'section'"
-            >{{ nodeLabel(node) }}</span
+            [class.tw-font-semibold]="node.row.kind === 'section'"
+            >{{ node.row.label() }}</span
           >
-          @if (node.kind === "section") {
-            <bit-berry [value]="sectionSelectedCount(node.section)"></bit-berry>
-          } @else {
-            @let count = optionCounts().get(node.option);
+          @if (asSection(node.row); as section) {
+            <bit-berry [value]="sectionSelectedCount(section)"></bit-berry>
+          } @else if (asOption(node.row); as option) {
+            @let count = optionCounts().get(option);
             @if (count != null) {
               <span class="tw-flex-none tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{
                 count
@@ -213,13 +213,13 @@
 
       @for (entry of entries(); track $index) {
         @if (asSection(entry); as section) {
-          @if (sectionVisible(section)) {
+          @if (rowVisible(section)) {
             @if (section.collapsible()) {
               <button
                 type="button"
                 class="tw-flex tw-w-full tw-items-center tw-gap-2 tw-border-none tw-bg-transparent tw-px-3 tw-py-1.5 tw-text-start tw-text-sm tw-font-semibold tw-text-main hover:tw-bg-secondary-100 focus-visible:tw-z-10 focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus"
                 [attr.aria-expanded]="section.open()"
-                (click)="section.toggle()"
+                (click)="section.toggleExpanded()"
               >
                 <bit-icon
                   [name]="section.open() ? 'bwi-angle-up' : 'bwi-angle-down'"
@@ -239,7 +239,7 @@
             }
             @if (section.open()) {
               @for (option of section.options(); track option.value()) {
-                @if (optionVisible(option)) {
+                @if (rowVisible(option)) {
                   <ng-container
                     *ngTemplateOutlet="optionRow; context: { $implicit: option }"
                   ></ng-container>
@@ -248,7 +248,7 @@
             }
           }
         } @else if (asOption(entry); as option) {
-          @if (optionVisible(option)) {
+          @if (rowVisible(option)) {
             <ng-container
               *ngTemplateOutlet="optionRow; context: { $implicit: option }"
             ></ng-container>

@@ -5,7 +5,6 @@ import { BitwardenIcon } from "../shared/icon";
 // Type-only: the components import this module for their tokens, so a value import
 // would close a cycle.
 import type { FilterOptionComponent } from "./filter-option.component";
-import type { FilterSectionComponent } from "./filter-section.component";
 
 /** What a chip exposes to a host bridge: a keyed, aggregated value. */
 export interface FilterControl {
@@ -90,8 +89,27 @@ export interface FilterEntry {
   readonly kind: "option" | "section";
 }
 
-/** One row of a multi-select menu's flattened tree — a section header or an option. */
-type FilterTreeNodeBase = {
+/**
+ * The uniform face a `bit-filter-option` and a `bit-filter-section` present to the chip
+ * that draws them, so a row is drawn and navigated without asking which one it is.
+ */
+export interface FilterRow extends FilterEntry {
+  label(): string;
+  readonly disabled: Signal<boolean>;
+  readonly expandable: Signal<boolean>;
+  readonly open: Signal<boolean>;
+  /** The rows directly beneath this one. */
+  readonly children: Signal<readonly FilterOptionComponent[]>;
+  toggleExpanded(): void;
+}
+
+/** One row of a multi-select menu's flattened tree. */
+export type FilterTreeNode = {
+  row: FilterRow;
+  /** Index of this row's parent in the flattened list; `null` at the top level. */
+  parent: number | null;
+  /** Whether the row's children are shown — its own state, or forced open while searching. */
+  expanded: boolean;
   level: number;
   setsize: number;
   posinset: number;
@@ -102,16 +120,8 @@ type FilterTreeNodeBase = {
   reserveExpander: boolean;
 };
 
-export type FilterTreeNode =
-  | (FilterTreeNodeBase & { kind: "section"; section: FilterSectionComponent })
-  | (FilterTreeNodeBase & { kind: "option"; option: FilterOptionComponent });
-
-/** What a multi-select filter menu exposes to its tree rows. */
+/** The parts of a tree row's behaviour only the chip can answer. */
 export interface FilterTreeHost {
-  nodeLabel(node: FilterTreeNode): string;
-  nodeDisabled(node: FilterTreeNode): boolean;
-  nodeExpanded(node: FilterTreeNode): boolean;
-  toggleNodeExpanded(node: FilterTreeNode): void;
   activateNode(node: FilterTreeNode): void;
   parentRow<T>(row: T): T | null;
   childRows<T>(row: T): T[];
