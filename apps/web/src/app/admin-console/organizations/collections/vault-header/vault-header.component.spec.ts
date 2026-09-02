@@ -174,16 +174,26 @@ describe("VaultHeaderComponent", () => {
       expect((component as any).title()).toBe("Special");
     });
 
-    it("returns '<OrgName> shared folders' when the VFO1 flag is on", () => {
-      vfo1Enabled = true;
-      setInputs({ organization: makeOrg({ name: "Acme Corp" }) });
-      expect((component as any).title()).toBe("Acme Corp shared folders");
-    });
+    describe("when the VFO1 flag is on", () => {
+      beforeEach(() => {
+        vfo1Enabled = true;
+      });
 
-    it("returns 'Shared folders' when the VFO1 flag is on and org has no name", () => {
-      vfo1Enabled = true;
-      setInputs({ organization: makeOrg({ name: "" }) });
-      expect((component as any).title()).toBe("Shared folders");
+      it("returns '<OrgName> shared folders' for the shared folder list", () => {
+        setInputs({
+          filter: { organizationId: orgId, collectionId: All },
+          organization: makeOrg({ name: "Acme Corp" }),
+        });
+        expect((component as any).title()).toBe("Acme Corp shared folders");
+      });
+
+      it("returns the organization name for the unfiltered item list", () => {
+        setInputs({
+          filter: { organizationId: orgId, type: All },
+          organization: makeOrg({ name: "Acme Corp" }),
+        });
+        expect((component as any).title()).toBe("Acme Corp");
+      });
     });
   });
 

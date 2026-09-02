@@ -1,7 +1,12 @@
 <app-layout>
   <app-side-nav variant="secondary" *ngIf="organization$ | async as organization">
     <bit-nav-logo [openIcon]="logo" route="." [label]="'adminConsole' | i18n"></bit-nav-logo>
-    <org-switcher [filter]="orgFilter" [hideNewButton]="hideNewOrgButton$ | async"></org-switcher>
+    @if (vfo1Enabled()) {
+      <app-org-nav-section />
+      <bit-nav-divider></bit-nav-divider>
+    } @else {
+      <org-switcher [filter]="orgFilter" [hideNewButton]="hideNewOrgButton$ | async"></org-switcher>
+    }
 
     @if (canShowAccessIntelligenceTab(organization)) {
       <bit-nav-item
@@ -11,13 +16,13 @@
       ></bit-nav-item>
     }
 
-    <bit-nav-item
-      [icon]="'bwi-collection-shared' | vfo1Icon"
-      [text]="'collections' | vfo1I18n: 'sharedFolders'"
-      route="vault"
-      *ngIf="canShowVaultTab(organization)"
-    >
-    </bit-nav-item>
+    @if (!vfo1Enabled() && canShowVaultTab(organization)) {
+      <bit-nav-item
+        [icon]="'bwi-collection-shared' | vfo1Icon"
+        [text]="'collections' | vfo1I18n: 'sharedFolders'"
+        route="vault"
+      ></bit-nav-item>
+    }
 
     <ng-container *ngIf="canShowMembersTab(organization)">
       <ng-container *ngIf="showSponsoredFamiliesDropdown$ | async; else regularMembersItem">

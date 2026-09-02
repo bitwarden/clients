@@ -14,6 +14,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { OrganizationWarningsService } from "../../../billing/organizations/warnings/services/organization-warnings.service";
 import { FreeFamiliesPolicyService } from "../../../billing/services/free-families-policy.service";
@@ -104,6 +105,7 @@ describe("OrganizationLayoutComponent", () => {
         { provide: AccountService, useValue: mockAccountService },
         { provide: FreeFamiliesPolicyService, useValue: mockFreeFamiliesPolicyService },
         { provide: OrganizationWarningsService, useValue: mockOrganizationWarningsService },
+        { provide: Vfo1TerminologyService, useValue: { enabled: () => false } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
