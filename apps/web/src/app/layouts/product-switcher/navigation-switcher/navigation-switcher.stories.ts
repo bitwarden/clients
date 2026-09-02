@@ -38,9 +38,9 @@ import { enabledFlags } from "@bitwarden/storybook";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { LockService } from "@bitwarden/unlock";
 
-import { AccountMenuComponent } from "../../header/account-menu.component";
 import { UpgradeFlowService } from "../../../billing/individual/upgrade/services/upgrade-flow.service";
 import { UpgradeCalloutComponent } from "../../../billing/individual/upgrade/upgrade-nav-button/upgrade-callout/upgrade-callout.component";
+import { AccountMenuComponent } from "../../header/account-menu.component";
 import { ProductSwitcherService } from "../shared/product-switcher.service";
 
 import { NavigationProductSwitcherComponent } from "./navigation-switcher.component";

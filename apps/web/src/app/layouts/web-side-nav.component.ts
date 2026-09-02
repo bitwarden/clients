@@ -3,16 +3,22 @@ import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core
 
 import { SideNavVariant, NavigationModule, SideNavService } from "@bitwarden/components";
 
-import { AccountMenuComponent } from "./header/account-menu.component";
 import { UpgradeCalloutComponent } from "../billing/individual/upgrade/upgrade-nav-button/upgrade-callout/upgrade-callout.component";
 
+import { AccountMenuComponent } from "./header/account-menu.component";
 import { ProductSwitcherModule } from "./product-switcher/product-switcher.module";
 import { ProductSwitcherService } from "./product-switcher/shared/product-switcher.service";
 
 @Component({
   selector: "app-side-nav",
   templateUrl: "web-side-nav.component.html",
-  imports: [AccountMenuComponent, AsyncPipe, NavigationModule, ProductSwitcherModule, UpgradeCalloutComponent],
+  imports: [
+    AccountMenuComponent,
+    AsyncPipe,
+    NavigationModule,
+    ProductSwitcherModule,
+    UpgradeCalloutComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WebSideNavComponent {
