@@ -60,6 +60,14 @@ import {
   AutomaticUserConfirmationService,
   DefaultAutomaticUserConfirmationService,
 } from "@bitwarden/auto-confirm";
+import {
+  AutomationCapability,
+  AutomationDriver,
+  FeatureFlagsCapability,
+  LockCapability,
+  LoggingCapability,
+  StateCapability,
+} from "@bitwarden/automation-driver";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -249,6 +257,7 @@ import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/comm
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
@@ -387,6 +396,8 @@ import {
   LegacyCompatKeyService,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import { FlightRecorderService } from "@bitwarden/logging-angular";
+import { DefaultManagedSettingsService, ManagedSettingsService } from "@bitwarden/managed-settings";
 import {
   DefaultOrganizationInviteLinkApiService,
   DefaultOrganizationInviteLinkService,
@@ -1613,6 +1624,46 @@ const safeProviders: SafeProvider[] = [
     deps: [OBSERVABLE_DISK_STORAGE, OBSERVABLE_MEMORY_STORAGE],
   }),
   safeProvider({
+    provide: AutomationDriver,
+    useClass: AutomationDriver,
+    // The driver takes the whole array; `deps` cannot express that a multi-provider token resolves
+    // to one, so the token is cast to the shape the constructor actually receives.
+    deps: [AutomationCapability as unknown as SafeInjectionToken<AutomationCapability[]>],
+  }),
+  // Automation capabilities every Angular client supports. Client-specific ones are registered
+  // in that client's own provider module.
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (configService: ConfigService, stateProvider: StateProvider) =>
+      new FeatureFlagsCapability(configService, stateProvider),
+    deps: [ConfigService, StateProvider],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (storageServiceProvider: StorageServiceProvider) =>
+      new StateCapability(storageServiceProvider),
+    deps: [StorageServiceProvider],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (
+      accountService: AccountServiceAbstraction,
+      authService: AuthServiceAbstraction,
+      lockService: LockService,
+      unlockService: UnlockService,
+    ) => new LockCapability(accountService, authService, lockService, unlockService),
+    deps: [AccountServiceAbstraction, AuthServiceAbstraction, LockService, UnlockService],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (flightRecorder: FlightRecorderService) => new LoggingCapability(flightRecorder),
+    deps: [FlightRecorderService],
+    multi: true,
+  }),
+  safeProvider({
     provide: StateEventRegistrarService,
     useClass: DefaultStateEventRegistrarService,
     deps: [GlobalStateProvider, StorageServiceProvider],
@@ -1867,6 +1918,7 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       StateProvider,
       ConfigService,
+      ManagedSettingsService,
     ],
   }),
   safeProvider({
@@ -1884,7 +1936,13 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       ConfigService,
       V2UpgradeTokenStateService,
+      ManagedSettingsService,
     ],
+  }),
+  safeProvider({
+    provide: ManagedSettingsService,
+    useFactory: () => new DefaultManagedSettingsService(SdkLoadService.Ready),
+    deps: [],
   }),
   safeProvider({
     provide: CipherAuthorizationService,

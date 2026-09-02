@@ -35,6 +35,12 @@ import {
   LoginEmailService,
   SsoUrlService,
 } from "@bitwarden/auth/common";
+import {
+  AutomationCapability,
+  BiometricsCapability,
+  DesktopNavigationCapability,
+  ProcessReloadCapability,
+} from "@bitwarden/automation-driver";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -235,6 +241,32 @@ const safeProviders: SafeProvider[] = [
     provide: DeviceManagementComponentServiceAbstraction,
     useClass: DesktopDeviceManagementComponentService,
     deps: [],
+  }),
+  // Desktop-only automation capabilities.
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: () => new ProcessReloadCapability(() => ipc.platform.reloadProcess()),
+    deps: [],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: () =>
+      new BiometricsCapability({
+        setStatus: (status) => ipc.keyManagement.automation.biometrics.setStatus(status),
+        listPending: () => ipc.keyManagement.automation.biometrics.listPending(),
+        approve: (id) => ipc.keyManagement.automation.biometrics.approve(id),
+        deny: (id) => ipc.keyManagement.automation.biometrics.deny(id),
+      }),
+    deps: [],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (messagingService: MessagingServiceAbstraction) =>
+      new DesktopNavigationCapability(messagingService),
+    deps: [MessagingServiceAbstraction],
+    multi: true,
   }),
   safeProvider(NativeMessagingService),
   safeProvider(BiometricMessageHandlerService),
