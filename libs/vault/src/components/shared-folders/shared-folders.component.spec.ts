@@ -328,7 +328,7 @@ describe("SharedFoldersComponent", () => {
       expect(bitTable().filtered()).toHaveLength(2);
     });
 
-    it("links each folder's name to its organization and collection", async () => {
+    it("links each folder's name to the drill-in beneath this list", async () => {
       await setup({
         collections: [
           collection({ id: "col-a", name: "Engineering" }),
@@ -341,7 +341,10 @@ describe("SharedFoldersComponent", () => {
         .queryAll(By.css("a[bitLink]"))
         .map((link) => (link.nativeElement as HTMLAnchorElement).getAttribute("href"));
 
-      expect(links).toEqual([`/vault/${ORGANIZATION_ID}/col-a`, `/vault/${ORGANIZATION_ID}/col-b`]);
+      expect(links).toEqual([
+        `/vault/${ORGANIZATION_ID}/shared-folders/col-a`,
+        `/vault/${ORGANIZATION_ID}/shared-folders/col-b`,
+      ]);
     });
 
     // The stubbed `I18nService` echoes the key, so a cell renders the message key rather than the

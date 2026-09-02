@@ -5,6 +5,8 @@ import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag
 import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
+  MY_ITEMS_ROUTE,
+  MY_ITEMS_ROUTE_DATA,
   organizationVaultGuard,
   SHARED_FOLDERS_ROUTE,
   vaultFilterLegacyRedirectGuard,
@@ -35,9 +37,18 @@ const routes: Routes = [
     ],
     data: { titleId: "vaults" },
   },
-  // An organization vault's shared folders. Must stay declared above `:vaultId/:collectionId`: the
-  // router matches in declaration order, so below it this path would be read as a collection named
-  // "shared-folders". The reverse collision can't happen — collection ids are guids.
+  // An organization's "My items" collection. A page of the vault rather than one of its shared
+  // folders, so it sits alongside the list rather than under it — see `MY_ITEMS_ROUTE`.
+  {
+    path: `:vaultId/${MY_ITEMS_ROUTE}`,
+    component: VaultNextComponent,
+    canActivate: [
+      canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
+      vaultScopeGuard,
+    ],
+    data: { ...MY_ITEMS_ROUTE_DATA, titleId: "vaults" },
+  },
+  // An organization vault's shared folders.
   {
     path: `:vaultId/${SHARED_FOLDERS_ROUTE}`,
     component: SharedFoldersComponent,
@@ -48,10 +59,11 @@ const routes: Routes = [
     ],
     data: { titleId: "sharedFolders" },
   },
-  // The shared folder a vault has been drilled into. Drilling deeper replaces the segment rather
-  // than nesting under it: a folder's route names the vault it lives in, not the path taken to it.
+  // The shared folder a vault has been drilled into, nested under the list it was reached from.
+  // Drilling deeper replaces the `:collectionId` segment rather than adding to it: a folder's
+  // route names the vault it lives in, not the path taken through its ancestors.
   {
-    path: ":vaultId/:collectionId",
+    path: `:vaultId/${SHARED_FOLDERS_ROUTE}/:collectionId`,
     component: VaultNextComponent,
     canActivate: [
       canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),

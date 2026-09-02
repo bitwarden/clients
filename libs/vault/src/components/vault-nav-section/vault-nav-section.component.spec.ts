@@ -63,15 +63,13 @@ const orgDataOwnership: VaultsNavViewModel = {
 @Component({ template: "", changeDetection: ChangeDetectionStrategy.OnPush })
 class DummyComponent {}
 
-/**
- * The vault routes the nav links to, in the order the app declares them: `shared-folders` above
- * `:collectionId`, since the router matches in declaration order.
- */
+/** The vault routes the nav links to, and the pages nested under them that it stands in for. */
 const routes = [
   { path: "vault", component: DummyComponent },
   { path: "vault/:vaultId", component: DummyComponent },
+  { path: "vault/:vaultId/my-items", component: DummyComponent },
   { path: "vault/:vaultId/shared-folders", component: DummyComponent },
-  { path: "vault/:vaultId/:collectionId", component: DummyComponent },
+  { path: "vault/:vaultId/shared-folders/:collectionId", component: DummyComponent },
 ];
 
 global.ResizeObserver = class ResizeObserver {
@@ -268,9 +266,9 @@ describe("VaultNavSectionComponent", () => {
     });
 
     it("lights Shared folders on a shared folder drill-in", async () => {
-      // The drill-in nests under the vault route the way the shared folders list does, and has no
-      // nav entry of its own — the list it was reached from stands in for it.
-      await navigateTo("/vault/org-a/22222222-2222-4222-8222-222222222222");
+      // The drill-in nests under the shared folders list and has no nav entry of its own — the
+      // list it was reached from stands in for it.
+      await navigateTo("/vault/org-a/shared-folders/22222222-2222-4222-8222-222222222222");
       const group = expandGroup("Acme corporation");
 
       expect(navItemIsLit(group, "sharedFolders")).toBe(true);
@@ -278,13 +276,15 @@ describe("VaultNavSectionComponent", () => {
       expect(navItemIsCurrent(group, "allVaultItems")).toBe(false);
     });
 
-    it("lights Shared folders on a drill-in to the organization's My items collection", async () => {
-      // The one drill-in a URL names by sentinel rather than by collection id.
+    it("leaves All vault items unlit on the My items route", async () => {
+      // Its own page beside All vault items rather than beneath it, so the vault route's exact
+      // match is what keeps them apart. My items has no nav entry of its own yet.
       await navigateTo("/vault/org-a/my-items");
       const group = expandGroup("Acme corporation");
 
-      expect(navItemIsLit(group, "sharedFolders")).toBe(true);
       expect(navItemIsLit(group, "allVaultItems")).toBe(false);
+      expect(navItemIsCurrent(group, "allVaultItems")).toBe(false);
+      expect(navItemIsLit(group, "sharedFolders")).toBe(false);
     });
 
     it("lights Shared folders under only the organization whose route is active", async () => {
@@ -297,7 +297,7 @@ describe("VaultNavSectionComponent", () => {
     });
 
     it("leaves Shared folders unlit under another organization on a drill-in", async () => {
-      await navigateTo("/vault/org-a/22222222-2222-4222-8222-222222222222");
+      await navigateTo("/vault/org-a/shared-folders/22222222-2222-4222-8222-222222222222");
       const family = expandGroup("Smith family");
 
       expect(navItemIsLit(family, "sharedFolders")).toBe(false);

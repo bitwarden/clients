@@ -18,20 +18,25 @@ import { VaultNavItemType, VaultsNavViewModel } from "./vault-nav-view-model";
 export const MY_VAULT_ROUTE = "my-vault";
 
 /**
- * The `:collectionId` route segment for an organization's "My items" collection — the default user
- * collection an organization under the data ownership policy gives each of its members.
+ * The route segment naming an organization's "My items" collection — the default user collection
+ * an organization under the data ownership policy gives each of its members — nested under its
+ * `:vaultId`.
  *
- * A URL names it by this sentinel rather than by its id, for the same reason
+ * A URL names the collection by this segment rather than by its id, for the same reason
  * {@link MY_VAULT_ROUTE} exists: the nav offers one "My items" entry per organization, and the id
- * behind it differs per member, so only the sentinel is a link that can be written down — see
+ * behind it differs per member, so only the segment is a link that can be written down — see
  * {@link resolveVaultScope}, which trades it for the id.
+ *
+ * A page rather than a folder within Shared folders, so it hangs off the vault directly rather
+ * than under {@link SHARED_FOLDERS_ROUTE}.
  */
 export const MY_ITEMS_ROUTE = "my-items";
 
 /**
  * The route segment naming an organization vault's shared folders list, nested under its
- * `:vaultId`. Lives here rather than beside the route it declares so the side nav can link to the
- * page without reaching into an app from a library.
+ * `:vaultId`. The folders themselves nest one deeper still, as `:collectionId` beneath it, so the
+ * URL says which page a drill-in was reached from. Lives here rather than beside the routes it
+ * declares so the side nav can link to the page without reaching into an app from a library.
  */
 export const SHARED_FOLDERS_ROUTE = "shared-folders";
 
@@ -91,9 +96,9 @@ const NAMED_SCOPES = new Map<string, VaultScope>([
 ]);
 
 /**
- * Reads the `:vaultId` and `:collectionId` route segments. An absent vault segment is "All items";
- * anything that is neither a {@link NAMED_SCOPES} segment nor a guid names no destination and
- * yields `null`.
+ * Reads the vault and collection segments of a vault route — see `scopedCollectionSegment` for
+ * where the latter comes from. An absent vault segment is "All items"; anything that is neither a
+ * {@link NAMED_SCOPES} segment nor a guid names no destination and yields `null`.
  *
  * The collection segment drills the vault into one of its shared folders, or into
  * {@link MY_ITEMS_ROUTE}. Only an organization vault can be drilled into: a collection belongs to
@@ -214,10 +219,19 @@ export function vaultScopeCommands(scope: VaultScope): string[] {
   switch (scope.type) {
     case VaultScopeType.MyVault:
       return ["/vault", MY_VAULT_ROUTE];
-    case VaultScopeType.Organization:
-      return scope.collectionId == null
-        ? ["/vault", scope.organizationId]
-        : ["/vault", scope.organizationId, scope.collectionId];
+    case VaultScopeType.Organization: {
+      const { organizationId, collectionId } = scope;
+
+      if (collectionId == null) {
+        return ["/vault", organizationId];
+      }
+
+      // "My items" is its own page rather than a folder reached from the shared folders list, so
+      // it hangs off the vault directly — see {@link MY_ITEMS_ROUTE}.
+      return collectionId === MY_ITEMS_ROUTE
+        ? ["/vault", organizationId, MY_ITEMS_ROUTE]
+        : ["/vault", organizationId, SHARED_FOLDERS_ROUTE, collectionId];
+    }
     case VaultScopeType.Trash:
       return ["/vault", TRASH_ROUTE];
     case VaultScopeType.Archive:

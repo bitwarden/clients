@@ -1,8 +1,8 @@
 import { NgTemplateOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { IsActiveMatchOptions, NavigationEnd, Router } from "@angular/router";
-import { filter, map, switchMap } from "rxjs";
+import { IsActiveMatchOptions } from "@angular/router";
+import { switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -22,21 +22,15 @@ import {
 import { VaultNavService } from "../../services/vault-nav.service";
 
 /**
- * Route matching that ignores every dimension a vault route never varies in, leaving the path as
- * the only thing compared.
+ * Matches the route itself and nothing nested beneath it, ignoring every dimension a vault route
+ * never varies in so the path is the only thing compared.
  */
-const pathMatch = (paths: "exact" | "subset"): IsActiveMatchOptions => ({
-  paths,
+const EXACT_PATH: IsActiveMatchOptions = {
+  paths: "exact",
   queryParams: "ignored",
   fragment: "ignored",
   matrixParams: "ignored",
-});
-
-/** The route itself and nothing nested beneath it. */
-const EXACT_PATH = pathMatch("exact");
-
-/** The route or anything nested beneath it — `routerLinkActive`'s own default. */
-const NESTED_PATH = pathMatch("subset");
+};
 
 /**
  * Renders the Password Manager side-nav Vaults section from the shared {@link VaultNavService}
@@ -53,7 +47,6 @@ export class VaultNavSectionComponent {
 
   private readonly vaultNavService = inject(VaultNavService);
   private readonly accountService = inject(AccountService);
-  private readonly router = inject(Router);
 
   protected readonly vaultNav = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -65,10 +58,14 @@ export class VaultNavSectionComponent {
   protected readonly allItemsRoute = vaultScopeCommands(ALL_ITEMS_SCOPE);
 
   /**
-   * Every scoped vault route nests under the unscoped one, so a subset match would leave the item
-   * pointing at `/vault` lit alongside the destination the user actually picked.
+   * The match for the two entries naming a whole vault — All items and an organization's All vault
+   * items. Every deeper destination nests under the route each links to, so `routerLinkActive`'s
+   * default subset match would leave them lit alongside the page the user actually picked.
+   *
+   * Shared folders is the one entry left on that default, since it stands in for the folder
+   * drill-ins nested beneath it, which have no nav entry of their own.
    */
-  protected readonly allItemsActiveOptions: IsActiveMatchOptions = EXACT_PATH;
+  protected readonly exactRouteOptions: IsActiveMatchOptions = EXACT_PATH;
 
   /**
    * Each vault's route commands, by vault id. Precomputed rather than built per call so the
@@ -108,55 +105,12 @@ export class VaultNavSectionComponent {
     return nav != null && isPersonalOnly(nav);
   });
 
-  /**
-   * `router.isActive` reads router state rather than a signal, so reading this is what ties
-   * {@link sharedFoldersVaultId} to navigation — without it the answer would be computed once.
-   */
-  private readonly currentUrl = toSignal(
-    this.router.events.pipe(
-      filter((event) => event instanceof NavigationEnd),
-      map(() => this.router.url),
-    ),
-    { initialValue: this.router.url },
-  );
-
-  /**
-   * The vault whose shared folders are the page in view, if any — either the list itself or the
-   * drill-in to one of them.
-   *
-   * Both nest under the vault's own route, so the test is a match deeper than that route rather
-   * than a match on either page's own path: the drill-in's `:collectionId` segment can't be told
-   * apart from anything else that might nest there, and it has no nav entry of its own to light.
-   * The vault route matching as a subset but not exactly says the page is one of the two.
-   */
-  private readonly sharedFoldersVaultId = computed(() => {
-    this.currentUrl();
-
-    return Array.from(this.sharedFolderRoutes().keys()).find((id) => {
-      const commands = this.vaultRoutes().get(id);
-      if (commands == null) {
-        return false;
-      }
-
-      const vaultRoute = this.router.createUrlTree(commands);
-      return (
-        this.router.isActive(vaultRoute, NESTED_PATH) &&
-        !this.router.isActive(vaultRoute, EXACT_PATH)
-      );
-    });
-  });
-
   protected vaultRoute(vault: VaultNavItemViewModel): string[] | undefined {
     return this.vaultRoutes().get(vault.id);
   }
 
   protected sharedFoldersRoute(vault: VaultNavItemViewModel): string[] | undefined {
     return this.sharedFolderRoutes().get(vault.id);
-  }
-
-  /** Whether the page in view is this vault's shared folders list or a folder within it. */
-  protected sharedFoldersActive(vault: VaultNavItemViewModel): boolean {
-    return this.sharedFoldersVaultId() === vault.id;
   }
 
   /**

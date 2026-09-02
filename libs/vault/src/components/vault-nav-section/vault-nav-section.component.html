@@ -4,7 +4,7 @@
       class="tw-mb-2"
       [text]="'allItems' | i18n"
       [route]="allItemsRoute"
-      [routerLinkActiveOptions]="allItemsActiveOptions"
+      [routerLinkActiveOptions]="exactRouteOptions"
     >
       <bit-icon-tile icon="bwi-list" variant="brand" emphasis="bold" size="sm" />
     </bit-nav-item>
@@ -26,7 +26,6 @@
       } @else {
         <bit-nav-group [text]="vault.label" [open]="nav.organizationDataOwnership">
           @let vaultTile = tile(vault);
-          @let sharedFoldersLit = sharedFoldersActive(vault);
           <bit-icon-tile
             [icon]="vaultTile.icon"
             [variant]="vaultTile.variant ?? 'primary'"
@@ -38,19 +37,17 @@
             icon="bwi-list-alt"
             [text]="'allVaultItems' | i18n"
             [route]="vaultRoute(vault)"
-            [hideActiveStyles]="sharedFoldersLit"
-            [ariaCurrentWhenActive]="sharedFoldersLit ? false : 'page'"
+            [routerLinkActiveOptions]="exactRouteOptions"
           ></bit-nav-item>
           <!--
-            A drill-in has no nav entry of its own and isn't the route this entry links to, so its
-            styles are forced rather than left to `routerLinkActive`. On the list route the entry is
-            active anyway, which is what still marks it `aria-current`.
+            Left on the default subset match, so it also lights on the folder drill-ins nested
+            beneath it — those have no nav entry of their own, and the list they were reached from
+            stands in for them.
           -->
           <bit-nav-item
             icon="bwi-shared-folder"
             [text]="'sharedFolders' | i18n"
             [route]="sharedFoldersRoute(vault)"
-            [forceActiveStyles]="sharedFoldersLit"
           ></bit-nav-item>
         </bit-nav-group>
       }
@@ -63,7 +60,7 @@
     <bit-nav-item
       [text]="loneVault.label"
       [route]="allItemsRoute"
-      [routerLinkActiveOptions]="allItemsActiveOptions"
+      [routerLinkActiveOptions]="exactRouteOptions"
     >
       @let loneTile = tile(loneVault);
       <bit-icon-tile
