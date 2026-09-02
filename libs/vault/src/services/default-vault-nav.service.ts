@@ -101,7 +101,6 @@ export class DefaultVaultNavService extends VaultNavService {
       .map((org) => ({
         id: org.id,
         label: org.name,
-        color: this.orgColor(org),
         icon: getOrgIconForTier(org.productTierType),
         type: this.orgType(org),
         defaultUserCollectionId: defaultUserCollectionIds.get(org.id),
@@ -124,9 +123,5 @@ export class DefaultVaultNavService extends VaultNavService {
       default:
         return VaultNavItemType.Organization;
     }
-  }
-
-  private orgColor(org: Organization): VaultNavColor {
-    return this.orgType(org) === VaultNavItemType.Family ? "teal" : "purple";
   }
 }
