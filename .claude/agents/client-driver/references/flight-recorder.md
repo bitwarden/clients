@@ -4,7 +4,7 @@ Read SDK flight recorder events from the running desktop app via the automation 
 available on clients that load the WASM SDK (desktop, browser extension, web — not CLI).
 
 Access via `window.bitwardenAutomationDriver.flightRecorder` (undefined if the client does not wire
-it in). Call methods via `mcp__electron-devtools__evaluate_script`.
+it in). Call methods via `mcp__electron-devtools-attach__evaluate_script`.
 
 ## Read events
 

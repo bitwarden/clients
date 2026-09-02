@@ -1,7 +1,7 @@
 # Override feature flags (desktop)
 
 Use the dev-only automation driver to override feature flags on the running desktop app. Call its
-methods via `mcp__electron-devtools__evaluate_script`. Always guard for the driver's presence — if
+methods via `mcp__electron-devtools-attach__evaluate_script`. Always guard for the driver's presence — if
 `window.bitwardenAutomationDriver` is undefined, the build is not in dev mode.
 
 Flag keys are the string **values** of the `FeatureFlag` enum in
@@ -32,7 +32,7 @@ async () => {
 };
 ```
 
-After `reloadProcess`, call `mcp__electron-devtools__list_pages` → `select_page` before further
+After `reloadProcess`, call `mcp__electron-devtools-attach__list_pages` → `select_page` before further
 interaction.
 
 ## Source

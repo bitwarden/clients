@@ -1,7 +1,7 @@
 # Lock / Unlock
 
 Lock or unlock the vault in a running Bitwarden client. Assumes a DevTools session is already
-active (see the main `interact-client` SKILL.md for connecting).
+active (see the client-driver agent instructions for connecting).
 
 ## Credentials
 
@@ -43,7 +43,7 @@ them.
 ### Unlock via biometrics
 
 Biometric unlock uses the automation driver and is **desktop-only**. The app must have been
-launched with `USE_AUTOMATION_BIOMETRICS=1`. See `references/biometrics.md` for the full driver
+launched with `USE_AUTOMATION_BIOMETRICS=1`. See `.claude/agents/client-driver/references/biometrics.md` for the full driver
 API.
 
 1. Ensure the biometrics status is reported as available:
