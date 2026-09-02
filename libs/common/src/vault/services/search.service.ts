@@ -148,7 +148,7 @@ export class SearchService implements SearchServiceAbstraction {
               return false;
             }
             const hostname = CipherViewLikeUtils.getUriHostname(loginUri);
-            if (hostname === undefined) {
+            if (!hostname) {
               return false;
             }
             return normalizeSearchQuery(hostname.toLowerCase()).indexOf(term) > -1;

@@ -464,7 +464,7 @@ export class CipherViewLikeUtils {
 
     if (uri.match !== UriMatchStrategy.RegularExpression && uri.uri) {
       const hostname = Utils.getHostname(uri.uri);
-      return hostname === "" ? undefined : hostname;
+      return !hostname ? undefined : hostname;
     }
 
     return undefined;
