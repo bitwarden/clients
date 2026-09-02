@@ -10,12 +10,13 @@ import { RegistrationFinishService } from "@bitwarden/auth/angular";
 import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-billing.service";
-import { ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
+import { InitiationPath, ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
+import { UserId } from "@bitwarden/user-core";
 
 import { RouterService } from "../../../core/router.service";
 
@@ -268,6 +269,57 @@ describe("CompleteTrialInitiationComponent", () => {
 
       expect(createOnTrialSpy).not.toHaveBeenCalled();
       expect(conditionalCreateSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("createOrganizationOnTrial", () => {
+    beforeEach(() => {
+      component.product = ProductType.PasswordManager;
+      component.productTier = ProductTierType.Enterprise;
+      component.orgInfoFormGroup.patchValue({
+        name: "Test Org",
+        billingEmail: "test@example.com",
+      });
+      component.verticalStepper = { next: jest.fn() } as any;
+      mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mockResolvedValue({
+        id: "org-id",
+        name: "Test Org",
+      } as any);
+    });
+
+    const passedInitiationPath = () =>
+      mockOrganizationBillingService.purchaseSubscriptionNoPaymentMethod.mock.calls[0][0]
+        .organization.initiationPath;
+
+    it("uses the marketing website path for Password Manager without a salesAssistedToken", async () => {
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+      expect(passedInitiationPath()).toBe(InitiationPath.PasswordManagerTrialFromMarketingWebsite);
+    });
+
+    it("uses the sales-assisted path for Password Manager when salesAssistedToken is present", async () => {
+      component.salesAssistedToken = "sales-assisted-token-123";
+
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+      expect(passedInitiationPath()).toBe(InitiationPath.SalesAssistedTrialFromAdminPortal);
+    });
+
+    it("uses the marketing website path for Secrets Manager without a salesAssistedToken", async () => {
+      component.product = ProductType.SecretsManager;
+
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+      expect(passedInitiationPath()).toBe(InitiationPath.SecretsManagerTrialFromMarketingWebsite);
+    });
+
+    it("uses the sales-assisted path for Secrets Manager when salesAssistedToken is present", async () => {
+      component.product = ProductType.SecretsManager;
+      component.salesAssistedToken = "sales-assisted-token-123";
+
+      await component.createOrganizationOnTrial("user-id-123" as UserId);
+
+      expect(passedInitiationPath()).toBe(InitiationPath.SalesAssistedTrialFromAdminPortal);
     });
   });
 
