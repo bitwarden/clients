@@ -1,4 +1,5 @@
 @let open = sideNavService.open();
+@let showLabels = sideNavService.open();
 @let version = sideNavService.version();
 @let interactiveElClass =
   "tw-size-full tw-px-0 tw-block tw-truncate tw-border-none !tw-text-fg-nav tw-text-start hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]";
@@ -24,7 +25,7 @@
         data-spotlight-target
       >
         <div class="tw-relative tw-flex tw-items-center tw-h-full">
-          @if (open) {
+          @if (showLabels) {
             <div class="tw-absolute tw-left-[0px] tw-transform tw--translate-x-[calc(100%_+_4px)]">
               <ng-container *ngTemplateOutlet="startSlot"></ng-container>
             </div>
@@ -66,7 +67,7 @@
             </button>
           }
 
-          @if (open) {
+          @if (showLabels) {
             <div
               class="tw-flex tw-items-center tw-gap-1 tw-pe-3 [&:has(button)]:tw-pe-2 empty:tw-hidden"
               (click)="$event.stopPropagation()"
@@ -84,8 +85,8 @@
     <div
       [title]="text()"
       class="tw-gap-2 tw-py-0 tw-flex tw-items-center tw-h-full"
-      [class.tw-text-center]="!open"
-      [class.tw-justify-center]="!open"
+      [class.tw-text-center]="!showLabels"
+      [class.tw-justify-center]="!showLabels"
       [class.tw-font-normal]="!showActiveStyles()"
       [class.tw-font-semibold]="showActiveStyles()"
     >
@@ -94,11 +95,11 @@
           class="!tw-m-0 tw-w-4 tw-shrink-0"
           [name]="icon()"
           fixedWidth="true"
-          [attr.aria-hidden]="open"
+          [attr.aria-hidden]="showLabels"
           [attr.aria-label]="text()"
         ></bit-icon>
       }
-      @if (open) {
+      @if (showLabels) {
         <span class="tw-truncate">{{ text() }}</span>
       }
     </div>
@@ -115,7 +116,7 @@
       >
         <div class="tw-relative tw-flex tw-items-center tw-h-full">
           <!-- Non-tile leading content (e.g. a collapse toggle); a tile renders inside the interactive element instead. -->
-          @if (open) {
+          @if (showLabels) {
             <div class="tw-ps-2 empty:tw-hidden">
               <ng-container *ngTemplateOutlet="startSlot"></ng-container>
             </div>
@@ -158,7 +159,7 @@
             </button>
           }
 
-          @if (open) {
+          @if (showLabels) {
             <div
               class="tw-flex tw-items-center tw-pe-2 tw-gap-1 empty:tw-hidden"
               (click)="onEndSlotClick($event)"
@@ -177,8 +178,8 @@
       [title]="text()"
       class="tw-p-2 tw-flex tw-items-center tw-h-full"
       [class.tw-gap-1]="hasStartIconTile()"
-      [class.tw-text-center]="!open"
-      [class.tw-justify-center]="!open"
+      [class.tw-text-center]="!showLabels"
+      [class.tw-justify-center]="!showLabels"
       [class.tw-font-normal]="!showActiveStyles()"
       [class.tw-font-semibold]="showActiveStyles()"
     >
@@ -190,13 +191,13 @@
             <bit-icon
               class="!tw-m-0 tw-text-lg tw-shrink-0"
               [name]="icon()"
-              [attr.aria-hidden]="open"
+              [attr.aria-hidden]="showLabels"
               [attr.aria-label]="text()"
             ></bit-icon>
           }
         </div>
       }
-      @if (open) {
+      @if (showLabels) {
         <span
           [class.tw-ps-1]="treeDepth() <= 1"
           [class.-tw-ms-px]="!icon() && treeDepth() > 1"
