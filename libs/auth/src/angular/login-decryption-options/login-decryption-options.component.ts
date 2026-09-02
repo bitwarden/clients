@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import {
+  EMPTY,
   catchError,
   concatMap,
   defer,
@@ -223,7 +224,17 @@ export class LoginDecryptionOptionsComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         switchMap((value) =>
-          defer(() => this.deviceTrustService.setShouldTrustDevice(this.activeAccountId, value)),
+          defer(() =>
+            this.deviceTrustService.setShouldTrustDevice(this.activeAccountId, value),
+          ).pipe(
+            // Caught inside the switchMap so a failed write is reported and the stream stays
+            // subscribed for later toggles. Left uncaught it would both kill the subscription
+            // and surface as an unhandled error, since this is a bare subscribe.
+            catchError((err: unknown) => {
+              this.validationService.showError(err);
+              return EMPTY;
+            }),
+          ),
         ),
       )
       .subscribe();

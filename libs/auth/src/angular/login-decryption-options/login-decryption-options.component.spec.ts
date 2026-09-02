@@ -82,6 +82,7 @@ describe("LoginDecryptionOptionsComponent", () => {
   let authService: MockProxy<AuthService>;
   let sharedUnlockSettingsService: MockProxy<SharedUnlockSettingsService>;
   let unlockService: MockProxy<UnlockService>;
+  let destroyCallbacks: (() => void)[];
 
   const mockUserId = "user-id-123" as UserId;
   const mockEmail = "test@example.com";
@@ -129,6 +130,15 @@ describe("LoginDecryptionOptionsComponent", () => {
     // takeUntilDestroyed short-circuits when destroyRef.destroyed is truthy; the auto-mock returns a
     // truthy stub for it, so force it false to keep those streams alive during the test.
     (destroyRef as { destroyed: boolean }).destroyed = false;
+    // Capture the teardown callbacks takeUntilDestroyed registers so afterEach can fire them.
+    // The auto-mock drops them, which would leave every test's subscriptions alive for the whole file.
+    destroyCallbacks = [];
+    destroyRef.onDestroy.mockImplementation((onDestroy: () => void) => {
+      destroyCallbacks.push(onDestroy);
+      return () => {
+        destroyCallbacks = destroyCallbacks.filter((registered) => registered !== onDestroy);
+      };
+    });
     accountService.activeAccount$ = new BehaviorSubject({
       id: mockUserId,
       email: mockEmail,
@@ -175,6 +185,16 @@ describe("LoginDecryptionOptionsComponent", () => {
     );
   });
 
+  afterEach(() => {
+    // Simulate component destruction so takeUntilDestroyed tears down the fire-and-forget
+    // subscriptions started in ngOnInit. Without this the component from every test stays
+    // subscribed for the whole file, and its async work surfaces during a later test.
+    destroyCallbacks.forEach((onDestroy) => onDestroy());
+    // Restores the jest.spyOn stubs this file installs on the PureCrypto and SymmetricCryptoKey
+    // module statics; restoreMocks is not enabled anywhere in the jest config chain.
+    jest.restoreAllMocks();
+  });
+
   describe("initializeUserCryptoForJitProvisionedAccount with feature flag enabled", () => {
     let mockPostKeysForTdeRegistration: jest.Mock;
     let mockRegistration: any;
@@ -191,11 +211,6 @@ describe("LoginDecryptionOptionsComponent", () => {
     let mockSecurityState: SignedSecurityState;
 
     beforeEach(async () => {
-      // Mock asUuid to return the input value for test consistency
-      jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk.service", () => ({
-        asUuid: (x: any) => x,
-      }));
-
       mockPrivateKey = "mock-private-key";
       mockSignedPublicKey = "mock-signed-public-key";
       mockSigningKey = "mock-signing-key";
@@ -545,7 +560,56 @@ describe("LoginDecryptionOptionsComponent", () => {
     });
   });
 
+  describe("persisting the remember-device choice", () => {
+    beforeEach(() => {
+      userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+        of({
+          trustedDeviceOption: {
+            hasAdminApproval: true,
+            hasLoginApprovingDevice: false,
+            hasManageResetPasswordPermission: false,
+            isTdeOffboarding: false,
+          },
+          hasMasterPassword: true,
+          keyConnectorOption: undefined,
+        }),
+      );
+    });
+
+    it("reports a failed write and keeps persisting later toggles", async () => {
+      // ngOnInit wires the valueChanges subscription and then calls setValue, so the first write
+      // happens during init. Reject it to exercise the catchError.
+      deviceTrustService.setShouldTrustDevice.mockRejectedValueOnce(new Error("persist failed"));
+      const reported = new Promise<unknown>((resolve) => {
+        validationService.showError.mockImplementation((err: unknown) => {
+          resolve(err);
+          return [];
+        });
+      });
+
+      await component.ngOnInit();
+
+      await expect(reported).resolves.toEqual(new Error("persist failed"));
+
+      // The subscription has to survive the failure, otherwise no later toggle is ever persisted.
+      const persisted = new Promise<void>((resolve) => {
+        deviceTrustService.setShouldTrustDevice.mockImplementation(async () => {
+          resolve();
+        });
+      });
+
+      component["formGroup"].controls.rememberDevice.setValue(false);
+      await persisted;
+
+      expect(deviceTrustService.setShouldTrustDevice).toHaveBeenLastCalledWith(mockUserId, false);
+    });
+  });
+
   describe("shared unlock bootstrap on existing untrusted device", () => {
+    // Driven by the test rather than a fixed `of(...)`, so the auth status can be moved after
+    // ngOnInit has subscribed and each assertion sits at a known point in the timeline.
+    let authStatus$: BehaviorSubject<AuthenticationStatus>;
+
     beforeEach(() => {
       userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
         of({
@@ -561,14 +625,24 @@ describe("LoginDecryptionOptionsComponent", () => {
       );
       deviceTrustService.trustDevice.mockResolvedValue(undefined);
       router.navigate.mockResolvedValue(true);
+
+      authStatus$ = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Locked);
+      authService.authStatusFor$.mockReturnValue(authStatus$);
     });
 
     it("trusts the device and navigates to the vault when the account is unlocked externally", async () => {
-      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+      // Resolves once the bootstrap chain reaches its final step, so the assertions do not depend
+      // on how many microtask turns the chain happens to take.
+      const bootstrapped = new Promise<void>((resolve) => {
+        router.navigate.mockImplementation(async () => {
+          resolve();
+          return true;
+        });
+      });
 
       await component.ngOnInit();
-      // Allow the switchMap/defer async work to run.
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      authStatus$.next(AuthenticationStatus.Unlocked);
+      await bootstrapped;
 
       expect(deviceTrustService.trustDevice).toHaveBeenCalledWith(mockUserId);
       expect(sharedUnlockSettingsService.setUnlockSharingDisabled).toHaveBeenCalledWith(
@@ -579,11 +653,14 @@ describe("LoginDecryptionOptionsComponent", () => {
     });
 
     it("does not trust the device while the account remains locked", async () => {
-      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Locked));
-
       await component.ngOnInit();
-      await new Promise((resolve) => setTimeout(resolve, 0));
 
+      // The status stays Locked for as long as the component observes it.
+      authStatus$.next(AuthenticationStatus.Locked);
+
+      // Asserting the subscription exists keeps the negative below meaningful: without it the
+      // expectation would also pass if nothing ever subscribed to the auth status.
+      expect(authService.authStatusFor$).toHaveBeenCalledWith(mockUserId);
       expect(deviceTrustService.trustDevice).not.toHaveBeenCalled();
     });
   });
