@@ -38,11 +38,11 @@ import { InternalSendService } from "./send.service.abstraction";
 /**
  * Ceiling on plaintext size for a file send created through {@link SendSdkApiService.createFileSend}.
  *
- * `create_file_send`'s response carries the ciphertext as a plain JS `number[]` rather than a
- * typed array (the SDK's `Tsify` derive doesn't special-case `Vec<u8>` — tracked upstream in
- * PM-41234), so it costs several times the file's byte length in JS heap alone, stacked on top of
- * the plaintext buffer already held here and the SDK's own copies in wasm linear memory. The
- * legacy path has none of this overhead: `EncArrayBuffer` stays a compact typed array end to end.
+ * `create_file_send`'s response now carries the ciphertext as a `Uint8Array` (PM-41234 fixed the
+ * `Tsify`/`Vec<u8>` gap that previously made it a plain JS `number[]`), so the original
+ * several-times-byte-length JS-heap overhead this limit was sized against no longer applies.
+ * Left in place pending a decision on whether some cap is still warranted for other reasons
+ * (e.g. server upload limits, plaintext buffer + wasm linear memory copies).
  */
 export const MAX_SDK_FILE_SEND_SIZE_BYTES = 500 * 1024 * 1024;
 
@@ -345,13 +345,14 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
             throw new Error("Created file send is missing its id.");
           }
 
-          // `encryptedFileBuffer` crosses the wasm boundary as a JS `number[]` rather than a
-          // `Uint8Array` (the SDK's `Tsify` derive doesn't special-case `Vec<u8>`), costing several
-          // times the ciphertext's byte length. Pull out just the fields the upload needs so
-          // `created` — and the oversized array it holds — isn't kept alive by this closure for the
-          // duration of the (potentially slow) network upload.
-          const encryptedFileBuffer = new Uint8Array(created.encryptedFileBuffer);
-          const { fileId, encryptedFileName, fileUploadType, url, send: sendView } = created;
+          const {
+            encryptedFileBuffer,
+            fileId,
+            encryptedFileName,
+            fileUploadType,
+            url,
+            send: sendView,
+          } = created;
 
           try {
             await sendsClient.upload_send_file(
