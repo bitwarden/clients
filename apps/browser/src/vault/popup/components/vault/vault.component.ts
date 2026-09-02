@@ -79,6 +79,7 @@ import {
   NewItemDropdownComponent,
   NewItemInitialValues,
 } from "./new-item-dropdown/new-item-dropdown.component";
+import { AppVaultFabComponent } from "./vault-fab/vault-fab.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultPopupListTableComponent } from "./vault-popup-list-table/vault-popup-list-table.component";
 
@@ -111,6 +112,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     VaultListItemsContainerComponent,
     ButtonModule,
     NewItemDropdownComponent,
+    AppVaultFabComponent,
     ScrollingModule,
     VaultHeaderComponent,
     AtRiskPasswordCalloutComponent,
