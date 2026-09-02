@@ -1,4 +1,5 @@
 @if (useNewItemTypes()) {
+  <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
   <button
     type="button"
     [vaultFab]="'bwi-plus'"
@@ -6,6 +7,7 @@
     (click)="navigateToNewItemPage()"
   ></button>
 } @else {
+  <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
   <button
     type="button"
     [vaultFab]="'bwi-plus'"
