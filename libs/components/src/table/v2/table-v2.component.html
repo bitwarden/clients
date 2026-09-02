@@ -108,16 +108,16 @@
         </div>
       }
     </div>
-  } @else if (item.kind === "groupEmpty") {
-    <!-- An empty group's `slot="empty"` content, spanning every column. -->
+  } @else if (item.kind === "groupDescription") {
+    <!-- Sized like a header, so the scroll strategy's fixed height holds; text clips past one line. -->
     <div role="row">
       <div
         role="cell"
         [attr.aria-colspan]="columnCount()"
-        class="tw-px-1 tw-py-2"
+        class="tw-px-1 tw-pb-2 tw-text-sm tw-text-muted"
         [style.height.px]="forceHeight ? headerHeight(item.level) : null"
       >
-        <ng-container *ngTemplateOutlet="item.group.emptyTemplate()"></ng-container>
+        {{ item.group.description() }}
       </div>
     </div>
   } @else {

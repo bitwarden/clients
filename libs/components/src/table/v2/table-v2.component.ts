@@ -136,11 +136,11 @@ function sortRows<T>(
   });
 }
 
-/** A flattened body item: a data row, or a group header with its row-group and count. */
+/** A flattened body item: a data row, a group header with its row-group and count, or a group description. */
 type RenderItem<T> =
   | { kind: "row"; row: T }
   | { kind: "group"; group: BitRowGroupComponent<T>; count: number; level: number }
-  | { kind: "groupEmpty"; group: BitRowGroupComponent<T>; level: number };
+  | { kind: "groupDescription"; group: BitRowGroupComponent<T>; level: number };
 
 /**
  * **Beta.** `bit-table-v2` is still stabilizing. Do not adopt it in production
@@ -684,7 +684,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   /**
    * The non-virtualized body's render list: {@link rows} as-is when ungrouped, else
    * interleaved headers and rows. A row joins the first group whose `match` claims it;
-   * empty groups are skipped, and unclaimed rows trail in a headerless block.
+   * empty groups are skipped unless they clear `hideOnEmpty`, and unclaimed rows trail in
+   * a headerless block.
    */
   protected readonly renderItems = computed<RenderItem<T>[]>(() => {
     const rows = this.rows();
@@ -717,21 +718,19 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     const items: RenderItem<T>[] = [];
     const top = partition(this._groups(), rows);
     for (const group of this._groups()) {
-      const groupRows = top.buckets.get(group);
-      if (!groupRows?.length) {
-        // Empty groups auto-hide unless they project `slot="empty"` content.
-        if (group.hasEmptyContent()) {
-          items.push({ kind: "group", group, count: 0, level: 0 });
-          if (!(group.collapsible() && group.collapsed())) {
-            items.push({ kind: "groupEmpty", group, level: 0 });
-          }
-        }
+      const groupRows = top.buckets.get(group) ?? [];
+      if (!groupRows.length && group.hideOnEmpty()) {
         continue;
       }
       // A collapsed group still shows its header (with the full count) but hides its body.
       items.push({ kind: "group", group, count: groupRows.length, level: 0 });
       if (group.collapsible() && group.collapsed()) {
         continue;
+      }
+      // A grid row, so it hides when collapsed — `aria-expanded="false"` has to mean
+      // nothing of the group is rendered.
+      if (group.description()) {
+        items.push({ kind: "groupDescription", group, level: 0 });
       }
       const children = group.children();
       if (children.length === 0) {
@@ -791,9 +790,9 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (item.kind === "group") {
       return item.group;
     }
-    // Distinct from the group's header, which is also keyed by `item.group`.
-    if (item.kind === "groupEmpty") {
-      return item.group.emptyTemplate();
+    if (item.kind === "groupDescription") {
+      // Stable and per-group, but not `item.group` — that already keys the header.
+      return item.group.headerTemplate();
     }
     const trackBy = this.trackBy();
     return trackBy ? trackBy(index, item.row) : item.row;
