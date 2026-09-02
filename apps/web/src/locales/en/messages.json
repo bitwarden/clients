@@ -19333,6 +19333,9 @@
   "pamRotationConfigCreated": {
     "message": "Managed credential created."
   },
+  "pamRotationConfigSaved": {
+    "message": "Managed credential saved."
+  },
   "pamRotationConfigSettingsUpdated": {
     "message": "Rotation settings saved."
   },
