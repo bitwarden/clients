@@ -6,7 +6,10 @@
     </ng-container>
 
     <ng-content></ng-content>
-    <product-switcher></product-switcher>
+    @if (!vfo1Enabled()) {
+      <!-- The v2 side nav carries the product switcher; see PM-40321. -->
+      <product-switcher></product-switcher>
+    }
     <app-account-menu></app-account-menu>
 
     <ng-container slot="title-suffix">
