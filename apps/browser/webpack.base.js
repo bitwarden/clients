@@ -129,7 +129,6 @@ module.exports.buildConfig = function buildConfig(params) {
 
   const requiredPlugins = [
     new webpack.SourceMapDevToolPlugin({
-      exclude: [/content\/.*/, /notification\/.*/, /overlay\/.*/],
       filename: "[file].map",
     }),
     new webpack.DefinePlugin({
