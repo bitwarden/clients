@@ -119,9 +119,14 @@ export class SideNavComponent {
       return;
     }
 
+    const target = event.target as HTMLElement;
+    // Focus inside the footer can never be occluded by it.
+    if (footerWrapper.contains(target)) {
+      return;
+    }
+
     const overlap =
-      (event.target as HTMLElement).getBoundingClientRect().bottom -
-      footerWrapper.getBoundingClientRect().top;
+      target.getBoundingClientRect().bottom - footerWrapper.getBoundingClientRect().top;
 
     if (overlap > 0) {
       scrollContainer.scrollBy({ top: overlap, behavior: "instant" });
