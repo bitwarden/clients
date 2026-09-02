@@ -21,6 +21,7 @@ import {
   parseVaultScope,
   resolveVaultScope,
   scopedSharedFolderId,
+  SHARED_FOLDERS_ROUTE,
   TRASH_ROUTE,
   VaultScope,
   vaultScopeCommands,
@@ -283,7 +284,7 @@ describe("vaultScopeCommands", () => {
     [organizationScope, ["/vault", organizationId]],
     [trashScope, ["/vault", TRASH_ROUTE]],
     [archiveScope, ["/vault", ARCHIVE_ROUTE]],
-    [sharedFolderScope, ["/vault", organizationId, collectionId]],
+    [sharedFolderScope, ["/vault", organizationId, SHARED_FOLDERS_ROUTE, collectionId]],
     [myItemsScope, ["/vault", organizationId, MY_ITEMS_ROUTE]],
   ])("builds the route for %p", (scope: VaultScope, expected: string[]) => {
     expect(vaultScopeCommands(scope)).toEqual(expected);
@@ -299,8 +300,10 @@ describe("vaultScopeCommands", () => {
       sharedFolderScope,
       myItemsScope,
     ]) {
-      const [, segment, collectionSegment] = vaultScopeCommands(scope);
-      expect(parseVaultScope(segment, collectionSegment)).toEqual(scope);
+      // The collection is always the last segment, whether it followed the vault directly ("My
+      // items") or the shared folders list a drill-in was reached from.
+      const [, segment, ...rest] = vaultScopeCommands(scope);
+      expect(parseVaultScope(segment, rest.at(-1))).toEqual(scope);
     }
   });
 });
