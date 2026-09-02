@@ -190,6 +190,7 @@ export class LayoutComponent {
       const container = this.container().nativeElement;
       const drawerContainer = this.drawerContainer().nativeElement;
 
+      let hasReconciled = false;
       const update = () => {
         const rootFontSizePx = getRootFontSizePx();
         const containerWidth = container.clientWidth;
@@ -253,8 +254,15 @@ export class LayoutComponent {
         const wasInPushMode = this.sideNavService.isPushMode();
 
         // Transitioning out of push mode → close the nav.
-        // (If already in overlay and open, leave it — it's intentionally overlaying content.)
-        if (!navPush && this.sideNavService.open() && wasInPushMode) {
+        // Also close on the first reconciliation if the initial open estimate was wrong
+        // (the estimate uses DEFAULT_OPEN_WIDTH, but the persisted width loads async and
+        // may be wider, making push mode impossible at the current viewport).
+        const estimateWasWrong =
+          !hasReconciled &&
+          !navPush &&
+          this.sideNavService.open() &&
+          this.sideNavService.userCollapsePreference() !== "open";
+        if ((!navPush && this.sideNavService.open() && wasInPushMode) || estimateWasWrong) {
           this.sideNavService.open.set(false);
         }
 
@@ -270,6 +278,8 @@ export class LayoutComponent {
         this.sideNavService.isPushMode.set(navPush);
         this.siderailIsPushMode.set(siderailCanPush);
         this.drawerService.isPushMode.set(drawerPush);
+        this.sideNavService.markLayoutReady();
+        hasReconciled = true;
       };
 
       const resizeObserver = new ResizeObserver(update);

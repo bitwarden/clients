@@ -224,8 +224,8 @@ export class SideNavService {
   }
 
   /**
-   * Called when a drag ends. If released in the tension zone, spring back to the minimum width.
-   * If released during a preview open, revert the nav to closed.
+   * Called when a drag ends. If released in the preview zone, commit to open at default width.
+   * If released in the tension zone, spring back to the minimum width.
    */
   onDragEnd() {
     this.isDragging.set(false);
@@ -239,7 +239,7 @@ export class SideNavService {
       return;
     }
 
-    if (this.open() && this._width$.getValue() < this.MIN_OPEN_WIDTH) {
+    if (this._width$.getValue() < this.MIN_OPEN_WIDTH) {
       this._width$.next(this.MIN_OPEN_WIDTH);
     }
   }
