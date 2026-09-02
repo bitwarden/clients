@@ -22,8 +22,8 @@ import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";

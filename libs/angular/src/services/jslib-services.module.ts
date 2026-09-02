@@ -193,7 +193,6 @@ import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/e
 import { PasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/abstractions/passkey-directory-api.service";
 import { DefaultPasskeyDirectoryApiService } from "@bitwarden/common/dirt/services/default-passkey-directory-api.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
@@ -217,6 +216,7 @@ import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-manage
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import {

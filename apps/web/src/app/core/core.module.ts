@@ -70,13 +70,13 @@ import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email
 import { DefaultChangeEmailService } from "@bitwarden/common/auth/services/change-email/default-change-email.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   DefaultSharedUnlockSettingsService,

@@ -4,7 +4,7 @@ import { of } from "rxjs";
 import { LogoutService } from "@bitwarden/auth/common";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
@@ -87,16 +87,29 @@ describe("DefaultLockService", () => {
         }),
       );
 
-      const lockSpy = jest.spyOn(sut, "lock").mockResolvedValue(undefined);
+      const lockSpy = jest
+        .spyOn(sut as unknown as { lockUser: () => Promise<void> }, "lockUser")
+        .mockResolvedValue(undefined);
 
       await sut.lockAll(LockSource.Manual);
 
       // Non-Active users should be called first
-      expect(lockSpy).toHaveBeenNthCalledWith(1, mockUser2, LockSource.Manual);
-      expect(lockSpy).toHaveBeenNthCalledWith(2, mockUser3, LockSource.Manual);
+      expect(lockSpy).toHaveBeenNthCalledWith(1, mockUser2, LockSource.Manual, true);
+      expect(lockSpy).toHaveBeenNthCalledWith(2, mockUser3, LockSource.Manual, true);
 
       // Active user should be called last
-      expect(lockSpy).toHaveBeenNthCalledWith(3, mockUser1, LockSource.Manual);
+      expect(lockSpy).toHaveBeenNthCalledWith(3, mockUser1, LockSource.Manual, true);
+    });
+
+    it("reloads the process once, after all users are locked", async () => {
+      processReloadService.reloadProcess.mockClear();
+      jest
+        .spyOn(sut as unknown as { lockUser: () => Promise<void> }, "lockUser")
+        .mockResolvedValue(undefined);
+
+      await sut.lockAll(LockSource.Manual);
+
+      expect(processReloadService.reloadProcess).toHaveBeenCalledTimes(1);
     });
   });
 

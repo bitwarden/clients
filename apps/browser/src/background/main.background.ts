@@ -110,7 +110,6 @@ import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/d
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
@@ -123,7 +122,7 @@ import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-manage
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
-import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import {
   SharedUnlockPeerService,
   SharedUnlockSettingsService,
@@ -370,6 +369,7 @@ import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
 import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
+import { BrowserProcessReloadService } from "../key-management/browser-process-reload.service";
 import { BrowserSessionTimeoutTypeService } from "../key-management/session-timeout/services/browser-session-timeout-type.service";
 import { BackgroundUnlockService } from "../key-management/unlock/background-unlock.service";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
@@ -377,7 +377,6 @@ import { BrowserActionsService } from "../platform/actions/browser-actions.servi
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
 import { BadgeService } from "../platform/badge/badge.service";
 import { BrowserApi } from "../platform/browser/browser-api";
-import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { flagEnabled } from "../platform/flags";
 import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
 import { IpcContentScriptManagerService } from "../platform/ipc/ipc-content-script-manager.service";
@@ -1482,31 +1481,20 @@ export default class MainBackground {
       this.logService,
     );
 
-    const systemUtilsServiceReloadCallback = async () => {
-      await this.taskSchedulerService.clearAllScheduledTasks();
-
-      // Close browser action popup before reloading to prevent zombie popup with invalidated context.
-      // The 'reloadProcess' message is sent by ProcessReloadService before this callback runs,
-      // and popups will close themselves upon receiving it. Poll to verify popup is actually closed.
-      await BrowserPopupUtils.waitForAllPopupsClose();
-
-      BrowserApi.reloadExtension();
-    };
-
     this.systemService = new SystemService(
       this.platformUtilsService,
       this.autofillSettingsService,
       this.taskSchedulerService,
     );
 
-    this.processReloadService = new DefaultProcessReloadService(
+    this.processReloadService = new BrowserProcessReloadService(
       this.pinService,
       this.messagingService,
-      systemUtilsServiceReloadCallback,
       this.vaultTimeoutSettingsService,
       this.accountService,
       this.logService,
       this.authService,
+      this.taskSchedulerService,
     );
 
     // Background
@@ -1561,7 +1549,6 @@ export default class MainBackground {
       this.autofillService,
       this.platformUtilsService as BrowserPlatformUtilsService,
       this.autofillSettingsService,
-      this.processReloadService,
       this.environmentService,
       this.messagingService,
       this.logService,
@@ -2065,7 +2052,7 @@ export default class MainBackground {
     }
     await this.mainContextMenuHandler?.noAccess();
     await this.systemService.clearPendingClipboard();
-    await this.processReloadService.startProcessReload();
+    await this.processReloadService.reloadProcess();
   }
 
   private async needsStorageReseed(userId: UserId): Promise<boolean> {

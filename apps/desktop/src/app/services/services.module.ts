@@ -60,14 +60,16 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
+import {
+  DefaultProcessReloadService,
+  ProcessReloadServiceAbstraction,
+} from "@bitwarden/common/key-management/process-reload";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   SharedUnlockPeerService,
@@ -207,8 +209,6 @@ import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
 import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop-set-initial-password.service";
 
-const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
-
 /**
  * Provider definitions used in the ngModule.
  * Add your provider definition here using the safeProvider function as a wrapper. This will give you type safety.
@@ -244,10 +244,6 @@ const safeProviders: SafeProvider[] = [
     useFactory: (initService: InitService) => initService.init(),
     deps: [InitService],
     multi: true,
-  }),
-  safeProvider({
-    provide: RELOAD_CALLBACK,
-    useValue: null,
   }),
   safeProvider({
     provide: LogServiceAbstraction,
@@ -342,7 +338,6 @@ const safeProviders: SafeProvider[] = [
     deps: [
       PinServiceAbstraction,
       MessagingServiceAbstraction,
-      RELOAD_CALLBACK,
       VaultTimeoutSettingsService,
       AccountServiceAbstraction,
       LogService,
