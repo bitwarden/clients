@@ -10,9 +10,10 @@ import {
 } from "@bitwarden/vault";
 
 import { BulkEditCollectionAccessWebDialogAdapter } from "../../../admin-console/organizations/collections/bulk-collections-dialog/bulk-edit-collection-access-web-dialog.adapter";
-import { CollectionWebDialogAdapter } from "../../../admin-console/organizations/shared/components/collection-dialog/collection-web-dialog.adapter";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { BulkDeleteDialogWebAdapter } from "../bulk-action-dialogs/bulk-delete-dialog-web.adapter";
+
+import { CollectionWebDialogAdapter } from "./collection-web-dialog.adapter";
 
 /**
  * The web client's shared folders page: the shared {@link VaultSharedFoldersComponent} with the

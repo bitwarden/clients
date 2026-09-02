@@ -17,8 +17,11 @@ import {
   CollectionDialogTab,
 } from "@bitwarden/vault";
 
-import { openCollectionDialog } from "./collection-dialog.component";
-import { CollectionDialogAction, CollectionDialogTabType } from "./collection-dialog.models";
+import { openCollectionDialog } from "../../../admin-console/organizations/shared/components/collection-dialog/collection-dialog.component";
+import {
+  CollectionDialogAction,
+  CollectionDialogTabType,
+} from "../../../admin-console/organizations/shared/components/collection-dialog/collection-dialog.models";
 
 /** The dialog's own tab enum, keyed by the token's client-independent one. */
 const TABS: Readonly<Record<CollectionDialogTab, CollectionDialogTabType>> = Object.freeze({
