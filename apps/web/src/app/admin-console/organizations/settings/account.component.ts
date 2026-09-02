@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, computed, OnDestroy, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -91,11 +91,16 @@ export class AccountComponent implements OnInit, OnDestroy {
     { initialValue: false },
   );
 
-  protected readonly orgSettingsRoute = [
+  private readonly _orgIdFromRoute = toSignal(
+    this.route.params.pipe(map((p) => p["organizationId"] as OrganizationId)),
+    { initialValue: "" as OrganizationId },
+  );
+
+  protected readonly orgSettingsRoute = computed(() => [
     "/organizations",
-    this.route.snapshot.params["organizationId"],
+    this._orgIdFromRoute(),
     "settings",
-  ];
+  ]);
 
   private destroy$ = new Subject<void>();
 

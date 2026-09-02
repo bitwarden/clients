@@ -1,7 +1,7 @@
 <app-header>
   @if (showBreadcrumbs()) {
     <bit-breadcrumbs slot="breadcrumbs">
-      <bit-breadcrumb [route]="orgSettingsRoute" icon="bwi-cog">{{
+      <bit-breadcrumb [route]="orgSettingsRoute()" icon="bwi-cog">{{
         "settings" | i18n
       }}</bit-breadcrumb>
       <bit-breadcrumb [route]="[]" queryParamsHandling="preserve">{{
