@@ -313,7 +313,7 @@ describe("VaultPopupListTableComponent", () => {
       const text = fixture.nativeElement.textContent;
       expect(text).toContain("noItemsMatchSearchTerm");
       expect(text).toContain("clearSearch");
-      expect(text).not.toContain("noItemsInMyVault");
+      expect(text).not.toContain("noItemsInVaults");
     });
 
     it("clicking clear-search clears the search box", () => {
@@ -332,14 +332,14 @@ describe("VaultPopupListTableComponent", () => {
       expect(component["searchText"]).toBe("");
     });
 
-    it("shows the personal-vault copy with an import CTA when the account is genuinely empty", () => {
+    it("shows the multiple-vaults copy with an import CTA when the account is genuinely empty", () => {
       emptyVault$.next(true);
       hasSearchText$.next(false);
       filteredCiphers$.next([]);
       fixture.detectChanges();
 
       const text = fixture.nativeElement.textContent;
-      expect(text).toContain("noItemsInMyVault");
+      expect(text).toContain("noItemsInVaults");
       expect(text).toContain("emptyVaultsDescription");
       expect(text).toContain("importItems");
       expect(text).not.toContain("noItemsMatchSearchTerm");
