@@ -1,0 +1,211 @@
+name: SDLC / SDK Update Evaluation
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  evaluate:
+    name: Evaluate SDK Update
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    if: ${{ github.event.pull_request.head.ref == 'sdlc/sdk-update' && github.event.pull_request.head.repo.full_name == github.repository }}
+    permissions:
+      id-token: write # Azure OIDC login
+      actions: read # claude-code-action track_progress
+      contents: write # push a resolved fix
+      pull-requests: write # sticky comment
+
+    env:
+      _BOT_NAME: "bw-ghapp[bot]"
+      _BOT_EMAIL: "178206702+bw-ghapp[bot]@users.noreply.github.com"
+
+    steps:
+      - name: Skip if this bump was already evaluated
+        id: gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          TIP=$(gh pr view "$PR_NUMBER" -R "$REPO" --json commits \
+            --jq '.commits[-1] | "\(.authors[0].email)\t\(.messageHeadline)"')
+          TIP_EMAIL=${TIP%%$'\t'*}
+          TIP_SUBJECT=${TIP#*$'\t'}
+
+          # sdk-update.yml gates on this same email, so both workflows agree on who owns the branch.
+          if [[ "$TIP_SUBJECT" != "Update sdk-internal to "* || "$TIP_EMAIL" != "$_BOT_EMAIL" ]]; then
+            echo "Branch tip is not a fresh bot-authored version bump ('$TIP_SUBJECT', $TIP_EMAIL) — skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${TIP_SUBJECT#Update sdk-internal to }" >> "$GITHUB_OUTPUT"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Log in to Azure
+        if: steps.gate.outputs.skip == 'false'
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        if: steps.gate.outputs.skip == 'false'
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-org-bitwarden
+          secrets: "ANTHROPIC-RESPONSE-API-KEY,BW-GHAPP-ID,BW-GHAPP-KEY"
+
+      - name: Log out from Azure
+        if: steps.gate.outputs.skip == 'false'
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Generate GH App token
+        id: app-token
+        if: steps.gate.outputs.skip == 'false'
+        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        with:
+          app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
+          private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Check out repo
+        if: steps.gate.outputs.skip == 'false'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          # Must stay false. A persisted token lands in .git/config as an http.extraheader, which the
+          # agent's `Bash(grep:*)` grant can read; the `Read(**/.git/**)` deny does not constrain Bash.
+          persist-credentials: false
+
+      # Blobless: only needed to read why a surface change happened, never to build.
+      - name: Clone sdk-internal
+        if: steps.gate.outputs.skip == 'false'
+        run: git clone --quiet --filter=blob:none https://github.com/bitwarden/sdk-internal "${{ github.workspace }}/../sdk-internal"
+
+      - name: Get Node Version
+        id: retrieve-node-version
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Node
+        if: steps.gate.outputs.skip == 'false'
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
+          node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
+
+      - name: Install Node dependencies
+        if: steps.gate.outputs.skip == 'false'
+        run: npm ci
+
+      # Any commit the agent makes has to be bot-authored or the next bump run's author guard fails.
+      - name: Configure git identity
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          git config user.name "$_BOT_NAME"
+          git config user.email "$_BOT_EMAIL"
+
+      - name: Run the baseline type check
+        id: baseline
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          _LOG="$RUNNER_TEMP/baseline-test-types.log"
+
+          # `set +e` covers the type check alone: a compile break has to reach the agent, not end the job.
+          set +e
+          npm run test:types > "$_LOG" 2>&1
+          _EXIT=$?
+          set -e
+
+          # test-types.js drives 49 legs through concurrently without awaiting it, so a type error and
+          # an OOM-killed tsc both exit non-zero through an unhandled rejection. Requiring a diagnostic
+          # separates the break this workflow exists to find from a log that proves nothing.
+          if [ "$_EXIT" -ne 0 ] && ! grep -q 'error TS' "$_LOG"; then
+            echo "::error::The baseline type check exited $_EXIT with no TS diagnostic, so its log cannot be read as evidence of anything."
+            tail -50 "$_LOG"
+            exit 1
+          fi
+
+          echo "log=$_LOG" >> "$GITHUB_OUTPUT"
+
+      - name: Run Claude Code
+        id: claude
+        if: steps.gate.outputs.skip == 'false'
+        uses: anthropics/claude-code-action@be7b93b1907a4abad570368f3c74b6fe3807510b # v1.0.183
+        env:
+          # Claude Code defaults to a 120-second Bash timeout and claude-code-action sets neither
+          # variable. Both stay well inside timeout-minutes.
+          BASH_DEFAULT_TIMEOUT_MS: "600000"
+          BASH_MAX_TIMEOUT_MS: "1800000"
+        with:
+          anthropic_api_key: ${{ steps.get-kv-secrets.outputs.ANTHROPIC-RESPONSE-API-KEY }}
+          allowed_bots: "bw-ghapp"
+          bot_id: "178206702"
+          bot_name: "bw-ghapp[bot]"
+          track_progress: true
+          use_sticky_comment: true
+          plugin_marketplaces: "https://github.com/bitwarden/ai-plugins.git"
+          plugins: |
+            bitwarden-delivery-tools@bitwarden-marketplace
+            bitwarden-software-engineer@bitwarden-marketplace
+          prompt: |
+            PR #${{ github.event.pull_request.number }} in ${{ github.repository }} bumps the Bitwarden SDK to ${{ steps.gate.outputs.version }}. Evaluate it yourself using the `evaluating-sdk-internal-updates` skill's Identify steps (1-8).
+
+            `bitwarden/sdk-internal` is already cloned as a sibling directory at `${{ github.workspace }}/../sdk-internal`; use it directly, do not re-clone. `npm ci` has already run. A baseline type check has already been run for you and its output is at `${{ steps.baseline.outputs.log }}`; read it rather than running your own baseline.
+
+            If step 8 turns up anything to resolve, dispatch a single subagent on the `bitwarden-software-engineer` agent to invoke `Skill(evaluating-sdk-internal-updates)` itself and carry out its Resolve steps (9-10) for every finding in one pass — decide the fix, implement it, and commit on the current branch (already checked out) using `Skill(bitwarden-delivery-tools:committing-changes)` for the message. Hand the subagent all the findings (commit, symbol, call sites for each) so it doesn't redo the investigation, dispatching it once for every finding rather than once per finding. Do not push; the workflow pushes separately. Have it report back the commit SHA and each finding's disposition. Skip the subagent entirely if step 8 finds nothing to resolve.
+
+            Once the subagent has reported back — or immediately, if there was nothing to resolve — update the sticky PR comment yourself, replacing it with the step 8 report, structured as: "## SDK bump evaluated" (old → new version and sdk-internal SHA, commit count), "## Compile-time breaks" (found-and-fixed, or "none found"), "## Runtime considerations" (behavioral, serialization or wire-value notes worth flagging; omit the section if there are none), "## Everything else in range — confirmed safe" (brief, one line per commit or group), and "## Commit" (the SHA, or "no commit — nothing needed fixing"). State whether the verifying type check passed. Always post this, even when the conclusion is that nothing needs fixing — the comment is the audit trail that the check ran.
+          claude_args: |
+            --model opus
+            --allowedTools "Agent,Bash(node .claude/skills/evaluating-sdk-internal-updates/sdk-surface-diff.mjs *),Bash(npm run test:types),Bash(npm run lint:fix),Bash(npm test -- *),Bash(npx prettier *),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git -C * log *),Bash(git -C * show *),Bash(git -C * diff *),Bash(git add:*),Bash(git commit:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git status:*),Bash(git grep:*),Bash(grep:*),Read,Grep,Glob,Edit,Write,Skill(evaluating-sdk-internal-updates),Skill(writing-client-code),Skill(bitwarden-delivery-tools:committing-changes),mcp__github_comment__update_claude_comment"
+            --disallowedTools "Read(**/.git/**),Edit(**/.git/**),Write(**/.git/**),Edit(.github/**),Write(.github/**),Edit(.claude/**),Write(.claude/**)"
+
+      - name: Push any resolved fix
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          _BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
+          _TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          # --untracked-files=no is required: npm leaves untracked, non-gitignored paths that a bare
+          # --porcelain would report, tripping this guard.
+          if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+            echo "::error::Claude left uncommitted changes to tracked files; nothing was pushed."
+            git status --porcelain --untracked-files=no
+            exit 1
+          fi
+
+          if git diff --quiet "origin/$_BRANCH_NAME" HEAD; then
+            echo "No new commits to push."
+            exit 0
+          fi
+
+          # A fix may touch SDK call sites, never CI or agent configuration, and never the pin: moving
+          # both pins would ship a version the bump did not intend, which nothing downstream catches.
+          CHANGED=$(git diff --name-only "origin/$_BRANCH_NAME" HEAD)
+          if echo "$CHANGED" | grep -qE '^(\.github/|\.claude/|package(-lock)?\.json$)'; then
+            echo "::error::Refusing to push: the fix touches CI, agent configuration, or the SDK pin."
+            echo "$CHANGED"
+            exit 1
+          fi
+
+          # Checkout does not persist credentials, so authenticate this push alone. `git -c` keeps the
+          # header out of .git/config and the token out of the remote URL git echoes on error.
+          git -c http.extraheader="AUTHORIZATION: basic $(printf '%s' "x-access-token:$_TOKEN" | base64 | tr -d '\n')" \
+            push origin "HEAD:$_BRANCH_NAME"
