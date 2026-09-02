@@ -24,9 +24,22 @@ describe("TargetSystemsEmptyStateComponent", () => {
   it("renders the hero create button and one button per template", () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector("#target-systems-empty-state_button_create")).toBeTruthy();
-    (["manual", "entra", "custom-script"] as TargetSystemTemplateKey[]).forEach((key) => {
-      expect(el.querySelector(`#target-systems-empty-state_button_template-${key}`)).toBeTruthy();
-    });
+    (["manual", "entra", "active-directory", "custom-script"] as TargetSystemTemplateKey[]).forEach(
+      (key) => {
+        expect(el.querySelector(`#target-systems-empty-state_button_template-${key}`)).toBeTruthy();
+      },
+    );
+  });
+
+  it("emits useTemplate with the active-directory key, so the deep link is reachable from the UI", () => {
+    const spy = jest.fn();
+    fixture.componentInstance.useTemplate.subscribe(spy);
+    (
+      fixture.nativeElement.querySelector(
+        "#target-systems-empty-state_button_template-active-directory",
+      ) as HTMLButtonElement
+    ).click();
+    expect(spy).toHaveBeenCalledWith("active-directory");
   });
 
   it("emits create when the hero button is clicked", () => {
