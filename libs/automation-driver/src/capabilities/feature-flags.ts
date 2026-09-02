@@ -8,13 +8,15 @@ import { AutomationCapability } from "../automation-capability";
 type FeatureFlagOverrides = Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 /** Reads and overrides feature flags. Available on every client. */
-export class FeatureFlagsCapability implements AutomationCapability {
+export class FeatureFlagsCapability extends AutomationCapability {
   readonly automationName = "featureFlags";
 
   constructor(
     private configService: ConfigService,
     private stateProvider: StateProvider,
-  ) {}
+  ) {
+    super();
+  }
 
   /** Override a feature flag to the given value. */
   async set(flag: FeatureFlag, value: AllowedFeatureFlagTypes): Promise<void> {

@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@angular/core";
 
-import { AUTOMATION_CAPABILITY, AutomationCapability } from "./automation-capability";
+import { AutomationCapability } from "./automation-capability";
 
 /**
  * A small surface attached to the global object for external automation (E2E tests, manual
@@ -10,7 +10,7 @@ import { AUTOMATION_CAPABILITY, AutomationCapability } from "./automation-capabi
 export class AutomationDriver {
   private readonly capabilities = new Map<string, AutomationCapability>();
 
-  constructor(@Inject(AUTOMATION_CAPABILITY) capabilities: AutomationCapability[]) {
+  constructor(@Inject(AutomationCapability) capabilities: AutomationCapability[]) {
     for (const capability of capabilities) {
       const name = capability.automationName;
 

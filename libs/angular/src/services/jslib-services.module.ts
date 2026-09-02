@@ -61,7 +61,7 @@ import {
   DefaultAutomaticUserConfirmationService,
 } from "@bitwarden/auto-confirm";
 import {
-  AUTOMATION_CAPABILITY,
+  AutomationCapability,
   AutomationDriver,
   FeatureFlagsCapability,
   LockCapability,
@@ -1623,26 +1623,28 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AutomationDriver,
     useClass: AutomationDriver,
-    deps: [AUTOMATION_CAPABILITY],
+    // The driver takes the whole array; `deps` cannot express that a multi-provider token resolves
+    // to one, so the token is cast to the shape the constructor actually receives.
+    deps: [AutomationCapability as unknown as SafeInjectionToken<AutomationCapability[]>],
   }),
   // Automation capabilities every Angular client supports. Client-specific ones are registered
   // in that client's own provider module.
   safeProvider({
-    provide: AUTOMATION_CAPABILITY,
+    provide: AutomationCapability,
     useFactory: (configService: ConfigService, stateProvider: StateProvider) =>
       new FeatureFlagsCapability(configService, stateProvider),
     deps: [ConfigService, StateProvider],
     multi: true,
   }),
   safeProvider({
-    provide: AUTOMATION_CAPABILITY,
+    provide: AutomationCapability,
     useFactory: (storageServiceProvider: StorageServiceProvider) =>
       new StateCapability(storageServiceProvider),
     deps: [StorageServiceProvider],
     multi: true,
   }),
   safeProvider({
-    provide: AUTOMATION_CAPABILITY,
+    provide: AutomationCapability,
     useFactory: (
       accountService: AccountServiceAbstraction,
       authService: AuthServiceAbstraction,
@@ -1653,7 +1655,7 @@ const safeProviders: SafeProvider[] = [
     multi: true,
   }),
   safeProvider({
-    provide: AUTOMATION_CAPABILITY,
+    provide: AutomationCapability,
     useFactory: (flightRecorder: FlightRecorderService) => new LoggingCapability(flightRecorder),
     deps: [FlightRecorderService],
     multi: true,

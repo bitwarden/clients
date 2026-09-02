@@ -3,7 +3,13 @@ import { AutomationDriver } from "./automation-driver.service";
 
 describe("AutomationDriver", () => {
   /** Stand-in for a real capability; the registry only cares about the name. */
-  const capability = (automationName: string): AutomationCapability => ({ automationName });
+  class FakeCapability extends AutomationCapability {
+    constructor(readonly automationName: string) {
+      super();
+    }
+  }
+
+  const capability = (name: string) => new FakeCapability(name);
 
   describe("get", () => {
     it("returns a registered capability by name", () => {

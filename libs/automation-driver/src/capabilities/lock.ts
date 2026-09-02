@@ -16,7 +16,7 @@ export interface UserLockStatus {
 }
 
 /** Inspects and changes the lock state of known accounts. */
-export class LockCapability implements AutomationCapability {
+export class LockCapability extends AutomationCapability {
   readonly automationName = "lock";
 
   constructor(
@@ -24,7 +24,9 @@ export class LockCapability implements AutomationCapability {
     private authService: AuthService,
     private lockService: LockService,
     private unlockService: UnlockService,
-  ) {}
+  ) {
+    super();
+  }
 
   /** Lock status of every known account. */
   async listUsers(): Promise<UserLockStatus[]> {

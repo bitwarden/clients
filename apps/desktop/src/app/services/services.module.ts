@@ -36,7 +36,7 @@ import {
   SsoUrlService,
 } from "@bitwarden/auth/common";
 import {
-  AUTOMATION_CAPABILITY,
+  AutomationCapability,
   BiometricsCapability,
   DesktopNavigationCapability,
   ProcessReloadCapability,
@@ -244,13 +244,13 @@ const safeProviders: SafeProvider[] = [
   }),
   // Desktop-only automation capabilities.
   safeProvider({
-    provide: AUTOMATION_CAPABILITY,
+    provide: AutomationCapability,
     useFactory: () => new ProcessReloadCapability(() => ipc.platform.reloadProcess()),
     deps: [],
     multi: true,
   }),
   safeProvider({
-    provide: AUTOMATION_CAPABILITY,
+    provide: AutomationCapability,
     useFactory: () =>
       new BiometricsCapability({
         setStatus: (status) => ipc.keyManagement.automation.biometrics.setStatus(status),
@@ -262,7 +262,7 @@ const safeProviders: SafeProvider[] = [
     multi: true,
   }),
   safeProvider({
-    provide: AUTOMATION_CAPABILITY,
+    provide: AutomationCapability,
     useFactory: (messagingService: MessagingServiceAbstraction) =>
       new DesktopNavigationCapability(messagingService),
     deps: [MessagingServiceAbstraction],

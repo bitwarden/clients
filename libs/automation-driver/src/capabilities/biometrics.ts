@@ -17,10 +17,12 @@ export interface AutomationBiometricsController {
 }
 
 /** Drives mocked biometrics through a client-supplied controller. Desktop only. */
-export class BiometricsCapability implements AutomationCapability {
+export class BiometricsCapability extends AutomationCapability {
   readonly automationName = "biometrics";
 
-  constructor(private controller: AutomationBiometricsController) {}
+  constructor(private controller: AutomationBiometricsController) {
+    super();
+  }
 
   async setStatus(status: number): Promise<void> {
     await this.controller.setStatus(status);

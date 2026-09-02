@@ -32,10 +32,12 @@ const rawDeserializer = (value: unknown) => value;
  * ad-hoc definition registered here would replace the owning domain's deserializer and `clearOn`
  * events for the rest of the process.
  */
-export class StateCapability implements AutomationCapability {
+export class StateCapability extends AutomationCapability {
   readonly automationName = "state";
 
-  constructor(private storageServiceProvider: StorageServiceProvider) {}
+  constructor(private storageServiceProvider: StorageServiceProvider) {
+    super();
+  }
 
   /** Read a global state value. */
   async readGlobal(address: StateAddress): Promise<unknown> {

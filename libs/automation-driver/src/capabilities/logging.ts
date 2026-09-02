@@ -3,10 +3,12 @@ import { FlightRecorder } from "@bitwarden/logging";
 import { AutomationCapability } from "../automation-capability";
 
 /** Reads SDK flight recorder events. Only wired on clients with the WASM SDK. */
-export class LoggingCapability implements AutomationCapability {
+export class LoggingCapability extends AutomationCapability {
   readonly automationName = "logging";
 
-  constructor(private flightRecorder: FlightRecorder) {}
+  constructor(private flightRecorder: FlightRecorder) {
+    super();
+  }
 
   /** Read all events currently in the flight recorder buffer. */
   async readEvents() {
