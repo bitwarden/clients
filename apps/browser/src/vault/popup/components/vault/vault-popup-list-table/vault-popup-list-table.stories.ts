@@ -460,6 +460,7 @@ const buildProviders = (args: StoryArgs) => {
           done: "Done",
           back: "Back",
           noMatchingItems: "No matching items",
+          noDetailsToCopy: "No details to copy",
         }),
     },
     {

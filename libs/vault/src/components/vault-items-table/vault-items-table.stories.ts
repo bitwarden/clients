@@ -512,7 +512,6 @@ export default {
               // projects vault-empty-vault into the "empty" slot, but harmless to keep around.
               nothingToShow: "Nothing to show",
               noMatchingItems: "No matching items",
-              // vault-empty-vault's own copy, by EMPTY_VAULT_STATE key — see EmptyVaultComponent.
               clearSearch: "Clear search",
               noItemsMatchSearchTerm: (term) => `No items match "${term}"`,
               noItemsMatchSelectedFilters: "No items match selected filters",
@@ -547,6 +546,14 @@ export default {
               copyFieldCipherName: (field, name) => `Copy ${field}, ${name}`,
               noValuesToCopy: "No values to copy",
               valueCopied: (value) => `${value} copied`,
+              sharedFolderFilterTooltip: "Add items to a shared folder to filter here.",
+              clear: "clear",
+              copy: "copy",
+              noDetailsToCopy: "No details to copy",
+              importItems: "Import items",
+              noVerificationCode: "No verification code",
+              noNumber: "No number",
+              noSecurityCode: "No security code",
             }),
         },
         {
