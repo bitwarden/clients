@@ -117,8 +117,6 @@ import { MemoryStorageService } from "@bitwarden/common/platform/services/memory
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
-import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
-import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop-sdk-load.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
@@ -162,7 +160,6 @@ import {
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/billing/services/web-premium-upgrade-prompt.service";
 import { WebCipherFormGenerationService } from "@bitwarden/web-vault/app/vault/services/web-cipher-form-generation.service";
 
-import { flagEnabled } from "../../utils/flags";
 import {
   ossPolicyEditRegister,
   POLICY_EDIT_REGISTER,
@@ -433,12 +430,12 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: SdkLoadService,
-    useClass: flagEnabled("sdk") ? WebSdkLoadService : NoopSdkLoadService,
+    useClass: WebSdkLoadService,
     deps: [],
   }),
   safeProvider({
     provide: SdkClientFactory,
-    useClass: flagEnabled("sdk") ? DefaultSdkClientFactory : NoopSdkClientFactory,
+    useClass: DefaultSdkClientFactory,
     deps: [],
   }),
   safeProvider({

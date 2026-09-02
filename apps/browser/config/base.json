@@ -1,6 +1,4 @@
 {
   "devFlags": {},
-  "flags": {
-    "sdk": true
-  }
+  "flags": {}
 }

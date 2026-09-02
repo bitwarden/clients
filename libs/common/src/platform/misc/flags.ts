@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 // required to avoid linting errors when there are no flags
 export type SharedFlags = {
-  sdk?: boolean;
   prereleaseBuild?: boolean;
 };
 

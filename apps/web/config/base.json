@@ -10,8 +10,6 @@
     "port": 8080,
     "allowedHosts": "auto"
   },
-  "flags": {
-    "sdk": true
-  },
+  "flags": {},
   "devFlags": {}
 }
