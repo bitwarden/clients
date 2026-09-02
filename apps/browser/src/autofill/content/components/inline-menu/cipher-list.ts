@@ -51,7 +51,7 @@ export function InlineMenuCipherList({
     theme,
     dataTestId: "inline-menu-cipher-list",
     children: html`
-      <div role="list" data-cipher-list-scroll class=${cipherListStyles(theme, !!newItem)}>
+      <div role="list" data-cipher-list-scroll class=${cipherListStyles(theme)}>
         ${renderItems(ordered, withHeadings, theme, passkeysText, passwordsText, (cipher, index) =>
           InlineMenuCipherItem({
             ...itemProps,
@@ -122,16 +122,12 @@ function heading(theme: Theme, text: string) {
   `;
 }
 
-const cipherListStyles = (theme: Theme, withNewItem: boolean) => {
+const cipherListStyles = (theme: Theme) => {
   const scrollbars = scrollbarStyles(theme);
 
   return css`
     box-sizing: border-box;
-    max-height: ${
-      withNewItem
-        ? `calc(${spacing["4"]} * 8 + ${spacing["2"]})`
-        : `calc(${spacing["4"]} * 11 + ${spacing["1"]})`
-    };
+    max-height: calc(${spacing["4"]} * 11 + ${spacing["1"]});
     overflow-x: hidden;
     overflow-y: auto;
     background-color: ${themes[theme].background.DEFAULT};
