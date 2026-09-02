@@ -1,72 +1,78 @@
 <ng-container *ngIf="view$ | async as view">
-  <div cdkOverlayOrigin #trigger="cdkOverlayOrigin" [hidden]="!view.showSwitcher">
+  @if (view.showSwitcher) {
     @if (view.activeAccount?.email != null) {
-      <button
-        class="account-switcher-v2"
-        type="button"
-        (click)="toggle()"
-        [disabled]="disabled"
-        aria-haspopup="dialog"
-      >
-        <bit-avatar
-          [text]="view.activeAccount.name ?? view.activeAccount.email"
-          [id]="view.activeAccount.id"
-          [color]="view.activeAccount.avatarColor"
-          [attr.aria-label]="view.activeAccount.name ?? view.activeAccount.email"
-        ></bit-avatar>
-      </button>
-    } @else {
-      <div class="tw-rounded-full tw-bg-bg-brand">
+      @if (expanded()) {
+        <div class="tw-flex tw-w-full tw-items-center tw-gap-2 tw-overflow-hidden tw-px-3 tw-py-2">
+          <button
+            class="tw-shrink-0 tw-border-0 tw-bg-transparent tw-p-0"
+            type="button"
+            [bitMenuTriggerFor]="switcherMenu"
+            [menuPosition]="menuPosition()"
+            [disabled]="disabled"
+          >
+            <bit-avatar
+              [text]="view.activeAccount.name ?? view.activeAccount.email"
+              [id]="view.activeAccount.id"
+              [color]="view.activeAccount.avatarColor"
+              [attr.aria-label]="view.activeAccount.name ?? view.activeAccount.email"
+            ></bit-avatar>
+          </button>
+          <span class="tw-flex tw-min-w-0 tw-flex-col tw-overflow-hidden tw-text-start">
+            <span class="tw-w-full tw-truncate">{{
+              view.activeAccount.name ?? view.activeAccount.email
+            }}</span>
+            <small class="tw-w-full tw-truncate tw-text-muted">{{
+              view.activeAccount.email
+            }}</small>
+          </span>
+        </div>
+      } @else {
         <button
-          class="account-switcher-v2 !tw-rounded-full"
+          class="tw-w-full tw-flex tw-items-center tw-justify-center tw-border-0 tw-bg-transparent tw-py-3"
           type="button"
-          buttonType="contrast"
-          bitIconButton="bwi-ellipsis-h"
-          [label]="'switchAccount' | i18n"
-          (click)="toggle()"
+          [bitMenuTriggerFor]="switcherMenu"
+          [menuPosition]="menuPosition()"
           [disabled]="disabled"
-          aria-haspopup="dialog"
-        ></button>
+        >
+          <bit-avatar
+            [text]="view.activeAccount.name ?? view.activeAccount.email"
+            [id]="view.activeAccount.id"
+            [color]="view.activeAccount.avatarColor"
+            [attr.aria-label]="view.activeAccount.name ?? view.activeAccount.email"
+          ></bit-avatar>
+        </button>
+      }
+    } @else {
+      <div class="tw-flex tw-w-full tw-justify-center tw-py-3">
+        <div class="tw-rounded-full tw-bg-bg-brand">
+          <button
+            class="!tw-rounded-full"
+            type="button"
+            buttonType="contrast"
+            bitIconButton="bwi-ellipsis-h"
+            [label]="'switchAccount' | i18n"
+            [bitMenuTriggerFor]="switcherMenu"
+            [menuPosition]="menuPosition()"
+            [disabled]="disabled"
+          ></button>
+        </div>
       </div>
     }
-  </div>
 
-  <ng-template
-    cdkConnectedOverlay
-    [cdkConnectedOverlayOrigin]="trigger"
-    [cdkConnectedOverlayHasBackdrop]="true"
-    [cdkConnectedOverlayBackdropClass]="'cdk-overlay-transparent-backdrop'"
-    (backdropClick)="close()"
-    (detach)="close()"
-    [cdkConnectedOverlayOpen]="view.showSwitcher && isOpen"
-    [cdkConnectedOverlayPositions]="overlayPosition"
-    cdkConnectedOverlayMinWidth="250px"
-  >
-    <div
-      class="account-switcher-dropdown"
-      [@transformPanel]="'open'"
-      cdkTrapFocus
-      cdkTrapFocusAutoCapture
-      role="dialog"
-      aria-modal="true"
-    >
-      <div class="accounts" *ngIf="view.numberOfAccounts > 0">
-        <button
-          type="button"
-          *ngFor="let account of view.inactiveAccounts | keyvalue"
-          class="account account-v3"
-          (click)="switch(account.key)"
-        >
-          <div class="tw-flex tw-gap-4 tw-items-center">
-            @if (account.value.email != null) {
-              <bit-avatar
-                [text]="account.value.name ?? account.value.email"
-                [id]="account.value.id"
-                [color]="account.value.avatarColor"
-                aria-hidden="true"
-              ></bit-avatar>
-            }
-            <div class="accountInfo">
+    <bit-menu #switcherMenu>
+      <div class="tw-flex tw-min-w-52 tw-max-w-72 tw-flex-col">
+        @if (view.numberOfAccounts > 0) {
+          @for (account of view.inactiveAccounts | keyvalue; track account.key) {
+            <button bitMenuItem type="button" (click)="switch(account.key)">
+              @if (account.value.email != null) {
+                <bit-avatar
+                  slot="start"
+                  [text]="account.value.name ?? account.value.email"
+                  [id]="account.value.id"
+                  [color]="account.value.avatarColor"
+                  aria-hidden="true"
+                ></bit-avatar>
+              }
               <span class="sr-only">{{ "switchAccount" | i18n }}:&nbsp;</span>
               <span class="email">{{ account.value.email }}</span>
               <span class="server">
@@ -79,30 +85,31 @@
                     ? "unlocked"
                     : "locked"
                   ) | i18n
-                }}<span class="sr-only">)</span></span
-              >
-            </div>
-          </div>
-          <i
-            class="bwi bwi-2x text-muted"
-            [ngClass]="
-              account.value.authenticationStatus === authStatus.Unlocked ? 'bwi-unlock' : 'bwi-lock'
-            "
-            aria-hidden="true"
-          ></i>
-        </button>
+                }}<span class="sr-only">)</span>
+              </span>
+              <i
+                slot="end"
+                class="bwi bwi-2x text-muted"
+                [class.bwi-unlock]="account.value.authenticationStatus === authStatus.Unlocked"
+                [class.bwi-lock]="account.value.authenticationStatus !== authStatus.Unlocked"
+                aria-hidden="true"
+              ></i>
+            </button>
+          }
+          <bit-menu-divider></bit-menu-divider>
+        }
+        @if (view.activeAccount) {
+          @if (view.numberOfAccounts < 4) {
+            <button bitMenuItem type="button" (click)="addAccount()">
+              <i class="bwi bwi-plus" aria-hidden="true"></i> {{ "addAccount" | i18n }}
+            </button>
+          } @else {
+            <span class="tw-block tw-px-4 tw-py-1 tw-text-muted">{{
+              "accountSwitcherLimitReached" | i18n
+            }}</span>
+          }
+        }
       </div>
-      <ng-container *ngIf="view.activeAccount">
-        <div class="border" *ngIf="view.numberOfAccounts > 0"></div>
-        <ng-container *ngIf="view.numberOfAccounts < 4">
-          <button type="button" class="add" (click)="addAccount()">
-            <i class="bwi bwi-plus" aria-hidden="true"></i> {{ "addAccount" | i18n }}
-          </button>
-        </ng-container>
-        <ng-container *ngIf="view.numberOfAccounts === 4">
-          <span class="accountLimitReached">{{ "accountSwitcherLimitReached" | i18n }} </span>
-        </ng-container>
-      </ng-container>
-    </div>
-  </ng-template>
+    </bit-menu>
+  }
 </ng-container>
