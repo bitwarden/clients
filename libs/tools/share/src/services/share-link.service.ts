@@ -90,18 +90,10 @@ export class ShareLinkService {
     if (oneTimeShare) {
       sendView.maxAccessCount = 1;
     }
-    const sharedCipherView = CipherView.fromJSON(JSON.parse(JSON.stringify(cipherView)));
+    const sharedCipherView = this.toShareView(cipherView);
     if (!sharedCipherView) {
       throw new Error(this.i18nService.t("linkSaveFailed"));
     }
-
-    // Strip attachments, passkeys, password history, and encryption key
-    sharedCipherView.attachments = [];
-    if (sharedCipherView.login) {
-      sharedCipherView.login.fido2Credentials = [];
-    }
-    sharedCipherView.passwordHistory = [];
-    delete sharedCipherView.key;
 
     sendView.data = {
       data: sharedCipherView,
@@ -124,6 +116,25 @@ export class ShareLinkService {
       "/" +
       Utils.fromB64toUrlB64(createdSdkSendView.key);
     return sendLink;
+  }
+
+  // Create a copy of a CipherView suitable for sharing, with some fields removed
+  // Returns undefined if we are unable to do so
+  private toShareView(cipherView: CipherView): CipherView | undefined {
+    // Create a deep copy of the CipherView
+    const sharedCipherView = CipherView.fromJSON(JSON.parse(JSON.stringify(cipherView)));
+    if (!sharedCipherView) {
+      return;
+    }
+    // Strip attachments, passkeys, password history, and encryption key
+    sharedCipherView.attachments = [];
+    if (sharedCipherView.login) {
+      sharedCipherView.login.fido2Credentials = [];
+    }
+    sharedCipherView.passwordHistory = [];
+    delete sharedCipherView.key;
+
+    return sharedCipherView;
   }
 
   setCipher(cipherId: CipherId | undefined) {

@@ -149,6 +149,9 @@ export class SendDetailsComponent implements OnInit {
        * 2. There are no policies dictating required auth types
        * 3. The Send currently uses the email auth type */
       const originalSendView = this.sendFormService.originalSendView();
+      if (originalSendView?.type === SendType.Item) {
+        return sendAuthTypes.filter((sat) => sat.value === AuthType.Email);
+      }
       const includeEmail =
         hasPremium &&
         (whoCanAccess === WhoCanAccessType.SpecificPeople ||

@@ -32,7 +32,7 @@ import { SendFileView } from "@bitwarden/common/tools/send/models/view/send-file
 import { SendTextView } from "@bitwarden/common/tools/send/models/view/send-text.view";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
+import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -150,7 +150,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected toastService: ToastService,
     protected premiumUpgradePromptService: PremiumUpgradePromptService,
     protected configService: ConfigService,
-    protected sendSdkApiService: SendSdkApiService,
+    protected sendSdkDecryptionService: SendSdkDecryptionService,
   ) {
     this.typeOptions = [
       { name: i18nService.t("sendTypeFile"), value: SendType.File, premium: true },
@@ -281,7 +281,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
                 concatMap((s) => {
                   if (s instanceof Send) {
                     return useSendsSdk
-                      ? this.sendSdkApiService
+                      ? this.sendSdkDecryptionService
                           .decryptSend(s, userId)
                           .then((sdkView) => SendView.fromSdkSend(sdkView))
                       : s.decrypt(userId);
