@@ -2,8 +2,9 @@
   "bitwarden": {
     "message": "Bitwarden"
   },
-  "beta": {
-    "message": "Beta"
+  "bitwardenBeta": {
+    "message": "Bitwarden Beta",
+    "description": "Product name for the beta channel; shown in the tray tooltip and About dialog"
   },
   "filters": {
     "message": "Filters"
