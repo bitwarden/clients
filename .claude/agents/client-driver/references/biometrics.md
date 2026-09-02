@@ -48,7 +48,7 @@ async () => {
 ## Typical biometric-unlock flow
 
 1. `setStatus(0)` — report biometrics as available.
-2. Click the biometric unlock button via `mcp__electron-devtools__click`.
+2. Click the biometric unlock button via `mcp__electron-devtools-attach__click`.
 3. `listPending()` — confirm a request is queued.
 4. `approve(id)` or `deny(id)` — simulate the user's response.
 5. Screenshot to verify the result.

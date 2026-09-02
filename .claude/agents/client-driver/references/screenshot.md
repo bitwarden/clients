@@ -1,8 +1,8 @@
 # Screenshots & DOM snapshots
 
 Two ways to observe the running app. Pick by intent: **snapshot to locate**, **screenshot to
-show**. Use the correct MCP tool prefix for the active target (`mcp__electron-devtools__*` for
-desktop, `mcp__chrome-devtools__*` for browser extension / web).
+show**. Use the correct MCP tool prefix for the active target (`mcp__electron-devtools-attach__*` for
+desktop, `mcp__chrome-devtools-attach__*` for browser extension / web).
 
 ## DOM snapshot (preferred for locating elements)
 
