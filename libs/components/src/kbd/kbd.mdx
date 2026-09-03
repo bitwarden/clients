@@ -28,8 +28,9 @@ label you want displayed (`"F"`, `"ESC"`, `"Shift"`).
 ### The `modifier` token
 
 Pass the literal string `"modifier"` to render the platform's primary modifier key — `⌘` on macOS,
-`Ctrl` elsewhere. The platform is first guessed from `navigator` and then corrected to ground truth
-on the first Cmd/Ctrl chord the user presses, so the glyph may change after that first keypress.
+`Ctrl` elsewhere. The platform is first guessed from `navigator`, then upgraded to `⌘` the first
+time a Cmd chord is observed — Cmd is Apple-exclusive, so the correction is one-way and a Ctrl chord
+never flips the glyph back.
 
 ## Accessibility
 
