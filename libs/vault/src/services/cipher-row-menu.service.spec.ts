@@ -36,6 +36,7 @@ function makeCipher(
     type: CipherType;
     permissions: { delete: boolean; restore: boolean } | null;
     decryptionFailure: boolean;
+    partial: boolean;
   }> = {},
 ): CipherView {
   return {
@@ -539,6 +540,29 @@ describe("CipherRowMenuService", () => {
       expect(visibleActionIds(makeCipher())).toEqual(
         expect.arrayContaining(["addFavorite", "edit", "archive", "delete"]),
       );
+    });
+  });
+
+  describe("PAM-gated (partial) rows", () => {
+    it("hides archive even when the user has premium", () => {
+      userCanArchiveSubject.next(true);
+      expect(show("archive", makeCipher({ partial: true }))).toBe(false);
+    });
+
+    it("hides unarchive", () => {
+      expect(show("unarchive", makeCipher({ isArchived: true, partial: true }))).toBe(false);
+    });
+
+    it("hides restore", () => {
+      expect(show("restore", makeCipher({ isDeleted: true, partial: true }))).toBe(false);
+    });
+
+    it("hides delete", () => {
+      expect(show("delete", makeCipher({ partial: true }))).toBe(false);
+    });
+
+    it("hides permanentlyDelete", () => {
+      expect(show("permanentlyDelete", makeCipher({ isDeleted: true, partial: true }))).toBe(false);
     });
   });
 });
