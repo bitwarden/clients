@@ -1,3 +1,4 @@
+import { CdkVirtualScrollViewport, ScrollingModule } from "@angular/cdk/scrolling";
 import { Component, ChangeDetectionStrategy, inject, computed, effect } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -38,6 +39,8 @@ import {
   CenterPositionStrategy,
   StatusLockupComponent,
   SvgComponent,
+  ScrollLayoutDirective,
+  CompactModeService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -75,6 +78,9 @@ const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
     SvgComponent,
     HealthScanningComponent,
     HealthScanErrorComponent,
+    ScrollingModule,
+    CdkVirtualScrollViewport,
+    ScrollLayoutDirective,
   ],
 })
 export class HealthRiskCategoryDetailComponent {
@@ -88,6 +94,7 @@ export class HealthRiskCategoryDetailComponent {
   readonly vaultHealthReportService = inject(VaultHealthReportService);
   readonly dialogService = inject(DialogService);
   private readonly healthScanService = inject(HealthScanService);
+  private readonly compactModeService = inject(CompactModeService);
 
   readonly category = toSignal<RiskCategory>(
     this.route.params.pipe(map((params) => params["category"])),
@@ -95,6 +102,10 @@ export class HealthRiskCategoryDetailComponent {
 
   /** A category the route does not name, or names wrongly. The only reason to leave. */
   protected readonly invalidCategory = computed(() => !isRiskCategory(this.category()));
+
+  protected readonly rowSize = toSignal<number>(
+    this.compactModeService.enabled$.pipe(map((enabled) => (enabled ? 53 : 59))),
+  );
 
   private readonly userId = toSignal(
     this.accountService.activeAccount$.pipe(map((account) => account?.id)),
@@ -172,6 +183,21 @@ export class HealthRiskCategoryDetailComponent {
     ),
     { initialValue: new Map<string, CipherView>() },
   );
+  readonly rows = computed(() => {
+    const items = this.items();
+    const cipherMap = this.cipherMap();
+    return items
+      .map((item) => ({
+        health: item,
+        cipher: cipherMap.get(item.cipherId),
+      }))
+      .filter((row) => row.cipher != null);
+  });
+
+  protected readonly trackByCipherId = (
+    _: number,
+    row: { health: CipherHealthView; cipher: CipherView },
+  ) => row.health.cipherId;
 
   protected readonly handleRetry = () => {
     const userId = this.userId();
