@@ -82,28 +82,25 @@ export class BillingConstraintService {
         return true;
 
       case "fixed-seat-limit":
-        if (action === "invite") {
-          this.toastService.showToast({
-            variant: "error",
-            title: this.i18nService.t("errorOccurred"),
-            message: this.i18nService.t(
-              organization.canEditSubscription
-                ? "seatLimitReachedUpgradePlan"
-                : "seatLimitReachedContactOwner",
-              organization.seats,
-            ),
-          });
-          return true;
-        }
-
+        // Admins who can manage billing self-serve out of the limit through the change-plan dialog,
+        // for both invite and restore.
         if (result.shouldShowUpgradeDialog) {
           const dialogResult = await this.showChangePlanDialog(organization);
           // If the plan was successfully changed, the seat limit is no longer blocking
           return dialogResult !== ChangePlanDialogResultType.Submitted;
-        } else {
-          await this.showSeatLimitReachedRestoreDialog(organization);
+        }
+
+        if (action === "invite") {
+          this.toastService.showToast({
+            variant: "error",
+            title: this.i18nService.t("errorOccurred"),
+            message: this.i18nService.t("seatLimitReachedContactOwner", organization.seats),
+          });
           return true;
         }
+
+        await this.showSeatLimitReachedRestoreDialog(organization);
+        return true;
 
       default:
         return true;

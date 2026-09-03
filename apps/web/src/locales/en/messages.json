@@ -10969,6 +10969,15 @@
       }
     }
   },
+  "tooManyEmailsForRemainingSeats": {
+    "message": "Only $COUNT$ seats remain. Remove an email address, or upgrade your plan.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "fieldsNeedAttention": {
     "message": "$COUNT$ field(s) above need your attention.",
     "placeholders": {
@@ -11795,15 +11804,6 @@
   },
   "switchProducts": {
     "message": "Switch products"
-  },
-  "seatLimitReachedUpgradePlan": {
-    "message": "Seat limit of $SEATCOUNT$ has been reached. Upgrade your plan to invite more members.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "10"
-      }
-    }
   },
   "seatLimitReachedContactOwner": {
     "message": "Seat limit of $SEATCOUNT$ has been reached. Contact your organization owner to upgrade the plan.",

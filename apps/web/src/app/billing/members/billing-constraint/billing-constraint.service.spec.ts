@@ -235,7 +235,7 @@ describe("BillingConstraintService", () => {
       expect(seatLimitReached).toBe(true);
     });
 
-    it("should show an upgrade-plan toast on invite when the admin can manage billing", async () => {
+    it("should open the change-plan dialog on invite when the admin can manage billing", async () => {
       const result: SeatLimitResult = {
         canAddUsers: false,
         reason: "fixed-seat-limit",
@@ -245,18 +245,34 @@ describe("BillingConstraintService", () => {
         canEditSubscription: true,
         seats: 10,
       });
+      const mockDialogRef = { closed: of(ChangePlanDialogResultType.Closed) };
+      (openChangePlanDialog as jest.Mock).mockReturnValue(mockDialogRef);
 
       const seatLimitReached = await service.seatLimitReached(result, organization, "invite");
 
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "error",
-        title: "translated-text",
-        message: "translated-text",
+      expect(openChangePlanDialog).toHaveBeenCalledWith(dialogService, {
+        data: {
+          organizationId: organization.id,
+          productTierType: organization.productTierType,
+        },
       });
-      expect(i18nService.t).toHaveBeenCalledWith("errorOccurred");
-      expect(i18nService.t).toHaveBeenCalledWith("seatLimitReachedUpgradePlan", 10);
-      expect(openChangePlanDialog).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
       expect(seatLimitReached).toBe(true);
+    });
+
+    it("should not block the invite when the change-plan dialog is submitted", async () => {
+      const result: SeatLimitResult = {
+        canAddUsers: false,
+        reason: "fixed-seat-limit",
+        shouldShowUpgradeDialog: true,
+      };
+      const organization = createMockOrganization({ canEditSubscription: true, seats: 10 });
+      const mockDialogRef = { closed: of(ChangePlanDialogResultType.Submitted) };
+      (openChangePlanDialog as jest.Mock).mockReturnValue(mockDialogRef);
+
+      const seatLimitReached = await service.seatLimitReached(result, organization, "invite");
+
+      expect(seatLimitReached).toBe(false);
     });
 
     it("should show a contact-owner toast on invite when the admin cannot manage billing", async () => {
