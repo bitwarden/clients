@@ -39,6 +39,13 @@
             [route]="vaultRoute(vault)"
             [routerLinkActiveOptions]="exactRouteOptions"
           ></bit-nav-item>
+          @if (vault.defaultUserCollectionId) {
+            <bit-nav-item
+              icon="bwi-user"
+              [text]="'myItemsV2' | i18n"
+              [route]="myItemsRoute(vault)"
+            ></bit-nav-item>
+          }
           <!--
             Left on the default subset match, so it also lights on the folder drill-ins nested
             beneath it — those have no nav entry of their own, and the list they were reached from
