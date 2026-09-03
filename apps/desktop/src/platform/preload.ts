@@ -8,6 +8,7 @@ import { EncString } from "@bitwarden/legacy-crypto";
 
 import {
   allowBrowserintegrationOverride,
+  featureFlagOverrideMenuEnvEnabled,
   isAppImage,
   isFlatpak,
   isMacAppStore,
@@ -23,7 +24,7 @@ import {
   Message,
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
-import { featureFlagOverrideMenuEnvEnabled, isDev } from "../utils";
+import { isDev } from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
 

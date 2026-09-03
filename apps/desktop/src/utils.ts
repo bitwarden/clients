@@ -5,14 +5,6 @@ export function isDev() {
 }
 
 /**
- * Offers the developer-only feature flag override menu in a build where it would otherwise be
- * hidden, so a flag can be flipped locally against a production build.
- */
-export function featureFlagOverrideMenuEnvEnabled() {
-  return process.env.ENABLE_FEATURE_FLAG_OVERRIDE_MENU === "true";
-}
-
-/**
  * Sanitize user agent so external resources used by the app can't built data on our users.
  */
 export function cleanUserAgent(userAgent: string): string {

@@ -5,7 +5,8 @@ import { MenuItemConstructorOptions } from "electron";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
-import { featureFlagOverrideMenuEnvEnabled, isDev } from "../../utils";
+import { isDev } from "../../utils";
+import { featureFlagOverrideMenuEnvEnabled } from "../platform-utils.main";
 import { WindowMain } from "../window.main";
 
 import { IMenubarMenu } from "./menubar";
