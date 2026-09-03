@@ -118,7 +118,7 @@ export class NewItemDropdownComponent implements OnInit {
       queryParams: {
         folderId: this.initialValues?.folderId,
         organizationId: this.initialValues?.organizationId,
-        collectionId: this.initialValues?.collectionId,
+        collectionIds: this.initialValues?.collectionId,
       },
     });
   }
