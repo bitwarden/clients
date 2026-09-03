@@ -204,19 +204,30 @@ export class SideNavService {
   }
 
   /**
-   * Set new side nav width from arrow key events
+   * Set new side nav width from arrow key events. The collapsed state is the low end of the
+   * range, so the arrows cross the collapse boundary in both directions.
    *
    * @param key event key, must be either ArrowRight or ArrowLeft
    */
   setWidthFromKeys(key: "ArrowRight" | "ArrowLeft") {
-    if (key === "ArrowRight" && !this.open()) {
-      this.userCollapsePreference.set("open");
-      this.open.set(true);
-      this._width$.next(this.DEFAULT_OPEN_WIDTH);
+    if (!this.open()) {
+      // Already at the low end — only ArrowRight moves off it.
+      if (key === "ArrowRight") {
+        this.userCollapsePreference.set("open");
+        this.open.set(true);
+        this._width$.next(this.DEFAULT_OPEN_WIDTH);
+      }
       return;
     }
 
     const currentWidth = this._width$.getValue();
+
+    // Stepping left off the minimum collapses, mirroring the drag snap.
+    if (key === "ArrowLeft" && currentWidth <= this.MIN_OPEN_WIDTH) {
+      this.userCollapsePreference.set("closed");
+      this.open.set(false);
+      return;
+    }
 
     const delta = key === "ArrowLeft" ? -1 : 1;
     const newWidth = currentWidth + delta;
