@@ -15,6 +15,7 @@ import {
   skip,
   Subject,
   switchMap,
+  take,
   takeUntil,
   timeout,
   TimeoutError,
@@ -131,6 +132,9 @@ export class SshAgentService implements OnDestroy {
             });
             return this.authService.activeAccountStatus$.pipe(
               filter((status) => status === AuthenticationStatus.Unlocked),
+              // Resolve on the first unlock. Without this, account switching in combination with sign
+              // requests can result in rogue re-prompts for the prior request.
+              take(1),
               timeout({
                 first: this.SSH_VAULT_UNLOCK_REQUEST_TIMEOUT,
               }),
@@ -145,7 +149,7 @@ export class SshAgentService implements OnDestroy {
                   // Abort flow by sending a false response.
                   // Returning an empty observable this will prevent the rest of the flow from executing
                   return from(ipc.autofill.sshAgent.signRequestResponse(requestId, false)).pipe(
-                    map(() => EMPTY),
+                    switchMap(() => EMPTY),
                   );
                 }
 
@@ -156,6 +160,16 @@ export class SshAgentService implements OnDestroy {
                 const updatedAccount = await firstValueFrom(this.accountService.activeAccount$);
                 return [message, updatedAccount.id] as const;
               }),
+              // A catch-all in case of unexpected errors we don't leave the caller hanging or timeout.
+              catchError((error: unknown) =>
+                from(
+                  this.refuseSignRequest(
+                    message.requestId as number,
+                    "Failed while waiting for the vault to unlock",
+                    error,
+                  ),
+                ).pipe(switchMap(() => EMPTY)),
+              ),
             );
           }
 
@@ -164,53 +178,27 @@ export class SshAgentService implements OnDestroy {
         concatMap(([message, userId]: [Record<string, unknown>, UserId]) =>
           from(this.cipherService.getAllDecrypted(userId)).pipe(
             map((ciphers) => [message, ciphers] as const),
+            catchError((error: unknown) =>
+              from(
+                this.refuseSignRequest(
+                  message.requestId as number,
+                  "Failed to decrypt the vault for an SSH sign request",
+                  error,
+                ),
+              ).pipe(switchMap(() => EMPTY)),
+            ),
           ),
         ),
         // This concatMap handles showing the dialog to approve the request.
         concatMap(async ([message, ciphers]) => {
-          const cipherId = message.cipherId as string;
-          const isListRequest = message.isListRequest as boolean;
-          const requestId = message.requestId as number;
-          let application = message.processName as string;
-          const namespace = message.namespace as string;
-          const isAgentForwarding = message.isAgentForwarding as boolean;
-          const hostFingerprint = message.hostFingerprint as string | undefined;
-          if (application == "") {
-            application = this.i18nService.t("unknownApplication");
-          }
-
-          // V1, delete with PM-30758: isListRequest is not present in v2.
-          if (isListRequest) {
-            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers));
-            await ipc.autofill.sshAgent.signRequestResponse(requestId, true);
-            return;
-          }
-
-          if (ciphers === undefined) {
-            ipc.autofill.sshAgent
-              .signRequestResponse(requestId, false)
-              .catch((e) => this.logService.error("Failed to respond to SSH request", e));
-          }
-
-          if (await this.needsAuthorization(cipherId, isAgentForwarding, hostFingerprint)) {
-            ipc.platform.focusWindow();
-            const cipher = ciphers.find((cipher) => cipher.id == cipherId);
-            const dialogRef = ApproveSshRequestComponent.open(
-              this.dialogService,
-              cipher.name,
-              application,
-              isAgentForwarding,
-              namespace,
+          try {
+            return await this.processSignRequest(message, ciphers);
+          } catch (error: unknown) {
+            await this.refuseSignRequest(
+              message.requestId as number,
+              "Failed to process approval for an SSH sign request",
+              error,
             );
-
-            if (await firstValueFrom(dialogRef.closed)) {
-              await this.storeAuthorizedHost(cipherId, isAgentForwarding, hostFingerprint);
-              return ipc.autofill.sshAgent.signRequestResponse(requestId, true);
-            } else {
-              return ipc.autofill.sshAgent.signRequestResponse(requestId, false);
-            }
-          } else {
-            return ipc.autofill.sshAgent.signRequestResponse(requestId, true);
           }
         }),
         catchError((error: unknown, source) => {
@@ -486,6 +474,68 @@ export class SshAgentService implements OnDestroy {
     return ciphers
       .filter((c) => c.type === CipherType.SshKey && !c.isDeleted && !c.isArchived)
       .map((c) => ({ name: c.name, privateKey: c.sshKey.privateKey, cipherId: c.id }));
+  }
+
+  // Shows the approval dialog if the prompt setting calls for it, then answers the agent.
+  private async processSignRequest(message: Record<string, unknown>, ciphers: CipherView[]) {
+    const cipherId = message.cipherId as string;
+    const isListRequest = message.isListRequest as boolean;
+    const requestId = message.requestId as number;
+    let application = message.processName as string;
+    const namespace = message.namespace as string;
+    const isAgentForwarding = message.isAgentForwarding as boolean;
+    const hostFingerprint = message.hostFingerprint as string | undefined;
+
+    if (application == "") {
+      application = this.i18nService.t("unknownApplication");
+    }
+
+    // V1, delete with PM-30758: isListRequest is not present in v2.
+    if (isListRequest) {
+      await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers));
+      await ipc.autofill.sshAgent.signRequestResponse(requestId, true);
+      return;
+    }
+
+    // Resolve the key before deciding on authorization. The agent derives cipherId from its own
+    // keystore, which outlives a vault lock and an account switch, so a cipher received in the
+    // request might not be present in the active vault.
+    const cipher = ciphers?.find((cipher) => cipher.id == cipherId);
+    if (cipher == null) {
+      this.logService.error(
+        "SSH sign request received for key not in the active vault; rejecting.",
+      );
+      return ipc.autofill.sshAgent.signRequestResponse(requestId, false);
+    }
+
+    if (await this.needsAuthorization(cipherId, isAgentForwarding, hostFingerprint)) {
+      ipc.platform.focusWindow();
+      const dialogRef = ApproveSshRequestComponent.open(
+        this.dialogService,
+        cipher.name,
+        application,
+        isAgentForwarding,
+        namespace,
+      );
+
+      if (await firstValueFrom(dialogRef.closed)) {
+        await this.storeAuthorizedHost(cipherId, isAgentForwarding, hostFingerprint);
+        return ipc.autofill.sshAgent.signRequestResponse(requestId, true);
+      } else {
+        return ipc.autofill.sshAgent.signRequestResponse(requestId, false);
+      }
+    } else {
+      return ipc.autofill.sshAgent.signRequestResponse(requestId, true);
+    }
+  }
+
+  private async refuseSignRequest(requestId: number, context: string, error: unknown) {
+    this.logService.error(`${context}; refusing the SSH sign request`, error);
+    try {
+      await ipc.autofill.sshAgent.signRequestResponse(requestId, false);
+    } catch (e) {
+      this.logService.error("Failed to refuse the SSH sign request", e);
+    }
   }
 
   private static authorizationScope(isForwarded: boolean): AuthorizationScope {
