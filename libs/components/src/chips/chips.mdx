@@ -3,6 +3,7 @@ import { Meta, Primary, Controls, Canvas, Title, Description } from "@storybook/
 import * as chipStories from "./chip/chip.stories";
 import * as filterChipStories from "./chip-filter/chip-filter.stories";
 import * as actionChipStories from "./chip-action/chip-action.stories";
+import * as chipGroupStories from "./chip-group/chip-group.stories";
 
 <Meta title="Component Library/Chips" />
 
@@ -73,6 +74,23 @@ structures.
 - Supporting hierarchical filter selections
 
 See [Chip Filter](?path=/docs/component-library-chips-chip-filter--docs) for detailed usage and
+examples.
+
+## Chip Group
+
+The `bit-chip-group` component displays a collection of action chips in a single row that doesn't
+wrap. Chips that don't fit collapse behind a `+N` chip that opens a popover listing the rest.
+Activating any chip emits it, so the consumer can filter or navigate.
+
+<Canvas of={chipGroupStories.Default} />
+
+**Use the chip group when:**
+
+- Showing a row of related memberships or tags whose count varies per row
+- The available width is unpredictable — a table cell, a resizable panel
+- Each chip should be individually actionable
+
+See [Chip Group](?path=/docs/component-library-chips-chip-group--docs) for detailed usage and
 examples.
 
 ## Content Guidelines
