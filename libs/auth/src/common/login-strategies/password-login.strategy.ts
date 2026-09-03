@@ -17,12 +17,12 @@ import {
   PasswordPreloginData,
   PasswordPreloginService,
 } from "@bitwarden/common/auth/password-prelogin";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { LegacyCompatKeyService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
@@ -136,13 +136,29 @@ export class PasswordLoginStrategy extends LoginStrategy {
     email: string,
     preFetchedPreloginData?: PasswordPreloginData,
   ): Promise<MasterKey> {
+    const useSdkForPrelogin = await this.configService.getFeatureFlag(
+      FeatureFlag.PM27060_PasswordPreloginFromSdk,
+    );
+
     // if we have prefetched prelogin data, use it
     if (preFetchedPreloginData) {
-      return this.legacyCompatKeyService.makeMasterKey(
-        masterPassword,
-        email,
-        preFetchedPreloginData.kdfConfig,
-      );
+      // If we are using the sdk to fetch the prelogin data, only then do we want to
+      // use the salt that is passed back from the prelogin response in building the master key.
+      // This gives us the ability to turn off the feature of using the returned salt from salt
+      // in the event of bad normalization occurring during the transition.
+      if (useSdkForPrelogin) {
+        return this.legacyCompatKeyService.makeMasterKey(
+          masterPassword,
+          preFetchedPreloginData.salt,
+          preFetchedPreloginData.kdfConfig,
+        );
+      } else {
+        return this.legacyCompatKeyService.makeMasterKey(
+          masterPassword,
+          email,
+          preFetchedPreloginData.kdfConfig,
+        );
+      }
     }
 
     // No prefetched data — fetch now. PasswordPreloginData.fromResponse validates the KDF config.
@@ -152,7 +168,23 @@ export class PasswordLoginStrategy extends LoginStrategy {
       throw new Error("KDF config is required");
     }
 
-    return this.legacyCompatKeyService.makeMasterKey(masterPassword, email, preloginData.kdfConfig);
+    // If we are using the sdk to fetch the prelogin data, only then do we want to
+    // use the salt that is passed back from the prelogin response in building the master key.
+    // This gives us the ability to turn off the feature of using the returned salt from salt
+    // in the event of bad normalization occurring during the transition.
+    if (useSdkForPrelogin) {
+      return this.legacyCompatKeyService.makeMasterKey(
+        masterPassword,
+        preloginData.salt,
+        preloginData.kdfConfig,
+      );
+    } else {
+      return this.legacyCompatKeyService.makeMasterKey(
+        masterPassword,
+        email,
+        preloginData.kdfConfig,
+      );
+    }
   }
 
   private async evaluateMasterPasswordIfRequired(

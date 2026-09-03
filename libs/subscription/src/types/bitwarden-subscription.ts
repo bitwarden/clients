@@ -2,6 +2,9 @@ import { Cart } from "@bitwarden/pricing";
 
 import { Storage } from "./storage";
 
+// TODO(PM-40422): superseded by `SubscriptionPreview` in ./subscription-preview.ts, which is
+// projected from a Stripe invoice preview. Remove this type and its response chain at cleanup.
+
 export const SubscriptionStatuses = {
   Incomplete: "incomplete",
   IncompleteExpired: "incomplete_expired",

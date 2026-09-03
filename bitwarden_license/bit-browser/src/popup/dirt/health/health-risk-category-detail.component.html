@@ -6,8 +6,15 @@
       <app-current-account />
     </ng-container>
   </popup-header>
-  @if (report() == null) {
+  @if (invalidCategory()) {
     <!-- shown while page routes back to health overview -->
+  } @else if (loading()) {
+    <dirt-health-scanning />
+  } @else if (scanFailed()) {
+    <dirt-health-scan-error (retry)="handleRetry()" />
+  } @else if (report() == null) {
+    <!-- a scan is about to start; showing the empty state here would read as "all clear" -->
+    <dirt-health-scanning />
   } @else if (items().length > 0) {
     <p>
       {{ contentKeys?.descriptionKey | i18n }}
@@ -53,12 +60,32 @@
                   type="button"
                   bitIconButton="bwi-more-horizontal"
                   label="{{ 'options' | i18n }}"
+                  [bitMenuTriggerFor]="itemMenu"
                 ></button>
+                <bit-menu #itemMenu>
+                  <button
+                    bitMenuItem
+                    type="button"
+                    variant="danger"
+                    (click)="onDeleteItem(item, cipher)"
+                  >
+                    <bit-icon name="bwi-delete" slot="start" />
+                    {{ "deleteItem" | i18n }}
+                  </button>
+                </bit-menu>
               </bit-item-action>
             </div>
           </bit-item>
         }
       }
     </bit-section>
+  } @else {
+    <div class="tw-flex tw-flex-col tw-justify-center tw-h-full tw-items-center">
+      <bit-status-lockup class="tw-text-main">
+        <bit-svg slot="graphic" [content]="contentKeys?.emptyIcon"></bit-svg>
+        <ng-container slot="title">{{ "youreAllSet" | i18n }}</ng-container>
+        <ng-container slot="description">{{ contentKeys?.emptyKey | i18n }}</ng-container>
+      </bit-status-lockup>
+    </div>
   }
 </popup-page>

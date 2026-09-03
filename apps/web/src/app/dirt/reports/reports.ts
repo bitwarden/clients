@@ -1,5 +1,5 @@
 import {
-  BiometricFingerprint,
+  TwoFactorAuthWebAuthnIcon,
   NoCredentialsIcon,
   ReportBreach,
   ReportExposedPasswords,
@@ -73,6 +73,6 @@ export const reports: Record<ReportType, ReportWithoutVariant> = {
     title: "passkeyLoginReport",
     description: "passkeyLoginReportMenuDesc",
     route: "passkey-report",
-    icon: BiometricFingerprint,
+    icon: TwoFactorAuthWebAuthnIcon,
   },
 };

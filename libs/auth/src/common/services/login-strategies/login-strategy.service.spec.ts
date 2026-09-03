@@ -18,7 +18,6 @@ import {
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
@@ -41,15 +40,15 @@ import {
 } from "@bitwarden/common/spec";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
-  KdfConfigService,
+  EncryptService,
   KdfType,
-  KeyService,
+  LegacyCompatKeyService,
   PBKDF2KdfConfig,
-} from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+} from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import {
@@ -64,7 +63,7 @@ import { UserDecryptionOptionsService } from "../user-decryption-options/user-de
 import { LoginStrategyService } from "./login-strategy.service";
 import { CacheData } from "./login-strategy.state";
 
-const argon2PreloginData = new PasswordPreloginData(new Argon2KdfConfig(2, 16, 1));
+const argon2PreloginData = new PasswordPreloginData(new Argon2KdfConfig(2, 16, 1), "prelogin-salt");
 
 describe("LoginStrategyService", () => {
   let sut: LoginStrategyService;
@@ -162,7 +161,7 @@ describe("LoginStrategyService", () => {
     });
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
-      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault())),
+      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), "prelogin-salt")),
     );
     legacyCompatKeyService.makeMasterKey.mockResolvedValue({} as any);
 

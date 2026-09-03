@@ -1,7 +1,7 @@
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfig } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KdfConfig } from "@bitwarden/legacy-crypto";
 
 export const _SetInitialPasswordUserType = {
   /**
@@ -46,8 +46,6 @@ export const SetInitialPasswordUserType: Readonly<{
  * @deprecated along with `setInitialPassword()` deprecation
  */
 export interface SetInitialPasswordCredentials {
-  newMasterKey: MasterKey;
-  newServerMasterKeyHash: string;
   newPasswordHint: string;
   kdfConfig: KdfConfig;
   orgSsoIdentifier: string;

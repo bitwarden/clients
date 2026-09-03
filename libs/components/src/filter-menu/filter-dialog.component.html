@@ -1,18 +1,20 @@
 <bit-dialog [title]="activeFilter()?.label() ?? ('filter' | i18n)" dialogSize="small">
+  @if (activeFilter()) {
+    <button
+      bitDialogHeaderStart
+      type="button"
+      bitIconButton="bwi-angle-left"
+      buttonType="primaryGhost"
+      size="small"
+      [label]="'back' | i18n"
+      (click)="back()"
+    ></button>
+  }
   <div bitDialogContent>
     @if (activeFilter(); as filter) {
-      <button
-        type="button"
-        bitButton
-        buttonType="secondary"
-        size="small"
-        startIcon="bwi-angle-left"
-        class="tw-mb-2"
-        (click)="back()"
-      >
-        {{ "back" | i18n }}
-      </button>
-      <ng-container *ngTemplateOutlet="filter.optionsTemplate()!"></ng-container>
+      <div [class]="optionListClasses">
+        <ng-container *ngTemplateOutlet="filter.optionsTemplate()!"></ng-container>
+      </div>
     } @else {
       <div class="tw-flex tw-flex-col tw-gap-2">
         @for (filter of filters; track filter.key()) {
@@ -23,9 +25,31 @@
           >
             <span
               class="tw-size-2 tw-flex-none tw-rounded-full"
-              [class.tw-bg-primary-600]="filter.active()"
+              [class.tw-bg-bg-brand]="filter.active()"
             ></span>
-            <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ rowText(filter) }}</span>
+            @if (filter.icon(); as icon) {
+              <bit-icon [name]="icon" class="tw-flex-none" aria-hidden="true"></bit-icon>
+            }
+            <span class="tw-flex tw-min-w-0 tw-flex-1 tw-items-center tw-gap-1">
+              <span class="tw-truncate">{{ rowLabel(filter) }}</span>
+              @if (filter.summaryLabels().length) {
+                <span
+                  bitOverflowList
+                  [gap]="4"
+                  class="tw-flex tw-min-w-0 tw-flex-1 tw-items-center tw-text-fg-body"
+                  #overflow="bitOverflowList"
+                >
+                  @for (label of filter.summaryLabels(); track label; let last = $last) {
+                    <span bitOverflowItem class="tw-whitespace-nowrap">{{
+                      last ? label : label + ","
+                    }}</span>
+                  }
+                  <span bitOverflowTrigger class="tw-whitespace-nowrap"
+                    >+{{ overflow.overflow().length }}</span
+                  >
+                </span>
+              }
+            </span>
             @if (filter.optionsTemplate()) {
               <bit-icon name="bwi-angle-right" class="tw-flex-none tw-text-muted"></bit-icon>
             }
@@ -41,17 +65,29 @@
         {{ "done" | i18n }}
       </button>
     } @else {
-      <span class="tw-text-sm tw-text-muted">{{ "filtersSelected" | i18n: selectedCount() }}</span>
+      @if (selectedCount()) {
+        <span class="tw-text-sm tw-text-muted">{{
+          "filtersSelected" | i18n: selectedCount()
+        }}</span>
+        <button
+          bitButton
+          buttonType="secondary"
+          type="button"
+          class="tw-ms-auto"
+          startIcon="bwi-clear"
+          (click)="clearAllAndKeepFocus()"
+        >
+          {{ "clearAll" | i18n }}
+        </button>
+      }
       <button
         bitButton
-        buttonType="secondary"
+        buttonType="primary"
         type="button"
-        class="tw-ms-auto"
-        (click)="clearAll()"
+        [class.tw-ms-auto]="!selectedCount()"
+        (click)="close()"
+        #doneButton
       >
-        {{ "clearAll" | i18n }}
-      </button>
-      <button bitButton buttonType="primary" type="button" (click)="close()">
         {{ "done" | i18n }}
       </button>
     }
