@@ -81,7 +81,13 @@ export class BitRowComponent {
             "tw-border-solid",
             "tw-border-border-base",
             "hover:tw-bg-bg-brand-softer",
-            // Outranks the hover rule above on specificity.
+            // Focus carries the hover fill plus a ring. Inset so it isn't clipped by
+            // the body's scroll container or by a fixed-height row's `overflow-clip`.
+            "has-[:focus-visible]:tw-bg-bg-brand-softer",
+            "has-[:focus-visible]:tw-ring-2",
+            "has-[:focus-visible]:tw-ring-inset",
+            "has-[:focus-visible]:tw-ring-border-focus",
+            // Outranks the hover and focus rules above on specificity.
             "has-[[data-selection-input]:checked]:tw-bg-bg-brand-soft",
           ]),
     ].join(" "),

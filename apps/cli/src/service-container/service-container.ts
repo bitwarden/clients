@@ -207,6 +207,7 @@ import {
 } from "@bitwarden/legacy-crypto";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
+import { DefaultManagedSettingsService } from "@bitwarden/managed-settings";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -228,6 +229,8 @@ import {
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
+  AutoUnlockService,
+  DefaultAutoUnlockService,
   DefaultLockService,
   LockService,
   DefaultUnlockService,
@@ -379,6 +382,7 @@ export class ServiceContainer {
   cipherArchiveService: CipherArchiveService;
   lockService: LockService;
   unlockService: UnlockService;
+  autoUnlockService: AutoUnlockService;
   private accountCryptographicStateService: DefaultAccountCryptographicStateService;
   private v2UpgradeTokenStateService: V2UpgradeTokenStateService;
 
@@ -539,6 +543,15 @@ export class ServiceContainer {
       this.stateService,
       this.stateProvider,
       this.accountCryptographicStateService,
+      new CliBiometricsService(),
+    );
+
+    this.autoUnlockService = new DefaultAutoUnlockService(
+      this.keyService,
+      this.stateService,
+      this.stateProvider,
+      this.platformUtilsService,
+      this.logService,
     );
 
     this.legacyCompatKeyService = new LegacyCompatKeyService(
@@ -589,7 +602,7 @@ export class ServiceContainer {
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       this.userDecryptionOptionsService,
-      this.keyService,
+      this.autoUnlockService,
       this.tokenService,
       this.policyService,
       this.biometricStateService,
@@ -667,25 +680,13 @@ export class ServiceContainer {
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
 
-    this.sendService = new SendService(
-      this.accountService,
-      this.keyService,
-      this.i18nService,
-      this.keyGenerationService,
-      this.sendStateProvider,
-      this.encryptService,
-      this.configService,
-    );
-
-    const legacySendApiService = new SendApiService(
-      this.apiService,
-      this.fileUploadService,
-      this.sendService,
-    );
     const sdkClientFactory = flagEnabled("sdk")
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
     this.sdkLoadService = new CliSdkLoadService();
+
+    const managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
@@ -698,7 +699,25 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       this.v2UpgradeTokenStateService,
+      managedSettingsService,
       customUserAgent,
+    );
+
+    this.sendService = new SendService(
+      this.accountService,
+      this.keyService,
+      this.i18nService,
+      this.keyGenerationService,
+      this.sendStateProvider,
+      this.encryptService,
+      this.configService,
+      this.sdkService,
+    );
+
+    const legacySendApiService = new SendApiService(
+      this.apiService,
+      this.fileUploadService,
+      this.sendService,
     );
 
     this.sendApiService = new SendApiServiceSelector(
@@ -734,6 +753,7 @@ export class ServiceContainer {
       this.apiService,
       this.stateProvider,
       this.configService,
+      managedSettingsService,
       customUserAgent,
     );
 
@@ -761,11 +781,9 @@ export class ServiceContainer {
       this.stateProvider,
       this.logService,
       new CliBiometricsService(),
-      this.platformUtilsService,
-      this.stateService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
-      this.keyService,
+      this.autoUnlockService,
     );
 
     this.sendTokenService = new DefaultSendTokenService(
@@ -1082,6 +1100,7 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
       this.sdkService,
     );
 
@@ -1166,6 +1185,7 @@ export class ServiceContainer {
       new CliUserKeyRotationService(),
       this.cipherService,
       this.sdkService,
+      this.stateProvider,
     );
   }
 

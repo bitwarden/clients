@@ -5,6 +5,7 @@ import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -15,6 +16,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { ButtonModule, DialogService } from "@bitwarden/components";
+import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
   AddItemDialogComponent,
@@ -24,6 +26,7 @@ import {
   DEFAULT_COPY_PRESENTATION,
   DefaultCipherFormConfigService,
   NewCipherMenuComponent,
+  SharedFolderCardGridComponent,
   VaultCopyButtonsService,
   VaultItemsTableComponent,
   VaultItemsTableCopyPresentation,
@@ -35,6 +38,7 @@ import {
   collectionInScope,
   organizationInScope,
   resolveVaultScope,
+  scopedCollectionSegment,
   VaultScopeType,
 } from "@bitwarden/vault";
 
@@ -71,6 +75,7 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     VaultItemsTableComponent,
     VaultOnboardingComponent,
     VaultOrganizationUserNotificationsComponent,
+    SharedFolderCardGridComponent,
   ],
   providers: [
     safeProvider({ provide: DefaultCipherFormConfigService, useAngularDecorators: true }),
@@ -91,22 +96,32 @@ export class VaultNextComponent {
   private readonly vaultNavService = inject(VaultNavService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly i18nService = inject(I18nService);
-
+  private readonly policyService = inject(PolicyService);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
-  private readonly vaultIdParam = toSignal(
-    this.activatedRoute.paramMap.pipe(map((params) => params.get("vaultId"))),
+  private readonly routeParams = toSignal(this.activatedRoute.paramMap);
+
+  private readonly routeData = toSignal(this.activatedRoute.data);
+
+  private readonly vaultIdParam = computed(() => this.routeParams()?.get("vaultId"));
+
+  private readonly collectionSegment = computed(() =>
+    scopedCollectionSegment(this.routeParams(), this.routeData()),
   );
 
-  private readonly vaultNav = toSignal(this.vaultNavService.viewModel$);
+  private readonly vaultNav = toSignal(
+    this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
+  );
 
   /**
-   * The vault the side nav has scoped this page to. `vaultScopeGuard` has already turned away any
-   * segment that names no vault, so an unresolvable one here means the guard was bypassed — show
-   * everything rather than an empty page.
+   * The vault the side nav has scoped this page to, and the shared folder within it the URL has
+   * drilled into. `vaultScopeGuard` has already turned away any segment that names no vault, so an
+   * unresolvable one here means the guard was bypassed — show everything rather than an empty page.
    */
   protected readonly vaultScope = computed(
-    () => resolveVaultScope(this.vaultIdParam(), this.vaultNav()) ?? ALL_ITEMS_SCOPE,
+    () =>
+      resolveVaultScope(this.vaultIdParam(), this.collectionSegment(), this.vaultNav()) ??
+      ALL_ITEMS_SCOPE,
   );
 
   /**
@@ -174,9 +189,15 @@ export class VaultNextComponent {
   );
 
   /**
-   * The collections the table resolves its Shared folders column and chip from. The chip lists
-   * whatever this holds rather than deriving its options from the rows, so a scoped page has to
-   * narrow it or it offers folders none of its items could be in.
+   * The collections the table resolves its Shared folders column and chip from, and the card grid
+   * derives its tree from. The chip lists whatever this holds rather than deriving its options from
+   * the rows, so a scoped page has to narrow it or it offers folders none of its items could be in.
+   *
+   * Narrowed to the vault only, never to the shared folder in view: an item belongs to as many
+   * shared folders as it was assigned to, so a row in the folder being viewed may live in others
+   * too — narrowing this would drop those from its Shared folders column and leave the chip unable
+   * to offer them. The grid needs the whole vault for the same reason: the folder it drills into
+   * has to be findable in the tree.
    *
    * The unscoped {@link collections} still back the row actions, which assign an item to any
    * collection the user can reach — not just the ones this page shows.
@@ -250,6 +271,16 @@ export class VaultNextComponent {
       this.collections(),
       this.rowMenuHandlers(),
     ),
+  );
+
+  /** Whether the `OrganizationDataOwnership` policy applies to the active user. */
+  protected readonly orgRequiresDataOwnership = toSignal(
+    this.userId$.pipe(
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+      ),
+    ),
+    { initialValue: false },
   );
 
   /**

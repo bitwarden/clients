@@ -1,12 +1,13 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { MockProxy, mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import {
   CollectionView,
   CollectionTypes,
@@ -251,6 +252,63 @@ describe("AssignCollectionsComponent", () => {
       expect(
         component["getOrgIcon"]({ productTierType: 99 as ProductTierType } as Organization),
       ).toBe("bwi-business");
+    });
+  });
+
+  describe("orgIconTiles", () => {
+    // Must satisfy the enabled/Confirmed filter `organizations$` applies before mapping tiles.
+    const tieredOrg = (id: string, productTierType: ProductTierType) =>
+      ({
+        id,
+        name: id,
+        productTierType,
+        enabled: true,
+        status: OrganizationUserStatusType.Confirmed,
+      }) as Organization;
+
+    // The org list is read on every subscription, so restore the suite-wide default rather than
+    // leaving a tier-specific list in place for later tests.
+    afterEach(() => {
+      organizations$.mockReturnValue(of([org]));
+    });
+
+    it("colors each org's tile by its product tier", async () => {
+      organizations$.mockReturnValue(
+        of([
+          tieredOrg("family-org", ProductTierType.Families),
+          tieredOrg("business-org", ProductTierType.Enterprise),
+        ]),
+      );
+      TestBed.resetTestingModule();
+      await setup(true);
+
+      await firstValueFrom(component["organizations$"]);
+
+      expect(component["orgIconTiles"].get("family-org")).toEqual({
+        icon: "bwi-family",
+        variant: "teal",
+        emphasis: "bold",
+      });
+      expect(component["orgIconTiles"].get("business-org")).toEqual({
+        icon: "bwi-business",
+        variant: "purple",
+        emphasis: "bold",
+      });
+    });
+
+    // bit-select maps its options in an afterRenderEffect that re-runs on a changed reference, so a
+    // fresh tile object per read would re-trigger that effect indefinitely.
+    it("returns a stable tile reference across reads", async () => {
+      organizations$.mockReturnValue(of([tieredOrg("org-id", ProductTierType.Enterprise)]));
+      TestBed.resetTestingModule();
+      await setup(true);
+
+      await firstValueFrom(component["organizations$"]);
+
+      const tile = component["orgIconTiles"].get(org.id);
+
+      expect(tile).toEqual({ icon: "bwi-business", variant: "purple", emphasis: "bold" });
+      expect(component["orgIconTiles"].get(org.id)).toBe(tile);
     });
   });
 
