@@ -9,6 +9,7 @@ import {
   SendAccessToken,
   passwordHashB64Required,
 } from "@bitwarden/common/auth/send-access";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   Region,
@@ -21,6 +22,7 @@ import {
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
 import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -44,6 +46,8 @@ describe("SendReceiveCommand", () => {
   const sendApiService = mock<SendApiService>();
   const apiService = mock<ApiService>();
   const sendTokenService = mock<SendTokenService>();
+  const configService = mock<ConfigService>();
+  const sdkDecryptionService = mock<SendSdkDecryptionService>();
 
   const testUrl = "https://send.bitwarden.com/#/send/abc123/key456";
   const testSendId = "abc123";
@@ -63,6 +67,8 @@ describe("SendReceiveCommand", () => {
 
     cryptoFunctionService.pbkdf2.mockResolvedValue(new Uint8Array(32));
 
+    configService.getFeatureFlag.mockResolvedValue(false);
+
     command = new SendReceiveCommand(
       legacyCompatKeyService,
       encryptService,
@@ -72,6 +78,8 @@ describe("SendReceiveCommand", () => {
       sendApiService,
       apiService,
       sendTokenService,
+      configService,
+      sdkDecryptionService,
     );
   });
 

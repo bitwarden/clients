@@ -11,12 +11,15 @@ import {
 } from "@angular/core";
 
 import { SendAccessToken } from "@bitwarden/common/auth/send-access";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   AnonLayoutWrapperDataService,
@@ -65,6 +68,8 @@ export class SendViewComponent implements OnInit {
     private toastService: ToastService,
     private i18nService: I18nService,
     private layoutWrapperDataService: AnonLayoutWrapperDataService,
+    private configService: ConfigService,
+    private sendSdkDecryptionService: SendSdkDecryptionService,
   ) {}
 
   ngOnInit() {
@@ -89,7 +94,12 @@ export class SendViewComponent implements OnInit {
       const keyArray = Utils.fromUrlB64ToArray(this.key());
       const sendAccess = new SendAccess(response);
       this.decKey = await this.legacyCompatKeyService.makeSendKey(keyArray);
-      const decSend = await sendAccess.decrypt(this.decKey);
+      const useSendSdk = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
+      const decSend = useSendSdk
+        ? SendAccessView.fromSdk(
+            await this.sendSdkDecryptionService.decryptSendAccess(response, this.key()),
+          )
+        : await sendAccess.decrypt(this.decKey);
       this.send.set(decSend);
     } catch (e) {
       this.send.set(null);
