@@ -11,7 +11,13 @@
   </a>
 </p>
 
-<bit-form-field class="tw-flex-1">
+<bit-form-field
+  class="tw-flex-1"
+  [bitPopoverAnchorFor]="tourStep1"
+  [popoverOpen]="tourStep() === 1"
+  [spotlight]="false"
+  [position]="'right-start'"
+>
   <bit-label> {{ "allowedDomains" | i18n }} </bit-label>
   <input bitInput type="text" [formControl]="form.controls.domains" data-testid="allowedDomains" />
   <bit-hint>{{ "allowedDomainsHint" | i18n }}</bit-hint>
@@ -33,15 +39,26 @@
 
 @let inviteLink = inviteLink$ | async;
 @if (inviteLink == null) {
-  <bit-callout type="info">
-    <strong>
+  <bit-callout
+    type="info"
+    [bitPopoverAnchorFor]="tourStep2"
+    [popoverOpen]="tourStep() === 2"
+    [spotlight]="false"
+    [position]="'right-start'"
+  >
+    <strong [bitPopoverAnchorFor]="tourStep3" [popoverOpen]="tourStep() === 3" [spotlight]="false">
       {{ "enterAllowedDomainsToGenerateInviteLink" | i18n }}
     </strong>
   </bit-callout>
 } @else {
   @let inviteLinkUrl = inviteLinkUrl$ | async;
   @if (inviteLinkUrl) {
-    <bit-form-field>
+    <bit-form-field
+      [bitPopoverAnchorFor]="tourStep2"
+      [popoverOpen]="tourStep() === 2"
+      [spotlight]="false"
+      [position]="'right-start'"
+    >
       <bit-label>{{ "inviteLink" | i18n }}</bit-label>
       <input
         bitInput
@@ -66,10 +83,108 @@
         [label]="'copyLink' | i18n"
         [bitAction]="copyLink"
         [disabled]="domainsEmpty() || form.dirty"
+        [bitPopoverAnchorFor]="tourStep3"
+        [popoverOpen]="tourStep() === 3"
+        [spotlight]="false"
+        [position]="'right-start'"
       ></button>
       <bit-hint>{{
         "lastGenerated" | i18n: (inviteLink.creationDate | date: "shortDate")
       }}</bit-hint>
     </bit-form-field>
+    @if (milestone3Enalbed()) {
+      <bit-form-control>
+        <bit-switch
+          [formControl]="form.controls.requireAdminConfirmation"
+          id="by-link-tab_switch_require-admin-confirmation"
+        ></bit-switch>
+        <bit-label>{{ "requireAdminConfirmation" | i18n }}</bit-label>
+        <bit-hint>{{ "requireAdminConfirmationHint" | i18n }}</bit-hint>
+      </bit-form-control>
+    }
   }
 }
+
+<bit-popover [title]="'setYourAllowedDomains' | i18n" (closed)="tourStep.set(0)" #tourStep1>
+  <p bitTypography="body1" class="!tw-mb-0">
+    {{ "setYourAllowedDomainsCoachMarkBody" | i18n }}
+  </p>
+  <div class="tw-flex tw-items-center tw-justify-between tw-mt-4">
+    <span bitTypography="body2" class="tw-text-muted">
+      {{ "coachMarkStepOfTotal" | i18n: "1" : "3" }}
+    </span>
+    <div class="tw-flex tw-gap-2">
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        (click)="tourStep.set(0)"
+        [disabled]="true"
+      >
+        {{ "back" | i18n }}
+      </button>
+      <button type="button" bitButton buttonType="primary" [bitAction]="saveAndAdvanceToStep2">
+        {{ "next" | i18n }}
+      </button>
+    </div>
+  </div>
+</bit-popover>
+
+<bit-popover [title]="'adjustTheLink' | i18n" (closed)="tourStep.set(0)" #tourStep2>
+  @if (milestone3Enalbed()) {
+    <p bitTypography="body1">{{ "adjustTheLinkCoachMarkBodyIntro" | i18n }}</p>
+    <p bitTypography="body1">
+      <span [innerHTML]="'adjustTheLinkCoachMarkRegenerate' | i18n"></span>
+    </p>
+    <p bitTypography="body1" class="!tw-mb-0">
+      <span [innerHTML]="'adjustTheLinkCoachMarkAdminConfirmation' | i18n"></span>
+    </p>
+  } @else {
+    <p bitTypography="body1" class="!tw-mb-0">
+      <span [innerHTML]="'adjustTheLinkCoachMarkBody' | i18n"></span>
+    </p>
+  }
+  <div class="tw-flex tw-items-center tw-justify-between tw-mt-4">
+    <span bitTypography="body2" class="tw-text-muted">
+      {{ "coachMarkStepOfTotal" | i18n: "2" : "3" }}
+    </span>
+    <div class="tw-flex tw-gap-2">
+      <button type="button" bitButton buttonType="secondary" (click)="tourStep.set(1)">
+        {{ "back" | i18n }}
+      </button>
+      <button type="button" bitButton buttonType="primary" (click)="tourStep.set(3)">
+        {{ "next" | i18n }}
+      </button>
+    </div>
+  </div>
+</bit-popover>
+
+<bit-popover [title]="'shareTheLinkAnywhere' | i18n" (closed)="tourStep.set(0)" #tourStep3>
+  <p bitTypography="body1">
+    {{ "shareTheLinkAnywhereCoachMarkBody" | i18n }}
+  </p>
+  <p bitTypography="body1" class="!tw-mb-0">
+    <a
+      bitLink
+      href="https://bitwarden.com/help/bitwarden-onboarding-playbook/"
+      target="_blank"
+      rel="noreferrer"
+      endIcon="bwi-arrow-right"
+    >
+      {{ "viewBitwardenOnboardingGuide" | i18n }}
+    </a>
+  </p>
+  <div class="tw-flex tw-items-center tw-justify-between tw-mt-4">
+    <span bitTypography="body2" class="tw-text-muted">
+      {{ "coachMarkStepOfTotal" | i18n: "3" : "3" }}
+    </span>
+    <div class="tw-flex tw-gap-2">
+      <button type="button" bitButton buttonType="secondary" (click)="tourStep.set(2)">
+        {{ "back" | i18n }}
+      </button>
+      <button type="button" bitButton buttonType="primary" (click)="tourStep.set(0)">
+        {{ "finish" | i18n }}
+      </button>
+    </div>
+  </div>
+</bit-popover>

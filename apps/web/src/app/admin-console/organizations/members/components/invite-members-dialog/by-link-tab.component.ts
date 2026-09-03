@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
@@ -24,9 +24,12 @@ import {
   AsyncActionsModule,
   ButtonModule,
   CalloutModule,
+  FormControlModule,
   FormFieldModule,
   IconButtonModule,
   LinkComponent,
+  PopoverModule,
+  SwitchComponent,
   ToastService,
   TooltipDirective,
 } from "@bitwarden/components";
@@ -46,11 +49,14 @@ import { I18nPipe } from "@bitwarden/ui-common";
     ButtonModule,
     CalloutModule,
     CommonModule,
+    FormControlModule,
     FormFieldModule,
     I18nPipe,
     IconButtonModule,
+    PopoverModule,
     ReactiveFormsModule,
     LinkComponent,
+    SwitchComponent,
     TooltipDirective,
   ],
 })
@@ -58,6 +64,12 @@ export class ByLinkTabComponent {
   readonly organizationId = input.required<OrganizationId, string>({
     transform: (value: string) => value as OrganizationId,
   });
+
+  readonly showCoachMarks = input<boolean>(false);
+
+  readonly milestone3Enalbed = signal<boolean>(false);
+
+  readonly tourStep = signal<number>(0);
 
   private readonly accountService = inject(AccountService);
   private readonly inviteLinkService = inject(OrganizationInviteLinkService);
@@ -94,6 +106,7 @@ export class ByLinkTabComponent {
 
   readonly form = this.fb.group({
     domains: ["", Validators.required],
+    requireAdminConfirmation: this.fb.control<boolean>(false, { nonNullable: true }),
   });
 
   readonly domainsEmpty = toSignal(
@@ -105,6 +118,7 @@ export class ByLinkTabComponent {
   );
 
   private readonly prefillAttempted = signal(false);
+  private readonly tourStarted = signal(false);
 
   constructor() {
     this.inviteLink$.pipe(takeUntilDestroyed()).subscribe((inviteLink) => {
@@ -114,6 +128,21 @@ export class ByLinkTabComponent {
       } else if (inviteLink == null && !this.form.dirty && !this.prefillAttempted()) {
         this.prefillAttempted.set(true);
         void this.prefillFromVerifiedDomains();
+      }
+
+      if (this.showCoachMarks() && inviteLink == null && !this.tourStarted()) {
+        this.tourStarted.set(true);
+        this.tourStep.set(1);
+      }
+    });
+
+    effect(() => {
+      if (!this.showCoachMarks()) {
+        this.tourStep.set(0);
+        this.tourStarted.set(false);
+      } else if (!this.tourStarted()) {
+        this.tourStarted.set(true);
+        this.tourStep.set(1);
       }
     });
   }
@@ -163,6 +192,16 @@ export class ByLinkTabComponent {
       variant: "success",
       message: this.i18nService.t("domainsEdited"),
     });
+  };
+
+  readonly saveAndAdvanceToStep2 = async () => {
+    if (this.form.dirty || (await firstValueFrom(this.inviteLink$)) == null) {
+      await this.save();
+      if (this.form.invalid) {
+        return;
+      }
+    }
+    this.tourStep.set(2);
   };
 
   readonly copyLink = async () => {
