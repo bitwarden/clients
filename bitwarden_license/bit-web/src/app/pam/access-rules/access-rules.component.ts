@@ -24,6 +24,8 @@ import {
   ButtonModule,
   CheckboxModule,
   DialogService,
+  FILTER_CONTROL,
+  FilterControl,
   FilterMenuComponent,
   FilterOptionComponent,
   IconButtonModule,
@@ -126,7 +128,7 @@ export class AccessRulesComponent {
   // --- Toolbar filters ---
   // Only `search` is a reactive-form control: `bit-filter-menu` isn't a
   // `ControlValueAccessor`, so the status/collection chips below own their own
-  // selection and are read directly off their view-child refs in `filterInputs`.
+  // selection and are read through the `FilterControl` contract in `filterInputs`.
   protected readonly filterForm = new FormGroup({
     search: new FormControl("", { nonNullable: true }),
   });
@@ -136,16 +138,21 @@ export class AccessRulesComponent {
     { requireSync: true },
   );
 
-  private readonly statusFilter = viewChild<FilterMenuComponent>("statusFilter");
-  private readonly collectionFilter = viewChild<FilterMenuComponent>("collectionFilter");
+  private readonly statusFilter = viewChild("statusFilter", { read: FILTER_CONTROL });
+  private readonly collectionFilter = viewChild("collectionFilter", { read: FILTER_CONTROL });
+
+  /** A multi-select chip's selection, filtered down to the strings it's actually made of. */
+  private selectedValues(chip: FilterControl | undefined): string[] {
+    const value = chip?.value();
+    return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
+  }
 
   private readonly filterInputs = computed(() => {
-    const status = this.statusFilter()?.value() as AccessRuleStatusFilter | undefined;
-    const collections = this.collectionFilter()?.value();
+    const status = this.statusFilter()?.value();
     return {
       text: this.searchTerm().trim().toLowerCase(),
-      status: status ?? null,
-      collectionIds: Array.isArray(collections) ? (collections as string[]) : [],
+      status: (typeof status === "string" ? status : null) as AccessRuleStatusFilter | null,
+      collectionIds: this.selectedValues(this.collectionFilter()),
     };
   });
 
