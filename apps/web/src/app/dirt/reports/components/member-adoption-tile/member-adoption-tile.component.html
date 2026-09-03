@@ -1,4 +1,4 @@
-<bit-card class="!tw-flex tw-min-h-[152px] tw-flex-col tw-shadow-sm">
+<bit-card class="tw-flex tw-min-h-40 tw-flex-col tw-shadow-sm">
   <div class="tw-flex tw-items-center tw-gap-2">
     <span bitTypography="h6" noMargin data-testid="tile-label">{{ label() }}</span>
     @if (hasInfo()) {
@@ -24,11 +24,11 @@
         {{ value() }}
       </span>
     } @else {
-      <span bitTypography="h3" noMargin class="!tw-text-muted" data-testid="tile-value-empty">
+      <span bitTypography="h3" noMargin class="tw-text-muted" data-testid="tile-value-empty">
         {{ emptyValuePlaceholder }}
       </span>
     }
-    @if (unit() && showUnit()) {
+    @if (showUnit()) {
       <span bitTypography="body2" class="tw-text-muted" data-testid="tile-unit">{{ unit() }}</span>
     }
   </div>

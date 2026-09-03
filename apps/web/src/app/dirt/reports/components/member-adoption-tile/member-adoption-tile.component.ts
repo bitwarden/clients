@@ -9,9 +9,6 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-/** Locale-neutral: this component does no i18n. */
-const EMPTY_VALUE_PLACEHOLDER = "-";
-
 /**
  * A metric tile: a label, one large pre-formatted metric with an optional unit, and a sublabel.
  *
@@ -54,7 +51,8 @@ export class MemberAdoptionTileComponent {
 
   readonly loading = input(false);
 
-  protected readonly emptyValuePlaceholder = EMPTY_VALUE_PLACEHOLDER;
+  /** Locale-neutral: this component does no i18n. */
+  protected readonly emptyValuePlaceholder = "-";
 
   protected readonly infoTitleText = computed(() => (this.infoTitle() ?? "").trim());
 
@@ -66,5 +64,7 @@ export class MemberAdoptionTileComponent {
 
   protected readonly hasValue = computed(() => this.value().trim().length > 0);
 
-  protected readonly showUnit = computed(() => this.loading() || this.hasValue());
+  protected readonly showUnit = computed(
+    () => !!this.unit() && (this.loading() || this.hasValue()),
+  );
 }

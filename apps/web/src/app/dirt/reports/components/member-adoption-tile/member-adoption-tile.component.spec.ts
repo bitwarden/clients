@@ -132,26 +132,15 @@ describe("MemberAdoptionTileComponent", () => {
       fixture.detectChanges();
     };
 
-    it("is not rendered when neither the title nor the body is supplied", () => {
-      fixture.detectChanges();
-
-      expect(testId("tile-info")).toBeNull();
-    });
-
-    it.each([
-      ["title", { infoTitle: title, infoBody: undefined }],
-      ["body", { infoTitle: undefined, infoBody: body }],
-    ])("is not rendered with only the %s", (_name, inputs) => {
-      fixture.componentRef.setInput("infoTitle", inputs.infoTitle);
-      fixture.componentRef.setInput("infoBody", inputs.infoBody);
-      fixture.detectChanges();
-
-      expect(testId("tile-info")).toBeNull();
-    });
-
-    it("is not rendered when the title or the body is whitespace", () => {
-      fixture.componentRef.setInput("infoTitle", "   ");
-      fixture.componentRef.setInput("infoBody", body);
+    it.each<[string, string | undefined, string | undefined]>([
+      ["neither is supplied", undefined, undefined],
+      ["only the title is supplied", title, undefined],
+      ["only the body is supplied", undefined, body],
+      ["the title is whitespace", "   ", body],
+      ["the body is whitespace", title, "   "],
+    ])("is not rendered when %s", (_name, infoTitle, infoBody) => {
+      fixture.componentRef.setInput("infoTitle", infoTitle);
+      fixture.componentRef.setInput("infoBody", infoBody);
       fixture.detectChanges();
 
       expect(testId("tile-info")).toBeNull();

@@ -83,13 +83,6 @@ export const WithoutPopover: Story = {
   },
 };
 
-/** A title with no body cannot fill a popover, so no affordance renders. */
-export const WithoutPopoverBody: Story = {
-  args: {
-    infoBody: undefined,
-  },
-};
-
 /** The skeleton stands in for the value; the unit stays put so the tile does not reflow. */
 export const Loading: Story = {
   args: {
