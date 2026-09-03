@@ -4,7 +4,7 @@
       @if (!vfo1Enabled()) {
         <app-new-item-dropdown
           [initialValues]="newItemItemValues$ | async"
-          [canCreateCipher]="canCreateCipher$ | async"
+          [canCreateCipher]="(canCreateCipher$ | async) ?? true"
         ></app-new-item-dropdown>
       }
 
