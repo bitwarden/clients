@@ -127,6 +127,7 @@ import {
   organizationInScope,
   organizationNameForScope,
   resolveVaultScope,
+  scopedCollectionSegment,
   SharedFolderCardGridComponent,
   VaultNavService,
   VaultScopeType,
@@ -287,16 +288,19 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   /**
    * The vault the `:vaultId` segment scopes this page to, and the shared folder within it the
-   * `:collectionId` segment has drilled into; always All items on the legacy nav.
+   * route's collection segment has drilled into; always All items on the legacy nav.
    */
   private readonly vaultScope$ = this.vfo1Foundation$.pipe(
     switchMap((vfo1Foundation) =>
       vfo1Foundation
-        ? combineLatest([this.route.paramMap, this.vaultNav$]).pipe(
+        ? combineLatest([this.route.paramMap, this.route.data, this.vaultNav$]).pipe(
             map(
-              ([params, nav]) =>
-                resolveVaultScope(params.get("vaultId"), params.get("collectionId"), nav) ??
-                ALL_ITEMS_SCOPE,
+              ([params, data, nav]) =>
+                resolveVaultScope(
+                  params.get("vaultId"),
+                  scopedCollectionSegment(params, data),
+                  nav,
+                ) ?? ALL_ITEMS_SCOPE,
             ),
           )
         : of(ALL_ITEMS_SCOPE),

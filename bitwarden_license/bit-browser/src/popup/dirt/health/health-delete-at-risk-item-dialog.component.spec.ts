@@ -125,7 +125,7 @@ describe("HealthDeleteAtRiskItemDialogComponent", () => {
       await initComponent();
 
       expect(text()).toContain("deleteItem");
-      expect(text()).toContain("deleteAtRiskItemDescription");
+      expect(text()).toContain("deleteAtRiskItemDesc");
       expect(text()).toContain("delete");
       expect(text()).toContain("cancel");
     });

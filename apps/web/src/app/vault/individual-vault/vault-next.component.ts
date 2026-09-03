@@ -43,6 +43,7 @@ import {
   organizationInScope,
   organizationNameForScope,
   resolveVaultScope,
+  scopedCollectionSegment,
   scopedSharedFolderId,
   sharedFolderNameForScope,
   VaultScopeType,
@@ -107,9 +108,13 @@ export class VaultNextComponent {
 
   private readonly routeParams = toSignal(this.activatedRoute.paramMap);
 
+  private readonly routeData = toSignal(this.activatedRoute.data);
+
   private readonly vaultIdParam = computed(() => this.routeParams()?.get("vaultId"));
 
-  private readonly collectionIdParam = computed(() => this.routeParams()?.get("collectionId"));
+  private readonly collectionSegment = computed(() =>
+    scopedCollectionSegment(this.routeParams(), this.routeData()),
+  );
 
   private readonly vaultNav = toSignal(
     this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
@@ -122,7 +127,7 @@ export class VaultNextComponent {
    */
   protected readonly vaultScope = computed(
     () =>
-      resolveVaultScope(this.vaultIdParam(), this.collectionIdParam(), this.vaultNav()) ??
+      resolveVaultScope(this.vaultIdParam(), this.collectionSegment(), this.vaultNav()) ??
       ALL_ITEMS_SCOPE,
   );
 
