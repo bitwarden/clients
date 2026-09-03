@@ -169,8 +169,8 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     await this.sendService.delete(id);
   }
 
-  // Note: the SDK calls the V2 endpoint which removes all auth (password and any other
-  // auth type), not just the password.
+  // Removes all auth (password or email OTP) from the send. Matches the legacy SendApiService
+  // path exactly.
   async removePassword(id: string): Promise<any> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await firstValueFrom(
