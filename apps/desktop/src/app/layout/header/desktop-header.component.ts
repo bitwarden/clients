@@ -27,14 +27,13 @@ export class DesktopHeaderComponent {
   private readonly i18nService = inject(I18nService);
 
   /**
-   * Whether the legacy header account switcher should render. It's hidden once the VFO1 side-nav
-   * footer account switcher (see `DesktopSideNavComponent`) takes over.
+   * Whether the VFO1 Foundation flag is enabled. Once enabled, the legacy header account
+   * switcher is hidden in favor of the side-nav footer account switcher (see
+   * `DesktopSideNavComponent`).
    */
-  protected readonly showAccountSwitcher = toSignal(
-    inject(ConfigService)
-      .getFeatureFlag$(FeatureFlag.VFO1Foundation)
-      .pipe(map((enabled) => !enabled)),
-    { initialValue: true },
+  protected readonly vfo1FoundationEnabled = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
   );
 
   /**

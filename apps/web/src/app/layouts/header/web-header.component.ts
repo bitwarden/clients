@@ -34,14 +34,12 @@ export class WebHeaderComponent {
   private readonly route = inject(ActivatedRoute);
 
   /**
-   * Whether the legacy header account menu should render. It's hidden once the VFO1 side-nav
-   * footer account menu (see `WebSideNavComponent`) takes over.
+   * Whether the VFO1 Foundation flag is enabled. Once enabled, the legacy header account menu
+   * is hidden in favor of the VFO1 side-nav footer account menu (see `WebSideNavComponent`).
    */
-  protected readonly showAccountMenu = toSignal(
-    inject(ConfigService)
-      .getFeatureFlag$(FeatureFlag.VFO1Foundation)
-      .pipe(map((enabled) => !enabled)),
-    { initialValue: true },
+  protected readonly vfo1FoundationEnabled = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
   );
 
   /**
