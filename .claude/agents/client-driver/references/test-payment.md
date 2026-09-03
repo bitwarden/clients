@@ -1,8 +1,7 @@
 # Test payment details
 
 Use these when a flow asks for a card — buying Premium, starting a Families or Enterprise plan, or
-activating an organization. On a dev or QA server the card only has to pass the **front-end form
-validation**; it is never charged and no real payment processor is contacted.
+activating an organization. On a dev or QA server you can use these credentials:
 
 | Brand      | Number                | CVC          | Expiry          |
 | ---------- | --------------------- | ------------ | --------------- |
@@ -10,7 +9,7 @@ validation**; it is never charged and no real payment processor is contacted.
 | Mastercard | `5555 5555 5555 4444` | any 3 digits | any future date |
 
 Defaults to use unless a case calls for something else: number `4111111111111111`, CVC `123`,
-expiry `12` / a year a few years out. Strip the spaces from the number when filling the field.
+expiry `12` / a year a few years out.
 
 **Only ever use these on a dev or QA server.** Never enter a card on a production vault host.
 
@@ -43,6 +42,17 @@ cross-origin iframe. Instead:
 
 Pick the credit-card payment method first if it is not already selected — the radio ids are
 `credit-payment-method`, `bank-account-payment-method`, and `paypal-payment-method`.
+
+## Clearing a paywall mid-run
+
+A paywall is never a reason to report a run blocked. Clear it and continue the flow:
+
+- A personal feature behind Premium (attachments, TOTP, emergency access, file Sends) → buy Premium
+  from `#/settings/subscription/premium`.
+- An organization feature (collections, org-owned items, policies, SSO) → create an organization on
+  an Enterprise plan, per [create-organization.md](create-organization.md).
+
+Pay with the test card above.
 
 ## Related
 

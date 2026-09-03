@@ -3,6 +3,35 @@
 Lock or unlock the vault in a running Bitwarden client. Assumes a DevTools session is already
 active (see the client-driver agent instructions for connecting).
 
+## The lock capability
+
+The automation driver exposes capabilities by name — there are no direct properties on the driver.
+Get the lock capability with `get("lock")` and call it via
+`mcp__electron-devtools-attach__evaluate_script`:
+
+```js
+async () => {
+  const lock = window.bitwardenAutomationDriver.get("lock");
+  return await lock.listUsers();
+};
+// [{ userId: "…", email: "user@example.com", status: "Unlocked" }, ...]
+```
+
+`status` is an `AuthenticationStatus` name: `LoggedOut`, `Locked`, or `Unlocked`. Every other method
+takes a `userId`, so start with `listUsers()` to pick the account you mean.
+
+| Method                                       | Effect                                    |
+| -------------------------------------------- | ----------------------------------------- |
+| `listUsers()`                                | Lock status of every known account        |
+| `lock(userId)`                               | Lock, as if the user locked it themselves |
+| `unlockWithMasterPassword(userId, password)` | Unlock with the master password           |
+| `unlockWithPin(userId, pin)`                 | Unlock with the PIN                       |
+| `unlockWithBiometrics(userId)`               | Unlock via biometrics                     |
+
+Defined in `libs/automation-driver/src/capabilities/lock.ts` and registered in
+`libs/angular/src/services/jslib-services.module.ts`, so it is available on desktop, browser
+extension, and web — use the MCP prefix that matches your target.
+
 ## Credentials
 
 Read credentials from `.debug/credentials.txt` before any unlock flow. The file uses `KEY=VALUE`
@@ -18,103 +47,78 @@ PASSWORD=yourpassword
 
 ## Locking
 
-To lock the vault from within the app, dispatch the `lockVault` message via the automation driver
-(desktop only):
-
 ```js
 async () => {
-  await window.bitwardenAutomationDriver.sendMessage("lockVault");
+  const lock = window.bitwardenAutomationDriver.get("lock");
+  const [user] = await lock.listUsers();
+  await lock.lock(user.userId);
 };
 ```
 
-For browser extension or web, click the **Lock** option in the account menu. Use `take_snapshot` to
-locate the account/profile button, click it, then click the Lock item.
+To exercise the UI path instead, click the **Lock** option in the account menu: use
+`take_snapshot` to locate the account/profile button, click it, then click the Lock item.
 
 After locking, `wait_for` the lock screen to confirm the transition, then take a screenshot to
 confirm the vault is locked before proceeding.
 
 ## Unlocking
 
-The lock screen is implemented in
-`libs/key-management-ui/src/lock/components/lock.component.ts`. It presents one active unlock
-method at a time — biometrics, PIN, or master password — with tab-style controls to switch between
-them.
+Prefer the capability when you only need the vault open — it skips the lock screen entirely and
+fails loudly instead of leaving you guessing at a snapshot:
+
+```js
+async () => {
+  const lock = window.bitwardenAutomationDriver.get("lock");
+  const [user] = await lock.listUsers();
+  await lock.unlockWithPin(user.userId, "1234"); // or unlockWithMasterPassword(userId, password)
+};
+```
+
+Drive the **lock screen UI** instead when the lock screen itself is what you are testing. It is
+implemented in `libs/key-management-ui/src/lock/components/lock.component.ts` and presents one
+active unlock method at a time — biometrics, PIN, or master password — with tab-style controls to
+switch between them. Use `take_snapshot` to find the tab control ("Use PIN", "Use master password",
+"Use biometrics"), click it, fill the input, submit, then screenshot to verify.
 
 ### Unlock via biometrics
 
-Biometric unlock uses the automation driver and is **desktop-only**. The app must have been
-launched with `USE_AUTOMATION_BIOMETRICS=1`. See `.claude/agents/client-driver/references/biometrics.md` for the full driver
-API.
+Biometric unlock is **desktop-only** and the app must have been launched with
+`USE_AUTOMATION_BIOMETRICS=1`. See
+`.claude/agents/client-driver/references/biometrics.md` for the full capability API.
 
-1. Ensure the biometrics status is reported as available:
+1. Report biometrics as available, then start the unlock:
 
    ```js
    async () => {
-     await window.bitwardenAutomationDriver.biometrics.setStatus(0);
+     const driver = window.bitwardenAutomationDriver;
+     const biometrics = driver.get("biometrics");
+     const lock = driver.get("lock");
+
+     await biometrics.setStatus(0);
+
+     const [user] = await lock.listUsers();
+     lock.unlockWithBiometrics(user.userId); // do not await — it blocks on the prompt
+     return await biometrics.listPending();
    };
    ```
 
-2. On the lock screen, locate and click the biometric unlock button (labeled "Use biometrics" or
-   similar — use `take_snapshot` to find it by accessible name).
-
-3. Confirm a request is queued:
+2. Approve (or deny) the queued request:
 
    ```js
-   async () => window.bitwardenAutomationDriver.biometrics.listPending();
-   // returns [{ id, type: "authenticate" | "unlock", userId? }, ...]
-   ```
-
-4. Approve or deny the request:
-
-   ```js
-   // approve the oldest pending request
    async () => {
-     await window.bitwardenAutomationDriver.biometrics.approve();
-   };
-
-   // or approve/deny by id
-   async () => {
-     await window.bitwardenAutomationDriver.biometrics.approve("1");
-   };
-   async () => {
-     await window.bitwardenAutomationDriver.biometrics.deny("1");
+     const biometrics = window.bitwardenAutomationDriver.get("biometrics");
+     await biometrics.approve(); // oldest pending; or approve(id) / deny(id)
    };
    ```
 
-5. Screenshot to verify the vault unlocked.
+3. `listUsers()` again and confirm the account reads `Unlocked`, then screenshot.
 
-> If `.biometrics` is undefined on the driver, the app was not launched with
-> `USE_AUTOMATION_BIOMETRICS=1`. Ask the user to relaunch with that env var set.
-
-> Mock biometric keys are held in memory only — they do not survive a `reloadProcess()` call.
-
-### Unlock via PIN
-
-1. Read the PIN from `.debug/credentials.txt` (default: `1234`).
-2. On the lock screen, switch to the PIN tab if it is not already active — use `take_snapshot` to
-   find the "Use PIN" or equivalent tab control and click it.
-3. Fill the PIN input field with the value from `credentials.txt`.
-4. Submit the form (click the Unlock button or press Enter).
-5. Screenshot to verify the vault unlocked.
-
-The PIN input field is a password-type input. The lock component calls
-`unlockService.unlockWithPin(userId, pin)` on submission.
-
-### Unlock via master password
-
-1. Read the password from `.debug/credentials.txt`.
-2. On the lock screen, switch to the master password tab if needed — use `take_snapshot` to find
-   the "Use master password" tab and click it.
-3. Fill the password input field with the value from `credentials.txt`.
-4. Submit the form (click Unlock or press Enter).
-5. Screenshot to verify the vault unlocked.
-
-The lock component delegates master password entry to `MasterPasswordLockComponent`, which calls
-`unlockService.unlockWithMasterPassword(userId, password)`.
+> Mock biometric keys are held in memory only — they do not survive a process reload.
 
 ## Source
 
+- `libs/automation-driver/src/capabilities/lock.ts`: `LockCapability` — the methods above
+- `libs/automation-driver/src/automation-driver.service.ts`: `get(name)` / `list()` lookup
 - `libs/key-management-ui/src/lock/components/lock.component.ts`: lock screen component
-- `libs/unlock/src/default-unlock.service.ts`: unlock service (PIN, password, biometrics)
+- `libs/unlock/src/default-unlock.service.ts`: unlock service the capability delegates to
 - `apps/desktop/src/key-management/biometrics/automation-biometrics.service.ts`: mock biometrics
-- `libs/automation-driver/src/automation-driver.service.ts`: automation driver

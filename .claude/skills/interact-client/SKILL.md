@@ -4,18 +4,17 @@ description: >
   Drive and interact with the running Bitwarden app — desktop (Electron), browser extension, or
   web — via the Chrome DevTools protocol. Use when asked to navigate, click, fill UI, screenshot,
   lock/unlock the vault, toggle feature flags, mock biometrics, or automate flows. Requires the
-  target app to already be running.
+  target app to already be running. This should only be used with test accounts and may leak
+  sensitive data to the agent.
 ---
 
 # Interact Client
 
-All of the interaction knowledge lives in the **`client-driver` agent** — connection, popup
-handling, paywalls, lock/unlock, feature flags, biometrics, and the desktop automation driver.
-Do **not** drive the app yourself: every `take_snapshot` returns a full accessibility tree, and
-running a flow inline burns your context on output nobody reads twice.
+Interaction happens via the **`client-driver` agent**. Do **not** drive the app yourself
+to prevent context bloat. Instead, spawn a `client-driver` agent, which acts, and returns
+a report of what happened.
 
-Spawn the agent instead. It keeps snapshots, console dumps, and HAR data in its own context and
-returns a short report.
+Example:
 
 ```
 Agent({
@@ -30,9 +29,8 @@ Agent({
 })
 ```
 
-The prompt only needs the target client, numbered steps, and what to report back. For a flow the
-agent should run repeatedly or capture artifacts for, give it a run directory under
-`.debug/automated-run/<run-id>/`.
+Always pass the target client to the agent. If you are unsure which client to use,
+ask the user.
 
 Before spawning, confirm the app is running — the agent cannot start it:
 
@@ -43,5 +41,3 @@ curl -s http://localhost:9200/json/version   # browser extension / web
 
 If the endpoint is unreachable, ask the user to start the app in dev mode (`npm run electron` from
 `apps/desktop`, or `npm run build:watch` from `apps/web` / `apps/browser`) and wait.
-
-This reads vault state. **Only use it with test accounts.**

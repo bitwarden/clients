@@ -14,13 +14,7 @@ act on the UI.
 take_snapshot          # accessibility tree + uids
 ```
 
-The Bitwarden clients are single-page Angular apps — locate elements by their accessible name in
-the snapshot, not by URL.
-
 ## Screenshot (for reporting visual state)
-
-Use `take_screenshot` whenever the user asks to "see" or "show" the current state, or to verify the
-result of a flow.
 
 ```
 take_screenshot                  # current viewport
@@ -33,4 +27,3 @@ take_screenshot fullPage: true   # full window / page
   human-visible confirmation.
 - After navigation or a transition, `wait_for` the expected text before snapshotting/screenshotting
   so you capture the settled state.
-- In flows, take a screenshot after each meaningful step to document progress.
