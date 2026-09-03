@@ -27,12 +27,12 @@ import {
   TableDataSource,
   TableModule,
   ToggleGroupModule,
+  BerryComponent,
 } from "@bitwarden/components";
 import {
   CipherFormConfig,
   CipherFormConfigService,
   GetOrgNameFromIdPipe,
-  OrganizationNameBadgeComponent,
   PasswordRepromptService,
   VaultItemDialogComponent,
   VaultItemDialogMode,
@@ -68,9 +68,9 @@ import {
     TableModule,
     ToggleGroupModule,
     GetOrgNameFromIdPipe,
-    OrganizationNameBadgeComponent,
     Vfo1IconPipe,
     ButtonModule,
+    BerryComponent,
   ],
   providers: [PasskeyReportService],
 })
@@ -182,10 +182,13 @@ export class PasskeyReportComponent implements OnInit {
       return this.i18nService.t("all");
     }
     if (filterId === 1) {
-      return this.i18nService.t("me");
+      return this.i18nService.t("myVault");
     }
 
-    return this.organizations()?.find((org) => org.id === filterId)?.name ?? "";
+    return this.i18nService.t(
+      "orgNameVault",
+      this.organizations()?.find((org) => org.id === filterId)?.name ?? "",
+    );
   }
 
   protected getCount(filterId: string | number): number {
