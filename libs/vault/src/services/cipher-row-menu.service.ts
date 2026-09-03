@@ -1,4 +1,4 @@
-import { inject, Injectable, isDevMode } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { map, shareReplay, switchMap } from "rxjs";
 
@@ -7,10 +7,7 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
-import { RevealedCipherService } from "@bitwarden/common/vault/abstractions/revealed-cipher.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   RestrictedCipherType,
   RestrictedItemTypesService,
@@ -20,13 +17,8 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
-import {
-  RestrictedCipherAction,
-  RestrictedCipherPolicy,
-} from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 
 import { VaultItemsTableRowAction } from "../components/vault-items-table/vault-items-table-row-action";
-import { VAULT_ROW_ACTIONS } from "../tokens/vault-row-actions.token";
 
 import { CipherActionService } from "./cipher-action.service";
 
@@ -36,53 +28,13 @@ import { CipherActionService } from "./cipher-action.service";
  */
 const DECRYPTION_FAILURE_ACTION_IDS = new Set(["delete", "permanentlyDelete"]);
 
-/** The Delete group. Contributed actions go before it. */
-const DANGER_ACTION_IDS = new Set(["delete", "permanentlyDelete"]);
-
-/** IDs of the actions {@link CipherRowMenuService.getRowActions} builds. Contributed IDs must differ. */
-const BUILT_IN_ACTION_IDS: ReadonlySet<string> = new Set([
-  "addFavorite",
-  "removeFavorite",
-  "edit",
-  "attachments",
-  "clone",
-  "addToSharedFolder",
-  "archive",
-  "unarchive",
-  "restore",
-  ...DANGER_ACTION_IDS,
-]);
-
-/**
- * Drops each contributed action whose ID matches a built-in ID or an earlier contributed ID.
- * Throws in dev mode instead.
- */
-function uniqueContributedActions(
-  actions: readonly VaultItemsTableRowAction<CipherViewLike>[],
-): readonly VaultItemsTableRowAction<CipherViewLike>[] {
-  const seen = new Set(BUILT_IN_ACTION_IDS);
-  return actions.filter((action) => {
-    if (seen.has(action.id)) {
-      if (isDevMode()) {
-        throw new Error(`VAULT_ROW_ACTIONS action ID "${action.id}" is already in use.`);
-      }
-      return false;
-    }
-    seen.add(action.id);
-    return true;
-  });
-}
-
 export type CipherRowMenuHandlers<C extends CipherViewLike> = {
   edit: (item: C) => void | Promise<void>;
   clone: (item: C) => void | Promise<void>;
   assignToCollections: (item: C) => void | Promise<void>;
 };
 
-/**
- * Centralises row overflow menu action definitions for vault cipher rows across clients.
- * Built-in actions, then contributed actions (`VAULT_ROW_ACTIONS`), then the Delete group.
- */
+/** Centralises row overflow menu action definitions for vault cipher rows across clients. */
 @Injectable({ providedIn: "root" })
 export class CipherRowMenuService {
   private readonly i18nService = inject(I18nService);
@@ -91,10 +43,6 @@ export class CipherRowMenuService {
   private readonly organizationService = inject(OrganizationService);
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly cipherActionService = inject(CipherActionService);
-  private readonly revealedCipherService = inject(RevealedCipherService);
-  private readonly contributedActions = uniqueContributedActions(
-    inject(VAULT_ROW_ACTIONS, { optional: true }) ?? [],
-  );
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
@@ -106,12 +54,6 @@ export class CipherRowMenuService {
   readonly userCanArchive = toSignal(
     this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId))),
     { initialValue: false },
-  );
-
-  /** The active user's revealed ciphers. A revealed row offers edit and attachments. */
-  private readonly revealed = toSignal(
-    this.userId$.pipe(switchMap((userId) => this.revealedCipherService.revealed$(userId))),
-    { initialValue: new Map() as ReadonlyMap<CipherId, CipherView> },
   );
 
   private readonly restrictedTypes = toSignal(this.restrictedItemTypesService.restricted$, {
@@ -132,7 +74,7 @@ export class CipherRowMenuService {
     collections: CollectionView[] = [],
     handlers: CipherRowMenuHandlers<C>,
   ): VaultItemsTableRowAction<C>[] {
-    const builtIn: VaultItemsTableRowAction<C>[] = [
+    const actions: VaultItemsTableRowAction<C>[] = [
       {
         id: "addFavorite",
         label: this.i18nService.t("favorite"),
@@ -203,9 +145,7 @@ export class CipherRowMenuService {
         icon: "bwi-trash",
         run: (item) => void this.cipherActionService.delete(item),
         show: (item) =>
-          this.canDelete(item) &&
-          !CipherViewLikeUtils.isDeleted(item) &&
-          this.allows(item, RestrictedCipherAction.Delete),
+          this.canDelete(item) && !CipherViewLikeUtils.isDeleted(item) && !this.isGated(item),
         variant: "danger",
       },
       {
@@ -214,17 +154,9 @@ export class CipherRowMenuService {
         icon: "bwi-trash",
         run: (item) => void this.cipherActionService.delete(item),
         show: (item) =>
-          this.canDelete(item) &&
-          CipherViewLikeUtils.isDeleted(item) &&
-          this.allows(item, RestrictedCipherAction.Delete),
+          this.canDelete(item) && CipherViewLikeUtils.isDeleted(item) && !this.isGated(item),
         variant: "danger",
       },
-    ];
-
-    const actions: VaultItemsTableRowAction<C>[] = [
-      ...builtIn.filter((action) => !DANGER_ACTION_IDS.has(action.id)),
-      ...this.contributedActions,
-      ...builtIn.filter((action) => DANGER_ACTION_IDS.has(action.id)),
     ];
 
     return actions.map((action) => ({
@@ -234,11 +166,6 @@ export class CipherRowMenuService {
           !CipherViewLikeUtils.decryptionFailure(item)) &&
         (action.show?.(item) ?? true),
     }));
-  }
-
-  private allows(cipher: CipherViewLike, action: RestrictedCipherAction): boolean {
-    const revealedView = cipher.id == null ? undefined : this.revealed().get(cipher.id as CipherId);
-    return RestrictedCipherPolicy.allows(cipher, action, revealedView);
   }
 
   private showFavorite(cipher: CipherViewLike): boolean {
@@ -252,18 +179,13 @@ export class CipherRowMenuService {
   }
 
   private showEdit(cipher: CipherViewLike): boolean {
-    return (
-      !CipherViewLikeUtils.isDeleted(cipher) &&
-      cipher.edit &&
-      this.allows(cipher, RestrictedCipherAction.Edit)
-    );
+    return !CipherViewLikeUtils.isDeleted(cipher) && cipher.edit;
   }
 
   private showAttachments(cipher: CipherViewLike): boolean {
     if (
       (CipherViewLikeUtils.isArchived(cipher) && !this.userCanArchive()) ||
-      CipherViewLikeUtils.isDeleted(cipher) ||
-      !this.allows(cipher, RestrictedCipherAction.Attachments)
+      CipherViewLikeUtils.isDeleted(cipher)
     ) {
       return false;
     }
@@ -271,10 +193,7 @@ export class CipherRowMenuService {
   }
 
   private showClone(cipher: CipherViewLike, collections: CollectionView[]): boolean {
-    if (
-      (CipherViewLikeUtils.isArchived(cipher) && !this.userCanArchive()) ||
-      !this.allows(cipher, RestrictedCipherAction.Clone)
-    ) {
+    if (CipherViewLikeUtils.isArchived(cipher) && !this.userCanArchive()) {
       return false;
     }
     return this.canClone(cipher, collections) && !CipherViewLikeUtils.isDeleted(cipher);
@@ -288,8 +207,7 @@ export class CipherRowMenuService {
   private showAssignToCollections(cipher: CipherViewLike, collections: CollectionView[]): boolean {
     if (
       CipherViewLikeUtils.isDeleted(cipher) ||
-      !CipherViewLikeUtils.canAssignToCollections(cipher) ||
-      !this.allows(cipher, RestrictedCipherAction.AssignCollections)
+      !CipherViewLikeUtils.canAssignToCollections(cipher)
     ) {
       return false;
     }
@@ -305,7 +223,7 @@ export class CipherRowMenuService {
     return (
       !CipherViewLikeUtils.isArchived(cipher) &&
       !CipherViewLikeUtils.isDeleted(cipher) &&
-      this.allows(cipher, RestrictedCipherAction.UserFields)
+      !this.isGated(cipher)
     );
   }
 
@@ -313,16 +231,23 @@ export class CipherRowMenuService {
     return (
       CipherViewLikeUtils.isArchived(cipher) &&
       !CipherViewLikeUtils.isDeleted(cipher) &&
-      this.allows(cipher, RestrictedCipherAction.UserFields)
+      !this.isGated(cipher)
     );
   }
 
   private showRestore(cipher: CipherViewLike): boolean {
     return (
-      CipherViewLikeUtils.isDeleted(cipher) &&
-      this.canRestore(cipher) &&
-      this.allows(cipher, RestrictedCipherAction.Restore)
+      CipherViewLikeUtils.isDeleted(cipher) && this.canRestore(cipher) && !this.isGated(cipher)
     );
+  }
+
+  /**
+   * A PAM-gated ("partial") row is one the caller has no access to yet, so the menu withholds the
+   * actions that would change the item's state. The legacy web row menu guards the same entries on
+   * `isPartial`; this keeps the two menus in step.
+   */
+  private isGated(cipher: CipherViewLike): boolean {
+    return CipherViewLikeUtils.isPartial(cipher);
   }
 
   private canDelete(cipher: CipherViewLike): boolean {
