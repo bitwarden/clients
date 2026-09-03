@@ -1769,22 +1769,6 @@ describe("VaultItemsTableComponent", () => {
     });
 
     /**
-     * The service gates the bar on one flag; a host may gate it on more — desktop adds a
-     * desktop-only flag. Without being told, the table holds space for a bar that never renders.
-     */
-    it("holds no margin when the host says it does not render the bar", () => {
-      const amazon = cipherView({ id: "a", name: "Amazon" });
-      fixture.componentRef.setInput("ciphers", [amazon]);
-      fixture.componentRef.setInput("showBulkBar", false);
-      fixture.detectChanges();
-
-      selectionModel().select(amazon);
-      fixture.detectChanges();
-
-      expect((fixture.nativeElement as HTMLElement).style.marginBottom).toBe("0px");
-    });
-
-    /**
      * The bulk-actions bar is `position: fixed`, so it never displaces content. Without a margin
      * the table's bottom border and last row sit underneath it — the row's checkbox and quick
      * actions unreachable, and the border hidden behind the bar.

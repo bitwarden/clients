@@ -279,17 +279,11 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly filterKeys = VAULT_FILTER_KEYS;
 
   /**
-   * Whether the host actually renders `<bit-vault-batch-action>`. Defaults to true; set false where
-   * the host gates the bar on more than the service does, or space is held for a bar never shown.
-   */
-  readonly showBulkBar = input(true, { transform: booleanAttribute });
-
-  /**
    * Bottom margin held while the bulk-actions bar is up. The bar is `position: fixed` and never
    * displaces content, so without this the last row sits underneath it and is unreachable.
    */
   protected readonly bulkBarClearance = computed(() =>
-    this.showBulkBar() && this.batchBarService?.barVisible() ? BULK_BAR_CLEARANCE : 0,
+    this.batchBarService?.barVisible() ? BULK_BAR_CLEARANCE : 0,
   );
 
   /** The rows to display. */
