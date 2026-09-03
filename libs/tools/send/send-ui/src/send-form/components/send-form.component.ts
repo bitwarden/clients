@@ -143,20 +143,7 @@ export class SendFormComponent implements AfterViewInit {
   }
 
   submit = async () => {
-    let sendView: SendView;
-    try {
-      sendView = await this.sendFormService.submitSendForm();
-    } catch {
-      // submitSendForm already surfaces validation/policy failures via its own toast and a
-      // falsy return; anything that throws here is unexpected (e.g. a save failure), so the
-      // user needs an explicit error instead of a silently unclosed dialog.
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("errorOccurred"),
-      });
-      return;
-    }
+    const sendView = await this.sendFormService.submitSendForm();
 
     // Send form had errors
     if (!sendView) {
