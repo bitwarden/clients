@@ -143,9 +143,8 @@ describe("VaultNextComponent", () => {
   };
 
   /**
-   * The child components are stripped from the harness (see `overrideComponent` below) so this suite
-   * stays small, which means assertions read the signals the template binds rather than the
-   * rendered table. The bindings themselves are covered by the Angular template type-check.
+   * Child components are stripped from the harness (see `overrideComponent`), so assertions read
+   * the signals the template binds; the bindings are covered by the template type-check.
    */
   const component = () => fixture.componentInstance as any;
 
@@ -720,9 +719,8 @@ describe("VaultNextComponent", () => {
     });
 
     /**
-     * The service reads the trash off `?type=trash`, which this page doesn't use — it scopes by
-     * route segment. Without telling the service, Restore never appears and Delete soft-deletes
-     * items that are already in the trash.
+     * This page scopes by route segment, not the `?type=trash` the service reads — without telling
+     * it, Restore never appears and Delete soft-deletes items already in the trash.
      */
     it("tells the batch bar when the page is scoped to the trash", () => {
       scopeTo(TRASH_ROUTE);
@@ -739,10 +737,8 @@ describe("VaultNextComponent", () => {
     });
 
     /**
-     * Every side-nav destination renders this one component, so moving between them changes only
-     * the `:vaultId` param — Angular reuses the component and the table, and the table's selection
-     * survives. Landing on Trash with items from My vault still checked would offer Archive and
-     * make a permanent delete act on the wrong items.
+     * Angular reuses this component across side-nav destinations, so a selection survives the move.
+     * Landing on Trash with My vault items still checked makes a permanent delete hit the wrong ones.
      */
     it("clears the selection when the side nav scopes the page elsewhere", () => {
       scopeTo(MY_VAULT_ROUTE);

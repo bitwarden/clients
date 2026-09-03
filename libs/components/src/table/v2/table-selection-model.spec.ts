@@ -87,9 +87,8 @@ describe("TableSelectionModel", () => {
 
   describe("max", () => {
     /**
-     * The cap has to bind the selection itself. A consumer that instead caps some downstream view
-     * of it — what it hands a bulk-action bar, say — leaves the over-cap rows rendering as checked
-     * while nothing ever acts on them, so a bulk operation silently skips the remainder.
+     * The cap must bind the selection itself. Capping a downstream view instead leaves over-cap
+     * rows rendering as checked while a bulk operation silently skips them.
      */
     it("stops select-all at the cap", () => {
       const model = new TableSelectionModel<Row>({
@@ -192,9 +191,8 @@ describe("TableSelectionModel", () => {
     });
 
     /**
-     * A selection sitting at `max` must not dead-end. Filter onto rows none of which are selected
-     * and the header renders unchecked, but there is no budget left to select with — so without
-     * this the checkbox would be inert, with no way forward except clearing by some other means.
+     * A selection at `max` must not dead-end: filtered onto unselected rows the header renders
+     * unchecked with no budget left, so without this the checkbox would be inert.
      */
     it("clears instead of no-opping when the budget is spent and the scope moved", () => {
       const all = rows(1200);
@@ -243,10 +241,8 @@ describe("TableSelectionModel", () => {
     });
 
     /**
-     * `full` is what row checkboxes bind `disabled` to. Left enabled at the cap, a click is
-     * silently rejected while the browser has already flipped `checked` — and because the
-     * `[checked]` binding's value never changed, Angular does not write it back, so the row keeps
-     * rendering as selected when it is not.
+     * `full` is what row checkboxes bind `disabled` to. Left enabled at the cap, a rejected click
+     * still flips `checked` and Angular's unchanged `[checked]` never writes it back.
      */
     it("reports full at the cap and not below it", () => {
       const all = rows(10);

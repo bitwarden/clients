@@ -63,11 +63,8 @@ import { RoutedVaultFilterService } from "./routed-vault-filter.service";
 
 /**
  * A read-only view of some other component's selection state, registered via
- * {@link VaultBatchBarService.registerSelection}.
- *
- * Deliberately two members. The batch bar only ever *reads* the selection and *clears* it after a
- * completed action — it never selects, deselects, or toggles. Keeping the contract that narrow is
- * what lets a host own its selection outright instead of keeping a second model in sync.
+ * {@link VaultBatchBarService.registerSelection}. Deliberately narrow — the bar only reads and
+ * clears — so a host can own its selection outright instead of syncing a second model.
  */
 export interface VaultSelectionSource<C extends CipherViewLike> {
   /** The currently selected items. Read reactively, so the `can*` signals track it. */
@@ -86,15 +83,7 @@ export interface VaultBatchBarConfig {
   hasCiphers: boolean;
   /** Should be populated when isOrgVault is true. Used to apply org-specific permission checks and admin API paths. */
   organization?: Organization;
-  /**
-   * Whether the page is showing trashed items.
-   *
-   * Omit to let the service read it off `RoutedVaultFilterService`'s `?type=trash`, which is how
-   * the vaults that filter through query params express it. A host that scopes to the trash some
-   * other way — a route segment, say — has to set this, or every trash-dependent action is wrong:
-   * Restore never appears, Delete soft-deletes instead of deleting permanently, and Archive,
-   * Add to folder, and Assign to collections are offered for items already in the trash.
-   */
+  /** Whether the page is showing trashed items. */
   inTrash?: boolean;
 }
 
@@ -175,12 +164,9 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   );
 
   /**
-   * The Angular CDK selection model. Add, remove, or clear items directly.
-   *
-   * This is the *default* selection source, kept for hosts that own their selection through this
-   * model — the legacy `vault-items.component` and anything reading `selection` directly. A host
-   * whose list already has its own selection state should call {@link registerSelection} instead
-   * of mirroring into this one, so the two can't disagree.
+   * The Angular CDK selection model, and the default selection source — kept for hosts that own
+   * their selection through it. A host whose list has its own selection state should call
+   * {@link registerSelection} instead of mirroring into this one, so the two can't disagree.
    */
   readonly selection = new SelectionModel<VaultItem<C>>(true, [], true, compareVaultItems);
 
@@ -197,23 +183,15 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   });
 
   /**
-   * The active selection source. `undefined` means "use {@link defaultSelection}".
-   *
-   * Holding the source rather than a copy of its contents is the point: the bar can never report a
-   * selection the host's own UI doesn't show, because there is only ever one place the truth lives.
+   * The active selection source; `undefined` means {@link defaultSelection}. Holding the source
+   * rather than a copy is the point — the bar can't report a selection the host's UI doesn't show.
    */
   private readonly source = signal<VaultSelectionSource<C> | undefined>(undefined);
 
   /**
-   * Registers an external selection source, making it the single source of truth for every
-   * `can*` signal and bulk action. Returns a teardown that restores the default CDK model.
-   *
-   * A host that renders a list with its own selection state (e.g. `bit-table-v2`'s
-   * `TableSelectionModel`) registers a read-only projection of it here, rather than copying items
-   * across on every change. Only one source is active at a time; registering again replaces it.
-   *
-   * Call the returned teardown when the registering component is destroyed — otherwise its
-   * selection outlives it, since this service is provided above the list it belongs to.
+   * Registers an external selection source as the single source of truth for every `can*` signal
+   * and bulk action; only one is active at a time. Call the returned teardown on the registering
+   * component's destroy, or its selection outlives it — this service is provided above the list.
    */
   registerSelection(source: VaultSelectionSource<C>): () => void {
     this.source.set(source);
@@ -233,13 +211,9 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   readonly selectedCount = computed(() => this.selected().length);
 
   /**
-   * Clears the selection at its source, whichever that is — the registered source when there is
-   * one, otherwise the default CDK model.
-   *
-   * Every clear path funnels through this rather than `selection.clear()`, including the bar's own
-   * Clear button: with a source registered, {@link selected} never consults the CDK model, so
-   * clearing that directly would leave `selectedCount()` unchanged, the bar up, and every row
-   * checked.
+   * Clears the selection at its source — the registered one, else the CDK model. Every clear path
+   * must funnel through this: with a source registered, {@link selected} never consults the CDK
+   * model, so clearing that directly leaves the bar up and every row checked.
    */
   clearSelection(): void {
     const source = this.source();

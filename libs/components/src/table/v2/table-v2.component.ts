@@ -661,12 +661,9 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   ]);
 
   /**
-   * {@link filtered} in display order — the sort applied, but not the page slice.
-   *
-   * This, rather than `filtered`, is what the selection model scopes over: select-all is
-   * "everything the user can see", and where a `max` bounds it, the rows it keeps have to be the
-   * ones at the top of the list as displayed. Slicing an unsorted set would check rows scattered
-   * through the list instead.
+   * {@link filtered} in display order — sorted, but not page-sliced. The selection model scopes
+   * over this rather than `filtered`, so a `max`-capped select-all keeps the rows shown at the top
+   * of the list instead of ones scattered through it.
    */
   readonly sorted = computed<T[]>(() => {
     const filtered = this.filtered();

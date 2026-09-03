@@ -86,25 +86,16 @@ import { cipherSearchMatches } from "./vault-items-table-search";
 export const VAULT_FILTER_NAMESPACE = "vault";
 
 /**
- * Upper bound on how many rows may be selected at once, matching the cap the legacy
- * `vault-items.component` applies to its own select-all. Bulk actions turn each selected item into
- * per-cipher permission checks and request payloads, so an unbounded select-all over a large vault
- * is a performance cliff rather than a useful action.
- *
- * Applied to the selection itself rather than to what the batch bar is handed: capping a
- * downstream view would leave rows checked that no action would ever touch, so a bulk delete over
- * the cap would silently skip the remainder.
+ * Upper bound on selected rows, matching the legacy `vault-items.component` cap — each selection
+ * becomes per-cipher permission checks and request payloads. Applied to the selection itself, since
+ * capping a downstream view would leave rows checked that a bulk delete then silently skips.
  */
 export const MAX_SELECTION_COUNT = 500;
 
 /**
- * Bottom margin (px) held while the bulk-actions bar is showing: the bar's own height (53),
- * matching the margin the bar keeps below itself so it sits evenly between the table and
- * the viewport edge.
- *
- * The bar is `position: fixed`, so it never displaces content. Without this the table's bottom
- * border and last row sit underneath it — the row's checkbox and quick actions unreachable, and
- * the border hidden behind the bar.
+ * Bottom margin (px) held while the bulk-actions bar shows — its height (53), matching the margin
+ * it keeps below itself. The bar is `position: fixed` and never displaces content, so without this
+ * the last row sits underneath it, its checkbox and quick actions unreachable.
  */
 const BULK_BAR_CLEARANCE = 53;
 
@@ -202,13 +193,9 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
  *
  * Project page-level buttons into the toolbar with `slot="toolbar"`.
  *
- * Selection is always on: every row carries a checkbox and the header offers select-all over the
- * filtered rows. When the host provides `VaultBatchBarService`, the table registers its own
- * selection as that service's source (see {@link registerSelection}), so the bulk actions in
- * `<bit-vault-batch-action>` follow from the rows a user checks with no per-client wiring — the
- * table owns the selection and the bar reads it, rather than the two being kept in sync. Hosts
- * that want bulk actions provide the service and render the batch action component beside the
- * table; the service is optional, and without it the table is a plain selectable list.
+ * Selection is always on. Hosts wanting bulk actions provide `VaultBatchBarService` and render
+ * `<bit-vault-batch-action>`; the table registers its selection as that service's source (see
+ * {@link registerSelection}). Without the service it is a plain selectable list.
  *
  * @typeParam C - The cipher shape, either `CipherView` or the lighter `CipherListView`.
  *
@@ -265,9 +252,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   private readonly avatarService = inject(AvatarService);
 
   /**
-   * The active user's avatar color, so the "My vault" tile matches their avatar and the side nav's
-   * personal entry. Resolved here rather than taken as an input so every client's table stays in
-   * sync with the avatar without each host plumbing it through.
+   * The active user's avatar color, so the "My vault" tile matches their avatar and the side nav.
+   * Resolved here rather than as an input so no host has to plumb it through.
    */
   private readonly userAvatarColor = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -283,9 +269,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   /**
    * The batch bar, which the table registers its selection with in {@link registerSelection}.
-   *
-   * Optional: a host that doesn't render `<bit-vault-batch-action>` needn't provide it, and the
-   * table then behaves as a plain selectable list.
+   * Optional — without it the table is a plain selectable list.
    */
   private readonly batchBarService = inject<VaultBatchBarService<C>>(VaultBatchBarService, {
     optional: true,
@@ -295,20 +279,14 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly filterKeys = VAULT_FILTER_KEYS;
 
   /**
-   * Whether the host actually renders `<bit-vault-batch-action>`.
-   *
-   * Defaults to true, deferring to the service. Set it false where the host gates the bar on more
-   * than the service does — desktop requires a second, desktop-only flag — or the table reserves
-   * space for a bar that never appears.
+   * Whether the host actually renders `<bit-vault-batch-action>`. Defaults to true; set false where
+   * the host gates the bar on more than the service does, or space is held for a bar never shown.
    */
   readonly showBulkBar = input(true, { transform: booleanAttribute });
 
   /**
-   * Bottom margin held while the bulk-actions bar is up, so the table ends above it.
-   *
-   * The bar is `position: fixed` and never displaces content, so without this the table's bottom
-   * border and its last row sit underneath — the row's checkbox and quick actions unreachable, and
-   * the border hidden behind the bar.
+   * Bottom margin held while the bulk-actions bar is up. The bar is `position: fixed` and never
+   * displaces content, so without this the last row sits underneath it and is unreachable.
    */
   protected readonly bulkBarClearance = computed(() =>
     this.showBulkBar() && this.batchBarService?.barVisible() ? BULK_BAR_CLEARANCE : 0,
@@ -388,11 +366,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   ].join(",");
 
   /**
-   * Makes a whole data cell a click target for {@link itemAction}, so the row reads as one target
-   * rather than just the name text.
-   *
-   * This is a pointer-only affordance. The keyboard and assistive-tech path stays the name button,
-   * which is the row's single labelled control; nothing here is added to the accessibility tree.
+   * Makes a whole data cell a click target for {@link itemAction}. Pointer-only — the keyboard and
+   * assistive-tech path stays the name button, and nothing here enters the accessibility tree.
    */
   protected onCellActivate(row: C, event: MouseEvent) {
     const action = this.itemAction();
@@ -668,11 +643,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   }
 
   /**
-   * The owning vault's icon tile, matching the color and icon the side nav gives that same vault:
-   * the user's avatar color for their own vault, the tier's color for an organization.
-   *
-   * An organization missing from {@link organizations} has no tier to key off, so it falls back to
-   * the generic business tile rather than guessing a color.
+   * The owning vault's icon tile, matching the side nav: the avatar color for a personal vault,
+   * the tier's for an organization. One missing from {@link organizations} has no tier to key off,
+   * so it falls back to the generic business tile rather than guessing.
    */
   protected vaultIconTile(cipher: C): IconTileOptions {
     const organizationId = idString(cipher.organizationId);
@@ -752,18 +725,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   private readonly tableComponent = viewChild(BitTableV2Component);
 
   /**
-   * Registers the table's own `TableSelectionModel<C>` as the batch bar's selection source, so
-   * checking rows drives `VaultBatchBarService`'s `can*` permission signals and
-   * `<bit-vault-batch-action>` with no per-client wiring.
-   *
-   * The table owns the selection outright — the bar reads a projection of it rather than holding a
-   * copy, so the two can't disagree and there is nothing to keep in sync. The projection maps the
-   * table's rows to the `VaultItem` wrappers the bar works in; because this table is cipher-only,
-   * that mapping is the total function `C` → `{ cipher: C }`.
-   *
-   * Registration is deferred to an effect because `selectionModel()` comes from a view query, so it
-   * isn't available until the view initializes. It runs once — after that the source is a stable
-   * reference and the effect has nothing left to react to.
+   * Registers the table's `TableSelectionModel<C>` as the batch bar's selection source, so checking
+   * rows drives its `can*` signals with no per-client wiring — the bar reads a projection rather
+   * than a copy. Deferred to an effect because `selectionModel()` comes from a view query.
    */
   private readonly registerSelection = effect((onCleanup) => {
     const model = this.tableComponent()?.selectionModel();

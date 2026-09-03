@@ -12,11 +12,8 @@ import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service"
 import { VaultBatchActionComponent } from "./vault-batch-action.component";
 
 /**
- * Renders whatever `LayoutFooterService` is holding.
- *
- * `<bit-vault-batch-action>` hands its bar to that service as a `TemplatePortal` rather than
- * rendering it inline, and `bit-layout` is normally the outlet. This stands in as that outlet so
- * the bar actually renders and its bindings execute.
+ * Renders whatever `LayoutFooterService` is holding. `<bit-vault-batch-action>` hands its bar to
+ * that service as a portal instead of rendering inline, so this stands in for `bit-layout`'s outlet.
  */
 @Component({
   selector: "test-footer-outlet",

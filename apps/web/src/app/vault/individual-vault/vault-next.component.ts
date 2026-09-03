@@ -77,10 +77,8 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
  * Not yet wired: the `?itemId=&action=` deep link that opens an item on load. The archive's
  * "premium subscription ended" callout has nowhere to surface yet.
  *
- * Bulk actions need no `completed$` subscription, unlike the hosts that hold their rows in a
- * plain array and reload them by hand: the rows here derive from `cipherListViews$`, which
- * re-emits off cipher state, and `VaultBatchBarService` clears its own selection before every
- * `completed$` emission.
+ * Bulk actions need no `completed$` subscription: rows derive from `cipherListViews$`, which
+ * re-emits off cipher state, and `VaultBatchBarService` clears its own selection.
  */
 @Component({
   selector: "app-vault-next",
@@ -104,8 +102,7 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
   providers: [
     safeProvider({ provide: DefaultCipherFormConfigService, useAngularDecorators: true }),
     safeProvider({ provide: WebVaultItemActionsService, useAngularDecorators: true }),
-    // The bulk-action bar. Provided here rather than higher up so its selection lives and dies
-    // with this page; the table registers its own selection as the bar's source.
+    // Provided here so the bulk-action bar's selection lives and dies with this page.
     VaultBatchBarService,
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
@@ -292,18 +289,14 @@ export class VaultNextComponent {
   );
 
   /**
-   * Feeds the batch bar the vault context its `can*` permission signals read.
-   *
-   * An individual vault is never `isOrgVault` — that flag means the admin console, which reaches
-   * ciphers through admin endpoints. `allCollections` is the unscoped set, since assigning an item
-   * to a collection isn't limited to the ones this page happens to show.
+   * Feeds the batch bar the vault context its `can*` permission signals read. An individual vault
+   * is never `isOrgVault` (that means the admin console), and `allCollections` is the unscoped set.
    */
   private readonly configureBatchBar = effect(() => {
     const collections = this.collections();
     const hasCiphers = this.ciphers().length > 0;
-    // This page scopes to the trash with a route segment, not the `?type=trash` the service reads
-    // off `RoutedVaultFilterService` — so it has to say so, or Restore never appears and Delete
-    // soft-deletes items that are already in the trash.
+    // This page scopes to trash by route segment, not the `?type=trash` the service reads — without
+    // this, Restore never appears and Delete soft-deletes items already in the trash.
     const inTrash = this.vaultScope().type === VaultScopeType.Trash;
     untracked(() =>
       this.batchBarService.setConfig({
@@ -316,28 +309,17 @@ export class VaultNextComponent {
   });
 
   /**
-   * Drops the selection when the side nav scopes the page elsewhere.
-   *
-   * Every destination renders this one component, so moving between them changes only the
-   * `:vaultId` param — Angular reuses the component and the table, and the table's selection
-   * model holds its rows independently of the ones in scope. Without this the bar stays up
-   * across the move and its actions run against items from the vault just left: landing on
-   * Trash with items from My vault still selected offers Archive, and a delete there is
-   * permanent.
-   *
-   * `VaultBatchBarService` guards the equivalent case for the legacy vault by watching
-   * `RoutedVaultFilterService.filter$`, but that filter doesn't carry this page's scope.
+   * Drops the selection when the side nav rescopes the page: Angular reuses this component across
+   * destinations, so a stale selection would run actions against items from the vault just left.
    */
   private readonly lastScopeKey = signal<string | undefined>(undefined);
 
   private readonly clearSelectionOnScopeChange = effect(() => {
-    // `resolveVaultScope` builds a fresh object each run, so compare on the values that identify
-    // a destination rather than on reference.
+    // `resolveVaultScope` builds a fresh object each run, so compare by value, not reference.
     const scope = this.vaultScope();
     const key = `${scope.type}:${scope.type === VaultScopeType.Organization ? scope.organizationId : ""}`;
     untracked(() => {
-      // Skip the first run: nothing is selected yet, so clearing would be a no-op that reads as
-      // intentional to the next person.
+      // Skip the first run: nothing is selected yet, so clearing would be a misleading no-op.
       if (this.lastScopeKey() !== undefined && this.lastScopeKey() !== key) {
         this.batchBarService.clearSelection();
       }

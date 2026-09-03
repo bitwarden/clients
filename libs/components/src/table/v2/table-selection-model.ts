@@ -8,12 +8,8 @@ export type TableSelectionConfig<T> = {
   /** Which rows may be selected. Defaults to "every row". */
   canSelect?: (row: T) => boolean;
   /**
-   * Upper bound on how many rows may be selected at once. Unlimited by default.
-   *
-   * {@link toggleAll} stops at this many and {@link select} refuses to exceed it, so the cap binds
-   * the selection itself rather than a downstream view of it — what the checkboxes show is always
-   * exactly what a consumer will act on. At the cap {@link allSelected} stays false while rows
-   * remain unselected, so the header reads as partial rather than claiming to cover them.
+   * Upper bound on how many rows may be selected at once. Unlimited by default. Bounds the
+   * selection itself, so the checkboxes always show exactly what a consumer will act on.
    */
   max?: number;
   /**
@@ -58,21 +54,14 @@ export class TableSelectionModel<T> {
   /** In-scope rows that may be selected — the model's `rows` minus non-selectable ones. */
   readonly selectable = computed(() => this.rows().filter((row) => this.canSelect(row)));
 
-  /**
-   * The selectable in-scope rows a select-all would actually take — {@link selectable} bounded by
-   * the configured `max`. Identical to `selectable()` when no cap is set.
-   */
+  /** The rows a select-all would take — {@link selectable} bounded by `max`. */
   private readonly selectableWithinMax = computed(() =>
     this.max === Infinity ? this.selectable() : this.selectable().slice(0, this.max),
   );
 
   /**
-   * Whether every selectable in-scope row is selected.
-   *
-   * Measured over the full set even when a `max` is in force, so a capped select-all reads as
-   * partial rather than complete — a filled header above rows the user can see are unchecked
-   * claims something untrue. {@link toggleAll} checks the cap before this, so the header stays
-   * actionable: clicking it at the cap clears.
+   * Whether every selectable in-scope row is selected. Measured over the full set even under a
+   * `max`, so a capped select-all reads as partial rather than claiming rows that are unchecked.
    */
   readonly allSelected = computed(() => {
     const rows = this.selectable();
@@ -80,31 +69,23 @@ export class TableSelectionModel<T> {
   });
 
   /**
-   * Whether some but not all selectable in-scope rows are selected.
-   *
-   * Measured over the *full* in-scope set, unlike {@link allSelected}: "some but not all" is well
-   * defined regardless of the cap, and bounding it would report an empty header while a row past
-   * the cap window sits visibly checked.
+   * Whether some but not all selectable in-scope rows are selected. Measured over the full in-scope
+   * set: bounding it by `max` would read as empty while a row past the cap window sits checked.
    */
   readonly indeterminate = computed(
     () => this.selectable().some((row) => this.isSelected(row)) && !this.allSelected(),
   );
 
   /**
-   * Whether the cap is reached, so no further row may be selected.
-   *
-   * Bind row checkboxes' `disabled` to this (excluding already-selected rows, which must stay
-   * deselectable). A checkbox left enabled at the cap silently rejects the click while the browser
-   * has already flipped its `checked` property — and since the `[checked]` binding's value hasn't
-   * changed, Angular never writes it back, leaving the row rendering as selected when it isn't.
+   * Whether the cap is reached. Bind unselected rows' checkbox `disabled` to this: left enabled,
+   * the browser flips `checked` on a rejected click and Angular's unchanged `[checked]` never
+   * writes it back, so the row renders selected when it isn't.
    */
   readonly full = computed(() => this.count() >= this.max);
 
   /**
-   * Whether more than one row may be selected at a time.
-   *
-   * Read by the table to decide whether to offer select-all: in single-select, `toggleAll` could
-   * only ever keep one row, so the header checkbox would sit permanently indeterminate.
+   * Whether more than one row may be selected at a time. The table skips select-all when false,
+   * since `toggleAll` could only keep one row and the header would sit permanently indeterminate.
    */
   get multiSelect(): boolean {
     return this.multiple;
@@ -121,9 +102,8 @@ export class TableSelectionModel<T> {
   }
 
   /**
-   * Selects rows, ignoring any that aren't {@link isSelectable}. Single-select keeps only the last.
-   * Stops once the configured `max` is reached, so the selection can never exceed what a consumer
-   * has said it will act on.
+   * Selects rows, ignoring any that aren't {@link isSelectable}. Single-select keeps only the last;
+   * stops at the configured `max`.
    */
   select(...rows: T[]): void {
     const allowed = rows.filter((row) => this.canSelect(row));
@@ -162,18 +142,14 @@ export class TableSelectionModel<T> {
   }
 
   /**
-   * Selects every selectable in-scope row, or clears them if all are already selected. Bounded by
-   * the configured `max` — see {@link TableSelectionConfig.max}.
-   *
-   * A full budget also clears. Otherwise a selection sitting at `max` would dead-end as soon as
-   * the rows in scope changed — filter onto rows none of which are selected and the header renders
-   * unchecked, but selecting is impossible with no budget left, so the checkbox would do nothing
-   * at all. Clearing keeps it actionable and hands back the budget to select within the new view.
+   * Selects every selectable in-scope row, or clears them if all are selected or the
+   * {@link TableSelectionConfig.max} budget is spent — otherwise the header checkbox would
+   * dead-end, doing nothing once filtering moved scope onto rows with no budget left to select.
    */
   toggleAll(): void {
     if (this.count() >= this.max) {
-      // At the cap there is no budget to select with, so clear outright — including any rows held
-      // from a previous scope, since those are what consumed the budget.
+      // No budget left, so clear outright — including rows held from a previous scope, since those
+      // are what consumed it.
       this.clear();
     } else if (this.allSelected()) {
       this.deselect(...this.selectable());

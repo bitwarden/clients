@@ -1246,9 +1246,8 @@ async function filterSurface() {
 }
 
 /**
- * Opens the Collections filter, whichever surface the viewport is showing: the chip's popover above
- * `md`, or the collapsed trigger's dialog drilled into Collections below it. Lets one story snapshot
- * both surfaces across viewports.
+ * Opens the Collections filter on whichever surface the viewport shows — the chip's popover above
+ * `md`, the collapsed trigger's dialog below — so one story snapshots both.
  */
 async function openCollectionsFilter(canvasElement: HTMLElement): Promise<void> {
   // Above `md` the chip is on screen; below it the row collapses to one icon trigger. The hidden

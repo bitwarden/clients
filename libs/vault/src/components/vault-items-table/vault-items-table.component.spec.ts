@@ -122,13 +122,9 @@ class BareToolbarHostComponent {
 }
 
 /**
- * A stand-in for the host-provided `VaultBatchBarService`, carrying only what the table touches:
- * `registerSelection`, and enough of the service's own reading of the registered source to assert
- * the two agree. The real service would pull in the whole bulk-action dependency graph — dialogs,
- * authorization, archive — none of which registration exercises.
- *
- * `selected` mirrors the service's own `computed(() => source()?.selected() ?? ...)`, so a test
- * reading it sees exactly what the `can*` signals and bulk actions would.
+ * A stand-in for `VaultBatchBarService` carrying only what the table touches — the real one pulls
+ * in the whole bulk-action graph. `selected` mirrors the service's own computed, so a test reading
+ * it sees exactly what the `can*` signals would.
  */
 function batchBarDouble() {
   const source = signal<VaultSelectionSource<CipherViewLike> | undefined>(undefined);
@@ -1661,9 +1657,8 @@ describe("VaultItemsTableComponent", () => {
     });
 
     /**
-     * A capped select-all keeps the rows at the top of the list *as displayed*, so it has to slice
-     * in sort order. Scoped over the pre-sort filtered set it would check rows scattered through
-     * the list while disabling every remaining checkbox — reading as broken.
+     * A capped select-all must slice in sort order. Scoped over the pre-sort set it would check
+     * rows scattered through the list while disabling the rest — reading as broken.
      */
     it("caps in display order when the sort is reversed", () => {
       const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
@@ -1710,10 +1705,9 @@ describe("VaultItemsTableComponent", () => {
     });
 
     /**
-     * At the cap, an enabled checkbox would silently reject the click while the browser had
-     * already flipped its `checked` property — and since the `[checked]` binding's value never
-     * changed, Angular would not write it back, leaving the row rendering as selected while no
-     * bulk action would touch it. Disabling unselected rows makes the click impossible instead.
+     * Left enabled at the cap, a rejected click still flips the browser's `checked` property, and
+     * Angular's unchanged `[checked]` never writes it back — the row renders selected while no
+     * bulk action would touch it. Disabling makes the click impossible instead.
      */
     it("disables unselected row checkboxes once the selection is full", () => {
       // A cap small enough that a rejected row lands inside the virtual-scroll window.

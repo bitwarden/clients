@@ -191,9 +191,8 @@ describe("VaultBatchBarService", () => {
 
   describe("inTrash", () => {
     /**
-     * Vaults that filter through query params express the trash as `?type=trash`. Ones that scope
-     * by route segment can't, so the config wins when it says — otherwise Restore never appears
-     * and Delete soft-deletes items already in the trash.
+     * Vaults scoping by route segment can't express trash as `?type=trash`, so the config wins when
+     * set — otherwise Restore never appears and Delete soft-deletes items already in the trash.
      */
     it("reads the route filter when the config says nothing", () => {
       filterSubject.next({ type: "trash" });

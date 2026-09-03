@@ -55,12 +55,9 @@ import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
 import { VaultItemsTableComponent, VaultItemsTableFilters } from "./vault-items-table.component";
 
 /**
- * Renders whatever `LayoutFooterService` is holding.
- *
- * `<bit-vault-batch-action>` doesn't render its bar inline — it hands a `TemplatePortal` to that
- * service, and `bit-layout` is what normally provides the outlet. These stories deliberately skip
- * the layout so the table isn't buried under navigation chrome, so this stands in as the outlet
- * and nothing more. The real bar's `position: fixed` still pins it to the viewport.
+ * Renders whatever `LayoutFooterService` is holding. `<bit-vault-batch-action>` hands its bar to
+ * that service as a portal and `bit-layout` normally provides the outlet; these stories skip the
+ * layout, so this stands in as the outlet and nothing more.
  */
 @Component({
   selector: "story-layout-footer",
@@ -73,16 +70,9 @@ class StoryLayoutFooterComponent {
 }
 
 /**
- * The real service with only its action bodies replaced.
- *
- * Everything the stories actually demonstrate lives in the base class — the selection source, the
- * `can*` permission signals, and which buttons the bar therefore offers — so this subclasses rather
- * than fakes it. What can't work here is the *completion* of an action: each one ends in a dialog
- * or a server call, and a story has neither, so the real `bulkArchive` and `bulkMoveToFolder` open
- * a CDK dialog whose component was never imported and leave a bare overlay over the page.
- *
- * Each override logs through `action()` so the Storybook Actions panel shows what a client would
- * have run, then clears the selection the way a completed action does, so the bar dismisses itself.
+ * The real service with only its action bodies replaced — everything the stories demonstrate lives
+ * in the base class. Only completion can't work here: each action ends in a dialog or server call a
+ * story has neither of. Overrides log through `action()`, then clear so the bar dismisses itself.
  */
 class StoryVaultBatchBarService extends VaultBatchBarService<CipherView> {
   /** Reports the action with the items it would have applied to, then ends the "action". */
