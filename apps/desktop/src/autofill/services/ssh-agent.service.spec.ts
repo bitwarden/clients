@@ -529,6 +529,7 @@ describe("SshAgentService – sign request authorization", () => {
   let accountSubject: BehaviorSubject<{ id: UserId } | null>;
   let mockSignRequestResponse: jest.Mock;
   let mockDialogOpen: jest.Mock;
+  let mockGetAllDecrypted: jest.Mock;
 
   beforeEach(async () => {
     signRequestSubject = new Subject();
@@ -537,6 +538,9 @@ describe("SshAgentService – sign request authorization", () => {
     accountSubject = new BehaviorSubject<{ id: UserId } | null>({ id: "user-1" as UserId });
     mockSignRequestResponse = jest.fn().mockResolvedValue(undefined);
     mockDialogOpen = jest.fn().mockReturnValue({ closed: of(true) });
+    mockGetAllDecrypted = jest
+      .fn()
+      .mockResolvedValue([makeSshCipher(CIPHER_ID, "Test Key", "pem")]);
 
     (global as any).ipc = {
       autofill: {
@@ -556,11 +560,21 @@ describe("SshAgentService – sign request authorization", () => {
     service = new SshAgentService(
       {
         cipherViews$: jest.fn().mockReturnValue(of([])),
-        getAllDecrypted: jest.fn().mockResolvedValue([makeSshCipher(CIPHER_ID, "Test Key", "pem")]),
+        getAllDecrypted: mockGetAllDecrypted,
       } as any,
       { info: jest.fn(), error: jest.fn(), debug: jest.fn() } as any,
       { open: mockDialogOpen } as any,
-      { messages$: jest.fn().mockReturnValue(signRequestSubject.asObservable()) } as any,
+      {
+        // Only feed the sign channel. Returning one subject for every channel also drove the
+        // list-keys pipeline, which calls getAllDecrypted and made per-call mocks unreliable.
+        messages$: jest
+          .fn()
+          .mockImplementation((def: { command: string }) =>
+            def.command === SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST
+              ? signRequestSubject.asObservable()
+              : EMPTY,
+          ),
+      } as any,
       {
         activeAccountStatus$: authStatusSubject.asObservable(),
         authStatusFor$: jest.fn().mockReturnValue(authStatusSubject.asObservable()),
@@ -594,6 +608,119 @@ describe("SshAgentService – sign request authorization", () => {
       hostFingerprint,
     });
   }
+
+  // The agent derives cipherId from its own keystore, which outlives a vault lock and an account
+  // switch, so it can name a cipher the active vault does not contain. Every prompt setting must
+  // refuse rather than sign with a key the active account cannot see.
+  describe("key not in the active vault", () => {
+    beforeEach(() => {
+      mockGetAllDecrypted.mockResolvedValue([makeSshCipher("other-cipher", "Other Key", "pem")]);
+    });
+
+    it("Never: refuses instead of approving without a prompt", async () => {
+      promptBehaviorSubject.next(SshAgentPromptType.Never);
+      sendSignRequest();
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
+    });
+
+    it("Always: refuses without showing a dialog", async () => {
+      sendSignRequest();
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
+    });
+
+    it("RememberUntilLock: refuses even with an approval already remembered", async () => {
+      promptBehaviorSubject.next(SshAgentPromptType.RememberUntilLock);
+      (service as any).authorizedKeys = new Map([[CIPHER_ID, new Set(["local"])]]);
+
+      sendSignRequest();
+      await flush();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
+    });
+
+    it("does not leave the request unanswered", async () => {
+      sendSignRequest();
+      await flush();
+
+      expect(mockSignRequestResponse).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // The agent awaits a response for every request it sends, so a failure that returns nothing
+  // blocks the SSH client until the native approval timeout.
+  describe("failures still answer the agent", () => {
+    it("when decrypting the vault fails, refuses instead of hanging", async () => {
+      mockGetAllDecrypted.mockRejectedValue(new Error("decryption failed"));
+
+      sendSignRequest();
+      await flush();
+      await flush();
+
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
+      expect(mockSignRequestResponse).toHaveBeenCalledTimes(1);
+    });
+
+    it("when the approval dialog throws, refuses instead of hanging", async () => {
+      mockDialogOpen.mockImplementation(() => {
+        throw new Error("dialog failed to open");
+      });
+
+      sendSignRequest();
+      await flush();
+      await flush();
+
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
+      expect(mockSignRequestResponse).toHaveBeenCalledTimes(1);
+    });
+
+    it("when the account is logged out mid-unlock-wait, refuses instead of hanging", async () => {
+      authStatusSubject.next(AuthenticationStatus.Locked);
+      await flush();
+
+      sendSignRequest();
+      await flush();
+
+      accountSubject.next(null);
+      authStatusSubject.next(AuthenticationStatus.Unlocked);
+      await flush();
+      await flush();
+
+      expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, false);
+      expect(mockSignRequestResponse).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("when a request has been answered, a later unlock does not replay it", async () => {
+    // activeAccountStatus$ is long-lived. Without take(1) the parked message is re-emitted on
+    // every subsequent unlock, prompting again for a request that was already resolved.
+    authStatusSubject.next(AuthenticationStatus.Locked);
+    await flush();
+
+    sendSignRequest();
+    await flush();
+
+    authStatusSubject.next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    expect(mockDialogOpen).toHaveBeenCalledTimes(1);
+    const callsAfterFirstUnlock = mockSignRequestResponse.mock.calls.length;
+
+    // A later lock/unlock cycle, with no new sign request, must not revive the old one.
+    authStatusSubject.next(AuthenticationStatus.Locked);
+    await flush();
+    authStatusSubject.next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    expect(mockDialogOpen).toHaveBeenCalledTimes(1);
+    expect(mockSignRequestResponse.mock.calls.length).toBe(callsAfterFirstUnlock);
+  });
 
   it("Never: approves without showing dialog", async () => {
     promptBehaviorSubject.next(SshAgentPromptType.Never);
@@ -1040,6 +1167,9 @@ describe("SshAgentService – concurrent sign requests", () => {
   it("when two sign requests arrive before getAllDecrypted resolves, both receive signRequestResponse", async () => {
     // Gate the first decryption behind a manually controlled promise so that the
     // second request can arrive while the first is still in-flight through the pipeline.
+    // Both requests name c1, so the vault must contain it: a sign request for a cipher outside
+    // the active vault is refused outright and would not exercise the queueing under test.
+    const ciphers = [makeSshCipher("c1", "Key", "pem")];
     let resolveFirstDecrypt!: (ciphers: CipherView[]) => void;
     mockGetAllDecrypted
       .mockReturnValueOnce(
@@ -1047,7 +1177,7 @@ describe("SshAgentService – concurrent sign requests", () => {
           resolveFirstDecrypt = resolve;
         }),
       )
-      .mockResolvedValue([]);
+      .mockResolvedValue(ciphers);
 
     // Emit both requests before the pending getAllDecrypted resolves.
     signRequestSubject.next({
@@ -1071,7 +1201,7 @@ describe("SshAgentService – concurrent sign requests", () => {
     // Release the first decryption. With concatMap, request 1 proceeds and request 2
     // is queued. With switchMap (bug), request 1 was already cancelled and only request 2
     // ever gets a response.
-    resolveFirstDecrypt([]);
+    resolveFirstDecrypt(ciphers);
     await flush();
     await flush();
 
