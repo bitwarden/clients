@@ -50,11 +50,6 @@ A paywall is never a reason to report a run blocked. Clear it and continue the f
 - A personal feature behind Premium (attachments, TOTP, emergency access, file Sends) → buy Premium
   from `#/settings/subscription/premium`.
 - An organization feature (collections, org-owned items, policies, SSO) → create an organization on
-  an Enterprise plan, per [create-organization.md](create-organization.md).
+  an Enterprise plan from `#/create-organization`, then complete checkout.
 
 Pay with the test card above.
-
-## Related
-
-- [create-user.md](create-user.md) — create a fresh test account
-- [create-organization.md](create-organization.md) — create and activate an organization

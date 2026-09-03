@@ -1,7 +1,8 @@
 # Override feature flags (desktop)
 
-Use the dev-only automation driver to override feature flags on the running desktop app. Call its
-methods via `mcp__electron-devtools-attach__evaluate_script`.
+Use the dev-only automation driver to override feature flags on the running desktop app. The driver
+exposes capabilities by name — there are no direct properties on it. Get the `featureFlags`
+capability and call it via `mcp__electron-devtools-attach__evaluate_script`.
 
 Flag keys are the string **values** of the `FeatureFlag` enum in
 `libs/common/src/enums/feature-flag.enum.ts` — **not** the enum member name. Read the enum to get
@@ -9,32 +10,34 @@ the exact key before toggling.
 
 ```js
 async () => {
-  await window.bitwardenAutomationDriver.setFeatureFlag("windows-desktop-autotype", true);
+  await window.bitwardenAutomationDriver.get("featureFlags").set("windows-desktop-autotype", true);
 };
-async () => window.bitwardenAutomationDriver.getFeatureFlag("windows-desktop-autotype");
+async () => window.bitwardenAutomationDriver.get("featureFlags").get("windows-desktop-autotype");
 async () => {
-  await window.bitwardenAutomationDriver.clearFeatureFlag("windows-desktop-autotype");
+  await window.bitwardenAutomationDriver.get("featureFlags").clear("windows-desktop-autotype");
 };
 async () => {
-  await window.bitwardenAutomationDriver.clearAllFeatureFlagOverrides();
+  await window.bitwardenAutomationDriver.get("featureFlags").clearAll();
 };
 ```
+
+| Method             | Effect                              |
+| ------------------ | ----------------------------------- |
+| `set(flag, value)` | Override a flag                     |
+| `get(flag)`        | Current (possibly overridden) value |
+| `clear(flag)`      | Drop one override                   |
+| `clearAll()`       | Drop every override                 |
 
 ## Reload after changing a flag
 
 Overrides persist in global state. Many flags are only read at startup — after changing a flag,
-reload the process:
+reload the process via the `processReload` capability:
 
 ```js
 async () => {
-  await window.bitwardenAutomationDriver.reloadProcess();
+  await window.bitwardenAutomationDriver.get("processReload").reload();
 };
 ```
 
-After `reloadProcess`, call `mcp__electron-devtools-attach__list_pages` → `select_page` before further
+After the reload, call `mcp__electron-devtools-attach__list_pages` → `select_page` before further
 interaction.
-
-## Source
-
-- `libs/common/src/enums/feature-flag.enum.ts`: `FeatureFlag` enum — read this for exact flag keys
-- `libs/automation-driver/src/automation-driver.service.ts`: `AutomationDriver` implementation

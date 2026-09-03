@@ -2,7 +2,9 @@
 
 Desktop-only. Only present when the app was launched with `USE_AUTOMATION_BIOMETRICS=1`. Replaces
 the OS biometric prompt with a fake service so prompts can be approved or denied deterministically.
-Access via `window.bitwardenAutomationDriver.biometrics` (undefined if the env var was not set).
+Access via the `biometrics` capability: `window.bitwardenAutomationDriver.get("biometrics")`. The
+capability is registered on every desktop build, but the main-process IPC handler behind it is only
+wired up in dev mode with the env var set — without it, calls reject with "No handler registered".
 
 ## Set the reported status
 
@@ -17,7 +19,7 @@ From `BiometricsStatus` in `libs/key-management/src/biometrics/biometrics-status
 
 ```js
 async () => {
-  await window.bitwardenAutomationDriver.biometrics.setStatus(0);
+  await window.bitwardenAutomationDriver.get("biometrics").setStatus(0);
 };
 ```
 
@@ -25,14 +27,14 @@ async () => {
 
 ```js
 // list queued requests — [{ id, type: "authenticate" | "unlock", userId? }, ...]
-async () => window.bitwardenAutomationDriver.biometrics.listPending();
+async () => window.bitwardenAutomationDriver.get("biometrics").listPending();
 
 // approve / deny by id, or omit id to resolve the oldest pending request
 async () => {
-  await window.bitwardenAutomationDriver.biometrics.approve("1");
+  await window.bitwardenAutomationDriver.get("biometrics").approve("1");
 };
 async () => {
-  await window.bitwardenAutomationDriver.biometrics.deny();
+  await window.bitwardenAutomationDriver.get("biometrics").deny();
 };
 ```
 
@@ -49,3 +51,4 @@ async () => {
 - `apps/desktop/src/key-management/biometrics/automation-biometrics.service.ts`: mock biometrics
   implementation
 - `libs/key-management/src/biometrics/biometrics-status.ts`: `BiometricsStatus` values
+- `libs/automation-driver/src/capabilities/biometrics.ts`: `BiometricsCapability` — the methods above

@@ -3,20 +3,20 @@
 Read SDK flight recorder events from the running desktop app via the automation driver. Only
 available on clients that load the WASM SDK (desktop, browser extension, web — not CLI).
 
-Access via `window.bitwardenAutomationDriver.flightRecorder`. Call methods via
-`mcp__electron-devtools-attach__evaluate_script`.
+Access via the `logging` capability: `window.bitwardenAutomationDriver.get("logging")`. Call its
+methods via `mcp__electron-devtools-attach__evaluate_script`.
 
 ## Read events
 
 ```js
 // Read all events currently in the buffer
-async () => window.bitwardenAutomationDriver.flightRecorder.read();
+async () => window.bitwardenAutomationDriver.get("logging").readEvents();
 
 // Get the current event count without reading contents
-async () => window.bitwardenAutomationDriver.flightRecorder.count();
+async () => window.bitwardenAutomationDriver.get("logging").countEvents();
 ```
 
-`read()` returns an array of `FlightRecorderEvent` objects from `@bitwarden/sdk-internal`:
+`readEvents()` returns an array of `FlightRecorderEvent` objects from `@bitwarden/sdk-internal`:
 
 | Field       | Type                     | Example                             |
 | ----------- | ------------------------ | ----------------------------------- |
@@ -35,7 +35,7 @@ page and return only the matching lines, formatted as text.
 // Grep by message/target/fields substring, case-insensitive. Returns newest 20 matches.
 async () => {
   const pattern = /decrypt|cipher_id/i; // <-- edit this
-  const events = await window.bitwardenAutomationDriver.flightRecorder.read();
+  const events = await window.bitwardenAutomationDriver.get("logging").readEvents();
 
   const hits = events.filter(
     (e) =>

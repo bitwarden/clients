@@ -39,5 +39,12 @@ curl -s http://localhost:9222/json/version   # desktop
 curl -s http://localhost:9200/json/version   # browser extension / web
 ```
 
-If the endpoint is unreachable, ask the user to start the app in dev mode (`npm run electron` from
-`apps/desktop`, or `npm run build:watch` from `apps/web` / `apps/browser`) and wait.
+If the endpoint is unreachable, ask the user to start the target and wait:
+
+- **Desktop** — `npm run electron` from `apps/desktop`; its start script already passes
+  `--remote-debugging-port=9222`.
+- **Web / browser extension** — two steps. `npm run build:watch` from `apps/web` / `apps/browser`
+  only produces a build; nothing in the repo opens a debuggable Chrome, so port 9200 stays dead
+  until they also launch one:
+  `google-chrome --remote-debugging-port=9200 --user-data-dir=/tmp/bw-debug-profile`. For the
+  extension, load the unpacked extension from `apps/browser/build` in that Chrome instance.

@@ -101,42 +101,43 @@ and carry on — see [Clearing a paywall mid-run](client-driver/references/test-
 
 ## Step 1 — Determine target and connect
 
-Identify which client you are working with, then confirm the DevTools endpoint is reachable.
+Identify which client you are working with, then confirm the DevTools endpoint is reachable. You
+have no shell — `list_pages` **is** the reachability check: it fails when nothing is listening.
 
-**Desktop:**
+**Desktop:** call `mcp__electron-devtools-attach__list_pages` (endpoint `localhost:9222`). Select the
+renderer page (URL contains `index.html`) with `mcp__electron-devtools-attach__select_page` if there
+are multiple pages.
 
-```bash
-curl -s http://localhost:9222/json/version
-```
+**Browser extension or Web:** call `mcp__chrome-devtools-attach__list_pages` (endpoint
+`localhost:9200`). For the browser extension the popup appears as an **Extension Page** entry; for
+the web app find the tab at the dev-server URL.
 
-Call `mcp__electron-devtools-attach__list_pages`. Select the renderer page (URL contains `index.html`) with
-`mcp__electron-devtools-attach__select_page` if there are multiple pages.
-
-**Browser extension or Web:**
-
-```bash
-curl -s http://localhost:9200/json/version
-```
-
-Call `mcp__chrome-devtools-attach__list_pages`. For the browser extension the popup appears as an
-**Extension Page** entry; for the web app find the tab at the dev-server URL.
-
-**If the endpoint is not reachable, do NOT try to launch the app yourself.** Ask the user to start
-it in dev mode:
+**If `list_pages` fails, do NOT try to launch the app yourself.** Report the run blocked and ask the
+user to start the target in dev mode:
 
 ```bash
-# Desktop — exposes remote debugging on port 9222 (from apps/desktop)
+# Desktop — apps/desktop/scripts/start.js passes --remote-debugging-port=9222 (from apps/desktop)
 npm run electron
 
 # Desktop with mock biometrics (skips the native OS prompt) — see .claude/agents/client-driver/references/biometrics.md:
 USE_AUTOMATION_BIOMETRICS=1 npm run electron
-
-# Web — start the dev server, then open it in Chrome (from apps/web)
-npm run build:watch
-
-# Browser extension — build then load the unpacked extension in Chrome (from apps/browser)
-npm run build:watch
 ```
+
+Web and the browser extension need **two** things: a dev build, and a Chrome started with the
+debugging port — the watch build alone leaves port 9200 dead.
+
+```bash
+# 1. Dev build (from apps/web or apps/browser)
+npm run build:watch
+
+# 2. Chrome with the debugging port open — nothing in the repo does this for you
+google-chrome --remote-debugging-port=9200 --user-data-dir=/tmp/bw-debug-profile
+# macOS: /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9200 --user-data-dir=/tmp/bw-debug-profile
+```
+
+For the browser extension, also load the unpacked extension from `apps/browser/build` via
+`chrome://extensions` (Developer mode → Load unpacked). For web, open the dev-server URL in that
+Chrome instance.
 
 ## Step 2 — Navigate and interact
 
@@ -157,17 +158,20 @@ For lock/unlock flows, see `.claude/agents/client-driver/references/lock.md`.
 
 ### Automation driver
 
-A dev-only object, `window.bitwardenAutomationDriver`, is attached to the renderer global. Call its
-methods via `mcp__electron-devtools-attach__evaluate_script` to override feature flags, send app messages,
-reload the process, control biometrics, and read flight recorder events.
+A dev-only object, `window.bitwardenAutomationDriver`, is attached to the renderer global. It
+exposes **capabilities by name** — `driver.get("<name>")` — with no direct properties; `driver.list()`
+returns the names registered on the running client. Call capability methods via
+`mcp__electron-devtools-attach__evaluate_script` to override feature flags, open menubar UI, reload the
+process, control biometrics, and read flight recorder events.
 
-Driver capabilities are documented in the references:
+Registered names: `biometrics`, `desktopNavigation`, `featureFlags`, `lock`, `logging`,
+`processReload`, `state`. Capabilities are documented in the references:
 
 - **Feature flags** → `.claude/agents/client-driver/references/feature-flags.md`
 - **Biometrics** → `.claude/agents/client-driver/references/biometrics.md`
-- **Flight recorder** → `.claude/agents/client-driver/references/flight-recorder.md`
-- **Log buffer** → `.claude/agents/client-driver/references/log-buffer.md`
-- **Messaging / menubar** → `.claude/agents/client-driver/references/messaging.md`
+- **Flight recorder / logging** → `.claude/agents/client-driver/references/flight-recorder.md`
+- **Menubar navigation** → `.claude/agents/client-driver/references/messaging.md`
+- **Lock / unlock** → `.claude/agents/client-driver/references/lock.md`
 
 ## Browser extension
 
@@ -192,6 +196,7 @@ regular page. Select it and interact via `mcp__chrome-devtools-attach__*` tools.
 
 - Prefer `take_snapshot` over `take_screenshot` for locating elements; use screenshots to report
   visual state.
-- After `reloadProcess` (desktop), re-establish the page with `list_pages` → `select_page`.
-- If `.biometrics` is undefined on the driver, relaunch the desktop app with
+- After `get("processReload").reload()` (desktop), re-establish the page with `list_pages` →
+  `select_page`.
+- If `biometrics` calls reject with "No handler registered", relaunch the desktop app with
   `USE_AUTOMATION_BIOMETRICS=1`.
