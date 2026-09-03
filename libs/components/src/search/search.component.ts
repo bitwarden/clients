@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  computed,
   input,
   model,
   signal,
@@ -24,9 +23,8 @@ import {
 } from "../form-field/field-container.directive";
 import { IconComponent } from "../icon";
 import { BitIconButtonComponent } from "../icon-button";
-import { KbdDirective } from "../kbd";
+import { BitKbdComponent } from "../kbd";
 import { FocusableElement } from "../shared/focusable-element";
-import { injectModifierKey } from "../utils";
 
 let nextId = 0;
 
@@ -58,7 +56,7 @@ let nextId = 0;
     FormsModule,
     I18nPipe,
     BitIconButtonComponent,
-    KbdDirective,
+    BitKbdComponent,
   ],
 })
 export class SearchComponent implements ControlValueAccessor, FocusableElement {
@@ -80,16 +78,8 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   readonly autocomplete = input<string>();
   readonly size = input<FieldContainerSize>("base");
 
-  /** When true, shows ⌘/Ctrl+F and Esc shortcut hints and hijacks Cmd/Ctrl+F to focus. */
-  readonly showShortcutHints = input<boolean>(false);
-
-  /** Platform-aware modifier key label; "Command" on Mac, "Ctrl" elsewhere. */
-  protected readonly modifierKey = injectModifierKey();
-
-  /** Maps "Command" → "⌘", "Ctrl" → "Ctrl" for the template badge. */
-  protected readonly modifierGlyph = computed(() =>
-    this.modifierKey() === "Command" ? "⌘" : "Ctrl",
-  );
+  /** When true, enables ⌘/Ctrl+F and Esc keyboard shortcuts and shows shortcut hints. */
+  readonly useKeyShortcuts = input<boolean>(false);
 
   getFocusTarget() {
     return this.input()?.nativeElement;
@@ -101,7 +91,7 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   }
 
   protected handleDocumentShortcut(event: KeyboardEvent): void {
-    if (!this.showShortcutHints() || this.disabled()) {
+    if (!this.useKeyShortcuts() || this.disabled()) {
       return;
     }
 

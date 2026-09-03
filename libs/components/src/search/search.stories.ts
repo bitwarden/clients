@@ -57,7 +57,7 @@ export const WithShortcutHints: Story = {
     `,
   }),
   args: {
-    showShortcutHints: true,
+    useKeyShortcuts: true,
   },
 };
 
@@ -73,7 +73,7 @@ const makeDoc = (platform: string) =>
   selector: "bw-windows-search-story",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SearchComponent, FormsModule],
-  template: `<bit-search [showShortcutHints]="true"></bit-search>`,
+  template: `<bit-search [useKeyShortcuts]="true"></bit-search>`,
   providers: [{ provide: DOCUMENT, useValue: makeDoc("Win32") }],
 })
 class WindowsSearchStoryComponent {}
@@ -83,7 +83,7 @@ class WindowsSearchStoryComponent {}
   selector: "bw-mac-search-story",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SearchComponent, FormsModule],
-  template: `<bit-search [showShortcutHints]="true"></bit-search>`,
+  template: `<bit-search [useKeyShortcuts]="true"></bit-search>`,
   providers: [{ provide: DOCUMENT, useValue: makeDoc("MacIntel") }],
 })
 class MacSearchStoryComponent {}
