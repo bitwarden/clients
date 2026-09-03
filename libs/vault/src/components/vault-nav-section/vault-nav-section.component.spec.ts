@@ -319,7 +319,7 @@ describe("VaultNavSectionComponent", () => {
     it("links My items to the organization's collection by the sentinel segment", () => {
       const group = expandGroup("Acme corporation");
 
-      expect(navItemHref(group, "myItems")).toBe("/vault/org-a/my-items");
+      expect(navItemHref(group, "myItemsV2")).toBe("/vault/org-a/my-items");
     });
 
     it("omits My items for an organization with no default user collection", () => {
@@ -327,7 +327,7 @@ describe("VaultNavSectionComponent", () => {
       fixture.detectChanges();
       const group = expandGroup("Acme corporation");
 
-      expect(navItem(group, "myItems")).toBeUndefined();
+      expect(navItem(group, "myItemsV2")).toBeUndefined();
     });
   });
 });
