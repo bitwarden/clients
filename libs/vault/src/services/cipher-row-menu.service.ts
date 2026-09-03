@@ -138,7 +138,8 @@ export class CipherRowMenuService {
         label: this.i18nService.t("delete"),
         icon: "bwi-trash",
         run: (item) => void this.cipherActionService.delete(item),
-        show: (item) => this.canDelete(item) && !CipherViewLikeUtils.isDeleted(item),
+        show: (item) =>
+          this.canDelete(item) && !CipherViewLikeUtils.isDeleted(item) && !this.isGated(item),
         variant: "danger",
       },
       {
@@ -146,7 +147,8 @@ export class CipherRowMenuService {
         label: this.i18nService.t("permanentlyDelete"),
         icon: "bwi-trash",
         run: (item) => void this.cipherActionService.delete(item),
-        show: (item) => this.canDelete(item) && CipherViewLikeUtils.isDeleted(item),
+        show: (item) =>
+          this.canDelete(item) && CipherViewLikeUtils.isDeleted(item) && !this.isGated(item),
         variant: "danger",
       },
     ];
@@ -204,15 +206,34 @@ export class CipherRowMenuService {
   }
 
   private showArchive(cipher: CipherViewLike): boolean {
-    return !CipherViewLikeUtils.isArchived(cipher) && !CipherViewLikeUtils.isDeleted(cipher);
+    return (
+      !CipherViewLikeUtils.isArchived(cipher) &&
+      !CipherViewLikeUtils.isDeleted(cipher) &&
+      !this.isGated(cipher)
+    );
   }
 
   private showUnarchive(cipher: CipherViewLike): boolean {
-    return CipherViewLikeUtils.isArchived(cipher) && !CipherViewLikeUtils.isDeleted(cipher);
+    return (
+      CipherViewLikeUtils.isArchived(cipher) &&
+      !CipherViewLikeUtils.isDeleted(cipher) &&
+      !this.isGated(cipher)
+    );
   }
 
   private showRestore(cipher: CipherViewLike): boolean {
-    return CipherViewLikeUtils.isDeleted(cipher) && this.canRestore(cipher);
+    return (
+      CipherViewLikeUtils.isDeleted(cipher) && this.canRestore(cipher) && !this.isGated(cipher)
+    );
+  }
+
+  /**
+   * A PAM-gated ("partial") row is one the caller has no access to yet, so the menu withholds the
+   * actions that would change the item's state. The legacy web row menu guards the same entries on
+   * `isPartial`; this keeps the two menus in step.
+   */
+  private isGated(cipher: CipherViewLike): boolean {
+    return CipherViewLikeUtils.isPartial(cipher);
   }
 
   private canDelete(cipher: CipherViewLike): boolean {

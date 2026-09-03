@@ -254,6 +254,18 @@ describe("VaultItemDialogComponent", () => {
 
       expect(component["showEdit"]).toBe(true);
     });
+
+    it("hides the footer's Archive and Delete icon buttons for a partial-data cipher", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login, partial: true } as any);
+
+      expect(component["showActionButtons"]).toBe(false);
+    });
+
+    it("shows the footer's icon buttons for the same cipher once it is no longer partial", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login } as any);
+
+      expect(component["showActionButtons"]).toBe(true);
+    });
   });
 
   describe("submitButtonText$", () => {
