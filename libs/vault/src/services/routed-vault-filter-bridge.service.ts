@@ -100,10 +100,7 @@ function createLegacyFilterForAdminConsole(
 ): VaultFilter {
   const legacyFilter = new VaultFilter();
 
-  if (
-    (filter.collectionId === undefined && filter.type === undefined) ||
-    filter.collectionId === All
-  ) {
+  if (filter.collectionId === undefined && filter.type === undefined) {
     legacyFilter.selectedCollectionNode = ServiceUtils.getTreeNodeObject(
       collectionTree,
       "AllCollections",

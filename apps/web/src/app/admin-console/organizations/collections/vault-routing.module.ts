@@ -5,7 +5,6 @@ import { canAccessVaultTab } from "@bitwarden/common/admin-console/abstractions/
 
 import { organizationPermissionsGuard } from "../guards/org-permissions.guard";
 
-import { orgVaultDefaultFilterGuard } from "./org-vault-default-filter.guard";
 import { VaultComponent } from "./vault.component";
 
 const routes: Routes = [
@@ -13,7 +12,7 @@ const routes: Routes = [
     path: "",
     component: VaultComponent,
     data: { titleId: "vaults" },
-    canActivate: [organizationPermissionsGuard(canAccessVaultTab), orgVaultDefaultFilterGuard],
+    canActivate: [organizationPermissionsGuard(canAccessVaultTab)],
   },
 ];
 

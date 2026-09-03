@@ -105,30 +105,23 @@ export class VaultHeaderComponent {
   readonly openAddItemDialogEvent = output();
 
   protected readonly title = computed(() => {
+    const collectionsKey = this.vfo1TerminologyService.enabled() ? "sharedFolders" : "collections";
+
     const collection = this.collection();
     if (collection != null) {
       return collection.node.name;
     }
 
-    const currentFilter = this.filter();
-    if (currentFilter.collectionId === Unassigned) {
+    if (this.filter().collectionId === Unassigned) {
       return this.i18nService.t("unassigned");
     }
 
-    const vfo1Enabled = this.vfo1TerminologyService.enabled();
-    if (vfo1Enabled) {
-      if (currentFilter.type === "trash") {
-        return this.i18nService.t("trash");
-      }
-      if (currentFilter.collectionId === undefined) {
-        return this.organization().name;
-      }
+    const orgName = this.organization().name;
+    if (this.vfo1TerminologyService.enabled() || !orgName) {
+      return this.i18nService.t(collectionsKey);
     }
 
-    const collectionsKey = vfo1Enabled ? "sharedFolders" : "collections";
-    return this.organization().name
-      ? `${this.organization().name} ${this.i18nService.t(collectionsKey).toLowerCase()}`
-      : this.i18nService.t(collectionsKey);
+    return `${orgName} ${this.i18nService.t(collectionsKey).toLowerCase()}`;
   });
 
   protected readonly icon = computed(() =>
