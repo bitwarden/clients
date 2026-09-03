@@ -382,7 +382,7 @@ const buildProviders = (args: StoryArgs) => {
           search: "Search",
           searchResults: "Search results",
           resetSearch: "Reset search",
-          clearSearch: "Clear by clicking here or pressing Esc.",
+          clearSearchTooltip: "Clear by clicking here or pressing Esc.",
           name: "Name",
           autofillSuggestions: "Autofill suggestions",
           itemSuggestions: "Suggested items",

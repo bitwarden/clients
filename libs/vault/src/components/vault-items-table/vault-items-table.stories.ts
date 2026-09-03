@@ -443,7 +443,7 @@ export default {
               // Toolbar
               search: "Search",
               resetSearch: "Reset search",
-              clearSearch: "Clear by clicking here or pressing Esc.",
+              clearSearchTooltip: "Clear by clicking here or pressing Esc.",
               type: "Type",
               all: "All",
               favorites: "Favorites",
