@@ -1,0 +1,56 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as ErrorCardStories from "./error-card.component.stories";
+
+<Meta of={ErrorCardStories} />
+
+# Error Card
+
+A generic billing error card: an icon badge, a title, a description, and an optional action button.
+All copy is passed in already-localized, so the card is reusable across surfaces (subscription
+failed to load, payment declined, etc.).
+
+<Canvas of={ErrorCardStories.SubscriptionFailedToLoad} />
+
+## Usage
+
+```ts
+import { ErrorCardComponent } from "@bitwarden/subscription";
+```
+
+```html
+<billing-error-card
+  [title]="'subscriptionDetailsNotLoading' | i18n"
+  [description]="'subscriptionDetailsNotLoadingDesc' | i18n"
+  [buttonText]="'refresh' | i18n"
+  icon="bwi-clear"
+  (actionClicked)="reload()"
+/>
+```
+
+## API
+
+### Inputs
+
+| Input         | Type            | Description                                                                      |
+| ------------- | --------------- | -------------------------------------------------------------------------------- |
+| `title`       | `string`        | Required. Heading text, already localized.                                       |
+| `description` | `string`        | Required. Body text explaining the error, already localized.                     |
+| `buttonText`  | `string`        | Optional. Action button label, already localized. Omit to hide the button.       |
+| `icon`        | `BitwardenIcon` | Optional. Icon in the header badge. Defaults to `bwi-error`.                     |
+| `iconClass`   | `string`        | Optional. Utility classes on the icon (e.g. color). Defaults to a warning color. |
+
+### Outputs
+
+| Output          | Type   | Description                                |
+| --------------- | ------ | ------------------------------------------ |
+| `actionClicked` | `void` | Emitted when the action button is clicked. |
+
+## Examples
+
+### Subscription Failed To Load
+
+<Canvas of={ErrorCardStories.SubscriptionFailedToLoad} />
+
+### Without Action Button
+
+<Canvas of={ErrorCardStories.WithoutAction} />

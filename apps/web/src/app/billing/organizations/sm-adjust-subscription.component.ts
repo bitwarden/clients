@@ -17,6 +17,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
 
+import { BillingSharedModule } from "../shared";
+
 export interface SecretsManagerSubscriptionOptions {
   interval: "year" | "month";
 
@@ -67,7 +69,7 @@ export interface SecretsManagerSubscriptionOptions {
 @Component({
   selector: "app-sm-adjust-subscription",
   templateUrl: "sm-adjust-subscription.component.html",
-  standalone: false,
+  imports: [BillingSharedModule],
 })
 export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

@@ -38,9 +38,11 @@ export const getCartItemTranslationKey = (
     case "pm-seat":
       return getPasswordManagerSeatTranslationKey(planTier, flowContext, logService);
     case "pm-storage":
-      return "additionalStorageGb";
+      return "additionalStorageGbLower";
     case "sm-seat":
-      return "secretsManagerPlanPrice";
+      return flowContext === InvoicePreviewFlowContext.OrganizationSubscriptionPage
+        ? "membersLower"
+        : "secretsManagerPlanPrice";
     case "sm-service-account":
       return "additionalServiceAccounts";
     default: {
@@ -77,13 +79,20 @@ const getPasswordManagerSeatTranslationKey = (
         return membershipKeysByTier[planTier];
       }
       break;
-    // Plan-change previews always describe an existing organization moving between org tiers,
-    // so they render the same per-seat plan-price copy as the other org-scoped surfaces. A
-    // premium tier can't be plan-changed into, hence the tier guard below leaves it unmapped.
-    case InvoicePreviewFlowContext.OrganizationCheckout:
-    case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
+    // Org purchase surfaces (checkout and plan-change) show per-seat plan-price copy; premium is
+    // not an org tier, so the tier guard leaves it unmapped. The subscription page diverges below.
     case InvoicePreviewFlowContext.OrganizationPlanChange:
+    case InvoicePreviewFlowContext.OrganizationCheckout:
       if (planTier === "families" || planTier === "teams" || planTier === "enterprise") {
+        return "passwordManagerPlanPrice";
+      }
+      break;
+    case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
+      // Teams/Enterprise bill per seat, so "members"; Families is one flat plan (plan price).
+      if (planTier === "teams" || planTier === "enterprise") {
+        return "membersLower";
+      }
+      if (planTier === "families") {
         return "passwordManagerPlanPrice";
       }
       break;

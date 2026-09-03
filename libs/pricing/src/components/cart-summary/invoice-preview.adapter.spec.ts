@@ -70,7 +70,7 @@ describe("adaptInvoicePreviewToCart", () => {
 
       expect(cart.passwordManager.seats.translationKey).toBe("passwordManagerPlanPrice");
       expect(cart.passwordManager.additionalStorage).toEqual({
-        translationKey: "additionalStorageGb",
+        translationKey: "additionalStorageGbLower",
         quantity: 2,
         cost: 10,
       });

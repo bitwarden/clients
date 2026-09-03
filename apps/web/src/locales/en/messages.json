@@ -4472,6 +4472,9 @@
   "additionalStorageGb": {
     "message": "Additional storage (GB)"
   },
+  "additionalStorageGbLower": {
+    "message": "additional storage GB"
+  },
   "additionalStorageGbDesc": {
     "message": "# of additional GB"
   },
@@ -5191,6 +5194,12 @@
   },
   "annual": {
     "message": "Annual"
+  },
+  "annualLower": {
+    "message": "annual"
+  },
+  "monthlyLower": {
+    "message": "monthly"
   },
   "basePrice": {
     "message": "Base price"
@@ -7225,6 +7234,19 @@
       }
     }
   },
+  "organizationSubscriptionCardTitle": {
+    "message": "$PLAN$ $CADENCE$ subscription",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
+      }
+    }
+  },
   "seatsToAdd": {
     "message": "Seats to add"
   },
@@ -7318,6 +7340,12 @@
   },
   "subscription": {
     "message": "Subscription"
+  },
+  "subscriptionDetailsNotLoading": {
+    "message": "Subscription details not loading"
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "Our billing service is unavailable, so we can't show your subscription and pricing right now. Your subscription itself hasn't been affected."
   },
   "loading": {
     "message": "Loading"
@@ -11022,6 +11050,9 @@
   },
   "members": {
     "message": "Members"
+  },
+  "membersLower": {
+    "message": "members"
   },
   "membersAtRisk": {
     "message": "Members at risk"
@@ -17576,5 +17607,20 @@
         "example": "Login"
       }
     }
+  },
+  "subscriptionMarkedForCancellation": {
+    "message": "The subscription has been marked for cancellation at the end of the current billing period. "
+  },
+  "keepSubscription":{
+    "message": "Keep subscription"
+  },
+  "subscriptionIsNowActive": {
+    "message": "Subscription is now active"
+  },
+    "undoCancellationRequestConfirmation": {
+    "message": "This will undo your cancellation request and reactivate your subscription."
+  },
+  "keepAndReactivate" : {
+    "message": "Keep and reactivate"
   }
 }

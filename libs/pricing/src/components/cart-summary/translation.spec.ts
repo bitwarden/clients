@@ -48,19 +48,14 @@ describe("getCartItemTranslationKey", () => {
       "families",
       "passwordManagerPlanPrice",
     ],
-    [
-      "pm-seat",
-      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
-      "teams",
-      "passwordManagerPlanPrice",
-    ],
+    ["pm-seat", InvoicePreviewFlowContext.OrganizationSubscriptionPage, "teams", "membersLower"],
     [
       "pm-seat",
       InvoicePreviewFlowContext.OrganizationSubscriptionPage,
       "enterprise",
-      "passwordManagerPlanPrice",
+      "membersLower",
     ],
-    // Plan-change follows the other org-scoped surfaces; rationale in translation.ts.
+    // Plan-change follows checkout (per-seat plan price), not the subscription page.
     [
       "pm-seat",
       InvoicePreviewFlowContext.OrganizationPlanChange,
@@ -79,6 +74,16 @@ describe("getCartItemTranslationKey", () => {
       "enterprise",
       "passwordManagerPlanPrice",
     ],
+    // Secrets Manager seats mirror PM: plan-price copy on the org purchase surfaces, "members" on
+    // the subscription page. Tier-agnostic (SM is Teams/Enterprise only).
+    ["sm-seat", InvoicePreviewFlowContext.OrganizationCheckout, "teams", "secretsManagerPlanPrice"],
+    [
+      "sm-seat",
+      InvoicePreviewFlowContext.OrganizationPlanChange,
+      "enterprise",
+      "secretsManagerPlanPrice",
+    ],
+    ["sm-seat", InvoicePreviewFlowContext.OrganizationSubscriptionPage, "teams", "membersLower"],
   ];
 
   it.each(fanOut)(
@@ -95,8 +100,7 @@ describe("getCartItemTranslationKey", () => {
   const allTiers: PlanTier[] = ["families", "teams", "enterprise", "premium"];
 
   const tierAgnostic: Array<[PurchasableReference, string]> = [
-    ["pm-storage", "additionalStorageGb"],
-    ["sm-seat", "secretsManagerPlanPrice"],
+    ["pm-storage", "additionalStorageGbLower"],
     ["sm-service-account", "additionalServiceAccounts"],
   ];
 
