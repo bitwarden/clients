@@ -19,7 +19,7 @@
     [disabled]="disabled()"
     [attr.autocomplete]="autocomplete()"
     (blur)="onTouch()"
-    [attr.aria-keyshortcuts]="useKeyShortcuts() ? 'Control+F Meta+F' : null"
+    [attr.aria-keyshortcuts]="useKeyShortcuts() ? 'Control+f Meta+f' : null"
   />
   @if (useKeyShortcuts() && !searchText()) {
     <span

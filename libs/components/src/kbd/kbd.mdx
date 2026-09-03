@@ -47,15 +47,17 @@ and it renders the hint and sets `aria-keyshortcuts` on its own input. When pair
 control of your own, follow the same shape:
 
 ```html
-<input type="search" aria-keyshortcuts="Control+F Meta+F" />
+<input type="search" aria-keyshortcuts="Control+f Meta+f" />
 <span aria-hidden="true">
   <bit-kbd [keys]="['modifier', 'F']" />
 </span>
 ```
 
 `aria-keyshortcuts` takes [UI Events](https://www.w3.org/TR/uievents-key/) key names rather than the
-labels shown in the badge, and the value is case-insensitive. Modifiers are always spelled `Alt`,
-`Control`, `Shift`, `Meta`, or `AltGraph`, so those tokens are never translated.
+labels shown in the badge, and the tokens name physical keys rather than the characters they
+generate — so a shortcut on the `f` key is `Control+f`, and `Control+F` would mean Ctrl+Shift+F.
+Modifiers are always spelled `Alt`, `Control`, `Shift`, `Meta`, or `AltGraph`, so those tokens are
+never translated.
 
 Nothing localizes the rest of the value for you, though — adapting it is the author's job. A
 shortcut whose non-modifier key sits on a different physical key, or needs a different modifier,
