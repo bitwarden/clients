@@ -29,8 +29,10 @@ export interface OrgSubscriptionAccess {
  */
 export function resolveOrgSubscriptionAccess(org: Organization): OrgSubscriptionAccess {
   const managedByConsolidatedBillingMsp = org.hasProvider && org.hasBillableProvider;
+  const hideSensitiveData = org.hasReseller && !org.canEditSubscription;
   return {
-    showSubscription: org.canViewSubscription && !managedByConsolidatedBillingMsp,
+    showSubscription:
+      org.canViewSubscription && !managedByConsolidatedBillingMsp && !hideSensitiveData,
     showManagementActions: org.canEditSubscription && !managedByConsolidatedBillingMsp,
     showSelfHost: org.selfHost,
     showConsolidatedBillingMsp: managedByConsolidatedBillingMsp,

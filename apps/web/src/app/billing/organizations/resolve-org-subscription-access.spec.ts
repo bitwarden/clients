@@ -17,9 +17,20 @@ describe("resolveOrgSubscriptionAccess", () => {
       expect(result.showSubscription).toBe(true);
     });
 
-    it("returns true for resold organization owner", () => {
+    it("returns false for a view-only resold organization owner", () => {
       const org = createOrganization({
         isOwner: true,
+        hasReseller: true,
+      });
+
+      const result = resolveOrgSubscriptionAccess(org);
+
+      expect(result.showSubscription).toBe(false);
+    });
+
+    it("returns true for a resold organization provider user who can edit", () => {
+      const org = createOrganization({
+        isProviderUser: true,
         hasReseller: true,
       });
 
@@ -244,7 +255,7 @@ describe("resolveOrgSubscriptionAccess", () => {
       const result = resolveOrgSubscriptionAccess(org);
 
       expect(result).toEqual({
-        showSubscription: true,
+        showSubscription: false,
         showManagementActions: false,
         showSelfHost: true,
         showConsolidatedBillingMsp: false,
