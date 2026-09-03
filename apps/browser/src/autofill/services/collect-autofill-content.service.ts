@@ -77,6 +77,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private isMonitoring = false;
   private pendingAttributeMutations: Map<Element, Set<string>> = new Map();
   private pendingTopLayerTargets: Set<Element> = new Set();
+  // Attach the "toggle" listener at most once per element; WeakSet lets detached nodes GC.
+  private topLayerListenedElements = new WeakSet<Element>();
   private pendingChildListUpdate = false;
   private lastDetachedPurgeAt = -Infinity;
   private readonly detachedPurgeThrottleMs = 1000;
@@ -1743,17 +1745,19 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.ownedExperienceTagNames = ownedTags;
 
       if (!ownedTags.includes(element.tagName)) {
-        const toggleListener = (event: Event) => {
-          if ((event as ToggleEvent).newState === "open") {
-            // Add a slight delay (but faster than a user's reaction), to ensure the layer
-            // positioning happens after any triggered toggle has completed.
-            setTimeout(() => {
-              overlayService.refreshMenuLayerPosition();
-            }, 100);
-          }
-        };
-        element.addEventListener("toggle", toggleListener);
-
+        if (!this.topLayerListenedElements.has(element)) {
+          this.topLayerListenedElements.add(element);
+          const toggleListener = (event: Event) => {
+            if ((event as ToggleEvent).newState === "open") {
+              // Add a slight delay (but faster than a user's reaction), to ensure the layer
+              // positioning happens after any triggered toggle has completed.
+              setTimeout(() => {
+                overlayService.refreshMenuLayerPosition();
+              }, 100);
+            }
+          };
+          element.addEventListener("toggle", toggleListener);
+        }
         overlayService.refreshMenuLayerPosition();
       }
     }
