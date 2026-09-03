@@ -126,15 +126,6 @@ export class SecretService {
     this._secret.next(await this.createSecretView(new SecretResponse(r)));
   }
 
-  /**
-   * Restores a secret to a previous version.
-   *
-   * Lives here rather than on SecretVersionService because it mutates the secret, and list views
-   * refresh off `secret$` — emitting is what keeps them from showing a stale revision date.
-   *
-   * @param secretId - Secret to restore
-   * @param versionId - Version to restore to
-   */
   async restoreVersion(secretId: string, versionId: string): Promise<void> {
     const r = await this.apiService.send(
       "PUT",

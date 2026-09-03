@@ -114,8 +114,9 @@ export class SecretVersionService {
   }
 
   /**
-   * Decrypts a single field, returning a sentinel rather than throwing so that one
-   * undecryptable version does not discard the entire history.
+   * Decrypts one piece of text. If it cannot be decrypted, this returns a
+   * placeholder instead of failing, so one bad version does not stop the rest
+   * of the history from loading.
    */
   private async decryptField(encString: EncString, orgKey: SymmetricCryptoKey): Promise<string> {
     try {
