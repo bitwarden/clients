@@ -88,6 +88,19 @@ export class SideNavService {
    */
   readonly dragDisplayWidth = signal<number | null>(null);
 
+  /**
+   * Whether to render open-state styling (labels, logo, sections). Distinct from `open`, which
+   * also drives push/overlay mode: during a preview drag the nav adopts open styling once it is
+   * OPEN_STYLE_THRESHOLD_PX past closed, but stays functionally closed until the drag commits.
+   */
+  readonly showLabels = computed(() => {
+    const preview = this.dragDisplayWidth();
+    if (preview !== null) {
+      return preview >= this.CLOSED_WIDTH + this.OPEN_STYLE_THRESHOLD_PX / this.rootFontSizePx;
+    }
+    return this.open();
+  });
+
   /** Local width state. GlobalStateProvider is authoritative and applied once resolved. */
   private readonly _width$ = new BehaviorSubject<number>(this.DEFAULT_OPEN_WIDTH);
   readonly width$ = this._width$.asObservable();
@@ -165,8 +178,8 @@ export class SideNavService {
       // Dragging from collapsed state — drive visual width via dragDisplayWidth without
       // changing `open`, so no component adopts open-state styling prematurely.
       if (newWidthInRem < this.CLOSED_WIDTH) {
+        // Dragged back onto the icon strip — abort the preview and stay collapsed.
         this.dragDisplayWidth.set(null);
-        this.open.set(false);
         return;
       }
 
@@ -177,10 +190,8 @@ export class SideNavService {
         this.open.set(true);
         this._setWidthWithinMinMax(newWidthInRem);
       } else {
-        // Drive visual width via dragDisplayWidth; flip open styles once 50px past closed
-        const openStyleThresholdRem =
-          this.CLOSED_WIDTH + this.OPEN_STYLE_THRESHOLD_PX / this.rootFontSizePx;
-        this.open.set(newWidthInRem >= openStyleThresholdRem);
+        // Preview only. `showLabels` derives the open-styling threshold from this width;
+        // `open` stays false so push/overlay mode doesn't flip mid-gesture.
         this.dragDisplayWidth.set(newWidthInRem);
       }
       return;
