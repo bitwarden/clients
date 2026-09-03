@@ -137,7 +137,11 @@ const routes: Routes = [
             data: {
               titleId: "memberAdoptionReport",
             },
-            canActivate: [canAccessMemberAdoptionReport(), isEnterpriseOrgGuard()],
+            canActivate: [
+              organizationPermissionsGuard((org) => org.canAccessReports),
+              canAccessMemberAdoptionReport(),
+              isEnterpriseOrgGuard(),
+            ],
           },
         ],
       },
