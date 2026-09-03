@@ -9,6 +9,9 @@
 <router-outlet></router-outlet>
 
 @if (!(homepage$ | async)) {
+  <!-- Clearance for the back button, which is fixed to the viewport outside this scroll region. -->
+  <div class="tw-h-16"></div>
+
   <!-- Focus bridge: redirects Tab to the overlay back button (which is outside cdkTrapFocus) -->
   <span
     tabindex="0"

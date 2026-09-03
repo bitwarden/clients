@@ -165,6 +165,20 @@ export class ReportsHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
 
+    const memberAdoptionReportEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.MemberAdoptionReport),
+    );
+
+    if (memberAdoptionReportEnabled) {
+      reportsArray.push({
+        ...reports[ReportType.MemberAdoptionReport],
+        variant:
+          productType == ProductTierType.Enterprise
+            ? ReportVariant.Enabled
+            : ReportVariant.RequiresEnterprise,
+      });
+    }
+
     return reportsArray;
   }
 
