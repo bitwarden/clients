@@ -467,7 +467,7 @@ export default class RuntimeBackground {
   }
 
   /**
-   * Validates that a referrer hostname matches any of the available regions' and current environment web vault URLs.
+   * Validates that a referrer hostname matches a known account or login-screen web vault URL.
    *
    * @param referrer - hostname from message source (should not include protocol or path)
    * @returns true if referrer matches any known vault hostname, false otherwise
@@ -478,11 +478,16 @@ export default class RuntimeBackground {
     }
 
     const environment = await firstValueFrom(this.environmentService.environment$);
+    // Pre-authentication callbacks can come from the server selected on the login screen.
+    const globalEnvironment = await firstValueFrom(this.environmentService.globalEnvironment$);
 
     const regions = this.environmentService.availableRegions();
     const regionVaultUrls = regions.map((r) => r.urls.webVault ?? r.urls.base);
-    const environmentWebVaultUrl = environment.getWebVaultUrl();
-    const messageIsFromKnownVault = [...regionVaultUrls, environmentWebVaultUrl].some(
+    const environmentWebVaultUrls = [
+      environment.getWebVaultUrl(),
+      globalEnvironment.getWebVaultUrl(),
+    ];
+    const messageIsFromKnownVault = [...regionVaultUrls, ...environmentWebVaultUrls].some(
       (webVaultUrl) => Utils.getHostname(webVaultUrl) === referrer,
     );
 
