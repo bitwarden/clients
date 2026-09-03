@@ -20,7 +20,7 @@ export class SideNavService {
   readonly DEFAULT_OPEN_WIDTH = 18.5; // 296px
   readonly MIN_OPEN_WIDTH = 15; // 240px
   readonly MAX_OPEN_WIDTH = 37.5; // 600px
-  readonly SNAP_TO_CLOSED_THRESHOLD = 4; // 48px — ~192px of tension past the 240px minimum
+  readonly SNAP_TO_CLOSED_THRESHOLD = 4; // 64px — 176px of tension past the 240px minimum
 
   /** Width of the collapsed nav (icon strip / side rail), in rem. */
   readonly CLOSED_WIDTH = 4;
@@ -193,7 +193,7 @@ export class SideNavService {
       return;
     }
 
-    // Tension zone: visually shrink at half speed to signal the snap threshold is approaching
+    // Tension zone: visually shrink at 15% speed to signal the snap threshold is approaching
     if (newWidthInRem < this.MIN_OPEN_WIDTH) {
       const overflow = this.MIN_OPEN_WIDTH - newWidthInRem;
       this._width$.next(this.MIN_OPEN_WIDTH - overflow * 0.15);
