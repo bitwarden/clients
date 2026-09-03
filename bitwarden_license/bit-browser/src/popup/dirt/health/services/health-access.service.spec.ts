@@ -1,9 +1,12 @@
 import { TestBed } from "@angular/core/testing";
+import { Router, UrlTree } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -16,7 +19,7 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 import { StateProvider } from "@bitwarden/state";
 
-import { HealthAccessService } from "./health-access.service";
+import { canAccessHealthDetail, HealthAccessService } from "./health-access.service";
 
 describe("HealthAccessService", () => {
   const userId = Utils.newGuid() as UserId;
@@ -33,6 +36,9 @@ describe("HealthAccessService", () => {
   let organizationService: MockProxy<OrganizationService>;
   let stateProvider: FakeStateProvider;
   let service: HealthAccessService;
+  let router: MockProxy<Router>;
+  let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
+  let activeAccount$: BehaviorSubject<Account | null>;
 
   function setFeatureFlag(enabled: boolean) {
     configService.getFeatureFlag$
@@ -49,12 +55,23 @@ describe("HealthAccessService", () => {
     organizationService = mock<OrganizationService>();
     stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
 
+    router = mock<Router>();
+    router.createUrlTree.mockReturnValue({} as UrlTree);
+    billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+    activeAccount$ = new BehaviorSubject<Account | null>({ id: userId } as Account);
+
     TestBed.configureTestingModule({
       providers: [
         HealthAccessService,
         { provide: ConfigService, useValue: configService },
         { provide: OrganizationService, useValue: organizationService },
         { provide: StateProvider, useValue: stateProvider },
+        { provide: Router, useValue: router },
+        { provide: AccountService, useValue: { activeAccount$ } },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: billingAccountProfileStateService,
+        },
       ],
     });
 
@@ -239,6 +256,60 @@ describe("HealthAccessService", () => {
       expect(stateProvider.mock.setUserState).toHaveBeenCalledWith(
         expect.objectContaining({ key: "hasRunHealthScan" }),
         true,
+        userId,
+      );
+    });
+  });
+
+  describe("canAccessHealthDetail", () => {
+    /** Runs the guard the way the router does, ignoring the snapshots it does not read. */
+    function runGuard() {
+      return TestBed.runInInjectionContext(() =>
+        firstValueFrom(
+          canAccessHealthDetail(null as never, null as never) as Observable<boolean | UrlTree>,
+        ),
+      );
+    }
+
+    function setPremium(hasPremium: boolean) {
+      billingAccountProfileStateService.hasPremiumFromAnySource$
+        .calledWith(userId)
+        .mockReturnValue(of(hasPremium));
+    }
+
+    it("lets a Premium User through", async () => {
+      setPremium(true);
+
+      await expect(runGuard()).resolves.toBe(true);
+      expect(router.createUrlTree).not.toHaveBeenCalled();
+    });
+
+    it("sends a User without Premium to the Health Overview", async () => {
+      // The Overview is the coherent landing place: they still see the gauge, with
+      // the categories locked.
+      setPremium(false);
+
+      const result = await runGuard();
+
+      expect(result).not.toBe(true);
+      expect(router.createUrlTree).toHaveBeenCalledWith(["/tabs/health"]);
+    });
+
+    it("redirects when there is no active account", async () => {
+      activeAccount$.next(null);
+
+      const result = await runGuard();
+
+      expect(result).not.toBe(true);
+      expect(billingAccountProfileStateService.hasPremiumFromAnySource$).not.toHaveBeenCalled();
+    });
+
+    it("checks Premium for the active account", async () => {
+      setPremium(true);
+
+      await runGuard();
+
+      expect(billingAccountProfileStateService.hasPremiumFromAnySource$).toHaveBeenCalledWith(
         userId,
       );
     });

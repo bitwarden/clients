@@ -186,6 +186,16 @@ describe("HealthComponent", () => {
     fixture.detectChanges();
   }
 
+  /**
+   * Settles, having first waited out the vault-change debounce inside
+   * HealthScanService. Real timers rather than fake ones, so the scan progress
+   * view's own interval and Angular's stability tracking are left alone.
+   */
+  async function settleRefresh() {
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    await settle();
+  }
+
   beforeEach(async () => {
     activeAccount$ = new ReplaySubject<Account | null>(1);
     activeAccount$.next({ id: userId } as Account);
@@ -221,6 +231,8 @@ describe("HealthComponent", () => {
       ),
     );
     publishesOnBuild(new VaultHealthReportView());
+    // The auto-mock returns undefined, which the refresh pipeline cannot consume.
+    reportService.refreshVaultHealthReport.mockResolvedValue(undefined);
 
     logService = mock<LogService>();
 
@@ -515,20 +527,69 @@ describe("HealthComponent", () => {
       expect(overview()?.report().atRiskCount).toBe(1);
     });
 
-    it("scans once and does not rescan when the vault changes", async () => {
+    it("refreshes when the vault changes, without a second full scan", async () => {
       hasRunScan$.next(true);
       const ciphers$ = new BehaviorSubject<CipherView[]>([]);
       cipherService.cipherViews$.mockReturnValue(ciphers$);
+      await initComponent();
+      await settleRefresh();
+      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
+      reportService.refreshVaultHealthReport.mockClear();
+
+      const changed = [{} as CipherView];
+      ciphers$.next(changed);
+      await settleRefresh();
+
+      // The changed vault is what gets rechecked, and the breach lookups of a full
+      // scan are not repeated.
+      expect(reportService.refreshVaultHealthReport).toHaveBeenCalledWith(changed, userId);
+      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows no progress view while a vault change is applied", async () => {
+      // An update the user did not ask for stays in the background: the report they
+      // are reading stays on screen.
+      hasRunScan$.next(true);
+      const ciphers$ = new BehaviorSubject<CipherView[]>([]);
+      cipherService.cipherViews$.mockReturnValue(ciphers$);
+      publishesOnBuild(new VaultHealthReportView({ totalCount: 40, atRiskCount: 12 }));
+      await initComponent();
+      await settleRefresh();
+
+      ciphers$.next([{} as CipherView]);
+      await settleRefresh();
+
+      expect(scanning()).toBeNull();
+      expect(overview()).not.toBeNull();
+    });
+
+    it("does not refresh before the initial scan has completed", async () => {
+      // The refresh has no baseline to compare against until the scan publishes.
+      hasRunScan$.next(true);
+      const ciphers$ = new BehaviorSubject<CipherView[]>([]);
+      cipherService.cipherViews$.mockReturnValue(ciphers$);
+      buildNeverSettles();
 
       await initComponent();
-      await settle();
-      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
-
-      // A vault edit must not re-run the breach lookup.
       ciphers$.next([{} as CipherView]);
-      await settle();
+      await settleRefresh();
 
-      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
+      expect(reportService.refreshVaultHealthReport).not.toHaveBeenCalled();
+    });
+
+    it("stops watching the vault once the tab is destroyed", async () => {
+      hasRunScan$.next(true);
+      const ciphers$ = new BehaviorSubject<CipherView[]>([]);
+      cipherService.cipherViews$.mockReturnValue(ciphers$);
+      await initComponent();
+      await settleRefresh();
+      reportService.refreshVaultHealthReport.mockClear();
+
+      fixture.destroy();
+      ciphers$.next([{} as CipherView]);
+      await settleRefresh();
+
+      expect(reportService.refreshVaultHealthReport).not.toHaveBeenCalled();
     });
 
     it("does not carry a ciphers failure from one account to the next after a switch", async () => {

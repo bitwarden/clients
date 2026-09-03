@@ -56,10 +56,13 @@ export class OrganizationWarningsResponse extends BaseResponse {
 
 class FreeTrialWarningResponse extends BaseResponse {
   remainingTrialDays: number;
+  isSalesAssisted: boolean;
 
   constructor(response: any) {
     super(response);
     this.remainingTrialDays = this.getResponseProperty("RemainingTrialDays");
+    // Omitted by servers that predate PM-38574; false is the safe default (payment prompt shown).
+    this.isSalesAssisted = this.getResponseProperty("IsSalesAssisted") ?? false;
   }
 }
 
