@@ -4,7 +4,7 @@
       <button
         type="button"
         [bitMenuTriggerFor]="accountMenu"
-        menuPosition="above-end"
+        menuPosition="above-start"
         class="tw-shrink-0 tw-border-0 tw-bg-transparent tw-p-0"
       >
         <dynamic-avatar [id]="account().id" [text]="account() | userName"></dynamic-avatar>
@@ -19,7 +19,7 @@
     <button
       type="button"
       [bitMenuTriggerFor]="accountMenu"
-      menuPosition="above-end"
+      menuPosition="above-start"
       class="tw-w-full tw-flex tw-items-center tw-justify-center tw-border-0 tw-bg-transparent tw-py-3"
     >
       <dynamic-avatar [id]="account().id" [text]="account() | userName"></dynamic-avatar>
