@@ -51,6 +51,7 @@ import {
   resolveVaultScope,
   scopedCollectionSegment,
   scopedSharedFolderId,
+  SHARED_FOLDERS_ROUTE,
   vaultScopeCommands,
   VaultScopeType,
 } from "@bitwarden/vault";
@@ -309,16 +310,13 @@ export class VaultNextComponent {
     );
   }
 
-  // Derived from raw URL params, not the resolved scope — vaultScope() translates the
-  // MY_ITEMS_ROUTE sentinel to a real UUID, which would no longer match the browser URL
-  // and cause isActiveRoute to return false after vaultNav() loads.
   protected readonly currentFolderRoute = computed(() => {
     const vaultId = this.vaultIdParam();
     const collectionId = this.collectionIdParam();
     if (!vaultId || !collectionId) {
       return undefined;
     }
-    return ["/vault", vaultId, collectionId];
+    return ["/vault", vaultId, SHARED_FOLDERS_ROUTE, collectionId];
   });
 
   /**
