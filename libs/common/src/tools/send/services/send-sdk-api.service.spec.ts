@@ -30,6 +30,7 @@ import { SendType } from "../types/send-type";
 
 import { SendApiService } from "./send-api.service";
 import { MAX_SDK_FILE_SEND_SIZE_BYTES, SendSdkApiService } from "./send-sdk-api.service";
+import { SendSdkDecryptionService } from "./send-sdk-decryption.service";
 import { InternalSendService } from "./send.service.abstraction";
 
 describe("SendSdkApiService", () => {
@@ -40,6 +41,7 @@ describe("SendSdkApiService", () => {
   let sendService: MockProxy<InternalSendService>;
   let accountService: AccountService;
   let logService: MockProxy<LogService>;
+  let sdkDecryptionService: MockProxy<SendSdkDecryptionService>;
 
   let sendsClient: {
     create: jest.Mock;
@@ -60,6 +62,7 @@ describe("SendSdkApiService", () => {
     sendService = mock<InternalSendService>();
     accountService = mockAccountServiceWith(mockUserId);
     logService = mock<LogService>();
+    sdkDecryptionService = mock<SendSdkDecryptionService>();
 
     const sdkView = { id: "server-id", accessId: "server-access-id" } as unknown as SdkSendView;
     createFileSendResponse = {
@@ -96,6 +99,7 @@ describe("SendSdkApiService", () => {
       sendService,
       accountService,
       logService,
+      sdkDecryptionService,
     );
   });
 
@@ -105,7 +109,7 @@ describe("SendSdkApiService", () => {
     send.id = id;
     send.type = view.type;
     send.authType = view.authType;
-    jest.spyOn(send, "decrypt").mockResolvedValue(view);
+    sdkDecryptionService.decryptSend.mockResolvedValue(view.toSdkSendView());
     return send;
   }
 

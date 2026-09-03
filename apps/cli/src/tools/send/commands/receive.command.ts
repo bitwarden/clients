@@ -21,12 +21,16 @@ import {
   SendAccessDomainCredentials,
   TryGetSendAccessTokenError,
 } from "@bitwarden/common/auth/send-access";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
+import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 // eslint-disable-next-line no-restricted-imports
@@ -70,6 +74,8 @@ export class SendReceiveCommand extends DownloadCommand {
     private sendApiService: SendApiService,
     apiService: ApiService,
     private sendTokenService: SendTokenService,
+    private configService: ConfigService,
+    private sendSdkDecryptionService: SendSdkDecryptionService,
   ) {
     super(encryptService, apiService);
   }
@@ -540,7 +546,17 @@ export class SendReceiveCommand extends DownloadCommand {
 
       const sendAccess = new SendAccess(sendResponse);
       this.decKey = await this.legacyCompatKeyService.makeSendKey(keyArray);
-      const decryptedView = await sendAccess.decrypt(this.decKey);
+      const useSdkForSends = await this.configService.getFeatureFlag(
+        FeatureFlag.Pm30110SdkSendsApi,
+      );
+      const decryptedView = useSdkForSends
+        ? SendAccessView.fromSdk(
+            await this.sendSdkDecryptionService.decryptSendAccess(
+              sendResponse,
+              Utils.fromArrayToUrlB64(keyArray),
+            ),
+          )
+        : await sendAccess.decrypt(this.decKey);
 
       if (options.obj != null) {
         return Response.success(new SendAccessResponse(decryptedView));

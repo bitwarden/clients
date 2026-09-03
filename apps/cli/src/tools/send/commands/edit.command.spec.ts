@@ -5,9 +5,11 @@ import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -27,6 +29,8 @@ describe("SendEditCommand", () => {
   const sendApiService = mock<SendApiService>();
   const accountProfileService = mock<BillingAccountProfileStateService>();
   const accountService = mock<AccountService>();
+  const configService = mock<ConfigService>();
+  const sdkDecryptionService = mock<SendSdkDecryptionService>();
 
   const activeAccount = {
     id: "user-id" as UserId,
@@ -67,6 +71,8 @@ describe("SendEditCommand", () => {
       sendApiService,
       accountProfileService,
       accountService,
+      configService,
+      sdkDecryptionService,
     );
   });
 
