@@ -155,9 +155,6 @@ describe("BulkActionsBarComponent", () => {
     );
   });
 
-  // The wrapper is an invisible full-width band across the bottom of the viewport, so it has to
-  // stay out of hit-testing or it swallows clicks on whatever sits under it — a table's paginator,
-  // for one. Only the bar itself takes clicks, and only while it's showing.
   it("keeps hit-testing off the wrapper and on the bar only while visible", () => {
     expect(wrapper().classList).toContain("tw-pointer-events-none");
     expect(innerBar().classList).not.toContain("tw-pointer-events-auto");
