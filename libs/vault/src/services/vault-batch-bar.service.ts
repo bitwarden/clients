@@ -23,7 +23,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -85,6 +85,12 @@ export interface VaultBatchBarConfig {
   organization?: Organization;
   /** Whether the page is showing trashed items. */
   inTrash?: boolean;
+  /**
+   * The shared folder the page has drilled into. Omit to read it off `RoutedVaultFilterService`'s
+   * `?collectionId`; a host that scopes by route segment must set it, or Assign to collections
+   * opens without that folder selected and can't remove items from it.
+   */
+  activeCollectionId?: CollectionId;
 }
 
 /**
@@ -740,7 +746,9 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     const config = this.config();
     const filter = await firstValueFrom(this.routedVaultFilterBridgeService.activeFilter$);
 
-    const { collectionId } = filter;
+    // The host's own scope wins, since a page that drills into a shared folder by route segment
+    // leaves the route filter's `collectionId` empty.
+    const collectionId = config.activeCollectionId ?? filter.collectionId;
     const activeCollection =
       collectionId && collectionId !== All && collectionId !== Unassigned
         ? config.allCollections.find((c) => c.id === collectionId)

@@ -1239,6 +1239,40 @@ describe("VaultBatchBarService", () => {
 
       expect(service.selectedCount()).toBe(1);
     });
+
+    /**
+     * The dialog preselects the active collection, and unticking it is how items are removed from
+     * that folder. A host that drills in by route segment leaves the route filter empty, so without
+     * reading the config the folder in view is neither preselected nor removable.
+     */
+    it("takes the active collection from the config when the route filter names none", async () => {
+      const collection = makeCollection();
+      service.setConfig(
+        makeConfig({ allCollections: [collection], activeCollectionId: collection.id }),
+      );
+      service.selection.select({ cipher: makeCipher() });
+      mockAssignCollectionsDialogOpen.mockResolvedValue(AssignCollectionsResult.Canceled);
+
+      await service.bulkAssignToCollections();
+
+      expect(mockAssignCollectionsDialogOpen).toHaveBeenCalledWith(
+        expect.objectContaining({ activeCollection: collection }),
+      );
+    });
+
+    it("falls back to the route filter's collection when the config names none", async () => {
+      const collection = makeCollection();
+      service.setConfig(makeConfig({ allCollections: [collection] }));
+      activeFilterSubject.next({ collectionId: collection.id });
+      service.selection.select({ cipher: makeCipher() });
+      mockAssignCollectionsDialogOpen.mockResolvedValue(AssignCollectionsResult.Canceled);
+
+      await service.bulkAssignToCollections();
+
+      expect(mockAssignCollectionsDialogOpen).toHaveBeenCalledWith(
+        expect.objectContaining({ activeCollection: collection }),
+      );
+    });
   });
 
   describe("canEditCollectionAccess", () => {

@@ -737,6 +737,49 @@ describe("VaultNextComponent", () => {
     });
 
     /**
+     * The drilled-into shared folder lives in the scope, not the `?collectionId` the service reads.
+     * Without telling it, Assign to collections opens without that folder selected, and unticking
+     * it — the way items are removed from a folder — is unreachable.
+     */
+    it("tells the batch bar which shared folder the page has drilled into", () => {
+      collections$.next([buildCollection(engineeringId, organizationId)]);
+      scopeTo(organizationId, engineeringId);
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.activeCollectionId).toBe(engineeringId);
+    });
+
+    it("names no shared folder when the page is scoped to a whole vault", () => {
+      collections$.next([buildCollection(engineeringId, organizationId)]);
+      scopeTo(organizationId);
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.activeCollectionId).toBeUndefined();
+    });
+
+    /**
+     * `resolveVaultScope` trades the `my-items` sentinel for a real id once the nav loads, but the
+     * sentinel survives while the nav is still loading. It names no collection, so it must not
+     * reach the service as one — `allCollections.find` would miss and the dialog would preselect
+     * nothing, but an unresolved sentinel forwarded as an id is a lie the service can act on.
+     */
+    it("names no shared folder while the sentinel is still unresolved", () => {
+      collections$.next([buildCollection(engineeringId, organizationId)]);
+      // The nav hasn't loaded, so `resolveVaultScope` leaves the sentinel in place.
+      vaultNav$.next(undefined as unknown as VaultsNavViewModel);
+      scopeTo(organizationId, MY_ITEMS_ROUTE);
+
+      expect(component().vaultScope()).toEqual({
+        type: "organization",
+        organizationId,
+        collectionId: MY_ITEMS_ROUTE,
+      });
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.activeCollectionId).toBeUndefined();
+    });
+
+    /**
      * Angular reuses this component across side-nav destinations, so a selection survives the move.
      * Landing on Trash with My vault items still checked makes a permanent delete hit the wrong ones.
      */

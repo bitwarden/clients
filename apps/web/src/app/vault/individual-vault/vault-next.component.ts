@@ -295,15 +295,23 @@ export class VaultNextComponent {
   private readonly configureBatchBar = effect(() => {
     const collections = this.collections();
     const hasCiphers = this.ciphers().length > 0;
+    const scope = this.vaultScope();
     // This page scopes to trash by route segment, not the `?type=trash` the service reads — without
     // this, Restore never appears and Delete soft-deletes items already in the trash.
-    const inTrash = this.vaultScope().type === VaultScopeType.Trash;
+    const inTrash = scope.type === VaultScopeType.Trash;
+    // Likewise the drilled-into shared folder, which this page holds in the scope rather than the
+    // route filter. Matched against the known collections so the unresolved `my-items` sentinel —
+    // which survives only when the nav hasn't loaded — never reaches the service.
+    const scopedCollectionId =
+      scope.type === VaultScopeType.Organization ? scope.collectionId : undefined;
+    const activeCollectionId = collections.find((c) => c.id === scopedCollectionId)?.id;
     untracked(() =>
       this.batchBarService.setConfig({
         isOrgVault: false,
         allCollections: collections,
         hasCiphers,
         inTrash,
+        activeCollectionId,
       }),
     );
   });
