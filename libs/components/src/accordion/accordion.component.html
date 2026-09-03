@@ -32,7 +32,11 @@
   [attr.aria-hidden]="!open()"
   [attr.inert]="!open() ? '' : null"
 >
-  <div class="tw-min-h-0 tw-max-h-80 tw-overflow-y-auto tw-px-4">
+  <div
+    class="tw-min-h-0 tw-px-4"
+    [class.tw-max-h-80]="height() === 'constrained'"
+    [class.tw-overflow-y-auto]="height() === 'constrained'"
+  >
     <ng-content></ng-content>
   </div>
 </div>
