@@ -247,8 +247,13 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     return this.isTrashFilter && !this.showRestore;
   }
 
+  /**
+   * The footer's trailing Archive/Unarchive/Delete icon buttons. Withheld for a partial-data
+   * cipher for the same reason {@link showEdit} is: the caller has no access to the item yet, so
+   * the dialog offers nothing that would change its state.
+   */
   protected get showActionButtons() {
-    return this.cipher !== null && this.formConfig.mode !== "clone";
+    return this.cipher !== null && this.formConfig.mode !== "clone" && !this.isPartialData;
   }
 
   /**
