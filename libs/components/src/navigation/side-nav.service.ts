@@ -54,6 +54,12 @@ export class SideNavService {
   readonly isPushMode = signal(false);
 
   /**
+   * Widest the nav can be (in rem) while still leaving main content its minimum width.
+   * Set by LayoutComponent via ResizeObserver; Infinity until first measured.
+   */
+  readonly maxPushWidthRem = signal(Infinity);
+
+  /**
    * True when the nav is open but not in push mode — it overlays the content.
    */
   readonly isOverlay = computed(() => this.open() && !this.isPushMode());
@@ -272,7 +278,12 @@ export class SideNavService {
    * @param newWidth desired new width: number
    */
   private _setWidthWithinMinMax(newWidth: number) {
-    const width = Math.min(Math.max(newWidth, this.MIN_OPEN_WIDTH), this.MAX_OPEN_WIDTH);
+    // Never widen past what the container can push, or main content would be clipped.
+    const max = Math.max(
+      this.MIN_OPEN_WIDTH,
+      Math.min(this.MAX_OPEN_WIDTH, this.maxPushWidthRem()),
+    );
+    const width = Math.min(Math.max(newWidth, this.MIN_OPEN_WIDTH), max);
 
     this._width$.next(width);
   }

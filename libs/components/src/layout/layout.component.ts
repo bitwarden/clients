@@ -7,10 +7,13 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   ElementRef,
   inject,
+  Injector,
   input,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -84,6 +87,7 @@ export class LayoutComponent {
   private readonly drawerIsActive = computed(() => this.drawerPortal() != null);
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly container = viewChild.required<ElementRef<HTMLElement>>("container");
   private readonly mainContent = viewChild.required<ElementRef<HTMLElement>>("main");
   private readonly drawerContainer = viewChild.required<ElementRef<HTMLElement>>("drawerContainer");
@@ -200,6 +204,7 @@ export class LayoutComponent {
         const drawerMinPx = drawerSizeToWidthRem.small * rootFontSizePx;
 
         this.containerWidthPx.set(containerWidth);
+        this.sideNavService.maxPushWidthRem.set((containerWidth - mainMinPx) / rootFontSizePx);
 
         // Use the push width declared by the drawer content (e.g. bit-dialog) via
         // DrawerService.declarePushWidth(). This is more reliable than DOM measurement
@@ -286,6 +291,17 @@ export class LayoutComponent {
       resizeObserver.observe(container);
       resizeObserver.observe(drawerContainer);
       this.destroyRef.onDestroy(() => resizeObserver.disconnect());
+
+      // Changing the nav width resizes neither observed element, so push/overlay would
+      // otherwise stay stale after a drag or once the persisted width resolves. untracked()
+      // keeps update()'s own reads and writes out of this effect's dependencies.
+      effect(
+        () => {
+          this.sideNavService.widthRem();
+          untracked(update);
+        },
+        { injector: this.injector },
+      );
     });
   }
 
