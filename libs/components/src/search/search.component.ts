@@ -78,7 +78,7 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   readonly autocomplete = input<string>();
   readonly size = input<FieldContainerSize>("base");
 
-  /** When true, enables ⌘/Ctrl+F and Esc keyboard shortcuts and shows shortcut hints. */
+  /** When true, enables ⌘/Ctrl+F focus shortcut and shows shortcut hints. Esc clears the field regardless. */
   readonly useKeyShortcuts = input<boolean>(false);
 
   getFocusTarget() {
