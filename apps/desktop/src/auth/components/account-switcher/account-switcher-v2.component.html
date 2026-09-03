@@ -104,9 +104,9 @@
               }
             </button>
           }
-          <bit-menu-divider></bit-menu-divider>
         }
         @if (view.activeAccount) {
+          <bit-menu-divider></bit-menu-divider>
           @if (view.numberOfAccounts < 4) {
             <button bitMenuItem type="button" (click)="addAccount()">
               <bit-icon name="bwi-plus" aria-hidden="true"></bit-icon>
