@@ -8,9 +8,10 @@ import { fromEvent } from "rxjs";
  * ("Command" on Mac, "Ctrl" elsewhere).
  *
  * Returns a **signal** because the initial value is seeded from `navigator`
- * (a best-guess) and is refined to ground-truth on the first real Cmd/Ctrl
- * chord keydown. On a VM or unusual UA, the navigator-based guess may be
- * wrong; the first chord corrects it.
+ * (a best-guess) and a later Cmd chord refines it to ground truth.
+ *
+ * Refinement is one-way: Cmd is Apple-exclusive, but a Ctrl chord proves
+ * nothing — the macOS caret bindings (Ctrl+A/E/K/D) fire while typing.
  *
  * Must be called in an injection context (e.g. a component field initializer
  * or constructor).
@@ -22,13 +23,12 @@ export function injectModifierKey(): Signal<"Command" | "Ctrl"> {
   fromEvent<KeyboardEvent>(document, "keydown")
     .pipe(takeUntilDestroyed())
     .subscribe((event) => {
+      // The Windows key also reports as "Meta", so a bare modifier press is not evidence either.
       if (event.key === "Meta" || event.key === "Control") {
         return;
       }
       if (event.metaKey && !event.ctrlKey) {
         modifierKey.set("Command");
-      } else if (event.ctrlKey && !event.metaKey) {
-        modifierKey.set("Ctrl");
       }
     });
 
