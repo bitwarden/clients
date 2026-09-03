@@ -98,7 +98,7 @@ export class AppVaultFabComponent {
     const collectionIds = onlyOneVault ? this.initialValues()?.collectionIds : undefined;
 
     const folderId =
-      (this.initialValues().folderIds?.length ?? 0) === 1
+      (this.initialValues()?.folderIds?.length ?? 0) === 1
         ? this.initialValues()?.folderIds?.[0]
         : undefined;
 
