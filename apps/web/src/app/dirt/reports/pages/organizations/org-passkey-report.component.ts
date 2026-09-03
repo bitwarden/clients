@@ -26,6 +26,7 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeComponent,
+  ButtonModule,
   CalloutComponent,
   ContainerComponent,
   DialogService,
@@ -79,6 +80,7 @@ import {
     LinkComponent,
     TableModule,
     BadgeComponent,
+    ButtonModule,
   ],
 })
 export class OrgPasskeyReportComponent {
