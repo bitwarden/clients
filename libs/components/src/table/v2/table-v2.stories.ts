@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormRecord, ReactiveFormsModule } from "@angular/forms";
@@ -5,7 +6,7 @@ import { NavigationEnd, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { filter as rxFilter, map } from "rxjs";
-import { userEvent } from "storybook/test";
+import { screen, userEvent, within } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
@@ -16,7 +17,7 @@ import { BulkActionsBarComponent } from "../../bulk-actions-bar/bulk-actions-bar
 import { BulkAdditionalActionComponent } from "../../bulk-actions-bar/bulk-additional-action.component";
 import { ButtonModule } from "../../button";
 import { DialogModule } from "../../dialog";
-import { FilterMenuModule } from "../../filter-menu";
+import { FilterMenuModule, type FilterOptionIconTile } from "../../filter-menu";
 import { FormFieldModule } from "../../form-field";
 import { IconTileComponent } from "../../icon-tile/icon-tile.component";
 import { InputModule } from "../../input/input.module";
@@ -128,11 +129,16 @@ const COLLECTION_ORGS = [
   {
     name: "Acme corporation",
     collections: [
-      { id: "eng", name: "Engineering" },
+      {
+        id: "eng",
+        name: "Engineering",
+        children: [
+          { id: "monitoring", name: "Monitoring" },
+          { id: "infra", name: "Infrastructure", children: [{ id: "ci", name: "CI/CD" }] },
+        ],
+      },
       { id: "ops", name: "Operations" },
       { id: "pm", name: "Project management" },
-      { id: "infra", name: "Infrastructure" },
-      { id: "monitoring", name: "Monitoring" },
       { id: "security", name: "Security" },
       { id: "design", name: "Design" },
       { id: "marketing", name: "Marketing" },
@@ -181,6 +187,7 @@ type VaultFilters = {
     SearchModule,
     ButtonModule,
     LayoutComponent,
+    NgTemplateOutlet,
   ],
   template: `
     <bit-layout>
@@ -213,6 +220,16 @@ type VaultFilters = {
                 @for (collection of org.collections; track collection.id) {
                   <bit-filter-option [value]="collection.id">
                     {{ collection.name }}
+                    @for (child of collection.children ?? []; track child.id) {
+                      <bit-filter-option [value]="child.id">
+                        {{ child.name }}
+                        @for (grandchild of child.children ?? []; track grandchild.id) {
+                          <bit-filter-option [value]="grandchild.id">
+                            {{ grandchild.name }}
+                          </bit-filter-option>
+                        }
+                      </bit-filter-option>
+                    }
                   </bit-filter-option>
                 }
               </bit-filter-section>
@@ -335,8 +352,18 @@ class DemoFilterableTableComponent {
             @for (org of collectionOrgs; track org.name) {
               <bit-filter-section [label]="org.name" collapsible>
                 @for (collection of org.collections; track collection.id) {
-                  <bit-filter-option [value]="collection.id">
+                  <bit-filter-option [value]="collection.id" [iconTile]="collectionTile" expanded>
                     {{ collection.name }}
+                    @for (child of collection.children ?? []; track child.id) {
+                      <bit-filter-option [value]="child.id" [iconTile]="collectionTile" expanded>
+                        {{ child.name }}
+                        @for (grandchild of child.children ?? []; track grandchild.id) {
+                          <bit-filter-option [value]="grandchild.id" [iconTile]="collectionTile">
+                            {{ grandchild.name }}
+                          </bit-filter-option>
+                        }
+                      </bit-filter-option>
+                    }
                   </bit-filter-option>
                 }
               </bit-filter-section>
@@ -394,6 +421,11 @@ class DemoKitchenSinkTableComponent {
   }));
 
   protected readonly collectionOrgs = COLLECTION_ORGS;
+
+  protected readonly collectionTile: FilterOptionIconTile = {
+    icon: "bwi-collection-shared",
+    variant: "brand",
+  };
 
   protected vaultName(id: string): string {
     return VAULTS.find((v) => v.id === id)?.name ?? id;
@@ -700,6 +732,8 @@ export default {
               filtersApplied: (count) => `${count} filters applied`,
               nothingToShow: "Nothing to show",
               noMatchingItems: "No matching items",
+              noFiltersMatch: (term) => `No filters match "${term}"`,
+              clearSearch: "Clear search",
               selectAllRows: "Select all rows",
               selectRow: "Select row",
               showingItemRange: (start, end, total) => `Showing ${start} - ${end} of ${total}`,
@@ -1205,6 +1239,39 @@ export const Filterable: Story = {
   }),
 };
 
+/** The open filter surface — the chip's popover, or the responsive dialog. */
+async function filterSurface() {
+  const surfaces = await screen.findAllByRole("dialog");
+  return within(surfaces[surfaces.length - 1]);
+}
+
+/**
+ * Opens the Collections filter, whichever surface the viewport is showing: the chip's popover above
+ * `md`, or the collapsed trigger's dialog drilled into Collections below it. Lets one story snapshot
+ * both surfaces across viewports.
+ */
+async function openCollectionsFilter(canvasElement: HTMLElement): Promise<void> {
+  // Above `md` the chip is on screen; below it the row collapses to one icon trigger. The hidden
+  // chips inherit `visibility: hidden`, so they are out of the accessibility tree and never match here.
+  const trigger = await within(canvasElement).findByRole("button", {
+    name: /^(Collections|Filters)$/,
+  });
+  await userEvent.click(trigger);
+
+  if (trigger.getAttribute("aria-label") !== "Filters") {
+    return;
+  }
+  await userEvent.click(
+    await (await filterSurface()).findByRole("button", { name: /^Collections/ }),
+  );
+}
+
+/** Searches the open filter surface for a term nothing matches. */
+async function searchForNothing(): Promise<void> {
+  // By label, not role: `bit-search` renders `type="text"` on Safari, which changes the role.
+  await userEvent.type(await (await filterSurface()).findByLabelText("Search"), "zzz");
+}
+
 /**
  * The toolbar at full stretch: search, every kind of filter chip, three `slot=end`
  * action buttons, and a paginator. Useful for checking the responsive behaviour —
@@ -1215,6 +1282,39 @@ export const KitchenSink: Story = {
   render: () => ({
     template: `<demo-kitchen-sink-table></demo-kitchen-sink-table>`,
   }),
+};
+
+/**
+ * The Collections filter open, nested three levels deep with an icon tile on every row. Snapshotted
+ * at two widths: the chip's popover above `md`, and the responsive dialog's drill-in below it.
+ */
+export const KitchenSinkFilterOpen: Story = {
+  render: () => ({
+    template: `<demo-kitchen-sink-table></demo-kitchen-sink-table>`,
+  }),
+  play: async ({ canvasElement }) => {
+    await openCollectionsFilter(canvasElement);
+  },
+  parameters: {
+    chromatic: { viewports: [390, 1280] },
+  },
+};
+
+/**
+ * The same filter searched for a term nothing matches, so the no-results state renders on both
+ * surfaces.
+ */
+export const KitchenSinkFilterEmpty: Story = {
+  render: () => ({
+    template: `<demo-kitchen-sink-table></demo-kitchen-sink-table>`,
+  }),
+  play: async ({ canvasElement }) => {
+    await openCollectionsFilter(canvasElement);
+    await searchForNothing();
+  },
+  parameters: {
+    chromatic: { viewports: [390, 1280] },
+  },
 };
 
 /**

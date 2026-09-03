@@ -92,16 +92,8 @@ export class MemberDialogManagerService {
     user: OrganizationUserView,
     organization: Organization,
     billingMetadata: OrganizationBillingMetadataResponse,
-    initialTab: MemberDialogTab = MemberDialogTab.Role,
+    initialTab: MemberDialogTab = MemberDialogTab.Details,
   ): Promise<MemberDialogResult> {
-    const detailsTabEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM28365_ChangeMemberEmail,
-    );
-    const resolvedTab =
-      detailsTabEnabled && initialTab === MemberDialogTab.Role
-        ? MemberDialogTab.Details
-        : initialTab;
-
     const dialog = EditMemberDialogComponent.open(this.dialogService, {
       data: {
         kind: "Edit",
@@ -112,7 +104,7 @@ export class MemberDialogManagerService {
         organizationUserId: user.id,
         usesKeyConnector: user.usesKeyConnector,
         isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
-        initialTab: resolvedTab,
+        initialTab: initialTab,
         claimedByOrganization: user.claimedByOrganization,
         hasMasterPassword: user.hasMasterPassword,
       },

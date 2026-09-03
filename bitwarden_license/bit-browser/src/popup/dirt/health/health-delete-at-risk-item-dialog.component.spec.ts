@@ -6,7 +6,6 @@ import { ReplaySubject } from "rxjs";
 
 import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
 import { RiskCategory } from "@bitwarden/bit-common/dirt/vault-health/models";
-import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -25,7 +24,6 @@ describe("HealthDeleteAtRiskItemDialogComponent", () => {
   let fixture: ComponentFixture<HealthDeleteAtRiskItemDialogComponent>;
   let activeAccount$: ReplaySubject<Account | null>;
   let cipherService: MockProxy<CipherService>;
-  let vaultHealthReportService: MockProxy<VaultHealthReportService>;
   let toastService: MockProxy<ToastService>;
   let dialogRef: MockProxy<DialogRef>;
 
@@ -61,7 +59,6 @@ describe("HealthDeleteAtRiskItemDialogComponent", () => {
         { provide: DialogRef, useValue: dialogRef },
         { provide: AccountService, useValue: { activeAccount$ } },
         { provide: CipherService, useValue: cipherService },
-        { provide: VaultHealthReportService, useValue: vaultHealthReportService },
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
       ],
@@ -116,9 +113,6 @@ describe("HealthDeleteAtRiskItemDialogComponent", () => {
 
     cipherService = mock<CipherService>();
     cipherService.softDeleteWithServer.mockResolvedValue(undefined);
-
-    vaultHealthReportService = mock<VaultHealthReportService>();
-    vaultHealthReportService.deleteItemFromReport.mockReturnValue(undefined);
 
     toastService = mock<ToastService>();
 
@@ -259,20 +253,6 @@ describe("HealthDeleteAtRiskItemDialogComponent", () => {
 
       expect(cipherService.softDeleteWithServer).toHaveBeenCalledTimes(1);
       expect(cipherService.softDeleteWithServer).toHaveBeenCalledWith("cipher-42", userId);
-    });
-
-    it("deletes the item from the health report for active account", async () => {
-      await initComponent({ item: buildHealthView({ cipherId: "cipher-42" }) });
-
-      deleteButton().click();
-      await fixture.whenStable();
-
-      expect(vaultHealthReportService.deleteItemFromReport).toHaveBeenCalledTimes(1);
-      expect(vaultHealthReportService.deleteItemFromReport).toHaveBeenCalledWith(
-        "cipher-42",
-        RiskCategory.Exposed,
-        userId,
-      );
     });
 
     it("shows a success toast", async () => {

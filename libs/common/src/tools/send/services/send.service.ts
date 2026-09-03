@@ -16,8 +16,10 @@ import {
 } from "@bitwarden/legacy-crypto";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
@@ -57,6 +59,7 @@ export class SendService implements InternalSendServiceAbstraction {
     private stateProvider: SendStateProvider,
     private encryptService: EncryptService,
     private configService: ConfigService,
+    private sdkService: SdkService,
   ) {}
 
   async encrypt(
@@ -326,7 +329,9 @@ export class SendService implements InternalSendServiceAbstraction {
 
     const req = await firstValueFrom(
       this.sends$.pipe(
-        concatMap(async (sends) => this.toRotatedKeyRequestMap(sends, originalUserKey, newUserKey)),
+        concatMap(async (sends) =>
+          this.toRotatedKeyRequestMap(sends, originalUserKey, newUserKey, userId),
+        ),
       ),
     );
     // separate return for easier debugging
@@ -337,7 +342,12 @@ export class SendService implements InternalSendServiceAbstraction {
     sends: Send[],
     originalUserKey: UserKey,
     rotateUserKey: UserKey,
-  ) {
+    userId: UserId,
+  ): Promise<SendWithIdRequest[]> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi)) {
+      return this.toRotatedKeyRequestMapSdk(sends, rotateUserKey, userId);
+    }
+
     const requests = await Promise.all(
       sends.map(async (send) => {
         // Send key is not a key but a 16 byte seed used to derive the key
@@ -347,6 +357,37 @@ export class SendService implements InternalSendServiceAbstraction {
       }),
     );
     return requests;
+  }
+
+  /**
+   * Re-wraps each send's per-item key under the new user key via the SDK, mirroring the migrated
+   * cipher path (`DefaultCipherEncryptionService.encryptCipherForRotation`). Each encrypted `Send`
+   * is decrypted to a `SendView` (the SDK's `encrypt_send_for_rotation` rotates the decrypted
+   * view), rotated, then converted back to a domain `Send` for the `SendWithIdRequest`.
+   */
+  private async toRotatedKeyRequestMapSdk(
+    sends: Send[],
+    rotateUserKey: UserKey,
+    userId: UserId,
+  ): Promise<SendWithIdRequest[]> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        concatMap(async (sdk) => {
+          using ref = sdk.take();
+          const sendsClient = ref.value.sends();
+          return await Promise.all(
+            sends.map(async (send) => {
+              const view = await send.decrypt(userId);
+              const rotated = await sendsClient.encrypt_send_for_rotation(
+                view.toSdkSendView(),
+                rotateUserKey.toBase64(),
+              );
+              return new SendWithIdRequest(Send.fromSdkSend(rotated));
+            }),
+          );
+        }),
+      ),
+    );
   }
 
   private parseFile(

@@ -1,14 +1,16 @@
 <bit-chip-content size="large">
   <button
     bit-chip-content
+    [startIcon]="icon()"
     [endIcon]="active() ? undefined : menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down'"
     type="button"
-    class="tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-ps-2 tw-text-[length:inherit] tw-text-[color:inherit] tw-outline-none hover:tw-bg-transparent"
+    class="tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-text-[length:inherit] tw-text-[color:inherit] tw-outline-none hover:tw-bg-transparent"
     [class.tw-cursor-not-allowed]="disabled()"
     [bitMenuTriggerFor]="menu"
     [disabled]="disabled()"
     [title]="displayLabel()"
     #menuTrigger="menuTrigger"
+    #chipTrigger
   >
     <span class="tw-block tw-min-w-0 tw-truncate">{{ displayLabel() }}</span>
   </button>
@@ -21,160 +23,269 @@
       type="button"
       [attr.aria-label]="'removeItem' | i18n: displayLabel()"
       [disabled]="disabled()"
-      (click)="clear()"
+      (click)="clearFromChip()"
     ></button>
   }
 </bit-chip-content>
 
-<!--
-  Hidden: instantiates the projected `bit-filter-option`/`bit-filter-section`
-  declarations so their data (labels, counts) is available before the menu or dialog
-  opens. The chip draws the visible rows below from this data — never by re-projecting
-  — so the same options render independently in the popover and the responsive dialog.
--->
+<!-- Instantiates the projected declarations so the chip can draw rows from their data. -->
 <div class="tw-hidden"><ng-content></ng-content></div>
 
-<!-- Selection indicator: a check for a checkbox, a filled dot for a radio. -->
-<ng-template #indicator let-selected>
-  <span
-    class="tw-flex tw-size-4 tw-flex-none tw-items-center tw-justify-center tw-border tw-border-solid tw-border-border-base"
-    [class.tw-rounded]="multiple()"
-    [class.tw-rounded-full]="!multiple()"
-    [class.tw-bg-primary-600]="multiple() && selected"
-    [class.tw-border-primary-600]="selected"
-  >
-    @if (selected) {
-      @if (multiple()) {
-        <bit-icon
-          name="bwi-check"
-          class="tw-text-xs tw-text-contrast"
-          aria-hidden="true"
-        ></bit-icon>
-      } @else {
-        <span class="tw-size-1.5 tw-rounded-full tw-bg-primary-600"></span>
+<!-- Single-select rows are flat: nesting requires `multiple`, enforced in the component. -->
+<ng-template #optionRow let-option>
+  <div data-filter-option-row [class]="optionRowClasses">
+    <label class="tw-mb-0 tw-flex tw-min-w-0 tw-flex-1 tw-items-center tw-gap-2">
+      <input
+        type="radio"
+        [class]="radioInputClasses"
+        [attr.name]="radioName"
+        [checked]="optionSelected(option)"
+        [disabled]="option.disabled()"
+        (change)="toggleOption(option)"
+      />
+      @if (option.iconTile(); as tile) {
+        <!-- Flex on the host: an inline host adds descender space below the tile, pushing it
+             above the row's center. -->
+        <bit-icon-tile
+          class="!tw-flex tw-flex-none"
+          [icon]="tile.icon"
+          [variant]="tileVariant(option)"
+          [color]="tileColor(option)"
+          [emphasis]="tile.emphasis ?? 'subtle'"
+          size="xs"
+        />
       }
-    }
-  </span>
+      <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ option.label() }}</span>
+      @let count = optionCounts().get(option);
+      @if (count != null) {
+        <span class="tw-flex-none tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{
+          count
+        }}</span>
+      }
+    </label>
+  </div>
 </ng-template>
 
-<!-- One option row, drawn by the chip (data only) so it re-stamps cleanly per surface. -->
-<ng-template #optionRow let-option>
-  @let optionSelected = isSelected(option.value());
-  <button
-    type="button"
-    [attr.role]="multiple() ? 'menuitemcheckbox' : 'menuitemradio'"
-    [attr.aria-checked]="optionSelected"
-    [disabled]="option.disabled()"
-    (click)="toggle(option.value())"
-    [class]="optionRowClasses"
-  >
-    <ng-container
-      *ngTemplateOutlet="indicator; context: { $implicit: optionSelected }"
-    ></ng-container>
-    @if (option.iconTile(); as tile) {
-      <!-- tw-flex on the host: its inner box is inline-flex, so an inline host would add a line
-           box's worth of descender space below the tile and push it above the row's center. -->
-      <bit-icon-tile
-        class="!tw-flex tw-flex-none"
-        [icon]="tile.icon"
-        [variant]="tileVariant(option)"
-        [color]="tileColor(option)"
-        [emphasis]="tile.emphasis ?? 'subtle'"
-        size="xs"
-      />
-    }
-    <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ option.label() }}</span>
-    @let count = optionCounts().get(option);
-    @if (count != null) {
-      <span class="tw-flex-none tw-text-muted">{{ count }}</span>
-    }
-  </button>
+<ng-template #noResultsState>
+  <bit-status-lockup size="small">
+    <bit-icon
+      slot="graphic"
+      name="bwi-search"
+      class="tw-text-2xl tw-text-fg-body-subtle"
+    ></bit-icon>
+    <span slot="title">{{ "noFiltersMatch" | i18n: searchTerm() }}</span>
+    <button
+      slot="button"
+      bitButton
+      buttonType="secondary"
+      size="small"
+      type="button"
+      (click)="clearSearch($event)"
+    >
+      {{ "clearSearch" | i18n }}
+    </button>
+  </bit-status-lockup>
 </ng-template>
 
 <ng-template #optionsBody>
   @if (showSearch()) {
     <div class="tw-px-2 tw-pb-1">
-      <bit-search [ngModel]="searchTerm()" (ngModelChange)="setSearchTerm($event)"></bit-search>
+      <bit-search
+        data-filter-search
+        [ngModel]="searchTerm()"
+        (ngModelChange)="setSearchTerm($event)"
+      ></bit-search>
     </div>
   }
-  <div class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto tw-py-1">
-    <!-- Single-select always offers "All" at the top; selecting it clears the chip. -->
-    @if (!multiple()) {
-      @let allSelected = isSelected(clearValue);
-      <button
-        type="button"
-        role="menuitemradio"
-        [attr.aria-checked]="allSelected"
-        (click)="toggle(clearValue)"
-        [class]="optionRowClasses"
-      >
-        <ng-container
-          *ngTemplateOutlet="indicator; context: { $implicit: allSelected }"
-        ></ng-container>
-        <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ unsetLabel() ?? ("all" | i18n) }}</span>
-      </button>
-    }
-
-    @for (entry of entries(); track $index) {
-      @if (asSection(entry); as section) {
-        @if (sectionVisible(section)) {
-          @if (section.collapsible()) {
-            <button
-              type="button"
-              class="tw-flex tw-w-full tw-items-center tw-gap-2 tw-border-none tw-bg-transparent tw-px-3 tw-py-1.5 tw-text-start tw-text-sm tw-font-semibold tw-text-main hover:tw-bg-secondary-100 focus-visible:tw-z-10 focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus"
-              [attr.aria-expanded]="section.open()"
-              (click)="section.toggle()"
+  @if (multiple()) {
+    <div
+      role="tree"
+      aria-multiselectable="true"
+      [attr.aria-label]="placeholderText()"
+      tabindex="-1"
+      class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
+      (keydown)="onTreeKeydown($event)"
+    >
+      @for (node of treeNodes(); track $index) {
+        @let expandable = node.row.expandable();
+        @let checked = nodeChecked(node);
+        <div
+          role="treeitem"
+          data-filter-option-row
+          [bitFilterTreeRow]="node"
+          [class]="optionRowClasses"
+          [style.padding-inline-start.rem]="0.5 + (node.level - 1) * 1.75"
+          [attr.aria-level]="node.level"
+          [attr.aria-setsize]="node.setsize"
+          [attr.aria-posinset]="node.posinset"
+          [attr.aria-expanded]="expandable ? node.expanded : null"
+          [attr.aria-checked]="checked"
+          [attr.aria-disabled]="node.row.disabled() ? true : null"
+          (click)="node.row.disabled() ? null : activateNode(node)"
+          (focus)="onRowFocus(row)"
+          #row="bitFilterTreeRow"
+        >
+          @if (expandable) {
+            <span
+              class="-tw-me-1 tw-flex tw-size-6 tw-flex-none tw-items-center tw-justify-center tw-text-fg-body-subtle"
+              aria-hidden="true"
+              (click)="node.row.toggleExpanded(); $event.stopPropagation()"
             >
               <bit-icon
-                [name]="section.open() ? 'bwi-angle-up' : 'bwi-angle-down'"
-                class="tw-flex-none tw-text-muted"
-                aria-hidden="true"
+                [name]="node.expanded ? 'bwi-angle-down' : 'bwi-angle-right'"
+                class="tw-text-xs"
               ></bit-icon>
-              <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ section.label() }}</span>
-              <bit-berry [value]="sectionSelectedCount(section)"></bit-berry>
-            </button>
-          } @else {
-            <div
-              class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-1.5 tw-text-sm tw-font-semibold tw-text-muted"
-            >
-              <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ section.label() }}</span>
-              <bit-berry [value]="sectionSelectedCount(section)"></bit-berry>
-            </div>
+            </span>
+          } @else if (node.reserveExpander) {
+            <span class="-tw-me-1 tw-size-6 tw-flex-none" aria-hidden="true"></span>
           }
-          @if (section.open()) {
-            @for (option of section.options(); track option.value()) {
-              @if (optionVisible(option)) {
-                <ng-container
-                  *ngTemplateOutlet="optionRow; context: { $implicit: option }"
-                ></ng-container>
+          @if (checked !== null) {
+            <!-- Draws the control only; the row owns the semantics via `aria-checked`. -->
+            <input
+              type="checkbox"
+              bitCheckbox
+              class="tw-pointer-events-none"
+              aria-hidden="true"
+              tabindex="-1"
+              [checked]="checked === 'true'"
+              [indeterminate]="checked === 'mixed'"
+              [disabled]="node.row.disabled()"
+            />
+          }
+          @if (asOption(node.row); as option) {
+            @let tile = option.iconTile();
+            @if (tile) {
+              <bit-icon-tile
+                class="!tw-flex tw-flex-none"
+                [icon]="tile.icon"
+                [variant]="tileVariant(option)"
+                [color]="tileColor(option)"
+                [emphasis]="tile.emphasis ?? 'subtle'"
+                size="xs"
+              />
+            }
+          }
+          <span
+            class="tw-min-w-0 tw-flex-1 tw-truncate"
+            [class.tw-font-semibold]="node.row.kind === 'section'"
+            >{{ node.row.label() }}</span
+          >
+          @if (asSection(node.row); as section) {
+            <bit-berry [value]="sectionSelectedCount(section)"></bit-berry>
+          } @else if (asOption(node.row); as option) {
+            @let count = optionCounts().get(option);
+            @if (count != null) {
+              <span class="tw-flex-none tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{
+                count
+              }}</span>
+            }
+          }
+        </div>
+      }
+    </div>
+    @if (noResults()) {
+      <ng-container *ngTemplateOutlet="noResultsState"></ng-container>
+    }
+  } @else {
+    <div
+      role="group"
+      [attr.aria-label]="placeholderText()"
+      class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
+    >
+      @if (!multiple()) {
+        @let allSelected = isSelected(clearValue);
+        <label data-filter-option-row [class]="optionRowClasses">
+          <input
+            type="radio"
+            [class]="radioInputClasses"
+            [attr.name]="radioName"
+            [checked]="allSelected"
+            (change)="toggle(clearValue)"
+          />
+          <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ unsetLabel() ?? ("all" | i18n) }}</span>
+          @if (unsetCount() != null) {
+            <span class="tw-flex-none tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{
+              unsetCount()
+            }}</span>
+          }
+        </label>
+      }
+
+      @for (entry of entries(); track $index) {
+        @if (asSection(entry); as section) {
+          @if (rowVisible(section)) {
+            @if (section.collapsible()) {
+              <button
+                type="button"
+                class="tw-flex tw-w-full tw-items-center tw-gap-2 tw-border-none tw-bg-transparent tw-px-3 tw-py-1.5 tw-text-start tw-text-sm tw-font-semibold tw-text-main hover:tw-bg-secondary-100 focus-visible:tw-z-10 focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus"
+                [attr.aria-expanded]="section.open()"
+                (click)="section.toggleExpanded()"
+              >
+                <bit-icon
+                  [name]="section.open() ? 'bwi-angle-up' : 'bwi-angle-down'"
+                  class="tw-flex-none tw-text-muted"
+                  aria-hidden="true"
+                ></bit-icon>
+                <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ section.label() }}</span>
+                <bit-berry [value]="sectionSelectedCount(section)"></bit-berry>
+              </button>
+            } @else {
+              <div
+                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-1.5 tw-text-sm tw-font-semibold tw-text-muted"
+              >
+                <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ section.label() }}</span>
+                <bit-berry [value]="sectionSelectedCount(section)"></bit-berry>
+              </div>
+            }
+            @if (section.open()) {
+              @for (option of section.options(); track option.value()) {
+                @if (rowVisible(option)) {
+                  <ng-container
+                    *ngTemplateOutlet="optionRow; context: { $implicit: option }"
+                  ></ng-container>
+                }
               }
             }
           }
-        }
-      } @else if (asOption(entry); as option) {
-        @if (optionVisible(option)) {
-          <ng-container
-            *ngTemplateOutlet="optionRow; context: { $implicit: option }"
-          ></ng-container>
+        } @else if (asOption(entry); as option) {
+          @if (rowVisible(option)) {
+            <ng-container
+              *ngTemplateOutlet="optionRow; context: { $implicit: option }"
+            ></ng-container>
+          }
         }
       }
-    }
 
-    @if (noResults()) {
-      <div class="tw-px-3 tw-py-2 tw-text-sm tw-text-muted">{{ "noMatchingItems" | i18n }}</div>
-    }
-  </div>
+      @if (noResults()) {
+        <ng-container *ngTemplateOutlet="noResultsState"></ng-container>
+      }
+    </div>
+  }
 </ng-template>
 
-<bit-menu #menu (closed)="onMenuClosed()">
+<bit-menu #menu ariaRole="dialog" [ariaLabel]="placeholderText()" (closed)="onMenuClosed()">
   <div class="tw-flex tw-max-h-96 tw-min-w-52 tw-max-w-80 tw-flex-col">
-    <ng-container *ngTemplateOutlet="optionsBody"></ng-container>
-    @if (multiple() && active()) {
-      <div class="tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-px-2 tw-pt-2">
-        <button bitButton buttonType="secondary" size="small" type="button" (click)="clear()">
-          {{ "clear" | i18n }}
-        </button>
-      </div>
+    <!-- Gated on open: the overlay keeps this view alive between openings, so ungated rows would
+         outlive their popover and still count as the menu's once the dialog owns the options. -->
+    @if (menuTrigger.isOpen) {
+      <ng-container *ngTemplateOutlet="optionsBody"></ng-container>
     }
   </div>
+  @if (multiple() && active()) {
+    <div slot="footer" class="tw-flex tw-items-center tw-gap-2">
+      <span class="tw-flex-1 tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{
+        "filtersSelected" | i18n: selectedCount()
+      }}</span>
+      <button
+        bitButton
+        buttonType="subtleGhost"
+        size="small"
+        type="button"
+        startIcon="bwi-clear"
+        (click)="clearFromMenu($event)"
+      >
+        {{ "clear" | i18n }}
+      </button>
+    </div>
+  }
 </bit-menu>

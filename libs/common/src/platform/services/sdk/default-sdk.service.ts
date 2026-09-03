@@ -24,6 +24,7 @@ import {
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncString } from "@bitwarden/legacy-crypto";
+import { ManagedSettingsService } from "@bitwarden/managed-settings";
 import {
   PasswordManagerClient,
   ClientSettings,
@@ -116,6 +117,10 @@ export class DefaultSdkService implements SdkService {
     private stateProvider: StateProvider,
     private configService: ConfigService,
     private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
+    // Not yet read. The SDK's `PasswordManagerClient` constructor gains a `ManagedSettingsClient`
+    // parameter in sdk-internal#1405; once that publishes, `client$` is resolved here and passed to
+    // `createSdkClient`.
+    private managedSettingsService: ManagedSettingsService,
     private userAgent: string | null = null,
   ) {}
 

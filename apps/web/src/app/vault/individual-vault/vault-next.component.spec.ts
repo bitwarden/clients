@@ -1,6 +1,6 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute, convertToParamMap, ParamMap } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, Data, ParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
@@ -26,6 +26,8 @@ import {
   CipherRowMenuHandlers,
   CipherRowMenuService,
   ARCHIVE_ROUTE,
+  MY_ITEMS_ROUTE,
+  MY_ITEMS_ROUTE_DATA,
   MY_VAULT_ROUTE,
   TRASH_ROUTE,
   VaultCopyButtonsService,
@@ -62,6 +64,7 @@ describe("VaultNextComponent", () => {
   let organizations$: BehaviorSubject<Organization[]>;
   let showQuickCopyActions$: BehaviorSubject<boolean>;
   let paramMap$: BehaviorSubject<ParamMap>;
+  let routeData$: BehaviorSubject<Data>;
   let vaultNav$: BehaviorSubject<VaultsNavViewModel>;
 
   const buildCipher = (overrides: Partial<CipherView> = {}) => {
@@ -106,16 +109,20 @@ describe("VaultNextComponent", () => {
   });
 
   /**
-   * Navigates the page to a vault scope, as the `:vaultId` and `:collectionId` route segments
-   * would.
+   * Navigates the page to a vault scope, as its route would — with the collection segment wherever
+   * that route carries it: "My items" declares it in its data, a shared folder drill-in takes it as
+   * a param. See `scopedCollectionSegment`.
    */
   const scopeTo = (vaultId?: string, collectionId?: string) => {
+    const inData = collectionId === MY_ITEMS_ROUTE;
+
     paramMap$.next(
       convertToParamMap({
         ...(vaultId == null ? {} : { vaultId }),
-        ...(collectionId == null ? {} : { collectionId }),
+        ...(collectionId == null || inData ? {} : { collectionId }),
       }),
     );
+    routeData$.next(inData ? MY_ITEMS_ROUTE_DATA : {});
     fixture.detectChanges();
   };
 
@@ -146,6 +153,7 @@ describe("VaultNextComponent", () => {
     organizations$ = new BehaviorSubject<Organization[]>([]);
     showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
     paramMap$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
+    routeData$ = new BehaviorSubject<Data>({});
     // The multi-vault shape, matching the organizations most of this suite sets up.
     vaultNav$ = new BehaviorSubject<VaultsNavViewModel>({
       vaults: [
@@ -202,7 +210,7 @@ describe("VaultNextComponent", () => {
       imports: [VaultNextComponent],
       providers: [
         { provide: AccountService, useValue: accountService },
-        { provide: ActivatedRoute, useValue: { paramMap: paramMap$ } },
+        { provide: ActivatedRoute, useValue: { paramMap: paramMap$, data: routeData$ } },
         { provide: CipherRowMenuService, useValue: cipherRowMenuService },
         { provide: CipherService, useValue: cipherService },
         { provide: CollectionService, useValue: collectionService },
