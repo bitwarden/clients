@@ -7,6 +7,8 @@ export class SecretVersionResponse extends BaseResponse {
   versionDate: string;
   editorServiceAccountId: string;
   editorOrganizationUserId: string;
+  editorOrganizationUserName: string;
+  editorServiceAccountName: string;
 
   constructor(response: any) {
     super(response);
@@ -16,5 +18,7 @@ export class SecretVersionResponse extends BaseResponse {
     this.versionDate = this.getResponseProperty("VersionDate");
     this.editorServiceAccountId = this.getResponseProperty("EditorServiceAccountId");
     this.editorOrganizationUserId = this.getResponseProperty("EditorOrganizationUserId");
+    this.editorOrganizationUserName = this.getResponseProperty("EditorOrganizationUserName");
+    this.editorServiceAccountName = this.getResponseProperty("EditorServiceAccountName");
   }
 }

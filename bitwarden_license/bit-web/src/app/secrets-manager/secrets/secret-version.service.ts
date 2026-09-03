@@ -20,6 +20,11 @@ import { SecretVersionView } from "../models/view/secret-version.view";
 import { SecretVersionListResponse } from "./responses/secret-version-list.response";
 import { SecretVersionResponse } from "./responses/secret-version.response";
 
+export interface SecretVersionHistory {
+  currentValueAuthorName?: string;
+  versions: SecretVersionView[];
+}
+
 @Injectable({
   providedIn: "root",
 })
@@ -44,30 +49,53 @@ export class SecretVersionService {
     return await firstValueFrom(this.getOrganizationKey$(organizationId));
   }
 
-  async getSecretVersions(organizationId: string, secretId: string): Promise<SecretVersionView[]> {
+  async getSecretVersions(organizationId: string, secretId: string): Promise<SecretVersionHistory> {
     const r = await this.apiService.send("GET", `/secrets/${secretId}/versions`, null, true, true);
 
     const response = new SecretVersionListResponse(r);
-    const views = await this.createSecretVersionViews(organizationId, response.versions);
-
-    // The API does not guarantee an order, so sort newest first to match how the
-    // history is presented.
-    return views.sort(
-      (a, b) => new Date(b.versionDate).getTime() - new Date(a.versionDate).getTime(),
-    );
-  }
-
-  private async createSecretVersionViews(
-    organizationId: string,
-    versionResponses: SecretVersionResponse[],
-  ): Promise<SecretVersionView[]> {
     const orgKey = await this.getOrganizationKey(organizationId);
 
-    return await Promise.all(
-      versionResponses.map(async (response) => {
-        return await this.createSecretVersionView(response, orgKey);
+    const orderedNewestFirst = [...response.versions].sort(
+      (a, b) => new Date(b.versionDate).getTime() - new Date(a.versionDate).getTime(),
+    );
+
+    return await this.buildHistory(orderedNewestFirst, orgKey);
+  }
+
+  private async buildHistory(
+    orderedNewestFirst: SecretVersionResponse[],
+    orgKey: SymmetricCryptoKey,
+  ): Promise<SecretVersionHistory> {
+    const [currentValue, ...previousValues] = orderedNewestFirst;
+
+    const currentValueAuthorName = currentValue
+      ? await this.resolveEditorName(currentValue, orgKey)
+      : undefined;
+
+    const versions = await Promise.all(
+      previousValues.map(async (response) => {
+        const view = await this.createSecretVersionView(response, orgKey);
+        view.authorName = await this.resolveEditorName(response, orgKey);
+        return view;
       }),
     );
+
+    return { currentValueAuthorName, versions };
+  }
+
+  private async resolveEditorName(
+    response: SecretVersionResponse,
+    orgKey: SymmetricCryptoKey,
+  ): Promise<string | undefined> {
+    if (response.editorOrganizationUserName) {
+      return response.editorOrganizationUserName;
+    }
+
+    if (response.editorServiceAccountName) {
+      return await this.decryptField(new EncString(response.editorServiceAccountName), orgKey);
+    }
+
+    return undefined;
   }
 
   private async createSecretVersionView(

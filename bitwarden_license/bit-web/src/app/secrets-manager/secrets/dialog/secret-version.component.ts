@@ -41,6 +41,7 @@ interface SecretVersionRow {
   id: string;
   value: string;
   date: Date | null;
+  author: string | null;
   copy: () => Promise<void>;
   toggleVisibility: () => Promise<void>;
   restore: () => Promise<void>;
@@ -59,6 +60,7 @@ export class SecretVersionDialogComponent implements OnInit {
   protected readonly currentValueVisible = signal(false);
   protected readonly currentValue = signal<string | null>(null);
   protected readonly revisionDate = signal<Date | null>(null);
+  protected readonly currentValueAuthor = signal<string | null>(null);
 
   /** Uses a null check so a secret whose value is an empty string still renders. */
   protected readonly hasCurrentValue = computed(() => this.currentValue() != null);
@@ -123,6 +125,7 @@ export class SecretVersionDialogComponent implements OnInit {
       id: version.id,
       value: version.value,
       date: version.versionDate ? new Date(version.versionDate) : null,
+      author: version.authorName ?? null,
       copy: () => this.copyValue(version.value),
       toggleVisibility: async () => {
         this.visibleVersionIds.update((s) => {
@@ -145,7 +148,7 @@ export class SecretVersionDialogComponent implements OnInit {
     this.currentValueVisible.set(false);
 
     try {
-      const [secretOrNull, versions] = await Promise.all([
+      const [secretOrNull, history] = await Promise.all([
         refreshCurrentSecret
           ? this.secretService.getBySecretId(this.params.secretId)
           : Promise.resolve(null),
@@ -162,7 +165,8 @@ export class SecretVersionDialogComponent implements OnInit {
         );
       }
 
-      this.rows.set(versions.map((version) => this.createRow(version)));
+      this.currentValueAuthor.set(history.currentValueAuthorName ?? null);
+      this.rows.set(history.versions.map((version) => this.createRow(version)));
     } catch (e) {
       this.logService.error("Retrieving secret versions failed", e);
       this.validationService.showError(e);
