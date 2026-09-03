@@ -41,7 +41,10 @@ describe("AppVaultFabComponent", () => {
     configServiceMock = mock<ConfigService>();
     restrictedItemTypesServiceMock = mock<RestrictedItemTypesService>();
     configServiceMock.getFeatureFlag$.mockReturnValue(newItemTypesFlagSubject.asObservable());
-    restrictedItemTypesServiceMock.restricted$ = restrictedSubject.asObservable();
+    Object.defineProperty(restrictedItemTypesServiceMock, "restricted$", {
+      get: () => restrictedSubject.asObservable(),
+      configurable: true,
+    });
     newItemTypesFlagSubject.next(false);
     restrictedSubject.next([]);
 
