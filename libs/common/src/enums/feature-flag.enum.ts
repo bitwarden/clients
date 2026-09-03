@@ -266,10 +266,6 @@ export function getFeatureFlagValue<Flag extends FeatureFlag>(
   serverConfig: ServerConfig | null,
   flag: Flag,
 ) {
-  if (serverConfig) {
-    serverConfig.featureStates[FeatureFlag.PM32009NewItemTypes] = false;
-  }
-
   if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
     return DefaultFeatureFlagValue[flag];
   }
