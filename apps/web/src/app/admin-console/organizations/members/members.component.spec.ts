@@ -642,6 +642,47 @@ describe("MembersComponent", () => {
       });
     });
 
+    it("reports the reasons when only some staged members were invited", async () => {
+      const skippedUser = { ...stagedUser, id: "no-longer-staged-user-id" };
+      jest
+        .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
+        .mockReturnValue([stagedUser, skippedUser]);
+      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
+        successful: [sent(stagedUser.id)],
+        failed: [{ id: skippedUser.id, error: "Only staged members can be sent an invitation." }],
+      });
+
+      await component.bulkSendInvite(mockOrg);
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "errorOccurred",
+        message: ["Only staged members can be sent an invitation."],
+      });
+    });
+
+    it("collapses duplicate failure reasons into one line", async () => {
+      const otherUser = { ...stagedUser, id: "other-staged-user-id" };
+      jest
+        .spyOn(component["dataSource"](), "getCheckedUsersInVisibleOrder")
+        .mockReturnValue([stagedUser, otherUser]);
+      mockMemberActionsService.bulkSendInvite.mockResolvedValue({
+        successful: [],
+        failed: [
+          { id: stagedUser.id, error: "Member not found." },
+          { id: otherUser.id, error: "Member not found." },
+        ],
+      });
+
+      await component.bulkSendInvite(mockOrg);
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "errorOccurred",
+        message: ["Member not found."],
+      });
+    });
+
     it("counts only the staged members the server actually invited", async () => {
       const skippedUser = { ...stagedUser, id: "no-longer-staged-user-id" };
       jest
@@ -658,7 +699,6 @@ describe("MembersComponent", () => {
         variant: "success",
         message: "reinviteSuccessToast",
       });
-      expect(mockValidationService.showError).not.toHaveBeenCalled();
     });
 
     it("shows an error when no selected member can be invited", async () => {
@@ -695,9 +735,11 @@ describe("MembersComponent", () => {
 
       await component.bulkSendInvite(mockOrg);
 
-      expect(mockValidationService.showError).toHaveBeenCalledWith([
-        { id: stagedUser.id, error: "No seats available" },
-      ]);
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "errorOccurred",
+        message: ["No seats available"],
+      });
       expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser]);
     });
 

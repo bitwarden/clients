@@ -515,8 +515,12 @@ export class MembersComponent {
       stagedUsers.map((u) => u.id),
     );
 
-    if (result.successful.length === 0) {
-      this.validationService.showError(result.failed);
+    if (result.failed.length > 0) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: [...new Set(result.failed.map((failure) => failure.error))],
+      });
     }
 
     return result.successful;
