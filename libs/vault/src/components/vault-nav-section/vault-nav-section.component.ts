@@ -15,6 +15,7 @@ import { VaultNavItemType, VaultNavItemViewModel } from "../../models/vault-nav-
 import {
   ALL_ITEMS_SCOPE,
   isPersonalOnly,
+  MY_ITEMS_ROUTE,
   sharedFoldersCommands,
   vaultScopeCommands,
   VaultScopeType,
@@ -62,8 +63,8 @@ export class VaultNavSectionComponent {
    * items. Every deeper destination nests under the route each links to, so `routerLinkActive`'s
    * default subset match would leave them lit alongside the page the user actually picked.
    *
-   * Shared folders is the one entry left on that default, since it stands in for the folder
-   * drill-ins nested beneath it, which have no nav entry of their own.
+   * Shared folders and My items stay on that default: the first stands in for its drill-ins, and
+   * nothing nests under the second.
    */
   protected readonly exactRouteOptions: IsActiveMatchOptions = EXACT_PATH;
 
@@ -99,6 +100,23 @@ export class VaultNavSectionComponent {
       ),
   );
 
+  /** "My items" route commands for each organization holding one, by vault id. */
+  private readonly myItemsRoutes = computed(
+    () =>
+      new Map(
+        this.vaultNav()
+          ?.vaults.filter((vault) => vault.defaultUserCollectionId != null)
+          .map((vault) => [
+            vault.id,
+            vaultScopeCommands({
+              type: VaultScopeType.Organization,
+              organizationId: vault.id as OrganizationId,
+              collectionId: MY_ITEMS_ROUTE,
+            }),
+          ]) ?? [],
+      ),
+  );
+
   /** Whether to render one unscoped entry rather than All items and a list. */
   protected readonly personalOnly = computed(() => {
     const nav = this.vaultNav();
@@ -111,6 +129,10 @@ export class VaultNavSectionComponent {
 
   protected sharedFoldersRoute(vault: VaultNavItemViewModel): string[] | undefined {
     return this.sharedFolderRoutes().get(vault.id);
+  }
+
+  protected myItemsRoute(vault: VaultNavItemViewModel): string[] | undefined {
+    return this.myItemsRoutes().get(vault.id);
   }
 
   /**

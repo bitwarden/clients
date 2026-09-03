@@ -274,8 +274,7 @@ describe("VaultNavSectionComponent", () => {
     });
 
     it("leaves All vault items unlit on the My items route", async () => {
-      // Its own page beside All vault items rather than beneath it, so the vault route's exact
-      // match is what keeps them apart. My items has no nav entry of its own yet.
+      // My items sits beside All vault items, not beneath it, so the exact match keeps them apart.
       await navigateTo("/vault/org-a/my-items");
       const group = expandGroup("Acme corporation");
 
@@ -308,14 +307,27 @@ describe("VaultNavSectionComponent", () => {
       fixture.detectChanges();
     });
 
-    it("renders the org vault with no My items, Vaults header, or personal vault", () => {
+    it("renders the org vault with no Vaults header or personal vault", () => {
       const text = navText();
 
       expect(text).toContain("Acme corporation");
-      expect(text).not.toContain("myItems");
       expect(text).not.toContain("vaults");
       expect(text).not.toContain("My vault");
       expect(text).not.toContain("allItems");
+    });
+
+    it("links My items to the organization's collection by the sentinel segment", () => {
+      const group = expandGroup("Acme corporation");
+
+      expect(navItemHref(group, "myItemsV2")).toBe("/vault/org-a/my-items");
+    });
+
+    it("omits My items for an organization with no default user collection", () => {
+      viewModel$.next({ vaults: [orgA], organizationDataOwnership: true });
+      fixture.detectChanges();
+      const group = expandGroup("Acme corporation");
+
+      expect(navItem(group, "myItemsV2")).toBeUndefined();
     });
   });
 });
