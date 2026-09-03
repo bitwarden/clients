@@ -66,82 +66,79 @@
         }
         <bit-table-scroll [dataSource]="dataSource" [rowSize]="75" layout="fixed">
           <ng-container header>
-            <th bitCell class="tw-w-12"></th>
-            <th bitCell>{{ "name" | i18n }}</th>
+            <th bitCell class="tw-w-5/12">{{ "name" | i18n }}</th>
+            <th bitCell class="tw-w-3/12">{{ "vault" | i18n }}</th>
             <th bitCell class="tw-w-1/6">{{ "type" | i18n }}</th>
-            <th bitCell class="tw-w-1/4">{{ "owner" | i18n }}</th>
-            <th bitCell class="tw-w-1/4"></th>
+            <th bitCell class="tw-w-1/6 tw-text-right">{{ "options" | i18n }}</th>
           </ng-container>
           <ng-template bitRowDef let-row>
             <td bitCell>
-              <app-vault-icon [cipher]="row.cipher"></app-vault-icon>
+              <div class="tw-flex tw-items-center tw-gap-4">
+                <app-vault-icon [cipher]="row.cipher"></app-vault-icon>
+                <span class="tw-truncate tw-min-w-0">
+                  <a
+                    bitLink
+                    href="#"
+                    appStopClick
+                    (click)="selectCipher(row.cipher)"
+                    title="{{ 'editItemWithName' | i18n: row.cipher.name }}"
+                    >{{ row.cipher.name }}</a
+                  >
+                  @if (row.cipher.organizationId) {
+                    <bit-icon
+                      [name]="'bwi-collection-shared' | vfo1Icon"
+                      class="tw-ml-1"
+                      appStopProp
+                      title="{{ 'shared' | i18n }}"
+                      aria-hidden="true"
+                    ></bit-icon>
+                    <span class="tw-sr-only">{{ "shared" | i18n }}</span>
+                  }
+                  @if (row.cipher.hasAttachments) {
+                    <bit-icon
+                      name="bwi-paperclip"
+                      class="tw-ml-1"
+                      appStopProp
+                      title="{{ 'attachments' | i18n }}"
+                      aria-hidden="true"
+                    ></bit-icon>
+                    <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
+                  }
+                  <br />
+                  <small>{{ row.cipher.subTitle }}</small>
+                </span>
+              </div>
             </td>
-            <td bitCell class="tw-truncate tw-max-w-0">
-              <a
-                bitLink
-                href="#"
-                appStopClick
-                (click)="selectCipher(row.cipher)"
-                title="{{ 'editItemWithName' | i18n: row.cipher.name }}"
-                >{{ row.cipher.name }}</a
-              >
+            <td bitCell class="tw-truncate">
               @if (row.cipher.organizationId) {
-                <bit-icon
-                  [name]="'bwi-collection-shared' | vfo1Icon"
-                  class="tw-ml-1"
-                  appStopProp
-                  title="{{ 'shared' | i18n }}"
-                  aria-hidden="true"
-                ></bit-icon>
-                <span class="tw-sr-only">{{ "shared" | i18n }}</span>
-              }
-              @if (row.cipher.hasAttachments) {
-                <bit-icon
-                  name="bwi-paperclip"
-                  class="tw-ml-1"
-                  appStopProp
-                  title="{{ 'attachments' | i18n }}"
-                  aria-hidden="true"
-                ></bit-icon>
-                <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
-              }
-              <br />
-              <small>{{ row.cipher.subTitle }}</small>
-            </td>
-            <td bitCell>
-              @if (row.supportsPasskeyLogin) {
-                <bit-icon
-                  name="bwi-passkey"
-                  class="tw-mr-1"
-                  title="{{ 'passwordlessLogin' | i18n }}"
-                  aria-hidden="true"
-                ></bit-icon>
-                <span class="tw-sr-only">{{ "passwordlessLogin" | i18n }}</span>
-              }
-              @if (row.supportsPasskeyMfa) {
-                <bit-icon
-                  name="bwi-lock-encrypted"
-                  class="tw-mr-1"
-                  title="{{ 'multifactorAuthentication' | i18n }}"
-                  aria-hidden="true"
-                ></bit-icon>
-                <span class="tw-sr-only">{{ "multifactorAuthentication" | i18n }}</span>
+                @let orgName = row.cipher.organizationId | orgNameFromId: organizations() ?? [];
+                {{ "orgNameVault" | i18n: orgName ?? "" }}
+              } @else {
+                {{ "myVault" | i18n }}
               }
             </td>
             <td bitCell>
-              <app-org-badge
-                [disabled]="true"
-                [organizationId]="row.cipher.organizationId"
-                [organizationName]="
-                  (row.cipher.organizationId | orgNameFromId: organizations() ?? []) ?? ''
-                "
-                appStopProp
-              />
+              <div class="tw-flex tw-gap-2 tw-items-center">
+                @if (row.supportsPasskeyLogin) {
+                  <span bitBadge size="small" variant="subtle">
+                    {{ "login" | i18n }}
+                  </span>
+                }
+                @if (row.supportsPasskeyMfa) {
+                  <span bitBadge size="small" variant="subtle">2FA</span>
+                }
+              </div>
             </td>
-            <td bitCell class="tw-text-right">
+            <td bitCell>
               @if (row.instructions) {
-                <a [href]="row.instructions" target="_blank" rel="noreferrer">
-                  <span bitBadge variant="primary">{{ "instructions" | i18n }}</span>
+                <a
+                  bitButton
+                  endIcon="bwi-external-link"
+                  [href]="row.instructions"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {{ "instructions" | i18n }}
                 </a>
               }
             </td>
