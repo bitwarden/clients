@@ -55,7 +55,7 @@
         @for (organization of sortedOrganizations(); track organization.id) {
           <bit-filter-option
             [value]="organization.id"
-            [iconTile]="organizationFilterTiles().get(organization.id)"
+            [iconTile]="organizationTiles().get(organization.id)"
             >{{ organization.name }}</bit-filter-option
           >
         }

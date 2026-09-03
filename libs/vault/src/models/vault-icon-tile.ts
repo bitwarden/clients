@@ -58,6 +58,17 @@ export function orgIconTile(tier: ProductTierType): IconTileOptions {
 }
 
 /**
+ * The icon tile for a deactivated organization. Replaces the tier tile rather than sitting beside
+ * it: the deactivated state outranks the tier color's wayfinding.
+ */
+export function deactivatedOrgIconTile(): IconTileOptions {
+  return {
+    icon: "bwi-exclamation-triangle",
+    variant: "danger",
+  };
+}
+
+/**
  * The icon tile for the user's own vault, tinted to match their avatar so the two read as the same
  * identity.
  *

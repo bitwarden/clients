@@ -9,15 +9,11 @@ import { sortDefaultCollections } from "@bitwarden/angular/vault/vault-filter/se
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import {
-  CollectionView,
-  CollectionTypes,
-} from "@bitwarden/common/admin-console/models/collections";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -34,13 +30,15 @@ import {
   CIPHER_MENU_ITEMS,
   DIALOG_CIPHER_MENU_ITEMS,
 } from "@bitwarden/common/vault/types/cipher-menu-items";
+import { ChipFilterOption, getAvatarDefaultColor } from "@bitwarden/components";
 import {
-  BitwardenIcon,
-  ChipFilterOption,
-  getAvatarDefaultColor,
-  IconTileOptions,
-} from "@bitwarden/components";
-import { idString, MY_VAULT, NO_FOLDER, orgIconTile, personalIconTile } from "@bitwarden/vault";
+  deactivatedOrgIconTile,
+  idString,
+  MY_VAULT,
+  NO_FOLDER,
+  orgIconTile,
+  personalIconTile,
+} from "@bitwarden/vault";
 
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
@@ -218,15 +216,11 @@ export class VaultPopupListTableFiltersService {
         .map((item) => ({
           value: item.type,
           label: this.i18nService.t(item.labelKey),
-          icon: item.icon as BitwardenIcon,
         }));
     }),
   );
 
-  /**
-   * The active user's avatar color, so the "My vault" filter tile matches their avatar and the
-   * tile the vault surfaces on the other clients render.
-   */
+  /** The active user's avatar color, so the "My vault" filter tile matches their avatar. */
   private readonly userAvatarColor$ = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
       account
@@ -276,31 +270,17 @@ export class VaultPopupListTableFiltersService {
               {
                 value: { id: MY_VAULT } as Organization,
                 label: this.i18nService.t("myVault"),
-                icon: "bwi-user",
                 iconTile: personalIconTile(avatarColor ?? "brand"),
               },
             ];
 
         return [
           ...myVaultOrg,
-          ...orgs.map((org) => {
-            let icon: BitwardenIcon = "bwi-business";
-            let iconClass: string | undefined = undefined;
-            let iconTile: IconTileOptions | undefined = orgIconTile(org.productTierType);
-
-            if (!org.enabled) {
-              icon = "bwi-exclamation-triangle";
-              iconClass = "tw-text-danger";
-              iconTile = undefined;
-            } else if (
-              org.productTierType === ProductTierType.Families ||
-              org.productTierType === ProductTierType.Free
-            ) {
-              icon = "bwi-family";
-            }
-
-            return { value: org, label: org.name, icon, iconClass, iconTile };
-          }),
+          ...orgs.map((org) => ({
+            value: org,
+            label: org.name,
+            iconTile: org.enabled ? orgIconTile(org.productTierType) : deactivatedOrgIconTile(),
+          })),
         ];
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
@@ -361,7 +341,7 @@ export class VaultPopupListTableFiltersService {
           const nested = this.getAllFoldersNested(folders);
           return new DynamicTreeNode<FolderView>({ fullList: folders, nestedList: nested });
         }),
-        map((node) => node.nestedList.map((f) => this.convertToChipFilterOption(f, "bwi-folder"))),
+        map((node) => node.nestedList.map((f) => this.convertToChipFilterOption(f))),
       );
     }),
     shareReplay({ refCount: true, bufferSize: 1 }),
@@ -400,16 +380,7 @@ export class VaultPopupListTableFiltersService {
             nestedList: this.collectionService.getAllNested(fullList),
           }),
       ),
-      map((tree) =>
-        tree.nestedList.map((c) =>
-          this.convertToChipFilterOption(
-            c,
-            c.node.type === CollectionTypes.DefaultUserCollection
-              ? "bwi-user"
-              : "bwi-shared-folder",
-          ),
-        ),
-      ),
+      map((tree) => tree.nestedList.map((c) => this.convertToChipFilterOption(c))),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
@@ -419,13 +390,11 @@ export class VaultPopupListTableFiltersService {
 
   private convertToChipFilterOption<T extends ITreeNodeObject>(
     item: TreeNode<T>,
-    icon: BitwardenIcon,
   ): ChipFilterOption<T> {
     return {
       value: item.node,
       label: item.node.name,
-      icon,
-      children: item.children?.map((i) => this.convertToChipFilterOption(i, icon)),
+      children: item.children?.map((i) => this.convertToChipFilterOption(i)),
     };
   }
 

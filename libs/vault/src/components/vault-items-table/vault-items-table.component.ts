@@ -55,7 +55,11 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { orgIconTile, personalIconTile } from "../../models/vault-icon-tile";
+import {
+  deactivatedOrgIconTile,
+  orgIconTile,
+  personalIconTile,
+} from "../../models/vault-icon-tile";
 import {
   idString,
   matchesFavorite,
@@ -415,32 +419,27 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   private readonly organizationNames = computed(() => this.nameMap(this.organizations()));
 
-  /** Product tier per organization id, for the tier-appropriate Vault column tile. */
-  private readonly organizationTiers = computed(() => {
-    const tiers = new Map<string, ProductTierType>();
-    for (const organization of this.organizations()) {
-      const id = idString(organization.id);
-      if (id) {
-        tiers.set(id, organization.productTierType);
-      }
-    }
-    return tiers;
-  });
-
-  /**
-   * The "My vault" filter option's tile, matching the Vault column and the side nav.
-   */
+  /** The "My vault" filter option's tile, matching the Vault column and the side nav. */
   protected readonly myVaultFilterTile = computed(() =>
     personalIconTile(this.userAvatarColor() ?? "brand"),
   );
 
   /**
-   * Tile per organization id for the Vault filter options.
+   * Tile per organization id, shared by the Vault column and the Vault filter options so one
+   * organization reads the same in both places.
    */
-  protected readonly organizationFilterTiles = computed(() => {
+  protected readonly organizationTiles = computed(() => {
     const tiles = new Map<string, IconTileOptions>();
-    for (const [id, tier] of this.organizationTiers()) {
-      tiles.set(id, orgIconTile(tier));
+    for (const organization of this.organizations()) {
+      const id = idString(organization.id);
+      if (id) {
+        tiles.set(
+          id,
+          organization.enabled
+            ? orgIconTile(organization.productTierType)
+            : deactivatedOrgIconTile(),
+        );
+      }
     }
     return tiles;
   });
@@ -579,7 +578,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     if (!organizationId) {
       return personalIconTile(this.userAvatarColor() ?? "brand");
     }
-    return orgIconTile(this.organizationTiers().get(organizationId) ?? ProductTierType.Enterprise);
+    return this.organizationTiles().get(organizationId) ?? orgIconTile(ProductTierType.Enterprise);
   }
 
   /**
