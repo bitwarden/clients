@@ -174,10 +174,10 @@ describe("VaultHeaderComponent", () => {
       expect((component as any).title()).toBe("Special");
     });
 
-    it("omits the organization name when the VFO1 flag is on", () => {
+    it("titles the page with the shared folders term alone when the VFO1 flag is on", () => {
       vfo1Enabled = true;
       setInputs({ organization: makeOrg({ name: "Acme Corp" }) });
-      expect((component as any).title()).not.toContain("Acme Corp");
+      expect((component as any).title()).toBe(mockI18nService.t("sharedFolders"));
     });
   });
 
