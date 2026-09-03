@@ -87,13 +87,21 @@
                   ) | i18n
                 }}<span class="sr-only">)</span>
               </span>
-              <i
-                slot="end"
-                class="bwi bwi-2x text-muted"
-                [class.bwi-unlock]="account.value.authenticationStatus === authStatus.Unlocked"
-                [class.bwi-lock]="account.value.authenticationStatus !== authStatus.Unlocked"
-                aria-hidden="true"
-              ></i>
+              @if (account.value.authenticationStatus === authStatus.Unlocked) {
+                <bit-icon
+                  name="bwi-unlock"
+                  slot="end"
+                  class="bwi-2x text-muted"
+                  aria-hidden="true"
+                ></bit-icon>
+              } @else {
+                <bit-icon
+                  name="bwi-lock"
+                  slot="end"
+                  class="bwi-2x text-muted"
+                  aria-hidden="true"
+                ></bit-icon>
+              }
             </button>
           }
           <bit-menu-divider></bit-menu-divider>
@@ -101,7 +109,8 @@
         @if (view.activeAccount) {
           @if (view.numberOfAccounts < 4) {
             <button bitMenuItem type="button" (click)="addAccount()">
-              <i class="bwi bwi-plus" aria-hidden="true"></i> {{ "addAccount" | i18n }}
+              <bit-icon name="bwi-plus" aria-hidden="true"></bit-icon>
+              {{ "addAccount" | i18n }}
             </button>
           } @else {
             <span class="tw-block tw-px-4 tw-py-1 tw-text-muted">{{

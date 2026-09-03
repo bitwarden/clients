@@ -18,6 +18,7 @@ import {
   IconButtonModule,
   MenuModule,
   MenuPositionIdentifier,
+  IconComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -40,7 +41,7 @@ type InactiveAccount = ActiveAccount & {
 @Component({
   selector: "app-account-switcher-v2",
   templateUrl: "account-switcher-v2.component.html",
-  imports: [CommonModule, MenuModule, I18nPipe, AvatarModule, IconButtonModule],
+  imports: [CommonModule, MenuModule, I18nPipe, AvatarModule, IconButtonModule, IconComponent],
 })
 export class AccountSwitcherV2Component implements OnInit {
   /** Whether the side nav is expanded. Controls whether the name and email are shown. */
