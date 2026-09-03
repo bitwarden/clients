@@ -10,7 +10,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
-import { DialogService, IconModule, MenuModule } from "@bitwarden/components";
+import { BitwardenIcon, DialogService, IconModule, MenuModule } from "@bitwarden/components";
 import { AddEditFolderDialogComponent, VaultFabComponent } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
@@ -37,7 +37,9 @@ export class AppVaultFabComponent {
   protected readonly cipherMenuItems = toSignal(
     this.restrictedItemTypesService.restricted$.pipe(
       map((restricted) =>
-        CIPHER_MENU_ITEMS.filter((item) => !restricted.some((r) => r.cipherType === item.type)),
+        CIPHER_MENU_ITEMS.filter((item) => !restricted.some((r) => r.cipherType === item.type)).map(
+          (item) => ({ ...item, icon: item.icon as BitwardenIcon }),
+        ),
       ),
     ),
     { initialValue: [] },

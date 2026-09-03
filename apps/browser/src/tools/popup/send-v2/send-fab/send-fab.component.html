@@ -21,10 +21,8 @@
     </button>
     <button type="button" bitMenuItem (click)="navigateToFileSend()">
       <bit-icon name="bwi-file" class="tw-text-md" slot="start"></bit-icon>
-      <div class="tw-flex tw-items-center tw-gap-2">
-        {{ "sendTypeFile" | i18n }}
-        <app-premium-badge></app-premium-badge>
-      </div>
+      {{ "sendTypeFile" | i18n }}
+      <app-premium-badge slot="end"></app-premium-badge>
       <bit-icon name="bwi-external-link" class="tw-text-md" slot="end"></bit-icon>
     </button>
   </bit-menu>

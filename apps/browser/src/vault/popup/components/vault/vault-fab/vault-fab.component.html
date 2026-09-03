@@ -17,12 +17,11 @@
   <bit-menu #itemOptions>
     @for (menuItem of cipherMenuItems(); track menuItem.type) {
       <a bitMenuItem [routerLink]="['/add-cipher']" [queryParams]="buildQueryParams(menuItem.type)">
-        <i [class]="'bwi ' + menuItem.icon" slot="start" aria-hidden="true"></i>
+        <bit-icon [name]="menuItem.icon" slot="start" />
         {{ menuItem.labelKey | i18n }}
       </a>
     }
-    <bit-menu-divider></bit-menu-divider>
-    <button type="button" bitMenuItem (click)="openFolderDialog()">
+    <button type="button" bitMenuItem (click)="openFolderDialog()" slot="footer">
       <bit-icon name="bwi-folder" slot="start" />
       {{ "newFolder" | i18n }}
     </button>
