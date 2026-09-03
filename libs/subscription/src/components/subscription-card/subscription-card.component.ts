@@ -182,7 +182,7 @@ export class SubscriptionCardComponent {
           return {
             title: this.i18nService.t("pendingCancellation"),
             type: "warning",
-            description: this.i18nService.t("subscriptionMarkedForCancellation"),
+            description: this.i18nService.t("subscriptionPendingCanceled"),
             callsToAction: [
               {
                 text: this.i18nService.t("keepSubscription"),
