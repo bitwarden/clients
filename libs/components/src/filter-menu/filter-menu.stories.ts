@@ -181,7 +181,7 @@ export default {
               clearSearch: "Clear search",
               search: "Search",
               resetSearch: "Reset search",
-              clearSearch: "Clear by clicking here or pressing Esc.",
+              clearSearchTooltip: "Clear by clicking here or pressing Esc.",
               clear: "Clear",
               filtersSelected: (count) => `${count} selected`,
             }),

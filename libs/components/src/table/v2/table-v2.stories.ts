@@ -724,7 +724,7 @@ export default {
               additionalActions: "Additional actions",
               search: "Search",
               resetSearch: "Reset search",
-              clearSearch: "Clear by clicking here or pressing Esc.",
+              clearSearchTooltip: "Clear by clicking here or pressing Esc.",
               viewItemsIn: (name) => `View items in ${name}`,
               back: "Back",
               backTo: (name) => `Back to ${name}`,

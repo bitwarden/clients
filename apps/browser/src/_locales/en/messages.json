@@ -622,7 +622,7 @@
   "resetSearch": {
     "message": "Reset search"
   },
-  "clearSearch": {
+  "clearSearchTooltip": {
     "message": "Clear by clicking here or pressing Esc."
   },
   "archiveNoun": {

@@ -24,7 +24,7 @@ export default {
             return new I18nMockService({
               search: "Search",
               resetSearch: "Reset search",
-              clearSearch: "Clear by clicking here or pressing Esc.",
+              clearSearchTooltip: "Clear by clicking here or pressing Esc.",
             });
           },
         },
