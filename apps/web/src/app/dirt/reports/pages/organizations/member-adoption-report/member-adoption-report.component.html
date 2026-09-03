@@ -1,0 +1,135 @@
+<app-header>
+  <dirt-member-adoption-report-breadcrumbs slot="breadcrumbs" />
+</app-header>
+
+<div class="tw-max-w-4xl">
+  <p bitTypography="body1">{{ "memberAdoptionReportDesc" | i18n }}</p>
+</div>
+
+<!-- Failure holds the loading state: a formatted 0% would read as a real measurement. -->
+<div class="tw-mb-6 tw-grid tw-grid-cols-1 tw-gap-4 md:tw-grid-cols-2">
+  <dirt-member-adoption-tile
+    [label]="'activeMembers' | i18n"
+    [value]="activeMemberCount()"
+    [unit]="activeMemberUnitKey() | i18n"
+    [sublabel]="'loggedInOverLast30Days' | i18n"
+    [infoTitle]="'activeMembersPopoverTitle' | i18n"
+    [infoBody]="'activeMembersPopoverBody' | i18n"
+    [loading]="loading() || loadFailed()"
+  />
+  <dirt-member-adoption-tile
+    [label]="'sponsoredFamiliesPlanUsage' | i18n"
+    [value]="sponsoredFamiliesPercent()"
+    [unit]="'ofMembers' | i18n"
+    [sublabel]="'redeemedPlan' | i18n"
+    [infoTitle]="'sponsoredFamiliesPlanUsagePopoverTitle' | i18n"
+    [infoBody]="'sponsoredFamiliesPlanUsagePopoverBody' | i18n"
+    [loading]="loading() || loadFailed()"
+  />
+</div>
+
+<bit-table-v2
+  [tableDef]="table"
+  [filter]="filter"
+  [loading]="loading()"
+  [trackBy]="trackByOrganizationUser"
+  queryParam="memberAdoption"
+>
+  <bit-table-toolbar>
+    <bit-search class="tw-flex-1" [placeholder]="'search' | i18n"></bit-search>
+
+    <button
+      id="member-adoption-report_button_export"
+      slot="end"
+      type="button"
+      bitButton
+      buttonType="secondary"
+      startIcon="bwi-download"
+      [bitAction]="exportReport"
+    >
+      {{ "exportNoun" | i18n }}
+    </button>
+
+    <bit-filter-menu key="recentLogin" [placeholderText]="'recentLogin' | i18n">
+      <bit-filter-option value="yes">{{ "yes" | i18n }}</bit-filter-option>
+      <bit-filter-option value="no">{{ "no" | i18n }}</bit-filter-option>
+    </bit-filter-menu>
+
+    <bit-filter-menu key="extensionInstalled" [placeholderText]="'extensionUsed' | i18n">
+      <bit-filter-option value="yes">{{ "yes" | i18n }}</bit-filter-option>
+      <bit-filter-option value="no">{{ "no" | i18n }}</bit-filter-option>
+    </bit-filter-menu>
+  </bit-table-toolbar>
+
+  <bit-status-lockup slot="empty">
+    <bit-svg slot="graphic" [content]="emptyIcon()"></bit-svg>
+    <span slot="title">{{ emptyTitleKey() | i18n }}</span>
+    <span slot="description">{{ emptyDescriptionKey() | i18n }}</span>
+    <!-- Projection matches static top-level nodes only, so this hides rather than branches. -->
+    <button
+      id="member-adoption-report_button_retry"
+      slot="button"
+      type="button"
+      bitButton
+      buttonType="secondary"
+      class="tw-mb-6"
+      [class.tw-hidden]="!loadFailed()"
+      [bitAction]="retryLoad"
+    >
+      {{ "tryAgain" | i18n }}
+    </button>
+  </bit-status-lockup>
+
+  <bit-column sortable defaultSort="asc" [sortFn]="sortByName" width="minmax(240px, 1fr)">
+    <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
+
+    <bit-cell *bitCellDef="table.columns.name; let row">
+      {{ displayName(row) }}
+      <!-- Projection matches static top-level nodes only, so this hides rather than branches. -->
+      <span slot="secondary" [class.tw-hidden]="!secondaryEmail(row)">
+        {{ secondaryEmail(row) }}
+      </span>
+    </bit-cell>
+  </bit-column>
+
+  <bit-column sortable [sortFn]="sortByRecentLogin" width="minmax(160px, 200px)">
+    <bit-header-cell>{{ "recentLogin" | i18n }}</bit-header-cell>
+
+    <bit-cell *bitCellDef="table.columns.recentLogin; let row">
+      <span bitBadge [variant]="row.hasRecentLogin ? 'success' : 'warning'">
+        {{ (row.hasRecentLogin ? "yes" : "no") | i18n }}
+      </span>
+    </bit-cell>
+  </bit-column>
+
+  <bit-column sortable [sortFn]="sortByExtensionInstalled" width="minmax(180px, 220px)">
+    <bit-header-cell>{{ "extensionUsed" | i18n }}</bit-header-cell>
+
+    <bit-cell *bitCellDef="table.columns.extensionInstalled; let row">
+      <span bitBadge [variant]="row.hasExtensionInstalled ? 'success' : 'warning'">
+        {{ (row.hasExtensionInstalled ? "yes" : "no") | i18n }}
+      </span>
+    </bit-cell>
+  </bit-column>
+
+  <bit-column sortable [sortFn]="sortByVaultItems" width="minmax(120px, 160px)">
+    <bit-header-cell>{{ "vaultItems" | i18n }}</bit-header-cell>
+
+    <bit-cell *bitCellDef="table.columns.vaultItems; let row">
+      <span class="tw-tabular-nums">{{ formatCount(row.vaultItemCount) }}</span>
+    </bit-cell>
+  </bit-column>
+
+  <bit-column sortable [sortFn]="sortBySharedItems" width="minmax(180px, 220px)">
+    <bit-header-cell>{{ "sharedItems" | i18n }}</bit-header-cell>
+
+    <bit-cell *bitCellDef="table.columns.itemsSharedWithThem; let row">
+      <span class="tw-tabular-nums">{{ formatCount(row.sharedItemCount) }}</span>
+    </bit-cell>
+  </bit-column>
+
+  <bit-table-paginator
+    [pageSize]="pageSize"
+    [pageSizeOptions]="pageSizeOptions"
+  ></bit-table-paginator>
+</bit-table-v2>
