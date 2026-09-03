@@ -132,25 +132,23 @@ describe("MemberAdoptionReportComponent", () => {
       return secondary ? full.replace(secondary, "").trim() : full;
     });
 
-  const badgesIn = (row: DebugElement): BadgeComponent[] =>
-    row.queryAll(By.directive(BadgeComponent)).map((badge) => badge.componentInstance);
-
   /** The badge variant's default icon: the page passes no `[startIcon]`. */
-  const badgeIconsIn = (row: DebugElement): (string | undefined)[] =>
-    row.queryAll(By.directive(BadgeComponent)).map((badge) => {
-      const icon = badge.query(By.css(".bwi"));
-      if (icon == null) {
-        return undefined;
-      }
-      return [...(icon.nativeElement as HTMLElement).classList].find(
-        (name) => name.startsWith("bwi-") && name !== "bwi-fw",
-      );
-    });
+  const badgeIcon = (badge: DebugElement): string | undefined => {
+    const icon = badge.query(By.css(".bwi"));
+    if (icon == null) {
+      return undefined;
+    }
+    return [...(icon.nativeElement as HTMLElement).classList].find(
+      (name) => name.startsWith("bwi-") && name !== "bwi-fw",
+    );
+  };
 
-  const badgeLabelsIn = (row: DebugElement): string[] =>
-    row
-      .queryAll(By.directive(BadgeComponent))
-      .map((badge) => (badge.nativeElement.textContent as string).trim());
+  const badgesIn = (row: DebugElement) =>
+    row.queryAll(By.directive(BadgeComponent)).map((badge) => ({
+      variant: (badge.componentInstance as BadgeComponent).variant(),
+      label: (badge.nativeElement.textContent as string).trim(),
+      icon: badgeIcon(badge),
+    }));
 
   const table = (): BitTableV2Component<MemberAdoptionMemberView, MemberAdoptionTableColumn> =>
     fixture.debugElement.query(By.directive(BitTableV2Component)).componentInstance;
@@ -305,27 +303,19 @@ describe("MemberAdoptionReportComponent", () => {
     it("badges a member with a recent login and an extension as a success", async () => {
       await render(memberAdoptionReportPayloadMock);
 
-      const badges = badgesIn(rowFor("atanaka@example.com"));
-
-      expect(badges.map((badge) => badge.variant())).toEqual(["success", "success"]);
-      expect(badgeIconsIn(rowFor("atanaka@example.com"))).toEqual([
-        "bwi-check-circle",
-        "bwi-check-circle",
+      expect(badgesIn(rowFor("atanaka@example.com"))).toEqual([
+        { variant: "success", label: "yes", icon: "bwi-check-circle" },
+        { variant: "success", label: "yes", icon: "bwi-check-circle" },
       ]);
-      expect(badgeLabelsIn(rowFor("atanaka@example.com"))).toEqual(["yes", "yes"]);
     });
 
     it("badges a missing recent login as a warning, not a failure", async () => {
       await render(memberAdoptionReportPayloadMock);
 
-      const badges = badgesIn(rowFor("bwilliams@example.com"));
-
-      expect(badges.map((badge) => badge.variant())).toEqual(["warning", "success"]);
-      expect(badgeIconsIn(rowFor("bwilliams@example.com"))).toEqual([
-        "bwi-exclamation-triangle",
-        "bwi-check-circle",
+      expect(badgesIn(rowFor("bwilliams@example.com"))).toEqual([
+        { variant: "warning", label: "no", icon: "bwi-exclamation-triangle" },
+        { variant: "success", label: "yes", icon: "bwi-check-circle" },
       ]);
-      expect(badgeLabelsIn(rowFor("bwilliams@example.com"))).toEqual(["no", "yes"]);
     });
 
     it("renders no selection column, so there is nothing to check off", async () => {

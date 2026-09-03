@@ -56,7 +56,7 @@ import {
 } from "./view/member-adoption-report.view";
 
 /** Column names do not map to row fields, so every column needs an explicit `sortFn`. */
-export const MEMBER_ADOPTION_COLUMNS = Object.freeze([
+const MEMBER_ADOPTION_COLUMNS = Object.freeze([
   "name",
   "recentLogin",
   "extensionInstalled",
@@ -79,13 +79,27 @@ export type MemberAdoptionTableFilters = {
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
-function displayName(member: MemberAdoptionMemberView): string {
-  return member.name || member.email;
-}
-
 function matchesBoolean(value: boolean, filter: MemberAdoptionBooleanFilter | undefined): boolean {
   return filter == null || (filter === "yes") === value;
 }
+
+const EMPTY_STATES = Object.freeze({
+  loadFailed: {
+    titleKey: "memberAdoptionLoadError",
+    descriptionKey: "memberAdoptionLoadErrorDesc",
+    icon: AccountWarning,
+  },
+  noMatches: {
+    titleKey: "noMatchingItems",
+    descriptionKey: "clearFiltersOrTryAnother",
+    icon: NoResults,
+  },
+  noMembers: {
+    titleKey: "memberAdoptionNoMembers",
+    descriptionKey: "memberAdoptionNoMembersDesc",
+    icon: RegistrationUserAddIcon,
+  },
+} as const);
 
 /**
  * Organization adoption: two headline tiles over a table of every confirmed member.
@@ -173,25 +187,11 @@ export class MemberAdoptionReportComponent {
   private readonly hasMembers = computed(() => this.members().length > 0);
 
   /** One `slot="empty"` for all three cases: projection matches static top-level nodes only. */
-  protected readonly emptyTitleKey = computed(() => {
+  protected readonly emptyState = computed(() => {
     if (this.loadFailed()) {
-      return "memberAdoptionLoadError";
+      return EMPTY_STATES.loadFailed;
     }
-    return this.hasMembers() ? "noMatchingItems" : "memberAdoptionNoMembers";
-  });
-
-  protected readonly emptyDescriptionKey = computed(() => {
-    if (this.loadFailed()) {
-      return "memberAdoptionLoadErrorDesc";
-    }
-    return this.hasMembers() ? "clearFiltersOrTryAnother" : "memberAdoptionNoMembersDesc";
-  });
-
-  protected readonly emptyIcon = computed(() => {
-    if (this.loadFailed()) {
-      return AccountWarning;
-    }
-    return this.hasMembers() ? NoResults : RegistrationUserAddIcon;
+    return this.hasMembers() ? EMPTY_STATES.noMatches : EMPTY_STATES.noMembers;
   });
 
   protected readonly activeMemberCount = computed(() =>
@@ -214,7 +214,9 @@ export class MemberAdoptionReportComponent {
     return this.countFormat.format(value);
   }
 
-  protected readonly displayName = displayName;
+  protected displayName(member: MemberAdoptionMemberView): string {
+    return member.name || member.email;
+  }
 
   /** Empty when the member has no name: `displayName` already shows their email. */
   protected secondaryEmail(member: MemberAdoptionMemberView): string {
@@ -224,7 +226,7 @@ export class MemberAdoptionReportComponent {
   protected readonly sortByName: SortFn = (
     a: MemberAdoptionMemberView,
     b: MemberAdoptionMemberView,
-  ) => displayName(a).localeCompare(displayName(b));
+  ) => this.displayName(a).localeCompare(this.displayName(b));
 
   protected readonly sortByRecentLogin: SortFn = (
     a: MemberAdoptionMemberView,

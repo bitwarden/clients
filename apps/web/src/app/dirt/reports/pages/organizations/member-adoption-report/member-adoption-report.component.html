@@ -62,9 +62,9 @@
   </bit-table-toolbar>
 
   <bit-status-lockup slot="empty">
-    <bit-svg slot="graphic" [content]="emptyIcon()"></bit-svg>
-    <span slot="title">{{ emptyTitleKey() | i18n }}</span>
-    <span slot="description">{{ emptyDescriptionKey() | i18n }}</span>
+    <bit-svg slot="graphic" [content]="emptyState().icon"></bit-svg>
+    <span slot="title">{{ emptyState().titleKey | i18n }}</span>
+    <span slot="description">{{ emptyState().descriptionKey | i18n }}</span>
     <!-- Projection matches static top-level nodes only, so this hides rather than branches. -->
     <button
       id="member-adoption-report_button_retry"
