@@ -151,6 +151,7 @@ function environmentProviders(): Provider[] {
 
   const configService = mock<ConfigService>();
   configService.getFeatureFlag.mockResolvedValue(false);
+  configService.getFeatureFlag$.mockReturnValue(of(false));
 
   const i18nService = mock<I18nService>();
   i18nService.t.mockReturnValue("translated");
