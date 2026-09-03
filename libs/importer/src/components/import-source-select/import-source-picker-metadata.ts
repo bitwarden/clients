@@ -2,27 +2,36 @@ import {
   BitSvg,
   BitwardenIcon,
   Import1PasswordIcon,
+  Import1PasswordDarkIcon,
   ImportArcIcon,
   ImportAscendoIcon,
   ImportAvastIcon,
   ImportAviraIcon,
   ImportBlackberryIcon,
+  ImportBlackberryDarkIcon,
+  ImportBlurIcon,
   ImportBraveIcon,
   ImportButtercupIcon,
   ImportChromeIcon,
   ImportClipperzIcon,
   ImportCodebookIcon,
   ImportDashlaneIcon,
+  ImportDashlaneDarkIcon,
+  ImportDelineaIcon,
+  ImportDelineaDarkIcon,
   ImportEdgeIcon,
+  ImportEncryptrIcon,
   ImportEnpassIcon,
   ImportFSecureIcon,
   ImportFirefoxIcon,
+  ImportGnomeIcon,
   ImportKasperskyIcon,
   ImportKeepassIcon,
   ImportKeeperIcon,
   ImportLastpassIcon,
   ImportLogmeonceIcon,
   ImportMsecureIcon,
+  ImportMykiIcon,
   ImportNetwrixIcon,
   ImportNordpassIcon,
   ImportOperaIcon,
@@ -32,6 +41,7 @@ import {
   ImportPasskyIcon,
   ImportPassmanIcon,
   ImportPasspackIcon,
+  ImportPasspackDarkIcon,
   ImportPasswordAgentIcon,
   ImportPasswordBossIcon,
   ImportPasswordDepotIcon,
@@ -39,6 +49,7 @@ import {
   ImportPasswordXpIcon,
   ImportProtonpassIcon,
   ImportPsonoIcon,
+  ImportRemembearIcon,
   ImportRoboformIcon,
   ImportSafariIcon,
   ImportSafeincloudIcon,
@@ -69,6 +80,10 @@ import { ImportType } from "../../models";
 interface PickerVendorMetadata {
   /** Vendor logo. Absent ids fall back to a generic icon tile in the picker. */
   icon?: BitSvg;
+  /** Dark-theme variant of `icon`, for vendors whose mark is a single fixed color that would be
+   *  low-contrast against a dark background (e.g. a navy wordmark meant for a light card). Only
+   *  set where the vendor actually supplied one — most marks are full-color and theme-agnostic. */
+  darkIcon?: BitSvg;
   /** Clean vendor name for the picker's one-card-per-vendor grid — e.g. "Dashlane", not
    *  `ImportOption.name`'s "Dashlane (csv)". `ImportOption.name` keeps its format/version suffix
    *  for the CLI and the existing format dropdown.  */
@@ -78,14 +93,22 @@ interface PickerVendorMetadata {
 const PICKER_VENDOR_METADATA: Partial<Record<ImportType, PickerVendorMetadata>> = {
   bitwardenjson: { icon: BitwardenIcon, displayName: "Bitwarden" },
   chromecsv: { icon: ImportChromeIcon, displayName: "Chrome" },
-  dashlanecsv: { icon: ImportDashlaneIcon, displayName: "Dashlane" },
+  dashlanecsv: {
+    icon: ImportDashlaneIcon,
+    darkIcon: ImportDashlaneDarkIcon,
+    displayName: "Dashlane",
+  },
   firefoxcsv: { icon: ImportFirefoxIcon, displayName: "Firefox" },
   keepass2xml: { icon: ImportKeepassIcon, displayName: "KeePass" },
   keepassxcsv: { icon: ImportKeepassIcon, displayName: "KeePassX" },
   keeper: { icon: ImportKeeperIcon, displayName: "Keeper" },
   lastpasscsv: { icon: ImportLastpassIcon, displayName: "LastPass" },
   safaricsv: { icon: ImportSafariIcon, displayName: "Safari" },
-  "1password1pux": { icon: Import1PasswordIcon, displayName: "1Password" },
+  "1password1pux": {
+    icon: Import1PasswordIcon,
+    darkIcon: Import1PasswordDarkIcon,
+    displayName: "1Password",
+  },
   roboformcsv: { icon: ImportRoboformIcon, displayName: "RoboForm" },
   enpasscsv: { icon: ImportEnpassIcon, displayName: "Enpass" },
   protonpass: { icon: ImportProtonpassIcon, displayName: "Proton Pass" },
@@ -110,14 +133,22 @@ const PICKER_VENDOR_METADATA: Partial<Record<ImportType, PickerVendorMetadata>> 
   vivaldicsv: { icon: ImportVivaldiIcon, displayName: "Vivaldi" },
   bravecsv: { icon: ImportBraveIcon, displayName: "Brave" },
   passwordagentcsv: { icon: ImportPasswordAgentIcon, displayName: "Password Agent" },
-  passpackcsv: { icon: ImportPasspackIcon, displayName: "Passpack" },
+  passpackcsv: {
+    icon: ImportPasspackIcon,
+    darkIcon: ImportPasspackDarkIcon,
+    displayName: "Passpack",
+  },
   passmanjson: { icon: ImportPassmanIcon, displayName: "Passman" },
   avastcsv: { icon: ImportAvastIcon, displayName: "Avast" },
   fsecurefsk: { icon: ImportFSecureIcon, displayName: "F-Secure" },
   kasperskytxt: { icon: ImportKasperskyIcon, displayName: "Kaspersky" },
   securesafecsv: { icon: ImportSecuresafeIcon, displayName: "SecureSafe" },
   logmeoncecsv: { icon: ImportLogmeonceIcon, displayName: "LogMeOnce" },
-  blackberrycsv: { icon: ImportBlackberryIcon, displayName: "BlackBerry" },
+  blackberrycsv: {
+    icon: ImportBlackberryIcon,
+    darkIcon: ImportBlackberryDarkIcon,
+    displayName: "BlackBerry",
+  },
   buttercupcsv: { icon: ImportButtercupIcon, displayName: "Buttercup" },
   codebookcsv: { icon: ImportCodebookIcon, displayName: "Codebook" },
   yoticsv: { icon: ImportYotiIcon, displayName: "Yoti" },
@@ -127,22 +158,23 @@ const PICKER_VENDOR_METADATA: Partial<Record<ImportType, PickerVendorMetadata>> 
   passwordxpcsv: { icon: ImportPasswordXpIcon, displayName: "Password XP" },
   netwrixpasswordsecure: { icon: ImportNetwrixIcon, displayName: "Netwrix" },
   passworddepot17xml: { icon: ImportPasswordDepotIcon, displayName: "Password Depot" },
-  delineaxml: { displayName: "Delinea" },
+  delineaxml: { icon: ImportDelineaIcon, darkIcon: ImportDelineaDarkIcon, displayName: "Delinea" },
+  gnomejson: { icon: ImportGnomeIcon, displayName: "GNOME Passwords and Keys" },
+  blurcsv: { icon: ImportBlurIcon, displayName: "Blur" },
+  remembearcsv: { icon: ImportRemembearIcon, displayName: "RememBear" },
+  mykicsv: { icon: ImportMykiIcon, displayName: "Myki" },
+  encryptrcsv: { icon: ImportEncryptrIcon, displayName: "Encryptr" },
 
   // No vendor art supplied for these — generic icon tile, vendor-only name still required.
   passworddragonxml: { displayName: "Password Dragon" },
   upmcsv: { displayName: "Universal Password Manager" },
   meldiumcsv: { displayName: "Meldium" },
-  gnomejson: { displayName: "GNOME Passwords and Keys" },
-  blurcsv: { displayName: "Blur" },
-  remembearcsv: { displayName: "RememBear" },
   passwordwallettxt: { displayName: "PasswordWallet" },
-  mykicsv: { displayName: "Myki" },
-  encryptrcsv: { displayName: "Encryptr" },
 };
 
-export function pickerIconFor(id: string): BitSvg | undefined {
-  return PICKER_VENDOR_METADATA[id as ImportType]?.icon;
+export function pickerIconFor(id: string, isDark: boolean): BitSvg | undefined {
+  const metadata = PICKER_VENDOR_METADATA[id as ImportType];
+  return (isDark ? metadata?.darkIcon : undefined) ?? metadata?.icon;
 }
 
 /** Only ever called for ids the caller has already confirmed with `isPickerVendor` — the picker

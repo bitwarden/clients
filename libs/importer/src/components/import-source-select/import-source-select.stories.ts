@@ -1,6 +1,9 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+import { of } from "rxjs";
 
+import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { I18nMockService } from "@bitwarden/components";
 
 import { ImportSourceSelectComponent } from "./import-source-select.component";
@@ -11,6 +14,11 @@ export default {
   decorators: [
     moduleMetadata({
       providers: [
+        // Storybook's light/dark toolbar toggle only flips a CSS class (withThemeByClassName in
+        // preview.tsx) — it doesn't touch AbstractThemingService, so this is a static stand-in
+        // rather than something that reacts to the toolbar. Without it the story throws
+        // NullInjectorError, since the component now injects this service directly.
+        { provide: AbstractThemingService, useValue: { theme$: of(ThemeTypes.Light) } },
         {
           provide: I18nService,
           useFactory: () => {

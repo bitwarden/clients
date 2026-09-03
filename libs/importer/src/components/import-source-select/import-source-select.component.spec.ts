@@ -1,8 +1,11 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
+import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { ImportOption, ImportType } from "../../models";
 
@@ -41,8 +44,9 @@ jest.mock("../../models", () => {
       buildOption({ id: "keepercsv", name: "Keeper (csv)" }),
       buildOption({ id: "keeperjson", name: "Keeper (json)" }),
       // Real id with a real picker vendor-metadata entry that has no icon — for the
-      // generic-icon-tile-fallback test below.
-      buildOption({ id: "gnomejson", name: "GNOME Passwords and Keys/Seahorse (json)" }),
+      // generic-icon-tile-fallback test below. (Not "gnomejson": that vendor gained real art
+      // as part of the SVG conversion, so it no longer exercises the fallback path.)
+      buildOption({ id: "passworddragonxml", name: "Password Dragon" }),
       // Deliberately not a real ImportType — no entry in the real picker vendor metadata map at
       // all, for the exclusion test below. Using a fake id here (rather than a
       // real-but-currently-uncovered one) keeps that test from silently passing for the wrong
@@ -55,15 +59,23 @@ jest.mock("../../models", () => {
 describe("ImportSourceSelectComponent", () => {
   let fixture: ComponentFixture<ImportSourceSelectComponent>;
   let component: ImportSourceSelectComponent;
+  let theme$: BehaviorSubject<Theme>;
 
   beforeEach(async () => {
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key) => key as string);
     i18nService.collator = new Intl.Collator("en");
 
+    theme$ = new BehaviorSubject<Theme>(ThemeTypes.Light);
+    const themingService = mock<AbstractThemingService>();
+    themingService.theme$ = theme$;
+
     await TestBed.configureTestingModule({
       imports: [ImportSourceSelectComponent],
-      providers: [{ provide: I18nService, useValue: i18nService }],
+      providers: [
+        { provide: I18nService, useValue: i18nService },
+        { provide: AbstractThemingService, useValue: themingService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ImportSourceSelectComponent);
@@ -295,7 +307,7 @@ describe("ImportSourceSelectComponent", () => {
   });
 
   it("falls back to a generic icon tile when an option has no vendor art", () => {
-    component["searchControl"].setValue("gnome");
+    component["searchControl"].setValue("password dragon");
     fixture.detectChanges();
 
     const card = fixture.debugElement.query(By.css("bit-form-control-card"));
@@ -307,5 +319,31 @@ describe("ImportSourceSelectComponent", () => {
     const card = fixture.debugElement.query(By.css("bit-form-control-card"));
     expect(card.query(By.css("bit-svg"))).toBeTruthy();
     expect(card.query(By.css("bit-icon-tile"))).toBeFalsy();
+  });
+
+  it("swaps to the dark-mode icon variant for vendors that have one, and back again", () => {
+    // "1password1pux" is a real id with both an `icon` and a `darkIcon` in the picker metadata.
+    const onePasswordIcon = () =>
+      fixture.debugElement
+        .queryAll(By.css("bit-form-control-card"))
+        .find(
+          (card) =>
+            (card.query(By.css("bit-label"))?.nativeElement.textContent ?? "").trim() ===
+            "1Password",
+        )
+        ?.query(By.css("bit-svg"))
+        .componentInstance.content();
+
+    const lightIcon = onePasswordIcon();
+
+    theme$.next(ThemeTypes.Dark);
+    fixture.detectChanges();
+    const darkIcon = onePasswordIcon();
+
+    expect(darkIcon).not.toEqual(lightIcon);
+
+    theme$.next(ThemeTypes.Light);
+    fixture.detectChanges();
+    expect(onePasswordIcon()).toEqual(lightIcon);
   });
 });
