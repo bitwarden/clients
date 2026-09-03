@@ -159,6 +159,26 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
     }
 
+    // ============================================================
+    // PM-42990 — ROLLBACK NOTE
+    // ============================================================
+    // This code builds the request from a master password hash. The caller
+    // computes that hash in SetInitialPasswordComponent.
+    //
+    // This method does not build authentication data or unlock data.
+    //
+    // This exists because the set-password endpoint needs the old shape for
+    // 3 releases, to stay compatible with self hosted servers.
+    //
+    // BUILD: Move the hash and key computation back into this method. Build
+    // the request from authentication data and unlock data, not a hash.
+    //
+    // DELETE: Remove the assertions on newMasterKey and newServerMasterKeyHash
+    // below. Delete newMasterKey and newServerMasterKeyHash from
+    // SetInitialPasswordCredentials and PasswordInputResult. See
+    // https://github.com/bitwarden/clients/pull/20643 for initial pass at this
+    // refactor.
+    // ============================================================
     const request = new SetPasswordRequest(
       newServerMasterKeyHash,
       masterKeyEncryptedUserKey[1].encryptedString,
@@ -402,6 +422,22 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         userKey,
       );
 
+    // ============================================================
+    // PM-42990 — ROLLBACK NOTE
+    // ============================================================
+    // This method already builds authentication data and unlock data.
+    // The method newConstructor() converts that data into the old request shape.
+    //
+    // It converts to the old shape because the endpoint needs it for 3
+    // releases, to stay compatible with self hosted servers.
+    //
+    // BUILD: Replace this call with a direct call to the new request
+    // constructor. No other change is needed here.
+    //
+    // DELETE: Nothing to delete at this call site. See
+    // https://github.com/bitwarden/clients/pull/20643 for initial pass at this
+    // refactor.
+    // ============================================================
     const request = SetPasswordRequest.newConstructor(
       authenticationData,
       unlockData,
