@@ -197,7 +197,7 @@ export class MemberAccessReportComponent implements OnInit {
         organizationUserId: user.userGuid,
         usesKeyConnector: user.usesKeyConnector,
         isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
-        initialTab: MemberDialogTab.Role,
+        initialTab: MemberDialogTab.Details,
       },
     });
 

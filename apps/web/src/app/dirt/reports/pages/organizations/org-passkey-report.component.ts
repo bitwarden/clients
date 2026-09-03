@@ -29,6 +29,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeComponent,
   BreadcrumbsModule,
+  ButtonModule,
   CalloutComponent,
   ContainerComponent,
   DialogService,
@@ -83,6 +84,7 @@ import {
     TableModule,
     BadgeComponent,
     BreadcrumbsModule,
+    ButtonModule,
   ],
 })
 export class OrgPasskeyReportComponent {

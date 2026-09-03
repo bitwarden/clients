@@ -1275,6 +1275,9 @@
   "foldersFilterTooltip": {
     "message": "Add folders to items to filter them here."
   },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
+  },
   "addSharedFolder": {
     "message": "Add shared folder"
   },
@@ -1906,6 +1909,18 @@
   },
   "noMatchingItems": {
     "message": "No matching items"
+  },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
   },
   "deselectAll": {
     "message": "Deselect all"
@@ -2581,6 +2596,9 @@
   },
   "addPlan": {
     "message": "Add plan"
+  },
+  "addPlanDesc": {
+    "message": "You can create a new shared vault with 1 other person for free. If you'd like to store, manage, and share items with more people, you will need to add a new plan first. Just know that some options may require a billing change."
   },
   "noOrganizationsList": {
     "message": "You do not belong to any organizations. Organizations allow you to securely share items with other users."
@@ -4181,12 +4199,6 @@
   "instructions": {
     "message": "Instructions"
   },
-  "passwordlessLogin": {
-    "message": "Passwordless login"
-  },
-  "multifactorAuthentication": {
-    "message": "Multifactor authentication"
-  },
   "exposedPasswordsReport": {
     "message": "Exposed passwords"
   },
@@ -4957,6 +4969,9 @@
   },
   "chooseYourPlan": {
     "message": "Choose your plan"
+  },
+  "choosePlan": {
+    "message": "Choose plan"
   },
   "users": {
     "message": "Users"
@@ -8013,6 +8028,13 @@
   "requireSsoPolicyReqV2Vfo1": {
     "message": "You must enable the single organization membership policy before enabling this one.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "You must enable the single organization policy before enabling this one."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "You must enable the single organization membership policy before enabling this one.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "Single organization policy not set up."
@@ -11558,6 +11580,9 @@
   "noSharedFoldersAdded": {
     "message": "No shared folders added"
   },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
+  },
   "noMembersAdded": {
     "message": "No members added"
   },
@@ -14177,6 +14202,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Get Secrets Manager"
+  },
   "secureYourInfrastructure": {
     "message": "Secure your infrastructure"
   },
@@ -15741,6 +15769,15 @@
   "showMore": {
     "message": "Show more"
   },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "showLess": {
     "message": "Show less"
   },
@@ -16003,6 +16040,9 @@
   },
   "upgradeNow": {
     "message": "Upgrade now"
+  },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Get advanced online security with Bitwarden premium."
   },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
@@ -17525,6 +17565,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Login"
+  },
+  "orgNameVault": {
+    "message": "$ORGNAME$ vault",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }
