@@ -108,7 +108,7 @@ export class NewItemPageComponent {
       type: item.cipherType.toString(),
       folderId: this.folderId(),
       organizationId: this.organizationId(),
-      collectionId: this.collectionId(),
+      collectionIds: this.collectionId(),
     };
 
     if (!poppedOut && item.cipherType === CipherType.Login) {

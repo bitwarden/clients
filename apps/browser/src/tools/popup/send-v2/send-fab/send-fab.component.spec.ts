@@ -130,6 +130,19 @@ describe("SendFabComponent", () => {
         queryParams: { type: SendType.File, isNew: true },
       });
     });
+
+    it("prompts for premium when the only allowed type is File but user lacks premium", async () => {
+      allowedSendTypes$.next([SendType.File]);
+      hasPremiumFromAnySource$.next(false);
+      fixture.detectChanges();
+      premiumUpgradePromptServiceMock.promptForPremium.mockResolvedValue(undefined);
+      const navigate = jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+      await component["navigateToRestrictedSend"]();
+
+      expect(premiumUpgradePromptServiceMock.promptForPremium).toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
+    });
   });
 
   describe("allowedSendTypes signal", () => {

@@ -14,9 +14,8 @@ import { AddEditFolderDialogComponent, VaultFabComponent } from "@bitwarden/vaul
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
-import { NewItemInitialValues } from "../new-item-dropdown/new-item-dropdown.component";
 
-import { AppVaultFabComponent } from "./vault-fab.component";
+import { AppVaultFabComponent, FabNewItemInitialValues } from "./vault-fab.component";
 
 describe("AppVaultFabComponent", () => {
   let fixture: ComponentFixture<AppVaultFabComponent>;
@@ -58,19 +57,24 @@ describe("AppVaultFabComponent", () => {
 
     fixture = TestBed.createComponent(AppVaultFabComponent);
     component = fixture.componentInstance;
+    // Provide a default initialValues so getInitialValues() doesn't throw on render.
+    fixture.componentRef.setInput("initialValues", {});
     router = TestBed.inject(Router);
     jest.spyOn(router, "navigate").mockResolvedValue(true);
     fixture.detectChanges();
   });
 
-  describe("buildQueryParams", () => {
-    const initialValues: NewItemInitialValues = {
-      folderId: "folder-1",
-      organizationId: "org-1" as any,
-      collectionId: "col-1" as any,
-    };
+  it("creates", () => {
+    expect(component).toBeTruthy();
+  });
 
-    it("includes prefillNameAndURIFromTab for Login when not popped out and tab is available", async () => {
+  describe("buildQueryParams", () => {
+    it("prefills org, collections, and folder when exactly one of each is provided", async () => {
+      const initialValues: FabNewItemInitialValues = {
+        folderIds: ["folder-1"],
+        organizationIds: ["org-1"],
+        collectionIds: ["col-1"],
+      };
       fixture.componentRef.setInput("initialValues", initialValues);
       // Wait for the constructor's tab promise to resolve.
       await Promise.resolve();
@@ -81,73 +85,125 @@ describe("AppVaultFabComponent", () => {
         type: CipherType.Login.toString(),
         folderId: "folder-1",
         organizationId: "org-1",
-        collectionId: "col-1",
+        collectionIds: "col-1",
         prefillNameAndURIFromTab: "true",
       });
     });
 
-    it("omits prefillNameAndURIFromTab for Login when popped out", () => {
-      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValueOnce(true);
-      fixture.componentRef.setInput("initialValues", initialValues);
-
-      const params = component["buildQueryParams"](CipherType.Login);
-
-      expect(params).toEqual({
-        type: CipherType.Login.toString(),
-        folderId: "folder-1",
-        organizationId: "org-1",
-        collectionId: "col-1",
+    it("joins multiple collectionIds with a comma when one org is selected", () => {
+      fixture.componentRef.setInput("initialValues", {
+        organizationIds: ["org-1"],
+        collectionIds: ["col-1", "col-2"],
       });
-    });
-
-    it("omits prefillNameAndURIFromTab for non-Login types", () => {
-      fixture.componentRef.setInput("initialValues", initialValues);
 
       const params = component["buildQueryParams"](CipherType.Card);
 
-      expect(params).toEqual({
-        type: CipherType.Card.toString(),
-        folderId: "folder-1",
-        organizationId: "org-1",
-        collectionId: "col-1",
-      });
+      expect(params.collectionIds).toBe("col-1,col-2");
     });
 
-    it("includes undefined values when initialValues is not set", () => {
+    it("omits org and collections when multiple orgs are selected", () => {
+      fixture.componentRef.setInput("initialValues", {
+        organizationIds: ["org-1", "org-2"],
+        collectionIds: ["col-1"],
+        folderIds: ["folder-1"],
+      });
+
+      const params = component["buildQueryParams"](CipherType.Card);
+
+      expect(params.organizationId).toBeUndefined();
+      expect(params.collectionIds).toBeUndefined();
+      expect(params.folderId).toBe("folder-1");
+    });
+
+    it("omits folder when multiple folders are selected", () => {
+      fixture.componentRef.setInput("initialValues", {
+        folderIds: ["folder-1", "folder-2"],
+      });
+
+      const params = component["buildQueryParams"](CipherType.Card);
+
+      expect(params.folderId).toBeUndefined();
+    });
+
+    it("omits prefillNameAndURIFromTab for Login when tab is not available", () => {
+      component["tab"] = undefined;
+      fixture.componentRef.setInput("initialValues", {});
+
+      const params = component["buildQueryParams"](CipherType.Login);
+
+      expect(params.prefillNameAndURIFromTab).toBeUndefined();
+    });
+
+    it("omits prefillNameAndURIFromTab for Login when popped out", () => {
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValueOnce(true);
+      fixture.componentRef.setInput("initialValues", { folderIds: ["f1"] });
+
+      const params = component["buildQueryParams"](CipherType.Login);
+
+      expect(params.prefillNameAndURIFromTab).toBeUndefined();
+    });
+
+    it("omits prefillNameAndURIFromTab for non-Login types", () => {
+      fixture.componentRef.setInput("initialValues", {});
+
       const params = component["buildQueryParams"](CipherType.SecureNote);
 
-      expect(params).toEqual({
-        type: CipherType.SecureNote.toString(),
-        folderId: undefined,
-        organizationId: undefined,
-        collectionId: undefined,
-      });
+      expect(params.prefillNameAndURIFromTab).toBeUndefined();
     });
   });
 
   describe("navigateToNewItemPage", () => {
-    it("navigates to /new-item with initialValues as query params", () => {
+    it("navigates to /new-item with prefilled values from a single org/folder", () => {
       const navigate = jest.spyOn(router, "navigate").mockResolvedValue(true);
       fixture.componentRef.setInput("initialValues", {
-        folderId: "f1",
-        organizationId: "o1" as any,
-        collectionId: "c1" as any,
+        folderIds: ["f1"],
+        organizationIds: ["o1"],
+        collectionIds: ["c1"],
       });
 
       component["navigateToNewItemPage"]();
 
       expect(navigate).toHaveBeenCalledWith(["/new-item"], {
-        queryParams: { folderId: "f1", organizationId: "o1", collectionId: "c1" },
+        queryParams: { folderId: "f1", organizationId: "o1", collectionIds: "c1" },
       });
     });
 
-    it("passes undefined query params when initialValues is not set", () => {
+    it("navigates with undefined values when initialValues is empty", () => {
       const navigate = jest.spyOn(router, "navigate").mockResolvedValue(true);
+      fixture.componentRef.setInput("initialValues", {});
 
       component["navigateToNewItemPage"]();
 
       expect(navigate).toHaveBeenCalledWith(["/new-item"], {
-        queryParams: { folderId: undefined, organizationId: undefined, collectionId: undefined },
+        queryParams: { folderId: undefined, organizationId: undefined, collectionIds: undefined },
+      });
+    });
+
+    it("omits org and collections when multiple orgs are selected", () => {
+      const navigate = jest.spyOn(router, "navigate").mockResolvedValue(true);
+      fixture.componentRef.setInput("initialValues", {
+        organizationIds: ["o1", "o2"],
+        collectionIds: ["c1"],
+        folderIds: ["f1"],
+      });
+
+      component["navigateToNewItemPage"]();
+
+      expect(navigate).toHaveBeenCalledWith(["/new-item"], {
+        queryParams: { folderId: "f1", organizationId: undefined, collectionIds: undefined },
+      });
+    });
+
+    it("omits folder when multiple folders are selected", () => {
+      const navigate = jest.spyOn(router, "navigate").mockResolvedValue(true);
+      fixture.componentRef.setInput("initialValues", {
+        folderIds: ["f1", "f2"],
+      });
+
+      component["navigateToNewItemPage"]();
+
+      expect(navigate).toHaveBeenCalledWith(["/new-item"], {
+        queryParams: { folderId: undefined, organizationId: undefined, collectionIds: undefined },
       });
     });
   });
@@ -165,7 +221,7 @@ describe("AppVaultFabComponent", () => {
   });
 
   describe("PM32009NewItemTypes flag", () => {
-    it("calls navigateToNewItemPage when the flag is on and the FAB is clicked", () => {
+    it("navigates to /new-item when the flag is on and the FAB is clicked", () => {
       newItemTypesFlagSubject.next(true);
       fixture.detectChanges();
       const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);

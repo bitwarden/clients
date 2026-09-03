@@ -14,7 +14,12 @@ import { AddEditFolderDialogComponent, VaultFabComponent } from "@bitwarden/vaul
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { AddEditQueryParams } from "../add-edit/add-edit.component";
-import { NewItemInitialValues } from "../new-item-dropdown/new-item-dropdown.component";
+
+export interface FabNewItemInitialValues {
+  folderIds?: string[];
+  organizationIds?: string[];
+  collectionIds?: string[];
+}
 
 @Component({
   selector: "app-vault-fab",
@@ -23,7 +28,7 @@ import { NewItemInitialValues } from "../new-item-dropdown/new-item-dropdown.com
   imports: [JslibModule, CommonModule, VaultFabComponent, MenuModule, RouterLink, IconModule],
 })
 export class AppVaultFabComponent {
-  readonly initialValues = input<NewItemInitialValues>();
+  readonly initialValues = input<FabNewItemInitialValues>();
 
   protected readonly cipherMenuItems = CIPHER_MENU_ITEMS;
 
@@ -50,26 +55,46 @@ export class AppVaultFabComponent {
       loginDetails.prefillNameAndURIFromTab = "true";
     }
 
+    const { organizationId, collectionIds, folderId } = this.getInitialValues();
     return {
       type: type.toString(),
-      collectionId: this.initialValues()?.collectionId,
-      organizationId: this.initialValues()?.organizationId,
-      folderId: this.initialValues()?.folderId,
+      collectionIds: collectionIds,
+      organizationId: organizationId,
+      folderId: folderId,
       ...loginDetails,
     };
   }
 
   protected navigateToNewItemPage(): void {
+    const { folderId, organizationId, collectionIds } = this.getInitialValues();
     void this.router.navigate(["/new-item"], {
       queryParams: {
-        folderId: this.initialValues()?.folderId,
-        organizationId: this.initialValues()?.organizationId,
-        collectionId: this.initialValues()?.collectionId,
+        folderId: folderId,
+        organizationId: organizationId,
+        collectionIds: collectionIds,
       },
     });
   }
 
   protected openFolderDialog(): void {
     AddEditFolderDialogComponent.open(this.dialogService);
+  }
+
+  private getInitialValues() {
+    // Vaults can have multiple values, when that occurs do not prefill the value.
+    const onlyOneVault = (this.initialValues()?.organizationIds?.length ?? 0) === 1;
+    const organizationId = onlyOneVault ? this.initialValues()?.organizationIds?.[0] : undefined;
+    const collectionIds = onlyOneVault ? this.initialValues()?.collectionIds : undefined;
+
+    const folderId =
+      (this.initialValues().folderIds?.length ?? 0) === 1
+        ? this.initialValues()?.folderIds?.[0]
+        : undefined;
+
+    return {
+      organizationId: organizationId as unknown as string,
+      collectionIds: collectionIds?.join(","),
+      folderId: folderId,
+    };
   }
 }

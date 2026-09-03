@@ -12,7 +12,7 @@
   @if (vfo1Enabled() && (canCreateCipher$ | async)) {
     <app-vault-fab
       slot="floating-action"
-      [initialValues]="newItemItemValues$ | async"
+      [initialValues]="popupListFiltersValues()"
     ></app-vault-fab>
   }
 

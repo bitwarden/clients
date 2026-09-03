@@ -66,6 +66,7 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
+import { VaultPopupListTableFiltersService } from "../../services/vault-popup-list-table-filters.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
@@ -220,6 +221,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
+  protected popupListFiltersValues = this.vaultPopupListTableFiltersService.cachedFilters;
+
   /**
    * Whether a new cipher can be created in the currently selected organization.
    * `false` when the target organization is suspended, since items cannot be saved to it.
@@ -249,6 +252,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupListFiltersService: VaultPopupListFiltersService,
+    private vaultPopupListTableFiltersService: VaultPopupListTableFiltersService,
     private vaultScrollPositionService: VaultPopupScrollPositionService,
     private vaultPopupLoadingService: VaultPopupLoadingService,
     private accountService: AccountService,
