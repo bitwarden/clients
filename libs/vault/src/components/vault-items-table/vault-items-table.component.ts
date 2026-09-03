@@ -427,6 +427,24 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     return tiers;
   });
 
+  /**
+   * The "My vault" filter option's tile, matching the Vault column and the side nav.
+   */
+  protected readonly myVaultFilterTile = computed(() =>
+    personalIconTile(this.userAvatarColor() ?? "brand"),
+  );
+
+  /**
+   * Tile per organization id for the Vault filter options.
+   */
+  protected readonly organizationFilterTiles = computed(() => {
+    const tiles = new Map<string, IconTileOptions>();
+    for (const [id, tier] of this.organizationTiers()) {
+      tiles.set(id, orgIconTile(tier));
+    }
+    return tiles;
+  });
+
   /** Indexes named entities by id, widened to plain strings, skipping any that lack one. */
   private nameMap(items: readonly { id?: unknown; name: string }[]): Map<string, string> {
     const map = new Map<string, string>();

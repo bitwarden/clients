@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, filter, map, Observable, shareReplay, switchMap, take } from "rxjs";
+import { combineLatest, filter, map, Observable, of, shareReplay, switchMap, take } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
@@ -15,6 +15,7 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -33,8 +34,13 @@ import {
   CIPHER_MENU_ITEMS,
   DIALOG_CIPHER_MENU_ITEMS,
 } from "@bitwarden/common/vault/types/cipher-menu-items";
-import { BitwardenIcon, ChipFilterOption } from "@bitwarden/components";
-import { idString, MY_VAULT, NO_FOLDER } from "@bitwarden/vault";
+import {
+  BitwardenIcon,
+  ChipFilterOption,
+  getAvatarDefaultColor,
+  IconTileOptions,
+} from "@bitwarden/components";
+import { idString, MY_VAULT, NO_FOLDER, orgIconTile, personalIconTile } from "@bitwarden/vault";
 
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
@@ -71,6 +77,7 @@ export class VaultPopupListTableFiltersService {
   private readonly viewCacheService = inject(ViewCacheService);
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly configService = inject(ConfigService);
+  private readonly avatarService = inject(AvatarService);
 
   /**
    * Ids of the currently-selected organizations (plus {@link MY_VAULT}); drives {@link folders$}
@@ -217,6 +224,21 @@ export class VaultPopupListTableFiltersService {
   );
 
   /**
+   * The active user's avatar color, so the "My vault" filter tile matches their avatar and the
+   * tile the vault surfaces on the other clients render.
+   */
+  private readonly userAvatarColor$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      account
+        ? this.avatarService
+            .getUserAvatarColor$(account.id)
+            .pipe(map((color) => color ?? getAvatarDefaultColor(account.id, account.name)))
+        : of(undefined),
+    ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  /**
    * Organizations, structured for `bit-filter-menu`.
    */
   organizations$: Observable<ChipFilterOption<Organization>[]> =
@@ -226,13 +248,21 @@ export class VaultPopupListTableFiltersService {
         combineLatest([
           this.organizationService.memberOrganizations$(userId),
           this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+          this.userAvatarColor$,
         ]),
       ),
-      map(([orgs, organizationDataOwnership]): [Organization[], boolean] => [
-        orgs.sort(Utils.getSortFunction(this.i18nService, "name")),
-        organizationDataOwnership,
-      ]),
-      map(([orgs, organizationDataOwnership]) => {
+      map(
+        ([orgs, organizationDataOwnership, avatarColor]): [
+          Organization[],
+          boolean,
+          string | undefined,
+        ] => [
+          orgs.sort(Utils.getSortFunction(this.i18nService, "name")),
+          organizationDataOwnership,
+          avatarColor,
+        ],
+      ),
+      map(([orgs, organizationDataOwnership, avatarColor]) => {
         if (!orgs.length) {
           return [];
         }
@@ -247,6 +277,7 @@ export class VaultPopupListTableFiltersService {
                 value: { id: MY_VAULT } as Organization,
                 label: this.i18nService.t("myVault"),
                 icon: "bwi-user",
+                iconTile: personalIconTile(avatarColor ?? "brand"),
               },
             ];
 
@@ -255,10 +286,12 @@ export class VaultPopupListTableFiltersService {
           ...orgs.map((org) => {
             let icon: BitwardenIcon = "bwi-business";
             let iconClass: string | undefined = undefined;
+            let iconTile: IconTileOptions | undefined = orgIconTile(org.productTierType);
 
             if (!org.enabled) {
               icon = "bwi-exclamation-triangle";
               iconClass = "tw-text-danger";
+              iconTile = undefined;
             } else if (
               org.productTierType === ProductTierType.Families ||
               org.productTierType === ProductTierType.Free
@@ -266,7 +299,7 @@ export class VaultPopupListTableFiltersService {
               icon = "bwi-family";
             }
 
-            return { value: org, label: org.name, icon, iconClass };
+            return { value: org, label: org.name, icon, iconClass, iconTile };
           }),
         ];
       }),

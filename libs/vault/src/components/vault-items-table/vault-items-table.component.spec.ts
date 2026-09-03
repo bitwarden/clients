@@ -10,6 +10,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -735,6 +736,40 @@ describe("VaultItemsTableComponent", () => {
         fixture.componentRef.setInput("orgRequiresDataOwnership", true);
 
         expect(component["showMyVaultOption"]()).toBe(false);
+      });
+    });
+
+    describe("chip option icon tiles", () => {
+      it("tints the My vault option with the user's avatar color", () => {
+        expect(component["myVaultFilterTile"]()).toEqual({
+          icon: "bwi-user",
+          color: "#175ddc",
+        });
+      });
+
+      it("gives each organization the tile its product tier earns", () => {
+        fixture.componentRef.setInput("organizations", [
+          {
+            id: "org-1",
+            name: "Acme corporation",
+            productTierType: ProductTierType.Enterprise,
+          } as Organization,
+          {
+            id: "org-2",
+            name: "Contoso",
+            productTierType: ProductTierType.Families,
+          } as Organization,
+        ]);
+
+        const tiles = component["organizationFilterTiles"]();
+
+        expect(tiles.get("org-1")?.variant).toBe("purple");
+        expect(tiles.get("org-2")?.variant).toBe("teal");
+      });
+
+      it("keeps the tile identity stable across reads so the filter menu is not re-dirtied", () => {
+        expect(component["organizationFilterTiles"]()).toBe(component["organizationFilterTiles"]());
+        expect(component["myVaultFilterTile"]()).toBe(component["myVaultFilterTile"]());
       });
     });
 
