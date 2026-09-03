@@ -9,6 +9,8 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { DialogService, IconModule, MenuModule } from "@bitwarden/components";
 import { AddEditFolderDialogComponent, VaultFabComponent } from "@bitwarden/vault";
 
@@ -23,8 +25,10 @@ describe("AppVaultFabComponent", () => {
   let router: Router;
   let dialogServiceMock: jest.Mocked<DialogService>;
   let configServiceMock: jest.Mocked<ConfigService>;
+  let restrictedItemTypesServiceMock: jest.Mocked<RestrictedItemTypesService>;
 
   const newItemTypesFlagSubject = new BehaviorSubject<boolean>(false);
+  const restrictedSubject = new BehaviorSubject<{ cipherType: CipherType }[]>([]);
   const mockTab = { id: 1, url: "https://example.com", windowId: 1 } as chrome.tabs.Tab;
 
   beforeAll(() => {
@@ -35,8 +39,11 @@ describe("AppVaultFabComponent", () => {
   beforeEach(async () => {
     dialogServiceMock = mock<DialogService>();
     configServiceMock = mock<ConfigService>();
+    restrictedItemTypesServiceMock = mock<RestrictedItemTypesService>();
     configServiceMock.getFeatureFlag$.mockReturnValue(newItemTypesFlagSubject.asObservable());
+    restrictedItemTypesServiceMock.restricted$ = restrictedSubject.asObservable();
     newItemTypesFlagSubject.next(false);
+    restrictedSubject.next([]);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -52,6 +59,7 @@ describe("AppVaultFabComponent", () => {
         { provide: ConfigService, useValue: configServiceMock },
         { provide: DialogService, useValue: dialogServiceMock },
         { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: RestrictedItemTypesService, useValue: restrictedItemTypesServiceMock },
       ],
     }).compileComponents();
 
@@ -217,6 +225,24 @@ describe("AppVaultFabComponent", () => {
       component["openFolderDialog"]();
 
       expect(openSpy).toHaveBeenCalledWith(expect.any(DialogService));
+    });
+  });
+
+  describe("cipherMenuItems", () => {
+    it("shows all cipher types when no restrictions are active", () => {
+      restrictedSubject.next([]);
+      fixture.detectChanges();
+
+      expect(component["cipherMenuItems"]()).toEqual(CIPHER_MENU_ITEMS);
+    });
+
+    it("excludes cipher types blocked by the RestrictedItemTypes policy", () => {
+      restrictedSubject.next([{ cipherType: CipherType.Card }]);
+      fixture.detectChanges();
+
+      const items = component["cipherMenuItems"]();
+      expect(items.some((item) => item.type === CipherType.Card)).toBe(false);
+      expect(items.length).toBe(CIPHER_MENU_ITEMS.length - 1);
     });
   });
 

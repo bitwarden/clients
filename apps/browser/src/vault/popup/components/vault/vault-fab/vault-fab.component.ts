@@ -2,11 +2,13 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterLink } from "@angular/router";
+import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { DialogService, IconModule, MenuModule } from "@bitwarden/components";
 import { AddEditFolderDialogComponent, VaultFabComponent } from "@bitwarden/vault";
@@ -30,7 +32,16 @@ export interface FabNewItemInitialValues {
 export class AppVaultFabComponent {
   readonly initialValues = input<FabNewItemInitialValues>();
 
-  protected readonly cipherMenuItems = CIPHER_MENU_ITEMS;
+  private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
+
+  protected readonly cipherMenuItems = toSignal(
+    this.restrictedItemTypesService.restricted$.pipe(
+      map((restricted) =>
+        CIPHER_MENU_ITEMS.filter((item) => !restricted.some((r) => r.cipherType === item.type)),
+      ),
+    ),
+    { initialValue: [] },
+  );
 
   protected readonly useNewItemTypes = toSignal(
     inject(ConfigService).getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
