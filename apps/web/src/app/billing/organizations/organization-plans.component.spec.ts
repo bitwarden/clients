@@ -1070,6 +1070,24 @@ describe("OrganizationPlansComponent", () => {
       expect(mockOrganizationApiService.create).not.toHaveBeenCalled();
     });
 
+    it("shows a localized error toast when the server rejects an unresolvable tax ID", async () => {
+      patchOrganizationForm(component, {
+        name: "New Org",
+        billingEmail: "test@example.com",
+      });
+
+      mockOrganizationApiService.create.mockRejectedValue(
+        new ErrorResponse({ Message: "billingTaxIdTypeInferenceError" }, 400),
+      );
+
+      await expect(component.submit()).resolves.not.toThrow();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "billingTaxIdTypeInferenceError",
+      });
+    });
+
     it("should block submission when single org policy applies", async () => {
       mockPolicyService.policyAppliesToUser$.mockReturnValue(of(true));
 

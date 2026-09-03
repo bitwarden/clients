@@ -1,14 +1,8 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  computed,
-  inject,
-  effect,
-  signal,
-} from "@angular/core";
+import { Component, ChangeDetectionStrategy, computed, inject, effect } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { EMPTY, Observable, catchError, defer, filter, map, of, switchMap, take, tap } from "rxjs";
+import { filter, map, of, switchMap, take } from "rxjs";
 
+import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import {
   VAULT_HEALTH_REPORT_IDLE,
   VaultHealthReportStatus,
@@ -19,10 +13,9 @@ import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/po
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
+import { DialogService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { HealthIntroComponent } from "./health-intro.component";
@@ -30,6 +23,7 @@ import { HealthOverviewComponent } from "./health-overview.component";
 import { HealthScanErrorComponent } from "./health-scan-error.component";
 import { HealthScanningComponent } from "./health-scanning.component";
 import { HealthAccessService } from "./services/health-access.service";
+import { HealthScanService } from "./services/health-scan.service";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,9 +44,10 @@ import { HealthAccessService } from "./services/health-access.service";
 export class HealthComponent {
   readonly accountService = inject(AccountService);
   readonly healthAccessService = inject(HealthAccessService);
-  private readonly cipherService = inject(CipherService);
   private readonly vaultHealthReportService = inject(VaultHealthReportService);
-  private readonly logService = inject(LogService);
+  private readonly healthScanService = inject(HealthScanService);
+  private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
+  private readonly dialogService = inject(DialogService);
 
   readonly userId = toSignal(
     this.accountService.activeAccount$.pipe(map((account) => account?.id)),
@@ -74,6 +69,23 @@ export class HealthComponent {
     { initialValue: false },
   );
 
+  /**
+   * Whether Health details are locked behind Premium. Starts locked so a free
+   * user never briefly sees navigable categories before the check resolves.
+   */
+  protected readonly locked = toSignal(
+    toObservable(this.userId).pipe(
+      switchMap((userId) =>
+        userId
+          ? this.billingAccountProfileStateService
+              .hasPremiumFromAnySource$(userId)
+              .pipe(map((hasPremium) => !hasPremium))
+          : of(true),
+      ),
+    ),
+    { initialValue: true },
+  );
+
   /** The latest report for the active user and where its generation got to. */
   private readonly scanState = toSignal(
     toObservable(this.userId).pipe(
@@ -86,10 +98,15 @@ export class HealthComponent {
     { initialValue: VAULT_HEALTH_REPORT_IDLE },
   );
 
-  /** Set when fetching the ciphers to scan fails, which never reaches the service. */
-  private readonly pipelineFailed = signal(false);
+  /** Set when fetching the ciphers to scan fails, which never reaches the report service. */
+  private readonly pipelineFailed = toSignal(
+    toObservable(this.userId).pipe(
+      switchMap((userId) => (userId ? this.healthScanService.pipelineFailed$(userId) : of(false))),
+    ),
+    { initialValue: false },
+  );
 
-  /** True while a scan is running, read from the service's published status. */
+  /** True while a scan is running, according to the service's published status. */
   protected readonly loading = computed(
     () => this.scanState().status === VaultHealthReportStatus.Loading,
   );
@@ -106,21 +123,17 @@ export class HealthComponent {
   });
 
   constructor() {
-    // Triggers the scan. Reading happens through scanState above.
+    // Subscribed for the side effect; the report is read through scanState above.
     toObservable(this.userId)
       .pipe(
         filterOutNullish(),
         switchMap((userId) =>
           this.healthAccessService.hasRunHealthScan$(userId).pipe(
             // First visit waits for the intro's "Scan my vault"; later visits are
-            // already true. take(1) keeps it to one trigger per component load.
+            // already true. take(1) keeps it to one automatic trigger per load.
             filter(Boolean),
             take(1),
-            // PM-39223: the scan runs on every Health Tab load with no caching.
-            // The popup rebuilds this component on each navigation to Health (and
-            // on return from a category detail), so there is no reuse guard here:
-            // every load starts a fresh build.
-            switchMap(() => this.startGeneration$(userId)),
+            switchMap(() => this.healthScanService.keepReportCurrent$(userId)),
           ),
         ),
         takeUntilDestroyed(),
@@ -140,6 +153,11 @@ export class HealthComponent {
     });
   }
 
+  /** Sends a free user into the premium upgrade flow from the Health Overview. */
+  protected readonly handleUpgrade = () => {
+    PremiumUpgradeDialogComponent.open(this.dialogService);
+  };
+
   readonly handleHealthScan = async () => {
     const userId = this.userId();
     if (!userId) {
@@ -150,34 +168,12 @@ export class HealthComponent {
     await this.healthAccessService.setHasRunHealthScan(userId);
   };
 
-  /** Runs one report build for `userId`. Never errors: the service publishes its own failures. */
-  private startGeneration$(userId: UserId): Observable<unknown> {
-    return this.cipherService.cipherViews$(userId).pipe(
-      // A fresh build clears the prior ciphers failure so a later success is not
-      // masked by an earlier attempt's failure view. buildVaultHealthReport owns
-      // publishing the loading status.
-      tap({ subscribe: () => this.clearPipelineFailure() }),
-      // cipherViews$ may emit null when decrypted ciphers are cleared.
-      filterOutNullish(),
-      // Generation does an external breach lookup; a vault edit must not re-run it.
-      take(1),
-      switchMap((ciphers) =>
-        defer(() => this.vaultHealthReportService.buildVaultHealthReport(ciphers, userId)),
-      ),
-      catchError((error: unknown) => {
-        // A cipherViews$ failure never reaches the service, so surface it here.
-        this.recordPipelineFailure();
-        this.logService.error("Vault health scan pipeline failed", error);
-        return EMPTY;
-      }),
-    );
-  }
+  protected readonly handleRetry = () => {
+    const userId = this.userId();
+    if (!userId) {
+      return;
+    }
 
-  private recordPipelineFailure(): void {
-    this.pipelineFailed.set(true);
-  }
-
-  private clearPipelineFailure(): void {
-    this.pipelineFailed.set(false);
-  }
+    this.healthScanService.retryScan(userId);
+  };
 }

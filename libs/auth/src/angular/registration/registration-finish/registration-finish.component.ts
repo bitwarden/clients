@@ -384,26 +384,25 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   }
 
   private async initOrgInviteFlowIfPresent(): Promise<boolean> {
-    this.masterPasswordPolicyOptions =
-      await this.registrationFinishService.getMasterPasswordPolicyOptsFromOrgInvite();
-
-    const orgName = await this.registrationFinishService.getOrgNameFromOrgInvite();
-    if (orgName) {
-      // Org invite exists
-      // Set the page title and subtitle appropriately
-      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: {
-          key: "joinOrganizationName",
-          placeholders: [orgName],
-        },
-        pageSubtitle: {
-          key: "finishJoiningThisOrganizationBySettingAMasterPassword",
-        },
-      });
-      return true;
+    const orgInvite = await this.organizationInviteService.getOrganizationInvite();
+    if (orgInvite == null) {
+      return false;
     }
 
-    return false;
+    this.masterPasswordPolicyOptions =
+      (await this.organizationInviteService.getMasterPasswordPolicyOptionsForInvite(orgInvite)) ??
+      null;
+
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageTitle: {
+        key: "joinOrganizationName",
+        placeholders: [orgInvite.organizationName],
+      },
+      pageSubtitle: {
+        key: "finishJoiningThisOrganizationBySettingAMasterPassword",
+      },
+    });
+    return true;
   }
 
   async handlePasswordFormSubmit(passwordInputResult: PasswordInputResult) {

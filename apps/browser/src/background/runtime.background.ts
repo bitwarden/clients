@@ -6,7 +6,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -53,7 +52,6 @@ export default class RuntimeBackground {
     private autofillService: AutofillService,
     private platformUtilsService: BrowserPlatformUtilsService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
-    private processReloadService: ProcessReloadServiceAbstraction,
     private environmentService: BrowserEnvironmentService,
     private messagingService: MessagingService,
     private logService: LogService,
@@ -105,6 +103,7 @@ export default class RuntimeBackground {
         BiometricsCommands.CanEnableBiometricUnlock,
         "getUserPremiumStatus",
         "getUrlAutofillTargetingRules",
+        "getBitwardenAutofillAttributeSettings",
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -231,6 +230,14 @@ export default class RuntimeBackground {
 
         return targetingRulesForUrl;
       }
+      case "getBitwardenAutofillAttributeSettings": {
+        const [honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute] = await Promise.all([
+          firstValueFrom(this.autofillSettingsService.honorBitwardenIgnoreAttribute$),
+          firstValueFrom(this.autofillSettingsService.honorBitwardenAutofillAttribute$),
+        ]);
+
+        return { honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute };
+      }
       case "authResult": {
         if (!(await this.isValidVaultReferrer(msg.referrer))) {
           return;
@@ -293,8 +300,6 @@ export default class RuntimeBackground {
           item = this.lockedVaultPendingNotifications.pop();
           await closeUnlockPopout();
         }
-
-        this.processReloadService.cancelProcessReload();
 
         if (item) {
           await BrowserApi.focusWindow(item.commandToRetry.sender.tab.windowId);

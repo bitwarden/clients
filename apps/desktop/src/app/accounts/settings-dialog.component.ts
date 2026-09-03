@@ -19,6 +19,7 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ClearClipboardDelaySetting } from "@bitwarden/common/autofill/types";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { autotypeFeatureFlagEnabled$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -55,6 +56,7 @@ import {
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { AutoUnlockService } from "@bitwarden/unlock";
 import {
   PermitCipherDetailsPopoverComponent,
   VaultCopyButtonsService,
@@ -116,6 +118,7 @@ export class SettingsDialogComponent implements OnInit {
   private readonly autofillSettingsService = inject(AutofillSettingsServiceAbstraction);
   private readonly messagingService = inject(MessagingService);
   private readonly keyService = inject(KeyService);
+  private readonly autoUnlockService = inject(AutoUnlockService);
   private readonly themeStateService = inject(ThemeStateService);
   private readonly domainSettingsService = inject(DomainSettingsService);
   private readonly dialogService = inject(DialogService);
@@ -262,8 +265,7 @@ export class SettingsDialogComponent implements OnInit {
   async ngOnInit() {
     // Autotype is for Windows initially
     if (this.isWindows) {
-      this.configService
-        .getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype)
+      autotypeFeatureFlagEnabled$(this.configService)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((enabled) => {
           this.showEnableAutotype.set(enabled);
@@ -453,7 +455,8 @@ export class SettingsDialogComponent implements OnInit {
     if (!enabled || !this.supportsBiometric()) {
       this.form.controls.biometric.setValue(false, { emitEvent: false });
       await this.biometricStateService.setBiometricUnlockEnabled(false, activeUserId);
-      await this.keyService.refreshAdditionalKeys(activeUserId);
+      await this.biometricsService.deleteBiometricUnlockKeyForUser(activeUserId);
+      await this.autoUnlockService.refreshAutoUnlockKey(activeUserId);
       return;
     }
 
@@ -493,7 +496,7 @@ export class SettingsDialogComponent implements OnInit {
     }
     const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     await this.biometricsService.setBiometricProtectedUnlockKeyForUser(activeUserId, userKey);
-    await this.keyService.refreshAdditionalKeys(activeUserId);
+    await this.autoUnlockService.refreshAutoUnlockKey(activeUserId);
 
     // Validate the key is stored in case biometrics fail.
     const biometricSet =
