@@ -1,0 +1,33 @@
+<div
+  class="tw-max-w-3xl tw-p-9 tw-border tw-border-solid tw-border-border-base tw-rounded-xl tw-bg-background tw-text-center"
+>
+  <bit-svg
+    [content]="marketingSvg"
+    [ariaLabel]="'inviteLinkCalloutImageAlt' | i18n"
+    class="tw-mb-7"
+  ></bit-svg>
+  <div class="tw-flex tw-flex-col tw-gap-7">
+    <h2 class="tw-mb-0">{{ "inviteLinkCalloutHeading" | i18n }}</h2>
+    <p class="tw-mb-0">{{ "inviteLinkCalloutBody" | i18n }}</p>
+    <div class="tw-flex tw-gap-4 tw-justify-center">
+      <button
+        id="invite-link-callout-dialog_button_skip"
+        bitButton
+        buttonType="secondary"
+        type="button"
+        (click)="close('skip')"
+      >
+        {{ "skip" | i18n }}
+      </button>
+      <button
+        id="invite-link-callout-dialog_button_show-me-how"
+        bitButton
+        buttonType="primary"
+        type="button"
+        (click)="close('showMeHow')"
+      >
+        {{ "showMeHow" | i18n }}
+      </button>
+    </div>
+  </div>
+</div>

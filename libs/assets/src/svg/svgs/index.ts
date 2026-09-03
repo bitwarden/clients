@@ -22,6 +22,7 @@ export * from "./favorites.icon";
 export * from "./gear";
 export * from "./generator";
 export * from "./info-filled.icon";
+export * from "./invite-link-marketing";
 export * from "./item-types";
 export * from "./lock.icon";
 export * from "./login-cards";
