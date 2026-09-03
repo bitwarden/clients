@@ -39,6 +39,8 @@ import {
   IconModule,
   ToastService,
 } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
@@ -85,6 +87,7 @@ export class SetInitialPasswordComponent implements OnInit {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private dialogService: DialogService,
     private i18nService: I18nService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private logoutService: LogoutService,
     private logService: LogService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -127,6 +130,41 @@ export class SetInitialPasswordComponent implements OnInit {
           await this.setInitialPasswordJitMPUserV2Encryption(passwordInputResult);
           return;
         }
+
+        // ============================================================
+        // PM-42990 — ROLLBACK NOTE
+        // ============================================================
+        // This code computes a master key and a password hash. It runs here because
+        // the set-password endpoint needs the old request shape for 3 releases
+        // to maintain backwards compatibility with self hosted servers.
+        //
+        // BUILD: Move this computation into DefaultSetInitialPasswordService. Put
+        // it next to the other master password logic there.
+        //
+        // DELETE: Remove this block. Remove the injected LegacyCompatKeyService.
+        // Remove the code that sets newMasterKey and newServerMasterKeyHash on
+        // passwordInputResult. See https://github.com/bitwarden/clients/pull/20643
+        // for initial pass at this refactor.
+        // ============================================================
+
+        const ctx = "Could not set initial password.";
+        assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
+        assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
+        assertTruthy(this.email, "email", ctx);
+
+        const newMasterKey = await this.legacyCompatKeyService.makeMasterKey(
+          passwordInputResult.newPassword,
+          this.email.trim().toLowerCase(),
+          passwordInputResult.kdfConfig,
+        );
+
+        const newServerMasterKeyHash = await this.legacyCompatKeyService.hashMasterKey(
+          passwordInputResult.newPassword,
+          newMasterKey,
+        );
+
+        passwordInputResult.newMasterKey = newMasterKey;
+        passwordInputResult.newServerMasterKeyHash = newServerMasterKeyHash;
 
         await this.setInitialPassword(passwordInputResult);
         break;
@@ -287,6 +325,8 @@ export class SetInitialPasswordComponent implements OnInit {
    */
   private async setInitialPassword(passwordInputResult: PasswordInputResult) {
     const ctx = "Could not set initial password.";
+    assertTruthy(passwordInputResult.newMasterKey, "newMasterKey", ctx);
+    assertTruthy(passwordInputResult.newServerMasterKeyHash, "newServerMasterKeyHash", ctx);
     assertTruthy(passwordInputResult.kdfConfig, "kdfConfig", ctx);
     assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
     assertTruthy(passwordInputResult.salt, "salt", ctx);
@@ -299,6 +339,8 @@ export class SetInitialPasswordComponent implements OnInit {
 
     try {
       const credentials: SetInitialPasswordCredentials = {
+        newMasterKey: passwordInputResult.newMasterKey,
+        newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
         newPasswordHint: passwordInputResult.newPasswordHint,
         kdfConfig: passwordInputResult.kdfConfig,
         orgSsoIdentifier: this.orgSsoIdentifier,
