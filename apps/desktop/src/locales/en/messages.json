@@ -15,6 +15,9 @@
   "allVaultItems": {
     "message": "All vault items"
   },
+  "myItems": {
+    "message": "My Items"
+  },
   "vaults": {
     "message": "Vaults"
   },
