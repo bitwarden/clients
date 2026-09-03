@@ -18,15 +18,19 @@ import { OrganizationFreeTrialWarning } from "../types";
     @if (warning) {
       <bit-banner id="free-trial-banner" icon="bwi-billing" variant="success">
         {{ warning.message }}
-        <a
-          bitLink
-          linkType="secondary"
-          (click)="clicked.emit()"
-          class="tw-cursor-pointer"
-          rel="noreferrer noopener"
-        >
-          {{ "clickHereToAddPaymentMethod" | i18n }}
-        </a>
+        @if (warning.isSalesAssisted) {
+          {{ "freeTrialSalesAssistedContactRep" | i18n }}
+        } @else {
+          <a
+            bitLink
+            linkType="secondary"
+            (click)="clicked.emit()"
+            class="tw-cursor-pointer"
+            rel="noreferrer noopener"
+          >
+            {{ "clickHereToAddPaymentMethod" | i18n }}
+          </a>
+        }
       </bit-banner>
     }
   `,
