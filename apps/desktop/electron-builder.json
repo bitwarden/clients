@@ -85,7 +85,7 @@
     "signIgnore": [
       "MacOS/desktop_proxy",
       "MacOS/desktop_proxy.inherit",
-      "Contents/Plugins/autofill-extension.appex",
+      "Contents/PlugIns/autofill-extension.appex",
       "Frameworks/Electron Framework.framework/(Electron Framework|Libraries|Resources|Versions/Current)/.*"
     ],
     "target": ["dmg", "zip"]
