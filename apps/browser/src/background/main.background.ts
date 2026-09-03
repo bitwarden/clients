@@ -747,10 +747,30 @@ export default class MainBackground {
     this.backgroundSyncService = new BackgroundSyncService(this.taskSchedulerService);
     this.backgroundSyncService.register(() => this.fullSync());
 
+    // Built this early because `BrowserEnvironmentService` reads its managed `environment.*`
+    // settings from it. Keep it above the environment service, or the managed environment reads as
+    // absent. It injects nothing itself, so there is no ordering constraint the other way.
+    if (devFlagEnabled("managedSettingsDevSource")) {
+      // The dev source replaces host acquisition rather than layering on top of it. Left running,
+      // the reader would find no policy on the developer's machine and clear the pushed profile.
+      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
+      devManagedSettingsService.pushExplicit(
+        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
+      );
+      this.managedSettingsService = devManagedSettingsService;
+    } else {
+      this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+      this.managedConfigReader = new BrowserManagedConfigReader(
+        this.managedSettingsService,
+        this.logService,
+      );
+    }
+
     this.environmentService = new BrowserEnvironmentService(
       this.logService,
       this.stateProvider,
       this.accountService,
+      this.managedSettingsService,
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);
@@ -965,22 +985,6 @@ export default class MainBackground {
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
     this.sdkLoadService = new BrowserSdkLoadService(this.logService);
-
-    if (devFlagEnabled("managedSettingsDevSource")) {
-      // The dev source replaces host acquisition rather than layering on top of it. Left running,
-      // the reader would find no policy on the developer's machine and clear the pushed profile.
-      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
-      devManagedSettingsService.pushExplicit(
-        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
-      );
-      this.managedSettingsService = devManagedSettingsService;
-    } else {
-      this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
-      this.managedConfigReader = new BrowserManagedConfigReader(
-        this.managedSettingsService,
-        this.logService,
-      );
-    }
 
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
