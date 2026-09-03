@@ -256,9 +256,10 @@ export class SharedFolderCardGridComponent {
    * The route a child folder's card links to: this vault, drilled into that folder. Following it
    * re-derives the scope and with it the grid's next set of children.
    *
-   * A folder's route names the vault it lives in rather than the path taken to it, so drilling
-   * deeper replaces the segment — see {@link vaultScopeCommands}. A scope that can hold no folder
-   * links to itself, which the grid never renders a card for anyway.
+   * A folder's route names the vault it lives in rather than the path taken through its ancestors,
+   * so drilling deeper replaces the `:collectionId` segment rather than adding to it — see
+   * {@link vaultScopeCommands}. A scope that can hold no folder links to itself, which the grid
+   * never renders a card for anyway.
    */
   private folderRoute(folder: CollectionView): string[] {
     const scope = this.scope();
