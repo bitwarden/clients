@@ -74,10 +74,10 @@ describe("PopupPageComponent", () => {
     const wrapper = floatingActionWrapper();
 
     expect(wrapper.classList).toContain(
-      "[&:has([slot=floating-action])~div:not(:has(.cdk-virtual-scroll-content-wrapper))]:!tw-pb-20",
+      "[&:has([slot=floating-action])~div:not(:has(cdk-virtual-scroll-viewport))]:!tw-pb-20",
     );
     expect(wrapper.classList).toContain(
-      "[&:has([slot=floating-action])~div_.cdk-virtual-scroll-content-wrapper]:!tw-pb-20",
+      "[&:has([slot=floating-action])~div_cdk-virtual-scroll-viewport>div]:!tw-pb-20",
     );
     expect(wrapper.matches(":has([slot=floating-action])")).toBe(true);
     expect(wrapper.nextElementSibling).toBe(scrollRegion());
