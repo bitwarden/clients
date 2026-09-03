@@ -15,10 +15,22 @@ import { VaultNavItemType, VaultNavItemViewModel } from "../../models/vault-nav-
 import {
   ALL_ITEMS_SCOPE,
   isPersonalOnly,
+  sharedFoldersCommands,
   vaultScopeCommands,
   VaultScopeType,
 } from "../../models/vault-scope";
 import { VaultNavService } from "../../services/vault-nav.service";
+
+/**
+ * Matches the route itself and nothing nested beneath it, ignoring every dimension a vault route
+ * never varies in so the path is the only thing compared.
+ */
+const EXACT_PATH: IsActiveMatchOptions = {
+  paths: "exact",
+  queryParams: "ignored",
+  fragment: "ignored",
+  matrixParams: "ignored",
+};
 
 /**
  * Renders the Password Manager side-nav Vaults section from the shared {@link VaultNavService}
@@ -46,15 +58,14 @@ export class VaultNavSectionComponent {
   protected readonly allItemsRoute = vaultScopeCommands(ALL_ITEMS_SCOPE);
 
   /**
-   * Every scoped vault route nests under the unscoped one, so a subset match would leave the item
-   * pointing at `/vault` lit alongside the destination the user actually picked.
+   * The match for the two entries naming a whole vault — All items and an organization's All vault
+   * items. Every deeper destination nests under the route each links to, so `routerLinkActive`'s
+   * default subset match would leave them lit alongside the page the user actually picked.
+   *
+   * Shared folders is the one entry left on that default, since it stands in for the folder
+   * drill-ins nested beneath it, which have no nav entry of their own.
    */
-  protected readonly allItemsActiveOptions: IsActiveMatchOptions = {
-    paths: "exact",
-    queryParams: "ignored",
-    fragment: "ignored",
-    matrixParams: "ignored",
-  };
+  protected readonly exactRouteOptions: IsActiveMatchOptions = EXACT_PATH;
 
   /**
    * Each vault's route commands, by vault id. Precomputed rather than built per call so the
@@ -75,6 +86,19 @@ export class VaultNavSectionComponent {
       ),
   );
 
+  /**
+   * Each organization vault's shared folders route, by vault id. Precomputed for the same reason
+   * {@link vaultRoutes} is. Personal vaults have no shared folders, so they get no entry.
+   */
+  private readonly sharedFolderRoutes = computed(
+    () =>
+      new Map(
+        this.vaultNav()
+          ?.vaults.filter((vault) => vault.type !== VaultNavItemType.Personal)
+          .map((vault) => [vault.id, sharedFoldersCommands(vault.id as OrganizationId)]) ?? [],
+      ),
+  );
+
   /** Whether to render one unscoped entry rather than All items and a list. */
   protected readonly personalOnly = computed(() => {
     const nav = this.vaultNav();
@@ -83,6 +107,10 @@ export class VaultNavSectionComponent {
 
   protected vaultRoute(vault: VaultNavItemViewModel): string[] | undefined {
     return this.vaultRoutes().get(vault.id);
+  }
+
+  protected sharedFoldersRoute(vault: VaultNavItemViewModel): string[] | undefined {
+    return this.sharedFolderRoutes().get(vault.id);
   }
 
   /**

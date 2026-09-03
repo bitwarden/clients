@@ -1,6 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
+  Injector,
   computed,
   contentChildren,
   effect,
@@ -26,23 +28,15 @@ import {
   OverflowListDirective,
   OverflowTriggerDirective,
 } from "../../overflow-list";
+import { focusAfterRender } from "../../utils/focus-after-render";
 import { isAtOrLargerThanBreakpointSignal } from "../../utils/responsive-utils";
 
 import { BitTableV2Component } from "./table-v2.component";
 
 /**
- * Toolbar for `bit-table-v2`, rendered inside the table chrome above the header
- * row. Project a `<bit-search>` (its own slot), filter chips (`bit-filter-menu` /
- * `bit-filter-toggle`), and arbitrary controls via `slot="end"`.
- *
- * Filter chips register their values with the table directly by resolving its
- * `FILTER_HOST` — the toolbar doesn't own filter state. It observes its
- * projected filters (their shared `FILTER_PRESENTER` contract) for the responsive
- * collapse: below `md` the chip row is hidden and replaced by a single trigger
- * (with {@link appliedCount} as a berry) that opens the filters in a dialog. The
- * filter row stays in use on small screens, showing the {@link activeFilters} as
- * dismissible chips that clear on click. On wide screens, a "Clear all" button
- * appears alongside the chips (see {@link clearAll}) once any filter is active.
+ * Toolbar for `bit-table-v2`. Project a `<bit-search>` (its own slot), filter chips,
+ * and arbitrary controls via `slot="end"`. Chips register with the table directly;
+ * the toolbar doesn't own filter state.
  */
 @Component({
   selector: "bit-table-toolbar",
@@ -90,9 +84,8 @@ export class BitTableToolbarComponent {
   private readonly localItems = viewChildren(OverflowItemDirective);
 
   /**
-   * Everything competing for the chip row, in DOM order. `bitOverflowList` can't
-   * query the projected chips itself (they're this component's content, not the
-   * row's), so they're passed in via its `items` input.
+   * Everything competing for the chip row, in DOM order. Passed to `bitOverflowList`
+   * via `items`, since it can't query this component's content itself.
    */
   protected readonly overflowItems = computed(() => [
     ...this.projectedItems(),
@@ -100,12 +93,13 @@ export class BitTableToolbarComponent {
   ]);
 
   private readonly overflowList = viewChild(OverflowListDirective);
+  private readonly filterRowEl = viewChild<ElementRef<HTMLElement>>("filterRow");
+  private readonly injector = inject(Injector);
 
   /**
-   * Whether the filter row is collapsed to the single trigger + dialog. Below `md`
-   * always; above it, once the chips, "Clear all", and the item count stop fitting
-   * on one line. Gated on `ready()` so the first paint doesn't flash the collapsed
-   * view before the row has been measured.
+   * Whether the filter row is collapsed to the single trigger + dialog. Always below
+   * `md`; above it, once the row stops fitting on one line. Gated on `ready()` so the
+   * first paint doesn't flash the collapsed view.
    */
   protected readonly collapsed = computed(() => {
     if (!this.isLargeScreen()) {
@@ -121,9 +115,8 @@ export class BitTableToolbarComponent {
   );
 
   /**
-   * The chip row. While collapsed it stays laid out but invisible and out of flow,
-   * so `bitOverflowList` can keep measuring it — hiding it with `display: none`
-   * would zero every width and bounce it straight back open.
+   * The chip row. Collapsed, it stays laid out but invisible so `bitOverflowList` can
+   * keep measuring it — `display: none` would zero every width and bounce it back open.
    */
   protected readonly filterRowClasses = computed(() => [
     "tw-flex",
@@ -151,10 +144,7 @@ export class BitTableToolbarComponent {
       : []),
   ]);
 
-  /**
-   * The projected search. Capped on wide viewports so it doesn't run the length of
-   * the toolbar; below `md` it fills its row, the `slot=end` controls having moved off.
-   */
+  /** The projected search. Capped on wide viewports; below `md` it fills its row. */
   protected readonly searchClasses = computed(() => [
     "tw-flex",
     "tw-min-w-0",
@@ -162,10 +152,7 @@ export class BitTableToolbarComponent {
     ...(this.isLargeScreen() ? ["tw-max-w-[25rem]"] : []),
   ]);
 
-  /**
-   * The projected `slot=end` controls. Below `md` they wrap to a full-width line and
-   * split it evenly, so a table's actions never crowd the search field.
-   */
+  /** The projected `slot=end` controls. Below `md` they wrap to a full-width line. */
   protected readonly endSlotClasses = computed(() => [
     "tw-flex",
     "tw-items-center",
@@ -207,12 +194,12 @@ export class BitTableToolbarComponent {
     });
   }
 
-  /**
-   * Reset every projected filter's selection. Deliberately scoped to filter chips and
-   * excludes search.
-   * Mirrors {@link FilterDialogComponent.clearAll}.
-   */
+  /** Reset every projected filter's selection. Excludes search. */
   protected clearAll(): void {
     this.filters().forEach((filter) => filter.clear());
+    // Clearing removes this button, so hand focus to the first chip in its row.
+    focusAfterRender(this.injector, () =>
+      this.filterRowEl()?.nativeElement.querySelector<HTMLElement>("button[bit-chip-content]"),
+    );
   }
 }
