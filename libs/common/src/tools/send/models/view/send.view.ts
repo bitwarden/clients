@@ -162,7 +162,7 @@ export class SendView implements View {
   }
 
   /** Maps an SDK `SendView` back to a domain `SendView`. */
-  static fromSdkSend(obj?: SdkSendView): SendView {
+  static fromSdkSendView(obj?: SdkSendView): SendView {
     if (obj == null) {
       return null;
     }
@@ -180,6 +180,10 @@ export class SendView implements View {
     send.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
     send.deletionDate = obj.deletionDate != null ? new Date(obj.deletionDate) : null;
     send.expirationDate = obj.expirationDate != null ? new Date(obj.expirationDate) : null;
+    // A decrypted SendView from the SDK never has the actual password, only a boolean indicating
+    // that the original Send has one. We use that boolean to set the password field to a truthy
+    // placeholder value so that callers can use it.
+    send.password = obj.hasPassword ? "************" : null;
     send.emails = obj.emails ?? null;
     send.authType = AUTH_TYPE_FROM_SDK[obj.authType];
     send.text = obj.text != null ? SendTextView.fromSdk(obj.text) : null;

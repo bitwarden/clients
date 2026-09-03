@@ -155,8 +155,8 @@ import {
 import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
-import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -341,7 +341,7 @@ export class ServiceContainer {
   userVerificationApiService: UserVerificationApiService;
   organizationApiService: OrganizationApiServiceAbstraction;
   sendApiService: SendApiServiceSelector;
-  sendSdkDecryptionService: SendSdkDecryptionService;
+  sendDecryptionService: SendDecryptionService;
   sendTokenService: SendTokenService;
   sendPasswordService: SendPasswordService;
   devicesApiService: DevicesApiServiceAbstraction;
@@ -705,7 +705,11 @@ export class ServiceContainer {
       customUserAgent,
     );
 
-    this.sendSdkDecryptionService = new SendSdkDecryptionService(this.sdkService);
+    this.sendDecryptionService = new SendDecryptionService(
+      this.sdkService,
+      this.configService,
+      this.legacyCompatKeyService,
+    );
 
     this.sendService = new SendService(
       this.accountService,
@@ -716,7 +720,7 @@ export class ServiceContainer {
       this.encryptService,
       this.configService,
       this.sdkService,
-      this.sendSdkDecryptionService,
+      this.sendDecryptionService,
     );
 
     const legacySendApiService = new SendApiService(
@@ -734,7 +738,7 @@ export class ServiceContainer {
         this.sendService,
         this.accountService,
         this.logService,
-        this.sendSdkDecryptionService,
+        this.sendDecryptionService,
       ),
     );
 

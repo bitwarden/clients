@@ -20,7 +20,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -64,7 +64,7 @@ describe("SendComponent", () => {
   let i18nService: MockProxy<I18nService>;
   let configService: MockProxy<ConfigService>;
   let sendFormService: MockProxy<SendFormService>;
-  let sdkDecryptionService: MockProxy<SendSdkDecryptionService>;
+  let sendDecryptionService: MockProxy<SendDecryptionService>;
 
   beforeEach(async () => {
     sendService = mock<SendService>();
@@ -80,7 +80,7 @@ describe("SendComponent", () => {
     i18nService = mock<I18nService>();
     configService = mock<ConfigService>();
     sendFormService = mock<SendFormService>();
-    sdkDecryptionService = mock<SendSdkDecryptionService>();
+    sendDecryptionService = mock<SendDecryptionService>();
 
     configService.getFeatureFlag$.mockImplementation((ff) => {
       if (ff === FeatureFlag.PM32380_BtnTextAddCreate) {
@@ -162,8 +162,8 @@ describe("SendComponent", () => {
           useValue: sendFormService,
         },
         {
-          provide: SendSdkDecryptionService,
-          useValue: sdkDecryptionService,
+          provide: SendDecryptionService,
+          useValue: sendDecryptionService,
         },
       ],
     })

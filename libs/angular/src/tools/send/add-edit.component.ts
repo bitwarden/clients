@@ -17,8 +17,6 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -31,7 +29,7 @@ import { SendFileView } from "@bitwarden/common/tools/send/models/view/send-file
 import { SendTextView } from "@bitwarden/common/tools/send/models/view/send-text.view";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -150,8 +148,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected accountService: AccountService,
     protected toastService: ToastService,
     protected premiumUpgradePromptService: PremiumUpgradePromptService,
-    protected configService: ConfigService,
-    protected sendSdkDecryptionService: SendSdkDecryptionService,
+    protected sendDecryptionService: SendDecryptionService,
   ) {
     this.typeOptions = [
       { name: i18nService.t("sendTypeFile"), value: SendType.File, premium: true },
@@ -274,17 +271,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
       if (this.editMode) {
         combineLatest([
           this.accountService.activeAccount$.pipe(getUserId),
-          this.configService.getFeatureFlag$(FeatureFlag.Pm30110SdkSendsApi),
           this.sendService.get$(this.sendId),
         ])
           .pipe(
-            switchMap(([userId, useSendsSdk, send]) => {
+            switchMap(([userId, send]) => {
               if (send instanceof Send) {
-                return useSendsSdk
-                  ? this.sendSdkDecryptionService
-                      .decryptSend(send, userId)
-                      .then((sdkView) => SendView.fromSdkSend(sdkView))
-                  : send.decrypt(userId);
+                return this.sendDecryptionService.decryptSend(send, userId);
               }
               return Promise.reject(new Error("Failed to load send."));
             }),

@@ -19,16 +19,17 @@ import {
   CloudEnvironment,
   PRODUCTION_REGIONS,
 } from "@bitwarden/common/platform/services/default-environment.service";
-import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
 import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
+import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 // eslint-disable-next-line no-restricted-imports
 import {
   CryptoFunctionService,
   EncryptService,
   LegacyCompatKeyService,
+  SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 
 import { Response } from "../../../models/response";
@@ -47,7 +48,7 @@ describe("SendReceiveCommand", () => {
   const apiService = mock<ApiService>();
   const sendTokenService = mock<SendTokenService>();
   const configService = mock<ConfigService>();
-  const sdkDecryptionService = mock<SendSdkDecryptionService>();
+  const sendDecryptionService = mock<SendDecryptionService>();
 
   const testUrl = "https://send.bitwarden.com/#/send/abc123/key456";
   const testSendId = "abc123";
@@ -70,7 +71,6 @@ describe("SendReceiveCommand", () => {
     configService.getFeatureFlag.mockResolvedValue(false);
 
     command = new SendReceiveCommand(
-      legacyCompatKeyService,
       encryptService,
       cryptoFunctionService,
       platformUtilsService,
@@ -78,8 +78,7 @@ describe("SendReceiveCommand", () => {
       sendApiService,
       apiService,
       sendTokenService,
-      configService,
-      sdkDecryptionService,
+      sendDecryptionService,
     );
   });
 
@@ -345,10 +344,13 @@ describe("SendReceiveCommand", () => {
             fileName: "test.pdf",
             size: 1024,
           },
-        };
+        } as any as SendAccessView;
 
         sendApiService.postSendAccess.mockResolvedValue({} as any);
-        jest.spyOn(SendAccess.prototype, "decrypt").mockResolvedValueOnce(mockSendResponse as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          mockSendResponse,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
         sendApiService.getSendFileDownloadData.mockResolvedValue({
           url: "https://example.com/download",
         } as any);
@@ -379,10 +381,13 @@ describe("SendReceiveCommand", () => {
             fileName: `../../${fileName}`,
             size: 1024,
           },
-        };
+        } as any as SendAccessView;
 
         sendApiService.postSendAccess.mockResolvedValue({} as any);
-        jest.spyOn(SendAccess.prototype, "decrypt").mockResolvedValueOnce(mockSendResponse as any);
+        sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+          mockSendResponse,
+          new SymmetricCryptoKey(new Uint8Array(64)),
+        ]);
         const fileDownloadUrl = "https://example.com/download";
         sendApiService.getSendFileDownloadData.mockResolvedValue({
           url: fileDownloadUrl,
@@ -609,9 +614,11 @@ describe("SendReceiveCommand", () => {
       // beforeEach configures US cloud; this link is EU.
       respondWith(200, { access_token: "eu-token", expires_in: 3600 });
       sendApiService.postSendAccess.mockResolvedValue({} as any);
-      jest
-        .spyOn(SendAccess.prototype, "decrypt")
-        .mockResolvedValueOnce({ type: SendType.Text, text: { text: "secret" } } as any);
+
+      sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
+        { type: SendType.Text, text: { text: "secret" } } as any,
+        new SymmetricCryptoKey(new Uint8Array(64)),
+      ]);
       const stdoutSpy = jest.spyOn(process.stdout, "write").mockImplementation(() => true);
 
       const response = await command.run("https://vault.bitwarden.eu/#/send/abc123/key456", {});

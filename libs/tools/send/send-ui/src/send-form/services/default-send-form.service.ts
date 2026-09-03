@@ -7,14 +7,12 @@ import { firstValueFrom, lastValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -39,8 +37,7 @@ export class DefaultSendFormService implements SendFormService {
   private sendService = inject(SendService);
   private i18nService = inject(I18nService);
   private sendPolicyService = inject(SendPolicyService);
-  private configService = inject(ConfigService);
-  private sendSdkDecryptionService = inject(SendSdkDecryptionService);
+  private sendDecryptionService = inject(SendDecryptionService);
 
   private _sendForm = this.formBuilder.group<SendForm>({});
   readonly sendForm = signal(this._sendForm).asReadonly();
@@ -57,14 +54,7 @@ export class DefaultSendFormService implements SendFormService {
 
   async decryptSend(send: Send): Promise<SendView> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const useSdkForSends = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
-    if (useSdkForSends) {
-      return this.sendSdkDecryptionService
-        .decryptSend(send, userId)
-        .then((s) => SendView.fromSdkSend(s));
-    } else {
-      return send.decrypt(userId);
-    }
+    return this.sendDecryptionService.decryptSend(send, userId);
   }
 
   registerChildForm<K extends keyof SendForm>(

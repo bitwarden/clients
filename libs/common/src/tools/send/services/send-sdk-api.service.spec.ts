@@ -29,8 +29,8 @@ import { AuthType } from "../types/auth-type";
 import { SendType } from "../types/send-type";
 
 import { SendApiService } from "./send-api.service";
+import { SendDecryptionService } from "./send-decryption.service";
 import { MAX_SDK_FILE_SEND_SIZE_BYTES, SendSdkApiService } from "./send-sdk-api.service";
-import { SendSdkDecryptionService } from "./send-sdk-decryption.service";
 import { InternalSendService } from "./send.service.abstraction";
 
 describe("SendSdkApiService", () => {
@@ -41,7 +41,7 @@ describe("SendSdkApiService", () => {
   let sendService: MockProxy<InternalSendService>;
   let accountService: AccountService;
   let logService: MockProxy<LogService>;
-  let sdkDecryptionService: MockProxy<SendSdkDecryptionService>;
+  let sendDecryptionService: MockProxy<SendDecryptionService>;
 
   let sendsClient: {
     create: jest.Mock;
@@ -62,7 +62,7 @@ describe("SendSdkApiService", () => {
     sendService = mock<InternalSendService>();
     accountService = mockAccountServiceWith(mockUserId);
     logService = mock<LogService>();
-    sdkDecryptionService = mock<SendSdkDecryptionService>();
+    sendDecryptionService = mock<SendDecryptionService>();
 
     const sdkView = { id: "server-id", accessId: "server-access-id" } as unknown as SdkSendView;
     createFileSendResponse = {
@@ -99,7 +99,7 @@ describe("SendSdkApiService", () => {
       sendService,
       accountService,
       logService,
-      sdkDecryptionService,
+      sendDecryptionService,
     );
   });
 
@@ -109,7 +109,7 @@ describe("SendSdkApiService", () => {
     send.id = id;
     send.type = view.type;
     send.authType = view.authType;
-    sdkDecryptionService.decryptSend.mockResolvedValue(view.toSdkSendView());
+    sendDecryptionService.decryptSend.mockResolvedValue(view);
     return send;
   }
 

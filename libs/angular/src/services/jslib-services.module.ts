@@ -313,8 +313,8 @@ import {
 import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
-import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
 import { SendStateProvider as SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendStateProvider as SendStateProviderAbstraction } from "@bitwarden/common/tools/send/services/send-state.provider.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
@@ -981,9 +981,9 @@ const safeProviders: SafeProvider[] = [
     useExisting: InternalSendService,
   }),
   safeProvider({
-    provide: SendSdkDecryptionService,
-    useClass: SendSdkDecryptionService,
-    deps: [SdkService],
+    provide: SendDecryptionService,
+    useClass: SendDecryptionService,
+    deps: [SdkService, ConfigService, LegacyCompatKeyService],
   }),
   safeProvider({
     provide: InternalSendService,
@@ -997,7 +997,7 @@ const safeProviders: SafeProvider[] = [
       EncryptService,
       ConfigService,
       SdkService,
-      SendSdkDecryptionService,
+      SendDecryptionService,
     ],
   }),
   safeProvider({
@@ -1019,7 +1019,7 @@ const safeProviders: SafeProvider[] = [
       InternalSendService,
       AccountServiceAbstraction,
       LogService,
-      SendSdkDecryptionService,
+      SendDecryptionService,
     ],
   }),
   safeProvider({

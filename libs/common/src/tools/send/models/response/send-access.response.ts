@@ -6,6 +6,7 @@ import { BaseResponse } from "../../../../models/response/base.response";
 import { SendType } from "../../types/send-type";
 import { SendFileApi } from "../api/send-file.api";
 import { SendTextApi } from "../api/send-text.api";
+import { SEND_TYPE_TO_SDK } from "../domain/send";
 
 export class SendAccessResponse extends BaseResponse {
   id: string;
@@ -43,11 +44,25 @@ export class SendAccessResponse extends BaseResponse {
     return {
       id: obj.id,
       name: obj.name,
-      type: obj.type,
+      type: SEND_TYPE_TO_SDK[obj.type],
       creatorIdentifier: obj.creatorIdentifier,
       expirationDate: obj.expirationDate ? obj.expirationDate.toISOString() : undefined,
-      text: obj.text,
-      file: obj.file,
+      text:
+        obj.type === SendType.Text
+          ? {
+              text: obj.text?.text ?? undefined,
+              hidden: obj.text?.hidden ?? false,
+            }
+          : undefined,
+      file:
+        obj.type === SendType.File
+          ? {
+              id: obj.file?.id ?? undefined,
+              fileName: obj.file?.fileName ?? "",
+              size: obj.file?.size ?? undefined,
+              sizeName: obj.file?.sizeName ?? undefined,
+            }
+          : undefined,
       data: undefined,
     };
   }

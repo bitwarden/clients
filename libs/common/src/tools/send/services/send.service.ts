@@ -32,7 +32,7 @@ import { SendView } from "../models/view/send.view";
 import { SEND_KDF_ITERATIONS } from "../send-kdf";
 import { SendType } from "../types/send-type";
 
-import { SendSdkDecryptionService } from "./send-sdk-decryption.service";
+import { SendDecryptionService } from "./send-decryption.service";
 import { SendStateProvider } from "./send-state.provider.abstraction";
 import { InternalSendService as InternalSendServiceAbstraction } from "./send.service.abstraction";
 
@@ -45,10 +45,12 @@ export class SendService implements InternalSendServiceAbstraction {
   );
   sendViews$ = this.stateProvider.encryptedState$.pipe(
     concatMap(([userId, record]) =>
-      this.decryptSends(
-        Object.values(record || {}).map((data) => new Send(data)),
-        userId,
-      ),
+      this.sendDecryptionService
+        .decryptSends(
+          Object.values(record || {}).map((data) => new Send(data)),
+          userId,
+        )
+        .then((sends) => sends.sort(Utils.getSortFunction(this.i18nService, "name"))),
     ),
   );
 
@@ -61,7 +63,7 @@ export class SendService implements InternalSendServiceAbstraction {
     private encryptService: EncryptService,
     private configService: ConfigService,
     private sdkService: SdkService,
-    private sendSdkDecryptionService: SendSdkDecryptionService,
+    private sendDecryptionService: SendDecryptionService,
   ) {}
 
   async encrypt(
@@ -256,28 +258,13 @@ export class SendService implements InternalSendServiceAbstraction {
       return decSends;
     }
 
-    decSends = [];
     const hasKey = await this.keyService.hasUserKey(userId);
     if (!hasKey) {
       throw new Error("No user key found.");
     }
 
-    const promises: Promise<any>[] = [];
     const sends = await this.getAll();
-    const useSdkForSends = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
-    sends.forEach((send) => {
-      if (useSdkForSends) {
-        promises.push(
-          this.sendSdkDecryptionService
-            .decryptSend(send, userId)
-            .then((s) => decSends.push(SendView.fromSdkSend(s))),
-        );
-      } else {
-        promises.push(send.decrypt(userId).then((f) => decSends.push(f)));
-      }
-    });
-
-    await Promise.all(promises);
+    decSends = await this.sendDecryptionService.decryptSends(sends, userId);
     decSends.sort(Utils.getSortFunction(this.i18nService, "name"));
 
     await this.stateProvider.setDecryptedSends(decSends);
@@ -388,9 +375,9 @@ export class SendService implements InternalSendServiceAbstraction {
           const sendsClient = ref.value.sends();
           return await Promise.all(
             sends.map(async (send) => {
-              const view = await this.sendSdkDecryptionService.decryptSend(send, userId);
+              const view = await this.sendDecryptionService.decryptSend(send, userId);
               const rotated = await sendsClient.encrypt_send_for_rotation(
-                view,
+                view.toSdkSendView(),
                 rotateUserKey.toBase64(),
               );
               return new SendWithIdRequest(Send.fromSdkSend(rotated));
@@ -442,22 +429,5 @@ export class SendService implements InternalSendServiceAbstraction {
     const encFileName = await this.encryptService.encryptString(fileName, key);
     const encFileData = await this.encryptService.encryptFileData(new Uint8Array(data), key);
     return [encFileName, encFileData];
-  }
-
-  private async decryptSends(sends: Send[], userId: UserId) {
-    const useSdkForSends = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
-    const decryptSendPromises = sends.map((s) => {
-      if (useSdkForSends) {
-        return this.sendSdkDecryptionService
-          .decryptSend(s, userId)
-          .then((s) => SendView.fromSdkSend(s));
-      } else {
-        return s.decrypt(userId);
-      }
-    });
-    const decryptedSends = await Promise.all(decryptSendPromises);
-
-    decryptedSends.sort(Utils.getSortFunction(this.i18nService, "name"));
-    return decryptedSends;
   }
 }

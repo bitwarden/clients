@@ -15,9 +15,8 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SendControlsPolicyData } from "@bitwarden/common/tools/models/send-controls-policy-data";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
-import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -37,7 +36,7 @@ export class SendCreateCommand {
     private accountService: AccountService,
     private policyService: PolicyService,
     private configService: ConfigService,
-    private sendSdkDecryptionService: SendSdkDecryptionService,
+    private sendDecryptionService: SendDecryptionService,
   ) {}
 
   async run(requestJson: any, cmdOptions: Record<string, any>) {
@@ -175,14 +174,7 @@ export class SendCreateCommand {
       const savedSend = await this.sendApiService.saveView(sendView, fileBuffer, password);
       const newSend = await this.sendService.getFromState(savedSend.id);
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const useSdkForSends = await this.configService.getFeatureFlag(
-        FeatureFlag.Pm30110SdkSendsApi,
-      );
-      const decSend = useSdkForSends
-        ? SendView.fromSdkSend(
-            await this.sendSdkDecryptionService.decryptSend(newSend, activeUserId),
-          )
-        : await newSend.decrypt(activeUserId);
+      const decSend = await this.sendDecryptionService.decryptSend(newSend, activeUserId);
       const env = await firstValueFrom(this.environmentService.environment$);
       const res = new SendResponse(decSend, env.getSendUrl());
       return Response.success(res);

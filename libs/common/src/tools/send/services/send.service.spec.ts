@@ -41,7 +41,7 @@ import { AuthType } from "../types/auth-type";
 import { SendType } from "../types/send-type";
 
 import { SEND_USER_DECRYPTED, SEND_USER_ENCRYPTED } from "./key-definitions";
-import { SendSdkDecryptionService } from "./send-sdk-decryption.service";
+import { SendDecryptionService } from "./send-decryption.service";
 import { SendStateProvider } from "./send-state.provider";
 import { SendService } from "./send.service";
 import {
@@ -60,7 +60,7 @@ describe("SendService", () => {
   const environmentService = mock<EnvironmentService>();
   const configService = mock<ConfigService>();
   const sdkService = mock<SdkService>();
-  const sdkDecryptionService = mock<SendSdkDecryptionService>();
+  const sendDecryptionService = mock<SendDecryptionService>();
   let sendStateProvider: SendStateProvider;
   let sendService: SendService;
 
@@ -112,7 +112,7 @@ describe("SendService", () => {
       encryptService,
       configService,
       sdkService,
-      sdkDecryptionService,
+      sendDecryptionService,
     );
   });
 
@@ -584,8 +584,8 @@ describe("SendService", () => {
         decryptedView.emails = [];
         decryptedView.authType = AuthType.None;
         decryptSpy = jest
-          .spyOn(sdkDecryptionService, "decryptSend")
-          .mockResolvedValue(decryptedView.toSdkSendView());
+          .spyOn(sendDecryptionService, "decryptSend")
+          .mockResolvedValue(decryptedView);
 
         const rotatedSdkSend = {
           id: sendGuid,
@@ -655,7 +655,7 @@ describe("SendService", () => {
           authType: AuthType.Password,
           // No `password` field: the rotated SDK Send never carries the existing hash either.
         });
-        sdkDecryptionService.decryptSend.mockResolvedValue(decryptedView.toSdkSendView());
+        sendDecryptionService.decryptSend.mockResolvedValue(decryptedView);
 
         const result = await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
 
