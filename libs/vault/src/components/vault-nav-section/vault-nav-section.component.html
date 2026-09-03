@@ -4,7 +4,7 @@
       class="tw-mb-2"
       [text]="'allItems' | i18n"
       [route]="allItemsRoute"
-      [routerLinkActiveOptions]="allItemsActiveOptions"
+      [routerLinkActiveOptions]="exactRouteOptions"
     >
       <bit-icon-tile icon="bwi-list" variant="brand" emphasis="bold" size="sm" />
     </bit-nav-item>
@@ -37,6 +37,17 @@
             icon="bwi-list-alt"
             [text]="'allVaultItems' | i18n"
             [route]="vaultRoute(vault)"
+            [routerLinkActiveOptions]="exactRouteOptions"
+          ></bit-nav-item>
+          <!--
+            Left on the default subset match, so it also lights on the folder drill-ins nested
+            beneath it — those have no nav entry of their own, and the list they were reached from
+            stands in for them.
+          -->
+          <bit-nav-item
+            icon="bwi-shared-folder"
+            [text]="'sharedFolders' | i18n"
+            [route]="sharedFoldersRoute(vault)"
           ></bit-nav-item>
         </bit-nav-group>
       }
@@ -49,7 +60,7 @@
     <bit-nav-item
       [text]="loneVault.label"
       [route]="allItemsRoute"
-      [routerLinkActiveOptions]="allItemsActiveOptions"
+      [routerLinkActiveOptions]="exactRouteOptions"
     >
       @let loneTile = tile(loneVault);
       <bit-icon-tile
