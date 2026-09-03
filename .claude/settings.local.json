@@ -1,7 +1,0 @@
-{
-  "enabledMcpjsonServers": [
-    "electron-devtools-attach",
-    "chrome-devtools-attach",
-    "chrome-devtools-headless"
-  ]
-}
