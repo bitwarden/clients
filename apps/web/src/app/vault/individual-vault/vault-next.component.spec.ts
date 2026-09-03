@@ -737,9 +737,8 @@ describe("VaultNextComponent", () => {
     });
 
     /**
-     * The drilled-into shared folder lives in the scope, not the `?collectionId` the service reads.
-     * Without telling it, Assign to collections opens without that folder selected, and unticking
-     * it — the way items are removed from a folder — is unreachable.
+     * The drilled-into folder lives in the scope, not the `?collectionId` the service reads —
+     * without telling it, Assign to collections can't preselect that folder or remove items from it.
      */
     it("tells the batch bar which shared folder the page has drilled into", () => {
       collections$.next([buildCollection(engineeringId, organizationId)]);
@@ -758,10 +757,8 @@ describe("VaultNextComponent", () => {
     });
 
     /**
-     * `resolveVaultScope` trades the `my-items` sentinel for a real id once the nav loads, but the
-     * sentinel survives while the nav is still loading. It names no collection, so it must not
-     * reach the service as one — `allCollections.find` would miss and the dialog would preselect
-     * nothing, but an unresolved sentinel forwarded as an id is a lie the service can act on.
+     * The `my-items` sentinel survives until the nav loads. It names no collection, so forwarding
+     * it as an id would hand the service something it can act on but that matches nothing.
      */
     it("names no shared folder while the sentinel is still unresolved", () => {
       collections$.next([buildCollection(engineeringId, organizationId)]);

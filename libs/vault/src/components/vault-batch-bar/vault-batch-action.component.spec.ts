@@ -237,9 +237,8 @@ describe("VaultBatchActionComponent", () => {
 
   describe("action invocation", () => {
     /**
-     * The Clear button has to go through `clearSelection()` rather than `selection.clear()`: once a
-     * host registers a selection source, `selected()` stops consulting the CDK model, so clearing
-     * that directly would leave the count unchanged, the bar up, and every row still checked.
+     * Clear must go through `clearSelection()`: with a source registered, `selected()` stops consulting
+     * the CDK model, so clearing that directly leaves the bar up and every row checked.
      */
     it("clears through the service when the bar's Clear button is pressed", () => {
       selectedCount.set(2);

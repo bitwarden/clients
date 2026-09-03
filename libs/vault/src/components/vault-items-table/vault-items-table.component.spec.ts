@@ -122,9 +122,8 @@ class BareToolbarHostComponent {
 }
 
 /**
- * A stand-in for `VaultBatchBarService` carrying only what the table touches — the real one pulls
- * in the whole bulk-action graph. `selected` mirrors the service's own computed, so a test reading
- * it sees exactly what the `can*` signals would.
+ * A stand-in for `VaultBatchBarService` carrying only what the table touches. `selected` mirrors the
+ * service's own computed, so a test reading it sees exactly what the `can*` signals would.
  */
 function batchBarDouble() {
   const source = signal<VaultSelectionSource<CipherViewLike> | undefined>(undefined);
@@ -1453,9 +1452,8 @@ describe("VaultItemsTableComponent", () => {
   });
 
   /**
-   * The table registering its selection as the batch bar's source. What matters is that the bar
-   * always reports exactly what the checkboxes show, since its `can*` permission signals and every
-   * bulk action read off it.
+   * The table registering its selection as the batch bar's source: the bar must report exactly what
+   * the checkboxes show, since its `can*` signals and every bulk action read off it.
    */
   describe("batch bar selection source", () => {
     /** The table's selection model, which the checkbox column drives. */
@@ -1531,9 +1529,8 @@ describe("VaultItemsTableComponent", () => {
     });
 
     /**
-     * The bar clears its source after a completed bulk action and on route-filter changes, and the
-     * checkboxes have to follow — otherwise rows stay checked against items that were just deleted
-     * or moved out of view.
+     * The bar clears its source after a completed action and on route-filter changes, and the checkboxes
+     * must follow — else rows stay checked against items just deleted or moved out of view.
      */
     it("clears the table's checkboxes when the batch bar clears the source", () => {
       const amazon = cipherView({ id: "a", name: "Amazon" });
@@ -1552,9 +1549,8 @@ describe("VaultItemsTableComponent", () => {
     });
 
     /**
-     * The whole point of registering a projection rather than copying items across: there is no
-     * second model that could fall out of step, so the bar reports the table's rows by construction
-     * even after a re-decrypt swaps every row reference.
+     * The point of a projection over a copy: no second model can fall out of step, so the bar reports
+     * the table's rows by construction even after a re-decrypt swaps every row reference.
      */
     it("keeps the batch bar in agreement after rows are re-emitted", () => {
       fixture.componentRef.setInput("ciphers", [cipherView({ id: "a", name: "Amazon" })]);
@@ -1602,9 +1598,8 @@ describe("VaultItemsTableComponent", () => {
     });
 
     /**
-     * Bulk actions turn each selected item into per-cipher permission checks and request payloads,
-     * so select-all over a very large vault is capped rather than unbounded — matching the cap the
-     * legacy vault-items component applies.
+     * Each selected item becomes per-cipher permission checks and request payloads, so select-all is
+     * capped rather than unbounded — matching the legacy vault-items component's cap.
      */
     it("caps the selection itself at MAX_SELECTION_COUNT", () => {
       const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
@@ -1705,9 +1700,8 @@ describe("VaultItemsTableComponent", () => {
     });
 
     /**
-     * Left enabled at the cap, a rejected click still flips the browser's `checked` property, and
-     * Angular's unchanged `[checked]` never writes it back — the row renders selected while no
-     * bulk action would touch it. Disabling makes the click impossible instead.
+     * Left enabled at the cap, a rejected click still flips `checked` and Angular's unchanged
+     * `[checked]` never writes it back. Disabling makes the click impossible instead.
      */
     it("disables unselected row checkboxes once the selection is full", () => {
       // A cap small enough that a rejected row lands inside the virtual-scroll window.
@@ -1746,9 +1740,8 @@ describe("VaultItemsTableComponent", () => {
     });
 
     /**
-     * Single-select has no working select-all — `toggleAll` could only keep one row, leaving the
-     * header permanently indeterminate with no way to clear it — so the checkbox is omitted while
-     * the header cell stays, keeping the column aligned with the rows.
+     * Single-select has no working select-all — `toggleAll` could keep one row, leaving the header
+     * permanently indeterminate — so the checkbox is omitted while the header cell stays.
      */
     it("omits the header select-all in single-select mode", () => {
       (component as unknown as { selection: SelectionConfig<CipherViewLike> }).selection = {
@@ -1769,9 +1762,8 @@ describe("VaultItemsTableComponent", () => {
     });
 
     /**
-     * The bulk-actions bar is `position: fixed`, so it never displaces content. Without a margin
-     * the table's bottom border and last row sit underneath it — the row's checkbox and quick
-     * actions unreachable, and the border hidden behind the bar.
+     * The bar is `position: fixed` and never displaces content, so without a margin the last row
+     * sits underneath it — its checkbox and quick actions unreachable.
      */
     it("holds a bottom margin only while the bar is showing", () => {
       const amazon = cipherView({ id: "a", name: "Amazon" });

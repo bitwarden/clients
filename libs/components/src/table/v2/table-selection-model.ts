@@ -77,9 +77,8 @@ export class TableSelectionModel<T> {
   );
 
   /**
-   * Whether the cap is reached. Bind unselected rows' checkbox `disabled` to this: left enabled,
-   * the browser flips `checked` on a rejected click and Angular's unchanged `[checked]` never
-   * writes it back, so the row renders selected when it isn't.
+   * Whether the cap is reached. Bind unselected rows' checkbox `disabled` to this: left enabled, a
+   * rejected click flips `checked` and Angular's unchanged `[checked]` never writes it back.
    */
   readonly full = computed(() => this.count() >= this.max);
 
@@ -143,8 +142,7 @@ export class TableSelectionModel<T> {
 
   /**
    * Selects every selectable in-scope row, or clears them if all are selected or the
-   * {@link TableSelectionConfig.max} budget is spent — otherwise the header checkbox would
-   * dead-end, doing nothing once filtering moved scope onto rows with no budget left to select.
+   * {@link TableSelectionConfig.max} budget is spent — otherwise the header checkbox would dead-end.
    */
   toggleAll(): void {
     if (this.count() >= this.max) {

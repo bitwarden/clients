@@ -299,9 +299,8 @@ export class VaultNextComponent {
     // This page scopes to trash by route segment, not the `?type=trash` the service reads — without
     // this, Restore never appears and Delete soft-deletes items already in the trash.
     const inTrash = scope.type === VaultScopeType.Trash;
-    // Likewise the drilled-into shared folder, which this page holds in the scope rather than the
-    // route filter. Matched against the known collections so the unresolved `my-items` sentinel —
-    // which survives only when the nav hasn't loaded — never reaches the service.
+    // Likewise the drilled-into folder, held in the scope here. Matched against known collections
+    // so the unresolved `my-items` sentinel never reaches the service as an id.
     const scopedCollectionId =
       scope.type === VaultScopeType.Organization ? scope.collectionId : undefined;
     const activeCollectionId = collections.find((c) => c.id === scopedCollectionId)?.id;

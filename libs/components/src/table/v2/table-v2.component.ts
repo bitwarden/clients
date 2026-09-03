@@ -661,9 +661,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   ]);
 
   /**
-   * {@link filtered} in display order — sorted, but not page-sliced. The selection model scopes
-   * over this rather than `filtered`, so a `max`-capped select-all keeps the rows shown at the top
-   * of the list instead of ones scattered through it.
+   * {@link filtered} in display order — sorted, but not page-sliced. The selection model scopes over
+   * this, so a `max`-capped select-all keeps the rows shown at the top rather than scattered ones.
    */
   readonly sorted = computed<T[]>(() => {
     const filtered = this.filtered();

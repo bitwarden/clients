@@ -62,9 +62,8 @@ import { RoutedVaultFilterBridgeService } from "./routed-vault-filter-bridge.ser
 import { RoutedVaultFilterService } from "./routed-vault-filter.service";
 
 /**
- * A read-only view of some other component's selection state, registered via
- * {@link VaultBatchBarService.registerSelection}. Deliberately narrow — the bar only reads and
- * clears — so a host can own its selection outright instead of syncing a second model.
+ * A read-only view of another component's selection, registered via {@link VaultBatchBarService.registerSelection}.
+ * Deliberately narrow — the bar only reads and clears — so a host owns its selection outright.
  */
 export interface VaultSelectionSource<C extends CipherViewLike> {
   /** The currently selected items. Read reactively, so the `can*` signals track it. */
@@ -86,9 +85,8 @@ export interface VaultBatchBarConfig {
   /** Whether the page is showing trashed items. */
   inTrash?: boolean;
   /**
-   * The shared folder the page has drilled into. Omit to read it off `RoutedVaultFilterService`'s
-   * `?collectionId`; a host that scopes by route segment must set it, or Assign to collections
-   * opens without that folder selected and can't remove items from it.
+   * The shared folder the page has drilled into; omit to read it off the route filter. A host that
+   * scopes by route segment must set it, or Assign to collections can't preselect or remove it.
    */
   activeCollectionId?: CollectionId;
 }
@@ -170,9 +168,8 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   );
 
   /**
-   * The Angular CDK selection model, and the default selection source — kept for hosts that own
-   * their selection through it. A host whose list has its own selection state should call
-   * {@link registerSelection} instead of mirroring into this one, so the two can't disagree.
+   * The Angular CDK selection model, and the default selection source. A host whose list has its own
+   * selection state should call {@link registerSelection} instead, so the two can't disagree.
    */
   readonly selection = new SelectionModel<VaultItem<C>>(true, [], true, compareVaultItems);
 
@@ -195,9 +192,8 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   private readonly source = signal<VaultSelectionSource<C> | undefined>(undefined);
 
   /**
-   * Registers an external selection source as the single source of truth for every `can*` signal
-   * and bulk action; only one is active at a time. Call the returned teardown on the registering
-   * component's destroy, or its selection outlives it — this service is provided above the list.
+   * Registers an external selection source as the single source of truth for every `can*` signal and
+   * bulk action. Call the returned teardown on destroy, or its selection outlives the component.
    */
   registerSelection(source: VaultSelectionSource<C>): () => void {
     this.source.set(source);
@@ -217,9 +213,8 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   readonly selectedCount = computed(() => this.selected().length);
 
   /**
-   * Clears the selection at its source — the registered one, else the CDK model. Every clear path
-   * must funnel through this: with a source registered, {@link selected} never consults the CDK
-   * model, so clearing that directly leaves the bar up and every row checked.
+   * Clears the selection at its source — the registered one, else the CDK model. Every clear path must
+   * funnel through this: with a source registered, {@link selected} never consults the CDK model.
    */
   clearSelection(): void {
     const source = this.source();
@@ -746,8 +741,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     const config = this.config();
     const filter = await firstValueFrom(this.routedVaultFilterBridgeService.activeFilter$);
 
-    // The host's own scope wins, since a page that drills into a shared folder by route segment
-    // leaves the route filter's `collectionId` empty.
+    // The host's scope wins — a page that drills in by route segment leaves the filter empty.
     const collectionId = config.activeCollectionId ?? filter.collectionId;
     const activeCollection =
       collectionId && collectionId !== All && collectionId !== Unassigned

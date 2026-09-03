@@ -56,8 +56,7 @@ import { VaultItemsTableComponent, VaultItemsTableFilters } from "./vault-items-
 
 /**
  * Renders whatever `LayoutFooterService` is holding. `<bit-vault-batch-action>` hands its bar to
- * that service as a portal and `bit-layout` normally provides the outlet; these stories skip the
- * layout, so this stands in as the outlet and nothing more.
+ * that service as a portal, and these stories skip the `bit-layout` that normally hosts the outlet.
  */
 @Component({
   selector: "story-layout-footer",
@@ -70,9 +69,8 @@ class StoryLayoutFooterComponent {
 }
 
 /**
- * The real service with only its action bodies replaced — everything the stories demonstrate lives
- * in the base class. Only completion can't work here: each action ends in a dialog or server call a
- * story has neither of. Overrides log through `action()`, then clear so the bar dismisses itself.
+ * The real service with only its action bodies replaced — each real one ends in a dialog or server
+ * call a story has neither of. Overrides log through `action()`, then clear so the bar dismisses.
  */
 class StoryVaultBatchBarService extends VaultBatchBarService<CipherView> {
   /** Reports the action with the items it would have applied to, then ends the "action". */

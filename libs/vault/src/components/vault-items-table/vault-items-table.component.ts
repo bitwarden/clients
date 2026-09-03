@@ -86,16 +86,14 @@ import { cipherSearchMatches } from "./vault-items-table-search";
 export const VAULT_FILTER_NAMESPACE = "vault";
 
 /**
- * Upper bound on selected rows, matching the legacy `vault-items.component` cap — each selection
- * becomes per-cipher permission checks and request payloads. Applied to the selection itself, since
- * capping a downstream view would leave rows checked that a bulk delete then silently skips.
+ * Upper bound on selected rows, matching the legacy `vault-items.component` cap. Applied to the
+ * selection itself, since capping a downstream view lets a bulk delete silently skip checked rows.
  */
 export const MAX_SELECTION_COUNT = 500;
 
 /**
- * Bottom margin (px) held while the bulk-actions bar shows — its height (53), matching the margin
- * it keeps below itself. The bar is `position: fixed` and never displaces content, so without this
- * the last row sits underneath it, its checkbox and quick actions unreachable.
+ * Bottom margin (px) held while the bulk-actions bar shows — its height (53). The bar is
+ * `position: fixed`, so without this the last row sits underneath it and is unreachable.
  */
 const BULK_BAR_CLEARANCE = 53;
 
@@ -637,9 +635,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   }
 
   /**
-   * The owning vault's icon tile, matching the side nav: the avatar color for a personal vault,
-   * the tier's for an organization. One missing from {@link organizations} has no tier to key off,
-   * so it falls back to the generic business tile rather than guessing.
+   * The owning vault's icon tile, matching the side nav. An organization missing from
+   * {@link organizations} has no tier to key off, so it falls back to the generic business tile.
    */
   protected vaultIconTile(cipher: C): IconTileOptions {
     const organizationId = idString(cipher.organizationId);
@@ -720,8 +717,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   /**
    * Registers the table's `TableSelectionModel<C>` as the batch bar's selection source, so checking
-   * rows drives its `can*` signals with no per-client wiring — the bar reads a projection rather
-   * than a copy. Deferred to an effect because `selectionModel()` comes from a view query.
+   * rows drives its `can*` signals. Deferred to an effect: `selectionModel()` is a view query.
    */
   private readonly registerSelection = effect((onCleanup) => {
     const model = this.tableComponent()?.selectionModel();

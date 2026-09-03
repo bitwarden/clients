@@ -275,9 +275,8 @@ describe("VaultBatchBarService", () => {
     });
 
     /**
-     * `canDelete` and `canRestore` are async pipelines that used to key off the CDK model's
-     * `changed` observable. They have to follow a registered source instead, or the bar would
-     * authorize an action against a selection nobody made.
+     * `canDelete` and `canRestore` used to key off the CDK model's `changed` observable. They must
+     * follow a registered source instead, or the bar authorizes an action against a selection nobody made.
      */
     it("drives the async canDelete pipeline from the registered source", async () => {
       const source = sourceDouble([]);
@@ -1241,9 +1240,8 @@ describe("VaultBatchBarService", () => {
     });
 
     /**
-     * The dialog preselects the active collection, and unticking it is how items are removed from
-     * that folder. A host that drills in by route segment leaves the route filter empty, so without
-     * reading the config the folder in view is neither preselected nor removable.
+     * The dialog preselects the active collection, and unticking it removes items from that folder.
+     * A route-segment host leaves the filter empty, so without the config neither is reachable.
      */
     it("takes the active collection from the config when the route filter names none", async () => {
       const collection = makeCollection();
