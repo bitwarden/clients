@@ -1,0 +1,44 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./kbd.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BitKbdComponent } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+Renders a keyboard shortcut as one `<kbd>` element per key, joined by `+`. Use it to surface a
+shortcut hint next to the control it triggers — for example the `⌘ F` hint inside
+[Search](?path=/docs/component-library-form-search--docs).
+
+<Primary />
+<Controls />
+
+## Keys
+
+The `keys` input takes the shortcut in press order. Each entry is rendered verbatim, so pass the
+label you want displayed (`"F"`, `"ESC"`, `"Shift"`).
+
+<Canvas of={stories.SingleKey} />
+
+### The `modifier` token
+
+Pass the literal string `"modifier"` to render the platform's primary modifier key — `⌘` on macOS,
+`Ctrl` elsewhere. The platform is first guessed from `navigator` and then corrected to ground truth
+on the first Cmd/Ctrl chord the user presses, so the glyph may change after that first keypress.
+
+## Accessibility
+
+The component is presentational and is not focusable. A shortcut hint duplicates information already
+conveyed by the control, so hide it from assistive technology (`aria-hidden="true"` on a wrapper)
+and announce the shortcut on the control itself with `aria-keyshortcuts`.
+
+```html
+<span aria-hidden="true">
+  <bit-kbd [keys]="['modifier', 'F']" />
+</span>
+```
