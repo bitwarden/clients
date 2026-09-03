@@ -14,7 +14,7 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -120,7 +120,6 @@ export class AppComponent implements OnDestroy, OnInit {
           }
           case "locked":
             await this.router.navigate(["/"]);
-            await this.processReloadService.startProcessReload();
             break;
           case "lockedUrl":
             break;
@@ -269,11 +268,11 @@ export class AppComponent implements OnDestroy, OnInit {
         await this.router.navigate(["/"]);
       }
 
-      await this.processReloadService.startProcessReload();
-
+      // Wipe the current process to clear active secrets in memory.
       // Normally we would need to reset the loading state to false or remove the layout_frontend
       // class from the body here, but the process reload completely reloads the app so
       // it handles it.
+      await this.processReloadService.reloadProcess();
     }, userId);
   }
 

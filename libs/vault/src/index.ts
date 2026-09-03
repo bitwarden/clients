@@ -39,6 +39,7 @@ export { VaultItemCopyActionsComponent } from "./components/item-copy-actions/it
 export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";
 export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.component";
 export * from "./components/delete-folder-dialog/delete-folder-dialog.component";
+export * from "./components/delete-shared-folder-dialog/delete-shared-folder-dialog.component";
 export * from "./components/my-folders/my-folders.component";
 export * from "./components/add-item-grid/add-item-grid.component";
 export * from "./components/add-item-dialog/add-item-dialog.component";
@@ -55,6 +56,7 @@ export {
   OrganizationUserNotificationBannerData,
 } from "./services/vault-organization-user-notifications.service";
 export { VaultItemEvent } from "./components/vault-item-event";
+export * from "./components/shared-folders";
 export * from "./components/vault-items-table";
 export * from "./components/organization-name-badge/organization-name-badge.component";
 
@@ -72,6 +74,7 @@ export * from "./models/routed-vault-filter-bridge.model";
 export * from "./models/vault-filter-section.type";
 export * from "./models/filter-function";
 export * from "./models/vault-nav-view-model";
+export * from "./models/vault-icon-tile";
 export * from "./models/folder-table-row";
 export * from "./models/vault-scope";
 export { VaultFilterService as VaultFilterServiceAbstraction } from "./abstractions/vault-filter.service";
@@ -119,6 +122,14 @@ export {
 } from "./tokens/bulk-edit-collection-access-dialog.token";
 
 export {
+  COLLECTION_DIALOG,
+  CollectionDialogOpenParams,
+  CollectionDialogOutcome,
+  CollectionDialogRef,
+  CollectionDialogTab,
+} from "./tokens/collection-dialog.token";
+
+export {
   VaultBatchBarService,
   VaultBatchBarConfig,
   VaultSelectionSource,
@@ -128,6 +139,8 @@ export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-ba
 export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";
 export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
 export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
+export { organizationVaultGuard } from "./routing/organization-vault.guard";
+export { MY_ITEMS_ROUTE_DATA, scopedCollectionSegment } from "./routing/scoped-collection";
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
 export { vaultScopeGuard } from "./routing/vault-scope.guard";
 export {
