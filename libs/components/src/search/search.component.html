@@ -19,7 +19,7 @@
     [disabled]="disabled()"
     [attr.autocomplete]="autocomplete()"
     (blur)="onTouch()"
-    [attr.aria-keyshortcuts]="useKeyShortcuts() ? 'Control+f Meta+f' : null"
+    [attr.aria-keyshortcuts]="useKeyShortcuts() ? 'Control+F Meta+F' : null"
   />
   @if (useKeyShortcuts() && !searchText()) {
     <span
@@ -32,7 +32,7 @@
       class="tw-hidden tw-items-center tw-pe-1 tw-shrink-0 tw-select-none group-has-[:focus]/form-field:tw-flex"
       aria-hidden="true"
     >
-      <bit-kbd [keys]="['ESC']" />
+      <bit-kbd [keys]="['Esc']" />
     </span>
   }
   @if (searchText()) {

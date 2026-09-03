@@ -1081,7 +1081,8 @@
     "message": "Reset search"
   },
   "clearSearchTooltip": {
-    "message": "Clear by clicking here or pressing Esc."
+    "message": "Clear by clicking here or pressing Esc.",
+    "description": "Tooltip on the button that clears the search field. \"Esc\" is the Escape key on the keyboard — use the abbreviation printed on local keyboards."
   },
   "allItems": {
     "message": "All items"

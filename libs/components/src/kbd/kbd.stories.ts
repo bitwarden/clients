@@ -31,6 +31,6 @@ export const Default: Story = {
 export const SingleKey: Story = {
   ...Default,
   args: {
-    keys: ["ESC"],
+    keys: ["Esc"],
   },
 };

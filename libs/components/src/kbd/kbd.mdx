@@ -21,7 +21,7 @@ shortcut hint next to the control it triggers — for example the `⌘ F` hint i
 ## Keys
 
 The `keys` input takes the shortcut in press order. Each entry is rendered verbatim, so pass the
-label you want displayed (`"F"`, `"ESC"`, `"Shift"`).
+label you want displayed (`"F"`, `"Esc"`, `"Shift"`).
 
 <Canvas of={stories.SingleKey} />
 
@@ -32,14 +32,31 @@ Pass the literal string `"modifier"` to render the platform's primary modifier k
 time a Cmd chord is observed — Cmd is Apple-exclusive, so the correction is one-way and a Ctrl chord
 never flips the glyph back.
 
+Key labels are not localized. `⌘` is a locale-independent glyph, but `Ctrl` and `Esc` render as
+English abbreviations everywhere — German keyboards, for instance, print `Strg` rather than `Ctrl`.
+Translating legends needs i18n plumbed through this component and is out of scope for now.
+
 ## Accessibility
 
 The component is presentational and is not focusable. A shortcut hint duplicates information already
 conveyed by the control, so hide it from assistive technology (`aria-hidden="true"` on a wrapper)
 and announce the shortcut on the control itself with `aria-keyshortcuts`.
 
+[Search](?path=/docs/component-library-form-search--docs) already does this — set `useKeyShortcuts`
+and it renders the hint and sets `aria-keyshortcuts` on its own input. When pairing `bit-kbd` with a
+control of your own, follow the same shape:
+
 ```html
+<input type="search" aria-keyshortcuts="Control+F Meta+F" />
 <span aria-hidden="true">
   <bit-kbd [keys]="['modifier', 'F']" />
 </span>
 ```
+
+`aria-keyshortcuts` takes [UI Events](https://www.w3.org/TR/uievents-key/) key names rather than the
+labels shown in the badge, and the value is case-insensitive. Modifiers are always spelled `Alt`,
+`Control`, `Shift`, `Meta`, or `AltGraph`, so those tokens are never translated.
+
+Nothing localizes the rest of the value for you, though — adapting it is the author's job. A
+shortcut whose non-modifier key sits on a different physical key, or needs a different modifier,
+under another keyboard layout has to be adjusted in both the attribute and the handler.
