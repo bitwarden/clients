@@ -51,6 +51,10 @@ export class MemberAdoptionReportService implements MemberAdoptionReportServiceA
     }));
   }
 
+  /**
+   * Copied field by field rather than spread: `BaseResponse` keeps the raw payload on an own
+   * `response` property, so a spread would carry the whole wire object into the view.
+   */
   private toMemberView(member: MemberAdoptionMemberResponse): MemberAdoptionMemberView {
     return {
       organizationUserId: member.organizationUserId,

@@ -39,20 +39,18 @@ describe("MemberAdoptionReportService", () => {
     });
 
     service = TestBed.inject(MemberAdoptionReportService);
+
+    respondWith(memberAdoptionReportPayloadMock);
   });
 
   describe("getMemberAdoptionReport", () => {
     it("asks the api for the organization under report", async () => {
-      respondWith(memberAdoptionReportPayloadMock);
-
       await service.getMemberAdoptionReport(ORGANIZATION_ID);
 
       expect(apiService.getMemberAdoptionData).toHaveBeenCalledWith(ORGANIZATION_ID);
     });
 
     it("maps the totals onto the view", async () => {
-      respondWith(memberAdoptionReportPayloadMock);
-
       const report = await service.getMemberAdoptionReport(ORGANIZATION_ID);
 
       expect(report.totalMemberCount).toBe(12);
@@ -62,8 +60,6 @@ describe("MemberAdoptionReportService", () => {
     });
 
     it("maps every member onto a row, in the order the api returned them", async () => {
-      respondWith(memberAdoptionReportPayloadMock);
-
       const report = await service.getMemberAdoptionReport(ORGANIZATION_ID);
 
       expect(report.members).toHaveLength(memberAdoptionReportPayloadMock.members.length);
@@ -83,8 +79,6 @@ describe("MemberAdoptionReportService", () => {
     });
 
     it("keeps a member with no account as a row with a null user id", async () => {
-      respondWith(memberAdoptionReportPayloadMock);
-
       const report = await service.getMemberAdoptionReport(ORGANIZATION_ID);
       const invited = report.members.find((member) => member.email === "invited@example.com");
 
@@ -172,8 +166,6 @@ describe("MemberAdoptionReportService", () => {
 
   describe("getMemberAdoptionExportItems", () => {
     it("flattens each member to the CSV row shape", async () => {
-      respondWith(memberAdoptionReportPayloadMock);
-
       const items = await service.getMemberAdoptionExportItems(ORGANIZATION_ID);
 
       expect(items).toHaveLength(memberAdoptionReportPayloadMock.members.length);
@@ -188,16 +180,12 @@ describe("MemberAdoptionReportService", () => {
     });
 
     it("emits its fields in the order the CSV headers declare", async () => {
-      respondWith(memberAdoptionReportPayloadMock);
-
       const items = await service.getMemberAdoptionExportItems(ORGANIZATION_ID);
 
       expect(Object.keys(items[0])).toEqual(Object.keys(memberAdoptionExportHeaders));
     });
 
     it("resolves the localized yes and no rather than the raw booleans", async () => {
-      respondWith(memberAdoptionReportPayloadMock);
-
       const items = await service.getMemberAdoptionExportItems(ORGANIZATION_ID);
       const noLogin = items.find((item) => item.email === "bwilliams@example.com");
 
@@ -209,16 +197,12 @@ describe("MemberAdoptionReportService", () => {
     });
 
     it("translates yes and no once for the whole export, not once per row", async () => {
-      respondWith(memberAdoptionReportPayloadMock);
-
       await service.getMemberAdoptionExportItems(ORGANIZATION_ID);
 
       expect(i18nService.t).toHaveBeenCalledTimes(2);
     });
 
     it("stringifies the counts so every column is a display string", async () => {
-      respondWith(memberAdoptionReportPayloadMock);
-
       const items = await service.getMemberAdoptionExportItems(ORGANIZATION_ID);
 
       expect(items.map((item) => item.vaultItems)).toEqual(
