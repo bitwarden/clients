@@ -145,6 +145,16 @@
                     </button>
                     <bit-menu-divider></bit-menu-divider>
                   }
+                  @if (canUsePrivilegedControls()) {
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="isProcessing ? null : bulkActivatePrivilegedControls(organization)"
+                    >
+                      {{ "activatePrivilegedControls" | i18n }}
+                    </button>
+                    <bit-menu-divider />
+                  }
                   @if (bulkActions.showBulkReinviteUsers) {
                     <button
                       type="button"
@@ -243,7 +253,6 @@
                             class="tw-text-xs"
                             variant="secondary"
                             startIcon="bwi-info"
-                            title=""
                             [bitTooltip]="'stagedMemberTooltip' | i18n"
                             tooltipPosition="below-center"
                           >
@@ -266,7 +275,6 @@
                             class="tw-text-xs"
                             variant="secondary"
                             startIcon="bwi-info"
-                            title=""
                             [bitTooltip]="
                               getRevocationReasonTranslationKey(u.revocationReason) | i18n
                             "
@@ -302,7 +310,6 @@
                             class="tw-text-xs"
                             variant="secondary"
                             startIcon="bwi-info"
-                            title=""
                             [bitTooltip]="'stagedMemberTooltip' | i18n"
                             [addTooltipToDescribedby]="true"
                             tooltipPosition="below-center"
@@ -326,7 +333,6 @@
                             class="tw-text-xs"
                             variant="secondary"
                             startIcon="bwi-info"
-                            title=""
                             [bitTooltip]="
                               getRevocationReasonTranslationKey(u.revocationReason) | i18n
                             "

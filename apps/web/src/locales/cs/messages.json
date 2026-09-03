@@ -906,6 +906,24 @@
   "editFolder": {
     "message": "Upravit složku"
   },
+  "editFolderNamed": {
+    "message": "Upravit $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "Smazat $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "editWithName": {
     "message": "Upravit $ITEM$: $NAME$",
     "placeholders": {
@@ -1065,8 +1083,14 @@
   "allItems": {
     "message": "Všechny položky"
   },
+  "allVaultItems": {
+    "message": "Všechny položky trezoru"
+  },
   "favorites": {
     "message": "Oblíbené"
+  },
+  "favoritesFilterTooltip": {
+    "message": "Označte položky jako oblíbené pro jejich filtrování zde."
   },
   "taskSummary": {
     "message": "Shrnutí úkolů"
@@ -1206,11 +1230,11 @@
   "myFolders": {
     "message": "Moje složky"
   },
+  "foldersFilterTooltip": {
+    "message": "Přidejte složky k položkám pro jejich filtrování zde."
+  },
   "addSharedFolder": {
     "message": "Přidat sdílenou složku"
-  },
-  "addToSharedFolder": {
-    "message": "Přidat do sdílené složky"
   },
   "newSharedFolder": {
     "message": "Nová sdílená složka"
@@ -1254,11 +1278,8 @@
       }
     }
   },
-  "deleteSharedFolderDesc": {
-    "message": "Tato sdílená složka bude trvale smazána."
-  },
-  "deleteSharedFolderNameDesc": {
-    "message": "Sdílená složka $NAME$ bude trvale smazána.",
+  "deleteSharedFolderNameKeepItemsDesc": {
+    "message": "Sdílená složka $NAME$ bude trvale smazána. Položky ve složce nebudou smazány.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1266,8 +1287,8 @@
       }
     }
   },
-  "deleteSharedFoldersDesc": {
-    "message": "Tyto sdílené složky budou trvale smazány."
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Tyto sdílené složky budou trvale smazány. Položky ve složkách nebudou smazány."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ sdílených složek bude trvale smazáno.",
@@ -1310,6 +1331,47 @@
   },
   "coachmarkShareWithSharedFoldersDescription": {
     "message": "Posunutím položky do sdílené složky ji můžete bezpečně sdílet s ostatními členy trezoru."
+  },
+  "deleteManyOrganizationUsersWarningDescSharedFolders": {
+    "message": "Tímto trvale smažete všechny položky vlastněné následujícími členy. Položky sdílené složky nejsou ovlivněny.",
+    "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
+  },
+  "deleteOrganizationUserWarningDescSharedFolders": {
+    "message": "Tímto trvale smažete všechny položky vlastněné $NAME$. Položky sdílené složky nejsou ovlivněny.",
+    "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "adminDescSharedFolders": {
+    "message": "Spravuje přístup v organizaci, všechny sdílené složky, členy, hlášení a nastavení zabezpečení."
+  },
+  "adminRoleDescSharedFolders": {
+    "message": "Spravuje všechny sdílené složky, členy, hlášení a nastavení zabezpečení."
+  },
+  "userDescSharedFolders": {
+    "message": "Přistupuje k přiřazeným sdíleným složkám a přidává položky."
+  },
+  "groupAccessUserDescSharedFolders": {
+    "message": "Udělí členům přístup ke sdíleným složkám přidáním do 1 nebo více skupin."
+  },
+  "manageAllSharedFolders": {
+    "message": "Spravovat všechny sdílené složky"
+  },
+  "createNewSharedFolders": {
+    "message": "Vytvořit nové sdílené složky"
+  },
+  "editAnySharedFolder": {
+    "message": "Upravit libovolnou sdílenou složku"
+  },
+  "deleteAnySharedFolder": {
+    "message": "Smazat libovolnou sdílenou složku"
+  },
+  "cannotAddYourselfToSharedFolders": {
+    "message": "Do sdílených složek nemůžete přidat sami sebe."
   },
   "attachments": {
     "message": "Přílohy"
@@ -1535,6 +1597,9 @@
   "item": {
     "message": "Položka"
   },
+  "itemLower": {
+    "message": "položka"
+  },
   "itemDetails": {
     "message": "Detaily položky"
   },
@@ -1674,58 +1739,15 @@
   "copyName": {
     "message": "Kopírovat název"
   },
-  "cardNumber": {
-    "message": "číslo karty"
-  },
-  "copyFieldCipherName": {
-    "message": "Kopírovat $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyInfoTitle": {
-    "message": "Kopírovat informace - $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Kopírovat poznámku - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "Nebyla zadána žádná hodnota",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Žádné hodnoty ke zkopírování"
+  "noDetailsToCopy": {
+    "message": "Žádné podrobnosti ke kopírování"
   },
-  "launchWebsiteName": {
-    "message": "Spustit web $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
+  "launchWebsite": {
+    "message": "Otevřít webovou stránku"
   },
   "me": {
     "message": "Já"
@@ -2024,6 +2046,36 @@
   },
   "deletedFolder": {
     "message": "Složka byla smazána"
+  },
+  "folderEdited": {
+    "message": "Složka byla upravena"
+  },
+  "foldersDeleted": {
+    "message": "Složka byla smazána"
+  },
+  "deleteFoldersCount": {
+    "message": "Smazat $COUNT$ složek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "Když smažete složku $NAME$, bude odebrána ze všech položek, na které byla použita. Samotné položky nebudou smazány.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "Když smažete tyto složky, budou odebrány ze všech položek, na které byly použity. Samotné položky nebudou smazány."
+  },
+  "enterAName": {
+    "message": "Zadejte název."
   },
   "editInfo": {
     "message": "Upravit informace"
@@ -2479,6 +2531,9 @@
   "newVault": {
     "message": "Nový trezor"
   },
+  "addPlan": {
+    "message": "Přidat plán"
+  },
   "noOrganizationsList": {
     "message": "Nepatříte do žádné organizace. Organizace umožňují bezpečné sdílení položek s ostatními uživateli."
   },
@@ -2680,6 +2735,21 @@
   },
   "copyVerificationCode": {
     "message": "Kopírovat ověřovací kód"
+  },
+  "noUsername": {
+    "message": "Žádné uživatelské jméno"
+  },
+  "noPassword": {
+    "message": "Žádné heslo"
+  },
+  "noVerificationCode": {
+    "message": "Žádný ověřovací kód"
+  },
+  "noNumber": {
+    "message": "Žádné číslo"
+  },
+  "noSecurityCode": {
+    "message": "Žádný bezpečnostní kód"
   },
   "copyUuid": {
     "message": "Kopírovat UUID"
@@ -3047,6 +3117,15 @@
   "purgedOrganizationVault": {
     "message": "Trezor organizace byl vyčištěn."
   },
+  "purgedOrganizationVaultWithName": {
+    "message": "Trezor $ORGNAME$ byl vyprázdněn.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "vaultAccessedByProvider": {
     "message": "Trezor zpřístupněný poskytovatelem."
   },
@@ -3250,6 +3329,79 @@
   "noFileChosen": {
     "message": "Není vybrán žádný soubor"
   },
+  "noFileSelected": {
+    "message": "Nebyl vybrán žádný soubor"
+  },
+  "fileChosen": {
+    "message": "Byl vybrán soubor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Byl přidán soubor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "Bylo přidáno $COUNT$ souborů: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Byl odebrán soubor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 soubor byl nahrán"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ souborů bylo nahráno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Nahrané soubory"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Klepnutím nahrajte nebo přetáhněte a pusťte"
+  },
+  "chooseFiles": {
+    "message": "Vybrat soubory"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. velikost souboru: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "nebo zkopírujte a vložte obsah souboru"
   },
@@ -3263,8 +3415,230 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "Podrobné pokyny k $NAME$ najdete v našem",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Centru nápovědy"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "Tento proces je naprosto stejný jako import z Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "V desktopové aplikaci KeePassX přejděte do \"Database\" → \"Export to CSV file\" a uložte CSV soubor."
+  },
+  "importAviraInstructions": {
+    "message": "Ve webovém trezoru Avira, přejděte do \"Settings\" → \"My data\" → \"Export data\" a uložte soubor CSV."
+  },
+  "importBlurInstructions": {
+    "message": "Ve webovém trezoru Blur klepměte na své uživatelské jméno v horní části a přejděte do \"Settings\" → \"Export data\" a poté klepněte na \"Export CSV\" pro \"Accounts\"."
+  },
+  "importSafeincloudInstructions": {
+    "message": "V desktopové aplikaci SafeInCloud přejděte do \"File\" → \"Export\" → \"As XML\" a uložte XML soubor."
+  },
+  "importPadlockInstructions": {
+    "message": "V desktopové aplikaci Padlock klepněte na ikonu menu v horní levé části a přejděte do \"Settings\" → \"Export\" a uložte soubor \"As CSV\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "V desktopové aplikaci KeePass 2 přejděte do \"File\" → \"Export\" a vyberte volbu \"KeePass XML (2.x)\"."
+  },
+  "importUpmInstructions": {
+    "message": "V desktopové aplikaci Universal Password Manager přejděte do \"Database\" → \"Export\" a uložte CSV soubor."
+  },
+  "importSaferpassInstructions": {
+    "message": "V rozšíření prohlížeče SaferPass klepněte na ikonu menu v horní levé části a přejděte do \"Settings\". Klepněte na tlačítko \"Export accounts\" pro uložení souboru CSV."
+  },
+  "importMeldiumInstructions": {
+    "message": "Ve webovém trezoru Meldium, přejděte do \"Settings\". Najděte funkci \"Export data\" a klepněte na \"Show me my data\" pro uložení souboru CSV."
+  },
+  "importPassworddragonInstructions": {
+    "message": "V desktopové aplikaci Password Dragon přejděte do \"File\" → \"Export\" → \"To XML\". V zobrazeném dialogovém okně vyberte volbu \"All Rows\" a zaškrtněte všechna pole. Klepněte na tlačítko \"Export\" a uložte soubor XML."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "V desktopové aplikaci Enpass přejděte do \"File\" → \"Export\" → \"As CSV\". Vyberte \"OK\" do výstrahy a uložte soubor CSV. Upozorňujeme, že importér podporuje jen soubory exportované v programu s nastavenou angličtinou, proto nastavení odpovídajícím způsobem upravte."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "V desktopové aplikaci Enpass 6 klepněte na tlačítko menu a přejděte do \"File\" → \"Export\". Zvolte formát souboru \".json\" a uložte JSON soubor."
+  },
+  "importPwsafeInstructions": {
+    "message": "V desktopové aplikaci Password Safe přejděte do \"File\" → \"Export To\" → \"XML format…\" a uložte XML soubor."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Přihlaste se do Dashlane, klepněte na \"My Account\" → \"Settings\" → \"Export file\" a vyberte \"Export jako soubor CSV\". Tímto stáhnete zip archiv obsahující různé CSV soubory. Rozbalte archiv a importujte každý CSV soubor jednotlivě."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane již nepodporuje formát JSON. Použijte jen pokud máte existující JSON pro import. Při vytváření nových exportů použijte CSV importéra."
+  },
+  "importMsecureInstructions": {
+    "message": "V desktopové aplikaci mSecure přejděte do \"File\" → \"Export\" → \"CSV File…\" a uložte CSV soubor."
+  },
+  "importStickypasswordInstructions": {
+    "message": "V desktopové aplikaci Sticky Password přejděte do menu (vpravo nahoře) a zvolte \"Export\" → \"Export all\". Vyberte nešifrované XML a uložte XML soubor."
+  },
+  "importTruekeyInstructions": {
+    "message": "V desktopové aplikaci True Key klepněte na ikonu ozubeného kola (vpravo nahoře) a přejděte do \"App Settings\". Klepněte na tlačítko \"Export\", zadejte Vaše heslo a uložte CSV soubor."
+  },
+  "importClipperzInstructions": {
+    "message": "Přihlaste se do webové aplikace Clipperz (clipperz.is/app). Klepněte na ikonu menu vpravo nahoře pro rozbalení navigačního panelu. Přejděte do \"Data\" → \"Export\". Klepněte na tlačítko \"Download HTML+JSON\" pro uložení HTML souboru."
+  },
+  "importRoboformInstructions": {
+    "message": "V desktopové aplikaci RoboForm Editor přejděte do \"DoboForm\" (vlevo nahoře) a přejděte do \"Options\" → \"Account & Data\" a klepněte na tlačítko \"Export\". Vyberte všechna data, změňte \"Format\" na \"CSV file\" a poté klepněte na tlačítko \"Export\", abyste soubor CSV uložili. Poznámka: RoboForm umožňuje exportovat jen přihlašovací údaje. Ostatní položky nebudou exportovány."
+  },
+  "importPassboltInstructions": {
+    "message": "Přihlaste se do webového trezoru Passbolt a přejděte do seznamu \"Hesla\". Vyberte všechna hesla, která chcete exportovat a klepněte na tlačítko \"Export\" v horní části seznamu. Vyberte formát exportu \"csv (lastpass)\" a klepněte na tlačítko \"Export\"."
+  },
+  "importAscendoInstructions": {
+    "message": "V desktopové aplikaci Ascendo DataVault přejděte do \"Tools\" → \"Export\". V zobrazeném dialogovém okně vyberte volbu \"All Items (DVX, CSV)\". Klepnutím na tlačítko \"OK\" uložte CSV soubor."
+  },
+  "importPasswordbossInstructions": {
+    "message": "V desktopové aplikaci Password Boss přejděte do \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" a uložte JSON soubor."
+  },
+  "importZohoInstructions": {
+    "message": "Přihlaste se do webového trezoru Zoho (vault.zoho.com). Přejděte do \"Tools\" → \"Export Secrets\". Vyberte volbu \"All Secrets\" a klepněte na tlačítko \"Zoho Vault Format CSV\". Zvýrazněte a zkopírujte data z textového pole. Otevřete textový editor, například Poznámkový blok, a vložte do něj data. Uložte data z textového editoru jako",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "V desktopové aplikaci SplashID Safe klepněte na modré logo zámku vpravo nahoře. Přejděte do \"Export\" → \"Export as CSV\" a uložte CSV soubor."
+  },
+  "importPasskeepInstructions": {
+    "message": "V mobilní aplikaci PassKeep přejděte do \"Backup/Restore\". Najděte sekci \"CSV Backup/Restore\" a klepněte na \"Backup to CSV\" pro uložení CSV souboru."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Ujistěte se, že máte nainstalovaný python-keyring a python-gnomekeying. Uložte",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "Import/Export klíče GNOME"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "python skript na plochu jako",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Otevřete terminál a spusťte",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "a pak",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Nahrajte výsledný",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "soubor sem do Bitwardenu.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "V desktopové aplikaci Password Agent přejděte do \"File\" → \"Export\", klepněte na tlačítko \"Fields to export\" a zaškrtněte všechna políčka, změňte \"Output format\" na \"CSV\" a pak klepněte na tlačítko \"Start\", aby se uložil CSV soubor."
+  },
+  "importPasspackInstructions": {
+    "message": "Přihlaste se do webového trezoru Passpack a přejděte do \"Nastavení\" → \"Export\" a klepněte na tlačítko \"Download\" pro uložení CSV souboru."
+  },
+  "importPassmanInstructions": {
+    "message": "Otevřete trezor Passman a klepněte na \"Settings\" v levém dolním rohu. V okně \"Settings\" přepněte na záložku \"Export credentials\" a zvolte \"JSON\" jako typ exportu. Zadejte heslo Vašeho trezoru a klepněte na tlačítko \"Export\" pro uložení JSON souboru."
+  },
+  "importAvastCsvInstructions": {
+    "message": "V desktopové aplikaci Avast Passwords přejděte do \"Settings\" → \"Import/export data\". Vyberte tlačítko \"Export\" a zvolte \"Export to CSV file\" pro uložení CSV souboru."
+  },
+  "importAvastJsonInstructions": {
+    "message": "V desktopové aplikaci Avast Passwords přejděte do \"Settings\" → \"Import/export data\". Vyberte tlačítko \"Export\" a zvolte \"Export to JSON file\" pro uložení JSON souboru."
+  },
+  "importFsecureInstructions": {
+    "message": "V desktopové aplikaci F-Secure KEY přejděte do \"Settings\" → \"Export Passwrods\". Vyberte tlačítko \"Export\", zadejte hlavní heslo a uložte FSK soubor."
+  },
+  "importKasperskyInstructions": {
+    "message": "V desktopové aplikaci Kaspersky Password Manager přejděte do \"Settings\" → \"Import/Export\". Vyhledejte sekci \"Export to text file\" a vyberte tlačítko \"Export\" pro uložení TXT souboru."
+  },
+  "importRemembearInstructions": {
+    "message": "V desktopové aplikaci RememBear přejděte do \"Settings\" → \"Account\" → \"Export\". Zadejte své hlavní heslo a vyberte tlačítko \"Export Anyway\" pro uložení CSV souboru."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "V desktopové aplikaci PasswordWallet přejděte do \"File\" → \"Export\" → \"Visible entries to text file\". Zadejte své heslo a vyberte tlačítko \"OK\" pro uložení TXT souboru."
+  },
+  "importMykiInstructions": {
+    "message": "V rozšíření prohlížeče Myki přejděte do \"Advanced\" → \"Export Accounts\" a pak naskenujte QR kód pomocí Vašeho mobilního zařízení. Do složky pro stahování ve Vašem počítači pak budou uloženy různé CSV soubory."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Exportujte Vaše heslo SecureSafe bezpečně do souboru CSV pomocí oddělovače čárkou."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Otevřete rozšíření prohlížeče LogMeOnce a přejděte do \"Open Menu\" → \"Export To\" a vyberte \"CSV soubor\" pro uložení CSV souboru."
+  },
+  "importBlackberryInstructions": {
+    "message": "V aplikaci BlackBerry Password Keeper přejděte do \"Settings\" → \"Import/Export\". Vyberte \"Export Passwords\" a postupujte podle pokynů na obrazovce pro uložení nešifrovaného CSV souboru."
+  },
+  "importButtercupInstructions": {
+    "message": "V desktopové aplikaci Buttercup odemkněte Váš trezor. Klepněte pravým tlačítkem myši na ikonu Vašeho trezoru a vyberte \"Export\" pro uložení CSV souboru."
+  },
+  "importCodebookInstructions": {
+    "message": "Otevřete aplikaci Codebook a přihlaste se. Přejděte do \"File\" → \"Export all\" a pak klepněte na \"Yes\" v dialogovém okně a uložte CSV soubor."
+  },
+  "importEncryptrInstructions": {
+    "message": "Otevřete nejnovější verzi desktopové aplikace Encryptr a umožněte synchronizaci všech Vašich dat. Po dokončení synchronizace dat se ikona stahování v pravém horním rohu změní na růžovou. Klepněte na ikonu stahování a uložte CSV soubor."
+  },
+  "importYotiInstructions": {
+    "message": "V rozšíření prohlížeče Yoti klepněte na \"Settings\", pak \"Export Saved Logins\" a uložte CSV soubor."
+  },
+  "importPsonoInstructions": {
+    "message": "Přihlaste se do webového trezoru Psono, klepněte na \"Signed in as\", vyberte \"Others\". Přejděte na záložku \"Export\" a vyberte export typu JSON a poté klepněte na \"Export\"."
+  },
+  "importPasskyInstructions": {
+    "message": "Přihlaste se do \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" v části Passky. (\"Backup\" není podporována, protože je šifrována)."
+  },
+  "importProtonpassInstructions": {
+    "message": "V rozšíření prohlížeče ProtonPass přejděte do Settings → Export. Exportujte bez PGP šifrování a uložte ZIP soubor."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Vyberte Database → Export to file… V rámci voleb exportu se ujistěte, že jsou zaškrtnuté názvy složek a sloupců. Stiskněte tlačítko \"Browse…\", vyberte cílový soubor a nastavte jeho typ na CSV soubor."
+  },
+  "importNetwrixInstructions": {
+    "message": "Otevřete FullClient, přejděte do hlavního menu a vyberte \"Export\". Spusťte export hesel a postupujte podle pokynů pro export CSV souboru."
+  },
+  "importNordpassInstructions": {
+    "message": "Přihlaste se do NordPass a otevřete Settings → Import and Export a vyberte položky pro export. Zadejte hlavní heslo a vyberte \"Pokračovat\". Uložte CSV soubor do Vašeho zařízení."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "V desktopové aplikaci přejděte do Tools → Export → Zadejte své hlavní heslo → Vyberte \"XML Format (*. xml)\" jako formát exportu → Klepněte na \"Next\" → Vyberte, které položky by měly být zahrnuty do exportu → Klepnutím na \"Next\" se provede export do dříve zvoleného umístění."
+  },
+  "importDelineaInstructions": {
+    "message": "Přihlaste se do Delinea, najděte \"Import/Export\" → vyberte \"Export\" → zvolte \"XML\" jako formát pro export → zvolte \"QuantumLock\" jako typ ověřování → zadejte Vaše heslo a zvolte \"Export\" pro uložení XML souboru."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Přihlaste se do Delinea, najděte \"Import/Export\" → vyberte \"Export\" → zvolte \"CSV\" jako formát pro export → zvolte \"QuantumLock\" jako typ ověřování → zadejte Vaše heslo a zvolte \"Export\" pro uložení CSV souboru."
+  },
   "options": {
     "message": "Volby"
+  },
+  "moreOptions": {
+    "message": "Více voleb"
+  },
+  "optionsForItem": {
+    "message": "Volby pro $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "filterByName": {
+    "message": "Filtrovat podle $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "preferences": {
     "message": "Možnosti"
@@ -3283,6 +3657,9 @@
   },
   "showIconsChangePasswordUrls": {
     "message": "Zobrazit ikony webových stránek a načíst URL adresy pro změnu hesla"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "Zobrazit tlačítka pro rychlé kopírování v trezoru"
   },
   "default": {
     "message": "Výchozí"
@@ -3365,6 +3742,10 @@
   },
   "restrictedItemTypePolicyDescV2": {
     "message": "Nedovolí členům vytvářet a ukládat položky týkající se platebních karet do svých trezorů. Pokud bude tato zásada zapnuta, stávající karty budou automaticky skryty."
+  },
+  "restrictedItemTypePolicyDescVfo1": {
+    "message": "Nedovolí členům vytvářet a ukládat položky týkající se platebních karet. Pokud bude tato zásada zapnuta, stávající karty budou automaticky skryty.",
+    "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
   "restrictCardTypeImport": {
     "message": "Nelze importovat typy položek karty"
@@ -3654,6 +4035,10 @@
   },
   "orgsReportsDesc": {
     "message": "Klepnutím na níže uvedená hlášení zajistěte odstranění nedostatků v účtech Vaší organizace.",
+    "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
+  },
+  "orgsReportsDescV2": {
+    "message": "Klepnutím na níže uvedená hlášení zajistěte odstranění nedostatků v trezoru Vaší organizace.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "unsecuredWebsitesReport": {
@@ -3971,41 +4356,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB šifrovaného úložiště pro přílohy."
   },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ šifrovaného úložiště pro přílohy.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Volby proprietálních dvoufázových přihlášení jako je YubiKey a Duo."
-  },
   "premiumSignUpEmergency": {
     "message": "Nouzový přístup"
-  },
-  "premiumSignUpReports": {
-    "message": "Hlášení o hygieně Vašich hesel, zdraví účtu a narušeních bezpečnosti."
-  },
-  "premiumSignUpTotp": {
-    "message": "Generátor TOTP kódu dvoufázového přihlašování (2FA) pro přihlašovací údaje ve Vašem trezoru."
-  },
-  "premiumSignUpSupport": {
-    "message": "Prioritní zákaznická podpora."
-  },
-  "premiumSignUpFuture": {
-    "message": "Všechny budoucí funkce členství Premium. Více již brzy!"
-  },
-  "premiumPrice": {
-    "message": "Vše jen za $PRICE$ ročně!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "Přejděte na členství Premium jen za $PRICE$ ročně nebo získejte prémiové účty pro $FAMILYPLANUSERCOUNT$ uživatelů a neomezené rodinné sdílení s ",
@@ -4167,6 +4519,15 @@
   },
   "pendingCancellation": {
     "message": "Čeká na zrušení"
+  },
+  "pendingAnnualUpgradeNotice": {
+    "message": "K datu $DATE$ přejdete na roční fakturaci. Zobrazený tarif a cena odpovídají Vašemu nadcházejícímu ročnímu předplatnému.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
   },
   "subscriptionPendingCanceled": {
     "message": "Předplatné bude zrušeno na konci aktuálního fakturačního období."
@@ -4537,6 +4898,9 @@
   "organizationName": {
     "message": "Název organizace"
   },
+  "vaultName": {
+    "message": "Název trezoru"
+  },
   "accountOwnedBusiness": {
     "message": "Tento účet je vlastněn společností."
   },
@@ -4653,6 +5017,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Omezeno na $COUNT$ sdílených složek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "Přidání a sdílení s až $COUNT$ uživateli",
     "placeholders": {
@@ -4667,6 +5040,9 @@
   },
   "createUnlimitedCollections": {
     "message": "Neomezený počet sbírek"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Vytvořit neomezené sdílené složky"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ šifrovaného úložiště",
@@ -4922,6 +5298,10 @@
   "inviteUserDescription": {
     "message": "Pozvěte nové uživatele do Vaší organizace zadáním jejich e-mailové adresy níže."
   },
+  "inviteUserDescSharedFolders": {
+    "message": "Pozvěte nového uživatele do trezoru Vaší organizace zadáním e-mailové adresy jeho účtu na Bitwardenu. Pokud ještě nemá účet na Bitwardenu, bude vyzván k vytvoření nového účtu.",
+    "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
+  },
   "inviteMultipleEmailDesc": {
     "message": "Zadejte až $COUNT$ e-mailů oddělených čárkou.",
     "placeholders": {
@@ -5107,8 +5487,26 @@
   "exportedOrganizationVault": {
     "message": "Trezor organizace byl exportován."
   },
+  "exportedOrganizationVaultWithName": {
+    "message": "Trezor $ORGNAME$ byl exportován.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "editedOrgSettings": {
     "message": "Nastavení organizace bylo upraveno."
+  },
+  "editedOrgSettingsWithName": {
+    "message": "Bylo upraveno nastavení trezoru $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "createdItemId": {
     "message": "Byla vytvořena položka $ID$.",
@@ -5303,6 +5701,19 @@
       "id": {
         "content": "$1",
         "example": "'Google'"
+      }
+    }
+  },
+  "movedItemIdToOrgWithName": {
+    "message": "Položka $ID$ byla přesunuta do trezoru $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "'Google'"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5582,7 +5993,7 @@
     "message": "Sbírka byla smazána"
   },
   "collectionsDeleted": {
-    "message": "Kolekce byly smazány"
+    "message": "Sbírky byly smazány"
   },
   "deletedCollectionId": {
     "message": "Byla smazána sbírka $ID$.",
@@ -5687,6 +6098,19 @@
       }
     }
   },
+  "revokedUserIdWithOrgName": {
+    "message": "Uživateli $ID$ byl zrušen přístup k trezoru $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "stagedUserId": {
     "message": "Byl přidán dočasný uživatel $ID$.",
     "placeholders": {
@@ -5723,12 +6147,38 @@
       }
     }
   },
+  "revokedUserIdTwoFactorNonComplianceWithOrgName": {
+    "message": "Uživateli $ID$ byl zrušen přístup k trezoru $ORGNAME$ za nedodržení zásady dvoufaktorového přihlášení.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "revokedUserIdSingleOrganizationNonCompliance": {
     "message": "Zrušený přístup organizace pro $ID$ za nedodržení jednofaktorové zásady.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonComplianceWithOrgName": {
+    "message": "Uživateli $ID$ byl zrušen přístup k trezoru $ORGNAME$ za nedodržení zásady jednofaktorového přihlášení.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5741,12 +6191,38 @@
       }
     }
   },
+  "revokedUserIdDeclinedTransferWithOrgName": {
+    "message": "Uživateli $ID$ byl zrušen přístup za odmítnutí převodu vlastnictví trezoru $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "restoredUserId": {
     "message": "Byl obnoven přístup do organizace uživateli $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "restoredUserIdWithOrgName": {
+    "message": "Uživateli $ID$ byl obnoven přístup k trezoru $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5786,8 +6262,26 @@
       }
     }
   },
+  "editedSharedFoldersForItem": {
+    "message": "Upravena sdílená složka pro položku $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "userAcceptedTransfer": {
     "message": "Převod do vlastnictví organizace byl přijat."
+  },
+  "userAcceptedTransferWithOrgName": {
+    "message": "Převod vlastnictví trezoru pro $ORGNAME$ byl přijat.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "invitedUserId": {
     "message": "Byl pozván uživatel $ID$.",
@@ -5855,12 +6349,38 @@
       }
     }
   },
+  "createdOrganizationIdWithName": {
+    "message": "Byl vytvořen trezor $ID$ pro $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "addedOrganizationId": {
     "message": "Byla přidána organizace $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "addedOrganizationIdWithName": {
+    "message": "Byl přidán trezor $ID$ pro $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5873,12 +6393,38 @@
       }
     }
   },
+  "removedOrganizationIdWithName": {
+    "message": "Byl odebrán trezor $ID$ z $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "accessedClientVault": {
     "message": "Bylo přistoupeno k trezoru organizace $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "accessedClientVaultWithName": {
+    "message": "Přístup $ID$ do trezoru $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -6199,6 +6745,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Nelze se připojit k $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "Odkaz na pozvánku již není platný."
+  },
+  "returnToLogin": {
+    "message": "Zpět na přihlášení"
+  },
+  "returnToRegistration": {
+    "message": "Zpět k registraci"
+  },
   "joinOrganizationDesc": {
     "message": "Byli jste pozváni do výše uvedené organizace. Chcete-li přijmout pozvánku, musíte se přihlásit nebo vytvořit nový účet na Bitwardenu."
   },
@@ -6225,6 +6789,78 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Nelze přijmout pozvánku. Požádejte správce organizace o zaslání nové pozvánky."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Nelze přijmout pozvánku"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "Již jste členem této organizace."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "E-maily odpovídající $DOMAIN$ nejsou v této organizaci povoleny.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "Nemůžete se připojit k této organizaci, protože jste již správcem volné organizace."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "Byli jste odvoláni z této organizace. Obraťte se na správce, abyste znovu získali přístup."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Uživatelé poskytovatele se nemohou připojit pomocí tohoto odkazu."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Něco se pokazilo. Prosíme, aktualizujte stránku a zkuste to znovu."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "Organizace, ve které jste již členem, jen umožňuje, aby její členové patřili do jedné organizace."
+  },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "Organizace, ve které jste již členem, jen umožňuje, aby její členové měli přístup k jednomu sdílenému trezoru."
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "Organizace, do které se snažíte vstoupit, jen umožňuje, aby její členové měli přístup k jednomu asdílenému terzoru."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "Organizace, do které se snažíte vstoupit, umožňuje svým členům být členy jen jedné organizace."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "Musíte nastavit dvoufázové přihlášení, abyste se mohli připojit k této organizaci."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "Před vstupem do organizace musíte ověřit svou e-mailovou adresu."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Něco se pokazilo. Prosíme, aktualizujte stránku a zkuste to znovu."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Vaše pozvánka nemohla být přijata, protože není k dispozici volné místo."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Něco se pokazilo. Prosíme, aktualizujte stránku a zkuste to znovu."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "Tato doména není touto organizací přijata. Zkuste jinou e-mailovou adresu."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Nelze přijmout pozvánku"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Pozvánku organizace nelze dešifrovat. Zkuste to znovu pomocí stejného prohlížeče začít a dokončit proces registrace."
+  },
+  "goToLogin": {
+    "message": "Přejít na přihlášení"
+  },
+  "goToVault": {
+    "message": "Přejít do trezoru"
   },
   "rememberEmail": {
     "message": "Zapamatovat si e-mail"
@@ -6674,6 +7310,9 @@
   "inviteLink": {
     "message": "Zvací odkaz"
   },
+  "transferAndAdd": {
+    "message": "Převést a přidat"
+  },
   "lastGenerated": {
     "message": "Naposledy vygenerováno: $DATE$",
     "placeholders": {
@@ -7014,6 +7653,10 @@
   "passwordGeneratorPolicyDescV2": {
     "message": "Vyberte sadu minimálních požadavků na hesla vytvářená uživateli."
   },
+  "passwordGeneratorPolicyDescVfo1": {
+    "message": "Nastaví požadavky pro generátor hesel.",
+    "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
+  },
   "generatedPassword": {
     "message": "Vygenerované heslo"
   },
@@ -7262,14 +7905,26 @@
   "singleOrg": {
     "message": "Jedna organizace"
   },
+  "singleOrgVfo1": {
+    "message": "Členství v jedné organizaci",
+    "description": "VFO1 terminology variant of 'singleOrg'"
+  },
   "singleOrgDesc": {
     "message": "Omezí uživatelům možnost připojit se k jiným organizacím."
   },
   "singleOrgPolicyDesc": {
     "message": "Omezí členům vstup do jiných organizací. Tato zásada je vyžadována u organizací, které povolily ověřování domény."
   },
+  "singleOrgPolicyDescVfo1": {
+    "message": "Omezí uživatelům možnost připojit se k jiným sdíleným trezorům nebo organizacím.",
+    "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
+  },
   "singleOrgPolicyDescV2": {
     "message": "Členové této organizace se nemohou stát členy jiných organizací. Stávajícím členům, kteří jsou členy jiných organizací, bude po aktivaci této zásady odebrán přístup. Tato zásada se nevztahuje na vlastníky a správce."
+  },
+  "singleOrgPolicyDescV2Vfo1": {
+    "message": "Členové se nemohou stát členy jiných organizací. Stávajícím členům, kteří jsou členy jiných organizací, bude po aktivaci této zásady odebrán přístup. Tato zásada se nevztahuje na vlastníky a správce.",
+    "description": "VFO1 terminology variant of 'singleOrgPolicyDescV2'"
   },
   "singleOrgBlockCreateMessage": {
     "message": "Vaše aktuální organizace má pravidla, která Vám nedovolují připojit se k více než jedné organizaci. Obraťte se na správce organizace nebo se zaregistrujte z jiného účtu na Bitwardenu."
@@ -7279,6 +7934,18 @@
   },
   "requireSso": {
     "message": "Vyžadovat ověření jednotného přihlášení"
+  },
+  "requireSsoVfo1": {
+    "message": "Vyžadovat SSO",
+    "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
+  },
+  "requireSsoPolicyDescListVfo1": {
+    "message": "Vyžaduje přihlášení uživatelů pomocí metody jednotného podnikového přihlášení.",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
+  },
+  "requireSsoPolicyDescV2Vfo1": {
+    "message": "Vyžaduje, aby se členové přihlašovali pomocí podnikového SSO. Tato zásada se nebude vztahovat na vlastníky a správce.",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
   },
   "requireSsoPolicyDesc": {
     "message": "Vyžaduje přihlášení uživatelů pomocí metody jednotného podnikového přihlášení."
@@ -7297,6 +7964,10 @@
   },
   "requireSsoPolicyReqV2": {
     "message": "Než tuto zásadu povolíte, musíte nejprve povolit zásadu pro jednu organizaci."
+  },
+  "requireSsoPolicyReqV2Vfo1": {
+    "message": "Než tuto zásadu povolíte, musíte nejprve povolit zásadu členství pro jednu organizaci.",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
   },
   "requireSsoPolicyReqError": {
     "message": "Jednotná pravidla organizace nebyla nastavena."
@@ -7684,8 +8355,16 @@
   "centralizeDataOwnership": {
     "message": "Centralizovat vlastnictví organizace"
   },
+  "centralizeDataOwnershipVfo1": {
+    "message": "Centralizované vlastnictví organizace",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnership'"
+  },
   "centralizeDataOwnershipDesc": {
     "message": "Všechny položky uživatele budou vlastněny a spravovány organizací. Správci a vlastníci jsou osvobozeni. "
+  },
+  "centralizeDataOwnershipDescVfo1": {
+    "message": "Bude vyžadovat, aby členové ukládali položky do organizace tím, že odeberou vlastní osobní trezor.",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Zjistěte více o centralizovaném vlastnictví",
@@ -7721,11 +8400,23 @@
   "centralizeDataOwnershipDescV2": {
     "message": "Všechny položky členů budou ve vlastnictví a správě organizace. Tato zásada se nevztahuje na vlastníky a správce. Další informace o "
   },
+  "centralizeDataOwnershipDescV3": {
+    "message": "Všechny položky členů budou ve vlastnictví a správě organizace. Tato zásada se nevztahuje na vlastníky a správce. ",
+    "description": "Replaces centralizeDataOwnershipDescV2 to avoid duplicating the 'Learn more about' text already present in the adjacent centralizeDataOwnershipContentAnchor link"
+  },
   "centralizeDataOwnershipBenefit3V2": {
     "message": "Všem uživatelům poskytněte vyhrazený prostor \"Moje položky\" pro správu jejich vlastních přihlašovacích údajů."
   },
+  "centralizeDataOwnershipBenefit3Vfo1": {
+    "message": "Všem uživatelům poskytněte vyhrazený prostor \"Moje položky\" pro správu jejich vlastních přihlašovacích údajů.",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnershipBenefit3V2'"
+  },
   "promptUsersToMoveItemsV2": {
     "message": "Vyzvat uživatele k přesunutí jejich položek trezoru do organizace"
+  },
+  "promptUsersToMoveItemsVfo1": {
+    "message": "Vyzvat uživatele k přesunutí jejich položek v trezoru do organizace",
+    "description": "VFO1 terminology variant of 'promptUsersToMoveItemsV2'"
   },
   "organizationDataOwnership": {
     "message": "Vynutit vlastnictví dat organizace"
@@ -7771,6 +8462,10 @@
     "message": "Noví uživatelé pozvaní do organizace budou automaticky potvrzeni při odemknutí zařízení správce.",
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
+  "autoConfirmDescriptionVfo1": {
+    "message": "Noví uživatelé pozvaní do trezoru organizace budou automaticky potvrzeni při odemknutí zařízení správce.",
+    "description": "VFO1 terminology variant of 'autoConfirmDescription', shown in the policies list"
+  },
   "howToTurnOnAutoConfirm": {
     "message": "Jak zapnout automatické potvrzení uživatele"
   },
@@ -7792,6 +8487,10 @@
     "message": "Noví uživatelé pozvaní do organizace budou automaticky potvrzeni při odemknutí zařízení správce. Před zapnutím této zásady zkontrolujte a odsouhlaste následující: ",
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
+  "autoConfirmPolicyEditDescriptionVfo1": {
+    "message": "Noví uživatelé pozvaní do trezoru organizace budou automaticky potvrzeni při odemknutí zařízení správce. Před zapnutím této zásady zkontrolujte a odsouhlaste následující: ",
+    "description": "VFO1 terminology variant of 'autoConfirmPolicyEditDescription'"
+  },
   "autoConfirmAcceptSecurityRiskTitle": {
     "message": "Potenciální bezpečnostní riziko. "
   },
@@ -7805,11 +8504,23 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Vyžadují se jednotné zásady organizace. "
   },
+  "autoConfirmSingleOrgRequiredVfo1": {
+    "message": "Vyžadují se jednotné zásady trezoru organizace. ",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequired'"
+  },
   "autoConfirmSingleOrgRequiredDesc": {
     "message": "Pro aktivaci této automatizace musí všichni členové patřit pouze do této organizace."
   },
+  "autoConfirmSingleOrgRequiredDescVfo1": {
+    "message": "Pro aktivaci této automatizace musí všichni členové patřit jen do trezoru této organizace.",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequiredDesc'"
+  },
   "autoConfirmSingleOrgExemption": {
     "message": "Jednotné zásady organizace se budou vztahovat na všechny role. "
+  },
+  "autoConfirmSingleOrgExemptionVfo1": {
+    "message": "Jednotné zásady trezoru organizace se budou vztahovat na všechny role. ",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgExemption'"
   },
   "autoConfirmNoEmergencyAccess": {
     "message": "Žádný nouzový přístup. "
@@ -7849,6 +8560,23 @@
   },
   "inviteLinkEventAccepted": {
     "message": "Člen $ID$ přijal pozvánku prostřednictvím odkazu pozvánky",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "inviteLinkEventConfirmEnabled": {
+    "message": "Volba \"Vyžadovat schválení správce pro odkaz na pozvánku\" je zakázána",
+    "description": "Confirmation turned on. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventConfirmDisabled": {
+    "message": "Volba \"Vyžadovat schválení správce pro odkaz na pozvánku\" je povolena",
+    "description": "Confirmation turned off. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventMemberConfirmed": {
+    "message": "Člen $ID$ byl potvrzen prostřednictvím odkazu pozvánky",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7932,6 +8660,10 @@
     "message": "Spravovat Send",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
+  "manageSendAndShareVfo1": {
+    "message": "Spravovat Send a sdílení",
+    "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
+  },
   "sendControlsPolicyDesc": {
     "message": "Nastavte volby pro vytváření a úpravu Send, včetně možnosti odebrat Send.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
@@ -7939,6 +8671,10 @@
   "sendControlsPolicyDescV4": {
     "message": "Nastavte, jak mohou členové používat Send. Tato zásada se bude vztahovat na zprávy odeslané po jejím aktivování. Správci a vlastníci jsou z této zásady vyňati.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsPolicyDescVfo1": {
+    "message": "Nastavte volby funkce Send.",
+    "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
     "message": "Volby Send",
@@ -7960,6 +8696,10 @@
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "Určete, kdy jsou přihlášení navržena pro automatické vyplňování. Správci a vlastníci jsou od těchto zásad osvobozeni."
+  },
+  "uriMatchDetectionPolicyDescVfo1": {
+    "message": "Nastavte výchozí URI shody detekce všech položek vytvořených členy.",
+    "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
   },
   "uriMatchDetectionPolicyDescV2": {
     "message": "Nastavte výchozí hodnotu, které části adresy webové stránky (URI) se musí shodovat, aby Bitwarden navrhl přihlašovací údaje pro automatické vyplnění. Toto pravidlo se nebude vztahovat na vlastníky a správce."
@@ -8374,11 +9114,19 @@
   "accountRecoveryPolicy": {
     "message": "Správa obnovení účtu"
   },
+  "accountRecoveryPolicyDescVfo1": {
+    "message": "Povolí správcům v organizaci resetovat hlavní hesla uživatelů organizace.",
+    "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
+  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "Před aktivací této zásady musí být povolena jednotná pravidla organizace."
   },
   "accountRecoveryPolicySingleOrgReqV2": {
     "message": "Než tuto zásadu povolíte, musíte nejprve povolit zásadu pro jednu organizaci."
+  },
+  "accountRecoveryPolicySingleOrgReqV2Vfo1": {
+    "message": "Než tuto zásadu povolíte, musíte nejprve povolit zásadu členství pro jednu organizaci.",
+    "description": "VFO1 terminology variant of 'accountRecoveryPolicySingleOrgReqV2'"
   },
   "accountRecoveryPolicyDescV3Part1": {
     "message": "Umožní správcům pomáhat členům s obnovením přístupu k jejich účtům, pokud jsou zaregistrováni v "
@@ -8751,6 +9499,10 @@
   "automaticAppLoginWithSSODescV2": {
     "message": "Když uživatelé spustí aplikaci z Vašeho poskytovatele identit, jejich přihlašovací údaje se automaticky vyplní a odešlou, čímž se zajistí bezpečné přihlášení jedním klepnutím."
   },
+  "automaticAppLoginWithSSODescListVfo1": {
+    "message": "Přihlašovací formuláře budou automaticky vyplněny a odeslány pro aplikace spuštěné od Vašeho nastaveného poskytovatele identity.",
+    "description": "VFO1 terminology variant of 'automaticAppLoginWithSSODescV2', shown in the policies list"
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Hostitel poskytovatele identity"
   },
@@ -8765,6 +9517,10 @@
   },
   "sessionTimeoutPolicyDescription": {
     "message": "Nastavte maximální časový limit relace pro všechny členy kromě vlastníků."
+  },
+  "sessionTimeoutPolicyDescriptionVfo1": {
+    "message": "Nastaví maximální časový limit trezoru pro všechny uživatele.",
+    "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
   },
   "maximumAllowedTimeout": {
     "message": "Maximální povolený časový limit"
@@ -8881,6 +9637,14 @@
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Neumožní členům exportovat data z jejich individuálních úložišť. Tato zásada se nevztahuje na vlastníky a správce."
   },
+  "disablePersonalVaultExportDescriptionVfo1": {
+    "message": "Neumožní členům exportovat data z jejich trtezoru. Tato zásada se nevztahuje na vlastníky a správce.",
+    "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescriptionV2'"
+  },
+  "disablePersonalVaultExportDescriptionListVfo1": {
+    "message": "Nedovolí, aby členové exportovali svá osobní data trezoru.",
+    "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescription', shown in the policies list"
+  },
   "vaultExportDisabled": {
     "message": "Export trezoru byl odebrán"
   },
@@ -8895,6 +9659,10 @@
   },
   "activateAutofillPolicyDescription": {
     "message": "Aktivuje automatické vyplnění při načítání stránky pro rozšíření prohlížeče pro všechny existující i nové členy."
+  },
+  "activateAutofillPolicyDescriptionVfo1": {
+    "message": "Automaticky vyplní přihlašovací údaje na webových stránkách a aplikacích.",
+    "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
   },
   "activateAutofillPolicyDescV2": {
     "message": "V rozšíření prohlížeče povolte nastavení automatického vyplňování při načtení stránky pro všechny stávající i nové členy. Mějte na paměti, že napadené nebo nedůvěryhodné webové stránky mohou"
@@ -9034,14 +9802,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "Sponzorované rodiny"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Výplaty pro nečleny"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "Žádné sponzorované rodiny"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "Zatím nedošlo k žádné výplatě"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Zde se zobrazí sponzorované plány rodin, které nejsou členy"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "Žádný nečlen zatím nevyužil sponzorovaný rodinný tarif."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Členové Vaší organizace mají nárok na bezplatné rodiny Bitwarden. Můžete sponzorovat zdarma rodiny Bitwarden pro zaměstnance, kteří nejsou členy Vaší organizace Bitwarden. Sponzorování nečlena vyžaduje dostupné místo ve Vaší organizaci."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Vaši členové mají nárok na využití sponzorovaného rodinného tarifu. Můžete sponzorovat rodinný tarif pro zaměstnance, kteří nejsou členy Vaší organizace Bitwarden, ale k tomu je nutné, aby ve Vaší organizaci byla k dispozici volná místa."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Pokud odeberete aktivní sponzorství, bude po datu obnovení sponzorované organizace k dispozici volný uživatel ve Vaší organizaci."
@@ -9049,17 +9829,26 @@
   "sponsoredFamiliesEligible": {
     "message": "Vy a Vaše rodina máte nárok na Bitwarden pro rodinu zdarma. Nárok můžete uplatnit Vaším osobním e-mailem, abyste zajistili bezpečnost Vašich dat, i když nejste v práci."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "Vy a vaše rodina máte nárok na program \"Sponsored Families Plan\", a to bez jakýchkoli dodatečných nákladů. Tento program si aktivujte pomocí svého osobního e-mailu, abyste zajistili bezpečnost svých dat a oddělili je od svého pracovního účtu v Bitwardenu."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Uplatněte ještě dnes svůj plán Bitwarden pro rodinu zdarma, aby byla Vaše data bezpečná, i když nejste v práci."
   },
   "sponsoredFamiliesIncludeMessage": {
     "message": "Plán Bitwarden pro rodiny zahrnuje"
   },
+  "sponsoredFamiliesIncludeMessageV2": {
+    "message": "Plán \"Bitwarden Families\" obsahuje"
+  },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Prémiový přístup až pro 6 uživatelů"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Sdílené sbírky pro členy rodiny"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Sdílené složky pro členy rodiny"
   },
   "memberFamilies": {
     "message": "Rodiny členů"
@@ -9507,7 +10296,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Bude exportován jen trezor organizace přidružený k $ORGANIZATION$.",
+    "message": "Bude exportován jen trezor přidružený k $ORGANIZATION$.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -9516,7 +10305,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Bude exportován jen trezor organizace přidružený k $ORGANIZATION$. Položky mých sbírek nebudou zahrnuty.",
+    "message": "Bude exportován jen trezor přidružený k $ORGANIZATION$. Položky mých sbírek nebudou zahrnuty.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -10671,17 +11460,29 @@
   "editGroupMembersDesc": {
     "message": "Udělí členům přístup k přiřazeným sbírkám skupiny."
   },
+  "editGroupMembersDescSharedFolders": {
+    "message": "Udělí členům přístup k přiřazeným sdíleným složkám skupiny."
+  },
   "editGroupCollectionsDesc": {
     "message": "Udělí členům přístup ke sbírkám přidáním do této skupiny."
   },
+  "editGroupSharedFoldersDesc": {
+    "message": "Udělí členům přístup ke sdíleným složkám přidáním do této skupiny."
+  },
   "restrictedCollectionAssignmentDesc": {
     "message": "Můžete přiřadit jen Vámi spravované sbírky."
+  },
+  "restrictedSharedFolderAssignmentDesc": {
+    "message": "Můžete přiřadit jen Vámi spravované sdílené složky."
   },
   "selectMembers": {
     "message": "Vybrat členy"
   },
   "selectCollections": {
     "message": "Vybrat sbírku"
+  },
+  "selectSharedFolders": {
+    "message": "Vybrat sdílené složky"
   },
   "role": {
     "message": "Role"
@@ -10710,6 +11511,9 @@
   },
   "noCollectionsAdded": {
     "message": "Nebyly přidány žádné sbírky"
+  },
+  "noSharedFoldersAdded": {
+    "message": "Nebyly přidány žádné sdílené složky"
   },
   "noMembersAdded": {
     "message": "Nebyli přidáni žádní členové"
@@ -11136,6 +11940,18 @@
   },
   "userAccessSecretsManagerGA": {
     "message": "Tento uživatel může přistupovat ke Správci tajných klíčů"
+  },
+  "privilegedControls": {
+    "message": "Privilegované ovládací prvky",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "Aktivuje přístup uživatele k privilegovaným ovládacím prvkům.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "Tento uživatel má přístup k privilegovaným ovládacím prvkům",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "important": {
     "message": "Důležité:"
@@ -11596,6 +12412,30 @@
     "message": "zařízení budou muset být schválena",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
+  "memberDecryptionOptionTdeDescVfo1Link1": {
+    "message": "Jednotný trezor organizace",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Link2": {
+    "message": "Vyžadováno SSO",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part2": {
+    "message": ",",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Part3": {
+    "message": ", a",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Link3": {
+    "message": "Správa obnovení účtu",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part4": {
+    "message": "- tyto zásady se zapnou automaticky.",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Closing text after the final policy link."
+  },
   "memberDecryptionOptionTdeDescPart2": {
     "message": "stávajícím důvěryhodným zařízením",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
@@ -11680,6 +12520,10 @@
     "message": "Aktivován přístup uživatele ke Správci tajných klíčů",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "Aktivován přístup k privilegovaným ovládacím prvkům",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "Aktivovat přístup"
   },
@@ -11687,8 +12531,16 @@
     "message": "Udělte následujícím členům přístup ke Správci tajných klíčů. Role udělená ve Správci hesel se bude vztahovat na Správce tajných klíčů.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "Udělte těmto členům přístup k privilegovaným ovládacím prvkům.",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "Aktivovat Správce tajných klíčů"
+  },
+  "activatePrivilegedControls": {
+    "message": "Aktivovat privilegované ovládací prvky",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "Fráze otisku prstu Vaší organizace",
@@ -11856,6 +12708,9 @@
   "free2PersonOrganization": {
     "message": "Zdarma a organizace do 2 osob"
   },
+  "freePlanWithSharedVault": {
+    "message": "Bezplatný plán se sdíleným trezorem"
+  },
   "unlimitedSecrets": {
     "message": "Neomezené klíče"
   },
@@ -11919,17 +12774,38 @@
   "collectionManagement": {
     "message": "Správa sbírky"
   },
+  "sharedFolderManagement": {
+    "message": "Nastavení sdílených složek"
+  },
   "collectionManagementDescription": {
     "message": "Nastaví chování sbírky pro organizaci"
+  },
+  "sharedFolderManagementDescription": {
+    "message": "Nastavte, jak se sdílené složky chovají v trezoru organizace."
+  },
+  "learnMoreAboutCollectionManagement": {
+    "message": "Další informace o sbírkách"
+  },
+  "learnMoreAboutSharedFolderManagement": {
+    "message": "Zjistěte více o sdílených složkách"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
     "message": "Povolit vlastníkům a správcům spravovat všechny sbírky a položky z konzole administrace"
   },
+  "allowAdminAccessToAllSharedFoldersDescription": {
+    "message": "Povolit vlastníkům a správcům spravovat všechny sdílené složky a položky z konzole administrace"
+  },
   "restrictCollectionCreationDescription": {
     "message": "Omezí vytváření sbírky na vlastníky a správce"
   },
+  "restrictSharedFolderCreationDescription": {
+    "message": "Omezí vytváření sdílené složky na vlastníky a správce"
+  },
   "restrictCollectionDeletionDescription": {
     "message": "Omezí vytváření sbírky na vlastníky a správce"
+  },
+  "restrictSharedFolderDeletionDescription": {
+    "message": "Omezí mazání sdílené složky na vlastníky a správce"
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "Omezit smazání položek na členy s ",
@@ -11941,6 +12817,9 @@
   },
   "updatedCollectionManagement": {
     "message": "Aktualizované nastavení správy sbírky"
+  },
+  "updatedSharedFolderManagement": {
+    "message": "Aktualizované nastavení správy sdílené složky"
   },
   "passwordManagerPlanPrice": {
     "message": "Cena předplatného Správce hesel"
@@ -12033,8 +12912,26 @@
       }
     }
   },
+  "modifiedSharedFolderManagement": {
+    "message": "Upraveno nastavení sdílené složky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionCreationEnabled": {
     "message": "Zapnuto nastavení omezení vytváření sbírky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderCreationEnabled": {
+    "message": "Zapnuto nastavení omezení vytváření sdílené složky $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12051,6 +12948,15 @@
       }
     }
   },
+  "limitSharedFolderCreationDisabled": {
+    "message": "Vypnuto nastavení omezení vytváření sdílené složky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionEnabled": {
     "message": "Zapnuto nastavení omezení mazání sbírky $ID$.",
     "placeholders": {
@@ -12060,8 +12966,26 @@
       }
     }
   },
+  "limitSharedFolderDeletionEnabled": {
+    "message": "Zapnuto nastavení omezení mazání sdílené složky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionDisabled": {
     "message": "Vypnuto nastavení omezení mazání sbírky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderDeletionDisabled": {
+    "message": "Vypnuto nastavení omezení mazání sdílené složky $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12096,6 +13020,15 @@
       }
     }
   },
+  "allowAdminAccessToAllSharedFolderItemsEnabled": {
+    "message": "Zapnuto nastavení povolení vlastníkům a správcům spravovat všechny sdílené složky a položky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "allowAdminAccessToAllCollectionItemsDisabled": {
     "message": "Vypnuto nastavení povolení vlastníkům a správcům spravovat všechny sbírky a položky $ID$.",
     "placeholders": {
@@ -12105,9 +13038,14 @@
       }
     }
   },
-  "seeDetailedInstructions": {
-    "message": "Podívejte se na podrobné pokyny na našem webu s nápovědou na",
-    "description": "This is followed a by a hyperlink to the help website."
+  "allowAdminAccessToAllSharedFolderItemsDisabled": {
+    "message": "Vypnuto nastavení povolení vlastníkům a správcům spravovat všechny sdílené složky a položky $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
   },
   "getStartedWithYourVault": {
     "message": "Začněte s Vaším trezorem"
@@ -12339,6 +13277,36 @@
     "message": "Reorganizace, prodej/nákup společnosti, posun priorit, nebo již nepotřebujeme správce hesel",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
+  "switchToAnnualAndSave": {
+    "message": "Přejděte na roční fakturaci a ušetřete $SAVINGS$ ročně",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Aktuální náklady (měsíční fakturace)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Roční fakturační náklady",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Uvedené ceny jsou bez příslušných daní. Změna vstoupí v platnost k datu Vašeho příštího prodloužení.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Přepnout na roční fakturaci",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Vaše předplatné bude při příštím datu obnovení převedeno na roční fakturaci.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
+  },
   "cancelSurveyPoorServiceLabel": {
     "message": "Špatný zákaznický servis",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
@@ -12393,14 +13361,23 @@
   "assignToCollections": {
     "message": "Přiřadit ke sbírkám"
   },
+  "addToSharedFolder": {
+    "message": "Přidat do sdílené složky"
+  },
   "assignToTheseCollections": {
     "message": "Přiřadit k těmto sbírkám"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Jen členové organizace s přístupem k těmto sbírkám budou moci vidět položku."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Jen členové trezoru s přístupem k těmto sdíleným složkám budou moci vidět položku."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Jen členové organizace s přístupem k těmto sbírkám budou moci vidět položky."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Jen členové trezoru s přístupem k těmto sdíleným složkám budou moci vidět položky."
   },
   "selectCollectionsToAssign": {
     "message": "Vyberte sbírky pro přiřazení"
@@ -12411,17 +13388,32 @@
   "successfullyAssignedCollections": {
     "message": "Sbírky byly úspěšně přiřazeny"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Sdílené složky byly úspěšně přidány"
+  },
   "itemMovedToCollection": {
     "message": "Položka byla přesunuta do sbírky"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Položka byla přidána do sdílené složky"
   },
   "itemMovedToCollections": {
     "message": "Položka byla přesunuta do sbírek"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Položka byla přidána do sdílených složek"
+  },
   "itemsMovedToCollection": {
     "message": "Položky byly přesunuty do sbírky"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Položky byly přidány do sdílené složky"
+  },
   "itemsMovedToCollections": {
     "message": "Položky byly přesunuty do sbírek"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Položky byly přidány do sdílených složek"
   },
   "itemAssignedToCollections": {
     "message": "Položka byla přiřazena do sbírek"
@@ -12450,6 +13442,9 @@
   },
   "items": {
     "message": "Položky"
+  },
+  "itemsLower": {
+    "message": "položky"
   },
   "assignedSeats": {
     "message": "Přiřazení uživatelé"
@@ -13215,6 +14210,9 @@
   "memberAccessReportPageDesc": {
     "message": "Audit přístupu členů organizace ke skupinám, sbírkám a položkám sbírek. Export CSV poskytuje podrobný rozpis pro jednotlivé členy, včetně informací o oprávněních ke sbírkám a konfiguracích účtů."
   },
+  "memberAccessReportPageDescV3": {
+    "message": "Audit přístupu členů ke skupinám, sdíleným složkám a položkám. Export CSV poskytuje podrobný rozpis pro jednotlivé členy, včetně informací o oprávněních ke sbírkám a konfiguracích účtů."
+  },
   "memberAccessReportNoCollection": {
     "message": "(Žádná sbírka)"
   },
@@ -13333,8 +14331,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 položka bude trvale převedena do vybrané organizace. Tuto položku již nebudete vlastnit."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 položka bude trvale převedena do vybraného trezoru. Tuto položku již nebudete vlastnit."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ položek bude trvale převedeno do vybrané organizace. Tyto položky již nebudete vlastnit.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ položek bude trvale převedeno do vybraného trezoru. Tyto položky již nebudete vlastnit.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -13583,6 +14593,9 @@
   "unlimitedCollections": {
     "message": "Neomezené sbírky"
   },
+  "unlimitedSharedFolders": {
+    "message": "Neomezený počet sdílených složek"
+  },
   "secureDataSharing": {
     "message": "Zabezpečené sdílení dat"
   },
@@ -13763,6 +14776,19 @@
       }
     }
   },
+  "userLeftOrganizationWithName": {
+    "message": "Uživatel $ID$ opustil trezor $ORGNAME$",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "userSelfRevokedFromOrganization": {
     "message": "Uživatel $ID$ se sám odhlásil z organizace.",
     "placeholders": {
@@ -13774,6 +14800,15 @@
   },
   "userSelfRevokedOrganizationOwnership": {
     "message": "Zrušeno z důvodu odmítnutí převodu do vlastnictví organizace."
+  },
+  "userSelfRevokedOrganizationOwnershipWithName": {
+    "message": "Zrušeno z důvodu odmítnutí převodu do vlastnictví $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ je pozastaven",
@@ -13803,13 +14838,25 @@
     "message": "Odebrat sponzorství Free Bitwarden Families"
   },
   "freeFamiliesSponsorshipPolicyTitleV2": {
-    "message": "Odenbrat sponzorovaný plán Families"
+    "message": "Odebrat sponzorovaný plán Families"
+  },
+  "freeFamiliesSponsorshipTitleVfo1": {
+    "message": "Odebrat sponzorovaný plán Families",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipPolicyTitleV2Vfo1": {
+    "message": "Odebrat sponzorovaný plán Families",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
   },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "Nedovolí, aby členové mohli prostřednictvím této organizace uplatnit Free Bitwarden Families."
   },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Neumožní členům využívat plán \"Families\", který sponzoruje Vaše organizace."
+  },
+  "freeFamiliesSponsorshipDescVfo1": {
+    "message": "Odebere možnost, aby si členové mohli uplatnit bezplatný tarif \"Families\".",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Platba bankovním účtem je dostupná jen pro zákazníky ve Spojených státech. Budete požádáni o ověření Vašeho bankovního účtu. Mikrovklad provedeme během následujících 1-2 pracovních dnů. Pro ověření bankovního účtu zadejte kód popisu výpisu z této zálohy na fakturační stránce organizace. Pokud bankovní účet neověříte, bude to mít za následek neprovedení platby a pozastavení předplatného."
@@ -13824,6 +14871,15 @@
     "message": "Nemůžete odebrat sbírky s oprávněními jen pro zobrazení: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Nemůžete odebrat sdílené složky s oprávněními jen pro zobrazení: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -14530,6 +15586,9 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden bude používat uložené přihlašovací URI k identifikaci, která ikona nebo změna adresy URL by měla být použita pro zlepšení Vašeho zážitku. Při používání této služby nejsou shromažďovány ani ukládány žádné informace."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Přidá vedle položek 3 tlačítka pro rychlé kopírování, pomocí kterých můžete zkopírovat své uživatelské jméno, heslo nebo ověřovací kód do schránky."
+  },
   "billingAddress": {
     "message": "Fakturační adresa"
   },
@@ -14783,6 +15842,9 @@
   "familiesUnlimitedCollections": {
     "message": "Neomezené rodinné sbírky"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Neomezený počet sdílených složek v rodině"
+  },
   "familiesSharedStorage": {
     "message": "Sdílené úložiště pro důležité rodinné informace"
   },
@@ -14797,6 +15859,15 @@
   },
   "limitedCollectionsV2": {
     "message": "Pro až $COUNT$ sbírek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "Až $COUNT$ sdílených složek",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -14942,8 +16013,16 @@
   "blockClaimedDomainAccountCreationDesc": {
     "message": "Zabrání uživatelům ve vytváření účtů mimo Vaši organizaci pomocí e-mailových adres z nárokovaných domén."
   },
+  "blockClaimedDomainAccountCreationDescVfo1": {
+    "message": "Zabrání vytvoření účtu pro nárokované domény.",
+    "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
+  },
   "blockClaimedDomainAccountCreationDescV2": {
     "message": "Zabrání členům v tom, aby pomocí Vaší zaregistrované domény zakládali účty Bitwarden mimo Vaši organizaci."
+  },
+  "blockClaimedDomainAccountCreationDescV2Vfo1": {
+    "message": "Zabrání členům v tom, aby pomocí Vaší zaregistrované domény zakládali účty Bitwarden mimo trezor Vaší organizace.",
+    "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Před aktivací této zásady musí být nárokována doména."
@@ -15214,6 +16293,12 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Otevřete stránku s předplatným na Vašem účtu Bitwarden a stáhněte si licenční soubor. Poté se vraťte na tuto obrazovku a nahrajte jej níže."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Otevřete stránku s předplatným na Vašem účtu Bitwarden a stáhněte si licenční soubor. Poté se vraťte na tuto obrazovku a nahrajte jej níže."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "Ve svém cloudovém prostředí se přihlaste ke svému účtu Bitwarden, otevřete stránku předplatného a stáhněte si licenční soubor. Poté se vraťte na tuto obrazovku a soubor nahrajte."
   },
   "viewAllPlans": {
     "message": "Zobraz všechny plány"
@@ -16066,6 +17151,282 @@
   },
   "copy": {
     "message": "Kopírovat"
+  },
+  "pam": {
+    "message": "PAM"
+  },
+  "pamAccessRules": {
+    "message": "Pravidla přístupu"
+  },
+  "pamAccessRuleEnabled": {
+    "message": "Povoleno"
+  },
+  "pamAccessRuleEnabledHint": {
+    "message": "Pokud je toto pravidlo vypnuto, je neaktivní a neomezuje přístup."
+  },
+  "pamAccessRuleEnable": {
+    "message": "Povolit pravidlo"
+  },
+  "pamAccessRuleDisable": {
+    "message": "Zakázat pravidlo"
+  },
+  "pamAccessRuleEnableSuccess": {
+    "message": "Přístupové pravidlo povoleno."
+  },
+  "pamAccessRuleDisableSuccess": {
+    "message": "Přístupové pravidlo zakázáno."
+  },
+  "pamAccessRuleNotFound": {
+    "message": "Přístupové pravidlo nebylo nalezeno."
+  },
+  "pamAccessRulesSubheading": {
+    "message": "Nastavte pravidla, která určují, kdo může požádat o přístup k citlivým přihlašovacím údajům, za jakých podmínek a na jak dlouho."
+  },
+  "pamAccessRuleNew": {
+    "message": "Nové pravidlo"
+  },
+  "pamAccessRuleCreateTitle": {
+    "message": "Nové pravidlo přístupu"
+  },
+  "pamAccessRuleEditTitle": {
+    "message": "Upravit pravidlo přístupu"
+  },
+  "pamAccessRuleName": {
+    "message": "Název"
+  },
+  "pamAccessRuleNamePlaceholder": {
+    "message": "např. VPN + pracovní doba"
+  },
+  "pamAccessRuleGeneralInfoHeading": {
+    "message": "Obecné informace"
+  },
+  "pamAccessRuleAccessDurationHeading": {
+    "message": "Doba trvání přístupu"
+  },
+  "pamAccessRuleOptionalConditionsHeading": {
+    "message": "Volitelné podmínky"
+  },
+  "pamAccessRuleCollectionsSelect": {
+    "message": "Vybrat sbírky"
+  },
+  "pamAccessRuleCollectionsHint": {
+    "message": "Toto pravidlo pro přístup bude platit pro všechny vybrané sbírky."
+  },
+  "pamAccessRuleCollectionsLoadError": {
+    "message": "Nelze načíst sbírky. Aktualizujte stránku a zkuste to znovu."
+  },
+  "pamAccessRuleDefaultDurationHint": {
+    "message": "Tato doba bude v žádostech o přístup předvyplněna."
+  },
+  "pamAccessRuleDescription": {
+    "message": "Popis"
+  },
+  "pamAccessRuleDefaultDuration": {
+    "message": "Výchozí doba trvání přístupu"
+  },
+  "pamAccessRuleMaxDuration": {
+    "message": "Maximální doba trvání přístupu"
+  },
+  "pamAccessRuleMaxDurationNoCap": {
+    "message": "Bez omezení"
+  },
+  "pamAccessRuleMaxDurationHint": {
+    "message": "Každý jednotlivý pronájem je omezen maximálně na tuto délku, bez ohledu na to, o co žadatel požádá."
+  },
+  "pamAccessRuleDuration15m": {
+    "message": "15 minut"
+  },
+  "pamAccessRuleDuration30m": {
+    "message": "30 minut"
+  },
+  "pamAccessRuleDuration1h": {
+    "message": "1 hodina"
+  },
+  "pamAccessRuleDuration2h": {
+    "message": "2 hodiny"
+  },
+  "pamAccessRuleDuration4h": {
+    "message": "4 hodiny"
+  },
+  "pamAccessRuleDuration8h": {
+    "message": "8 hodin"
+  },
+  "pamAccessRuleDuration24h": {
+    "message": "24 hodin"
+  },
+  "pamAccessRuleDuration7d": {
+    "message": "7 dnů"
+  },
+  "pamAccessRuleSingleActiveLease": {
+    "message": "V daném okamžiku může mít aktivní pronájem jen jeden uživatel"
+  },
+  "pamAccessRuleSingleActiveLeaseHint": {
+    "message": "Nové žádosti se zařazují do fronty, dokud neuplyne platnost aktuálního pronájmu nebo dokud nebude zrušen."
+  },
+  "pamAccessRuleAllowExtensions": {
+    "message": "Povolit prodloužení pronájmu"
+  },
+  "pamAccessRuleAllowExtensionsHint": {
+    "message": "Členové mohou prodloužit aktivní pronájem jednou bez nového schválení až do níže uvedené maximální délky."
+  },
+  "pamAccessRuleMaxExtensionLength": {
+    "message": "Maximální délka prodloužení"
+  },
+  "pamAccessRuleMaxExtensionLengthHint": {
+    "message": "Maximální doba, po kterou může běžet jedno rozšíření."
+  },
+  "pamAccessRuleConditionHumanApproval": {
+    "message": "Vyžadovat schválení"
+  },
+  "pamAccessRuleConditionIpAllowlist": {
+    "message": "Omezit pomocí IP adresy"
+  },
+  "pamAccessRuleApprovers": {
+    "message": "Schvalovatelé"
+  },
+  "pamAccessRuleApproversCollectionManagers": {
+    "message": "Správci sbírek"
+  },
+  "pamAccessRuleCreated": {
+    "message": "Přístupové pravidlo bylo vytvořeno."
+  },
+  "pamAccessRuleUpdated": {
+    "message": "Přístupové pravidlo bylo aktualizováno."
+  },
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "Smazat přístupové pravidlo?"
+  },
+  "pamAccessRuleDeleteConfirmContent": {
+    "message": "Smazat \"$NAME$\"? Všechny sbírky používající toto pravidlo budou mít zakázaný pronájem.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamNoAccessRulesYetTitle": {
+    "message": "Zatím žádná pravidla přístupu"
+  },
+  "pamNoAccessRulesYetDescription": {
+    "message": "Vytvořte pravidlo pro přidání další ochrany do citlivých sbírek."
+  },
+  "pamAccessRuleCreateCustom": {
+    "message": "Vytvořit vlastní pravidlo"
+  },
+  "pamAccessRulesStartFromTemplate": {
+    "message": "Začít ze šablony"
+  },
+  "pamAccessRuleUseTemplate": {
+    "message": "Použít šablonu"
+  },
+  "pamTemplateJustInTimeTitle": {
+    "message": "Na čas"
+  },
+  "pamTemplateJustInTimeSummary": {
+    "message": "Automaticky schváleno • Vyprší po 1h • Zaznamenáno do auditu"
+  },
+  "pamTemplateJustInTimeName": {
+    "message": "Přístup na čas"
+  },
+  "pamTemplateApprovalRequiredTitle": {
+    "message": "Vyžadováno schválení"
+  },
+  "pamTemplateApprovalRequiredSummary": {
+    "message": "Schválení člověkem • Vyžadován 1 schvalovatel • Zaznamenáno do auditu"
+  },
+  "pamTemplateApprovalRequiredName": {
+    "message": "Vyžadováno schválení"
+  },
+  "pamTemplateIpRestrictedTitle": {
+    "message": "Omezení IP"
+  },
+  "pamTemplateIpRestrictedSummary": {
+    "message": "Automaticky schváleno • Seznam povolených IP • Zaznamenáno do auditu"
+  },
+  "pamTemplateIpRestrictedName": {
+    "message": "Omezený přístup IP"
+  },
+  "pamAccessRuleCollectionsColumn": {
+    "message": "Sbírky"
+  },
+  "pamAccessRuleCollectionsNone": {
+    "message": "Nepřiřazeno"
+  },
+  "pamSearchRules": {
+    "message": "Pravidla vyhledávání"
+  },
+  "pamAccessRuleAppliesTo": {
+    "message": "Platí pro"
+  },
+  "pamAccessRuleConditionsColumn": {
+    "message": "Podmínky"
+  },
+  "pamAccessWindow": {
+    "message": "Okno přístupu"
+  },
+  "pamAccessRuleLastModified": {
+    "message": "Naposledy upraveno"
+  },
+  "pamAccessRuleConditionAutoApproved": {
+    "message": "Automaticky schváleno"
+  },
+  "pamAccessRuleConditionRequiresApproval": {
+    "message": "Vyžaduje schválení"
+  },
+  "pamAccessRuleConditionIpRestricted": {
+    "message": "Omezení IP"
+  },
+  "pamAccessRulesNoResults": {
+    "message": "Vašim filtrům neodpovídají žádná přístupová pravidla."
+  },
+  "pamAccessRuleBulkEnable": {
+    "message": "Povolit"
+  },
+  "pamAccessRuleBulkDisable": {
+    "message": "Zakázat"
+  },
+  "pamAccessRulesUpdated": {
+    "message": "Přístupová pravidla byla aktualizována."
+  },
+  "pamAccessRulesDeleted": {
+    "message": "Přístupová pravidla byla smazána."
+  },
+  "pamAccessRuleBulkDeleteConfirmTitle": {
+    "message": "Smazat přístupová pravidla?"
+  },
+  "pamAccessRuleBulkDeleteConfirmContent": {
+    "message": "$COUNT$ přístupových pravidel bude trvale smazáno. Tuto akci nelze vrátit zpět.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "accessRuleIpAllowlistHelpText": {
+    "message": "Povoleny budou jen žádosti z těchto rozsahů IP."
+  },
+  "accessRuleIpAllowlistCidrLabel": {
+    "message": "Rozsah CIDR"
+  },
+  "accessRuleIpAllowlistCidrPlaceholder": {
+    "message": "např. 10.0.0.0/8"
+  },
+  "accessRuleIpAllowlistAddRow": {
+    "message": "Přidat rozsah CIDR"
+  },
+  "accessRuleIpAllowlistRemoveRow": {
+    "message": "Odebrat rozsah CIDR"
+  },
+  "accessRuleIpAllowlistAtLeastOne": {
+    "message": "Přidat alespoň jeden rozsah CIDR."
+  },
+  "accessRuleIpAllowlistInvalidCidr": {
+    "message": "Zadejte platný rozsah CIDR."
+  },
+  "accessRuleIpAllowlistDuplicateCidr": {
+    "message": "Tento rozsah CIDR již byl přidán."
   },
   "paymentSuccessful": {
     "message": "Platba proběhla úspěšně"

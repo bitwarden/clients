@@ -23,6 +23,15 @@ function makeSshCipher(id: string, name: string, privateKey: string): CipherView
 /** Flush pending microtasks and one macrotask cycle to let async RxJS pipelines settle. */
 const flush = () => new Promise<void>((resolve) => setTimeout(resolve));
 
+/**
+ * Rejects on a macrotask rather than a microtask. A pipeline that resubscribed itself on failure
+ * would loop purely through microtasks, starving the timer queue so neither `flush` nor Jest's own
+ * timeout could ever fire — the suite would hang instead of failing. Settling on a macrotask makes
+ * each lap yield, so a runaway retry shows up as a call count instead.
+ */
+const rejectLater = (message: string) =>
+  new Promise<never>((_, reject) => setTimeout(() => reject(new Error(message))));
+
 describe("SshAgentService", () => {
   let service: SshAgentService;
 
@@ -351,12 +360,12 @@ describe("SshAgentService", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    (service as any).authorizedKeys = new Map([["cipher-abc", new Set(["local"])]]);
+    (service as any).authorizedHosts = new Map([["cipher-abc", new Set(["local"])]]);
 
     service.ngOnDestroy();
     await flush();
 
-    expect((service as any).authorizedKeys).toEqual(new Map());
+    expect((service as any).authorizedHosts).toEqual(new Map());
   });
 
   it("when server is already loaded, does not call init again on unlock", async () => {
@@ -375,24 +384,24 @@ describe("SshAgentService", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    (service as any).authorizedKeys = new Map([["cipher-abc", new Set(["local"])]]);
+    (service as any).authorizedHosts = new Map([["cipher-abc", new Set(["local"])]]);
 
     accountSubject.next({ id: "user-2" as UserId });
     await flush();
 
-    expect((service as any).authorizedKeys).toEqual(new Map());
+    expect((service as any).authorizedHosts).toEqual(new Map());
   });
 
   it("when the active account changes with feature disabled, still resets in-memory approval state", async () => {
     accountSubject.next({ id: "user-1" as UserId });
     await flush();
 
-    (service as any).authorizedKeys = new Map([["cipher-abc", new Set(["local"])]]);
+    (service as any).authorizedHosts = new Map([["cipher-abc", new Set(["local"])]]);
 
     accountSubject.next({ id: "user-2" as UserId });
     await flush();
 
-    expect((service as any).authorizedKeys).toEqual(new Map());
+    expect((service as any).authorizedHosts).toEqual(new Map());
   });
 
   it("when activeAccount$ re-emits with the same id, does not reset approval state", async () => {
@@ -401,12 +410,111 @@ describe("SshAgentService", () => {
     await flush();
 
     const seeded = new Map([["cipher-abc", new Set(["local"])]]);
-    (service as any).authorizedKeys = seeded;
+    (service as any).authorizedHosts = seeded;
 
     accountSubject.next({ id: "user-1" as UserId });
     await flush();
 
-    expect((service as any).authorizedKeys).toBe(seeded);
+    expect((service as any).authorizedHosts).toBe(seeded);
+  });
+
+  it("when a key push fails, it is attempted once and not retried in a loop", async () => {
+    mockReplace.mockImplementation(() => rejectLater("Failed to parse private key"));
+
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([makeSshCipher("c1", "Key", "pem")]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+    await flush();
+    await flush();
+
+    expect(mockReplace).toHaveBeenCalledTimes(1);
+  });
+
+  it("when key pushes keep failing, each key change is attempted exactly once", async () => {
+    mockReplace.mockImplementation(() => rejectLater("Failed to parse private key"));
+
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([makeSshCipher("c1", "Key", "pem")]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+    await flush();
+
+    cipherViewsSubject.next([makeSshCipher("c1", "Renamed", "pem")]);
+    await flush();
+    await flush();
+
+    expect(mockReplace).toHaveBeenCalledTimes(2);
+    expect(mockReplace).toHaveBeenLastCalledWith([
+      { name: "Renamed", privateKey: "pem", cipherId: "c1" },
+    ]);
+  });
+
+  it("when cipher data errors, the attempt is abandoned but the agent still stops on disable", async () => {
+    // Resolves true on a macrotask so stopAgent() reaches stop(), and so a resubscribe loop — were
+    // one reintroduced — would yield between laps rather than starving the event loop.
+    mockIsLoaded.mockImplementation(
+      () => new Promise((resolve) => setTimeout(() => resolve(true))),
+    );
+
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([makeSshCipher("c1", "Key", "pem")]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+    await flush();
+
+    mockReplace.mockClear();
+    mockIsLoaded.mockClear();
+
+    cipherViewsSubject.error(new Error("decryption failed"));
+    await flush();
+    await flush();
+
+    // The failed attempt is abandoned rather than retried: no re-entry without a state change.
+    expect(mockReplace).not.toHaveBeenCalled();
+    expect(mockIsLoaded).not.toHaveBeenCalled();
+
+    mockStop.mockClear();
+
+    // The outer subscription survives, so it still acts on state changes — without this, disabling
+    // the feature would silently leave the agent running and serving keys.
+    enabledSubject.next(false);
+    await flush();
+    await flush();
+
+    expect(mockStop).toHaveBeenCalled();
+  });
+
+  it("when stopping the agent fails, the pipeline still acts on later state changes", async () => {
+    mockIsLoaded.mockResolvedValue(true);
+    mockStop.mockImplementation(() => rejectLater("No handler registered for 'sshagent.stop'"));
+
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([makeSshCipher("c1", "Key", "pem")]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    mockStop.mockClear();
+
+    enabledSubject.next(false);
+    await flush();
+    await flush();
+
+    expect(mockStop).toHaveBeenCalledTimes(1);
+
+    mockReplace.mockClear();
+
+    // Re-enabling must still push keys. Without containment the failed stop reaches the terminal
+    // handler, so the subscription is gone and the agent never repopulates.
+    enabledSubject.next(true);
+    await flush();
+    await flush();
+
+    expect(mockReplace).toHaveBeenCalledWith([{ name: "Key", privateKey: "pem", cipherId: "c1" }]);
   });
 });
 
@@ -450,7 +558,7 @@ describe("SshAgentService – sign request authorization", () => {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: jest.fn().mockResolvedValue([makeSshCipher(CIPHER_ID, "Test Key", "pem")]),
       } as any,
-      { info: jest.fn(), error: jest.fn() } as any,
+      { info: jest.fn(), error: jest.fn(), debug: jest.fn() } as any,
       { open: mockDialogOpen } as any,
       { messages$: jest.fn().mockReturnValue(signRequestSubject.asObservable()) } as any,
       {
@@ -576,6 +684,50 @@ describe("SshAgentService – sign request authorization", () => {
     expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
+  it("RememberUntilLock: direct connections to different hosts prompt independently", async () => {
+    promptBehaviorSubject.next(SshAgentPromptType.RememberUntilLock);
+    sendSignRequest(false, "SHA256:fp-container1");
+    await flush();
+    mockDialogOpen.mockClear();
+    mockSignRequestResponse.mockClear();
+
+    // A different destination host must not inherit the first host's approval.
+    sendSignRequest(false, "SHA256:fp-container2");
+    await flush();
+
+    expect(mockDialogOpen).toHaveBeenCalledTimes(1);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
+  });
+
+  it("RememberUntilLock: direct connections to the same host are remembered", async () => {
+    promptBehaviorSubject.next(SshAgentPromptType.RememberUntilLock);
+    sendSignRequest(false, "SHA256:fp-container1");
+    await flush();
+    mockDialogOpen.mockClear();
+    mockSignRequestResponse.mockClear();
+
+    sendSignRequest(false, "SHA256:fp-container1");
+    await flush();
+
+    expect(mockDialogOpen).not.toHaveBeenCalled();
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
+  });
+
+  it("RememberUntilLock: a direct approval does not cover a forwarded request to the same host", async () => {
+    promptBehaviorSubject.next(SshAgentPromptType.RememberUntilLock);
+    sendSignRequest(false, "SHA256:fp-container1");
+    await flush();
+    mockDialogOpen.mockClear();
+    mockSignRequestResponse.mockClear();
+
+    // Same fingerprint, but forwarding is a distinct trust boundary and must re-prompt.
+    sendSignRequest(true, "SHA256:fp-container1");
+    await flush();
+
+    expect(mockDialogOpen).toHaveBeenCalledTimes(1);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
+  });
+
   it("RememberUntilLock: local approval does not cover forwarded requests", async () => {
     promptBehaviorSubject.next(SshAgentPromptType.RememberUntilLock);
 
@@ -611,7 +763,7 @@ describe("SshAgentService – sign request authorization", () => {
     expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
-  it("RememberUntilLock: authorizedKeys cleared on account switch", async () => {
+  it("RememberUntilLock: authorizedHosts cleared on account switch", async () => {
     promptBehaviorSubject.next(SshAgentPromptType.RememberUntilLock);
 
     // Approve under user-1
@@ -699,7 +851,7 @@ describe("SshAgentService – list keys request", () => {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: jest.fn().mockResolvedValue([makeSshCipher("c1", "My Key", "pem")]),
       } as any,
-      { info: jest.fn(), error: jest.fn() } as any,
+      { info: jest.fn(), error: jest.fn(), debug: jest.fn() } as any,
       { open: jest.fn() } as any,
       {
         messages$: jest
@@ -809,6 +961,16 @@ describe("SshAgentService – list keys request", () => {
       jest.useRealTimers();
     }
   });
+
+  it("when pushing keys fails, refuses the request instead of leaving the client waiting", async () => {
+    mockReplace.mockRejectedValue(new Error("Failed to parse private key"));
+
+    sendListRequest();
+    await flush();
+
+    expect(mockListRequestResponse).toHaveBeenCalledWith(LIST_REQUEST_ID, false);
+    expect(mockListRequestResponse).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("SshAgentService – concurrent sign requests", () => {
@@ -841,7 +1003,7 @@ describe("SshAgentService – concurrent sign requests", () => {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: mockGetAllDecrypted,
       } as any,
-      { info: jest.fn(), error: jest.fn() } as any,
+      { info: jest.fn(), error: jest.fn(), debug: jest.fn() } as any,
       { open: jest.fn() } as any,
       {
         messages$: jest
@@ -948,7 +1110,7 @@ describe("SshAgentService – concurrent list keys requests", () => {
         cipherViews$: jest.fn().mockReturnValue(of([])),
         getAllDecrypted: mockGetAllDecrypted,
       } as any,
-      { info: jest.fn(), error: jest.fn() } as any,
+      { info: jest.fn(), error: jest.fn(), debug: jest.fn() } as any,
       { open: jest.fn() } as any,
       {
         messages$: jest

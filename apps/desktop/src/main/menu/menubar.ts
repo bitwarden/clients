@@ -8,7 +8,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { SafeShell } from "../../platform/main/safe-shell.main";
 import { VersionMain } from "../../platform/main/version.main";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
-import { isMac } from "../../utils";
+import { isMac } from "../platform-utils.main";
 import { UpdaterMain } from "../updater.main";
 import { WindowMain } from "../window.main";
 

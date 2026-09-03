@@ -15,20 +15,32 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
-import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
+import { SetInitialPasswordRequest } from "@bitwarden/common/auth/models/request/set-initial-password.request";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
+import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordAuthenticationData,
+  MasterPasswordAuthenticationHash,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { UserKey } from "@bitwarden/common/types/key";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  DEFAULT_KDF_CONFIG,
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
+import { UnlockService } from "@bitwarden/unlock";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 
 import { WebSetInitialPasswordService } from "./web-set-initial-password.service";
@@ -41,6 +53,7 @@ describe("WebSetInitialPasswordService", () => {
   let i18nService: MockProxy<I18nService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
@@ -50,6 +63,7 @@ describe("WebSetInitialPasswordService", () => {
   let routerService: MockProxy<RouterService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
   let registerSdkService: MockProxy<RegisterSdkService>;
+  let unlockService: MockProxy<UnlockService>;
 
   beforeEach(() => {
     apiService = mock<ApiService>();
@@ -57,6 +71,7 @@ describe("WebSetInitialPasswordService", () => {
     i18nService = mock<I18nService>();
     kdfConfigService = mock<KdfConfigService>();
     keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
@@ -66,6 +81,7 @@ describe("WebSetInitialPasswordService", () => {
     routerService = mock<RouterService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
     registerSdkService = mock<RegisterSdkService>();
+    unlockService = mock<UnlockService>();
 
     sut = new WebSetInitialPasswordService(
       apiService,
@@ -73,6 +89,7 @@ describe("WebSetInitialPasswordService", () => {
       i18nService,
       kdfConfigService,
       keyService,
+      legacyCompatKeyService,
       masterPasswordApiService,
       masterPasswordService,
       organizationApiService,
@@ -82,6 +99,7 @@ describe("WebSetInitialPasswordService", () => {
       routerService,
       accountCryptographicStateService,
       registerSdkService,
+      unlockService,
     );
   });
 
@@ -111,13 +129,13 @@ describe("WebSetInitialPasswordService", () => {
 
     let userDecryptionOptions: UserDecryptionOptions;
     let userDecryptionOptionsSubject: BehaviorSubject<UserDecryptionOptions>;
-    let setPasswordRequest: SetPasswordRequest;
+    let authenticationData: MasterPasswordAuthenticationData;
+    let unlockData: MasterPasswordUnlockData;
+    let setInitialPasswordRequest: SetInitialPasswordRequest;
 
     beforeEach(() => {
       // Mock function parameters
       credentials = {
-        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
-        newServerMasterKeyHash: "newServerMasterKeyHash",
         newPasswordHint: "newPasswordHint",
         kdfConfig: DEFAULT_KDF_CONFIG,
         orgSsoIdentifier: "orgSsoIdentifier",
@@ -135,7 +153,7 @@ describe("WebSetInitialPasswordService", () => {
       masterKeyEncryptedUserKey = [userKey, userKeyEncString];
 
       keyPair = ["publicKey", new EncString("privateKey")];
-      keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
+      keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString!);
 
       userDecryptionOptions = new UserDecryptionOptions({ hasMasterPassword: true });
       userDecryptionOptionsSubject = new BehaviorSubject(userDecryptionOptions);
@@ -143,25 +161,43 @@ describe("WebSetInitialPasswordService", () => {
         userDecryptionOptionsSubject,
       );
 
-      setPasswordRequest = new SetPasswordRequest(
-        credentials.newServerMasterKeyHash,
-        masterKeyEncryptedUserKey[1].encryptedString,
+      authenticationData = {
+        salt: credentials.salt,
+        kdf: credentials.kdfConfig,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
+        authenticationData,
+      );
+
+      unlockData = {
+        salt: credentials.salt,
+        kdf: credentials.kdfConfig,
+        masterKeyWrappedUserKey: "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+      } as MasterPasswordUnlockData;
+      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(unlockData);
+
+      setInitialPasswordRequest = new SetInitialPasswordRequest(
+        authenticationData,
+        unlockData,
         credentials.newPasswordHint,
         credentials.orgSsoIdentifier,
         keysRequest,
-        credentials.kdfConfig,
       );
     });
 
     function setupMocks() {
       // Mock makeMasterKeyEncryptedUserKey() values
       keyService.userKey$.mockReturnValue(of(userKey));
-      keyService.encryptUserKeyWithMasterKey.mockResolvedValue(masterKeyEncryptedUserKey);
+      legacyCompatKeyService.encryptUserKeyWithMasterKey.mockResolvedValue(
+        masterKeyEncryptedUserKey,
+      );
 
       // Mock keyPair values
       keyService.userPrivateKey$.mockReturnValue(of(null));
       keyService.userPublicKey$.mockReturnValue(of(null));
-      keyService.makeKeyPair.mockResolvedValue(keyPair);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(keyPair);
     }
 
     describe("given the initial password was successfully set", () => {
@@ -173,7 +209,9 @@ describe("WebSetInitialPasswordService", () => {
         await sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
-        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+          setInitialPasswordRequest,
+        );
         expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
       });
 
@@ -185,7 +223,9 @@ describe("WebSetInitialPasswordService", () => {
         await sut.setInitialPassword(credentials, userType, userId);
 
         // Assert
-        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
+        expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(
+          setInitialPasswordRequest,
+        );
         expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
       });
     });
@@ -193,7 +233,7 @@ describe("WebSetInitialPasswordService", () => {
     describe("given the initial password was NOT successfully set (due to some error in setInitialPassword())", () => {
       it("should NOT call routerService.getAndClearLoginRedirectUrl()", async () => {
         // Arrange
-        credentials.newMasterKey = null; // will trigger an error in setInitialPassword()
+        credentials.newPassword = null as unknown as string; // will trigger an error in setInitialPassword()
         setupMocks();
 
         // Act
@@ -207,7 +247,7 @@ describe("WebSetInitialPasswordService", () => {
 
       it("should NOT call acceptOrganizationInviteService.clearOrganizationInvite()", async () => {
         // Arrange
-        credentials.newMasterKey = null; // will trigger an error in setInitialPassword()
+        credentials.newPassword = null as unknown as string; // will trigger an error in setInitialPassword()
         setupMocks();
 
         // Act

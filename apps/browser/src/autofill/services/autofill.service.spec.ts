@@ -48,6 +48,7 @@ import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -131,6 +132,10 @@ describe("AutofillService", () => {
 
     authService = mock<AuthService>();
     authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+
+    // fillAssistPolicy$ (feeding resolvedEnableFillAssist$) subscribes to
+    // policyService.policiesByType$; default the mock to an empty stream.
+    policyService.policiesByType$.mockReturnValue(of([]));
 
     // Initialize domainSettingsService BEFORE it's used
     domainSettingsService = new DefaultDomainSettingsService(
@@ -837,6 +842,7 @@ describe("AutofillService", () => {
           allowTotpAutofill: autofillOptions.allowTotpAutofill || false,
           autoSubmitLogin: autofillOptions.allowTotpAutofill || false,
           cipher: autofillOptions.cipher,
+          canAccessTotp: true,
           tabUrl: autofillOptions.tab.url,
           defaultUriMatch: 0,
         },
@@ -954,6 +960,33 @@ describe("AutofillService", () => {
       );
     });
 
+    it("will autofill SSH key data for a page", async () => {
+      autofillOptions.cipher.type = CipherType.SshKey;
+      autofillOptions.cipher.sshKey = mock<SshKeyView>({
+        publicKey: "ssh-ed25519 AAAApublickey",
+      });
+      autofillOptions.pageDetails[0].details.fields = [
+        createAutofillFieldMock({
+          opid: "ssh-public-key",
+          form: "validFormId",
+          elementNumber: 2,
+          tagName: "textarea",
+          placeholder: "Begins with 'ssh-rsa', 'ssh-ed25519'",
+        }),
+      ];
+      jest.spyOn(autofillService as any, "generateSshKeyFillScript");
+      jest.spyOn(eventCollectionService, "collect");
+
+      await autofillService.doAutoFill(autofillOptions);
+
+      expect(autofillService["generateSshKeyFillScript"]).toHaveBeenCalled();
+      expect(chrome.tabs.sendMessage).toHaveBeenCalled();
+      expect(eventCollectionService.collect).toHaveBeenCalledWith(
+        EventType.Cipher_ClientAutofilled,
+        autofillOptions.cipher.id,
+      );
+    });
+
     it("blocks autofill on an untrusted iframe", async () => {
       autofillOptions.allowUntrustedIframe = false;
       autofillOptions.cipher.login.matchesUri = jest.fn().mockReturnValueOnce(false);
@@ -1017,6 +1050,8 @@ describe("AutofillService", () => {
 
     it("does not return a TOTP value if the user does not have premium features", async () => {
       autofillOptions.cipher.login.totp = "totp";
+      // `mock<CipherView>` auto-stubs this to a truthy function; it is a boolean on a real cipher.
+      autofillOptions.cipher.organizationUseTotp = false;
       jest
         .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
         .mockImplementation(() => of(false));
@@ -1027,6 +1062,35 @@ describe("AutofillService", () => {
       expect(autofillService.getShouldAutoCopyTotp).not.toHaveBeenCalled();
       expect(totpService.getCode$).not.toHaveBeenCalled();
       expect(autofillResult).toEqual({ didAutofill: true });
+    });
+
+    it("leaves the passed cipher's TOTP seed intact when the user does not have premium features", async () => {
+      autofillOptions.cipher.login.totp = "totp";
+      // `mock<CipherView>` auto-stubs this to a truthy function; it is a boolean on a real cipher.
+      autofillOptions.cipher.organizationUseTotp = false;
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(false));
+
+      await autofillService.doAutoFill(autofillOptions);
+
+      expect(autofillOptions.cipher.login.totp).toBe("totp");
+    });
+
+    it("returns a TOTP value for a non-premium user when the organization uses TOTP", async () => {
+      const totpCode = "123456";
+      autofillOptions.cipher.login.totp = "totp";
+      autofillOptions.cipher.organizationUseTotp = true;
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(false));
+      jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(true);
+      totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+
+      const autofillResult = await autofillService.doAutoFill(autofillOptions);
+
+      expect(totpService.getCode$).toHaveBeenCalledWith("totp");
+      expect(autofillResult).toEqual({ didAutofill: true, totp: totpCode });
     });
 
     it("reports a fill with no TOTP if the cipher type is not for a Login", async () => {
@@ -1076,6 +1140,78 @@ describe("AutofillService", () => {
       expect(autofillService.getShouldAutoCopyTotp).toHaveBeenCalled();
       expect(totpService.getCode$).not.toHaveBeenCalled();
       expect(autofillResult).toEqual({ didAutofill: true });
+    });
+  });
+
+  describe("getTotpCopyCode", () => {
+    let cipher: CipherView;
+
+    beforeEach(() => {
+      cipher = mock<CipherView>({ type: CipherType.Login });
+      cipher.login.totp = "totp-seed";
+      cipher.organizationUseTotp = false;
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(true));
+      jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(true);
+      totpService.getCode$.mockReturnValue(of({ code: "123456", period: 30 }));
+    });
+
+    it("returns the computed TOTP code when premium and auto-copy setting are on", async () => {
+      const result = await autofillService.getTotpCopyCode(cipher);
+
+      expect(result).toBe("123456");
+      expect(totpService.getCode$).toHaveBeenCalledWith("totp-seed");
+    });
+
+    it("returns undefined when the cipher is not a Login", async () => {
+      cipher.type = CipherType.Identity;
+
+      const result = await autofillService.getTotpCopyCode(cipher);
+
+      expect(result).toBeUndefined();
+      expect(totpService.getCode$).not.toHaveBeenCalled();
+    });
+
+    it("returns undefined when the cipher has no TOTP seed", async () => {
+      cipher.login.totp = undefined;
+
+      const result = await autofillService.getTotpCopyCode(cipher);
+
+      expect(result).toBeUndefined();
+      expect(totpService.getCode$).not.toHaveBeenCalled();
+    });
+
+    it("returns undefined when auto-copy TOTP is disabled", async () => {
+      jest.spyOn(autofillService, "getShouldAutoCopyTotp").mockResolvedValue(false);
+
+      const result = await autofillService.getTotpCopyCode(cipher);
+
+      expect(result).toBeUndefined();
+      expect(totpService.getCode$).not.toHaveBeenCalled();
+    });
+
+    it("returns undefined for a non-premium user whose cipher's organization does not use TOTP", async () => {
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(false));
+      cipher.organizationUseTotp = false;
+
+      const result = await autofillService.getTotpCopyCode(cipher);
+
+      expect(result).toBeUndefined();
+      expect(totpService.getCode$).not.toHaveBeenCalled();
+    });
+
+    it("returns the code for a non-premium user when the organization uses TOTP", async () => {
+      jest
+        .spyOn(billingAccountProfileStateService, "hasPremiumFromAnySource$")
+        .mockImplementation(() => of(false));
+      cipher.organizationUseTotp = true;
+
+      const result = await autofillService.getTotpCopyCode(cipher);
+
+      expect(result).toBe("123456");
     });
   });
 
@@ -2286,6 +2422,7 @@ describe("AutofillService", () => {
         options.cipher.login.username = "username";
         options.cipher.login.password = "password";
         options.cipher.login.totp = "totp";
+        options.canAccessTotp = true;
       });
 
       it("attempts to load the password fields from hidden and read only elements if no visible password fields are found within the page details", async () => {
@@ -2473,7 +2610,7 @@ describe("AutofillService", () => {
           pageDetails.forms = undefined;
           pageDetails.fields = []; // Clear fields to start fresh
           options.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
-          options.cipher.login.totp = null; // Disable TOTP for these tests
+          options.canAccessTotp = false; // Disable TOTP for these tests
         });
 
         it("includes all password fields from the same form when filling with password generation", async () => {
@@ -2563,7 +2700,7 @@ describe("AutofillService", () => {
           pageDetails.forms = undefined;
           pageDetails.fields = []; // Clear fields to start fresh
           options.inlineMenuFillType = InlineMenuFillTypes.CurrentPasswordUpdate;
-          options.cipher.login.totp = null; // Disable TOTP for these tests
+          options.canAccessTotp = false; // Disable TOTP for these tests
         });
 
         it("includes all password fields from the same form when updating current password", async () => {
@@ -4395,6 +4532,149 @@ describe("AutofillService", () => {
           });
         });
       }
+    });
+  });
+
+  describe("generateSshKeyFillScript", () => {
+    let fillScript: AutofillScript;
+    let pageDetails: AutofillPageDetails;
+    let filledFields: { [id: string]: AutofillField };
+    let options: GenerateFillScriptOptions;
+
+    beforeEach(() => {
+      fillScript = createAutofillScriptMock({ script: [] });
+      pageDetails = createAutofillPageDetailsMock();
+      pageDetails.fields = [];
+      filledFields = {};
+      options = createGenerateFillScriptOptionsMock();
+      options.cipher.name = "My SSH key";
+      options.cipher.sshKey = mock<SshKeyView>({
+        publicKey: "ssh-ed25519 AAAApublickey comment",
+        privateKey: "private",
+        keyFingerprint: "SHA256:fingerprint",
+      });
+    });
+
+    it("returns null if an SSH key is not found within the cipher", () => {
+      options.cipher.sshKey = null;
+
+      const value = autofillService["generateSshKeyFillScript"](
+        fillScript,
+        pageDetails,
+        filledFields,
+        options,
+      );
+
+      expect(value).toBeNull();
+    });
+
+    it("fills the public key into a GitHub-shaped key textarea and the name into the title", () => {
+      const publicKeyField = createAutofillFieldMock({
+        opid: "public-key",
+        htmlName: "ssh_key[key]",
+        htmlID: "ssh_key_key",
+        tagName: "textarea",
+        placeholder: "Begins with 'ssh-rsa', 'ssh-ed25519'",
+        "label-tag": "Key",
+      });
+      const titleField = createAutofillFieldMock({
+        opid: "title",
+        htmlName: "ssh_key[title]",
+        htmlID: "ssh_key_title",
+        tagName: "input",
+        type: "text",
+        placeholder: "",
+        "label-tag": "Title",
+      });
+      pageDetails.fields = [publicKeyField, titleField];
+
+      const value = autofillService["generateSshKeyFillScript"](
+        fillScript,
+        pageDetails,
+        filledFields,
+        options,
+      );
+
+      expect(value.script).toContainEqual([
+        "fill_by_opid",
+        publicKeyField.opid,
+        "ssh-ed25519 AAAApublickey comment",
+      ]);
+      expect(value.script).toContainEqual(["fill_by_opid", titleField.opid, "My SSH key"]);
+    });
+
+    it("matches a GitLab-shaped textarea via the data-supported-algorithms attribute", () => {
+      const publicKeyField = createAutofillFieldMock({
+        opid: "public-key",
+        htmlName: "key[key]",
+        htmlID: "key_key",
+        tagName: "textarea",
+        placeholder: "",
+        "label-tag": "Key",
+        dataSetValues: 'supportedAlgorithms: ["ssh-rsa","ssh-ed25519"]',
+      });
+      pageDetails.fields = [publicKeyField];
+
+      const value = autofillService["generateSshKeyFillScript"](
+        fillScript,
+        pageDetails,
+        filledFields,
+        options,
+      );
+
+      expect(value.script).toContainEqual([
+        "fill_by_opid",
+        publicKeyField.opid,
+        "ssh-ed25519 AAAApublickey comment",
+      ]);
+    });
+
+    it("does not fill the title when no public key field is present on the page", () => {
+      const titleField = createAutofillFieldMock({
+        opid: "title",
+        htmlName: "ssh_key[title]",
+        tagName: "input",
+        type: "text",
+        placeholder: "",
+        "label-tag": "Title",
+      });
+      pageDetails.fields = [titleField];
+
+      const value = autofillService["generateSshKeyFillScript"](
+        fillScript,
+        pageDetails,
+        filledFields,
+        options,
+      );
+
+      expect(value.script).toStrictEqual([]);
+    });
+
+    it("does not fill single-line key inputs such as api_key", () => {
+      const apiKeyField = createAutofillFieldMock({
+        opid: "api-key",
+        htmlName: "api_key",
+        htmlID: "api_key",
+        tagName: "input",
+        type: "text",
+        placeholder: "",
+        "label-tag": "API key",
+        "label-left": "",
+        "label-right": "",
+        "label-top": "",
+        "label-aria": "",
+        title: "",
+      });
+      pageDetails.fields = [apiKeyField];
+
+      const value = autofillService["generateSshKeyFillScript"](
+        fillScript,
+        pageDetails,
+        filledFields,
+        options,
+      );
+
+      expect(value.script).toStrictEqual([]);
     });
   });
 

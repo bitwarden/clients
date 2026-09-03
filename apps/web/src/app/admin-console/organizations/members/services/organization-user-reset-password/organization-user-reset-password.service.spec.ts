@@ -9,8 +9,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   MasterKeyWrappedUserKey,
@@ -20,20 +18,23 @@ import {
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey, OrgKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
+  CsprngArray,
   DEFAULT_KDF_CONFIG,
+  EncryptionType,
+  EncryptService,
+  EncString,
   KdfConfig,
   KdfType,
-  KeyService,
-} from "@bitwarden/key-management";
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { OrganizationUserResetPasswordService } from "./organization-user-reset-password.service";
 
@@ -225,7 +226,12 @@ describe("OrganizationUserResetPasswordService", () => {
         expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledWith(
           orgId,
           orgUserId,
-          expect.objectContaining({ resetMasterPassword: false, resetTwoFactor: true }),
+          expect.objectContaining({
+            resetMasterPassword: false,
+            resetTwoFactor: true,
+            authenticationData: undefined,
+            unlockData: undefined,
+          }),
         );
       });
 
@@ -315,8 +321,8 @@ describe("OrganizationUserResetPasswordService", () => {
           expect.objectContaining({
             resetMasterPassword: true,
             resetTwoFactor: false,
-            newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
-            key: unlockData.masterKeyWrappedUserKey,
+            authenticationData,
+            unlockData,
           }),
         );
       });
@@ -373,8 +379,8 @@ describe("OrganizationUserResetPasswordService", () => {
           expect.objectContaining({
             resetMasterPassword: true,
             resetTwoFactor: false,
-            newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
-            key: unlockData.masterKeyWrappedUserKey,
+            authenticationData,
+            unlockData,
           }),
         );
       });
@@ -453,8 +459,8 @@ describe("OrganizationUserResetPasswordService", () => {
           expect.objectContaining({
             resetMasterPassword: true,
             resetTwoFactor: true,
-            newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
-            key: unlockData.masterKeyWrappedUserKey,
+            authenticationData,
+            unlockData,
           }),
         );
       });

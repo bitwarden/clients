@@ -21,19 +21,15 @@ import { DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { PolicyCategory } from "./pipes/policy-category";
-import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-dialog.component";
 import type { PolicyStep, PolicyStepResult } from "./policy-edit-dialogs/models";
+import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-drawer.component";
 
 /**
  * Interface for policy dialog components.
  * Any component that implements this interface can be used as a custom policy edit dialog.
  */
 export interface PolicyDialogComponent {
-  open: (
-    dialogService: DialogService,
-    config: DialogConfig<PolicyEditDialogData>,
-  ) => DialogRef<PolicyEditDialogResult>;
-  openDrawer?: (
+  openDrawer: (
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
   ) => Promise<DialogRef<PolicyEditDialogResult> | undefined>;
@@ -49,10 +45,32 @@ export abstract class BasePolicyEditDefinition {
    */
   abstract name: string;
   /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link name}, shown in the
+   * policies list when {@link FeatureFlag.VFO1Foundation} is enabled. Falls back to {@link name}
+   * when not set.
+   */
+  nameVfo1?: string;
+  /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link name} used in the
+   * drawer/dialog title. Falls back to {@link nameVfo1} when not set.
+   */
+  drawerNameVfo1?: string;
+  /**
    * i18n string for the policy description.
-   * This is shown in the list of policies and in the modal edit dialog.
+   * This is shown in the list of policies and in the policy edit drawer.
    */
   abstract description: string;
+  /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link description}, shown in
+   * the policies list when {@link FeatureFlag.VFO1Foundation} is enabled. Falls back to
+   * {@link description} when not set.
+   */
+  descriptionVfo1?: string;
+  /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link description} used in the
+   * drawer/dialog body. Falls back to {@link descriptionVfo1} when not set.
+   */
+  drawerDescriptionVfo1?: string;
 
   /**
    * The PolicyType enum that this policy represents.
@@ -86,43 +104,30 @@ export abstract class BasePolicyEditDefinition {
   showDescription: boolean = true;
 
   /**
-   * If true, the dialog header shows an On/Off badge reflecting the saved policy state
-   * and uses the policy name as the sole title (no "Edit policy" label).
-   */
-  showEnabledBadge: boolean = false;
-
-  /**
    * Optional i18n key for a warning callout rendered by {@link PolicyEditDrawerComponent}
    * above the policy form.
    */
   warningKey?: string;
+  /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link warningKey}. Falls back
+   * to {@link warningKey} when not set.
+   */
+  warningKeyVfo1?: string;
 
   /**
-   * Optional drawer-specific configuration for this policy.
-   * When set, {@link PolicyEditDrawerComponent} is used in place of the standard
-   * modal dialog, loading {@link v2.component} and rendering the drawer-specific layout.
-   * Drawer routing is gated globally by {@link FeatureFlag.PolicyDrawers} in
-   * {@link PoliciesComponent} — there is no per-policy flag.
+   * Optional i18n key for a prerequisite info callout rendered by {@link PolicyEditDrawerComponent}
+   * above the policy form.
    */
-  v2?: {
-    /** Component to render inside the drawer instead of {@link component}. */
-    component: Constructor<BasePolicyEditComponent>;
-    /** Drawer-only title. Falls back to {@link name} when not set. */
-    name?: string;
-    /** Drawer-only description. Falls back to {@link description} when not set. */
-    description?: string;
-    /**
-     * When set, overrides {@link showDescription} for the drawer only.
-     * Set to false when the v2 component renders its own description (e.g. with an inline link).
-     */
-    showDescription?: boolean;
-    /** i18n key for a prerequisite info callout rendered by {@link PolicyEditDrawerComponent} above the policy form. */
-    prerequisiteKey?: string;
-    /** URL for an optional "learn more" link inside the prerequisite callout. */
-    prerequisiteLinkHref?: string;
-    /** i18n key for the text of {@link prerequisiteLinkHref}. */
-    prerequisiteLinkTextKey?: string;
-  };
+  prerequisiteKey?: string;
+  /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link prerequisiteKey}. Falls
+   * back to {@link prerequisiteKey} when not set.
+   */
+  prerequisiteKeyVfo1?: string;
+  /** URL for an optional "learn more" link inside the prerequisite callout. */
+  prerequisiteLinkHref?: string;
+  /** i18n key for the text of {@link prerequisiteLinkHref}. */
+  prerequisiteLinkTextKey?: string;
 
   /**
    * A method that determines whether to display this policy in the Admin Console Policies page.
@@ -150,7 +155,44 @@ export abstract class BasePolicyEditDefinition {
 }
 
 /**
- * A component used to edit the policy settings in Admin Console. It is rendered inside the PolicyEditDialogComponent.
+ * Returns the [legacy, VFO1] i18n key pair for a policy's title in the policies list.
+ * Used by {@link PoliciesComponent}.
+ */
+export function policyTitleKeys(policy: BasePolicyEditDefinition): [string, string] {
+  return [policy.name, policy.nameVfo1 ?? policy.name];
+}
+
+/**
+ * Returns the [legacy, VFO1] i18n key pair for a policy's title in the drawer/dialog.
+ * Falls back to {@link policyTitleKeys} when no drawer-specific VFO1 key is set.
+ * Used by {@link PolicyEditDrawerComponent} and {@link MultiStepPolicyEditDialogComponent}.
+ */
+export function policyDrawerTitleKeys(policy: BasePolicyEditDefinition): [string, string] {
+  return [policy.name, policy.drawerNameVfo1 ?? policy.nameVfo1 ?? policy.name];
+}
+
+/**
+ * Returns the [legacy, VFO1] i18n key pair for a policy's description in the policies list.
+ * Used by {@link PoliciesComponent}.
+ */
+export function policyDescriptionKeys(policy: BasePolicyEditDefinition): [string, string] {
+  return [policy.description, policy.descriptionVfo1 ?? policy.description];
+}
+
+/**
+ * Returns the [legacy, VFO1] i18n key pair for a policy's description in the drawer/dialog body.
+ * Falls back to {@link policyDescriptionKeys} when no drawer-specific VFO1 key is set.
+ * Used by {@link PolicyEditDrawerComponent} and {@link MultiStepPolicyEditDialogComponent}.
+ */
+export function policyDrawerDescriptionKeys(policy: BasePolicyEditDefinition): [string, string] {
+  return [
+    policy.description,
+    policy.drawerDescriptionVfo1 ?? policy.descriptionVfo1 ?? policy.description,
+  ];
+}
+
+/**
+ * A component used to edit the policy settings in Admin Console. It is rendered inside the PolicyEditDrawerComponent.
  * This should contain the form controls used to edit the policy (including the Enabled checkbox) and any additional
  * warnings or callouts.
  * See existing implementations as a guide.

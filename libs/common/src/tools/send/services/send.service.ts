@@ -4,17 +4,23 @@ import { Observable, concatMap, distinctUntilChanged, firstValueFrom, map } from
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncArrayBuffer,
+  EncryptService,
+  EncString,
+  KeyGenerationService,
+  PBKDF2KdfConfig,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
-import { KeyGenerationService } from "../../../key-management/crypto";
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
-import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { SendData } from "../models/data/send.data";
@@ -53,6 +59,7 @@ export class SendService implements InternalSendServiceAbstraction {
     private stateProvider: SendStateProvider,
     private encryptService: EncryptService,
     private configService: ConfigService,
+    private sdkService: SdkService,
   ) {}
 
   async encrypt(
@@ -138,6 +145,14 @@ export class SendService implements InternalSendServiceAbstraction {
         } else {
           fileData = await this.parseFile(send, file, model.cryptoKey, userId);
         }
+      } else if (model.file.fileName) {
+        // When editing an existing File Send and using the SDK (`pm-30110-sdk-sends-api` feature flag is on)
+        // the `file.fileName` field is required for the edit to succeed (this is enforced both by the SDK and
+        // by `send-sdk-api.service` even though the server doesn't perform any edits with the field).
+        send.file.fileName = await this.encryptService.encryptString(
+          model.file.fileName,
+          model.cryptoKey,
+        );
       }
     }
 
@@ -314,7 +329,9 @@ export class SendService implements InternalSendServiceAbstraction {
 
     const req = await firstValueFrom(
       this.sends$.pipe(
-        concatMap(async (sends) => this.toRotatedKeyRequestMap(sends, originalUserKey, newUserKey)),
+        concatMap(async (sends) =>
+          this.toRotatedKeyRequestMap(sends, originalUserKey, newUserKey, userId),
+        ),
       ),
     );
     // separate return for easier debugging
@@ -325,7 +342,12 @@ export class SendService implements InternalSendServiceAbstraction {
     sends: Send[],
     originalUserKey: UserKey,
     rotateUserKey: UserKey,
-  ) {
+    userId: UserId,
+  ): Promise<SendWithIdRequest[]> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi)) {
+      return this.toRotatedKeyRequestMapSdk(sends, rotateUserKey, userId);
+    }
+
     const requests = await Promise.all(
       sends.map(async (send) => {
         // Send key is not a key but a 16 byte seed used to derive the key
@@ -335,6 +357,37 @@ export class SendService implements InternalSendServiceAbstraction {
       }),
     );
     return requests;
+  }
+
+  /**
+   * Re-wraps each send's per-item key under the new user key via the SDK, mirroring the migrated
+   * cipher path (`DefaultCipherEncryptionService.encryptCipherForRotation`). Each encrypted `Send`
+   * is decrypted to a `SendView` (the SDK's `encrypt_send_for_rotation` rotates the decrypted
+   * view), rotated, then converted back to a domain `Send` for the `SendWithIdRequest`.
+   */
+  private async toRotatedKeyRequestMapSdk(
+    sends: Send[],
+    rotateUserKey: UserKey,
+    userId: UserId,
+  ): Promise<SendWithIdRequest[]> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        concatMap(async (sdk) => {
+          using ref = sdk.take();
+          const sendsClient = ref.value.sends();
+          return await Promise.all(
+            sends.map(async (send) => {
+              const view = await send.decrypt(userId);
+              const rotated = await sendsClient.encrypt_send_for_rotation(
+                view.toSdkSendView(),
+                rotateUserKey.toBase64(),
+              );
+              return new SendWithIdRequest(Send.fromSdkSend(rotated));
+            }),
+          );
+        }),
+      ),
+    );
   }
 
   private parseFile(

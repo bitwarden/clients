@@ -1,29 +1,29 @@
 import { ipcRenderer } from "electron";
 
 import { DeviceType } from "@bitwarden/common/enums";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
 import { ForwardedIpcMessage, IpcMessage } from "@bitwarden/common/platform/ipc";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
+import {
+  allowBrowserintegrationOverride,
+  isAppImage,
+  isFlatpak,
+  isMacAppStore,
+  isSnapStore,
+  isWindowsPortable,
+  isWindowsStore,
+  EnvAccessTokenLocation,
+  accessTokenLocation,
+} from "../main/platform-utils.main";
 import {
   EncryptedMessageResponse,
   LegacyMessageWrapper,
   Message,
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
-import {
-  EnvAccessTokenLocation,
-  accessTokenLocation,
-  allowBrowserintegrationOverride,
-  featureFlagOverrideMenuEnvEnabled,
-  isAppImage,
-  isDev,
-  isFlatpak,
-  isMacAppStore,
-  isSnapStore,
-  isWindowsPortable,
-  isWindowsStore,
-} from "../utils";
+import { featureFlagOverrideMenuEnvEnabled, isDev } from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
 

@@ -10,7 +10,6 @@ import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
   AuthRequestServiceAbstraction,
-  LockService,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -23,8 +22,8 @@ import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -45,6 +44,9 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { DialogService, ToastService } from "@bitwarden/components";
 import { FeatureFlagOverrideMenuService } from "@bitwarden/dev-tools";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { LockService } from "@bitwarden/unlock";
 
 import { AppComponent } from "./app.component";
 
@@ -81,6 +83,9 @@ describe("AppComponent (desktop)", () => {
       broadcasterCallback = cb as (message: any) => Promise<void>;
     });
 
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
     const deviceTrustToastService = mock<DeviceTrustToastService>();
     deviceTrustToastService.setupListeners$ = EMPTY;
     const documentLangSetter = mock<DocumentLangSetter>();
@@ -104,6 +109,7 @@ describe("AppComponent (desktop)", () => {
           ngZone,
           mock<VaultTimeoutSettingsService>(),
           mock<KeyService>(),
+          mock<LegacyCompatKeyService>(),
           logService,
           mock<MessagingService>(),
           mock<ServerNotificationsService>(),
@@ -114,7 +120,7 @@ describe("AppComponent (desktop)", () => {
           mock<EventUploadService>(),
           mock<ModalService>(),
           mock<UserVerificationService>(),
-          mock<ConfigService>(),
+          configService,
           mock<DialogService>(),
           mock<BiometricStateService>(),
           mock<StateEventRunnerService>(),

@@ -31,7 +31,9 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { parseYearMonthExpiry } from "@bitwarden/common/autofill/utils";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
   Fido2ActiveRequestEvents,
@@ -54,6 +56,7 @@ import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-c
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
 
@@ -117,7 +120,12 @@ import {
   PasswordGenerateRequestSource,
 } from "./abstractions/overlay.background";
 
-const cardAndIdentityCipherType: CipherType[] = [CipherType.Card, CipherType.Identity];
+// Non-login cipher types that are fetched and cached for the inline menu regardless of URL match.
+const nonLoginInlineCipherType: CipherType[] = [
+  CipherType.Card,
+  CipherType.Identity,
+  CipherType.SshKey,
+];
 
 export class OverlayBackground implements OverlayBackgroundInterface {
   // Assigned as members so jest.spyOn can intercept them in tests
@@ -189,6 +197,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       ),
     getInlineMenuCardsVisibility: () => this.getInlineMenuCardsVisibility(),
     getInlineMenuIdentitiesVisibility: () => this.getInlineMenuIdentitiesVisibility(),
+    getInlineMenuSshKeysVisibility: () => this.getInlineMenuSshKeysVisibility(),
     closeAutofillInlineMenu: ({ message, sender }) =>
       void this.withSenderTab(sender, () => this.closeInlineMenu(sender, message)),
     checkAutofillInlineMenuFocused: ({ sender }) =>
@@ -265,9 +274,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private accountService: AccountService,
     private generatorHistoryService: GeneratorHistoryService,
     private generatorService: CredentialGeneratorService,
+    private configService: ConfigService,
   ) {
     this.initOverlayEventObservables();
   }
+
+  useLitInlineMenuComponents$ = this.configService.getFeatureFlag$(
+    FeatureFlag.LitInlineMenuComponents,
+  );
 
   /**
    * Sets up the extension message listeners and gets the settings for the
@@ -368,7 +382,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       .pipe(switchMap((cancelSignal) => this.triggerInlineMenuFadeIn(!!cancelSignal)))
       .subscribe();
 
-    // Dump targeting rules' cached page details when Fill Assist becomes
+    // Dump targeting rules' cached page details when fill assist becomes
     // disabled, and signal content scripts to drop their own targeting-rules
     // caches so the next page-details collection re-evaluates which strategy
     // to use (targeted vs heuristic). Only act on a `true` -> `false`
@@ -580,6 +594,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", userId, [
         CipherType.Card,
         CipherType.Identity,
+        CipherType.SshKey,
       ])
     ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
@@ -591,7 +606,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       const cipherView = cipherViews[cipherIndex];
       if (
         !this.cardAndIdentityCiphers.has(cipherView) &&
-        cardAndIdentityCipherType.includes(cipherView.type)
+        nonLoginInlineCipherType.includes(cipherView.type)
       ) {
         this.cardAndIdentityCiphers.add(cipherView);
       }
@@ -734,6 +749,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
           if (
             areKeyValuesNull(cipher.login, ["username", "password", "totp", "fido2Credentials"])
           ) {
+            continue;
+          }
+          break;
+
+        case CipherType.SshKey:
+          if (areKeyValuesNull(cipher.sshKey, ["publicKey"])) {
             continue;
           }
           break;
@@ -885,6 +906,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     if (cipher.type === CipherType.Card) {
       inlineMenuData.card = cipher.card.subTitle;
+      return inlineMenuData;
+    }
+
+    if (cipher.type === CipherType.SshKey) {
       return inlineMenuData;
     }
 
@@ -1477,13 +1502,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
     });
 
-    // A no-fill leaves nothing to copy and no use to record; the prior throw aborted here.
-    if (!result.didAutofill) {
-      return;
+    // A no-fill (or a fill with no TOTP target) doesn't imply no TOTP: some sites hide the TOTP
+    // input so the fill script can't target it. Still resolve + copy when the user explicitly
+    // chose a TOTP-bearing cipher.
+    const totpCode =
+      result.didAutofill && result.totp
+        ? result.totp
+        : await this.autofillService.getTotpCopyCode(cipher);
+    if (totpCode) {
+      this.platformUtilsService.copyToClipboard(totpCode);
     }
 
-    if (result.totp) {
-      this.platformUtilsService.copyToClipboard(result.totp);
+    if (!result.didAutofill) {
+      return;
     }
 
     this.updateLastUsedInlineMenuCipher(inlineMenuCipherId, cipher);
@@ -1946,20 +1977,25 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return {};
     }
 
-    let elementOffset = height * 0.37;
-    if (height >= 35) {
-      elementOffset = height >= 50 ? height * 0.47 : height * 0.42;
+    // Cap the height used for sizing the button so tall fields (e.g. textareas for SSH public
+    // keys) produce a button comparable to a normal single-line input rather than scaling the
+    // icon up. Typical single-line inputs are under this cap and unaffected.
+    const sizingHeight = Math.min(height, 40);
+
+    let elementOffset = sizingHeight * 0.37;
+    if (sizingHeight >= 35) {
+      elementOffset = sizingHeight >= 50 ? sizingHeight * 0.47 : sizingHeight * 0.42;
     }
 
     const fieldPaddingRight = parseInt(paddingRight ?? "", 10);
     const fieldPaddingLeft = parseInt(paddingLeft ?? "", 10);
-    const elementHeight = height - elementOffset;
+    const elementHeight = sizingHeight - elementOffset;
 
     const elementTopPosition = subFrameTopOffset + top + elementOffset / 2;
     const elementLeftPosition =
       fieldPaddingRight > fieldPaddingLeft
-        ? subFrameLeftOffset + left + width - height - (fieldPaddingRight - elementOffset + 2)
-        : subFrameLeftOffset + left + width - height + elementOffset / 2;
+        ? subFrameLeftOffset + left + width - sizingHeight - (fieldPaddingRight - elementOffset + 2)
+        : subFrameLeftOffset + left + width - sizingHeight + elementOffset / 2;
 
     const button = {
       top: Math.round(elementTopPosition),
@@ -2495,6 +2531,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
+   * Gets the inline menu's visibility setting for SSH keys from the settings service.
+   */
+  private async getInlineMenuSshKeysVisibility(): Promise<boolean> {
+    return await firstValueFrom(this.autofillSettingsService.showInlineMenuSshKeys$);
+  }
+
+  /**
    * Gets the user's authentication status from the auth service.
    */
   private async getAuthStatus() {
@@ -2763,6 +2806,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
+   * Identifies if the current add new item data is for adding a new identity.
+   */
+  private isAddingNewSshKey() {
+    return this.currentAddNewItemData?.addNewCipherType === CipherType.SshKey;
+  }
+
+  /**
    * Updates the current add new item data with the provided login data. If the
    * login data is already present, the data will be merged with the existing data.
    *
@@ -2901,6 +2951,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       login,
       card,
       identity,
+      addNewCipherType,
     });
 
     if (!cipherView) {
@@ -2944,6 +2995,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     login,
     card,
     identity,
+    addNewCipherType,
   }: OverlayAddNewItemMessage): CipherView | undefined {
     if (login && this.isAddingNewLogin()) {
       return this.buildLoginCipherView(login);
@@ -2956,6 +3008,24 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (identity && this.isAddingNewIdentity()) {
       return this.buildIdentityCipherView(identity);
     }
+
+    if (this.isAddingNewSshKey()) {
+      return this.buildSshKeyCipherView();
+    }
+  }
+
+  /**
+   * Builds a new, empty SSH key cipher view. SSH keys cannot be captured from the page, so
+   * the add/edit popout is opened with a blank item for the user to fill in.
+   */
+  private buildSshKeyCipherView() {
+    const cipherView = new CipherView();
+    cipherView.name = "";
+    cipherView.folderId = undefined;
+    cipherView.type = CipherType.SshKey;
+    cipherView.sshKey = new SshKeyView();
+
+    return cipherView;
   }
 
   /**
@@ -3462,6 +3532,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       showInlineMenuAccountCreation,
       authStatus,
       extensionOrigin,
+      useLitComponents: isInlineMenuListPort
+        ? await firstValueFrom(this.useLitInlineMenuComponents$)
+        : undefined,
     });
     if (port.sender) {
       this.updateInlineMenuPosition(

@@ -19,7 +19,6 @@ import { InitiationPath, PlanType, ProductTierType } from "@bitwarden/common/bil
 import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -28,6 +27,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { DiscountTypes } from "@bitwarden/pricing";
 import {
   AccountBillingClient,
@@ -385,6 +386,7 @@ describe("OrganizationPlansComponent", () => {
   let mockI18nService: jest.Mocked<I18nService>;
   let mockPlatformUtilsService: jest.Mocked<PlatformUtilsService>;
   let mockKeyService: jest.Mocked<KeyService>;
+  let mockLegacyCompatKeyService: jest.Mocked<LegacyCompatKeyService>;
   let mockEncryptService: jest.Mocked<EncryptService>;
   let mockRouter: jest.Mocked<Router>;
   let mockSyncService: jest.Mocked<SyncService>;
@@ -438,10 +440,13 @@ describe("OrganizationPlansComponent", () => {
     } as any;
 
     mockKeyService = {
-      makeOrgKey: jest.fn(),
-      makeKeyPair: jest.fn(),
       orgKeys$: jest.fn().mockReturnValue(of({})),
       providerKeys$: jest.fn().mockReturnValue(of({})),
+    } as any;
+
+    mockLegacyCompatKeyService = {
+      makeOrgKey: jest.fn(),
+      makeKeyPair: jest.fn(),
     } as any;
 
     mockEncryptService = {
@@ -594,6 +599,7 @@ describe("OrganizationPlansComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: KeyService, useValue: mockKeyService },
+        { provide: LegacyCompatKeyService, useValue: mockLegacyCompatKeyService },
         { provide: EncryptService, useValue: mockEncryptService },
         { provide: Router, useValue: mockRouter },
         { provide: SyncService, useValue: mockSyncService },
@@ -1062,6 +1068,24 @@ describe("OrganizationPlansComponent", () => {
 
       // Should not create organization if payment method validation fails
       expect(mockOrganizationApiService.create).not.toHaveBeenCalled();
+    });
+
+    it("shows a localized error toast when the server rejects an unresolvable tax ID", async () => {
+      patchOrganizationForm(component, {
+        name: "New Org",
+        billingEmail: "test@example.com",
+      });
+
+      mockOrganizationApiService.create.mockRejectedValue(
+        new ErrorResponse({ Message: "billingTaxIdTypeInferenceError" }, 400),
+      );
+
+      await expect(component.submit()).resolves.not.toThrow();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "billingTaxIdTypeInferenceError",
+      });
     });
 
     it("should block submission when single org policy applies", async () => {
@@ -1661,7 +1685,7 @@ describe("OrganizationPlansComponent", () => {
       const mockOrgKey = {} as any;
       const mockProviderKey = {} as any;
 
-      mockKeyService.makeOrgKey.mockResolvedValue([
+      mockLegacyCompatKeyService.makeOrgKey.mockResolvedValue([
         { encryptedString: "mock-key" },
         mockOrgKey,
       ] as any);
@@ -1670,7 +1694,7 @@ describe("OrganizationPlansComponent", () => {
         encryptedString: "mock-collection",
       } as any);
 
-      mockKeyService.makeKeyPair.mockResolvedValue([
+      mockLegacyCompatKeyService.makeKeyPair.mockResolvedValue([
         "public-key",
         { encryptedString: "private-key" },
       ] as any);
@@ -1734,7 +1758,7 @@ describe("OrganizationPlansComponent", () => {
       const mockOrgShareKey = {} as any;
       mockKeyService.orgKeys$.mockReturnValue(of({ "org-123": mockOrgShareKey }));
 
-      mockKeyService.makeKeyPair.mockResolvedValue([
+      mockLegacyCompatKeyService.makeKeyPair.mockResolvedValue([
         "public-key",
         { encryptedString: "private-key" },
       ] as any);
@@ -1776,7 +1800,7 @@ describe("OrganizationPlansComponent", () => {
         state: "CA",
       });
 
-      mockKeyService.makeOrgKey.mockResolvedValue([
+      mockLegacyCompatKeyService.makeOrgKey.mockResolvedValue([
         { encryptedString: "mock-key" },
         {} as any,
       ] as any);
@@ -1785,7 +1809,7 @@ describe("OrganizationPlansComponent", () => {
         encryptedString: "mock-collection",
       } as any);
 
-      mockKeyService.makeKeyPair.mockResolvedValue([
+      mockLegacyCompatKeyService.makeKeyPair.mockResolvedValue([
         "public-key",
         { encryptedString: "private-key" },
       ] as any);
@@ -1823,7 +1847,7 @@ describe("OrganizationPlansComponent", () => {
         state: "CA",
       });
 
-      mockKeyService.makeOrgKey.mockResolvedValue([
+      mockLegacyCompatKeyService.makeOrgKey.mockResolvedValue([
         { encryptedString: "mock-key" },
         {} as any,
       ] as any);
@@ -1832,7 +1856,7 @@ describe("OrganizationPlansComponent", () => {
         encryptedString: "mock-collection",
       } as any);
 
-      mockKeyService.makeKeyPair.mockResolvedValue([
+      mockLegacyCompatKeyService.makeKeyPair.mockResolvedValue([
         "public-key",
         { encryptedString: "private-key" },
       ] as any);
@@ -1857,7 +1881,7 @@ describe("OrganizationPlansComponent", () => {
         plan: PlanType.Free,
       });
 
-      mockKeyService.makeOrgKey.mockResolvedValue([
+      mockLegacyCompatKeyService.makeOrgKey.mockResolvedValue([
         { encryptedString: "mock-key" },
         {} as any,
       ] as any);
@@ -1866,7 +1890,7 @@ describe("OrganizationPlansComponent", () => {
         encryptedString: "mock-collection",
       } as any);
 
-      mockKeyService.makeKeyPair.mockResolvedValue([
+      mockLegacyCompatKeyService.makeKeyPair.mockResolvedValue([
         "public-key",
         { encryptedString: "private-key" },
       ] as any);
@@ -2448,7 +2472,7 @@ describe("OrganizationPlansComponent", () => {
       // Leave billing form empty
       component["billingFormGroup"].reset();
 
-      mockKeyService.makeOrgKey.mockResolvedValue([
+      mockLegacyCompatKeyService.makeOrgKey.mockResolvedValue([
         { encryptedString: "mock-key" },
         {} as any,
       ] as any);
@@ -2457,7 +2481,7 @@ describe("OrganizationPlansComponent", () => {
         encryptedString: "mock-collection",
       } as any);
 
-      mockKeyService.makeKeyPair.mockResolvedValue([
+      mockLegacyCompatKeyService.makeKeyPair.mockResolvedValue([
         "public-key",
         { encryptedString: "private-key" },
       ] as any);

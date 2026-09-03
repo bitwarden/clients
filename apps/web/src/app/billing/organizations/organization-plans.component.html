@@ -34,7 +34,7 @@
       </app-org-info>
     </bit-section>
     <bit-section>
-      <h2 bitTypography="h2">{{ "chooseYourPlan" | i18n }}</h2>
+      <h2 bitTypography="h2">{{ "chooseYourPlan" | vfo1I18n: "choosePlan" }}</h2>
       <bit-radio-group formControlName="productTier" [block]="true">
         @for (selectableProduct of selectableProducts(); track $index) {
           @let pm = selectableProduct.PasswordManager;
@@ -103,13 +103,22 @@
                         <li>{{ "addShareUnlimitedUsers" | i18n }}</li>
                       }
                       @if (pm.maxCollections) {
-                        <li>{{ "limitedCollections" | i18n: pm.maxCollections }}</li>
+                        <li>
+                          {{
+                            "limitedCollections"
+                              | vfo1I18n: "limitedSharedFolders" : pm.maxCollections
+                          }}
+                        </li>
                       }
                       @if (pm.maxAdditionalSeats) {
                         <li>{{ "addShareLimitedUsers" | i18n: pm.maxAdditionalSeats }}</li>
                       }
                       @if (!pm.maxCollections) {
-                        <li>{{ "createUnlimitedCollections" | i18n }}</li>
+                        <li>
+                          {{
+                            "createUnlimitedCollections" | vfo1I18n: "createUnlimitedSharedFolders"
+                          }}
+                        </li>
                       }
                       @if (pm.baseStorageGb) {
                         <li>{{ "gbEncryptedFileStorage" | i18n: pm.baseStorageGb + " GB" }}</li>

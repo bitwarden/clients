@@ -16,25 +16,8 @@ async function run(context) {
   const appPath = `${context.appOutDir}/${appName}.app`;
   const macBuild = context.electronPlatformName === "darwin";
   const copySafariExtension = ["darwin", "mas"].includes(context.electronPlatformName);
-  const isMasDevBuild =
-    context.electronPlatformName === "mas" && context.targets.at(0)?.name === "mas-dev";
-  const copyAutofillExtension = ["darwin"].includes(context.electronPlatformName) || isMasDevBuild;
 
   let shouldResign = false;
-
-  // cannot use extraFiles because it modifies the extensions .plist and makes it invalid
-  if (copyAutofillExtension) {
-    console.log("### Copying autofill extension");
-    const extensionPath = path.join(__dirname, "../macos/dist/autofill-extension.appex");
-    if (!fse.existsSync(extensionPath)) {
-      console.log("### Autofill extension not found - skipping");
-    } else {
-      if (!fse.existsSync(path.join(appPath, "Contents/PlugIns"))) {
-        fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
-      }
-      fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/autofill-extension.appex"));
-    }
-  }
 
   if (copySafariExtension) {
     console.log("### Copying safari extension");

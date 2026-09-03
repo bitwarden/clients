@@ -78,6 +78,11 @@ export interface GenerateFillScriptOptions {
   allowTotpAutofill: boolean;
   autoSubmitLogin: boolean;
   cipher: CipherView;
+  /**
+   * Whether the account is entitled to TOTP for this cipher. Gates filling the value only,
+   * `allowTotpAutofill` gates whether TOTP fields are identified.
+   */
+  canAccessTotp: boolean;
   tabUrl: string;
   defaultUriMatch: UriMatchStrategySetting;
   focusedFieldOpid?: string;
@@ -135,4 +140,5 @@ export abstract class AutofillService {
     tab: chrome.tabs.Tab,
     action?: string,
   ) => Promise<boolean>;
+  getTotpCopyCode!: (cipher: CipherView) => Promise<string | undefined>;
 }

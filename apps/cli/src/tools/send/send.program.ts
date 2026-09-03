@@ -115,7 +115,7 @@ export class SendProgram extends BaseProgram {
       })
       .action(async (url: string, options: OptionValues, command: Command) => {
         const cmd = new SendReceiveCommand(
-          this.serviceContainer.keyService,
+          this.serviceContainer.legacyCompatKeyService,
           this.serviceContainer.encryptService,
           this.serviceContainer.cryptoFunctionService,
           this.serviceContainer.platformUtilsService,
