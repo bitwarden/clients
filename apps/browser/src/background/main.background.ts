@@ -217,6 +217,7 @@ import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/se
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
+import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -493,6 +494,7 @@ export default class MainBackground {
   folderApiService: FolderApiServiceAbstraction;
   policyApiService: PolicyApiServiceAbstraction;
   sendApiService: SendApiServiceAbstraction;
+  sendSdkDecryptionService: SendSdkDecryptionService;
   userVerificationApiService: UserVerificationApiServiceAbstraction;
   fido2UserInterfaceService: Fido2UserInterfaceServiceAbstraction<BrowserFido2ParentWindowReference>;
   fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<BrowserFido2ParentWindowReference>;
@@ -1219,6 +1221,7 @@ export default class MainBackground {
       this.legacyCompatKeyService,
     );
 
+    this.sendSdkDecryptionService = new SendSdkDecryptionService(this.sdkService);
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
     this.sendService = new SendService(
       this.accountService,
@@ -1229,6 +1232,7 @@ export default class MainBackground {
       this.encryptService,
       this.configService,
       this.sdkService,
+      this.sendSdkDecryptionService,
     );
     const legacySendApiService = new SendApiService(
       this.apiService,
@@ -1244,6 +1248,7 @@ export default class MainBackground {
         this.sendService,
         this.accountService,
         this.logService,
+        this.sendSdkDecryptionService,
       ),
     );
 
