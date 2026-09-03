@@ -1,8 +1,11 @@
 <popup-page [hideOverflow]="showSkeletonsLoaders$ | async">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
-      @if (!vfo1Enabled() && (canCreateCipher$ | async)) {
-        <app-new-item-dropdown [initialValues]="newItemItemValues$ | async"></app-new-item-dropdown>
+      @if (!vfo1Enabled()) {
+        <app-new-item-dropdown
+          [initialValues]="newItemItemValues$ | async"
+          [canCreateCipher]="canCreateCipher$ | async"
+        ></app-new-item-dropdown>
       }
 
       <app-pop-out></app-pop-out>
