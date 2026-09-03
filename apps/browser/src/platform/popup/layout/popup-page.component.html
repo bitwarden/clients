@@ -26,7 +26,7 @@
     - one targets `.cdk-virtual-scroll-content-wrapper` (virtual content)
   -->
   <div
-    class="tw-absolute tw-inset-x-0 tw-bottom-0 tw-z-10 tw-p-4 bit-compact:tw-p-2 tw-pointer-events-none [&:has([slot=floating-action])~div:not(:has(.cdk-virtual-scroll-content-wrapper))]:!tw-pb-20 [&:has([slot=floating-action])~div_.cdk-virtual-scroll-content-wrapper]:!tw-pb-20"
+    class="tw-absolute tw-inset-x-0 tw-bottom-0 tw-z-10 tw-p-4 bit-compact:tw-p-2 tw-pointer-events-none [&:has([slot=floating-action])~div:not(:has(cdk-virtual-scroll-viewport))]:!tw-pb-20 [&:has([slot=floating-action])~div_cdk-virtual-scroll-viewport>div]:!tw-pb-20"
     [class.tw-invisible]="loading()"
   >
     <div class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-justify-end [&>*]:tw-pointer-events-auto">
