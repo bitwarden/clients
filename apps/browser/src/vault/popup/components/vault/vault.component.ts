@@ -19,6 +19,7 @@ import {
   withLatestFrom,
 } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType, PremiumUpsellService } from "@bitwarden/angular/vault";
@@ -83,6 +84,7 @@ import {
 import { AppVaultFabComponent } from "./vault-fab/vault-fab.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultPopupListTableComponent } from "./vault-popup-list-table/vault-popup-list-table.component";
+
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
@@ -223,6 +225,13 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   protected popupListFiltersValues = this.vaultPopupListTableFiltersService.cachedFilters;
 
+  protected organizations$ = this.activeUserId$.pipe(
+    switchMap((userId) => this.organizationService.memberOrganizations$(userId)),
+  );
+  protected collections$ = this.activeUserId$.pipe(
+    switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+  );
+
   /**
    * Whether a new cipher can be created in the currently selected organization.
    * `false` when the target organization is suspended, since items cannot be saved to it.
@@ -274,6 +283,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private organizationService: InternalOrganizationServiceAbstraction,
     private premiumUpsellService: PremiumUpsellService,
     private scrollLayoutService: ScrollLayoutService,
+    private collectionService: CollectionService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,

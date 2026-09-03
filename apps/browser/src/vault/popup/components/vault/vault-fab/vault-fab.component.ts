@@ -5,13 +5,20 @@ import { Router, RouterLink } from "@angular/router";
 import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { BitwardenIcon, DialogService, IconModule, MenuModule } from "@bitwarden/components";
-import { AddEditFolderDialogComponent, VaultFabComponent } from "@bitwarden/vault";
+import {
+  AddEditFolderDialogComponent,
+  MY_VAULT,
+  NO_FOLDER,
+  VaultFabComponent,
+} from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
@@ -31,6 +38,12 @@ export interface FabNewItemInitialValues {
 })
 export class AppVaultFabComponent {
   readonly initialValues = input<FabNewItemInitialValues>();
+
+  /** Organizations available to the user */
+  readonly organizations = input<Organization[]>([]);
+
+  /** Collections available to the user */
+  readonly collections = input<CollectionView[]>([]);
 
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
 
@@ -94,20 +107,57 @@ export class AppVaultFabComponent {
   }
 
   private getInitialValues() {
-    // Vaults can have multiple values, when that occurs do not prefill the value.
-    const onlyOneVault = (this.initialValues()?.organizationIds?.length ?? 0) === 1;
-    const organizationId = onlyOneVault ? this.initialValues()?.organizationIds?.[0] : undefined;
-    const collectionIds = onlyOneVault ? this.initialValues()?.collectionIds : undefined;
+    // MY_VAULT is a sentinel for personal ownership — not a real org ID.
+    // Keep the raw list to distinguish "no filter active" from "My Vault selected".
+    const rawOrganizationIds = this.initialValues()?.organizationIds ?? [];
+    const organizationIds = rawOrganizationIds.filter((id) => id !== MY_VAULT);
 
-    const folderId =
-      (this.initialValues()?.folderIds?.length ?? 0) === 1
-        ? this.initialValues()?.folderIds?.[0]
-        : undefined;
+    const onlyOneOrg = organizationIds.length === 1;
+    let organizationId = onlyOneOrg ? organizationIds[0] : undefined;
+
+    // NO_FOLDER is a sentinel for "items with no folder" — not a real folder ID.
+    const folderIds = this.initialValues()?.folderIds?.filter((id) => id !== NO_FOLDER) ?? [];
+    const folderId = folderIds.length === 1 ? folderIds[0] : undefined;
+
+    let collectionIds = this.initialValues()?.collectionIds ?? [];
+
+    if (organizationId) {
+      // Org is known — verify all selected collections belong to it.
+      const allBelongToOrg = collectionIds.every((id) =>
+        this.collections().some(
+          (collection) => collection.id === id && collection.organizationId === organizationId,
+        ),
+      );
+      if (!allBelongToOrg) {
+        collectionIds = [];
+      }
+    } else if (rawOrganizationIds.length === 0 && collectionIds.length > 0) {
+      // No org filter active — try to infer org from the selected collections.
+      // All collections must share the same org for the inference to be unambiguous.
+      const startingOrgId = this.collections().find((c) =>
+        collectionIds.includes(c.id),
+      )?.organizationId;
+
+      const allSameOrg =
+        startingOrgId != null &&
+        collectionIds.every((id) =>
+          this.collections().some((c) => c.id === id && c.organizationId === startingOrgId),
+        );
+
+      if (allSameOrg) {
+        organizationId = this.organizations().find((o) => o.id === startingOrgId)?.id;
+      } else {
+        collectionIds = [];
+      }
+    } else {
+      // Multiple orgs or MY_VAULT selected — can't logically determine the correct org, clear collections.
+      collectionIds = [];
+    }
 
     return {
-      organizationId: organizationId as unknown as string,
-      collectionIds: collectionIds?.join(","),
-      folderId: folderId,
+      organizationId,
+      collectionIds: collectionIds.length ? collectionIds.join(",") : undefined,
+      folderId,
     };
   }
 }

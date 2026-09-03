@@ -6,18 +6,33 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { DialogService, IconModule, MenuModule } from "@bitwarden/components";
-import { AddEditFolderDialogComponent, VaultFabComponent } from "@bitwarden/vault";
+import {
+  AddEditFolderDialogComponent,
+  MY_VAULT,
+  NO_FOLDER,
+  VaultFabComponent,
+} from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 
 import { AppVaultFabComponent, FabNewItemInitialValues } from "./vault-fab.component";
+
+const mockOrganizations = [{ id: "org-1" } as Organization, { id: "org-2" } as Organization];
+
+const mockCollections = [
+  { id: "col-1", organizationId: "org-1" } as CollectionView,
+  { id: "col-2", organizationId: "org-1" } as CollectionView,
+  { id: "col-3", organizationId: "org-2" } as CollectionView,
+];
 
 describe("AppVaultFabComponent", () => {
   let fixture: ComponentFixture<AppVaultFabComponent>;
@@ -68,8 +83,9 @@ describe("AppVaultFabComponent", () => {
 
     fixture = TestBed.createComponent(AppVaultFabComponent);
     component = fixture.componentInstance;
-    // Provide a default initialValues so getInitialValues() doesn't throw on render.
     fixture.componentRef.setInput("initialValues", {});
+    fixture.componentRef.setInput("organizations", mockOrganizations);
+    fixture.componentRef.setInput("collections", mockCollections);
     router = TestBed.inject(Router);
     jest.spyOn(router, "navigate").mockResolvedValue(true);
     fixture.detectChanges();
@@ -136,6 +152,67 @@ describe("AppVaultFabComponent", () => {
       expect(params.folderId).toBeUndefined();
     });
 
+    it("strips MY_VAULT sentinel and treats it as no org filter", () => {
+      fixture.componentRef.setInput("initialValues", {
+        organizationIds: [MY_VAULT],
+        collectionIds: ["col-1"],
+      });
+
+      const params = component["buildQueryParams"](CipherType.Card);
+
+      expect(params.organizationId).toBeUndefined();
+      expect(params.collectionIds).toBeUndefined();
+    });
+
+    it("strips NO_FOLDER sentinel and treats it as no folder filter", () => {
+      fixture.componentRef.setInput("initialValues", {
+        folderIds: [NO_FOLDER],
+        organizationIds: ["org-1"],
+      });
+
+      const params = component["buildQueryParams"](CipherType.Card);
+
+      expect(params.folderId).toBeUndefined();
+    });
+
+    it("clears collections when they do not all belong to the selected org", () => {
+      fixture.componentRef.setInput("initialValues", {
+        organizationIds: ["org-1"],
+        // col-3 belongs to org-2, not org-1
+        collectionIds: ["col-1", "col-3"],
+      });
+
+      const params = component["buildQueryParams"](CipherType.Card);
+
+      expect(params.organizationId).toBe("org-1");
+      expect(params.collectionIds).toBeUndefined();
+    });
+
+    it("infers org from collections when no org filter is active", () => {
+      fixture.componentRef.setInput("initialValues", {
+        organizationIds: [],
+        collectionIds: ["col-1", "col-2"], // both belong to org-1
+      });
+
+      const params = component["buildQueryParams"](CipherType.Card);
+
+      expect(params.organizationId).toBe("org-1");
+      expect(params.collectionIds).toBe("col-1,col-2");
+    });
+
+    it("clears collections when they span multiple orgs and no org filter is active", () => {
+      fixture.componentRef.setInput("initialValues", {
+        organizationIds: [],
+        // col-1 is org-1, col-3 is org-2
+        collectionIds: ["col-1", "col-3"],
+      });
+
+      const params = component["buildQueryParams"](CipherType.Card);
+
+      expect(params.organizationId).toBeUndefined();
+      expect(params.collectionIds).toBeUndefined();
+    });
+
     it("omits prefillNameAndURIFromTab for Login when tab is not available", () => {
       component["tab"] = undefined;
       fixture.componentRef.setInput("initialValues", {});
@@ -167,15 +244,15 @@ describe("AppVaultFabComponent", () => {
     it("navigates to /new-item with prefilled values from a single org/folder", () => {
       const navigate = jest.spyOn(router, "navigate").mockResolvedValue(true);
       fixture.componentRef.setInput("initialValues", {
-        folderIds: ["f1"],
-        organizationIds: ["o1"],
-        collectionIds: ["c1"],
+        folderIds: ["folder-1"],
+        organizationIds: ["org-1"],
+        collectionIds: ["col-1"],
       });
 
       component["navigateToNewItemPage"]();
 
       expect(navigate).toHaveBeenCalledWith(["/new-item"], {
-        queryParams: { folderId: "f1", organizationId: "o1", collectionIds: "c1" },
+        queryParams: { folderId: "folder-1", organizationId: "org-1", collectionIds: "col-1" },
       });
     });
 
@@ -193,22 +270,22 @@ describe("AppVaultFabComponent", () => {
     it("omits org and collections when multiple orgs are selected", () => {
       const navigate = jest.spyOn(router, "navigate").mockResolvedValue(true);
       fixture.componentRef.setInput("initialValues", {
-        organizationIds: ["o1", "o2"],
-        collectionIds: ["c1"],
-        folderIds: ["f1"],
+        organizationIds: ["org-1", "org-2"],
+        collectionIds: ["col-1"],
+        folderIds: ["folder-1"],
       });
 
       component["navigateToNewItemPage"]();
 
       expect(navigate).toHaveBeenCalledWith(["/new-item"], {
-        queryParams: { folderId: "f1", organizationId: undefined, collectionIds: undefined },
+        queryParams: { folderId: "folder-1", organizationId: undefined, collectionIds: undefined },
       });
     });
 
     it("omits folder when multiple folders are selected", () => {
       const navigate = jest.spyOn(router, "navigate").mockResolvedValue(true);
       fixture.componentRef.setInput("initialValues", {
-        folderIds: ["f1", "f2"],
+        folderIds: ["folder-1", "folder-2"],
       });
 
       component["navigateToNewItemPage"]();
