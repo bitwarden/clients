@@ -627,12 +627,12 @@ describe("DefaultSyncService", () => {
         );
       });
 
-      it("does not call newPolicyService.replace when both policiesNew and policies are absent", async () => {
+      it("clears policiesNew state when the response contains no policies", async () => {
         apiService.getSync.mockResolvedValue(emptySyncResponse);
 
         await sut.fullSync(true);
 
-        expect(newPolicyService.replace).not.toHaveBeenCalled();
+        expect(newPolicyService.replace).toHaveBeenCalledWith({}, user1);
       });
 
       it("calls newPolicyService.replace when policiesNew is present in the response", async () => {
