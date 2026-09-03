@@ -159,7 +159,7 @@ export class HealthRiskCategoryDetailComponent {
     toObservable(computed(() => (this.invalidCategory() ? undefined : this.userId())))
       .pipe(
         filterOutNullish(),
-        switchMap((userId) => this.healthScanService.ensureScan$(userId)),
+        switchMap((userId) => this.healthScanService.keepReportCurrent$(userId)),
         takeUntilDestroyed(),
       )
       .subscribe();

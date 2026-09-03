@@ -477,38 +477,47 @@ describe("HealthComponent", () => {
       expect(overview()).toBeNull();
     });
 
-    it("rescans on every load, even when the service already has a report for this user", async () => {
-      // PM-39223: the scan runs on every Health Tab load with no caching. The
-      // popup rebuilds this component on each navigation to Health (including
-      // returning from a category detail, a sibling /health/:category route), so
-      // a fresh build runs even when a prior report is already published.
+    it("reuses a report the service already holds for this user, with no second scan", async () => {
+      // The popup rebuilds this component on each navigation to Health, including
+      // returning from a category detail (a sibling /health/:category route) that
+      // ran its own scan. Scanning again repeats every breach lookup and replaces
+      // results the user was reading a moment ago with the progress view.
       hasRunScan$.next(true);
       published.next({
         userId,
         status: VaultHealthReportStatus.Success,
         report: new VaultHealthReportView({ totalCount: 10, atRiskCount: 2 }),
       });
-      publishesOnBuild(new VaultHealthReportView({ totalCount: 10, atRiskCount: 3 }));
 
       await initComponent();
-      await settle();
+      await settleRefresh();
 
-      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
-      expect(overview()?.report().atRiskCount).toBe(3);
+      expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
+      expect(overview()?.report().atRiskCount).toBe(2);
+      expect(scanning()).toBeNull();
+      // Reusing the scan is not a reason to stop following the vault.
+      expect(reportService.refreshVaultHealthReport).toHaveBeenCalled();
     });
 
-    it("starts a fresh scan on load even if one was already in flight", async () => {
-      // There is no in-flight reuse guard anymore: every load runs its own scan.
-      // A prior build left mid-flight (the component was destroyed on nav-away)
-      // does not stop the new load from starting its own.
+    it("follows a scan already in flight rather than starting a second", async () => {
+      // Leaving a category detail while its scan is still running lands here
+      // mid-flight. That scan publishes on its own, so a second one would only
+      // duplicate the breach lookups and discard the progress already made.
       hasRunScan$.next(true);
       published.next({ userId, status: VaultHealthReportStatus.Loading, report: null });
-      publishesOnBuild(new VaultHealthReportView({ totalCount: 8, atRiskCount: 1 }));
 
       await initComponent();
+      await settleRefresh();
+      expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
+      expect(scanning()).not.toBeNull();
+
+      published.next({
+        userId,
+        status: VaultHealthReportStatus.Success,
+        report: new VaultHealthReportView({ totalCount: 8, atRiskCount: 1 }),
+      });
       await settle();
 
-      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
       expect(overview()?.report().atRiskCount).toBe(1);
     });
 
@@ -653,26 +662,6 @@ describe("HealthComponent", () => {
 
       expect(scanError()).toBeNull();
       expect(overview()).not.toBeNull();
-    });
-
-    it("shows the progress view on load while the rescan runs, not the report the service still holds", async () => {
-      // PM-39223 rescans on every load. The component asks the service to show
-      // progress immediately (markScanning), so while the rescan runs the tab
-      // shows the progress view rather than the report the service still holds
-      // from the last scan.
-      hasRunScan$.next(true);
-      published.next({
-        userId,
-        status: VaultHealthReportStatus.Success,
-        report: new VaultHealthReportView({ totalCount: 10, atRiskCount: 4 }),
-      });
-      buildNeverSettles();
-
-      await initComponent();
-      await settle();
-
-      expect(scanning()).not.toBeNull();
-      expect(overview()).toBeNull();
     });
   });
 
