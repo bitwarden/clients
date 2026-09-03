@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { html, TemplateResult } from "lit";
+import { html, nothing, TemplateResult } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
@@ -62,7 +62,7 @@ export function InlineMenuAction({
                   ${icon({ theme, color: themes[theme].primary["600"] })}
                 </span>
               `
-            : null
+            : nothing
         }
         <span>${actionText}</span>
       </button>
