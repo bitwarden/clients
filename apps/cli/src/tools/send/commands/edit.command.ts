@@ -6,6 +6,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -23,6 +24,7 @@ export class SendEditCommand {
     private sendApiService: SendApiService,
     private accountProfileService: BillingAccountProfileStateService,
     private accountService: AccountService,
+    private sendDecryptionService: SendDecryptionService,
   ) {}
 
   async run(requestJson: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -102,7 +104,7 @@ export class SendEditCommand {
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    let sendView = await send.decrypt(activeUserId);
+    let sendView = await this.sendDecryptionService.decryptSend(send, activeUserId);
     sendView = SendResponse.toView(req, sendView);
 
     try {

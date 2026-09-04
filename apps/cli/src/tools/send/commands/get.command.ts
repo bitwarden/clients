@@ -9,6 +9,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { isGuid } from "@bitwarden/guid";
@@ -27,6 +28,7 @@ export class SendGetCommand extends DownloadCommand {
     encryptService: EncryptService,
     apiService: ApiService,
     private accountService: AccountService,
+    private sendDecryptionService: SendDecryptionService,
   ) {
     super(encryptService, apiService);
   }
@@ -80,7 +82,7 @@ export class SendGetCommand extends DownloadCommand {
     if (isGuid(id)) {
       const send = await this.sendService.getFromState(id);
       if (send != null) {
-        return await send.decrypt(activeUserId);
+        return await this.sendDecryptionService.decryptSend(send, activeUserId);
       }
     } else if (id.trim() !== "") {
       let sends = await this.sendService.getAllDecryptedFromState(activeUserId);

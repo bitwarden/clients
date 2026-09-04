@@ -30,7 +30,7 @@ export const SEND_TYPE_TO_SDK: Record<SendType, SdkSendType> = {
   [SendType.Item]: SdkSendType.Item,
 };
 
-const SEND_TYPE_FROM_SDK: Record<SdkSendType, SendType> = {
+export const SEND_TYPE_FROM_SDK: Record<SdkSendType, SendType> = {
   [SdkSendType.Text]: SendType.Text,
   [SdkSendType.File]: SendType.File,
   [SdkSendType.Item]: SendType.Item,
@@ -42,7 +42,7 @@ export const AUTH_TYPE_TO_SDK: Record<AuthType, SdkAuthType> = {
   [AuthType.None]: SdkAuthType.None,
 };
 
-const AUTH_TYPE_FROM_SDK: Record<SdkAuthType, AuthType> = {
+export const AUTH_TYPE_FROM_SDK: Record<SdkAuthType, AuthType> = {
   [SdkAuthType.Email]: AuthType.Email,
   [SdkAuthType.Password]: AuthType.Password,
   [SdkAuthType.None]: AuthType.None,
