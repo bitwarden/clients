@@ -25,6 +25,7 @@
     [defaultCollectionId]="defaultCollectionId()"
     [hasMultipleVaults]="hasMultipleVaults()"
     (selectedChange)="handleSelectionChange($event)"
+    id="vault-list-table_empty-new-cipher-menu"
   >
     @if (showAddCipherBtn()) {
       <vault-new-cipher-menu
@@ -59,7 +60,6 @@
           (cipherAdded)="onAddCipher.emit($event)"
           (folderAdded)="onAddFolder.emit()"
           (onAddItemDialog)="onAddItemDialog.emit()"
-          id="'vault-list-table_empty-new-cipher-menu'"
         />
       </div>
     }
