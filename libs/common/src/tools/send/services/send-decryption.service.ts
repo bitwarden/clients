@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
@@ -30,17 +30,22 @@ export class SendDecryptionService {
   async decryptSend(send: Send, userId: UserId): Promise<SendView> {
     const useSdkForSends = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
     if (useSdkForSends) {
-      const sdk = await firstValueFrom(this.sdkService.userClient$(userId));
-      if (!sdk) {
-        throw new Error("SDK not available");
-      }
-      using ref = sdk.take();
-      const sendsClient = ref.value.sends();
-      const sdkSendView = sendsClient.decrypt_send(send.toSdkSend());
-      const sendView = SendView.fromSdkSendView(sdkSendView);
-      const decKey = await this.legacyCompatKeyService.makeSendKey(sendView.key);
-      sendView.cryptoKey = decKey;
-      return sendView;
+      return await firstValueFrom(
+        this.sdkService.userClient$(userId).pipe(
+          switchMap(async (sdk) => {
+            if (!sdk) {
+              throw new Error("SDK not available");
+            }
+            using ref = sdk.take();
+            const sendsClient = ref.value.sends();
+            const sdkSendView = sendsClient.decrypt_send(send.toSdkSend());
+            const sendView = SendView.fromSdkSendView(sdkSendView);
+            const decKey = await this.legacyCompatKeyService.makeSendKey(sendView.key);
+            sendView.cryptoKey = decKey;
+            return sendView;
+          }),
+        ),
+      );
     } else {
       return send.decrypt(userId);
     }
@@ -49,19 +54,24 @@ export class SendDecryptionService {
   async decryptSends(sends: Send[], userId: UserId): Promise<SendView[]> {
     const useSdkForSends = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
     if (useSdkForSends) {
-      const sdk = await firstValueFrom(this.sdkService.userClient$(userId));
-      if (!sdk) {
-        throw new Error("SDK not available");
-      }
-      using ref = sdk.take();
-      const sendsClient = ref.value.sends();
-      const sendViews = sends.map((s) =>
-        SendView.fromSdkSendView(sendsClient.decrypt_send(s.toSdkSend())),
+      return await firstValueFrom(
+        this.sdkService.userClient$(userId).pipe(
+          switchMap(async (sdk) => {
+            if (!sdk) {
+              throw new Error("SDK not available");
+            }
+            using ref = sdk.take();
+            const sendsClient = ref.value.sends();
+            const sendViews = sends.map((s) =>
+              SendView.fromSdkSendView(sendsClient.decrypt_send(s.toSdkSend())),
+            );
+            for (const s of sendViews) {
+              s.cryptoKey = await this.legacyCompatKeyService.makeSendKey(s.key);
+            }
+            return sendViews;
+          }),
+        ),
       );
-      for (const s of sendViews) {
-        s.cryptoKey = await this.legacyCompatKeyService.makeSendKey(s.key);
-      }
-      return sendViews;
     } else {
       return Promise.all(sends.map((s) => s.decrypt(userId)));
     }

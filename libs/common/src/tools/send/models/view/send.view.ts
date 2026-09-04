@@ -5,8 +5,7 @@ import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { SendId as SdkSendId, SendView as SdkSendView } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../../models/view/view";
-import { uuidAsString } from "../../../../platform/abstractions/sdk/register-sdk.service";
-import { asUuid } from "../../../../platform/abstractions/sdk/sdk.service";
+import { asUuid, uuidAsString } from "../../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../../platform/misc/utils";
 import { DeepJsonify } from "../../../../types/deep-jsonify";
 import { AuthType } from "../../types/auth-type";

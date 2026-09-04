@@ -155,7 +155,7 @@ describe("SendDecryptionService", () => {
       configService.getFeatureFlag.mockResolvedValue(true);
       (sdkService.userClient$ as jest.Mock).mockReturnValue(of(null));
 
-      await expect(service.decryptSend(new Send(), mockUserId)).rejects.toThrow(
+      await expect(service.decryptSends([new Send()], mockUserId)).rejects.toThrow(
         "SDK not available",
       );
     });
