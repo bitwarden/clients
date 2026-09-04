@@ -29,13 +29,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import {
-  AccessConnector,
-  AccessConnectorId,
-  DaemonStatus,
-  TargetSystemId,
-  TargetSystem,
-} from "../rotation";
+import { AccessConnectorId, DaemonStatus, TargetSystemId, TargetSystem } from "../rotation";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { RowBusyTracker } from "../row-busy-tracker";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
@@ -195,11 +189,11 @@ export class DaemonsTabComponent {
     });
 
   protected readonly unassign = (
-    daemon: AccessConnector,
+    row: DaemonRow,
     targetSystemId: string,
     targetName: string,
   ): Promise<void> =>
-    this.busyRows.run(daemon.id, async () => {
+    this.busyRows.run(row.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "pamDaemonUnassignConfirmTitle" },
         content: { key: "pamDaemonUnassignConfirmContent", placeholders: [targetName] },
@@ -211,7 +205,7 @@ export class DaemonsTabComponent {
         return;
       }
       try {
-        await this.daemonsService.unassign(daemon, asUuid<TargetSystemId>(targetSystemId));
+        await this.daemonsService.unassign(row.daemon, asUuid<TargetSystemId>(targetSystemId));
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t("pamDaemonUnassigned"),

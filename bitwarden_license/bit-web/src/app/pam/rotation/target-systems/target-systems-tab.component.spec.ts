@@ -9,8 +9,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { DaemonsService } from "../daemons/daemons.service";
-import type { TargetSystem } from "../rotation";
+import type { TargetSystem, TargetSystemId } from "../rotation";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
+import { deferred } from "../testing/deferred";
 import { ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
 
 import { TargetSystemsTabComponent } from "./target-systems-tab.component";
@@ -277,6 +278,81 @@ describe("TargetSystemsTabComponent", () => {
       );
       expect(daemonsService.forgetTargetSystem).not.toHaveBeenCalled();
     }));
+  });
+
+  describe("in-flight row guard", () => {
+    type Guarded = {
+      disable: (s: TargetSystem) => Promise<void>;
+      enable: (s: TargetSystem) => Promise<void>;
+      confirmDelete: (s: TargetSystem) => Promise<void>;
+      isRowBusy: (rowId: TargetSystemId) => boolean;
+    };
+
+    function guarded(): Guarded {
+      return component as unknown as Guarded;
+    }
+
+    beforeEach(() => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+    });
+
+    it("does not dispatch a second setEnabled while the first is unsettled", async () => {
+      const pending = deferred();
+      targetSystemsService.setEnabled.mockReturnValue(pending.promise);
+      const sys = makeSystem({ status: TargetSystemStatus.Active });
+      const comp = guarded();
+
+      const first = comp.disable(sys);
+      const second = comp.disable(sys);
+      pending.settle();
+      await Promise.all([first, second]);
+
+      expect(targetSystemsService.setEnabled).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not dispatch a second delete while the first is unsettled", async () => {
+      const pending = deferred();
+      targetSystemsService.delete.mockReturnValue(pending.promise);
+      const sys = makeSystem();
+      const comp = guarded();
+
+      const first = comp.confirmDelete(sys);
+      const second = comp.confirmDelete(sys);
+      pending.settle();
+      await Promise.all([first, second]);
+
+      expect(targetSystemsService.delete).toHaveBeenCalledTimes(1);
+    });
+
+    it("re-enables the row once the request settles", async () => {
+      const pending = deferred();
+      targetSystemsService.setEnabled.mockReturnValue(pending.promise);
+      const sys = makeSystem({ status: TargetSystemStatus.Disabled });
+      const comp = guarded();
+
+      const first = comp.enable(sys);
+      expect(comp.isRowBusy(sys.id)).toBe(true);
+
+      pending.settle();
+      await first;
+      expect(comp.isRowBusy(sys.id)).toBe(false);
+
+      await comp.enable(sys);
+      expect(targetSystemsService.setEnabled).toHaveBeenCalledTimes(2);
+    });
+
+    it("allows a second action on a different row while one is in flight", async () => {
+      const pending = deferred();
+      targetSystemsService.setEnabled.mockReturnValue(pending.promise);
+      const comp = guarded();
+
+      const first = comp.disable(makeSystem({ id: sysId("sys-1") }));
+      const second = comp.disable(makeSystem({ id: sysId("sys-2") }));
+      pending.settle();
+      await Promise.all([first, second]);
+
+      expect(targetSystemsService.setEnabled).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe("load error state", () => {

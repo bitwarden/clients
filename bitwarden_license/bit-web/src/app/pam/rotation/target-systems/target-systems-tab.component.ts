@@ -31,6 +31,7 @@ import {
   TargetSystem,
 } from "../rotation";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
+import { RowBusyTracker } from "../row-busy-tracker";
 
 import {
   TargetSystemsEmptyStateComponent,
@@ -106,6 +107,10 @@ export class TargetSystemsTabComponent {
   protected readonly TargetSystemStatus = TargetSystemStatus;
   protected readonly TargetSystemMethod = TargetSystemMethod;
 
+  private readonly busyRows = new RowBusyTracker<TargetSystemId>();
+
+  protected readonly isRowBusy = this.busyRows.isBusy;
+
   constructor() {
     effect(() => {
       void this.targetSystemsService.load(this.organizationId());
@@ -143,40 +148,42 @@ export class TargetSystemsTabComponent {
     this.router.navigate(["..", "target-systems", system.id], { relativeTo: this.route });
 
   /** Disable a target system after confirming with the operator. */
-  protected readonly disable = async (system: TargetSystem): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamTargetSystemDisableTitle" },
-      content: { key: "pamTargetSystemDisableContent" },
-      acceptButtonText: { key: "pamTargetSystemDisableConfirm" },
-      cancelButtonText: { key: "cancel" },
-      type: "warning",
-    });
-    if (!confirmed) {
-      return;
-    }
-    try {
-      await this.targetSystemsService.setEnabled(system, false);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamTargetSystemDisableSuccess"),
+  protected readonly disable = (system: TargetSystem): Promise<void> =>
+    this.busyRows.run(system.id, async () => {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "pamTargetSystemDisableTitle" },
+        content: { key: "pamTargetSystemDisableContent" },
+        acceptButtonText: { key: "pamTargetSystemDisableConfirm" },
+        cancelButtonText: { key: "cancel" },
+        type: "warning",
       });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
+      if (!confirmed) {
+        return;
+      }
+      try {
+        await this.targetSystemsService.setEnabled(system, false);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamTargetSystemDisableSuccess"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
+    });
 
   /** Re-enable a disabled target system. */
-  protected readonly enable = async (system: TargetSystem): Promise<void> => {
-    try {
-      await this.targetSystemsService.setEnabled(system, true);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamTargetSystemEnableSuccess"),
-      });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
+  protected readonly enable = (system: TargetSystem): Promise<void> =>
+    this.busyRows.run(system.id, async () => {
+      try {
+        await this.targetSystemsService.setEnabled(system, true);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamTargetSystemEnableSuccess"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
+    });
 
   /**
    * Permanently delete a target system after confirming with the operator.
@@ -186,30 +193,31 @@ export class TargetSystemsTabComponent {
    * {@link showError} to surface. Offering the action unconditionally and letting the server
    * reject it keeps one authority on the rule rather than a client-side copy that can drift.
    */
-  protected readonly confirmDelete = async (system: TargetSystem): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamTargetSystemDeleteTitle" },
-      content: { key: "pamTargetSystemDeleteContent", placeholders: [system.name] },
-      acceptButtonText: { key: "delete" },
-      cancelButtonText: { key: "cancel" },
-      type: "danger",
-    });
-    if (!confirmed) {
-      return;
-    }
-    try {
-      await this.targetSystemsService.delete(system);
-      // The server drops the connector assignments with the target; mirror that locally so the
-      // daemons tab does not keep projecting the dangling ID.
-      this.daemonsService.forgetTargetSystem(system.id);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamTargetSystemDeleteSuccess"),
+  protected readonly confirmDelete = (system: TargetSystem): Promise<void> =>
+    this.busyRows.run(system.id, async () => {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "pamTargetSystemDeleteTitle" },
+        content: { key: "pamTargetSystemDeleteContent", placeholders: [system.name] },
+        acceptButtonText: { key: "delete" },
+        cancelButtonText: { key: "cancel" },
+        type: "danger",
       });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
+      if (!confirmed) {
+        return;
+      }
+      try {
+        await this.targetSystemsService.delete(system);
+        // The server drops the connector assignments with the target; mirror that locally so the
+        // daemons tab does not keep projecting the dangling ID.
+        this.daemonsService.forgetTargetSystem(system.id);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamTargetSystemDeleteSuccess"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
+    });
 
   private buildRows(systems: TargetSystem[]): TargetSystemRow[] {
     return systems.map((system) => ({

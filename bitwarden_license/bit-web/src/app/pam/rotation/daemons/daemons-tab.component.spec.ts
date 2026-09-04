@@ -29,22 +29,25 @@ describe("DaemonsTabComponent", () => {
   const targetSystemsLoadError$ = new BehaviorSubject<unknown | null>(null);
 
   function makeDaemonRow(overrides: Partial<DaemonRow> = {}): DaemonRow {
+    const id = overrides.id ?? connectorId("daemon-1");
+    const name = overrides.name ?? "Test Daemon";
     return {
-      id: connectorId("daemon-1"),
-      name: "Test Daemon",
+      id,
+      name,
       statusLabelKey: "pamDaemonStatusEnabled",
       isConnected: true,
       assignmentNames: [],
       enabled: true,
       canAssign: true,
+      ...overrides,
       daemon: {
-        id: connectorId("daemon-1"),
-        name: "Test Daemon",
+        id,
+        name,
         assignments: [],
         status: 0,
         isConnected: true,
+        ...(overrides.daemon ?? {}),
       } as unknown as AccessConnector,
-      ...overrides,
     };
   }
 
@@ -214,20 +217,21 @@ describe("DaemonsTabComponent", () => {
 
   it("calls daemonsService.unassign after confirmation", async () => {
     (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(true);
-    const daemon = makeDaemonRow().daemon;
+    const row = makeDaemonRow();
 
     const component = fixture.componentInstance as unknown as {
-      unassign: (daemon: AccessConnector, targetId: TargetSystemId, name: string) => Promise<void>;
+      unassign: (row: DaemonRow, targetId: TargetSystemId, name: string) => Promise<void>;
     };
-    await component.unassign(daemon, sysId("ts-1"), "Prod");
+    await component.unassign(row, sysId("ts-1"), "Prod");
 
-    expect(daemonsService.unassign).toHaveBeenCalledWith(daemon, sysId("ts-1"));
+    expect(daemonsService.unassign).toHaveBeenCalledWith(row.daemon, sysId("ts-1"));
   });
 
   describe("in-flight row guard", () => {
     type Guarded = {
       disable: (row: DaemonRow) => Promise<void>;
       confirmDelete: (row: DaemonRow) => Promise<void>;
+      unassign: (row: DaemonRow, targetId: TargetSystemId, name: string) => Promise<void>;
       isRowBusy: (rowId: AccessConnectorId) => boolean;
     };
 
@@ -282,6 +286,20 @@ describe("DaemonsTabComponent", () => {
 
       await component.disable(row);
       expect(daemonsService.setEnabled).toHaveBeenCalledTimes(2);
+    });
+
+    it("marks the row busy under the id the row menu binds, on every action", async () => {
+      const pending = deferred();
+      (daemonsService.unassign as jest.Mock).mockReturnValue(pending.promise);
+      const row = makeDaemonRow({ id: connectorId("row-key") });
+      const component = guarded();
+
+      const first = component.unassign(row, sysId("ts-1"), "Prod");
+      expect(component.isRowBusy(row.id)).toBe(true);
+
+      pending.settle();
+      await first;
+      expect(component.isRowBusy(row.id)).toBe(false);
     });
 
     it("allows a second action on a different row while one is in flight", async () => {
