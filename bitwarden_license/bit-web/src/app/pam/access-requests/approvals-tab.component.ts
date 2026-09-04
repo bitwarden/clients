@@ -53,8 +53,8 @@ import { DurationShortPipe } from "../date/duration-short.pipe";
 /** The fields the toolbar filters against, carried by both sections' row models. */
 type FilterableRow = { searchText: string; collectionName: string | null; requester: string };
 
-/** An option offered by the Collection / Requester `bit-filter-menu` chips. */
-type FilterOption = { label: string; value: string };
+/** An option offered by a `bit-filter-menu` chip. Also used by the "My requests" tab. */
+export type FilterOption = { label: string; value: string };
 
 /**
  * "Approvals" tab — the requests awaiting the caller's decision, oldest first, and the access

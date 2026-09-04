@@ -42,6 +42,7 @@ import { AccessStateBadgeComponent } from "../access-state-badge/access-state-ba
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { RemainingTimePipe } from "../date/remaining-time.pipe";
 
+import type { FilterOption } from "./approvals-tab.component";
 import {
   MyAccessLeaseRow,
   MyAccessRequestRow,
@@ -175,7 +176,7 @@ export class MyRequestsTabComponent {
   });
 
   /** Every distinct collection present across the caller's rows, for the Collection filter. */
-  protected readonly collectionOptions = computed<{ label: string; value: string }[]>(() => {
+  protected readonly collectionOptions = computed<FilterOption[]>(() => {
     const byId = new Map<string, string>();
     for (const row of [...this.allPending(), ...this.allExtensions(), ...this.allLeases()]) {
       if (row.collectionName != null && !byId.has(row.collectionId)) {
