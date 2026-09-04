@@ -1185,6 +1185,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "credential_agent"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "homedir",
+ "libc",
+ "serde",
+ "serde_json",
+ "serial_test",
+ "sysinfo",
+ "thiserror 2.0.17",
+ "tokio",
+ "tokio-util",
+ "tracing",
+ "windows 0.62.2",
+]
+
+[[package]]
+name = "credential_client"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "credential_agent",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "crossbeam-deque"
 version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1587,6 +1616,7 @@ dependencies = [
  "autotype",
  "biometric",
  "chromium_importer",
+ "credential_agent",
  "desktop_core",
  "napi",
  "napi-build",

@@ -4,7 +4,12 @@ import { DesktopAutofillPreload } from "./desktop-autofill.preload";
 import { AutotypeConfig } from "./models/autotype-config";
 import { AutotypeMatchError } from "./models/autotype-errors";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
-import { AUTOTYPE_MVP_IPC_CHANNELS, SSH_AGENT_IPC_CHANNELS } from "./models/ipc-channels";
+import { CredentialAgentResponse } from "./models/credential-agent-request";
+import {
+  AUTOTYPE_MVP_IPC_CHANNELS,
+  CREDENTIAL_AGENT_IPC_CHANNELS,
+  SSH_AGENT_IPC_CHANNELS,
+} from "./models/ipc-channels";
 
 const sshAgent = {
   init: async (useV2: boolean) => {
@@ -30,6 +35,19 @@ const sshAgent = {
     return ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.IS_LOADED);
   },
   stop: async () => ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.STOP),
+};
+
+const credentialAgent = {
+  init: async () => {
+    await ipcRenderer.invoke(CREDENTIAL_AGENT_IPC_CHANNELS.INIT);
+  },
+  isLoaded: (): Promise<boolean> => ipcRenderer.invoke(CREDENTIAL_AGENT_IPC_CHANNELS.IS_LOADED),
+  stop: async () => {
+    await ipcRenderer.invoke(CREDENTIAL_AGENT_IPC_CHANNELS.STOP);
+  },
+  requestResponse: async (response: CredentialAgentResponse) => {
+    await ipcRenderer.invoke(CREDENTIAL_AGENT_IPC_CHANNELS.REQUEST_RESPONSE, response);
+  },
 };
 
 // MVP, delete with PM-41067
@@ -79,6 +97,8 @@ export default {
   desktopAutofill: DesktopAutofillPreload,
 
   sshAgent,
+
+  credentialAgent,
 
   autotypeMvp,
 };

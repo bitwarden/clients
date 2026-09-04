@@ -190,6 +190,28 @@
           </bit-form-field>
         }
 
+        <bit-form-control>
+          <input
+            type="checkbox"
+            bitCheckbox
+            formControlName="enableCredentialAgent"
+            (change)="saveCredentialAgent()"
+          />
+          <bit-label>{{ "enableCredentialAgent" | i18n }}</bit-label>
+          <bit-hint>{{ "enableCredentialAgentDesc" | i18n }}</bit-hint>
+        </bit-form-control>
+
+        @if (form.value.enableCredentialAgent) {
+          <bit-form-field>
+            <bit-label>{{ "credentialAgentPromptBehavior" | i18n }}</bit-label>
+            <bit-select
+              formControlName="credentialAgentPromptBehavior"
+              [items]="credentialAgentPromptBehaviorOptions"
+            />
+            <bit-hint>{{ "credentialAgentPromptBehaviorDesc" | i18n }}</bit-hint>
+          </bit-form-field>
+        }
+
         @if (!isLinux) {
           <bit-form-control>
             <input

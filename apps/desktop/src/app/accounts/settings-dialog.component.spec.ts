@@ -59,6 +59,7 @@ import { AutoUnlockService } from "@bitwarden/unlock";
 import { VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
+import { CredentialAgentPromptType } from "../../autofill/models/credential-agent-setting";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
@@ -204,6 +205,8 @@ describe("SettingsDialogComponent", () => {
     desktopSettingsService.hardwareAcceleration$ = of(false);
     desktopSettingsService.sshAgentEnabled$ = of(false);
     desktopSettingsService.sshAgentPromptBehavior$ = of(SshAgentPromptType.Always);
+    desktopSettingsService.credentialAgentEnabled$ = of(false);
+    desktopSettingsService.credentialAgentPromptBehavior$ = of(CredentialAgentPromptType.Always);
     desktopSettingsService.preventScreenshots$ = of(false);
     domainSettingsService.showFavicons$ = of(false);
     desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$ = of(false);

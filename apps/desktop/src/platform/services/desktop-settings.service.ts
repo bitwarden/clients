@@ -18,6 +18,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { CredentialAgentPromptType } from "../../autofill/models/credential-agent-setting";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { isDev } from "../../utils";
 import { ModalModeState, WindowState } from "../models/domain/window-state";
@@ -53,6 +54,23 @@ const SSH_AGENT_ENABLED = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "ssh
 const SSH_AGENT_PROMPT_BEHAVIOR = new UserKeyDefinition<SshAgentPromptType>(
   DESKTOP_SETTINGS_DISK,
   "sshAgentRememberAuthorizations",
+  {
+    deserializer: (b) => b,
+    clearOn: [],
+  },
+);
+
+const CREDENTIAL_AGENT_ENABLED = new KeyDefinition<boolean>(
+  DESKTOP_SETTINGS_DISK,
+  "credentialAgentEnabled",
+  {
+    deserializer: (b) => b,
+  },
+);
+
+const CREDENTIAL_AGENT_PROMPT_BEHAVIOR = new UserKeyDefinition<CredentialAgentPromptType>(
+  DESKTOP_SETTINGS_DISK,
+  "credentialAgentPromptBehavior",
   {
     deserializer: (b) => b,
     clearOn: [],
@@ -113,6 +131,19 @@ export class DesktopSettingsService {
   private readonly sshAgentPromptBehavior = this.stateProvider.getActive(SSH_AGENT_PROMPT_BEHAVIOR);
   sshAgentPromptBehavior$ = this.sshAgentPromptBehavior.state$.pipe(
     map((v) => v ?? SshAgentPromptType.Always),
+  );
+
+  private readonly credentialAgentEnabledState =
+    this.stateProvider.getGlobal(CREDENTIAL_AGENT_ENABLED);
+
+  credentialAgentEnabled$ = this.credentialAgentEnabledState.state$.pipe(map(Boolean));
+
+  private readonly credentialAgentPromptBehavior = this.stateProvider.getActive(
+    CREDENTIAL_AGENT_PROMPT_BEHAVIOR,
+  );
+
+  credentialAgentPromptBehavior$ = this.credentialAgentPromptBehavior.state$.pipe(
+    map((v) => v ?? CredentialAgentPromptType.Always),
   );
 
   private readonly preventScreenshotState = this.stateProvider.getGlobal(PREVENT_SCREENSHOTS);
@@ -201,6 +232,17 @@ export class DesktopSettingsService {
 
   async setSshAgentPromptBehavior(value: SshAgentPromptType) {
     await this.sshAgentPromptBehavior.update(() => value);
+  }
+
+  /**
+   * Sets a setting for whether or not the credential agent is enabled.
+   */
+  async setCredentialAgentEnabled(value: boolean) {
+    await this.credentialAgentEnabledState.update(() => value);
+  }
+
+  async setCredentialAgentPromptBehavior(value: CredentialAgentPromptType) {
+    await this.credentialAgentPromptBehavior.update(() => value);
   }
 
   /**

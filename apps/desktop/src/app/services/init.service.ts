@@ -25,6 +25,7 @@ import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto
 import { LogService } from "@bitwarden/logging";
 import { UnlockService } from "@bitwarden/unlock";
 
+import { CredentialAgentService } from "../../autofill/services/credential-agent.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { SshAgentService } from "../../autofill/services/ssh-agent.service";
@@ -56,6 +57,7 @@ export class InitService {
     private tokenService: TokenService,
     private versionService: VersionService,
     private sshAgentService: SshAgentService,
+    private credentialAgentService: CredentialAgentService,
     private autofillService: DesktopAutofillService,
     private autotypeMvpService: DesktopAutotypeMvpService,
     private sdkLoadService: SdkLoadService,
@@ -77,6 +79,7 @@ export class InitService {
       await this.ipcService.init();
       await this.biometricsService.setUnlockService(this.unlockService);
       await this.sshAgentService.init();
+      await this.credentialAgentService.init();
       this.nativeMessagingService.init();
       await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process
 

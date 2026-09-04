@@ -14,6 +14,7 @@ pub mod autotype_mvp; // MVP, delete with PM-41067
 pub mod biometrics;
 pub mod chromium_importer;
 pub mod clipboards;
+pub mod credential_agent;
 pub mod ipc;
 pub mod logging;
 pub mod passkey_authenticator;

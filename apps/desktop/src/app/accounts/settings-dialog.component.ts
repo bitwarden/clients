@@ -65,6 +65,7 @@ import {
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { AutotypeShortcutComponent } from "../../autofill/components/autotype-shortcut.component";
+import { CredentialAgentPromptType } from "../../autofill/models/credential-agent-setting";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
@@ -141,6 +142,7 @@ export class SettingsDialogComponent implements OnInit {
   protected readonly themeOptions: Option<string>[];
   protected readonly clearClipboardOptions: Option<string>[];
   protected readonly sshAgentPromptBehaviorOptions: Option<string>[];
+  protected readonly credentialAgentPromptBehaviorOptions: Option<string>[];
 
   protected readonly isWindows: boolean;
   protected readonly isLinux: boolean;
@@ -196,6 +198,10 @@ export class SettingsDialogComponent implements OnInit {
     enableHardwareAcceleration: true,
     enableSshAgent: false,
     sshAgentPromptBehavior: SshAgentPromptType.Always,
+    enableCredentialAgent: false,
+    credentialAgentPromptBehavior: this.formBuilder.control<CredentialAgentPromptType>(
+      CredentialAgentPromptType.Always,
+    ),
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
     enableAutotype: this.formBuilder.control<boolean>({
@@ -260,6 +266,20 @@ export class SettingsDialogComponent implements OnInit {
         value: SshAgentPromptType.RememberUntilLock,
       },
     ];
+    this.credentialAgentPromptBehaviorOptions = [
+      {
+        label: this.i18nService.t("credentialAgentPromptBehaviorAlways"),
+        value: CredentialAgentPromptType.Always,
+      },
+      {
+        label: this.i18nService.t("credentialAgentPromptBehaviorNever"),
+        value: CredentialAgentPromptType.Never,
+      },
+      {
+        label: this.i18nService.t("credentialAgentPromptBehaviorRememberUntilLock"),
+        value: CredentialAgentPromptType.RememberUntilLock,
+      },
+    ];
   }
 
   async ngOnInit() {
@@ -302,6 +322,12 @@ export class SettingsDialogComponent implements OnInit {
       enableSshAgent: await firstValueFrom(this.desktopSettingsService.sshAgentEnabled$),
       sshAgentPromptBehavior: await firstValueFrom(
         this.desktopSettingsService.sshAgentPromptBehavior$,
+      ),
+      enableCredentialAgent: await firstValueFrom(
+        this.desktopSettingsService.credentialAgentEnabled$,
+      ),
+      credentialAgentPromptBehavior: await firstValueFrom(
+        this.desktopSettingsService.credentialAgentPromptBehavior$,
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
       enableAutotype: await firstValueFrom(
@@ -366,6 +392,15 @@ export class SettingsDialogComponent implements OnInit {
     this.form.controls.sshAgentPromptBehavior.valueChanges
       .pipe(
         concatMap(async (value: SshAgentPromptType) => this.saveSshAgentPromptBehavior(value)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.form.controls.credentialAgentPromptBehavior.valueChanges
+      .pipe(
+        concatMap(async (value: CredentialAgentPromptType) =>
+          this.saveCredentialAgentPromptBehavior(value),
+        ),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
@@ -622,6 +657,16 @@ export class SettingsDialogComponent implements OnInit {
 
   protected async saveSshAgent() {
     await this.desktopSettingsService.setSshAgentEnabled(this.form.value.enableSshAgent);
+  }
+
+  protected async saveCredentialAgent() {
+    await this.desktopSettingsService.setCredentialAgentEnabled(
+      this.form.value.enableCredentialAgent,
+    );
+  }
+
+  private async saveCredentialAgentPromptBehavior(newValue: CredentialAgentPromptType) {
+    await this.desktopSettingsService.setCredentialAgentPromptBehavior(newValue);
   }
 
   private async saveSshAgentPromptBehavior(newValue: SshAgentPromptType) {

@@ -12,6 +12,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { IconModule, SpinnerComponent } from "@bitwarden/components";
 
+import { CredentialAgentService } from "../autofill/services/credential-agent.service";
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { DesktopPremiumUpgradePromptService } from "../billing/services/desktop-premium-upgrade-prompt.service";
 
@@ -40,6 +41,7 @@ import { ServicesModule } from "./services/services.module";
   declarations: [AvatarComponent, AppComponent],
   providers: [
     SshAgentService,
+    CredentialAgentService,
     {
       provide: PremiumUpgradePromptService,
       useClass: DesktopPremiumUpgradePromptService,

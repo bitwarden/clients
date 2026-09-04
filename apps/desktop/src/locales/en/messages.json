@@ -767,6 +767,36 @@
   "sshAgentPromptBehaviorRememberUntilLock": {
     "message": "Remember until vault is locked"
   },
+  "enableCredentialAgent": {
+    "message": "Enable credential agent"
+  },
+  "enableCredentialAgentDesc": {
+    "message": "Allow applications on this device to request logins from your vault."
+  },
+  "credentialAgentPromptBehavior": {
+    "message": "Credential agent approval"
+  },
+  "credentialAgentPromptBehaviorDesc": {
+    "message": "Choose when to ask for approval before a login is shared with an application."
+  },
+  "credentialAgentPromptBehaviorAlways": {
+    "message": "Always ask"
+  },
+  "credentialAgentPromptBehaviorNever": {
+    "message": "Never ask"
+  },
+  "credentialAgentPromptBehaviorRememberUntilLock": {
+    "message": "Remember until vault is locked"
+  },
+  "credentialApprovalTitle": {
+    "message": "Approve credential request"
+  },
+  "credentialApprovalMessageInfix": {
+    "message": "is requesting the login"
+  },
+  "credentialAgentUnlockRequired": {
+    "message": "Unlock your vault to answer the credential request."
+  },
   "premiumRequired": {
     "message": "Premium required"
   },
