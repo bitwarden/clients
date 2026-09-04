@@ -277,7 +277,10 @@ describe("AccessAuditComponent", () => {
    * Selects a chip's option through the `FilterControl` contract; `bit-filter-menu` owns its own
    * selection rather than a form control.
    */
-  const selectFilter = (chip: "kind" | "actor" | "requester" | "timePeriod", value: unknown) => {
+  const selectFilter = (
+    chip: "kind" | "actor" | "requester" | "item" | "timePeriod",
+    value: unknown,
+  ) => {
     fixture.detectChanges();
     component()[`${chip}Chip`]().setValue(value);
     fixture.detectChanges();
