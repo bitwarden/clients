@@ -103,7 +103,8 @@
               [disabled]="isRowBusy(r.id)"
               [attr.aria-disabled]="r.canAssign ? null : true"
               [bitTooltip]="r.canAssign ? '' : ('pamDaemonAssignTargetDisabled' | i18n)"
-              (click)="r.canAssign && openAssignDialog(r)"
+              (click)="openAssignDialog(r)"
+              id="daemons-tab_button_assign-{{ r.id }}"
             >
               <bit-icon name="bwi-plus-circle" class="tw-text-muted"></bit-icon>
               {{ "pamDaemonAssignTarget" | i18n }}
