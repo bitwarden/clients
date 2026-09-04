@@ -288,21 +288,29 @@ export class AccessRuleEditComponent {
   );
 
   /**
+   * Tracked as a signal (rather than reading `formGroup.controls.collections.value` directly
+   * inside `collectionOptions`) because a plain `FormControl` getter isn't itself a signal:
+   * `computed()` wouldn't re-run when the admin changes the selection, so a deselected-but-still-
+   * governed collection would stay visible in the picker.
+   */
+  private readonly selectedCollectionIds = toSignal(
+    this.formGroup.controls.collections.valueChanges.pipe(
+      map((value) => new Set(value.map((c) => c.id))),
+    ),
+    { initialValue: new Set<string>() },
+  );
+
+  /**
    * Never excludes a collection the form's `collections` control already holds: dropping one
    * here would silently remove it from the rule on the next save rather than merely hiding it
    * from new selection.
    */
   protected readonly collectionOptions = computed<SelectItemView[]>(() => {
     const governed = this.governedCollectionIds();
-    const selectedIds = new Set(this.formGroup.controls.collections.value.map((c) => c.id));
+    const selectedIds = this.selectedCollectionIds();
     return this.allCollections()
       .filter((c) => selectedIds.has(c.id) || !governed.has(c.id))
-      .map((c) => ({
-        id: c.id,
-        listName: c.name,
-        labelName: c.name,
-        icon: "bwi-collection-shared",
-      }));
+      .map((c) => this.toCollectionOption(c));
   });
 
   constructor() {
@@ -397,6 +405,15 @@ export class AccessRuleEditComponent {
     });
   }
 
+  private toCollectionOption(c: { id: string; name: string }): SelectItemView {
+    return {
+      id: c.id,
+      listName: c.name,
+      labelName: c.name,
+      icon: "bwi-collection-shared",
+    };
+  }
+
   private async loadCollections(rule: AccessRuleView | null): Promise<void> {
     try {
       const userId = await firstValueFrom(this.activeUserId$);
@@ -405,10 +422,16 @@ export class AccessRuleEditComponent {
       );
       this.allCollections.set(collections.map((c) => ({ id: c.id, name: c.name })));
 
-      // Map the rule's stored collection IDs onto the now-loaded options so the
-      // chips render with real names rather than raw UUIDs.
+      // Sourced from the unfiltered allCollections(): the form's collections control is still
+      // empty at this point, so the governed-collections filter has no "already selected"
+      // exemption yet for this rule's own ids. Using the filtered options here could drop one of
+      // this rule's collections that another rule record also lists (stale data, a lost race on
+      // the server's exclusivity check), silently losing it from the rule on the next save.
       const optionsById = new Map(
-        this.collectionOptions().map((c): [string, SelectItemView] => [c.id, c]),
+        this.allCollections().map((c): [string, SelectItemView] => [
+          c.id,
+          this.toCollectionOption(c),
+        ]),
       );
       const selected = (rule?.collections ?? [])
         .map((id) => optionsById.get(uuidAsString(id)))

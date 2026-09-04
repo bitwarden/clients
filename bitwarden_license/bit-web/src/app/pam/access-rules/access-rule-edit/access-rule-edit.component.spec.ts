@@ -739,6 +739,49 @@ describe("AccessRuleEditComponent — governed collections filter", () => {
     ]);
   });
 
+  it("seeds all of the rule's own collections even when a different rule record also lists one of them", async () => {
+    const ruleId = "11111111-1111-1111-1111-111111111111";
+    const existingRule = {
+      id: ruleId,
+      name: "Rule under edit",
+      collections: ["col-1", "col-2"],
+      conditions: [],
+    } as unknown as AccessRuleView;
+
+    // Legacy data (or a lost race on the server's exclusivity validator): a different rule
+    // record also lists col-2.
+    await setup({ params: { accessRuleId: ruleId } }, existingRule, [
+      existingRule,
+      otherRule(["col-2"]),
+    ]);
+
+    expect(controls().collections.value.map((c: SelectItemView) => c.id)).toEqual([
+      "col-1",
+      "col-2",
+    ]);
+  });
+
+  it("drops a deselected collection from the options once it is reported governed elsewhere", async () => {
+    const rules$ = new Subject<AccessRuleView[]>();
+    await setup({}, undefined, rules$);
+
+    controls().collections.setValue([
+      {
+        id: "col-1",
+        listName: "Engineering",
+        labelName: "Engineering",
+        icon: "bwi-collection-shared",
+      },
+    ] satisfies SelectItemView[]);
+    rules$.next([otherRule(["col-1"])]);
+
+    expect(options()).toEqual(expect.arrayContaining(["col-1"]));
+
+    controls().collections.setValue([]);
+
+    expect(options()).not.toEqual(expect.arrayContaining(["col-1"]));
+  });
+
   it("keeps a collection in the options once selected, even if a later refresh reports it governed elsewhere", async () => {
     const rules$ = new Subject<AccessRuleView[]>();
     await setup({}, undefined, rules$);
