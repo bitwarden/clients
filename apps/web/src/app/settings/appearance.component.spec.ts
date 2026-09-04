@@ -5,6 +5,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -226,6 +227,30 @@ describe("AppearanceComponent", () => {
       expect(mockI18nService.setLocale).toHaveBeenCalledWith(null);
       expect(reloadMock).toHaveBeenCalled();
     }));
+  });
+
+  describe("showBreadcrumbs", () => {
+    it("is false when vfo1-foundation flag is off", () => {
+      mockConfigService.getFeatureFlag$.mockImplementation(
+        (flag) => new BehaviorSubject(flag === FeatureFlag.VFO1Foundation ? false : true),
+      );
+      fixture = TestBed.createComponent(AppearanceComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      expect((component as any).showBreadcrumbs()).toBe(false);
+    });
+
+    it("is true when vfo1-foundation flag is on", () => {
+      mockConfigService.getFeatureFlag$.mockImplementation(
+        (flag) => new BehaviorSubject(flag === FeatureFlag.VFO1Foundation ? true : false),
+      );
+      fixture = TestBed.createComponent(AppearanceComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      expect((component as any).showBreadcrumbs()).toBe(true);
+    });
   });
 
   describe("showQuickCopyActions value changes", () => {
