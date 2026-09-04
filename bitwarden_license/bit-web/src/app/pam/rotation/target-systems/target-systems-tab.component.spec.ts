@@ -1,12 +1,13 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, flushMicrotasks } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogService, FilterMenuComponent, ToastService } from "@bitwarden/components";
 
 import { DaemonsService } from "../daemons/daemons.service";
 import { DaemonStatus, type AccessConnector, type TargetSystem } from "../rotation";
@@ -371,5 +372,163 @@ describe("TargetSystemsTabComponent", () => {
         }),
       );
     }));
+  });
+});
+
+describe("TargetSystemsTabComponent toolbar filters", () => {
+  /** The component's protected surface, as these tests read it. */
+  type FiltersComp = {
+    dataSource: { filteredData?: TargetSystemRow[] };
+    searchControl: { setValue: (value: string) => void };
+    methodOptions: () => { value: string; label: string }[];
+    kindOptions: () => { value: string; label: string }[];
+    statusOptions: () => { value: string; label: string }[];
+  };
+
+  let fixture: ComponentFixture<TargetSystemsTabComponent>;
+  let component: FiltersComp;
+
+  const entraActive = makeSystem({
+    id: sysId("1"),
+    name: "Prod Entra",
+    method: TargetSystemMethod.Automatic,
+    kind: TargetSystemKind.Entra,
+    status: TargetSystemStatus.Active,
+  });
+  const mssqlDisabled = makeSystem({
+    id: sysId("2"),
+    name: "Prod SQL reporting",
+    method: TargetSystemMethod.Automatic,
+    kind: TargetSystemKind.Mssql,
+    status: TargetSystemStatus.Disabled,
+  });
+  const manualActive = makeSystem({
+    id: sysId("3"),
+    name: "Mainframe payroll",
+    method: TargetSystemMethod.Manual,
+    kind: null,
+    status: TargetSystemStatus.Active,
+  });
+
+  /** Renders the real template, unlike the suite above — the chips are what's under test. */
+  function setup(systems: TargetSystem[]) {
+    TestBed.configureTestingModule({
+      imports: [TargetSystemsTabComponent, ReactiveFormsModule, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        {
+          provide: TargetSystemsService,
+          useValue: {
+            loading$: new BehaviorSubject<boolean>(false),
+            systems$: new BehaviorSubject<TargetSystem[]>(systems),
+            systemById$: new BehaviorSubject(new Map()),
+            activeAutomaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
+            load: jest.fn().mockResolvedValue(undefined),
+            setEnabled: jest.fn().mockResolvedValue(undefined),
+            delete: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
+          provide: DaemonsService,
+          useValue: {
+            daemons$: new BehaviorSubject<AccessConnector[]>([]),
+            forgetTargetSystem: jest.fn(),
+            assign: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        {
+          provide: ActivatedRoute,
+          useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
+        },
+      ],
+    });
+
+    fixture = TestBed.createComponent(TargetSystemsTabComponent);
+    component = fixture.componentInstance as unknown as FiltersComp;
+    fixture.detectChanges();
+  }
+
+  function chip(key: string): FilterMenuComponent {
+    return fixture.debugElement.query(By.css(`bit-filter-menu[key="${key}"]`)).componentInstance;
+  }
+
+  function visibleIds(): string[] {
+    return (component.dataSource.filteredData ?? []).map((row) => row.id as string).sort();
+  }
+
+  it("caps the search by making it a flex item, not a block child", () => {
+    setup([entraActive]);
+    const search = fixture.debugElement.query(By.css("bit-search"));
+    expect(search.nativeElement.className).toContain("tw-grow");
+    expect(search.nativeElement.className).toContain("tw-max-w-md");
+    expect(search.nativeElement.parentElement.className).toContain("tw-flex");
+  });
+
+  it("derives the method options from the loaded rows, sorted by label", () => {
+    setup([entraActive, mssqlDisabled, manualActive]);
+    expect(component.methodOptions()).toEqual([
+      { value: TargetSystemMethod.Automatic, label: "pamTargetSystemMethodAutomatic" },
+      { value: TargetSystemMethod.Manual, label: "pamTargetSystemMethodManual" },
+    ]);
+  });
+
+  it("derives the status options from the loaded rows, sorted by label", () => {
+    setup([entraActive, mssqlDisabled, manualActive]);
+    expect(component.statusOptions()).toEqual([
+      { value: TargetSystemStatus.Active, label: "pamTargetSystemStatusActive" },
+      { value: TargetSystemStatus.Disabled, label: "pamTargetSystemStatusDisabled" },
+    ]);
+  });
+
+  it("leaves a manual target out of the kind options, since it has no kind", () => {
+    setup([entraActive, mssqlDisabled, manualActive]);
+    expect(component.kindOptions()).toEqual([
+      { value: TargetSystemKind.Entra, label: "pamTargetSystemKindEntra" },
+      { value: TargetSystemKind.Mssql, label: "pamTargetSystemKindMssql" },
+    ]);
+  });
+
+  it("does not render the kind chip when no loaded target carries a kind", () => {
+    setup([manualActive]);
+    expect(fixture.debugElement.query(By.css('bit-filter-menu[key="kind"]'))).toBeNull();
+  });
+
+  it("narrows rows to the selected method", () => {
+    setup([entraActive, mssqlDisabled, manualActive]);
+    chip("method").toggle(TargetSystemMethod.Manual);
+    fixture.detectChanges();
+    expect(visibleIds()).toEqual([sysId("3") as string]);
+  });
+
+  it("narrows rows to the selected kind", () => {
+    setup([entraActive, mssqlDisabled, manualActive]);
+    chip("kind").toggle(TargetSystemKind.Mssql);
+    fixture.detectChanges();
+    expect(visibleIds()).toEqual([sysId("2") as string]);
+  });
+
+  it("narrows rows to the selected status", () => {
+    setup([entraActive, mssqlDisabled, manualActive]);
+    chip("status").toggle(TargetSystemStatus.Disabled);
+    fixture.detectChanges();
+    expect(visibleIds()).toEqual([sysId("2") as string]);
+  });
+
+  it("ANDs the chips with each other and with the search text", () => {
+    setup([entraActive, mssqlDisabled, manualActive]);
+    component.searchControl.setValue("prod");
+    chip("status").toggle(TargetSystemStatus.Active);
+    fixture.detectChanges();
+    expect(visibleIds()).toEqual([sysId("1") as string]);
+  });
+
+  it("shows the no-results row when the chips alone empty the table", () => {
+    setup([entraActive]);
+    chip("status").toggle(TargetSystemStatus.Disabled);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain("pamTargetSystemNoResults");
   });
 });

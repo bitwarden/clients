@@ -1,5 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -15,6 +22,8 @@ import {
   BadgeModule,
   ButtonModule,
   DialogService,
+  FILTER_CONTROL,
+  FilterMenuModule,
   IconButtonModule,
   IconModule,
   LinkModule,
@@ -29,6 +38,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { filterOptions } from "../filter-options";
 import { AccessConnector, DaemonStatus, TargetSystemId, TargetSystem } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
@@ -46,6 +56,7 @@ import { DaemonRow, DaemonsService } from "./daemons.service";
     AsyncActionsModule,
     BadgeModule,
     ButtonModule,
+    FilterMenuModule,
     IconButtonModule,
     IconModule,
     LinkModule,
@@ -83,6 +94,36 @@ export class DaemonsTabComponent {
   protected readonly searchControl = new FormControl("", { nonNullable: true });
   private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
 
+  /** Status/connection toolbar chips; read directly rather than via a form control. */
+  private readonly statusFilterChip = viewChild("statusFilter", { read: FILTER_CONTROL });
+  private readonly connectionFilterChip = viewChild("connectionFilter", { read: FILTER_CONTROL });
+
+  protected readonly statusOptions = computed(() =>
+    filterOptions(
+      this.rows().map(
+        (row) => [row.statusLabelKey, this.i18nService.t(row.statusLabelKey)] as const,
+      ),
+    ),
+  );
+
+  /**
+   * Connection options carry the row's `isConnected` as their value, so "Offline" selects `false`.
+   * The filter below must therefore test the chip against `null`, not for truthiness.
+   */
+  protected readonly connectionOptions = computed(() =>
+    filterOptions(
+      this.rows().map(
+        (row) =>
+          [
+            row.isConnected,
+            this.i18nService.t(
+              row.isConnected ? "pamAccessConnectorConnected" : "pamAccessConnectorOffline",
+            ),
+          ] as const,
+      ),
+    ),
+  );
+
   private readonly organizationId = toSignal(
     this.route.params.pipe(map((p) => p["organizationId"] as OrganizationId)),
     { requireSync: true },
@@ -104,7 +145,21 @@ export class DaemonsTabComponent {
 
     effect(() => {
       const text = this.searchText().trim().toLowerCase();
-      this.dataSource.filter = (row) => !text || row.name.toLowerCase().includes(text);
+      const status = this.statusFilterChip()?.value() as string | null | undefined;
+      const connected = this.connectionFilterChip()?.value() as boolean | null | undefined;
+
+      this.dataSource.filter = (row) => {
+        if (text !== "" && !row.name.toLowerCase().includes(text)) {
+          return false;
+        }
+        if (status != null && row.statusLabelKey !== status) {
+          return false;
+        }
+        if (connected != null && row.isConnected !== connected) {
+          return false;
+        }
+        return true;
+      };
     });
   }
 

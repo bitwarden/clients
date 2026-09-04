@@ -1,5 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, effect, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -12,6 +19,8 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   BadgeModule,
   DialogService,
+  FILTER_CONTROL,
+  FilterMenuModule,
   IconButtonModule,
   IconModule,
   MenuModule,
@@ -24,6 +33,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DaemonsService } from "../daemons/daemons.service";
+import { filterOptions } from "../filter-options";
 import {
   AccessConnector,
   AccessConnectorId,
@@ -74,6 +84,7 @@ export type TargetSystemRow = {
     CommonModule,
     ReactiveFormsModule,
     BadgeModule,
+    FilterMenuModule,
     IconButtonModule,
     IconModule,
     MenuModule,
@@ -106,10 +117,37 @@ export class TargetSystemsTabComponent {
     initialValue: [] as AccessConnector[],
   });
 
+  /** The table's rows, and the set the toolbar chips derive their options from. */
+  private readonly rows = computed(() => this.buildRows(this.systems()));
+
   protected readonly dataSource = new TableDataSource<TargetSystemRow>();
   protected readonly searchControl = new FormControl("", { nonNullable: true });
 
   private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
+
+  /** Method/kind/status toolbar chips; read directly rather than via a form control. */
+  private readonly methodFilterChip = viewChild("methodFilter", { read: FILTER_CONTROL });
+  private readonly kindFilterChip = viewChild("kindFilter", { read: FILTER_CONTROL });
+  private readonly statusFilterChip = viewChild("statusFilter", { read: FILTER_CONTROL });
+
+  protected readonly methodOptions = computed(() =>
+    filterOptions(this.rows().map((row) => [row.system.method, row.methodLabel] as const)),
+  );
+
+  /** Manual targets have no kind, so they contribute no option and this chip can be empty. */
+  protected readonly kindOptions = computed(() =>
+    filterOptions(
+      this.rows().flatMap((row) =>
+        row.system.kind != null && row.kindLabel != null
+          ? [[row.system.kind, row.kindLabel] as const]
+          : [],
+      ),
+    ),
+  );
+
+  protected readonly statusOptions = computed(() =>
+    filterOptions(this.rows().map((row) => [row.system.status, row.statusLabel] as const)),
+  );
 
   /** Expose const objects for template comparisons. */
   protected readonly TargetSystemStatus = TargetSystemStatus;
@@ -121,15 +159,34 @@ export class TargetSystemsTabComponent {
     });
 
     effect(() => {
-      this.dataSource.data = this.buildRows(this.systems());
+      this.dataSource.data = this.rows();
     });
 
     effect(() => {
       const text = this.searchText().trim().toLowerCase();
-      this.dataSource.filter = (row) =>
-        text === "" ||
-        row.name.toLowerCase().includes(text) ||
-        (row.kindLabel?.toLowerCase().includes(text) ?? false);
+      const method = this.methodFilterChip()?.value() as TargetSystemMethod | null | undefined;
+      const kind = this.kindFilterChip()?.value() as TargetSystemKind | null | undefined;
+      const status = this.statusFilterChip()?.value() as TargetSystemStatus | null | undefined;
+
+      this.dataSource.filter = (row) => {
+        if (
+          text !== "" &&
+          !row.name.toLowerCase().includes(text) &&
+          !(row.kindLabel?.toLowerCase().includes(text) ?? false)
+        ) {
+          return false;
+        }
+        if (method != null && row.system.method !== method) {
+          return false;
+        }
+        if (kind != null && row.system.kind !== kind) {
+          return false;
+        }
+        if (status != null && row.system.status !== status) {
+          return false;
+        }
+        return true;
+      };
     });
   }
 

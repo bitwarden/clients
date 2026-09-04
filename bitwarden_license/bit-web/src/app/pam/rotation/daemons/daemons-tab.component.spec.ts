@@ -1,14 +1,16 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogService, FilterMenuComponent, ToastService } from "@bitwarden/components";
 
-import type { AccessConnector, TargetSystemId, TargetSystem } from "../rotation";
+import type { AccessConnector, AccessConnectorId, TargetSystemId, TargetSystem } from "../rotation";
+import { DaemonStatus } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
-import { ORGANIZATION_ID, connectorId, sysId } from "../testing/rotation-builders";
+import { ORGANIZATION_ID, accessConnector, connectorId, sysId } from "../testing/rotation-builders";
 
 import { DaemonsTabComponent } from "./daemons-tab.component";
 import { DaemonsService, DaemonRow } from "./daemons.service";
@@ -209,5 +211,173 @@ describe("DaemonsTabComponent", () => {
     await component.unassign(daemon, sysId("ts-1"), "Prod");
 
     expect(daemonsService.unassign).toHaveBeenCalledWith(daemon, sysId("ts-1"));
+  });
+});
+
+describe("DaemonsTabComponent toolbar filters", () => {
+  /** The component's protected surface, as these tests read it. */
+  type FiltersComp = {
+    dataSource: { filteredData?: DaemonRow[] };
+    searchControl: { setValue: (value: string) => void };
+    statusOptions: () => { value: string; label: string }[];
+    connectionOptions: () => { value: boolean; label: string }[];
+  };
+
+  let fixture: ComponentFixture<DaemonsTabComponent>;
+  let component: FiltersComp;
+
+  function makeRow(overrides: {
+    id: AccessConnectorId;
+    name: string;
+    enabled: boolean;
+    isConnected: boolean;
+  }): DaemonRow {
+    const { id, name, enabled, isConnected } = overrides;
+    return {
+      id,
+      name,
+      statusLabelKey: enabled
+        ? "pamAccessConnectorStatusEnabled"
+        : "pamAccessConnectorStatusDisabled",
+      isConnected,
+      assignmentNames: [],
+      enabled,
+      canAssign: enabled,
+      daemon: accessConnector({
+        id,
+        name,
+        status: enabled ? DaemonStatus.Enabled : DaemonStatus.Disabled,
+        isConnected,
+      }),
+    };
+  }
+
+  const enabledConnected = makeRow({
+    id: connectorId("c-1"),
+    name: "Prod on-prem",
+    enabled: true,
+    isConnected: true,
+  });
+  const enabledOffline = makeRow({
+    id: connectorId("c-2"),
+    name: "Prod backup",
+    enabled: true,
+    isConnected: false,
+  });
+  const disabledOffline = makeRow({
+    id: connectorId("c-3"),
+    name: "Staging",
+    enabled: false,
+    isConnected: false,
+  });
+
+  /** Renders the real template, unlike the suite above — the chips are what's under test. */
+  function setup(rows: DaemonRow[]) {
+    TestBed.configureTestingModule({
+      imports: [DaemonsTabComponent],
+      providers: [
+        provideRouter([]),
+        {
+          provide: DaemonsService,
+          useValue: {
+            loading$: new BehaviorSubject<boolean>(false),
+            rows$: new BehaviorSubject<DaemonRow[]>(rows),
+            load: jest.fn().mockResolvedValue(undefined),
+            registerCompleted: jest.fn().mockResolvedValue(undefined),
+            assign: jest.fn().mockResolvedValue(undefined),
+            unassign: jest.fn().mockResolvedValue(undefined),
+            setEnabled: jest.fn().mockResolvedValue(undefined),
+            delete: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
+          provide: TargetSystemsService,
+          useValue: {
+            activeAutomaticSystems$: of([] as TargetSystem[]),
+            load: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: I18nService, useValue: { t: (key: string) => key } },
+        {
+          provide: ActivatedRoute,
+          useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
+        },
+      ],
+    });
+
+    fixture = TestBed.createComponent(DaemonsTabComponent);
+    component = fixture.componentInstance as unknown as FiltersComp;
+    fixture.detectChanges();
+  }
+
+  function chip(key: string): FilterMenuComponent {
+    return fixture.debugElement.query(By.css(`bit-filter-menu[key="${key}"]`)).componentInstance;
+  }
+
+  function visibleIds(): string[] {
+    return (component.dataSource.filteredData ?? []).map((row) => row.id as string).sort();
+  }
+
+  it("caps the search by making it a flex item, not a block child", () => {
+    setup([enabledConnected]);
+    const search = fixture.debugElement.query(By.css("bit-search"));
+    expect(search.nativeElement.className).toContain("tw-grow");
+    expect(search.nativeElement.className).toContain("tw-max-w-md");
+    expect(search.nativeElement.parentElement.className).toContain("tw-flex");
+  });
+
+  it("derives the status options from the loaded rows, sorted by label", () => {
+    setup([enabledConnected, enabledOffline, disabledOffline]);
+    expect(component.statusOptions()).toEqual([
+      { value: "pamAccessConnectorStatusDisabled", label: "pamAccessConnectorStatusDisabled" },
+      { value: "pamAccessConnectorStatusEnabled", label: "pamAccessConnectorStatusEnabled" },
+    ]);
+  });
+
+  it("derives the connection options from the rows' liveness flag", () => {
+    setup([enabledConnected, enabledOffline, disabledOffline]);
+    expect(component.connectionOptions()).toEqual([
+      { value: true, label: "pamAccessConnectorConnected" },
+      { value: false, label: "pamAccessConnectorOffline" },
+    ]);
+  });
+
+  it("leaves the chips out of the toolbar when no connectors are registered", () => {
+    setup([]);
+    expect(fixture.debugElement.query(By.css("bit-search"))).not.toBeNull();
+    expect(fixture.debugElement.query(By.css("bit-filter-menu"))).toBeNull();
+  });
+
+  it("narrows rows to the selected status", () => {
+    setup([enabledConnected, enabledOffline, disabledOffline]);
+    chip("status").toggle("pamAccessConnectorStatusDisabled");
+    fixture.detectChanges();
+    expect(visibleIds()).toEqual([connectorId("c-3") as string]);
+  });
+
+  it("narrows rows to the offline side of the connection chip, where the value is false", () => {
+    setup([enabledConnected, enabledOffline, disabledOffline]);
+    chip("connection").toggle(false);
+    fixture.detectChanges();
+    expect(visibleIds()).toEqual(
+      [connectorId("c-2") as string, connectorId("c-3") as string].sort(),
+    );
+  });
+
+  it("ANDs the chips with each other and with the search text", () => {
+    setup([enabledConnected, enabledOffline, disabledOffline]);
+    component.searchControl.setValue("prod");
+    chip("connection").toggle(false);
+    fixture.detectChanges();
+    expect(visibleIds()).toEqual([connectorId("c-2") as string]);
+  });
+
+  it("shows the no-results row when the chips alone empty the table", () => {
+    setup([enabledConnected]);
+    chip("connection").toggle(false);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain("pamAccessConnectorNoResults");
   });
 });

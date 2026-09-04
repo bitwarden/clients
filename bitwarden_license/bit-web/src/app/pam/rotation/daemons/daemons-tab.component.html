@@ -1,9 +1,33 @@
-<div class="tw-mb-4">
+<div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
   <bit-search
-    class="tw-max-w-md"
+    class="tw-grow tw-max-w-md"
     [placeholder]="'pamAccessConnectorSearch' | i18n"
     [formControl]="searchControl"
   ></bit-search>
+  @if (statusOptions().length > 0) {
+    <bit-filter-menu
+      #statusFilter
+      key="status"
+      [placeholderText]="'status' | i18n"
+      [unsetLabel]="'all' | i18n"
+    >
+      @for (option of statusOptions(); track option.value) {
+        <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+      }
+    </bit-filter-menu>
+  }
+  @if (connectionOptions().length > 0) {
+    <bit-filter-menu
+      #connectionFilter
+      key="connection"
+      [placeholderText]="'pamAccessConnectorConnection' | i18n"
+      [unsetLabel]="'all' | i18n"
+    >
+      @for (option of connectionOptions(); track option.value) {
+        <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+      }
+    </bit-filter-menu>
+  }
 </div>
 
 @if (loading()) {
