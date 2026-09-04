@@ -13,7 +13,7 @@ import { DaemonStatus, type AccessConnector, type TargetSystem } from "../rotati
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
 import { accessConnector, connectorId, ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
 
-import { TargetSystemsTabComponent } from "./target-systems-tab.component";
+import { TargetSystemRow, TargetSystemsTabComponent } from "./target-systems-tab.component";
 import { TargetSystemsService } from "./target-systems.service";
 
 /** Echoes the key as its translation so form-field components don't crash. */
@@ -300,11 +300,8 @@ describe("TargetSystemsTabComponent", () => {
       ]);
       fixture.detectChanges();
 
-      const rows = (
-        component as unknown as {
-          dataSource: { data: { id: string; canAssignConnectors: boolean }[] };
-        }
-      ).dataSource.data;
+      const rows = (component as unknown as { dataSource: { data: TargetSystemRow[] } }).dataSource
+        .data;
 
       expect(rows.find((r) => r.id === sysId("sys-active-automatic"))?.canAssignConnectors).toBe(
         true,
