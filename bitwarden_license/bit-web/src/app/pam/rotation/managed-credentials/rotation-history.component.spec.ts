@@ -1,4 +1,7 @@
 import { TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import type { RotationJob } from "../rotation";
 import {
@@ -8,7 +11,7 @@ import {
   RotationSyncState,
   SessionTerminationOutcome,
 } from "../rotation";
-import { jobId, rotationJob } from "../testing/rotation-builders";
+import { jobId, rotationAttempt, rotationJob } from "../testing/rotation-builders";
 
 import { RotationHistoryComponent } from "./rotation-history.component";
 
@@ -150,5 +153,86 @@ describe("RotationHistoryComponent", () => {
         "pamRotationAttemptStatusAbandoned",
       );
     });
+  });
+});
+
+describe("RotationHistoryComponent rendering", () => {
+  const i18nFake: Pick<I18nService, "t"> = { t: (id: string) => id };
+
+  function render(jobs: RotationJob[]) {
+    TestBed.configureTestingModule({
+      imports: [RotationHistoryComponent],
+      providers: [{ provide: I18nService, useValue: i18nFake }],
+    });
+
+    const fixture = TestBed.createComponent(RotationHistoryComponent);
+    fixture.componentRef.setInput("jobs", jobs);
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  it("gives each attempt row a single cell spanning every column", () => {
+    const fixture = render([rotationJob()]);
+
+    const attemptRows = fixture.debugElement.queryAll(
+      By.css("[data-testid='rotation-history-attempt-row']"),
+    );
+    expect(attemptRows).toHaveLength(1);
+
+    const cells = attemptRows[0].queryAll(By.css("td"));
+    expect(cells).toHaveLength(1);
+    expect(cells[0].nativeElement.getAttribute("colspan")).toBe("4");
+  });
+
+  it("labels both timestamps of a finished attempt", () => {
+    const fixture = render([rotationJob()]);
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain("pamRotationAttemptStarted");
+    expect(text).toContain("pamRotationAttemptEnded");
+  });
+
+  it("shows in progress and no ended label while an attempt is running", () => {
+    const fixture = render([
+      rotationJob({
+        attempts: [
+          rotationAttempt({ endedAt: undefined, status: RotationAttemptStatus.Executing }),
+        ],
+      }),
+    ]);
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain("pamRotationAttemptStarted");
+    expect(text).toContain("pamRotationAttemptInProgress");
+    expect(text).not.toContain("pamRotationAttemptEnded");
+  });
+
+  it("leaves the job row filling the four headers, with the attempt count last", () => {
+    const fixture = render([rotationJob()]);
+
+    const cells = fixture.debugElement.queryAll(
+      By.css("[data-testid='rotation-history-job-row'] td"),
+    );
+    expect(cells).toHaveLength(4);
+    expect(cells[3].nativeElement.textContent.trim()).toBe("1");
+  });
+
+  it("keeps the attempt status, failure reason and sync state in the row", () => {
+    const fixture = render([
+      rotationJob({
+        attempts: [
+          rotationAttempt({
+            status: RotationAttemptStatus.Errored,
+            failureReason: "LDAP result code 53",
+            syncState: RotationSyncState.Indeterminate,
+          }),
+        ],
+      }),
+    ]);
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain("pamRotationAttemptStatusErrored");
+    expect(text).toContain("LDAP result code 53");
+    expect(text).toContain("pamRotationSyncStateIndeterminate");
   });
 });
