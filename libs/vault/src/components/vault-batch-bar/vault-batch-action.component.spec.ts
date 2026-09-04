@@ -11,10 +11,6 @@ import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service"
 
 import { VaultBatchActionComponent } from "./vault-batch-action.component";
 
-/**
- * Renders whatever `LayoutFooterService` is holding. `<bit-vault-batch-action>` hands its bar to
- * that service as a portal instead of rendering inline, so this stands in for `bit-layout`'s outlet.
- */
 @Component({
   selector: "test-footer-outlet",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -236,14 +232,9 @@ describe("VaultBatchActionComponent", () => {
   });
 
   describe("action invocation", () => {
-    /**
-     * Clear must go through `clearSelection()`: with a source registered, `selected()` stops consulting
-     * the CDK model, so clearing that directly leaves the bar up and every row checked.
-     */
     it("clears through the service when the bar's Clear button is pressed", () => {
       selectedCount.set(2);
 
-      // The bar renders through LayoutFooterService's portal, so mount an outlet for it.
       const outlet = TestBed.createComponent(FooterOutletComponent);
       fixture.detectChanges();
       outlet.detectChanges();

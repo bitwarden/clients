@@ -77,8 +77,6 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
  * Not yet wired: the `?itemId=&action=` deep link that opens an item on load. The archive's
  * "premium subscription ended" callout has nowhere to surface yet.
  *
- * Bulk actions need no `completed$` subscription: rows derive from `cipherListViews$`, which
- * re-emits off cipher state, and `VaultBatchBarService` clears its own selection.
  */
 @Component({
   selector: "app-vault-next",
@@ -102,7 +100,6 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
   providers: [
     safeProvider({ provide: DefaultCipherFormConfigService, useAngularDecorators: true }),
     safeProvider({ provide: WebVaultItemActionsService, useAngularDecorators: true }),
-    // Provided here so the bulk-action bar's selection lives and dies with this page.
     VaultBatchBarService,
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
@@ -288,10 +285,6 @@ export class VaultNextComponent {
     { initialValue: false },
   );
 
-  /**
-   * Feeds the batch bar the vault context its `can*` permission signals read. An individual vault
-   * is never `isOrgVault` (that means the admin console), and `allCollections` is the unscoped set.
-   */
   private readonly configureBatchBar = effect(() => {
     const collections = this.collections();
     const hasCiphers = this.ciphers().length > 0;

@@ -121,10 +121,6 @@ class BareToolbarHostComponent {
   readonly show = signal(true);
 }
 
-/**
- * A stand-in for `VaultBatchBarService` carrying only what the table touches. `selected` mirrors the
- * service's own computed, so a test reading it sees exactly what the `can*` signals would.
- */
 function batchBarDouble() {
   const source = signal<VaultSelectionSource<CipherViewLike> | undefined>(undefined);
   const selected = computed(() => source()?.selected() ?? []);
@@ -132,8 +128,6 @@ function batchBarDouble() {
     source,
     selected,
     selectedCount: computed(() => selected().length),
-    // Mirrors the real service: the bar shows once anything is selected. The table reads this to
-    // hold scroll space below the last row so the fixed bar can't cover it.
     barVisible: computed(() => selected().length > 0),
     registerSelection: (next: VaultSelectionSource<CipherViewLike>) => {
       source.set(next);
@@ -1451,12 +1445,7 @@ describe("VaultItemsTableComponent", () => {
     expect(host.classList).toContain("tw-min-h-0");
   });
 
-  /**
-   * The table registering its selection as the batch bar's source: the bar must report exactly what
-   * the checkboxes show, since its `can*` signals and every bulk action read off it.
-   */
   describe("batch bar selection source", () => {
-    /** The table's selection model, which the checkbox column drives. */
     function selectionModel() {
       const model = bitTable().selectionModel();
       if (!model) {
@@ -1465,7 +1454,6 @@ describe("VaultItemsTableComponent", () => {
       return model;
     }
 
-    /** The cipher ids the batch bar currently reports, in selection order. */
     function batchBarIds(): (string | undefined)[] {
       return batchBar.selected().map((item) => item.cipher?.id as string | undefined);
     }
@@ -1528,10 +1516,6 @@ describe("VaultItemsTableComponent", () => {
       expect(batchBar.selected()).toEqual([]);
     });
 
-    /**
-     * The bar clears its source after a completed action and on route-filter changes, and the checkboxes
-     * must follow — else rows stay checked against items just deleted or moved out of view.
-     */
     it("clears the table's checkboxes when the batch bar clears the source", () => {
       const amazon = cipherView({ id: "a", name: "Amazon" });
       fixture.componentRef.setInput("ciphers", [amazon]);
@@ -1548,10 +1532,6 @@ describe("VaultItemsTableComponent", () => {
       expect(batchBar.selected()).toEqual([]);
     });
 
-    /**
-     * The point of a projection over a copy: no second model can fall out of step, so the bar reports
-     * the table's rows by construction even after a re-decrypt swaps every row reference.
-     */
     it("keeps the batch bar in agreement after rows are re-emitted", () => {
       fixture.componentRef.setInput("ciphers", [cipherView({ id: "a", name: "Amazon" })]);
       fixture.detectChanges();
@@ -1597,10 +1577,6 @@ describe("VaultItemsTableComponent", () => {
       expect(batchBarIds()).toEqual(["b"]);
     });
 
-    /**
-     * Each selected item becomes per-cipher permission checks and request payloads, so select-all is
-     * capped rather than unbounded — matching the legacy vault-items component's cap.
-     */
     it("caps the selection itself at MAX_SELECTION_COUNT", () => {
       const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
         cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
@@ -1611,16 +1587,10 @@ describe("VaultItemsTableComponent", () => {
       selectionModel().toggleAll();
       fixture.detectChanges();
 
-      // The cap binds the selection, not just what the bar is handed — the two must agree, or the
-      // over-cap rows would render checked while no action ever touches them.
       expect(selectionModel().count()).toBe(MAX_SELECTION_COUNT);
       expect(batchBar.selected().length).toBe(MAX_SELECTION_COUNT);
     });
 
-    /**
-     * A capped select-all leaves rows on screen unchecked, so the header reads as partial — a
-     * filled box above visibly unchecked rows would claim the selection covers them.
-     */
     it("reports a partial header when the cap stops select-all short", () => {
       const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
         cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
@@ -1635,7 +1605,6 @@ describe("VaultItemsTableComponent", () => {
       expect(selectionModel().indeterminate()).toBe(true);
     });
 
-    /** The partial header still clears, so the cap can't strand it — see `toggleAll`. */
     it("clears from the partial header at the cap", () => {
       const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
         cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
@@ -1651,10 +1620,6 @@ describe("VaultItemsTableComponent", () => {
       expect(selectionModel().count()).toBe(0);
     });
 
-    /**
-     * A capped select-all must slice in sort order. Scoped over the pre-sort set it would check
-     * rows scattered through the list while disabling the rest — reading as broken.
-     */
     it("caps in display order when the sort is reversed", () => {
       const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
         cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
@@ -1662,14 +1627,12 @@ describe("VaultItemsTableComponent", () => {
       fixture.componentRef.setInput("ciphers", many);
       fixture.detectChanges();
 
-      // Descending by name — the reverse of the table's implicit ascending order.
       bitTable().sort.set({ column: "name", direction: "desc" });
       fixture.detectChanges();
 
       selectionModel().toggleAll();
       fixture.detectChanges();
 
-      // The 500 highest names, i.e. the top of the list the user is looking at.
       const expected = [...many]
         .sort((a, b) => b.name.localeCompare(a.name))
         .slice(0, MAX_SELECTION_COUNT)
@@ -1682,7 +1645,6 @@ describe("VaultItemsTableComponent", () => {
       ).toEqual(expected.sort());
     });
 
-    /** A second toggle has to clear a capped selection rather than leaving it stuck. */
     it("clears a capped select-all on the next toggle", () => {
       const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
         cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
@@ -1699,10 +1661,6 @@ describe("VaultItemsTableComponent", () => {
       expect(batchBar.selected().length).toBe(0);
     });
 
-    /**
-     * Left enabled at the cap, a rejected click still flips `checked` and Angular's unchanged
-     * `[checked]` never writes it back. Disabling makes the click impossible instead.
-     */
     it("disables unselected row checkboxes once the selection is full", () => {
       // A cap small enough that a rejected row lands inside the virtual-scroll window.
       (component as unknown as { selection: SelectionConfig<CipherViewLike> }).selection = {
@@ -1726,23 +1684,16 @@ describe("VaultItemsTableComponent", () => {
       fixture.detectChanges();
       expect(selectionModel().count()).toBe(2);
 
-      // The still-unselected rows can no longer be clicked into a stale checked state...
       expect(boxes()[2].disabled).toBe(true);
       expect(boxes()[3].disabled).toBe(true);
-      // ...while the selected ones stay deselectable.
       expect(boxes()[0].disabled).toBe(false);
       expect(boxes()[1].disabled).toBe(false);
 
-      // Freeing a slot re-enables them.
       boxes()[0].click();
       fixture.detectChanges();
       expect(boxes()[2].disabled).toBe(false);
     });
 
-    /**
-     * Single-select has no working select-all — `toggleAll` could keep one row, leaving the header
-     * permanently indeterminate — so the checkbox is omitted while the header cell stays.
-     */
     it("omits the header select-all in single-select mode", () => {
       (component as unknown as { selection: SelectionConfig<CipherViewLike> }).selection = {
         multiple: false,
@@ -1757,14 +1708,9 @@ describe("VaultItemsTableComponent", () => {
       const rowBoxes = fixture.debugElement.queryAll(By.css("input[data-selection-input]"));
 
       expect(rowBoxes.length).toBe(2);
-      // Every checkbox present is a row's — none is the header's select-all.
       expect(all.length).toBe(rowBoxes.length);
     });
 
-    /**
-     * The bar is `position: fixed` and never displaces content, so without a margin the last row
-     * sits underneath it — its checkbox and quick actions unreachable.
-     */
     it("holds a bottom margin only while the bar is showing", () => {
       const amazon = cipherView({ id: "a", name: "Amazon" });
       fixture.componentRef.setInput("ciphers", [amazon]);
@@ -1777,8 +1723,7 @@ describe("VaultItemsTableComponent", () => {
       selectionModel().select(amazon);
       fixture.detectChanges();
 
-      // Enough to clear the bar; the exact figure lives with BULK_BAR_CLEARANCE, so assert that
-      // space is held rather than pinning a number the constant is free to tune.
+      // Assert space is held rather than the figure, which BULK_BAR_CLEARANCE is free to tune.
       expect(parseInt(host().style.marginBottom, 10)).toBeGreaterThan(0);
 
       selectionModel().clear();
@@ -1787,10 +1732,6 @@ describe("VaultItemsTableComponent", () => {
       expect(host().style.marginBottom).toBe("0px");
     });
 
-    /**
-     * The service is provided above the table, so a destroyed table must retract its source —
-     * otherwise its selection outlives it and the bar acts on rows that are no longer displayed.
-     */
     it("deregisters its source when the table is destroyed", () => {
       fixture.detectChanges();
       expect(batchBar.source()).toBeDefined();

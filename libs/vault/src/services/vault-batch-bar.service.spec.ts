@@ -190,10 +190,6 @@ describe("VaultBatchBarService", () => {
   });
 
   describe("inTrash", () => {
-    /**
-     * Vaults scoping by route segment can't express trash as `?type=trash`, so the config wins when
-     * set — otherwise Restore never appears and Delete soft-deletes items already in the trash.
-     */
     it("reads the route filter when the config says nothing", () => {
       filterSubject.next({ type: "trash" });
 
@@ -217,7 +213,6 @@ describe("VaultBatchBarService", () => {
       expect(service.inTrash()).toBe(false);
     });
 
-    /** `bulkDelete` reads `inTrash()` for `permanent`, so this decides soft vs permanent delete. */
     it("makes bulkDelete permanent when the config says trash", async () => {
       service.setConfig(makeConfig({ inTrash: true }));
       service.selection.select(makeCipherItem());
@@ -233,7 +228,6 @@ describe("VaultBatchBarService", () => {
   });
 
   describe("registerSelection()", () => {
-    /** A host-owned selection source, standing in for a list component's own selection model. */
     function sourceDouble(initial: VaultItem<CipherView>[] = []) {
       const selected = signal<readonly VaultItem<CipherView>[]>(initial);
       return {
@@ -257,7 +251,6 @@ describe("VaultBatchBarService", () => {
       const source = sourceDouble([]);
       service.registerSelection(source);
 
-      // The legacy model still accepts writes; they just aren't what the bar reports.
       service.selection.select(makeCipherItem());
 
       expect(service.selected()).toEqual([]);
@@ -274,18 +267,13 @@ describe("VaultBatchBarService", () => {
       expect(service.canAddToFolder()).toBe(true);
     });
 
-    /**
-     * `canDelete` and `canRestore` used to key off the CDK model's `changed` observable. They must
-     * follow a registered source instead, or the bar authorizes an action against a selection nobody made.
-     */
     it("drives the async canDelete pipeline from the registered source", async () => {
       const source = sourceDouble([]);
       service.registerSelection(source);
 
-      // An unauthorized cipher appearing in the source has to flow through to canDelete; the
-      // pipeline is async, so let the switchMap settle before asserting.
       mockCipherAuthorizationService.canDeleteCipher$.mockReturnValue(of(false));
       source.set([makeCipherItem()]);
+      // The pipeline is async, so let the switchMap settle before asserting.
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(service.canDelete()).toBe(false);
@@ -1239,10 +1227,6 @@ describe("VaultBatchBarService", () => {
       expect(service.selectedCount()).toBe(1);
     });
 
-    /**
-     * The dialog preselects the active collection, and unticking it removes items from that folder.
-     * A route-segment host leaves the filter empty, so without the config neither is reachable.
-     */
     it("takes the active collection from the config when the route filter names none", async () => {
       const collection = makeCollection();
       service.setConfig(

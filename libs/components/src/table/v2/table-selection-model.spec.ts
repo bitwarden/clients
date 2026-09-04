@@ -8,10 +8,6 @@ const rows = (count: number): Row[] => Array.from({ length: count }, (_, id) => 
 
 describe("TableSelectionModel", () => {
   describe("single-select", () => {
-    /**
-     * `toggleAll` can only ever keep one row in single-select, so the header checkbox would sit
-     * permanently indeterminate and never clear. The table reads {@link multiSelect} to omit it.
-     */
     it("reports multiSelect false so the table can omit select-all", () => {
       const model = new TableSelectionModel<Row>({ multiple: false, rows: signal(rows(5)) });
 
@@ -46,10 +42,6 @@ describe("TableSelectionModel", () => {
   });
 
   describe("rows leaving scope", () => {
-    /**
-     * A selection outlives the filter that made it — a consumer acts on every selected row, not
-     * just the visible ones — so out-of-scope rows keep counting toward the cap.
-     */
     it("keeps selected rows that leave scope", () => {
       const all = rows(10);
       const scope = signal<readonly Row[]>(all);
@@ -61,10 +53,6 @@ describe("TableSelectionModel", () => {
       expect(model.count()).toBe(10);
     });
 
-    /**
-     * With the budget spent on rows the filter hid, every visible checkbox disables. The header
-     * has to remain the way out, or the view reads as frozen.
-     */
     it("lets the header recover a budget spent on out-of-scope rows", () => {
       const all = rows(10);
       const scope = signal<readonly Row[]>(all);
@@ -73,7 +61,6 @@ describe("TableSelectionModel", () => {
       model.toggleAll();
       scope.set(all.slice(8));
       expect(model.full()).toBe(true);
-      // Nothing visible can be selected while the budget is held elsewhere.
       model.select(all[8]);
       expect(model.isSelected(all[8])).toBe(false);
 
@@ -86,10 +73,6 @@ describe("TableSelectionModel", () => {
   });
 
   describe("max", () => {
-    /**
-     * The cap must bind the selection itself. Capping a downstream view instead leaves over-cap
-     * rows rendering as checked while a bulk operation silently skips them.
-     */
     it("stops select-all at the cap", () => {
       const model = new TableSelectionModel<Row>({
         multiple: true,
@@ -136,10 +119,6 @@ describe("TableSelectionModel", () => {
       expect(model.count()).toBe(4);
     });
 
-    /**
-     * A capped select-all leaves rows the user can see unchecked, so the header has to read as
-     * partial. A filled box above visibly unchecked rows claims the selection covers them.
-     */
     it("reads as partial at the cap, not complete", () => {
       const model = new TableSelectionModel<Row>({
         multiple: true,
@@ -153,7 +132,6 @@ describe("TableSelectionModel", () => {
       expect(model.indeterminate()).toBe(true);
     });
 
-    /** With nothing left out, the header is genuinely complete. */
     it("reads as complete when the cap happens to cover every row", () => {
       const model = new TableSelectionModel<Row>({
         multiple: true,
@@ -190,10 +168,6 @@ describe("TableSelectionModel", () => {
       expect(model.count()).toBe(0);
     });
 
-    /**
-     * A selection at `max` must not dead-end: filtered onto unselected rows the header renders
-     * unchecked with no budget left, so without this the checkbox would be inert.
-     */
     it("clears instead of no-opping when the budget is spent and the scope moved", () => {
       const all = rows(1200);
       const filtered = signal<readonly Row[]>(all);
@@ -202,7 +176,6 @@ describe("TableSelectionModel", () => {
       model.toggleAll();
       expect(model.count()).toBe(500);
 
-      // Narrow onto rows that exclude every selected one.
       filtered.set(all.slice(600, 700));
       expect(model.allSelected()).toBe(false);
 
@@ -211,7 +184,6 @@ describe("TableSelectionModel", () => {
       expect(model.count()).toBe(0);
     });
 
-    /** With the budget handed back, the next select-all works within the narrowed view. */
     it("can select again in the new scope after clearing", () => {
       const all = rows(1200);
       const filtered = signal<readonly Row[]>(all);
@@ -226,10 +198,6 @@ describe("TableSelectionModel", () => {
       expect(model.allSelected()).toBe(true);
     });
 
-    /**
-     * A row past the cap window is still visibly checked, so the header has to reflect it.
-     * Bounding this to the capped set renders the header empty while a row shows as selected.
-     */
     it("is indeterminate when only a row past the cap window is selected", () => {
       const all = rows(600);
       const model = new TableSelectionModel<Row>({ multiple: true, max: 500, rows: signal(all) });
@@ -240,10 +208,6 @@ describe("TableSelectionModel", () => {
       expect(model.allSelected()).toBe(false);
     });
 
-    /**
-     * `full` is what row checkboxes bind `disabled` to. Left enabled at the cap, a rejected click
-     * still flips `checked` and Angular's unchanged `[checked]` never writes it back.
-     */
     it("reports full at the cap and not below it", () => {
       const all = rows(10);
       const model = new TableSelectionModel<Row>({ multiple: true, max: 2, rows: signal(all) });
@@ -275,7 +239,6 @@ describe("TableSelectionModel", () => {
       expect(model.allSelected()).toBe(true);
     });
 
-    /** The cap applies to selectable rows, so non-selectable ones don't consume its budget. */
     it("counts only selectable rows against the cap", () => {
       const all = rows(25);
       const model = new TableSelectionModel<Row>({

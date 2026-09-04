@@ -34,7 +34,6 @@ describe("VaultListTableComponent", () => {
   async function setup(extraProviders: unknown[] = []) {
     mockGetRowActions = jest.fn(() => []);
     configService = mock<ConfigService>();
-    // Both batch-bar flags on by default; the desktop-only one is what this client adds.
     configService.getFeatureFlag$.mockReturnValue(of(true));
 
     await TestBed.configureTestingModule({

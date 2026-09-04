@@ -193,8 +193,6 @@ describe("MyFoldersComponent", () => {
       await component["deleteSelected"]();
 
       expect(openDeleteDialog).toHaveBeenCalledWith(dialogService, { count: 3 });
-      // Select-all yields the rows in display order (here, sorted by name), so assert the set
-      // rather than the order — which folder is deleted first carries no meaning.
       const [deletedIds, deletedUserId] = folderApiService.deleteMany.mock.calls[0];
       expect([...deletedIds].sort()).toEqual(["1", "2", "3"]);
       expect(deletedUserId).toBe(userId);

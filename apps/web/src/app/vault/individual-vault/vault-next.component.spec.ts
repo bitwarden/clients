@@ -142,10 +142,6 @@ describe("VaultNextComponent", () => {
     return folder;
   };
 
-  /**
-   * Child components are stripped from the harness (see `overrideComponent`), so assertions read
-   * the signals the template binds; the bindings are covered by the template type-check.
-   */
   const component = () => fixture.componentInstance as any;
 
   /** The row menu handlers the component hands `CipherRowMenuService`. */
@@ -253,9 +249,6 @@ describe("VaultNextComponent", () => {
           schemas: [NO_ERRORS_SCHEMA],
           providers: [
             { provide: WebVaultItemActionsService, useValue: itemActions },
-            // A stand-in for the bulk-action bar, carrying only what this component touches. The
-            // real service would pull in dialogs, authorization, and archive — none of which the
-            // page's own wiring exercises.
             { provide: VaultBatchBarService, useValue: batchBarService },
           ],
         },
@@ -699,10 +692,6 @@ describe("VaultNextComponent", () => {
   });
 
   describe("bulk actions", () => {
-    /**
-     * The bar's `can*` permission signals read this context, so it has to reflect the page. An
-     * individual vault is never `isOrgVault` — that means the admin console's admin endpoints.
-     */
     it("feeds the batch bar the vault context", () => {
       fixture.detectChanges();
 
@@ -718,10 +707,6 @@ describe("VaultNextComponent", () => {
       expect(config.hasCiphers).toBe(component().ciphers().length > 0);
     });
 
-    /**
-     * This page scopes by route segment, not the `?type=trash` the service reads — without telling
-     * it, Restore never appears and Delete soft-deletes items already in the trash.
-     */
     it("tells the batch bar when the page is scoped to the trash", () => {
       scopeTo(TRASH_ROUTE);
 
@@ -736,10 +721,6 @@ describe("VaultNextComponent", () => {
       expect(config.inTrash).toBe(false);
     });
 
-    /**
-     * The drilled-into folder lives in the scope, not the `?collectionId` the service reads —
-     * without telling it, Assign to collections can't preselect that folder or remove items from it.
-     */
     it("tells the batch bar which shared folder the page has drilled into", () => {
       collections$.next([buildCollection(engineeringId, organizationId)]);
       scopeTo(organizationId, engineeringId);
@@ -756,10 +737,6 @@ describe("VaultNextComponent", () => {
       expect(config.activeCollectionId).toBeUndefined();
     });
 
-    /**
-     * The `my-items` sentinel survives until the nav loads. It names no collection, so forwarding
-     * it as an id would hand the service something it can act on but that matches nothing.
-     */
     it("names no shared folder while the sentinel is still unresolved", () => {
       collections$.next([buildCollection(engineeringId, organizationId)]);
       // The nav hasn't loaded, so `resolveVaultScope` leaves the sentinel in place.
@@ -776,10 +753,6 @@ describe("VaultNextComponent", () => {
       expect(config.activeCollectionId).toBeUndefined();
     });
 
-    /**
-     * Angular reuses this component across side-nav destinations, so a selection survives the move.
-     * Landing on Trash with My vault items still checked makes a permanent delete hit the wrong ones.
-     */
     it("clears the selection when the side nav scopes the page elsewhere", () => {
       scopeTo(MY_VAULT_ROUTE);
       batchBarService.clearSelection.mockClear();
@@ -789,7 +762,6 @@ describe("VaultNextComponent", () => {
       expect(batchBarService.clearSelection).toHaveBeenCalled();
     });
 
-    /** The page is already scoped when it renders, so that first resolution must not clear. */
     it("does not clear on the page's initial render", () => {
       expect(batchBarService.clearSelection).not.toHaveBeenCalled();
     });
@@ -803,10 +775,6 @@ describe("VaultNextComponent", () => {
       expect(batchBarService.clearSelection).not.toHaveBeenCalled();
     });
 
-    /**
-     * The unscoped collections, not the scoped ones the table's chip lists: assigning an item to a
-     * collection isn't limited to the collections this page happens to show.
-     */
     it("passes the unscoped collections", () => {
       fixture.detectChanges();
 
