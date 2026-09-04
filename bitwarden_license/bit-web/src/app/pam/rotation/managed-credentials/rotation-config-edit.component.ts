@@ -197,6 +197,7 @@ export class RotationConfigEditComponent {
       }
     } finally {
       this.loading.set(false);
+      this.markSaved();
     }
   }
 
@@ -325,7 +326,7 @@ export class RotationConfigEditComponent {
         request,
       );
       this.existingConfig.set(updated);
-      this.editForm.markAsPristine();
+      this.markSaved();
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamRotationConfigSaved"),
@@ -372,12 +373,25 @@ export class RotationConfigEditComponent {
   }
 
   /**
+   * The live form's value as the admin was last shown it, serialized.
+   *
+   * The guard compares against this rather than reading `dirty`, because the schedule sub-editor
+   * emits its resolved cron back through the value accessor while the page is still initialising,
+   * and Angular marks the bound control dirty for that emission with nothing typed.
+   */
+  private readonly savedValue = signal("");
+
+  private markSaved(): void {
+    this.savedValue.set(JSON.stringify(this.liveForm().getRawValue()));
+  }
+
+  /**
    * Confirm before unsaved input is thrown away. Called both by Cancel and by the route's
    * CanDeactivate guard, which covers the breadcrumb and browser back/forward — and which is the
    * only protection on the edit view, where the footer carries no Cancel button.
    */
   async confirmDiscard(): Promise<boolean> {
-    if (!this.liveForm().dirty) {
+    if (JSON.stringify(this.liveForm().getRawValue()) === this.savedValue()) {
       return true;
     }
 
@@ -401,7 +415,7 @@ export class RotationConfigEditComponent {
   private navigateBack(): Promise<boolean> {
     // A create, a removal, a confirmed discard, or a not-found bounce is an exit the admin has
     // already agreed to, so the CanDeactivate guard must not ask a second time.
-    this.liveForm().markAsPristine();
+    this.markSaved();
     return this.router.navigate([".."], { relativeTo: this.route });
   }
 

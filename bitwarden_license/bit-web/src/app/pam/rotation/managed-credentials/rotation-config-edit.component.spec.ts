@@ -358,10 +358,43 @@ describe("RotationConfigEditComponent — discard guard", () => {
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
+  // RotationScheduleInputComponent resolves its preset table from the SDK and emits the resolved
+  // cron once it lands. That emission reaches scheduleCron through the value accessor, which
+  // Angular treats as a view change and marks the control dirty — with nothing typed. The stubbed
+  // template here never binds the sub-editor, so these two reproduce the emission by hand.
+  it("leaves a create form the schedule editor only re-emitted into without asking", async () => {
+    const { component, fixture, dialogService } = setup();
+    await fixture.whenStable();
+    component.createForm.controls.scheduleCron.setValue(null);
+    component.createForm.controls.scheduleCron.markAsDirty();
+
+    await expect(runGuard(component)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+  });
+
+  it("leaves an edit form the schedule editor only re-emitted into without asking", async () => {
+    const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
+    await fixture.whenStable();
+    component.settingsForm.controls.scheduleCron.setValue("0 0 0 * * ?");
+    component.settingsForm.controls.scheduleCron.markAsDirty();
+
+    await expect(runGuard(component)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+  });
+
+  it("asks about a changed schedule", async () => {
+    const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
+    await fixture.whenStable();
+    component.settingsForm.controls.scheduleCron.setValue("0 0 */4 * * ?");
+
+    await expect(runGuard(component)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(EDIT_DIALOG);
+  });
+
   it("asks about an abandoned new managed credential", async () => {
     const { component, fixture, dialogService } = setup();
     await fixture.whenStable();
-    component.createForm.controls.accountIdentity.markAsDirty();
+    component.createForm.controls.accountIdentity.setValue("admin@example.com");
 
     await expect(runGuard(component)).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(CREATE_DIALOG);
@@ -370,7 +403,7 @@ describe("RotationConfigEditComponent — discard guard", () => {
   it("asks about unsaved edits made in either card", async () => {
     const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
     await fixture.whenStable();
-    component.accountForm.controls.accountIdentity.markAsDirty();
+    component.accountForm.controls.accountIdentity.setValue("svc_rotation");
 
     await expect(runGuard(component)).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(EDIT_DIALOG);
@@ -380,7 +413,7 @@ describe("RotationConfigEditComponent — discard guard", () => {
     const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
     await fixture.whenStable();
     dialogService.openSimpleDialog.mockResolvedValue(false);
-    component.accountForm.controls.accountIdentity.markAsDirty();
+    component.accountForm.controls.accountIdentity.setValue("svc_rotation");
 
     await expect(runGuard(component)).resolves.toBe(false);
   });
@@ -389,7 +422,6 @@ describe("RotationConfigEditComponent — discard guard", () => {
     const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
     await fixture.whenStable();
     component.accountForm.controls.accountIdentity.setValue("svc_rotation");
-    component.accountForm.controls.accountIdentity.markAsDirty();
 
     await component.submitEdit();
 
@@ -400,7 +432,7 @@ describe("RotationConfigEditComponent — discard guard", () => {
   it("does not ask again after the credential is removed", async () => {
     const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
     await fixture.whenStable();
-    component.accountForm.controls.accountIdentity.markAsDirty();
+    component.accountForm.controls.accountIdentity.setValue("svc_rotation");
 
     await component.removeRotation();
 
