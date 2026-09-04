@@ -428,6 +428,35 @@ describe("DaemonsTabComponent", () => {
 
       expect(dialogService.open).not.toHaveBeenCalled();
     });
+
+    it("keeps the row menu open when the disabled assign item is clicked", async () => {
+      (await openRowMenu(false)).click();
+      fixture.detectChanges();
+
+      expect(document.querySelector(".bit-menu-panel")).not.toBeNull();
+    });
+
+    it("closes the row menu when the enabled assign item is clicked", async () => {
+      const item = await openRowMenu(true);
+      (dialogService.open as jest.Mock).mockReturnValue({ closed: of(undefined) });
+
+      item.click();
+      fixture.detectChanges();
+
+      expect(document.querySelector(".bit-menu-panel")).toBeNull();
+    });
+
+    it("describes the disabled assign item with the tooltip explaining why", async () => {
+      const item = await openRowMenu(false);
+
+      expect(item.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
+    });
+
+    it("leaves the enabled assign item undescribed", async () => {
+      const item = await openRowMenu(true);
+
+      expect(item.getAttribute("aria-describedby")).toBeNull();
+    });
   });
 
   describe("load error state", () => {
