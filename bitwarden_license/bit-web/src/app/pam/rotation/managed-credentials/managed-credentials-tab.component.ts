@@ -27,8 +27,9 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { TargetSystemMethod, TargetSystem } from "../rotation";
+import { RotationConfigId, TargetSystemMethod, TargetSystem } from "../rotation";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
+import { RowBusyTracker } from "../row-busy-tracker";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { RotationConfigRow } from "./rotation-config-row";
@@ -103,6 +104,10 @@ export class ManagedCredentialsTabComponent {
   /** Expose for template. */
   protected readonly TargetSystemMethod = TargetSystemMethod;
 
+  private readonly busyRows = new RowBusyTracker<RotationConfigId>();
+
+  protected readonly isRowBusy = this.busyRows.isBusy;
+
   constructor() {
     effect(() => {
       void this.loadAll(this.organizationId());
@@ -154,85 +159,90 @@ export class ManagedCredentialsTabComponent {
   protected readonly openEdit = (row: RotationConfigRow): Promise<boolean> =>
     this.router.navigate(["..", "managed-credentials", row.id], { relativeTo: this.route });
 
-  protected readonly rotateNow = async (row: RotationConfigRow): Promise<void> => {
-    try {
-      await this.configsService.rotateNow(row.config);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamRotationConfigRotateNowSuccess"),
-      });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
-
-  protected readonly confirmRecordManual = async (row: RotationConfigRow): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamRotationConfigRecordManualTitle" },
-      content: { key: "pamRotationConfigRecordManualContent" },
-      acceptButtonText: { key: "pamRotationConfigRecordManualConfirm" },
-      cancelButtonText: { key: "cancel" },
-      type: "info",
+  protected readonly rotateNow = (row: RotationConfigRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
+      try {
+        await this.configsService.rotateNow(row.config);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamRotationConfigRotateNowSuccess"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
     });
-    if (!confirmed) {
-      return;
-    }
-    try {
-      await this.configsService.recordManual(row.config);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamRotationConfigRecordManualSuccess"),
-      });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
 
-  protected readonly pause = async (row: RotationConfigRow): Promise<void> => {
-    try {
-      await this.configsService.pause(row.config);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamRotationConfigPauseSuccess"),
+  protected readonly confirmRecordManual = (row: RotationConfigRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "pamRotationConfigRecordManualTitle" },
+        content: { key: "pamRotationConfigRecordManualContent" },
+        acceptButtonText: { key: "pamRotationConfigRecordManualConfirm" },
+        cancelButtonText: { key: "cancel" },
+        type: "info",
       });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
-
-  protected readonly resume = async (row: RotationConfigRow): Promise<void> => {
-    try {
-      await this.configsService.resume(row.config);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamRotationConfigResumeSuccess"),
-      });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
-
-  protected readonly confirmDelete = async (row: RotationConfigRow): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamRotationConfigDeleteConfirmTitle" },
-      content: { key: "pamRotationConfigDeleteConfirmContent" },
-      acceptButtonText: { key: "delete" },
-      cancelButtonText: { key: "cancel" },
-      type: "warning",
+      if (!confirmed) {
+        return;
+      }
+      try {
+        await this.configsService.recordManual(row.config);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamRotationConfigRecordManualSuccess"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
     });
-    if (!confirmed) {
-      return;
-    }
-    try {
-      await this.configsService.delete(row.config);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamRotationConfigDeleteSuccess"),
+
+  protected readonly pause = (row: RotationConfigRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
+      try {
+        await this.configsService.pause(row.config);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamRotationConfigPauseSuccess"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
+    });
+
+  protected readonly resume = (row: RotationConfigRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
+      try {
+        await this.configsService.resume(row.config);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamRotationConfigResumeSuccess"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
+    });
+
+  protected readonly confirmDelete = (row: RotationConfigRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "pamRotationConfigDeleteConfirmTitle" },
+        content: { key: "pamRotationConfigDeleteConfirmContent" },
+        acceptButtonText: { key: "delete" },
+        cancelButtonText: { key: "cancel" },
+        type: "warning",
       });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
+      if (!confirmed) {
+        return;
+      }
+      try {
+        await this.configsService.delete(row.config);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamRotationConfigDeleteSuccess"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
+    });
 
   private showError(e: unknown): void {
     const message =

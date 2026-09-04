@@ -7,8 +7,9 @@ import { BehaviorSubject, of } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import type { AccessConnector, TargetSystemId, TargetSystem } from "../rotation";
+import type { AccessConnector, AccessConnectorId, TargetSystemId, TargetSystem } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
+import { deferred } from "../testing/deferred";
 import { ORGANIZATION_ID, connectorId, sysId } from "../testing/rotation-builders";
 
 import { DaemonsTabComponent } from "./daemons-tab.component";
@@ -28,22 +29,25 @@ describe("DaemonsTabComponent", () => {
   const targetSystemsLoadError$ = new BehaviorSubject<unknown | null>(null);
 
   function makeDaemonRow(overrides: Partial<DaemonRow> = {}): DaemonRow {
+    const id = overrides.id ?? connectorId("daemon-1");
+    const name = overrides.name ?? "Test Daemon";
     return {
-      id: connectorId("daemon-1"),
-      name: "Test Daemon",
+      id,
+      name,
       statusLabelKey: "pamDaemonStatusEnabled",
       isConnected: true,
       assignmentNames: [],
       enabled: true,
       canAssign: true,
+      ...overrides,
       daemon: {
-        id: connectorId("daemon-1"),
-        name: "Test Daemon",
+        id,
+        name,
         assignments: [],
         status: 0,
         isConnected: true,
+        ...(overrides.daemon ?? {}),
       } as unknown as AccessConnector,
-      ...overrides,
     };
   }
 
@@ -213,14 +217,105 @@ describe("DaemonsTabComponent", () => {
 
   it("calls daemonsService.unassign after confirmation", async () => {
     (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(true);
-    const daemon = makeDaemonRow().daemon;
+    const row = makeDaemonRow();
 
     const component = fixture.componentInstance as unknown as {
-      unassign: (daemon: AccessConnector, targetId: TargetSystemId, name: string) => Promise<void>;
+      unassign: (row: DaemonRow, targetId: TargetSystemId, name: string) => Promise<void>;
     };
-    await component.unassign(daemon, sysId("ts-1"), "Prod");
+    await component.unassign(row, sysId("ts-1"), "Prod");
 
-    expect(daemonsService.unassign).toHaveBeenCalledWith(daemon, sysId("ts-1"));
+    expect(daemonsService.unassign).toHaveBeenCalledWith(row.daemon, sysId("ts-1"));
+  });
+
+  describe("in-flight row guard", () => {
+    type Guarded = {
+      disable: (row: DaemonRow) => Promise<void>;
+      confirmDelete: (row: DaemonRow) => Promise<void>;
+      unassign: (row: DaemonRow, targetId: TargetSystemId, name: string) => Promise<void>;
+      isRowBusy: (rowId: AccessConnectorId) => boolean;
+    };
+
+    function guarded(): Guarded {
+      return fixture.componentInstance as unknown as Guarded;
+    }
+
+    beforeEach(() => {
+      (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(true);
+    });
+
+    it("does not dispatch a second setEnabled while the first is unsettled", async () => {
+      const pending = deferred();
+      (daemonsService.setEnabled as jest.Mock).mockReturnValue(pending.promise);
+      const row = makeDaemonRow();
+      const component = guarded();
+
+      const first = component.disable(row);
+      const second = component.disable(row);
+      pending.settle();
+      await Promise.all([first, second]);
+
+      expect(daemonsService.setEnabled).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not dispatch a second delete while the first is unsettled", async () => {
+      const pending = deferred();
+      (daemonsService.delete as jest.Mock).mockReturnValue(pending.promise);
+      const row = makeDaemonRow();
+      const component = guarded();
+
+      const first = component.confirmDelete(row);
+      const second = component.confirmDelete(row);
+      pending.settle();
+      await Promise.all([first, second]);
+
+      expect(daemonsService.delete).toHaveBeenCalledTimes(1);
+    });
+
+    it("re-enables the row once the request settles", async () => {
+      const pending = deferred();
+      (daemonsService.setEnabled as jest.Mock).mockReturnValue(pending.promise);
+      const row = makeDaemonRow();
+      const component = guarded();
+
+      const first = component.disable(row);
+      expect(component.isRowBusy(row.id)).toBe(true);
+
+      pending.settle();
+      await first;
+      expect(component.isRowBusy(row.id)).toBe(false);
+
+      await component.disable(row);
+      expect(daemonsService.setEnabled).toHaveBeenCalledTimes(2);
+    });
+
+    it("marks the row busy under the id the row menu binds, on every action", async () => {
+      const pending = deferred();
+      (daemonsService.unassign as jest.Mock).mockReturnValue(pending.promise);
+      const row = makeDaemonRow({ id: connectorId("row-key") });
+      const component = guarded();
+
+      const first = component.unassign(row, sysId("ts-1"), "Prod");
+      expect(component.isRowBusy(row.id)).toBe(true);
+
+      pending.settle();
+      await first;
+      expect(component.isRowBusy(row.id)).toBe(false);
+    });
+
+    it("allows a second action on a different row while one is in flight", async () => {
+      const pending = deferred();
+      (daemonsService.setEnabled as jest.Mock).mockReturnValue(pending.promise);
+      const rowA = makeDaemonRow({ id: connectorId("1") });
+      const rowB = makeDaemonRow({ id: connectorId("2") });
+      const component = guarded();
+
+      const first = component.disable(rowA);
+      const second = component.disable(rowB);
+      pending.settle();
+      await Promise.all([first, second]);
+
+      expect(daemonsService.setEnabled).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe("openAssignDialog", () => {
