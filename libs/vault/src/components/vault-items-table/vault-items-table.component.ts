@@ -386,7 +386,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   protected readonly visibleColumns = computed<VaultItemsTableColumn[]>(() => {
     const hidden = new Set<VaultItemsTableColumn>();
-    if (!this.showVaults()) {
+    if (!this.showVaultColumn()) {
       hidden.add("vault");
     }
     if (!this.showSharedFolders()) {
@@ -470,16 +470,24 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   private readonly organizationNames = computed(() => this.nameMap(this.organizations()));
 
-  /** Product tier per organization id, for the tier-appropriate Vault column tile. */
-  private readonly organizationTiers = computed(() => {
-    const tiers = new Map<string, ProductTierType>();
+  /** The "My vault" filter option's tile, matching the Vault column and the side nav. */
+  protected readonly myVaultFilterTile = computed(() =>
+    personalIconTile(this.userAvatarColor() ?? "brand"),
+  );
+
+  /**
+   * Tile per organization id, shared by the Vault column and the Vault filter options so one
+   * organization reads the same in both places.
+   */
+  protected readonly organizationTiles = computed(() => {
+    const tiles = new Map<string, IconTileOptions>();
     for (const organization of this.organizations()) {
       const id = idString(organization.id);
       if (id) {
-        tiers.set(id, organization.productTierType);
+        tiles.set(id, orgIconTile(organization.productTierType));
       }
     }
-    return tiers;
+    return tiles;
   });
 
   /** Indexes named entities by id, widened to plain strings, skipping any that lack one. */
@@ -513,26 +521,40 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   });
 
   /**
-   * Whether the Vault chip and column should be shown.
-   *
-   * Shown when the user's items can span more than one vault:
-   * - multiple organizations are present (user can filter between them), or
-   * - exactly one organization is present alongside a personal vault option
-   *   (user can distinguish personal items from org-owned ones).
+   * Whether the user's items can span more than one vault:
+   * - multiple organizations are present, or
+   * - exactly one organization is present alongside a personal vault option.
    */
-  protected readonly showVaults = computed(() => {
-    const hasMultipleVaults = this.sortedOrganizations().length > 1;
-    const hasPersonalAndOrgVault =
-      this.showMyVaultOption() && this.sortedOrganizations().length === 1;
-    return hasMultipleVaults || hasPersonalAndOrgVault;
-  });
+  private spansMultipleVaults(organizations: Organization[]): boolean {
+    return organizations.length > 1 || (this.showMyVaultOption() && organizations.length === 1);
+  }
+
+  /**
+   * Whether the Vault chip should be shown. Driven by {@link sortedOrganizations}, so the chip
+   * only appears when the user can filter between the vaults it actually offers.
+   */
+  protected readonly showVaults = computed(() =>
+    this.spansMultipleVaults(this.sortedOrganizations()),
+  );
+
+  /**
+   * Whether the Vault column should be shown. Driven by the unfiltered `organizations` input
+   * rather than {@link sortedOrganizations}: a disabled organization still owns rows in the table,
+   * so the column has to label them even though the chip doesn't offer the organization.
+   */
+  protected readonly showVaultColumn = computed(() =>
+    this.spansMultipleVaults(this.organizations()),
+  );
 
   /**
    * The organizations the Vault chip offers. Derived from the `organizations` input
-   * so the options don't change as ciphers are filtered in or out.
+   * so the options don't change as ciphers are filtered in or out. Disabled organizations are
+   * left out: the user can't act on their items, so the option would be a dead end.
    */
   protected readonly sortedOrganizations = computed(() =>
-    [...this.organizations()].sort((a, b) => a.name.localeCompare(b.name)),
+    this.organizations()
+      .filter((organization) => organization.enabled)
+      .sort((a, b) => a.name.localeCompare(b.name)),
   );
 
   /**
@@ -616,7 +638,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     if (!organizationId) {
       return personalIconTile(this.userAvatarColor() ?? "brand");
     }
-    return orgIconTile(this.organizationTiers().get(organizationId) ?? ProductTierType.Enterprise);
+    return this.organizationTiles().get(organizationId) ?? orgIconTile(ProductTierType.Enterprise);
   }
 
   /**
