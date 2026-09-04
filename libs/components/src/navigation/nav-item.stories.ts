@@ -36,6 +36,8 @@ export default {
               skipToContent: "Skip to content",
               loading: "Loading",
               resizeSideNavigation: "Resize side navigation",
+              sideNavigationWidth: "__$1__ rem wide",
+              sideNavigationCollapsed: "Collapsed",
               sideNavigation: "Side navigation",
               skipLink: "Skip link",
             });
