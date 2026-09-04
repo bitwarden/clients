@@ -3706,7 +3706,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " मजबूत संकेतशब्द निर्मित करण्यासाठी $RECOMMEND$ किंवा अधिक वर्ण वापरा.",
+    "message": " मजबूत संकेतशब्द निर्मित करण्यासाठी $RECOMMENDED$ किंवा अधिक वर्ण वापरा.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
