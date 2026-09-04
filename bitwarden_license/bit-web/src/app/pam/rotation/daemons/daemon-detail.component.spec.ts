@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -136,6 +137,66 @@ describe("DaemonDetailComponent", () => {
       connectorId("daemon-1"),
     );
     expect(nav).toHaveBeenCalled();
+  });
+
+  it("assigns the selected target system, patches assignments, and shows a success toast", async () => {
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon({ assignedTargetSystemIds: [] }));
+    rotationSdk.assignTarget.mockResolvedValue(undefined);
+    const dialog = mock<DialogService>();
+    dialog.open.mockReturnValue({ closed: of(sysId("ts-1")) } as any);
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as {
+      openAssignDialog: () => Promise<void>;
+      assignmentNames: () => string[];
+    };
+    await comp.openAssignDialog();
+
+    expect(rotationSdk.assignTarget).toHaveBeenCalledWith(
+      ORGANIZATION_ID,
+      connectorId("daemon-1"),
+      sysId("ts-1"),
+    );
+    expect(comp.assignmentNames()).toEqual(["Prod Entra"]);
+    expect(TestBed.inject(ToastService).showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "success" }),
+    );
+  });
+
+  it("does not assign anything when the assign dialog is dismissed", async () => {
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon({ assignedTargetSystemIds: [] }));
+    const dialog = mock<DialogService>();
+    dialog.open.mockReturnValue({ closed: of(undefined) } as any);
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as { openAssignDialog: () => Promise<void> };
+    await comp.openAssignDialog();
+
+    expect(rotationSdk.assignTarget).not.toHaveBeenCalled();
+  });
+
+  it("shows an error toast when assignTarget rejects", async () => {
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon({ assignedTargetSystemIds: [] }));
+    rotationSdk.assignTarget.mockRejectedValue(new Error("boom"));
+    const dialog = mock<DialogService>();
+    dialog.open.mockReturnValue({ closed: of(sysId("ts-1")) } as any);
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as { openAssignDialog: () => Promise<void> };
+    await comp.openAssignDialog();
+
+    expect(TestBed.inject(ToastService).showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "error" }),
+    );
   });
 
   it("toasts and navigates back when the daemon is not found", async () => {
