@@ -14935,7 +14935,7 @@
   },
   "freeFamiliesSponsorshipDescVfo1": {
     "message": "Remove the option for members to redeem a free Families plan.",
-    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the drawer"
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the organization's billing page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."

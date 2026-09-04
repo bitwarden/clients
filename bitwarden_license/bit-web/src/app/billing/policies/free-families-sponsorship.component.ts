@@ -10,7 +10,7 @@ export class FreeFamiliesSponsorshipPolicy extends BasePolicyEditDefinition {
   nameVfo1 = "freeFamiliesSponsorshipTitleVfo1";
   drawerNameVfo1 = "freeFamiliesSponsorshipPolicyTitleV2Vfo1";
   description = "freeFamiliesSponsorshipPolicyDescV2";
-  drawerDescriptionVfo1 = "freeFamiliesSponsorshipDescVfo1";
+  descriptionVfo1 = "freeFamiliesSponsorshipDescVfo1";
   type = PolicyType.FreeFamiliesSponsorship;
   category = PolicyCategory.VaultManagement;
   priority = 60;
