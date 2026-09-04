@@ -107,6 +107,8 @@ export class VaultNextComponent {
 
   private readonly vaultIdParam = computed(() => this.routeParams()?.get("vaultId"));
 
+  private readonly collectionIdParam = computed(() => this.routeParams()?.get("collectionId"));
+
   private readonly collectionSegment = computed(() =>
     scopedCollectionSegment(this.routeParams(), this.routeData()),
   );
@@ -126,10 +128,7 @@ export class VaultNextComponent {
       ALL_ITEMS_SCOPE,
   );
 
-  protected readonly collectionSelected = computed(() => {
-    const scope = this.vaultScope();
-    return scope.type === VaultScopeType.Organization && scope.collectionId != null;
-  });
+  protected readonly collectionSelected = computed(() => this.collectionIdParam() != null);
 
   /**
    * Every item the user can see, in every state. Which of trashed, archived, and active items a
