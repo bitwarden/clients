@@ -48,10 +48,16 @@
     @if (showVaults()) {
       <bit-filter-menu [key]="filterKeys.vault" [placeholderText]="'vault' | i18n" multiple>
         @if (showMyVaultOption()) {
-          <bit-filter-option [value]="MY_VAULT">{{ "myVault" | i18n }}</bit-filter-option>
+          <bit-filter-option [value]="MY_VAULT" [iconTile]="myVaultFilterTile()">{{
+            "myVault" | i18n
+          }}</bit-filter-option>
         }
         @for (organization of sortedOrganizations(); track organization.id) {
-          <bit-filter-option [value]="organization.id">{{ organization.name }}</bit-filter-option>
+          <bit-filter-option
+            [value]="organization.id"
+            [iconTile]="organizationTiles().get(organization.id)"
+            >{{ organization.name }}</bit-filter-option
+          >
         }
       </bit-filter-menu>
     }
@@ -122,7 +128,11 @@
   <bit-column sortable defaultSort="asc" width="minmax(240px, 480px)">
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
 
-    <bit-cell *bitCellDef="table.columns.name; let row">
+    <bit-cell
+      *bitCellDef="table.columns.name; let row"
+      [class.tw-cursor-pointer]="itemAction() != null"
+      (click)="onCellActivate(row, $event)"
+    >
       <app-vault-icon slot="start" [cipher]="row" />
 
       <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5">
@@ -175,7 +185,11 @@
   <!-- Vault -->
   <bit-column sortable [sortFn]="sortByVault" width="minmax(176px, 280px)">
     <bit-header-cell>{{ "vault" | i18n }}</bit-header-cell>
-    <bit-cell *bitCellDef="table.columns.vault; let row">
+    <bit-cell
+      *bitCellDef="table.columns.vault; let row"
+      [class.tw-cursor-pointer]="itemAction() != null"
+      (click)="onCellActivate(row, $event)"
+    >
       @let vaultTile = vaultIconTile(row);
       <bit-icon-tile
         slot="start"
@@ -192,26 +206,46 @@
   <!-- Shared folders -->
   <bit-column sortable [sortFn]="sortBySharedFolders" width="minmax(176px, 280px)">
     <bit-header-cell>{{ "sharedFolders" | i18n }}</bit-header-cell>
-    <bit-cell *bitCellDef="table.columns.sharedFolders; let row">
-      <vault-items-table-chips-cell
-        [chips]="sharedFolderChips(row)"
-        icon="bwi-shared-folder"
-        [emptyLabel]="'noSharedFolder' | i18n"
-        (chipSelect)="filterTo(vaultTable, filterKeys.sharedFolder, $event)"
-      />
+    <bit-cell
+      *bitCellDef="table.columns.sharedFolders; let row"
+      [class.tw-cursor-pointer]="itemAction() != null"
+      (click)="onCellActivate(row, $event)"
+    >
+      @let sharedFolders = sharedFolderChips(row);
+      @if (sharedFolders.length) {
+        <bit-chip-group
+          class="tw-block tw-w-full tw-min-w-0"
+          [chips]="sharedFolders"
+          [accessibleName]="'sharedFolders' | i18n"
+          (chipSelect)="filterTo(vaultTable, filterKeys.sharedFolder, $event)"
+        />
+      } @else {
+        <span class="tw-text-muted" aria-hidden="true">&mdash;</span>
+        <span class="tw-sr-only">{{ "noSharedFolder" | i18n }}</span>
+      }
     </bit-cell>
   </bit-column>
 
   <!-- My folders -->
   <bit-column sortable [sortFn]="sortByFolders" width="minmax(140px, 1fr)">
     <bit-header-cell>{{ "myFolders" | i18n }}</bit-header-cell>
-    <bit-cell *bitCellDef="table.columns.myFolders; let row">
-      <vault-items-table-chips-cell
-        [chips]="folderChips(row)"
-        icon="bwi-folder"
-        [emptyLabel]="'noneFolder' | i18n"
-        (chipSelect)="filterTo(vaultTable, filterKeys.folder, $event)"
-      />
+    <bit-cell
+      *bitCellDef="table.columns.myFolders; let row"
+      [class.tw-cursor-pointer]="itemAction() != null"
+      (click)="onCellActivate(row, $event)"
+    >
+      @let folders = folderChips(row);
+      @if (folders.length) {
+        <bit-chip-group
+          class="tw-block tw-w-full tw-min-w-0"
+          [chips]="folders"
+          [accessibleName]="'myFolders' | i18n"
+          (chipSelect)="filterTo(vaultTable, filterKeys.folder, $event)"
+        />
+      } @else {
+        <span class="tw-text-muted" aria-hidden="true">&mdash;</span>
+        <span class="tw-sr-only">{{ "noneFolder" | i18n }}</span>
+      }
     </bit-cell>
   </bit-column>
 

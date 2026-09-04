@@ -34,6 +34,7 @@ import { SearchComponent } from "../../search/search.component";
 import { SkeletonTextComponent } from "../../skeleton";
 import { StatusLockupComponent } from "../../status-lockup/status-lockup.component";
 import { SvgComponent } from "../../svg";
+import { TooltipDirective } from "../../tooltip";
 import { ParamState, ParamValue, queryParamStore } from "../../utils";
 import { SortDirection, SortFn } from "../table-data-source";
 
@@ -59,6 +60,15 @@ const SELECTION_COLUMN_WIDTH = "56px";
  */
 const GROUP_HEADER_HEIGHT = 40;
 const SUBGROUP_HEADER_HEIGHT = 28;
+
+/**
+ * Fixed height (px) of a group description when virtualized: two `text-sm` lines (20px
+ * each) plus the cell's `tw-pb-2`. Descriptions are consumer-supplied localized strings,
+ * so they wrap in narrow tables even where English doesn't — two lines is the allowance,
+ * and the cell clamps past it. The strategy never measures, so every description gets
+ * this height whether or not it wraps.
+ */
+const GROUP_DESCRIPTION_HEIGHT = 48;
 
 /** The `filterValues` key a projected `bit-search`'s term is adopted under. */
 const SEARCH_FILTER_KEY = "search";
@@ -136,10 +146,11 @@ function sortRows<T>(
   });
 }
 
-/** A flattened body item: a data row, or a group header with its row-group and count. */
+/** A flattened body item: a data row, a group header with its row-group and count, or a group description. */
 type RenderItem<T> =
   | { kind: "row"; row: T }
-  | { kind: "group"; group: BitRowGroupComponent<T>; count: number; level: number };
+  | { kind: "group"; group: BitRowGroupComponent<T>; count: number; level: number }
+  | { kind: "groupDescription"; group: BitRowGroupComponent<T>; level: number };
 
 /**
  * **Beta.** `bit-table-v2` is still stabilizing. Do not adopt it in production
@@ -174,6 +185,7 @@ type RenderItem<T> =
     SkeletonTextComponent,
     SvgComponent,
     SyncScrollLeftDirective,
+    TooltipDirective,
     I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -683,7 +695,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   /**
    * The non-virtualized body's render list: {@link rows} as-is when ungrouped, else
    * interleaved headers and rows. A row joins the first group whose `match` claims it;
-   * empty groups are skipped, and unclaimed rows trail in a headerless block.
+   * empty groups are skipped unless they clear `hideOnEmpty`, and unclaimed rows trail in
+   * a headerless block.
    */
   protected readonly renderItems = computed<RenderItem<T>[]>(() => {
     const rows = this.rows();
@@ -716,14 +729,19 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     const items: RenderItem<T>[] = [];
     const top = partition(this._groups(), rows);
     for (const group of this._groups()) {
-      const groupRows = top.buckets.get(group);
-      if (!groupRows?.length) {
+      const groupRows = top.buckets.get(group) ?? [];
+      if (!groupRows.length && group.hideOnEmpty()) {
         continue;
       }
       // A collapsed group still shows its header (with the full count) but hides its body.
       items.push({ kind: "group", group, count: groupRows.length, level: 0 });
       if (group.collapsible() && group.collapsed()) {
         continue;
+      }
+      // A grid row, so it hides when collapsed — `aria-expanded="false"` has to mean
+      // nothing of the group is rendered.
+      if (group.description()) {
+        items.push({ kind: "groupDescription", group, level: 0 });
       }
       const children = group.children();
       if (children.length === 0) {
@@ -760,10 +778,18 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (rowHeight === undefined) {
       return [];
     }
-    return this.renderItems().map((item) =>
-      item.kind === "row" ? rowHeight : this.headerHeight(item.level),
-    );
+    return this.renderItems().map((item) => {
+      if (item.kind === "row") {
+        return rowHeight;
+      }
+      return item.kind === "groupDescription"
+        ? this.groupDescriptionHeight
+        : this.headerHeight(item.level);
+    });
   });
+
+  /** @see {@link GROUP_DESCRIPTION_HEIGHT} */
+  protected readonly groupDescriptionHeight = GROUP_DESCRIPTION_HEIGHT;
 
   /** Fixed virtualized height for a group header at `level` (0 = top, 1 = subgroup). */
   protected headerHeight(level: number): number {
@@ -780,8 +806,12 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * {@link trackBy}, falling back to row identity.
    */
   protected readonly trackRenderItem: TrackByFunction<RenderItem<T>> = (index, item) => {
-    if (item.kind !== "row") {
+    if (item.kind === "group") {
       return item.group;
+    }
+    if (item.kind === "groupDescription") {
+      // Stable and per-group, but not `item.group` — that already keys the header.
+      return item.group.headerTemplate();
     }
     const trackBy = this.trackBy();
     return trackBy ? trackBy(index, item.row) : item.row;
