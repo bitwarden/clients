@@ -26,13 +26,3 @@ Object.defineProperty(document.body.style, "transform", {
 Object.defineProperty(window, "crypto", {
   value: webcrypto,
 });
-
-// `bit-chip-group`, rendered by the vault items table, observes its container width.
-// JSDOM implements neither ResizeObserver nor layout, so every width measures 0 and the
-// list packs nothing into its overflow — which is what the table tests assert against.
-class ResizeObserverStub {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-}
-global.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
