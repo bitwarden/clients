@@ -98,7 +98,7 @@
                     [disabled]="unassigning()"
                     label="{{ 'pamDaemonUnassign' | i18n: assignment.name }}"
                     (click)="unassign(assignment)"
-                    [id]="'daemon-detail_button_unassign-' + assignment.id"
+                    id="daemon-detail_button_unassign-{{ assignment.id }}"
                   ></button>
                 </span>
               }

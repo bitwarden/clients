@@ -39,6 +39,12 @@ import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { AssignTargetDialogComponent } from "./assign-target-dialog.component";
 
+/** An assigned target system, paired with the name the badge renders. */
+export type DaemonAssignment = {
+  id: TargetSystemId;
+  name: string;
+};
+
 /**
  * Routed detail page for a single rotation daemon — a sibling of the rotation shell (own
  * header + breadcrumbs, no tab bar), matching the target-system / rotation-config detail
@@ -98,20 +104,22 @@ export class DaemonDetailComponent {
     { initialValue: [] as TargetSystem[] },
   );
 
-  /** Guards the per-assignment remove buttons against re-entry; they are plain (click) handlers. */
+  /**
+   * Holds every remove button, not just the clicked one: each removal patches the assignment list
+   * it captured when it started, so two in flight at once would resurrect each other's target.
+   */
   protected readonly unassigning = signal(false);
 
   /** The connector itself; the detail's other half is its recent job history. */
   private readonly connector = computed(() => this.daemon()?.connector ?? null);
 
   /** Assigned targets as id + display name, falling back to the raw ID when not yet resolved. */
-  protected readonly assignments = computed(() => {
-    const connector = this.connector();
-    if (connector == null) {
-      return [] as { id: TargetSystemId; name: string }[];
-    }
-    const map = this.systemById();
-    return connector.assignedTargetSystemIds.map((id) => ({ id, name: map.get(id)?.name ?? id }));
+  protected readonly assignments = computed<DaemonAssignment[]>(() => {
+    const systemById = this.systemById();
+    return (this.connector()?.assignedTargetSystemIds ?? []).map((id) => ({
+      id,
+      name: systemById.get(id)?.name ?? String(id),
+    }));
   });
 
   protected readonly titleText = computed(() => this.connector()?.name ?? "");
@@ -227,10 +235,7 @@ export class DaemonDetailComponent {
   };
 
   /** Remove one target-system assignment; confirms first, as the list does. */
-  protected readonly unassign = async (assignment: {
-    id: TargetSystemId;
-    name: string;
-  }): Promise<void> => {
+  protected readonly unassign = async (assignment: DaemonAssignment): Promise<void> => {
     const connector = this.connector();
     if (connector == null || this.unassigning()) {
       return;

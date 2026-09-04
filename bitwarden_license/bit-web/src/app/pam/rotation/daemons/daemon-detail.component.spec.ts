@@ -6,12 +6,7 @@ import { of } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import type {
-  AccessConnector,
-  AccessConnectorDetail,
-  TargetSystem,
-  TargetSystemId,
-} from "../rotation";
+import type { AccessConnector, AccessConnectorDetail, TargetSystem } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import {
   ORGANIZATION_ID,
@@ -22,7 +17,7 @@ import {
   targetSystem,
 } from "../testing/rotation-builders";
 
-import { DaemonDetailComponent } from "./daemon-detail.component";
+import { DaemonAssignment, DaemonDetailComponent } from "./daemon-detail.component";
 
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string) => id,
@@ -100,7 +95,7 @@ describe("DaemonDetailComponent", () => {
     fixture.detectChanges();
 
     const comp = fixture.componentInstance as unknown as {
-      assignments: () => { id: string; name: string }[];
+      assignments: () => DaemonAssignment[];
     };
     expect(comp.assignments()).toEqual([{ id: sysId("ts-1"), name: "Prod Entra" }]);
   });
@@ -118,7 +113,7 @@ describe("DaemonDetailComponent", () => {
 
     const comp = fixture.componentInstance as unknown as {
       assignTarget: () => Promise<void>;
-      assignments: () => { id: string; name: string }[];
+      assignments: () => DaemonAssignment[];
     };
     await comp.assignTarget();
 
@@ -177,8 +172,8 @@ describe("DaemonDetailComponent", () => {
     await fixture.whenStable();
 
     const comp = fixture.componentInstance as unknown as {
-      unassign: (assignment: { id: TargetSystemId; name: string }) => Promise<void>;
-      assignments: () => { id: string; name: string }[];
+      unassign: (assignment: DaemonAssignment) => Promise<void>;
+      assignments: () => DaemonAssignment[];
     };
     await comp.unassign({ id: sysId("ts-1"), name: "Prod Entra" });
 
@@ -200,8 +195,8 @@ describe("DaemonDetailComponent", () => {
     await fixture.whenStable();
 
     const comp = fixture.componentInstance as unknown as {
-      unassign: (assignment: { id: TargetSystemId; name: string }) => Promise<void>;
-      assignments: () => { id: string; name: string }[];
+      unassign: (assignment: DaemonAssignment) => Promise<void>;
+      assignments: () => DaemonAssignment[];
     };
     await comp.unassign({ id: sysId("ts-1"), name: "Prod Entra" });
 
