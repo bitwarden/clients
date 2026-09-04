@@ -22,7 +22,24 @@ async function run(context) {
   console.log("## After pack, started at", new Date().toISOString());
   // console.log(context);
 
-  if (context.packager.platform.nodeName !== "darwin" || context.arch === builder.Arch.universal) {
+  const isMacOsBuild = ["darwin", "mas"].includes(context.electronPlatformName);
+
+  let isTargetArch;
+  if (!isMacOsBuild) {
+    isTargetArch = true;
+  } else {
+    // When running a universal macOS build, afterPack is called once per arch:
+    // x64, arm64, and then finally for universal. For an explicit single-arch
+    // build (--x64 / --arm64) it is called only once, for that arch.
+    //
+    // To determine whether this is the target arch, we need to compare the
+    // packager's configured targets with the current target.
+    const requestedArchs = context.packager.info.options.targets?.get(context.packager.platform);
+    const isUniversalRequested = requestedArchs?.has(builder.Arch.universal) ?? false;
+    isTargetArch = isUniversalRequested ? context.arch === builder.Arch.universal : true;
+  }
+
+  if (isTargetArch) {
     await addElectronFuses(context);
   }
 
