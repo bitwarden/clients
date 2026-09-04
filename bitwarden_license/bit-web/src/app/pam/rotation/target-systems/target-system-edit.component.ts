@@ -38,6 +38,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { discardConfirmOptions } from "../../helpers/discard-confirm";
 import {
   PasswordPolicy,
   TargetSystemId,
@@ -440,8 +441,7 @@ export class TargetSystemEditComponent {
       // The write answers with no content, so re-read rather than assume the request body is now
       // the stored state.
       await this.loadSystem();
-      this.nameForm.markAsPristine();
-      this.policyForm.markAsPristine();
+      this.markLiveFormsPristine();
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamTargetSystemSaved"),
@@ -512,7 +512,11 @@ export class TargetSystemEditComponent {
    * rather than a child — `createForm.dirty` alone does not see a policy edit.
    */
   private liveForms(): AbstractControl[] {
-    return this.editing ? [this.nameForm, this.policyForm] : [this.createForm, this.policyForm];
+    return [this.editing ? this.nameForm : this.createForm, this.policyForm];
+  }
+
+  private markLiveFormsPristine(): void {
+    this.liveForms().forEach((form) => form.markAsPristine());
   }
 
   /**
@@ -525,23 +529,12 @@ export class TargetSystemEditComponent {
       return true;
     }
 
-    // Creating: name the thing being abandoned, the target system itself. Editing: the system
-    // already exists and only the edits are lost, so the repo's shared wording is the true one.
-    const copy = this.editing
-      ? {
-          title: { key: "discardEditsTitle" },
-          content: { key: "discardEditsConfirmation" },
-          acceptButtonText: { key: "discardEdits" },
-          cancelButtonText: { key: "keepEditing" },
-        }
-      : {
-          title: { key: "pamTargetSystemDiscardTitle" },
-          content: { key: "pamAccessRuleDiscardContent" },
-          acceptButtonText: { key: "pamAccessRuleDiscardConfirm" },
-          cancelButtonText: { key: "cancel" },
-        };
-
-    return await this.dialogService.openSimpleDialog({ ...copy, type: "warning" });
+    return await this.dialogService.openSimpleDialog(
+      discardConfirmOptions({
+        editing: this.editing,
+        createTitleKey: "pamTargetSystemDiscardTitle",
+      }),
+    );
   }
 
   protected readonly cancel = async (): Promise<void> => {
@@ -555,7 +548,7 @@ export class TargetSystemEditComponent {
   private navigateToList(): Promise<boolean> {
     // A create, a confirmed discard, or a not-found bounce is an exit the admin has already agreed
     // to, so the CanDeactivate guard must not ask a second time.
-    this.liveForms().forEach((form) => form.markAsPristine());
+    this.markLiveFormsPristine();
     return this.router.navigate([".."], { relativeTo: this.route });
   }
 

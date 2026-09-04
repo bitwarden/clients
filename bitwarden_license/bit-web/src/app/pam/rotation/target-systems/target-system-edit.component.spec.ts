@@ -69,6 +69,10 @@ function nameFormOf(fixture: ComponentFixture<TargetSystemEditComponent>): FormG
   return (fixture.componentInstance as unknown as { nameForm: FormGroup }).nameForm;
 }
 
+function createFormOf(fixture: ComponentFixture<TargetSystemEditComponent>): FormGroup {
+  return (fixture.componentInstance as unknown as { createForm: FormGroup }).createForm;
+}
+
 /** Build a configured TestBed for create mode (no targetSystemId). */
 async function setupCreate(rotationSdk: ReturnType<typeof mock<RotationSdkService>>) {
   TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
@@ -843,11 +847,7 @@ describe("TargetSystemEditComponent — discard guard", () => {
     const fixture = await mount("create");
     dialogService.openSimpleDialog.mockResolvedValue(true);
 
-    (
-      fixture.componentInstance as unknown as {
-        createForm: { controls: { name: { markAsDirty: () => void } } };
-      }
-    ).createForm.controls.name.markAsDirty();
+    createFormOf(fixture).controls.name.markAsDirty();
 
     await expect(runGuard(fixture.componentInstance)).resolves.toBe(true);
     expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(CREATE_DIALOG);
@@ -906,17 +906,16 @@ describe("TargetSystemEditComponent — discard guard", () => {
     rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
     jest.spyOn(router, "navigate").mockResolvedValue(true);
 
-    const comp = fixture.componentInstance as unknown as {
-      createForm: { patchValue: (v: unknown) => void; markAsDirty: () => void };
-      submitCreate: () => Promise<void>;
-    };
-    comp.createForm.patchValue({
+    const createForm = createFormOf(fixture);
+    createForm.patchValue({
       name: "My System",
       method: TargetSystemMethod.Automatic,
       kind: TargetSystemKind.Entra,
     });
-    comp.createForm.markAsDirty();
-    await comp.submitCreate();
+    createForm.markAsDirty();
+    await (
+      fixture.componentInstance as unknown as { submitCreate: () => Promise<void> }
+    ).submitCreate();
 
     expect(rotationSdk.createTargetSystem).toHaveBeenCalled();
     await expect(runGuard(fixture.componentInstance)).resolves.toBe(true);
