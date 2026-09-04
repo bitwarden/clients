@@ -28,6 +28,7 @@ import {
   NewCipherMenuComponent,
   SharedFolderCardGridComponent,
   VaultCopyButtonsService,
+  VaultCollectionBreadcrumbsComponent,
   VaultItemsTableComponent,
   VaultItemsTableCopyPresentation,
   VaultItemsTableRowAction,
@@ -36,7 +37,9 @@ import {
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
+  MY_ITEMS_ROUTE,
   organizationInScope,
+  parseVaultScope,
   resolveVaultScope,
   scopedCollectionSegment,
   VaultScopeType,
@@ -72,6 +75,7 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     HeaderModule,
     NewCipherMenuComponent,
     VaultBannersComponent,
+    VaultCollectionBreadcrumbsComponent,
     VaultItemsTableComponent,
     VaultOnboardingComponent,
     VaultOrganizationUserNotificationsComponent,
@@ -123,6 +127,15 @@ export class VaultNextComponent {
       resolveVaultScope(this.vaultIdParam(), this.collectionSegment(), this.vaultNav()) ??
       ALL_ITEMS_SCOPE,
   );
+
+  protected readonly parsedVaultScope = computed(
+    () => parseVaultScope(this.vaultIdParam(), this.collectionSegment()) ?? ALL_ITEMS_SCOPE,
+  );
+
+  protected readonly collectionSelected = computed(() => {
+    const seg = this.collectionSegment();
+    return seg != null && seg !== MY_ITEMS_ROUTE;
+  });
 
   /**
    * Every item the user can see, in every state. Which of trashed, archived, and active items a
@@ -196,8 +209,8 @@ export class VaultNextComponent {
    * Narrowed to the vault only, never to the shared folder in view: an item belongs to as many
    * shared folders as it was assigned to, so a row in the folder being viewed may live in others
    * too — narrowing this would drop those from its Shared folders column and leave the chip unable
-   * to offer them. The grid needs the whole vault for the same reason: the folder it drills into
-   * has to be findable in the tree.
+   * to offer them. The breadcrumb tree needs the whole vault for the same reason: the folder it
+   * drills into has to be findable in the tree.
    *
    * The unscoped {@link collections} still back the row actions, which assign an item to any
    * collection the user can reach — not just the ones this page shows.
@@ -228,13 +241,6 @@ export class VaultNextComponent {
     return type !== VaultScopeType.Trash && type !== VaultScopeType.Archive;
   });
 
-  /**
-   * Placeholder header title for the scoped vault. Breadcrumbs replace this — see the page layout
-   * epic — so it reuses the same strings the side nav labels these vaults with.
-   *
-   * `undefined` leaves the route's own `titleId` in place, which covers All items and the moment
-   * before an organization's name has loaded.
-   */
   protected readonly title = computed(() => {
     const scope = this.vaultScope();
     switch (scope.type) {

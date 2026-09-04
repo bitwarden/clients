@@ -1,0 +1,23 @@
+<bit-breadcrumbs>
+  <bit-breadcrumb [route]="orgRootRoute()">
+    <bit-icon-tile
+      slot="start"
+      [icon]="orgTile()?.icon"
+      [variant]="orgTile()?.variant ?? 'primary'"
+      [emphasis]="orgTile()?.emphasis ?? 'subtle'"
+      aria-hidden="true"
+    />
+    {{ orgNavItem()?.label }}
+  </bit-breadcrumb>
+  <bit-breadcrumb [icon]="'bwi-shared-folder'" [route]="sharedFoldersRoute()">
+    {{ "sharedFolders" | i18n }}
+  </bit-breadcrumb>
+  @for (crumb of collectionBreadcrumbs(); track crumb.id) {
+    <bit-breadcrumb [icon]="'bwi-shared-folder'" [route]="sharedFolderRoute(crumb)">
+      {{ crumb.name }}
+    </bit-breadcrumb>
+  }
+  <bit-breadcrumb [icon]="'bwi-shared-folder'" [route]="[]" queryParamsHandling="preserve">
+    {{ sharedFolderName() }}
+  </bit-breadcrumb>
+</bit-breadcrumbs>

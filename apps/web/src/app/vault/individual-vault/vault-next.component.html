@@ -1,4 +1,11 @@
-<app-header [title]="title()"></app-header>
+<app-header [title]="title()">
+  @if (collectionSelected()) {
+    <vault-collection-breadcrumbs
+      slot="breadcrumbs"
+      [scope]="parsedVaultScope()"
+    ></vault-collection-breadcrumbs>
+  }
+</app-header>
 
 <vault-organization-user-notifications></vault-organization-user-notifications>
 <app-vault-banners [organizations]="organizations()"></app-vault-banners>
