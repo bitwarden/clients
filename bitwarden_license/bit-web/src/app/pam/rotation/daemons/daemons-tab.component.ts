@@ -146,11 +146,12 @@ export class DaemonsTabComponent {
   };
 
   protected readonly openAssignDialog = async (row: DaemonRow): Promise<void> => {
+    const activeSystems = this.activeAutomaticSystems();
     const assigned = new Set(row.daemon.assignedTargetSystemIds);
-    const options = this.activeAutomaticSystems().filter((s) => !assigned.has(s.id));
+    const options = activeSystems.filter((s) => !assigned.has(s.id));
 
     const ref = AssignTargetDialogComponent.open(this.dialogService, {
-      data: { daemon: row.daemon, options },
+      data: { daemon: row.daemon, options, noEligibleTargets: activeSystems.length === 0 },
     });
     const targetSystemId = await ref.closed.toPromise();
     if (!targetSystemId) {

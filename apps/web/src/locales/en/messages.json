@@ -18851,6 +18851,12 @@
   "pamDaemonAssignNoOptions": {
     "message": "All active automatic target systems are already assigned to this daemon."
   },
+  "pamDaemonAssignNoTargetSystems": {
+    "message": "There are no active automatic target systems to assign. Create one on the Target systems tab, or set an existing one to active."
+  },
+  "pamDaemonAssignGoToTargetSystems": {
+    "message": "Go to Target systems"
+  },
   "pamDaemonAssignConfirm": {
     "message": "Assign"
   },
