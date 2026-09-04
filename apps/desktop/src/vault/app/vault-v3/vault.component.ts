@@ -122,6 +122,7 @@ import {
   cipherInScope,
   collectionInScope,
   FilterFunction,
+  isMyItemsScope,
   organizationInScope,
   resolveVaultScope,
   scopedCollectionSegment,
@@ -305,6 +306,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   /** {@link vaultScope$} for the template — the card grid renders the folder it has drilled into. */
   protected readonly vaultScope = toSignal(this.vaultScope$, { initialValue: ALL_ITEMS_SCOPE });
+
+  /** Whether the page is the organization's "My items" collection, for the table's own scoping. */
+  protected readonly scopedToMyItems = computed(() => isMyItemsScope(this.vaultScope()));
 
   /** The organization the page is pinned to, whichever nav the user is on. */
   protected readonly selectedOrganization$ = combineLatest([

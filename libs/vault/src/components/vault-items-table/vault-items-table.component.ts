@@ -291,6 +291,12 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   readonly scopedOrganizationId = input<OrganizationId>();
 
   /**
+   * Whether the host has scoped the page to an organization's "My items" collection, which reads
+   * as one member's own items and so offers no Shared folders chip or column.
+   */
+  readonly scopedToMyItems = input(false, { transform: booleanAttribute });
+
+  /**
    * Filter chip selections to open the table with, keyed by chip `key` — e.g. deep-linking into
    * one shared folder. Applied once per chip as it registers, so later changes are ignored; to
    * drive chips reactively, use `bit-table-v2`'s `filterControls()` and their `setValue()`.
@@ -563,7 +569,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * Driven by the organizations input rather than the cipher rows, so the chip stays
    * visible even when org-owned ciphers are filtered out.
    */
-  protected readonly showSharedFolders = computed(() => this.organizations().length > 0);
+  protected readonly showSharedFolders = computed(
+    () => this.organizations().length > 0 && !this.scopedToMyItems(),
+  );
 
   /** The Shared folders chip's options, sorted for a stable menu, when it isn't grouped. */
   protected readonly sortedCollections = computed(() =>

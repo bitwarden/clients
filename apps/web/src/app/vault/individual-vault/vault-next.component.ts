@@ -37,6 +37,7 @@ import {
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
+  isMyItemsScope,
   MY_ITEMS_ROUTE,
   organizationInScope,
   parseVaultScope,
@@ -231,6 +232,9 @@ export class VaultNextComponent {
     const scope = this.vaultScope();
     return scope.type === VaultScopeType.Organization ? scope.organizationId : undefined;
   });
+
+  /** Whether the page is the organization's "My items" collection, for the table's own scoping. */
+  protected readonly scopedToMyItems = computed(() => isMyItemsScope(this.vaultScope()));
 
   /**
    * Whether the page offers the toolbar's Import and New item actions. New items cannot be created

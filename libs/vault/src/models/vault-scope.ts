@@ -53,14 +53,6 @@ export const VaultScopeType = Object.freeze({
 export type VaultScopeType = (typeof VaultScopeType)[keyof typeof VaultScopeType];
 
 /**
- * The collection a URL drills an organization vault into: its id outright, or
- * {@link MY_ITEMS_ROUTE} for the organization's "My items" collection, whose id the URL cannot
- * name. {@link resolveVaultScope} trades the sentinel for the id the nav holds; every function
- * that narrows by a collection compares ids, so an unresolved sentinel matches nothing.
- */
-export type ScopedCollectionId = CollectionId | typeof MY_ITEMS_ROUTE;
-
-/**
  * The destination the side nav has narrowed the page to, independent of the table's own filter
  * chips.
  *
@@ -77,8 +69,18 @@ export type VaultScope =
   | {
       type: typeof VaultScopeType.Organization;
       organizationId: OrganizationId;
-      /** The shared folder in view, when the URL drills into one. */
-      collectionId?: ScopedCollectionId;
+      /**
+       * The collection in view, when the URL drills into one: a shared folder, or the "My items"
+       * collection {@link myItems} names — `undefined` for the latter until the nav resolves it,
+       * since a URL cannot name that id.
+       */
+      collectionId?: CollectionId;
+      /**
+       * Whether the collection in view is the organization's "My items" collection. Carried
+       * separately from {@link collectionId} because the URL names that collection by a fixed
+       * segment rather than by id — see {@link MY_ITEMS_ROUTE}.
+       */
+      myItems?: boolean;
     }
   | { type: typeof VaultScopeType.Trash }
   | { type: typeof VaultScopeType.Archive };
@@ -118,16 +120,20 @@ export function parseVaultScope(
     return scope;
   }
 
-  if (scope?.type !== VaultScopeType.Organization || !isScopedCollectionId(collectionSegment)) {
+  if (scope?.type !== VaultScopeType.Organization) {
     return null;
   }
 
-  return { ...scope, collectionId: collectionSegment };
+  if (collectionSegment === MY_ITEMS_ROUTE) {
+    return { ...scope, myItems: true };
+  }
+
+  return isCollectionGuid(collectionSegment) ? { ...scope, collectionId: collectionSegment } : null;
 }
 
-/** Whether a collection segment names a collection at all — see {@link ScopedCollectionId}. */
-function isScopedCollectionId(segment: string): segment is ScopedCollectionId {
-  return segment === MY_ITEMS_ROUTE || isGuid(segment);
+/** Whether a collection segment names a shared folder — the one drill-in a URL names by id. */
+function isCollectionGuid(segment: string): segment is CollectionId {
+  return isGuid(segment);
 }
 
 /** The `:vaultId` segment on its own — see {@link parseVaultScope}. */
@@ -196,7 +202,7 @@ export function resolveVaultScope(
     return { type: VaultScopeType.MyVault };
   }
 
-  if (scope?.type === VaultScopeType.Organization && scope.collectionId === MY_ITEMS_ROUTE) {
+  if (scope?.type === VaultScopeType.Organization && scope.myItems) {
     if (nav == null) {
       return scope;
     }
@@ -217,16 +223,16 @@ export function vaultScopeCommands(scope: VaultScope): string[] {
     case VaultScopeType.MyVault:
       return ["/vault", MY_VAULT_ROUTE];
     case VaultScopeType.Organization: {
-      const { organizationId, collectionId } = scope;
-
-      if (collectionId == null) {
-        return ["/vault", organizationId];
-      }
+      const { organizationId, collectionId, myItems } = scope;
 
       // "My items" is its own page rather than a folder reached from the shared folders list, so
       // it hangs off the vault directly — see {@link MY_ITEMS_ROUTE}.
-      return collectionId === MY_ITEMS_ROUTE
-        ? ["/vault", organizationId, MY_ITEMS_ROUTE]
+      if (myItems) {
+        return ["/vault", organizationId, MY_ITEMS_ROUTE];
+      }
+
+      return collectionId == null
+        ? ["/vault", organizationId]
         : ["/vault", organizationId, SHARED_FOLDERS_ROUTE, collectionId];
     }
     case VaultScopeType.Trash:
@@ -260,14 +266,22 @@ export function sharedFoldersCommands(organizationId: OrganizationId): string[] 
 const idString = (id: unknown): string | undefined => (id == null ? undefined : String(id));
 
 /**
- * The shared folder the scope has drilled into, or `undefined` when it covers a whole vault. Only
- * an organization vault can be drilled into — see {@link parseVaultScope}.
+ * The collection the scope has drilled into, or `undefined` when it covers a whole vault. Only an
+ * organization vault can be drilled into — see {@link parseVaultScope}.
  *
- * A scope {@link resolveVaultScope} has yet to resolve names its folder by the
- * {@link MY_ITEMS_ROUTE} sentinel rather than by an id — see {@link ScopedCollectionId}.
+ * A "My items" scope {@link resolveVaultScope} has yet to resolve names no id — see
+ * {@link isMyItemsScope}.
  */
-export function scopedSharedFolderId(scope: VaultScope): ScopedCollectionId | undefined {
+export function scopedSharedFolderId(scope: VaultScope): CollectionId | undefined {
   return scope.type === VaultScopeType.Organization ? scope.collectionId : undefined;
+}
+
+/**
+ * Whether the scope has drilled an organization vault into its "My items" collection: the default
+ * collection holding one member's own items rather than shared ones.
+ */
+export function isMyItemsScope(scope: VaultScope): boolean {
+  return scope.type === VaultScopeType.Organization && (scope.myItems ?? false);
 }
 
 /**
@@ -277,7 +291,7 @@ export function scopedSharedFolderId(scope: VaultScope): ScopedCollectionId | un
  * Every vault scope shows active items only. Trash and Archive invert that and span every vault,
  * and a trashed item stays in Trash whether or not it was archived when it was deleted.
  *
- * A scope drilled into a shared folder keeps that folder's own items and no others: a child
+ * A scope drilled into a collection keeps that collection's own items and no others: a child
  * folder's items arrive with the drill-in to the child.
  */
 export function cipherInScope(cipher: CipherViewLike, scope: VaultScope): boolean {
@@ -296,11 +310,14 @@ export function cipherInScope(cipher: CipherViewLike, scope: VaultScope): boolea
       if (deleted || archived || organizationId !== scope.organizationId) {
         return false;
       }
-      const { collectionId } = scope;
-      return (
-        collectionId == null ||
-        (cipher.collectionIds ?? []).some((id) => idString(id) === collectionId)
-      );
+      const { collectionId, myItems } = scope;
+
+      if (collectionId == null) {
+        // An unresolved "My items" scope has no id to compare, so it matches nothing.
+        return !myItems;
+      }
+
+      return (cipher.collectionIds ?? []).some((id) => idString(id) === collectionId);
     }
     default:
       return !deleted && !archived;

@@ -15,7 +15,6 @@ import { VaultNavItemType, VaultNavItemViewModel } from "../../models/vault-nav-
 import {
   ALL_ITEMS_SCOPE,
   isPersonalOnly,
-  MY_ITEMS_ROUTE,
   sharedFoldersCommands,
   vaultScopeCommands,
   VaultScopeType,
@@ -102,7 +101,7 @@ export class VaultNavSectionComponent {
             vaultScopeCommands({
               type: VaultScopeType.Organization,
               organizationId: vault.id as OrganizationId,
-              collectionId: MY_ITEMS_ROUTE,
+              myItems: true,
             }),
           ]) ?? [],
       ),

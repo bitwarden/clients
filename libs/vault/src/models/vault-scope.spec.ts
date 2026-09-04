@@ -14,6 +14,7 @@ import {
   cipherInScope,
   collectionInScope,
   defaultUserCollectionId,
+  isMyItemsScope,
   isPersonalOnly,
   MY_ITEMS_ROUTE,
   MY_VAULT_ROUTE,
@@ -43,7 +44,7 @@ const sharedFolderScope: VaultScope = {
 const myItemsScope: VaultScope = {
   type: VaultScopeType.Organization,
   organizationId,
-  collectionId: MY_ITEMS_ROUTE,
+  myItems: true,
 };
 const trashScope: VaultScope = { type: VaultScopeType.Trash };
 const archiveScope: VaultScope = { type: VaultScopeType.Archive };
@@ -148,9 +149,8 @@ describe("parseVaultScope", () => {
       expect(parseVaultScope(organizationId, "")).toBeNull();
     });
 
-    // The id behind it differs per member, so the URL carries the sentinel until the nav resolves
-    // it — see resolveVaultScope.
-    it("keeps the my-items sentinel for an organization vault", () => {
+    // The id behind it differs per member, so the scope carries none until the nav resolves it.
+    it("marks an organization vault drilled into My items", () => {
       expect(parseVaultScope(organizationId, MY_ITEMS_ROUTE)).toEqual(myItemsScope);
     });
 
@@ -221,8 +221,7 @@ describe("resolveVaultScope", () => {
   describe("the my-items segment", () => {
     it("resolves to the organization's My items collection", () => {
       expect(resolveVaultScope(organizationId, MY_ITEMS_ROUTE, dataOwnershipNav)).toEqual({
-        type: VaultScopeType.Organization,
-        organizationId,
+        ...myItemsScope,
         collectionId: myItemsCollectionId,
       });
     });
@@ -286,6 +285,11 @@ describe("vaultScopeCommands", () => {
     [archiveScope, ["/vault", ARCHIVE_ROUTE]],
     [sharedFolderScope, ["/vault", organizationId, SHARED_FOLDERS_ROUTE, collectionId]],
     [myItemsScope, ["/vault", organizationId, MY_ITEMS_ROUTE]],
+    // The segment names the collection whatever id it has been resolved to.
+    [
+      { ...myItemsScope, collectionId: myItemsCollectionId },
+      ["/vault", organizationId, MY_ITEMS_ROUTE],
+    ],
   ])("builds the route for %p", (scope: VaultScope, expected: string[]) => {
     expect(vaultScopeCommands(scope)).toEqual(expected);
   });
@@ -313,8 +317,8 @@ describe("scopedSharedFolderId", () => {
     expect(scopedSharedFolderId(sharedFolderScope)).toBe(collectionId);
   });
 
-  it("names an unresolved My items drill-in by its sentinel", () => {
-    expect(scopedSharedFolderId(myItemsScope)).toBe(MY_ITEMS_ROUTE);
+  it("names no folder for a My items drill-in that is still unresolved", () => {
+    expect(scopedSharedFolderId(myItemsScope)).toBeUndefined();
   });
 
   it.each([
@@ -325,6 +329,21 @@ describe("scopedSharedFolderId", () => {
     ["the archive", archiveScope],
   ])("names no folder for %s", (_name, scope: VaultScope) => {
     expect(scopedSharedFolderId(scope)).toBeUndefined();
+  });
+});
+
+describe("isMyItemsScope", () => {
+  it("is true for a My items drill-in, resolved or not", () => {
+    expect(isMyItemsScope(myItemsScope)).toBe(true);
+    expect(isMyItemsScope({ ...myItemsScope, collectionId: myItemsCollectionId })).toBe(true);
+  });
+
+  it.each([
+    ["a shared folder drill-in", sharedFolderScope],
+    ["a whole organization vault", organizationScope],
+    ["the personal vault", myVaultScope],
+  ])("is false for %s", (_name, scope: VaultScope) => {
+    expect(isMyItemsScope(scope)).toBe(false);
   });
 });
 
@@ -372,8 +391,7 @@ describe("cipherInScope", () => {
       expect(cipherInScope(cipher, sharedFolderScope)).toBe(false);
     });
 
-    // The sentinel is no collection id, so it matches none — resolveVaultScope trades it for the
-    // id before the page narrows by it.
+    // Widening to the whole vault meanwhile would show items the URL did not ask for.
     it("keeps no ciphers for a My items drill-in that is still unresolved", () => {
       expect(cipherInScope(buildCipher(organizationId, [myItemsCollectionId]), myItemsScope)).toBe(
         false,
