@@ -28,7 +28,17 @@ import { MyAccessService } from "./my-access.service";
 
 const names = storyNames();
 
-const MINE_TOGGLE = '[data-testid="history-scope-mine"] label';
+/**
+ * Picks an option from the History scope chip, found by the label its trigger carries. The chip's
+ * menu renders in a CDK overlay on `document.body`, outside the story's own canvas.
+ */
+async function selectHistoryScope(canvasElement: HTMLElement, option: string): Promise<void> {
+  const trigger = canvasElement.querySelector<HTMLButtonElement>(
+    'bit-filter-menu button[title^="History scope"]',
+  )!;
+  await userEvent.click(trigger);
+  await userEvent.click(await within(document.body).findByText(option));
+}
 
 const request = (overrides: Record<string, unknown>) =>
   toRequestRow(accessRequest(overrides), names);
@@ -177,7 +187,7 @@ type Story = StoryObj<HistoryTabComponent>;
 
 /**
  * The caller's own history, for a member who cannot approve. With no managed rows and no approval
- * privilege the toggle is not rendered at all: every filter would narrow the same one list.
+ * privilege the chip is not rendered at all: every filter would narrow the same one list.
  */
 export const Default: Story = {
   decorators: [history()],
@@ -190,7 +200,7 @@ export const Empty: Story = {
 
 /**
  * An approver's view. The table opens on All — both the rows they raised and the ones they decided,
- * newest first — with revoke and withdraw offered only on the rows they manage. The toggle narrows
+ * newest first — with revoke and withdraw offered only on the rows they manage. The chip narrows
  * that list to either source.
  */
 export const WithManagedHistory: Story = {
@@ -209,8 +219,7 @@ export const ApproverWithoutManagedHistory: Story = {
 export const ManagedOnly: Story = {
   decorators: [history({ mine: [], managed: managedRows })],
   play: async ({ canvasElement }) => {
-    const managed = await within(canvasElement).findByTestId("history-scope-managed");
-    await userEvent.click(within(managed).getByRole("radio"));
+    await selectHistoryScope(canvasElement, "For my collections");
   },
 };
 
@@ -218,6 +227,6 @@ export const ManagedOnly: Story = {
 export const MineFilter: Story = {
   decorators: [history({ managed: managedRows })],
   play: async ({ canvasElement }) => {
-    await userEvent.click(canvasElement.querySelector<HTMLLabelElement>(MINE_TOGGLE)!);
+    await selectHistoryScope(canvasElement, "Raised by me");
   },
 };

@@ -8,6 +8,7 @@ import {
   inject,
   signal,
   untracked,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
@@ -32,6 +33,8 @@ import {
   BadgeComponent,
   ButtonModule,
   DialogService,
+  FilterMenuComponent,
+  FilterMenuModule,
   StatusLockupComponent,
   SvgComponent,
   SkeletonComponent,
@@ -39,7 +42,6 @@ import {
   TableDataSource,
   TableModule,
   ToastService,
-  ToggleGroupModule,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -74,7 +76,7 @@ const announcementHoldMs = 2000;
  *  - Managed: the decided requests for the collections the caller manages — the only rows they can
  *    undo a decision on.
  *
- * The tab opens on All, which lists both sources merged, and the toggle narrows that list to one
+ * The tab opens on All, which lists both sources merged, and the chip narrows that list to one
  * source. Landing on everything means the reader is never answered with an empty table while their
  * history sits behind a control they had no reason to press, and — unlike a default read off which
  * side happens to have rows — the selection cannot move under them when a background load arrives.
@@ -87,7 +89,7 @@ const announcementHoldMs = 2000;
  * extension the grant was given.
  *
  * Own rows are read-only, so a caller with no approval privilege has no managed rows, gets no
- * Actions column, and is shown no toggle — every option would be a filter over the same one list.
+ * Actions column, and is shown no chip — every option would be a filter over the same one list.
  * `Managed` adds revoke (end a lease the caller granted) and withdraw (take back an approval the
  * requester has not started), both of which the SDK serves.
  */
@@ -101,13 +103,13 @@ const announcementHoldMs = 2000;
     AccessStateBadgeComponent,
     BadgeComponent,
     ButtonModule,
+    FilterMenuModule,
     IconComponent,
     StatusLockupComponent,
     SvgComponent,
     SkeletonComponent,
     SkeletonTextComponent,
     TableModule,
-    ToggleGroupModule,
     TypographyModule,
     I18nPipe,
     DurationShortPipe,
@@ -133,8 +135,15 @@ export class HistoryTabComponent {
     initialValue: false,
   });
 
-  /** The filter the viewer picked from the toggle. */
+  /** The filter the viewer picked from the chip. */
   private readonly selectedScope = signal<HistoryScope>(HistoryScope.All);
+
+  /**
+   * `bit-filter-menu` is not a `ControlValueAccessor`, so its selection is read off the chip's own
+   * `value` signal rather than bound through a form control. There is exactly one chip and no table
+   * host for it to register with, so a `viewChild` read is the whole of the plumbing this needs.
+   */
+  private readonly scopeChip = viewChild<FilterMenuComponent>("historyScopeFilter");
 
   /** Request ids currently being acted on, so a second click on the same row is a no-op. */
   private readonly acting = signal<Set<string>>(new Set());
@@ -255,7 +264,7 @@ export class HistoryTabComponent {
   private readonly hasManagedHistory = computed(() => this.managedRows().length > 0);
 
   /**
-   * The toggle is offered to anyone who can approve, rows or not — gating it on rows hides the
+   * The chip is offered to anyone who can approve, rows or not — gating it on rows hides the
    * filters until there is something to filter, which is exactly when the reader no longer needs
    * telling they exist. The `hasManagedHistory()` term keeps it for a viewer who has managed rows
    * but whom the privilege predicate does not recognise as an approver.
@@ -263,8 +272,8 @@ export class HistoryTabComponent {
   protected readonly canSwitchScope = computed(() => this.canApprove() || this.hasManagedHistory());
 
   /**
-   * Falls back to All if the toggle goes away while a filter is applied — synchronously here, and
-   * forgotten by the effect that clears the pick, so a toggle that returns cannot silently narrow
+   * Falls back to All if the chip goes away while a filter is applied — synchronously here, and
+   * forgotten by the effect that clears the pick, so a chip that returns cannot silently narrow
    * the table back to a filter the reader last chose under different circumstances.
    */
   protected readonly scope = computed<HistoryScope>(() =>
@@ -364,6 +373,12 @@ export class HistoryTabComponent {
       if (!this.canSwitchScope()) {
         this.selectedScope.set(HistoryScope.All);
       }
+    });
+    effect(() => {
+      const value = this.scopeChip()?.value();
+      this.selectScope(
+        value === HistoryScope.Mine || value === HistoryScope.Managed ? value : HistoryScope.All,
+      );
     });
   }
 
