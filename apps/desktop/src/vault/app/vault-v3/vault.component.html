@@ -47,6 +47,7 @@
       [showPremiumCallout]="(showPremiumCallout$ | async) ?? false"
       [scope]="vaultScope()"
       [organizationName]="emptyVaultOrganizationName()"
+      [defaultCollectionId]="defaultCollectionId()"
       [sharedFolderName]="emptySharedFolderName"
       [hasMultipleVaults]="hasMultipleVaults()"
       (onEvent)="onVaultItemsEvent($event)"

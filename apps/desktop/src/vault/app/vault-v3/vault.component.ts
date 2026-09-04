@@ -131,6 +131,7 @@ import {
   sharedFolderNameForScope,
   VaultNavService,
   VaultScopeType,
+  defaultUserCollectionId,
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
@@ -311,6 +312,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   /** {@link vaultScope$} for the template — the card grid renders the folder it has drilled into. */
   protected readonly vaultScope = toSignal(this.vaultScope$, { initialValue: ALL_ITEMS_SCOPE });
 
+  /** {@link vaultNav$} as a signal for use in computed properties. */
+  private readonly vaultNav = toSignal(this.vaultNav$);
+
   /** The organization the page is pinned to, whichever nav the user is on. */
   protected readonly selectedOrganization$ = combineLatest([
     this.vfo1Foundation$,
@@ -358,6 +362,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     ),
     { initialValue: false },
   );
+
+  protected readonly defaultCollectionId = computed(() => {
+    const scope = this.vaultScope();
+    if (scope.type !== VaultScopeType.Organization) {
+      return undefined;
+    }
+    return defaultUserCollectionId(scope.organizationId, this.vaultNav());
+  });
 
   protected readonly showAddCipherBtn$ = combineLatest([
     this.vfo1Foundation$,
