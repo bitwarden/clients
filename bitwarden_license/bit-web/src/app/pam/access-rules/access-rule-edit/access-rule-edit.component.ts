@@ -279,7 +279,7 @@ export class AccessRuleEditComponent {
           new Set(
             rules
               .filter((rule) => rule.id !== this.accessRuleId)
-              .flatMap((rule) => rule.collections.map((id) => uuidAsString(id))),
+              .flatMap((rule) => rule.collections.map(uuidAsString)),
           ),
       ),
       tap(() => this.governedCollectionsLoading.set(false)),
