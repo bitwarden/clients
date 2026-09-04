@@ -123,6 +123,7 @@ import {
   collectionInScope,
   FilterFunction,
   hasMultipleVaults,
+  MY_ITEMS_ROUTE,
   organizationInScope,
   organizationNameForScope,
   resolveVaultScope,
@@ -920,11 +921,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     let folderId: string | undefined;
 
     if (this.vfo1Foundation()) {
-      // No route names a collection under VFO1 yet, so only the organization can be prefilled —
+      // VFO1 routes can scope to an organization and optionally to a collection within it —
       // see `vaultScope$`.
       const scope = this.vaultScope();
       if (scope.type === VaultScopeType.Organization) {
         organizationId = scope.organizationId;
+        if (scope.collectionId != null && scope.collectionId !== MY_ITEMS_ROUTE) {
+          collectionIds = [scope.collectionId];
+        }
       }
     } else if (activeFilter.collectionId != null) {
       const collection = this.allCollections.find((c) => c.id === activeFilter.collectionId);
