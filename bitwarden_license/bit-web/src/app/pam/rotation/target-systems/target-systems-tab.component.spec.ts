@@ -229,7 +229,7 @@ describe("TargetSystemsTabComponent", () => {
       );
     }));
 
-    it("confirms with a danger dialog naming the target system", fakeAsync(() => {
+    it("confirms with a danger dialog naming the target system and the reversible alternative", fakeAsync(() => {
       const sys = makeSystem({ id: sysId("sys-1"), name: "Prod Entra" });
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
@@ -239,7 +239,7 @@ describe("TargetSystemsTabComponent", () => {
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "danger",
-          content: { key: "pamTargetSystemDeleteContent", placeholders: ["Prod Entra"] },
+          content: { key: "pamTargetSystemDeleteContentDisableInstead", placeholders: ["Prod Entra"] },
         }),
       );
     }));
