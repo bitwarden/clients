@@ -375,6 +375,61 @@ describe("DaemonsTabComponent", () => {
     });
   });
 
+  describe("assign availability", () => {
+    function assignRow(canAssign: boolean): DaemonRow {
+      return makeDaemonRow({
+        canAssign,
+        enabled: canAssign,
+        daemon: { assignedTargetSystemIds: [] } as unknown as AccessConnector,
+      });
+    }
+
+    /**
+     * `bit-menu` projects its content through an `ng-template` into a CDK overlay, so the items
+     * live outside the fixture and only while the menu is open.
+     */
+    async function openRowMenu(canAssign: boolean): Promise<HTMLButtonElement> {
+      TestBed.resetTestingModule();
+      rows$.next([assignRow(canAssign)]);
+      await createComponent({ renderTemplate: true });
+
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLButtonElement>('button[id^="daemons-tab_button_menu-"]')!
+        .click();
+      fixture.detectChanges();
+
+      return document.querySelector<HTMLButtonElement>(
+        '.bit-menu-panel [id^="daemons-tab_button_assign-"]',
+      )!;
+    }
+
+    afterEach(() => {
+      rows$.next([]);
+    });
+
+    it("renders the assign item without aria-disabled when the connector is enabled", async () => {
+      const item = await openRowMenu(true);
+
+      expect(item.getAttribute("aria-disabled")).toBeNull();
+    });
+
+    it("keeps the assign item visible and aria-disabled when the connector is disabled", async () => {
+      const item = await openRowMenu(false);
+
+      expect(item).not.toBeNull();
+      expect(item.getAttribute("aria-disabled")).toBe("true");
+      // The native attribute would suppress the hover and focus events the tooltip listens on.
+      expect(item.hasAttribute("disabled")).toBe(false);
+    });
+
+    it("does not open the assign dialog when the connector is disabled", async () => {
+      (await openRowMenu(false)).click();
+      await fixture.whenStable();
+
+      expect(dialogService.open).not.toHaveBeenCalled();
+    });
+  });
+
   describe("load error state", () => {
     beforeEach(async () => {
       TestBed.resetTestingModule();
@@ -413,127 +468,5 @@ describe("DaemonsTabComponent", () => {
       expect(daemonsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
       expect(targetSystemsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
     });
-  });
-});
-
-describe("DaemonsTabComponent assign availability", () => {
-  let fixture: ComponentFixture<DaemonsTabComponent>;
-  let dialogService: jest.Mocked<DialogService>;
-
-  function daemonRow(overrides: Partial<DaemonRow> = {}): DaemonRow {
-    const id = overrides.id ?? connectorId("assign-row");
-    const name = overrides.name ?? "Prod connector";
-    return {
-      id,
-      name,
-      statusLabelKey: "pamDaemonStatusEnabled",
-      isConnected: true,
-      assignmentNames: [],
-      enabled: true,
-      canAssign: true,
-      ...overrides,
-      daemon: {
-        id,
-        name,
-        assignedTargetSystemIds: [],
-        status: 0,
-        isConnected: true,
-      } as unknown as AccessConnector,
-    };
-  }
-
-  /**
-   * The open menu panel. `bit-menu` projects its content through an `ng-template` into a CDK
-   * overlay, so the items live outside the fixture and only while the menu is open.
-   */
-  function menuPanel(): HTMLElement | null {
-    return document.querySelector(".bit-menu-panel");
-  }
-
-  function menuItem(label: string): HTMLButtonElement | undefined {
-    return Array.from(menuPanel()?.querySelectorAll<HTMLButtonElement>("[bitMenuItem]") ?? []).find(
-      (button) => button.textContent?.includes(label),
-    );
-  }
-
-  function openMenu(): void {
-    (fixture.nativeElement as HTMLElement)
-      .querySelector<HTMLButtonElement>('button[id^="daemons-tab_button_menu-"]')!
-      .click();
-    fixture.detectChanges();
-  }
-
-  async function renderRow(row: DaemonRow): Promise<void> {
-    await TestBed.configureTestingModule({
-      imports: [DaemonsTabComponent, NoopAnimationsModule],
-      providers: [
-        provideRouter([]),
-        {
-          provide: DaemonsService,
-          useValue: {
-            loading$: of(false),
-            loadError$: of(null),
-            rows$: of([row]),
-            load: jest.fn().mockResolvedValue(undefined),
-          } as unknown as DaemonsService,
-        },
-        {
-          provide: TargetSystemsService,
-          useValue: {
-            activeAutomaticSystems$: of([] as TargetSystem[]),
-            loadError$: of(null),
-            load: jest.fn().mockResolvedValue(undefined),
-          } as unknown as TargetSystemsService,
-        },
-        { provide: DialogService, useValue: dialogService },
-        { provide: ToastService, useValue: mock<ToastService>() },
-        { provide: I18nService, useValue: { t: (key: string) => key } as unknown as I18nService },
-        {
-          provide: ActivatedRoute,
-          useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
-        },
-      ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(DaemonsTabComponent);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
-  }
-
-  beforeEach(() => {
-    dialogService = mock<DialogService>();
-  });
-
-  it("renders the assign item without aria-disabled when the connector is enabled", async () => {
-    await renderRow(daemonRow());
-    openMenu();
-
-    expect(menuItem("pamDaemonAssignTarget")!.getAttribute("aria-disabled")).toBeNull();
-  });
-
-  it("keeps the assign item visible and aria-disabled when the connector is disabled", async () => {
-    await renderRow(
-      daemonRow({ enabled: false, canAssign: false, statusLabelKey: "pamDaemonStatusDisabled" }),
-    );
-    openMenu();
-
-    const item = menuItem("pamDaemonAssignTarget")!;
-    expect(item).toBeDefined();
-    expect(item.getAttribute("aria-disabled")).toBe("true");
-    // The native attribute would suppress the hover and focus events the tooltip listens on.
-    expect(item.hasAttribute("disabled")).toBe(false);
-  });
-
-  it("does not open the assign dialog when the connector is disabled", async () => {
-    await renderRow(
-      daemonRow({ enabled: false, canAssign: false, statusLabelKey: "pamDaemonStatusDisabled" }),
-    );
-    openMenu();
-
-    menuItem("pamDaemonAssignTarget")!.click();
-    await fixture.whenStable();
-
-    expect(dialogService.open).not.toHaveBeenCalled();
   });
 });
