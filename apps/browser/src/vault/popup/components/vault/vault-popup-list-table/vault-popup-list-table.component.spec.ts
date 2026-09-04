@@ -585,6 +585,35 @@ describe("VaultPopupListTableComponent", () => {
     });
   });
 
+  describe("clearFilters", () => {
+    const makeControl = (key: string) => ({ key: () => key, setValue: jest.fn() });
+
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    it("calls setValue(undefined) on every non-search filter control", () => {
+      const cipherType = makeControl("cipherType");
+      const organization = makeControl("organization");
+      (component as any).tableEl = () => ({ filterControls: () => [cipherType, organization] });
+
+      component.clearFilters();
+
+      expect(cipherType.setValue).toHaveBeenCalledWith(undefined);
+      expect(organization.setValue).toHaveBeenCalledWith(undefined);
+    });
+
+    it("does not call setValue on the search filter control", () => {
+      const search = makeControl("search");
+      const cipherType = makeControl("cipherType");
+      (component as any).tableEl = () => ({ filterControls: () => [search, cipherType] });
+
+      component.clearFilters();
+
+      expect(search.setValue).not.toHaveBeenCalled();
+    });
+  });
+
   describe("search", () => {
     it("syncs searchText from the search text already applied to the vault", () => {
       searchText$.next("synced text");

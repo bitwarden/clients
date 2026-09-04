@@ -475,10 +475,12 @@ export class VaultPopupListTableComponent {
     this.onSearchTextChanged();
   }
 
-  /** Clears every chip filter, leaving search untouched — the empty slot's "Clear all". */
+  /** Clears every chip filters — the empty slot's "Clear all". */
   clearFilters() {
     for (const control of this.tableEl()?.filterControls() ?? []) {
-      control.setValue(undefined);
+      if (control.key() !== "search") {
+        control.setValue(undefined);
+      }
     }
   }
 
