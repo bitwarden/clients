@@ -87,7 +87,7 @@
                   <bit-badge variant="secondary" class="tw-flex tw-justify-center">
                     <bit-icon name="bwi-unlock" slot="end" class="text-muted" aria-hidden="true">
                     </bit-icon>
-                    <span>Unlocked</span>
+                    <span>{{ "unlocked" | i18n }}</span>
                   </bit-badge>
                 } @else {
                   <bit-badge variant="secondary">
@@ -97,7 +97,7 @@
                       class="text-muted"
                       aria-hidden="true"
                     ></bit-icon>
-                    <span>Locked</span>
+                    <span>{{ "locked" | i18n }}</span>
                   </bit-badge>
                 }
               </span>
