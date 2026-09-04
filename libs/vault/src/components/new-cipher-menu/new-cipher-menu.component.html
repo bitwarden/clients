@@ -37,7 +37,7 @@
     >
       {{ getButtonLabel() | i18n }}
     </button>
-    <bit-menu #addOptions [aria-labelledby]="id() ?? 'newItemDropdown'">
+    <bit-menu #addOptions>
       @for (item of cipherMenuItems$ | async; track item.type) {
         <button type="button" bitMenuItem (click)="cipherAdded.emit(item.type)">
           <i class="bwi {{ item.icon }}" slot="start" aria-hidden="true"></i>
