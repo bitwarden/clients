@@ -940,7 +940,7 @@ const popupLayoutI18nProvider = {
       clear: "Clear",
       clearAll: "Clear all",
       clearSearch: "Clear search",
-      noFiltersMatch: (term) => `No filters match “${term}”`,
+      noFiltersMatchTerm: (term) => `No filters match “${term}”`,
       oneFilterResult: "1 result",
       filterResults: (count) => `${count} results`,
       filtersSelected: (count) => `${count} selected`,

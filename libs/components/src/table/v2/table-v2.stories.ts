@@ -873,7 +873,7 @@ export default {
               filtersApplied: (count) => `${count} filters applied`,
               nothingToShow: "Nothing to show",
               noMatchingItems: "No matching items",
-              noFiltersMatch: (term) => `No filters match \u201c${term}\u201d`,
+              noFiltersMatchTerm: (term) => `No filters match \u201c${term}\u201d`,
               clearSearch: "Clear search",
               oneFilterResult: "1 result",
               filterResults: (count) => `${count} results`,
