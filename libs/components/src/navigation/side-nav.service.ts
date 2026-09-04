@@ -1,14 +1,10 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { BehaviorSubject, Observable, fromEvent, map, startWith, debounceTime, first } from "rxjs";
-
-import { BIT_SIDE_NAV_DISK, GlobalStateProvider, KeyDefinition } from "@bitwarden/state";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { Observable, fromEvent, map, startWith } from "rxjs";
 
 import { getRootFontSizePx } from "../shared";
 
-const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, "side-nav-width", {
-  deserializer: (s) => s,
-});
+import { SIDE_NAV_WIDTH_BOUNDS, SideNavWidthService } from "./side-nav-width.service";
 
 export type SideNavVersion = "default" | "vfo1";
 
@@ -16,10 +12,10 @@ export type SideNavVersion = "default" | "vfo1";
   providedIn: "root",
 })
 export class SideNavService {
-  // Units in rem
-  readonly DEFAULT_OPEN_WIDTH = 18.5; // 296px
-  readonly MIN_OPEN_WIDTH = 15; // 240px
-  readonly MAX_OPEN_WIDTH = 37.5; // 600px
+  // Units in rem. Bounds live in side-nav-width.service.ts, which enforces them.
+  readonly DEFAULT_OPEN_WIDTH = SIDE_NAV_WIDTH_BOUNDS.default;
+  readonly MIN_OPEN_WIDTH = SIDE_NAV_WIDTH_BOUNDS.min;
+  readonly MAX_OPEN_WIDTH = SIDE_NAV_WIDTH_BOUNDS.max;
   readonly SNAP_TO_CLOSED_THRESHOLD = 4; // 64px — 176px of tension past the 240px minimum
 
   /** Width of the collapsed nav (icon strip / side rail), in rem. */
@@ -66,9 +62,6 @@ export class SideNavService {
   /** True while the user is actively dragging the resize handle. Disables CSS transitions during drag. */
   readonly isDragging = signal(false);
 
-  /** True after the disk width has been loaded, used to gate transitions alongside layoutReady. */
-  private readonly widthInitialized = signal(false);
-
   /**
    * True one tick after the layout's first ResizeObserver callback, so the initial open/width
    * state is painted before transitions turn on and the nav does not animate in on page load.
@@ -76,7 +69,7 @@ export class SideNavService {
   private readonly layoutReady = signal(false);
 
   /** True once the initial width and layout have settled, so width changes may animate. */
-  readonly transitionsEnabled = computed(() => this.widthInitialized() && this.layoutReady());
+  readonly transitionsEnabled = computed(() => this.widthService.hydrated() && this.layoutReady());
 
   /**
    * Visual width override (in rem) applied during a drag via a direct style binding: the preview
@@ -98,18 +91,13 @@ export class SideNavService {
     return this.open();
   });
 
-  /** Local width state. GlobalStateProvider is authoritative and applied once resolved. */
-  private readonly _width$ = new BehaviorSubject<number>(this.DEFAULT_OPEN_WIDTH);
-  readonly width$ = this._width$.asObservable();
+  /** Owns the width and decides what is persisted. This service never writes to disk itself. */
+  private readonly widthService = inject(SideNavWidthService);
+
+  readonly width$ = this.widthService.width$;
 
   /** Current nav width as a signal, for use in grid column calculations. */
-  readonly widthRem = toSignal(this.width$, { initialValue: this.DEFAULT_OPEN_WIDTH });
-
-  /** Authoritative persisted width from GlobalStateProvider. */
-  private readonly widthState = inject(GlobalStateProvider).get(BIT_SIDE_NAV_WIDTH_KEY_DEF);
-  readonly widthState$ = this.widthState.state$.pipe(
-    map((width) => width ?? this.DEFAULT_OPEN_WIDTH),
-  );
+  readonly widthRem = toSignal(this.width$, { initialValue: SIDE_NAV_WIDTH_BOUNDS.default });
 
   constructor() {
     // Get computed root font size to support user-defined a11y font increases
@@ -123,17 +111,6 @@ export class SideNavService {
     if (estimatedPushMode) {
       this.open.set(true);
     }
-
-    // Sync from GlobalStateProvider (authoritative source of truth).
-    this.widthState$.pipe(first()).subscribe((diskWidth: number) => {
-      this._width$.next(diskWidth);
-      this.widthInitialized.set(true);
-    });
-
-    // Persist width changes, debounced so a drag doesn't write once per frame.
-    this.width$.pipe(debounceTime(200), takeUntilDestroyed()).subscribe((width) => {
-      void this.widthState.update(() => width);
-    });
   }
 
   /** Called by LayoutComponent after its first ResizeObserver callback, to enable transitions once painted. */
@@ -149,8 +126,8 @@ export class SideNavService {
     this.userCollapsePreference.set(opening ? "open" : "closed");
     this.open.set(opening);
 
-    if (opening && this._width$.getValue() < this.MIN_OPEN_WIDTH) {
-      this._width$.next(this.DEFAULT_OPEN_WIDTH);
+    if (opening && this.widthService.saved() < this.MIN_OPEN_WIDTH) {
+      this.widthService.display(this.DEFAULT_OPEN_WIDTH);
     }
   }
 
@@ -219,12 +196,12 @@ export class SideNavService {
       if (key === "ArrowRight") {
         this.userCollapsePreference.set("open");
         this.open.set(true);
-        this._width$.next(this.DEFAULT_OPEN_WIDTH);
+        this.widthService.display(this.DEFAULT_OPEN_WIDTH);
       }
       return;
     }
 
-    const currentWidth = this._width$.getValue();
+    const currentWidth = this.widthRem();
 
     // Stepping left off the minimum collapses, mirroring the drag snap.
     if (key === "ArrowLeft" && currentWidth <= this.MIN_OPEN_WIDTH) {
@@ -256,26 +233,31 @@ export class SideNavService {
 
     if (this.open()) {
       // Released in the tension zone — spring back to the minimum.
-      this._width$.next(this.MIN_OPEN_WIDTH);
+      this.widthService.commit(this.MIN_OPEN_WIDTH);
       return;
     }
 
     // Released in the collapsed preview zone — commit to open at the default width.
     this.userCollapsePreference.set("open");
     this.open.set(true);
-    this._width$.next(this.DEFAULT_OPEN_WIDTH);
+    this.widthService.display(this.DEFAULT_OPEN_WIDTH);
   }
 
-  /** Set the width, clamped to the min/max bounds. */
+  /** Commit the width, held within bounds and within what the container can push. */
   private _setWidthWithinMinMax(newWidth: number) {
-    // Never widen past what the container can push, or main content would be clipped.
+    this.widthService.commit(this._pushClamped(newWidth));
+  }
+
+  /**
+   * Narrow `width` to what the container can push, so main content is never clipped. Display-only:
+   * a container limit is not a preference, so this must not decide what gets persisted.
+   */
+  private _pushClamped(width: number) {
     const max = Math.max(
       this.MIN_OPEN_WIDTH,
       Math.min(this.MAX_OPEN_WIDTH, this.maxPushWidthRem()),
     );
-    const width = Math.min(Math.max(newWidth, this.MIN_OPEN_WIDTH), max);
-
-    this._width$.next(width);
+    return Math.min(width, max);
   }
 }
 

@@ -71,14 +71,14 @@ describe("SideNavService", () => {
         expect(currentWidth()).toBe(30.5);
       });
 
-      it.failing("does not re-persist a width it just read", () => {
+      it("does not re-persist a width it just read", () => {
         createService(30.5);
         flushPersist();
 
         expect(persistedWidths()).toEqual([]);
       });
 
-      it.failing("repairs a saved width below the minimum, once", () => {
+      it("repairs a saved width below the minimum, once", () => {
         createService(14.25);
         flushPersist();
 
@@ -86,7 +86,7 @@ describe("SideNavService", () => {
         expect(persistedWidths()).toEqual([service.MIN_OPEN_WIDTH]);
       });
 
-      it.failing("repairs a saved width above the maximum, once", () => {
+      it("repairs a saved width above the maximum, once", () => {
         createService(40);
         flushPersist();
 
@@ -94,7 +94,7 @@ describe("SideNavService", () => {
         expect(persistedWidths()).toEqual([service.MAX_OPEN_WIDTH]);
       });
 
-      it.failing("writes nothing when no width has ever been saved", () => {
+      it("writes nothing when no width has ever been saved", () => {
         createService();
         flushPersist();
 
@@ -102,7 +102,7 @@ describe("SideNavService", () => {
         expect(persistedWidths()).toEqual([]);
       });
 
-      it.failing("does not persist the default before a slow disk read resolves", () => {
+      it("does not persist the default before a slow disk read resolves", () => {
         // A bare Subject models production, where state$ resolves asynchronously.
         const slowDisk$ = new Subject<number | null>();
         diskWidth$ = slowDisk$;
