@@ -19351,6 +19351,12 @@
   "pamRotationAttemptInProgress": {
     "message": "In progress"
   },
+  "pamRotationAttemptStarted": {
+    "message": "Started"
+  },
+  "pamRotationAttemptEnded": {
+    "message": "Ended"
+  },
   "pamRotationSyncStateTargetUnchanged": {
     "message": "Target unchanged"
   },
