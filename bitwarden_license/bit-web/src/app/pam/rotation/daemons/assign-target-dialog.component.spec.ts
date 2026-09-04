@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
@@ -27,12 +28,19 @@ describe("AssignTargetDialogComponent", () => {
 
   const daemon = {
     id: "d-1",
+    organizationId: "org-1",
     name: "My Daemon",
     assignments: [],
   } as unknown as AccessConnector;
 
-  function createComponent(options: TargetSystem[]): Promise<void> {
-    const params: AssignTargetDialogParams = { daemon, options };
+  const targetSystemsLink = () =>
+    fixture.nativeElement.querySelector("#assign-target-dialog_anchor_target-systems");
+
+  function createComponent(
+    options: TargetSystem[],
+    noActiveAutomaticSystems = false,
+  ): Promise<void> {
+    const params: AssignTargetDialogParams = { daemon, options, noActiveAutomaticSystems };
     dialogRef = {
       close: jest.fn().mockReturnValue(Promise.resolve()),
     } as unknown as jest.Mocked<DialogRef<string | undefined>>;
@@ -40,6 +48,10 @@ describe("AssignTargetDialogComponent", () => {
     return TestBed.configureTestingModule({
       imports: [AssignTargetDialogComponent, NoopAnimationsModule],
       providers: [
+        // The link's target, so clicking it navigates rather than logging an unmatched-route error.
+        provideRouter([
+          { path: "organizations/:organizationId/pam/rotation/target-systems", children: [] },
+        ]),
         { provide: DIALOG_DATA, useValue: params },
         { provide: DialogRef, useValue: dialogRef },
         { provide: I18nService, useValue: i18nStub },
@@ -61,10 +73,31 @@ describe("AssignTargetDialogComponent", () => {
     expect(select).toBeTruthy();
   });
 
-  it("shows an empty-options message when there are no options", async () => {
+  it("shows the all-assigned message when every eligible target is already assigned", async () => {
     await createComponent([]);
-    const html = fixture.nativeElement.textContent as string;
-    expect(html).toContain("pamDaemonAssignNoOptions");
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain("pamDaemonAssignNoOptions");
+    expect(text).not.toContain("pamDaemonAssignNoTargetSystems");
+  });
+
+  it("shows the no-target-systems message when none exist", async () => {
+    await createComponent([], true);
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain("pamDaemonAssignNoTargetSystems");
+    expect(text).not.toContain("pamDaemonAssignNoOptions");
+  });
+
+  it("links to the Target systems tab when none exist", async () => {
+    await createComponent([], true);
+    expect(targetSystemsLink().getAttribute("href")).toBe(
+      "/organizations/org-1/pam/rotation/target-systems",
+    );
+  });
+
+  it("dismisses the dialog when the Target systems link is followed", async () => {
+    await createComponent([], true);
+    targetSystemsLink().click();
+    expect(dialogRef.close).toHaveBeenCalledWith(undefined);
   });
 
   it("closes with undefined on cancel", async () => {
