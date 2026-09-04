@@ -8,12 +8,18 @@ const builder = require("electron-builder");
 const fse = require("fs-extra");
 exports.default = run;
 
+const IS_GITHUB_ACTIONS = process.env.GITHUB_ACTIONS == "true";
+
 /**
  *
  * @param {builder.AfterPackContext} context
  */
 async function run(context) {
+  if (IS_GITHUB_ACTIONS) {
+    console.log(`::group::After Pack (${builder.Arch[context.arch]})`);
+  }
   console.log("## After pack");
+  console.log("## After pack, started at", new Date().toISOString());
   // console.log(context);
 
   if (context.packager.platform.nodeName !== "darwin" || context.arch === builder.Arch.universal) {
@@ -119,6 +125,11 @@ async function run(context) {
         `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${inheritProxyPath}"`,
       );
     }
+  }
+
+  console.log("### After pack ended at", new Date().toISOString());
+  if (IS_GITHUB_ACTIONS) {
+    console.log("::endgroup::");
   }
 }
 
