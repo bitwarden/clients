@@ -15,19 +15,29 @@ import {
   CardComponent,
   DialogService,
   HeaderComponent,
+  IconButtonModule,
   IconModule,
   SectionComponent,
   SectionHeaderComponent,
   SpinnerComponent,
   ToastService,
+  TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { RotationHistoryComponent } from "../managed-credentials/rotation-history.component";
-import { AccessConnectorDetail, AccessConnectorId, DaemonStatus } from "../rotation";
+import {
+  AccessConnectorDetail,
+  AccessConnectorId,
+  DaemonStatus,
+  TargetSystem,
+  TargetSystemId,
+} from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
+
+import { AssignTargetDialogComponent } from "./assign-target-dialog.component";
 
 /**
  * Routed detail page for a single rotation daemon — a sibling of the rotation shell (own
@@ -50,11 +60,13 @@ import { TargetSystemsService } from "../target-systems/target-systems.service";
     ButtonModule,
     CardComponent,
     HeaderComponent,
+    IconButtonModule,
     IconModule,
     RotationHistoryComponent,
     SectionComponent,
     SectionHeaderComponent,
     SpinnerComponent,
+    TooltipDirective,
     TypographyModule,
     I18nPipe,
   ],
@@ -81,17 +93,25 @@ export class DaemonDetailComponent {
     initialValue: new Map(),
   });
 
+  private readonly activeAutomaticSystems = toSignal(
+    this.targetSystemsService.activeAutomaticSystems$,
+    { initialValue: [] as TargetSystem[] },
+  );
+
+  /** Guards the per-assignment remove buttons against re-entry; they are plain (click) handlers. */
+  protected readonly unassigning = signal(false);
+
   /** The connector itself; the detail's other half is its recent job history. */
   private readonly connector = computed(() => this.daemon()?.connector ?? null);
 
-  /** Assigned target-system display names, falling back to the raw ID when not yet resolved. */
-  protected readonly assignmentNames = computed(() => {
+  /** Assigned targets as id + display name, falling back to the raw ID when not yet resolved. */
+  protected readonly assignments = computed(() => {
     const connector = this.connector();
     if (connector == null) {
-      return [];
+      return [] as { id: TargetSystemId; name: string }[];
     }
     const map = this.systemById();
-    return connector.assignedTargetSystemIds.map((id) => map.get(id)?.name ?? id);
+    return connector.assignedTargetSystemIds.map((id) => ({ id, name: map.get(id)?.name ?? id }));
   });
 
   protected readonly titleText = computed(() => this.connector()?.name ?? "");
@@ -177,6 +197,69 @@ export class DaemonDetailComponent {
     }
   };
 
+  /** Assign an active automatic target system to this daemon. */
+  protected readonly assignTarget = async (): Promise<void> => {
+    const connector = this.connector();
+    if (connector == null) {
+      return;
+    }
+    const assigned = new Set(connector.assignedTargetSystemIds);
+    const options = this.activeAutomaticSystems().filter((s) => !assigned.has(s.id));
+
+    const ref = AssignTargetDialogComponent.open(this.dialogService, {
+      data: { daemon: connector, options },
+    });
+    const selected = await ref.closed.toPromise();
+    if (!selected) {
+      return;
+    }
+    const targetSystemId = asUuid<TargetSystemId>(selected);
+    try {
+      await this.rotationSdk.assignTarget(this.organizationId, connector.id, targetSystemId);
+      this.patchAssignments([...connector.assignedTargetSystemIds, targetSystemId]);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamDaemonAssigned"),
+      });
+    } catch (e) {
+      this.showError(e);
+    }
+  };
+
+  /** Remove one target-system assignment; confirms first, as the list does. */
+  protected readonly unassign = async (assignment: {
+    id: TargetSystemId;
+    name: string;
+  }): Promise<void> => {
+    const connector = this.connector();
+    if (connector == null || this.unassigning()) {
+      return;
+    }
+    this.unassigning.set(true);
+    try {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "pamDaemonUnassignConfirmTitle" },
+        content: { key: "pamDaemonUnassignConfirmContent", placeholders: [assignment.name] },
+        acceptButtonText: { key: "remove" },
+        cancelButtonText: { key: "cancel" },
+        type: "warning",
+      });
+      if (!confirmed) {
+        return;
+      }
+      await this.rotationSdk.unassignTarget(this.organizationId, connector.id, assignment.id);
+      this.patchAssignments(connector.assignedTargetSystemIds.filter((id) => id !== assignment.id));
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamDaemonUnassigned"),
+      });
+    } catch (e) {
+      this.showError(e);
+    } finally {
+      this.unassigning.set(false);
+    }
+  };
+
   private async initialize(): Promise<void> {
     try {
       const [daemon] = await Promise.all([
@@ -216,6 +299,18 @@ export class DaemonDetailComponent {
       return;
     }
     this.daemon.set({ ...daemon, connector: { ...daemon.connector, status } });
+  }
+
+  /** Patch the loaded daemon's assignments locally (new reference for OnPush; jobs + fields carried over). */
+  private patchAssignments(assignedTargetSystemIds: TargetSystemId[]): void {
+    const daemon = this.daemon();
+    if (daemon == null) {
+      return;
+    }
+    this.daemon.set({
+      ...daemon,
+      connector: { ...daemon.connector, assignedTargetSystemIds },
+    });
   }
 
   private showError(e: unknown): void {
