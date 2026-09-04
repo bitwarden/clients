@@ -48,10 +48,16 @@
     @if (showVaults()) {
       <bit-filter-menu [key]="filterKeys.vault" [placeholderText]="'vault' | i18n" multiple>
         @if (showMyVaultOption()) {
-          <bit-filter-option [value]="MY_VAULT">{{ "myVault" | i18n }}</bit-filter-option>
+          <bit-filter-option [value]="MY_VAULT" [iconTile]="myVaultFilterTile()">{{
+            "myVault" | i18n
+          }}</bit-filter-option>
         }
         @for (organization of sortedOrganizations(); track organization.id) {
-          <bit-filter-option [value]="organization.id">{{ organization.name }}</bit-filter-option>
+          <bit-filter-option
+            [value]="organization.id"
+            [iconTile]="organizationTiles().get(organization.id)"
+            >{{ organization.name }}</bit-filter-option
+          >
         }
       </bit-filter-menu>
     }
