@@ -5,7 +5,7 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
@@ -21,6 +21,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -39,11 +40,12 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
-import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
+import { PasswordRepromptService, VaultCopyButtonsService, VaultScopeType } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
+import { VaultPopupListTableService } from "../../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
@@ -103,7 +105,11 @@ describe("VaultPopupListTableComponent", () => {
     doAutofill: jest.fn(),
   };
 
+  /** Unsearched active ciphers; the folder chip's options come from here, not the rendered rows. */
+  const activeCiphers$ = new BehaviorSubject<PopupCipherViewLike[]>([]);
+
   const vaultPopupItemsService = {
+    activeCiphers$: activeCiphers$.asObservable(),
     autoFillCiphers$: autoFillCiphers$.asObservable(),
     favoriteCiphers$: favoriteCiphers$.asObservable(),
     filteredCiphers$: filteredCiphers$.asObservable(),
@@ -126,13 +132,26 @@ describe("VaultPopupListTableComponent", () => {
   const cipherTypes$ = new BehaviorSubject<ChipFilterOption<CipherType>[]>([]);
   const organizations$ = new BehaviorSubject<ChipFilterOption<Organization>[]>([]);
   const collections$ = new BehaviorSubject<ChipFilterOption<CollectionView>[]>([]);
+  let listTableSvc: VaultPopupListTableService;
   const folders$ = new BehaviorSubject<ChipFilterOption<FolderView>[]>([]);
 
+  /** Emitted by the switcher's clear, which the table follows to reset its own controls. */
+  const vaultScopedFiltersCleared$ = new Subject<void>();
+  /** Whether the vault in view is suspended, which blanks the rows. */
+  const suspendedVault$ = new BehaviorSubject<boolean>(false);
   const organizationNames$ = new BehaviorSubject<Map<string, string>>(new Map());
 
   const vaultPopupListTableFiltersService = {
     restoreFilters$: jest.fn().mockReturnValue(of({})),
     saveFilters: jest.fn(),
+    clearVaultScopedFilters: jest.fn(),
+    vaultScopedFiltersCleared$: vaultScopedFiltersCleared$.asObservable(),
+    selectedFilters$: of({
+      cipherType: null,
+      organization: [] as string[],
+      collection: [] as string[],
+      folder: [] as string[],
+    }),
     selectedOrganizations: signal<Organization[]>([]),
     cipherTypes$: cipherTypes$.asObservable(),
     organizations$: organizations$.asObservable(),
@@ -155,6 +174,7 @@ describe("VaultPopupListTableComponent", () => {
     autoFillCiphers$.next([]);
     favoriteCiphers$.next([]);
     filteredCiphers$.next([]);
+    activeCiphers$.next([]);
     loading$.next(false);
     searchText$.next("");
     hasSearchText$.next(false);
@@ -231,6 +251,10 @@ describe("VaultPopupListTableComponent", () => {
       ],
     }).compileComponents();
 
+    listTableSvc = TestBed.inject(VaultPopupListTableService);
+    // Driven directly: these test the blanking, not how the state is derived.
+    Object.defineProperty(listTableSvc, "suspendedVault$", { value: suspendedVault$ });
+    listTableSvc.setScope(null);
     fixture = TestBed.createComponent(VaultPopupListTableComponent);
     component = fixture.componentInstance;
   });
@@ -320,10 +344,10 @@ describe("VaultPopupListTableComponent", () => {
     describe("deactivated organization", () => {
       beforeEach(() => {
         // First render so toObservable(showDeactivatedOrg) consumes the initial false via skip(1).
-        // Tests can then observe the transition to true when selectedOrgs is set below.
+        // Tests can then observe the transition to true when the suspended state is set below.
         fixture.detectChanges();
         filteredCiphers$.next([makeCipher({ organizationId: "org-1" })]);
-        component["selectedOrgs"].set([{ enabled: false, id: "org-1" } as Organization]);
+        suspendedVault$.next(true);
         fixture.detectChanges();
       });
 
@@ -342,7 +366,7 @@ describe("VaultPopupListTableComponent", () => {
       });
 
       it("restores the rows once the filter moves off the suspended organization", () => {
-        component["selectedOrgs"].set([]);
+        suspendedVault$.next(false);
         fixture.detectChanges();
 
         expect(component["rows"]()).toHaveLength(1);
@@ -359,7 +383,7 @@ describe("VaultPopupListTableComponent", () => {
       it("does not announce again when the filter moves off the suspended organization", () => {
         liveAnnouncer.announce.mockClear();
 
-        component["selectedOrgs"].set([]);
+        suspendedVault$.next(false);
         fixture.detectChanges();
 
         expect(liveAnnouncer.announce).not.toHaveBeenCalled();
@@ -479,6 +503,146 @@ describe("VaultPopupListTableComponent", () => {
         name: "Gamma",
         organizationId: "org-2",
       } as unknown as CollectionView;
+
+      /**
+       * Folders span vaults, so a scoped page keeps only those its own items sit in.
+       */
+      it("keeps only folders the scoped vault's items are in", () => {
+        const ORG_ID = "11111111-1111-4111-8111-111111111111";
+        activeCiphers$.next([
+          makeCipher({ id: "personal", organizationId: null, folderId: "folder-1" }),
+          makeCipher({ id: "org", organizationId: ORG_ID, folderId: "folder-2" }),
+        ]);
+        folders$.next([
+          { value: { id: "folder-1", name: "Personal" } as FolderView, label: "Personal" },
+          { value: { id: "folder-2", name: "Work" } as FolderView, label: "Work" },
+        ]);
+        listTableSvc.setScope({ type: VaultScopeType.MyVault });
+        fixture.detectChanges();
+
+        expect(component["folderOptions"]().map((o: any) => o.label)).toEqual(["Personal"]);
+      });
+
+      /**
+       * Options describe what the vault holds; one that vanished mid-search could not widen it.
+       */
+      it("keeps its options while a search narrows the rows", () => {
+        activeCiphers$.next([
+          makeCipher({ id: "personal", organizationId: null, folderId: "folder-1" }),
+        ]);
+        // The rendered rows are search-filtered; the chip's options are not.
+        filteredCiphers$.next([]);
+        folders$.next([
+          { value: { id: "folder-1", name: "Personal" } as FolderView, label: "Personal" },
+        ]);
+        listTableSvc.setScope({ type: VaultScopeType.MyVault });
+        fixture.detectChanges();
+
+        expect(component["folderOptions"]().map((o: any) => o.label)).toEqual(["Personal"]);
+      });
+
+      it("keeps every folder when unscoped", () => {
+        activeCiphers$.next([
+          makeCipher({ id: "personal", organizationId: null, folderId: "folder-1" }),
+          makeCipher({ id: "org", organizationId: "org-1", folderId: "folder-2" }),
+        ]);
+        folders$.next([
+          { value: { id: "folder-1", name: "Personal" } as FolderView, label: "Personal" },
+          { value: { id: "folder-2", name: "Work" } as FolderView, label: "Work" },
+        ]);
+        listTableSvc.setScope(null);
+        fixture.detectChanges();
+
+        expect(component["folderOptions"]().map((o: any) => o.label)).toEqual(["Personal", "Work"]);
+      });
+
+      /**
+       * The vault chip is gone under a scope, so the filter service hands back every organization's.
+       */
+      it("keeps only the scoped organization's shared folders", () => {
+        collections$.next([
+          { value: col1, label: "Alpha" },
+          { value: col3, label: "Gamma" },
+        ]);
+        listTableSvc.setScope({
+          type: VaultScopeType.Organization,
+          organizationId: "org-1" as OrganizationId,
+        });
+        fixture.detectChanges();
+
+        expect(component["collectionOptions"]().map((o: any) => o.label)).toEqual(["Alpha"]);
+      });
+
+      /** A personal vault owns no shared folders, so the chip empties and hides. */
+      it("drops every shared folder under a personal-vault scope", () => {
+        collections$.next([
+          { value: col1, label: "Alpha" },
+          { value: col3, label: "Gamma" },
+        ]);
+        listTableSvc.setScope({ type: VaultScopeType.MyVault });
+        fixture.detectChanges();
+
+        expect(component["collectionOptions"]()).toEqual([]);
+      });
+
+      /** The folder chip's options arrive after `restoreFilters$` resolves, so it seeded late. */
+      it("seeds a chip that registers after the cache resolves", async () => {
+        vaultPopupListTableFiltersService.restoreFilters$.mockReturnValue(
+          of({ folder: ["folder-1"] }),
+        );
+
+        const late = TestBed.createComponent(VaultPopupListTableComponent);
+        late.detectChanges();
+        await late.whenStable();
+
+        // The folder chip's options arrive only now.
+        folders$.next([{ value: { id: "folder-1", name: "Work" }, label: "Work" } as any]);
+        late.detectChanges();
+        await late.whenStable();
+
+        const folder = late.componentInstance["tableEl"]()!
+          .filterControls()
+          .find((c: any) => c.key() === "folder");
+
+        expect(folder).toBeDefined();
+        expect(folder!.value()).toEqual(["folder-1"]);
+
+        late.destroy();
+      });
+
+      /** The controls hold their own values, so clearing the cache alone leaves them set. */
+      it("resets its chip controls when a vault switch clears the cache", async () => {
+        collections$.next([{ value: col1, label: "Alpha" } as any]);
+        fixture.detectChanges();
+        // The subscription is set up in `afterNextRender`, which needs the render hooks flushed.
+        await fixture.whenStable();
+
+        const byKey = new Map(
+          component["tableEl"]()!
+            .filterControls()
+            .map((c: any) => [c.key(), jest.spyOn(c, "setValue")]),
+        );
+
+        vaultScopedFiltersCleared$.next();
+        fixture.detectChanges();
+
+        expect(byKey.get("collection")).toHaveBeenCalledWith(undefined);
+        expect(byKey.get("cipherType")).not.toHaveBeenCalled();
+      });
+
+      it("keeps every organization's shared folders when unscoped", () => {
+        collections$.next([
+          { value: col1, label: "Alpha" },
+          { value: col3, label: "Gamma" },
+        ]);
+        listTableSvc.setScope(null);
+        fixture.detectChanges();
+
+        expect(component["collectionOptions"]().map((o: any) => o.label)).toEqual([
+          "Alpha",
+          "Gamma",
+        ]);
+      });
 
       it("does not group when all collections belong to one organization", () => {
         collections$.next([

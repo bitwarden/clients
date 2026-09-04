@@ -1,7 +1,7 @@
 import { computed, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { applicationConfig, Meta, StoryObj } from "@storybook/angular";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, NEVER, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
@@ -318,6 +318,15 @@ const buildProviders = (args: StoryArgs) => {
       useValue: {
         restoreFilters$: () => of(args.appliedFilters ?? {}),
         saveFilters: () => {},
+        clearVaultScopedFilters: () => {},
+        vaultScopedFiltersCleared$: NEVER,
+        suspended$: () => of(false),
+        selectedFilters$: of({
+          cipherType: null,
+          organization: [] as string[],
+          collection: [] as string[],
+          folder: [] as string[],
+        }),
         selectedOrganizations: signal<string[]>([]),
         cipherTypes$: of(CIPHER_TYPE_OPTIONS),
         organizations$: of(ORGANIZATION_OPTIONS),
@@ -332,6 +341,8 @@ const buildProviders = (args: StoryArgs) => {
         autoFillCiphers$: autoFillCiphers$.asObservable(),
         favoriteCiphers$: favoriteCiphers$.asObservable(),
         filteredCiphers$: filteredCiphers$.asObservable(),
+        // The folder chip's options come from the unsearched list, not the rendered rows.
+        activeCiphers$: filteredCiphers$.asObservable(),
         loading$: loading$.asObservable(),
         searchText$: searchText$.asObservable(),
         hasSearchText$: hasSearchText$.asObservable(),
