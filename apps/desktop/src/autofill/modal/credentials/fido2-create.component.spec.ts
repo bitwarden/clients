@@ -141,7 +141,7 @@ describe("Fido2CreateComponent", () => {
       await component.addCredentialToCipher(cipher);
 
       expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
-        title: { key: "overwritePasskey" },
+        title: { key: "overwritePasskey2" },
         content: { key: "alreadyContainsPasskey" },
         type: "warning",
       });

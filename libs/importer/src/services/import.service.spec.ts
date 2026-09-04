@@ -14,6 +14,7 @@ import {
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -32,8 +33,9 @@ import { EncryptService, EncString, KeyGenerationService } from "@bitwarden/lega
 
 import { BitwardenPasswordProtectedImporter } from "../importers";
 import { Importer } from "../importers/importer";
+import { ImportType } from "../models/import-options";
 import { ImportResult } from "../models/import-result";
-import { SdkImportCredentials } from "../sdk";
+import { buildSdkImporterRegistry, SdkImportCredentials } from "../sdk";
 
 import { ImportApiServiceAbstraction } from "./import-api.service.abstraction";
 import { ImportService } from "./import.service";
@@ -50,6 +52,7 @@ describe("ImportService", () => {
   let keyGenerationService: MockProxy<KeyGenerationService>;
   let accountService: MockProxy<AccountService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
+  let configService: MockProxy<ConfigService>;
   let sdkService: MockProxy<SdkService>;
 
   beforeEach(() => {
@@ -63,6 +66,7 @@ describe("ImportService", () => {
     keyGenerationService = mock<KeyGenerationService>();
     accountService = mock<AccountService>();
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
+    configService = mock<ConfigService>();
     sdkService = mock<SdkService>();
 
     importService = new ImportService(
@@ -76,8 +80,36 @@ describe("ImportService", () => {
       keyGenerationService,
       accountService,
       restrictedItemTypesService,
+      configService,
       sdkService,
     );
+
+    // Feature flags are only used by certain specific importers, not the base
+    // import service, so we can disable them all for the purpose of these tests.
+    configService.getFeatureFlag.mockResolvedValue(false);
+  });
+
+  describe("importOptions data integrity", () => {
+    it("agrees with the SDK registry on which formats are SDK-backed", () => {
+      const registry = buildSdkImporterRegistry();
+      for (const option of importService.importOptions) {
+        expect(registry.has(option.id as ImportType)).toBe(option.sdk != null);
+      }
+    });
+
+    it("keeps pasteFormats a subset of acceptedFileTypes for every format", () => {
+      for (const option of importService.importOptions) {
+        for (const pasteFormat of option.pasteFormats) {
+          expect(option.acceptedFileTypes).toContain(pasteFormat);
+        }
+      }
+    });
+
+    it("pairs instructionLink and sourceName — never one without the other", () => {
+      for (const option of importService.importOptions) {
+        expect(!!option.instructionLink).toEqual(!!option.sourceName);
+      }
+    });
   });
 
   describe("getImporterInstance", () => {
@@ -433,12 +465,6 @@ describe("ImportService", () => {
       accountService.activeAccount$ = of({ id: userId } as any);
       (restrictedItemTypesService as any).restricted$ = of([]);
       i18nService.t.mockImplementation((key) => key);
-    });
-
-    it("recognizes registered SDK importers", () => {
-      expect(importService.isSdkImporter("keepasskdbx")).toBe(true);
-      expect(importService.credentialKindFor("keepasskdbx")).toBe("passwordWithKeyFile");
-      expect(importService.isSdkImporter("bitwardencsv")).toBe(false);
     });
 
     it("imports into the personal vault, passing the target folder", async () => {

@@ -20,7 +20,8 @@ import {
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { BiometricStateService, KeyService } from "@bitwarden/key-management";
+import { BiometricStateService } from "@bitwarden/key-management";
+import { AutoUnlockService } from "@bitwarden/unlock";
 
 import { PolicyService } from "../../../admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../../admin-console/enums";
@@ -55,7 +56,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
   constructor(
     private accountService: AccountService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
-    private keyService: KeyService,
+    private autoUnlockService: AutoUnlockService,
     private tokenService: TokenService,
     private policyService: PolicyService,
     private biometricStateService: BiometricStateService,
@@ -88,7 +89,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
 
     await this.migrateTokenStorage(userId, action, timeout);
 
-    await this.keyService.refreshAdditionalKeys(userId);
+    await this.autoUnlockService.refreshAutoUnlockKey(userId);
   }
 
   availableVaultTimeoutActions$(userId?: UserId): Observable<VaultTimeoutAction[]> {

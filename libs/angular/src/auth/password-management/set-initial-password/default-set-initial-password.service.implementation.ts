@@ -17,8 +17,6 @@ import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-pa
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterPasswordAuthenticationData,
@@ -30,17 +28,18 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
+  EncryptService,
+  EncString,
   fromSdkKdfConfig,
   KdfConfig,
-  KdfConfigService,
-  KeyService,
-} from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { OrganizationId as SdkOrganizationId, UserId as SdkUserId } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 
@@ -160,6 +159,26 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       keysRequest = new KeysRequest(keyPair[0], keyPair[1].encryptedString);
     }
 
+    // ============================================================
+    // PM-42990 — ROLLBACK NOTE
+    // ============================================================
+    // This code builds the request from a master password hash. The caller
+    // computes that hash in SetInitialPasswordComponent.
+    //
+    // This method does not build authentication data or unlock data.
+    //
+    // This exists because the set-password endpoint needs the old shape for
+    // 3 releases, to stay compatible with self hosted servers.
+    //
+    // BUILD: Move the hash and key computation back into this method. Build
+    // the request from authentication data and unlock data, not a hash.
+    //
+    // DELETE: Remove the assertions on newMasterKey and newServerMasterKeyHash
+    // below. Delete newMasterKey and newServerMasterKeyHash from
+    // SetInitialPasswordCredentials and PasswordInputResult. See
+    // https://github.com/bitwarden/clients/pull/20643 for initial pass at this
+    // refactor.
+    // ============================================================
     const request = new SetPasswordRequest(
       newServerMasterKeyHash,
       masterKeyEncryptedUserKey[1].encryptedString,
@@ -260,7 +279,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         userKey,
       );
 
-    const request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
+    const request = new UpdateTdeOffboardingPasswordRequest(
       authenticationData,
       unlockData,
       newPasswordHint,
@@ -403,6 +422,22 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         userKey,
       );
 
+    // ============================================================
+    // PM-42990 — ROLLBACK NOTE
+    // ============================================================
+    // This method already builds authentication data and unlock data.
+    // The method newConstructor() converts that data into the old request shape.
+    //
+    // It converts to the old shape because the endpoint needs it for 3
+    // releases, to stay compatible with self hosted servers.
+    //
+    // BUILD: Replace this call with a direct call to the new request
+    // constructor. No other change is needed here.
+    //
+    // DELETE: Nothing to delete at this call site. See
+    // https://github.com/bitwarden/clients/pull/20643 for initial pass at this
+    // refactor.
+    // ============================================================
     const request = SetPasswordRequest.newConstructor(
       authenticationData,
       unlockData,

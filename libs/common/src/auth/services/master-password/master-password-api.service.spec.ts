@@ -2,7 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { ApiService } from "../../../abstractions/api.service";
 import {
@@ -80,7 +80,7 @@ describe("MasterPasswordApiService", () => {
       const unlockData = new MasterPasswordUnlockData(
         salt,
         kdf,
-        "masterKeyWrappedUserKey" as unknown as MasterKeyWrappedUserKey,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
       );
       const request = new PasswordRequest(
         "currentMasterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
@@ -106,11 +106,27 @@ describe("MasterPasswordApiService", () => {
   describe("putUpdateTempPassword", () => {
     it("should call apiService.send with the correct parameters", async () => {
       // Arrange
-      const request = {
-        masterPasswordHint: "masterPasswordHint",
-        newMasterPasswordHash: "newMasterPasswordHash",
-        key: "key",
-      } as UpdateTempPasswordRequest;
+      const salt = "salt" as MasterPasswordSalt;
+      const kdf = new PBKDF2KdfConfig(600_000);
+
+      const authenticationData: MasterPasswordAuthenticationData = {
+        salt,
+        kdf,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+
+      const unlockData = new MasterPasswordUnlockData(
+        salt,
+        kdf,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+      );
+
+      const request = new UpdateTempPasswordRequest(
+        authenticationData,
+        unlockData,
+        "masterPasswordHint",
+      );
 
       // Act
       await sut.putUpdateTempPassword(request);
@@ -129,11 +145,27 @@ describe("MasterPasswordApiService", () => {
   describe("putUpdateTdeOffboardingPassword", () => {
     it("should call apiService.send with the correct parameters", async () => {
       // Arrange
-      const request = {
-        masterPasswordHint: "masterPasswordHint",
-        newMasterPasswordHash: "newMasterPasswordHash",
-        key: "key",
-      } as UpdateTdeOffboardingPasswordRequest;
+      const salt = "salt" as MasterPasswordSalt;
+      const kdf = new PBKDF2KdfConfig(600_000);
+
+      const authenticationData: MasterPasswordAuthenticationData = {
+        salt,
+        kdf,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+
+      const unlockData = new MasterPasswordUnlockData(
+        salt,
+        kdf,
+        "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+      );
+
+      const request = new UpdateTdeOffboardingPasswordRequest(
+        authenticationData,
+        unlockData,
+        "masterPasswordHint",
+      );
 
       // Act
       await sut.putUpdateTdeOffboardingPassword(request);

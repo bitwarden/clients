@@ -1,0 +1,56 @@
+<div
+  bitOverflowList
+  [gap]="8"
+  #ovf="bitOverflowList"
+  [class.tw-invisible]="!ovf.ready()"
+  class="tw-flex"
+  role="group"
+  [attr.aria-label]="accessibleName() ?? null"
+>
+  <!-- The first chip is pinned so at least one is always visible. -->
+  @for (chip of chips(); track $index) {
+    <button
+      type="button"
+      bit-chip-action
+      bitOverflowItem
+      #ovfItem="bitOverflowItem"
+      [pinned]="$first"
+      [variant]="chip.variant ?? 'primary'"
+      [size]="size()"
+      [startIcon]="chip.startIcon"
+      [label]="chip.label"
+      [bitTooltip]="chip.label"
+      [class]="
+        ovfItem.shouldShrink() ? 'tw-flex-initial tw-min-w-0 tw-overflow-hidden' : 'tw-shrink-0'
+      "
+      (click)="chipSelect.emit(chip)"
+    ></button>
+  }
+  <button
+    type="button"
+    bit-chip-action
+    bitOverflowTrigger
+    variant="subtle"
+    [size]="size()"
+    [label]="'+' + overflow().length"
+    [attr.aria-label]="'showMoreCount' | i18n: overflow().length"
+    [bitPopoverTriggerFor]="overflowPopover"
+  ></button>
+</div>
+
+<bit-popover-panel #overflowPopover [accessibleName]="'showMore' | i18n">
+  <div class="tw-flex tw-flex-col tw-items-start tw-gap-4">
+    @for (chip of overflowChips(); track $index) {
+      <button
+        type="button"
+        bit-chip-action
+        [variant]="chip.variant ?? 'primary'"
+        [size]="size()"
+        [startIcon]="chip.startIcon"
+        [label]="chip.label"
+        [bitTooltip]="chip.label"
+        (click)="selectOverflowChip(chip)"
+      ></button>
+    }
+  </div>
+</bit-popover-panel>

@@ -1,11 +1,14 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LinkComponent, CalloutModule, BannerModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { AtRiskPasswordCalloutData, AtRiskPasswordCalloutService } from "@bitwarden/vault";
@@ -29,6 +32,11 @@ import { AtRiskPasswordCalloutData, AtRiskPasswordCalloutService } from "@bitwar
 export class AtRiskPasswordCalloutComponent {
   private activeAccount$ = inject(AccountService).activeAccount$.pipe(getUserId);
   private atRiskPasswordCalloutService = inject(AtRiskPasswordCalloutService);
+
+  protected readonly vfo1Enabled = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   showCompletedTasksBanner$ = this.activeAccount$.pipe(
     switchMap((userId) => this.atRiskPasswordCalloutService.showCompletedTasksBanner$(userId)),
