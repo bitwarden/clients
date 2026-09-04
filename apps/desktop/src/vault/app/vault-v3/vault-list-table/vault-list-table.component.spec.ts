@@ -79,34 +79,25 @@ describe("VaultListTableComponent", () => {
 
   describe("copyPresentation", () => {
     // The outer `beforeEach` already stood a component up, so these cases have to tear the module
-    // down before re-configuring it with their own flag/setting combination.
-    const setupWith = async (flagEnabled: boolean, settingEnabled: boolean) => {
+    // down before re-configuring it with their own setting value.
+    const setupWith = async (settingEnabled: boolean) => {
       TestBed.resetTestingModule();
-      await setup(providers(flagEnabled, settingEnabled));
+      await setup([
+        {
+          provide: VaultCopyButtonsService,
+          useValue: { showQuickCopyActions$: of(settingEnabled) },
+        },
+      ]);
     };
 
-    const providers = (flagEnabled: boolean, settingEnabled: boolean) => [
-      { provide: ConfigService, useValue: { getFeatureFlag$: () => of(flagEnabled) } },
-      {
-        provide: VaultCopyButtonsService,
-        useValue: { showQuickCopyActions$: of(settingEnabled) },
-      },
-    ];
-
-    it("expands the copy actions when the flag and the setting are both on", async () => {
-      await setupWith(true, true);
+    it("expands the copy actions when the setting is on", async () => {
+      await setupWith(true);
 
       expect(component["copyPresentation"]()).toBe("expanded");
     });
 
     it("stays collapsed when the setting is off", async () => {
-      await setupWith(true, false);
-
-      expect(component["copyPresentation"]()).toBe("collapsed");
-    });
-
-    it("stays collapsed when the flag is off, whatever the setting says", async () => {
-      await setupWith(false, true);
+      await setupWith(false);
 
       expect(component["copyPresentation"]()).toBe("collapsed");
     });
