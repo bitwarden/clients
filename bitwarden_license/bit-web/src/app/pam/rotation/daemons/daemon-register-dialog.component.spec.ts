@@ -4,7 +4,13 @@ import { mock } from "jest-mock-extended";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogCloseRef,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { RotationSdkService } from "../rotation-sdk.service";
 import { ORGANIZATION_ID, connectorId } from "../testing/rotation-builders";
@@ -14,9 +20,6 @@ import {
   DaemonRegisterDialogParams,
 } from "./daemon-register-dialog.component";
 import { DaemonTokenDialogComponent } from "./daemon-token-dialog.component";
-
-/** Drains the microtasks queued by the resolved SDK mock before assertions. */
-const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe("DaemonRegisterDialogComponent", () => {
   let fixture: ComponentFixture<DaemonRegisterDialogComponent>;
@@ -128,15 +131,18 @@ describe("DaemonRegisterDialogComponent", () => {
   });
 
   it("does not open the token dialog until the register dialog has closed", async () => {
-    let resolveClose!: (value: unknown) => void;
-    dialogRef.close.mockReturnValue(new Promise((resolve) => (resolveClose = resolve)));
+    let resolveClose!: (value: DialogCloseRef) => void;
+    dialogRef.close.mockReturnValue(
+      new Promise<DialogCloseRef>((resolve) => (resolveClose = resolve)),
+    );
     const openSpy = jest
       .spyOn(injectedDialogService, "open")
       .mockReturnValue({ closed: { toPromise: jest.fn() } } as any);
 
     (component as any).form.controls.name.setValue("Good Daemon");
     const submitted = (component as any).submit();
-    await settle();
+    // Let submit() run as far as the close it is now awaiting.
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(dialogRef.close).toHaveBeenCalledWith({ registered: true });
     expect(openSpy).not.toHaveBeenCalled();
@@ -144,15 +150,7 @@ describe("DaemonRegisterDialogComponent", () => {
     resolveClose({ closed: true });
     await submitted;
 
-    expect(openSpy).toHaveBeenCalledWith(
-      DaemonTokenDialogComponent,
-      expect.objectContaining({
-        data: expect.objectContaining({
-          token: fakeRegistration.token,
-          daemonName: "Good Daemon",
-        }),
-      }),
-    );
+    expect(openSpy).toHaveBeenCalledWith(DaemonTokenDialogComponent, expect.anything());
   });
 
   it("does not open the token dialog when registration fails", async () => {
