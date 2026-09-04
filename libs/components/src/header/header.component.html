@@ -27,15 +27,18 @@
           <h1
             bitTypography="h1"
             noMargin
-            class="tw-m-0 tw-leading-10 tw-flex tw-gap-1"
+            class="tw-m-0 tw-leading-10 tw-flex tw-items-center tw-gap-1"
             [title]="title()"
           >
-            <div class="tw-truncate">
-              @if (icon()) {
-                <bit-icon [name]="icon()" />
-              }
+            <div class="tw-flex tw-min-w-0 tw-items-center tw-gap-3">
+              <ng-content select="[slot=title-icon]"></ng-content>
+              <div class="tw-truncate">
+                @if (icon()) {
+                  <bit-icon [name]="icon()" />
+                }
 
-              {{ title() }}
+                {{ title() }}
+              </div>
             </div>
             <div class="tw-flex tw-items-center">
               <ng-container *ngTemplateOutlet="titleSuffix"></ng-container>

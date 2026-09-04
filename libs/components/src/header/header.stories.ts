@@ -24,6 +24,7 @@ import {
   TabsModule,
   TypographyModule,
   IconComponent,
+  IconTileComponent,
 } from "..";
 import { I18nMockService } from "../utils";
 
@@ -44,6 +45,7 @@ export default {
         ButtonModule,
         IconButtonModule,
         IconComponent,
+        IconTileComponent,
         SvgModule,
         InputModule,
         MenuModule,
@@ -343,6 +345,18 @@ export const WithTabsVfo1: Story = {
         <bit-tab-link [route]="['foo']">Foo</bit-tab-link>
         <bit-tab-link [route]="['bar']">Bar</bit-tab-link>
       </bit-tab-nav-bar>
+    </bit-header>
+  `,
+  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
+export const WithTitleIconVfo1: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+    <bit-header title="My vault" class="tw-text-main">
+      <bit-icon-tile slot="title-icon" icon="bwi-user" variant="brand" emphasis="bold" size="sm" />
     </bit-header>
   `,
   }),

@@ -15,7 +15,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
-import { ButtonModule, DialogService } from "@bitwarden/components";
+import { ButtonModule, DialogService, IconTileComponent } from "@bitwarden/components";
 import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
@@ -28,7 +28,7 @@ import {
   NewCipherMenuComponent,
   SharedFolderCardGridComponent,
   VaultCopyButtonsService,
-  VaultCollectionBreadcrumbsComponent,
+  VaultBreadcrumbsComponent,
   VaultItemsTableComponent,
   VaultItemsTableCopyPresentation,
   VaultItemsTableRowAction,
@@ -37,11 +37,12 @@ import {
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
-  MY_ITEMS_ROUTE,
   organizationInScope,
   parseVaultScope,
   resolveVaultScope,
   scopedCollectionSegment,
+  vaultScopeHeaderTile,
+  vaultScopeTitle,
   VaultScopeType,
 } from "@bitwarden/vault";
 
@@ -75,7 +76,8 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     HeaderModule,
     NewCipherMenuComponent,
     VaultBannersComponent,
-    VaultCollectionBreadcrumbsComponent,
+    VaultBreadcrumbsComponent,
+    IconTileComponent,
     VaultItemsTableComponent,
     VaultOnboardingComponent,
     VaultOrganizationUserNotificationsComponent,
@@ -132,10 +134,13 @@ export class VaultNextComponent {
     () => parseVaultScope(this.vaultIdParam(), this.collectionSegment()) ?? ALL_ITEMS_SCOPE,
   );
 
-  protected readonly collectionSelected = computed(() => {
-    const seg = this.collectionSegment();
-    return seg != null && seg !== MY_ITEMS_ROUTE;
-  });
+  protected readonly organizationScoped = computed(
+    () => this.parsedVaultScope().type === VaultScopeType.Organization,
+  );
+
+  protected readonly headerTile = computed(() =>
+    vaultScopeHeaderTile(this.vaultScope(), this.vaultNav()),
+  );
 
   /**
    * Every item the user can see, in every state. Which of trashed, archived, and active items a
@@ -241,21 +246,9 @@ export class VaultNextComponent {
     return type !== VaultScopeType.Trash && type !== VaultScopeType.Archive;
   });
 
-  protected readonly title = computed(() => {
-    const scope = this.vaultScope();
-    switch (scope.type) {
-      case VaultScopeType.MyVault:
-        return this.i18nService.t("myVault");
-      case VaultScopeType.Organization:
-        return this.scopedOrganizations()[0]?.name;
-      case VaultScopeType.Trash:
-        return this.i18nService.t("trash");
-      case VaultScopeType.Archive:
-        return this.i18nService.t("archiveNoun");
-      default:
-        return undefined;
-    }
-  });
+  protected readonly title = computed(() =>
+    vaultScopeTitle(this.vaultScope(), this.i18nService, this.scopedOrganizations()[0]?.name),
+  );
 
   protected readonly copyPresentation = toSignal(
     this.copyButtonsService.showQuickCopyActions$.pipe(
