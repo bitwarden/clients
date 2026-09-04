@@ -39,19 +39,19 @@
             data-testid="rotation-history-attempt-row"
           >
             <td class="tw-py-1 tw-pl-6 tw-pr-4 tw-text-xs tw-text-muted" colspan="4">
+              @let failureCauseKey =
+                attempt.failureReason ? failureCauseLabelKey(attempt.failureReason) : null;
               <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-x-4 tw-gap-y-1">
                 <div class="tw-min-w-0 tw-flex-1">
                   <span class="tw-font-medium">{{
                     attemptStatusLabelKey(attempt.status) | i18n
                   }}</span>
-                  @if (attempt.failureReason; as failureReason) {
-                    @if (failureCauseLabelKey(failureReason); as causeKey) {
-                      <span class="tw-ml-2 tw-text-danger">— {{ causeKey | i18n }}</span>
-                    } @else {
-                      <span class="tw-ml-2 tw-text-danger" [title]="failureReason">
-                        — {{ failureReason }}
-                      </span>
-                    }
+                  @if (failureCauseKey) {
+                    <span class="tw-ml-2 tw-text-danger">— {{ failureCauseKey | i18n }}</span>
+                  } @else if (attempt.failureReason; as failureReason) {
+                    <span class="tw-ml-2 tw-text-danger" [title]="failureReason">
+                      — {{ failureReason }}
+                    </span>
                   }
                   @if (
                     attempt.status === RotationAttemptStatus.Errored && attempt.syncState !== null
@@ -83,9 +83,9 @@
                   <span class="tw-italic">{{ "pamRotationAttemptInProgress" | i18n }}</span>
                 }
               </div>
-              @if (explainedFailureDetail(attempt.failureReason); as failureDetail) {
-                <span class="tw-mt-0.5 tw-block tw-text-muted" [title]="failureDetail">
-                  {{ "pamRotationFailureReportedDetail" | i18n: failureDetail }}
+              @if (failureCauseKey && attempt.failureReason; as failureReason) {
+                <span class="tw-mt-0.5 tw-block tw-text-muted" [title]="failureReason">
+                  {{ "pamRotationFailureReportedDetail" | i18n: failureReason }}
                 </span>
               }
             </td>
