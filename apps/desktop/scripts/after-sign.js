@@ -13,15 +13,22 @@ async function run(context) {
     console.log(`::group::After sign (${builder.Arch[context.arch]})`);
   }
   console.log("## After sign");
-  // console.log(context);
+  try {
+    await doBuild(context);
+  } catch (error) {
+    console.error("### Error occurred during after-sign phase:", error.stack);
+    throw error;
+  } finally {
+    if (IS_GITHUB_ACTIONS) {
+      console.log("::endgroup::");
+    }
+  }
+}
 
+async function doBuild(context) {
   const macBuild = context.electronPlatformName === "darwin";
   if (macBuild) {
     await notarizeBuild(context);
-  }
-
-  if (IS_GITHUB_ACTIONS) {
-    console.log("::endgroup::");
   }
 }
 
