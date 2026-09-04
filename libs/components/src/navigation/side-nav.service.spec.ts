@@ -2,6 +2,7 @@ import { TestBed } from "@angular/core/testing";
 
 import { GlobalStateProvider } from "@bitwarden/state";
 
+import { getRootFontSizePx } from "../shared";
 import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { SideNavService } from "./side-nav.service";
@@ -17,6 +18,9 @@ describe("SideNavService", () => {
   });
 
   const currentWidth = () => service.widthRem();
+
+  /** Drag the handle to `rem` from the nav's left edge. */
+  const dragTo = (rem: number) => service.setWidthFromDrag(rem * getRootFontSizePx(), 0);
 
   describe("setWidthFromKeys", () => {
     describe("while collapsed", () => {
@@ -109,6 +113,111 @@ describe("SideNavService", () => {
         service.setWidthFromKeys("ArrowRight");
 
         expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+      });
+    });
+  });
+
+  describe("setWidthFromDrag", () => {
+    describe("while open", () => {
+      const CUSTOM_WIDTH = 22;
+
+      beforeEach(() => {
+        service.open.set(true);
+        dragTo(CUSTOM_WIDTH);
+        expect(currentWidth()).toBe(CUSTOM_WIDTH);
+      });
+
+      it("previews the tension shrink without touching the saved width", () => {
+        dragTo(10);
+
+        // 15 - (15 - 10) * 0.15
+        expect(service.dragDisplayWidth()).toBeCloseTo(14.25);
+        expect(currentWidth()).toBe(CUSTOM_WIDTH);
+      });
+
+      it("collapses past the snap threshold and clears the preview", () => {
+        dragTo(10);
+
+        dragTo(3);
+
+        expect(service.open()).toBe(false);
+        expect(service.userCollapsePreference()).toBe("closed");
+        expect(service.dragDisplayWidth()).toBeNull();
+      });
+
+      it("keeps the customized width when a drag collapses the nav", () => {
+        dragTo(10);
+        dragTo(3);
+
+        service.onDragEnd();
+
+        expect(service.open()).toBe(false);
+        expect(currentWidth()).toBe(CUSTOM_WIDTH);
+
+        // Re-opening restores what the user had, not the minimum.
+        service.toggle();
+        expect(service.open()).toBe(true);
+        expect(currentWidth()).toBe(CUSTOM_WIDTH);
+      });
+
+      it("springs back to the minimum when released in the tension zone", () => {
+        dragTo(10);
+
+        service.onDragEnd();
+
+        expect(service.open()).toBe(true);
+        expect(service.dragDisplayWidth()).toBeNull();
+        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+      });
+
+      it("clears a stale tension preview when dragged back above the minimum", () => {
+        dragTo(10);
+
+        dragTo(20);
+
+        expect(service.dragDisplayWidth()).toBeNull();
+        expect(currentWidth()).toBe(20);
+      });
+    });
+
+    describe("while collapsed", () => {
+      beforeEach(() => {
+        service.open.set(false);
+      });
+
+      it("previews below the minimum without opening the nav", () => {
+        dragTo(8);
+
+        expect(service.open()).toBe(false);
+        expect(service.dragDisplayWidth()).toBe(8);
+      });
+
+      it("aborts the preview when dragged back onto the icon strip", () => {
+        dragTo(8);
+
+        dragTo(2);
+
+        expect(service.open()).toBe(false);
+        expect(service.dragDisplayWidth()).toBeNull();
+      });
+
+      it("commits to open once the drag crosses the minimum", () => {
+        dragTo(20);
+
+        expect(service.open()).toBe(true);
+        expect(service.userCollapsePreference()).toBe("open");
+        expect(service.dragDisplayWidth()).toBeNull();
+        expect(currentWidth()).toBe(20);
+      });
+
+      it("commits to open at the default width when released in the preview zone", () => {
+        dragTo(8);
+
+        service.onDragEnd();
+
+        expect(service.open()).toBe(true);
+        expect(service.dragDisplayWidth()).toBeNull();
+        expect(currentWidth()).toBe(service.DEFAULT_OPEN_WIDTH);
       });
     });
   });

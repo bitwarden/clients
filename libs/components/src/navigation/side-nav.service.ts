@@ -25,17 +25,10 @@ export class SideNavService {
   /** Width of the collapsed nav (icon strip / side rail), in rem. */
   readonly CLOSED_WIDTH = 4;
 
-  /**
-   * How many pixels past CLOSED_WIDTH the drag must reach before open-state styling
-   * is applied (labels, logo, sections). The nav's physical width continues to be driven
-   * by dragDisplayWidth until MIN_OPEN_WIDTH is crossed.
-   */
+  /** Pixels past CLOSED_WIDTH a drag must reach before open-state styling (labels, logo, sections) applies. */
   private readonly OPEN_STYLE_THRESHOLD_PX = 80;
 
-  /**
-   * Minimum main content width in rem used to estimate push mode from window.innerWidth.
-   * Must match MAIN_MIN_WIDTH_REM in layout.component.ts.
-   */
+  /** Minimum main content width in rem, used to estimate push mode. Must match MAIN_MIN_WIDTH_REM in layout.component.ts. */
   private readonly MAIN_MIN_WIDTH_ESTIMATE_REM = 24;
 
   private rootFontSizePx: number;
@@ -77,27 +70,25 @@ export class SideNavService {
   private readonly widthInitialized = signal(false);
 
   /**
-   * True after one setTimeout following the layout's first ResizeObserver callback.
-   * This ensures the initial open/width state has been painted before transitions are
-   * enabled, preventing the nav from animating in on page load.
+   * True one tick after the layout's first ResizeObserver callback, so the initial open/width
+   * state is painted before transitions turn on and the nav does not animate in on page load.
    */
   private readonly layoutReady = signal(false);
 
-  /** True when it is safe to animate width changes. */
+  /** True once the initial width and layout have settled, so width changes may animate. */
   readonly transitionsEnabled = computed(() => this.widthInitialized() && this.layoutReady());
 
   /**
-   * Visual width (in rem) to apply during a drag from a closed state, before MIN_OPEN_WIDTH
-   * is crossed. Drives the nav's display width via a direct style binding without changing
-   * the `open` signal, so no component adopts open-state styling until the threshold is
-   * actually crossed. Null when not in a preview drag.
+   * Visual width override (in rem) applied during a drag via a direct style binding: the preview
+   * below MIN_OPEN_WIDTH when dragging out from collapsed, and the tension shrink when an open nav
+   * is dragged toward the snap threshold. Never persisted. Null when no drag is in progress.
    */
   readonly dragDisplayWidth = signal<number | null>(null);
 
   /**
-   * Whether to render open-state styling (labels, logo, sections). Distinct from `open`, which
-   * also drives push/overlay mode: during a preview drag the nav adopts open styling once it is
-   * OPEN_STYLE_THRESHOLD_PX past closed, but stays functionally closed until the drag commits.
+   * Whether to render open-state styling (labels, logo, sections). Distinct from `open`, which also
+   * drives push/overlay mode: a preview drag adopts open styling once it is OPEN_STYLE_THRESHOLD_PX
+   * past closed, while staying functionally closed until the drag commits.
    */
   readonly showLabels = computed(() => {
     const preview = this.dragDisplayWidth();
@@ -139,25 +130,20 @@ export class SideNavService {
       this.widthInitialized.set(true);
     });
 
-    // Periodically sync to GlobalStateProvider when component state changes.
+    // Persist width changes, debounced so a drag doesn't write once per frame.
     this.width$.pipe(debounceTime(200), takeUntilDestroyed()).subscribe((width) => {
       void this.widthState.update(() => width);
     });
   }
 
-  /**
-   * Called by LayoutComponent after its first ResizeObserver callback completes.
-   * Schedules enabling CSS transitions after the initialized state is painted.
-   */
+  /** Called by LayoutComponent after its first ResizeObserver callback, to enable transitions once painted. */
   markLayoutReady() {
     if (!this.layoutReady()) {
       setTimeout(() => this.layoutReady.set(true));
     }
   }
 
-  /**
-   * Toggle the open/close state of the side nav
-   */
+  /** Toggle the open/close state of the side nav. */
   toggle() {
     const opening = !this.open();
     this.userCollapsePreference.set(opening ? "open" : "closed");
@@ -169,9 +155,9 @@ export class SideNavService {
   }
 
   /**
-   * Set new side nav width from drag event coordinates
+   * Set new side nav width from drag event coordinates.
    *
-   * @param eventXCoordinate x coordinate of the pointer's bounding client rect
+   * @param eventXPointer x coordinate of the pointer
    * @param dragElementXCoordinate x coordinate of the drag element's bounding client rect
    */
   setWidthFromDrag(eventXPointer: number, dragElementXCoordinate: number) {
@@ -180,9 +166,9 @@ export class SideNavService {
     const newWidthInPixels = eventXPointer - dragElementXCoordinate;
     const newWidthInRem = newWidthInPixels / this.rootFontSizePx;
 
-    if (this.dragDisplayWidth() !== null || !this.open()) {
-      // Dragging from collapsed state — drive visual width via dragDisplayWidth without
-      // changing `open`, so no component adopts open-state styling prematurely.
+    if (!this.open()) {
+      // Dragging out from collapsed — drive visual width via dragDisplayWidth without changing
+      // `open`, so no component adopts open-state styling prematurely.
       if (newWidthInRem < this.CLOSED_WIDTH) {
         // Dragged back onto the icon strip — abort the preview and stay collapsed.
         this.dragDisplayWidth.set(null);
@@ -196,8 +182,6 @@ export class SideNavService {
         this.open.set(true);
         this._setWidthWithinMinMax(newWidthInRem);
       } else {
-        // Preview only. `showLabels` derives the open-styling threshold from this width;
-        // `open` stays false so push/overlay mode doesn't flip mid-gesture.
         this.dragDisplayWidth.set(newWidthInRem);
       }
       return;
@@ -205,18 +189,21 @@ export class SideNavService {
 
     // Snap to collapsed only after dragging far enough past the minimum (tension zone)
     if (newWidthInRem < this.SNAP_TO_CLOSED_THRESHOLD) {
+      this.dragDisplayWidth.set(null);
       this.userCollapsePreference.set("closed");
       this.open.set(false);
       return;
     }
 
-    // Tension zone: visually shrink at 15% speed to signal the snap threshold is approaching
+    // Tension zone: preview a 15% shrink to signal the approaching snap threshold. This stays in
+    // dragDisplayWidth so a drag that ends collapsed leaves the user's saved width untouched.
     if (newWidthInRem < this.MIN_OPEN_WIDTH) {
       const overflow = this.MIN_OPEN_WIDTH - newWidthInRem;
-      this._width$.next(this.MIN_OPEN_WIDTH - overflow * 0.15);
+      this.dragDisplayWidth.set(this.MIN_OPEN_WIDTH - overflow * 0.15);
       return;
     }
 
+    this.dragDisplayWidth.set(null);
     this._setWidthWithinMinMax(newWidthInRem);
   }
 
@@ -253,30 +240,33 @@ export class SideNavService {
   }
 
   /**
-   * Called when a drag ends. If released in the preview zone, commit to open at default width.
-   * If released in the tension zone, spring back to the minimum width.
+   * Called when a drag ends. Releasing in the collapsed preview zone commits to open at the default
+   * width; releasing in the tension zone springs back to the minimum. A drag that ended collapsed
+   * leaves the persisted width alone, so a customized width survives a collapse.
    */
   onDragEnd() {
     this.isDragging.set(false);
 
-    if (this.dragDisplayWidth() !== null) {
-      // Released in preview zone — commit to open at default width
-      this.dragDisplayWidth.set(null);
-      this.userCollapsePreference.set("open");
-      this.open.set(true);
-      this._width$.next(this.DEFAULT_OPEN_WIDTH);
+    const preview = this.dragDisplayWidth();
+    this.dragDisplayWidth.set(null);
+
+    if (preview === null) {
       return;
     }
 
-    if (this._width$.getValue() < this.MIN_OPEN_WIDTH) {
+    if (this.open()) {
+      // Released in the tension zone — spring back to the minimum.
       this._width$.next(this.MIN_OPEN_WIDTH);
+      return;
     }
+
+    // Released in the collapsed preview zone — commit to open at the default width.
+    this.userCollapsePreference.set("open");
+    this.open.set(true);
+    this._width$.next(this.DEFAULT_OPEN_WIDTH);
   }
 
-  /**
-   * Calculate and set the new width, not going out of the min/max bounds
-   * @param newWidth desired new width: number
-   */
+  /** Set the width, clamped to the min/max bounds. */
   private _setWidthWithinMinMax(newWidth: number) {
     // Never widen past what the container can push, or main content would be clipped.
     const max = Math.max(
@@ -289,11 +279,7 @@ export class SideNavService {
   }
 }
 
-/**
- * Helper function for subscribing to media query events
- * @param query media query to validate against
- * @returns Observable<boolean>
- */
+/** Emits whether `query` matches, starting with its current value. */
 export const media = (query: string): Observable<boolean> => {
   const mediaQuery = window.matchMedia(query);
   return fromEvent<MediaQueryList>(mediaQuery, "change").pipe(
