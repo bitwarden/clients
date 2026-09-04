@@ -203,6 +203,33 @@ describe("BitwardenPasswordProtectedImporter", () => {
       expect((await importer.parse(JSON.stringify(jDoc))).success).toEqual(false);
     });
 
+    it("fails with Argon2 kdfMemory above the maximum (FIND-BF1EC7BF3F26)", async () => {
+      jDoc.kdfType = KdfType.Argon2id;
+      jDoc.kdfIterations = 3;
+      (jDoc as any).kdfMemory = 999999; // 999999 MiB — far above the 1024 MiB max
+      (jDoc as any).kdfParallelism = 4;
+      const result = await importer.parse(JSON.stringify(jDoc));
+      expect(result.success).toBe(false);
+      // deriveVaultExportKey must never be called with out-of-range parameters
+      expect(keyGenerationService.deriveVaultExportKey).not.toHaveBeenCalled();
+    });
+
+    it("fails with Argon2 kdfIterations above the maximum", async () => {
+      jDoc.kdfType = KdfType.Argon2id;
+      jDoc.kdfIterations = 999;
+      (jDoc as any).kdfMemory = 32;
+      (jDoc as any).kdfParallelism = 4;
+      expect((await importer.parse(JSON.stringify(jDoc))).success).toBe(false);
+      expect(keyGenerationService.deriveVaultExportKey).not.toHaveBeenCalled();
+    });
+
+    it("fails with PBKDF2 kdfIterations above the maximum", async () => {
+      jDoc.kdfType = KdfType.PBKDF2_SHA256;
+      jDoc.kdfIterations = 9_999_999;
+      expect((await importer.parse(JSON.stringify(jDoc))).success).toBe(false);
+      expect(keyGenerationService.deriveVaultExportKey).not.toHaveBeenCalled();
+    });
+
     it("returns invalidFilePassword errorMessage if decryptString throws", async () => {
       encryptService.decryptString.mockImplementation(() => {
         throw new Error("SDK error");
