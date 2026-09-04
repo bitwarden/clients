@@ -224,6 +224,75 @@ describe("TargetSystemEditComponent — create mode", () => {
     expect(rotationSdk.createTargetSystem).not.toHaveBeenCalled();
   });
 
+  it("marks the policy invalid when every character class is cleared", () => {
+    const policyForm = (
+      fixture.componentInstance as unknown as {
+        policyForm: {
+          patchValue: (v: unknown) => void;
+          invalid: boolean;
+          errors: Record<string, unknown> | null;
+        };
+      }
+    ).policyForm;
+    policyForm.patchValue({
+      includeUppercase: false,
+      includeLowercase: false,
+      includeDigits: false,
+      includeSymbols: false,
+    });
+
+    expect(policyForm.invalid).toBe(true);
+    expect(policyForm.errors?.["noCharacterClass"]).toBe(true);
+  });
+
+  it("clears the character-class error when one class is re-enabled", () => {
+    const policyForm = (
+      fixture.componentInstance as unknown as {
+        policyForm: {
+          patchValue: (v: unknown) => void;
+          valid: boolean;
+          errors: Record<string, unknown> | null;
+        };
+      }
+    ).policyForm;
+    policyForm.patchValue({
+      includeUppercase: false,
+      includeLowercase: false,
+      includeDigits: false,
+      includeSymbols: false,
+    });
+    policyForm.patchValue({ includeSymbols: true });
+
+    expect(policyForm.errors).toBeNull();
+    expect(policyForm.valid).toBe(true);
+  });
+
+  it("does not create a target system when every character class is cleared", async () => {
+    rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    const comp = fixture.componentInstance as unknown as {
+      createForm: { patchValue: (v: unknown) => void };
+      policyForm: { patchValue: (v: unknown) => void };
+      submitCreate: () => Promise<void>;
+    };
+    comp.createForm.patchValue({
+      name: "No classes",
+      method: TargetSystemMethod.Automatic,
+      kind: TargetSystemKind.Entra,
+    });
+    comp.policyForm.patchValue({
+      includeUppercase: false,
+      includeLowercase: false,
+      includeDigits: false,
+      includeSymbols: false,
+    });
+    fixture.detectChanges();
+    await comp.submitCreate();
+
+    expect(rotationSdk.createTargetSystem).not.toHaveBeenCalled();
+  });
+
   it("seeds Manual method from the ?template=manual query param", async () => {
     TestBed.resetTestingModule();
     const comp = await setupCreateWithTemplate("manual");
@@ -412,6 +481,27 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
     patchKind(TargetSystemKind.CustomScript);
     expect(el.querySelector("#target-system-edit_checkbox_session-termination")).toBeTruthy();
   });
+
+  it("renders the character-class error only once every class is cleared", () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector("#target-system-edit_error_character-class")).toBeNull();
+
+    const policyForm = (
+      fixture.componentInstance as unknown as {
+        policyForm: { patchValue: (v: unknown) => void; markAllAsTouched: () => void };
+      }
+    ).policyForm;
+    policyForm.patchValue({
+      includeUppercase: false,
+      includeLowercase: false,
+      includeDigits: false,
+      includeSymbols: false,
+    });
+    policyForm.markAllAsTouched();
+    fixture.detectChanges();
+
+    expect(el.querySelector("#target-system-edit_error_character-class")).toBeTruthy();
+  });
 });
 
 describe("TargetSystemEditComponent — edit mode", () => {
@@ -474,6 +564,24 @@ describe("TargetSystemEditComponent — edit mode", () => {
         passwordPolicy: expect.any(Object),
       }),
     );
+  });
+
+  it("does not save when every character class is cleared", async () => {
+    rotationSdk.updateTargetSystem.mockResolvedValue(undefined);
+
+    const comp = fixture.componentInstance as unknown as {
+      policyForm: { patchValue: (v: unknown) => void };
+      submitEdit: () => Promise<void>;
+    };
+    comp.policyForm.patchValue({
+      includeUppercase: false,
+      includeLowercase: false,
+      includeDigits: false,
+      includeSymbols: false,
+    });
+    await comp.submitEdit();
+
+    expect(rotationSdk.updateTargetSystem).not.toHaveBeenCalled();
   });
 
   // Retirement — a target system has no delete route, so taking one out of service is disable.
