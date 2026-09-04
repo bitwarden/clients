@@ -67,7 +67,7 @@ export class TableSelectionModel<T> {
     () => this.selectable().some((row) => this.isSelected(row)) && !this.allSelected(),
   );
 
-  /** Whether the cap is reached. Bind unselected rows' checkbox `disabled` to this: left enabled */
+  /** Whether the cap is reached. Bind unselected rows' checkbox `disabled` to this. */
   readonly full = computed(() => this.count() >= this.max);
 
   /** Whether more than one row may be selected at a time. The table skips select-all when false */
