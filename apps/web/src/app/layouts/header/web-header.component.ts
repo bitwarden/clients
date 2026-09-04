@@ -33,6 +33,11 @@ import { AccountMenuComponent } from "./account-menu.component";
 export class WebHeaderComponent {
   private readonly route = inject(ActivatedRoute);
 
+  protected readonly vfo1Enabled = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+
   /**
    * Whether the VFO1 Foundation flag is enabled. Once enabled, the legacy header account menu
    * is hidden in favor of the VFO1 side-nav footer account menu (see `WebSideNavComponent`).

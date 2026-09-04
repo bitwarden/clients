@@ -9,6 +9,10 @@
     "message": "„Bitwarden“ slaptažodžių tvarkyklė",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden Password Manager Beta",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "Namuose, darbe ar kelyje, „Bitwarden“ apsaugo jūsų slaptažodžius, raktažodžius ir svarbią informaciją",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -535,6 +539,9 @@
   "foldersFilterTooltip": {
     "message": "Pridėkite aplankus prie elementų, kad juos čia filtruotumėte."
   },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
+  },
   "editItemWithName": {
     "message": "Redaguoti elementą - $NAME$",
     "placeholders": {
@@ -750,6 +757,15 @@
   },
   "launchWebsite": {
     "message": "Atidaryti svetainę"
+  },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Tinklapis"
@@ -1089,10 +1105,10 @@
     "message": "Katalogas pridėtas"
   },
   "folderEdited": {
-    "message": "Folder edited"
+    "message": "Katalogas redaguotas"
   },
   "enterAName": {
-    "message": "Enter a name."
+    "message": "Įveskite vardą."
   },
   "twoStepLoginConfirmation": {
     "message": "Prisijungus dviem veiksmais, jūsų paskyra tampa saugesnė, reikalaujant patvirtinti prisijungimą naudojant kitą įrenginį, pvz., saugos raktą, autentifikavimo programėlę, SMS, telefono skambutį ar el. paštą. Dviejų žingsnių prisijungimą galima įjungti „bitwarden.com“ interneto saugykloje. Ar norite dabar apsilankyti svetainėje?"
@@ -1128,7 +1144,7 @@
     "message": "Slaptažodis nukopijuotas"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "tarpas",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "uri": {
@@ -1158,10 +1174,10 @@
     "message": "Redaguotas elementas"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "Išsaugota svetainė"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "Išsaugoti tinklalapiai ( $COUNT$ )",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1204,7 +1220,7 @@
     "message": "Prašyti pridėti prisijungimą"
   },
   "vaultSaveOptionsTitle": {
-    "message": "Save to vault options"
+    "message": "Įrašyti į saugyklą parinktis"
   },
   "addLoginNotificationDesc": {
     "message": "Prisijungimo pridėjimo pranešimas automatiškai Jūs paragina išsaugoti naujus prisijungimus Jūsų saugykloje, kuomet prisijungiate pirmą kartą."
@@ -1231,10 +1247,10 @@
     "message": "Pateikti tapatybės elementų skirtuko puslapyje, kad būtų lengva automatiškai užpildyti."
   },
   "clickToAutofillOnVault": {
-    "message": "Click items to autofill on Vault view"
+    "message": "Spustelėkite elementus, kad būtų automatiškai užpildyti saugyklos rodinyje"
   },
   "clickToAutofill": {
-    "message": "Click items in autofill suggestion to fill"
+    "message": "Spustelėkite automatinio pildymo pasiūlymo elementus, kad užpildytumėte"
   },
   "clearClipboard": {
     "message": "Išvalyti iškarpinę",
@@ -1245,13 +1261,13 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clipboardSettingUpdated": {
-    "message": "Clipboard setting updated"
+    "message": "Atnaujintas mainų srities nustatymas"
   },
   "clipboardSettingUpdatedMessage": {
-    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+    "message": "Jūsų iškarpinės skirtasis laikas nustatytas į numatytąjį, kuris buvo atnaujintas iki 5 minučių, siekiant didesnio saugumo."
   },
   "jumpToSetting": {
-    "message": "Jump to setting"
+    "message": "Pereiti prie nustatymo"
   },
   "notificationAddDesc": {
     "message": "Ar „Bitwarden“ turėtų įsiminti šį slaptažodį už Jus?"
@@ -1260,7 +1276,7 @@
     "message": "Išsaugoti"
   },
   "notificationViewAria": {
-    "message": "View $ITEMNAME$, opens in new window",
+    "message": "Peržiūrėti $ITEMNAME$, atidaroma naujame lange",
     "placeholders": {
       "itemName": {
         "content": "$1"
@@ -1269,18 +1285,18 @@
     "description": "Aria label for the view button in notification bar confirmation message"
   },
   "notificationNewItemAria": {
-    "message": "New Item, opens in new window",
+    "message": "Naujas elementas, atidaromas naujame lange",
     "description": "Aria label for the new item button in notification bar confirmation message when error is prompted"
   },
   "notificationEditTooltip": {
-    "message": "Edit before saving",
+    "message": "Redaguoti prieš išsaugant",
     "description": "Tooltip and Aria label for edit button on cipher item"
   },
   "newNotification": {
-    "message": "New notification"
+    "message": "Naujas pranešimas"
   },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$: Naujas pranešimas",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {
@@ -1290,15 +1306,15 @@
     }
   },
   "notificationLoginSaveConfirmation": {
-    "message": "saved to Bitwarden.",
+    "message": "išsaugotas į Bitwarden.",
     "description": "Shown to user after item is saved."
   },
   "notificationLoginUpdatedConfirmation": {
-    "message": "updated in Bitwarden.",
+    "message": "atnaujinta Bitwardene.",
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
-    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "message": "Pasirinkite $ITEMTYPE$, $ITEMNAME$",
     "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
     "placeholders": {
       "itemType": {
@@ -1310,35 +1326,35 @@
     }
   },
   "saveAsNewLoginAction": {
-    "message": "Save as new login",
+    "message": "Išsaugoti kaip naują prisijungimą",
     "description": "Button text for saving login details as a new entry."
   },
   "updateLoginAction": {
-    "message": "Update login",
+    "message": "Atnaujinti prisijungimą",
     "description": "Button text for updating an existing login entry."
   },
   "unlockToSave": {
-    "message": "Unlock to save this login",
+    "message": "Atrakinkite, kad išsaugotumėte šį prisijungimą",
     "description": "User prompt to take action in order to save the login they just entered."
   },
   "saveLogin": {
-    "message": "Save login",
+    "message": "Išsaugoti prisijungimą",
     "description": "Prompt asking the user if they want to save their login details."
   },
   "updateLogin": {
-    "message": "Update existing login",
+    "message": "Atnaujinti esamą prisijungimą",
     "description": "Prompt asking the user if they want to update an existing login entry."
   },
   "loginSaveSuccess": {
-    "message": "Login saved",
+    "message": "Prisijungimas išsaugotas",
     "description": "Message displayed when login details are successfully saved."
   },
   "loginUpdateSuccess": {
-    "message": "Login updated",
+    "message": "Prisijungimas atnaujintas",
     "description": "Message displayed when login details are successfully updated."
   },
   "loginUpdateTaskSuccess": {
-    "message": "Great job! You took the steps to make you and $ORGANIZATION$ more secure.",
+    "message": "Puikiai padirbėjai! Tu ėmeisi veiksmų, kad tu ir $ORGANIZATION$ būtumėte saugesni.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1347,7 +1363,7 @@
     "description": "Shown to user after login is updated."
   },
   "loginUpdateTaskSuccessAdditional": {
-    "message": "Thank you for making $ORGANIZATION$ more secure. You have $TASK_COUNT$ more passwords to update.",
+    "message": "Ačiū, kad padarėte $ORGANIZATION$ saugesne. Jums liko atnaujinti dar $TASK_COUNT$ slaptažodžius.",
     "placeholders": {
       "organization": {
         "content": "$1"
@@ -1359,22 +1375,22 @@
     "description": "Shown to user after login is updated."
   },
   "nextSecurityTaskAction": {
-    "message": "Change next password",
+    "message": "Keisti kitą slaptažodį",
     "description": "Message prompting user to undertake completion of another security task."
   },
   "saveFailure": {
-    "message": "Error saving",
+    "message": "Klaida įrašant",
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Oh no! We couldn't save this. Try entering the details manually.",
+    "message": "Deja, nepavyko išsaugoti šio dokumento. Pabandykite įvesti duomenis rankiniu būdu.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Pakeitę slaptažodį, turėsite prisijungti su naujuoju slaptažodžiu. Aktyvios sesijos kituose įrenginiuose bus atjungtos per vieną valandą."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Pakeiskite pagrindinį slaptažodį, kad užbaigtumėte paskyros atkūrimą."
   },
   "enableChangedPasswordNotification": {
     "message": "Paprašyti atnaujinti esamą prisijungimą"
@@ -1406,17 +1422,29 @@
   "additionalOptions": {
     "message": "Papildomos parinktys"
   },
-  "fillAssistActiveNotice": {
-    "message": "Autofill is using Fill Assist on this page."
+  "fillAssistActiveNoticeV2": {
+    "message": "Autofill naudoja pildymo pagalbą šiame puslapyje."
   },
-  "activateFillAssist": {
-    "message": "Turn on Fill Assist"
+  "activateFillAssistV2": {
+    "message": "Įjungti pildymo pagalbą"
   },
-  "activateFillAssistDescription": {
-    "message": "Fill Assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  "activateFillAssistDescriptionV2": {
+    "message": "Pildymo pagalba pagerina automatinio pildymo tikslumą palaikomose svetainėse, naudodama konkrečios svetainės taisykles. Naudojant šią funkciją, jokie duomenys nerenkami ir neišsaugomi."
   },
-  "aboutFillAssistLabel": {
-    "message": "About Fill Assist"
+  "aboutFillAssistLabelV2": {
+    "message": "Apie pildymo pagalbą"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Leisti svetainėms išskirti laukus automatiniam užpildymui"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Praleisti laukus, kuriuos svetainė pažymi atributu `data-bwignore`."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Leisti svetainėms pridėti laukus automatiniam užpildymui"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Naudokite visus svetainės elementus, pažymėtus atributu `data-bwautofill`."
   },
   "enableContextMenuItem": {
     "message": "Rodyti kontekstinio meniu pasririnkimus"
@@ -1452,64 +1480,64 @@
     "description": "Light color"
   },
   "exportFrom": {
-    "message": "Export from"
+    "message": "Eksportuoti iš"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Eksportuoti",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Eksportas",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Importas",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Importuoti",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
     "message": "Failo formatas"
   },
   "fileEncryptedExportWarningDesc": {
-    "message": "This file export will be password protected and require the file password to decrypt."
+    "message": "Šis failas bus apsaugotas slaptažodžiu ir norint jį iššifruoti reikės failo slaptažodžio."
   },
   "filePassword": {
-    "message": "File password"
+    "message": "Failo slaptažodis"
   },
   "exportPasswordDescription": {
-    "message": "This password will be used to export and import this file"
+    "message": "Šis slaptažodis bus naudojamas eksportuojant ir importuojant šį failą"
   },
   "accountRestrictedOptionDescription": {
-    "message": "Use your account encryption key, derived from your account's username and Master Password, to encrypt the export and restrict import to only the current Bitwarden account."
+    "message": "Naudokite savo paskyros šifravimo raktą, gautą iš jūsų paskyros vartotojo vardo ir pagrindinio slaptažodžio, kad užšifruotumėte eksportą ir apribotumėte importą tik į dabartinę Bitwarden paskyrą."
   },
   "passwordProtectedOptionDescription": {
-    "message": "Set a file password to encrypt the export and import it to any Bitwarden account using the password for decryption."
+    "message": "Nustatykite failo slaptažodį, kad užšifruotumėte eksportą ir importuotumėte jį į bet kurią Bitwarden paskyrą, naudodami slaptažodį iššifravimui."
   },
   "exportTypeHeading": {
-    "message": "Export type"
+    "message": "Eksporto tipas"
   },
   "accountRestricted": {
-    "message": "Account restricted"
+    "message": "Paskyra apribota"
   },
   "filePasswordConfirmationMismatch": {
-    "message": "“File password” and “Confirm file password” do not match."
+    "message": "„Failo slaptažodis“ ir „Patvirtinti failo slaptažodį“ nesutampa."
   },
   "warning": {
     "message": "ĮSPĖJIMAS",
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Įspėjimas",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "confirmVaultExport": {
     "message": "Patvirtinti saugyklos eksportą"
   },
   "exportUnencryptedWarningDesc": {
-    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "Šiame eksporte yra jūsų saugyklos duomenys nešifruotu formatu. Neišsaugokite ir nesiųskite eksportuoto failo nesaugiais kanalais (pvz., el. paštu). Panaikinkite jį iš karto, kai tik baigsite juo naudotis."
   },
   "encExportKeyWarningDesc": {
     "message": "Šis duomenų exportavimas užšifruoja jūsų duomenis naudodamas jūsų prieigos kodų raktu. Jei jūs kada nuspręsite pakeisti prieigos kodų raktą, jūs turėtumėte per naują eksportuoti duomenis, nes kitaip, jūs negalėsite iššifruoti išeksportuotų duomenų."
@@ -1524,25 +1552,25 @@
     "message": "Pasidalinti"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "Bendrinamas aplankas"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "Bendrinami aplankai"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "Mano aplankas"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "Mano aplankai"
   },
   "addSharedFolder": {
-    "message": "Add shared folder"
+    "message": "Pridėti bendrinamą aplanką"
   },
   "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "Naujas bendrinamas aplankas"
   },
   "bitwardenForBusinessPageDesc": {
-    "message": "Bitwarden for Business allows you to share your vault items with others by using an organization. Learn more on the bitwarden.com website."
+    "message": "„Bitwarden for Business“ leidžia bendrinti saugyklos elementus su kitais naudojant organizaciją. Sužinokite daugiau bitwarden.com svetainėje."
   },
   "moveToOrganization": {
     "message": "Perkelti į organizaciją"
@@ -1567,25 +1595,25 @@
     "message": "Sužinoti daugiau"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "Atnaujinant šifravimo parametrus įvyko klaida."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "Atnaujinkite šifravimo nustatymus"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "Nauji rekomenduojami šifravimo nustatymai pagerins jūsų paskyros saugumą. Įveskite pagrindinį slaptažodį, kad atnaujintumėte dabar."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "Patvirtinkite savo tapatybę, kad galėtumėte tęsti"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Įveskite pagrindinį slaptažodį"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "Atnaujinti nustatymus"
   },
   "later": {
-    "message": "Later"
+    "message": "Vėliau"
   },
   "authenticatorKeyTotp": {
     "message": "Vienkartinio autentifikavimo raktas (TOTP)"
@@ -1597,19 +1625,19 @@
     "message": "Kopijuoti patvirtinimo kodą"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Nėra vartotojo vardo"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Nėra slaptažodžio"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Nėra patvirtinimo kodo"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Nėra numerio"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Nėra apsaugos kodo"
   },
   "attachments": {
     "message": "Priedai"
@@ -1633,22 +1661,22 @@
     "message": "Priedas išsaugotas"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "Taisyti šifravimą"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "Šis failas naudoja pasenusią šifravimo metodiką."
   },
   "attachmentUpdated": {
-    "message": "Attachment updated"
+    "message": "Atnaujintas priedas"
   },
   "file": {
     "message": "Failas"
   },
   "photo": {
-    "message": "Photo"
+    "message": "Nuotrauka"
   },
   "unknown": {
-    "message": "Unknown"
+    "message": "Nežinomas"
   },
   "fileToShare": {
     "message": "Failas, kuri bendrinti"
@@ -1657,7 +1685,7 @@
     "message": "Pasirinkite failą."
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Elementai perkelti"
   },
   "maxFileSize": {
     "message": "Didžiausias failo dydis – 500 MB."
@@ -1666,7 +1694,7 @@
     "message": "Funkcija neprieinama"
   },
   "legacyEncryptionUnsupported": {
-    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+    "message": "Senasis šifravimas nebepalaikomas. Norėdami atkurti paskyrą, kreipkitės į palaikymo tarnybą."
   },
   "premiumMembership": {
     "message": "Premium narystė"
@@ -1681,10 +1709,10 @@
     "message": "Atnaujinti narystę"
   },
   "premiumSignUpStorage": {
-    "message": "1 GB encrypted storage for file attachments."
+    "message": "1 GB šifruotos saugyklos failų priedams."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "$SIZE$ šifruota saugykla failų priedams.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -1693,40 +1721,40 @@
     }
   },
   "premiumSignUpEmergency": {
-    "message": "Emergency access."
+    "message": "Avarinė prieiga."
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Patentuotos dviejų žingsnių prisijungimo parinktys, tokios kaip YubiKey ir Duo."
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Jūsų Premium prenumerata baigėsi"
   },
   "archivePremiumRestart": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "Norėdami vėl pasiekti savo archyvą, paleiskite iš naujo „Premium“ prenumeratą. Jei redaguosite archyvuoto elemento išsamią informaciją prieš paleisdami iš naujo, jis bus perkeltas atgal į jūsų saugyklą."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Paleisti Premium iš naujo"
   },
   "premiumSignUpReports": {
-    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
+    "message": "Slaptažodžių higiena, paskyros sveikata ir duomenų pažeidimų ataskaitos, kad jūsų saugykla būtų saugi."
   },
   "premiumSignUpTotp": {
-    "message": "TOTP verification code (2FA) generator for logins in your vault."
+    "message": "TOTP patvirtinimo kodo (2FA) generatorius prisijungimams prie jūsų saugyklos."
   },
   "premiumSignUpSupport": {
-    "message": "Priority customer support."
+    "message": "Prioritetinis klientų aptarnavimas."
   },
   "premiumSignUpFuture": {
-    "message": "All future Premium features. More coming soon!"
+    "message": "Visos būsimos Premium funkcijos. Netrukus bus daugiau!"
   },
   "premiumPurchase": {
     "message": "Įsigyti Premium"
   },
   "premiumPurchaseAlertV2": {
-    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
+    "message": "Galite įsigyti Premium iš savo paskyros nustatymų Bitwarden žiniatinklio programoje."
   },
   "premiumFeatures": {
-    "message": "Upgrade to Premium and receive:"
+    "message": "Atnaujinkite į Premium ir gaukite:"
   },
   "premiumPrice": {
     "message": "Visa tai tik už $PRICE$ / metus!",
@@ -1738,7 +1766,7 @@
     }
   },
   "premiumPriceV2": {
-    "message": "All for just $PRICE$ per year!",
+    "message": "Visa tai tik už $PRICE$ per metus!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1759,10 +1787,10 @@
     "message": "Paleidžiant patvirtinti biometrinius duomenis"
   },
   "authenticationTimeout": {
-    "message": "Authentication timeout"
+    "message": "Autentifikavimui skirtas laikas baigėsi"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "Autentifikavimo seansas baigėsi. Paleiskite prisijungimo procesą iš naujo."
   },
   "verificationCodeEmailSent": {
     "message": "Patvirtinimo elektroninis paštas išsiųstas į $EMAIL$.",
@@ -1774,38 +1802,38 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Nebeklauskite šiame įrenginyje 30 dienų"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Pasirinkite kitą metodą",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Naudokite atkūrimo kodą"
   },
   "insertU2f": {
     "message": "Įkišk savo saugos raktą į kompiuterio USB prievadą. Jei jame yra mygtukas, paliesk jį."
   },
   "openInNewTab": {
-    "message": "Open in new tab"
+    "message": "Atidaryti naujame skirtuke"
   },
   "webAuthnAuthenticate": {
     "message": "Autentifikuoti WebAuthn"
   },
   "readSecurityKey": {
-    "message": "Read security key"
+    "message": "Skaityti saugos raktą"
   },
   "readingPasskeyLoading": {
-    "message": "Reading passkey..."
+    "message": "Skaityti prieigos raktą..."
   },
   "passkeyAuthenticationFailed": {
-    "message": "Passkey authentication failed"
+    "message": "Nepavyko autentifikuoti pagal prieigos raktą"
   },
   "useDifferentLoginMethod": {
-    "message": "Use different login method"
+    "message": "Naudokite kitą prisijungimo būdą"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Awaiting security key interaction..."
+    "message": "Laukiama saugumo rakto sąveikos..."
   },
   "loginUnavailable": {
     "message": "Prisijungimas nepasiekiamas"
@@ -1820,7 +1848,7 @@
     "message": "Dviejų žingsnių prisijungimo parinktys"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Pasirinkite dviejų žingsnių prisijungimo būdą"
   },
   "recoveryCodeTitle": {
     "message": "Atkūrimo kodas"
@@ -2244,37 +2272,37 @@
     "message": "Paso numeris"
   },
   "dateOfBirth": {
-    "message": "Date of birth"
+    "message": "Gimimo data"
   },
   "sex": {
-    "message": "Sex"
+    "message": "Lytis"
   },
   "copySex": {
-    "message": "Copy sex"
+    "message": "Kopijuoti lytį"
   },
   "birthPlace": {
-    "message": "Birth place"
+    "message": "Gimimo vieta"
   },
   "copyBirthPlace": {
-    "message": "Copy birth place"
+    "message": "Kopijuoti gimimo vietą"
   },
   "nationality": {
-    "message": "Nationality"
+    "message": "Pilietybė"
   },
   "copyNationality": {
-    "message": "Copy nationality"
+    "message": "Kopijuoti pilietybę"
   },
   "issuingCountry": {
-    "message": "Issuing country"
+    "message": "Išduodančioji šalis"
   },
   "copyIssuingCountry": {
-    "message": "Copy issuing country"
+    "message": "Kopijuoti išduodančiają šalį"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "Paso tipas"
   },
   "copyPassportType": {
-    "message": "Copy passport type"
+    "message": "Kopijuoti paso tipą"
   },
   "nationalIdentificationNumber": {
     "message": "National identification number"
@@ -2737,6 +2765,18 @@
   "noMatchingItems": {
     "message": "No matching items"
   },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
+  },
   "selected": {
     "message": "Selected"
   },
@@ -3182,12 +3222,6 @@
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "No refresh token or API keys found. Please try logging out and logging back in."
-  },
-  "desktopSyncVerificationTitle": {
-    "message": "Darbalaukio sinchronizavimo verifikavimas"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Patikrink, ar darbalaukio programoje rodomas šis pirštų atspaudas: "
   },
   "desktopIntegrationDisabledTitle": {
     "message": "Naršyklės integracija nėra nustatyta"
@@ -5939,6 +5973,12 @@
   "clearFiltersOrTryAnother": {
     "message": "Clear filters or try another search term"
   },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
+  },
   "moreOptionsLabel": {
     "message": "More options, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -7020,9 +7060,6 @@
   "compactMode": {
     "message": "Compact mode"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "extensionWidth": {
     "message": "Extension width"
   },
@@ -7079,12 +7116,6 @@
         "example": "Work, Personal"
       }
     }
-  },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Please update your desktop application"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
@@ -7274,6 +7305,15 @@
   },
   "showMore": {
     "message": "Show more"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Show less"
@@ -7889,9 +7929,32 @@
     "message": "Risks identified",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
+  "upgradeToViewPasswords": {
+    "message": "Upgrade to view passwords"
+  },
   "categoryHealthy": {
     "message": "No items need attention",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Scanning your vault",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Checking for exposed, weak, and reused passwords.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "In progress",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Something went wrong",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "Your vault scan didn't complete due to an unexpected error.",
+    "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
     "message": "Exposed passwords"
@@ -7911,8 +7974,8 @@
   "reusedPasswordsDescription": {
     "message": "These logins have a reused password. Create a unique password for each account to prevent someone accessing multiple accounts with one password."
   },
-  "deleteAtRiskItemDescription": {
-    "message": "Deleting this login removes it from your vault but doesn't fix the risk. To protect your account, change your password first."
+  "deleteAtRiskItemDesc": {
+    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
   },
   "passwordHasAdditionalRisks": {
     "message": "This password has additional risks:"
@@ -7942,5 +8005,20 @@
   },
   "youreAllSet": {
     "message": "You're all set!"
+  },
+  "permissions": {
+    "message": "Permissions"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   }
 }
