@@ -22,6 +22,9 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+import { ManagedSettingsService } from "@bitwarden/managed-settings";
 import {
   PasswordManagerClient,
   ClientSettings,
@@ -35,7 +38,6 @@ import {
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { JsWasmStateBridge } from "../../../key-management/state-bridge";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { OrganizationId, UserId } from "../../../types/guid";
@@ -115,6 +117,10 @@ export class DefaultSdkService implements SdkService {
     private stateProvider: StateProvider,
     private configService: ConfigService,
     private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
+    // Not yet read. The SDK's `PasswordManagerClient` constructor gains a `ManagedSettingsClient`
+    // parameter in sdk-internal#1405; once that publishes, `client$` is resolved here and passed to
+    // `createSdkClient`.
+    private managedSettingsService: ManagedSettingsService,
     private userAgent: string | null = null,
   ) {}
 

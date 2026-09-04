@@ -20,7 +20,6 @@ import {
   TwoFactorApiService,
   TwoFactorProviderDetails,
 } from "@bitwarden/common/auth/two-factor";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { KeyConnectorDomainConfirmation } from "@bitwarden/common/key-management/key-connector/models/key-connector-domain-confirmation";
@@ -31,11 +30,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService, CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
@@ -525,12 +524,277 @@ describe("LoginCommand", () => {
   // =========================================================================
 
   describe("post-login flows", () => {
-    describe("SSO MP validation", () => {
-      it("skips SSO MP validation for password login", async () => {
+    describe("SSO decryption path validation", () => {
+      it("skips SSO decryption path validation for password login", async () => {
         // Password login path: ssoCode and ssoCodeVerifier are null, so validation is skipped
         await command.run("a@b.c", "password", {});
 
         expect(userDecryptionOptionsService.userDecryptionOptionsById$).not.toHaveBeenCalled();
+      });
+
+      describe("validateSsoUserHasCliSupportedDecryptionPath", () => {
+        it("allows user with master password", async () => {
+          userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+            of({
+              hasMasterPassword: true,
+              trustedDeviceOption: undefined,
+              keyConnectorOption: undefined,
+              webAuthnPrfOptions: undefined,
+            } as any),
+          );
+
+          await expect(
+            (command as any).validateSsoUserHasCliSupportedDecryptionPath(TEST_USER_ID),
+          ).resolves.toBeUndefined();
+
+          expect(logoutCallback).not.toHaveBeenCalled();
+        });
+
+        it("allows user with Key Connector", async () => {
+          userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+            of({
+              hasMasterPassword: false,
+              trustedDeviceOption: undefined,
+              keyConnectorOption: { keyConnectorUrl: "https://kc.example" },
+              webAuthnPrfOptions: undefined,
+            } as any),
+          );
+
+          await expect(
+            (command as any).validateSsoUserHasCliSupportedDecryptionPath(TEST_USER_ID),
+          ).resolves.toBeUndefined();
+
+          expect(logoutCallback).not.toHaveBeenCalled();
+        });
+
+        it("allows user with master password AND PRF (MP short-circuits)", async () => {
+          userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+            of({
+              hasMasterPassword: true,
+              trustedDeviceOption: undefined,
+              keyConnectorOption: undefined,
+              webAuthnPrfOptions: [{ encryptedPrivateKey: "present" }],
+            } as any),
+          );
+
+          await expect(
+            (command as any).validateSsoUserHasCliSupportedDecryptionPath(TEST_USER_ID),
+          ).resolves.toBeUndefined();
+
+          expect(logoutCallback).not.toHaveBeenCalled();
+        });
+
+        it("allows user with Key Connector AND PRF (KC short-circuits)", async () => {
+          userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+            of({
+              hasMasterPassword: false,
+              trustedDeviceOption: undefined,
+              keyConnectorOption: { keyConnectorUrl: "https://kc.example" },
+              webAuthnPrfOptions: [{ encryptedPrivateKey: "present" }],
+            } as any),
+          );
+
+          await expect(
+            (command as any).validateSsoUserHasCliSupportedDecryptionPath(TEST_USER_ID),
+          ).resolves.toBeUndefined();
+
+          expect(logoutCallback).not.toHaveBeenCalled();
+        });
+
+        it("allows user with master password AND TDE (MP short-circuits)", async () => {
+          userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+            of({
+              hasMasterPassword: true,
+              trustedDeviceOption: { encryptedPrivateKey: "present" },
+              keyConnectorOption: undefined,
+              webAuthnPrfOptions: undefined,
+            } as any),
+          );
+
+          await expect(
+            (command as any).validateSsoUserHasCliSupportedDecryptionPath(TEST_USER_ID),
+          ).resolves.toBeUndefined();
+
+          expect(logoutCallback).not.toHaveBeenCalled();
+        });
+
+        it("rejects TDE-only user with TDE-specific error", async () => {
+          userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+            of({
+              hasMasterPassword: false,
+              trustedDeviceOption: { encryptedPrivateKey: "present" },
+              keyConnectorOption: undefined,
+              webAuthnPrfOptions: undefined,
+            } as any),
+          );
+
+          await expect(
+            (command as any).validateSsoUserHasCliSupportedDecryptionPath(TEST_USER_ID),
+          ).rejects.toMatchObject({
+            success: false,
+            message: expect.stringContaining(
+              "does not support SSO login for accounts using trusted device encryption",
+            ),
+          });
+
+          expect(logoutCallback).toHaveBeenCalled();
+        });
+
+        it("rejects PRF-only user with PRF-specific error", async () => {
+          userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+            of({
+              hasMasterPassword: false,
+              trustedDeviceOption: undefined,
+              keyConnectorOption: undefined,
+              webAuthnPrfOptions: [{ encryptedPrivateKey: "present" }],
+            } as any),
+          );
+
+          await expect(
+            (command as any).validateSsoUserHasCliSupportedDecryptionPath(TEST_USER_ID),
+          ).rejects.toMatchObject({
+            success: false,
+            message: expect.stringContaining(
+              "does not support SSO login for accounts using PRF passkey decryption",
+            ),
+          });
+
+          expect(logoutCallback).toHaveBeenCalled();
+        });
+
+        it("rejects TDE + PRF user with TDE error (TDE checked first)", async () => {
+          userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+            of({
+              hasMasterPassword: false,
+              trustedDeviceOption: { encryptedPrivateKey: "present" },
+              keyConnectorOption: undefined,
+              webAuthnPrfOptions: [{ encryptedPrivateKey: "present" }],
+            } as any),
+          );
+
+          await expect(
+            (command as any).validateSsoUserHasCliSupportedDecryptionPath(TEST_USER_ID),
+          ).rejects.toMatchObject({
+            success: false,
+            message: expect.stringContaining(
+              "does not support SSO login for accounts using trusted device encryption",
+            ),
+          });
+
+          expect(logoutCallback).toHaveBeenCalled();
+        });
+
+        it("rejects user with no configured decryption method (JIT'd MP-encryption-org)", async () => {
+          userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+            of({
+              hasMasterPassword: false,
+              trustedDeviceOption: undefined,
+              keyConnectorOption: undefined,
+              webAuthnPrfOptions: undefined,
+            } as any),
+          );
+
+          await expect(
+            (command as any).validateSsoUserHasCliSupportedDecryptionPath(TEST_USER_ID),
+          ).rejects.toMatchObject({
+            success: false,
+            message: expect.stringContaining(
+              "log in through the web vault, the desktop, or the extension to set your master password",
+            ),
+          });
+
+          expect(logoutCallback).toHaveBeenCalled();
+        });
+      });
+    });
+
+    describe("end-to-end SSO login flow", () => {
+      // Spy-mock the private SSO helpers so the SSO login path can complete deterministically
+      // without opening a real HTTP callback server on ports 8065-8070.
+      beforeEach(() => {
+        process.env.BW_NOINTERACTION = "false";
+        jest.spyOn(command as any, "makeSsoPromptData").mockResolvedValue({
+          ssoCodeVerifier: "mock-verifier",
+          codeChallenge: "mock-challenge",
+          state: "mock-state",
+        });
+        jest.spyOn(command as any, "openSsoPrompt").mockResolvedValue({
+          ssoCode: "mock-code",
+          orgIdentifier: "mock-org",
+        });
+      });
+
+      it("rejects SSO login for TDE-only user with TDE-specific message", async () => {
+        userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+          of({
+            hasMasterPassword: false,
+            trustedDeviceOption: { encryptedPrivateKey: "present" },
+            keyConnectorOption: undefined,
+            webAuthnPrfOptions: undefined,
+          } as any),
+        );
+
+        const response = await command.run(NULL, NULL, { sso: true });
+
+        expect(response.success).toBe(false);
+        expect(response.message).toContain(
+          "does not support SSO login for accounts using trusted device encryption",
+        );
+        expect(logoutCallback).toHaveBeenCalled();
+      });
+
+      it("rejects SSO login for PRF-only user with PRF-specific message", async () => {
+        userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+          of({
+            hasMasterPassword: false,
+            trustedDeviceOption: undefined,
+            keyConnectorOption: undefined,
+            webAuthnPrfOptions: [{ encryptedPrivateKey: "present" }],
+          } as any),
+        );
+
+        const response = await command.run(NULL, NULL, { sso: true });
+
+        expect(response.success).toBe(false);
+        expect(response.message).toContain(
+          "does not support SSO login for accounts using PRF passkey decryption",
+        );
+        expect(logoutCallback).toHaveBeenCalled();
+      });
+
+      it("rejects SSO login for JIT'd MP-encryption-org user with 'set your master password' message", async () => {
+        userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+          of({
+            hasMasterPassword: false,
+            trustedDeviceOption: undefined,
+            keyConnectorOption: undefined,
+            webAuthnPrfOptions: undefined,
+          } as any),
+        );
+
+        const response = await command.run(NULL, NULL, { sso: true });
+
+        expect(response.success).toBe(false);
+        expect(response.message).toContain(
+          "log in through the web vault, the desktop, or the extension to set your master password",
+        );
+        expect(logoutCallback).toHaveBeenCalled();
+      });
+
+      it("allows SSO login for user with master password", async () => {
+        userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+          of({
+            hasMasterPassword: true,
+            trustedDeviceOption: undefined,
+            keyConnectorOption: undefined,
+            webAuthnPrfOptions: undefined,
+          } as any),
+        );
+
+        const response = await command.run(NULL, NULL, { sso: true });
+
+        expect(response.success).toBe(true);
+        expect(logoutCallback).not.toHaveBeenCalled();
       });
     });
 

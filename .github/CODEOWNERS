@@ -117,6 +117,7 @@ libs/platform                     @bitwarden/team-platform-dev
 libs/storage-core                 @bitwarden/team-platform-dev
 libs/logging                      @bitwarden/team-platform-dev
 libs/logging-angular              @bitwarden/team-platform-dev
+libs/managed-settings             @bitwarden/team-platform-dev
 libs/storage-test-utils           @bitwarden/team-platform-dev
 libs/messaging                    @bitwarden/team-platform-dev
 libs/serialization                @bitwarden/team-platform-dev
@@ -167,9 +168,10 @@ libs/common/src/autofill                         @bitwarden/team-autofill-dev
 .github/workflows/test-browser-interactions.yml  @bitwarden/team-autofill-dev
 
 ## Desktop Native team files ##
-apps/desktop/src/autofill                         @bitwarden/team-desktop-native-dev
-apps/desktop/desktop_native/autotype              @bitwarden/team-desktop-native-dev
+apps/desktop/src/autofill                             @bitwarden/team-desktop-native-dev
+apps/desktop/desktop_native/autotype                  @bitwarden/team-desktop-native-dev
 apps/desktop/desktop_native/napi/src/autotype_mvp.rs  @bitwarden/team-desktop-native-dev
+libs/common/src/desktop-native                        @bitwarden/team-desktop-native-dev
 
 ## Desktop Native team files + SSH working group co-owned files ##
 apps/desktop/desktop_native/core/src/ssh_agent                 @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
@@ -184,22 +186,22 @@ apps/desktop/src/autofill/models/ssh-agent-setting.ts          @bitwarden/team-d
 apps/desktop/src/autofill/components/approve-ssh-request.html  @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 apps/desktop/src/autofill/components/approve-ssh-request.ts    @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 
-## Desktop Native + Skunkworks co-owned files
-apps/desktop/desktop_native/autofill_provider                   @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
-apps/desktop/desktop_native/core/src/autofill                   @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
-apps/desktop/desktop_native/napi/src/autofill.rs                @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
-apps/desktop/desktop_native/objc/src/native/autofill            @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
-apps/desktop/desktop_native/win_webauthn                        @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
-apps/desktop/desktop_native/windows_plugin_authenticator        @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
-apps/desktop/macos                                              @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
-apps/desktop/src/autofill/desktop-autofill.preload.ts           @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
-apps/desktop/src/autofill/main/main-desktop-autofill*           @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
-apps/desktop/src/autofill/modal/credentials                     @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
-apps/desktop/src/autofill/models/autofill-*                     @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
-apps/desktop/src/autofill/models/ipc-handler.type.ts            @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
-apps/desktop/src/autofill/services/desktop-autofill.service.ts  @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
-apps/desktop/src/autofill/services/desktop-autofill.service.spec.ts  @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
-apps/desktop/src/autofill/services/desktop-fido2*               @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
+## Native Passkey files
+apps/desktop/desktop_native/autofill_provider                   @bitwarden/team-skunkworks
+apps/desktop/desktop_native/core/src/autofill                   @bitwarden/team-skunkworks
+apps/desktop/desktop_native/napi/src/autofill.rs                @bitwarden/team-skunkworks
+apps/desktop/desktop_native/objc/src/native/autofill            @bitwarden/team-skunkworks
+apps/desktop/desktop_native/win_webauthn                        @bitwarden/team-skunkworks
+apps/desktop/desktop_native/windows_plugin_authenticator        @bitwarden/team-skunkworks
+apps/desktop/macos                                              @bitwarden/team-skunkworks
+apps/desktop/src/autofill/desktop-autofill.preload.ts           @bitwarden/team-skunkworks
+apps/desktop/src/autofill/main/main-desktop-autofill*           @bitwarden/team-skunkworks
+apps/desktop/src/autofill/modal/credentials                     @bitwarden/team-skunkworks
+apps/desktop/src/autofill/models/autofill-*                     @bitwarden/team-skunkworks
+apps/desktop/src/autofill/models/ipc-handler.type.ts            @bitwarden/team-skunkworks
+apps/desktop/src/autofill/services/desktop-autofill.service.ts  @bitwarden/team-skunkworks
+apps/desktop/src/autofill/services/desktop-autofill.service.spec.ts  @bitwarden/team-skunkworks
+apps/desktop/src/autofill/services/desktop-fido2*               @bitwarden/team-skunkworks
 
 # DuckDuckGo integration
 apps/desktop/native-messaging-test-runner                        @bitwarden/team-desktop-native-dev
@@ -247,6 +249,10 @@ bitwarden_license/bit-web/src/app/pam  @bitwarden/team-pam-dev
 apps/web/src/app/pam                   @bitwarden/team-pam-dev
 libs/pam                               @bitwarden/team-pam-dev
 
+## Automation driver ##
+### Temporary Code-owner.
+libs/automation-driver @bitwarden/team-key-management-dev
+
 ## Locales ##
 apps/browser/src/_locales/en/messages.json
 apps/browser/store/locales/en
@@ -282,4 +288,5 @@ apps/desktop/native-messaging-test-runner/package-lock.json  @bitwarden/team-pla
 .claude/                           @bitwarden/team-ai-sme
 .github/workflows/respond.yml      @bitwarden/team-ai-sme
 .github/workflows/review-code.yml  @bitwarden/team-ai-sme
+.github/workflows/sdlc-sdk-update-evaluate.yml  @bitwarden/team-ai-sme @bitwarden/team-platform-dev
 .mcp.json                          @bitwarden/team-ai-sme
