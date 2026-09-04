@@ -65,6 +65,29 @@ function makeConfigsServiceStub(rows: RotationConfigRow[] = [makeRow()]) {
   };
 }
 
+function makeCipherCollectionProviders(
+  ciphers: CipherView[] = [],
+  collections: CollectionAdminView[] = [],
+) {
+  return [
+    {
+      provide: OrgCiphersService,
+      useValue: {
+        ciphers$: new BehaviorSubject(ciphers),
+        load: jest.fn().mockResolvedValue(undefined),
+      },
+    },
+    {
+      provide: CollectionAdminService,
+      useValue: { collectionAdminViews$: () => of(collections) },
+    },
+    {
+      provide: AccountService,
+      useValue: { activeAccount$: of({ id: "user-1" }) },
+    },
+  ];
+}
+
 describe("ManagedCredentialsTabComponent", () => {
   let fixture: ComponentFixture<ManagedCredentialsTabComponent>;
   let component: any;
@@ -93,21 +116,7 @@ describe("ManagedCredentialsTabComponent", () => {
         { provide: ActivatedRoute, useValue: { params: of({ organizationId: ORGANIZATION_ID }) } },
         { provide: RotationConfigsService, useValue: configsService },
         { provide: TargetSystemsService, useValue: targetSystemsService },
-        {
-          provide: OrgCiphersService,
-          useValue: {
-            ciphers$: new BehaviorSubject([]),
-            load: jest.fn().mockResolvedValue(undefined),
-          },
-        },
-        {
-          provide: CollectionAdminService,
-          useValue: { collectionAdminViews$: () => of([]) },
-        },
-        {
-          provide: AccountService,
-          useValue: { activeAccount$: of({ id: "user-1" }) },
-        },
+        ...makeCipherCollectionProviders(),
         { provide: ToastService, useValue: toastService },
         { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: i18nFake },
@@ -296,18 +305,7 @@ describe("ManagedCredentialsTabComponent", () => {
           },
           { provide: RotationConfigsService, useValue: configsService },
           { provide: TargetSystemsService, useValue: targetSystemsService },
-          {
-            provide: OrgCiphersService,
-            useValue: {
-              ciphers$: new BehaviorSubject(ciphers),
-              load: jest.fn().mockResolvedValue(undefined),
-            },
-          },
-          {
-            provide: CollectionAdminService,
-            useValue: { collectionAdminViews$: () => of(collections) },
-          },
-          { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+          ...makeCipherCollectionProviders(ciphers, collections),
           { provide: ToastService, useValue: toastService },
           { provide: DialogService, useValue: dialogService },
           { provide: I18nService, useValue: i18nFake },
