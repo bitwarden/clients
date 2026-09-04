@@ -18962,8 +18962,8 @@
   "pamAccessConnectorTokenWarningTitle": {
     "message": "Save this token now"
   },
-  "pamAccessConnectorTokenWarningBody": {
-    "message": "This token is shown only once and cannot be retrieved later. Copy it and deliver it to the daemon operator out of band — paste it into the daemon configuration file. If the token is lost, delete this access connector and register a new one."
+  "pamAccessConnectorTokenDaemonWarningBody": {
+    "message": "This token is shown only once and cannot be retrieved later. Copy it and deliver it out of band to the operator of the rotation daemon that will use this access connector — paste it into the daemon's configuration file. If the token is lost, delete this access connector and register a new one."
   },
   "pamAccessConnectorTokenLabel": {
     "message": "Access connector token"
