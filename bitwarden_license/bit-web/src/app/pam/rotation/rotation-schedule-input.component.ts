@@ -116,9 +116,14 @@ const INTERVAL_UNIT_KEYS: Readonly<Record<ScheduleIntervalUnit, string>> = Objec
 /** What the echo line renders: a message key, plus the parameters that message takes. */
 interface ScheduleEcho {
   key: string;
-  p1?: string;
-  p2?: string;
-  p3?: string;
+  p1?: string | number;
+  p2?: string | number;
+  p3?: string | number;
+}
+
+/** A clock reading as `<input type="time">` and the SDK's presets both spell it: zero-padded. */
+function timeOfDay(hh: number, mm: number): string {
+  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
 }
 
 /**
@@ -282,9 +287,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
       this.presetControl.setValue(preset, { emitEvent: false });
       this.resetCustom();
       this.resetInterval();
-      this.cronShapeValid = true;
-      this.onValidatorChange();
-      this.cdr.markForCheck();
+      this.acceptKnownShape();
       return;
     }
 
@@ -296,9 +299,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
       this.applyCountBounds(interval.unit);
       this.intervalCountControl.setValue(interval.count, { emitEvent: false });
       this.intervalTimeControl.setValue(interval.time, { emitEvent: false });
-      this.cronShapeValid = true;
-      this.onValidatorChange();
-      this.cdr.markForCheck();
+      this.acceptKnownShape();
       return;
     }
 
@@ -306,6 +307,13 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     this.resetInterval();
     this.customControl.setValue(value ?? "", { emitEvent: false });
     await this.refreshCronShape(value ?? "");
+  }
+
+  /** Settles a value this component recognised: nothing is left for the shape check to judge. */
+  private acceptKnownShape(): void {
+    this.cronShapeValid = true;
+    this.onValidatorChange();
+    this.cdr.markForCheck();
   }
 
   private resetCustom(): void {
@@ -397,9 +405,9 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
       }
       return {
         key: "pamRotationScheduleEchoInterval",
-        p1: String(parts.count),
+        p1: parts.count,
         p2: this.i18n.t(INTERVAL_UNIT_KEYS[parts.unit]),
-        p3: `${String(parts.hh).padStart(2, "0")}:${String(parts.mm).padStart(2, "0")}`,
+        p3: timeOfDay(parts.hh, parts.mm),
       };
     }
     const key = SCHEDULE_ECHO_KEYS[preset];
@@ -493,7 +501,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     if (hh == null || mm == null) {
       return null;
     }
-    const time = `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+    const time = timeOfDay(hh, mm);
 
     if (month === "*") {
       if (dom === "1") {

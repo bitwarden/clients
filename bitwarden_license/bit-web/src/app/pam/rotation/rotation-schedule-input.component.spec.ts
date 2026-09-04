@@ -61,8 +61,8 @@ describe("RotationScheduleInputComponent", () => {
   let outerControl: FormControl<string | null>;
 
   const i18nService = {
-    t: (key: string, p1?: string, p2?: string, p3?: string) =>
-      [key, p1, p2, p3].filter((part) => part != null).join(":"),
+    t: (key: string, ...params: (string | number | undefined)[]) =>
+      [key, ...params].filter((part) => part != null).join(":"),
   };
 
   beforeEach(async () => {
@@ -473,7 +473,7 @@ describe("RotationScheduleInputComponent", () => {
   // ---- plain-English echo ----
 
   function echoElement(): HTMLElement {
-    return fixture.nativeElement.querySelector("#rotation-schedule-input_status_echo");
+    return fixture.nativeElement.querySelector("[data-testid='schedule-echo']");
   }
 
   function echoText(): string {

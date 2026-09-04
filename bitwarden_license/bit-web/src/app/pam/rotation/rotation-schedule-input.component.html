@@ -105,13 +105,8 @@
 }
 
 <!-- Only the content is conditional: a live region created and destroyed by @if does not announce. -->
-<p
-  id="rotation-schedule-input_status_echo"
-  class="tw-mt-1 tw-inline-block tw-text-xs tw-font-normal tw-text-muted"
-  role="status"
-  aria-live="polite"
->
+<bit-hint role="status" aria-live="polite" data-testid="schedule-echo">
   @if (scheduleEcho; as echo) {
     {{ echo.key | i18n: echo.p1 : echo.p2 : echo.p3 }}
   }
-</p>
+</bit-hint>
