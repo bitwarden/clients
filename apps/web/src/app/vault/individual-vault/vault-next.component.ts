@@ -37,7 +37,9 @@ import {
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
+  MY_ITEMS_ROUTE,
   organizationInScope,
+  parseVaultScope,
   resolveVaultScope,
   scopedCollectionSegment,
   VaultScopeType,
@@ -107,8 +109,6 @@ export class VaultNextComponent {
 
   private readonly vaultIdParam = computed(() => this.routeParams()?.get("vaultId"));
 
-  private readonly collectionIdParam = computed(() => this.routeParams()?.get("collectionId"));
-
   private readonly collectionSegment = computed(() =>
     scopedCollectionSegment(this.routeParams(), this.routeData()),
   );
@@ -128,7 +128,14 @@ export class VaultNextComponent {
       ALL_ITEMS_SCOPE,
   );
 
-  protected readonly collectionSelected = computed(() => this.collectionIdParam() != null);
+  protected readonly parsedVaultScope = computed(
+    () => parseVaultScope(this.vaultIdParam(), this.collectionSegment()) ?? ALL_ITEMS_SCOPE,
+  );
+
+  protected readonly collectionSelected = computed(() => {
+    const seg = this.collectionSegment();
+    return seg != null && seg !== MY_ITEMS_ROUTE;
+  });
 
   /**
    * Every item the user can see, in every state. Which of trashed, archived, and active items a

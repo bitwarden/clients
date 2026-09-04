@@ -10,7 +10,7 @@
     {{ orgNavItem()?.label }}
   </bit-breadcrumb>
   <bit-breadcrumb [icon]="'bwi-shared-folder'" [route]="sharedFoldersRoute()">
-    {{ "collections" | vfo1I18n: "sharedFolders" }}
+    {{ "sharedFolders" | i18n }}
   </bit-breadcrumb>
   @for (crumb of collectionBreadcrumbs(); track crumb.id) {
     <bit-breadcrumb [icon]="'bwi-shared-folder'" [route]="sharedFolderRoute(crumb)">

@@ -1,6 +1,9 @@
 <app-header [title]="title()">
   @if (collectionSelected()) {
-    <vault-collection-breadcrumbs slot="breadcrumbs"></vault-collection-breadcrumbs>
+    <vault-collection-breadcrumbs
+      slot="breadcrumbs"
+      [scope]="parsedVaultScope()"
+    ></vault-collection-breadcrumbs>
   }
 </app-header>
 
