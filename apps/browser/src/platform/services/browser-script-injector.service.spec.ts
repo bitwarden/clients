@@ -69,6 +69,10 @@ describe("ScriptInjectorService", () => {
   const configService = mock<ConfigService>();
 
   beforeEach(() => {
+    // Spies are installed once for the suite; without this their call history accumulates across
+    // tests, which silently defeats any `not.toHaveBeenCalled()` assertion.
+    jest.clearAllMocks();
+
     jest.spyOn(BrowserApi, "getTab").mockImplementation(async () => tabMock);
 
     const mockEnvironment = mock<Environment>();
@@ -137,19 +141,20 @@ describe("ScriptInjectorService", () => {
         );
       });
 
-      it("skips injecting the script in manifest v3 when the tab domain is a blocked domain", async () => {
-        domainSettingsService.blockedInteractionsUris$ = of({ [mockBlockedURI.host]: null });
-        manifestVersionSpy.mockReturnValue(3);
+      it.each([2, 3])(
+        "skips injecting the script in manifest v%i when the tab domain is a blocked domain",
+        async (manifestVersion) => {
+          domainSettingsService.blockedInteractionsUris$ = of({ [mockBlockedURI.host]: null });
+          manifestVersionSpy.mockReturnValue(manifestVersion);
 
-        await expect(scriptInjectorService["buildInjectionDetails"]).not.toHaveBeenCalled();
-      });
+          await scriptInjectorService.inject({
+            tabId,
+            injectDetails: { file: combinedManifestVersionFile, ...sharedInjectDetails },
+          });
 
-      it("skips injecting the script in manifest v2 when the tab domain is a blocked domain", async () => {
-        domainSettingsService.blockedInteractionsUris$ = of({ [mockBlockedURI.host]: null });
-        manifestVersionSpy.mockReturnValue(2);
-
-        await expect(scriptInjectorService["buildInjectionDetails"]).not.toHaveBeenCalled();
-      });
+          expect(BrowserApi.executeScriptInTab).not.toHaveBeenCalled();
+        },
+      );
 
       it("injects the script in manifest v2 when given combined injection details", async () => {
         manifestVersionSpy.mockReturnValue(2);
@@ -291,6 +296,112 @@ describe("ScriptInjectorService", () => {
             }),
           ).rejects.toThrow("No file specified for script injection");
         });
+      });
+    });
+
+    describe("blocked domains for a frame-targeted injection", () => {
+      const subFrameId = 10;
+      const blockedFrameUrl = "https://blocked-widget.example/embed";
+
+      const injectIntoSubFrame = () =>
+        scriptInjectorService.inject({
+          tabId,
+          injectDetails: {
+            file: combinedManifestVersionFile,
+            frame: subFrameId,
+            ...sharedInjectDetails,
+          },
+        });
+
+      /** Stands in for the frame lookup `BrowserApi.getFrameDetails` performs. */
+      const mockFrameLookup = (url: string | undefined) => {
+        jest
+          .spyOn(BrowserApi, "getFrameDetails")
+          .mockResolvedValue(
+            (url == null ? undefined : { url }) as chrome.webNavigation.GetFrameResultDetails,
+          );
+      };
+
+      beforeEach(() => {
+        manifestVersionSpy.mockReturnValue(3);
+      });
+
+      it("skips the injection when the target frame's own domain is blocked", async () => {
+        domainSettingsService.blockedInteractionsUris$ = of({
+          [new URL(blockedFrameUrl).host]: null,
+        });
+        mockFrameLookup(blockedFrameUrl);
+
+        await injectIntoSubFrame();
+
+        expect(BrowserApi.getFrameDetails).toHaveBeenCalledWith({ tabId, frameId: subFrameId });
+        expect(BrowserApi.executeScriptInTab).not.toHaveBeenCalled();
+      });
+
+      it("injects when the target frame's domain is not blocked, even alongside other blocked domains", async () => {
+        domainSettingsService.blockedInteractionsUris$ = of({ "unrelated.example": null });
+        mockFrameLookup(blockedFrameUrl);
+
+        await injectIntoSubFrame();
+
+        expect(BrowserApi.executeScriptInTab).toHaveBeenCalled();
+      });
+
+      it("still blocks on the tab's domain when the frame's own domain is allowed", async () => {
+        domainSettingsService.blockedInteractionsUris$ = of({ [mockBlockedURI.host]: null });
+        mockFrameLookup(blockedFrameUrl);
+
+        await injectIntoSubFrame();
+
+        // The tab check short-circuits, so an embedded frame the user has not blocked cannot
+        // make a blocked page injectable.
+        expect(BrowserApi.getFrameDetails).not.toHaveBeenCalled();
+        expect(BrowserApi.executeScriptInTab).not.toHaveBeenCalled();
+      });
+
+      it("injects when the frame lookup resolves nothing", async () => {
+        domainSettingsService.blockedInteractionsUris$ = of({
+          [new URL(blockedFrameUrl).host]: null,
+        });
+        mockFrameLookup(undefined);
+
+        await injectIntoSubFrame();
+
+        expect(BrowserApi.executeScriptInTab).toHaveBeenCalled();
+      });
+
+      it("does not look a frame up for a top-level injection", async () => {
+        domainSettingsService.blockedInteractionsUris$ = of({
+          [new URL(blockedFrameUrl).host]: null,
+        });
+        mockFrameLookup(blockedFrameUrl);
+
+        await scriptInjectorService.inject({
+          tabId,
+          injectDetails: { file: combinedManifestVersionFile, frame: 0, ...sharedInjectDetails },
+        });
+
+        expect(BrowserApi.getFrameDetails).not.toHaveBeenCalled();
+        expect(BrowserApi.executeScriptInTab).toHaveBeenCalled();
+      });
+
+      it("does not look a frame up for an all_frames injection", async () => {
+        domainSettingsService.blockedInteractionsUris$ = of({
+          [new URL(blockedFrameUrl).host]: null,
+        });
+        mockFrameLookup(blockedFrameUrl);
+
+        await scriptInjectorService.inject({
+          tabId,
+          injectDetails: {
+            file: combinedManifestVersionFile,
+            frame: "all_frames",
+            ...sharedInjectDetails,
+          },
+        });
+
+        expect(BrowserApi.getFrameDetails).not.toHaveBeenCalled();
+        expect(BrowserApi.executeScriptInTab).toHaveBeenCalled();
       });
     });
   });
