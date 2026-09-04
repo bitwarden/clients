@@ -80,7 +80,8 @@
       "@bitwarden/web-vault/*": ["./apps/web/src/*"],
       "@bitwarden/pam": ["./libs/pam/src/index.ts"],
       "@bitwarden/storybook": ["./libs/storybook/src/index.ts"],
-      "@bitwarden/managed-settings": ["./libs/managed-settings/src/index.ts"]
+      "@bitwarden/managed-settings": ["./libs/managed-settings/src/index.ts"],
+      "@bitwarden/tools-share": ["./libs/tools/share/src/index.ts"]
     },
     "plugins": [
       {

@@ -9,6 +9,10 @@
     "message": "Bitwarden - wachtwoordbeheerder",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden Password Manager Beta",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "Thuis, op werk of onderweg. Bitwarden beveiligt makkelijk al je wachtwoorden, passkeys en gevoelige informatie",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -535,6 +539,9 @@
   "foldersFilterTooltip": {
     "message": "Add folders to items to filter them here."
   },
+  "sharedFolderFilterTooltip": {
+    "message": "Items aan een gedeelde map toevoegen om hier te filteren."
+  },
   "editItemWithName": {
     "message": "Edit item - $NAME$",
     "placeholders": {
@@ -750,6 +757,15 @@
   },
   "launchWebsite": {
     "message": "Website openen"
+  },
+  "launchWebsiteForName": {
+    "message": "Website starten voor $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Website"
@@ -1406,17 +1422,29 @@
   "additionalOptions": {
     "message": "Extra instellingen"
   },
-  "fillAssistActiveNotice": {
-    "message": "Autofill gebruikt invulassistentie op deze pagina."
+  "fillAssistActiveNoticeV2": {
+    "message": "Automatisch invullen gebruikt de invulassistent op deze pagina."
   },
-  "activateFillAssist": {
+  "activateFillAssistV2": {
     "message": "Invulassistent inschakelen"
   },
-  "activateFillAssistDescription": {
+  "activateFillAssistDescriptionV2": {
     "message": "Invulassistent verbetert de nauwkeurigheid op ondersteunde websites door sitespecifieke regels te gebruiken. Er worden geen gegevens verzameld of opgeslagen wanneer je deze functie gebruikt."
   },
-  "aboutFillAssistLabel": {
+  "aboutFillAssistLabelV2": {
     "message": "Over invulassistent"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Toestaan dat websites velden van automatisch invullen uitsluiten"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Velden overslaan die een website met het `data-bwignore` attribuut markeert."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Toestaan dat websites velden voor automatisch invullen toevoegt"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Gebruik alle span-elementen die een website met het `data-bwautofill` attribuut markeert."
   },
   "enableContextMenuItem": {
     "message": "Contextmenu-opties weergeven"
@@ -2737,6 +2765,18 @@
   "noMatchingItems": {
     "message": "Geen overeenkomende items"
   },
+  "noFiltersMatch": {
+    "message": "Geen filters komen overeen met \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Zoekopdracht wissen"
+  },
   "selected": {
     "message": "Geselecteerd"
   },
@@ -3182,12 +3222,6 @@
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "Geen verversingstoken of API-sleutels gevonden. Probeer uit te loggen en weer in te loggen."
-  },
-  "desktopSyncVerificationTitle": {
-    "message": "Desktopsynchronisatieverificatie"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Controleer of de desktopapplicatie deze vingerafdruk weergeeft: "
   },
   "desktopIntegrationDisabledTitle": {
     "message": "Browserintegratie is niet ingeschakeld"
@@ -5939,6 +5973,12 @@
   "clearFiltersOrTryAnother": {
     "message": "Wis filters of probeer een andere zoekterm"
   },
+  "noSharedFoldersAdded": {
+    "message": "Geen gedeelde mappen toegevoegd"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Gedeelde map toevoegen voor het veilig delen van kluisitems met andere leden."
+  },
   "moreOptionsLabel": {
     "message": "Meer opties, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -7020,9 +7060,6 @@
   "compactMode": {
     "message": "Compacte modus"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "extensionWidth": {
     "message": "Extensiebreedte"
   },
@@ -7079,12 +7116,6 @@
         "example": "Work, Personal"
       }
     }
-  },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Werk je desktopapplicatie bij"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "Als je biometrische gegevens wilt gebruiken, moet je de desktopapplicatie bijwerken of vingerafdrukontgrendeling uitschakelen in de instellingen van de desktopapplicatie."
   },
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
@@ -7274,6 +7305,15 @@
   },
   "showMore": {
     "message": "Meer weergeven"
+  },
+  "showMoreCount": {
+    "message": "$COUNT$ meer weergeven",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Minder weergeven"
@@ -7889,9 +7929,32 @@
     "message": "Risico's geïdentificeerd",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
+  "upgradeToViewPasswords": {
+    "message": "Upgrade om wachtwoorden te bekijken"
+  },
   "categoryHealthy": {
     "message": "Geen items die aandacht nodig hebben",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Je kluis scannen",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Controleren op gelekte, zwakke en hergebruikte wachtwoorden.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "In behandeling",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Er ging iets mis",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "Je kluisscan is niet voltooid vanwege een onverwachte fout.",
+    "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
     "message": "Gelekte wachtwoorden"
@@ -7911,8 +7974,8 @@
   "reusedPasswordsDescription": {
     "message": "Deze logins hebben een hergebruikt wachtwoord. Maak een uniek wachtwoord aan voor elk account om te voorkomen dat iemand meerdere accounts met één wachtwoord bezoekt."
   },
-  "deleteAtRiskItemDescription": {
-    "message": "Het verwijderen van deze login verwijdert deze uit je kluis maar lost het risico niet op. Om je account te beschermen, wijzig je eerst je wachtwoord."
+  "deleteAtRiskItemDesc": {
+    "message": "Zorg ervoor dat je eerst je wachtwoord verandert. Verwijderen verwijdert alleen het item uit je kluis, het lost het risico niet op."
   },
   "passwordHasAdditionalRisks": {
     "message": "Dit wachtwoord heeft extra risico's:"
@@ -7942,5 +8005,20 @@
   },
   "youreAllSet": {
     "message": "Je bent helemaal klaar!"
+  },
+  "permissions": {
+    "message": "Machtigingen"
+  },
+  "viewItems": {
+    "message": "Items weergeven"
+  },
+  "viewItemsHidePass": {
+    "message": "Items weergeven, verborgen wachtwoorden"
+  },
+  "editItems": {
+    "message": "Items bewerken"
+  },
+  "editItemsHidePass": {
+    "message": "Items bewerken, verborgen wachtwoorden"
   }
 }
