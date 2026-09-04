@@ -3,7 +3,6 @@ import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 
 export const MemberDialogTab = Object.freeze({
-  Role: 0,
   Details: 0,
   Groups: 1,
   Collections: 2,

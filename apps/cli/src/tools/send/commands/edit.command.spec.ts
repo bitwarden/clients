@@ -8,6 +8,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -27,6 +28,7 @@ describe("SendEditCommand", () => {
   const sendApiService = mock<SendApiService>();
   const accountProfileService = mock<BillingAccountProfileStateService>();
   const accountService = mock<AccountService>();
+  const sendDecryptionService = mock<SendDecryptionService>();
 
   const activeAccount = {
     id: "user-id" as UserId,
@@ -48,7 +50,6 @@ describe("SendEditCommand", () => {
   const mockSend = {
     id: mockSendId,
     type: SendType.Text,
-    decrypt: jest.fn().mockResolvedValue(mockSendView),
   };
 
   const encodeRequest = (data: any) => Buffer.from(JSON.stringify(data)).toString("base64");
@@ -60,6 +61,7 @@ describe("SendEditCommand", () => {
     accountProfileService.hasPremiumFromAnySource$.mockReturnValue(of(false));
     sendService.getFromState.mockResolvedValue(mockSend as any);
     getCommand.run.mockResolvedValue(Response.success(new SendResponse(mockSendView)) as any);
+    sendDecryptionService.decryptSend.mockResolvedValue(mockSendView);
 
     command = new SendEditCommand(
       sendService,
@@ -67,6 +69,7 @@ describe("SendEditCommand", () => {
       sendApiService,
       accountProfileService,
       accountService,
+      sendDecryptionService,
     );
   });
 

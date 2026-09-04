@@ -24,25 +24,25 @@ import { SendView } from "../view/send.view";
 import { SendFile } from "./send-file";
 import { SendText } from "./send-text";
 
-const SEND_TYPE_TO_SDK: Record<SendType, SdkSendType> = {
+export const SEND_TYPE_TO_SDK: Record<SendType, SdkSendType> = {
   [SendType.Text]: SdkSendType.Text,
   [SendType.File]: SdkSendType.File,
   [SendType.Item]: SdkSendType.Item,
 };
 
-const SEND_TYPE_FROM_SDK: Record<SdkSendType, SendType> = {
+export const SEND_TYPE_FROM_SDK: Record<SdkSendType, SendType> = {
   [SdkSendType.Text]: SendType.Text,
   [SdkSendType.File]: SendType.File,
   [SdkSendType.Item]: SendType.Item,
 };
 
-const AUTH_TYPE_TO_SDK: Record<AuthType, SdkAuthType> = {
+export const AUTH_TYPE_TO_SDK: Record<AuthType, SdkAuthType> = {
   [AuthType.Email]: SdkAuthType.Email,
   [AuthType.Password]: SdkAuthType.Password,
   [AuthType.None]: SdkAuthType.None,
 };
 
-const AUTH_TYPE_FROM_SDK: Record<SdkAuthType, AuthType> = {
+export const AUTH_TYPE_FROM_SDK: Record<SdkAuthType, AuthType> = {
   [SdkAuthType.Email]: AuthType.Email,
   [SdkAuthType.Password]: AuthType.Password,
   [SdkAuthType.None]: AuthType.None,
