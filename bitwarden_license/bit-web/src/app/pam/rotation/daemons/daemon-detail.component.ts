@@ -108,7 +108,7 @@ export class DaemonDetailComponent {
   });
 
   /** Active+automatic systems not already assigned to this connector — mirrors the tab's `openAssignDialog` filter (`daemons-tab.component.ts`). */
-  protected readonly assignableSystems = computed(() => {
+  private readonly assignableSystems = computed(() => {
     const connector = this.connector();
     if (connector == null) {
       return [];
