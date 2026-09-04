@@ -1,10 +1,12 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { DaemonStatus } from "../rotation";
 import type { AccessConnector, AccessConnectorDetail, TargetSystem } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import {
@@ -16,7 +18,7 @@ import {
   targetSystem,
 } from "../testing/rotation-builders";
 
-import { DaemonDetailComponent } from "./daemon-detail.component";
+import { DaemonAssignment, DaemonDetailComponent } from "./daemon-detail.component";
 
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string) => id,
@@ -36,6 +38,10 @@ function makeDaemon(overrides: Partial<AccessConnector> = {}): AccessConnectorDe
 
 function makeSystem(): TargetSystem {
   return targetSystem({ id: sysId("ts-1"), name: "Prod Entra" });
+}
+
+function makeOtherSystem(): TargetSystem {
+  return targetSystem({ id: sysId("ts-2"), name: "Prod MSSQL" });
 }
 
 async function setup(
@@ -89,8 +95,161 @@ describe("DaemonDetailComponent", () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const comp = fixture.componentInstance as unknown as { assignmentNames: () => string[] };
-    expect(comp.assignmentNames()).toEqual(["Prod Entra"]);
+    const comp = fixture.componentInstance as unknown as {
+      assignments: () => DaemonAssignment[];
+    };
+    expect(comp.assignments()).toEqual([{ id: sysId("ts-1"), name: "Prod Entra" }]);
+  });
+
+  it("assigns the selected target and patches assignments locally", async () => {
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+    rotationSdk.assignTarget.mockResolvedValue(undefined);
+    const dialog = mock<DialogService>();
+    dialog.open.mockReturnValue({ closed: of(sysId("ts-2")) } as never);
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as {
+      assignTarget: () => Promise<void>;
+      assignments: () => DaemonAssignment[];
+    };
+    await comp.assignTarget();
+
+    expect(rotationSdk.assignTarget).toHaveBeenCalledWith(
+      ORGANIZATION_ID,
+      connectorId("daemon-1"),
+      sysId("ts-2"),
+    );
+    expect(comp.assignments().map((a) => a.name)).toEqual(["Prod Entra", "Prod MSSQL"]);
+  });
+
+  it("offers only unassigned active automatic targets to the dialog", async () => {
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+    rotationSdk.assignTarget.mockResolvedValue(undefined);
+    const dialog = mock<DialogService>();
+    dialog.open.mockReturnValue({ closed: of(sysId("ts-2")) } as never);
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as { assignTarget: () => Promise<void> };
+    await comp.assignTarget();
+
+    const config = dialog.open.mock.calls[0][1] as unknown as {
+      data: { options: TargetSystem[] };
+    };
+    expect(config.data.options.map((s) => s.id)).toEqual([sysId("ts-2")]);
+  });
+
+  it("does not open the assign dialog while the daemon is disabled", async () => {
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon({ status: DaemonStatus.Disabled }));
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+    const dialog = mock<DialogService>();
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as { assignTarget: () => Promise<void> };
+    await comp.assignTarget();
+
+    expect(dialog.open).not.toHaveBeenCalled();
+    expect(rotationSdk.assignTarget).not.toHaveBeenCalled();
+  });
+
+  it("keeps a newly assigned target when a removal overlaps the assign", async () => {
+    let resolveAssign: (() => void) | undefined;
+    const assigning = new Promise<void>((resolve) => {
+      resolveAssign = resolve;
+    });
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+    rotationSdk.assignTarget.mockReturnValue(assigning);
+    rotationSdk.unassignTarget.mockResolvedValue(undefined);
+    const dialog = mock<DialogService>();
+    dialog.open.mockReturnValue({ closed: of(sysId("ts-2")) } as never);
+    dialog.openSimpleDialog.mockResolvedValue(true);
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as {
+      assignTarget: () => Promise<void>;
+      unassign: (assignment: DaemonAssignment) => Promise<void>;
+      assignments: () => DaemonAssignment[];
+    };
+    const assigned = comp.assignTarget();
+    const removed = comp.unassign({ id: sysId("ts-1"), name: "Prod Entra" });
+    resolveAssign?.();
+    await assigned;
+    await removed;
+
+    expect(comp.assignments().map((a) => a.id)).toEqual([sysId("ts-2")]);
+  });
+
+  it("does not call assignTarget when the dialog is dismissed", async () => {
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+    const dialog = mock<DialogService>();
+    dialog.open.mockReturnValue({ closed: of(undefined) } as never);
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as { assignTarget: () => Promise<void> };
+    await comp.assignTarget();
+
+    expect(rotationSdk.assignTarget).not.toHaveBeenCalled();
+  });
+
+  it("unassigns after confirmation and patches assignments locally", async () => {
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+    rotationSdk.unassignTarget.mockResolvedValue(undefined);
+    const dialog = mock<DialogService>();
+    dialog.openSimpleDialog.mockResolvedValue(true);
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as {
+      unassign: (assignment: DaemonAssignment) => Promise<void>;
+      assignments: () => DaemonAssignment[];
+    };
+    await comp.unassign({ id: sysId("ts-1"), name: "Prod Entra" });
+
+    expect(rotationSdk.unassignTarget).toHaveBeenCalledWith(
+      ORGANIZATION_ID,
+      connectorId("daemon-1"),
+      sysId("ts-1"),
+    );
+    expect(comp.assignments()).toEqual([]);
+  });
+
+  it("does not unassign when the confirmation is declined", async () => {
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+    const dialog = mock<DialogService>();
+    dialog.openSimpleDialog.mockResolvedValue(false);
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as {
+      unassign: (assignment: DaemonAssignment) => Promise<void>;
+      assignments: () => DaemonAssignment[];
+    };
+    await comp.unassign({ id: sysId("ts-1"), name: "Prod Entra" });
+
+    expect(rotationSdk.unassignTarget).not.toHaveBeenCalled();
+    expect(comp.assignments()).toHaveLength(1);
   });
 
   it("disables the daemon after confirmation and patches status", async () => {

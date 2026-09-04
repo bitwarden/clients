@@ -19072,6 +19072,9 @@
   "pamDaemonActivityEmpty": {
     "message": "No rotation activity yet."
   },
+  "pamDaemonDetailAssignDisabledTooltip": {
+    "message": "Target systems can only be assigned while the status is Enabled."
+  },
   "pamDaemonStatusEnabled": {
     "message": "Enabled"
   },
