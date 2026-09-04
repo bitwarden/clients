@@ -2,6 +2,7 @@
   class="[&_[role=row]]:tw-mx-3"
   [tableDef]="table"
   [filter]="filterPredicate"
+  [filters]="filtersToRestore()"
   [loading]="loading()"
   [trackBy]="trackRow"
   presentation="list"

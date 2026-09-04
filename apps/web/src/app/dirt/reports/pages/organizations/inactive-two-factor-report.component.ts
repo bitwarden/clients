@@ -17,6 +17,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   BerryComponent,
+  BreadcrumbsModule,
   ChipActionComponent,
   ChipFilterComponent,
   DialogService,
@@ -58,6 +59,7 @@ import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponen
     ChipActionComponent,
     BerryComponent,
     Vfo1IconPipe,
+    BreadcrumbsModule,
   ],
 })
 export class InactiveTwoFactorReportComponent
