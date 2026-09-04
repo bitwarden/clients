@@ -1,16 +1,4 @@
 <div [formGroup]="data">
-  <p bitTypography="body1">
-    {{ "sendControlsPolicyDescV4" | vfo1I18n: "sendControlsPolicyDescVfo1V2" }}
-    <a
-      bitLink
-      href="https://bitwarden.com/help/policies/#manage-send"
-      target="_blank"
-      rel="noreferrer"
-      endIcon="bwi-external-link"
-    >
-      {{ "learnMoreAboutSend" | i18n }}
-    </a>
-  </p>
   <bit-form-control class="tw-mt-4">
     <bit-switch [formControl]="enableSendControl" id="enableSendControlsPolicySwitch"></bit-switch>
     <bit-label class="tw-text-sm">{{ "sendControlsPolicySwitchLabelV2" | i18n }}</bit-label>
