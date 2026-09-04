@@ -542,7 +542,7 @@ projected content is the header label, and the row count is appended automatical
 - **`[hideOnEmpty]`** (default `true`) drops a group with no matching rows. Clear it to keep the
   header and description on screen instead, so the description stands in for the missing rows — the
   extension's "Save a login item for this site to autofill" tip under an empty autofill-suggestions
-  group.
+  group. Top-level groups only; an empty nested subgroup always hides.
 - **One level of nesting** — a `<bit-row-group>` inside another sub-partitions its parent's rows;
   deeper nesting is ignored (and warns).
 

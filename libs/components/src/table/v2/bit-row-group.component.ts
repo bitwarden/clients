@@ -19,7 +19,7 @@ import { BitTableV2Component } from "./table-v2.component";
  * the rows passing {@link match}; the projected content is the group's header
  * label (the row count is appended automatically by the table).
  *
- * Rows partition first-match-wins in declaration order, and a group with no
+ * Rows partition first-match-wins in declaration order, and a top-level group with no
  * matching rows renders nothing unless it clears {@link hideOnEmpty}. Registers with
  * the nearest ancestor `<bit-table-v2>` via DI, so a group can sit anywhere in the
  * descendant tree — including emitted by a helper.
@@ -36,12 +36,16 @@ export class BitRowGroupComponent<T = unknown> {
   /** When set, the header becomes a toggle that collapses the group's rows (open by default). */
   readonly collapsible = input(false, { transform: booleanAttribute });
 
-  /** Explanatory text rendered under the header, above the group's rows. */
+  /**
+   * Explanatory text rendered under the header, above the group's rows. Top-level groups
+   * only — a nested subgroup's description is ignored.
+   */
   readonly description = input<string>();
 
   /**
    * Whether the group disappears when no rows match. Clear it to keep the header — and
    * any {@link description} — on screen, so the description can stand in for the rows.
+   * Top-level groups only; an empty nested subgroup always hides.
    */
   readonly hideOnEmpty = input(true, { transform: booleanAttribute });
 
