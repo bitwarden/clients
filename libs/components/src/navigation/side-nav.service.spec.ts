@@ -1,30 +1,241 @@
 import { TestBed } from "@angular/core/testing";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, Subject } from "rxjs";
 
-import { GlobalStateProvider } from "@bitwarden/state";
+import { GlobalState, GlobalStateProvider } from "@bitwarden/state";
 
 import { getRootFontSizePx } from "../shared";
-import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { SideNavService } from "./side-nav.service";
 
 describe("SideNavService", () => {
   let service: SideNavService;
+  let diskWidth$: Subject<number | null>;
+  let widthState: MockProxy<GlobalState<number>>;
 
   beforeEach(() => {
+    jest.useFakeTimers();
+    diskWidth$ = new BehaviorSubject<number | null>(null);
+    widthState = mock<GlobalState<number>>();
+    widthState.state$ = diskWidth$.asObservable();
+
+    const provider = mock<GlobalStateProvider>();
+    provider.get.mockReturnValue(widthState);
+
     TestBed.configureTestingModule({
-      providers: [{ provide: GlobalStateProvider, useClass: StorybookGlobalStateProvider }],
+      providers: [{ provide: GlobalStateProvider, useValue: provider }],
     });
-    service = TestBed.inject(SideNavService);
   });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  /**
+   * Construct the service, optionally with a width already saved. Hydration runs in the
+   * constructor, so a saved width has to be seeded before this is called.
+   */
+  const createService = (savedWidth?: number) => {
+    if (savedWidth !== undefined) {
+      diskWidth$.next(savedWidth);
+    }
+    service = TestBed.inject(SideNavService);
+    return service;
+  };
 
   const currentWidth = () => service.widthRem();
 
   /** Drag the handle to `rem` from the nav's left edge. */
   const dragTo = (rem: number) => service.setWidthFromDrag(rem * getRootFontSizePx(), 0);
 
+  /** Flush the persist debounce and return every width that reached disk, in order. */
+  const persistedWidths = () =>
+    widthState.update.mock.calls.map(([configureState]) =>
+      configureState(null as never, null as never),
+    );
+
+  /** Advance past the persist debounce so pending writes land. */
+  const flushPersist = () => jest.advanceTimersByTime(200);
+
+  describe("persistence", () => {
+    /** Drop hydration writes so a test asserts only what its own gesture persisted. */
+    const clearPersisted = () => {
+      flushPersist();
+      widthState.update.mockClear();
+    };
+
+    describe("hydration", () => {
+      it("adopts a saved width", () => {
+        createService(30.5);
+
+        expect(currentWidth()).toBe(30.5);
+      });
+
+      it.failing("does not re-persist a width it just read", () => {
+        createService(30.5);
+        flushPersist();
+
+        expect(persistedWidths()).toEqual([]);
+      });
+
+      it.failing("repairs a saved width below the minimum, once", () => {
+        createService(14.25);
+        flushPersist();
+
+        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+        expect(persistedWidths()).toEqual([service.MIN_OPEN_WIDTH]);
+      });
+
+      it.failing("repairs a saved width above the maximum, once", () => {
+        createService(40);
+        flushPersist();
+
+        expect(currentWidth()).toBe(service.MAX_OPEN_WIDTH);
+        expect(persistedWidths()).toEqual([service.MAX_OPEN_WIDTH]);
+      });
+
+      it.failing("writes nothing when no width has ever been saved", () => {
+        createService();
+        flushPersist();
+
+        expect(currentWidth()).toBe(service.DEFAULT_OPEN_WIDTH);
+        expect(persistedWidths()).toEqual([]);
+      });
+
+      it.failing("does not persist the default before a slow disk read resolves", () => {
+        // A bare Subject models production, where state$ resolves asynchronously.
+        const slowDisk$ = new Subject<number | null>();
+        diskWidth$ = slowDisk$;
+        widthState.state$ = slowDisk$.asObservable();
+
+        createService();
+        jest.advanceTimersByTime(500);
+
+        expect(widthState.update).not.toHaveBeenCalled();
+
+        slowDisk$.next(30.5);
+        flushPersist();
+
+        expect(currentWidth()).toBe(30.5);
+        expect(persistedWidths()).toEqual([]);
+      });
+
+      it("never narrows the saved width to what the container can push", () => {
+        createService(30.5);
+        clearPersisted();
+
+        service.maxPushWidthRem.set(20);
+        flushPersist();
+
+        expect(persistedWidths()).toEqual([]);
+      });
+    });
+
+    // The three ways to expand a collapsed nav must agree. Today only toggle() does.
+    describe("expanding a collapsed nav", () => {
+      const SAVED = 30.5;
+
+      beforeEach(() => {
+        createService(SAVED);
+        service.open.set(false);
+        clearPersisted();
+      });
+
+      it("restores the saved width via toggle()", () => {
+        service.toggle();
+        flushPersist();
+
+        expect(service.open()).toBe(true);
+        expect(currentWidth()).toBe(SAVED);
+        expect(persistedWidths()).toEqual([]);
+      });
+
+      it.failing("restores the saved width via ArrowRight", () => {
+        service.setWidthFromKeys("ArrowRight");
+        flushPersist();
+
+        expect(service.open()).toBe(true);
+        expect(currentWidth()).toBe(SAVED);
+        expect(persistedWidths()).toEqual([]);
+      });
+
+      it.failing("restores the saved width when a preview drag is released", () => {
+        dragTo(8);
+        service.onDragEnd();
+        flushPersist();
+
+        expect(service.open()).toBe(true);
+        expect(currentWidth()).toBe(SAVED);
+        expect(persistedWidths()).toEqual([]);
+      });
+    });
+
+    describe("drag release", () => {
+      it("persists the minimum when released in the tension zone", () => {
+        createService(30.5);
+        service.open.set(true);
+        clearPersisted();
+
+        dragTo(10);
+        service.onDragEnd();
+        flushPersist();
+
+        expect(service.open()).toBe(true);
+        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+        expect(persistedWidths()).toEqual([service.MIN_OPEN_WIDTH]);
+      });
+
+      it("persists nothing when a drag collapses the nav", () => {
+        createService(30.5);
+        service.open.set(true);
+        clearPersisted();
+
+        dragTo(10);
+        dragTo(3);
+        service.onDragEnd();
+        flushPersist();
+
+        expect(service.open()).toBe(false);
+        expect(currentWidth()).toBe(30.5);
+        expect(persistedWidths()).toEqual([]);
+      });
+
+      it("persists nothing when a preview drag is aborted", () => {
+        createService(30.5);
+        service.open.set(false);
+        clearPersisted();
+
+        dragTo(8);
+        dragTo(2);
+        service.onDragEnd();
+        flushPersist();
+
+        expect(service.open()).toBe(false);
+        expect(persistedWidths()).toEqual([]);
+      });
+
+      it("persists one width for a multi-frame drag", () => {
+        createService();
+        service.open.set(true);
+        clearPersisted();
+
+        dragTo(20);
+        dragTo(22);
+        dragTo(24);
+
+        expect(persistedWidths()).toEqual([]);
+
+        flushPersist();
+
+        expect(persistedWidths()).toEqual([24]);
+      });
+    });
+  });
+
   describe("setWidthFromKeys", () => {
     describe("while collapsed", () => {
       beforeEach(() => {
+        createService();
         service.open.set(false);
       });
 
@@ -58,6 +269,7 @@ describe("SideNavService", () => {
 
     describe("while open", () => {
       beforeEach(() => {
+        createService();
         service.open.set(true);
       });
 
@@ -122,6 +334,7 @@ describe("SideNavService", () => {
       const CUSTOM_WIDTH = 22;
 
       beforeEach(() => {
+        createService();
         service.open.set(true);
         dragTo(CUSTOM_WIDTH);
         expect(currentWidth()).toBe(CUSTOM_WIDTH);
@@ -182,6 +395,7 @@ describe("SideNavService", () => {
 
     describe("while collapsed", () => {
       beforeEach(() => {
+        createService();
         service.open.set(false);
       });
 
@@ -224,6 +438,7 @@ describe("SideNavService", () => {
 
   describe("showLabels", () => {
     it("follows `open` when no preview drag is active", () => {
+      createService();
       service.open.set(true);
       expect(service.showLabels()).toBe(true);
 
@@ -232,6 +447,7 @@ describe("SideNavService", () => {
     });
 
     it("stays false for a preview narrower than the open-style threshold", () => {
+      createService();
       service.open.set(false);
       service.dragDisplayWidth.set(service.CLOSED_WIDTH + 1);
 
@@ -240,6 +456,7 @@ describe("SideNavService", () => {
     });
 
     it("becomes true once the preview passes the threshold, without opening the nav", () => {
+      createService();
       service.open.set(false);
       service.dragDisplayWidth.set(service.CLOSED_WIDTH + 6);
 
