@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
@@ -188,6 +189,141 @@ describe("VaultBatchBarService", () => {
     });
   });
 
+  describe("inTrash", () => {
+    it("reads the route filter when the config says nothing", () => {
+      filterSubject.next({ type: "trash" });
+
+      expect(service.inTrash()).toBe(true);
+    });
+
+    it("is false when neither the filter nor the config says trash", () => {
+      expect(service.inTrash()).toBe(false);
+    });
+
+    it("takes the config's answer over the filter's", () => {
+      service.setConfig(makeConfig({ inTrash: true }));
+
+      expect(service.inTrash()).toBe(true);
+    });
+
+    it("lets the config say a filtered-to-trash page is not trash", () => {
+      filterSubject.next({ type: "trash" });
+      service.setConfig(makeConfig({ inTrash: false }));
+
+      expect(service.inTrash()).toBe(false);
+    });
+
+    it("makes bulkDelete permanent when the config says trash", async () => {
+      service.setConfig(makeConfig({ inTrash: true }));
+      service.selection.select(makeCipherItem());
+      mockCipherAuthorizationService.canDeleteCipher$.mockReturnValue(of(true));
+      mockBulkDeleteDialogOpen.mockResolvedValue(BulkDeleteDialogResult.Canceled);
+
+      await service.bulkDelete();
+
+      expect(mockBulkDeleteDialogOpen).toHaveBeenCalledWith(
+        expect.objectContaining({ permanent: true }),
+      );
+    });
+  });
+
+  describe("registerSelection()", () => {
+    function sourceDouble(initial: VaultItem<CipherView>[] = []) {
+      const selected = signal<readonly VaultItem<CipherView>[]>(initial);
+      return {
+        selected: selected.asReadonly(),
+        clear: jest.fn(() => selected.set([])),
+        set: (items: VaultItem<CipherView>[]) => selected.set(items),
+      };
+    }
+
+    it("reads the registered source instead of the CDK model", () => {
+      const item = makeCipherItem();
+      const source = sourceDouble([item]);
+
+      service.registerSelection(source);
+
+      expect(service.selected()).toEqual([item]);
+      expect(service.selectedCount()).toBe(1);
+    });
+
+    it("ignores the CDK model entirely while a source is registered", () => {
+      const source = sourceDouble([]);
+      service.registerSelection(source);
+
+      service.selection.select(makeCipherItem());
+
+      expect(service.selected()).toEqual([]);
+    });
+
+    it("tracks the source reactively, so permission signals follow it", () => {
+      const source = sourceDouble([]);
+      service.registerSelection(source);
+      expect(service.canAddToFolder()).toBe(false);
+
+      source.set([makeCipherItem()]);
+
+      expect(service.selectedCount()).toBe(1);
+      expect(service.canAddToFolder()).toBe(true);
+    });
+
+    it("drives the async canDelete pipeline from the registered source", async () => {
+      const source = sourceDouble([]);
+      service.registerSelection(source);
+
+      mockCipherAuthorizationService.canDeleteCipher$.mockReturnValue(of(false));
+      source.set([makeCipherItem()]);
+      // The pipeline is async, so let the switchMap settle before asserting.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(service.canDelete()).toBe(false);
+
+      mockCipherAuthorizationService.canDeleteCipher$.mockReturnValue(of(true));
+      source.set([makeCipherItem({ id: "cipher-9" as unknown as CipherId })]);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(service.canDelete()).toBe(true);
+    });
+
+    it("clears the source rather than the CDK model", async () => {
+      const source = sourceDouble([makeCipherItem()]);
+      service.registerSelection(source);
+      mockDialogService.open.mockReturnValue({
+        closed: of(BulkMoveDialogResult.Moved),
+      } as any);
+
+      await service.bulkMoveToFolder();
+
+      expect(source.clear).toHaveBeenCalled();
+      expect(service.selectedCount()).toBe(0);
+    });
+
+    it("restores the CDK model when the source is deregistered", () => {
+      const item = makeCipherItem();
+      const source = sourceDouble([item]);
+
+      const teardown = service.registerSelection(source);
+      expect(service.selected()).toEqual([item]);
+
+      teardown();
+
+      expect(service.selected()).toEqual([]);
+      service.selection.select(item);
+      expect(service.selected()).toEqual([item]);
+    });
+
+    it("does not let a stale teardown retract a newer source", () => {
+      const first = sourceDouble([]);
+      const second = sourceDouble([makeCipherItem()]);
+
+      const teardownFirst = service.registerSelection(first);
+      service.registerSelection(second);
+      teardownFirst();
+
+      expect(service.selectedCount()).toBe(1);
+    });
+  });
+
   describe("selection identity", () => {
     it("recognises two VaultItem wrappers with the same cipher ID as the same selection", () => {
       const item1: VaultItem<CipherView> = { cipher: makeCipher() };
@@ -242,32 +378,30 @@ describe("VaultBatchBarService", () => {
   });
 
   describe("barVisible()", () => {
-    it("returns false when flag is off and nothing is selected", () => {
-      featureFlagSubject.next(false);
-
+    it("returns false when nothing is selected", () => {
       expect(service.barVisible()).toBe(false);
     });
 
-    it("returns false when flag is on but nothing is selected", () => {
-      featureFlagSubject.next(true);
-
-      expect(service.barVisible()).toBe(false);
-    });
-
-    it("returns true when flag is on and at least one item is selected", () => {
-      featureFlagSubject.next(true);
+    it("returns true when at least one item is selected", () => {
       service.selection.select(makeCipherItem());
+      featureFlagSubject.next(true);
 
       expect(service.barVisible()).toBe(true);
     });
 
     it("returns false after selection is cleared", () => {
-      featureFlagSubject.next(true);
       service.selection.select(makeCipherItem());
+      featureFlagSubject.next(true);
 
       expect(service.barVisible()).toBe(true);
-
       service.selection.clear();
+
+      expect(service.barVisible()).toBe(false);
+    });
+
+    it("respects the feature flag", () => {
+      featureFlagSubject.next(false);
+      service.selection.select(makeCipherItem());
 
       expect(service.barVisible()).toBe(false);
     });
@@ -1089,6 +1223,35 @@ describe("VaultBatchBarService", () => {
       await service.bulkAssignToCollections();
 
       expect(service.selectedCount()).toBe(1);
+    });
+
+    it("takes the active collection from the config when the route filter names none", async () => {
+      const collection = makeCollection();
+      service.setConfig(
+        makeConfig({ allCollections: [collection], activeCollectionId: collection.id }),
+      );
+      service.selection.select({ cipher: makeCipher() });
+      mockAssignCollectionsDialogOpen.mockResolvedValue(AssignCollectionsResult.Canceled);
+
+      await service.bulkAssignToCollections();
+
+      expect(mockAssignCollectionsDialogOpen).toHaveBeenCalledWith(
+        expect.objectContaining({ activeCollection: collection }),
+      );
+    });
+
+    it("falls back to the route filter's collection when the config names none", async () => {
+      const collection = makeCollection();
+      service.setConfig(makeConfig({ allCollections: [collection] }));
+      activeFilterSubject.next({ collectionId: collection.id });
+      service.selection.select({ cipher: makeCipher() });
+      mockAssignCollectionsDialogOpen.mockResolvedValue(AssignCollectionsResult.Canceled);
+
+      await service.bulkAssignToCollections();
+
+      expect(mockAssignCollectionsDialogOpen).toHaveBeenCalledWith(
+        expect.objectContaining({ activeCollection: collection }),
+      );
     });
   });
 

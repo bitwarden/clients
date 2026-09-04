@@ -1,5 +1,5 @@
 import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
-import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, signal } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
@@ -34,13 +34,16 @@ import {
   ButtonModule,
   DialogService,
   FilterControl,
+  SelectionConfig,
 } from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
+import { VaultBatchBarService, VaultSelectionSource } from "../../services/vault-batch-bar.service";
 import { MY_VAULT, NO_FOLDER } from "../../utils/vault-filter-predicates";
 
 import {
+  MAX_SELECTION_COUNT,
   VaultItemsTableColumn,
   VaultItemsTableComponent,
   VaultItemsTableFilters,
@@ -119,10 +122,30 @@ class BareToolbarHostComponent {
   readonly show = signal(true);
 }
 
+function batchBarDouble() {
+  const source = signal<VaultSelectionSource<CipherViewLike> | undefined>(undefined);
+  const selected = computed(() => source()?.selected() ?? []);
+  return {
+    source,
+    selected,
+    selectedCount: computed(() => selected().length),
+    barVisible: computed(() => selected().length > 0),
+    registerSelection: (next: VaultSelectionSource<CipherViewLike>) => {
+      source.set(next);
+      return () => {
+        if (source() === next) {
+          source.set(undefined);
+        }
+      };
+    },
+  };
+}
+
 describe("VaultItemsTableComponent", () => {
   let fixture: ComponentFixture<VaultItemsTableComponent<CipherViewLike>>;
   let component: VaultItemsTableComponent<CipherViewLike>;
   let searchService: DefaultSearchService;
+  let batchBar: ReturnType<typeof batchBarDouble>;
 
   // CDK's CdkVirtualScrollViewport.ngOnInit() defers initialization in a Promise.resolve().then(),
   // which never resolves during synchronous fixture.detectChanges() calls in JSDOM. Patch it to
@@ -140,6 +163,7 @@ describe("VaultItemsTableComponent", () => {
   });
 
   beforeEach(async () => {
+    batchBar = batchBarDouble();
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = of({ id: "user-1" } as Account);
 
@@ -179,6 +203,7 @@ describe("VaultItemsTableComponent", () => {
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
+        { provide: VaultBatchBarService, useValue: batchBar },
       ],
     }).compileComponents();
 
@@ -1500,5 +1525,345 @@ describe("VaultItemsTableComponent", () => {
     expect(host.classList).toContain("tw-flex-col");
     expect(host.classList).toContain("tw-flex-1");
     expect(host.classList).toContain("tw-min-h-0");
+  });
+
+  describe("batch bar selection source", () => {
+    function selectionModel() {
+      const model = bitTable().selectionModel();
+      if (!model) {
+        throw new Error("No selection model — the table should always configure selection");
+      }
+      return model;
+    }
+
+    function batchBarIds(): (string | undefined)[] {
+      return batchBar.selected().map((item) => item.cipher?.id as string | undefined);
+    }
+
+    it("registers a source once the view initializes", () => {
+      fixture.detectChanges();
+
+      expect(batchBar.source()).toBeDefined();
+    });
+
+    it("wraps a selected cipher as a VaultItem on the batch bar", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      fixture.componentRef.setInput("ciphers", [amazon]);
+      fixture.detectChanges();
+
+      selectionModel().select(amazon);
+      fixture.detectChanges();
+
+      expect(batchBar.selected()).toEqual([{ cipher: amazon }]);
+    });
+
+    it("propagates every selected row, so bulk actions see the whole selection", () => {
+      const rows = [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Apple ID" }),
+      ];
+      fixture.componentRef.setInput("ciphers", rows);
+      fixture.detectChanges();
+
+      selectionModel().select(...rows);
+      fixture.detectChanges();
+
+      expect(batchBarIds()).toEqual(["a", "b"]);
+    });
+
+    it("drops a deselected row rather than accumulating", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      const apple = cipherView({ id: "b", name: "Apple ID" });
+      fixture.componentRef.setInput("ciphers", [amazon, apple]);
+      fixture.detectChanges();
+
+      selectionModel().select(amazon, apple);
+      fixture.detectChanges();
+      selectionModel().deselect(amazon);
+      fixture.detectChanges();
+
+      expect(batchBarIds()).toEqual(["b"]);
+    });
+
+    it("empties the batch bar when the table's selection is cleared", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      fixture.componentRef.setInput("ciphers", [amazon]);
+      fixture.detectChanges();
+
+      selectionModel().select(amazon);
+      fixture.detectChanges();
+      selectionModel().clear();
+      fixture.detectChanges();
+
+      expect(batchBar.selected()).toEqual([]);
+    });
+
+    it("clears the table's checkboxes when the batch bar clears the source", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      fixture.componentRef.setInput("ciphers", [amazon]);
+      fixture.detectChanges();
+
+      selectionModel().select(amazon);
+      fixture.detectChanges();
+      expect(selectionModel().count()).toBe(1);
+
+      batchBar.source()!.clear();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(0);
+      expect(batchBar.selected()).toEqual([]);
+    });
+
+    it("keeps the batch bar in agreement after rows are re-emitted", () => {
+      fixture.componentRef.setInput("ciphers", [cipherView({ id: "a", name: "Amazon" })]);
+      fixture.detectChanges();
+
+      selectionModel().select(bitTable().filtered()[0]);
+      fixture.detectChanges();
+      expect(batchBarIds()).toEqual(["a"]);
+
+      // A fresh decrypt of the same cipher — a new reference carrying the same id.
+      fixture.componentRef.setInput("ciphers", [cipherView({ id: "a", name: "Amazon" })]);
+      fixture.detectChanges();
+
+      const selectedRows = selectionModel().selected();
+      expect(batchBar.selected()).toEqual(selectedRows.map((cipher) => ({ cipher })));
+      expect(batchBarIds()).toEqual(["a"]);
+    });
+
+    it("re-points the selection at the new row objects when rows are re-emitted", () => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Apple ID" }),
+      ]);
+      fixture.detectChanges();
+
+      selectionModel().select(bitTable().filtered()[0]);
+      fixture.detectChanges();
+
+      // A background sync hands the table all-new references for the same ciphers.
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Apple ID" }),
+      ]);
+      fixture.detectChanges();
+
+      // Without reconciliation the selection holds detached objects: the checkbox reads unchecked
+      // while the bar still reports the row.
+      const row = bitTable().filtered()[0];
+      expect(selectionModel().isSelected(row)).toBe(true);
+      expect(batchBarIds()).toEqual(["a"]);
+    });
+
+    it("drops a selected row that is gone after a re-emit", () => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Apple ID" }),
+      ]);
+      fixture.detectChanges();
+
+      selectionModel().select(...bitTable().filtered());
+      fixture.detectChanges();
+      expect(batchBarIds()).toEqual(["a", "b"]);
+
+      // "Amazon" was deleted elsewhere, so the sync re-emits without it.
+      fixture.componentRef.setInput("ciphers", [cipherView({ id: "b", name: "Apple ID" })]);
+      fixture.detectChanges();
+
+      expect(batchBarIds()).toEqual(["b"]);
+    });
+
+    it("does not clear a new selection on subsequent renders", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      fixture.componentRef.setInput("ciphers", [amazon]);
+      fixture.detectChanges();
+
+      selectionModel().select(amazon);
+      fixture.detectChanges();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(1);
+      expect(batchBarIds()).toEqual(["a"]);
+    });
+
+    it("selects only the rows surviving the active filter when select-all is used", () => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon", type: CipherType.Login }),
+        cipherView({ id: "b", name: "Visa", type: CipherType.Card }),
+      ]);
+      fixture.detectChanges();
+
+      filterControl("type").setValue(CipherType.Card);
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      expect(batchBarIds()).toEqual(["b"]);
+    });
+
+    it("caps the selection itself at MAX_SELECTION_COUNT", () => {
+      const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
+        cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
+      );
+      fixture.componentRef.setInput("ciphers", many);
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(MAX_SELECTION_COUNT);
+      expect(batchBar.selected().length).toBe(MAX_SELECTION_COUNT);
+    });
+
+    it("reports a partial header when the cap stops select-all short", () => {
+      const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
+        cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
+      );
+      fixture.componentRef.setInput("ciphers", many);
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      expect(selectionModel().allSelected()).toBe(false);
+      expect(selectionModel().indeterminate()).toBe(true);
+    });
+
+    it("clears from the partial header at the cap", () => {
+      const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
+        cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
+      );
+      fixture.componentRef.setInput("ciphers", many);
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(0);
+    });
+
+    it("caps in display order when the sort is reversed", () => {
+      const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
+        cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
+      );
+      fixture.componentRef.setInput("ciphers", many);
+      fixture.detectChanges();
+
+      bitTable().sort.set({ column: "name", direction: "desc" });
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      const expected = [...many]
+        .sort((a, b) => b.name.localeCompare(a.name))
+        .slice(0, MAX_SELECTION_COUNT)
+        .map((cipher) => cipher.id);
+      expect(
+        selectionModel()
+          .selected()
+          .map((cipher) => cipher.id)
+          .sort(),
+      ).toEqual(expected.sort());
+    });
+
+    it("clears a capped select-all on the next toggle", () => {
+      const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
+        cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
+      );
+      fixture.componentRef.setInput("ciphers", many);
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(0);
+      expect(batchBar.selected().length).toBe(0);
+    });
+
+    it("disables unselected row checkboxes once the selection is full", () => {
+      // A cap small enough that a rejected row lands inside the virtual-scroll window.
+      (component as unknown as { selection: SelectionConfig<CipherViewLike> }).selection = {
+        multiple: true,
+        max: 2,
+      };
+      fixture.componentRef.setInput(
+        "ciphers",
+        Array.from({ length: 4 }, (_, i) => cipherView({ id: `cipher-${i}`, name: `Item ${i}` })),
+      );
+      fixture.detectChanges();
+
+      const boxes = () =>
+        fixture.debugElement
+          .queryAll(By.css("input[data-selection-input]"))
+          .map((d) => d.nativeElement as HTMLInputElement);
+
+      boxes()[0].click();
+      fixture.detectChanges();
+      boxes()[1].click();
+      fixture.detectChanges();
+      expect(selectionModel().count()).toBe(2);
+
+      expect(boxes()[2].disabled).toBe(true);
+      expect(boxes()[3].disabled).toBe(true);
+      expect(boxes()[0].disabled).toBe(false);
+      expect(boxes()[1].disabled).toBe(false);
+
+      boxes()[0].click();
+      fixture.detectChanges();
+      expect(boxes()[2].disabled).toBe(false);
+    });
+
+    it("omits the header select-all in single-select mode", () => {
+      (component as unknown as { selection: SelectionConfig<CipherViewLike> }).selection = {
+        multiple: false,
+      };
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Apple ID" }),
+      ]);
+      fixture.detectChanges();
+
+      const all = fixture.debugElement.queryAll(By.css("input[type=checkbox]"));
+      const rowBoxes = fixture.debugElement.queryAll(By.css("input[data-selection-input]"));
+
+      expect(rowBoxes.length).toBe(2);
+      expect(all.length).toBe(rowBoxes.length);
+    });
+
+    it("holds a bottom margin only while the bar is showing", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      fixture.componentRef.setInput("ciphers", [amazon]);
+      fixture.detectChanges();
+
+      const host = () => fixture.nativeElement as HTMLElement;
+
+      expect(host().style.marginBottom).toBe("0px");
+
+      selectionModel().select(amazon);
+      fixture.detectChanges();
+
+      // Assert space is held rather than the figure, which BULK_BAR_CLEARANCE is free to tune.
+      expect(parseInt(host().style.marginBottom, 10)).toBeGreaterThan(0);
+
+      selectionModel().clear();
+      fixture.detectChanges();
+
+      expect(host().style.marginBottom).toBe("0px");
+    });
+
+    it("deregisters its source when the table is destroyed", () => {
+      fixture.detectChanges();
+      expect(batchBar.source()).toBeDefined();
+
+      fixture.destroy();
+
+      expect(batchBar.source()).toBeUndefined();
+    });
   });
 });

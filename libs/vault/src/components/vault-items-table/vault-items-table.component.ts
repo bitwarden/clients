@@ -3,10 +3,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   input,
   output,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -54,11 +56,13 @@ import {
   SortFn,
   StatusLockupComponent,
   SvgComponent,
+  TableSelectionModel,
   TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { orgIconTile, personalIconTile } from "../../models/vault-icon-tile";
+import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
 import {
   idString,
   matchesFavorite,
@@ -69,6 +73,7 @@ import {
   MY_VAULT,
   NO_FOLDER,
 } from "../../utils/vault-filter-predicates";
+import { VaultItem } from "../vault-item";
 
 import { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
 import {
@@ -80,6 +85,18 @@ import { cipherSearchMatches } from "./vault-items-table-search";
 
 /** The `queryParam` namespace shared by every filter chip in the vault table. */
 export const VAULT_FILTER_NAMESPACE = "vault";
+
+/**
+ * Upper bound on selected rows, matching the legacy `vault-items.component` cap. Applied to the
+ * selection itself, since capping a downstream view lets a bulk delete silently skip checked rows.
+ */
+export const MAX_SELECTION_COUNT = 500;
+
+/**
+ * Bottom margin (px) held while the bulk-actions bar shows — its height (53). The bar is
+ * `position: fixed`, so without this the last row sits underneath it and is unreachable.
+ */
+const BULK_BAR_CLEARANCE = 53;
 
 /**
  * The `key` values for each filter chip in the vault table.
@@ -182,6 +199,10 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
  *
  * Project page-level buttons into the toolbar with `slot="toolbar"`.
  *
+ * Selection is always on. Hosts wanting bulk actions provide `VaultBatchBarService` and render
+ * `<bit-vault-batch-action>`; the table registers its selection as that service's source (see
+ * {@link registerSelection}). Without the service it is a plain selectable list.
+ *
  * @typeParam C - The cipher shape, either `CipherView` or the lighter `CipherListView`.
  *
  * @example
@@ -196,6 +217,7 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
  * >
  *   <button slot="toolbar" bitButton buttonType="primary" type="button">Add</button>
  * </vault-items-table>
+ * <bit-vault-batch-action />
  * ```
  */
 @Component({
@@ -204,6 +226,7 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: "tw-flex tw-flex-col tw-flex-1 tw-min-h-0",
+    "[style.marginBottom.px]": "bulkBarClearance()",
   },
   imports: [
     BitCellComponent,
@@ -235,9 +258,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   private readonly avatarService = inject(AvatarService);
 
   /**
-   * The active user's avatar color, so the "My vault" tile matches their avatar and the side nav's
-   * personal entry. Resolved here rather than taken as an input so every client's table stays in
-   * sync with the avatar without each host plumbing it through.
+   * The active user's avatar color, so the "My vault" tile matches their avatar and the side nav.
+   * Resolved here rather than as an input so no host has to plumb it through.
    */
   private readonly userAvatarColor = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -251,8 +273,21 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     ),
   );
 
+  /**
+   * The batch bar, which the table registers its selection with in {@link registerSelection}.
+   * Optional — without it the table is a plain selectable list.
+   */
+  private readonly batchBarService = inject<VaultBatchBarService<C>>(VaultBatchBarService, {
+    optional: true,
+  });
+
   protected readonly filterNamespace = VAULT_FILTER_NAMESPACE;
   protected readonly filterKeys = VAULT_FILTER_KEYS;
+
+  /** Bottom margin held while the bulk-actions bar is up. */
+  protected readonly bulkBarClearance = computed(() =>
+    (this.batchBarService?.selectedCount() ?? 0) > 0 ? BULK_BAR_CLEARANCE : 0,
+  );
 
   /** The rows to display. */
   readonly ciphers = input.required<C[]>();
@@ -328,11 +363,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   ].join(",");
 
   /**
-   * Makes a whole data cell a click target for {@link itemAction}, so the row reads as one target
-   * rather than just the name text.
-   *
-   * This is a pointer-only affordance. The keyboard and assistive-tech path stays the name button,
-   * which is the row's single labelled control; nothing here is added to the accessibility tree.
+   * Makes a whole data cell a click target for {@link itemAction}. Pointer-only — the keyboard and
+   * assistive-tech path stays the name button, and nothing here enters the accessibility tree.
    */
   protected onCellActivate(row: C, event: MouseEvent) {
     const action = this.itemAction();
@@ -374,7 +406,10 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * Must stay a stable reference — `bit-table-v2` rebuilds its selection model whenever this
    * changes, so an inline object literal in the template would reset the selection constantly.
    */
-  protected readonly selection: SelectionConfig<C> = { multiple: true };
+  protected readonly selection: SelectionConfig<C> = {
+    multiple: true,
+    max: MAX_SELECTION_COUNT,
+  };
 
   /** The configured column set to display */
   protected readonly displayedColumns = signal<VaultItemsTableColumn[]>([...VAULT_COLUMNS]);
@@ -627,11 +662,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   }
 
   /**
-   * The owning vault's icon tile, matching the color and icon the side nav gives that same vault:
-   * the user's avatar color for their own vault, the tier's color for an organization.
-   *
-   * An organization missing from {@link organizations} has no tier to key off, so it falls back to
-   * the generic business tile rather than guessing a color.
+   * The owning vault's icon tile, matching the side nav. An organization missing from
+   * {@link organizations} has no tier to key off, so it falls back to the generic business tile.
    */
   protected vaultIconTile(cipher: C): IconTileOptions {
     const organizationId = idString(cipher.organizationId);
@@ -731,17 +763,70 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * {@link SEARCH_FILTER_KEY}. A view query rather than the predicate's `values`, because a
    * memoized search result has to be computed outside the per-row call.
    */
-  private readonly tableComponent = viewChild(BitTableV2Component);
-
-  /** Clear the table's internal row selection (called when the batch bar "Clear" fires). */
-  clearSelection(): void {
-    this.tableComponent()?.selectionModel()?.clear();
-  }
+  private readonly tableComponent = viewChild(BitTableV2Component<C>);
 
   /**
-   * The live search term. Cast because a view query erases the table's generics, so its
-   * `filterValues()` comes back as an untyped record.
+   * Registers the table's `TableSelectionModel<C>` as the batch bar's selection source, so checking
+   * rows drives its `can*` signals. Deferred to an effect: `selectionModel()` is a view query.
    */
+  private readonly registerSelection = effect((onCleanup) => {
+    const model = this.tableComponent()?.selectionModel();
+    if (model == null) {
+      return;
+    }
+
+    const batchBar = this.batchBarService;
+    if (batchBar == null) {
+      return;
+    }
+
+    const teardown = batchBar.registerSelection({
+      selected: computed(() => model.selected().map((cipher): VaultItem<C> => ({ cipher }))),
+      clear: () => model.clear(),
+    });
+
+    // The service is provided above this table, so without this its selection would outlive the
+    // component that owns it.
+    onCleanup(teardown);
+  });
+
+  /** Carries the selection onto each new set of rows — see {@link reconcileSelection}. */
+  private readonly keepSelectionOnRows = effect(() => {
+    const rows = this.sortedCiphers();
+    const model = this.tableComponent()?.selectionModel();
+    if (model == null) {
+      return;
+    }
+    untracked(() => this.reconcileSelection(model, rows));
+  });
+
+  /**
+   * Re-points the selection at the current rows, by cipher id.
+   *
+   * The selection holds row *objects*, and `bit-table-v2` rebuilds its model only when the selection
+   * config's identity changes — never when the data does. But `cipherListViews$` rebuilds every view
+   * on each emission, so any sync or edit hands us fresh objects for the same ciphers.
+   *
+   * Matched on id rather than cleared outright, so a background sync doesn't cost an in-progress
+   * selection. A cipher that's gone from the rows drops out of it.
+   */
+  private reconcileSelection(model: TableSelectionModel<C>, rows: readonly C[]): void {
+    const selected = model.selected();
+    if (selected.length === 0) {
+      return;
+    }
+
+    const ids = new Set(selected.map((cipher) => String(cipher.id)));
+    const current = rows.filter((row) => ids.has(String(row.id)));
+
+    if (current.length === selected.length && current.every((row) => selected.includes(row))) {
+      return;
+    }
+
+    model.clear();
+    model.select(...current);
+  }
+
   private readonly searchTerm = computed(
     () =>
       (this.tableComponent()?.filterValues() as VaultItemsTableFilters | undefined)?.search ?? "",

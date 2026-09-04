@@ -2,7 +2,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, convertToParamMap, Data, ParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of, Subject } from "rxjs";
+import { BehaviorSubject, Observable, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -34,6 +34,7 @@ import {
   VaultCopyButtonsService,
   VaultNavItemType,
   VaultNavItemViewModel,
+  VaultBatchBarService,
   VaultNavService,
   VaultsNavViewModel,
   Vfo1I18nPipe,
@@ -56,6 +57,13 @@ describe("VaultNextComponent", () => {
 
   let fixture: ComponentFixture<VaultNextComponent>;
   let itemActions: MockProxy<WebVaultItemActionsService>;
+  let batchBarService: {
+    setConfig: jest.Mock;
+    clearSelection: jest.Mock;
+    completed$: Observable<void>;
+    barVisible: () => boolean;
+  };
+  let configService: MockProxy<ConfigService>;
   let cipherRowMenuService: MockProxy<CipherRowMenuService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
   let addItemDialogOpen: jest.SpyInstance;
@@ -135,11 +143,6 @@ describe("VaultNextComponent", () => {
     return folder;
   };
 
-  /**
-   * The child components are stripped from the harness (see `overrideComponent` below) so this suite
-   * stays small, which means assertions read the signals the template binds rather than the
-   * rendered table. The bindings themselves are covered by the Angular template type-check.
-   */
   const component = () => fixture.componentInstance as any;
 
   /** The row menu handlers the component hands `CipherRowMenuService`. */
@@ -167,6 +170,14 @@ describe("VaultNextComponent", () => {
     });
 
     itemActions = mock<WebVaultItemActionsService>();
+    batchBarService = {
+      setConfig: jest.fn(),
+      clearSelection: jest.fn(),
+      completed$: new Subject<void>(),
+      barVisible: () => false,
+    };
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     cipherRowMenuService = mock<CipherRowMenuService>();
     cipherRowMenuService.getRowActions.mockReturnValue([]);
@@ -223,14 +234,9 @@ describe("VaultNextComponent", () => {
         { provide: PolicyService, useValue: policyService },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
         { provide: VaultCopyButtonsService, useValue: copyButtonsService },
+        // `viewModel$` takes a userId and returns the stream, so the double is a function.
         { provide: VaultNavService, useValue: { viewModel$: () => vaultNav$ } },
-        {
-          provide: ConfigService,
-          useValue: {
-            ...mock<ConfigService>(),
-            getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
-          },
-        },
+        { provide: ConfigService, useValue: configService },
       ],
     })
       .overrideComponent(VaultNextComponent, {
@@ -242,7 +248,10 @@ describe("VaultNextComponent", () => {
           // unresolved pipe.
           imports: [I18nPipe, Vfo1I18nPipe],
           schemas: [NO_ERRORS_SCHEMA],
-          providers: [{ provide: WebVaultItemActionsService, useValue: itemActions }],
+          providers: [
+            { provide: WebVaultItemActionsService, useValue: itemActions },
+            { provide: VaultBatchBarService, useValue: batchBarService },
+          ],
         },
       })
       .compileComponents();
@@ -680,6 +689,98 @@ describe("VaultNextComponent", () => {
       await component().openAddItemDialog();
 
       expect(itemActions.add).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("bulk actions", () => {
+    it("feeds the batch bar the vault context", () => {
+      fixture.detectChanges();
+
+      expect(batchBarService.setConfig).toHaveBeenCalledWith(
+        expect.objectContaining({ isOrgVault: false }),
+      );
+    });
+
+    it("reports whether the page has ciphers, which gates assign-to-collections", () => {
+      fixture.detectChanges();
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.hasCiphers).toBe(component().ciphers().length > 0);
+    });
+
+    it("tells the batch bar when the page is scoped to the trash", () => {
+      scopeTo(TRASH_ROUTE);
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.inTrash).toBe(true);
+    });
+
+    it("reports not-trash for every other scope", () => {
+      scopeTo(MY_VAULT_ROUTE);
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.inTrash).toBe(false);
+    });
+
+    it("tells the batch bar which shared folder the page has drilled into", () => {
+      collections$.next([buildCollection(engineeringId, organizationId)]);
+      scopeTo(organizationId, engineeringId);
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.activeCollectionId).toBe(engineeringId);
+    });
+
+    it("names no shared folder when the page is scoped to a whole vault", () => {
+      collections$.next([buildCollection(engineeringId, organizationId)]);
+      scopeTo(organizationId);
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.activeCollectionId).toBeUndefined();
+    });
+
+    it("names no shared folder while the sentinel is still unresolved", () => {
+      collections$.next([buildCollection(engineeringId, organizationId)]);
+      // The nav hasn't loaded, so `resolveVaultScope` leaves the sentinel in place.
+      vaultNav$.next(undefined as unknown as VaultsNavViewModel);
+      scopeTo(organizationId, MY_ITEMS_ROUTE);
+
+      expect(component().vaultScope()).toEqual({
+        type: "organization",
+        organizationId,
+        collectionId: MY_ITEMS_ROUTE,
+      });
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.activeCollectionId).toBeUndefined();
+    });
+
+    it("clears the selection when the side nav scopes the page elsewhere", () => {
+      scopeTo(MY_VAULT_ROUTE);
+      batchBarService.clearSelection.mockClear();
+
+      scopeTo(TRASH_ROUTE);
+
+      expect(batchBarService.clearSelection).toHaveBeenCalled();
+    });
+
+    it("does not clear on the page's initial render", () => {
+      expect(batchBarService.clearSelection).not.toHaveBeenCalled();
+    });
+
+    it("does not clear when the same scope re-emits", () => {
+      scopeTo(TRASH_ROUTE);
+      batchBarService.clearSelection.mockClear();
+
+      scopeTo(TRASH_ROUTE);
+
+      expect(batchBarService.clearSelection).not.toHaveBeenCalled();
+    });
+
+    it("passes the unscoped collections", () => {
+      fixture.detectChanges();
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.allCollections).toEqual(component().collections());
     });
   });
 });

@@ -1298,9 +1298,8 @@ async function filterSurface() {
 }
 
 /**
- * Opens the Collections filter, whichever surface the viewport is showing: the chip's popover above
- * `md`, or the collapsed trigger's dialog drilled into Collections below it. Lets one story snapshot
- * both surfaces across viewports.
+ * Opens the Collections filter on whichever surface the viewport shows — the chip's popover above
+ * `md`, the collapsed trigger's dialog below — so one story snapshots both.
  */
 async function openCollectionsFilter(canvasElement: HTMLElement): Promise<void> {
   // Above `md` the chip is on screen; below it the row collapses to one icon trigger. The hidden
@@ -1486,6 +1485,32 @@ export const SelectableSubset: Story = {
         table,
         selection: { multiple: true, canSelect: (row: DemoRow) => row.id % 2 === 0 },
       },
+      template: `
+        <bit-table-v2 [tableDef]="table" [selection]="selection">
+          <bit-column>
+            <bit-header-cell>Id</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+          </bit-column>
+          <bit-column>
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+          </bit-column>
+          <bit-column>
+            <bit-header-cell>Other</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
+          </bit-column>
+        </bit-table-v2>
+      `,
+    };
+  },
+};
+
+/** `max` bounds the selection — capped to 3 of 5 rows here. See the docs page. */
+export const SelectableCapped: Story = {
+  render: () => {
+    const table = defineTable<DemoRow>(basicData);
+    return {
+      props: { table, selection: { multiple: true, max: 3 } },
       template: `
         <bit-table-v2 [tableDef]="table" [selection]="selection">
           <bit-column>
