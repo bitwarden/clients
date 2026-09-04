@@ -923,14 +923,24 @@ describe("VaultItemsTableComponent", () => {
       );
     });
 
+    /** Puts the fixture in the table first, so this reads the memoized lists rather than the fallback. */
+    function chipsFor(cipher: CipherView) {
+      fixture.componentRef.setInput("ciphers", [cipher]);
+      fixture.detectChanges();
+      return {
+        sharedFolders: component["sharedFolderChips"](cipher),
+        folders: component["folderChips"](cipher),
+      };
+    }
+
     it("resolves shared folder chips and drops unknown ids", () => {
       const cipher = cipherView({
         organizationId: "org-1" as never,
         collectionIds: ["col-2", "col-unknown"] as never,
       });
 
-      expect(component["sharedFolderChips"](cipher)).toEqual([
-        { value: "col-2", name: "Engineering" },
+      expect(chipsFor(cipher).sharedFolders).toEqual([
+        { id: "col-2", label: "Engineering", variant: "subtle", startIcon: "bwi-shared-folder" },
       ]);
     });
 
@@ -941,17 +951,17 @@ describe("VaultItemsTableComponent", () => {
         collectionIds: ["col-1", "col-2"] as never,
       });
 
-      expect(component["sharedFolderChips"](cipher)).toEqual([
-        { value: "col-2", name: "Engineering" },
-        { value: "col-1", name: "Operations" },
+      expect(chipsFor(cipher).sharedFolders.map((chip) => chip.label)).toEqual([
+        "Engineering",
+        "Operations",
       ]);
     });
 
     it("resolves the folder as a single-entry chip list", () => {
-      expect(component["folderChips"](cipherView({ folderId: "folder-1" as never }))).toEqual([
-        { value: "folder-1", name: "Work" },
+      expect(chipsFor(cipherView({ folderId: "folder-1" as never })).folders).toEqual([
+        { id: "folder-1", label: "Work", variant: "subtle", startIcon: "bwi-folder" },
       ]);
-      expect(component["folderChips"](cipherView({ folderId: undefined }))).toEqual([]);
+      expect(chipsFor(cipherView({ folderId: undefined })).folders).toEqual([]);
     });
   });
 
@@ -970,8 +980,8 @@ describe("VaultItemsTableComponent", () => {
     /** A rendered membership chip, found by the name it displays. */
     function chipButton(name: string) {
       const chip = fixture.debugElement
-        .queryAll(By.css("button[bit-chip-action]"))
-        .find((candidate) => candidate.nativeElement.getAttribute("title") === name);
+        .queryAll(By.css("bit-chip-group button[bit-chip-action]"))
+        .find((candidate) => candidate.nativeElement.textContent.trim() === name);
       if (!chip) {
         throw new Error(`No membership chip rendered for "${name}"`);
       }
@@ -1017,7 +1027,7 @@ describe("VaultItemsTableComponent", () => {
       fixture.detectChanges();
 
       filterControl("sharedFolder").setValue(["col-1"]);
-      component["filterTo"](bitTable(), "sharedFolder", "col-2");
+      component["filterTo"](bitTable(), "sharedFolder", { id: "col-2", label: "Engineering" });
 
       expect(filterControl("sharedFolder").value()).toEqual(["col-2"]);
     });
@@ -1028,22 +1038,31 @@ describe("VaultItemsTableComponent", () => {
 
       filterControl("search").setValue("amazon");
       filterControl("type").setValue(CipherType.Login);
-      component["filterTo"](bitTable(), "folder", "folder-1");
+      component["filterTo"](bitTable(), "folder", { id: "folder-1", label: "Work" });
 
       expect(filterControl("search").value()).toBe("amazon");
       expect(filterControl("type").value()).toBe(CipherType.Login);
     });
 
-    it("names the chip after the action, not just the membership", () => {
+    /**
+     * A chip announces only its own membership name, so the group carries the column's name to
+     * say what the collection of them is.
+     */
+    it("names the chip group after its column", () => {
       fixture.componentRef.setInput("ciphers", [
         cipherView({
           organizationId: "org-1" as never,
           collectionIds: ["col-2"] as never,
+          folderId: "folder-1" as never,
         }),
       ]);
       fixture.detectChanges();
 
-      expect(chipButton("Engineering").getAttribute("aria-label")).toBe("filterByName");
+      const groups = fixture.debugElement
+        .queryAll(By.css("bit-chip-group [role='group']"))
+        .map((group) => group.nativeElement.getAttribute("aria-label"));
+
+      expect(groups).toEqual(["sharedFolders", "myFolders"]);
     });
   });
 
