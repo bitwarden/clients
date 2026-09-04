@@ -12,6 +12,7 @@ export {
   sharedFolderPermission,
   sharedFolderRows,
 } from "./shared-folder-rows";
+export { SharedFoldersBreadcrumbsComponent } from "./shared-folders-breadcrumbs.component";
 export {
   SHARED_FOLDERS_COLUMNS,
   type SharedFoldersTableColumn,

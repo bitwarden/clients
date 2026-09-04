@@ -2,17 +2,36 @@
   "bitwarden": {
     "message": "Bitwarden"
   },
+  "bitwardenBeta": {
+    "message": "Bitwarden Beta",
+    "description": "Product name for the beta channel; shown in the tray tooltip and About dialog"
+  },
   "filters": {
     "message": "Filtreler"
   },
   "allItems": {
     "message": "Tüm kayıtlar"
   },
+  "allVaultItems": {
+    "message": "Tüm kasa kayıtları"
+  },
+  "myItemsV2": {
+    "message": "My items"
+  },
+  "vaults": {
+    "message": "Kasalar"
+  },
+  "tools": {
+    "message": "Araçlar"
+  },
+  "manage": {
+    "message": "Yönet"
+  },
   "favorites": {
     "message": "Favoriler"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Kayıtları burada filtrelemek için favori olarak işaretleyin."
   },
   "unfavorite": {
     "message": "Favorilerden kaldır"
@@ -113,6 +132,48 @@
   "sharedFolders": {
     "message": "Paylaşılan klasörler"
   },
+  "sharedFoldersInParent": {
+    "message": "$NAME$ içindeki paylaşılan klasörler",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ paylaşılan klasör",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ paylaşılan klasör",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "Bu düğmenin üzerinde $COUNT$ paylaşılan klasör daha gösteriliyor",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "Bu düğmenin üzerinde 1 paylaşılan klasör daha gösteriliyor",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "Klasörüm"
   },
@@ -120,7 +181,10 @@
     "message": "Klasörlerim"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Burada filtrelemek için kayıtlara klasörler ekleyin."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Burada filtrelemek için kayıtları paylaşılan bir klasöre ekleyin."
   },
   "addSharedFolder": {
     "message": "Paylaşılan klasör ekle"
@@ -129,13 +193,13 @@
     "message": "Yeni paylaşılan klasör"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "Paylaşılan klasörde ara"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "Klasörlerimde ara"
   },
   "viewSharedFolderWithName": {
-    "message": "View shared folder - $NAME$",
+    "message": "Paylaşılan klasörü görüntüle - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -144,10 +208,10 @@
     }
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "Paylaşılan klasörü sil"
   },
   "deleteSharedFoldersCount": {
-    "message": "Delete $COUNT$ shared folders",
+    "message": "$COUNT$ paylaşılan klasörü sil",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -156,19 +220,19 @@
     }
   },
   "deleteSharedFolderKeepItemsDesc": {
-    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+    "message": "Bu paylaşılan klasör kalıcı olarak silinecek. Klasördeki kayıtlar silinmeyecek."
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Bu paylaşılan klasörler kalıcı olarak silinecek. Klasörlerdeki kayıtlar silinmeyecektir."
   },
   "deleteItemsAndSharedFoldersDesc": {
-    "message": "The selected items and shared folders will be permanently deleted."
+    "message": "Seçilen kayıtlar ve paylaşılan klasörler kalıcı olarak silinecek."
   },
   "sharedFolderDeleted": {
-    "message": "Shared folder deleted"
+    "message": "Paylaşılan klasör silindi"
   },
   "sharedFoldersDeleted": {
-    "message": "Shared folders deleted"
+    "message": "Paylaşılan klasörler silindi"
   },
   "share": {
     "message": "Paylaş"
@@ -526,7 +590,7 @@
     "message": "Aç"
   },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Web sitesini aç"
   },
   "copyValue": {
     "message": "Değeri kopyala",
@@ -1172,6 +1236,24 @@
   "editFolder": {
     "message": "Klasörü düzenle"
   },
+  "editFolderNamed": {
+    "message": "$NAME$ klasörünü düzenle",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "$NAME$ klasörünü sil",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "regeneratePassword": {
     "message": "Yeni parola oluştur"
   },
@@ -1355,11 +1437,41 @@
   "addedFolder": {
     "message": "Klasör eklendi"
   },
+  "folderEdited": {
+    "message": "Klasör düzenlendi"
+  },
+  "enterAName": {
+    "message": "Bir isim girin."
+  },
   "deleteFolderConfirmation": {
     "message": "Bu klasörü silmek istediğinize emin misiniz?"
   },
   "deletedFolder": {
     "message": "Klasör silindi"
+  },
+  "foldersDeleted": {
+    "message": "Klasörler silindi"
+  },
+  "deleteFoldersCount": {
+    "message": "$COUNT$ klasörü sil",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "$NAME$ klasörünü sildiğinizde, uygulandığı tüm kayıtlardan kaldırılacaktır. Kayıtların kendisi silinmeyecektir.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "Bu klasörleri sildiğinizde, uygulandıkları her kayıttan kaldırılacaklar. Kayıtların kendisi silinmeyecektir."
   },
   "loginOrCreateNewAccount": {
     "message": "Güvenli kasanıza ulaşmak için giriş yapın veya yeni bir hesap oluşturun."
@@ -2002,10 +2114,10 @@
     "message": "Web sitesi simgelerini göster ve parola değiştirme URL'lerini al"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "Kasada hızlı kopyalama komutlarını göster"
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Kopyalanacak bilgi yok"
   },
   "runInBackground": {
     "message": "Bitwarden'ı arka planda çalıştırmaya devam et"
@@ -2104,19 +2216,19 @@
     "message": "Doğrulama kodunu kopyala"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Kullanıcı adı yok"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Parola yok"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Doğrulama kodu yok"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Numara yok"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Güvenlik kodu yok"
   },
   "copyUsername": {
     "message": "Kullanıcı adını kopyala"
@@ -2301,20 +2413,32 @@
     }
   },
   "noMatchingItems": {
-    "message": "No matching items"
+    "message": "Eşleşen kayıt yok"
+  },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
   },
   "selected": {
     "message": "Seçildi"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "seçili",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "Toplu işlemler"
   },
   "bulkActionsBarAnnouncement": {
-    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "message": "$COUNT$ kayıt seçildi. Toplu işlem çubuğu artık ekranın alt kısmında görüntüleniyor. Odağı toplu işlem çubuğuna kaydırmak için $SHORTCUTBINDING$ tuşuna basın.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2544,7 +2668,7 @@
     "message": "1 veya daha fazla kuruluş tarafından belirlenen bir ilke, kasalarınıza kart aktarmanızı engelliyor."
   },
   "filePasswordConfirmationMismatch": {
-    "message": "“File password” and “Confirm file password” do not match."
+    "message": "“Dosya parolası” ile “Dosya parolasını onaylayın” eşleşmiyor."
   },
   "warning": {
     "message": "UYARI",
@@ -2554,7 +2678,7 @@
     "message": "Kasayı dışa aktarmayı onaylayın"
   },
   "exportUnencryptedWarningDesc": {
-    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "Dışa aktarılan dosyadaki verileriniz şifrelenmemiş olacak. Bu dosyayı güvensiz yöntemlerle (örn. e-posta) göndermemeli ve saklamamalısınız. İşiniz bittikten sonra dosyayı hemen silin."
   },
   "encExportKeyWarningDesc": {
     "message": "Dışa aktardığınız bu dosyadaki verileriniz, hesabınızın şifreleme anahtarıyla şifrelenir. Hesabınızın şifreleme anahtarını değiştirirseniz bu dosyanın şifresi çözülemez hale gelir, dolayısıyla dosyayı yeniden dışa aktarmanız gerekir."
@@ -2651,7 +2775,7 @@
     "message": "Hesabınızı silmek kalıcıdır. Geri alınamaz."
   },
   "deleteAccountOrganizationOwnerWarning": {
-    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+    "message": "En az bir kuruluşun sahibisiniz. Hesabınızı sildiğinizde tek sahibi olduğunuz kuruluşlar da silinir."
   },
   "cannotDeleteAccountOrganizationOwnerDesc": {
     "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
@@ -2768,37 +2892,37 @@
     "message": "Arşivlenmiş kayıt geri getirildi"
   },
   "archivedItemsRestored": {
-    "message": "Archived items restored"
+    "message": "Arşivlenmiş kayıtlar geri getirildi"
   },
   "restoredItem": {
     "message": "Kayıt geri yüklendi"
   },
   "restoredItems": {
-    "message": "Items restored"
+    "message": "Kayıtlar geri yüklendi"
   },
   "permanentlyDelete": {
     "message": "Kalıcı olarak sil"
   },
   "permanentlyDeletedItems": {
-    "message": "Items permanently deleted"
+    "message": "Kayıtlar kalıcı olarak silindi"
   },
   "deletedItems": {
-    "message": "Items sent to trash"
+    "message": "Kayıtlar çöp kutusuna gönderildi"
   },
   "deletedCollections": {
-    "message": "Deleted collections"
+    "message": "Silinmiş koleksiyonlar"
   },
   "collectionDeleted": {
-    "message": "Collection deleted"
+    "message": "Koleksiyon silindi"
   },
   "collectionsDeleted": {
-    "message": "Collections deleted"
+    "message": "Koleksiyonlar silindi"
   },
   "movedItem": {
-    "message": "Item moved"
+    "message": "Kayıt taşındı"
   },
   "movedItems": {
-    "message": "Items moved"
+    "message": "Kayıtlar taşındı"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "Oturumu kapatmak kasanıza olan tüm erişiminizi kaldırır ve zaman aşımından sonra çevrimiçi kimlik doğrulaması gerektirir. Bu ayarı kullanmak istediğinizden emin misiniz?"
@@ -3136,7 +3260,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSendV2": {
-    "message": "Create Send",
+    "message": "Send oluştur",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -3456,10 +3580,10 @@
     "message": "Seçenekler"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "Diğer seçenekler"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "$NAME$ seçenekleri",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3468,10 +3592,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Paylaşılan klasör yok"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "$NAME$'e göre filtrele",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3693,7 +3817,7 @@
     }
   },
   "forwarderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "Geçersiz $SERVICENAME$ API anahtarı",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3703,7 +3827,7 @@
     }
   },
   "forwarderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "Geçersiz $SERVICENAME$ API anahtarı: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3717,7 +3841,7 @@
     }
   },
   "forwarderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$, isteğinizi reddetti. Yardım için lütfen hizmet sağlayıcınızla iletişime geçin.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3727,7 +3851,7 @@
     }
   },
   "forwarderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$, isteğinizi reddetti: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3791,7 +3915,7 @@
     }
   },
   "forwarderWebsitePrefix": {
-    "message": "Add website prefix",
+    "message": "Web sitesi ön eki ekle",
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
   },
   "forwarderWebsitePrefixHint": {
@@ -3809,7 +3933,7 @@
     "message": "API anahtarı"
   },
   "premiumSubscriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "Premium abonelik gerekli"
   },
   "organizationIsDisabled": {
     "message": "Kuruluş askıya alındı"
@@ -4270,7 +4394,7 @@
     "message": "Bir veya daha fazla e-posta geçersiz"
   },
   "sendEmailsCharacterLimitReached": {
-    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+    "message": "E-posta alıcı listesi 2.500 karakteri aşamaz. Devam etmek için bir veya daha fazla alıcıyı kaldırın."
   },
   "inputTrimValidator": {
     "message": "Girdi yalnızca boşluktan ibaret olamaz.",
@@ -4394,7 +4518,7 @@
     "message": "Hiçbir şey içe aktarılmadı."
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "$COUNT$ kayıt atlanacak",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4403,7 +4527,7 @@
     }
   },
   "importPartialErrorTitleSingular": {
-    "message": "$COUNT$ item will be skipped",
+    "message": "$COUNT$ kayıt atlanacak",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4415,52 +4539,52 @@
     "message": "The following items could not be read and will not be included in your import:"
   },
   "importSkipReasonSshKeyParse": {
-    "message": "This SSH key could not be imported"
+    "message": "Bu SSH anahtarı içe aktarılamadı"
   },
   "importSkipReasonUnsupportedType": {
-    "message": "Unsupported item type"
+    "message": "Desteklenmeyen kayıt türü"
   },
   "importSkipReasonGeneric": {
-    "message": "This item could not be imported"
+    "message": "Bu kayıt içe aktarılamadı"
   },
   "identifier": {
-    "message": "Identifier"
+    "message": "Tanımlayıcı"
   },
   "contact": {
-    "message": "Contact"
+    "message": "Kişi"
   },
   "membership": {
-    "message": "Membership"
+    "message": "Üyelik"
   },
   "passport": {
-    "message": "Passport"
+    "message": "Pasaport"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "Ehliyet"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "Kimlik"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "Doğum belgesi"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "Veritabanı kimlik bilgileri"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "Sunucu kimlik bilgileri"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "Yazılım lisansı"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "Sağlık sigortası\n"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Wi-Fi kimlik bilgileri"
   },
   "general": {
-    "message": "General"
+    "message": "Genel"
   },
   "importEncKeyError": {
     "message": "Dışa aktarılmış dosya çözülemedi. Şifreleme anahtarınız, veriler dışa aktarılırken kullanılanla uyuşmuyor."
@@ -4505,10 +4629,10 @@
     "message": "Dosya seçilmedi"
   },
   "noFileSelected": {
-    "message": "No file selected"
+    "message": "Dosya seçilmedi"
   },
   "fileChosen": {
-    "message": "File chosen: $FILE_NAME$",
+    "message": "Seçilen dosya: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -4517,7 +4641,7 @@
     }
   },
   "fileAdded": {
-    "message": "File added: $FILE_NAME$",
+    "message": "Dosya eklendi: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -4526,7 +4650,7 @@
     }
   },
   "filesAdded": {
-    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "message": "$COUNT$ dosya eklendi: $FILE_NAMES$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4539,7 +4663,7 @@
     }
   },
   "fileRemoved": {
-    "message": "File removed: $FILE_NAME$",
+    "message": "Dosya kaldırıldı: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -4548,10 +4672,10 @@
     }
   },
   "oneFileUploaded": {
-    "message": "1 file uploaded"
+    "message": "1 dosya yüklendi"
   },
   "filesUploaded": {
-    "message": "$COUNT$ files uploaded",
+    "message": "$COUNT$ dosya yüklendi",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4560,16 +4684,16 @@
     }
   },
   "uploadedFiles": {
-    "message": "Uploaded files"
+    "message": "Yüklenmiş dosyalar"
   },
   "clickToUploadOrDragAndDrop": {
-    "message": "Click to upload or drag and drop"
+    "message": "Yüklemek için tıklayın veya sürükleyin ve bırakın"
   },
   "chooseFiles": {
-    "message": "Choose files"
+    "message": "Dosyaları seçin"
   },
   "maxFileSizeParam": {
-    "message": "Max. file size: $SIZE$ MB",
+    "message": "Maks. dosya boyutu: $SIZE$ MB",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -4590,6 +4714,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "Ayrıntılı $NAME$ talimatlarına bakın",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Yardım Merkezi"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "İşlem, Google Chrome'dan içe aktarmayla tamamen aynıdır.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "KeePassX masaüstü uygulamasını kullanarak \"Veritabanı\" → \"CSV dosyasına aktar\" seçeneğine gidin ve CSV dosyasını kaydedin."
+  },
+  "importAviraInstructions": {
+    "message": "Avira web kasasında, \"Ayarlar\" → \"Verilerim\" → \"Verileri dışa aktar\" seçeneğine gidin ve CSV dosyasını kaydedin."
+  },
+  "importBlurInstructions": {
+    "message": "In the Blur web vault, click your username at the top and go to \"Settings\" → \"Export Data\", then click \"Export CSV\" for your \"Accounts\"."
+  },
+  "importSafeincloudInstructions": {
+    "message": "Using the SafeInCloud desktop application, navigate to \"File\" → \"Export\" → \"As XML\" and save the XML file."
+  },
+  "importPadlockInstructions": {
+    "message": "Using the Padlock desktop application, click the hamburger icon in the top left corner and navigate to \"Settings\" → \"Export\" button and save the file \"As CSV\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "Using the KeePass 2 desktop application, navigate to \"File\" → \"Export\" and select the \"KeePass XML (2.x)\" option."
+  },
+  "importUpmInstructions": {
+    "message": "Using the Universal Password Manager desktop application, navigate to \"Database\" → \"Export\" and save the CSV file."
+  },
+  "importSaferpassInstructions": {
+    "message": "Using the SaferPass browser extension, click the hamburger icon in the top left corner and navigate to \"Settings\". Click the \"Export accounts\" button to save the CSV file."
+  },
+  "importMeldiumInstructions": {
+    "message": "Using the Meldium web vault, navigate to \"Settings\". Locate the \"Export data\" function and click \"Show me my data\" to save the CSV file."
+  },
+  "importPassworddragonInstructions": {
+    "message": "Using the Password Dragon desktop application, navigate to \"File\" → \"Export\" → \"To XML\". In the dialog that pops up select \"All Rows\" and check all fields. Click the \"Export\" button and save the XML file."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "Using the Enpass desktop application, navigate to \"File\" → \"Export\" → \"As CSV\". Select \"OK\" to the warning alert and save the CSV file. Note that the importer only supports files exported while Enpass is set to the English language, so adjust your settings accordingly."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "Using the Enpass 6 desktop application, click the menu button and navigate to \"File\" → \"Export\". Select the \".json\" file format option and save the JSON file."
+  },
+  "importPwsafeInstructions": {
+    "message": "Using the Password Safe desktop application, navigate to \"File\" → \"Export To\" → \"XML format...\" and save the XML file."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Log in to Dashlane, click on \"My Account\" → \"Settings\" → \"Export file\" and select \"Export as a CSV file\". This will download a zip archive containing various CSV files. Unzip the archive and import each CSV file individually."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane no longer supports the JSON format. Only use this if you have an existing JSON for import. Use the CSV importer when creating new exports."
+  },
+  "importMsecureInstructions": {
+    "message": "Using the mSecure desktop application, navigate to \"File\" → \"Export\" → \"CSV File...\" and save the CSV file."
+  },
+  "importStickypasswordInstructions": {
+    "message": "Using the Sticky Password desktop application, navigate to \"Menu\" (top right) → \"Export\" → \"Export all\". Select the unencrypted format XML option and save the XML file."
+  },
+  "importTruekeyInstructions": {
+    "message": "Using the True Key desktop application, click the gear icon (top right) and then navigate to \"App Settings\". Click the \"Export\" button, enter your password and save the CSV file."
+  },
+  "importClipperzInstructions": {
+    "message": "Log into the Clipperz web application (clipperz.is/app). Click the hamburger menu icon in the top right to expand the navigation bar. Navigate to \"Data\" → \"Export\". Click the \"download HTML+JSON\" button to save the HTML file."
+  },
+  "importRoboformInstructions": {
+    "message": "Using the RoboForm Editor desktop application, navigate to \"RoboForm\" (top left) → \"Options\" → \"Account & Data\" and click the \"Export\" button. Select all of your data, change the \"Format\" to \"CSV file\" and then click the \"Export\" button to save the CSV file. Note: RoboForm only allows you to export Logins. Other items will not be exported."
+  },
+  "importPassboltInstructions": {
+    "message": "Log into the Passbolt web vault and navigate to the \"Passwords\" listing. Select all of the passwords you would like to export and click the \"Export\" button at the top of the listing. Choose the \"csv (lastpass)\" export format and click the \"Export\" button."
+  },
+  "importAscendoInstructions": {
+    "message": "Using the Ascendo DataVault desktop application, navigate to \"Tools\" → \"Export\". In the dialog that pops up, select the \"All Items (DVX, CSV)\" option. Click the \"Ok\" button to save the CSV file."
+  },
+  "importPasswordbossInstructions": {
+    "message": "Using the Password Boss desktop application, navigate to \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" and save the JSON file."
+  },
+  "importZohoInstructions": {
+    "message": "Log into the Zoho web vault (vault.zoho.com). Navigate to \"Tools\" → \"Export Secrets\". Select \"All Secrets\" and click the \"Zoho Vault Format CSV\" button. Highlight and copy the data from the textarea. Open a text editor like Notepad and paste the data. Save the data from the text editor as",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "Using the SplashID Safe desktop application, click on the SplashID blue lock logo in the top right corner. Navigate to \"Export\" → \"Export as CSV\" and save the CSV file."
+  },
+  "importPasskeepInstructions": {
+    "message": "Using the PassKeep mobile app, navigate to \"Backup/Restore\". Locate the \"CSV Backup/Restore\" section and click \"Backup to CSV\" to save the CSV file."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Make sure you have python-keyring and python-gnomekeyring installed. Save the",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "GNOME Anahtarlık İçe/Dışa Aktarma"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "python script to your desktop as",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Open terminal and run",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "and then",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Then upload the resulting",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "file here to Bitwarden.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "Using the Password Agent desktop application navigate to \"File\" → \"Export\", select the \"Fields to export\" button and check all of the fields, change the \"Output format\" to \"CSV\", and then click the \"Start\" button to save the CSV file."
+  },
+  "importPasspackInstructions": {
+    "message": "Log into the Passpack website vault and navigate to \"Settings\" → \"Export\", then click the \"Download\" button to save the CSV file."
+  },
+  "importPassmanInstructions": {
+    "message": "Open your Passman vault and click on \"Settings\" in the bottom left corner. In the \"Settings\" window switch to the \"Export credentials\" tab and choose \"JSON\" as the export type. Enter your vault's passphrase and click the \"Export\" button to save the JSON file."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to CSV file\" option to save the CSV file."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to JSON file\" option to save the JSON file."
+  },
+  "importFsecureInstructions": {
+    "message": "Open the F-Secure KEY desktop application and navigate to \"Settings\" → \"Export Passwords\". Select the \"Export\" button, enter your master password, and save the FSK file."
+  },
+  "importKasperskyInstructions": {
+    "message": "Open the Kaspersky Password Manager desktop application and navigate to \"Settings\" → \"Import/Export\". Locate the \"Export to text file\" section and select the \"Export\" button to save the TXT file."
+  },
+  "importRemembearInstructions": {
+    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+  },
+  "importMykiInstructions": {
+    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+  },
+  "importBlackberryInstructions": {
+    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+  },
+  "importButtercupInstructions": {
+    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+  },
+  "importCodebookInstructions": {
+    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+  },
+  "importEncryptrInstructions": {
+    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+  },
+  "importYotiInstructions": {
+    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+  },
+  "importPsonoInstructions": {
+    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+  },
+  "importPasskyInstructions": {
+    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+  },
+  "importProtonpassInstructions": {
+    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+  },
+  "importNetwrixInstructions": {
+    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+  },
+  "importNordpassInstructions": {
+    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+  },
+  "importDelineaInstructions": {
+    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+  },
   "confirmVaultImport": {
     "message": "Kasayı içe aktarmayı onaylayın"
   },
@@ -4600,22 +4925,22 @@
     "message": "Dosya parolasını onaylayın"
   },
   "keePassMasterPassword": {
-    "message": "KeePass master password"
+    "message": "KeePass ana parolası"
   },
   "addKeyFile": {
-    "message": "Add key file"
+    "message": "Anahtar dosyası ekle"
   },
   "keyFileUpload": {
-    "message": "Key file upload"
+    "message": "Anahtar dosya yükleme"
   },
   "kdbxFileUpload": {
-    "message": "KDBX file upload"
+    "message": "KDBX dosya yükleme"
   },
   "acceptedFormatsKdbx": {
-    "message": "Accepted formats: kdbx"
+    "message": "Kabul edilen formatlar: kdbx"
   },
   "kdbxCorruptOrOutdated": {
-    "message": "Data is not formatted correctly. Please check your import file and try again."
+    "message": "Veriler doğru biçimlendirilmemiş. Lütfen içe aktarma dosyanızı kontrol edin ve tekrar deneyin."
   },
   "kdbxWrongFileType": {
     "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
@@ -4704,10 +5029,6 @@
   "browserProfile": {
     "message": "Tarayıcı profili"
   },
-  "seeDetailedInstructions": {
-    "message": "Ayrıntılı talimatları yardım sitemizde bulabilirsiniz:",
-    "description": "This is followed a by a hyperlink to the help website."
-  },
   "importDirectlyFromLastPass": {
     "message": "Doğrudan LastPass'ten içe aktar"
   },
@@ -4730,34 +5051,34 @@
     "message": "Enter the email you use to log in to Keeper"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "Veri merkezi konumu"
   },
   "keeperMasterPassword": {
     "message": "Keeper master password"
   },
   "keeperMasterPasswordPrompt": {
-    "message": "Please enter your Keeper master password"
+    "message": "Lütfen Keeper ana şifrenizi girin"
   },
   "twoFactorCodePrompt": {
-    "message": "Please enter the code from your two-factor method"
+    "message": "Lütfen iki faktörlü yönteminizin kodunu girin"
   },
   "totpCodePrompt": {
-    "message": "Please enter the code from your authenticator app"
+    "message": "Lütfen kimlik doğrulayıcı uygulamanızdaki kodu girin"
   },
   "smsCodePrompt": {
-    "message": "Please enter the code sent via text message"
+    "message": "Lütfen kısa mesajla gönderilen kodu giriniz"
   },
   "keeperDnaCodePrompt": {
     "message": "Please enter the code from your Keeper DNA app"
   },
   "adminApproval": {
-    "message": "Admin approval"
+    "message": "Yönetici onayı"
   },
   "adminDeviceApprovalPushDesc": {
-    "message": "We've sent an admin approval request to your admin"
+    "message": "Yöneticinize bir yönetici onay isteği gönderdik"
   },
   "method": {
-    "message": "Method"
+    "message": "Yöntem"
   },
   "directImporter": {
     "message": "Direct importer"
@@ -4766,10 +5087,10 @@
     "message": "CSV"
   },
   "json": {
-    "message": "Json"
+    "message": "JSON"
   },
   "ssoAuthRequired": {
-    "message": "SSO authentication required"
+    "message": "SSO kimlik doğrulaması gerekli"
   },
   "keeperSsoDesc": {
     "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
@@ -4802,7 +5123,7 @@
     "message": "Two-factor method"
   },
   "emailVerification": {
-    "message": "Email verification"
+    "message": "E-posta doğrulama"
   },
   "approvalEmailDesc": {
     "message": "Please check your email and enter the verification code below"
@@ -4820,7 +5141,7 @@
     "message": "Are you sure you want to leave? Your admin approval request will be canceled."
   },
   "cancelRequest": {
-    "message": "Cancel request"
+    "message": "İsteği iptal et"
   },
   "keeperMFARequired": {
     "message": "Keeper two-factor authentication required"
@@ -4838,7 +5159,7 @@
     "message": "Authenticator app (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "Kısa mesaj (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -4847,7 +5168,7 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "Yedek kodlar"
   },
   "securityKeyU2f": {
     "message": "Security key (U2F)"
@@ -4871,16 +5192,16 @@
     "message": "Choose how you want to verify with Keeper DNA."
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "Anlık bildirim"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "Kodu manuel girin"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "İki faktörlü kimlik doğrulama"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "Bilinmeyen yöntem"
   },
   "selectDuoMethod": {
     "message": "Select Duo method"
@@ -4892,10 +5213,10 @@
     "message": "Duo Push"
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "Telefon araması"
   },
   "duoVerification": {
-    "message": "Duo verification"
+    "message": "Duo doğrulaması"
   },
   "duoPushWaiting": {
     "message": "Approve the Duo push notification on your device."
@@ -4907,7 +5228,7 @@
     "message": "Answer the phone call from Duo and follow the instructions."
   },
   "tryAnotherMethod": {
-    "message": "Try another method"
+    "message": "Başka bir yöntem dene"
   },
   "keeperUnsupported2faMethod": {
     "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
@@ -4972,7 +5293,7 @@
     "message": "Geçiş anahtarını kaldır"
   },
   "deletePasskey": {
-    "message": "Delete passkey"
+    "message": "Geçiş anahtarını sil"
   },
   "deletePasskeyConfirmation": {
     "message": "This passkey will be permanently deleted from your login item. This can't be undone."
@@ -5177,13 +5498,13 @@
     "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
   },
   "passkeyLogin2": {
-    "message": "Log in with passkey"
+    "message": "Geçiş anahtarıyla giriş yap"
   },
   "savePasskeyQuestion": {
     "message": "Geçiş anahtarı kaydedilsin mi?"
   },
   "savePasskey": {
-    "message": "Save passkey"
+    "message": "Geçiş anahtarını kaydet"
   },
   "saveNewPasskey": {
     "message": "Yeni hesap olarak kaydet"
@@ -5199,7 +5520,7 @@
     "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
   },
   "overwritePasskey2": {
-    "message": "Overwrite passkey"
+    "message": "Geçiş anahtarının üzerine yaz"
   },
   "unableToSavePasskey": {
     "message": "Geçiş anahtarı kaydedilemedi"
@@ -5375,13 +5696,13 @@
     "message": "Koleksiyonlara ata"
   },
   "addToSharedFolder": {
-    "message": "Add to shared folder"
+    "message": "Paylaşılan klasöre ekle"
   },
   "transferAndAdd": {
-    "message": "Transfer and add"
+    "message": "Aktar ve ekle"
   },
   "itemLower": {
-    "message": "item"
+    "message": "kayıt"
   },
   "itemsLower": {
     "message": "items"
@@ -5497,7 +5818,7 @@
     "message": "Başarıyla atanan koleksiyonlar"
   },
   "successfullyAddedSharedFolders": {
-    "message": "Successfully added shared folders"
+    "message": "Paylaşılan klasörler başarıyla eklendi"
   },
   "itemMovedToCollection": {
     "message": "Item moved to collection"
@@ -5593,6 +5914,15 @@
   "showMore": {
     "message": "Daha fazla göster"
   },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "showLess": {
     "message": "Daha az göster"
   },
@@ -5683,20 +6013,20 @@
     }
   },
   "archiveItemTitle": {
-    "message": "Archive item",
+    "message": "Kaydı arşivle",
     "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
     "message": "Once archived, these items will be excluded from search results and autofill suggestions."
   },
   "bulkArchiveItems": {
-    "message": "Items archived"
+    "message": "Kayıtlar arşivlendi"
   },
   "bulkUnarchiveItems": {
-    "message": "Items unarchived"
+    "message": "Kayıtlar arşivden çıkarıldı"
   },
   "moveSelectedItemsDesc": {
-    "message": "Choose a folder that you would like to add the $COUNT$ selected item(s) to.",
+    "message": "Seçtiğiniz $COUNT$ kaydı eklemek istediğiniz klasörü seçin.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5705,7 +6035,7 @@
     }
   },
   "selectFolder": {
-    "message": "Select folder"
+    "message": "Klasör seç"
   },
   "restartPremium": {
     "message": "Premium’u yeniden başlat"
@@ -5964,6 +6294,12 @@
   "clearFiltersOrTryAnother": {
     "message": "Filtreleri temizleyin veya başka bir arama yapmayı deneyin"
   },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
+  },
   "sendPasswordHelperText": {
     "message": "Bu Send'i görmek isteyen kişilerin parola girmesi gerekecektir",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6031,11 +6367,11 @@
     "message": "Yıl girin."
   },
   "sendTypes": {
-    "message": "Send types",
+    "message": "Send türleri",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "any": {
-    "message": "Any"
+    "message": "Herhangi Biri"
   },
   "invalidDay": {
     "message": "Geçerli bir gün girin."
@@ -6156,19 +6492,19 @@
     "message": "Banka hesap bilgilerinizi kaydedin, tüm cihazlarınızdan kolayca ve güvenle erişin."
   },
   "sendDeletionDate": {
-    "message": "Deletion date"
+    "message": "Silinme tarihi"
   },
   "discardEditsTitle": {
-    "message": "Discard edits"
+    "message": "Düzenlemeleri sil"
   },
   "discardEditsConfirmation": {
-    "message": "If you close this view, your unsaved edits will be discarded."
+    "message": "Bu görünümü kapatırsanız kaydedilmemiş düzenlemeleriniz silinir."
   },
   "discardEdits": {
     "message": "Düzenlemeleri sil"
   },
   "keepEditing": {
-    "message": "Keep editing"
+    "message": "Düzenlemeye devam et"
   },
   "sendHasUnsavedEdits": {
     "message": "Send'de kaydedilmemiş düzenlemeler var. Çıkmak istediğinizden emin misiniz?",
@@ -6228,7 +6564,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
-    "message": "Make a copy"
+    "message": "Kopya oluştur"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Birden fazla koleksiyonun parçası olan kayıtlar Kayıtlarım içerisine içe aktarılamaz"
@@ -6288,13 +6624,13 @@
     }
   },
   "addToFolder": {
-    "message": "Add to folder"
+    "message": "Klasöre ekle"
   },
   "deleteCollection": {
-    "message": "Delete collection"
+    "message": "Koleksiyonu sil"
   },
   "deleteCollectionsCount": {
-    "message": "Delete $COUNT$ collections",
+    "message": "$COUNT$ koleksiyonu sil",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6303,16 +6639,16 @@
     }
   },
   "deleteCollectionDesc": {
-    "message": "This collection will be permanently deleted."
+    "message": "Bu koleksiyon kalıcı olarak silinecektir."
   },
   "deleteCollectionsDesc": {
-    "message": "These collections will be permanently deleted."
+    "message": "Bu koleksiyonlar kalıcı olarak silinecektir."
   },
   "duplicateAttachmentNameError": {
-    "message": "Items cannot have multiple attachments with the same file name"
+    "message": "Aynı dosya adına sahip birden fazla ek olamaz"
   },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$: Yeni bildirim",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {
@@ -6404,5 +6740,20 @@
         "example": "user@acme.com"
       }
     }
+  },
+  "permissions": {
+    "message": "Permissions"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   }
 }
