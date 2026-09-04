@@ -4,7 +4,13 @@ import { mock } from "jest-mock-extended";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import {
+  DIALOG_DATA,
+  DialogCloseRef,
+  DialogRef,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { RotationSdkService } from "../rotation-sdk.service";
 import { ORGANIZATION_ID, connectorId } from "../testing/rotation-builders";
@@ -122,6 +128,39 @@ describe("DaemonRegisterDialogComponent", () => {
         }),
       }),
     );
+  });
+
+  it("does not open the token dialog until the register dialog has closed", async () => {
+    let resolveClose!: (value: DialogCloseRef) => void;
+    dialogRef.close.mockReturnValue(
+      new Promise<DialogCloseRef>((resolve) => (resolveClose = resolve)),
+    );
+    const openSpy = jest
+      .spyOn(injectedDialogService, "open")
+      .mockReturnValue({ closed: { toPromise: jest.fn() } } as any);
+
+    (component as any).form.controls.name.setValue("Good Daemon");
+    const submitted = (component as any).submit();
+    // Let submit() run as far as the close it is now awaiting.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(dialogRef.close).toHaveBeenCalledWith({ registered: true });
+    expect(openSpy).not.toHaveBeenCalled();
+
+    resolveClose({ closed: true });
+    await submitted;
+
+    expect(openSpy).toHaveBeenCalledWith(DaemonTokenDialogComponent, expect.anything());
+  });
+
+  it("does not open the token dialog when registration fails", async () => {
+    rotationSdk.registerConnector.mockRejectedValue(new ErrorResponse({ Message: "boom" }, 500));
+    const openSpy = jest.spyOn(injectedDialogService, "open");
+
+    (component as any).form.controls.name.setValue("Bad Daemon");
+    await (component as any).submit();
+
+    expect(openSpy).not.toHaveBeenCalled();
   });
 
   it("shows an error toast when registration fails", async () => {
