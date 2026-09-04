@@ -19097,13 +19097,7 @@
   "pamRotationConfigHistoryEmpty": {
     "message": "No rotations have run yet."
   },
-  "pamRotationConfigRemoveManagedCredentialHeading": {
-    "message": "Remove managed credential"
-  },
   "pamRotationConfigRemoveManagedCredential": {
-    "message": "Remove managed credential"
-  },
-  "pamRotationConfigRemoveAction": {
     "message": "Remove managed credential"
   },
   "pamRotationConfigRemoveLockedContent": {
