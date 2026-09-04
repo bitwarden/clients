@@ -48,10 +48,16 @@
     @if (showVaults()) {
       <bit-filter-menu [key]="filterKeys.vault" [placeholderText]="'vault' | i18n" multiple>
         @if (showMyVaultOption()) {
-          <bit-filter-option [value]="MY_VAULT">{{ "myVault" | i18n }}</bit-filter-option>
+          <bit-filter-option [value]="MY_VAULT" [iconTile]="myVaultFilterTile()">{{
+            "myVault" | i18n
+          }}</bit-filter-option>
         }
         @for (organization of sortedOrganizations(); track organization.id) {
-          <bit-filter-option [value]="organization.id">{{ organization.name }}</bit-filter-option>
+          <bit-filter-option
+            [value]="organization.id"
+            [iconTile]="organizationTiles().get(organization.id)"
+            >{{ organization.name }}</bit-filter-option
+          >
         }
       </bit-filter-menu>
     }
@@ -205,12 +211,18 @@
       [class.tw-cursor-pointer]="itemAction() != null"
       (click)="onCellActivate(row, $event)"
     >
-      <vault-items-table-chips-cell
-        [chips]="sharedFolderChips(row)"
-        icon="bwi-shared-folder"
-        [emptyLabel]="'noSharedFolder' | i18n"
-        (chipSelect)="filterTo(vaultTable, filterKeys.sharedFolder, $event)"
-      />
+      @let sharedFolders = sharedFolderChips(row);
+      @if (sharedFolders.length) {
+        <bit-chip-group
+          class="tw-block tw-w-full tw-min-w-0"
+          [chips]="sharedFolders"
+          [accessibleName]="'sharedFolders' | i18n"
+          (chipSelect)="filterTo(vaultTable, filterKeys.sharedFolder, $event)"
+        />
+      } @else {
+        <span class="tw-text-muted" aria-hidden="true">&mdash;</span>
+        <span class="tw-sr-only">{{ "noSharedFolder" | i18n }}</span>
+      }
     </bit-cell>
   </bit-column>
 
@@ -222,12 +234,18 @@
       [class.tw-cursor-pointer]="itemAction() != null"
       (click)="onCellActivate(row, $event)"
     >
-      <vault-items-table-chips-cell
-        [chips]="folderChips(row)"
-        icon="bwi-folder"
-        [emptyLabel]="'noneFolder' | i18n"
-        (chipSelect)="filterTo(vaultTable, filterKeys.folder, $event)"
-      />
+      @let folders = folderChips(row);
+      @if (folders.length) {
+        <bit-chip-group
+          class="tw-block tw-w-full tw-min-w-0"
+          [chips]="folders"
+          [accessibleName]="'myFolders' | i18n"
+          (chipSelect)="filterTo(vaultTable, filterKeys.folder, $event)"
+        />
+      } @else {
+        <span class="tw-text-muted" aria-hidden="true">&mdash;</span>
+        <span class="tw-sr-only">{{ "noneFolder" | i18n }}</span>
+      }
     </bit-cell>
   </bit-column>
 

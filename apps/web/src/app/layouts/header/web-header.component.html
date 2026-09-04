@@ -6,7 +6,9 @@
     </ng-container>
 
     <ng-content></ng-content>
-    <product-switcher></product-switcher>
+    @if (!vfo1Enabled()) {
+      <product-switcher></product-switcher>
+    }
     <app-account-menu></app-account-menu>
 
     <ng-container slot="title-suffix">

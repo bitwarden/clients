@@ -111,8 +111,8 @@ class StoryVaultBatchBarService extends VaultBatchBarService<CipherView> {
 }
 
 const organizations = [
-  { id: "org-1", name: "Acme corporation" },
-  { id: "org-2", name: "Contoso" },
+  { id: "org-1", name: "Acme corporation", enabled: true },
+  { id: "org-2", name: "Contoso", enabled: true },
 ] as Organization[];
 
 /**
@@ -536,7 +536,9 @@ export default {
               foldersFilterTooltip: "Add folders to items to filter them here.",
               noneFolder: "No folder",
               noSharedFolder: "No shared folder",
-              filterByName: (name) => `Filter by ${name}`,
+              // Chip group overflow, for the membership columns
+              showMore: "Show more",
+              showMoreCount: (count) => `Show ${count} more`,
               itemCount: (count) => `${count} items`,
               filter: "Filter",
               filters: "Filters",

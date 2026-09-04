@@ -31,6 +31,7 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
+  BitwardenIcon,
   BitCellComponent,
   BitCellDefDirective,
   BitCellLoadingDirective,
@@ -39,6 +40,8 @@ import {
   BitTableToolbarComponent,
   BitTableV2Component,
   ButtonModule,
+  ChipGroupComponent,
+  ChipGroupItem,
   defineTable,
   FilterControl,
   FilterMenuModule,
@@ -73,10 +76,6 @@ import {
 import { VaultItem } from "../vault-item";
 
 import { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
-import {
-  VaultItemsTableChip,
-  VaultItemsTableChipsCellComponent,
-} from "./vault-items-table-chips-cell.component";
 import {
   DEFAULT_COPY_PRESENTATION,
   VaultItemsTableCopyPresentation,
@@ -172,6 +171,13 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
   DIALOG_CIPHER_MENU_ITEMS.map((item) => [item.type, item.labelKey]),
 );
 
+/** Stable empty list for a row with no memberships — see `chipsById` for why identity matters. */
+const EMPTY_CHIPS: ChipGroupItem[] = [];
+
+function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGroupItem {
+  return { id, label, variant: "subtle", startIcon };
+}
+
 /**
  * The shared vault items list: a cipher-only table on `bit-table-v2` with its own search and
  * filter chips, sorting, selection, and row actions.
@@ -231,6 +237,7 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
     BitTableToolbarComponent,
     BitTableV2Component,
     ButtonModule,
+    ChipGroupComponent,
     FilterMenuModule,
     I18nPipe,
     IconModule,
@@ -243,7 +250,6 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
     TooltipDirective,
     VaultIconComponent,
     VaultItemsTableActionsColumnComponent,
-    VaultItemsTableChipsCellComponent,
   ],
 })
 export class VaultItemsTableComponent<C extends CipherViewLike> {
@@ -415,7 +421,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   protected readonly visibleColumns = computed<VaultItemsTableColumn[]>(() => {
     const hidden = new Set<VaultItemsTableColumn>();
-    if (!this.showVaults()) {
+    if (!this.showVaultColumn()) {
       hidden.add("vault");
     }
     if (!this.showSharedFolders()) {
@@ -499,16 +505,24 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   private readonly organizationNames = computed(() => this.nameMap(this.organizations()));
 
-  /** Product tier per organization id, for the tier-appropriate Vault column tile. */
-  private readonly organizationTiers = computed(() => {
-    const tiers = new Map<string, ProductTierType>();
+  /** The "My vault" filter option's tile, matching the Vault column and the side nav. */
+  protected readonly myVaultFilterTile = computed(() =>
+    personalIconTile(this.userAvatarColor() ?? "brand"),
+  );
+
+  /**
+   * Tile per organization id, shared by the Vault column and the Vault filter options so one
+   * organization reads the same in both places.
+   */
+  protected readonly organizationTiles = computed(() => {
+    const tiles = new Map<string, IconTileOptions>();
     for (const organization of this.organizations()) {
       const id = idString(organization.id);
       if (id) {
-        tiers.set(id, organization.productTierType);
+        tiles.set(id, orgIconTile(organization.productTierType));
       }
     }
-    return tiers;
+    return tiles;
   });
 
   /** Indexes named entities by id, widened to plain strings, skipping any that lack one. */
@@ -542,26 +556,40 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   });
 
   /**
-   * Whether the Vault chip and column should be shown.
-   *
-   * Shown when the user's items can span more than one vault:
-   * - multiple organizations are present (user can filter between them), or
-   * - exactly one organization is present alongside a personal vault option
-   *   (user can distinguish personal items from org-owned ones).
+   * Whether the user's items can span more than one vault:
+   * - multiple organizations are present, or
+   * - exactly one organization is present alongside a personal vault option.
    */
-  protected readonly showVaults = computed(() => {
-    const hasMultipleVaults = this.sortedOrganizations().length > 1;
-    const hasPersonalAndOrgVault =
-      this.showMyVaultOption() && this.sortedOrganizations().length === 1;
-    return hasMultipleVaults || hasPersonalAndOrgVault;
-  });
+  private spansMultipleVaults(organizations: Organization[]): boolean {
+    return organizations.length > 1 || (this.showMyVaultOption() && organizations.length === 1);
+  }
+
+  /**
+   * Whether the Vault chip should be shown. Driven by {@link sortedOrganizations}, so the chip
+   * only appears when the user can filter between the vaults it actually offers.
+   */
+  protected readonly showVaults = computed(() =>
+    this.spansMultipleVaults(this.sortedOrganizations()),
+  );
+
+  /**
+   * Whether the Vault column should be shown. Driven by the unfiltered `organizations` input
+   * rather than {@link sortedOrganizations}: a disabled organization still owns rows in the table,
+   * so the column has to label them even though the chip doesn't offer the organization.
+   */
+  protected readonly showVaultColumn = computed(() =>
+    this.spansMultipleVaults(this.organizations()),
+  );
 
   /**
    * The organizations the Vault chip offers. Derived from the `organizations` input
-   * so the options don't change as ciphers are filtered in or out.
+   * so the options don't change as ciphers are filtered in or out. Disabled organizations are
+   * left out: the user can't act on their items, so the option would be a dead end.
    */
   protected readonly sortedOrganizations = computed(() =>
-    [...this.organizations()].sort((a, b) => a.name.localeCompare(b.name)),
+    this.organizations()
+      .filter((organization) => organization.enabled)
+      .sort((a, b) => a.name.localeCompare(b.name)),
   );
 
   /**
@@ -642,7 +670,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     if (!organizationId) {
       return personalIconTile(this.userAvatarColor() ?? "brand");
     }
-    return orgIconTile(this.organizationTiers().get(organizationId) ?? ProductTierType.Enterprise);
+    return this.organizationTiles().get(organizationId) ?? orgIconTile(ProductTierType.Enterprise);
   }
 
   /**
@@ -650,22 +678,45 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * {@link collections} are dropped, so every chip carries a value the Shared folders filter
    * actually offers.
    */
-  protected sharedFolderChips(cipher: C): VaultItemsTableChip[] {
+  private resolveSharedFolderChips(cipher: C): ChipGroupItem[] {
     const names = this.collectionNames();
-    return (cipher.collectionIds ?? [])
+    const chips = (cipher.collectionIds ?? [])
       .flatMap((collectionId) => {
-        const value = idString(collectionId);
-        const name = value ? names.get(value) : undefined;
-        return value && name ? [{ value, name }] : [];
+        const id = idString(collectionId);
+        const label = id ? names.get(id) : undefined;
+        return id && label ? [chipItem(id, label, "bwi-shared-folder")] : [];
       })
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => a.label.localeCompare(b.label));
+    return chips.length ? chips : EMPTY_CHIPS;
   }
 
-  /** This cipher's folder, as a chip list so it shares the chips cell — see {@link sharedFolderChips}. */
-  protected folderChips(cipher: C): VaultItemsTableChip[] {
-    const value = idString(cipher.folderId);
-    const name = value ? this.folderNames().get(value) : undefined;
-    return value && name ? [{ value, name }] : [];
+  /** This cipher's folder, as a chip list so it shares the cell markup — see {@link resolveSharedFolderChips}. */
+  private resolveFolderChips(cipher: C): ChipGroupItem[] {
+    const id = idString(cipher.folderId);
+    const label = id ? this.folderNames().get(id) : undefined;
+    return id && label ? [chipItem(id, label, "bwi-folder")] : EMPTY_CHIPS;
+  }
+
+  private readonly chipsById = computed(() => {
+    const chips = new Map<string, { sharedFolders: ChipGroupItem[]; folders: ChipGroupItem[] }>();
+    for (const cipher of this.ciphers()) {
+      chips.set(String(cipher.id), {
+        sharedFolders: this.resolveSharedFolderChips(cipher),
+        folders: this.resolveFolderChips(cipher),
+      });
+    }
+    return chips;
+  });
+
+  protected sharedFolderChips(cipher: C): ChipGroupItem[] {
+    return (
+      this.chipsById().get(String(cipher.id))?.sharedFolders ??
+      this.resolveSharedFolderChips(cipher)
+    );
+  }
+
+  protected folderChips(cipher: C): ChipGroupItem[] {
+    return this.chipsById().get(String(cipher.id))?.folders ?? this.resolveFolderChips(cipher);
   }
 
   protected subtitle(cipher: C): string | undefined {
@@ -692,9 +743,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    *
    * Equal first names return `0` so the row order falls through to {@link sortedCiphers}
    */
-  private compareChips(a: VaultItemsTableChip[], b: VaultItemsTableChip[]): number {
-    const first = a.at(0)?.name;
-    const second = b.at(0)?.name;
+  private compareChips(a: ChipGroupItem[], b: ChipGroupItem[]): number {
+    const first = a.at(0)?.label;
+    const second = b.at(0)?.label;
     if (!first && !second) {
       return 0;
     }
@@ -838,12 +889,12 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected filterTo(
     table: BitTableV2Component<C, VaultItemsTableColumn, VaultItemsTableFilters>,
     key: "sharedFolder" | "folder",
-    value: string,
+    chip: ChipGroupItem,
   ): void {
     table
       .filterControls()
       .find((control: FilterControl) => control.key() === key)
-      ?.setValue([value]);
+      ?.setValue([chip.id]);
   }
 
   /**

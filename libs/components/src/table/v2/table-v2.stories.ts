@@ -1113,6 +1113,58 @@ export const GroupedInitiallyCollapsed: Story = {
   }),
 };
 
+const emptyGroupTable = defineTable<GroupedRow>(
+  signal(
+    [...Array(6).keys()].map((i) => ({
+      id: i + 1,
+      name: `Note ${i + 1}`,
+      // Notes only, so both the "autofill suggestions" and "cards" groups come up empty.
+      type: "note" as const,
+    })),
+  ),
+);
+
+/**
+ * `[description]` renders explanatory text under a group's header. Pair it with
+ * `[hideOnEmpty]="false"` to keep the group on screen when no rows match, so the text stands
+ * in for the missing rows. Empty groups otherwise auto-hide, as "Cards" does here.
+ */
+export const GroupedDescription: Story = {
+  render: () => ({
+    props: {
+      table: emptyGroupTable,
+      isAutofill: (row: GroupedRow) => row.type === "login",
+      isCard: (row: GroupedRow) => row.type === "card",
+      isNote: (row: GroupedRow) => row.type === "note",
+    },
+    template: `
+      <bit-layout>
+        <bit-table-v2
+          [tableDef]="table"
+          presentation="list"
+          [virtualRowHeight]="44"
+          [height]="8"
+        >
+          <bit-column>
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+          </bit-column>
+
+          <bit-row-group
+            [match]="isAutofill"
+            [hideOnEmpty]="false"
+            description="Save a login item for this site to autofill"
+          >
+            Autofill suggestions
+          </bit-row-group>
+          <bit-row-group [match]="isCard">Cards</bit-row-group>
+          <bit-row-group [match]="isNote">Notes</bit-row-group>
+        </bit-table-v2>
+      </bit-layout>
+    `,
+  }),
+};
+
 type WideRow = {
   id: number;
   name: string;
