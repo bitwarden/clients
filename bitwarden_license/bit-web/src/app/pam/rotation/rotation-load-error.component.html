@@ -1,0 +1,15 @@
+<bit-status-lockup>
+  <bit-svg slot="graphic" [content]="icon"></bit-svg>
+  <span slot="title">{{ "pamRotationListLoadErrorTitle" | i18n }}</span>
+  <span slot="description">{{ "pamRotationListLoadErrorDescription" | i18n }}</span>
+  <button
+    slot="button"
+    type="button"
+    bitButton
+    buttonType="primary"
+    id="rotation-load-error_button_retry"
+    (click)="retry.emit()"
+  >
+    {{ "tryAgain" | i18n }}
+  </button>
+</bit-status-lockup>

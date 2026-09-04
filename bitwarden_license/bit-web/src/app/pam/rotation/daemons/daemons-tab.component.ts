@@ -5,7 +5,7 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
 
-import { NoResults, ReportBreach } from "@bitwarden/assets/svg";
+import { NoResults } from "@bitwarden/assets/svg";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -30,6 +30,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { AccessConnector, DaemonStatus, TargetSystemId, TargetSystem } from "../rotation";
+import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { AssignTargetDialogComponent } from "./assign-target-dialog.component";
@@ -55,6 +56,7 @@ import { DaemonRow, DaemonsService } from "./daemons.service";
     StatusLockupComponent,
     SvgComponent,
     TableModule,
+    RotationLoadErrorComponent,
     I18nPipe,
   ],
 })
@@ -63,7 +65,6 @@ export class DaemonsTabComponent {
   protected readonly DaemonStatus = DaemonStatus;
 
   protected readonly noItemsIcon = NoResults;
-  protected readonly loadErrorIcon = ReportBreach;
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -74,9 +75,7 @@ export class DaemonsTabComponent {
   private readonly i18nService = inject(I18nService);
 
   protected readonly loading = toSignal(this.daemonsService.loading$, { initialValue: true });
-  protected readonly loadError = toSignal(this.daemonsService.loadError$, {
-    initialValue: null as unknown,
-  });
+  protected readonly loadError = toSignal(this.daemonsService.loadError$, { initialValue: null });
   private readonly rows = toSignal(this.daemonsService.rows$, { initialValue: [] as DaemonRow[] });
   private readonly activeAutomaticSystems = toSignal(
     this.targetSystemsService.activeAutomaticSystems$,
@@ -94,12 +93,7 @@ export class DaemonsTabComponent {
 
   constructor() {
     effect(() => {
-      const organizationId = this.organizationId();
-      void this.daemonsService.load(organizationId);
-      // The assignment badges and the assign-dialog options join against the
-      // target-systems map — load it too, in case this tab is visited first
-      // (the shell-scoped TargetSystemsService instance starts empty).
-      void this.targetSystemsService.load(organizationId);
+      void this.loadAll(this.organizationId());
     });
 
     effect(() => {
@@ -114,14 +108,19 @@ export class DaemonsTabComponent {
 
   protected readonly totalRows = computed(() => this.rows().length);
 
-  /** Re-runs the same pair of loads the init effect runs, so a retry matches a fresh navigation. */
-  protected readonly retryLoad = async (): Promise<void> => {
-    const organizationId = this.organizationId();
+  /**
+   * The assignment badges and the assign-dialog options join against the target-systems map, so
+   * this tab loads it alongside its own list, in case it is visited first (the shell-scoped
+   * TargetSystemsService instance starts empty).
+   */
+  private async loadAll(organizationId: OrganizationId): Promise<void> {
     await Promise.all([
       this.daemonsService.load(organizationId),
       this.targetSystemsService.load(organizationId),
     ]);
-  };
+  }
+
+  protected readonly retryLoad = (): Promise<void> => this.loadAll(this.organizationId());
 
   /** Navigate to the daemon detail page (sibling of the shell). */
   protected readonly openDetail = (row: DaemonRow): Promise<boolean> =>

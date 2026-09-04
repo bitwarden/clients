@@ -33,8 +33,16 @@ export class RotationConfigsService {
   readonly configs$: Observable<RotationConfig[]> = this._configs$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
-  /** The error from the last {@link load}, or null when it succeeded. */
-  readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
+  /**
+   * The error from the last {@link load}, or null when it succeeded. Covers the target-systems
+   * fetch too: it records its own failure instead of rejecting, so the `Promise.all` in
+   * {@link load} resolves even when the rows and the empty state have no target systems to work
+   * with.
+   */
+  readonly loadError$: Observable<unknown | null> = combineLatest([
+    this._loadError$,
+    this.targetSystems.loadError$,
+  ]).pipe(map(([own, targetSystemsError]) => own ?? targetSystemsError));
 
   /** Count of configs currently awaiting a manual rotation from the operator. */
   readonly awaitingManualCount$: Observable<number> = this._configs$.pipe(
@@ -95,11 +103,6 @@ export class RotationConfigsService {
         this.orgCiphers.load(organizationId),
       ]);
       this._configs$.next(configs);
-      // `TargetSystemsService.load` records its own failure instead of rejecting, so `Promise.all`
-      // resolves even when the target systems this tab's rows and empty state depend on are missing.
-      if (this.targetSystems.lastLoadError != null) {
-        this._loadError$.next(this.targetSystems.lastLoadError);
-      }
     } catch (e) {
       this._loadError$.next(e);
     } finally {

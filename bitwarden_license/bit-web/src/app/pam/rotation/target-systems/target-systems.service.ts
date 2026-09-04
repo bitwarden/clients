@@ -35,14 +35,6 @@ export class TargetSystemsService {
   /** The error from the last {@link load}, or null when it succeeded. */
   readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
 
-  /**
-   * Synchronous read of the last load's outcome, for services that load this one as a dependency
-   * and must reflect its failure in their own error state.
-   */
-  get lastLoadError(): unknown | null {
-    return this._loadError$.value;
-  }
-
   /** A map from targetSystemId → TargetSystem for O(1) lookups in derived services. */
   readonly systemById$: Observable<Map<TargetSystemId, TargetSystem>> = this._systems$.pipe(
     map((systems) => new Map(systems.map((s) => [s.id, s]))),

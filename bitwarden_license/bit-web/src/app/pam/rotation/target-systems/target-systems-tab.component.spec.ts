@@ -53,26 +53,13 @@ describe("TargetSystemsTabComponent", () => {
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
 
-  beforeEach(async () => {
-    targetSystemsService = {
-      loading$: new BehaviorSubject<boolean>(false),
-      loadError$: new BehaviorSubject<unknown | null>(null),
-      systems$: new BehaviorSubject<TargetSystem[]>([]),
-      systemById$: new BehaviorSubject(new Map()),
-      activeAutomaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
-      load: jest.fn().mockResolvedValue(undefined),
-      setEnabled: jest.fn().mockResolvedValue(undefined),
-      delete: jest.fn().mockResolvedValue(undefined),
-    };
-    daemonsService = { forgetTargetSystem: jest.fn() };
-    dialogService = mock<DialogService>();
-    dialogService.openSimpleDialog.mockResolvedValue(false);
-    toastService = mock<ToastService>();
-
-    // Override the template AND imports to avoid pulling in HeaderModule → SharedModule → DialogModule
-    // which would provide a real DialogService, overriding our test mock.
-    // Must come before configureTestingModule.
-    TestBed.overrideComponent(TargetSystemsTabComponent, { set: { template: "", imports: [] } });
+  async function createComponent({ renderTemplate = false } = {}) {
+    if (!renderTemplate) {
+      // Override the template AND imports to avoid pulling in HeaderModule → SharedModule → DialogModule
+      // which would provide a real DialogService, overriding our test mock.
+      // Must come before configureTestingModule.
+      TestBed.overrideComponent(TargetSystemsTabComponent, { set: { template: "", imports: [] } });
+    }
 
     await TestBed.configureTestingModule({
       imports: [TargetSystemsTabComponent, ReactiveFormsModule, NoopAnimationsModule],
@@ -99,6 +86,25 @@ describe("TargetSystemsTabComponent", () => {
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
+  }
+
+  beforeEach(async () => {
+    targetSystemsService = {
+      loading$: new BehaviorSubject<boolean>(false),
+      loadError$: new BehaviorSubject<unknown | null>(null),
+      systems$: new BehaviorSubject<TargetSystem[]>([]),
+      systemById$: new BehaviorSubject(new Map()),
+      activeAutomaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
+      load: jest.fn().mockResolvedValue(undefined),
+      setEnabled: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
+    };
+    daemonsService = { forgetTargetSystem: jest.fn() };
+    dialogService = mock<DialogService>();
+    dialogService.openSimpleDialog.mockResolvedValue(false);
+    toastService = mock<ToastService>();
+
+    await createComponent();
   });
 
   it("calls load with the organization id on init", () => {
@@ -277,28 +283,7 @@ describe("TargetSystemsTabComponent", () => {
     beforeEach(async () => {
       TestBed.resetTestingModule();
 
-      await TestBed.configureTestingModule({
-        imports: [TargetSystemsTabComponent, ReactiveFormsModule, NoopAnimationsModule],
-        providers: [
-          provideRouter([]),
-          { provide: TargetSystemsService, useValue: targetSystemsService },
-          { provide: DaemonsService, useValue: daemonsService },
-          { provide: I18nService, useValue: i18nFake },
-          { provide: DialogService, useValue: dialogService },
-          { provide: ToastService, useValue: toastService },
-          {
-            provide: ActivatedRoute,
-            useValue: {
-              params: of({ organizationId: ORGANIZATION_ID }),
-              snapshot: { params: { organizationId: ORGANIZATION_ID } },
-            },
-          },
-        ],
-      }).compileComponents();
-
-      fixture = TestBed.createComponent(TargetSystemsTabComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
+      await createComponent({ renderTemplate: true });
     });
 
     it("renders the load-error state instead of the empty state", () => {
@@ -306,7 +291,7 @@ describe("TargetSystemsTabComponent", () => {
       fixture.detectChanges();
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector('[data-testid="target-systems-load-error"]')).not.toBeNull();
+      expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
       expect(el.textContent).toContain("pamRotationListLoadErrorTitle");
       expect(el.textContent).not.toContain("pamNoTargetSystemsYetTitle");
       expect(el.textContent).not.toContain("pamTargetSystemsStartFromTemplate");
@@ -318,7 +303,7 @@ describe("TargetSystemsTabComponent", () => {
       targetSystemsService.load.mockClear();
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>("#target-systems-tab_button_retry-load")!
+        .querySelector<HTMLButtonElement>("#rotation-load-error_button_retry")!
         .click();
       await fixture.whenStable();
 
