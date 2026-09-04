@@ -164,6 +164,12 @@ describe("AccessRuleEditComponent — page furniture", () => {
     return fixture;
   };
 
+  const singleHeading = (fixture: ComponentFixture<AccessRuleEditComponent>): HTMLElement => {
+    const headings = fixture.nativeElement.querySelectorAll("h1");
+    expect(headings).toHaveLength(1);
+    return headings[0];
+  };
+
   it("shows the rule's name as the heading, with the list and edit-page crumbs", async () => {
     const fixture = await render(
       { params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } },
@@ -209,9 +215,7 @@ describe("AccessRuleEditComponent — page furniture", () => {
 
     // The rule's name stays the page's real `<h1>`; the page-type crumb above is a static span,
     // never a routed `bit-breadcrumb` that VFO1 could promote into a second heading.
-    const headings = fixture.nativeElement.querySelectorAll("h1");
-    expect(headings).toHaveLength(1);
-    expect(headings[0].textContent).toContain("Production database access");
+    expect(singleHeading(fixture).textContent).toContain("Production database access");
   });
 
   it("shows the create-page crumb and heading in create mode", async () => {
@@ -231,9 +235,7 @@ describe("AccessRuleEditComponent — page furniture", () => {
     );
     expect(pageTypeCrumb.textContent.trim()).toBe("pamAccessRuleCreateTitle");
 
-    const headings = fixture.nativeElement.querySelectorAll("h1");
-    expect(headings).toHaveLength(1);
-    expect(headings[0].textContent).toContain("pamAccessRuleCreateTitle");
+    expect(singleHeading(fixture).textContent).toContain("pamAccessRuleCreateTitle");
   });
 
   it("badges the saved rule as on, inside the heading", async () => {
