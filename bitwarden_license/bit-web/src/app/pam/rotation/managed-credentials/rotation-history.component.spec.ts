@@ -154,10 +154,59 @@ describe("RotationHistoryComponent", () => {
       );
     });
   });
+
+  describe("failureCauseLabelKey", () => {
+    it.each([
+      ["target_rejected: LDAP result code 19", "pamRotationFailureCausePasswordRejected"],
+      ["target_rejected: LDAP result code 32", "pamRotationFailureCauseAccountNotFound"],
+      ["target_rejected: LDAP result code 49", "pamRotationFailureCauseInvalidCredentials"],
+      ["target_rejected: LDAP result code 50", "pamRotationFailureCauseInsufficientRights"],
+      ["target_rejected: LDAP result code 53", "pamRotationFailureCauseDirectoryRefused"],
+      ["target_rejected: ldap error code 50", "pamRotationFailureCauseInsufficientRights"],
+      [
+        "target_unreachable: error kind: ConnectionRefused",
+        "pamRotationFailureCauseTargetUnreachable",
+      ],
+    ])("maps %s to %s", (failureReason, expected) => {
+      setup([]);
+      expect((component as any).failureCauseLabelKey(failureReason)).toBe(expected);
+    });
+
+    it.each([
+      ["target_rejected: LDAP result code 68"],
+      ["target unreachable"],
+      ["flaky target"],
+      ["target_rejected"],
+    ])("returns null for %s", (failureReason) => {
+      setup([]);
+      expect((component as any).failureCauseLabelKey(failureReason)).toBeNull();
+    });
+  });
+
+  describe("explainedFailureDetail", () => {
+    it("returns the recorded reason when an explanation replaced it", () => {
+      setup([]);
+      expect(
+        (component as any).explainedFailureDetail("target_rejected: LDAP result code 50"),
+      ).toBe("target_rejected: LDAP result code 50");
+    });
+
+    it("returns null for an unrecognised reason", () => {
+      setup([]);
+      expect((component as any).explainedFailureDetail("flaky target")).toBeNull();
+    });
+
+    it("returns null when no reason was recorded", () => {
+      setup([]);
+      expect((component as any).explainedFailureDetail(undefined)).toBeNull();
+    });
+  });
 });
 
 describe("RotationHistoryComponent rendering", () => {
-  const i18nFake: Pick<I18nService, "t"> = { t: (id: string) => id };
+  const i18nFake: Pick<I18nService, "t"> = {
+    t: (id: string, ...substitutions: (string | number)[]) => [id, ...substitutions].join(" "),
+  };
 
   function render(jobs: RotationJob[]) {
     TestBed.configureTestingModule({
@@ -234,5 +283,22 @@ describe("RotationHistoryComponent rendering", () => {
     expect(text).toContain("pamRotationAttemptStatusErrored");
     expect(text).toContain("LDAP result code 53");
     expect(text).toContain("pamRotationSyncStateIndeterminate");
+  });
+
+  it("explains a recognised failure and carries the recorded reason on its own line", () => {
+    const fixture = render([
+      rotationJob({
+        attempts: [
+          rotationAttempt({
+            status: RotationAttemptStatus.Errored,
+            failureReason: "target_rejected: LDAP result code 50",
+          }),
+        ],
+      }),
+    ]);
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain("pamRotationFailureCauseInsufficientRights");
+    expect(text).toContain("pamRotationFailureReportedDetail target_rejected: LDAP result code 50");
   });
 });
