@@ -5,6 +5,7 @@ import { action } from "storybook/actions";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -35,8 +36,8 @@ import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
 import { VaultItemsTableComponent, VaultItemsTableFilters } from "./vault-items-table.component";
 
 const organizations = [
-  { id: "org-1", name: "Acme corporation" },
-  { id: "org-2", name: "Contoso" },
+  { id: "org-1", name: "Acme corporation", enabled: true },
+  { id: "org-2", name: "Contoso", enabled: true },
 ] as Organization[];
 
 /**
@@ -368,7 +369,8 @@ const rowActions: VaultItemsTableRowAction<CipherView>[] = [
  */
 type StoryProps = {
   ciphers: CipherView[];
-  organizationId?: OrganizationId;
+  scopedOrganizationId?: OrganizationId;
+  orgRequiresDataOwnership: boolean;
   loading: boolean;
   rowActions: VaultItemsTableRowAction<CipherView>[];
   folders: FolderView[];
@@ -392,7 +394,8 @@ const template = `
   <div style="display:flex; min-height: 600px;">
     <vault-items-table
       [ciphers]="ciphers"
-      [organizationId]="organizationId"
+      [scopedOrganizationId]="scopedOrganizationId"
+      [orgRequiresDataOwnership]="orgRequiresDataOwnership"
       [loading]="loading"
       [rowActions]="rowActions"
       [folders]="folders"
@@ -415,6 +418,7 @@ const template = `
 const baseProps: StoryProps = {
   ciphers,
   loading: false,
+  orgRequiresDataOwnership: false,
   rowActions,
   folders,
   collections,
@@ -450,7 +454,9 @@ export default {
               foldersFilterTooltip: "Add folders to items to filter them here.",
               noneFolder: "No folder",
               noSharedFolder: "No shared folder",
-              filterByName: (name) => `Filter by ${name}`,
+              // Chip group overflow, for the membership columns
+              showMore: "Show more",
+              showMoreCount: (count) => `Show ${count} more`,
               itemCount: (count) => `${count} items`,
               filter: "Filter",
               filters: "Filters",
@@ -513,6 +519,10 @@ export default {
           provide: AccountService,
           useValue: { activeAccount$: of({ id: "user-1" }) },
         },
+        {
+          provide: AvatarService,
+          useValue: { getUserAvatarColor$: () => of("#175ddc") },
+        },
         // The real search service, so the search box behaves here exactly as it does in a client —
         // including `>`-prefixed lunr queries. It's built directly rather than injected so it can
         // be handed a `locale$`, which `I18nMockService` doesn't implement.
@@ -574,9 +584,12 @@ export const Loading: Story = {
  * An empty `ciphers` array. The copy invites the user to add their first item, which is why this
  * state is worth distinguishing from [Filtered To Zero](#filtered-to-zero) — there, the fix is to
  * clear a filter rather than to add anything.
+ *
+ * `organizations` and `collections` are cleared so the Vault and Shared folders chips don't appear
+ * when there is nothing in the vault — a new user has no org context yet.
  */
 export const Empty: Story = {
-  args: { ciphers: [] },
+  args: { ciphers: [], organizations: [], collections: [] },
 };
 
 /**
@@ -652,34 +665,37 @@ export const ManyFilterOptions: Story = {
 };
 
 /**
- * Scoping the table to one vault takes nothing but a narrower `ciphers` — the table works the rest
- * out from the rows, and `organizations` can stay bound.
+ * Scoping the table to one vault takes nothing but a narrower `ciphers` and an empty
+ * `organizations` array — the table works the rest out from those two inputs.
  *
- * With every row in the individual vault, the Vault chip and column drop out, and so do Shared
- * folders, since an individually-owned item can't belong to one. Render the page heading yourself:
- * once the Vault column is gone, it's what tells the user where they are.
+ * With no organizations provided, the Vault chip and column drop out, and so do Shared folders,
+ * since an individually-owned item can't belong to one. Render the page heading yourself: once the
+ * Vault column is gone, it's what tells the user where they are.
  */
 export const ScopedToMyVault: Story = {
   args: {
     heading: "My vault",
     ciphers: ciphers.filter((cipher) => !cipher.organizationId),
+    organizations: [],
+    collections: [],
   },
 };
 
 /**
- * The same scoping to a single organization — see [Scoped To My Vault](#scoped-to-my-vault). Shared
- * folders stays useful here, since the rows still spread across that organization's collections.
+ * The same scoping to a single organization — see [Scoped To My Vault](#scoped-to-my-vault).
+ * Shared folders stays useful here, since the rows still spread across that organization's
+ * collections.
  *
- * This story also binds `organizationId`, which is what an admin-console caller adds so the search
- * service scopes its lunr index to that organization. Note that it changes nothing you can see:
- * narrowing `ciphers` is what dropped the Vault chip and column, and it would have dropped them
- * just the same with `organizationId` left unset.
+ * Passing only the scoped organization drops the Vault chip and column: a single org with no
+ * personal-vault option (suppressed by `scopedOrganizationId`) leaves nothing to distinguish
+ * between. `scopedOrganizationId` also scopes the search service's lunr index to this org.
  */
 export const ScopedToOrganizationVault: Story = {
   args: {
     heading: "Acme corporation's vault",
     ciphers: ciphers.filter((cipher) => cipher.organizationId === "org-1"),
-    organizationId: "org-1" as OrganizationId,
+    organizations: [organizations[0]],
+    scopedOrganizationId: "org-1" as OrganizationId,
   },
 };
 

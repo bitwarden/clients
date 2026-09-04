@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType, FieldType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -8,6 +10,7 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
+import { BankAccountView as SdkBankAccountView } from "@bitwarden/sdk-internal";
 
 import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
@@ -21,12 +24,19 @@ import { PasswordDepotItemType, PasswordDepotCustomFieldType } from "./types";
  * It provides methods to parse the XML data, extract relevant information, and create cipher objects
  */
 export class PasswordDepot17XmlImporter extends BaseImporter implements Importer {
+  constructor(private configService: ConfigService) {
+    super();
+  }
+
   result = new ImportResult();
 
   _favouritesLookupTable = new Set<string>();
 
   // Parse the XML data from the Password Depot export file and extracts the relevant information
-  parse(data: string): Promise<ImportResult> {
+  async parse(data: string): Promise<ImportResult> {
+    const useNewDedicatedTypes = await this.configService.getFeatureFlag(
+      FeatureFlag.PM32009NewItemTypes,
+    );
     const doc: XMLDocument = this.parseXml(data);
     if (doc == null) {
       this.result.success = false;
@@ -86,7 +96,7 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
     this.buildFavouritesLookupTable(rootNode);
 
     this.querySelectorAllDirectChild(passwordsNode, "group").forEach((group) => {
-      this.traverse(group, "");
+      this.traverse(group, "", useNewDedicatedTypes);
     });
 
     if (this.organization) {
@@ -100,7 +110,7 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
   // Traverses the XML tree and processes each node
   // It starts from the root node and goes through each group and item
   // This method is recursive and handles nested groups
-  private traverse(node: Element, groupPrefixName: string) {
+  private traverse(node: Element, groupPrefixName: string, useNewDedicatedTypes: boolean) {
     const folderIndex = this.result.folders.length;
     let groupName = groupPrefixName;
 
@@ -119,7 +129,7 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
     }
 
     this.querySelectorAllDirectChild(node, "item").forEach((entry) => {
-      const cipherIndex = this.result.ciphers.length;
+      const initialNumCiphers = this.result.ciphers.length;
 
       const cipher = this.initLoginCipher();
       //Set default item type similar how we default to Login in other importers
@@ -199,7 +209,7 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
         }
 
         if (entryField.tagName === "customfields") {
-          this.parseCustomFields(entryField, sourceType, cipher);
+          this.parseCustomFields(entryField, sourceType, cipher, useNewDedicatedTypes);
           continue;
         }
 
@@ -217,12 +227,16 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
       this.result.ciphers.push(cipher);
 
       if (groupName !== "") {
-        this.result.folderRelationships.push([cipherIndex, folderIndex]);
+        for (let i = initialNumCiphers; i < this.result.ciphers.length; i++) {
+          // Since we can add multiple ciphers per item (e.g. bank accounts)
+          // we want to add every item to the same folder
+          this.result.folderRelationships.push([i, folderIndex]);
+        }
       }
     });
 
     this.querySelectorAllDirectChild(node, "group").forEach((group) => {
-      this.traverse(group, groupName);
+      this.traverse(group, groupName, useNewDedicatedTypes);
     });
   }
 
@@ -232,7 +246,17 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
     entryField: Element,
     sourceType: PasswordDepotItemType,
     cipher: CipherView,
+    useNewDedicatedTypes: boolean,
   ) {
+    // If feature flag is on and we're creating a Banking entry we want to
+    // also create a new cipher specifically for the bank account information
+    let bankAccountCipher: CipherView | null = null;
+    if (useNewDedicatedTypes && sourceType === PasswordDepotItemType.Banking) {
+      bankAccountCipher = this.initLoginCipher();
+      bankAccountCipher.name = cipher.name;
+      bankAccountCipher.type = CipherType.BankAccount;
+    }
+
     this.querySelectorAllDirectChild(entryField, "field").forEach((customField) => {
       const customFieldObject = this.parseCustomField(customField);
       if (customFieldObject == null) {
@@ -255,6 +279,14 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
             return;
           }
           break;
+        case PasswordDepotItemType.Banking:
+          if (
+            useNewDedicatedTypes &&
+            this.parseBankAccountCustomFields(customFieldObject, bankAccountCipher)
+          ) {
+            return;
+          }
+          break;
         default:
           // For other types, we will process the custom field as a regular key-value pair
           break;
@@ -267,6 +299,30 @@ export class PasswordDepot17XmlImporter extends BaseImporter implements Importer
         customFieldObject.type,
       );
     });
+
+    if (bankAccountCipher !== null) {
+      this.cleanupCipher(bankAccountCipher);
+      this.result.ciphers.push(bankAccountCipher);
+    }
+  }
+
+  private bankAccountFieldMapping = new Map<string, keyof SdkBankAccountView>([
+    ["IDS_ECHolder", "nameOnAccount"],
+    ["IDS_ECAccountNumber", "accountNumber"],
+    ["IDS_ECBLZ", "routingNumber"],
+    ["IDS_ECBankName", "bankName"],
+    ["IDS_ECIBAN", "iban"],
+    ["IDS_ECPhone", "bankContactPhone"],
+    ["IDS_ECPIN", "pin"],
+  ]);
+  // Parses bank account custom fields and adds them to the cipher
+  private parseBankAccountCustomFields(entryField: FieldView, cipher: CipherView) {
+    const fieldMapping = this.bankAccountFieldMapping.get(entryField.name);
+    if (fieldMapping) {
+      cipher.bankAccount[fieldMapping] = entryField.value;
+      return true;
+    }
+    return false;
   }
 
   // Parses login fields and adds them to the cipher

@@ -13,7 +13,14 @@ import { AriaDisableDirective } from "../../a11y/aria-disable.directive";
 import { ariaDisableElement } from "../../utils/aria-disable-element";
 
 // Helper constants for Storybook and default values
-export const CHIP_VARIANTS = ["primary", "subtle", "accent-primary", "accent-secondary"] as const;
+// "filter" is a unique deprecated variant for the filter chip
+export const CHIP_VARIANTS = [
+  "primary",
+  "subtle",
+  "accent-primary",
+  "accent-secondary",
+  "filter",
+] as const;
 export type ChipVariant = (typeof CHIP_VARIANTS)[number];
 
 export const CHIP_SIZES = ["small", "large"] as const;
@@ -44,7 +51,6 @@ const inactiveStyles = [
   "aria-disabled:tw-pointer-events-none",
 ];
 
-// Variant color mappings using design token system
 const variantStyles: Record<ChipVariant, string[]> = {
   primary: [
     "tw-bg-bg-brand-softer",
@@ -56,8 +62,21 @@ const variantStyles: Record<ChipVariant, string[]> = {
     "has-[a:hover]:tw-bg-bg-brand-soft",
     "has-[button:focus-visible:not([bit-chip-dismiss-button])]:tw-bg-bg-brand-soft",
     "has-[a:focus-visible]:tw-bg-bg-brand-soft",
+    "has-[[aria-expanded=true]]:tw-bg-bg-brand-soft",
   ],
   subtle: [
+    "tw-bg-bg-secondary",
+    "tw-border-border-base",
+    "tw-text-fg-body",
+    "[&:is(button,a)]:hover:tw-bg-bg-quaternary",
+    "[&:is(button,a)]:focus-visible:tw-bg-bg-quaternary",
+    "has-[button:hover:not([bit-chip-dismiss-button])]:tw-bg-bg-quaternary",
+    "has-[a:hover]:tw-bg-bg-quaternary",
+    "has-[button:focus-visible:not([bit-chip-dismiss-button])]:tw-bg-bg-quaternary",
+    "has-[a:focus-visible]:tw-bg-bg-quaternary",
+  ],
+  // deprecated -- remove with filter chip variant
+  filter: [
     "tw-bg-bg-primary",
     "tw-border-border-base",
     "tw-text-fg-body",
@@ -67,6 +86,7 @@ const variantStyles: Record<ChipVariant, string[]> = {
     "has-[a:hover]:tw-bg-bg-quaternary",
     "has-[button:focus-visible:not([bit-chip-dismiss-button])]:tw-bg-bg-quaternary",
     "has-[a:focus-visible]:tw-bg-bg-quaternary",
+    "has-[[aria-expanded=true]]:tw-bg-bg-quaternary",
   ],
   "accent-primary": [
     "tw-bg-bg-accent-primary-soft",
@@ -78,6 +98,7 @@ const variantStyles: Record<ChipVariant, string[]> = {
     "has-[a:hover]:tw-bg-bg-accent-primary-medium",
     "has-[button:focus-visible:not([bit-chip-dismiss-button])]:tw-bg-bg-accent-primary-medium",
     "has-[a:focus-visible]:tw-bg-bg-accent-primary-medium",
+    "has-[[aria-expanded=true]]:tw-bg-bg-accent-primary-medium",
   ],
   "accent-secondary": [
     "tw-bg-bg-accent-secondary-soft",
@@ -89,6 +110,7 @@ const variantStyles: Record<ChipVariant, string[]> = {
     "has-[a:hover]:tw-bg-bg-accent-secondary-medium",
     "has-[button:focus-visible:not([bit-chip-dismiss-button])]:tw-bg-bg-accent-secondary-medium",
     "has-[a:focus-visible]:tw-bg-bg-accent-secondary-medium",
+    "has-[[aria-expanded=true]]:tw-bg-bg-accent-secondary-medium",
   ],
 };
 
