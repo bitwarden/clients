@@ -9,6 +9,10 @@
     "message": "Bitwarden pasahitz kudeatzailea",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden Password Manager Beta",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "Etxean, lanean edo bidean, Bitwardenek zure pasahitz, giltz orokor edo informazio delikatua erraz gordetzen du",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -535,6 +539,9 @@
   "foldersFilterTooltip": {
     "message": "Add folders to items to filter them here."
   },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
+  },
   "editItemWithName": {
     "message": "Edit item - $NAME$",
     "placeholders": {
@@ -750,6 +757,15 @@
   },
   "launchWebsite": {
     "message": "Launch website"
+  },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Webgunea"
@@ -1406,17 +1422,29 @@
   "additionalOptions": {
     "message": "Additional options"
   },
-  "fillAssistActiveNotice": {
-    "message": "Autofill is using Fill Assist on this page."
+  "fillAssistActiveNoticeV2": {
+    "message": "Autofill is using fill assist on this page."
   },
-  "activateFillAssist": {
-    "message": "Turn on Fill Assist"
+  "activateFillAssistV2": {
+    "message": "Turn on fill assist"
   },
-  "activateFillAssistDescription": {
-    "message": "Fill Assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  "activateFillAssistDescriptionV2": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
   },
-  "aboutFillAssistLabel": {
-    "message": "About Fill Assist"
+  "aboutFillAssistLabelV2": {
+    "message": "About fill assist"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Allow websites to exclude fields to autofill"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Skip fields that a website marks with the `data-bwignore` attribute."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Allow websites to add fields to autofill"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Use any span elements that a website marks with the `data-bwautofill` attribute."
   },
   "enableContextMenuItem": {
     "message": "Erakutsi laster-menuko aukerak"
@@ -2737,6 +2765,18 @@
   "noMatchingItems": {
     "message": "No matching items"
   },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
+  },
   "selected": {
     "message": "Selected"
   },
@@ -3182,12 +3222,6 @@
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "No refresh token or API keys found. Please try logging out and logging back in."
-  },
-  "desktopSyncVerificationTitle": {
-    "message": "Mahaigaineko sinkronizazioaren egiaztatzea"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Mesedez, egiaztatu mahaigaineko aplikazioak hatz-marka digital hau erakusten duela: "
   },
   "desktopIntegrationDisabledTitle": {
     "message": "Nabigatzailearen integrazioa ez dago gaituta"
@@ -5939,6 +5973,12 @@
   "clearFiltersOrTryAnother": {
     "message": "Clear filters or try another search term"
   },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
+  },
   "moreOptionsLabel": {
     "message": "More options, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -7020,9 +7060,6 @@
   "compactMode": {
     "message": "Modu trinkoa"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "extensionWidth": {
     "message": "Extension width"
   },
@@ -7079,12 +7116,6 @@
         "example": "Work, Personal"
       }
     }
-  },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Please update your desktop application"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
@@ -7274,6 +7305,15 @@
   },
   "showMore": {
     "message": "Show more"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Show less"
@@ -7889,9 +7929,32 @@
     "message": "Risks identified",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
+  "upgradeToViewPasswords": {
+    "message": "Upgrade to view passwords"
+  },
   "categoryHealthy": {
     "message": "No items need attention",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Scanning your vault",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Checking for exposed, weak, and reused passwords.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "In progress",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Something went wrong",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "Your vault scan didn't complete due to an unexpected error.",
+    "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
     "message": "Exposed passwords"
@@ -7911,8 +7974,8 @@
   "reusedPasswordsDescription": {
     "message": "These logins have a reused password. Create a unique password for each account to prevent someone accessing multiple accounts with one password."
   },
-  "deleteAtRiskItemDescription": {
-    "message": "Deleting this login removes it from your vault but doesn't fix the risk. To protect your account, change your password first."
+  "deleteAtRiskItemDesc": {
+    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
   },
   "passwordHasAdditionalRisks": {
     "message": "This password has additional risks:"
@@ -7942,5 +8005,20 @@
   },
   "youreAllSet": {
     "message": "You're all set!"
+  },
+  "permissions": {
+    "message": "Permissions"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   }
 }

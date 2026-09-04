@@ -118,58 +118,58 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Name" xml:space="preserve">
-    <value>Bitwarden Password Manager</value>
+    <value>Bitwarden slaptažodžių tvarkyklė</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Namuose, darbe ar kelyje Bitwarden lengvai apsaugo visus jūsų slaptažodžius, prieigos raktus ir neskelbtiną informaciją.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Recognized as the best password manager by PCMag, WIRED, The Verge, CNET, G2, and more!
+    <value>PCMag, WIRED, The Verge, CNET, G2 ir kitų pripažinta geriausia slaptažodžių tvarkykle!
 
-SECURE YOUR DIGITAL LIFE
-Secure your digital life and protect against data breaches by generating and saving unique, strong passwords for every account. Maintain everything in an end-to-end encrypted password vault that only you can access.
+APSAUGOKITE SAVO SKAITMENINĮ GYVENIMĄ
+Apsaugokite savo skaitmeninį gyvenimą ir apsisaugokite nuo duomenų pažeidimų generuodami ir išsaugodami unikalius, stiprius slaptažodžius kiekvienai paskyrai. Visą informaciją laikykite galutiniu šifravimu apsaugotoje slaptažodžių saugykloje, prie kurios galite prieiti tik jūs.
 
-ACCESS YOUR DATA, ANYWHERE, ANYTIME, ON ANY DEVICE
-Easily manage, store, secure, and share unlimited passwords across unlimited devices without restrictions.
+PRIEIGA PRIE JŪSŲ DUOMENŲ BET KUR, BET KADA IR BET KOKIAME ĮTAISE
+Lengvai valdykite, saugokite, apsaugokite ir bendrinkite neribotą slaptažodžių skaičių neribotame skaičiuje įrenginių be apribojimų.
 
-EVERYONE SHOULD HAVE THE TOOLS TO STAY SAFE ONLINE
-Utilize Bitwarden for free with no ads or selling data. Bitwarden believes everyone should have the ability to stay safe online. Premium plans offer access to advanced features.
+VISI TURĖTŲ TURĖTI ĮRANKIUS, KAD BŪTŲ SAUGŪS INTERNETE
+Naudokite Bitwarden nemokamai be jokių reklamų ar duomenų pardavimo. Bitwarden tiki, kad visi turėtų turėti galimybę išlikti saugūs internete. Premium planai suteikia prieigą prie pažangių funkcijų.
 
-EMPOWER YOUR TEAMS WITH BITWARDEN
-Plans for Teams and Enterprise come with professional business features. Some examples include SSO integration, self-hosting, directory integration and SCIM provisioning, global policies, API access, event logs, and more.
+SUTEIKITE SAVO KOMANDOMS GALIMYBES NAUDODAMI BITWARDEN
+„Teams“ ir „Enterprise“ planai apima profesionalias verslo funkcijas. Kai kurie pavyzdžiai: SSO integravimas, savarankiškas priegloba, katalogų integravimas ir SCIM parengimas, visuotinės strategijos, API prieiga, įvykių žurnalai ir kt.
 
-Use Bitwarden to secure your workforce and share sensitive information with colleagues.
+Naudokite Bitwarden, kad apsaugotumėte savo darbo jėgą ir bendrintumėte slaptą informaciją su kolegomis.
 
 
-More reasons to choose Bitwarden:
+Daugiau priežasčių pasirinkti Bitwarden:
 
-World-Class Encryption
-Passwords are protected with advanced end-to-end encryption (AES-256 bit, salted hashing, and PBKDF2 SHA-256) so your data stays secure and private.
+Pasaulinio lygio šifravimas
+Slaptažodžiai yra apsaugoti pažangiu šifravimu (AES-256 bit, salted hashing, ir PBKDF2 SHA-256), todėl jūsų duomenys išlieka saugūs ir privatūs.
 
-3rd-party Audits
-Bitwarden regularly conducts comprehensive third-party security audits with notable security firms. These annual audits include source code assessments and penetration testing across Bitwarden IPs, servers, and web applications.
+Trečiųjų šalių auditai
+Bitwarden reguliariai atlieka išsamius trečiųjų šalių saugumo auditus su žinomomis saugumo įmonėmis. Šie kasmetiniai auditai apima šaltinio kodo vertinimus ir įsiskverbimo testus Bitwarden IP, serveriuose ir žiniatinklio programose.
 
-Advanced 2FA
-Secure your login with a third-party authenticator, emailed codes, or FIDO2 WebAuthn credentials such as a hardware security key or passkey.
+Išplėstinė 2FA
+Apsaugokite savo prisijungimą naudodami trečiosios šalies autentifikavimo priemonę, el. paštu siunčiamus kodus arba FIDO2 WebAuthn kredencialus, pvz., aparatinės įrangos saugos raktą arba prieigos raktą.
 
-Bitwarden Send
-Transmit data directly to others while maintaining end-to-end encrypted security and limiting exposure.
+Bitwarden Siųsti
+Perduokite duomenis tiesiogiai kitiems, išlaikydami visišką šifruotą saugumą ir apribodami poveikį.
 
-Built-in Generator
-Create long, complex, and distinct passwords and unique usernames for every site you visit. Integrate with email alias providers for additional privacy.
+Įmontuotas generatorius
+Sukurkite ilgus, sudėtingus ir skirtingus slaptažodžius bei unikalius naudotojų vardus kiekvienai svetainei, kurią lankotės. Integruokite su el. pašto pseudonimų teikėjais, kad būtų užtikrintas papildomas privatumas.
 
-Global Translations
-Bitwarden translations exist for more than 60 languages, translated by the global community though Crowdin.
+Visuotiniai vertimai
+Bitwarden vertimai egzistuoja daugiau nei 60 kalbų, išversti pasaulinės bendruomenės per „Crowdin“.
 
-Cross-Platform Applications
-Secure and share sensitive data within your Bitwarden Vault from any browser, mobile device, or desktop OS, and more.
+Kelių platformų taikomosios programos
+Saugiai ir bendrinkite neskelbtinus duomenis savo Bitwarden saugykloje iš bet kurios naršyklės, mobiliojo įrenginio ar darbalaukio OS ir dar daugiau.
 
-Bitwarden secures more than just passwords
-End-to-end encrypted credential management solutions from Bitwarden empower organizations to secure everything, including developer secrets and passkey experiences. Visit Bitwarden.com to learn more about Bitwarden Secrets Manager and Bitwarden Passwordless.dev!
+Bitwarden apsaugo ne tik slaptažodžius
+Bitwarden galutinio šifravimo kredencialų valdymo sprendimai suteikia organizacijoms galimybę apsaugoti viską, įskaitant kūrėjų paslaptis ir passkey patirtį. Apsilankykite Bitwarden.com, kad sužinotumėte daugiau apie Bitwarden Secrets Manager ir Bitwarden Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information.</value>
+    <value>Namuose, darbe ar kelyje Bitwarden lengvai apsaugo visus jūsų slaptažodžius, prieigos raktus ir neskelbtiną informaciją.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
     <value>Pasiekite savo saugyklą iš kelių įrenginių</value>

@@ -9,6 +9,10 @@
     "message": "Bitwarden 密碼管理工具",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden Password Manager Beta",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "無論在家、在工作場所或外出時，Bitwarden 都能輕鬆保護您的所有密碼、密碼金鑰及敏感資訊。",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -535,6 +539,9 @@
   "foldersFilterTooltip": {
     "message": "Add folders to items to filter them here."
   },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
+  },
   "editItemWithName": {
     "message": "Edit item - $NAME$",
     "placeholders": {
@@ -750,6 +757,15 @@
   },
   "launchWebsite": {
     "message": "開啟網站"
+  },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "網站"
@@ -1406,17 +1422,29 @@
   "additionalOptions": {
     "message": "其他選項"
   },
-  "fillAssistActiveNotice": {
-    "message": "自動填入功能正在此頁面使用「填入輔助」。"
+  "fillAssistActiveNoticeV2": {
+    "message": "Autofill is using fill assist on this page."
   },
-  "activateFillAssist": {
-    "message": "啟用填入輔助"
+  "activateFillAssistV2": {
+    "message": "Turn on fill assist"
   },
-  "activateFillAssistDescription": {
-    "message": "填入輔助會使用網站專屬規則，提高支援網站上的自動填入準確性。使用此功能時，不會收集或儲存任何資料。"
+  "activateFillAssistDescriptionV2": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
   },
-  "aboutFillAssistLabel": {
-    "message": "關於填入輔助"
+  "aboutFillAssistLabelV2": {
+    "message": "About fill assist"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Allow websites to exclude fields to autofill"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Skip fields that a website marks with the `data-bwignore` attribute."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Allow websites to add fields to autofill"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Use any span elements that a website marks with the `data-bwautofill` attribute."
   },
   "enableContextMenuItem": {
     "message": "顯示內容選單選項"
@@ -2737,6 +2765,18 @@
   "noMatchingItems": {
     "message": "沒有相符的項目"
   },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
+  },
   "selected": {
     "message": "已選擇"
   },
@@ -3182,12 +3222,6 @@
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "未找到重新整理權杖或 API 金鑰。請先登出再重新登入。"
-  },
-  "desktopSyncVerificationTitle": {
-    "message": "桌面應用程式同步驗證"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "請確認桌面應用程式顯示以下指紋："
   },
   "desktopIntegrationDisabledTitle": {
     "message": "瀏覽器整合尚未設定"
@@ -5939,6 +5973,12 @@
   "clearFiltersOrTryAnother": {
     "message": "清除過濾器或更換另一個搜尋條件"
   },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
+  },
   "moreOptionsLabel": {
     "message": "更多選項, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -7020,9 +7060,6 @@
   "compactMode": {
     "message": "緊湊模式"
   },
-  "beta": {
-    "message": "測試版"
-  },
   "extensionWidth": {
     "message": "擴充套件寬度"
   },
@@ -7079,12 +7116,6 @@
         "example": "Work, Personal"
       }
     }
-  },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "請更新您的桌面應用程式"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "為了使用生物辨識解鎖，請更新您的桌面應用程式，或在設定中停用指紋解鎖。"
   },
   "changeAtRiskPassword": {
     "message": "變更有風險的密碼"
@@ -7274,6 +7305,15 @@
   },
   "showMore": {
     "message": "顯示更多"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "顯示較少"
@@ -7889,9 +7929,32 @@
     "message": "Risks identified",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
+  "upgradeToViewPasswords": {
+    "message": "Upgrade to view passwords"
+  },
   "categoryHealthy": {
     "message": "No items need attention",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Scanning your vault",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Checking for exposed, weak, and reused passwords.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "In progress",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Something went wrong",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "Your vault scan didn't complete due to an unexpected error.",
+    "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
     "message": "Exposed passwords"
@@ -7911,8 +7974,8 @@
   "reusedPasswordsDescription": {
     "message": "These logins have a reused password. Create a unique password for each account to prevent someone accessing multiple accounts with one password."
   },
-  "deleteAtRiskItemDescription": {
-    "message": "Deleting this login removes it from your vault but doesn't fix the risk. To protect your account, change your password first."
+  "deleteAtRiskItemDesc": {
+    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
   },
   "passwordHasAdditionalRisks": {
     "message": "This password has additional risks:"
@@ -7942,5 +8005,20 @@
   },
   "youreAllSet": {
     "message": "You're all set!"
+  },
+  "permissions": {
+    "message": "Permissions"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   }
 }

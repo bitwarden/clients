@@ -9,6 +9,10 @@
     "message": "Bitwarden パスワードマネージャー",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden パスワードマネージャー ベータ版",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "自宅、職場、または外出先でも、Bitwarden はすべてのパスワード、パスキー、機密情報を簡単に保護します。",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -535,6 +539,9 @@
   "foldersFilterTooltip": {
     "message": "フォルダーを追加すると、ここで絞り込めます。"
   },
+  "sharedFolderFilterTooltip": {
+    "message": "ここで絞り込むには、共有フォルダーにアイテムを追加してください。"
+  },
   "editItemWithName": {
     "message": "アイテムを編集 - $NAME$",
     "placeholders": {
@@ -750,6 +757,15 @@
   },
   "launchWebsite": {
     "message": "ウェブサイトを開く"
+  },
+  "launchWebsiteForName": {
+    "message": "$ITEMNAME$ のウェブサイトを開く",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "ウェブサイト"
@@ -1089,10 +1105,10 @@
     "message": "フォルダーを追加しました"
   },
   "folderEdited": {
-    "message": "Folder edited"
+    "message": "フォルダーを編集しました"
   },
   "enterAName": {
-    "message": "Enter a name."
+    "message": "名前を入力してください。"
   },
   "twoStepLoginConfirmation": {
     "message": "2段階認証を使うと、ログイン時にセキュリティキーや認証アプリ、SMS、電話やメールでの認証を必要にすることでアカウントをさらに安全に出来ます。2段階認証は bitwarden.com ウェブ保管庫で有効化できます。ウェブサイトを開きますか？"
@@ -1406,17 +1422,29 @@
   "additionalOptions": {
     "message": "追加オプション"
   },
-  "fillAssistActiveNotice": {
+  "fillAssistActiveNoticeV2": {
     "message": "自動入力はこのページで入力アシストを使用しています。"
   },
-  "activateFillAssist": {
+  "activateFillAssistV2": {
     "message": "入力アシストをオンにする"
   },
-  "activateFillAssistDescription": {
+  "activateFillAssistDescriptionV2": {
     "message": "入力アシストは、サイト固有のルールを使用して対応サイトの自動入力の精度を向上させます。この機能を使用してもデータが収集されたり保存されることはありません。"
   },
-  "aboutFillAssistLabel": {
+  "aboutFillAssistLabelV2": {
     "message": "入力アシストについて"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "自動入力項目の除外をウェブサイトに許可する"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "ウェブサイトが「data-bwignore」属性でマークした項目をスキップします。"
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "自動入力項目の追加をウェブサイトに許可する"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "ウェブサイトが「data-bwautofill」属性でマークしたすべての span 要素を使用します。"
   },
   "enableContextMenuItem": {
     "message": "コンテキストメニューオプションを表示"
@@ -2104,7 +2132,7 @@
     "message": "チェックボックス"
   },
   "cfTypeLinked": {
-    "message": "リンク済",
+    "message": "リンクされたフィールド",
     "description": "This describes a field that is 'linked' (tied) to another field."
   },
   "linkedValue": {
@@ -2737,6 +2765,18 @@
   "noMatchingItems": {
     "message": "一致するアイテムがありません"
   },
+  "noFiltersMatch": {
+    "message": "\"$SEARCH$\" に一致するフィルターはありません",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "検索をクリア"
+  },
   "selected": {
     "message": "選択中"
   },
@@ -3182,12 +3222,6 @@
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "リフレッシュトークンや API キーが見つかりませんでした。ログアウトして再度ログインしてください。"
-  },
-  "desktopSyncVerificationTitle": {
-    "message": "デスクトップ同期の検証"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "デスクトップアプリにこれが表示されていることを確認してください: "
   },
   "desktopIntegrationDisabledTitle": {
     "message": "ブラウザー統合が有効になっていません"
@@ -5163,16 +5197,16 @@
     "message": "Avira ウェブ保管庫で、「設定」→「マイデータ」→「データのエクスポート」に進み、CSV ファイルを保存します。"
   },
   "importBlurInstructions": {
-    "message": "In the Blur web vault, click your username at the top and go to \"Settings\" → \"Export Data\", then click \"Export CSV\" for your \"Accounts\"."
+    "message": "Blur のウェブ保管庫で、上部のユーザー名をクリックし、「設定」→「データのエクスポート」に移動し、「アカウント」の「CSV をエクスポート」をクリックします。"
   },
   "importSafeincloudInstructions": {
-    "message": "Using the SafeInCloud desktop application, navigate to \"File\" → \"Export\" → \"As XML\" and save the XML file."
+    "message": "SafeInCloud デスクトップアプリを使用して、「ファイル」→「エクスポート」→「XML として」に移動し、XML ファイルを保存します。"
   },
   "importPadlockInstructions": {
-    "message": "Using the Padlock desktop application, click the hamburger icon in the top left corner and navigate to \"Settings\" → \"Export\" button and save the file \"As CSV\"."
+    "message": "Padlock デスクトップアプリを使用して、左上隅のハンバーガーアイコンをクリックし、「設定」→「エクスポート」ボタンに移動し、ファイルを「CSV として」を保存します。"
   },
   "importKeepass2Instructions": {
-    "message": "Using the KeePass 2 desktop application, navigate to \"File\" → \"Export\" and select the \"KeePass XML (2.x)\" option."
+    "message": "KeePass 2 デスクトップアプリを使用して、「ファイル」→「エクスポート」に移動し、「KeePass XML (2.x)」オプションを選択します。"
   },
   "importUpmInstructions": {
     "message": "Using the Universal Password Manager desktop application, navigate to \"Database\" → \"Export\" and save the CSV file."
@@ -5701,7 +5735,7 @@
     "message": "Duo 認証"
   },
   "duoPushWaiting": {
-    "message": "Approve the Duo push notification on your device."
+    "message": "デバイスで Duo プッシュ通知を承認します。"
   },
   "duoSmsWaiting": {
     "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
@@ -5938,6 +5972,12 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "フィルタをクリアするか、別の検索ワードをお試しください"
+  },
+  "noSharedFoldersAdded": {
+    "message": "共有フォルダーが追加されていません"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "共有フォルダーを追加すると、保管庫アイテムを他のメンバーと安全に共有できます。"
   },
   "moreOptionsLabel": {
     "message": "$ITEMNAME$ のその他のオプション",
@@ -6243,7 +6283,7 @@
     "message": "所有者: あなた"
   },
   "linked": {
-    "message": "リンク済"
+    "message": "リンクされたフィールド"
   },
   "copySuccessful": {
     "message": "コピーしました"
@@ -6536,7 +6576,7 @@
     "message": "メールアドレスの記憶などのフォームのチェックボックスを自動入力する場合はチェックボックスを使用します"
   },
   "linkedHelpText": {
-    "message": "特定のウェブサイトで自動入力の問題が発生している場合は、リンクされたフィールドを使用します"
+    "message": "ウェブサイトで自動入力できない場合、ユーザー名・パスワードに紐付くフィールドをここで指定できます。"
   },
   "linkedFieldLabelHelpText": {
     "message": "フィールドの HTML ID、名前、aria-label、またはプレースホルダを入力してください。"
@@ -7020,9 +7060,6 @@
   "compactMode": {
     "message": "コンパクトモード"
   },
-  "beta": {
-    "message": "ベータ"
-  },
   "extensionWidth": {
     "message": "拡張機能の幅"
   },
@@ -7079,12 +7116,6 @@
         "example": "Work, Personal"
       }
     }
-  },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "デスクトップアプリを更新してください"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "生体認証によるロック解除を使用するには、デスクトップアプリを更新するか、デスクトップの設定で指紋認証によるロック解除を無効にしてください。"
   },
   "changeAtRiskPassword": {
     "message": "危険なパスワードの変更"
@@ -7274,6 +7305,15 @@
   },
   "showMore": {
     "message": "もっと見る"
+  },
+  "showMoreCount": {
+    "message": "$COUNT$ 件をさらに表示",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "隠す"
@@ -7889,9 +7929,32 @@
     "message": "リスクを検出しました",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
+  "upgradeToViewPasswords": {
+    "message": "アップグレードするとパスワードを表示できます"
+  },
   "categoryHealthy": {
     "message": "注意が必要なアイテムはありません",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "保管庫をスキャン中",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "流出済み・脆弱・再利用されたパスワードを確認しています。",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "進行中",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "何らかのエラーが発生しました",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "予期しないエラーのため、保管庫のスキャンが完了しませんでした。",
+    "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
     "message": "流出済みパスワード"
@@ -7911,8 +7974,8 @@
   "reusedPasswordsDescription": {
     "message": "これらのログイン情報には再利用されたパスワードがあります。誰かが1つのパスワードで複数のアカウントにアクセスできないように、各アカウントに固有のパスワードを作成してください。"
   },
-  "deleteAtRiskItemDescription": {
-    "message": "このログインを削除すると保管庫から削除されますが、リスクは解決されません。アカウントを保護するには、まずパスワードを変更してください。"
+  "deleteAtRiskItemDesc": {
+    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
   },
   "passwordHasAdditionalRisks": {
     "message": "このパスワードには追加のリスクがあります："
@@ -7942,5 +8005,20 @@
   },
   "youreAllSet": {
     "message": "準備完了です！"
+  },
+  "permissions": {
+    "message": "権限"
+  },
+  "viewItems": {
+    "message": "アイテムを表示"
+  },
+  "viewItemsHidePass": {
+    "message": "アイテム、非表示のパスワードを表示"
+  },
+  "editItems": {
+    "message": "アイテムを編集"
+  },
+  "editItemsHidePass": {
+    "message": "アイテム、非表示のパスワードを編集"
   }
 }
