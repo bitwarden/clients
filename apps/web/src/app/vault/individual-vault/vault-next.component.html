@@ -1,9 +1,16 @@
 <app-header [title]="title()">
-  @if (collectionSelected()) {
-    <vault-collection-breadcrumbs
-      slot="breadcrumbs"
-      [scope]="parsedVaultScope()"
-    ></vault-collection-breadcrumbs>
+  @if (organizationScoped()) {
+    <vault-breadcrumbs slot="breadcrumbs" [scope]="parsedVaultScope()"></vault-breadcrumbs>
+  } @else if (headerTile(); as tile) {
+    <bit-icon-tile
+      slot="title-icon"
+      [icon]="tile.icon"
+      [variant]="tile.variant ?? 'primary'"
+      [color]="tile.color"
+      [emphasis]="tile.emphasis ?? 'subtle'"
+      size="sm"
+      aria-hidden="true"
+    />
   }
 </app-header>
 

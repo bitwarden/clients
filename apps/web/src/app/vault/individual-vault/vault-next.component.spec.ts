@@ -356,9 +356,9 @@ describe("VaultNextComponent", () => {
         expect(organizationIds()).toEqual([organizationId, otherOrganizationId]);
       });
 
-      it("leaves the search index unscoped and the header on its route title", () => {
+      it("leaves the search index unscoped and titles the header All items", () => {
         expect(component().scopedOrganizationId()).toBeUndefined();
-        expect(component().title()).toBeUndefined();
+        expect(component().title()).toBe("allItems");
       });
 
       it("offers Import and New item", () => {
@@ -390,9 +390,9 @@ describe("VaultNextComponent", () => {
           fixture.detectChanges();
         });
 
-        it("stays on All items, with the header on its route title", () => {
+        it("stays on All items, titling the header All items", () => {
           expect(component().vaultScope()).toEqual({ type: "allItems" });
-          expect(component().title()).toBeUndefined();
+          expect(component().title()).toBe("allItems");
         });
       });
     });
@@ -488,6 +488,19 @@ describe("VaultNextComponent", () => {
 
       it("titles the header with the organization name", () => {
         expect(component().title()).toBe("Acme corporation");
+      });
+
+      it("shows breadcrumbs rather than a header tile", () => {
+        expect(component().organizationScoped()).toBe(true);
+        expect(component().headerTile()).toBeUndefined();
+      });
+    });
+
+    describe("scoped to an organization's My items", () => {
+      beforeEach(() => scopeTo(organizationId, MY_ITEMS_ROUTE));
+
+      it("counts as an organization scope, so it shows breadcrumbs", () => {
+        expect(component().organizationScoped()).toBe(true);
       });
     });
 

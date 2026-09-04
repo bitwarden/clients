@@ -8,7 +8,13 @@ import {
 
 import { getOrgIconForTier } from "../components/org-icon.directive";
 
-import { VaultNavColor, VaultNavItemType, VaultNavItemViewModel } from "./vault-nav-view-model";
+import {
+  VaultNavColor,
+  VaultNavItemType,
+  VaultNavItemViewModel,
+  VaultsNavViewModel,
+} from "./vault-nav-view-model";
+import { VaultScope, VaultScopeType } from "./vault-scope";
 
 /**
  * The tile variant for an organization, keyed off its plan: Free and Families orgs read as personal
@@ -58,6 +64,17 @@ export function orgIconTile(tier: ProductTierType): IconTileOptions {
 }
 
 /**
+ * The icon tile for the "All items" destination, which spans every vault and so belongs to no one
+ * of them — the brand list tile the side nav and the page header share. A fixed triple, so a shared
+ * frozen value rather than a factory like {@link orgIconTile}.
+ */
+export const ALL_ITEMS_ICON_TILE: IconTileOptions = Object.freeze({
+  icon: "bwi-list",
+  variant: "brand",
+  emphasis: "bold",
+});
+
+/**
  * The icon tile for the user's own vault, tinted to match their avatar so the two read as the same
  * identity.
  *
@@ -98,4 +115,24 @@ export function navIconTile(vault: VaultNavItemViewModel): IconTileOptions {
     variant: familyTileVariant(vault.type === VaultNavItemType.Family),
     emphasis: "bold",
   };
+}
+
+/**
+ * The tile shown before a scoped vault's page title. Organization vaults carry their tile in the
+ * breadcrumb trail instead, and Trash and Archive have none, so both yield `undefined`.
+ */
+export function vaultScopeHeaderTile(
+  scope: VaultScope,
+  nav: VaultsNavViewModel | undefined,
+): IconTileOptions | undefined {
+  switch (scope.type) {
+    case VaultScopeType.AllItems:
+      return ALL_ITEMS_ICON_TILE;
+    case VaultScopeType.MyVault: {
+      const personal = nav?.vaults.find((vault) => vault.type === VaultNavItemType.Personal);
+      return personal == null ? undefined : navIconTile(personal);
+    }
+    default:
+      return undefined;
+  }
 }

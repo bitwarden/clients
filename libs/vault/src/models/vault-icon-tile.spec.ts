@@ -1,8 +1,21 @@
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { BitwardenIcon } from "@bitwarden/components";
 
-import { navIconTile, orgIconTile, personalIconTile, vaultTileColor } from "./vault-icon-tile";
-import { VaultNavItemType, VaultNavItemViewModel } from "./vault-nav-view-model";
+import {
+  ALL_ITEMS_ICON_TILE,
+  navIconTile,
+  orgIconTile,
+  personalIconTile,
+  vaultScopeHeaderTile,
+  vaultTileColor,
+} from "./vault-icon-tile";
+import {
+  VaultNavItemType,
+  VaultNavItemViewModel,
+  VaultsNavViewModel,
+} from "./vault-nav-view-model";
+import { VaultScopeType } from "./vault-scope";
 
 describe("vaultTileColor", () => {
   it("resolves a palette avatar color to its hex value", () => {
@@ -75,5 +88,50 @@ describe("personalIconTile", () => {
 
   it("tints the user icon with a custom avatar hex", () => {
     expect(personalIconTile("#123456")).toEqual({ icon: "bwi-user", color: "#123456" });
+  });
+});
+
+describe("vaultScopeHeaderTile", () => {
+  const personalNav: VaultsNavViewModel = {
+    vaults: [
+      {
+        id: "user-1",
+        label: "My vault",
+        type: VaultNavItemType.Personal,
+        color: "#abcdef",
+        icon: "bwi-user",
+      },
+    ],
+    organizationDataOwnership: false,
+  };
+
+  it("gives All items the brand list tile", () => {
+    expect(vaultScopeHeaderTile({ type: VaultScopeType.AllItems }, personalNav)).toEqual(
+      ALL_ITEMS_ICON_TILE,
+    );
+  });
+
+  it("gives My vault the personal tile from the nav", () => {
+    expect(vaultScopeHeaderTile({ type: VaultScopeType.MyVault }, personalNav)).toEqual({
+      icon: "bwi-user",
+      color: "#abcdef",
+    });
+  });
+
+  it("has no tile until the nav loads", () => {
+    expect(vaultScopeHeaderTile({ type: VaultScopeType.MyVault }, undefined)).toBeUndefined();
+  });
+
+  // Organization vaults carry their tile on the breadcrumb trail's root crumb instead.
+  it("has no tile for an organization vault, trash, or archive", () => {
+    const orgId = "1b2c3d4e-5f60-4a1b-8c2d-3e4f5a6b7c8d" as OrganizationId;
+    expect(
+      vaultScopeHeaderTile(
+        { type: VaultScopeType.Organization, organizationId: orgId },
+        personalNav,
+      ),
+    ).toBeUndefined();
+    expect(vaultScopeHeaderTile({ type: VaultScopeType.Trash }, personalNav)).toBeUndefined();
+    expect(vaultScopeHeaderTile({ type: VaultScopeType.Archive }, personalNav)).toBeUndefined();
   });
 });

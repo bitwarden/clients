@@ -86,6 +86,7 @@ import {
   ToastService,
   SearchModule,
   AutofocusDirective,
+  IconTileComponent,
 } from "@bitwarden/components";
 import {
   AddEditFolderDialogComponent,
@@ -126,7 +127,10 @@ import {
   resolveVaultScope,
   scopedCollectionSegment,
   SharedFolderCardGridComponent,
+  VaultBreadcrumbsComponent,
   VaultNavService,
+  vaultScopeHeaderTile,
+  vaultScopeTitle,
   VaultScopeType,
 } from "@bitwarden/vault";
 
@@ -169,6 +173,8 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     VaultOrganizationUserNotificationsComponent,
     AutofocusDirective,
     SharedFolderCardGridComponent,
+    VaultBreadcrumbsComponent,
+    IconTileComponent,
   ],
   providers: [
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
@@ -320,6 +326,36 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           : filter?.organizationId;
       return organizations?.find((org) => org.id === organizationId);
     }),
+  );
+
+  private readonly vaultNav$ = this.userId$.pipe(
+    switchMap((userId) => this.vaultNavService.viewModel$(userId)),
+  );
+
+  /** The scope's page title under VFO1; unset otherwise so the header keeps its route title. */
+  protected readonly title = toSignal(
+    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.selectedOrganization$]).pipe(
+      map(([vfo1Foundation, scope, organization]) =>
+        vfo1Foundation ? vaultScopeTitle(scope, this.i18nService, organization?.name) : undefined,
+      ),
+    ),
+  );
+
+  protected readonly headerTile = toSignal(
+    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.vaultNav$]).pipe(
+      map(([vfo1Foundation, scope, nav]) =>
+        vfo1Foundation ? vaultScopeHeaderTile(scope, nav) : undefined,
+      ),
+    ),
+  );
+
+  protected readonly organizationScoped = toSignal(
+    combineLatest([this.vfo1Foundation$, this.vaultScope$]).pipe(
+      map(
+        ([vfo1Foundation, scope]) => vfo1Foundation && scope.type === VaultScopeType.Organization,
+      ),
+    ),
+    { initialValue: false },
   );
 
   protected readonly showAddCipherBtn$ = combineLatest([

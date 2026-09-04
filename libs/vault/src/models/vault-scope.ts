@@ -1,5 +1,6 @@
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   CipherViewLike,
@@ -84,6 +85,37 @@ export type VaultScope =
   | { type: typeof VaultScopeType.Archive };
 
 export const ALL_ITEMS_SCOPE: VaultScope = { type: VaultScopeType.AllItems };
+
+/**
+ * The i18n key titling a scope's page. `null` for an organization vault, whose title is the
+ * organization's own name rather than a fixed string.
+ */
+function vaultScopeTitleKey(scope: VaultScope): string | null {
+  switch (scope.type) {
+    case VaultScopeType.MyVault:
+      return "myVault";
+    case VaultScopeType.Trash:
+      return "trash";
+    case VaultScopeType.Archive:
+      return "archiveNoun";
+    case VaultScopeType.Organization:
+      return null;
+    default:
+      return "allItems";
+  }
+}
+
+/**
+ * The page title for a scope: an organization vault's own name, or a localized string for the rest.
+ */
+export function vaultScopeTitle(
+  scope: VaultScope,
+  i18nService: I18nService,
+  organizationName?: string,
+): string | undefined {
+  const key = vaultScopeTitleKey(scope);
+  return key == null ? organizationName : i18nService.t(key);
+}
 
 /** The scopes named by a fixed route segment rather than an organization id. */
 const NAMED_SCOPES = new Map<string, VaultScope>([

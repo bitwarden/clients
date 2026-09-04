@@ -147,4 +147,4 @@ export {
   matchesFolder,
   idString,
 } from "./utils/vault-filter-predicates";
-export { VaultCollectionBreadcrumbsComponent } from "./components/vault-collection-breadcrumbs/vault-collection-breadcrumbs.component";
+export { VaultBreadcrumbsComponent } from "./components/vault-breadcrumbs/vault-breadcrumbs.component";

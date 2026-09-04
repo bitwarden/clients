@@ -7,7 +7,12 @@
       [queryParamsHandling]="queryParamsHandling(allItemsRoute)"
       [routerLinkActiveOptions]="exactRouteOptions"
     >
-      <bit-icon-tile icon="bwi-list" variant="brand" emphasis="bold" size="sm" />
+      <bit-icon-tile
+        [icon]="allItemsTile.icon"
+        [variant]="allItemsTile.variant ?? 'primary'"
+        [emphasis]="allItemsTile.emphasis ?? 'subtle'"
+        size="sm"
+      />
     </bit-nav-item>
   }
 
