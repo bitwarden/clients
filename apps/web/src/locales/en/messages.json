@@ -18821,6 +18821,9 @@
   "pamTargetSystemNotFound": {
     "message": "Target system not found."
   },
+  "pamTargetSystemDiscardTitle": {
+    "message": "Discard target system"
+  },
   "pamDaemonSearch": {
     "message": "Search daemons"
   },
@@ -19165,6 +19168,9 @@
   },
   "pamRotationConfigNotFound": {
     "message": "Managed credential not found."
+  },
+  "pamRotationConfigDiscardTitle": {
+    "message": "Discard managed credential"
   },
   "pamRotationConfigCreated": {
     "message": "Managed credential created."

@@ -1,8 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { ActivatedRoute, CanDeactivateFn, Router } from "@angular/router";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -324,6 +324,7 @@ export class RotationConfigEditComponent {
         request,
       );
       this.existingConfig.set(updated);
+      this.editForm.markAsPristine();
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamRotationConfigSaved"),
@@ -365,10 +366,53 @@ export class RotationConfigEditComponent {
     }
   };
 
-  protected readonly cancel = (): Promise<boolean> => this.navigateBack();
+  /** The form group that holds user input for the current mode. */
+  private liveForm(): AbstractControl {
+    return this.editing ? this.editForm : this.createForm;
+  }
+
+  /**
+   * Confirm before unsaved input is thrown away. Called both by Cancel and by the route's
+   * CanDeactivate guard, which covers the breadcrumb and browser back/forward — and which is the
+   * only protection on the edit view, where the footer carries no Cancel button.
+   */
+  async confirmDiscard(): Promise<boolean> {
+    if (!this.liveForm().dirty) {
+      return true;
+    }
+
+    // Creating: name the thing being abandoned, the managed credential itself. Editing: the
+    // credential already exists and only the edits are lost.
+    const copy = this.editing
+      ? {
+          title: { key: "discardEditsTitle" },
+          content: { key: "discardEditsConfirmation" },
+          acceptButtonText: { key: "discardEdits" },
+          cancelButtonText: { key: "keepEditing" },
+        }
+      : {
+          title: { key: "pamRotationConfigDiscardTitle" },
+          content: { key: "pamAccessRuleDiscardContent" },
+          acceptButtonText: { key: "pamAccessRuleDiscardConfirm" },
+          cancelButtonText: { key: "cancel" },
+        };
+
+    return await this.dialogService.openSimpleDialog({ ...copy, type: "warning" });
+  }
+
+  protected readonly cancel = async (): Promise<void> => {
+    if (!(await this.confirmDiscard())) {
+      return;
+    }
+
+    await this.navigateBack();
+  };
 
   /** Return to the managed-credentials tab. */
   private navigateBack(): Promise<boolean> {
+    // A create, a removal, a confirmed discard, or a not-found bounce is an exit the admin has
+    // already agreed to, so the CanDeactivate guard must not ask a second time.
+    this.liveForm().markAsPristine();
     return this.router.navigate([".."], { relativeTo: this.route });
   }
 
@@ -380,3 +424,7 @@ export class RotationConfigEditComponent {
     this.toastService.showToast({ variant: "error", message });
   }
 }
+
+export const rotationConfigEditDiscardGuard: CanDeactivateFn<RotationConfigEditComponent> = (
+  component,
+) => component.confirmDiscard();

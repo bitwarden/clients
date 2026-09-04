@@ -21,7 +21,10 @@ import {
   targetSystem,
 } from "../testing/rotation-builders";
 
-import { RotationConfigEditComponent } from "./rotation-config-edit.component";
+import {
+  RotationConfigEditComponent,
+  rotationConfigEditDiscardGuard,
+} from "./rotation-config-edit.component";
 
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string) => id,
@@ -318,5 +321,90 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
 
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
     expect(rotationSdk.deleteConfig).not.toHaveBeenCalled();
+  });
+});
+
+describe("RotationConfigEditComponent — discard guard", () => {
+  const CREATE_DIALOG = {
+    title: { key: "pamRotationConfigDiscardTitle" },
+    content: { key: "pamAccessRuleDiscardContent" },
+    acceptButtonText: { key: "pamAccessRuleDiscardConfirm" },
+    cancelButtonText: { key: "cancel" },
+    type: "warning",
+  };
+
+  const EDIT_DIALOG = {
+    title: { key: "discardEditsTitle" },
+    content: { key: "discardEditsConfirmation" },
+    acceptButtonText: { key: "discardEdits" },
+    cancelButtonText: { key: "keepEditing" },
+    type: "warning",
+  };
+
+  function runGuard(component: RotationConfigEditComponent): Promise<boolean> {
+    return rotationConfigEditDiscardGuard(
+      component,
+      null as never,
+      null as never,
+      null as never,
+    ) as Promise<boolean>;
+  }
+
+  it("leaves an untouched create form without asking", async () => {
+    const { component, fixture, dialogService } = setup();
+    await fixture.whenStable();
+
+    await expect(runGuard(component)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+  });
+
+  it("asks about an abandoned new managed credential", async () => {
+    const { component, fixture, dialogService } = setup();
+    await fixture.whenStable();
+    component.createForm.controls.accountIdentity.markAsDirty();
+
+    await expect(runGuard(component)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(CREATE_DIALOG);
+  });
+
+  it("asks about unsaved edits made in either card", async () => {
+    const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
+    await fixture.whenStable();
+    component.accountForm.controls.accountIdentity.markAsDirty();
+
+    await expect(runGuard(component)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(EDIT_DIALOG);
+  });
+
+  it("stays on the page when the operator keeps editing", async () => {
+    const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
+    await fixture.whenStable();
+    dialogService.openSimpleDialog.mockResolvedValue(false);
+    component.accountForm.controls.accountIdentity.markAsDirty();
+
+    await expect(runGuard(component)).resolves.toBe(false);
+  });
+
+  it("does not ask after a successful save", async () => {
+    const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
+    await fixture.whenStable();
+    component.accountForm.controls.accountIdentity.setValue("svc_rotation");
+    component.accountForm.controls.accountIdentity.markAsDirty();
+
+    await component.submitEdit();
+
+    await expect(runGuard(component)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+  });
+
+  it("does not ask again after the credential is removed", async () => {
+    const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
+    await fixture.whenStable();
+    component.accountForm.controls.accountIdentity.markAsDirty();
+
+    await component.removeRotation();
+
+    await expect(runGuard(component)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledTimes(1);
   });
 });

@@ -4,11 +4,17 @@ import { DaemonDetailComponent } from "./daemons/daemon-detail.component";
 import { DaemonsTabComponent } from "./daemons/daemons-tab.component";
 import { DaemonsService } from "./daemons/daemons.service";
 import { ManagedCredentialsTabComponent } from "./managed-credentials/managed-credentials-tab.component";
-import { RotationConfigEditComponent } from "./managed-credentials/rotation-config-edit.component";
+import {
+  RotationConfigEditComponent,
+  rotationConfigEditDiscardGuard,
+} from "./managed-credentials/rotation-config-edit.component";
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
 import { OrgCiphersService } from "./org-ciphers.service";
 import { RotationShellComponent } from "./rotation-shell.component";
-import { TargetSystemEditComponent } from "./target-systems/target-system-edit.component";
+import {
+  TargetSystemEditComponent,
+  targetSystemEditDiscardGuard,
+} from "./target-systems/target-system-edit.component";
 import { TargetSystemsTabComponent } from "./target-systems/target-systems-tab.component";
 import { TargetSystemsService } from "./target-systems/target-systems.service";
 
@@ -25,21 +31,25 @@ export const rotationRoutes: Routes = [
   {
     path: "managed-credentials/new",
     component: RotationConfigEditComponent,
+    canDeactivate: [rotationConfigEditDiscardGuard],
     data: { titleId: "pamRotationConfigCreateTitle" },
   },
   {
     path: "managed-credentials/:configId",
     component: RotationConfigEditComponent,
+    canDeactivate: [rotationConfigEditDiscardGuard],
     data: { titleId: "pamRotationConfigEditTitle" },
   },
   {
     path: "target-systems/new",
     component: TargetSystemEditComponent,
+    canDeactivate: [targetSystemEditDiscardGuard],
     data: { titleId: "pamTargetSystemCreateTitle" },
   },
   {
     path: "target-systems/:targetSystemId",
     component: TargetSystemEditComponent,
+    canDeactivate: [targetSystemEditDiscardGuard],
     data: { titleId: "pamTargetSystemEditTitle" },
   },
   {

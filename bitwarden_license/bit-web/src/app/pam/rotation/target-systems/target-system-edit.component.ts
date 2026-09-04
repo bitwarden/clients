@@ -11,7 +11,7 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, CanDeactivateFn, Router } from "@angular/router";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -440,6 +440,8 @@ export class TargetSystemEditComponent {
       // The write answers with no content, so re-read rather than assume the request body is now
       // the stored state.
       await this.loadSystem();
+      this.nameForm.markAsPristine();
+      this.policyForm.markAsPristine();
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamTargetSystemSaved"),
@@ -504,9 +506,56 @@ export class TargetSystemEditComponent {
     }
   };
 
-  protected readonly cancel = (): Promise<boolean> => this.navigateToList();
+  /**
+   * The form groups that hold user input for the current mode. The policy card is rendered through
+   * an `*ngTemplateOutlet` with its own `[formGroup]`, so it is a sibling of the mode's group
+   * rather than a child — `createForm.dirty` alone does not see a policy edit.
+   */
+  private liveForms(): AbstractControl[] {
+    return this.editing ? [this.nameForm, this.policyForm] : [this.createForm, this.policyForm];
+  }
+
+  /**
+   * Confirm before unsaved input is thrown away. Called both by Cancel and by the route's
+   * CanDeactivate guard, which covers the breadcrumb and browser back/forward. A pristine form
+   * has nothing to lose, so it skips the dialog rather than asking about an empty page.
+   */
+  async confirmDiscard(): Promise<boolean> {
+    if (!this.liveForms().some((form) => form.dirty)) {
+      return true;
+    }
+
+    // Creating: name the thing being abandoned, the target system itself. Editing: the system
+    // already exists and only the edits are lost, so the repo's shared wording is the true one.
+    const copy = this.editing
+      ? {
+          title: { key: "discardEditsTitle" },
+          content: { key: "discardEditsConfirmation" },
+          acceptButtonText: { key: "discardEdits" },
+          cancelButtonText: { key: "keepEditing" },
+        }
+      : {
+          title: { key: "pamTargetSystemDiscardTitle" },
+          content: { key: "pamAccessRuleDiscardContent" },
+          acceptButtonText: { key: "pamAccessRuleDiscardConfirm" },
+          cancelButtonText: { key: "cancel" },
+        };
+
+    return await this.dialogService.openSimpleDialog({ ...copy, type: "warning" });
+  }
+
+  protected readonly cancel = async (): Promise<void> => {
+    if (!(await this.confirmDiscard())) {
+      return;
+    }
+
+    await this.navigateToList();
+  };
 
   private navigateToList(): Promise<boolean> {
+    // A create, a confirmed discard, or a not-found bounce is an exit the admin has already agreed
+    // to, so the CanDeactivate guard must not ask a second time.
+    this.liveForms().forEach((form) => form.markAsPristine());
     return this.router.navigate([".."], { relativeTo: this.route });
   }
 
@@ -518,3 +567,7 @@ export class TargetSystemEditComponent {
     this.toastService.showToast({ variant: "error", message });
   }
 }
+
+export const targetSystemEditDiscardGuard: CanDeactivateFn<TargetSystemEditComponent> = (
+  component,
+) => component.confirmDiscard();
