@@ -215,9 +215,10 @@ export class SideNavService {
   }
 
   /**
-   * Called when a drag ends. Releasing in the collapsed preview zone commits to open at the default
-   * width; releasing in the tension zone springs back to the minimum. A drag that ended collapsed
-   * leaves the persisted width alone, so a customized width survives a collapse.
+   * Called when a drag ends. Release is what turns a provisional preview into a decision:
+   * released open in the tension zone commits the minimum, since the user dragged past a bound;
+   * released collapsed or aborted only clears the preview, since collapsing says nothing about
+   * width; released in the collapsed preview zone reopens at the width the user already had.
    */
   onDragEnd() {
     this.isDragging.set(false);

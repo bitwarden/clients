@@ -163,6 +163,57 @@ describe("SideNavService", () => {
       });
     });
 
+    /**
+     * The complete set of widths each gesture persists. A new write site should fail a row here
+     * rather than needing someone to have anticipated it.
+     *
+     * Two rows encode decisions the CL-1240 objective does not specify, and are open to challenge:
+     * releasing in the tension zone persists the minimum (symmetric with dragging past the maximum,
+     * which persists the maximum), and expanding a collapsed nav persists nothing because restoring
+     * a remembered width is not a new preference.
+     */
+    describe("what each gesture persists", () => {
+      const SAVED = 30.5;
+
+      it.each([
+        ["closing with toggle()", () => service.toggle(), []],
+        ["expanding with toggle()", () => (service.open.set(false), service.toggle()), []],
+        [
+          "expanding with ArrowRight",
+          () => (service.open.set(false), service.setWidthFromKeys("ArrowRight")),
+          [],
+        ],
+        ["ArrowLeft while open", () => service.setWidthFromKeys("ArrowLeft"), [SAVED - 1]],
+        ["ArrowRight while open", () => service.setWidthFromKeys("ArrowRight"), [SAVED + 1]],
+        ["dragging above the minimum", () => dragTo(24), [24]],
+        ["dragging into the tension zone", () => dragTo(10), []],
+        ["releasing in the tension zone", () => (dragTo(10), service.onDragEnd()), [15]],
+        ["dragging past the snap threshold", () => dragTo(3), []],
+        ["releasing after snapping closed", () => (dragTo(3), service.onDragEnd()), []],
+        ["previewing out from collapsed", () => (service.open.set(false), dragTo(8)), []],
+        [
+          "releasing a preview drag",
+          () => (service.open.set(false), dragTo(8), service.onDragEnd()),
+          [],
+        ],
+        [
+          "aborting a preview drag",
+          () => (service.open.set(false), dragTo(8), dragTo(2), service.onDragEnd()),
+          [],
+        ],
+        ["the container shrinking", () => service.maxPushWidthRem.set(20), []],
+      ])("persists %s", (_label, gesture, expected) => {
+        createService(SAVED);
+        service.open.set(true);
+        clearPersisted();
+
+        gesture();
+        flushPersist();
+
+        expect(persistedWidths()).toEqual(expected);
+      });
+    });
+
     describe("drag release", () => {
       it("persists the minimum when released in the tension zone", () => {
         createService(30.5);
