@@ -1,12 +1,14 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
+  distinctUntilChanged,
   filter,
   map,
   Observable,
   of,
   shareReplay,
+  skip,
   Subject,
   switchMap,
   take,
@@ -149,6 +151,20 @@ export class VaultPopupListTableFiltersService {
       };
     }),
   );
+
+  constructor() {
+    // Unlike navigating within the vault (which VFO1 intentionally persists filters across, see `clearVaultStateGuard`),
+    // switching the active account must always clear filters, this service is `providedIn: "root"` and survives the switch, so nothing else resets it.
+    this.activeUserId$
+      .pipe(distinctUntilChanged(), skip(1), takeUntilDestroyed())
+      .subscribe(() => this.clearFilters());
+  }
+
+  /** Clears all persisted filter state. Called when the active account changes. */
+  private clearFilters(): void {
+    this.cachedFilters.set({});
+    this.selectedOrganizations.set([]);
+  }
 
   /**
    * Persists the current chip selection to the view cache.

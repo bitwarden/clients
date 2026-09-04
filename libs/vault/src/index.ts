@@ -148,3 +148,4 @@ export {
   matchesFolder,
   idString,
 } from "./utils/vault-filter-predicates";
+export { VaultCollectionBreadcrumbsComponent } from "./components/vault-collection-breadcrumbs/vault-collection-breadcrumbs.component";

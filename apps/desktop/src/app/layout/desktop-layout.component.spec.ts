@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { Router, RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
@@ -16,10 +16,12 @@ import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { VaultNavItemType, VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
 
+import { AccountSwitcherV2Component } from "../../auth/components/account-switcher/account-switcher-v2.component";
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
 import { SendFiltersNavComponent } from "../tools/send/send-filters-nav.component";
 
 import { DesktopLayoutComponent } from "./desktop-layout.component";
+import { DesktopSideNavComponent } from "./desktop-side-nav.component";
 
 // Mock the child component to isolate DesktopLayoutComponent testing
 @Component({
@@ -143,6 +145,10 @@ describe("DesktopLayoutComponent", () => {
       .overrideComponent(DesktopLayoutComponent, {
         remove: { imports: [SendFiltersNavComponent, VaultFilterComponent] },
         add: { imports: [MockSendFiltersNavComponent, MockVaultFiltersNavComponent] },
+      })
+      .overrideComponent(DesktopSideNavComponent, {
+        remove: { imports: [AccountSwitcherV2Component] },
+        add: { schemas: [CUSTOM_ELEMENTS_SCHEMA] },
       })
       .compileComponents();
 
