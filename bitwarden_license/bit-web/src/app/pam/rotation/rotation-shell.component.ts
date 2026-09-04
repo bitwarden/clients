@@ -23,7 +23,7 @@ import { TargetSystemsService } from "./target-systems/target-systems.service";
 
 /**
  * Rotation feature shell: renders the page header and the three routed tabs
- * (Managed credentials / Target systems / Daemons). The shell stays mounted
+ * (Daemons / Target systems / Managed credentials). The shell stays mounted
  * across tab navigation; the page-scoped services (provided at the shell route)
  * are shared by all tabs.
  *

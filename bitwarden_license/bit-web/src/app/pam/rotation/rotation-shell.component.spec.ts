@@ -86,15 +86,7 @@ describe("RotationShellComponent", () => {
     fixture.detectChanges();
   };
 
-  it("renders the three tab links", async () => {
-    await init();
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? "";
-    expect(text).toContain("pamRotationTabManagedCredentials");
-    expect(text).toContain("pamRotationTabTargetSystems");
-    expect(text).toContain("pamRotationTabDaemons");
-  });
-
-  it("orders the tab links by the setup each one requires", async () => {
+  it("renders the three tab links ordered by the setup each one requires", async () => {
     await init();
     const labels = Array.from(
       (fixture.nativeElement as HTMLElement).querySelectorAll("bit-tab-link"),
