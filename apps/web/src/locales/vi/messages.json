@@ -907,7 +907,7 @@
     "message": "Chỉnh sửa thư mục"
   },
   "editFolderNamed": {
-    "message": "Edit $NAME$",
+    "message": "Sửa $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -916,7 +916,7 @@
     }
   },
   "deleteFolderNamed": {
-    "message": "Delete $NAME$",
+    "message": "Xóa $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1084,7 +1084,7 @@
     "message": "Tất cả các mục"
   },
   "allVaultItems": {
-    "message": "All vault items"
+    "message": "Tất cả mục trong kho lưu trữ"
   },
   "favorites": {
     "message": "Yêu thích"
@@ -1224,6 +1224,48 @@
   "sharedFolders": {
     "message": "Thư mục chia sẻ"
   },
+  "sharedFoldersInParent": {
+    "message": "Thư mục chia sẻ trong $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ thư mục chia sẻ",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ thư mục chia sẻ",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ thư mục chia sẻ khác được hiển thị phía trên nút này",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 thư mục chia sẻ khác được hiển thị phía trên nút này",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "Thư mục của tôi"
   },
@@ -1232,6 +1274,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Thêm thư mục vào các mục để lọc chúng tại đây."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
   },
   "addSharedFolder": {
     "message": "Thêm thư mục chia sẻ"
@@ -1755,6 +1800,9 @@
   "myItems": {
     "message": "Các mục của tôi"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "myVault": {
     "message": "Kho của tôi"
   },
@@ -1858,6 +1906,18 @@
   },
   "noMatchingItems": {
     "message": "Không có mục nào phù hợp"
+  },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
   },
   "deselectAll": {
     "message": "Bỏ chọn tất cả"
@@ -2048,13 +2108,13 @@
     "message": "Đã xóa thư mục"
   },
   "folderEdited": {
-    "message": "Folder edited"
+    "message": "Đã sửa thư mục"
   },
   "foldersDeleted": {
-    "message": "Folders deleted"
+    "message": "Đã xóa các thư mục"
   },
   "deleteFoldersCount": {
-    "message": "Delete $COUNT$ folders",
+    "message": "Xóa $COUNT$ thư mục",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2063,7 +2123,7 @@
     }
   },
   "deleteFolderDescription": {
-    "message": "When you delete the $NAME$ folder, it will be removed from every item it's been applied to. The items themselves won't be deleted.",
+    "message": "Khi bạn xóa thư mục $NAME$, thư mục này sẽ bị xóa khỏi mọi mục đã áp dụng thư mục. Bản thân các mục sẽ không bị xóa.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -2072,10 +2132,10 @@
     }
   },
   "deleteFoldersDescription": {
-    "message": "When you delete these folders, they will be removed from every item they've been applied to. The items themselves won't be deleted."
+    "message": "Khi bạn xóa các thư mục này, chúng sẽ bị xóa khỏi mọi mục đã áp dụng. Bản thân các mục sẽ không bị xóa."
   },
   "enterAName": {
-    "message": "Enter a name."
+    "message": "Nhập tên."
   },
   "editInfo": {
     "message": "Chỉnh sửa thông tin"
@@ -2159,7 +2219,7 @@
     "message": "Sử dụng phương thức đăng nhập khác"
   },
   "logInWithPasskey": {
-    "message": "Đăng nhập bằng khóa truy cập"
+    "message": "Đăng nhập bằng mã khoá"
   },
   "useSingleSignOn": {
     "message": "Dùng đăng nhập một lần"
@@ -2532,7 +2592,10 @@
     "message": "Kho lưu trữ mới"
   },
   "addPlan": {
-    "message": "Add plan"
+    "message": "Thêm gói"
+  },
+  "addPlanDesc": {
+    "message": "You can create a new shared vault with 1 other person for free. If you'd like to store, manage, and share items with more people, you will need to add a new plan first. Just know that some options may require a billing change."
   },
   "noOrganizationsList": {
     "message": "Bạn chưa thuộc tổ chức nào. Tổ chức sẽ cho phép bạn chia sẻ các mục với người dùng khác một cách bảo mật."
@@ -3416,7 +3479,7 @@
     }
   },
   "importHelpCenterInstructions": {
-    "message": "See detailed $NAME$ instructions in our",
+    "message": "Xem hướng dẫn chi tiết về $NAME$ trong",
     "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
     "placeholders": {
       "name": {
@@ -3426,195 +3489,195 @@
     }
   },
   "importHelpCenterLinkText": {
-    "message": "Help Center"
+    "message": "Trung tâm Trợ giúp"
   },
   "importChromiumAliasPreamble": {
-    "message": "The process is exactly the same as importing from Google Chrome.",
+    "message": "Quy trình hoàn toàn giống với khi nhập từ Google Chrome.",
     "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
   },
   "importKeepassxInstructions": {
-    "message": "Using the KeePassX desktop application, navigate to \"Database\" → \"Export to CSV file\" and save the CSV file."
+    "message": "Trong ứng dụng KeePassX dành cho máy tính, đi tới \"Database\" → \"Export to CSV file\" và lưu tệp CSV."
   },
   "importAviraInstructions": {
-    "message": "In the Avira web vault, go to \"Settings\" → \"My Data\" → \"Export data\" and save the CSV file."
+    "message": "Trong kho lưu trữ web của Avira, đi tới \"Settings\" → \"My Data\" → \"Export data\" và lưu tệp CSV."
   },
   "importBlurInstructions": {
-    "message": "In the Blur web vault, click your username at the top and go to \"Settings\" → \"Export Data\", then click \"Export CSV\" for your \"Accounts\"."
+    "message": "Trong kho lưu trữ web của Blur, nhấp vào tên người dùng của bạn ở phía trên và đi tới \"Settings\" → \"Export Data\", sau đó nhấp vào \"Export CSV\" cho \"Accounts\" của bạn."
   },
   "importSafeincloudInstructions": {
-    "message": "Using the SafeInCloud desktop application, navigate to \"File\" → \"Export\" → \"As XML\" and save the XML file."
+    "message": "Trong ứng dụng SafeInCloud dành cho máy tính, đi tới \"File\" → \"Export\" → \"As XML\" và lưu tệp XML."
   },
   "importPadlockInstructions": {
-    "message": "Using the Padlock desktop application, click the hamburger icon in the top left corner and navigate to \"Settings\" → \"Export\" button and save the file \"As CSV\"."
+    "message": "Trong ứng dụng Padlock dành cho máy tính, nhấp vào biểu tượng menu ba gạch ở góc trên bên trái và đi tới nút \"Settings\" → \"Export\", sau đó lưu tệp dưới dạng \"As CSV\"."
   },
   "importKeepass2Instructions": {
-    "message": "Using the KeePass 2 desktop application, navigate to \"File\" → \"Export\" and select the \"KeePass XML (2.x)\" option."
+    "message": "Trong ứng dụng KeePass 2 dành cho máy tính, đi tới \"File\" → \"Export\" và chọn tùy chọn \"KeePass XML (2.x)\"."
   },
   "importUpmInstructions": {
-    "message": "Using the Universal Password Manager desktop application, navigate to \"Database\" → \"Export\" and save the CSV file."
+    "message": "Trong ứng dụng Universal Password Manager dành cho máy tính, đi tới \"Database\" → \"Export\" và lưu tệp CSV."
   },
   "importSaferpassInstructions": {
-    "message": "Using the SaferPass browser extension, click the hamburger icon in the top left corner and navigate to \"Settings\". Click the \"Export accounts\" button to save the CSV file."
+    "message": "Trong tiện ích mở rộng trình duyệt SaferPass, nhấp vào biểu tượng menu ba gạch ở góc trên bên trái và đi tới \"Settings\". Nhấp vào nút \"Export accounts\" để lưu tệp CSV."
   },
   "importMeldiumInstructions": {
-    "message": "Using the Meldium web vault, navigate to \"Settings\". Locate the \"Export data\" function and click \"Show me my data\" to save the CSV file."
+    "message": "Trong kho lưu trữ web của Meldium, đi tới \"Settings\". Tìm chức năng \"Export data\" và nhấp vào \"Show me my data\" để lưu tệp CSV."
   },
   "importPassworddragonInstructions": {
-    "message": "Using the Password Dragon desktop application, navigate to \"File\" → \"Export\" → \"To XML\". In the dialog that pops up select \"All Rows\" and check all fields. Click the \"Export\" button and save the XML file."
+    "message": "Trong ứng dụng Password Dragon dành cho máy tính, đi tới \"File\" → \"Export\" → \"To XML\". Trong hộp thoại bật lên, chọn \"All Rows\" và đánh dấu tất cả các trường. Nhấp vào nút \"Export\" và lưu tệp XML."
   },
   "importEnpassCsvInstructions": {
-    "message": "Using the Enpass desktop application, navigate to \"File\" → \"Export\" → \"As CSV\". Select \"OK\" to the warning alert and save the CSV file. Note that the importer only supports files exported while Enpass is set to the English language, so adjust your settings accordingly."
+    "message": "Trong ứng dụng Enpass dành cho máy tính, đi tới \"File\" → \"Export\" → \"As CSV\". Chọn \"OK\" ở cảnh báo và lưu tệp CSV. Lưu ý rằng trình nhập chỉ hỗ trợ các tệp được xuất khi Enpass được đặt sang ngôn ngữ tiếng Anh, vì vậy hãy điều chỉnh cài đặt cho phù hợp."
   },
   "importEnpassJsonInstructions": {
-    "message": "Using the Enpass 6 desktop application, click the menu button and navigate to \"File\" → \"Export\". Select the \".json\" file format option and save the JSON file."
+    "message": "Trong ứng dụng Enpass 6 dành cho máy tính, nhấp vào nút menu và đi tới \"File\" → \"Export\". Chọn tùy chọn định dạng tệp \".json\" và lưu tệp JSON."
   },
   "importPwsafeInstructions": {
-    "message": "Using the Password Safe desktop application, navigate to \"File\" → \"Export To\" → \"XML format...\" and save the XML file."
+    "message": "Trong ứng dụng Password Safe dành cho máy tính, đi tới \"File\" → \"Export To\" → \"XML format...\" và lưu tệp XML."
   },
   "importDashlaneCsvInstructions": {
-    "message": "Log in to Dashlane, click on \"My Account\" → \"Settings\" → \"Export file\" and select \"Export as a CSV file\". This will download a zip archive containing various CSV files. Unzip the archive and import each CSV file individually."
+    "message": "Đăng nhập vào Dashlane, nhấp vào \"My Account\" → \"Settings\" → \"Export file\" và chọn \"Export as a CSV file\". Thao tác này sẽ tải xuống một tệp lưu trữ zip chứa nhiều tệp CSV. Giải nén tệp lưu trữ và nhập riêng từng tệp CSV."
   },
   "importDashlaneJsonInstructions": {
-    "message": "Dashlane no longer supports the JSON format. Only use this if you have an existing JSON for import. Use the CSV importer when creating new exports."
+    "message": "Dashlane không còn hỗ trợ định dạng JSON. Chỉ sử dụng tùy chọn này nếu bạn đã có tệp JSON để nhập. Hãy sử dụng trình nhập CSV khi tạo bản xuất mới."
   },
   "importMsecureInstructions": {
-    "message": "Using the mSecure desktop application, navigate to \"File\" → \"Export\" → \"CSV File...\" and save the CSV file."
+    "message": "Trong ứng dụng mSecure dành cho máy tính, đi tới \"File\" → \"Export\" → \"CSV File...\" và lưu tệp CSV."
   },
   "importStickypasswordInstructions": {
-    "message": "Using the Sticky Password desktop application, navigate to \"Menu\" (top right) → \"Export\" → \"Export all\". Select the unencrypted format XML option and save the XML file."
+    "message": "Trong ứng dụng Sticky Password dành cho máy tính, đi tới \"Menu\" (góc trên bên phải) → \"Export\" → \"Export all\". Chọn tùy chọn định dạng XML không mã hóa và lưu tệp XML."
   },
   "importTruekeyInstructions": {
-    "message": "Using the True Key desktop application, click the gear icon (top right) and then navigate to \"App Settings\". Click the \"Export\" button, enter your password and save the CSV file."
+    "message": "Trong ứng dụng True Key dành cho máy tính, nhấp vào biểu tượng bánh răng (góc trên bên phải), sau đó đi tới \"App Settings\". Nhấp vào nút \"Export\", nhập mật khẩu của bạn và lưu tệp CSV."
   },
   "importClipperzInstructions": {
-    "message": "Log into the Clipperz web application (clipperz.is/app). Click the hamburger menu icon in the top right to expand the navigation bar. Navigate to \"Data\" → \"Export\". Click the \"download HTML+JSON\" button to save the HTML file."
+    "message": "Đăng nhập vào ứng dụng web Clipperz (clipperz.is/app). Nhấp vào biểu tượng menu ba gạch ở góc trên bên phải để mở rộng thanh điều hướng. Đi tới \"Data\" → \"Export\". Nhấp vào nút \"download HTML+JSON\" để lưu tệp HTML."
   },
   "importRoboformInstructions": {
-    "message": "Using the RoboForm Editor desktop application, navigate to \"RoboForm\" (top left) → \"Options\" → \"Account & Data\" and click the \"Export\" button. Select all of your data, change the \"Format\" to \"CSV file\" and then click the \"Export\" button to save the CSV file. Note: RoboForm only allows you to export Logins. Other items will not be exported."
+    "message": "Trong ứng dụng RoboForm Editor dành cho máy tính, đi tới \"RoboForm\" (góc trên bên trái) → \"Options\" → \"Account & Data\" và nhấp vào nút \"Export\". Chọn tất cả dữ liệu của bạn, đổi \"Format\" thành \"CSV file\", sau đó nhấp vào nút \"Export\" để lưu tệp CSV. Lưu ý: RoboForm chỉ cho phép bạn xuất các mục Đăng nhập. Các mục khác sẽ không được xuất."
   },
   "importPassboltInstructions": {
-    "message": "Log into the Passbolt web vault and navigate to the \"Passwords\" listing. Select all of the passwords you would like to export and click the \"Export\" button at the top of the listing. Choose the \"csv (lastpass)\" export format and click the \"Export\" button."
+    "message": "Đăng nhập vào kho lưu trữ web Passbolt và đi tới danh sách \"Passwords\". Chọn tất cả mật khẩu bạn muốn xuất và nhấp vào nút \"Export\" ở đầu danh sách. Chọn định dạng xuất \"csv (lastpass)\" và nhấp vào nút \"Export\"."
   },
   "importAscendoInstructions": {
-    "message": "Using the Ascendo DataVault desktop application, navigate to \"Tools\" → \"Export\". In the dialog that pops up, select the \"All Items (DVX, CSV)\" option. Click the \"Ok\" button to save the CSV file."
+    "message": "Trong ứng dụng Ascendo DataVault dành cho máy tính, đi tới \"Tools\" → \"Export\". Trong hộp thoại bật lên, chọn tùy chọn \"All Items (DVX, CSV)\". Nhấp vào nút \"Ok\" để lưu tệp CSV."
   },
   "importPasswordbossInstructions": {
-    "message": "Using the Password Boss desktop application, navigate to \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" and save the JSON file."
+    "message": "Trong ứng dụng Password Boss dành cho máy tính, đi tới \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" và lưu tệp JSON."
   },
   "importZohoInstructions": {
-    "message": "Log into the Zoho web vault (vault.zoho.com). Navigate to \"Tools\" → \"Export Secrets\". Select \"All Secrets\" and click the \"Zoho Vault Format CSV\" button. Highlight and copy the data from the textarea. Open a text editor like Notepad and paste the data. Save the data from the text editor as",
+    "message": "Đăng nhập vào kho lưu trữ web Zoho (vault.zoho.com). Đi tới \"Tools\" → \"Export Secrets\". Chọn \"All Secrets\" và nhấp vào nút \"Zoho Vault Format CSV\". Bôi đen và sao chép dữ liệu từ vùng văn bản. Mở trình soạn thảo văn bản như Notepad và dán dữ liệu. Lưu dữ liệu từ trình soạn thảo văn bản dưới dạng",
     "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
   },
   "importSplashidInstructions": {
-    "message": "Using the SplashID Safe desktop application, click on the SplashID blue lock logo in the top right corner. Navigate to \"Export\" → \"Export as CSV\" and save the CSV file."
+    "message": "Trong ứng dụng SplashID Safe dành cho máy tính, nhấp vào biểu tượng khóa màu xanh dương SplashID ở góc trên bên phải. Đi tới \"Export\" → \"Export as CSV\" và lưu tệp CSV."
   },
   "importPasskeepInstructions": {
-    "message": "Using the PassKeep mobile app, navigate to \"Backup/Restore\". Locate the \"CSV Backup/Restore\" section and click \"Backup to CSV\" to save the CSV file."
+    "message": "Trong ứng dụng di động PassKeep, đi tới \"Backup/Restore\". Tìm phần \"CSV Backup/Restore\" và nhấp vào \"Backup to CSV\" để lưu tệp CSV."
   },
   "importGnomeInstructionsIntro": {
-    "message": "Make sure you have python-keyring and python-gnomekeyring installed. Save the",
+    "message": "Đảm bảo bạn đã cài đặt python-keyring và python-gnomekeyring. Lưu",
     "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
   },
   "importGnomeInstructionsLinkText": {
-    "message": "GNOME Keyring Import/Export"
+    "message": "Nhập/Xuất GNOME Keyring"
   },
   "importGnomeInstructionsScriptLabel": {
-    "message": "python script to your desktop as",
+    "message": "tập lệnh python vào màn hình nền của bạn dưới tên",
     "description": "Followed by a literal filename (pw_helper.py) rendered as code."
   },
   "importGnomeInstructionsRunTerminal": {
-    "message": ". Open terminal and run",
+    "message": ". Mở terminal và chạy",
     "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
   },
   "importGnomeInstructionsAndThen": {
-    "message": "and then",
+    "message": "và sau đó",
     "description": "Between two terminal commands rendered as code."
   },
   "importGnomeInstructionsUploadResult": {
-    "message": ". Then upload the resulting",
+    "message": ". Sau đó tải lên tệp kết quả",
     "description": "Followed by a literal filename (my_passwords.json) rendered as code."
   },
   "importGnomeInstructionsFileHere": {
-    "message": "file here to Bitwarden.",
+    "message": "tại đây lên Bitwarden.",
     "description": "Follows the my_passwords.json filename."
   },
   "importPasswordagentInstructions": {
-    "message": "Using the Password Agent desktop application navigate to \"File\" → \"Export\", select the \"Fields to export\" button and check all of the fields, change the \"Output format\" to \"CSV\", and then click the \"Start\" button to save the CSV file."
+    "message": "Trong ứng dụng Password Agent dành cho máy tính, đi tới \"File\" → \"Export\", chọn nút \"Fields to export\" và đánh dấu tất cả các trường, đổi \"Output format\" thành \"CSV\", sau đó nhấp vào nút \"Start\" để lưu tệp CSV."
   },
   "importPasspackInstructions": {
-    "message": "Log into the Passpack website vault and navigate to \"Settings\" → \"Export\", then click the \"Download\" button to save the CSV file."
+    "message": "Đăng nhập vào kho lưu trữ trên trang web Passpack và đi tới \"Settings\" → \"Export\", sau đó nhấp vào nút \"Download\" để lưu tệp CSV."
   },
   "importPassmanInstructions": {
-    "message": "Open your Passman vault and click on \"Settings\" in the bottom left corner. In the \"Settings\" window switch to the \"Export credentials\" tab and choose \"JSON\" as the export type. Enter your vault's passphrase and click the \"Export\" button to save the JSON file."
+    "message": "Mở kho lưu trữ Passman của bạn và nhấp vào \"Settings\" ở góc dưới bên trái. Trong cửa sổ \"Settings\", chuyển sang tab \"Export credentials\" và chọn \"JSON\" làm loại xuất. Nhập cụm mật khẩu của kho lưu trữ và nhấp vào nút \"Export\" để lưu tệp JSON."
   },
   "importAvastCsvInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to CSV file\" option to save the CSV file."
+    "message": "Mở ứng dụng Avast Passwords dành cho máy tính và đi tới \"Settings\" → \"Import/export data\". Chọn nút \"Export\" cho tùy chọn \"Export to CSV file\" để lưu tệp CSV."
   },
   "importAvastJsonInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to JSON file\" option to save the JSON file."
+    "message": "Mở ứng dụng Avast Passwords dành cho máy tính và đi tới \"Settings\" → \"Import/export data\". Chọn nút \"Export\" cho tùy chọn \"Export to JSON file\" để lưu tệp JSON."
   },
   "importFsecureInstructions": {
-    "message": "Open the F-Secure KEY desktop application and navigate to \"Settings\" → \"Export Passwords\". Select the \"Export\" button, enter your master password, and save the FSK file."
+    "message": "Mở ứng dụng F-Secure KEY dành cho máy tính và đi tới \"Settings\" → \"Export Passwords\". Chọn nút \"Export\", nhập mật khẩu chính của bạn và lưu tệp FSK."
   },
   "importKasperskyInstructions": {
-    "message": "Open the Kaspersky Password Manager desktop application and navigate to \"Settings\" → \"Import/Export\". Locate the \"Export to text file\" section and select the \"Export\" button to save the TXT file."
+    "message": "Mở ứng dụng Kaspersky Password Manager dành cho máy tính và đi tới \"Settings\" → \"Import/Export\". Tìm phần \"Export to text file\" và chọn nút \"Export\" để lưu tệp TXT."
   },
   "importRemembearInstructions": {
-    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+    "message": "Mở ứng dụng RememBear dành cho máy tính và đi tới \"Settings\" → \"Account\" → \"Export\". Nhập mật khẩu chính của bạn và chọn nút \"Export Anyway\" để lưu tệp CSV."
   },
   "importPasswordwalletInstructions": {
-    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+    "message": "Mở ứng dụng PasswordWallet dành cho máy tính và đi tới \"File\" → \"Export\" → \"Visible entries to text file\". Nhập mật khẩu của bạn và chọn nút \"Ok\" để lưu tệp TXT."
   },
   "importMykiInstructions": {
-    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+    "message": "Mở tiện ích mở rộng trình duyệt Myki dành cho máy tính và đi tới \"Advanced\" → \"Export Accounts\", sau đó quét mã QR bằng thiết bị di động. Nhiều tệp CSV sẽ được lưu vào thư mục tải xuống trên máy tính của bạn."
   },
   "importSecuresafeInstructions": {
-    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+    "message": "Xuất kho mật khẩu SecureSafe của bạn sang tệp CSV với dấu phẩy làm dấu phân cách."
   },
   "importLogmeonceInstructions": {
-    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+    "message": "Mở tiện ích mở rộng trình duyệt LogMeOnce, sau đó đi tới \"Open Menu\" → \"Export To\" và chọn \"CSV File\" để lưu tệp CSV."
   },
   "importBlackberryInstructions": {
-    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+    "message": "Mở ứng dụng BlackBerry Password Keeper, sau đó đi tới \"Settings\" → \"Import/Export\". Chọn \"Export Passwords\" và làm theo hướng dẫn trên màn hình để lưu tệp CSV không mã hóa."
   },
   "importButtercupInstructions": {
-    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+    "message": "Mở ứng dụng Buttercup dành cho máy tính và mở khóa kho lưu trữ của bạn. Nhấp chuột phải vào biểu tượng kho lưu trữ và chọn \"Export\" để lưu tệp CSV."
   },
   "importCodebookInstructions": {
-    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+    "message": "Mở ứng dụng Codebook dành cho máy tính và đăng nhập. Đi tới \"File\" → \"Export all\", sau đó nhấp vào \"Yes\" trong hộp thoại và lưu tệp CSV."
   },
   "importEncryptrInstructions": {
-    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+    "message": "Mở phiên bản mới nhất của ứng dụng Encryptr dành cho máy tính và cho phép đồng bộ hóa toàn bộ dữ liệu. Khi dữ liệu đã đồng bộ xong, biểu tượng tải xuống ở góc trên bên phải sẽ chuyển sang màu hồng. Nhấp vào biểu tượng tải xuống và lưu tệp CSV."
   },
   "importYotiInstructions": {
-    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+    "message": "Trong tiện ích mở rộng trình duyệt Yoti, nhấp vào \"Settings\", sau đó \"Export Saved Logins\" và lưu tệp CSV."
   },
   "importPsonoInstructions": {
-    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+    "message": "Đăng nhập vào kho lưu trữ web Psono, nhấp vào danh sách thả xuống \"Signed in as\", chọn \"Others\". Đi tới tab \"Export\", chọn loại xuất json rồi nhấp vào Export."
   },
   "importPasskyInstructions": {
-    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+    "message": "Đăng nhập vào \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" trong phần Passky. (\"Backup\" không được hỗ trợ vì đã được mã hóa)."
   },
   "importProtonpassInstructions": {
-    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+    "message": "Trong tiện ích mở rộng trình duyệt ProtonPass, đi tới Settings > Export. Xuất mà không mã hóa PGP và lưu tệp zip."
   },
   "importPasswordxpInstructions": {
-    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+    "message": "Chọn menu Database → Export to file... → Trong các tùy chọn xuất, đảm bảo Folder names và Column titles đã được chọn. → Nhấn nút Browse... rồi chọn tệp đích và đặt loại tệp thành CSV file."
   },
   "importNetwrixInstructions": {
-    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+    "message": "Mở FullClient, đi tới Main Menu và chọn Export. Khởi động trình hướng dẫn xuất mật khẩu và làm theo hướng dẫn để xuất tệp CSV."
   },
   "importNordpassInstructions": {
-    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+    "message": "Đăng nhập vào NordPass và mở Settings → Cuộn xuống phần Import and Export rồi chọn Export items → Nhập Mật khẩu chính của bạn và chọn Continue. → Lưu tệp CSV trên thiết bị."
   },
   "importPassworddepot17Instructions": {
-    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+    "message": "Trong ứng dụng dành cho máy tính, đi tới Tools → Export → Nhập mật khẩu chính của bạn → Chọn XML Format (*.xml) làm định dạng xuất → Nhấp vào next → Chọn các mục cần đưa vào bản xuất → Nhấp vào next để xuất đến vị trí đã chọn trước đó."
   },
   "importDelineaInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+    "message": "Đăng nhập vào Delinea, tìm “Import/Export” -> chọn “Export” -> Chọn “XML” làm định dạng xuất -> Chọn “QuantumLock” làm loại trình xác thực -> nhập mật khẩu của bạn và chọn “Export” để lưu tệp XML."
   },
   "importDelineaCsvInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+    "message": "Đăng nhập vào Delinea, tìm “Import/Export” -> chọn “Export” -> Chọn “CSV” làm định dạng xuất -> Chọn “QuantumLock” làm loại trình xác thực -> nhập mật khẩu của bạn và chọn “Export” để lưu tệp CSV."
   },
   "options": {
     "message": "Tùy chọn"
@@ -3737,14 +3800,11 @@
   "restrictedItemTypePolicy": {
     "message": "Xóa loại mục thẻ"
   },
-  "restrictedItemTypePolicyDesc": {
-    "message": "Không cho phép thành viên tạo loại mục thẻ. Các thẻ hiện có sẽ bị xóa tự động."
-  },
   "restrictedItemTypePolicyDescV2": {
     "message": "Không cho phép thành viên tạo và lưu trữ các mục thẻ tín dụng trong kho lưu trữ của họ. Khi chính sách này được bật, các thẻ hiện có sẽ tự động bị ẩn."
   },
   "restrictedItemTypePolicyDescVfo1": {
-    "message": "Do not allow members to create and store credit card items. When this policy is turned on, existing cards will be automatically hidden.",
+    "message": "Không cho phép thành viên tạo và lưu trữ các mục thẻ tín dụng. Khi chính sách này được bật, các thẻ hiện có sẽ tự động bị ẩn.",
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
   "restrictCardTypeImport": {
@@ -4135,12 +4195,6 @@
   },
   "instructions": {
     "message": "Hướng dẫn"
-  },
-  "passwordlessLogin": {
-    "message": "Đăng nhập không cần mật khẩu"
-  },
-  "multifactorAuthentication": {
-    "message": "Xác thực đa yếu tố"
   },
   "exposedPasswordsReport": {
     "message": "Mật khẩu bị rò rỉ"
@@ -4603,7 +4657,7 @@
     "message": "Hủy gói đăng ký"
   },
   "churnOfferSuccessTitle": {
-    "message": "Bạn đã hoàn tất tất cả!"
+    "message": "Bạn đã hoàn tất!"
   },
   "churnOfferSuccessBody": {
     "message": "Mức giảm giá $DISCOUNT$ đã được áp dụng cho thời gian sử dụng $DURATION$ tiếp theo của bạn.",
@@ -4912,6 +4966,9 @@
   },
   "chooseYourPlan": {
     "message": "Chọn gói của bạn"
+  },
+  "choosePlan": {
+    "message": "Choose plan"
   },
   "users": {
     "message": "Người dùng"
@@ -6793,8 +6850,8 @@
   "openOrgInviteAcceptFailed": {
     "message": "Không thể chấp nhận lời mời. Hãy yêu cầu quản trị viên tổ chức gửi một liên kết mời mới."
   },
-  "openOrgInviteAcceptFailedTitle": {
-    "message": "Không thể chấp nhận lời mời"
+  "cannotAcceptInvitation": {
+    "message": "Cannot accept invitation"
   },
   "openOrgInviteAcceptAlreadyMember": {
     "message": "Bạn đã là thành viên của tổ chức này."
@@ -6824,10 +6881,10 @@
     "message": "Một tổ chức mà bạn đã là thành viên chỉ cho phép các thành viên của mình thuộc về một tổ chức."
   },
   "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
-    "message": "The organization you are already a member of only allows its members to access one shared vault."
+    "message": "Tổ chức mà bạn đã là thành viên chỉ cho phép thành viên truy cập một kho lưu trữ chia sẻ."
   },
   "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
-    "message": "The organization you are trying to join only allows its members to access one shared vault."
+    "message": "Tổ chức mà bạn đang cố gắng tham gia chỉ cho phép thành viên truy cập một kho lưu trữ chia sẻ."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
     "message": "Tổ chức mà bạn đang cố gắng tham gia chỉ cho phép các thành viên của mình thuộc về một tổ chức."
@@ -7369,6 +7426,21 @@
       }
     }
   },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Kiểm tra email của bạn để hoàn tất tham gia $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
+  },
+  "inviteSentToEmail": {
+    "message": "Đã gửi lời mời tới email"
+  },
   "acceptPolicies": {
     "message": "Bằng cách chọn ô này, bạn đồng ý với điều sau:"
   },
@@ -7638,23 +7710,17 @@
   "twoStepLoginPolicyDescV2": {
     "message": "Yêu cầu thành viên thiết lập đăng nhập hai bước. Chính sách này sẽ không bắt buộc đối với chủ sở hữu và quản trị viên."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "Các thành viên tổ chức không phải là chủ sở hữu hoặc quản trị viên và không có cài đặt đăng nhập hai bước cho tài khoản của mình sẽ bị loại khỏi tổ chức và sẽ nhận được email thông báo về thay đổi này."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "Bật chính sách này sẽ thu hồi quyền của bất kỳ người dùng nào không bật đăng nhập hai bước trên tài khoản của họ. Những người dùng bị ảnh hưởng sẽ được thông báo qua email."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Bạn là thành viên của một tổ chức yêu cầu phải thiết lập xác thực hai bước cho tài khoản người dùng của bạn. Nếu bạn tắt tất cả các nhà cung cấp xác thực hai bước, bạn sẽ tự động bị loại khỏi tổ chức này."
   },
-  "passwordGeneratorPolicyDesc": {
-    "message": "Đặt yêu cầu cho trình tạo mật khẩu."
-  },
   "passwordGeneratorPolicyDescV2": {
     "message": "Chọn một bộ các yêu cầu tối thiểu cho bất kỳ mật khẩu nào do thành viên tạo."
   },
   "passwordGeneratorPolicyDescVfo1": {
-    "message": "Set requirements for password generator.",
+    "message": "Đặt yêu cầu cho trình tạo mật khẩu.",
     "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
   },
   "generatedPassword": {
@@ -7906,24 +7972,21 @@
     "message": "Một tổ chức"
   },
   "singleOrgVfo1": {
-    "message": "Single organization membership",
+    "message": "Tư cách thành viên một tổ chức",
     "description": "VFO1 terminology variant of 'singleOrg'"
   },
   "singleOrgDesc": {
     "message": "Hạn chế thành viên tham gia các tổ chức khác."
   },
-  "singleOrgPolicyDesc": {
-    "message": "Hạn chế thành viên tham gia các tổ chức khác. Chính sách này là bắt buộc đối với các tổ chức đã bật xác minh tên miền."
-  },
   "singleOrgPolicyDescVfo1": {
-    "message": "Restrict members from joining other shared or organization vaults.",
+    "message": "Hạn chế thành viên tham gia các kho lưu trữ chia sẻ hoặc kho lưu trữ tổ chức khác.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
   },
   "singleOrgPolicyDescV2": {
     "message": "Các thành viên của tổ chức này không thể tham gia các tổ chức khác. Những thành viên hiện tại thuộc các tổ chức khác sẽ bị thu hồi quyền truy cập khi chính sách này được bật. Chính sách này sẽ không bắt buộc đối với chủ sở hữu và quản trị viên."
   },
   "singleOrgPolicyDescV2Vfo1": {
-    "message": "Members cannot join other organization vaults. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins.",
+    "message": "Thành viên không thể tham gia các kho lưu trữ tổ chức khác. Thành viên hiện tại thuộc các tổ chức khác sẽ bị thu hồi quyền truy cập khi chính sách này được bật. Chính sách này sẽ không bắt buộc đối với chủ sở hữu và quản trị viên.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDescV2'"
   },
   "singleOrgBlockCreateMessage": {
@@ -7936,19 +7999,16 @@
     "message": "Yêu cầu xác thực đăng nhập một lần"
   },
   "requireSsoVfo1": {
-    "message": "Require SSO",
+    "message": "Yêu cầu SSO",
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
   "requireSsoPolicyDescListVfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method.",
+    "message": "Yêu cầu thành viên đăng nhập bằng phương thức đăng nhập một lần cho doanh nghiệp.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
   },
   "requireSsoPolicyDescV2Vfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
+    "message": "Yêu cầu thành viên đăng nhập bằng phương thức đăng nhập một lần cho doanh nghiệp. Chính sách này sẽ không bắt buộc đối với chủ sở hữu và quản trị viên.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
-  },
-  "requireSsoPolicyDesc": {
-    "message": "Yêu cầu thành viên đăng nhập bằng phương thức đăng nhập một lần cho doanh nghiệp."
   },
   "requireSsoPolicyTitle": {
     "message": "Yêu cầu đăng nhập một lần (SSO)"
@@ -7959,15 +8019,19 @@
   "prerequisite": {
     "message": "Điều kiện tiên quyết"
   },
-  "requireSsoPolicyReq": {
-    "message": "Chính sách Doanh nghiệp cho một tổ chức phải được bật trước khi kích hoạt chính sách này."
-  },
   "requireSsoPolicyReqV2": {
     "message": "Bạn phải bật chính sách một tổ chức duy nhất trước khi bật chính sách này."
   },
   "requireSsoPolicyReqV2Vfo1": {
-    "message": "You must enable the single organization membership policy before enabling this one.",
+    "message": "Bạn phải bật chính sách tư cách thành viên một tổ chức trước khi bật chính sách này.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "You must enable the single organization policy before enabling this one."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "You must enable the single organization membership policy before enabling this one.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "Chính sách một tổ chức chưa được thiết lập."
@@ -8356,14 +8420,14 @@
     "message": "Tập trung quyền sở hữu của tổ chức"
   },
   "centralizeDataOwnershipVfo1": {
-    "message": "Centralized organization ownership",
+    "message": "Tập trung quyền sở hữu của tổ chức",
     "description": "VFO1 terminology variant of 'centralizeDataOwnership'"
   },
   "centralizeDataOwnershipDesc": {
     "message": "Tất cả các mục của thành viên sẽ thuộc sở hữu và được quản lý bởi tổ chức. Quản trị viên và chủ sở hữu được miễn trừ. "
   },
   "centralizeDataOwnershipDescVfo1": {
-    "message": "Require members to save items to the organization by removing their personally owned My vault.",
+    "message": "Yêu cầu thành viên lưu các mục vào tổ chức bằng cách xóa Kho lưu trữ của tôi thuộc sở hữu cá nhân.",
     "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
   },
   "centralizeDataOwnershipContentAnchor": {
@@ -8379,9 +8443,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "Dễ dàng chuyển các mục trong quá trình dừng làm việc của thành viên và bàn giao công việc, đảm bảo không có khoảng trống truy cập."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "Cung cấp cho tất cả người dùng một không gian \"Mục của tôi\" dành riêng để quản lý thông tin đăng nhập của chính họ."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Nhắc nhở thành viên chuyển các mục của họ"
   },
@@ -8391,9 +8452,6 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Tìm hiểu thêm về việc chuyển dữ liệu"
   },
-  "promptUsersToMoveItems": {
-    "message": "Nhắc người dùng chuyển các mục kho lưu trữ cá nhân sang tổ chức"
-  },
   "promptUsersToMoveItemsCallout": {
     "message": "Thành viên sẽ được nhắc nhở chuyển các mục của họ sang tổ chức hoặc rời đi. Nếu họ rời đi, quyền truy cập của họ sẽ bị thu hồi nhưng có thể được khôi phục bất cứ lúc nào."
   },
@@ -8401,21 +8459,21 @@
     "message": "Tất cả các mục của thành viên sẽ thuộc sở hữu và được quản lý bởi tổ chức. Chính sách này sẽ không bắt buộc đối với chủ sở hữu và quản trị viên. Tìm hiểu thêm về "
   },
   "centralizeDataOwnershipDescV3": {
-    "message": "All member items will be owned and managed by the organization. This policy won't be enforced for owners and admins. ",
+    "message": "Tất cả các mục của thành viên sẽ thuộc sở hữu và được quản lý bởi tổ chức. Chính sách này sẽ không bắt buộc đối với chủ sở hữu và quản trị viên. ",
     "description": "Replaces centralizeDataOwnershipDescV2 to avoid duplicating the 'Learn more about' text already present in the adjacent centralizeDataOwnershipContentAnchor link"
   },
   "centralizeDataOwnershipBenefit3V2": {
     "message": "Cung cấp cho tất cả người dùng một không gian “Mục của tôi” dành riêng để quản lý thông tin đăng nhập của chính họ."
   },
   "centralizeDataOwnershipBenefit3Vfo1": {
-    "message": "Give all users a dedicated My items space for managing their own logins.",
+    "message": "Cung cấp cho tất cả người dùng một không gian Mục của tôi dành riêng để quản lý thông tin đăng nhập của chính họ.",
     "description": "VFO1 terminology variant of 'centralizeDataOwnershipBenefit3V2'"
   },
   "promptUsersToMoveItemsV2": {
     "message": "Nhắc người dùng chuyển các mục kho lưu trữ của họ sang tổ chức"
   },
   "promptUsersToMoveItemsVfo1": {
-    "message": "Prompt users to move their My vault items to the organization",
+    "message": "Nhắc người dùng chuyển các mục trong Kho lưu trữ của tôi sang tổ chức",
     "description": "VFO1 terminology variant of 'promptUsersToMoveItemsV2'"
   },
   "organizationDataOwnership": {
@@ -8463,7 +8521,7 @@
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
   "autoConfirmDescriptionVfo1": {
-    "message": "New users invited to the organization vault will be automatically confirmed when an admin’s device is unlocked.",
+    "message": "Người dùng mới được mời vào kho lưu trữ tổ chức sẽ tự động được xác nhận khi thiết bị của quản trị viên được mở khóa.",
     "description": "VFO1 terminology variant of 'autoConfirmDescription', shown in the policies list"
   },
   "howToTurnOnAutoConfirm": {
@@ -8488,7 +8546,7 @@
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
   "autoConfirmPolicyEditDescriptionVfo1": {
-    "message": "New users invited to the organization vault will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "message": "Người dùng mới được mời vào kho lưu trữ tổ chức sẽ tự động được xác nhận khi thiết bị của quản trị viên được mở khóa. Trước khi bật chính sách này, hãy xem lại và đồng ý với nội dung sau: ",
     "description": "VFO1 terminology variant of 'autoConfirmPolicyEditDescription'"
   },
   "autoConfirmAcceptSecurityRiskTitle": {
@@ -8505,21 +8563,21 @@
     "message": "Chính sách một tổ chức là bắt buộc. "
   },
   "autoConfirmSingleOrgRequiredVfo1": {
-    "message": "Single organization vault policy required. ",
+    "message": "Bắt buộc có chính sách kho lưu trữ một tổ chức. ",
     "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequired'"
   },
   "autoConfirmSingleOrgRequiredDesc": {
     "message": "Tất cả thành viên chỉ phải thuộc tổ chức này để kích hoạt tự động hóa này."
   },
   "autoConfirmSingleOrgRequiredDescVfo1": {
-    "message": "All members must only belong to this organization vault to activate this automation.",
+    "message": "Tất cả thành viên chỉ được thuộc kho lưu trữ tổ chức này để kích hoạt tự động hóa.",
     "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequiredDesc'"
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Chính sách một tổ chức sẽ áp dụng cho tất cả các vai trò. "
   },
   "autoConfirmSingleOrgExemptionVfo1": {
-    "message": "Single organization vault policy will extend to all roles. ",
+    "message": "Chính sách kho lưu trữ một tổ chức sẽ áp dụng cho tất cả các vai trò. ",
     "description": "VFO1 terminology variant of 'autoConfirmSingleOrgExemption'"
   },
   "autoConfirmNoEmergencyAccess": {
@@ -8605,10 +8663,6 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "Cài đặt mặc định tự động nhập trên máy tính để bàn"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "Bật Tự động gõ phím trên Máy tính mặc định cho thành viên. Thành viên có thể tắt Tự động gõ phím thủ công trong ứng dụng máy tính để bàn.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "Bật tính năng tự động nhập trên máy tính để bàn cho các thành viên. Các thành viên sẽ có thể tắt tính năng tự động nhập theo cách thủ công trong phần mềm máy tính để bàn."
   },
@@ -8661,7 +8715,7 @@
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "manageSendAndShareVfo1": {
-    "message": "Manage Send and share",
+    "message": "Quản lý Send và chia sẻ",
     "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendControlsPolicyDesc": {
@@ -8673,7 +8727,7 @@
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescVfo1": {
-    "message": "Set Send configuration options.",
+    "message": "Đặt các tùy chọn cấu hình Send.",
     "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
@@ -8694,11 +8748,8 @@
   "uriMatchDetectionPolicy": {
     "message": "Phát hiện khớp URI mặc định"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "Xác định thời điểm nên đề xuất tự động điền thông tin đăng nhập. Quản trị viên và chủ sở hữu không bị ràng buộc bởi chính sách này."
-  },
   "uriMatchDetectionPolicyDescVfo1": {
-    "message": "Set the default URI match detection for all items created by members.",
+    "message": "Đặt tính năng phát hiện khớp URI mặc định cho tất cả các mục do thành viên tạo.",
     "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
   },
   "uriMatchDetectionPolicyDescV2": {
@@ -8710,6 +8761,23 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Vui lòng chọn một tùy chọn phát hiện khớp URI hợp lệ.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "Kích hoạt hỗ trợ điền",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Bật hỗ trợ điền theo mặc định cho tất cả thành viên. Tính năng này sử dụng các hướng dẫn dành riêng cho từng trang web đã được xem xét để cải thiện độ chính xác của tính năng tự động điền trên những trang web được biết là khó tự động điền."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Bộ quy tắc tự động điền tùy chỉnh"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "Theo mặc định, hỗ trợ điền sử dụng bộ quy tắc được Bitwarden tuyển chọn. Nhập URL tại đây để ghi đè bằng bộ quy tắc của riêng bạn."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Nhập URL hợp lệ",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "Chính sách $ID$ đã được điều chỉnh.",
@@ -8725,6 +8793,9 @@
   },
   "estimatedTax": {
     "message": "Thuế dự kiến"
+  },
+  "subtotal": {
+    "message": "Subtotal"
   },
   "custom": {
     "message": "Tùy chỉnh"
@@ -9115,7 +9186,7 @@
     "message": "Quản lý khôi phục tài khoản"
   },
   "accountRecoveryPolicyDescVfo1": {
-    "message": "Allow admins to reset master passwords for members.",
+    "message": "Cho phép quản trị viên đặt lại mật khẩu chính cho thành viên.",
     "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
   },
   "accountRecoverySingleOrgRequirementDesc": {
@@ -9125,7 +9196,7 @@
     "message": "Bạn phải bật chính sách một tổ chức duy nhất trước khi bật chính sách này."
   },
   "accountRecoveryPolicySingleOrgReqV2Vfo1": {
-    "message": "You must enable the single organization membership policy before enabling this one.",
+    "message": "Bạn phải bật chính sách tư cách thành viên một tổ chức trước khi bật chính sách này.",
     "description": "VFO1 terminology variant of 'accountRecoveryPolicySingleOrgReqV2'"
   },
   "accountRecoveryPolicyDescV3Part1": {
@@ -9493,14 +9564,11 @@
   "automaticAppLoginWithSSO": {
     "message": "Tự động đăng nhập bằng SSO"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "Mở rộng tính năng đăng nhập một lần (SSO) để bảo mật và tiện lợi hơn cho các ứng dụng ngoài hệ thống. Khi người dùng mở một ứng dụng từ nhà cung cấp danh tính của bạn, thông tin đăng nhập sẽ được tự động điền và gửi đi, giúp họ truy cập an toàn chỉ với một lần nhấp."
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "Khi người dùng khởi chạy một ứng dụng từ nhà cung cấp danh tính của bạn, thông tin đăng nhập của họ sẽ được tự động điền và gửi, tạo ra trải nghiệm đăng nhập an toàn chỉ với một lần nhấn."
   },
   "automaticAppLoginWithSSODescListVfo1": {
-    "message": "Login forms will automatically be filled and submitted for apps launched from your configured identity provider.",
+    "message": "Biểu mẫu đăng nhập sẽ tự động được điền và gửi đối với các ứng dụng được khởi chạy từ nhà cung cấp danh tính mà bạn đã cấu hình.",
     "description": "VFO1 terminology variant of 'automaticAppLoginWithSSODescV2', shown in the policies list"
   },
   "automaticAppLoginIdpHostLabel": {
@@ -9519,7 +9587,7 @@
     "message": "Đặt thời gian chờ phiên tối đa cho tất cả thành viên ngoại trừ chủ sở hữu."
   },
   "sessionTimeoutPolicyDescriptionVfo1": {
-    "message": "Set a maximum vault timeout for members.",
+    "message": "Đặt thời gian chờ kho lưu trữ tối đa cho thành viên.",
     "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
   },
   "maximumAllowedTimeout": {
@@ -9631,18 +9699,15 @@
   "disableExport": {
     "message": "Xóa xuất"
   },
-  "disablePersonalVaultExportDescription": {
-    "message": "Không cho phép thành viên xuất dữ liệu từ kho lưu trữ cá nhân của họ."
-  },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Không cho phép thành viên xuất dữ liệu từ kho lưu trữ cá nhân của họ. Chính sách này sẽ không bắt buộc đối với chủ sở hữu và quản trị viên."
   },
   "disablePersonalVaultExportDescriptionVfo1": {
-    "message": "Do not allow members to export their vault data. This policy won't be enforced for owners and admins.",
+    "message": "Không cho phép thành viên xuất dữ liệu kho lưu trữ của họ. Chính sách này sẽ không bắt buộc đối với chủ sở hữu và quản trị viên.",
     "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescriptionV2'"
   },
   "disablePersonalVaultExportDescriptionListVfo1": {
-    "message": "Do not allow members to export their vault data.",
+    "message": "Không cho phép thành viên xuất dữ liệu kho lưu trữ của họ.",
     "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescription', shown in the policies list"
   },
   "vaultExportDisabled": {
@@ -9661,7 +9726,7 @@
     "message": "Kích hoạt cài đặt tự động điền khi tải trang trên tiện ích mở rộng trình duyệt cho tất cả thành viên hiện tại và thành viên mới."
   },
   "activateAutofillPolicyDescriptionVfo1": {
-    "message": "Automatically fill logins on websites and apps.",
+    "message": "Tự động điền thông tin đăng nhập trên các trang web và ứng dụng.",
     "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
   },
   "activateAutofillPolicyDescV2": {
@@ -11515,6 +11580,9 @@
   "noSharedFoldersAdded": {
     "message": "Chưa có thư mục chia sẻ nào được thêm"
   },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
+  },
   "noMembersAdded": {
     "message": "Chưa thêm thành viên nào"
   },
@@ -11942,15 +12010,15 @@
     "message": "Người dùng này có thể truy cập Trình quản lý Bí mật"
   },
   "privilegedControls": {
-    "message": "Privileged Controls",
+    "message": "Kiểm soát đặc quyền",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsAccessDescription": {
-    "message": "Activate user access to Privileged Controls.",
+    "message": "Kích hoạt quyền truy cập của người dùng vào Kiểm soát đặc quyền.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "userAccessPrivilegedControls": {
-    "message": "This user can access Privileged Controls",
+    "message": "Người dùng này có thể truy cập Kiểm soát đặc quyền",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "important": {
@@ -12521,7 +12589,7 @@
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
   "activatedAccessToPrivilegedControls": {
-    "message": "Activated access to Privileged Controls",
+    "message": "Đã kích hoạt quyền truy cập vào Kiểm soát đặc quyền",
     "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
   },
   "activateAccess": {
@@ -12532,14 +12600,14 @@
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
   "bulkEnablePrivilegedControlsDescription": {
-    "message": "Grant the following members access to Privileged Controls.",
+    "message": "Cấp cho các thành viên sau quyền truy cập vào Kiểm soát đặc quyền.",
     "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
   },
   "activateSecretsManager": {
     "message": "Kích hoạt Trình quản lý Bí mật"
   },
   "activatePrivilegedControls": {
-    "message": "Activate Privileged Controls",
+    "message": "Kích hoạt Kiểm soát đặc quyền",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
@@ -12709,7 +12777,7 @@
     "message": "Miễn phí cho 2 người của tổ chức"
   },
   "freePlanWithSharedVault": {
-    "message": "Free plan with shared vault"
+    "message": "Gói miễn phí có kho lưu trữ chia sẻ"
   },
   "unlimitedSecrets": {
     "message": "Bí mật không giới hạn"
@@ -14134,6 +14202,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Get Secrets Manager"
+  },
   "secureYourInfrastructure": {
     "message": "Bảo vệ hạ tầng của bạn"
   },
@@ -14211,7 +14282,7 @@
     "message": "Kiểm tra quyền truy cập của thành viên tổ chức trên các nhóm, bộ sưu tập và mục trong bộ sưu tập. Tệp CSV xuất ra cung cấp bảng phân tích chi tiết cho từng thành viên, bao gồm thông tin về quyền của bộ sưu tập và cấu hình tài khoản."
   },
   "memberAccessReportPageDescV3": {
-    "message": "Audit member access across groups, shared folders, and items. The CSV export provides a detailed breakdown per member, including information on permissions and account configurations."
+    "message": "Kiểm tra quyền truy cập của thành viên trên các nhóm, thư mục chia sẻ và mục. Tệp CSV xuất ra cung cấp bảng phân tích chi tiết cho từng thành viên, bao gồm thông tin về quyền và cấu hình tài khoản."
   },
   "memberAccessReportNoCollection": {
     "message": "(Không có Bố sưu tập)"
@@ -14841,21 +14912,18 @@
     "message": "Loại bỏ gói Gói Bitwarden Gia đình được tài trợ"
   },
   "freeFamiliesSponsorshipTitleVfo1": {
-    "message": "Remove Sponsored Family Plan",
+    "message": "Xóa Gói Gia đình được tài trợ",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the policies list"
   },
   "freeFamiliesSponsorshipPolicyTitleV2Vfo1": {
-    "message": "Remove Sponsored Families Plan",
+    "message": "Xóa Gói Bitwarden Gia đình được tài trợ",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
-  },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Không cho phép thành viên đổi gói Gia đình thông qua tổ chức này."
   },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Không cho phép thành viên quy đổi gói Gói Bitwarden Gia đình được tài trợ bởi tổ chức của bạn."
   },
   "freeFamiliesSponsorshipDescVfo1": {
-    "message": "Remove the option for members to redeem a free Families plan.",
+    "message": "Xóa tùy chọn cho phép thành viên đổi Gói Gia đình miễn phí.",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
@@ -15308,9 +15376,6 @@
   "removeUnlockWithPinPolicyTitle": {
     "message": "Xóa Mở khóa bằng mã PIN"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "Không cho phép thành viên mở khóa tài khoản của họ bằng mã PIN."
-  },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Thành viên sẽ không được phép mở khóa tài khoản của họ bằng mã PIN."
   },
@@ -15698,8 +15763,20 @@
   "providersubCanceledmessage": {
     "message": "Để đăng ký lại, hãy liên hệ Bộ phận Hỗ trợ khách hàng của Bitwarden."
   },
+  "showAll": {
+    "message": "Hiển thị tất cả"
+  },
   "showMore": {
     "message": "Hiển thị thêm"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Hiển thị bớt"
@@ -15745,16 +15822,21 @@
   "checkInputFormat": {
     "message": "Kiểm tra định dạng nhập để tránh lỗi chính tả."
   },
-  "exampleTaxIdFormat": {
-    "message": "Ví dụ định dạng $CODE$: $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Ví dụ về định dạng mã số thuế: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Định dạng được nhận dạng: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -15959,6 +16041,9 @@
   "upgradeNow": {
     "message": "Nâng cấp ngay"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Get advanced online security with Bitwarden premium."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Hoàn tất biểu mẫu này sẽ tạo một tổ chức Gia đình mới. Bạn có thể nâng cấp tổ chức Miễn phí của mình từ Bảng điều khiển quản trị."
   },
@@ -16010,22 +16095,16 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Chặn tạo tài khoản cho các tên miền đã xác nhận quyền sở hữu"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "Ngăn người dùng tạo tài khoản bên ngoài tổ chức của bạn bằng địa chỉ email từ các tên miền đã xác nhận."
-  },
   "blockClaimedDomainAccountCreationDescVfo1": {
-    "message": "Prevent account creation from claimed domains.",
+    "message": "Ngăn tạo tài khoản từ các tên miền đã xác nhận.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
   },
   "blockClaimedDomainAccountCreationDescV2": {
     "message": "Chặn các thành viên sử dụng miền đã được xác nhận chủ sở hữu của bạn để tạo tài khoản Bitwarden bên ngoài tổ chức của bạn."
   },
   "blockClaimedDomainAccountCreationDescV2Vfo1": {
-    "message": "Block members from using your claimed domain to create Bitwarden accounts outside of your organization vault.",
+    "message": "Chặn thành viên sử dụng tên miền đã xác nhận của bạn để tạo tài khoản Bitwarden bên ngoài kho lưu trữ tổ chức của bạn.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
-  },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "Cần phải xác nhận tên miền trước khi kích hoạt chính sách này."
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "Trước khi bật chính sách này, bạn phải xác nhận chủ sở hữu một miền."
@@ -16147,6 +16226,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "Đang xác minh tính toàn vẹn của thư mục"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Đang xác minh tính toàn vẹn của tệp đính kèm"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ mục có tệp đính kèm sử dụng mã hóa cũ. Mở một mục bên dưới và đi tới Tệp đính kèm để khắc phục.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "Khôi phục Dữ liệu và Chẩn đoán"
@@ -16298,7 +16389,7 @@
     "message": "Mở trang đăng ký trên tài khoản Bitwarden của bạn và tải xuống tệp giấy phép của bạn. Sau đó quay lại màn hình này và tải tệp lên bên dưới."
   },
   "alreadyHaveSubscriptionSelfHostedMessageV3": {
-    "message": "On your cloud environment, log in to your Bitwarden account, open the subscription page, and download your license file. Then, return to this screen and upload it."
+    "message": "Trong môi trường đám mây của bạn, đăng nhập vào tài khoản Bitwarden, mở trang đăng ký và tải xuống tệp giấy phép. Sau đó, quay lại màn hình này và tải tệp lên."
   },
   "viewAllPlans": {
     "message": "Xem tất cả các gói"
@@ -16483,6 +16574,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "Tiền thưởng đăng ký gói Cao cấp"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Applied subscription credits"
   },
   "enterpriseMembership": {
     "message": "Thành viên gói Doanh nghiệp"
@@ -17471,6 +17565,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Login"
+  },
+  "orgNameVault": {
+    "message": "$ORGNAME$ vault",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }

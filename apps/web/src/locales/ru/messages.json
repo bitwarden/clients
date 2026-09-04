@@ -1224,6 +1224,48 @@
   "sharedFolders": {
     "message": "Общие папки"
   },
+  "sharedFoldersInParent": {
+    "message": "Общие папки в $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "Общие папки: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ общая папка",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ дополнительных общих папок отображаются над этой кнопкой",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "Над этой кнопкой отображается еще 1 общая папка",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "Моя папка"
   },
@@ -1232,6 +1274,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Добавить папки к элементам, чтобы отфильтровать их здесь."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Добавляйте элементы в общую папку для фильтрации здесь."
   },
   "addSharedFolder": {
     "message": "Добавить общую папку"
@@ -1755,6 +1800,9 @@
   "myItems": {
     "message": "Мои элементы"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "myVault": {
     "message": "Хранилище"
   },
@@ -1858,6 +1906,18 @@
   },
   "noMatchingItems": {
     "message": "Нет подходящих элементов"
+  },
+  "noFiltersMatch": {
+    "message": "Нет фильтров, соответствующих \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Очистить поиск"
   },
   "deselectAll": {
     "message": "Отменить выбор"
@@ -2533,6 +2593,9 @@
   },
   "addPlan": {
     "message": "Добавить план"
+  },
+  "addPlanDesc": {
+    "message": "Вы можете бесплатно создать новое общее хранилище с 1 другим пользователем. Если вы хотите хранить элементы, управлять ими и предоставлять к ним общий доступ большему количеству людей, то для этого нужно будет добавить новый тарифный план. Просто имейте в виду, что для некоторых опций может потребоваться изменение тарификации."
   },
   "noOrganizationsList": {
     "message": "Вы не являетесь участником какой-либо организации. Организации позволяют безопасно обмениваться элементами с другими пользователями."
@@ -3466,7 +3529,7 @@
     "message": "В приложении Enpass для компьютера перейдите в меню Файл → Экспорт → Как CSV. Нажмите ОК в окне предупреждения и сохраните файл CSV. Обратите внимание, что импортер поддерживает только файлы, экспортированные при установленном в Enpass английском языке, поэтому настройте язык соответствующим образом."
   },
   "importEnpassJsonInstructions": {
-    "message": "В настольном приложении Enpass 6 нажмите кнопку меню и перейдите в раздел Файл → Экспорт. Выберите формат файла .json и сохраните файл."
+    "message": "В приложении Enpass 6 для компьютера нажмите кнопку меню и перейдите в раздел Файл → Экспорт. Выберите формат файла .json и сохраните файл."
   },
   "importPwsafeInstructions": {
     "message": "В приложении Password Safe для компьютера перейдите в меню Файл → Экспорт → Формат XML... и сохраните файл XML."
@@ -3736,9 +3799,6 @@
   },
   "restrictedItemTypePolicy": {
     "message": "Удалить элемент типа карта"
-  },
-  "restrictedItemTypePolicyDesc": {
-    "message": "Не разрешать пользователям создавать элементы карт. Существующие карты будут автоматически удалены."
   },
   "restrictedItemTypePolicyDescV2": {
     "message": "Не позволять пользователям создавать и хранить кредитные карты в своих хранилищах. При включении этой политики существующие карты будут автоматически скрыты."
@@ -4135,12 +4195,6 @@
   },
   "instructions": {
     "message": "Инструкции"
-  },
-  "passwordlessLogin": {
-    "message": "Вход без пароля"
-  },
-  "multifactorAuthentication": {
-    "message": "Многофакторная аутентификация"
   },
   "exposedPasswordsReport": {
     "message": "Скомпрометированные пароли"
@@ -4911,6 +4965,9 @@
     "message": "Название компании"
   },
   "chooseYourPlan": {
+    "message": "Выберите план"
+  },
+  "choosePlan": {
     "message": "Выберите план"
   },
   "users": {
@@ -6793,7 +6850,7 @@
   "openOrgInviteAcceptFailed": {
     "message": "Невозможно принять приглашение. Попросите администратора организации отправить ссылку-приглашение."
   },
-  "openOrgInviteAcceptFailedTitle": {
+  "cannotAcceptInvitation": {
     "message": "Не удается принять приглашение"
   },
   "openOrgInviteAcceptAlreadyMember": {
@@ -7369,6 +7426,21 @@
       }
     }
   },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Проверьте свою электронную почту, чтобы завершить присоединение к $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "В настоящее время эта организация не может принимать новых участников. Обратитесь к администратору за помощью."
+  },
+  "inviteSentToEmail": {
+    "message": "Приглашение отправлено на email"
+  },
   "acceptPolicies": {
     "message": "Отметив этот флажок, вы соглашаетесь со следующим:"
   },
@@ -7638,17 +7710,11 @@
   "twoStepLoginPolicyDescV2": {
     "message": "Требовать от пользователей настройки двухэтапной аутентификации при входе. Эта политика не будет применяться к владельцам и администраторам."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "Пользователи организации, которые не являются владельцами или администраторами и не настроили двухэтапную аутентификацию для своего аккаунта, будут удалены из организации и получат об этом уведомление по email."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "Включение этой политики приведет к отзыву всех пользователей, у которых в аккаунтах не включена двухэтапная аутентификация при входе. Затронутые пользователи будут уведомлены по email."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Вы участник организации, которая требует, чтобы в вашем аккаунте была настроена двухэтапная аутентификация. Если вы отключите всех провайдеров двухэтапной аутентификации, то будете автоматически удалены из этих организаций."
-  },
-  "passwordGeneratorPolicyDesc": {
-    "message": "Установить требования к генератору паролей."
   },
   "passwordGeneratorPolicyDescV2": {
     "message": "Выберите набор минимальных требований к паролям, создаваемым пользователями."
@@ -7912,9 +7978,6 @@
   "singleOrgDesc": {
     "message": "Запретить пользователям присоединяться к другим организациям."
   },
-  "singleOrgPolicyDesc": {
-    "message": "Запретить членам организации присоединяться к другим организациям. Эта политика необходима для организаций, в которых включена проверка домена."
-  },
   "singleOrgPolicyDescVfo1": {
     "message": "Запретить пользователям присоединяться к другим общим хранилищам или хранилищам организации.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
@@ -7947,9 +8010,6 @@
     "message": "Требовать от пользователей авторизации с использованием единого входа. Эта политика не будет применяться к владельцам и администраторам.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
   },
-  "requireSsoPolicyDesc": {
-    "message": "Требовать от участников входа с помощью единой корпоративной авторизации."
-  },
   "requireSsoPolicyTitle": {
     "message": "Требовать единый вход в систему (SSO)"
   },
@@ -7959,15 +8019,19 @@
   "prerequisite": {
     "message": "Обязательное условие"
   },
-  "requireSsoPolicyReq": {
-    "message": "Перед активацией этой политики необходимо включить политику Единого входа (SSO)."
-  },
   "requireSsoPolicyReqV2": {
     "message": "Перед включением этой политики необходимо включить политику единой организации."
   },
   "requireSsoPolicyReqV2Vfo1": {
     "message": "Перед включением этой политики необходимо включить политику членства единой организации.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "Перед включением этой политики необходимо включить политику единой организации."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "Перед включением этой политики необходимо включить политику членства единой организации.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "Не включена политика единой организации."
@@ -8379,9 +8443,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "Легко перемещайте элементы во время увольнения участников и их наследования, гарантируя отсутствие пробелов в доступе."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "Предоставьте всем пользователям выделенное пространство \"Мои элементы\" для управления их собственными логинами."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Предложите пользователям перенести их элементы"
   },
@@ -8390,9 +8451,6 @@
   },
   "centralizeDataOwnershipWarningLink": {
     "message": "Узнайте больше о передаче"
-  },
-  "promptUsersToMoveItems": {
-    "message": "Предложить пользователям переместить отдельные элементы хранилища в организацию"
   },
   "promptUsersToMoveItemsCallout": {
     "message": "Пользователям будет предложено либо передать свои предметы организации, либо покинуть ее. После выхода из организации их доступ будет аннулирован, но может быть восстановлен в любое время."
@@ -8605,12 +8663,8 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "Настройки по умолчанию для автозаполнения на компьютере"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "Включите автозаполнение на компьютере по умолчанию для участников. Участники могут отключить автозаполнение вручную в клиентском приложении для компьютера.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
-    "message": "Включить автонастройку клиента для компьютера. Пользователи смогут отключить автонастройку самостоятельно в настольном клиенте."
+    "message": "Включить автонастройку клиента для компьютера. Пользователи смогут отключить автонастройку самостоятельно в приложении для компьютера."
   },
   "disableSend": {
     "message": "Отключить Send"
@@ -8694,9 +8748,6 @@
   "uriMatchDetectionPolicy": {
     "message": "Обнаружение совпадения URI по умолчанию"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "Определяет, когда логины будут предлагаться для автозаполнения. Администраторы и владельцы освобождаются от этой политики."
-  },
   "uriMatchDetectionPolicyDescVfo1": {
     "message": "Установить обнаружение совпадений URI по умолчанию для всех элементов, созданных участниками.",
     "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
@@ -8710,6 +8761,23 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Пожалуйста, выберите допустимый вариант определения соответствия URI.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "Активировать помощника по заполнению",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Включите помощника по заполнению по умолчанию для всех участников. Эта функция использует специфичные инструкции для повышения точности на сайтах, на которых зачастую возникают сложности с автозаполнением."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Пользовательские правила автозаполнения"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "По умолчанию помощник по заполнению использует набор правил, отобранных Bitwarden. Введите здесь URL, чтобы заменить его своим собственным."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Введите корректный URL",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "Изменена политика $ID$.",
@@ -8725,6 +8793,9 @@
   },
   "estimatedTax": {
     "message": "Предполагаемый налог"
+  },
+  "subtotal": {
+    "message": "Итого"
   },
   "custom": {
     "message": "Пользовательский"
@@ -9493,9 +9564,6 @@
   "automaticAppLoginWithSSO": {
     "message": "Автовход с помощью SSO"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "Повысьте безопасность и удобство единого входа в неуправляемые приложения. Когда пользователи запускают приложение у вашего провайдера идентификации, их регистрационные данные автоматически заполняются и отправляются, создавая безопасный поток от провайдера к приложению в один клик."
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "Когда пользователи запускают приложение через вашего провайдера аутентификации, их учетные данные  будут автоматически заполнены и отправлены, что обеспечивает безопасную авторизацию одним щелчком мыши."
   },
@@ -9630,9 +9698,6 @@
   },
   "disableExport": {
     "message": "Удалить экспорт"
-  },
-  "disablePersonalVaultExportDescription": {
-    "message": "Запретить пользователям экспортировать данные из их собственного хранилища."
   },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Не разрешать пользователям экспортировать данные из своих личных хранилищ. Эта политика не распространяется на владельцев и администраторов."
@@ -11514,6 +11579,9 @@
   },
   "noSharedFoldersAdded": {
     "message": "Нет добавленных общих папок"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Добавьте общую папку, чтобы безопасно делиться элементами хранилища с другими участниками."
   },
   "noMembersAdded": {
     "message": "Нет добавленных участников"
@@ -14134,6 +14202,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Получить Менеджер секретов"
+  },
   "secureYourInfrastructure": {
     "message": "Защитите вашу инфраструктуру"
   },
@@ -14848,9 +14919,6 @@
     "message": "Удалить спонсорский план Family",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
   },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Не разрешать участникам выкупать план Families через эту организацию."
-  },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Не разрешать пользователям использовать план Family, спонсируемый вашей организацией."
   },
@@ -15308,9 +15376,6 @@
   "removeUnlockWithPinPolicyTitle": {
     "message": "Отключить разблокировку PIN-кодом"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "Не разрешать пользователям разблокировать свои аккаунты с помощью PIN-кода."
-  },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Пользователями не будет разрешено разблокировать свой аккаунт с помощью PIN-кода."
   },
@@ -15698,8 +15763,20 @@
   "providersubCanceledmessage": {
     "message": "Чтобы повторно оформить подписку, обратитесь в службу поддержки Bitwarden."
   },
+  "showAll": {
+    "message": "Показать все"
+  },
   "showMore": {
     "message": "Больше"
+  },
+  "showMoreCount": {
+    "message": "Показать еще $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Меньше"
@@ -15745,16 +15822,21 @@
   "checkInputFormat": {
     "message": "Проверьте формат ввода на наличие опечаток."
   },
-  "exampleTaxIdFormat": {
-    "message": "Пример формата $CODE$: $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Пример формата идентификатора налога: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Распознанный формат: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -15959,6 +16041,9 @@
   "upgradeNow": {
     "message": "Изменить сейчас"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Обеспечьте себе расширенную онлайн-безопасность с помощью Bitwarden Премиум."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Заполнение этой формы приведет к созданию новой организации Families. Вы можете обновить свою бесплатную организацию в консоли администратора."
   },
@@ -16010,9 +16095,6 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Блокировать создание аккаунта для заявленных доменов"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "Запретите пользователям создавать аккаунты за пределами вашей организации, используя адреса email из заявленных доменов."
-  },
   "blockClaimedDomainAccountCreationDescVfo1": {
     "message": "Запретить создание аккаунтов для заявленных доменов.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
@@ -16023,9 +16105,6 @@
   "blockClaimedDomainAccountCreationDescV2Vfo1": {
     "message": "Запретить пользователям использовать заявленный вами домен для создания аккаунтов Bitwarden за пределами хранилища вашей организации.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
-  },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "Перед активацией этой политики необходимо заявить домен."
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "Прежде чем включить эту политику, вы должны заявить права на домен."
@@ -16147,6 +16226,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "Проверка целостности папки"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Проверка целостности вложений"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ элемента(ов) содержат вложения с устаревшим шифрованием. Откройте один из элементов ниже и перейдите в раздел Вложения, чтобы исправить это.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "Восстановление и диагностика данных"
@@ -16483,6 +16574,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "Кредит на Премиум"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Примененные кредиты на подписку"
   },
   "enterpriseMembership": {
     "message": "Членство в организации"
@@ -17471,6 +17565,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Логин"
+  },
+  "orgNameVault": {
+    "message": "Хранилище $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }

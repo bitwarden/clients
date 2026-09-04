@@ -546,7 +546,7 @@
     "message": "Erro ao guardar o estado da revisão"
   },
   "pleaseTryAgain": {
-    "message": "Por favor, tente novamente"
+    "message": "Tente novamente"
   },
   "unmarkAsCritical": {
     "message": "Desmarcar como crítica"
@@ -1224,6 +1224,48 @@
   "sharedFolders": {
     "message": "Pastas partilhadas"
   },
+  "sharedFoldersInParent": {
+    "message": "Pastas partilhadas em $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ pastas partilhadas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ pasta partilhada",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "Mais $COUNT$ pastas partilhadas apresentadas acima deste botão",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "Mais uma pasta partilhada apresentada acima deste botão",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "A minha pasta"
   },
@@ -1232,6 +1274,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Adicione pastas aos itens para os filtrar aqui."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Adicione itens a uma pasta partilhada para os filtrar aqui."
   },
   "addSharedFolder": {
     "message": "Adicionar pasta partilhada"
@@ -1755,6 +1800,9 @@
   "myItems": {
     "message": "Os meus itens"
   },
+  "myItemsV2": {
+    "message": "Os meus itens"
+  },
   "myVault": {
     "message": "O meu cofre"
   },
@@ -1858,6 +1906,18 @@
   },
   "noMatchingItems": {
     "message": "Nenhum item correspondente"
+  },
+  "noFiltersMatch": {
+    "message": "Nenhum filtro corresponde a \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Limpar pesquisa"
   },
   "deselectAll": {
     "message": "Desmarcar tudo"
@@ -2105,7 +2165,7 @@
     "message": "Link expirado"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Por favor, reinicie o registo ou tente iniciar sessão."
+    "message": "Reinicie o registo ou tente iniciar sessão."
   },
   "youMayAlreadyHaveAnAccount": {
     "message": "É possível que já tenha uma conta"
@@ -2153,7 +2213,7 @@
     "message": "Mantenha esta janela aberta e siga as indicações do seu navegador."
   },
   "passkeyAuthenticationFailed": {
-    "message": "Falha na autenticação da chave de acesso. Por favor, tente novamente."
+    "message": "Falha na autenticação da chave de acesso. Tente novamente."
   },
   "useDifferentLoginMethod": {
     "message": "Utilizar um método de início de sessão diferente"
@@ -2171,7 +2231,7 @@
     "message": "Bem-vindo de volta"
   },
   "invalidPasskeyPleaseTryAgain": {
-    "message": "Chave de acesso inválida. Por favor, tente novamente."
+    "message": "Chave de acesso inválida. Tente novamente."
   },
   "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
     "message": "A 2FA para chaves de acesso não é suportada. Atualize a aplicação para iniciar sessão."
@@ -2291,7 +2351,7 @@
     "message": "Tempo limite de autenticação"
   },
   "authenticationSessionTimedOut": {
-    "message": "A sessão de autenticação expirou. Por favor, reinicie o processo de início de sessão."
+    "message": "A sessão de autenticação expirou. Reinicie o processo de início de sessão."
   },
   "verifyYourIdentity": {
     "message": "Verifique a sua identidade"
@@ -2422,7 +2482,7 @@
     "message": "Ocorreu um erro inesperado."
   },
   "expirationDateError": {
-    "message": "Por favor, selecione um prazo de validade futuro."
+    "message": "Selecione uma data de expiração futura."
   },
   "emailAddress": {
     "message": "Endereço de e-mail"
@@ -2534,6 +2594,9 @@
   "addPlan": {
     "message": "Adicionar plano"
   },
+  "addPlanDesc": {
+    "message": "Pode criar gratuitamente um novo cofre partilhado com mais uma pessoa. Se quiser armazenar, gerir e partilhar itens com mais pessoas, terá primeiro de adicionar um novo plano. Tenha em atenção que algumas opções podem exigir uma alteração da faturação."
+  },
   "noOrganizationsList": {
     "message": "Não pertence a nenhuma organização. As organizações permitem-lhe partilhar itens em segurança com outros utilizadores."
   },
@@ -2608,7 +2671,7 @@
     "message": "Esta conta tem a verificação de dois passos configurada, no entanto, nenhum dos fornecedores da verificação de dois passos configurada é suportado por este navegador web."
   },
   "noTwoStepProviders2": {
-    "message": "Por favor, utilize um navegador web suportado (como o Chrome) e/ou adicione fornecedores adicionais que sejam mais bem suportados nos navegadores web (como uma aplicação de autenticação)."
+    "message": "Utilize um navegador compatível (como o Chrome) e/ou adicione outros métodos de autenticação que sejam mais compatíveis com diferentes navegadores (como uma app de autenticação)."
   },
   "twoStepOptions": {
     "message": "Opções de verificação de dois passos"
@@ -2758,7 +2821,7 @@
     "message": "Erro no acesso ao token de atualização"
   },
   "errorRefreshingAccessTokenDesc": {
-    "message": "Não foi encontrado nenhum token de atualização ou chaves API. Por favor, tente terminar a sessão e voltar a iniciá-la."
+    "message": "Não foram encontrados tokens de atualização nem chaves de API. Tente terminar sessão e voltar a iniciá-la."
   },
   "warning": {
     "message": "Aviso"
@@ -2838,7 +2901,7 @@
     "message": "Utilize a chave de encriptação da sua conta, derivada do nome de utilizador e da palavra-passe mestra da sua conta, para encriptar a exportação e restringir a importação apenas à conta Bitwarden atual."
   },
   "passwordProtectedOptionDescription": {
-    "message": "Defina uma palavra-passe do ficheiro para encriptar a exportação e importe-a para qualquer conta Bitwarden utilizando a palavra-passe de desencriptação."
+    "message": "Definir uma palavra-passe de ficheiro para encriptar a exportação e importá-la para qualquer conta Bitwarden utilizando a palavra-passe para a desencriptar."
   },
   "exportTypeHeading": {
     "message": "Tipo de exportação"
@@ -2982,7 +3045,7 @@
     "message": "Código"
   },
   "changeEmailDesc": {
-    "message": "Enviámos um código de verificação para $EMAIL$. Verifique este código no seu e-mail e introduza-o abaixo para finalizar a alteração do endereço de e-mail.",
+    "message": "Enviámos um código de verificação para $EMAIL$. Consulte o seu e-mail para obter o código e introduza-o abaixo para concluir a alteração do endereço de e-mail.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3000,7 +3063,7 @@
     "message": "E-mail alterado"
   },
   "logBackIn": {
-    "message": "Por favor, inicie sessão novamente."
+    "message": "Inicie sessão novamente."
   },
   "currentSession": {
     "message": "Sessão atual"
@@ -3009,7 +3072,7 @@
     "message": "Pedido pendente"
   },
   "logBackInOthersToo": {
-    "message": "Por favor, inicie sessão novamente. Se estiver a utilizar outras aplicações Bitwarden, termine a sessão e volte a iniciar sessão nessas também."
+    "message": "Inicie sessão novamente. Se estiver a utilizar outras aplicações Bitwarden, termine a sessão e inicie-a nessas também."
   },
   "changeMasterPassword": {
     "message": "Alterar palavra-passe mestra"
@@ -3192,7 +3255,7 @@
     "message": "Erro de importação"
   },
   "importErrorDesc": {
-    "message": "Ocorreu um problema com os dados que tentou importar. Por favor, resolva os erros indicados abaixo no seu ficheiro de origem e tente novamente."
+    "message": "Ocorreu um problema com os dados que tentou importar. Resolva os erros indicados abaixo no ficheiro de origem e tente novamente."
   },
   "importSuccess": {
     "message": "Dados importados com sucesso"
@@ -3416,7 +3479,7 @@
     }
   },
   "importHelpCenterInstructions": {
-    "message": "See detailed $NAME$ instructions in our",
+    "message": "Consulte instruções detalhadas para $NAME$ no nosso",
     "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
     "placeholders": {
       "name": {
@@ -3426,195 +3489,195 @@
     }
   },
   "importHelpCenterLinkText": {
-    "message": "Help Center"
+    "message": "Centro de ajuda"
   },
   "importChromiumAliasPreamble": {
-    "message": "The process is exactly the same as importing from Google Chrome.",
+    "message": "O processo é exatamente igual ao da importação a partir do Google Chrome.",
     "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
   },
   "importKeepassxInstructions": {
-    "message": "Using the KeePassX desktop application, navigate to \"Database\" → \"Export to CSV file\" and save the CSV file."
+    "message": "Na aplicação para computador KeePassX, aceda a \"Base de dados\" → \"Exportar para ficheiro CSV\" e guarde o ficheiro CSV."
   },
   "importAviraInstructions": {
-    "message": "In the Avira web vault, go to \"Settings\" → \"My Data\" → \"Export data\" and save the CSV file."
+    "message": "No cofre web da Avira, aceda a \"Definições\" → \"Os meus dados\" → \"Exportar dados\" e guarde o ficheiro CSV."
   },
   "importBlurInstructions": {
-    "message": "In the Blur web vault, click your username at the top and go to \"Settings\" → \"Export Data\", then click \"Export CSV\" for your \"Accounts\"."
+    "message": "No cofre web da Blur, clique no seu nome de utilizador na parte superior e aceda a \"Definições\" → \"Exportar dados\". Em seguida, clique em \"Exportar CSV\" para as suas \"Contas\"."
   },
   "importSafeincloudInstructions": {
-    "message": "Using the SafeInCloud desktop application, navigate to \"File\" → \"Export\" → \"As XML\" and save the XML file."
+    "message": "Na aplicação para computador SafeInCloud, aceda a \"Ficheiro\" → \"Exportar\" → \"Como XML\" e guarde o ficheiro XML."
   },
   "importPadlockInstructions": {
-    "message": "Using the Padlock desktop application, click the hamburger icon in the top left corner and navigate to \"Settings\" → \"Export\" button and save the file \"As CSV\"."
+    "message": "Na aplicação para computador Padlock, clique no ícone de menu no canto superior esquerdo e aceda a \"Definições\" → botão \"Exportar\" e guarde o ficheiro \"Como CSV\"."
   },
   "importKeepass2Instructions": {
-    "message": "Using the KeePass 2 desktop application, navigate to \"File\" → \"Export\" and select the \"KeePass XML (2.x)\" option."
+    "message": "Na aplicação para computador KeePass 2, aceda a \"Ficheiro\" → \"Exportar\" e selecione a opção \"KeePass XML (2.x)\"."
   },
   "importUpmInstructions": {
-    "message": "Using the Universal Password Manager desktop application, navigate to \"Database\" → \"Export\" and save the CSV file."
+    "message": "Na aplicação para computador Universal Password Manager, aceda a \"Base de dados\" → \"Exportar\" e guarde o ficheiro CSV."
   },
   "importSaferpassInstructions": {
-    "message": "Using the SaferPass browser extension, click the hamburger icon in the top left corner and navigate to \"Settings\". Click the \"Export accounts\" button to save the CSV file."
+    "message": "Na extensão de navegador do SaferPass, clique no ícone de menu no canto superior esquerdo e aceda a \"Definições\". Clique no botão \"Exportar contas\" para guardar o ficheiro CSV."
   },
   "importMeldiumInstructions": {
-    "message": "Using the Meldium web vault, navigate to \"Settings\". Locate the \"Export data\" function and click \"Show me my data\" to save the CSV file."
+    "message": "No cofre web do Meldium, aceda a \"Definições\". Localize a função \"Exportar dados\" e clique em \"Mostrar os meus dados\" para guardar o ficheiro CSV."
   },
   "importPassworddragonInstructions": {
-    "message": "Using the Password Dragon desktop application, navigate to \"File\" → \"Export\" → \"To XML\". In the dialog that pops up select \"All Rows\" and check all fields. Click the \"Export\" button and save the XML file."
+    "message": "Na aplicação para computador Password Dragon, aceda a \"Ficheiro\" → \"Exportar\" → \"Para XML\". Na caixa de diálogo que aparece, selecione \"Todas as linhas\" e selecione todos os campos. Clique no botão \"Exportar\" e guarde o ficheiro XML."
   },
   "importEnpassCsvInstructions": {
-    "message": "Using the Enpass desktop application, navigate to \"File\" → \"Export\" → \"As CSV\". Select \"OK\" to the warning alert and save the CSV file. Note that the importer only supports files exported while Enpass is set to the English language, so adjust your settings accordingly."
+    "message": "Na aplicação para computador Enpass, aceda a \"Ficheiro\" → \"Exportar\" → \"Como CSV\". Selecione \"OK\" no aviso apresentado e guarde o ficheiro CSV. Tenha em atenção que o importador só é compatível com ficheiros exportados quando o Enpass está definido para inglês, pelo que deve ajustar as suas definições em conformidade."
   },
   "importEnpassJsonInstructions": {
-    "message": "Using the Enpass 6 desktop application, click the menu button and navigate to \"File\" → \"Export\". Select the \".json\" file format option and save the JSON file."
+    "message": "Na aplicação para computador Enpass 6, clique no botão de menu e aceda a \"Ficheiro\" → \"Exportar\". Selecione a opção de formato de ficheiro \".json\" e guarde o ficheiro JSON."
   },
   "importPwsafeInstructions": {
-    "message": "Using the Password Safe desktop application, navigate to \"File\" → \"Export To\" → \"XML format...\" and save the XML file."
+    "message": "Na aplicação para computador Password Safe, aceda a \"Ficheiro\" → \"Exportar para\" → \"Formato XML...\" e guarde o ficheiro XML."
   },
   "importDashlaneCsvInstructions": {
-    "message": "Log in to Dashlane, click on \"My Account\" → \"Settings\" → \"Export file\" and select \"Export as a CSV file\". This will download a zip archive containing various CSV files. Unzip the archive and import each CSV file individually."
+    "message": "Inicie sessão no Dashlane, clique em \"A minha conta\" → \"Definições\" → \"Exportar ficheiro\" e selecione \"Exportar como ficheiro CSV\". Esta ação transferirá um ficheiro ZIP que contém vários ficheiros CSV. Extraia o conteúdo do ficheiro e importe cada ficheiro CSV individualmente."
   },
   "importDashlaneJsonInstructions": {
-    "message": "Dashlane no longer supports the JSON format. Only use this if you have an existing JSON for import. Use the CSV importer when creating new exports."
+    "message": "O Dashlane já não é compatível com o formato JSON. Utilize esta opção apenas se tiver um ficheiro JSON existente para importar. Utilize o importador CSV ao criar novas exportações."
   },
   "importMsecureInstructions": {
-    "message": "Using the mSecure desktop application, navigate to \"File\" → \"Export\" → \"CSV File...\" and save the CSV file."
+    "message": "Na aplicação para computador mSecure, aceda a \"Ficheiro\" → \"Exportar\" → \"Ficheiro CSV...\" e guarde o ficheiro CSV."
   },
   "importStickypasswordInstructions": {
-    "message": "Using the Sticky Password desktop application, navigate to \"Menu\" (top right) → \"Export\" → \"Export all\". Select the unencrypted format XML option and save the XML file."
+    "message": "Na aplicação para computador Sticky Password, aceda a \"Menu\" (canto superior direito) → \"Exportar\" → \"Exportar tudo\". Selecione a opção de formato XML não encriptado e guarde o ficheiro XML."
   },
   "importTruekeyInstructions": {
-    "message": "Using the True Key desktop application, click the gear icon (top right) and then navigate to \"App Settings\". Click the \"Export\" button, enter your password and save the CSV file."
+    "message": "Na aplicação para computador True Key, clique no ícone de engrenagem (canto superior direito) e, em seguida, aceda a \"Definições da aplicação\". Clique no botão \"Exportar\", introduza a sua palavra-passe e guarde o ficheiro CSV."
   },
   "importClipperzInstructions": {
-    "message": "Log into the Clipperz web application (clipperz.is/app). Click the hamburger menu icon in the top right to expand the navigation bar. Navigate to \"Data\" → \"Export\". Click the \"download HTML+JSON\" button to save the HTML file."
+    "message": "Na aplicação web Clipperz, inicie sessão em (clipperz.is/app). Clique no ícone de menu no canto superior direito para expandir a barra de navegação. Aceda a \"Dados\" → \"Exportar\". Clique no botão \"transferir HTML+JSON\" para guardar o ficheiro HTML."
   },
   "importRoboformInstructions": {
-    "message": "Using the RoboForm Editor desktop application, navigate to \"RoboForm\" (top left) → \"Options\" → \"Account & Data\" and click the \"Export\" button. Select all of your data, change the \"Format\" to \"CSV file\" and then click the \"Export\" button to save the CSV file. Note: RoboForm only allows you to export Logins. Other items will not be exported."
+    "message": "Na aplicação para computador RoboForm Editor, aceda a \"RoboForm\" (canto superior esquerdo) → \"Opções\" → \"Conta e dados\" e clique no botão \"Exportar\". Selecione todos os seus dados, altere o \"Formato\" para \"Ficheiro CSV\" e, em seguida, clique no botão \"Exportar\" para guardar o ficheiro CSV. Nota: o RoboForm só permite exportar credenciais. Os restantes itens não serão exportados."
   },
   "importPassboltInstructions": {
-    "message": "Log into the Passbolt web vault and navigate to the \"Passwords\" listing. Select all of the passwords you would like to export and click the \"Export\" button at the top of the listing. Choose the \"csv (lastpass)\" export format and click the \"Export\" button."
+    "message": "No cofre web do Passbolt, inicie sessão e aceda à lista de \"Palavras-passe\". Selecione todas as palavras-passe que pretende exportar e clique no botão \"Exportar\" na parte superior da lista. Selecione o formato de exportação \"csv (lastpass)\" e clique no botão \"Exportar\"."
   },
   "importAscendoInstructions": {
-    "message": "Using the Ascendo DataVault desktop application, navigate to \"Tools\" → \"Export\". In the dialog that pops up, select the \"All Items (DVX, CSV)\" option. Click the \"Ok\" button to save the CSV file."
+    "message": "Na aplicação para computador Ascendo DataVault, aceda a \"Ferramentas\" → \"Exportar\". Na caixa de diálogo que aparece, selecione a opção \"Todos os itens (DVX, CSV)\". Clique no botão \"OK\" para guardar o ficheiro CSV."
   },
   "importPasswordbossInstructions": {
-    "message": "Using the Password Boss desktop application, navigate to \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" and save the JSON file."
+    "message": "Na aplicação para computador Password Boss, aceda a \"Ficheiro\" → \"Exportar dados\" → \"Password Boss JSON - não encriptado\" e guarde o ficheiro JSON."
   },
   "importZohoInstructions": {
-    "message": "Log into the Zoho web vault (vault.zoho.com). Navigate to \"Tools\" → \"Export Secrets\". Select \"All Secrets\" and click the \"Zoho Vault Format CSV\" button. Highlight and copy the data from the textarea. Open a text editor like Notepad and paste the data. Save the data from the text editor as",
+    "message": "No cofre web do Zoho, inicie sessão em (vault.zoho.com). Aceda a \"Ferramentas\" → \"Exportar segredos\". Selecione \"Todos os segredos\" e clique no botão \"CSV no formato Zoho Vault\". Selecione e copie os dados da área de texto. Abra um editor de texto, como o Bloco de notas, e cole os dados. Guarde os dados do editor de texto como",
     "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
   },
   "importSplashidInstructions": {
-    "message": "Using the SplashID Safe desktop application, click on the SplashID blue lock logo in the top right corner. Navigate to \"Export\" → \"Export as CSV\" and save the CSV file."
+    "message": "Na aplicação para computador SplashID Safe, clique no logótipo azul de cadeado do SplashID no canto superior direito. Aceda a \"Exportar\" → \"Exportar como CSV\" e guarde o ficheiro CSV."
   },
   "importPasskeepInstructions": {
-    "message": "Using the PassKeep mobile app, navigate to \"Backup/Restore\". Locate the \"CSV Backup/Restore\" section and click \"Backup to CSV\" to save the CSV file."
+    "message": "Na aplicação móvel PassKeep, aceda a \"Cópia de segurança/Restauro\". Localize a secção \"Cópia de segurança/Restauro CSV\" e clique em \"Criar cópia de segurança em CSV\" para guardar o ficheiro CSV."
   },
   "importGnomeInstructionsIntro": {
-    "message": "Make sure you have python-keyring and python-gnomekeyring installed. Save the",
+    "message": "Certifique-se de que tem o python-keyring e o python-gnomekeyring instalados. Guarde o",
     "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
   },
   "importGnomeInstructionsLinkText": {
-    "message": "GNOME Keyring Import/Export"
+    "message": "script Python GNOME Keyring Import/Export"
   },
   "importGnomeInstructionsScriptLabel": {
-    "message": "python script to your desktop as",
+    "message": "no seu ambiente de trabalho como",
     "description": "Followed by a literal filename (pw_helper.py) rendered as code."
   },
   "importGnomeInstructionsRunTerminal": {
-    "message": ". Open terminal and run",
+    "message": ". Abra o terminal e execute",
     "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
   },
   "importGnomeInstructionsAndThen": {
-    "message": "and then",
+    "message": "e, em seguida,",
     "description": "Between two terminal commands rendered as code."
   },
   "importGnomeInstructionsUploadResult": {
-    "message": ". Then upload the resulting",
+    "message": ". Em seguida, carregue o ficheiro",
     "description": "Followed by a literal filename (my_passwords.json) rendered as code."
   },
   "importGnomeInstructionsFileHere": {
-    "message": "file here to Bitwarden.",
+    "message": "gerado aqui para o Bitwarden.",
     "description": "Follows the my_passwords.json filename."
   },
   "importPasswordagentInstructions": {
-    "message": "Using the Password Agent desktop application navigate to \"File\" → \"Export\", select the \"Fields to export\" button and check all of the fields, change the \"Output format\" to \"CSV\", and then click the \"Start\" button to save the CSV file."
+    "message": "Na aplicação para computador Password Agent, aceda a \"Ficheiro\" → \"Exportar\", selecione o botão \"Campos a exportar\" e marque todos os campos, altere o \"Formato de saída\" para \"CSV\" e, em seguida, clique no botão \"Iniciar\" para guardar o ficheiro CSV."
   },
   "importPasspackInstructions": {
-    "message": "Log into the Passpack website vault and navigate to \"Settings\" → \"Export\", then click the \"Download\" button to save the CSV file."
+    "message": "No cofre web do Passpack, inicie sessão e aceda a \"Definições\" → \"Exportar\". Em seguida, clique no botão \"Transferir\" para guardar o ficheiro CSV."
   },
   "importPassmanInstructions": {
-    "message": "Open your Passman vault and click on \"Settings\" in the bottom left corner. In the \"Settings\" window switch to the \"Export credentials\" tab and choose \"JSON\" as the export type. Enter your vault's passphrase and click the \"Export\" button to save the JSON file."
+    "message": "Abra o seu cofre Passman e clique em \"Definições\" no canto inferior esquerdo. Na janela \"Definições\", selecione o separador \"Exportar credenciais\" e escolha \"JSON\" como tipo de exportação. Introduza a frase de acesso do seu cofre e clique no botão \"Exportar\" para guardar o ficheiro JSON."
   },
   "importAvastCsvInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to CSV file\" option to save the CSV file."
+    "message": "Abra a aplicação para computador Avast Passwords e aceda a \"Definições\" → \"Importar/exportar dados\". Selecione o botão \"Exportar\" para a opção \"Exportar para ficheiro CSV\" para guardar o ficheiro CSV."
   },
   "importAvastJsonInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to JSON file\" option to save the JSON file."
+    "message": "Abra a aplicação para computador Avast Passwords e aceda a \"Definições\" → \"Importar/exportar dados\". Selecione o botão \"Exportar\" para a opção \"Exportar para ficheiro JSON\" para guardar o ficheiro JSON."
   },
   "importFsecureInstructions": {
-    "message": "Open the F-Secure KEY desktop application and navigate to \"Settings\" → \"Export Passwords\". Select the \"Export\" button, enter your master password, and save the FSK file."
+    "message": "Abra a aplicação para computador F-Secure KEY e aceda a \"Definições\" → \"Exportar palavras-passe\". Selecione o botão \"Exportar\", introduza a sua palavra-passe principal e guarde o ficheiro FSK."
   },
   "importKasperskyInstructions": {
-    "message": "Open the Kaspersky Password Manager desktop application and navigate to \"Settings\" → \"Import/Export\". Locate the \"Export to text file\" section and select the \"Export\" button to save the TXT file."
+    "message": "Abra a aplicação para computador Kaspersky Password Manager e aceda a \"Definições\" → \"Importar/Exportar\". Localize a secção \"Exportar para ficheiro de texto\" e selecione o botão \"Exportar\" para guardar o ficheiro TXT."
   },
   "importRemembearInstructions": {
-    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+    "message": "Abra a aplicação para computador RememBear e aceda a \"Definições\" → \"Conta\" → \"Exportar\". Introduza a sua palavra-passe principal e selecione o botão \"Exportar mesmo assim\" para guardar o ficheiro CSV."
   },
   "importPasswordwalletInstructions": {
-    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+    "message": "Abra a aplicação para computador PasswordWallet e aceda a \"Ficheiro\" → \"Exportar\" → \"Entradas visíveis para ficheiro de texto\". Introduza a sua palavra-passe e selecione o botão \"OK\" para guardar o ficheiro TXT."
   },
   "importMykiInstructions": {
-    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+    "message": "Abra a extensão de navegador para computador Myki e aceda a \"Avançadas\" → \"Exportar contas\" e, em seguida, leia o código QR com o seu dispositivo móvel. Serão então guardados vários ficheiros CSV na pasta de transferências do seu computador."
   },
   "importSecuresafeInstructions": {
-    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+    "message": "Exporte o seu cofre de palavras-passe SecureSafe para um ficheiro CSV com uma vírgula como delimitador."
   },
   "importLogmeonceInstructions": {
-    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+    "message": "Abra a extensão de navegador LogMeOnce e, em seguida, aceda a \"Abrir menu\" → \"Exportar para\" e selecione \"Ficheiro CSV\" para guardar o ficheiro CSV."
   },
   "importBlackberryInstructions": {
-    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+    "message": "Abra a aplicação BlackBerry Password Keeper e, em seguida, aceda a \"Definições\" → \"Importar/Exportar\". Selecione \"Exportar palavras-passe\" e siga as instruções apresentadas no ecrã para guardar o ficheiro CSV não encriptado."
   },
   "importButtercupInstructions": {
-    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+    "message": "Abra a aplicação para computador Buttercup e desbloqueie o seu cofre. Clique com o botão direito do rato no ícone do seu cofre e selecione \"Exportar\" para guardar o ficheiro CSV."
   },
   "importCodebookInstructions": {
-    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+    "message": "Abra a aplicação para computador Codebook e inicie sessão. Aceda a \"Ficheiro\" → \"Exportar tudo\", clique em \"Sim\" na caixa de diálogo e guarde o ficheiro CSV."
   },
   "importEncryptrInstructions": {
-    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+    "message": "Abra a versão mais recente da aplicação para computador Encryptr e permita que todos os seus dados sejam sincronizados. Quando a sincronização dos seus dados estiver concluída, o ícone de transferência no canto superior direito ficará cor-de-rosa. Clique no ícone de transferência e guarde o ficheiro CSV."
   },
   "importYotiInstructions": {
-    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+    "message": "Na extensão de navegador do Yoti, clique em \"Definições\" e, em seguida, em \"Exportar credenciais guardadas\" e guarde o ficheiro CSV."
   },
   "importPsonoInstructions": {
-    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+    "message": "No cofre web do Psono, inicie sessão, clique no menu pendente \"Sessão iniciada como\" e selecione \"Outros\". Aceda ao separador \"Exportar\", selecione a exportação do tipo JSON e, em seguida, clique em \"Exportar\"."
   },
   "importPasskyInstructions": {
-    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+    "message": "Inicie sessão em \"https://vault.passky.org\" → \"Importar e exportar\" → \"Exportar\", na secção Passky. (A \"Cópia de segurança\" não é compatível, pois está encriptada.)"
   },
   "importProtonpassInstructions": {
-    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+    "message": "Na extensão de navegador do ProtonPass, aceda a \"Definições\" > \"Exportar\". Exporte sem encriptação PGP e guarde o ficheiro ZIP.\n"
   },
   "importPasswordxpInstructions": {
-    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+    "message": "Selecione o menu \"Base de dados\" → \"Exportar para ficheiro...\". → Nas opções de exportação, certifique-se de que \"Nomes das pastas\" e \"Títulos das colunas\" estão selecionados. → Clique no botão \"Procurar...\" e escolha o ficheiro de destino, definindo o tipo como ficheiro CSV."
   },
   "importNetwrixInstructions": {
-    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+    "message": "Abra o FullClient, aceda ao menu principal e selecione \"Exportar\". Inicie o assistente de exportação de palavras-passe e siga as instruções para exportar um ficheiro CSV."
   },
   "importNordpassInstructions": {
-    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+    "message": "Inicie sessão no NordPass e abra as \"Definições\" → desça até à secção \"Importar e exportar\" e selecione \"Exportar itens\" → introduza a sua palavra-passe mestra e selecione \"Continuar\". → Guarde o ficheiro CSV no seu dispositivo."
   },
   "importPassworddepot17Instructions": {
-    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+    "message": "Na aplicação para computador, aceda a \"Ferramentas\" → \"Exportar\" → introduza a sua palavra-passe mestra → selecione \"Formato XML (.xml)\" como formato de exportação → clique em \"Seguinte\" → escolha as entradas que devem ser incluídas na exportação → clique em \"Seguinte\" para exportar para a localização escolhida anteriormente."
   },
   "importDelineaInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+    "message": "Inicie sessão no Delinea, pesquise por \"Importar/exportar\" → selecione \"Exportar\" → selecione \"XML\" como formato de exportação → selecione \"QuantumLock\" como tipo de autenticador → introduza a sua palavra-passe e selecione \"Exportar\" para guardar o ficheiro XML."
   },
   "importDelineaCsvInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+    "message": "Inicie sessão no Delinea, pesquise por \"Importar/exportar\" → selecione \"Exportar\" → selecione \"CSV\" como formato de exportação → selecione \"QuantumLock\" como tipo de autenticador → introduza a sua palavra-passe e selecione \"Exportar\" para guardar o ficheiro CSV."
   },
   "options": {
     "message": "Opções"
@@ -3737,14 +3800,11 @@
   "restrictedItemTypePolicy": {
     "message": "Remover o tipo de item do cartão"
   },
-  "restrictedItemTypePolicyDesc": {
-    "message": "Não permitir que os membros criem tipos de itens de cartão. Os cartões existentes serão automaticamente removidos."
-  },
   "restrictedItemTypePolicyDescV2": {
     "message": "Não permitir que os membros criem e armazenem itens do tipo Cartão nos seus cofres. Quando esta política estiver ativada, os cartões existentes serão automaticamente ocultados."
   },
   "restrictedItemTypePolicyDescVfo1": {
-    "message": "Do not allow members to create and store credit card items. When this policy is turned on, existing cards will be automatically hidden.",
+    "message": "Não permitir que os membros criem e armazenem itens do tipo Cartão. Quando esta política estiver ativada, os cartões existentes serão automaticamente ocultados.",
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
   "restrictCardTypeImport": {
@@ -4136,12 +4196,6 @@
   "instructions": {
     "message": "Instruções"
   },
-  "passwordlessLogin": {
-    "message": "Início de sessão sem palavra-passe"
-  },
-  "multifactorAuthentication": {
-    "message": "Autenticação multifator"
-  },
   "exposedPasswordsReport": {
     "message": "Palavras-passe expostas"
   },
@@ -4335,7 +4389,7 @@
     "message": "O crédito adicionado aparecerá na sua conta depois de o pagamento ter sido totalmente processado. Alguns métodos de pagamento têm atrasos e podem demorar mais tempo a ser processados do que outros."
   },
   "makeSureEnoughCredit": {
-    "message": "Por favor, certifique-se de que a sua conta tem crédito suficiente disponível para esta compra. Se a sua conta não tiver crédito suficiente disponível, será utilizado o seu método de pagamento predefinido registado para cobrir a diferença. Pode adicionar crédito à sua conta a partir da página de faturação."
+    "message": "Certifique-se de que a sua conta tem crédito suficiente disponível para esta compra. Se a sua conta não tiver crédito suficiente disponível, será utilizado o seu método de pagamento predefinido para pagar a diferença. Pode adicionar crédito à sua conta na página de faturação."
   },
   "notEnoughAccountCredit": {
     "message": "Não tem crédito suficiente na sua conta para esta compra. Pode adicionar crédito à sua conta na página Faturação."
@@ -4740,7 +4794,7 @@
     }
   },
   "discountExpiredOnPurchase": {
-    "message": "O desconto expirou. Por favor, reveja o total do seu carrinho e tente novamente."
+    "message": "O desconto expirou. Reveja o total do seu carrinho e tente novamente."
   },
   "downloadLicense": {
     "message": "Transferir licença"
@@ -4912,6 +4966,9 @@
   },
   "chooseYourPlan": {
     "message": "Escolha o seu plano"
+  },
+  "choosePlan": {
+    "message": "Escolher plano"
   },
   "users": {
     "message": "Utilizadores"
@@ -6793,7 +6850,7 @@
   "openOrgInviteAcceptFailed": {
     "message": "Não foi possível aceitar o convite. Peça a um administrador da organização para enviar um novo link de convite."
   },
-  "openOrgInviteAcceptFailedTitle": {
+  "cannotAcceptInvitation": {
     "message": "Não foi possível aceitar o convite"
   },
   "openOrgInviteAcceptAlreadyMember": {
@@ -7037,10 +7094,10 @@
     "message": "Introduza o seu ID de instalação"
   },
   "limitSubscriptionDesc": {
-    "message": "Defina um limite de lugares para a sua subscrição. Quando este limite for atingido, não será possível convidar novos membros."
+    "message": "Definir um limite de lugares para a sua subscrição. Quando este limite for atingido, não poderá convidar novos membros."
   },
   "limitSmSubscriptionDesc": {
-    "message": "Defina um limite de lugares para a sua subscrição do Gestor dos Segredos. Quando este limite for atingido, não será possível convidar novos membros."
+    "message": "Definir um limite de lugares para a sua subscrição do Gestor de Segredos. Quando este limite for atingido, não poderá convidar novos membros."
   },
   "maxSeatLimit": {
     "message": "Limite de lugares (opcional)",
@@ -7085,7 +7142,7 @@
     "message": "Opções adicionais"
   },
   "additionalOptionsDesc": {
-    "message": "Para obter ajuda adicional na gestão da sua subscrição, por favor, contacte o apoio ao cliente."
+    "message": "Para obter ajuda adicional na gestão da sua subscrição, contacte o Apoio ao cliente."
   },
   "subscriptionUserSeatsUnlimitedAutoscale": {
     "message": "Os ajustes à sua subscrição resultarão em acertos proporcionais na faturação. Se os membros recém-convidados excederem o número de lugares incluídos na sua subscrição, ser-lhe-á cobrado imediatamente um valor proporcional pelos membros adicionais."
@@ -7094,7 +7151,7 @@
     "message": "Se pretender adicionar mais"
   },
   "smStandaloneTrialSeatCountUpdateMessageFragment2": {
-    "message": "lugares sem a oferta agregada, por favor, contacte"
+    "message": "lugares sem a oferta agregada, contacte"
   },
   "subscriptionUserSeatsLimitedAutoscale": {
     "message": "Os ajustes à sua subscrição resultarão em acertos proporcionais na faturação. Se os membros recém-convidados excederem o número de lugares incluídos na sua subscrição, ser-lhe-á cobrado imediatamente um valor proporcional pelos membros adicionais, até ser atingido o limite de $MAX$ lugares.",
@@ -7248,7 +7305,7 @@
     "message": "Todas as exportações com restrições de conta que tenha guardado tornar-se-ão inválidas."
   },
   "legacyEncryptionUnsupported": {
-    "message": "A encriptação herdada já não é suportada. Por favor, contacte o suporte para recuperar a sua conta."
+    "message": "A encriptação legada já não é suportada. Contacte o suporte para recuperar a sua conta."
   },
   "subscription": {
     "message": "Subscrição"
@@ -7369,6 +7426,21 @@
       }
     }
   },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Consulte o seu e-mail para concluir a adesão a $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "Esta organização não pode aceitar novos membros de momento. Contacte o seu administrador para obter assistência."
+  },
+  "inviteSentToEmail": {
+    "message": "Convite enviado para o e-mail"
+  },
   "acceptPolicies": {
     "message": "Ao selecionar esta caixa, concorda com o seguinte:"
   },
@@ -7439,16 +7511,16 @@
     "message": "Não é possível aceder aos itens de organizações suspensas. Contacte o proprietário da organização para obter assistência."
   },
   "secretsAccessSuspended": {
-    "message": "Não é possível aceder a organizações suspensas. Por favor, contacte o proprietário da organização para obter assistência."
+    "message": "Não é possível aceder a organizações suspensas. Contacte o proprietário da sua organização para obter assistência."
   },
   "secretsCannotCreate": {
-    "message": "Os segredos não podem ser criados em organizações suspensas. Por favor, contacte o proprietário da organização para obter assistência."
+    "message": "Não é possível criar segredos em organizações suspensas. Contacte o proprietário da sua organização para obter assistência."
   },
   "projectsCannotCreate": {
-    "message": "Os projetos não podem ser criados em organizações suspensas. Por favor, contacte o proprietário da organização para obter assistência."
+    "message": "Não é possível criar projetos em organizações suspensas. Contacte o proprietário da sua organização para obter assistência."
   },
   "serviceAccountsCannotCreate": {
-    "message": "As contas de serviço não podem ser criadas em organizações suspensas. Por favor, contacte o proprietário da organização para obter assistência."
+    "message": "Não é possível criar contas de serviço em organizações suspensas. Contacte o proprietário da sua organização para obter assistência."
   },
   "licenseIsExpired": {
     "message": "A licença expirou."
@@ -7537,7 +7609,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "fingerprintMatchInfo": {
-    "message": "Por favor, certifique-se de que o cofre está desbloqueado e que a frase de impressão digital corresponde à do outro dispositivo."
+    "message": "Certifique-se de que o seu cofre está desbloqueado e de que a frase de impressão digital corresponde à do outro dispositivo."
   },
   "fingerprintPhraseHeader": {
     "message": "Frase de impressão digital"
@@ -7585,7 +7657,7 @@
     "message": "Deve selecionar pelo menos uma coleção."
   },
   "couldNotChargeCardPayInvoice": {
-    "message": "Não foi possível concluir a transação. Por favor, verifique e efetue o pagamento da fatura por pagar indicada abaixo."
+    "message": "Não foi possível efetuar a cobrança no seu cartão. Consulte e pague a fatura por pagar indicada abaixo."
   },
   "minLength": {
     "message": "Comprimento mínimo"
@@ -7597,7 +7669,7 @@
     "message": "Requisitos da palavra-passe mestra"
   },
   "masterPassPolicyDesc": {
-    "message": "Definir requisitos para a força da palavra-passe mestra."
+    "message": "Definir os requisitos de robustez da palavra-passe mestra."
   },
   "enablePolicy": {
     "message": "Ativar política"
@@ -7638,23 +7710,17 @@
   "twoStepLoginPolicyDescV2": {
     "message": "Exigir que os membros configurem a verificação de dois passos. Esta política não será aplicada aos proprietários nem aos administradores."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "Os membros da organização que não sejam proprietários ou administradores e que não tenham configurado a verificação de dois passos para a sua conta serão removidos da organização e receberão um e-mail a notificá-los da alteração."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "A ativação desta política revogará o acesso de todos os utilizadores que não tenham a verificação de dois passos ativada nas respetivas contas. Os utilizadores afetados serão notificados por e-mail."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "É membro de uma organização que exige que a verificação de dois passos seja configurada na sua conta de utilizador. Se desativar todos os fornecedores de verificação de dois passos, será automaticamente removido destas organizações."
   },
-  "passwordGeneratorPolicyDesc": {
-    "message": "Definir requisitos para o gerador de palavras-passe."
-  },
   "passwordGeneratorPolicyDescV2": {
     "message": "Selecione um conjunto de requisitos mínimos para todas as palavras-passe geradas pelos membros."
   },
   "passwordGeneratorPolicyDescVfo1": {
-    "message": "Set requirements for password generator.",
+    "message": "Definir os requisitos para o gerador de palavras-passe.",
     "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
   },
   "generatedPassword": {
@@ -7829,7 +7895,7 @@
     "message": "Identificador da organização"
   },
   "ssoLogInWithOrgIdentifier": {
-    "message": "Inicie sessão utilizando o portal de início de sessão único da sua organização. Por favor, introduza o identificador SSO da sua organização para começar."
+    "message": "Inicie sessão através do portal de início de sessão único da sua organização. Introduza o identificador SSO da sua organização para começar."
   },
   "singleSignOnEnterOrgIdentifier": {
     "message": "Introduza o identificador SSO da sua organização para começar"
@@ -7906,28 +7972,25 @@
     "message": "Organização única"
   },
   "singleOrgVfo1": {
-    "message": "Single organization membership",
+    "message": "Membro de uma única organização",
     "description": "VFO1 terminology variant of 'singleOrg'"
   },
   "singleOrgDesc": {
-    "message": "Impedir os membros de aderirem a outras organizações."
-  },
-  "singleOrgPolicyDesc": {
-    "message": "Restringir a adesão de membros a outras organizações. Esta política é necessária para organizações que tenham ativado a verificação de domínio."
+    "message": "Impedir que os membros adiram a outras organizações."
   },
   "singleOrgPolicyDescVfo1": {
-    "message": "Restrict members from joining other shared or organization vaults.",
+    "message": "Impedir que os membros adiram a outros cofres partilhados ou de organizações.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
   },
   "singleOrgPolicyDescV2": {
     "message": "Os membros desta organização não podem aderir a outras organizações. Os membros existentes que pertençam a outras organizações terão o respetivo acesso revogado quando esta política for ativada. Esta política não será aplicada aos proprietários nem aos administradores."
   },
   "singleOrgPolicyDescV2Vfo1": {
-    "message": "Members cannot join other organization vaults. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins.",
+    "message": "Os membros não podem aderir a cofres de outras organizações. Os membros existentes que pertençam a outras organizações terão o respetivo acesso revogado quando esta política for ativada. Esta política não será aplicada aos proprietários nem aos administradores.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDescV2'"
   },
   "singleOrgBlockCreateMessage": {
-    "message": "A sua organização atual tem uma política que não lhe permite aderir a mais do que uma organização. Por favor, contacte os administradores da sua organização ou registe-se a partir de uma conta Bitwarden diferente."
+    "message": "A sua organização atual tem uma política que não lhe permite aderir a mais do que uma organização. Contacte os administradores da sua organização ou registe-se com uma conta Bitwarden diferente."
   },
   "singleOrgPolicyMemberWarning": {
     "message": "Os membros não conformes serão colocados no estado revogado até deixarem todas as outras organizações. Os administradores estão isentos e podem restaurar os membros assim que a conformidade for cumprida."
@@ -7936,19 +7999,16 @@
     "message": "Exigir autenticação de início de sessão único"
   },
   "requireSsoVfo1": {
-    "message": "Require SSO",
+    "message": "Exigir SSO",
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
   "requireSsoPolicyDescListVfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method.",
+    "message": "Exigir que os membros iniciem sessão com o método de início de sessão único empresarial.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
   },
   "requireSsoPolicyDescV2Vfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
+    "message": "Exigir que os membros iniciem sessão com o método de início de sessão único empresarial. Esta política não se aplica a proprietários e administradores.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
-  },
-  "requireSsoPolicyDesc": {
-    "message": "Exigir que os membros iniciem sessão com o método de início de sessão único Empresarial."
   },
   "requireSsoPolicyTitle": {
     "message": "Exigir início de sessão único (SSO)"
@@ -7959,15 +8019,19 @@
   "prerequisite": {
     "message": "Pré-requisito"
   },
-  "requireSsoPolicyReq": {
-    "message": "A política empresarial de organização única tem de estar ativada antes de ativar esta política."
-  },
   "requireSsoPolicyReqV2": {
     "message": "Tem de ativar a política de organização única antes de ativar esta."
   },
   "requireSsoPolicyReqV2Vfo1": {
-    "message": "You must enable the single organization membership policy before enabling this one.",
+    "message": "Tem de ativar a política de adesão a uma única organização antes de ativar esta.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "Tem de ativar a política de organização única antes de ativar esta."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "Tem de ativar a política de adesão a uma única organização antes de ativar esta.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "Política de organização única não definida."
@@ -8164,7 +8228,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendProtectedPassword": {
-    "message": "Este Send está protegido por uma palavra-passe. Por favor, introduza a palavra-passe abaixo para continuar.",
+    "message": "Este Send está protegido por uma palavra-passe. Introduza a palavra-passe abaixo para continuar.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendProtectedPasswordDontKnow": {
@@ -8356,14 +8420,14 @@
     "message": "Centralizar a propriedade da organização"
   },
   "centralizeDataOwnershipVfo1": {
-    "message": "Centralized organization ownership",
+    "message": "Propriedade centralizada da organização",
     "description": "VFO1 terminology variant of 'centralizeDataOwnership'"
   },
   "centralizeDataOwnershipDesc": {
     "message": "Todos os itens dos membros serão propriedade da organização e geridos por esta. Os administradores e proprietários estão isentos. "
   },
   "centralizeDataOwnershipDescVfo1": {
-    "message": "Require members to save items to the organization by removing their personally owned My vault.",
+    "message": "Exigir que os membros guardem os itens na organização, removendo o seu cofre pessoal.",
     "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
   },
   "centralizeDataOwnershipContentAnchor": {
@@ -8379,9 +8443,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "Transfira facilmente os itens durante a saída de membros ou sucessão, garantindo que não existem lacunas de acesso."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "Ofereça a todos os utilizadores um espaço dedicado “Os meus itens” para gerirem as suas próprias credenciais."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Solicitar aos membros que transfiram os seus itens"
   },
@@ -8391,31 +8452,28 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Saiba mais sobre a transferência"
   },
-  "promptUsersToMoveItems": {
-    "message": "Pedir aos utilizadores para moverem itens individuais do cofre para a organização"
-  },
   "promptUsersToMoveItemsCallout": {
-    "message": "Os membros serão convidados a transferir os seus itens para a organização ou a sair. Se saírem, o acesso será revogado, mas pode ser restaurado em qualquer momento."
+    "message": "Os membros serão convidados a transferir os seus itens para a organização ou a sair. Se saírem, o acesso será revogado, mas poderá ser restaurado a qualquer momento."
   },
   "centralizeDataOwnershipDescV2": {
     "message": "Todos os itens dos membros serão propriedade da organização e geridos por esta. Esta política não será aplicada aos proprietários nem aos administradores. Saiba mais sobre "
   },
   "centralizeDataOwnershipDescV3": {
-    "message": "All member items will be owned and managed by the organization. This policy won't be enforced for owners and admins. ",
+    "message": "Todos os itens dos membros serão propriedade da organização e geridos por esta. Esta política não será aplicada aos proprietários nem aos administradores. ",
     "description": "Replaces centralizeDataOwnershipDescV2 to avoid duplicating the 'Learn more about' text already present in the adjacent centralizeDataOwnershipContentAnchor link"
   },
   "centralizeDataOwnershipBenefit3V2": {
     "message": "Ofereça a todos os utilizadores um espaço dedicado “Os meus itens” para gerirem as suas próprias credenciais."
   },
   "centralizeDataOwnershipBenefit3Vfo1": {
-    "message": "Give all users a dedicated My items space for managing their own logins.",
+    "message": "Ofereça a todos os utilizadores um espaço dedicado \"Os meus itens\" para gerirem as suas próprias credenciais.",
     "description": "VFO1 terminology variant of 'centralizeDataOwnershipBenefit3V2'"
   },
   "promptUsersToMoveItemsV2": {
-    "message": "Pedir aos utilizadores para moverem os seus itens do cofre para a organização"
+    "message": "Pedir aos utilizadores para moverem os itens do seu cofre para a organização"
   },
   "promptUsersToMoveItemsVfo1": {
-    "message": "Prompt users to move their My vault items to the organization",
+    "message": "Pedir aos utilizadores para moverem os itens do seu cofre pessoal para a organização",
     "description": "VFO1 terminology variant of 'promptUsersToMoveItemsV2'"
   },
   "organizationDataOwnership": {
@@ -8459,11 +8517,11 @@
     "message": "Confirmação automática do utilizador"
   },
   "autoConfirmDescription": {
-    "message": "Os novos utilizadores convidados para a organização serão automaticamente confirmados quando o dispositivo de um administrador for desbloqueado.",
+    "message": "Os novos utilizadores convidados para a organização serão confirmados automaticamente quando o dispositivo de um administrador for desbloqueado.",
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
   "autoConfirmDescriptionVfo1": {
-    "message": "New users invited to the organization vault will be automatically confirmed when an admin’s device is unlocked.",
+    "message": "Os novos utilizadores convidados para o cofre da organização serão confirmados automaticamente quando o dispositivo de um administrador for desbloqueado.",
     "description": "VFO1 terminology variant of 'autoConfirmDescription', shown in the policies list"
   },
   "howToTurnOnAutoConfirm": {
@@ -8484,11 +8542,11 @@
     "message": "A extensão do navegador Bitwarden foi aberta com sucesso. Agora pode ativar a configuração de confirmação automática do utilizador."
   },
   "autoConfirmPolicyEditDescription": {
-    "message": "Os novos utilizadores convidados para a organização serão automaticamente confirmados quando o dispositivo de um administrador for desbloqueado. Antes de ativar esta política, reveja e concorde com o seguinte: ",
+    "message": "Os novos utilizadores convidados para a organização serão confirmados automaticamente quando o dispositivo de um administrador for desbloqueado. Antes de ativar esta política, reveja e aceite o seguinte: ",
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
   "autoConfirmPolicyEditDescriptionVfo1": {
-    "message": "New users invited to the organization vault will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "message": "Os novos utilizadores convidados para o cofre da organização serão confirmados automaticamente quando o dispositivo de um administrador for desbloqueado. Antes de ativar esta política, reveja e aceite o seguinte: ",
     "description": "VFO1 terminology variant of 'autoConfirmPolicyEditDescription'"
   },
   "autoConfirmAcceptSecurityRiskTitle": {
@@ -8502,24 +8560,24 @@
     "description": "The is the link copy for the first check box option in the edit policy dialog"
   },
   "autoConfirmSingleOrgRequired": {
-    "message": "É necessária uma política de organização única. "
+    "message": "É necessária a política de organização única. "
   },
   "autoConfirmSingleOrgRequiredVfo1": {
-    "message": "Single organization vault policy required. ",
+    "message": "É necessária a política de cofre de organização única. ",
     "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequired'"
   },
   "autoConfirmSingleOrgRequiredDesc": {
-    "message": "Todos os membros devem pertencer exclusivamente a esta organização para ativar esta automação."
+    "message": "Todos os membros têm de pertencer apenas a esta organização para ativar esta automatização."
   },
   "autoConfirmSingleOrgRequiredDescVfo1": {
-    "message": "All members must only belong to this organization vault to activate this automation.",
+    "message": "Todos os membros têm de pertencer apenas a este cofre da organização para ativar esta automatização.",
     "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequiredDesc'"
   },
   "autoConfirmSingleOrgExemption": {
-    "message": "A política de organização única será estendida a todos os papéis. "
+    "message": "A política de organização única será aplicada a todas as funções. "
   },
   "autoConfirmSingleOrgExemptionVfo1": {
-    "message": "Single organization vault policy will extend to all roles. ",
+    "message": "A política de cofre de organização única será aplicada a todas as funções. ",
     "description": "VFO1 terminology variant of 'autoConfirmSingleOrgExemption'"
   },
   "autoConfirmNoEmergencyAccess": {
@@ -8605,10 +8663,6 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "Definição predefinida da digitação automática no computador"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "Ativar a digitação automática no computador por defeito para os membros. Os membros podem desativar manualmente a escrita automática no cliente Desktop.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "Ativar a digitação automática no computador para os membros. Os membros poderão desativar manualmente a digitação automática na aplicação para computador."
   },
@@ -8661,11 +8715,11 @@
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "manageSendAndShareVfo1": {
-    "message": "Manage Send and share",
+    "message": "Gerir o Send e partilhar",
     "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendControlsPolicyDesc": {
-    "message": "Defina opções para criar e editar Sends, incluindo a possibilidade de os remover.",
+    "message": "Definir opções para criar e editar Sends, incluindo a possibilidade de remover Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescV4": {
@@ -8673,7 +8727,7 @@
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescVfo1": {
-    "message": "Set Send configuration options.",
+    "message": "Definir opções de configuração do Send.",
     "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
@@ -8694,22 +8748,36 @@
   "uriMatchDetectionPolicy": {
     "message": "Deteção de correspondência de URI predefinida"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "Determine quando as credenciais são sugeridas para preenchimento automático. Administradores e proprietários estão isentos desta política."
-  },
   "uriMatchDetectionPolicyDescVfo1": {
-    "message": "Set the default URI match detection for all items created by members.",
+    "message": "Definir a deteção de correspondência de URI predefinida para todos os itens criados pelos membros.",
     "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
   },
   "uriMatchDetectionPolicyDescV2": {
-    "message": "Defina a predefinição para as partes do endereço de um site (URI) que têm de corresponder para o Bitwarden sugerir um início de sessão para preenchimento automático. Esta política não será aplicada a proprietários nem administradores."
+    "message": "Definir um valor predefinido para as partes do endereço de um site (URI) que têm de corresponder para o Bitwarden sugerir um início de sessão para preenchimento automático. Esta política não se aplica a proprietários e administradores."
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "Deteção de correspondência de URI predefinida"
   },
   "invalidUriMatchDefaultPolicySetting": {
-    "message": "Por favor, selecione uma opção válida de deteção de correspondência de URI.",
+    "message": "Selecione uma opção válida de deteção de correspondência de URI.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "Ativar Fill assist",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Ativar o Fill assist por predefinição para todos os membros. Esta funcionalidade utiliza instruções específicas para cada site, revistas pelo Bitwarden, para melhorar a precisão do preenchimento automático em sites que são conhecidos por apresentarem dificuldades com o preenchimento automático."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Conjunto de regras de preenchimento automático personalizado"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "Por predefinição, o Fill assist utiliza o conjunto de regras selecionado pelo Bitwarden. Introduza aqui um URL para o substituir pelo seu próprio conjunto de regras."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Introduza um URL válido",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "Política $ID$ modificada.",
@@ -8725,6 +8793,9 @@
   },
   "estimatedTax": {
     "message": "Imposto estimado"
+  },
+  "subtotal": {
+    "message": "Subtotal"
   },
   "custom": {
     "message": "Personalizado"
@@ -8893,7 +8964,7 @@
     "message": "Pedido de acesso ao e-mail do gestor de segredos enviado aos administradores."
   },
   "requestAccessSMDefaultEmailContent": {
-    "message": "Olá,\n\nEstou a solicitar uma subscrição do Bitwarden - Gestor de Segredos para a nossa equipa. O vosso apoio seria muito importante!\n\nO Bitwarden - Gestor de Segredos é uma solução de gestão de segredos encriptados ponto a ponto para armazenar, partilhar e implementar de forma segura credenciais de máquinas como chaves API, palavras-passe de bases de dados e certificados de autenticação.\n\nO Gestor de Segredos ajudar-nos-á a:\n\n- Melhorar a segurança\n- Simplificar as operações\n- Prevenir fugas de segredos dispendiosas\n\nPara pedirem uma versão experimental gratuita para a nossa equipa, por favor, contactem o Bitwarden.\n\nObrigado pela vossa ajuda!"
+    "message": "Olá,\n\nEstou a solicitar uma subscrição do Bitwarden - Gestor de Segredos para a nossa equipa. O vosso apoio seria muito importante!\n\nO Bitwarden - Gestor de Segredos é uma solução de gestão de segredos encriptados ponto a ponto para armazenar, partilhar e implementar de forma segura credenciais de máquinas como chaves API, palavras-passe de bases de dados e certificados de autenticação.\n\nO Gestor de Segredos ajudar-nos-á a:\n\n- Melhorar a segurança\n- Simplificar as operações\n- Prevenir fugas de segredos dispendiosas\n\nPara pedirem uma versão experimental gratuita para a nossa equipa, contactem o Bitwarden.\n\nObrigado pela vossa ajuda!"
   },
   "giveMembersAccess": {
     "message": "Dar acesso aos membros:"
@@ -8974,7 +9045,7 @@
     "message": "Oculte o seu endereço de e-mail dos visualizadores."
   },
   "webAuthnFallbackMsg": {
-    "message": "Para verificar a sua 2FA, por favor, clique no botão abaixo."
+    "message": "Para confirmar a verificação de dois passos, clique no botão abaixo."
   },
   "webAuthnAuthenticate": {
     "message": "Autenticar com WebAuthn"
@@ -9115,7 +9186,7 @@
     "message": "Gestão da recuperação de contas"
   },
   "accountRecoveryPolicyDescVfo1": {
-    "message": "Allow admins to reset master passwords for members.",
+    "message": "Permitir que os administradores reponham as palavras-passe mestras dos membros.",
     "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
   },
   "accountRecoverySingleOrgRequirementDesc": {
@@ -9125,7 +9196,7 @@
     "message": "Tem de ativar a política de organização única antes de ativar esta."
   },
   "accountRecoveryPolicySingleOrgReqV2Vfo1": {
-    "message": "You must enable the single organization membership policy before enabling this one.",
+    "message": "Tem de ativar a política de adesão a uma única organização antes de ativar esta.",
     "description": "VFO1 terminology variant of 'accountRecoveryPolicySingleOrgReqV2'"
   },
   "accountRecoveryPolicyDescV3Part1": {
@@ -9165,7 +9236,7 @@
     "message": "Confirmação da palavra-passe mestra"
   },
   "passwordConfirmationDesc": {
-    "message": "Esta ação está protegida. Para continuar, por favor, reintroduza a sua palavra-passe mestra para verificar a sua identidade."
+    "message": "Esta ação está protegida. Para continuar, introduza novamente a sua palavra-passe mestra para confirmar a sua identidade."
   },
   "reinviteSelected": {
     "message": "Reenviar convites"
@@ -9345,7 +9416,7 @@
     "message": "Foi convidado a configurar um novo fornecedor. Para continuar, é necessário iniciar sessão ou criar uma nova conta Bitwarden."
   },
   "setupProviderDesc": {
-    "message": "Por favor, introduza os dados abaixo para concluir a configuração do fornecedor. Contacte o apoio ao cliente se tiver alguma dúvida."
+    "message": "Introduza os dados abaixo para concluir a configuração do fornecedor. Contacte o Apoio ao cliente se tiver alguma dúvida."
   },
   "providerName": {
     "message": "Nome do fornecedor"
@@ -9493,14 +9564,11 @@
   "automaticAppLoginWithSSO": {
     "message": "Início de sessão automático com SSO"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "Estenda a segurança e a conveniência do SSO para apps não geridas. Quando os utilizadores iniciam uma aplicação a partir do seu fornecedor de identidade, as suas credenciais são preenchidas e enviadas automaticamente, criando um fluxo seguro com um clique do fornecedor de identidade para a app."
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "Quando os utilizadores iniciarem uma app a partir do seu fornecedor de identidade, as respetivas credenciais serão preenchidas e enviadas automaticamente, criando um início de sessão seguro com um único clique."
   },
   "automaticAppLoginWithSSODescListVfo1": {
-    "message": "Login forms will automatically be filled and submitted for apps launched from your configured identity provider.",
+    "message": "Os formulários de início de sessão serão preenchidos e submetidos automaticamente para as aplicações iniciadas a partir do seu fornecedor de identidade configurado.",
     "description": "VFO1 terminology variant of 'automaticAppLoginWithSSODescV2', shown in the policies list"
   },
   "automaticAppLoginIdpHostLabel": {
@@ -9510,16 +9578,16 @@
     "message": "Introduza o URL do anfitrião do seu fornecedor de identidade. Introduza vários URLs, separados por vírgulas."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "A sua organização atualizou as opções de desencriptação. Por favor, defina uma palavra-passe mestra para aceder ao seu cofre."
+    "message": "A sua organização atualizou as suas opções de desencriptação. Defina uma palavra-passe mestra para aceder ao seu cofre."
   },
   "sessionTimeoutPolicyTitle": {
     "message": "Tempo limite da sessão"
   },
   "sessionTimeoutPolicyDescription": {
-    "message": "Defina um tempo limite máximo de sessão para todos os membros, exceto proprietários."
+    "message": "Definir um tempo limite máximo da sessão para todos os membros, exceto os proprietários."
   },
   "sessionTimeoutPolicyDescriptionVfo1": {
-    "message": "Set a maximum vault timeout for members.",
+    "message": "Definir um tempo limite máximo do cofre para os membros.",
     "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
   },
   "maximumAllowedTimeout": {
@@ -9631,18 +9699,15 @@
   "disableExport": {
     "message": "Remover exportação"
   },
-  "disablePersonalVaultExportDescription": {
-    "message": "Não permitir que os membros exportem dados do seu cofre individual."
-  },
   "disablePersonalVaultExportDescriptionV2": {
-    "message": "Não permitir que os membros exportem dados dos seus cofres individuais. Esta política não será aplicada aos proprietários nem aos administradores."
+    "message": "Não permitir que os membros exportem dados dos seus cofres individuais. Esta política não se aplica a proprietários e administradores."
   },
   "disablePersonalVaultExportDescriptionVfo1": {
-    "message": "Do not allow members to export their vault data. This policy won't be enforced for owners and admins.",
+    "message": "Não permitir que os membros exportem os dados do seu cofre. Esta política não se aplica a proprietários e administradores.",
     "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescriptionV2'"
   },
   "disablePersonalVaultExportDescriptionListVfo1": {
-    "message": "Do not allow members to export their vault data.",
+    "message": "Não permitir que os membros exportem os dados do seu cofre.",
     "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescription', shown in the policies list"
   },
   "vaultExportDisabled": {
@@ -9661,7 +9726,7 @@
     "message": "Ative a definição de preenchimento automático ao carregar a página na extensão do navegador para todos os membros atuais e novos."
   },
   "activateAutofillPolicyDescriptionVfo1": {
-    "message": "Automatically fill logins on websites and apps.",
+    "message": "Preencher automaticamente as credenciais em sites e apps.",
     "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
   },
   "activateAutofillPolicyDescV2": {
@@ -9671,7 +9736,7 @@
     "message": "explorar o preenchimento automático ao carregar a página"
   },
   "autofillOnPageLoadExploitWarning": {
-    "message": "Os sites comprometidos ou não confiáveis podem explorar o preenchimento automático ao carregar a página."
+    "message": "Sites comprometidos ou não fidedignos podem explorar o preenchimento automático ao carregar a página."
   },
   "learnMoreAboutAutofillPolicy": {
     "message": "Saiba mais sobre o preenchimento automático"
@@ -9899,7 +9964,7 @@
     "message": "Foi-lhe oferecida uma organização do plano Familiar gratuito Bitwarden. Para continuar, é necessário iniciar sessão na conta que recebeu a oferta."
   },
   "sponsoredFamiliesAcceptFailed": {
-    "message": "Não foi possível aceitar a oferta. Por favor, reenvie o e-mail da oferta a partir da sua conta Empresarial e tente novamente."
+    "message": "Não foi possível aceitar a oferta. Reenvie o e-mail da oferta a partir da sua conta Empresarial e tente novamente."
   },
   "sponsoredFamiliesAcceptFailedShort": {
     "message": "Não foi possível aceitar a oferta. $DESCRIPTION$",
@@ -9989,7 +10054,7 @@
     "message": "É necessário o código de verificação."
   },
   "webauthnCancelOrTimeout": {
-    "message": "A autenticação foi cancelada ou demorou demasiado tempo. Por favor, tente novamente."
+    "message": "A autenticação foi cancelada ou demorou demasiado tempo. Tente novamente."
   },
   "invalidVerificationCode": {
     "message": "Código de verificação inválido"
@@ -10079,7 +10144,7 @@
     "message": "Migrado para o Key Connector"
   },
   "paymentSponsored": {
-    "message": "Por favor, forneça um método de pagamento para associar à organização. Não se preocupe, não lhe cobraremos nada, exceto se selecionar funcionalidades adicionais ou se o seu patrocínio expirar. "
+    "message": "Indique um método de pagamento para associar à organização. Não se preocupe, não lhe cobraremos nada, a menos que selecione funcionalidades adicionais ou que o seu patrocínio expire. "
   },
   "orgCreatedSponsorshipInvalid": {
     "message": "A oferta de patrocínio expirou. Pode eliminar a organização que criou para evitar uma cobrança no final do período experimental de 7 dias. Caso contrário, pode fechar esta mensagem para manter a organização e assumir a responsabilidade pela faturação."
@@ -10275,7 +10340,7 @@
     "message": "Separe vários com uma vírgula."
   },
   "sessionTimeout": {
-    "message": "A sua sessão expirou. Por favor, volte atrás e tente iniciar sessão novamente."
+    "message": "A sua sessão expirou. Volte atrás e tente iniciar sessão novamente."
   },
   "exportingPersonalVaultTitle": {
     "message": "A exportar o cofre pessoal"
@@ -10523,7 +10588,7 @@
     }
   },
   "billingContactProviderForAssistance": {
-    "message": "Por favor, contacte-os para mais assistência",
+    "message": "Contacte-os para obter assistência adicional",
     "description": "This text is displayed if an organization's billing is managed by a Provider. It tells the user to contact the Provider for assistance."
   },
   "forwardedEmail": {
@@ -10729,7 +10794,7 @@
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDescHelpText": {
-    "message": "Defina o seu fornecedor de identidade preferido, configurando o URL e a chave da API SCIM",
+    "message": "Configure o seu fornecedor de identidade preferido, definindo o URL e a chave da API SCIM",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimApiKeyHelperText": {
@@ -11515,6 +11580,9 @@
   "noSharedFoldersAdded": {
     "message": "Nenhuma pasta partilhada adicionada"
   },
+  "noSharedFoldersAddedDescription": {
+    "message": "Adicione uma pasta partilhada para partilhar itens do cofre de forma segura com outros membros."
+  },
   "noMembersAdded": {
     "message": "Nenhum membro adicionado"
   },
@@ -11882,7 +11950,7 @@
     "message": "Ajuda na licença de funcionalidades pagas"
   },
   "selfHostGracePeriodHelp": {
-    "message": "Após a expiração da sua subscrição, dispõe de 60 dias para aplicar um ficheiro de licença atualizado à sua organização. O período de tolerância termina a $GRACE_PERIOD_END_DATE$.",
+    "message": "Após a expiração da sua subscrição, tem 60 dias para aplicar um ficheiro de licença atualizado à sua organização. O período de tolerância termina em $GRACE_PERIOD_END_DATE$.",
     "placeholders": {
       "GRACE_PERIOD_END_DATE": {
         "content": "$1",
@@ -12837,7 +12905,7 @@
     "message": "Limitar contas de serviço (opcional)"
   },
   "limitServiceAccountsDesc": {
-    "message": "Defina um limite para as suas contas de serviço. Quando este limite for atingido, não será possível criar novas contas de serviço."
+    "message": "Definir um limite para as suas contas de serviço. Quando este limite for atingido, não poderá criar novas contas de serviço."
   },
   "serviceAccountLimit": {
     "message": "Limite de contas de serviço (opcional)"
@@ -13474,7 +13542,7 @@
     "message": "Lugares adicionais adquiridos"
   },
   "assignedSeatCannotUpdate": {
-    "message": "Os lugares atribuídos não podem ser atualizados. Por favor, contacte o proprietário da organização para obter assistência."
+    "message": "Não é possível atualizar os lugares atribuídos. Contacte o proprietário da sua organização para obter assistência."
   },
   "subscriptionUpdateFailed": {
     "message": "Falha na atualização da subscrição"
@@ -13492,7 +13560,7 @@
     "description": "The date header used when a subscription is past due."
   },
   "pastDueWarningForChargeAutomatically": {
-    "message": "Dispõe de um período de tolerância de $DAYS$ dias a partir da data de expiração da sua subscrição para manter a subscrição ativa. Por favor, resolva as faturas em atraso até $SUSPENSION_DATE$.",
+    "message": "Tem um período de tolerância de $DAYS$ dias a partir da data de expiração da sua subscrição para manter a sua subscrição. Regularize as faturas por pagar até $SUSPENSION_DATE$.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -13506,7 +13574,7 @@
     "description": "A warning shown to the user when their subscription is past due and they are charged automatically."
   },
   "pastDueWarningForSendInvoice": {
-    "message": "Dispõe de um período de tolerância de $DAYS$ dias a partir da data de vencimento da sua primeira fatura em atraso para manter a subscrição ativa. Por favor, resolva as faturas em atraso até $SUSPENSION_DATE$.",
+    "message": "Tem um período de tolerância de $DAYS$ dias a partir da data de vencimento da sua primeira fatura por pagar para manter a sua subscrição. Regularize as faturas por pagar até $SUSPENSION_DATE$.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -13524,7 +13592,7 @@
     "description": "The header of a warning box shown to a user whose subscription is unpaid."
   },
   "toReactivateYourSubscription": {
-    "message": "Para reativar a sua subscrição, por favor, resolva as faturas vencidas.",
+    "message": "Para reativar a sua subscrição, regularize as faturas por pagar.",
     "description": "The body of a warning box shown to a user whose subscription is unpaid."
   },
   "cancellationDate": {
@@ -13532,7 +13600,7 @@
     "description": "The date header used when a subscription is cancelled."
   },
   "machineAccountsCannotCreate": {
-    "message": "As contas de máquina não podem ser criadas em organizações suspensas. Por favor, contacte o proprietário da organização para obter assistência."
+    "message": "Não é possível criar contas de máquina em organizações suspensas. Contacte o proprietário da sua organização para obter assistência."
   },
   "machineAccount": {
     "message": "Conta de máquina",
@@ -13696,7 +13764,7 @@
     "message": "Limitar contas de máquina (opcional)"
   },
   "limitMachineAccountsDesc": {
-    "message": "Defina um limite para as suas contas de máquina. Quando este limite for atingido, não será possível criar novas contas de máquina."
+    "message": "Definir um limite para as suas contas de máquina. Quando este limite for atingido, não poderá criar novas contas de máquina."
   },
   "machineAccountLimit": {
     "message": "Limite de contas de máquina (opcional)"
@@ -13827,7 +13895,7 @@
     }
   },
   "failedToSaveIntegration": {
-    "message": "Falha ao guardar a integração. Por favor, tente novamente mais tarde."
+    "message": "Não foi possível guardar a integração. Tente novamente mais tarde."
   },
   "mustBeOrganizationOwnerAdmin": {
     "message": "Precisa de ser um proprietário da organização ou administrador para executar esta ação."
@@ -13836,7 +13904,7 @@
     "message": "Precisa de ser o proprietário da organização para executar esta ação."
   },
   "failedToDeleteIntegration": {
-    "message": "Falha ao eliminar a integração. Por favor, tente novamente mais tarde."
+    "message": "Não foi possível eliminar a integração. Tente novamente mais tarde."
   },
   "deviceIdMissing": {
     "message": "ID do dispositivo em falta"
@@ -14134,6 +14202,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Obter o Gestor de Segredos"
+  },
   "secureYourInfrastructure": {
     "message": "Proteja a sua infraestrutura"
   },
@@ -14171,7 +14242,7 @@
     "message": "Número de identificação fiscal inválido. Se considerar que se trata de um erro, contacte a assistência."
   },
   "billingPreviewInvoiceError": {
-    "message": "Ocorreu um erro ao pré-visualizar a fatura. Por favor, tente novamente mais tarde."
+    "message": "Ocorreu um erro ao pré-visualizar a fatura. Tente novamente mais tarde."
   },
   "unverified": {
     "message": "Não verificado"
@@ -14235,7 +14306,7 @@
     "message": "Desativado"
   },
   "memberAccessReportLoadError": {
-    "message": "Falha ao carregar o relatório de acesso de membros. Isto pode dever-se à dimensão elevada da organização ou a um problema de rede. Por favor, tente novamente ou contacte o suporte se o problema persistir."
+    "message": "Não foi possível carregar o relatório de acesso dos membros. Pode dever-se ao tamanho da organização ou a um problema de rede. Tente novamente ou contacte o Apoio ao cliente se o problema persistir."
   },
   "kdfIterationRecommends": {
     "message": "Recomendamos 600.000 ou mais"
@@ -14841,21 +14912,18 @@
     "message": "Remover o plano Familiar patrocinado"
   },
   "freeFamiliesSponsorshipTitleVfo1": {
-    "message": "Remove Sponsored Family Plan",
+    "message": "Remover o Plano Familiar patrocinado",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the policies list"
   },
   "freeFamiliesSponsorshipPolicyTitleV2Vfo1": {
-    "message": "Remove Sponsored Families Plan",
+    "message": "Remover o Plano Familiar patrocinado",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
-  },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Não permitir que os membros resgatem um plano Familiar através desta organização."
   },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Não permitir que os membros resgatem um plano Familiar patrocinado pela sua organização."
   },
   "freeFamiliesSponsorshipDescVfo1": {
-    "message": "Remove the option for members to redeem a free Families plan.",
+    "message": "Remover a opção de os membros usufruírem de um plano Familiar gratuito.",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
@@ -15087,7 +15155,7 @@
     "message": "A abrir a extensão de navegador Bitwarden"
   },
   "somethingWentWrong": {
-    "message": "Ocorreu um erro..."
+    "message": "Ocorreu um problema..."
   },
   "openingExtensionError": {
     "message": "Tivemos problemas ao abrir a extensão de navegador Bitwarden. Clique no botão para a abrir agora."
@@ -15285,7 +15353,7 @@
     "message": "A rotação das suas chaves de encriptação exigirá que confie nas chaves de quaisquer organizações que possam recuperar a sua conta e em quaisquer contactos para os quais tenha ativado o acesso de emergência. Para continuar, certifique-se de que pode verificar o seguinte:"
   },
   "userkeyRotationDisclaimerTitle": {
-    "message": "Chaves de encriptação não fiáveis"
+    "message": "Chaves de encriptação não fidedignas"
   },
   "atRiskPassword": {
     "message": "Palavra-passe em risco"
@@ -15307,9 +15375,6 @@
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remover o desbloqueio com PIN"
-  },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "Não permitir que os membros desbloqueiem a sua conta com um PIN."
   },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Os membros não poderão desbloquear a sua conta com um PIN."
@@ -15561,7 +15626,7 @@
     "message": "O pagamento com uma conta bancária só está disponível para clientes nos Estados Unidos. Ser-lhe-á pedido que verifique a sua conta bancária. Efetuaremos um micro-depósito nos próximos 1-2 dias úteis. Introduza o código descritor do extrato deste depósito na página de subscrição do fornecedor para verificar a conta bancária. A não verificação da conta bancária resultará na falta de pagamento e na suspensão da sua subscrição."
   },
   "clickPayWithPayPal": {
-    "message": "Por favor, clique no botão Pagar com PayPal para adicionar o seu método de pagamento."
+    "message": "Clique no botão Pagar com PayPal para adicionar o seu método de pagamento."
   },
   "revokeActiveSponsorshipConfirmation": {
     "message": "Se remover $EMAIL$, o patrocínio deste plano Familiar terminará. Após a data de renovação da organização patrocinada, em $DATE$, ficará disponível um lugar na sua organização para membros ou patrocínios.",
@@ -15698,8 +15763,20 @@
   "providersubCanceledmessage": {
     "message": "Para voltar a subscrever, contacte o Apoio ao cliente do Bitwarden."
   },
+  "showAll": {
+    "message": "Mostrar todas"
+  },
   "showMore": {
     "message": "Mostrar mais"
+  },
+  "showMoreCount": {
+    "message": "Mostrar mais $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Mostrar menos"
@@ -15745,16 +15822,21 @@
   "checkInputFormat": {
     "message": "Verifique se existem erros de digitação no formato de entrada."
   },
-  "exampleTaxIdFormat": {
-    "message": "Exemplo de formato de $CODE$: $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Formato de exemplo do NIF: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Formato reconhecido: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -15774,7 +15856,7 @@
     "message": "Desbloquear com chave de acesso"
   },
   "prfUnlockFailed": {
-    "message": "Não foi possível desbloquear com a chave de acesso. Por favor, tente novamente ou utilize outro método de desbloqueio."
+    "message": "Não foi possível desbloquear com a chave de acesso. Tente novamente ou utilize outro método de desbloqueio."
   },
   "noPrfCredentialsAvailable": {
     "message": "Não estão disponíveis chaves de acesso com PRF ativado para o desbloqueio."
@@ -15936,7 +16018,7 @@
     "message": "Atualizou para o plano Familiar!"
   },
   "taxCalculationError": {
-    "message": "Ocorreu um erro ao calcular o imposto para a sua localização. Por favor, tente novamente."
+    "message": "Ocorreu um erro ao calcular o imposto para a sua localização. Tente novamente."
   },
   "individualUpgradeWelcomeMessage": {
     "message": "Bem-vindo ao Bitwarden"
@@ -15959,11 +16041,14 @@
   "upgradeNow": {
     "message": "Atualizar agora"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Obtenha segurança online avançada com o Bitwarden Premium."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Ao preencher este formulário, será criada uma nova organização Familiar. Pode atualizar a sua organização gratuita a partir da Consola de administração."
   },
   "upgradeErrorMessage": {
-    "message": "Ocorreu um erro durante o processamento da sua atualização. Por favor, tente novamente."
+    "message": "Ocorreu um erro ao processar a atualização do seu plano. Tente novamente."
   },
   "bitwardenFreeplanMessage": {
     "message": "Tem o plano gratuito do Bitwarden"
@@ -16010,22 +16095,16 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Bloquear a criação de contas para domínios reivindicados"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "Impeça os utilizadores de criarem contas fora da sua organização com endereços de e-mail de domínios reivindicados."
-  },
   "blockClaimedDomainAccountCreationDescVfo1": {
-    "message": "Prevent account creation from claimed domains.",
+    "message": "Impedir a criação de contas a partir de domínios reclamados.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
   },
   "blockClaimedDomainAccountCreationDescV2": {
-    "message": "Impeça os membros de utilizarem o seu domínio reivindicado para criar contas do Bitwarden fora da sua organização."
+    "message": "Impedir que os membros utilizem o seu domínio reclamado para criarem contas Bitwarden fora da sua organização."
   },
   "blockClaimedDomainAccountCreationDescV2Vfo1": {
-    "message": "Block members from using your claimed domain to create Bitwarden accounts outside of your organization vault.",
+    "message": "Impedir que os membros utilizem o seu domínio reclamado para criarem contas Bitwarden fora do cofre da sua organização.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
-  },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "É necessário reivindicar um domínio antes de ativar esta política."
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "Antes de ativar esta política, tem de reivindicar um domínio."
@@ -16147,6 +16226,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "A verificar a integridade da pasta"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "A verificar a integridade do anexo"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ item(ns) têm anexos de ficheiros com encriptação antiga. Abra um dos itens abaixo e aceda a Anexos para corrigir o problema.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "Recuperação de Dados e Diagnóstico"
@@ -16310,10 +16401,10 @@
     "message": "Atualizar pagamento"
   },
   "weCouldNotProcessYourPayment": {
-    "message": "Não foi possível processar o seu pagamento. Por favor, atualize o seu método de pagamento ou contacte a equipa de suporte para obter assistência."
+    "message": "Não foi possível processar o seu pagamento. Atualize o seu método de pagamento ou contacte a equipa de apoio ao cliente para obter assistência."
   },
   "yourSubscriptionHasExpired": {
-    "message": "A sua subscrição expirou. Por favor, contacte a equipa de suporte para obter assistência."
+    "message": "A sua subscrição expirou. Contacte a equipa de apoio ao cliente para obter assistência."
   },
   "yourSubscriptionIsScheduledToCancel": {
     "message": "A sua subscrição está agendada para ser cancelada em $DATE$. Pode reativá-la a qualquer momento até essa data.",
@@ -16328,7 +16419,7 @@
     "message": "Partilhe ainda mais com o plano Familiar ou obtenha uma segurança de palavras-passe poderosa e fiável com os planos Equipas ou Empresarial."
   },
   "youHaveAGracePeriod": {
-    "message": "Dispõe de um período de tolerância de $DAYS$ dias a partir da data de expiração da sua subscrição. Por favor, resolva as faturas em atraso até $DATE$.",
+    "message": "Tem um período de tolerância de $DAYS$ dias a partir da data de expiração da sua subscrição. Regularize as faturas por pagar até $DATE$.",
     "placeholders": {
       "days": {
         "content": "$1",
@@ -16483,6 +16574,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "Crédito de subscrição Premium"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Créditos de subscrição aplicados"
   },
   "enterpriseMembership": {
     "message": "Adesão Empresarial"
@@ -17180,7 +17274,7 @@
     "message": "Regra de acesso não encontrada."
   },
   "pamAccessRulesSubheading": {
-    "message": "Defina regras para controlar quem pode solicitar acesso a credenciais sensíveis, em que condições e durante quanto tempo."
+    "message": "Definir regras para controlar quem pode solicitar acesso a credenciais confidenciais, em que condições e durante quanto tempo."
   },
   "pamAccessRuleNew": {
     "message": "Nova regra"
@@ -17471,6 +17565,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Credencial"
+  },
+  "orgNameVault": {
+    "message": "Cofre de $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }

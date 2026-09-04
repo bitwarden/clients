@@ -1224,6 +1224,48 @@
   "sharedFolders": {
     "message": "Gedeelde mappen"
   },
+  "sharedFoldersInParent": {
+    "message": "Gedeelde mappen in $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ gedeelde mappen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ gedeelde map",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ extra gedeelde mappen weergegeven boven deze knop",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 extra gedeelde map weergegeven boven deze knop",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "Mijn map"
   },
@@ -1232,6 +1274,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Voeg mappen toe aan items om ze hier te filteren."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
   },
   "addSharedFolder": {
     "message": "Gedeelde map toevoegen"
@@ -1755,6 +1800,9 @@
   "myItems": {
     "message": "Mijn items"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "myVault": {
     "message": "Mijn kluis"
   },
@@ -1858,6 +1906,18 @@
   },
   "noMatchingItems": {
     "message": "Geen overeenkomende items"
+  },
+  "noFiltersMatch": {
+    "message": "Geen filters komen overeen met \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Zoekopdracht wissen"
   },
   "deselectAll": {
     "message": "Selectie ongedaan maken"
@@ -2533,6 +2593,9 @@
   },
   "addPlan": {
     "message": "Abonnement toevoegen"
+  },
+  "addPlanDesc": {
+    "message": "Je kunt gratis een nieuwe gedeelde kluis aanmaken  met 1 andere persoon. Als je items met meer mensen wilt bewaren, beheren en delen, moet je eerst een nieuw abonnement toevoegen. Weet dat sommige opties mogelijk een wijziging in de factuur vereisen."
   },
   "noOrganizationsList": {
     "message": "Je behoort niet tot een organisatie. Via organisaties deel je je items veilig met andere gebruikers."
@@ -3737,9 +3800,6 @@
   "restrictedItemTypePolicy": {
     "message": "Kaart item type verwijderen"
   },
-  "restrictedItemTypePolicyDesc": {
-    "message": "Leden niet toestaan om kaartitemtypes te maken. Bestaande kaarten wordek automatisch verwijderd."
-  },
   "restrictedItemTypePolicyDescV2": {
     "message": "Sta niet toe dat leden creditcarditems in hun kluis opslaan en aanmaken. Wanneer dit beleid is ingeschakeld, worden bestaande kaarten automatisch verborgen."
   },
@@ -4135,12 +4195,6 @@
   },
   "instructions": {
     "message": "Instructies"
-  },
-  "passwordlessLogin": {
-    "message": "Wachtwoordloze login"
-  },
-  "multifactorAuthentication": {
-    "message": "Multifactor-authenticatie"
   },
   "exposedPasswordsReport": {
     "message": "Gelekte wachtwoorden"
@@ -4912,6 +4966,9 @@
   },
   "chooseYourPlan": {
     "message": "Kies je abonnement"
+  },
+  "choosePlan": {
+    "message": "Abonnement kiezen"
   },
   "users": {
     "message": "Gebruikers"
@@ -6793,7 +6850,7 @@
   "openOrgInviteAcceptFailed": {
     "message": "Kan de uitnodiging niet accepteren. Vraag een organisatiebeheerder om een nieuwe uitnodigingslink te verzenden."
   },
-  "openOrgInviteAcceptFailedTitle": {
+  "cannotAcceptInvitation": {
     "message": "Kan uitnodiging niet accepteren"
   },
   "openOrgInviteAcceptAlreadyMember": {
@@ -7369,6 +7426,21 @@
       }
     }
   },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Controleer je e-mail voor het afronden van het samenvoegen van $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "Deze organisatie is momenteel niet in staat om nieuwe leden te accepteren. Neem contact op met je beheerder voor hulp."
+  },
+  "inviteSentToEmail": {
+    "message": "Uitnodiging verzonden naar e-mail"
+  },
   "acceptPolicies": {
     "message": "Door dit vakje aan te vinken ga je akkoord met het volgende:"
   },
@@ -7638,17 +7710,11 @@
   "twoStepLoginPolicyDescV2": {
     "message": "Vereis het instellen van tweestapsaanmelding van leden. Dit beleid zal niet worden afgedwongen voor eigenaren en beheerders."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "Organisatieleden die geen eigenaren of beheerders zijn en geen tweestapsaanmelding hebben ingeschakeld voor hun persoonlijke account worden verwijderd uit de organisatie en ontvangen een e-mail waarin ze worden geïnformeerd over de wijziging."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "Het inschakelen van dit beleid trekt het account in van gebruikers die geen tweestapsaanmelding hebben ingeschakeld. Getroffen gebruikers worden per e-mail op de hoogte gesteld."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Je bent lid van een organisatie die tweestapsaanmelding vereist op je persoonlijke account. Als je tweestapsaanmelding uitschakelt verlaat je automatisch deze organisaties."
-  },
-  "passwordGeneratorPolicyDesc": {
-    "message": "Stel minimale vereisten in voor de configuratie van het wachtwoord generator."
   },
   "passwordGeneratorPolicyDescV2": {
     "message": "Selecteer een reeks minimumeisen voor alle door leden gegenereerde wachtwoorden."
@@ -7912,9 +7978,6 @@
   "singleOrgDesc": {
     "message": "Beperk de mogelijkheid voor gebruikers om deel te nemen aan andere organisaties."
   },
-  "singleOrgPolicyDesc": {
-    "message": "Beperk leden in het aansluiten bij andere organisaties. Dit beleid is vereist voor organisaties die domeinverificatie hebben ingeschakeld."
-  },
   "singleOrgPolicyDescVfo1": {
     "message": "Restrict members from joining other shared or organization vaults.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
@@ -7947,9 +8010,6 @@
     "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
   },
-  "requireSsoPolicyDesc": {
-    "message": "Verplicht gebruikers om in te loggen met de Enterprise Single Sign-On methode."
-  },
   "requireSsoPolicyTitle": {
     "message": "Single sign-on (SSO) vereisen"
   },
@@ -7959,15 +8019,19 @@
   "prerequisite": {
     "message": "Vereisten"
   },
-  "requireSsoPolicyReq": {
-    "message": "Voordat je dit beleid kunt activeren moet je eerst het Enkele organisatie-bedrijfsbeleid inschakelen."
-  },
   "requireSsoPolicyReqV2": {
     "message": "Je moet het enkelvoudige organisatiebeleid activeren voordat je deze inschakelt."
   },
   "requireSsoPolicyReqV2Vfo1": {
     "message": "You must enable the single organization membership policy before enabling this one.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "Je moet het enkelvoudige organisatiebeleid activeren voordat je deze inschakelt."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "Je moet het enkelvoudige organisatielidmaatschapsbeleid activeren voordat je deze inschakelt.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "Enkele Organisatie-beleid is niet ingeschakeld."
@@ -8379,9 +8443,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "Eenvoudig items tijdens het offboarden van leden en opvolging verplaatsen, verzekerd dat er geen toegangsgaten zijn."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "Geef alle gebruikers een toegewijde \"Mijn Items\"-ruimte voor het beheren van hun eigen inloggegevens."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Vraagt de leden om hun items over te brengen"
   },
@@ -8390,9 +8451,6 @@
   },
   "centralizeDataOwnershipWarningLink": {
     "message": "Meer informatie over de overstap"
-  },
-  "promptUsersToMoveItems": {
-    "message": "Vraag gebruikers om individuele kluisitems naar de organisatie te verplaatsen"
   },
   "promptUsersToMoveItemsCallout": {
     "message": "Leden worden gevraagd om hun items over te dragen naar de organisatie of te vertrekken. Als ze vertrekken, wordt hun toegang ingetrokken maar kan deze op elk moment worden hersteld."
@@ -8605,10 +8663,6 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "Standaardinstelling Desktop autotype"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "Desktop Autotype standaard inschakelen voor leden. Leden kunnen Autotype uitzetten in de Desktop client.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "Desktop autotype voor leden inschakelen. Leden kunnen autotype handmatig uitschakelen in de desktopclient."
   },
@@ -8694,9 +8748,6 @@
   "uriMatchDetectionPolicy": {
     "message": "Standaard URI-overeenkomstdetectie"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "Bepaal wanneer logins voor autofill worden voorgesteld. Beheerders en eigenaren zijn vrijgesteld van dit beleid."
-  },
   "uriMatchDetectionPolicyDescVfo1": {
     "message": "Set the default URI match detection for all items created by members.",
     "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
@@ -8710,6 +8761,23 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Selecteer een geldige optie voor URI match-detectie.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "Invulassistent activeren",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Invulassistentie standaard voor alle leden inschakelen. Deze functionaliteit maakt gebruik van geverifieerde, site-specifieke instructies om de nauwkeurigheid van het automatisch invullen op websites waarvan bekend is dat ze moeilijk in te vullen zijn te verbeteren."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Maatwerk set aan regels"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "Standaard gebruikt de invulassistent Bitwarden's set aan regels. Voer hier een URL in om deze te overschrijven met je eigen."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Vul een geldige URL in",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "Bewerkt beleid $ID$.",
@@ -8725,6 +8793,9 @@
   },
   "estimatedTax": {
     "message": "Geschatte belasting"
+  },
+  "subtotal": {
+    "message": "Subtotaal"
   },
   "custom": {
     "message": "Aangepast"
@@ -9493,9 +9564,6 @@
   "automaticAppLoginWithSSO": {
     "message": "Automatische login met SSO"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "Bereid het gemak en beveiliging van SSO uit naar niet-beheerde apps. Wanneer gebruikers een app starten van je identiteitsprovider, worden de inloggegevens automatisch ingevuld en verzonden, voor een één-klik, beveiligde flow van de identiteitsprovider naar de app."
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "Wanneer gebruikers een app van je identiteitsprovider starten, worden de inloggegevens automatisch ingevuld en verstuurd, wat veilig inloggen met één klik bewerkstelligt."
   },
@@ -9630,9 +9698,6 @@
   },
   "disableExport": {
     "message": "Export verwijderen"
-  },
-  "disablePersonalVaultExportDescription": {
-    "message": "Exporteren van gegevens uit hun individuele kluis niet toestaan."
   },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Sta niet toe dat leden gegevens exporteren uit hun individuele kluizen. Dit beleid zal niet worden afgedwongen voor eigenaren en beheerders."
@@ -11514,6 +11579,9 @@
   },
   "noSharedFoldersAdded": {
     "message": "No shared folders added"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Gedeelde map toevoegen voor het veilig delen van kluisitems met andere leden."
   },
   "noMembersAdded": {
     "message": "Geen leden toegevoegd"
@@ -14134,6 +14202,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Secrets Manager toevoegen"
+  },
   "secureYourInfrastructure": {
     "message": "Beveilig je infrastructuur"
   },
@@ -14848,9 +14919,6 @@
     "message": "Remove Sponsored Families Plan",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
   },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Sta leden niet toe om een familieplan te verzilveren via deze organisatie."
-  },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Sta leden niet toe om een familieplan te verzilveren via jouw organisatie."
   },
@@ -15308,9 +15376,6 @@
   "removeUnlockWithPinPolicyTitle": {
     "message": "Ontgrendelen met PIN verwijderen"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "Leden niet toestaan hun account te ontgrendelen met een pincode."
-  },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Leden mogen hun account niet ontgrendelen met een pincode."
   },
@@ -15698,8 +15763,20 @@
   "providersubCanceledmessage": {
     "message": "Neem contact op met Bitwarden Customer Support om je opnieuw te abonneren."
   },
+  "showAll": {
+    "message": "Alles weergeven"
+  },
   "showMore": {
     "message": "Meer weergeven"
+  },
+  "showMoreCount": {
+    "message": "$COUNT$ meer weergeven",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Minder weergeven"
@@ -15745,16 +15822,21 @@
   "checkInputFormat": {
     "message": "Controleer het invoerformaat op typefouten."
   },
-  "exampleTaxIdFormat": {
-    "message": "Voorbeeld $CODE$ formaat: $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Voorbeeldformaat belastingnummer: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Herkend formaat: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -15959,6 +16041,9 @@
   "upgradeNow": {
     "message": "Nu upgraden"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Geavanceerde online beveiliging met Bitwarden premium."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Met het invullen van dit formulier maak je een nieuwe Familie-organisatie. Je kunt je gratis organisatie upgraden vanuit de Admin Console."
   },
@@ -16010,9 +16095,6 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Blokkeer het aanmaken van een account voor geclaimde domeinen"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "Voorkom dat gebruikers buiten je organisatie accounts aanmaken met behulp van e-mailadressen van geclaimde domeinen."
-  },
   "blockClaimedDomainAccountCreationDescVfo1": {
     "message": "Prevent account creation from claimed domains.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
@@ -16023,9 +16105,6 @@
   "blockClaimedDomainAccountCreationDescV2Vfo1": {
     "message": "Block members from using your claimed domain to create Bitwarden accounts outside of your organization vault.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
-  },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "Voordat dit beleid geactiveerd kan worden, moet je een domein claimen."
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "Voordat je dit beleid inschakelt, moet je een domein claimen."
@@ -16147,6 +16226,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "Integriteit map verifiëren"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Integriteit attachment verifiëren"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ item(s) hebben bestandsbijlagen met oude versleuteling. Open een item hieronder en ga naar Bijlagen om het te repareren.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "Gegevensherstel en diagnostiek"
@@ -16483,6 +16574,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "Krediet Premium-abonnement"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Abonnementscredits toegepast"
   },
   "enterpriseMembership": {
     "message": "Enterprise-lidmaatschap"
@@ -17471,6 +17565,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Inloggen"
+  },
+  "orgNameVault": {
+    "message": "$ORGNAME$-kluis",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }

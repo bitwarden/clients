@@ -1224,6 +1224,48 @@
   "sharedFolders": {
     "message": "Megosztott mappák"
   },
+  "sharedFoldersInParent": {
+    "message": "$NAME$ megosztott mappák",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ megosztott mappa",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ megosztott mappa",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ további megosztott mappa ezen gomb felett.",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 további megosztott mappa ezen gomb felett.",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "Saját mappa"
   },
@@ -1232,6 +1274,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Adjunk hozzá mappákat az elemekhez az itteni szűréshez."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Elemek hozzáadása egy megosztott mappához a szűréshez itt."
   },
   "addSharedFolder": {
     "message": "Megosztott mappa hozzadása"
@@ -1755,6 +1800,9 @@
   "myItems": {
     "message": "Saját elemek"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "myVault": {
     "message": "Saját széf"
   },
@@ -1858,6 +1906,18 @@
   },
   "noMatchingItems": {
     "message": "Nincsenek egyező elemek."
+  },
+  "noFiltersMatch": {
+    "message": "Nincs egyező szűrő: \"$SEARCH$“",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Keresés törlése"
   },
   "deselectAll": {
     "message": "Összes kijelölés megszüntetése"
@@ -2533,6 +2593,9 @@
   },
   "addPlan": {
     "message": "Add plan"
+  },
+  "addPlanDesc": {
+    "message": "Létrehozhatunk egy új megosztott széfet 1 másik személlyel ingyenesen. Ha több emberrel szeretnénk tárolni, kezelni és megosztani elemeket, először új csomagott kell hozzáadni. Egyes opciók számlázási változtatást igényelhetnek."
   },
   "noOrganizationsList": {
     "message": "Még nem tartozunk egyik szervezethez sem. A szervezetek lehetővé teszik az elemek megosztását más felhasználókkal."
@@ -3737,9 +3800,6 @@
   "restrictedItemTypePolicy": {
     "message": "Kártyaelem típus eltávolítása"
   },
-  "restrictedItemTypePolicyDesc": {
-    "message": "Ne engedjük meg a tagoknak, hogy kártyaelem típusokat hozzanak létre. A meglévő kártyák automatikusan eltávolításra kerülnek."
-  },
   "restrictedItemTypePolicyDescV2": {
     "message": "Ne engedjük, hogy a tagok hitelkártya elemeket hozzanak létre és tároljanak a széfben. Ha ez a házirend be van kapcsolva, a meglévő kártyák automatikusan elrejtésre kerülnek."
   },
@@ -4135,12 +4195,6 @@
   },
   "instructions": {
     "message": "Utasítások"
-  },
-  "passwordlessLogin": {
-    "message": "Belépés jelszó nélkül"
-  },
-  "multifactorAuthentication": {
-    "message": "Többtényezős hitelesítés"
   },
   "exposedPasswordsReport": {
     "message": "Kiszivárgott jelszavak jelentés"
@@ -4912,6 +4966,9 @@
   },
   "chooseYourPlan": {
     "message": "Díjcsomag választás"
+  },
+  "choosePlan": {
+    "message": "Csomag kiválasztása"
   },
   "users": {
     "message": "Felhasználók"
@@ -6793,7 +6850,7 @@
   "openOrgInviteAcceptFailed": {
     "message": "A meghívás nem fogadható el. Kérjük fel a szervezet adminisztrátorát új meghívó hivatkozás küldésére."
   },
-  "openOrgInviteAcceptFailedTitle": {
+  "cannotAcceptInvitation": {
     "message": "A meghívót nem lehet elfogadni."
   },
   "openOrgInviteAcceptAlreadyMember": {
@@ -7369,6 +7426,21 @@
       }
     }
   },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Ellenőrizzük az email címét a $ORGANIZATION_NAME$ szervezethez csatlakozás befejezéséhez.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "Ez a szervezet jelenleg nem tud új tagokat fogadni. Segítségért forduljunk az adminisztrátorhoz."
+  },
+  "inviteSentToEmail": {
+    "message": "A meghívó elküldésre került az email címre."
+  },
   "acceptPolicies": {
     "message": "A doboz bejelölésével elfogadjuk a következőket:"
   },
@@ -7638,17 +7710,11 @@
   "twoStepLoginPolicyDescV2": {
     "message": "Követeljük meg a tagoktól a kétlépcsős bejelentkezés beállítását. Ez a házirend nem érvényesül a tulajdonosok és az adminisztrátorok számára."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "A személyes fióknál a kétlépcsős bejelentkezéssel nem rendelkező szervezet tagok eltávolításra kerülnek a szervezetből és a változásról értesítő emailt kapnak."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "A házirend engedélyezése visszavon minden olyan felhasználót, akinek nincs engedélyezve a kétlépéses bejelentkezés a fiókjában. Az érintett felhasználók emailben kapnak értesítést."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Egy szervezet tag számára szükséges a személyes fióknál a kétlépcsős bejelentkezés. Az összes kétlépcsős szolgáltató letiltása esetén az összes ilyen szervezetből eltávolításra kerül a tag."
-  },
-  "passwordGeneratorPolicyDesc": {
-    "message": "A minimális követelmények beállítása a jelszó generáló konfigurációhoz."
   },
   "passwordGeneratorPolicyDescV2": {
     "message": "Válasszunk ki egy minimális követelmény készletet bármely tag által generált jelszóhoz."
@@ -7912,9 +7978,6 @@
   "singleOrgDesc": {
     "message": "Korlátozza a felhasználókat más szervezetekhez csatlakozásban."
   },
-  "singleOrgPolicyDesc": {
-    "message": "A tagok más szervezetekhez csatlakozásának korlátozása. Ez a házirend olyan szervezetek számára szükséges, amelyek engedélyezték a tartományellenőrzést."
-  },
   "singleOrgPolicyDescVfo1": {
     "message": "Korlátozza a tagok csatlakozását más megosztott vagy szervezeti széfekhoz.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
@@ -7947,9 +8010,6 @@
     "message": "Követeljük meg a tagoktól, hogy jelentkezzenek be az Enterprise Single Sign-On módszerrel. Ez a házirend nem érvényesül a tulajdonosok és az adminisztrátorok számára.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
   },
-  "requireSsoPolicyDesc": {
-    "message": "A felhasználóknál az Vállalati egyszeri vejelentkezés hitelesítési mód megkövetelése."
-  },
   "requireSsoPolicyTitle": {
     "message": "Egyszeri bejelentkezés (SSO) szükséges"
   },
@@ -7959,15 +8019,19 @@
   "prerequisite": {
     "message": "Előfeltétel"
   },
-  "requireSsoPolicyReq": {
-    "message": "Az irányelv bekapcsolása előtt engedélyezni kell az Önálló szervezet vállalati irányelvét."
-  },
   "requireSsoPolicyReqV2": {
     "message": "Engedélyezni kell az önálló szervezeto házirendet ennek engedélyezése előtt."
   },
   "requireSsoPolicyReqV2Vfo1": {
     "message": "Engedélyezni kell az önálló szervezeti tagsági házirendet ennek engedélyezése előtt.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "Engedélyezni kell az önálló szervezeti házirendet ennek engedélyezése előtt."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "Engedélyezni kell az önálló szervezeti tagsági házirendet ennek engedélyezése előtt.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "Az Önálló szervezet irányelv nem engedélyezett."
@@ -8379,9 +8443,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "Könnyen átvihetjük az elemeket a tagok kilépése és utódlása során, biztosítva, hogy ne legyenek hozzáférési hiányosságok."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "Adjunk minden felhasználónak egy dedikált \"Saját elemek\" helyet saját a bejelentkezései kezelésére."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Kérjük meg a tagokat, hogy vigyék át az elemeiket."
   },
@@ -8390,9 +8451,6 @@
   },
   "centralizeDataOwnershipWarningLink": {
     "message": "További információ az átvitelről"
-  },
-  "promptUsersToMoveItems": {
-    "message": "Kérjük meg a felhasználókat, hogy helyezzék át az egyes széf elemeket a szervezetbe."
   },
   "promptUsersToMoveItemsCallout": {
     "message": "A tagokat arra kérik, hogy vagy vigyék át az elemeiket a szervezetnek vagy távozzanak. Ha távoznak, a hozzáférésük visszavonásra kerül, de az bármikor visszaállítható."
@@ -8605,10 +8663,6 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "Asztali automatikus típus aapértelmezett beállítás"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "Az asztali atumatikus típus alapértelmezés szerint bekapcsolásra kerül a tagok számára. A tagok manuálisan kikapcsolhatják az automatikus típus funkciót az Asztal kliensben.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "Asztali autotípia engedélyezése a tagok számára. A tagok manuálisan kikapcsolhatják az autotipizálást az asztali kliensben."
   },
@@ -8694,9 +8748,6 @@
   "uriMatchDetectionPolicy": {
     "message": "Alapértelmezett URI egyezés érzékelés"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "Határozzuk meg, hogy mikor javasolt a bejelentkezés az automatikus kitöltéshez. Az adminisztrátorok és tulajdonosok mentesülnek e szabály alól."
-  },
   "uriMatchDetectionPolicyDescVfo1": {
     "message": "Állítsuk be az alapértelmezett URI egyezés észlelést a tagok által létrehozott összes elemhez.",
     "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
@@ -8710,6 +8761,23 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Válasszunk egy érvényes URI egyezés észlelési lehetőséget.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "A kitöltési segédről",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Alapértelmezés szerint kapcsoljuk be a kitöltési segédletet az összes tagnál. Ez a funkció áttekintett, helyspecifikus utasításokat használ az automatikus kitöltési pontosság javítására azokon a webhelyeken, amelyekről ismert, hogy nehéz automatikusan kitölteni."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Egyedi automatikus kitöltési szabálykészlet"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "Alapértelmezés szerint a kitöltési segédlet a Bitwarden által összeállított szabálykészletet használja. Írjunk be ide egy webcímet, hogy felülírjuk a sajáttal."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Adjon meg érvényes webcímet.",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "$ID$ szabály módosításra került.",
@@ -8725,6 +8793,9 @@
   },
   "estimatedTax": {
     "message": "Becsült adó"
+  },
+  "subtotal": {
+    "message": "Részösszeg"
   },
   "custom": {
     "message": "Egyedi"
@@ -9493,9 +9564,6 @@
   "automaticAppLoginWithSSO": {
     "message": "Automatikus bejelentkezés az SSO-val"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "Az SSO biztonságának és kényelmének kiterjesztése a nem-felügyelt alkalmazásokra. Amikor a felhasználók elindítanak egy alkalmazást a saját azonosítás szolgáltatónktól, a bejelentkezési adatokk automatikusan kitöltésre és elküldésre kerülnek, így egy kattintással biztonságos áramlás jön létre az azonosítás szolgáltatótól az alkalmazás felé."
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "Amikor a felhasználók elindítanak egy alkalmazást a személyazonosság szolgáltatótól, a bejelentkezési adataik automatikusan kitöltésre és elküldésre kerülnek, így egy kattintással biztonságos bejelentkezés jön létre."
   },
@@ -9630,9 +9698,6 @@
   },
   "disableExport": {
     "message": "Exportálás eltávolítása"
-  },
-  "disablePersonalVaultExportDescription": {
-    "message": "Ne engedjük meg a tagoknak, hogy adatokat exportáljanak a saját széfből."
   },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Ne engedjük, hogy a tagok adatokat exportáljanak az egyéni széfeikből. Ez a házirend nem érvényesül a tulajdonosok és az adminisztrátorok számára."
@@ -11514,6 +11579,9 @@
   },
   "noSharedFoldersAdded": {
     "message": "Nem lettek megosztott mappák hozzáadva."
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Adjunk hozzá egy megosztott mappát a széfelemek más tagokkal történő biztonságos megosztásához."
   },
   "noMembersAdded": {
     "message": "Nem lett tag hozzáadva."
@@ -14134,6 +14202,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Titkos kódkezelő beszerzése"
+  },
   "secureYourInfrastructure": {
     "message": "Infrastruktúra biztosítása"
   },
@@ -14848,9 +14919,6 @@
     "message": "A szponzorált Családok csomag eltávolítása",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
   },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Ne engedjük meg a tagoknak, hogy beváltsák a Családi csomagot ezen a szervezeten keresztül."
-  },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Ne engedjük meg a tagoknak, hogy beváltsák a Családi csomagot ezen a szervezeten keresztül."
   },
@@ -15308,9 +15376,6 @@
   "removeUnlockWithPinPolicyTitle": {
     "message": "Feloldás eltávolítása PIN kóddal"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "Nem engedjük meg a tagoknak, hogy PIN kóddal oldják fel fiókjuk zárolását."
-  },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "A tagok nem oldhatják fel a fiókjuk zárolását PIN kóddal."
   },
@@ -15698,8 +15763,20 @@
   "providersubCanceledmessage": {
     "message": "Az ismételt feliratkozáshoz lépjünk kapcsolatba a Bitwarden Ügyféltámogatással."
   },
+  "showAll": {
+    "message": "Összes megjelenítése"
+  },
   "showMore": {
     "message": "Több megjelenítése"
+  },
+  "showMoreCount": {
+    "message": "$COUNT$ további megjelenítése",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Kevesebb megjelenítése"
@@ -15745,16 +15822,21 @@
   "checkInputFormat": {
     "message": "ükEllenőrizze a beviteli formátumot az elírásokkal kapcsolatban."
   },
-  "exampleTaxIdFormat": {
-    "message": "Például $CODE$ formátuma: $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Például az adó azonosító formátuma: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Felismert formátum: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -15959,6 +16041,9 @@
   "upgradeNow": {
     "message": "Áttérés most"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Fejlett online biztonság megszerzése a Bitwarden prémiummal."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Az űrlap kitöltésével egy új Családok szervezet jön létre. Az Adminisztrációs konzolban lehet áttérni az Ingyenes szervezetről."
   },
@@ -16010,9 +16095,6 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Fiók létrehozásának letiltása az igényelt tartományokhoz"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "Megakadályozza, hogy a felhasználók a szervezetén kívül fiókokat hozzanak létre az igényelt tartományokból származó email címek használatával."
-  },
   "blockClaimedDomainAccountCreationDescVfo1": {
     "message": "Fiók létrehozásának letiltása az igényelt tartományokhoz",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
@@ -16023,9 +16105,6 @@
   "blockClaimedDomainAccountCreationDescV2Vfo1": {
     "message": "Tiltsuk le a tagokat abban, hogy az igényelt tartományt a szervezeten kívüli Bitwarden fiókok létrehozására használják.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
-  },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "A házirend aktiválása előtt egy tartományt igényelni kell."
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "Mielőtt bekapcsolnánk ezt a házirendet, igényelni kell egy tartományt."
@@ -16147,6 +16226,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "Mappa integritás ellenőrzése"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Melléklet integritás ellenőrzése"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ elem régi titkosítású fájl mellékletekkel rendelkezik. Nyissunk meg egy elemet lentebb és lépjünk a Mellékletekhez a javítás érdekében.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "Adat helyreállítás és diagnosztika"
@@ -16483,6 +16574,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "Prémium előfizetés jóváírás"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Alkalmazott előfizetési kreditek"
   },
   "enterpriseMembership": {
     "message": "Vállalati tagság"
@@ -17471,6 +17565,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Login"
+  },
+  "orgNameVault": {
+    "message": "$ORGNAME$ vault",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }

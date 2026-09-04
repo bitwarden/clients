@@ -72,7 +72,7 @@
     "message": "Riskli parollar"
   },
   "noEditPermissions": {
-    "message": "Bu elementə düzəliş etmə icazəniz yoxdur"
+    "message": "Bu elementə düzəliş etmə izniniz yoxdur"
   },
   "reviewAccessIntelligence": {
     "message": "Kimlik məlumatları riskləri artmazdan əvvəl onları tapıb düzəltmək üçün təhlükəsizlik hesabatlarını incələyin."
@@ -607,7 +607,7 @@
     "message": "Giriş məlumatları"
   },
   "personalDetails": {
-    "message": "Fərdi detallar"
+    "message": "Fərdi məlumatlar"
   },
   "identification": {
     "message": "İdentifikasiya"
@@ -616,10 +616,10 @@
     "message": "Əlaqə məlumatı"
   },
   "cardDetails": {
-    "message": "Kart detalları"
+    "message": "Kart məlumatları"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ detalları",
+    "message": "$BRAND$ məlumatları",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -1138,7 +1138,7 @@
     "message": "Server giriş tokeni"
   },
   "typeBankAccountSubtitle": {
-    "message": "Bank məlumatları"
+    "message": "Bankçılıq məlumatları"
   },
   "typePassport": {
     "message": "Pasport"
@@ -1224,6 +1224,48 @@
   "sharedFolders": {
     "message": "Paylaşılan qovluqlar"
   },
+  "sharedFoldersInParent": {
+    "message": "$NAME$ daxilindəki paylaşılan qovluqlar",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ paylaşılan qovluq",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ paylaşılan qovluq",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "Bu düymənin üzərində daha $COUNT$ ədəd paylaşılan qovluq göstərilir",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "Bu düymənin üzərində daha 1 ədəd paylaşılan qovluq göstərilir",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "Qovluğum"
   },
@@ -1232,6 +1274,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Elementləri burada filtrləmək üçün onlara qovluq əlavə edin."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Burada filtrləmək üçün elementləri paylaşılan qovluğa əlavə et."
   },
   "addSharedFolder": {
     "message": "Paylaşılan qovluq əlavə et"
@@ -1601,7 +1646,7 @@
     "message": "element"
   },
   "itemDetails": {
-    "message": "Element detalları"
+    "message": "Element ayrıntıları"
   },
   "itemName": {
     "message": "Element adı"
@@ -1744,7 +1789,7 @@
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
-    "message": "Kopyalanacaq detal yoxdur"
+    "message": "Kopyalanacaq ayrıntı yoxdur"
   },
   "launchWebsite": {
     "message": "Veb saytı başlat"
@@ -1754,6 +1799,9 @@
   },
   "myItems": {
     "message": "Elementlərim"
+  },
+  "myItemsV2": {
+    "message": "My items"
   },
   "myVault": {
     "message": "Seyfim"
@@ -1858,6 +1906,18 @@
   },
   "noMatchingItems": {
     "message": "Uyuşan element yoxdur"
+  },
+  "noFiltersMatch": {
+    "message": "\"$SEARCH$\" ilə uyuşan heç bir filtr yoxdur",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Axtarışı təmizlə"
   },
   "deselectAll": {
     "message": "Heç birini seçmə"
@@ -2498,13 +2558,13 @@
     "message": "Filtrləri təmizləyin və ya başqa bir axtarış terminini sınayın"
   },
   "noPermissionToViewAllCollectionItems": {
-    "message": "Bu kolleksiyadakı bütün elementlərə baxmaq üçün icazəniz yoxdur."
+    "message": "Bu kolleksiyadakı bütün elementlərə baxmaq üçün izniniz yoxdur."
   },
   "youDoNotHavePermissions": {
-    "message": "Bu kolleksiyaya icazəniz yoxdur"
+    "message": "Bu kolleksiyaya erişim izniniz yoxdur"
   },
   "youDoNotHavePermissionsSharedFolder": {
-    "message": "Bu paylaşılan qovluğa icazəniz yoxdur",
+    "message": "Bu paylaşılan qovluğa erişim izniniz yoxdur",
     "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
   },
   "noCollectionsInList": {
@@ -2533,6 +2593,9 @@
   },
   "addPlan": {
     "message": "Plan əlavə et"
+  },
+  "addPlanDesc": {
+    "message": "Yeni bir paylaşımlı qovluğu ödənişsiz olaraq başqa 1 nəfərlə yarada bilərsiniz. Elementləri daha çox insanla saxlamaq, idarə etmək və paylaşmaq istəyirsinizsə, əvvəlcə yeni bir plan əlavə etməlisiniz. Bilməyiniz lazımdır ki, bəzi seçimlər fakturada dəyişiklik tələb edə bilər."
   },
   "noOrganizationsList": {
     "message": "Heç bir təşkilata aid deyilsiniz. Təşkilatlar, elementlərinizi digər istifadəçilərlə güvənli şəkildə paylaşmağınızı təmin edir."
@@ -3416,7 +3479,7 @@
     }
   },
   "importHelpCenterInstructions": {
-    "message": "$NAME$ təlimatlarına burada baxın:",
+    "message": "Ayrıntılı $NAME$ təlimatlarına burada baxın:",
     "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
     "placeholders": {
       "name": {
@@ -3506,115 +3569,115 @@
     "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
   },
   "importSplashidInstructions": {
-    "message": "Using the SplashID Safe desktop application, click on the SplashID blue lock logo in the top right corner. Navigate to \"Export\" → \"Export as CSV\" and save the CSV file."
+    "message": "SplashID Safe masaüstü tətbiqini istifadə edərək, sağ üst küncdəki göy SplashID kilid loqosuna klikləyin. \"Xaricə köçür\" → \"CSV kimi köçür\"ə gedin və CSV faylı kimi saxlayın."
   },
   "importPasskeepInstructions": {
-    "message": "Using the PassKeep mobile app, navigate to \"Backup/Restore\". Locate the \"CSV Backup/Restore\" section and click \"Backup to CSV\" to save the CSV file."
+    "message": "PassKeep mobil tətbiqini istifadə edərək, \"Nüsxələmə/Bərpa etmə\"yə gedin. \"CSV Nüsxələmə/Bərpa etmə\" bölməsini tapın və CSV faylı kimi saxlamaq üçün \"CSV-yə nüsxələ\"yə klikləyin."
   },
   "importGnomeInstructionsIntro": {
-    "message": "Make sure you have python-keyring and python-gnomekeyring installed. Save the",
+    "message": "Əmin olun ki, python-keyring və python-gnomekeyring quraşdırılıb. Saxlayın:",
     "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
   },
   "importGnomeInstructionsLinkText": {
-    "message": "GNOME Keyring Import/Export"
+    "message": "GNOME Keyring Daxilə/Xaricə köçürmə"
   },
   "importGnomeInstructionsScriptLabel": {
-    "message": "python script to your desktop as",
+    "message": "python script-i masaüstündə",
     "description": "Followed by a literal filename (pw_helper.py) rendered as code."
   },
   "importGnomeInstructionsRunTerminal": {
-    "message": ". Open terminal and run",
+    "message": ". Terminalı aç və çalışdır",
     "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
   },
   "importGnomeInstructionsAndThen": {
-    "message": "and then",
+    "message": "və sonra",
     "description": "Between two terminal commands rendered as code."
   },
   "importGnomeInstructionsUploadResult": {
-    "message": ". Then upload the resulting",
+    "message": ". Sonra nəticə faylını",
     "description": "Followed by a literal filename (my_passwords.json) rendered as code."
   },
   "importGnomeInstructionsFileHere": {
-    "message": "file here to Bitwarden.",
+    "message": "Bitwarden-ə yüklə.",
     "description": "Follows the my_passwords.json filename."
   },
   "importPasswordagentInstructions": {
-    "message": "Using the Password Agent desktop application navigate to \"File\" → \"Export\", select the \"Fields to export\" button and check all of the fields, change the \"Output format\" to \"CSV\", and then click the \"Start\" button to save the CSV file."
+    "message": "Password Agent masaüstü tətbiqini istifadə edərək, \"Fayl\" → \"Xaricə köçür\"ə gedin, \"Xaricə köçürüləcək xanalar\" düyməsini seçin və bütün xanaları işarələyin, \"Çıxış formatı\"nı \"CSV\" olaraq dəyişdirin, sonra CSV faylı saxlamaq üçün \"Başlat\" düyməsinə klikləyin."
   },
   "importPasspackInstructions": {
-    "message": "Log into the Passpack website vault and navigate to \"Settings\" → \"Export\", then click the \"Download\" button to save the CSV file."
+    "message": "Passpack veb saytında seyfə giriş edin və \"Ayarlar\" → \"Xaricə köçür\"ə gedin, sonra CSV faylını saxlamaq üçün \"Endir\" düyməsinə klikləyin."
   },
   "importPassmanInstructions": {
-    "message": "Open your Passman vault and click on \"Settings\" in the bottom left corner. In the \"Settings\" window switch to the \"Export credentials\" tab and choose \"JSON\" as the export type. Enter your vault's passphrase and click the \"Export\" button to save the JSON file."
+    "message": "Passman seyfinizi açın və sol alt küncdəki \"Ayarlar\"a klikləyin. \"Ayarlar\" pəncərəsində \"Kimlik məlumatlarını xaricə köçür\" vərəqinə keçin və xaricə köçürmə növü kimi \"JSON\"u seçin. Seyfinizin keçid ifadəsini daxil edin və JSON faylını saxlamaq üçün \"Xaricə köçür\" düyməsinə klikləyin."
   },
   "importAvastCsvInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to CSV file\" option to save the CSV file."
+    "message": "Avast Passwords masaüstü tətbiqini açın və \"Ayarlar\" → \"Veriləri daxilə/xaricə köçür\"ə gedin. CSV faylı kimi saxlamaq üçün \"Xaricə köçür\"ü, sonra \"CSV faylı olaraq xaricə köçür\"ü seçin."
   },
   "importAvastJsonInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to JSON file\" option to save the JSON file."
+    "message": "Avast Passwords masaüstü tətbiqini açın və \"Ayarlar\" → \"Veriləri daxilə/xaricə köçür\"ə gedin. JSON faylı kimi saxlamaq üçün \"Xaricə köçür\"ü, sonra \"JSON faylı olaraq xaricə köçür\"ü seçin."
   },
   "importFsecureInstructions": {
-    "message": "Open the F-Secure KEY desktop application and navigate to \"Settings\" → \"Export Passwords\". Select the \"Export\" button, enter your master password, and save the FSK file."
+    "message": "F-Secure KEY masaüstü tətbiqini açın və \"Ayarlar\" → \"Parolları xaricə köçür\"ə gedin. \"Xaricə köçür\" düyməsini seçin, ana parolunuzu daxil edin və FSK faylını saxlayın."
   },
   "importKasperskyInstructions": {
-    "message": "Open the Kaspersky Password Manager desktop application and navigate to \"Settings\" → \"Import/Export\". Locate the \"Export to text file\" section and select the \"Export\" button to save the TXT file."
+    "message": "Kaspersky Password Manager masaüstü tətbiqini açın və \"Ayarlar\" → \"Daxilə/Xaricə köçür\"ə gedin. \"Mətn faylına köçür\" bölməsini tapın və TXT faylı kimi saxlamaq üçün \"Xaricə köçür\" düyməsini seçin."
   },
   "importRemembearInstructions": {
-    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+    "message": "RememBear masaüstü tətbiqini açın və \"Ayarlar\" → \"Hesab\" → \"Xaricə köçür\"ə gedin. Ana parolunuzu daxil edin və CSV faylı kimi saxlamaq üçün \"Yenə də xaricə köçür\"ü seçin."
   },
   "importPasswordwalletInstructions": {
-    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+    "message": "PasswordWallet masaüstü tətbiqini açın və \"Fayl\" → \"Xaricə köçür\" → \"Görünən girişləri mətn faylına köçür\"ə gedin. Ana parolunuzu daxil edin və TXT faylı kimi saxlamaq üçün \"Oldu\" düyməsinə basın."
   },
   "importMykiInstructions": {
-    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+    "message": "Myki masaüstü brauzer uzantısını açın və \"Qabaqcıl\" → \"Hesabları xaricə köçür\"ə gedin və QR kodu mobil cihazınızla skan edin. Müxtəlif CSV faylları kompüterinizin endirilənlər qovluğunda saxlanılacaq."
   },
   "importSecuresafeInstructions": {
-    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+    "message": "SecureSafe parol seyfinizi vergül ayırıcı ilə CSV faylına köçürün."
   },
   "importLogmeonceInstructions": {
-    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+    "message": "LogMeOnce brauzer uzantısını açın, \"Menyunu aç\" → \"Xaricə köçür\"ə gedin və CSV faylını saxlamaq üçün \"CSV faylı\"nı seçin."
   },
   "importBlackberryInstructions": {
-    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+    "message": "BlackBerry Password Keeper tətbiqini açın, \"Ayarlar\" → \"Daxilə/Xaricə köçür\"ə gedin. \"Parolları xaricə köçür\"ü seçin və şifrələnməmiş CSV faylını saxlamaq üçün ekrandakı təlimatları izləyin."
   },
   "importButtercupInstructions": {
-    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+    "message": "Buttercup masaüstü tətbiqini açın və seyfinizin kilidini açın. Seyfinizin ikonuna sağ klikləyin və CSV faylını saxlamaq üçün \"Xaricə köçür\"ü seçin."
   },
   "importCodebookInstructions": {
-    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+    "message": "Codebook masaüstü tətbiqini açın və giriş edin. \"Fayl\" → \"Hamısını xaricə köçür\"ü seçin, sonra pəncərədə görünən \"Bəli\" düyməsinə klikləyin və CSV faylını saxlayın."
   },
   "importEncryptrInstructions": {
-    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+    "message": "Ecryptr masaüstü tətbiqinin ən yeni versiyasını açın və bütün verilərinizin sinxronlaşdırılmasına icazə verin. Verilərinizin sinxronlaşdırılması tamamlandıqdan sonra, sağ üst küncdəki endir ikonu çəhrayı rəngə çevriləcək. Endir ikonuna klikləyin və CSV faylını saxlayın."
   },
   "importYotiInstructions": {
-    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+    "message": "Yoti brauzer uzantısında \"Ayarlar\"a, sonra \"Saxlanılmış girişləri xaricə köçür\"ə klikləyin və CSV faylını saxlayın."
   },
   "importPsonoInstructions": {
-    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+    "message": "Psono veb seyfinə giriş edin, \"Hesaba daxil ol\" açılan menyusuna klikləyin, \"Digərləri\"ni seçin. \"Xaricə köçür\" vərəqinə gedin, json xaricə köçürmə növünü seçin və sonra \"Xaricə köçür\"ə klikləyin."
   },
   "importPasskyInstructions": {
-    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+    "message": "\"https://vault.passky.org\" ünvanında giriş edin → \"Daxilə və Xaricə köçür\" → Passky bölməsində \"Xaricə köçür\"ü seçin. (\"Nüsxələmə\" şifrələndiyi üçün dəstəklənmir)."
   },
   "importProtonpassInstructions": {
-    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+    "message": "ProtonPass brauzer uzantısında \"Ayarlar\" > \"Xaricə köçür\"ə gedin. PGP şifrələmə olmadan xaricə köçürün və zip faylını saxlayın."
   },
   "importPasswordxpInstructions": {
-    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+    "message": "\"Veri bazası\"nı → \"Fayla köçür\" menyusunu seçin → Xaricə köçürmə seçimləri daxilində Qovluq adlarının və Sütun başlıqlarının işarələndiyinə əmin olun. → \"Nəzər sal\" düyməsinə basın və hədəf faylı seçin və növünü CSV faylı olaraq təyin edin."
   },
   "importNetwrixInstructions": {
-    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+    "message": "FullClient-i açın, \"Əsas menyu\"ya gedin və \"Xaricə köçür\"ü seçin. \"Xaricə köçürmə sehrbazı\"nı başladın və CSV faylına köçürmək üçün təlimatları izləyin."
   },
   "importNordpassInstructions": {
-    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+    "message": "NordPass-a giriş edin və \"Ayarlar\"ı açın → \"Daxilə və Xaricə köçür\" bölməsi üçün aşağı diyirləyin və \"Elementləri xaricə köçür\"ü seçin → Ana parolunuzu daxil edin və \"Davam et\"i seçin. → Cihazınızda CSV faylını saxlayın."
   },
   "importPassworddepot17Instructions": {
-    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+    "message": "Masaüstü tətbiqində, \"Alətlər\" → \"Xaricə köçür\" → \"Ana parolunuzu daxil edin\" → Xaricə köçürmə formatı olaraq \"XML Formatı\"nı (*.xml) seçin → \"Növbəti\"yə klikləyin → Xaricə köçürüləcək veriləri seçin → Daha əvvəl seçilmiş yerləşməyə köçürmək üçün \"Növbəti\"yə klikləyin."
   },
   "importDelineaInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+    "message": "Delinea-ya giriş edin, \"Daxilə/Xaricə köçür\"ü axtarın -> \"Xaricə köçür\"ü seçin -> Xaricə köçürmə formatı olaraq \"XML\"i seçin -> Kimlik doğrulayıcı növü olaraq \"QuantumLock\"u seçin -> parolunuzu daxil edin və XML faylını saxlamaq üçün \"Xaricə köçür\"ü seçin."
   },
   "importDelineaCsvInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+    "message": "Delinea-ya giriş edin, \"Daxilə/Xaricə köçür\"ü axtarın -> \"Xaricə köçür\"ü seçin -> Xaricə köçürmə formatı olaraq \"CSV\"i seçin -> Kimlik doğrulayıcı növü olaraq \"QuantumLock\"u seçin -> parolunuzu daxil edin və CSV faylını saxlamaq üçün \"Xaricə köçür\"ü seçin."
   },
   "options": {
     "message": "Seçimlər"
@@ -3737,14 +3800,11 @@
   "restrictedItemTypePolicy": {
     "message": "Kart element növünü sil"
   },
-  "restrictedItemTypePolicyDesc": {
-    "message": "Üzvlərin kart element növlərini yaratmasına icazə verməyin. Mövcud kartlar avtomatik silinəcək."
-  },
   "restrictedItemTypePolicyDescV2": {
     "message": "Üzvlərə öz seyflərində kredit kartı yaratmasına və saxlamasına icazə verməyin. Bu siyasət işə salındığı zaman, mövcud kartlar avtomatik olaraq gizlədiləcək."
   },
   "restrictedItemTypePolicyDescVfo1": {
-    "message": "Do not allow members to create and store credit card items. When this policy is turned on, existing cards will be automatically hidden.",
+    "message": "Üzvlərin kredit kartı yaratmasına və saxlamasına icazə verməyin. Bu siyasət işə salındığı zaman, mövcud kartlar avtomatik olaraq gizlədiləcək.",
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
   "restrictCardTypeImport": {
@@ -3816,7 +3876,7 @@
     "message": "Sıradan çıxart"
   },
   "orgUserDetailsNotFound": {
-    "message": "Üzv təfsilatları tapılmadı."
+    "message": "Üzv ayrıntıları tapılmadı."
   },
   "revokeAccess": {
     "message": "Erişimi ləğv et"
@@ -3954,10 +4014,10 @@
     "message": "Duo Admin panelinizdən Bitwarden tətbiq məlumatlarını daxil edin."
   },
   "twoFactorDuoClientId": {
-    "message": "Müştəri kimliyi"
+    "message": "İstəkçi kimliyi"
   },
   "twoFactorDuoClientSecret": {
-    "message": "Müştəri sirri"
+    "message": "İstəkçi Sirri"
   },
   "twoFactorDuoApiHostname": {
     "message": "API Host adı"
@@ -4135,12 +4195,6 @@
   },
   "instructions": {
     "message": "Təlimatlar"
-  },
-  "passwordlessLogin": {
-    "message": "Parolsuz giriş"
-  },
-  "multifactorAuthentication": {
-    "message": "Çoxfaktorlu kimlik doğrulama"
   },
   "exposedPasswordsReport": {
     "message": "İfşa olunmuş parollar"
@@ -4398,7 +4452,7 @@
     "message": "Premium abunəliyiniz bitdi"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin detallarına düzəliş etsəniz, həmin element seyfinizə daşınacaq."
+    "message": "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin ayrıntılarına düzəliş etsəniz, həmin element seyfinizə daşınacaq."
   },
   "itemRestored": {
     "message": "Element bərpa edildi"
@@ -4509,7 +4563,7 @@
     "message": "Təkmilləşməyimizə kömək edin. Niyə ləğv edirsiniz?"
   },
   "additionalDetails": {
-    "message": "Əlavə məlumat"
+    "message": "Əlavə məlumatlar"
   },
   "subscriptionExpiration": {
     "message": "Abunəliyin bitmə tarixi"
@@ -4710,7 +4764,7 @@
     "message": "Plan"
   },
   "details": {
-    "message": "Təfsilatlar"
+    "message": "Ayrıntılar"
   },
   "discount": {
     "message": "endirim"
@@ -4912,6 +4966,9 @@
   },
   "chooseYourPlan": {
     "message": "Planınızı seçin"
+  },
+  "choosePlan": {
+    "message": "Planı seç"
   },
   "users": {
     "message": "İstifadəçilər"
@@ -5245,7 +5302,7 @@
     "message": "Erişim nəzarəti"
   },
   "readOnly": {
-    "message": "Yalnız-oxunan"
+    "message": "Sırf oxunan"
   },
   "newCollection": {
     "message": "Yeni kolleksiya"
@@ -5352,7 +5409,7 @@
     "message": "Təsdiqləndi"
   },
   "clientOwnerEmail": {
-    "message": "Müştəri sahibi e-poçtu"
+    "message": "İstəkçi sahibi e-poçtu"
   },
   "owner": {
     "message": "Sahiblik"
@@ -6655,7 +6712,7 @@
     "message": "Hesabatlar yaradılır..."
   },
   "compilingInsightsProgress": {
-    "message": "Məlumatlar şərh edilir..."
+    "message": "Təhlil nəticələri dərlənir..."
   },
   "reportGenerationDone": {
     "message": "Hazırdır!"
@@ -6793,7 +6850,7 @@
   "openOrgInviteAcceptFailed": {
     "message": "Dəvət qəbul edilə bilmədi. Təşkilat adminindən yeni bir dəvət keçidi göndərməsini xahiş edin."
   },
-  "openOrgInviteAcceptFailedTitle": {
+  "cannotAcceptInvitation": {
     "message": "Dəvət qəbul edilə bilmir"
   },
   "openOrgInviteAcceptAlreadyMember": {
@@ -6824,10 +6881,10 @@
     "message": "Artıq üzvü olduğunuz təşkilat, öz üzvlərinin yalnız bir təşkilata aid olmasına icazə verir."
   },
   "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
-    "message": "The organization you are already a member of only allows its members to access one shared vault."
+    "message": "Artıq üzvü olduğunuz təşkilat, öz üzvlərinin yalnız bir paylaşılan seyfə erişməsinə icazə verir."
   },
   "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
-    "message": "The organization you are trying to join only allows its members to access one shared vault."
+    "message": "Qoşulmağa çalışdığınız təşkilat, öz üzvlərinin yalnız bir paylaşılan seyfə erişməsinə icazə verir."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
     "message": "Qoşulmağa çalışdığınız təşkilat, öz üzvlərinin yalnız bir təşkilata aid olmasına icazə verir."
@@ -7369,6 +7426,21 @@
       }
     }
   },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "$ORGANIZATION_NAME$ - qoşulma prosesini tamamlamaq üçün e-poçtunuzu yoxlayın.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "Bu təşkilat hazırda yeni üzvləri qəbul edə bilmir. Kömək üçün admininizlə əlaqə saxlayın."
+  },
+  "inviteSentToEmail": {
+    "message": "Dəvət e-poçta göndərilib"
+  },
   "acceptPolicies": {
     "message": "Bu qutunu işarələyərək aşağıdakılarla razılaşırsınız:"
   },
@@ -7572,7 +7644,7 @@
     "message": "API açarınız, alternativ bir kimlik doğrulama mexanizmidir. Gizli saxlanılmalıdır."
   },
   "oauth2ClientCredentials": {
-    "message": "OAuth 2.0 müştəri məlumatları",
+    "message": "OAuth 2.0 İstəkçi Kimlik məlumatları",
     "description": "'OAuth 2.0' is a programming protocol. It should probably not be translated."
   },
   "viewApiKey": {
@@ -7638,23 +7710,17 @@
   "twoStepLoginPolicyDescV2": {
     "message": "Üzvlərdən iki addımlı girişi qurmalarını tələb et. Bu siyasət, sahiblərə və adminlərə tətbiq olunmayacaq."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "Sahib və ya Administrator olmayan və fərdi hesablarında \"iki addımlı giriş\"i fəallaşdırmayan təşkilat üzvləri təşkilatdan xaric ediləcək və dəyişiklik haqqında onları məlumatlandıran e-poçt göndəriləcək."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "Bu siyasəti fəallaşdırsanız, öz hesabında iki addımlı girişi fəal etməmiş bütün istifadəçilərin erişimi ləğv ediləcək. Təsirlənən istifadəçilər, e-poçt ilə məlumatlandırılacaq."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "İstifadəçi hesabında \"iki addımlı giriş\"in qurulmasını tələb edən təşkilatın üzvüsünüz. İki addımlı giriş provayderlərinin hamısını söndürsəniz, bu təşkilatdan avtomatik olaraq xaric ediləcəksiniz."
   },
-  "passwordGeneratorPolicyDesc": {
-    "message": "Parol yaradıcı üçün tələbləri ayarla."
-  },
   "passwordGeneratorPolicyDescV2": {
     "message": "Üzvlər tərəfindən yaradılmış parollar üçün minimum tələblər dəstini seçin."
   },
   "passwordGeneratorPolicyDescVfo1": {
-    "message": "Set requirements for password generator.",
+    "message": "Parol yaradıcı üçün tələbləri ayarla.",
     "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
   },
   "generatedPassword": {
@@ -7906,24 +7972,21 @@
     "message": "Vahid təşkilat"
   },
   "singleOrgVfo1": {
-    "message": "Single organization membership",
+    "message": "Vahid təşkilat üzvlüyü",
     "description": "VFO1 terminology variant of 'singleOrg'"
   },
   "singleOrgDesc": {
     "message": "İstifadəçilərin digər təşkilatlara qoşulmasını məhdudlaşdırın."
   },
-  "singleOrgPolicyDesc": {
-    "message": "Üzvlərin digər təşkilatlara qoşulmasını məhdudlaşdır. Bu siyasət, domen doğrulamasını fəallaşdıran təşkilatlar üçün tələb olunur."
-  },
   "singleOrgPolicyDescVfo1": {
-    "message": "Restrict members from joining other shared or organization vaults.",
+    "message": "Üzvlərin digər ortaq və ya təşkilat seyflərinə qoşulmasını məhdudlaşdırın.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
   },
   "singleOrgPolicyDescV2": {
     "message": "Bu təşkilatın üzvləri digər təşkilatlara qoşula bilməz. Bu siyasət fəallaşdırıldığı zaman, digər təşkilatlara aid olan mövcud üzvlərin erişimləri ləğv ediləcək. Bu siyasət, sahiblərə və adminlərə tətbiq olunmur."
   },
   "singleOrgPolicyDescV2Vfo1": {
-    "message": "Members cannot join other organization vaults. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins.",
+    "message": "Üzvlər digər təşkilatların seyflərinə qoşula bilməz. Bu siyasət fəallaşdırıldığı zaman, digər təşkilatlara aid olan mövcud üzvlərin erişimləri ləğv ediləcək. Bu siyasət, sahiblərə və adminlərə tətbiq olunmur.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDescV2'"
   },
   "singleOrgBlockCreateMessage": {
@@ -7936,19 +7999,16 @@
     "message": "Vahid daxil olma kimlik doğrulamasını tələb et"
   },
   "requireSsoVfo1": {
-    "message": "Require SSO",
+    "message": "SSO tələb et",
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
   "requireSsoPolicyDescListVfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method.",
+    "message": "Üzvlərin \"Müəssisə üçün Vahid Daxil olma\" üsulu ilə giriş etməsini tələb et.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
   },
   "requireSsoPolicyDescV2Vfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
+    "message": "Üzvlərin \"Müəssisə üçün Vahid Daxil olma\" üsulu ilə giriş etməsini tələb et. Bu siyasət, sahiblərə və adminlərə tətbiq olunmayacaq.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
-  },
-  "requireSsoPolicyDesc": {
-    "message": "Üzvlərin \"Müəssisə üçün vahid daxil olma\" üsulu ilə giriş etməsini tələb et."
   },
   "requireSsoPolicyTitle": {
     "message": "Vahid daxil olma (SSO) seçimini tələb et"
@@ -7959,15 +8019,19 @@
   "prerequisite": {
     "message": "Ön şərt"
   },
-  "requireSsoPolicyReq": {
-    "message": "Bu siyasəti aktivləşdirməzdən əvvəl vahid təşkilat üçün Müəssisə siyasəti işə salınmalıdır."
-  },
   "requireSsoPolicyReqV2": {
     "message": "Bu siyasəti fəallaşdırmazdan əvvəl vahid təşkilat siyasətini fəallaşdırmalısınız."
   },
   "requireSsoPolicyReqV2Vfo1": {
-    "message": "You must enable the single organization membership policy before enabling this one.",
+    "message": "Bu siyasəti fəallaşdırmazdan əvvəl vahid təşkilat üzvlüyü siyasətini fəallaşdırmalısınız.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "Bu siyasəti fəallaşdırmazdan əvvəl vahid təşkilat siyasətini fəallaşdırmalısınız."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "Bu siyasəti fəallaşdırmazdan əvvəl vahid təşkilat üzvlüyü siyasətini fəallaşdırmalısınız.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "Vahid təşkilat siyasəti qurulmayıb."
@@ -7993,7 +8057,7 @@
     }
   },
   "sendDetails": {
-    "message": "Send detalları",
+    "message": "Send ayrıntıları",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
@@ -8211,10 +8275,10 @@
     "message": "Fövqəladə hal erişimi"
   },
   "emergencyAccessDesc": {
-    "message": "Güvənilən kontaktlara fövqəladə hal erişim icazəsi verin və ya icazələri idarə edin. Güvənilən kontaktlar, fövqəladə halda hesabınızı Görmək və ya Təhvil almaq üçün erişim tələb edə bilər. Sıfır məlumat paylaşımının necə işlədiyi ilə bağlı daha ətraflı və detallı məlumat üçün kömək səhifəmizi ziyarət edin."
+    "message": "Güvənilən kontaktlara fövqəladə hal erişim icazəsi verin və ya icazələri idarə edin. Güvənilən kontaktlar, fövqəladə halda hesabınızı Görmək və ya Təhvil almaq üçün erişim tələb edə bilər. Sıfır məlumat paylaşımının necə işlədiyi ilə bağlı daha ətraflı və ayrıntılı məlumat üçün kömək səhifəmizi ziyarət edin."
   },
   "emergencyAccessOwnerWarning": {
-    "message": "Bir və ya daha çox təşkilata sahiblik edirsiniz. Fövqəladə hal üçün təyin olunmuş şəxsə təhvil alma erişimi versəniz, təhvil aldıqdan sonra sahib olduğunuz bütün hüquqları istifadə edə bilər."
+    "message": "Bir və ya daha çox təşkilata sahiblik edirsiniz. Fövqəladə hal üçün təyin olunmuş şəxsə təhvil alma erişimi versəniz, təhvil aldıqdan sonra sahib olduğunuz bütün izinləri istifadə edə bilər."
   },
   "trustedEmergencyContacts": {
     "message": "Güvənilən fövqəladə hal kontaktları"
@@ -8341,7 +8405,7 @@
     "message": "Fövqəladə hal erişimi rədd edildi"
   },
   "grantorDetailsNotFound": {
-    "message": "Qrant verən təfsilatları tapılmadı"
+    "message": "Qrant verənə aid məlumatlar tapılmadı"
   },
   "passwordResetFor": {
     "message": "$USER$ üçün parol sıfırlandı. Artıq yeni parol ilə giriş edə bilərsiniz.",
@@ -8356,14 +8420,14 @@
     "message": "Təşkilat sahibliyini mərkəzləşdirin"
   },
   "centralizeDataOwnershipVfo1": {
-    "message": "Centralized organization ownership",
+    "message": "Mərkəzi təşkilat sahibliyi",
     "description": "VFO1 terminology variant of 'centralizeDataOwnership'"
   },
   "centralizeDataOwnershipDesc": {
     "message": "Bütün üzv elementləri, təşkilat tərəfindən sahiblənəcək və idarə ediləcək. Adminlər və sahibləri daxil deyil. "
   },
   "centralizeDataOwnershipDescVfo1": {
-    "message": "Require members to save items to the organization by removing their personally owned My vault.",
+    "message": "Üzvlərin özlərinə məxsus “Mənim seyfim”i aradan qaldıraraq elementləri təşkilatda saxlamalarını tələb edin.",
     "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
   },
   "centralizeDataOwnershipContentAnchor": {
@@ -8379,9 +8443,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "Üzvlərin tərk etməsi və təhvil zamanı elementləri asanlıqla köçürün, erişim zamanı heç bir boşluğa yer buraxmayın."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "Bütün istifadəçilərə öz giriş məlumatlarını idarə edə biləcəkləri \"Elementlərim\" sahəsi verin."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Üzvlərdən öz elementlərini köçürməsi soruşulsun"
   },
@@ -8391,9 +8452,6 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Köçürmə barədə daha ətraflı"
   },
-  "promptUsersToMoveItems": {
-    "message": "İstifadəçilərdən fərdi seyf elementlərini təşkilata daşımasını istəyin"
-  },
   "promptUsersToMoveItemsCallout": {
     "message": "Üzvlərdən elementləri təşkilata köçürməsi, ya da tərk etməsi soruşulacaq. Əgər tərk etsələr, erişimləri ləğv ediləcək, ancaq istənilən vaxt bərpa edə biləcəklər."
   },
@@ -8401,21 +8459,21 @@
     "message": "Bütün üzv elementləri, təşkilata məxsus olacaq və təşkilat tərəfindən idarə olunacaq. Bu siyasət, sahiblərə və adminlərə tətbiq olunmur. Daha ətraflı "
   },
   "centralizeDataOwnershipDescV3": {
-    "message": "All member items will be owned and managed by the organization. This policy won't be enforced for owners and admins. ",
+    "message": "Bütün üzv elementləri, təşkilata məxsus olacaq və təşkilat tərəfindən idarə olunacaq. Bu siyasət, sahiblərə və adminlərə tətbiq olunmur. ",
     "description": "Replaces centralizeDataOwnershipDescV2 to avoid duplicating the 'Learn more about' text already present in the adjacent centralizeDataOwnershipContentAnchor link"
   },
   "centralizeDataOwnershipBenefit3V2": {
     "message": "Bütün istifadəçilərə öz giriş məlumatlarını idarə edə biləcəkləri “Elementlərim” sahəsi verin."
   },
   "centralizeDataOwnershipBenefit3Vfo1": {
-    "message": "Give all users a dedicated My items space for managing their own logins.",
+    "message": "Bütün istifadəçilərə öz giriş məlumatlarını idarə edə biləcəkləri “Elementlərim” sahəsi verin.",
     "description": "VFO1 terminology variant of 'centralizeDataOwnershipBenefit3V2'"
   },
   "promptUsersToMoveItemsV2": {
     "message": "İstifadəçilərdən öz seyf elementlərini təşkilata daşımasını istəyin"
   },
   "promptUsersToMoveItemsVfo1": {
-    "message": "Prompt users to move their My vault items to the organization",
+    "message": "İstifadəçilərdən öz \"Seyfim\" elementlərini təşkilata daşımasını istəyin",
     "description": "VFO1 terminology variant of 'promptUsersToMoveItemsV2'"
   },
   "organizationDataOwnership": {
@@ -8463,7 +8521,7 @@
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
   "autoConfirmDescriptionVfo1": {
-    "message": "New users invited to the organization vault will be automatically confirmed when an admin’s device is unlocked.",
+    "message": "Təşkilat seyfinə dəvət edilmiş yeni istifadəçilər, admin cihazının kilidi açıldığı zaman avtomatik olaraq təsdiqlənəcək.",
     "description": "VFO1 terminology variant of 'autoConfirmDescription', shown in the policies list"
   },
   "howToTurnOnAutoConfirm": {
@@ -8488,7 +8546,7 @@
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
   "autoConfirmPolicyEditDescriptionVfo1": {
-    "message": "New users invited to the organization vault will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "message": "Təşkilat seyfinə dəvət edilmiş yeni istifadəçilər, admin cihazının kilidi açıldığı zaman avtomatik olaraq təsdiqlənəcək. Bu siyasəti işə salmazdan əvvəl, lütfən aşağıdakıları incələyin və razılaşın: ",
     "description": "VFO1 terminology variant of 'autoConfirmPolicyEditDescription'"
   },
   "autoConfirmAcceptSecurityRiskTitle": {
@@ -8505,21 +8563,21 @@
     "message": "Vahid təşkilat siyasəti tələb olunur. "
   },
   "autoConfirmSingleOrgRequiredVfo1": {
-    "message": "Single organization vault policy required. ",
+    "message": "Vahid təşkilat seyfi siyasəti tələb olunur. ",
     "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequired'"
   },
   "autoConfirmSingleOrgRequiredDesc": {
     "message": "Bu avtomatlaşdırmanı aktivləşdirmək üçün bütün üzvlər yalnız bu təşkilata aid olmalıdır."
   },
   "autoConfirmSingleOrgRequiredDescVfo1": {
-    "message": "All members must only belong to this organization vault to activate this automation.",
+    "message": "Bu avtomatlaşdırmanı aktivləşdirmək üçün bütün üzvlər yalnız bu təşkilat seyfinə aid olmalıdır.",
     "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequiredDesc'"
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Vahid təşkilat siyasəti bütün rollara şamil ediləcək. "
   },
   "autoConfirmSingleOrgExemptionVfo1": {
-    "message": "Single organization vault policy will extend to all roles. ",
+    "message": "Vahid təşkilat seyfi siyasəti bütün rollara şamil ediləcək. ",
     "description": "VFO1 terminology variant of 'autoConfirmSingleOrgExemption'"
   },
   "autoConfirmNoEmergencyAccess": {
@@ -8605,10 +8663,6 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "Masaüstü avto-yazma ilkin ayarı"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "Üzvlər üçün Masaüstü avto-yazma ayarını ilkin olaraq işə salın. Üzvlər Masaüstü client-ində avto-yazma ayarını manual olaraq söndürə bilər.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "Masaüstü avto-yazmanı üzvlər üçün fəallaşdır. Üzvlər, masaüstü istəkçisində avto-yazmanı manual olaraq söndürə biləcək."
   },
@@ -8661,7 +8715,7 @@
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "manageSendAndShareVfo1": {
-    "message": "Manage Send and share",
+    "message": "Send-i və paylaşmanı idarə et",
     "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendControlsPolicyDesc": {
@@ -8673,7 +8727,7 @@
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescVfo1": {
-    "message": "Set Send configuration options.",
+    "message": "Send konfiqurasiya seçimlərini ayarla.",
     "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
@@ -8694,11 +8748,8 @@
   "uriMatchDetectionPolicy": {
     "message": "İlkin URI uyuşma aşkarlaması"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "Avto-doldurma üçün giriş məlumatlarının nə vaxt təklif ediləcəyini müəyyənləşdirin. Adminlər və sahiblər bu siyasətdən azaddır."
-  },
   "uriMatchDetectionPolicyDescVfo1": {
-    "message": "Set the default URI match detection for all items created by members.",
+    "message": "Üzvlər tərəfindən yaradılan bütün elementlər üçün ilkin URI uyuşma aşkarlamasını ayarlayın.",
     "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
   },
   "uriMatchDetectionPolicyDescV2": {
@@ -8710,6 +8761,23 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Lütfən yararlı bir URI uyuşma aşkarlama variantını seçin.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "\"Doldurma köməyi\"ni aktivləşdir",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Bütün üzvlər üçün \"Doldurma köməyi\"ni ilkin olaraq aktivləşdirin. Bu özəllik avto-doldurmanın çətin olaraq bilindiyi veb-saytlarda avto-doldurma dəqiqliyini artırmaq üçün incələnmiş və sayta xas təlimatları istifadə edir."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Özəl avto-doldurma qayda dəsti"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "İlkin olaraq, avto-doldurma Bitwarden-nin düzənlədiyi qayda dəstini istifadə edir. Bunu öz qayda dəstinizlə əvəz etmək üçün buraya URL-ni daxil edin."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Yararlı bir URL daxil edin",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "$ID$ siyasətinə düzəliş edildi.",
@@ -8726,11 +8794,14 @@
   "estimatedTax": {
     "message": "Təxmini vergi"
   },
+  "subtotal": {
+    "message": "Aralıq cəm"
+  },
   "custom": {
     "message": "Özəl"
   },
   "customDesc": {
-    "message": "Qabaqcıl konfiqurasiya üçün istifadəçi icazələrinin daha təfsilatlı nəzarətinə icazə verər."
+    "message": "Üzvlərə özəlləşdirilmiş izinlər ver"
   },
   "customDescNonEnterpriseStart": {
     "message": "Özəl rollar ",
@@ -8745,13 +8816,13 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Custom roles is an enterprise feature. Contact our support team to upgrade your subscription'"
   },
   "customNonEnterpriseError": {
-    "message": "Özəl icazələri fəallaşdırmaq üçün təşkilat, Enterprise 2020 planında olmalıdır."
+    "message": "Özəl izinləri fəallaşdırmaq üçün təşkilat, Enterprise 2020 planında olmalıdır."
   },
   "permissions": {
-    "message": "İcazələr"
+    "message": "İzinlər"
   },
   "permission": {
-    "message": "İcazə"
+    "message": "İzin"
   },
   "accessEventLogs": {
     "message": "Event qeydlərinə erişim"
@@ -8763,7 +8834,7 @@
     "message": "Hesabatlara erişim"
   },
   "missingPermissions": {
-    "message": "Bu əməliyyatı icra etmək üçün lazımi icazələri əldə etməmisiniz."
+    "message": "Bu əməliyyatı icra etmək üçün gərəkli izinləri əldə etməmisiniz."
   },
   "manageAllCollections": {
     "message": "Bütün kolleksiyaları idarə et"
@@ -9115,7 +9186,7 @@
     "message": "Hesab geri qaytarma administrasiyası"
   },
   "accountRecoveryPolicyDescVfo1": {
-    "message": "Allow admins to reset master passwords for members.",
+    "message": "Adminlər üzvlər üçün parolları sıfırlamasına icazə verin.",
     "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
   },
   "accountRecoverySingleOrgRequirementDesc": {
@@ -9125,7 +9196,7 @@
     "message": "Bu siyasəti fəallaşdırmazdan əvvəl vahid təşkilat siyasətini fəallaşdırmalısınız."
   },
   "accountRecoveryPolicySingleOrgReqV2Vfo1": {
-    "message": "You must enable the single organization membership policy before enabling this one.",
+    "message": "Bu siyasəti fəallaşdırmazdan əvvəl vahid təşkilat üzvlüyü siyasətini fəallaşdırmalısınız.",
     "description": "VFO1 terminology variant of 'accountRecoveryPolicySingleOrgReqV2'"
   },
   "accountRecoveryPolicyDescV3Part1": {
@@ -9147,7 +9218,7 @@
     "message": "\"Təşkilat açarları\" cavabı boşdur"
   },
   "resetPasswordDetailsError": {
-    "message": "\"Parol təfsilatlarını sıfırla\" cavabı boşdur"
+    "message": "\"Parolu sıfırla\"  ayrıntıları cavabı boşdur"
   },
   "resetPasswordNewPasswordRequired": {
     "message": "Yeni parol tələb olunur"
@@ -9336,7 +9407,7 @@
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "accountRecoveryManageUsers": {
-    "message": "İdarə edilən istifadəçilərə həm də \"Hesab geri qaytarılmasını idarə et\" icazəsi verilməlidir"
+    "message": "\"Hesabın geri qaytarılmasını idarə et\" izni ilə birgə \"İstifadəçiləri idarə et\" izni də verilməlidir"
   },
   "setupProvider": {
     "message": "Provayder quraşdırması"
@@ -9354,23 +9425,23 @@
     "message": "Provayder quraşdırıldı."
   },
   "clients": {
-    "message": "Müştərilər"
+    "message": "İstəkçilər"
   },
   "client": {
-    "message": "Müştəri",
+    "message": "İstəkçi",
     "description": "This is used as a table header to describe which client application created an event log."
   },
   "providerAdmin": {
     "message": "Provayder admini"
   },
   "providerAdminDesc": {
-    "message": "Provayderinizin bütün aspektlərini idarə edə bilən, həmçinin müştəri təşkilatlarına erişə və onları idarə edə bilən ən yüksək erişimə sahib istifadəçi."
+    "message": "Provayderinizin bütün aspektlərini idarə edə, həmçinin istəkçi təşkilatlarına erişə və onları idarə edə bilən ən yüksək səlahiyyətli istifadəçi."
   },
   "serviceUser": {
     "message": "Xidmət istifadəçisi"
   },
   "serviceUserDesc": {
-    "message": "Xidmət istifadəçisi, bütün müştəri təşkilatlarına erişə və onları idarə edə bilər."
+    "message": "Xidmət istifadəçiləri, bütün istəkçi təşkilatlarına erişə və onları idarə edə bilər."
   },
   "providerInviteUserDesc": {
     "message": "Aşağıda Bitwarden hesabının e-poçt ünvanını daxil edərək provayderinizə yeni bir istifadəçi dəvət edə bilərsiniz. Əgər Bitwarden hesabı yoxdursa, yeni bir hesab yaratmaları üçün istək göndəriləcək."
@@ -9394,13 +9465,13 @@
     "message": "Provayder"
   },
   "newClientOrganization": {
-    "message": "Yeni müştəri təşkilatı"
+    "message": "Yeni istəkçi təşkilatı"
   },
   "newClientOrganizationDesc": {
-    "message": "Provayder kimi sizinlə əlaqə yaradılacaq yeni bir müştəri təşkilatı yaradın. Bu təşkilata erişə və onu idarə edə biləcəksiniz."
+    "message": "Provayder kimi sizinlə əlaqə yaradılacaq yeni bir istəkçi təşkilatı yaradın. Bu təşkilata erişə və onu idarə edə biləcəksiniz."
   },
   "newClient": {
-    "message": "Yeni müştəri"
+    "message": "Yeni istəkçi"
   },
   "addExistingOrganization": {
     "message": "Mövcud təşkilatı əlavə et"
@@ -9412,7 +9483,7 @@
     "message": "Provayderim"
   },
   "addOrganizationConfirmation": {
-    "message": "$ORGANIZATION$ təşkilatını müştəri olaraq $PROVIDER$ provayderinə əlavə etmək istədiyinizə əminsiniz?",
+    "message": "$ORGANIZATION$ təşkilatını $PROVIDER$ provayderinə istəkçi olaraq əlavə etmək istədiyinizə əminsiniz?",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -9493,14 +9564,11 @@
   "automaticAppLoginWithSSO": {
     "message": "SSO ilə avtomatik giriş"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "SSO təhlükəsizliyini və rahatlığını idarə edilməyən tətbiqlərə genişləndirin. İstifadəçilər bir tətbiqi kimlik provayderinizdən işə saldığı zaman, onların giriş məlumatları avtomatik olaraq doldurulub təqdim ediləcək. Beləliklə kimlik provayderindən tətbiqə bir kliklə təhlükəsiz axın yaradılır."
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "İstifadəçilər kimlik provayderinizdən bir tətbiq başlatdığı zaman, onların giriş məlumatları avtomatik olaraq doldurulub göndəriləcək və tək bir kliklə təhlükəsiz giriş təmin ediləcək."
   },
   "automaticAppLoginWithSSODescListVfo1": {
-    "message": "Login forms will automatically be filled and submitted for apps launched from your configured identity provider.",
+    "message": "Konfiqurasiya edilmiş kimlik provayderinizdən başladılan tətbiqlər üçün giriş xanaları avtomatik doldurulub göndəriləcək.",
     "description": "VFO1 terminology variant of 'automaticAppLoginWithSSODescV2', shown in the policies list"
   },
   "automaticAppLoginIdpHostLabel": {
@@ -9519,7 +9587,7 @@
     "message": "Sahiblər istisna olmaqla bütün üzvlər üçün maksimum sessiya bitmə vaxtını təyin edin."
   },
   "sessionTimeoutPolicyDescriptionVfo1": {
-    "message": "Set a maximum vault timeout for members.",
+    "message": "Üzvlər üçün maksimum seyf bitmə vaxtını ayarlayın.",
     "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
   },
   "maximumAllowedTimeout": {
@@ -9631,18 +9699,15 @@
   "disableExport": {
     "message": "Xaricə köçürməni sil"
   },
-  "disablePersonalVaultExportDescription": {
-    "message": "Üzvlərin fərdi seyflərindən veriləri xaricə köçürməsinə icazə verilməsin."
-  },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Üzvlərin öz fərdi seyflərindən veriləri xaricə köçürməsinə icazə verməyin. Bu siyasət, sahiblərə və adminlərə şamil olunmur."
   },
   "disablePersonalVaultExportDescriptionVfo1": {
-    "message": "Do not allow members to export their vault data. This policy won't be enforced for owners and admins.",
+    "message": "Üzvlərin öz seyf verilərini xaricə köçürməsinə icazə verməyin. Bu siyasət, sahiblərə və adminlərə şamil olunmur.",
     "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescriptionV2'"
   },
   "disablePersonalVaultExportDescriptionListVfo1": {
-    "message": "Do not allow members to export their vault data.",
+    "message": "Üzvlərin öz seyf verilərini xaricə köçürməsinə icazə verməyin.",
     "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescription', shown in the policies list"
   },
   "vaultExportDisabled": {
@@ -9661,7 +9726,7 @@
     "message": "Bütün mövcud və yeni üzvlər üçün brauzer uzantısında \"Səhifə yüklənəndə avto-doldur\" ayarını aktivləşdirin."
   },
   "activateAutofillPolicyDescriptionVfo1": {
-    "message": "Automatically fill logins on websites and apps.",
+    "message": "Giriş məlumatlarını veb-saytlarda və tətbiqlərdə avtomatik doldurun.",
     "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
   },
   "activateAutofillPolicyDescV2": {
@@ -9701,10 +9766,10 @@
     "message": "Səlahiyyət"
   },
   "clientId": {
-    "message": "Müştəri kimliyi"
+    "message": "İstəkçi kimliyi"
   },
   "clientSecret": {
-    "message": "Müştəri sirri"
+    "message": "İstəkçi sirri"
   },
   "metadataAddress": {
     "message": "Meta veri ünvanı"
@@ -10314,7 +10379,7 @@
     }
   },
   "accessDenied": {
-    "message": "Erişim rədd edildi. Bu səhifəyə baxmaq üçün icazəniz yoxdur."
+    "message": "Erişim rədd edildi. Bu səhifəyə baxmaq üçün izniniz yoxdur."
   },
   "noPageAccess": {
     "message": "Bu səhifəyə erişmək üçün icazəniz yoxdur"
@@ -10465,16 +10530,16 @@
     "message": "Xidmət"
   },
   "unknownCipher": {
-    "message": "Bilinməyən element, bu elementə erişmək üçün başqa bir hesabla giriş etməlisiniz."
+    "message": "Bilinməyən element, bu elementə erişmək üçün izin istəməyiniz lazım gələ bilər."
   },
   "unknownSecret": {
-    "message": "Bilinməyən sirr, bu sirrə erişmək üçün icazə istəməli ola bilərsiniz."
+    "message": "Bilinməyən sirr, bu sirrə erişmək üçün izin istəməyiniz lazım gələ bilər."
   },
   "unknownServiceAccount": {
-    "message": "Bilinməyən maşın hesabı, bu maşın hesabına erişmək üçün icazə istəməli ola bilərsiniz."
+    "message": "Bilinməyən maşın hesabı, bu maşın hesabına erişmək üçün izin istəməyiniz lazım gələ bilər."
   },
   "unknownProject": {
-    "message": "Bilinməyən layihə, bu layihəyə erişmək üçün icazə istəməli ola bilərsiniz."
+    "message": "Bilinməyən layihə, bu layihəyə erişmək üçün izin istəməyiniz lazım gələ bilər."
   },
   "cannotSponsorSelf": {
     "message": "Aktiv hesab üçün istifadə edə bilməzsiniz. Fərqli bir e-poçt daxil edin."
@@ -11515,6 +11580,9 @@
   "noSharedFoldersAdded": {
     "message": "Heç bir paylaşılan qovluq əlavə olunmayıb"
   },
+  "noSharedFoldersAddedDescription": {
+    "message": "Seyf elementlərini digər üzvlərlə təhlükəsiz şəkildə paylaşmaq üçün paylaşılan qovluq əlavə edin."
+  },
   "noMembersAdded": {
     "message": "Heç bir üzv əlavə edilmədi"
   },
@@ -11651,7 +11719,7 @@
     "message": "Qrupları seç"
   },
   "userPermissionOverrideHelperDesc": {
-    "message": "Bir üzv üçün ayarlanan icazələr, həmin üzvün qrupu tərəfindən ayarlanan icazələri əvəz edəcək."
+    "message": "Bir üzv üçün ayarlanan izinlər, həmin üzvün qrupu tərəfindən ayarlanan izinləri əvəz edəcək."
   },
   "noMembersOrGroupsAdded": {
     "message": "Heç bir üzv və ya qrup əlavə edilmədi"
@@ -11942,15 +12010,15 @@
     "message": "Bu istifadəçi \"Sirr Meneceri\"nə erişə bilər"
   },
   "privilegedControls": {
-    "message": "Privileged Controls",
+    "message": "İmtiyazlı nəzarət",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "privilegedControlsAccessDescription": {
-    "message": "Activate user access to Privileged Controls.",
+    "message": "\"İmtiyazlı nəzarət\"ə istifadəçi erişimini aktivləşdir.",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "userAccessPrivilegedControls": {
-    "message": "This user can access Privileged Controls",
+    "message": "Bu istifadəçi \"İmtiyazlı nəzarət\"ə erişə bilər",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "important": {
@@ -12355,7 +12423,7 @@
     "message": "Mövcud üzvlərin öz parollarını dəyişdirməsini tələb et"
   },
   "smProjectDeleteAccessRestricted": {
-    "message": "Bu layihəni silmək icazəniz yoxdur",
+    "message": "Bu layihəni silmək üçün izniniz yoxdur",
     "description": "The individual description shown to the user when the user doesn't have access to delete a project."
   },
   "smProjectsDeleteBulkConfirmation": {
@@ -12457,7 +12525,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "orgPermissionsUpdatedMustSetPassword": {
-    "message": "Təşkilatınızın icazələri güncəlləndi və bir ana parol ayarlamağınızı tələb edir.",
+    "message": "Təşkilatınızın izinləri güncəlləndi və bir ana parol ayarlamağınızı tələb edir.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "orgRequiresYouToSetPassword": {
@@ -12521,7 +12589,7 @@
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
   "activatedAccessToPrivilegedControls": {
-    "message": "Activated access to Privileged Controls",
+    "message": "\"İmtiyazlı nəzarət\"ə erişim aktivləşdirildi",
     "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
   },
   "activateAccess": {
@@ -12532,14 +12600,14 @@
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
   "bulkEnablePrivilegedControlsDescription": {
-    "message": "Grant the following members access to Privileged Controls.",
+    "message": "Aşağıdakı üzvlərin \"İmtiyazlı nəzarət\"ə erişməsinə icazə verin.",
     "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
   },
   "activateSecretsManager": {
     "message": "\"Sirr Meneceri\"ni aktivləşdir"
   },
   "activatePrivilegedControls": {
-    "message": "Activate Privileged Controls",
+    "message": "\"İmtiyazlı nəzarət\"i aktivləşdir",
     "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
@@ -12709,7 +12777,7 @@
     "message": "Ödənişsiz 2 nəfərlik Təşkilatlar"
   },
   "freePlanWithSharedVault": {
-    "message": "Free plan with shared vault"
+    "message": "Paylaşılan seyf ilə ödənişsiz plan"
   },
   "unlimitedSecrets": {
     "message": "Limitsiz sirr"
@@ -12812,7 +12880,7 @@
     "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "restrictItemDeletionDescriptionEnd": {
-    "message": "icazə",
+    "message": " izin",
     "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
@@ -12892,7 +12960,7 @@
     "message": "Məzmunu ötür"
   },
   "managePermissionRequired": {
-    "message": "Ən azı bir üzv və ya qrup idarə edə bilmə icazəsinə sahib olmalıdır."
+    "message": "Ən azı bir üzv və ya qrup idarə edə bilmə izninə sahib olmalıdır."
   },
   "typePasskey": {
     "message": "Keçid açarı"
@@ -13106,17 +13174,17 @@
     "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
   },
   "grantManageCollectionWarningTitle": {
-    "message": "\"Kolleksiyanı idarə etmə\" icazələri əskikdir"
+    "message": "\"Kolleksiyanı idarə etmə\" izinləri əskikdir"
   },
   "grantManagePermissionsWarningTitle": {
-    "message": "İdarə etmə icazələri əskikdir",
+    "message": "İdarə etmə izinləri əskikdir",
     "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
-    "message": "Kolleksiyanın silinməsi daxil olmaqla tam kolleksiya idarəetməsinə icazə vermək üçün \"Kolleksiyanı idarə etmə\" icazələrini verin."
+    "message": "Kolleksiyanın silinməsi daxil olmaqla tam kolleksiya idarəetməsinə icazə vermək üçün \"Kolleksiyanı idarə etmə\" izinlərini verin."
   },
   "grantManagePermissionsWarning": {
-    "message": "Paylaşılan qovluğun silinməsi də daxil olmaqla tam paylaşılan qovluq idarəetməsinə icazə vermək üçün İdarə etmə icazələrini verin.",
+    "message": "Paylaşılan qovluğun silinməsi də daxil olmaqla tam paylaşılan qovluq idarəetməsinə icazə vermək üçün İdarə etmə izinlərini verin.",
     "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantCollectionAccess": {
@@ -13189,7 +13257,7 @@
     "message": "Təşkilat məlumatları"
   },
   "confirmationDetails": {
-    "message": "Təsdiq detalları"
+    "message": "Təsdiq ayrıntıları"
   },
   "smFreeTrialThankYou": {
     "message": "Bitwarden Sirr Menecerində qeydiyyatdan keçdiyiniz üçün təşəkkürlər!"
@@ -13422,7 +13490,7 @@
     "message": "Elementlər kolleksiyalara təyin olundu"
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "$TOTAL_COUNT$ element seçmisiniz. Düzəliş icazəniz olmadığı üçün $READONLY_COUNT$ elementi güncəlləyə bilməzsiniz.",
+    "message": "$TOTAL_COUNT$ element seçmisiniz. Düzəliş izniniz olmadığı üçün $READONLY_COUNT$ elementi güncəlləyə bilməzsiniz.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -13726,7 +13794,7 @@
     }
   },
   "deleteProviderWarningDescription": {
-    "message": "$ID$ silinməzdən əvvəl bütün müştəriləri (client) ayırmalısınız.",
+    "message": "$ID$ silinməzdən əvvəl bütün istəkçiləri ayırmalısınız.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -13962,7 +14030,7 @@
     }
   },
   "createNewClientToManageAsProvider": {
-    "message": "Provayder kimi idarə etmək üçün yeni bir client təşkilatı yaradın. Əlavə yerlər növbəti faktura dövründə əks olunacaq."
+    "message": "Provayder kimi idarə etmək üçün yeni bir istəkçi təşkilatı yaradın. Əlavə yerlər növbəti faktura dövründə əks olunacaq."
   },
   "url": {
     "message": "URL"
@@ -14004,7 +14072,7 @@
     "message": "Təşkilat əlavə et"
   },
   "createdNewClient": {
-    "message": "Yeni client uğurla yaradıldı"
+    "message": "Yeni istəkçi uğurla yaradıldı"
   },
   "noAccess": {
     "message": "Erişim yoxdur"
@@ -14134,6 +14202,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "\"Sirr Meneceri\"ni əldə et"
+  },
   "secureYourInfrastructure": {
     "message": "İnfrastrukturunuzu qoruyun"
   },
@@ -14183,7 +14254,7 @@
     "message": "Sirrə bax"
   },
   "noClients": {
-    "message": "Sadalanacaq heç bir client yoxdur"
+    "message": "Sadalanacaq heç bir istəkçi yoxdur"
   },
   "providerBillingEmailHint": {
     "message": "Bu e-poçt ünvanı, bu provayderə aid bütün fakturaları alacaq",
@@ -14199,7 +14270,7 @@
     "message": "Tarix"
   },
   "exportClientReport": {
-    "message": "Müştəri hesabatını xaricə köçür"
+    "message": "İstəkçi hesabatını xaricə köçür"
   },
   "memberAccessReport": {
     "message": "Üzv erişimi"
@@ -14208,16 +14279,16 @@
     "message": "Üzvlərin düzgün kimlik məlumatlarına erişdiklərinə və onların hesabınlarının güvəndə olduğuna əmin olun. Üzv erişimi və hesab konfiqurasiyalarının CSV-sini əldə etmək üçün bu hesabatı istifadə edin."
   },
   "memberAccessReportPageDesc": {
-    "message": "Qruplar, kolleksiyalar və kolleksiya elementləri arasında təşkilat üzvlərinin erişimini yoxlanışdan keçirin. CSV xaricə köçürməsi, kolleksiya icazələri və hesab konfiqurasiyaları haqqında məlumatlar da daxil olmaqla hər bir üzv üçün detallı məlumat təqdim edir."
+    "message": "Qruplar, kolleksiyalar və kolleksiya elementləri arasında təşkilat üzvlərinin erişimini yoxlanışdan keçirin. CSV xaricə köçürməsi, kolleksiya izinləri və hesab konfiqurasiyaları haqqında məlumatlar da daxil olmaqla hər bir üzv üçün ayrıntılı məlumat təqdim edir."
   },
   "memberAccessReportPageDescV3": {
-    "message": "Audit member access across groups, shared folders, and items. The CSV export provides a detailed breakdown per member, including information on permissions and account configurations."
+    "message": "Qruplar, paylaşılan qovluqlar və elementlər arasında üzvlərin erişimini yoxlanışdan keçirin. CSV xaricə köçürməsi, izinlər və hesab konfiqurasiyaları barədə məlumatlar da daxil olmaqla hər bir üzv üçün ayrıntılı məlumat təqdim edir."
   },
   "memberAccessReportNoCollection": {
     "message": "(Kolleksiya yoxdur)"
   },
   "memberAccessReportNoCollectionPermission": {
-    "message": "(Kolleksiya icazəsi yoxdur)"
+    "message": "(Kolleksiya izni yoxdur)"
   },
   "memberAccessReportNoGroup": {
     "message": "(Qrup yoxdur)"
@@ -14244,7 +14315,7 @@
     "message": " Abunəliyinizi bərpa etmək üçün Müştəri Dəstəyi ilə əlaqə saxlayın."
   },
   "secretPeopleDescription": {
-    "message": "Qrupların və ya insanların bu sirrə erişməsinə icazə verin. İnsanlar üçün təyin edilən icazələr, qruplar tərəfindən təyin edilən icazələri yararsız edəcək."
+    "message": "Qrupların və ya insanların bu sirrə erişməsinə icazə verin. İnsanlar üçün təyin edilən izinlər, qruplar tərəfindən təyin edilən izinləri yararsız edəcək."
   },
   "secretPeopleEmptyMessage": {
     "message": "Bu sirrə erişimi paylaşmaq üçün insanları və ya qrupları əlavə edin"
@@ -14286,7 +14357,7 @@
     "description": "The status of an invoice."
   },
   "clientDetails": {
-    "message": "Client detalları"
+    "message": "İstəkçi ayrıntıları"
   },
   "downloadChart": {
     "message": "Diaqramı endir"
@@ -14301,7 +14372,7 @@
     "message": "Abunəliyinizə edilən tənzimləmələr, aylıq faktura dövründə bərabər paylanan ödəniş haqqı ilə nəticələnəcək. "
   },
   "billingHistoryDescription": {
-    "message": "Hər faktura tarixi üzrə müştəri detallarını almaq üçün bir CSV endirin. Bərabər dəyərdəki xidmət haqları CSV-ə daxil deyil və əlaqələndirilmiş fakturadan fərqli ola bilər. Ən dəqiq faktura detalları üçün aylıq fakturalarınıza istinad edin.",
+    "message": "Hər faktura tarixi üzrə istəkçi ayrıntılarını almaq üçün bir CSV endirin. Bərabər dəyərdəki xidmət haqları CSV-ə daxil deyil və əlaqələndirilmiş fakturadan fərqli ola bilər. Ən dəqiq faktura ayrıntıları üçün aylıq fakturalarınıza istinad edin.",
     "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
   },
   "noInvoicesToList": {
@@ -14309,7 +14380,7 @@
     "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
   },
   "providerClientVaultPrivacyNotification": {
-    "message": "Bildiriş: Bu ayın sonu, client seyf məxfiliyi yaxşılaşdırılacaq və provayder üzvləri artıq client seyf elementlərinə birbaşa erişə bilməyəcək. Suallar üçün",
+    "message": "Bildiriş: Bu ayın sonu, client seyf məxfiliyi yaxşılaşdırılacaq və provayder üzvləri artıq istəkçi seyf elementlərinə birbaşa erişə bilməyəcək. Suallar üçün",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'."
   },
   "contactBitwardenSupport": {
@@ -14432,7 +14503,7 @@
     "message": "İstifadəçi erişimi barədə daha ətraflı"
   },
   "learnMoreAboutMemberRoles": {
-    "message": "Üzv rolları və icazələr haqqında daha ətraflı"
+    "message": "Üzv rolları və izinlər barədə daha ətraflı"
   },
   "whatIsACvvNumber": {
     "message": "CVV nömrəsi nədir?"
@@ -14841,21 +14912,18 @@
     "message": "Sponsorlu Ailələr planını sil"
   },
   "freeFamiliesSponsorshipTitleVfo1": {
-    "message": "Remove Sponsored Family Plan",
+    "message": "Sponsorlu Ailə planını sil",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the policies list"
   },
   "freeFamiliesSponsorshipPolicyTitleV2Vfo1": {
-    "message": "Remove Sponsored Families Plan",
+    "message": "Sponsorlu Ailələr planını sil",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
-  },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Üzvlərin bu təşkilat vasitəsilə Families planını istifadə etməsinə icazə verməyin."
   },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Üzvlərin təşkilatınız tərəfindən dəstəklənən Ailələr planından yararlanmasına icazə verməyin."
   },
   "freeFamiliesSponsorshipDescVfo1": {
-    "message": "Remove the option for members to redeem a free Families plan.",
+    "message": "Üzvlərin ödənişsiz Ailələr planından faydalanması seçimini yığışdır.",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
@@ -14868,7 +14936,7 @@
     "message": "Açıqlayıcı kod"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
+    "message": "\"Sırf baxma\" izinlərinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -14877,7 +14945,7 @@
     }
   },
   "cannotRemoveViewOnlySharedFolders": {
-    "message": "\"Yalnız baxma\" icazələrinə sahib paylaşılan qovluqları silə bilməzsiniz: $SHAREDFOLDERS$",
+    "message": "\"Sırf baxma\" izinlərinə sahib paylaşılan qovluqları silə bilməzsiniz: $SHAREDFOLDERS$",
     "placeholders": {
       "sharedfolders": {
         "content": "$1",
@@ -15308,9 +15376,6 @@
   "removeUnlockWithPinPolicyTitle": {
     "message": "Kilidi PIN ilə açmanı ləğv et"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "Üzvlərin öz hesablarının kilidini PIN ilə açmasına icazə verilməsin."
-  },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Üzvlərin öz hesablarının kilidini PIN ilə açmasına icazə verilməyəcək."
   },
@@ -15483,7 +15548,7 @@
     "message": "Həssas verilərinizi əmniyyətdə saxlayın"
   },
   "newNoteNudgeBody": {
-    "message": "Notlarla, bankçılıq və ya sığorta təfsilatları kimi həssas veriləri təhlükəsiz saxlayın."
+    "message": "Notları istifadə edərək bankçılıq və ya sığorta ayrıntıları kimi həssas veriləri təhlükəsiz şəkildə depolayın."
   },
   "newSshNudgeTitle": {
     "message": "Gəlişdirici dostu SSH erişimi"
@@ -15605,7 +15670,7 @@
     "message": "Faktura ünvanınız güncəllənib."
   },
   "paymentDetails": {
-    "message": "Ödəniş detalları"
+    "message": "Ödəniş ayrıntıları"
   },
   "paymentMethodUpdated": {
     "message": "Ödəniş üsulunuz güncəllənib."
@@ -15626,7 +15691,7 @@
     "message": "Kart təhlükəsizlik kodu, CVV və ya CVC kimi bilinən və adətən kredit kartınızın arxasına yazılmış 3 rəqəmli bir ədəd və ya ön tərəfdə kart nömrəsinin üzərində yazılan 4 rəqəmli ədəddir."
   },
   "verifyBankAccountWarning": {
-    "message": "Bank hesabı ilə ödəniş, yalnız Amerika Birləşmiş Ştatlarındakı müştərilər üçün əlçatandır. Bank hesabınızı doğrulamağınız tələb olunacaq. Növbəti 1-2 iş günü ərzində mikro depozit qoyacağıq. Bank hesabını doğrulamaq üçün bu depozitdəki çıxarış deskriptor kodunu Ödəniş Detalları səhifəsində daxil edin. Bank hesabı doğrulanmadıqda ödəniş buraxılacaq və abunəliyiniz dayandırılacaq."
+    "message": "Bank hesabı ilə ödəniş, yalnız Amerika Birləşmiş Ştatlarındakı müştərilər üçün əlçatandır. Bank hesabınızı doğrulamağınız tələb olunacaq. Növbəti 1-2 iş günü ərzində mikro depozit qoyacağıq. Bank hesabını doğrulamaq üçün bu depozitdəki çıxarış deskriptor kodunu Ödəniş ayrıntıları səhifəsində daxil edin. Bank hesabı doğrulanmadıqda ödəniş buraxılacaq və abunəliyiniz dayandırılacaq."
   },
   "taxId": {
     "message": "Vergi kimliyi: $TAX_ID$",
@@ -15641,7 +15706,7 @@
     "message": "Ödənilməmiş fakturalar"
   },
   "unpaidInvoicesForServiceUser": {
-    "message": "Abunəliyinizin ödənişi edilməyib. Xidmətləri həm sizə, həm də müştərilərinizə bərpa etmək üçün provayder inzibatçınızla əlaqə saxlayın.",
+    "message": "Abunəliyinizin ödənişi edilməyib. Xidmətləri həm sizə, həm də istəkçilərinizə bərpa etmək üçün provayder inzibatçınızla əlaqə saxlayın.",
     "description": "A message shown in a non-dismissible dialog to service users of unpaid providers."
   },
   "providerSuspended": {
@@ -15658,7 +15723,7 @@
     "description": "A message shown in a non-dismissible dialog to any user of a suspended providers."
   },
   "restoreProviderPortalAccessViaPaymentMethod": {
-    "message": "Abunəliyinizin ödənişi edilməyib. Xidmətləri həm sizə, həm də müştərilərinizə bərpa etmək üçün $CANCELLATION_DATE$ tarixinə qədər bir ödəniş üsulu əlavə edin.",
+    "message": "Abunəliyinizin ödənişi edilməyib. Xidmətləri həm sizə, həm də istəkçilərinizə bərpa etmək üçün $CANCELLATION_DATE$ tarixinə qədər bir ödəniş üsulu əlavə edin.",
     "placeholders": {
       "cancellation_date": {
         "content": "$1",
@@ -15698,8 +15763,20 @@
   "providersubCanceledmessage": {
     "message": "Təkrar abunə olmaq üçün Bitwarden Müştəri Dəstəyi ilə əlaqə saxlayın."
   },
+  "showAll": {
+    "message": "Hamısını göstər"
+  },
   "showMore": {
     "message": "Daha çox göstər"
+  },
+  "showMoreCount": {
+    "message": "Daha $COUNT$ ədəd göstər",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Daha az göstər"
@@ -15708,7 +15785,7 @@
     "message": "Əskik vergi kimliyi"
   },
   "missingTaxIdWarning": {
-    "message": "Əməliyyat tələb olunur: Ödəniş detallarında Vergi kimlik nömrəsini buraxmısınız. Əgər əlavə edilməyəcəksə, fakturalarınıza əlavə vergi daxil ola bilər."
+    "message": "Əməliyyat tələb olunur: Ödəniş ayrıntılarında Vergi kimlik nömrəsini buraxmısınız. Əgər əlavə edilməyəcəksə, fakturalarınıza əlavə vergi daxil ola bilər."
   },
   "breadcrumbs": {
     "message": "Breadcrumbs",
@@ -15745,16 +15822,21 @@
   "checkInputFormat": {
     "message": "Xəta üçün giriş formatını yoxlayın."
   },
-  "exampleTaxIdFormat": {
-    "message": "Nümunə $CODE$ formatı: $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Nümunə vergi kimliyi formatı: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Tanınan format: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -15792,10 +15874,10 @@
     "message": "Əlavə Depo"
   },
   "expandPurchaseDetails": {
-    "message": "Satın alma detallarını genişləndir"
+    "message": "Satın alma ayrıntılarını genişləndir"
   },
   "collapsePurchaseDetails": {
-    "message": "Satın alma detallarını yığcamlaşdır"
+    "message": "Satın alma ayrıntılarını yığcamlaşdır"
   },
   "familiesMembership": {
     "message": "Ailə üzvlüyü"
@@ -15959,6 +16041,9 @@
   "upgradeNow": {
     "message": "İndi yüksəlt"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Bitwarden premium ilə qabaqcıl onlayn təhlükəsizliyi əldə edin."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Bu formu tamamladığınız zaman yeni bir Ailələr təşkilatı yaradılacaq. Ödənişsiz təşkilatınızı Admin Konsolundan yüksəldə bilərsiniz."
   },
@@ -16010,22 +16095,16 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Götürülmüş domenlər üçün hesab yaradılmasını əngəllə"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "İstifadəçilərin, götürülmüş domenlərə aid e-poçt ünvanlarını istifadə edərək təşkilatınızın xaricində hesab yaratmasını önləyin."
-  },
   "blockClaimedDomainAccountCreationDescVfo1": {
-    "message": "Prevent account creation from claimed domains.",
+    "message": "Götürülmüş domenlərdən hesab yaradılmasını əngəllə.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
   },
   "blockClaimedDomainAccountCreationDescV2": {
     "message": "Üzvlərin, təşkilatınızın xaricində Bitwarden hesabları yaratmaq üçün götürdüyünüz domeni istifadə etməsini əngəlləyin."
   },
   "blockClaimedDomainAccountCreationDescV2Vfo1": {
-    "message": "Block members from using your claimed domain to create Bitwarden accounts outside of your organization vault.",
+    "message": "Üzvlərin, təşkilatınızın seyfi xaricində Bitwarden hesabları yaratmaq üçün götürdüyünüz domeni istifadə etməsini əngəlləyin.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
-  },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "Bu siyasət aktivləşdirilməzdən əvvəl bir domen götürülməlidir."
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "Bu siyasəti işə salmazdan əvvəl bir domen götürməlisiniz."
@@ -16147,6 +16226,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "Qovluq tamlığı doğrulanır"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Qoşma tamlığı doğrulanır"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ elementin köhnə şifrələməyə sahib fayl qoşması var. Bunu düzəltmək üçün aşağıdakı elementlərdən birini açın və \"Qoşmalar\"a gedin.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "Veri geri qaytarma və diaqnostika"
@@ -16298,7 +16389,7 @@
     "message": "Bitwarden hesabınızdakı abunəlik səhifəsini açın və lisenziya faylınızı endirin. Sonra bu ekrana qayıdın və aşağıda yükləyin."
   },
   "alreadyHaveSubscriptionSelfHostedMessageV3": {
-    "message": "On your cloud environment, log in to your Bitwarden account, open the subscription page, and download your license file. Then, return to this screen and upload it."
+    "message": "Bulud mühitinizdə Bitwarden hesabınıza giriş edin, abunəlik səhifəsini açın və lisenziya faylınızı endirin. Sonra, bu ekrana qayıdın və həmin faylı bura yükləyin."
   },
   "viewAllPlans": {
     "message": "Bütün planlara bax"
@@ -16483,6 +16574,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "Premium abunəlik krediti"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Tətbiq edilmiş abunəlik kreditləri"
   },
   "enterpriseMembership": {
     "message": "Enterprise üzvlüyü"
@@ -16675,7 +16769,7 @@
     "message": "Yeni risklərdən xəbərdar olun"
   },
   "aiCoachmarkRunReportDescription": {
-    "message": "Təşkilatınız böyüdükcə yeni riskləri aşkar etmək və ən son metrikaları görmək üçün hesabatları və təhlilləri müntəzəm olaraq yeniləyin."
+    "message": "Təşkilatınız böyüdükcə yeni riskləri aşkar etmək və ən son metrikaları görmək üçün hesabatları və təhlil nəticələrini müntəzəm olaraq yeniləyin."
   },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$/$TOTAL$",
@@ -17471,6 +17565,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Login"
+  },
+  "orgNameVault": {
+    "message": "$ORGNAME$ vault",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }

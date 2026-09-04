@@ -438,19 +438,19 @@
     }
   },
   "atRiskMemberDescription": {
-    "message": "Ці учасники використовують для входу в критичні програми слабкі, викриті, або повторювані паролі."
+    "message": "Ці учасники використовують для входу в критичні програми ненадійні, викриті, або повторювані паролі."
   },
   "atRiskMembersDescriptionNone": {
-    "message": "Немає учасників, які використовують для входу в програми слабкі, викриті, або повторювані паролі."
+    "message": "Немає учасників, які використовують для входу в програми ненадійні, викриті, або повторювані паролі."
   },
   "atRiskApplicationsDescription": {
-    "message": "Ці програми мають слабкі, викриті, або повторювані паролі."
+    "message": "Ці програми мають ненадійні, викриті, або повторювані паролі."
   },
   "atRiskApplicationsDescriptionNone": {
-    "message": "Немає програм, які мають слабкі, викриті, або повторювані паролі."
+    "message": "Немає програм, які мають ненадійні, викриті, або повторювані паролі."
   },
   "atRiskMembersDescriptionWithApp": {
-    "message": "Ці учасники використовують для входу в $APPNAME$ слабкі, викриті, або повторювані паролі.",
+    "message": "Ці учасники використовують для входу в $APPNAME$ ненадійні, викриті, або повторювані паролі.",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -1224,6 +1224,48 @@
   "sharedFolders": {
     "message": "Спільні теки"
   },
+  "sharedFoldersInParent": {
+    "message": "Shared folders in $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ shared folder",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ more shared folders shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 more shared folder shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "Моя тека"
   },
@@ -1232,6 +1274,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Add folders to items to filter them here."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
   },
   "addSharedFolder": {
     "message": "Додати спільну теку"
@@ -1755,6 +1800,9 @@
   "myItems": {
     "message": "Мої записи"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "myVault": {
     "message": "Моє сховище"
   },
@@ -1783,10 +1831,10 @@
     "message": "Вибрати все"
   },
   "selectAllRows": {
-    "message": "Select all rows"
+    "message": "Обрати всі рядки"
   },
   "selectRow": {
-    "message": "Select row"
+    "message": "Обрати рядок"
   },
   "showingItemRange": {
     "message": "Показано $START$ – $END$ із $TOTAL$",
@@ -1806,7 +1854,7 @@
     }
   },
   "rowsPerPage": {
-    "message": "Rows per page"
+    "message": "Рядків на сторінці"
   },
   "rowsPerPageOption": {
     "message": "$COUNT$ rows per page",
@@ -1858,6 +1906,18 @@
   },
   "noMatchingItems": {
     "message": "Немає відповідних записів"
+  },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
   },
   "deselectAll": {
     "message": "Скасувати вибір"
@@ -2276,7 +2336,7 @@
     "message": "Увійти"
   },
   "loginPageEmailEntryScreenTitle": {
-    "message": "Log in to Bitwarden"
+    "message": "Увійти в Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Введіть код, надісланий вам електронною поштою"
@@ -2533,6 +2593,9 @@
   },
   "addPlan": {
     "message": "Add plan"
+  },
+  "addPlanDesc": {
+    "message": "You can create a new shared vault with 1 other person for free. If you'd like to store, manage, and share items with more people, you will need to add a new plan first. Just know that some options may require a billing change."
   },
   "noOrganizationsList": {
     "message": "Ви не входите до жодної організації. Організації дають змогу безпечно обмінюватися записами з іншими користувачами."
@@ -3737,9 +3800,6 @@
   "restrictedItemTypePolicy": {
     "message": "Вилучити тип запису \"Картка\""
   },
-  "restrictedItemTypePolicyDesc": {
-    "message": "Не дозволяти учасникам створювати записи карток. Наявні картки будуть автоматично вилучені."
-  },
   "restrictedItemTypePolicyDescV2": {
     "message": "Do not allow members to create and store credit card items in their vaults. When this policy is turned on, existing cards will be automatically hidden."
   },
@@ -4135,12 +4195,6 @@
   },
   "instructions": {
     "message": "Інструкції"
-  },
-  "passwordlessLogin": {
-    "message": "Passwordless login"
-  },
-  "multifactorAuthentication": {
-    "message": "Багатофакторна автентифікація"
   },
   "exposedPasswordsReport": {
     "message": "Викриті паролі"
@@ -4716,7 +4770,7 @@
     "message": "знижка"
   },
   "discountApplied": {
-    "message": "Discount applied"
+    "message": "Знижку застосовано"
   },
   "discountForOneYear": {
     "message": "на 1 рік"
@@ -4912,6 +4966,9 @@
   },
   "chooseYourPlan": {
     "message": "Оберіть свій тарифний план"
+  },
+  "choosePlan": {
+    "message": "Choose plan"
   },
   "users": {
     "message": "Користувачі"
@@ -6462,7 +6519,7 @@
     "message": "Потребує підтвердження"
   },
   "areYouTryingToLogin": {
-    "message": "Are you trying to log in?"
+    "message": "Ви намагаєтесь увійти?"
   },
   "logInAttemptBy": {
     "message": "Спроба входу з $EMAIL$",
@@ -6793,11 +6850,11 @@
   "openOrgInviteAcceptFailed": {
     "message": "Unable to accept invitation. Ask an organization admin to send a new invitation link."
   },
-  "openOrgInviteAcceptFailedTitle": {
-    "message": "Cannot accept invitation"
+  "cannotAcceptInvitation": {
+    "message": "Не вдалося прийняти запрошення"
   },
   "openOrgInviteAcceptAlreadyMember": {
-    "message": "You are already a member of this organization."
+    "message": "Ви вже є учасником цієї організації."
   },
   "openOrgInviteAcceptEmailDomainNotAllowed": {
     "message": "Emails matching $DOMAIN$ are not allowed in this organization.",
@@ -6851,7 +6908,7 @@
     "message": "This domain isn't accepted by this organization. Try a different email address."
   },
   "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
-    "message": "Could not accept invitation"
+    "message": "Не вдалося прийняти запрошення"
   },
   "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
     "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
@@ -7346,7 +7403,7 @@
     "message": "Must enter at least 1 domain"
   },
   "deactivateLink": {
-    "message": "Deactivate link"
+    "message": "Деактивувати посилання"
   },
   "inviteByLinkDesc": {
     "message": "Запрошуйте учасників до своєї організації за допомогою посилання. Якщо роль не вказано, їх буде додано як стандартних користувачів."
@@ -7368,6 +7425,21 @@
         "example": "Acme Inc"
       }
     }
+  },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Check your email to finish joining $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
+  },
+  "inviteSentToEmail": {
+    "message": "Invite sent to email"
   },
   "acceptPolicies": {
     "message": "Позначивши цей прапорець, ви погоджуєтеся з:"
@@ -7481,18 +7553,18 @@
     "description": "ex. A good password. Scale: Very Weak -> Weak -> Good -> Strong"
   },
   "weak": {
-    "message": "Слабкий",
+    "message": "Ненадійний",
     "description": "ex. A weak password. Scale: Very Weak -> Weak -> Good -> Strong"
   },
   "veryWeak": {
-    "message": "Дуже слабкий",
+    "message": "Критичний",
     "description": "ex. A very weak password. Scale: Very Weak -> Weak -> Good -> Strong"
   },
   "weakMasterPassword": {
-    "message": "Слабкий головний пароль"
+    "message": "Ненадійний головний пароль"
   },
   "weakMasterPasswordDesc": {
-    "message": "Виявлено слабкий пароль. Використовуйте надійний пароль для захисту свого облікового запису. Ви дійсно хочете використати слабкий пароль?"
+    "message": "Виявлено ненадійний пароль. Використовуйте надійний пароль для захисту свого облікового запису. Ви дійсно хочете використати ненадійний пароль?"
   },
   "rotateAccountEncKey": {
     "message": "Також оновити ключ шифрування мого облікового запису"
@@ -7638,17 +7710,11 @@
   "twoStepLoginPolicyDescV2": {
     "message": "Require members to set up two-step login. This policy won't be enforced for owners and admins."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "Учасники організації, які не є власниками чи адміністраторами, і в яких не налаштовано двоетапну перевірку для їхніх облікових записів, будуть вилучені з організації та проінформовані поштовим повідомленням."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "Enabling this policy will revoke any users who do not have two-step login enabled on their accounts. Affected users will be notified by email."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Ви включені до організації, яка зобов'язує використання двоетапної перевірки у вашому обліковому записі. Якщо ви вимкнете всі способи двоетапної перевірки, вас буде автоматично вилучено з цієї організації."
-  },
-  "passwordGeneratorPolicyDesc": {
-    "message": "Встановити вимоги для генерування пароля."
   },
   "passwordGeneratorPolicyDescV2": {
     "message": "Select a set of minimum requirements for any member-generated passwords."
@@ -7912,9 +7978,6 @@
   "singleOrgDesc": {
     "message": "Заборонити користувачам приєднуватися до інших організацій."
   },
-  "singleOrgPolicyDesc": {
-    "message": "Обмежте можливість учасників приєднуватися до інших організацій. Ця політика є обов'язковою для організацій, які активували перевірку доменів."
-  },
   "singleOrgPolicyDescVfo1": {
     "message": "Restrict members from joining other shared or organization vaults.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
@@ -7947,9 +8010,6 @@
     "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
   },
-  "requireSsoPolicyDesc": {
-    "message": "Зобов'язувати учасників входити в систему через єдиний корпоративний вхід (SSO)."
-  },
   "requireSsoPolicyTitle": {
     "message": "Require single sign-on (SSO)"
   },
@@ -7959,15 +8019,19 @@
   "prerequisite": {
     "message": "Передумови"
   },
-  "requireSsoPolicyReq": {
-    "message": "Для активації цієї політики необхідно увімкнути політику єдиної організації."
-  },
   "requireSsoPolicyReqV2": {
     "message": "You must enable the single organization policy before enabling this one."
   },
   "requireSsoPolicyReqV2Vfo1": {
     "message": "You must enable the single organization membership policy before enabling this one.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "You must enable the single organization policy before enabling this one."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "You must enable the single organization membership policy before enabling this one.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "Політику єдиної організації не налаштовано."
@@ -8379,9 +8443,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "Легко передавайте записи під час звільнення і правонаступництва учасників, гарантуючи відсутність прогалин у доступі."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "Надайте всім користувачам виділений простір \"Мої записи\" для керування власними обліковими даними."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Запитувати в учасників про перенесення їхніх записів"
   },
@@ -8390,9 +8451,6 @@
   },
   "centralizeDataOwnershipWarningLink": {
     "message": "Докладніше про передачу"
-  },
-  "promptUsersToMoveItems": {
-    "message": "Запитувати в користувачів про переміщення індивідуальних записів сховища до організації"
   },
   "promptUsersToMoveItemsCallout": {
     "message": "Учасникам буде запропоновано перемістити їхні записи до організації або покинути її. Якщо вони покинуть організацію, їхній доступ відкликається, але його можна відновити будь-коли."
@@ -8605,10 +8663,6 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "Desktop autotype default setting"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "Увімкнути для учасників автовведення на комп'ютері. Учасники зможуть власноруч вимкнути автовведення у програмі для комп'ютера.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "Enable desktop autotype for members. Members will be able to turn autotype off manually in the desktop client."
   },
@@ -8694,9 +8748,6 @@
   "uriMatchDetectionPolicy": {
     "message": "Типове виявлення збігів URI"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "Визначення умов пропозицій записів для автозаповнення. Адміністратори та власники звільняються від дотримання цієї політики."
-  },
   "uriMatchDetectionPolicyDescVfo1": {
     "message": "Set the default URI match detection for all items created by members.",
     "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
@@ -8710,6 +8761,23 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Виберіть дійсний варіант виявлення збігів URI.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "Activate fill assist",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Turn on fill assist by default for all members. This feature uses reviewed, site-specific instructions to improve autofill accuracy on websites known to be difficult to autofill."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Custom autofill rule set"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "By default, fill assist uses Bitwarden's curated rule set. Enter a URL here to override it with your own."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Enter a valid URL",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "Змінено політику $ID$.",
@@ -8725,6 +8793,9 @@
   },
   "estimatedTax": {
     "message": "Приблизний податок"
+  },
+  "subtotal": {
+    "message": "Subtotal"
   },
   "custom": {
     "message": "Власний"
@@ -9488,13 +9559,10 @@
     "message": "Ваш головний пароль не відповідає вимогам політики цієї організації. Щоб приєднатися до організації, необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
+    "message": "Ваш головний пароль не відповідає щонайменше одній політиці вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
   },
   "automaticAppLoginWithSSO": {
     "message": "Автоматичний вхід з використанням SSO"
-  },
-  "automaticAppLoginWithSSODesc": {
-    "message": "Розширте безпеку SSO та зручність для некерованих програм. Коли користувачі запускають програму від провайдера ідентифікації, дані авторизації заповнюються і надсилаються автоматично, створюючи безпечний обмін даними від провайдера ідентифікації до програми."
   },
   "automaticAppLoginWithSSODescV2": {
     "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
@@ -9630,9 +9698,6 @@
   },
   "disableExport": {
     "message": "Вилучити експорт"
-  },
-  "disablePersonalVaultExportDescription": {
-    "message": "Не дозволяти учасникам експортувати дані з їхнього особистого сховища."
   },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Do not allow members to export data from their individual vaults. This policy won't be enforced for owners and admins."
@@ -11494,10 +11559,10 @@
     "message": "Revoke member"
   },
   "restoreMember": {
-    "message": "Restore member"
+    "message": "Відновити учасника"
   },
   "deleteMember": {
-    "message": "Delete member"
+    "message": "Видалити учасника"
   },
   "collection": {
     "message": "Збірка"
@@ -11514,6 +11579,9 @@
   },
   "noSharedFoldersAdded": {
     "message": "No shared folders added"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
   },
   "noMembersAdded": {
     "message": "Не додано жодного учасника"
@@ -12314,10 +12382,10 @@
     "message": "Пароль знайдено у витоку даних. Використовуйте унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати викритий пароль?"
   },
   "weakAndExposedMasterPassword": {
-    "message": "Слабкий і викритий головний пароль"
+    "message": "Ненадійний і викритий головний пароль"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "Виявлено слабкий пароль, який знайдено у витоку даних. Використовуйте надійний та унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати цей пароль?"
+    "message": "Виявлено ненадійний пароль, який знайдено у витоку даних. Використовуйте надійний та унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати цей пароль?"
   },
   "characterMinimum": {
     "message": "Мінімум $LENGTH$ символів",
@@ -14134,6 +14202,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Get Secrets Manager"
+  },
   "secureYourInfrastructure": {
     "message": "Захистіть свою інфраструктуру"
   },
@@ -14848,9 +14919,6 @@
     "message": "Remove Sponsored Families Plan",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
   },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Не дозволяти учасникам отримувати сімейний тарифний план через цю організацію."
-  },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Do not allow members to redeem a Families plan sponsored by your organization."
   },
@@ -15308,9 +15376,6 @@
   "removeUnlockWithPinPolicyTitle": {
     "message": "Вилучити розблокування з PIN-кодом"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "Не дозволяти учасникам розблокувати свій обліковий запис за допомогою PIN-коду."
-  },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Members will not be allowed to unlock their account with a PIN."
   },
@@ -15698,8 +15763,20 @@
   "providersubCanceledmessage": {
     "message": "To resubscribe, contact Bitwarden Customer Support."
   },
+  "showAll": {
+    "message": "Show all"
+  },
   "showMore": {
     "message": "Розгорнути"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Згорнути"
@@ -15745,16 +15822,21 @@
   "checkInputFormat": {
     "message": "Check input format for typos."
   },
-  "exampleTaxIdFormat": {
-    "message": "Приклад формату $CODE$: $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Example tax ID format: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Recognized format: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -15959,6 +16041,9 @@
   "upgradeNow": {
     "message": "Upgrade now"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Get advanced online security with Bitwarden premium."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Заповнення цієї форми призведе до створення нової родинної організації. Ви можете оновити безплатну організацію з консолі адміністрування."
   },
@@ -16010,9 +16095,6 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Block account creation for claimed domains"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
-  },
   "blockClaimedDomainAccountCreationDescVfo1": {
     "message": "Prevent account creation from claimed domains.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
@@ -16023,9 +16105,6 @@
   "blockClaimedDomainAccountCreationDescV2Vfo1": {
     "message": "Block members from using your claimed domain to create Bitwarden accounts outside of your organization vault.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
-  },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "A domain must be claimed before activating this policy."
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "Before turning on this policy, you must claim a domain."
@@ -16147,6 +16226,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "Verifying folder integrity"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Verifying attachment integrity"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ item(s) have file attachments with old encryption. Open an item below and go to Attachments to fix it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "Data Recovery and Diagnostics"
@@ -16483,6 +16574,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "Premium subscription credit"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Applied subscription credits"
   },
   "enterpriseMembership": {
     "message": "Enterprise membership"
@@ -17471,6 +17565,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Login"
+  },
+  "orgNameVault": {
+    "message": "$ORGNAME$ vault",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }

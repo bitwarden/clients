@@ -1224,6 +1224,48 @@
   "sharedFolders": {
     "message": "Dossiers partagés"
   },
+  "sharedFoldersInParent": {
+    "message": "Dossiers partagés dans $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ dossiers partagés",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ dossier partagé",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ autres dossiers partagés affichés au-dessus de ce bouton",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 dossier partagé supplémentaire affiché au-dessus de ce bouton",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "Mon dossier"
   },
@@ -1232,6 +1274,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Ajouter des dossiers aux éléments pour les filtrer ici."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Ajouter des éléments à un dossier partagé pour filtrer ici."
   },
   "addSharedFolder": {
     "message": "Ajouter un dossier partagé"
@@ -1755,6 +1800,9 @@
   "myItems": {
     "message": "Mes éléments"
   },
+  "myItemsV2": {
+    "message": "Mes éléments"
+  },
   "myVault": {
     "message": "Mon coffre"
   },
@@ -1858,6 +1906,18 @@
   },
   "noMatchingItems": {
     "message": "Aucun élément correspondant"
+  },
+  "noFiltersMatch": {
+    "message": "Aucun filtre ne correspond à \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Effacer la recherche"
   },
   "deselectAll": {
     "message": "Tout désélectionner"
@@ -2533,6 +2593,9 @@
   },
   "addPlan": {
     "message": "Ajouter un plan"
+  },
+  "addPlanDesc": {
+    "message": "Vous pouvez créer un nouveau coffre partagé avec 1 autre personne gratuitement. Si vous souhaitez stocker, gérer et partager des éléments avec plus de personnes, vous devrez d'abord ajouter un nouveau abonnement. Sachez simplement que certaines options peuvent nécessiter un changement de facturation."
   },
   "noOrganizationsList": {
     "message": "Vous ne faites partie d'aucune organisation. Les organisations vous permettent de partager des éléments de façon sécurisée avec d'autres utilisateurs."
@@ -3416,7 +3479,7 @@
     }
   },
   "importHelpCenterInstructions": {
-    "message": "See detailed $NAME$ instructions in our",
+    "message": "Consultez les instructions détaillées de $NAME$ dans notre",
     "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
     "placeholders": {
       "name": {
@@ -3426,195 +3489,195 @@
     }
   },
   "importHelpCenterLinkText": {
-    "message": "Help Center"
+    "message": "Centre d'Aide"
   },
   "importChromiumAliasPreamble": {
-    "message": "The process is exactly the same as importing from Google Chrome.",
+    "message": "Le processus est exactement le même que l'importation depuis Google Chrome.",
     "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
   },
   "importKeepassxInstructions": {
-    "message": "Using the KeePassX desktop application, navigate to \"Database\" → \"Export to CSV file\" and save the CSV file."
+    "message": "En utilisant l'application de bureau KeePassX, accédez à \"Base de données\" → \"Exporter vers un fichier CSV\" et enregistrez le fichier CSV."
   },
   "importAviraInstructions": {
-    "message": "In the Avira web vault, go to \"Settings\" → \"My Data\" → \"Export data\" and save the CSV file."
+    "message": "Dans le coffre web d'Avira, accédez à \"Paramètres\" → \"Mes données\" → \"Exporter les données\" et enregistrez le fichier CSV."
   },
   "importBlurInstructions": {
-    "message": "In the Blur web vault, click your username at the top and go to \"Settings\" → \"Export Data\", then click \"Export CSV\" for your \"Accounts\"."
+    "message": "Dans le coffre web de Blur, cliquez sur votre nom d'utilisateur en haut et allez dans \"Paramètres\" → \"Données d’exportation\", puis cliquez sur \"Exporter CSV\" pour vos \"Comptes\"."
   },
   "importSafeincloudInstructions": {
-    "message": "Using the SafeInCloud desktop application, navigate to \"File\" → \"Export\" → \"As XML\" and save the XML file."
+    "message": "En utilisant l'application bureau SafeInCloud, accédez à \"Fichier\" → \"Exporter\" → \"En XML\" et enregistrez le fichier XML."
   },
   "importPadlockInstructions": {
-    "message": "Using the Padlock desktop application, click the hamburger icon in the top left corner and navigate to \"Settings\" → \"Export\" button and save the file \"As CSV\"."
+    "message": "Dans l’application Padlock, cliquez sur l’icône hamburger dans le coin supérieur gauche et accédez à \"Paramètres\" → Bouton \"Exporter\" et enregistrer le fichier \"en CSV\"."
   },
   "importKeepass2Instructions": {
-    "message": "Using the KeePass 2 desktop application, navigate to \"File\" → \"Export\" and select the \"KeePass XML (2.x)\" option."
+    "message": "En utilisant l'application bureau KeePass 2, accédez à \"Fichier\" → \"Exporter\" et sélectionnez l'option \"KeePass XML (2.x)\"."
   },
   "importUpmInstructions": {
-    "message": "Using the Universal Password Manager desktop application, navigate to \"Database\" → \"Export\" and save the CSV file."
+    "message": "En utilisant l'application de bureau Universal Password Manager, accédez à \"Base de données\" → \"Exporter vers un fichier CSV\" et enregistrez le fichier CSV."
   },
   "importSaferpassInstructions": {
-    "message": "Using the SaferPass browser extension, click the hamburger icon in the top left corner and navigate to \"Settings\". Click the \"Export accounts\" button to save the CSV file."
+    "message": "Dans l'extension de navigateur SaferPass, cliquez sur l'icône hamburger dans le coin supérieur gauche et accédez à \"Paramètres\". Cliquez sur le bouton \"Exporter les comptes\" pour enregistrer le fichier CSV."
   },
   "importMeldiumInstructions": {
-    "message": "Using the Meldium web vault, navigate to \"Settings\". Locate the \"Export data\" function and click \"Show me my data\" to save the CSV file."
+    "message": "Dans le coffre web de Meldium, accédez à \"Paramètres\". Localisez l’action \"Exporter les données\" et cliquez sur \"Afficher mes données\" pour enregistrer le fichier CSV."
   },
   "importPassworddragonInstructions": {
-    "message": "Using the Password Dragon desktop application, navigate to \"File\" → \"Export\" → \"To XML\". In the dialog that pops up select \"All Rows\" and check all fields. Click the \"Export\" button and save the XML file."
+    "message": "Dans l’application Password Dragon, accédez à \"Fichier\" → \"Exporter\" → \"vers XML\". Dans la boîte de dialogue qui apparaît, sélectionnez \"Toutes les lignes\" et cochez tous les champs. Cliquez sur le bouton \"Exporter\" et enregistrez le fichier XML."
   },
   "importEnpassCsvInstructions": {
-    "message": "Using the Enpass desktop application, navigate to \"File\" → \"Export\" → \"As CSV\". Select \"OK\" to the warning alert and save the CSV file. Note that the importer only supports files exported while Enpass is set to the English language, so adjust your settings accordingly."
+    "message": "En utilisant l'application bureau Enpass, accédez à \"Fichier\" → \"Exporter\" → \"En CSV\". Sélectionnez \"OK\" sur l'avertissement et enregistrez le fichier CSV. Notez que l'importateur ne prend en charge que des fichiers exportés lorsque Enpass est configuré en anglais, ajustez donc vos paramètres en conséquence."
   },
   "importEnpassJsonInstructions": {
-    "message": "Using the Enpass 6 desktop application, click the menu button and navigate to \"File\" → \"Export\". Select the \".json\" file format option and save the JSON file."
+    "message": "En utilisant l'application bureau Enpass 6, cliquez sur le bouton de menu et accédez à \"Fichier\" → \"Exporter\". Sélectionnez le format de fichier \".json\" et enregistrez le fichier JSON."
   },
   "importPwsafeInstructions": {
-    "message": "Using the Password Safe desktop application, navigate to \"File\" → \"Export To\" → \"XML format...\" and save the XML file."
+    "message": "En utilisant l'application bureau Password Safe, accédez à \"Fichier\" → \"Exporter en\" → \"Format XML...\" et enregistrez le fichier XML."
   },
   "importDashlaneCsvInstructions": {
-    "message": "Log in to Dashlane, click on \"My Account\" → \"Settings\" → \"Export file\" and select \"Export as a CSV file\". This will download a zip archive containing various CSV files. Unzip the archive and import each CSV file individually."
+    "message": "Connectez-vous à Dashlane, cliquez sur \"Mon compte\" → \"Paramètres\" → \"Exporter le fichier\" et sélectionner \"Exporter en fichier CSV\". Ceci téléchargera une archive zip contenant des fichiers CSV divers. Décompressez l'archive et importez chaque fichier CSV individuellement."
   },
   "importDashlaneJsonInstructions": {
-    "message": "Dashlane no longer supports the JSON format. Only use this if you have an existing JSON for import. Use the CSV importer when creating new exports."
+    "message": "Dashlane ne prend plus en charge le format JSON. N'utilisez ceci que si vous avez un fichier JSON existant pour l'importation. Utilisez l'importateur CSV lors de la création de nouveaux exports."
   },
   "importMsecureInstructions": {
-    "message": "Using the mSecure desktop application, navigate to \"File\" → \"Export\" → \"CSV File...\" and save the CSV file."
+    "message": "En utilisant l'application bureau mSecure, accédez à \"Fichier\" → \"Exporter\" → \"Fichier CSV...\" et enregistrez le fichier CSV."
   },
   "importStickypasswordInstructions": {
-    "message": "Using the Sticky Password desktop application, navigate to \"Menu\" (top right) → \"Export\" → \"Export all\". Select the unencrypted format XML option and save the XML file."
+    "message": "Dans l’application bureau Sticky Password, accédez au \"Menu\" (en haut à droite) → \"Exporter\" → \"Exporter tous\". Sélectionnez l'option format XML non chiffré et enregistrez le fichier XML."
   },
   "importTruekeyInstructions": {
-    "message": "Using the True Key desktop application, click the gear icon (top right) and then navigate to \"App Settings\". Click the \"Export\" button, enter your password and save the CSV file."
+    "message": "En utilisant l'application bureau True Key, cliquez sur l'icône d'engrenage (en haut à droite) et accédez ensuite à \"Paramètres de l'application\". Cliquez sur le bouton \"Exporter\", saisissez votre mot de passe et enregistrez le fichier CSV."
   },
   "importClipperzInstructions": {
-    "message": "Log into the Clipperz web application (clipperz.is/app). Click the hamburger menu icon in the top right to expand the navigation bar. Navigate to \"Data\" → \"Export\". Click the \"download HTML+JSON\" button to save the HTML file."
+    "message": "Connectez-vous dans l’application web Clipperz (clipperz.is/app). Cliquez sur l'icône du menu hamburger en haut à droite pour étendre la barre de navigation. Allez sur \"Données\" → \"Exporter\". Cliquez sur le bouton \"Télécharger HTML+JSON\" et enregistrez le fichier HTML."
   },
   "importRoboformInstructions": {
-    "message": "Using the RoboForm Editor desktop application, navigate to \"RoboForm\" (top left) → \"Options\" → \"Account & Data\" and click the \"Export\" button. Select all of your data, change the \"Format\" to \"CSV file\" and then click the \"Export\" button to save the CSV file. Note: RoboForm only allows you to export Logins. Other items will not be exported."
+    "message": "Dans l’application RoboForm Editor, accédez à \"RoboForm\" (en haut à gauche) → \"Options\" → \"Compte et Données\" et cliquez sur le bouton \"Exporter\". Sélectionnez toutes vos données, changez le \"Format\" en \"Fichier CSV\", puis cliquez sur le bouton \"Exporter\" pour enregistrer le fichier CSV. Remarque : RoboForm vous permet uniquement d'exporter des identifiants de connexion. Les autres éléments ne seront pas exportés."
   },
   "importPassboltInstructions": {
-    "message": "Log into the Passbolt web vault and navigate to the \"Passwords\" listing. Select all of the passwords you would like to export and click the \"Export\" button at the top of the listing. Choose the \"csv (lastpass)\" export format and click the \"Export\" button."
+    "message": "Dans le coffre web de Passbolt, accédez à la liste \"Mots de passe\". Sélectionnez tous les mots de passe que vous souhaitez exporter et cliquez sur le bouton \"Exporter\" en haut de la liste. Choisissez le format d’exportation \"csv (lastpass)\" et cliquez sur le bouton \"Exporter\"."
   },
   "importAscendoInstructions": {
-    "message": "Using the Ascendo DataVault desktop application, navigate to \"Tools\" → \"Export\". In the dialog that pops up, select the \"All Items (DVX, CSV)\" option. Click the \"Ok\" button to save the CSV file."
+    "message": "Dans l’application Ascendo DataVault, accédez à \"Outils\" → \"Exporter\". Dans la boîte de dialogue qui apparaît, sélectionnez l'option \"Tous les éléments (DVX, CSV)\". Cliquez sur le bouton \"Ok\" pour enregistrer le fichier CSV."
   },
   "importPasswordbossInstructions": {
-    "message": "Using the Password Boss desktop application, navigate to \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" and save the JSON file."
+    "message": "Dans l’application Password Boss Desktop, accédez à \"Fichier\" → \"Exporter les données\" → \"Password Boss JSON - non chiffré\" et enregistrez le fichier JSON."
   },
   "importZohoInstructions": {
-    "message": "Log into the Zoho web vault (vault.zoho.com). Navigate to \"Tools\" → \"Export Secrets\". Select \"All Secrets\" and click the \"Zoho Vault Format CSV\" button. Highlight and copy the data from the textarea. Open a text editor like Notepad and paste the data. Save the data from the text editor as",
+    "message": "Connectez-vous dans le coffre web Zoho (vault.zoho.com). Accédez à \"Outils\" → \"Exporter les secrets\". Sélectionnez \"Tous les secrets\" et cliquez sur le bouton \"Format CSV Zoho Vault\". Sélectionnez et copiez les données de la zone de texte. Ouvrez un éditeur de texte comme Notepad et copiez les données. Enregistrez les donnés de l'éditeur de texte comme",
     "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
   },
   "importSplashidInstructions": {
-    "message": "Using the SplashID Safe desktop application, click on the SplashID blue lock logo in the top right corner. Navigate to \"Export\" → \"Export as CSV\" and save the CSV file."
+    "message": "Dans l’application SplashID Safe, cliquez sur le logo bleu de cadenas SplashID dans le coin supérieur droit. Naviguez vers \"Exporter\" → \"Exporter en CSV\" et enregistrez le fichier CSV."
   },
   "importPasskeepInstructions": {
-    "message": "Using the PassKeep mobile app, navigate to \"Backup/Restore\". Locate the \"CSV Backup/Restore\" section and click \"Backup to CSV\" to save the CSV file."
+    "message": "En utilisant l'application mobile PassKeep, accédez à \"Sauvegarde/Restauration\". Localisez la section \"Sauvegarde/Restauration CSV\" et cliquez sur \"Sauvegarder en CSV\" pour enregistrer le fichier CSV."
   },
   "importGnomeInstructionsIntro": {
-    "message": "Make sure you have python-keyring and python-gnomekeyring installed. Save the",
+    "message": "Assurez-vous d'avoir installé python-keyring et python-gnomekeyring. Enregistrez le",
     "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
   },
   "importGnomeInstructionsLinkText": {
-    "message": "GNOME Keyring Import/Export"
+    "message": "Importation/Exportation GNOME Keyring"
   },
   "importGnomeInstructionsScriptLabel": {
-    "message": "python script to your desktop as",
+    "message": "script python sur votre bureau comme",
     "description": "Followed by a literal filename (pw_helper.py) rendered as code."
   },
   "importGnomeInstructionsRunTerminal": {
-    "message": ". Open terminal and run",
+    "message": ". Ouvrez le terminal et exécutez",
     "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
   },
   "importGnomeInstructionsAndThen": {
-    "message": "and then",
+    "message": "et ensuite",
     "description": "Between two terminal commands rendered as code."
   },
   "importGnomeInstructionsUploadResult": {
-    "message": ". Then upload the resulting",
+    "message": ". Ensuite téléversez le",
     "description": "Followed by a literal filename (my_passwords.json) rendered as code."
   },
   "importGnomeInstructionsFileHere": {
-    "message": "file here to Bitwarden.",
+    "message": "fichier obtenu ici vers Bitwarden.",
     "description": "Follows the my_passwords.json filename."
   },
   "importPasswordagentInstructions": {
-    "message": "Using the Password Agent desktop application navigate to \"File\" → \"Export\", select the \"Fields to export\" button and check all of the fields, change the \"Output format\" to \"CSV\", and then click the \"Start\" button to save the CSV file."
+    "message": "Dans l’application Password Agent, naviguez vers \"Fichier\" → \"Exporter\", sélectionnez le bouton \"Champs à exporter\" et cochez tous les champs, changez le \"Format de sortie\" en \"CSV\", puis cliquez sur le bouton \"Démarrer\" pour enregistrer le fichier CSV."
   },
   "importPasspackInstructions": {
-    "message": "Log into the Passpack website vault and navigate to \"Settings\" → \"Export\", then click the \"Download\" button to save the CSV file."
+    "message": "Connectez-vous dans le coffre web de Passpack, accédez à \"Paramètres\" → \"Exporter\", puis cliquez sur le bouton \"Télécharger\" pour enregistrer le fichier CSV."
   },
   "importPassmanInstructions": {
-    "message": "Open your Passman vault and click on \"Settings\" in the bottom left corner. In the \"Settings\" window switch to the \"Export credentials\" tab and choose \"JSON\" as the export type. Enter your vault's passphrase and click the \"Export\" button to save the JSON file."
+    "message": "Dans le coffre de Passman, cliquez sur \"Paramètres\" dans le coin inférieur gauche. Dans la fenêtre \"Paramètres\", basculez vers l'onglet \"Exporter les identifiants\" et choisissez \"JSON\" comme type d’exportation. Entrer le mot de passe de votre coffre et cliquez sur le bouton \"Exporter\" pour enregistrer le fichier JSON."
   },
   "importAvastCsvInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to CSV file\" option to save the CSV file."
+    "message": "Ouvrez l'application bureau Avast Passwords et accédez à \"Paramètres\" → \"Importer/Exporter les données\". Sélectionnez le bouton \"Exporter\" avec l'option \"Exporter en fichier CSV\" pour enregistrer le fichier CSV."
   },
   "importAvastJsonInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to JSON file\" option to save the JSON file."
+    "message": "Ouvrez l'application bureau Avast Passwords et accédez à \"Paramètres\" → \"Importer/Exporter les données\". Sélectionnez le bouton \"Exporter\" avec l'option \"Exporter en fichier JSON\" pour enregistrer le fichier JSON."
   },
   "importFsecureInstructions": {
-    "message": "Open the F-Secure KEY desktop application and navigate to \"Settings\" → \"Export Passwords\". Select the \"Export\" button, enter your master password, and save the FSK file."
+    "message": "Dans l’application F-Secure KEY, accédez à \"Paramètres\" → \"Exporter les mots de passe\". Sélectionnez le bouton \"Exporter\", entrez votre mot de passe principal et enregistrez le fichier FSK."
   },
   "importKasperskyInstructions": {
-    "message": "Open the Kaspersky Password Manager desktop application and navigate to \"Settings\" → \"Import/Export\". Locate the \"Export to text file\" section and select the \"Export\" button to save the TXT file."
+    "message": "Dans l’application Kaspersky Password Manager, accédez à \"Paramètres\" → \"Importer/Exporter\". Recherchez la section \"Exporter vers un fichier texte\" et sélectionnez le bouton \"Exporter\" pour enregistrer le fichier TXT."
   },
   "importRemembearInstructions": {
-    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+    "message": "Dans l’application RememBear, accédez à \"Paramètres\" → \"Compte\" → \"Exporter\". Entrez votre mot de passe principal et sélectionnez le bouton \"Exporter quand même\" pour enregistrer le fichier CSV."
   },
   "importPasswordwalletInstructions": {
-    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+    "message": "Dans l’application PasswordWallet, accédez à \"Fichier \" → \"Exporter\" → \"Entrées visibles vers un fichier texte\". Entrez votre mot de passe et sélectionnez le bouton \"Ok\" pour enregistrer le fichier TXT."
   },
   "importMykiInstructions": {
-    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+    "message": "Ouvrez l'extension de navigateur Myki et accédez à \"Avancé\" → \"Exporter les comptes\" puis scannez le code QR avec votre appareil mobile. Différents fichiers CSV seront ensuite enregistrés dans le dossier de téléchargements de votre ordinateur."
   },
   "importSecuresafeInstructions": {
-    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+    "message": "Exportez votre coffre de mots de passe SecureSafe dans un fichier CSV avec des virgules comme délimiteurs."
   },
   "importLogmeonceInstructions": {
-    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+    "message": "Ouvrez l'extension de navigateur LogMeOnce, puis accédez à \"Ouvrir le menu\" → \"Exporter vers\" et sélectionnez \"Fichiers CSV\" pour enregistrer le fichier CSV."
   },
   "importBlackberryInstructions": {
-    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+    "message": "Ouvrez l'application BlackBerry Password Keeper, puis accédez à \"Paramètres\" → \"Importer/Exporter\". Sélectionnez \"Exporter les mots de passe\" et suivez les instructions à l'écran pour enregistrer le fichier CSV non chiffré."
   },
   "importButtercupInstructions": {
-    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+    "message": "Ouvrez l'application de bureau Buttercup et déverrouillez votre coffre. Faites un clic droit sur l'icône de votre coffre et sélectionnez \"Exporter\" pour enregistrer le fichier CSV."
   },
   "importCodebookInstructions": {
-    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+    "message": "Ouvrez l'application de bureau Codebook et connectez-vous. Accédez à \"Fichier\" → \"Exporter tout\", puis cliquez sur \"Oui\" dans la boîte de dialogue et enregistrez le fichier CSV."
   },
   "importEncryptrInstructions": {
-    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+    "message": "Ouvrez la dernière version de l'application de bureau Encryptr et autorisez toutes vos données à se synchroniser. Une fois que la synchronisation de vos données est terminée, l'icône de téléchargement dans le coin supérieur droit devient rose. Cliquez sur l'icône de téléchargement et enregistrez le fichier CSV."
   },
   "importYotiInstructions": {
-    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+    "message": "À partir de l'extension de navigateur Yoti, cliquez sur \"Paramètres\", puis \"Exporter les identifiants enregistrés\" et enregistrez le fichier CSV."
   },
   "importPsonoInstructions": {
-    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+    "message": "Connectez-vous dans le coffre Web de Psono, cliquez sur le menu déroulant \"Connecté en tant que\", sélectionnez \"Autres\". Allez dans l'onglet \"Exporter\" et sélectionnez le type d'exportation json, puis cliquez sur Exporter."
   },
   "importPasskyInstructions": {
-    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+    "message": "Connectez-vous à \"https://vault.passky.org\" → \"Importer et Exporter\" → \"Exporter\" dans la section Passky. (\"Sauvegarde\" n'est pas pris en charge car il est chiffré)."
   },
   "importProtonpassInstructions": {
-    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+    "message": "Dans l'extension ProtonPass du navigateur, allez dans Paramètres > Exporter. Exportez sans chiffrement PGP et enregistrez le fichier zip."
   },
   "importPasswordxpInstructions": {
-    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+    "message": "Sélectionnez Base de données → Exporter vers un fichier... menu. → Dans les options d'exportation, assurez-vous que les noms des dossiers et les titres des colonnes sont cochés. → Appuyez sur le bouton Parcourir... et choisissez le fichier cible et définissez son type à fichier CSV."
   },
   "importNetwrixInstructions": {
-    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+    "message": "Ouvrez FullClient, allez dans le menu principal et sélectionnez Exporter. Démarrez l'assistant d'exportation des mots de passe et suivez les instructions pour exporter un fichier CSV."
   },
   "importNordpassInstructions": {
-    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+    "message": "Connectez-vous à NordPass et ouvrez Paramètres → Faites défiler vers le bas dans la section Importer et exporter et sélectionnez Exporter les éléments → Entrer votre mot de passe principal et sélectionnez Continuer. → Enregistrez le fichier CSV sur votre appareil."
   },
   "importPassworddepot17Instructions": {
-    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+    "message": "Dans l'application de bureau, allez dans Outils → Exporter → Entrez votre mot de passe principal → Sélectionnez le format XML (*.xml) comme format d'exportation → Cliquez sur suivant → Choisissez les entrées à inclure dans l'export → Cliquez sur suivant pour exporter vers l'emplacement précédemment choisi."
   },
   "importDelineaInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+    "message": "Connectez-vous à Delinea, recherchez \"Importer/Exportater\" -> sélectionnez \"Exporter\" -> Sélectionnez \"XML\" comme format d'exportation -> Sélectionnez \"QuantumLock\" en tant que type d'authentificateur -> entrez votre mot de passe et sélectionnez \"Exporter\" pour enregistrer le fichier XML."
   },
   "importDelineaCsvInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+    "message": "Connectez-vous à Delinea, recherchez \"Importer/Exportater\" -> sélectionnez \"Exporter\" -> Sélectionnez \"CSV\" comme format d'exportation -> Sélectionnez \"QuantumLock\" en tant que type d'authentificateur -> entrez votre mot de passe et sélectionnez \"Exporter\" pour enregistrer le fichier CSV."
   },
   "options": {
     "message": "Options"
@@ -3737,14 +3800,11 @@
   "restrictedItemTypePolicy": {
     "message": "Supprimer le type d'élément de la carte"
   },
-  "restrictedItemTypePolicyDesc": {
-    "message": "Ne pas autoriser les membres à créer des types d'éléments de carte. Les cartes existantes seront automatiquement supprimées."
-  },
   "restrictedItemTypePolicyDescV2": {
     "message": "Ne pas autoriser les membres à créer et enregistrer des éléments de carte de crédit dans leurs coffres. Lorsque cette politique est activée, les cartes existantes seront automatiquement cachées."
   },
   "restrictedItemTypePolicyDescVfo1": {
-    "message": "Do not allow members to create and store credit card items. When this policy is turned on, existing cards will be automatically hidden.",
+    "message": "Ne pas autoriser les membres à créer et enregistrer des éléments de carte de crédit. Lorsque cette politique est activée, les cartes existantes seront automatiquement cachées.",
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
   "restrictCardTypeImport": {
@@ -4135,12 +4195,6 @@
   },
   "instructions": {
     "message": "Instructions"
-  },
-  "passwordlessLogin": {
-    "message": "Connexion sans mot de passe"
-  },
-  "multifactorAuthentication": {
-    "message": "Authentification multifacteur"
   },
   "exposedPasswordsReport": {
     "message": "Mots de passe exposés"
@@ -4912,6 +4966,9 @@
   },
   "chooseYourPlan": {
     "message": "Choisissez votre plan"
+  },
+  "choosePlan": {
+    "message": "Choisir un abonnement"
   },
   "users": {
     "message": "Utilisateurs"
@@ -6793,7 +6850,7 @@
   "openOrgInviteAcceptFailed": {
     "message": "Incapable d'accepter l'invitation. Demandez à un administrateur de l'organisation d'envoyer un nouveau lien d'invitation."
   },
-  "openOrgInviteAcceptFailedTitle": {
+  "cannotAcceptInvitation": {
     "message": "Incapable d'accepter l'invitation"
   },
   "openOrgInviteAcceptAlreadyMember": {
@@ -7369,6 +7426,21 @@
       }
     }
   },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Consultez vos courriels pour finir de rejoindre $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "Cette organisation ne peut 'accepter de nouveaux membres pour le moment. Contactez votre administrateur pour obtenir de l'aide."
+  },
+  "inviteSentToEmail": {
+    "message": "Invitation envoyée au courriel"
+  },
   "acceptPolicies": {
     "message": "En cochant cette case vous acceptez ce qui suit :"
   },
@@ -7638,23 +7710,17 @@
   "twoStepLoginPolicyDescV2": {
     "message": "Exiger que les membres mettent en place une identification en deux étapes. Cette politique de sécurité ne sera pas appliquée pour les propriétaires et les administrateurs."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "Les membres de l'organisation qui ne sont pas propriétaires ou administrateurs et qui n'ont pas configuré l'authentification à deux facteurs pour leur compte seront supprimés de l'organisation et recevront un courriel les informant de ce changement."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "Activer cette politique révoquera tous les utilisateurs qui n'ont pas d'identification en deux étapes sur leur compte. Les utilisateurs affectés seront notifiés par courriel."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Vous êtes un membre d'une organisation qui exige que l'authentification à deux facteurs soit configurée sur votre compte utilisateur. Si vous désactivez tous les fournisseurs d'authentification à deux facteurs, vous serez automatiquement retiré de ces organisations."
   },
-  "passwordGeneratorPolicyDesc": {
-    "message": "Définir les exigences pour le générateur de mot de passe."
-  },
   "passwordGeneratorPolicyDescV2": {
     "message": "Sélectionner un minimum d'exigences pour tous mots de passe générés par les membres."
   },
   "passwordGeneratorPolicyDescVfo1": {
-    "message": "Set requirements for password generator.",
+    "message": "Définir les exigences pour le générateur de mot de passe.",
     "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
   },
   "generatedPassword": {
@@ -7906,24 +7972,21 @@
     "message": "Organisation Unique"
   },
   "singleOrgVfo1": {
-    "message": "Single organization membership",
+    "message": "Adhésion à une seule organisation",
     "description": "VFO1 terminology variant of 'singleOrg'"
   },
   "singleOrgDesc": {
     "message": "Empêcher les utilisateurs de pouvoir rejoindre d'autres organisations."
   },
-  "singleOrgPolicyDesc": {
-    "message": "Restreindre aux membres de rejoindre d'autres organisations. Cette politique de sécurité est nécessaire pour les organisations qui ont activé la vérification de domaine."
-  },
   "singleOrgPolicyDescVfo1": {
-    "message": "Restrict members from joining other shared or organization vaults.",
+    "message": "Empêcher les membres de rejoindre d'autres coffres partagés ou d'organisation.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
   },
   "singleOrgPolicyDescV2": {
     "message": "Les membres de cette organisation ne peuvent pas rejoindre d'autres organisations. Les membres existants qui appartiennent à d'autres organisations auront leur accès révoqué lorsque cette politique sera activée. Cette politique de sécurité ne sera pas appliquée pour les propriétaires et les administrateurs."
   },
   "singleOrgPolicyDescV2Vfo1": {
-    "message": "Members cannot join other organization vaults. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins.",
+    "message": "Les membres ne peuvent pas rejoindre d'autres coffres d'organisations. Les membres existants qui appartiennent à d'autres organisations auront leur accès révoqué lorsque cette politique sera activée. Cette politique de sécurité ne sera pas appliquée pour les propriétaires et les admins.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDescV2'"
   },
   "singleOrgBlockCreateMessage": {
@@ -7936,19 +7999,16 @@
     "message": "Authentification par Connexion Unique (Single Sign-On)"
   },
   "requireSsoVfo1": {
-    "message": "Require SSO",
+    "message": "Exiger le SSO",
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
   "requireSsoPolicyDescListVfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method.",
+    "message": "Exiger que les membres se connectent avec la méthode du portail de connexion unique Entreprise.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
   },
   "requireSsoPolicyDescV2Vfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
+    "message": "Exiger que les membres se connectent avec la méthode du portail de connexion unique Entreprise. Cette politique ne sera pas appliquée pour les propriétaires et les admins.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
-  },
-  "requireSsoPolicyDesc": {
-    "message": "Exiger que les membres se connectent avec la méthode du portail de connexion unique Entreprise."
   },
   "requireSsoPolicyTitle": {
     "message": "Nécessite une authentification unique (SSO)"
@@ -7959,15 +8019,19 @@
   "prerequisite": {
     "message": "Prérequis"
   },
-  "requireSsoPolicyReq": {
-    "message": "La politique d'organisation unique Entreprise doit être activée avant d'activer cette politique."
-  },
   "requireSsoPolicyReqV2": {
     "message": "Vous devez activer la politique de sécurité d'organisation unique avant d'activer celle-ci."
   },
   "requireSsoPolicyReqV2Vfo1": {
-    "message": "You must enable the single organization membership policy before enabling this one.",
+    "message": "Vous devez activer la politique de sécurité d'adhésion à une organisation unique avant d'activer celle-ci.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "Vous devez activer la politique de sécurité d'organisation unique avant d'activer celle-ci."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "Vous devez activer la politique de sécurité d'adhésion à une organisation unique avant d'activer celle-ci.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "La politique « Organisation Unique » n'est pas activée."
@@ -8356,14 +8420,14 @@
     "message": "Centraliser la propriété de l'organisation"
   },
   "centralizeDataOwnershipVfo1": {
-    "message": "Centralized organization ownership",
+    "message": "Propriété de l'organisation centralisée",
     "description": "VFO1 terminology variant of 'centralizeDataOwnership'"
   },
   "centralizeDataOwnershipDesc": {
     "message": "Tous les éléments du membre seront détenus et gérés par l'organisation. Les administrateurs et les propriétaires sont exemptés. "
   },
   "centralizeDataOwnershipDescVfo1": {
-    "message": "Require members to save items to the organization by removing their personally owned My vault.",
+    "message": "Exiger que les membres enregistrent des éléments dans l'organisation en supprimant leur coffre personnel Mon coffre.",
     "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
   },
   "centralizeDataOwnershipContentAnchor": {
@@ -8379,9 +8443,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "Transférez facilement les éléments pendant la période de lancement et de succession du membre, en veillant à ce qu'il n'y ait pas de manques d'accès."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "Donnez à tous les utilisateurs un espace dédié \"Mes éléments\" pour gérer leurs propres identifiants."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Demander aux membres de transférer leurs éléments"
   },
@@ -8391,9 +8452,6 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "En savoir plus sur le transfert"
   },
-  "promptUsersToMoveItems": {
-    "message": "Demander aux utilisateurs de déplacer les éléments individuels du coffre vers l'organisation"
-  },
   "promptUsersToMoveItemsCallout": {
     "message": "Les membres seront invités à transférer leurs éléments à l'organisation ou à partir. S'ils quittent, leur accès est révoqué mais peut être restauré à tout moment."
   },
@@ -8401,21 +8459,21 @@
     "message": "Tous les éléments des membres seront détenus et gérés par l'organisation. Cette politique ne sera pas appliquée pour les propriétaires et les administrateurs. En savoir plus sur "
   },
   "centralizeDataOwnershipDescV3": {
-    "message": "All member items will be owned and managed by the organization. This policy won't be enforced for owners and admins. ",
+    "message": "Tous les éléments des membres seront détenus et gérés par l'organisation. Cette politique ne sera pas appliquée pour les propriétaires et les admins. ",
     "description": "Replaces centralizeDataOwnershipDescV2 to avoid duplicating the 'Learn more about' text already present in the adjacent centralizeDataOwnershipContentAnchor link"
   },
   "centralizeDataOwnershipBenefit3V2": {
     "message": "Donnez à tous les utilisateurs un espace dédié \"Mes éléments\" pour gérer leurs propres identifiants."
   },
   "centralizeDataOwnershipBenefit3Vfo1": {
-    "message": "Give all users a dedicated My items space for managing their own logins.",
+    "message": "Donnez à tous les utilisateurs un espace dédié Mes éléments pour gérer leurs propres identifiants.",
     "description": "VFO1 terminology variant of 'centralizeDataOwnershipBenefit3V2'"
   },
   "promptUsersToMoveItemsV2": {
     "message": "Demander aux utilisateurs de déplacer leurs éléments de coffre vers l'organisation"
   },
   "promptUsersToMoveItemsVfo1": {
-    "message": "Prompt users to move their My vault items to the organization",
+    "message": "Demander aux utilisateurs de déplacer leurs éléments de Mon coffre vers l'organisation",
     "description": "VFO1 terminology variant of 'promptUsersToMoveItemsV2'"
   },
   "organizationDataOwnership": {
@@ -8463,7 +8521,7 @@
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
   "autoConfirmDescriptionVfo1": {
-    "message": "New users invited to the organization vault will be automatically confirmed when an admin’s device is unlocked.",
+    "message": "Les nouveaux utilisateurs invités à rejoindre le coffre de l'organisation seront automatiquement confirmés lorsque l'appareil d'un admin est déverrouillé.",
     "description": "VFO1 terminology variant of 'autoConfirmDescription', shown in the policies list"
   },
   "howToTurnOnAutoConfirm": {
@@ -8488,7 +8546,7 @@
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
   "autoConfirmPolicyEditDescriptionVfo1": {
-    "message": "New users invited to the organization vault will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "message": "Les nouveaux utilisateurs invités à rejoindre le coffre de l'organisation seront automatiquement confirmés lorsque l'appareil d'un admin est déverrouillé. Avant d'activer cette politique de sécurité, veuillez revoir et accepter les éléments suivants : ",
     "description": "VFO1 terminology variant of 'autoConfirmPolicyEditDescription'"
   },
   "autoConfirmAcceptSecurityRiskTitle": {
@@ -8505,21 +8563,21 @@
     "message": "Une politique d'organisation unique est requise. "
   },
   "autoConfirmSingleOrgRequiredVfo1": {
-    "message": "Single organization vault policy required. ",
+    "message": "Une politique de coffre d'organisation unique est requise. ",
     "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequired'"
   },
   "autoConfirmSingleOrgRequiredDesc": {
     "message": "Tous les membres doivent appartenir uniquement à cette organisation pour activer cette automatisation."
   },
   "autoConfirmSingleOrgRequiredDescVfo1": {
-    "message": "All members must only belong to this organization vault to activate this automation.",
+    "message": "Tous les membres doivent appartenir uniquement à ce coffre d'organisation pour activer cette automatisation.",
     "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequiredDesc'"
   },
   "autoConfirmSingleOrgExemption": {
     "message": "La politique d'organisation unique s'étendra à tous les rôles. "
   },
   "autoConfirmSingleOrgExemptionVfo1": {
-    "message": "Single organization vault policy will extend to all roles. ",
+    "message": "La politique de coffre d'organisation unique s'étendra à tous les rôles. ",
     "description": "VFO1 terminology variant of 'autoConfirmSingleOrgExemption'"
   },
   "autoConfirmNoEmergencyAccess": {
@@ -8605,10 +8663,6 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "Réglage par défaut de saisie automatique du bureau"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "Activer la Saisie Auto pour le Bureau par défaut pour les membres. Les membres peuvent désactiver la Saisie Automatique manuellement dans l'application du Bureau.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "Activer la saisie automatique de bureau pour les membres. Les membres seront en mesure de désactiver la saisie automatique manuellement dans le client de bureau."
   },
@@ -8661,7 +8715,7 @@
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "manageSendAndShareVfo1": {
-    "message": "Manage Send and share",
+    "message": "Gérer les Send et partage",
     "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendControlsPolicyDesc": {
@@ -8673,7 +8727,7 @@
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescVfo1": {
-    "message": "Set Send configuration options.",
+    "message": "Définir les options de configuration de Send.",
     "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
@@ -8694,11 +8748,8 @@
   "uriMatchDetectionPolicy": {
     "message": "Détection de correspondance URL par défaut"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "Détermine quand des identifiants sont suggérées pour la saisie automatique. Les administrateurs et les propriétaires sont exemptés de cette politique de sécurité."
-  },
   "uriMatchDetectionPolicyDescVfo1": {
-    "message": "Set the default URI match detection for all items created by members.",
+    "message": "Définir la détection de correspondance d'URI par défaut pour tous les éléments créés par les membres.",
     "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
   },
   "uriMatchDetectionPolicyDescV2": {
@@ -8710,6 +8761,23 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Veuillez sélectionner une option de détection de correspondance URL valide.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "Activer \"fill assist\"",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Activer \"fill assist\" par défaut pour tous les membres. Cette fonctionnalité utilise des instructions révisées spécifiques au site pour améliorer la précision de la saisie automatique sur les sites Web connus pour être difficiles à remplir."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Règles de saisie automatique personnalisées"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "Par défaut, \"fill assist\" utilise le jeu de règles mises en place par Bitwarden. Entrez une URL ici pour le remplacer par le vôtre."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Entrez un URL valide",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "Politique $ID$ modifiée.",
@@ -8725,6 +8793,9 @@
   },
   "estimatedTax": {
     "message": "Taxe estimée"
+  },
+  "subtotal": {
+    "message": "Sous-total"
   },
   "custom": {
     "message": "Personnalisé"
@@ -9115,7 +9186,7 @@
     "message": "Administration de récupération du compte"
   },
   "accountRecoveryPolicyDescVfo1": {
-    "message": "Allow admins to reset master passwords for members.",
+    "message": "Autoriser les admins à réinitialiser les mots de passe principaux pour les membres.",
     "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
   },
   "accountRecoverySingleOrgRequirementDesc": {
@@ -9125,7 +9196,7 @@
     "message": "Vous devez activer la politique de sécurité d'organisation unique avant d'activer celle-ci."
   },
   "accountRecoveryPolicySingleOrgReqV2Vfo1": {
-    "message": "You must enable the single organization membership policy before enabling this one.",
+    "message": "Vous devez activer la politique de sécurité d'adhésion à une organisation unique avant d'activer celle-ci.",
     "description": "VFO1 terminology variant of 'accountRecoveryPolicySingleOrgReqV2'"
   },
   "accountRecoveryPolicyDescV3Part1": {
@@ -9493,14 +9564,11 @@
   "automaticAppLoginWithSSO": {
     "message": "Connexion automatique avec SSO"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "Étendre la sécurité et la commodité SSO aux applications non gérées. Lorsque les utilisateurs lancent une application à partir de votre fournisseur d'identité, leurs identifiants de connexion sont automatiquement saisis et soumis, créant une connexion sécuriséw en un clic depuis le fournisseur d'identité vers l'application."
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "Lorsque les utilisateurs lancent une application à partir de votre fournisseur d'identité, leurs identifiants de connexion seront automatiquement remplis et soumis, créant ainsi une connexion sécurisée en un seul clic."
   },
   "automaticAppLoginWithSSODescListVfo1": {
-    "message": "Login forms will automatically be filled and submitted for apps launched from your configured identity provider.",
+    "message": "Les formulaires de connexion seront automatiquement remplis et soumis pour les applications lancées à partir de votre fournisseur d'identité configuré.",
     "description": "VFO1 terminology variant of 'automaticAppLoginWithSSODescV2', shown in the policies list"
   },
   "automaticAppLoginIdpHostLabel": {
@@ -9519,7 +9587,7 @@
     "message": "Définir un délai d'expiration maximum de session pour tous les membres sauf les propriétaires."
   },
   "sessionTimeoutPolicyDescriptionVfo1": {
-    "message": "Set a maximum vault timeout for members.",
+    "message": "Définir un délai d'expiration maximal de coffre pour les membres.",
     "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
   },
   "maximumAllowedTimeout": {
@@ -9631,18 +9699,15 @@
   "disableExport": {
     "message": "Supprimer l'exportation"
   },
-  "disablePersonalVaultExportDescription": {
-    "message": "Ne pas autoriser les membres à exporter des données de leur coffre individuel."
-  },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Ne pas autoriser les membres à exporter des données de leurs coffres individuels. Cette politique de sécurité ne sera pas appliquée pour les propriétaires et les administrateurs."
   },
   "disablePersonalVaultExportDescriptionVfo1": {
-    "message": "Do not allow members to export their vault data. This policy won't be enforced for owners and admins.",
+    "message": "Ne pas autoriser les membres à exporter des données de leurs coffres. Cette politique de sécurité ne sera pas appliquée pour les propriétaires et les admins.",
     "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescriptionV2'"
   },
   "disablePersonalVaultExportDescriptionListVfo1": {
-    "message": "Do not allow members to export their vault data.",
+    "message": "Ne pas autoriser les membres à exporter des données de leurs coffres.",
     "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescription', shown in the policies list"
   },
   "vaultExportDisabled": {
@@ -9661,7 +9726,7 @@
     "message": "Activer le remplissage automatique au chargement de la page dans les paramètres de l'extension du navigateur pour tous les membres existants et nouveaux."
   },
   "activateAutofillPolicyDescriptionVfo1": {
-    "message": "Automatically fill logins on websites and apps.",
+    "message": "Remplir automatiquement les identifiants sur les sites web et applications.",
     "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
   },
   "activateAutofillPolicyDescV2": {
@@ -11514,6 +11579,9 @@
   },
   "noSharedFoldersAdded": {
     "message": "Aucun dossier partagé ajouté"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Ajouter un dossier partagé pour partager de façon sécuritaire les éléments du coffre avec d'autres membres."
   },
   "noMembersAdded": {
     "message": "Pas de membres ajoutés"
@@ -14134,6 +14202,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Obtenez Secrets Manager"
+  },
   "secureYourInfrastructure": {
     "message": "Sécurisez votre infrastructure"
   },
@@ -14841,21 +14912,18 @@
     "message": "Supprimer le forfait Familles parrainé"
   },
   "freeFamiliesSponsorshipTitleVfo1": {
-    "message": "Remove Sponsored Family Plan",
+    "message": "Supprimer le forfait Famille parrainée",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the policies list"
   },
   "freeFamiliesSponsorshipPolicyTitleV2Vfo1": {
-    "message": "Remove Sponsored Families Plan",
+    "message": "Supprimer le forfait Familles parrainées",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
-  },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "N'autorisez pas les membres à échanger un plan Familles par l'intermédiaire de cette organisation."
   },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "N'autorisez pas les membres à réclamer un plan Familles parrainé par votre organisation."
   },
   "freeFamiliesSponsorshipDescVfo1": {
-    "message": "Remove the option for members to redeem a free Families plan.",
+    "message": "Supprimer l'option permettant aux membres d'échanger un forfait Familles gratuit.",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
@@ -15308,9 +15376,6 @@
   "removeUnlockWithPinPolicyTitle": {
     "message": "Supprimer Déverrouiller avec un NIP"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "Ne pas autoriser les membres à déverrouiller leur compte avec un NIP."
-  },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Les membres ne seront pas autorisés à déverrouiller leur compte avec un code PIN."
   },
@@ -15698,8 +15763,20 @@
   "providersubCanceledmessage": {
     "message": "Pour vous réinscrire, contactez l'Assistance Client de Bitwarden."
   },
+  "showAll": {
+    "message": "Tout afficher"
+  },
   "showMore": {
     "message": "Afficher plus"
+  },
+  "showMoreCount": {
+    "message": "Afficher $COUNT$ de plus",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Afficher moins"
@@ -15745,16 +15822,21 @@
   "checkInputFormat": {
     "message": "Vérifier le format d'entrée pour les fautes de frappe."
   },
-  "exampleTaxIdFormat": {
-    "message": "Exemple de format $CODE$ : $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Exemple de format d'ID de taxes : $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Format reconnu : $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -15959,6 +16041,9 @@
   "upgradeNow": {
     "message": "Mettre à niveau maintenant"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Obtenez une sécurité en ligne avancée avec Bitwarden Premium."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Compléter ce formulaire créera une nouvelle organisation Familles. Vous pouvez mettre à niveau votre organisation gratuite à partir de la Console Admin."
   },
@@ -16010,22 +16095,16 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Bloquer la création de compte pour les domaines réclamés"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "Empêcher les utilisateurs de créer des comptes en dehors de votre organisation en utilisant les adresses courriel des domaines revendiqués."
-  },
   "blockClaimedDomainAccountCreationDescVfo1": {
-    "message": "Prevent account creation from claimed domains.",
+    "message": "Empêcher la création de comptes pour les domaines revendiqués.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
   },
   "blockClaimedDomainAccountCreationDescV2": {
     "message": "Bloquer les membres d'utiliser votre domaine revendiqué pour créer des comptes Bitwarden en dehors de votre organisation."
   },
   "blockClaimedDomainAccountCreationDescV2Vfo1": {
-    "message": "Block members from using your claimed domain to create Bitwarden accounts outside of your organization vault.",
+    "message": "Bloquer les membres d'utiliser votre domaine revendiqué pour créer des comptes Bitwarden en dehors du coffre de votre organisation.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
-  },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "Un domaine doit être réclamé avant d'activer cette politique de sécurité."
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "Avant d'activer cette politique, vous devez revendiquer un domaine."
@@ -16147,6 +16226,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "Vérification de l'intégrité du dossier"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Vérification de l'intégrité de la pièce jointe"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ élément(s) ont des pièces jointes avec un ancien chiffrement. Ouvrez un élément ci-dessous et rendez-vous à Pièces Jointes pour régler cela.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "Récupération des données et Diagnostics"
@@ -16483,6 +16574,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "Crédit d'abonnement Premium"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Crédits d'abonnement appliqués"
   },
   "enterpriseMembership": {
     "message": "Adhésion à Entreprise"
@@ -17471,6 +17565,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Identifiant"
+  },
+  "orgNameVault": {
+    "message": "Coffre de $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }

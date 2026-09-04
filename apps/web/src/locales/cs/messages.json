@@ -1224,6 +1224,48 @@
   "sharedFolders": {
     "message": "Sdílené složky"
   },
+  "sharedFoldersInParent": {
+    "message": "Sdílené složky v $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ sdílených složek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ sdílená složka",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ dalších sdílených složek zobrazených nad tímto tlačítkem",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 další sdílená složka zobrazená nad tímto tlačítkem",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "Moje složka"
   },
@@ -1232,6 +1274,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Přidejte složky k položkám pro jejich filtrování zde."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Přidejte položky do sdílené složky pro filtrování."
   },
   "addSharedFolder": {
     "message": "Přidat sdílenou složku"
@@ -1755,6 +1800,9 @@
   "myItems": {
     "message": "Moje položky"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "myVault": {
     "message": "Můj trezor"
   },
@@ -1858,6 +1906,18 @@
   },
   "noMatchingItems": {
     "message": "Žádné odpovídající položky"
+  },
+  "noFiltersMatch": {
+    "message": "Žádné filtry neodpovídají \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Vymazat hledání"
   },
   "deselectAll": {
     "message": "Odznačit vše"
@@ -2533,6 +2593,9 @@
   },
   "addPlan": {
     "message": "Přidat plán"
+  },
+  "addPlanDesc": {
+    "message": "Můžete vytvořit nový sdílený trezor s 1 další osobou zdarma. Pokud chcete ukládat, spravovat a sdílet předměty s více lidmi, musíte nejprve přidat nový tarif. Upozorňujeme, že některé volby mohou vyžadovat změnu fakturace."
   },
   "noOrganizationsList": {
     "message": "Nepatříte do žádné organizace. Organizace umožňují bezpečné sdílení položek s ostatními uživateli."
@@ -3737,9 +3800,6 @@
   "restrictedItemTypePolicy": {
     "message": "Odebrat typ položky karty"
   },
-  "restrictedItemTypePolicyDesc": {
-    "message": "Nepovolovat členům vytvářet typy položek karty. Existující karty budou automaticky odebrány."
-  },
   "restrictedItemTypePolicyDescV2": {
     "message": "Nedovolí členům vytvářet a ukládat položky týkající se platebních karet do svých trezorů. Pokud bude tato zásada zapnuta, stávající karty budou automaticky skryty."
   },
@@ -4135,12 +4195,6 @@
   },
   "instructions": {
     "message": "Instrukce"
-  },
-  "passwordlessLogin": {
-    "message": "Přihlášení bez hesla"
-  },
-  "multifactorAuthentication": {
-    "message": "Vícefaktorové ověření"
   },
   "exposedPasswordsReport": {
     "message": "Odhalená hesla"
@@ -4912,6 +4966,9 @@
   },
   "chooseYourPlan": {
     "message": "Vyberte plán"
+  },
+  "choosePlan": {
+    "message": "Vybrat plán"
   },
   "users": {
     "message": "Uživatelé"
@@ -6793,7 +6850,7 @@
   "openOrgInviteAcceptFailed": {
     "message": "Nelze přijmout pozvánku. Požádejte správce organizace o zaslání nové pozvánky."
   },
-  "openOrgInviteAcceptFailedTitle": {
+  "cannotAcceptInvitation": {
     "message": "Nelze přijmout pozvánku"
   },
   "openOrgInviteAcceptAlreadyMember": {
@@ -7369,6 +7426,21 @@
       }
     }
   },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Pro dokončení připojení k $ORGANIZATION_NAME$ zkontrolujte svůj e-mail.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "Tato organizace momentálně nemůže přijímat nové členy. Kontaktujte svého správce."
+  },
+  "inviteSentToEmail": {
+    "message": "Pozvánka byla odeslána na e-mail"
+  },
   "acceptPolicies": {
     "message": "Zaškrtnutím tohoto políčka souhlasíte s následujícím:"
   },
@@ -7638,17 +7710,11 @@
   "twoStepLoginPolicyDescV2": {
     "message": "Vyžadujte od členů, aby si nastavili dvoufázové přihlášení. Tato zásada se nebude vztahovat na vlastníky a správce."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "Členové organizace, kteří nejsou vlastníky nebo správci a kteří nemají povoleno dvoufázové přihlášení pro svůj osobní účet, budou odebráni z organizace a obdrží e-mail, který je o změně informuje."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "Aktivací této zásady budou odhlášeni všichni uživatelé, kteří nemají ve svých účtech zapnuté dvoufázové ověření. Dotčení uživatelé budou informováni e-mailem."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Jste členem organizace, která vyžaduje použití dvoufázového přihlášení na Vašem uživatelském účtu. Pokud zakážete všechny poskytovatele dvoufázového přihlášení, budete z takovýchto organizací automaticky odebráni."
-  },
-  "passwordGeneratorPolicyDesc": {
-    "message": "Nastaví požadavky pro generátor hesel."
   },
   "passwordGeneratorPolicyDescV2": {
     "message": "Vyberte sadu minimálních požadavků na hesla vytvářená uživateli."
@@ -7912,9 +7978,6 @@
   "singleOrgDesc": {
     "message": "Omezí uživatelům možnost připojit se k jiným organizacím."
   },
-  "singleOrgPolicyDesc": {
-    "message": "Omezí členům vstup do jiných organizací. Tato zásada je vyžadována u organizací, které povolily ověřování domény."
-  },
   "singleOrgPolicyDescVfo1": {
     "message": "Omezí uživatelům možnost připojit se k jiným sdíleným trezorům nebo organizacím.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
@@ -7947,9 +8010,6 @@
     "message": "Vyžaduje, aby se členové přihlašovali pomocí podnikového SSO. Tato zásada se nebude vztahovat na vlastníky a správce.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
   },
-  "requireSsoPolicyDesc": {
-    "message": "Vyžaduje přihlášení uživatelů pomocí metody jednotného podnikového přihlášení."
-  },
   "requireSsoPolicyTitle": {
     "message": "Vyžadovat jednotné přihlášení (SSO)"
   },
@@ -7959,15 +8019,19 @@
   "prerequisite": {
     "message": "Předpoklady"
   },
-  "requireSsoPolicyReq": {
-    "message": "Před aktivací této zásady musí být povolena jednotná pravidla organizace."
-  },
   "requireSsoPolicyReqV2": {
     "message": "Než tuto zásadu povolíte, musíte nejprve povolit zásadu pro jednu organizaci."
   },
   "requireSsoPolicyReqV2Vfo1": {
     "message": "Než tuto zásadu povolíte, musíte nejprve povolit zásadu členství pro jednu organizaci.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "Než tuto zásadu povolíte, musíte nejprve povolit zásadu pro jednu organizaci."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "Než tuto zásadu povolíte, musíte nejprve povolit zásadu členství pro jednu organizaci.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "Jednotná pravidla organizace nebyla nastavena."
@@ -8379,9 +8443,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "Snadno přenášjte položky při odchodu a nástupu nových uživatelů pro zajištění bezproblémového přístupu."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "Všem uživatelům poskytněte vyhrazený prostor \"Moje položky\" pro správu jejich vlastních přihlašovacích údajů."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Vyzvěte uživatele, aby převedli své položky"
   },
@@ -8390,9 +8451,6 @@
   },
   "centralizeDataOwnershipWarningLink": {
     "message": "Více informací o převodu"
-  },
-  "promptUsersToMoveItems": {
-    "message": "Vyzvat uživatele k přesunutí jednotlivých položek trezoru do organizace"
   },
   "promptUsersToMoveItemsCallout": {
     "message": "Členové budou vyzváni, aby buď převedli své položky do organizace nebo aby odešli. Pokud odejdou, jejich přístup je odvolán, ale může být kdykoliv obnoven."
@@ -8605,10 +8663,6 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "Výchozí nastavení autotypu na ploše"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "Ve výchozím nastavení pro členy zapne Desktop Autotype. Uživatelé mohou v klientovi na počítači vypnout Desktop Autotype ručně.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "Povolí členům automatické vyplňování v desktopové verzi. Členové budou moci automatické vyplňování v desktopovém klientovi ručně vypnout."
   },
@@ -8694,9 +8748,6 @@
   "uriMatchDetectionPolicy": {
     "message": "Výchozí zjišťování shody URI"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "Určete, kdy jsou přihlášení navržena pro automatické vyplňování. Správci a vlastníci jsou od těchto zásad osvobozeni."
-  },
   "uriMatchDetectionPolicyDescVfo1": {
     "message": "Nastavte výchozí URI shody detekce všech položek vytvořených členy.",
     "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
@@ -8710,6 +8761,23 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Vyberte platnou volbu detekce shody URI.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "Aktivovat asistenta vyplňování",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Ve výchozím nastavení zapne asistenta vyplňování pro všechny členy. Tato funkce využívá prověřené pokyny specifické pro daný web, aby zvýšila přesnost automatického vyplňování na webových stránkách, u nichž je automatické vyplňování obtížné."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Vlastní sada pravidel automatického vyplňování"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "Ve výchozím nastavení asistent vyplňování používá předem vybranou sadu pravidel Bitwardenu. Zadejte sem adresu URL, chcete-li ji nahradit vlastní sadou pravidel."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Zadejte platnou URL adresu",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "Byly změněny zásady $ID$.",
@@ -8725,6 +8793,9 @@
   },
   "estimatedTax": {
     "message": "Odhadovaná daň"
+  },
+  "subtotal": {
+    "message": "Mezisoučet"
   },
   "custom": {
     "message": "Vlastní"
@@ -9493,9 +9564,6 @@
   "automaticAppLoginWithSSO": {
     "message": "Automatické přihlášení pomocí SSO"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "Rozšiřte zabezpečení a pohodlí SSO i na nespravované aplikace. Když uživatelé spustí aplikaci od Vašeho poskytovatele identit, jejich přihlašovací údaje se automaticky vyplní a odešlou, čímž se vytvoří bezpečný tok od poskytovatele identit k aplikaci jedním klepnutím."
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "Když uživatelé spustí aplikaci z Vašeho poskytovatele identit, jejich přihlašovací údaje se automaticky vyplní a odešlou, čímž se zajistí bezpečné přihlášení jedním klepnutím."
   },
@@ -9630,9 +9698,6 @@
   },
   "disableExport": {
     "message": "Odebrat export"
-  },
-  "disablePersonalVaultExportDescription": {
-    "message": "Nedovolí, aby členové exportovali svá osobní data trezoru."
   },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Neumožní členům exportovat data z jejich individuálních úložišť. Tato zásada se nevztahuje na vlastníky a správce."
@@ -11514,6 +11579,9 @@
   },
   "noSharedFoldersAdded": {
     "message": "Nebyly přidány žádné sdílené složky"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Přidejte sdílenou složku pro bezpečné sdílení položek trezoru s ostatními uživateli."
   },
   "noMembersAdded": {
     "message": "Nebyli přidáni žádní členové"
@@ -14134,6 +14202,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Získat správce tajných klíčů"
+  },
   "secureYourInfrastructure": {
     "message": "Zabezpečte Vaši infrastrukturu"
   },
@@ -14848,9 +14919,6 @@
     "message": "Odebrat sponzorovaný plán Families",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
   },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Nedovolí, aby členové mohli prostřednictvím této organizace uplatnit Free Bitwarden Families."
-  },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Neumožní členům využívat plán \"Families\", který sponzoruje Vaše organizace."
   },
@@ -15308,9 +15376,6 @@
   "removeUnlockWithPinPolicyTitle": {
     "message": "Odebrat odemknutí pomocí PIN"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "Nepovolí členům odemknout svůj účet pomocí PIN."
-  },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Členové nebudou moci odemknout svůj účet pomocí PIN kódu."
   },
@@ -15698,8 +15763,20 @@
   "providersubCanceledmessage": {
     "message": "Chcete-li se znovu přihlásit, kontaktujte zákaznickou podporu Bitwarden."
   },
+  "showAll": {
+    "message": "Zobrazit vše"
+  },
   "showMore": {
     "message": "Zobrazit více"
+  },
+  "showMoreCount": {
+    "message": "Zobrazit další $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Zobrazit méně"
@@ -15745,16 +15822,21 @@
   "checkInputFormat": {
     "message": "Zkontrolujte vstupní formát, zda neobsahuje překlepy."
   },
-  "exampleTaxIdFormat": {
-    "message": "Příklad formátu $CODE$: $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Příklad formátu DIČ: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Rozpoznaný formát: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -15959,6 +16041,9 @@
   "upgradeNow": {
     "message": "Aktualizovat nyní"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Získejte pokročilé zabezpečení online s Bitwarden Premium."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Vyplněním tohoto formuláře vytvoříte novou organizaci Rodin. Můžete vylepšit svou bezplatnou organizaci z konzole správce."
   },
@@ -16010,9 +16095,6 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Blokovat vytvoření účtu pro nárokované domény"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "Zabrání uživatelům ve vytváření účtů mimo Vaši organizaci pomocí e-mailových adres z nárokovaných domén."
-  },
   "blockClaimedDomainAccountCreationDescVfo1": {
     "message": "Zabrání vytvoření účtu pro nárokované domény.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
@@ -16023,9 +16105,6 @@
   "blockClaimedDomainAccountCreationDescV2Vfo1": {
     "message": "Zabrání členům v tom, aby pomocí Vaší zaregistrované domény zakládali účty Bitwarden mimo trezor Vaší organizace.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
-  },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "Před aktivací této zásady musí být nárokována doména."
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "Než tuto zásadu aktivujete, musíte si doménu nárokovat."
@@ -16147,6 +16226,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "Ověřování integrity složky"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Ověřování integrity přílohy"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ položek má soubory se starým šifrováním. Otevřete položku níže, přejděte do příloh a opravte ji.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "Obnova dat a diagnostika"
@@ -16483,6 +16574,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "Kredit předplatného Premium"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Byly použity kredity předplatného"
   },
   "enterpriseMembership": {
     "message": "Členství Enterprise"
@@ -17471,6 +17565,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Přihlašovací údaje"
+  },
+  "orgNameVault": {
+    "message": "Trezor $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }

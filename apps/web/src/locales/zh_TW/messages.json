@@ -1224,6 +1224,48 @@
   "sharedFolders": {
     "message": "共享資料夾"
   },
+  "sharedFoldersInParent": {
+    "message": "Shared folders in $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ shared folder",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ more shared folders shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 more shared folder shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "我的資料夾"
   },
@@ -1232,6 +1274,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Add folders to items to filter them here."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
   },
   "addSharedFolder": {
     "message": "新增共享資料夾"
@@ -1755,6 +1800,9 @@
   "myItems": {
     "message": "個人文章"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "myVault": {
     "message": "我的密碼庫"
   },
@@ -1858,6 +1906,18 @@
   },
   "noMatchingItems": {
     "message": "沒有相符的項目"
+  },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
   },
   "deselectAll": {
     "message": "取消全選"
@@ -2533,6 +2593,9 @@
   },
   "addPlan": {
     "message": "Add plan"
+  },
+  "addPlanDesc": {
+    "message": "You can create a new shared vault with 1 other person for free. If you'd like to store, manage, and share items with more people, you will need to add a new plan first. Just know that some options may require a billing change."
   },
   "noOrganizationsList": {
     "message": "您沒有加入任何組織。組織允許您與其他使用者安全地共用項目。"
@@ -3737,9 +3800,6 @@
   "restrictedItemTypePolicy": {
     "message": "移除付款卡項目類型"
   },
-  "restrictedItemTypePolicyDesc": {
-    "message": "不允許成員建立支付卡項目類型。現有支付卡將自動移除。"
-  },
   "restrictedItemTypePolicyDescV2": {
     "message": "不允許成員在其保管庫中建立及儲存信用卡項目。啟用此政策後，現有的信用卡項目將自動隱藏。"
   },
@@ -4135,12 +4195,6 @@
   },
   "instructions": {
     "message": "說明"
-  },
-  "passwordlessLogin": {
-    "message": "無密碼登入"
-  },
-  "multifactorAuthentication": {
-    "message": "多因素驗證"
   },
   "exposedPasswordsReport": {
     "message": "洩露的密碼"
@@ -4912,6 +4966,9 @@
   },
   "chooseYourPlan": {
     "message": "選擇您的方案"
+  },
+  "choosePlan": {
+    "message": "Choose plan"
   },
   "users": {
     "message": "使用者"
@@ -6793,7 +6850,7 @@
   "openOrgInviteAcceptFailed": {
     "message": "Unable to accept invitation. Ask an organization admin to send a new invitation link."
   },
-  "openOrgInviteAcceptFailedTitle": {
+  "cannotAcceptInvitation": {
     "message": "Cannot accept invitation"
   },
   "openOrgInviteAcceptAlreadyMember": {
@@ -7369,6 +7426,21 @@
       }
     }
   },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Check your email to finish joining $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
+  },
+  "inviteSentToEmail": {
+    "message": "Invite sent to email"
+  },
   "acceptPolicies": {
     "message": "選中此選取框，即表示您同意下列條款："
   },
@@ -7638,17 +7710,11 @@
   "twoStepLoginPolicyDescV2": {
     "message": "要求成員設定兩步驟登入。此政策不適用於擁有者與管理員。"
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "非擁有者或管理員，並且其帳戶未啟用兩步驟登入的組織成員將從組織中移除，他們將收到一封關於此變更的電子郵件通知。"
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "啟用此政策後，未啟用兩步驟登入的使用者將被撤銷存取權限。受影響的使用者將收到電子郵件通知。"
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "您是組織成員，而組織要求您的使用者帳戶啟用兩步驟登入。如果停用所有兩步驟登入方式，您將被自動從這些組織移除。"
-  },
-  "passwordGeneratorPolicyDesc": {
-    "message": "設定密碼產生器要求。"
   },
   "passwordGeneratorPolicyDescV2": {
     "message": "設定成員產生密碼時必須符合的最低要求。"
@@ -7912,9 +7978,6 @@
   "singleOrgDesc": {
     "message": "限制成員加入其他組織。"
   },
-  "singleOrgPolicyDesc": {
-    "message": "限制成員加入其他組織。此政策為已啟用網域驗證的組織所必需。"
-  },
   "singleOrgPolicyDescVfo1": {
     "message": "Restrict members from joining other shared or organization vaults.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
@@ -7947,9 +8010,6 @@
     "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
   },
-  "requireSsoPolicyDesc": {
-    "message": "要求成員使用企業單一登入方法登入。"
-  },
   "requireSsoPolicyTitle": {
     "message": "要求使用單一登入（SSO）"
   },
@@ -7959,15 +8019,19 @@
   "prerequisite": {
     "message": "先決條件"
   },
-  "requireSsoPolicyReq": {
-    "message": "必須先開啟「單一組織」企業原則，才能激活此原則。"
-  },
   "requireSsoPolicyReqV2": {
     "message": "您必須先啟用單一組織政策，才能啟用此政策。"
   },
   "requireSsoPolicyReqV2Vfo1": {
     "message": "You must enable the single organization membership policy before enabling this one.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "You must enable the single organization policy before enabling this one."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "You must enable the single organization membership policy before enabling this one.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "單一組織原則未啟用。"
@@ -8379,9 +8443,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "在成員離職或交接時輕鬆轉移項目，確保存取權不中斷。"
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "為所有使用者提供專屬的「我的項目」空間，以管理個人登入資料。"
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "提示成員轉移其項目"
   },
@@ -8390,9 +8451,6 @@
   },
   "centralizeDataOwnershipWarningLink": {
     "message": "進一步了解轉移流程"
-  },
-  "promptUsersToMoveItems": {
-    "message": "提示使用者將個人密碼庫項目移動至組織"
   },
   "promptUsersToMoveItemsCallout": {
     "message": "系統將提示成員將其項目轉移至組織，或選擇離開。如果他們離開，其存取權將被撤銷，但可隨時恢復。"
@@ -8605,10 +8663,6 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "桌面自動填入預設設定"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "預設為成員啟用桌面自動填入。成員可在桌面端手動關閉自動填入。",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "為成員啟用桌面自動輸入功能。成員可在桌面應用程式中手動關閉自動輸入。"
   },
@@ -8694,9 +8748,6 @@
   "uriMatchDetectionPolicy": {
     "message": "預設 URI 相符偵測"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "用於決定何時提供登入項目的自動填入建議。系統管理員與擁有者不受此原則限制。"
-  },
   "uriMatchDetectionPolicyDescVfo1": {
     "message": "Set the default URI match detection for all items created by members.",
     "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
@@ -8710,6 +8761,23 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "請選擇有效的 URI 相符偵測選項。",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "Activate fill assist",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Turn on fill assist by default for all members. This feature uses reviewed, site-specific instructions to improve autofill accuracy on websites known to be difficult to autofill."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Custom autofill rule set"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "By default, fill assist uses Bitwarden's curated rule set. Enter a URL here to override it with your own."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Enter a valid URL",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "原則 $ID$ 已修改。",
@@ -8725,6 +8793,9 @@
   },
   "estimatedTax": {
     "message": "估計稅額"
+  },
+  "subtotal": {
+    "message": "Subtotal"
   },
   "custom": {
     "message": "自訂"
@@ -9493,9 +9564,6 @@
   "automaticAppLoginWithSSO": {
     "message": "自動使用SSO登入"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "將SSO的安全和便利拓展至未受管理的應用程式。當使用者用身分識別提供者啟動應用程式時，登入資訊會自動填寫並提交，建立從身分識別提供者到應用程式的一鍵式安全流程。"
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "當使用者從您的身分識別提供者啟動應用程式時，登入資訊會自動填入並送出，提供安全的一鍵登入體驗。"
   },
@@ -9630,9 +9698,6 @@
   },
   "disableExport": {
     "message": "移除匯出"
-  },
-  "disablePersonalVaultExportDescription": {
-    "message": "不允許成員從其個人密碼庫匯出資料。"
   },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "不允許成員從個人保管庫匯出資料。此政策不適用於擁有者與管理員。"
@@ -11514,6 +11579,9 @@
   },
   "noSharedFoldersAdded": {
     "message": "尚未新增共享資料夾"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
   },
   "noMembersAdded": {
     "message": "未新增任何成員"
@@ -14134,6 +14202,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Get Secrets Manager"
+  },
   "secureYourInfrastructure": {
     "message": "保護你的基礎設施"
   },
@@ -14848,9 +14919,6 @@
     "message": "Remove Sponsored Families Plan",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
   },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "不允許成員透過此組織兌換家庭方案。"
-  },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "不允許成員兌換由您的組織贊助的 Families 方案。"
   },
@@ -15308,9 +15376,6 @@
   "removeUnlockWithPinPolicyTitle": {
     "message": "移除以 PIN 解鎖"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "不允許成員使用 PIN 解鎖其帳號。"
-  },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "不允許成員使用 PIN 碼解鎖帳戶。"
   },
@@ -15698,8 +15763,20 @@
   "providersubCanceledmessage": {
     "message": "若要重新訂閱，請聯絡 Bitwarden 客戶支援。"
   },
+  "showAll": {
+    "message": "Show all"
+  },
   "showMore": {
     "message": "顯示更多"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "顯示較少"
@@ -15745,16 +15822,21 @@
   "checkInputFormat": {
     "message": "請檢查輸入格式是否有錯字。"
   },
-  "exampleTaxIdFormat": {
-    "message": "$CODE$ 格式範例：$EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Example tax ID format: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Recognized format: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -15959,6 +16041,9 @@
   "upgradeNow": {
     "message": "立即升級"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Get advanced online security with Bitwarden premium."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "填寫此表單將建立新的家庭組織。你可以從管理主控台升級你的免費組織。"
   },
@@ -16010,9 +16095,6 @@
   "blockClaimedDomainAccountCreation": {
     "message": "封鎖已宣告網域的帳號建立"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "防止使用者使用屬於已宣告網域的電子郵件地址，在組織外建立帳號。"
-  },
   "blockClaimedDomainAccountCreationDescVfo1": {
     "message": "Prevent account creation from claimed domains.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
@@ -16023,9 +16105,6 @@
   "blockClaimedDomainAccountCreationDescV2Vfo1": {
     "message": "Block members from using your claimed domain to create Bitwarden accounts outside of your organization vault.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
-  },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "在啟用此原則前，必須先宣告網域。"
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "啟用此政策前，您必須先宣告網域。"
@@ -16147,6 +16226,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "正在驗證資料夾完整性"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Verifying attachment integrity"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ item(s) have file attachments with old encryption. Open an item below and go to Attachments to fix it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "資料復原與診斷"
@@ -16483,6 +16574,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "Premium 訂閱抵扣金額"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Applied subscription credits"
   },
   "enterpriseMembership": {
     "message": "Enterprise 會籍"
@@ -17471,6 +17565,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Login"
+  },
+  "orgNameVault": {
+    "message": "$ORGNAME$ vault",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }
