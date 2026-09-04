@@ -65,9 +65,11 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     concatMap(async (env) => {
       await SdkLoadService.Ready;
       const settings = await this.toSettings(env);
+      const managedSettings = await firstValueFrom(this.managedSettingsService.client$);
       const client = await this.sdkClientFactory.createSdkClient(
         new JsTokenProvider(this.apiService),
         settings,
+        managedSettings,
       );
       await this.loadFeatureFlags(client);
       return client;
@@ -83,9 +85,6 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     private apiService: ApiService,
     private stateProvider: StateProvider,
     private configService: ConfigService,
-    // Not yet read. The SDK's `PasswordManagerClient` constructor gains a `ManagedSettingsClient`
-    // parameter in sdk-internal#1405; once that publishes, `client$` is resolved here and passed to
-    // `createSdkClient`.
     private managedSettingsService: ManagedSettingsService,
     private userAgent: string | null = null,
   ) {}
@@ -144,9 +143,11 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
             }
 
             const settings = await this.toSettings(env);
+            const managedSettings = await firstValueFrom(this.managedSettingsService.client$);
             const client = await this.sdkClientFactory.createSdkClient(
               new JsTokenProvider(this.apiService, userId),
               settings,
+              managedSettings,
             );
 
             // Initialize the client managed repositories.

@@ -6,7 +6,6 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptedString, PBKDF2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
-import { ManagedSettingsService } from "@bitwarden/managed-settings";
 import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import {
@@ -15,6 +14,7 @@ import {
   FakeStateProvider,
   mockAccountServiceWith,
   mockAccountInfoWith,
+  mockManagedSettingsService,
 } from "../../../../spec";
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
@@ -87,7 +87,7 @@ describe("DefaultSdkService", () => {
         fakeStateProvider,
         configService,
         upgradeTokenStateService,
-        mock<ManagedSettingsService>(),
+        mockManagedSettingsService(),
       );
     });
 

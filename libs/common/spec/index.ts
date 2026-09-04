@@ -6,3 +6,4 @@ export * from "./fake-state";
 export * from "./fake-account-service";
 export * from "./fake-storage.service";
 export * from "./observable-tracker";
+export * from "./managed-settings";
