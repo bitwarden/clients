@@ -7975,7 +7975,7 @@
     "message": "これらのログイン情報には再利用されたパスワードがあります。誰かが1つのパスワードで複数のアカウントにアクセスできないように、各アカウントに固有のパスワードを作成してください。"
   },
   "deleteAtRiskItemDesc": {
-    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
+    "message": "まずパスワードを変更したか確認してください。削除するだけでは保管庫からアイテムが消えるだけで、リスクは修正されません。"
   },
   "passwordHasAdditionalRisks": {
     "message": "このパスワードには追加のリスクがあります："

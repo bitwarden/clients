@@ -5974,10 +5974,10 @@
     "message": "Скиньте фільтри або спробуйте іншу умову пошуку"
   },
   "noSharedFoldersAdded": {
-    "message": "No shared folders added"
+    "message": "Спільних тек не додано"
   },
   "noSharedFoldersAddedDescription": {
-    "message": "Add a shared folder to securely share vault items with other members."
+    "message": "Додайте спільну теку, щоб безпечно ділитися елементами сховища з іншими учасниками."
   },
   "moreOptionsLabel": {
     "message": "Інші можливості, $ITEMNAME$",
@@ -7307,7 +7307,7 @@
     "message": "Розгорнути"
   },
   "showMoreCount": {
-    "message": "Show $COUNT$ more",
+    "message": "Показати ще $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7975,7 +7975,7 @@
     "message": "Для цих облікових записів використовується однаковий пароль. Створіть унікальний пароль для кожного облікового запису, щоб ніхто не зміг отримати доступ до кількох облікових записів за допомогою одного пароля."
   },
   "deleteAtRiskItemDesc": {
-    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
+    "message": "Обов’язково спочатку змініть свій пароль. Видалення лише прибирає цей елемент із вашого сховища, але не усуває ризик."
   },
   "passwordHasAdditionalRisks": {
     "message": "Цей пароль має додаткові ризики:"
@@ -8007,18 +8007,18 @@
     "message": "Усе налаштовано!"
   },
   "permissions": {
-    "message": "Permissions"
+    "message": "Дозволи"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "Переглянути записи"
   },
   "viewItemsHidePass": {
-    "message": "View items, hidden passwords"
+    "message": "Перегляд записів, прихованих паролів"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Редагувати записи"
   },
   "editItemsHidePass": {
-    "message": "Edit items, hidden passwords"
+    "message": "Редагування записів, прихованих паролів"
   }
 }
