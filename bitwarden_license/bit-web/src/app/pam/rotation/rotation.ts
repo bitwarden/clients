@@ -164,11 +164,9 @@ export const QuartzSchedulePreset = Object.freeze({
 export type QuartzSchedulePreset = SdkQuartzSchedulePreset;
 
 /**
- * The UI's name for {@link AccessConnectorStatus}.
- *
- * The server, the SDK and every user-facing string say *access connector*. The alias survives
- * because this feature's identifiers are named `Daemon*` (`DaemonRow`, `DaemonsService`, the
- * `daemons/` directory and route segment), and the status type reads alongside them.
+ * {@link AccessConnectorStatus} under this feature's local `Daemon*` naming (`DaemonRow`,
+ * `DaemonsService`, the `daemons/` directory and route segment). Only those identifiers still say
+ * daemon; every user-facing string says *access connector*.
  */
 export const DaemonStatus = AccessConnectorStatus;
 export type DaemonStatus = AccessConnectorStatus;
