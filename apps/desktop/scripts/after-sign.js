@@ -2,10 +2,16 @@
 require("dotenv").config();
 
 const { notarize } = require("@electron/notarize");
+const builder = require("electron-builder");
 
 exports.default = run;
 
+const IS_GITHUB_ACTIONS = process.env.GITHUB_ACTIONS == "true";
+
 async function run(context) {
+  if (IS_GITHUB_ACTIONS) {
+    console.log(`::group::After sign (${builder.Arch[context.arch]})`);
+  }
   console.log("## After sign");
   // console.log(context);
 
@@ -37,5 +43,8 @@ async function run(context) {
         appleIdPassword: appleIdPassword,
       });
     }
+  }
+  if (IS_GITHUB_ACTIONS) {
+    console.log("::endgroup::");
   }
 }
