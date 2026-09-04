@@ -74,6 +74,7 @@ describe("CipherAttachmentsComponent", () => {
   const cipherServiceDecrypt = jest.fn().mockResolvedValue(cipherView);
   const saveAttachmentWithServer = jest.fn().mockResolvedValue(cipherDomain);
 
+  const apiService = mock<ApiService>();
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
   const organizations$ = new BehaviorSubject<Organization[]>([organization]);
@@ -83,6 +84,7 @@ describe("CipherAttachmentsComponent", () => {
     cipherServiceDecrypt.mockClear().mockResolvedValue(cipherView);
     showToast.mockClear();
     saveAttachmentWithServer.mockClear().mockResolvedValue(cipherDomain);
+    apiService.getFullCipherDetails.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [CipherAttachmentsComponent],
@@ -113,7 +115,7 @@ describe("CipherAttachmentsComponent", () => {
         },
         {
           provide: ApiService,
-          useValue: mock<ApiService>(),
+          useValue: apiService,
         },
         {
           provide: OrganizationService,
@@ -535,6 +537,73 @@ describe("CipherAttachmentsComponent", () => {
       // After removal, there should be no attachments displayed
       const attachmentItems = fixture.debugElement.queryAll(By.css('[data-testid="file-name"]'));
       expect(attachmentItems.length).toEqual(0);
+    });
+  });
+
+  describe("PAM-gated cipher", () => {
+    /** What local state holds for a gated cipher: stripped, and so carrying no attachments. */
+    const strippedCipher = { id: "5555-444-3333", partialData: '{"name":"gated"}' };
+
+    /** What the server releases under a valid active lease. */
+    const fullCipherResponse = {
+      id: "5555-444-3333",
+      type: CipherType.Login,
+      name: "2.aaa|bbb|ccc",
+      creationDate: "2026-09-01T13:11:20.676Z",
+      revisionDate: "2026-09-04T10:30:59.922Z",
+      login: {},
+      attachments: [{ id: "attachment-1", fileName: "2.ddd|eee|fff", size: "97" }],
+    };
+
+    /** Stand the component up fresh so the initialization effect picks the mocks up. */
+    async function initialize(): Promise<void> {
+      fixture = TestBed.createComponent(CipherAttachmentsComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
+      fixture.detectChanges();
+      await waitForInitialization();
+    }
+
+    beforeEach(() => {
+      cipherServiceGet.mockResolvedValue(strippedCipher);
+    });
+
+    afterEach(() => {
+      cipherServiceGet.mockResolvedValue(cipherDomain);
+    });
+
+    it("reads the full cipher from the server rather than the stripped local copy", async () => {
+      apiService.getFullCipherDetails.mockResolvedValue(fullCipherResponse as never);
+
+      await initialize();
+
+      expect(apiService.getFullCipherDetails).toHaveBeenCalledWith("5555-444-3333");
+      // The stripped copy carries no attachment metadata, so decrypting it would render the item
+      // as though it had none however many it actually has.
+      expect(cipherServiceDecrypt).toHaveBeenCalledWith(
+        expect.objectContaining({ partialData: undefined }),
+        mockUserId,
+      );
+    });
+
+    it("keeps the stripped copy when the server withholds the full one anyway", async () => {
+      // No lease covers the cipher, so the read comes back stripped a second time.
+      apiService.getFullCipherDetails.mockResolvedValue({
+        ...fullCipherResponse,
+        partialData: '{"name":"gated"}',
+      } as never);
+
+      await initialize();
+
+      expect(cipherServiceDecrypt).toHaveBeenCalledWith(strippedCipher, mockUserId);
+    });
+
+    it("keeps the stripped copy when the read fails", async () => {
+      apiService.getFullCipherDetails.mockRejectedValue(new Error("network"));
+
+      await initialize();
+
+      expect(cipherServiceDecrypt).toHaveBeenCalledWith(strippedCipher, mockUserId);
     });
   });
 });
