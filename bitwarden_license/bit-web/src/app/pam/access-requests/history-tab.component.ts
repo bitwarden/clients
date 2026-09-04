@@ -8,6 +8,7 @@ import {
   inject,
   signal,
   untracked,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
@@ -32,6 +33,8 @@ import {
   BadgeComponent,
   ButtonModule,
   DialogService,
+  FilterMenuComponent,
+  FilterMenuModule,
   StatusLockupComponent,
   SvgComponent,
   SkeletonComponent,
@@ -39,7 +42,6 @@ import {
   TableDataSource,
   TableModule,
   ToastService,
-  ToggleGroupModule,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -71,11 +73,11 @@ const announcementHoldMs = 2000;
  * Managed (decided requests for collections the caller manages, the only ones they can undo a
  * decision on).
  *
- * Opens on All so the reader is never shown an empty table behind an unpressed toggle;
+ * Opens on All so the reader is never shown an empty table behind an unpressed chip;
  * `managedIds` is the per-row authority, so a row the caller both raised and manages appears
  * once, keeping the richer copy.
  *
- * A caller with no approval privilege has no managed rows, no Actions column, and no toggle.
+ * A caller with no approval privilege has no managed rows, no Actions column, and no chip.
  */
 @Component({
   selector: "pam-history-tab",
@@ -87,13 +89,13 @@ const announcementHoldMs = 2000;
     AccessStateBadgeComponent,
     BadgeComponent,
     ButtonModule,
+    FilterMenuModule,
     IconComponent,
     StatusLockupComponent,
     SvgComponent,
     SkeletonComponent,
     SkeletonTextComponent,
     TableModule,
-    ToggleGroupModule,
     TypographyModule,
     I18nPipe,
     DurationShortPipe,
@@ -119,8 +121,15 @@ export class HistoryTabComponent {
     initialValue: false,
   });
 
-  /** The filter the viewer picked from the toggle. */
+  /** The filter the viewer picked from the chip. */
   private readonly selectedScope = signal<HistoryScope>(HistoryScope.All);
+
+  /**
+   * `bit-filter-menu` is not a `ControlValueAccessor`, so its selection is read off the chip's own
+   * `value` signal rather than bound through a form control. There is exactly one chip and no table
+   * host for it to register with, so a `viewChild` read is the whole of the plumbing this needs.
+   */
+  private readonly scopeChip = viewChild<FilterMenuComponent>("historyScopeFilter");
 
   /** Request ids currently being acted on, so a second click on the same row is a no-op. */
   private readonly acting = signal<Set<string>>(new Set());
@@ -228,8 +237,8 @@ export class HistoryTabComponent {
   protected readonly canSwitchScope = computed(() => this.canApprove() || this.hasManagedHistory());
 
   /**
-   * Falls back to All, synchronously, if the toggle disappears while filtered; the choice is
-   * forgotten, so a returning toggle can't silently re-narrow the table.
+   * Falls back to All, synchronously, if the chip disappears while filtered; the choice is
+   * forgotten, so a returning chip can't silently re-narrow the table.
    */
   protected readonly scope = computed<HistoryScope>(() =>
     this.canSwitchScope() ? this.selectedScope() : HistoryScope.All,
@@ -322,6 +331,12 @@ export class HistoryTabComponent {
       if (!this.canSwitchScope()) {
         this.selectedScope.set(HistoryScope.All);
       }
+    });
+    effect(() => {
+      const value = this.scopeChip()?.value();
+      this.selectScope(
+        value === HistoryScope.Mine || value === HistoryScope.Managed ? value : HistoryScope.All,
+      );
     });
   }
 

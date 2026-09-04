@@ -28,7 +28,17 @@ import { MyAccessService } from "./my-access.service";
 
 const names = storyNames();
 
-const MINE_TOGGLE = '[data-testid="history-scope-mine"] label';
+/**
+ * Picks an option from the History scope chip, found by the label its trigger carries. The chip's
+ * menu renders in a CDK overlay on `document.body`, outside the story's own canvas.
+ */
+async function selectHistoryScope(canvasElement: HTMLElement, option: string): Promise<void> {
+  const trigger = canvasElement.querySelector<HTMLButtonElement>(
+    'bit-filter-menu button[title^="History scope"]',
+  )!;
+  await userEvent.click(trigger);
+  await userEvent.click(await within(document.body).findByText(option));
+}
 
 const request = (overrides: Record<string, unknown>) =>
   toRequestRow(accessRequest(overrides), names);
@@ -209,8 +219,7 @@ export const ApproverWithoutManagedHistory: Story = {
 export const ManagedOnly: Story = {
   decorators: [history({ mine: [], managed: managedRows })],
   play: async ({ canvasElement }) => {
-    const managed = await within(canvasElement).findByTestId("history-scope-managed");
-    await userEvent.click(within(managed).getByRole("radio"));
+    await selectHistoryScope(canvasElement, "For my collections");
   },
 };
 
@@ -218,6 +227,6 @@ export const ManagedOnly: Story = {
 export const MineFilter: Story = {
   decorators: [history({ managed: managedRows })],
   play: async ({ canvasElement }) => {
-    await userEvent.click(canvasElement.querySelector<HTMLLabelElement>(MINE_TOGGLE)!);
+    await selectHistoryScope(canvasElement, "Raised by me");
   },
 };
