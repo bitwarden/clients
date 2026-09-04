@@ -1794,9 +1794,6 @@
   "launchWebsite": {
     "message": "Launch website"
   },
-  "launchWebsite": {
-    "message": "Launch website"
-  },
   "me": {
     "message": "Me"
   },
@@ -1879,9 +1876,6 @@
   },
   "clearAll": {
     "message": "Clear all"
-  },
-  "done": {
-    "message": "Done"
   },
   "filtersSelected": {
     "message": "$COUNT$ selected",
@@ -17585,5 +17579,89 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "memberAdoptionReport": {
+    "message": "Member adoption"
+  },
+  "memberAdoptionReportDesc": {
+    "message": "Track member adoption of Bitwarden with metrics on recent logins, browser extension use, and number of vault items."
+  },
+  "activeMembers": {
+    "message": "Active members"
+  },
+  "sponsoredFamiliesPlanUsage": {
+    "message": "Sponsored Families Plan usage"
+  },
+  "ofMembers": {
+    "message": "of members"
+  },
+  "membersLower": {
+    "message": "members",
+    "description": "Lowercase 'members' used as the unit beside a count, e.g. '8 members'."
+  },
+  "memberLower": {
+    "message": "member",
+    "description": "Lowercase 'member' used as the unit beside a count of one, e.g. '1 member'."
+  },
+  "loggedInOverLast30Days": {
+    "message": "Logged in over last 30 days"
+  },
+  "redeemedPlan": {
+    "message": "Redeemed plan"
+  },
+  "recentLogin": {
+    "message": "Recent login"
+  },
+  "extensionUsed": {
+    "message": "Extension used",
+    "description": "Table column and filter label. Yes means the member has signed in with the browser extension, which does not prove it is still installed."
+  },
+  "sharedItems": {
+    "message": "Shared items",
+    "description": "Table column label for the number of items other members have shared with this member."
+  },
+  "memberAdoptionNoMembers": {
+    "message": "No members to display"
+  },
+  "memberAdoptionNoMembersDesc": {
+    "message": "Members appear here once they join your organization."
+  },
+  "memberAdoptionLoadError": {
+    "message": "Unable to load the member adoption report"
+  },
+  "memberAdoptionLoadErrorDesc": {
+    "message": "The report did not load, so no numbers are shown. Check your connection and try again."
+  },
+  "lessThanPercent": {
+    "message": "<$PERCENT$",
+    "description": "A percentage that rounded down to zero, shown as an upper bound instead, e.g. '<1%'.",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "1%"
+      }
+    }
+  },
+  "moreThanPercent": {
+    "message": ">$PERCENT$",
+    "description": "A percentage that rounded up to the whole, shown as a lower bound instead, e.g. '>99%'.",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "99%"
+      }
+    }
+  },
+  "activeMembersPopoverTitle": {
+    "message": "Measuring active members"
+  },
+  "activeMembersPopoverBody": {
+    "message": "This metric is based on the number of confirmed members who have logged into their vault in the last 30 days."
+  },
+  "sponsoredFamiliesPlanUsagePopoverTitle": {
+    "message": "Measuring plan usage"
+  },
+  "sponsoredFamiliesPlanUsagePopoverBody": {
+    "message": "Sponsored Families Plan usage is based on the number of confirmed users who have redeemed this plan out of your organization's total confirmed licensed seats."
   }
 }
