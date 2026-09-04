@@ -21,38 +21,23 @@
       >{{ titleText() }}</span
     >
   </div>
-  @if (daemon()) {
-    @if (enabled()) {
-      <button
-        type="button"
-        bitButton
-        buttonType="secondary"
-        [bitAction]="disable"
-        id="daemon-detail_button_disable"
+  <!-- Sits inside the h1 next to the name, mirroring access-rule-edit.component.html's status
+       badge; the sr-only label keeps the bare "Enabled"/"Disabled" from reading as part of the
+       connector's title. -->
+  <span slot="title-suffix" class="tw-flex tw-h-full tw-items-center">
+    @if (daemon()) {
+      <span class="tw-sr-only">{{ "status" | i18n }}:</span>
+      <span
+        bitBadge
+        [variant]="enabled() ? 'success' : 'secondary'"
+        id="daemon-detail_badge_status"
+        >{{
+          (enabled() ? "pamAccessConnectorStatusEnabled" : "pamAccessConnectorStatusDisabled")
+            | i18n
+        }}</span
       >
-        {{ "pamAccessConnectorDisable" | i18n }}
-      </button>
-    } @else {
-      <button
-        type="button"
-        bitButton
-        buttonType="secondary"
-        [bitAction]="enable"
-        id="daemon-detail_button_enable"
-      >
-        {{ "pamAccessConnectorEnable" | i18n }}
-      </button>
     }
-    <button
-      type="button"
-      bitButton
-      buttonType="danger"
-      [bitAction]="deleteDaemon"
-      id="daemon-detail_button_delete"
-    >
-      {{ "delete" | i18n }}
-    </button>
-  }
+  </span>
 </bit-header>
 
 @if (loading()) {
@@ -76,7 +61,7 @@
           }
         </div>
 
-        <div class="tw-mb-4">
+        <div>
           <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
             {{ "pamAccessConnectorConnection" | i18n }}
           </p>
@@ -86,21 +71,36 @@
             <span bitBadge variant="secondary">{{ "pamAccessConnectorOffline" | i18n }}</span>
           }
         </div>
+      </bit-card>
+    </bit-section>
 
-        <div>
-          <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
-            {{ "pamAccessConnectorAssignments" | i18n }}
-          </p>
-          @if (assignmentNames().length === 0) {
-            <span class="tw-text-muted">&mdash;</span>
-          } @else {
-            <div class="tw-flex tw-flex-wrap tw-gap-1">
-              @for (name of assignmentNames(); track $index) {
-                <span bitBadge variant="subtle">{{ name }}</span>
-              }
-            </div>
-          }
-        </div>
+    <!-- Assigned targets -->
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h5">{{ "pamAccessConnectorAssignments" | i18n }}</h2>
+        @if (enabled()) {
+          <button
+            slot="end"
+            type="button"
+            bitButton
+            buttonType="secondary"
+            [bitAction]="openAssignDialog"
+            id="daemon-detail_button_assign-target"
+          >
+            {{ "pamAccessConnectorAssignTargets" | i18n }}
+          </button>
+        }
+      </bit-section-header>
+      <bit-card>
+        @if (assignmentNames().length === 0) {
+          <span class="tw-text-muted">&mdash;</span>
+        } @else {
+          <div class="tw-flex tw-flex-wrap tw-gap-1">
+            @for (name of assignmentNames(); track $index) {
+              <span bitBadge variant="subtle">{{ name }}</span>
+            }
+          </div>
+        }
       </bit-card>
     </bit-section>
 
@@ -119,5 +119,42 @@
         </bit-card>
       }
     </bit-section>
+
+    <p bitTypography="body2" class="tw-text-muted">
+      {{ "pamAccessConnectorDeleteConfirmContent" | i18n: d.connector.name }}
+    </p>
+    <div class="tw-flex tw-items-center tw-gap-2">
+      @if (enabled()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          [bitAction]="disable"
+          id="daemon-detail_button_disable"
+        >
+          {{ "pamAccessConnectorDisable" | i18n }}
+        </button>
+      } @else {
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          [bitAction]="enable"
+          id="daemon-detail_button_enable"
+        >
+          {{ "pamAccessConnectorEnable" | i18n }}
+        </button>
+      }
+      <button
+        type="button"
+        bitButton
+        buttonType="danger"
+        [bitAction]="deleteDaemon"
+        class="tw-ms-auto"
+        id="daemon-detail_button_delete"
+      >
+        {{ "delete" | i18n }}
+      </button>
+    </div>
   </div>
 }
