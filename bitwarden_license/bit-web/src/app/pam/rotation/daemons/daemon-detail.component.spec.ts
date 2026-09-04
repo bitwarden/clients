@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -364,5 +365,82 @@ describe("DaemonDetailComponent", () => {
 
     expect(nav).toHaveBeenCalled();
     expect(toast.showToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+  });
+});
+
+// JSDOM has no ResizeObserver; bit-breadcrumbs renders through bitOverflowList, which constructs one.
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+(global as unknown as { ResizeObserver: unknown }).ResizeObserver = ResizeObserverStub;
+
+// Mounts the real template (no override) so where the action row sits in the DOM is asserted
+// against what renders — the one thing a template-stubbed spec cannot see.
+describe("DaemonDetailComponent — action row (rendered)", () => {
+  async function render(daemon: AccessConnectorDetail): Promise<HTMLElement> {
+    const rotationSdk = mock<RotationSdkService>();
+    rotationSdk.getConnector.mockResolvedValue(daemon);
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem()]);
+    await TestBed.configureTestingModule({
+      imports: [DaemonDetailComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        { provide: RotationSdkService, useValue: rotationSdk },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: { organizationId: ORGANIZATION_ID, daemonId: connectorId("daemon-1") },
+            },
+          },
+        },
+      ],
+    }).compileComponents();
+    const fixture: ComponentFixture<DaemonDetailComponent> =
+      TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it("leaves the page header with its title and breadcrumbs only", async () => {
+    const el = await render(makeDaemon());
+
+    const header = el.querySelector("bit-header") as HTMLElement;
+    expect(header).toBeTruthy();
+    expect(header.querySelector("#daemon-detail_button_disable")).toBeNull();
+    expect(header.querySelector("#daemon-detail_button_enable")).toBeNull();
+    expect(header.querySelector("#daemon-detail_button_delete")).toBeNull();
+  });
+
+  it("puts Disable and Delete in one row at the foot of the page content", async () => {
+    const el = await render(makeDaemon());
+
+    const row = el.querySelector(".tw-max-w-4xl")?.lastElementChild as HTMLElement;
+    expect(Array.from(row.querySelectorAll("button")).map((b) => b.id)).toEqual([
+      "daemon-detail_button_disable",
+      "daemon-detail_button_delete",
+    ]);
+  });
+
+  it("right-aligns Delete so it reads last", async () => {
+    const el = await render(makeDaemon());
+
+    const del = el.querySelector("#daemon-detail_button_delete") as HTMLElement;
+    expect(del.className).toContain("tw-ms-auto");
+  });
+
+  it("offers Enable in the same row when the connector is disabled", async () => {
+    const el = await render(makeDaemon({ status: DaemonStatus.Disabled }));
+
+    const row = el.querySelector(".tw-max-w-4xl")?.lastElementChild as HTMLElement;
+    expect(row.querySelector("#daemon-detail_button_enable")).toBeTruthy();
+    expect(row.querySelector("#daemon-detail_button_disable")).toBeNull();
   });
 });
