@@ -38,6 +38,9 @@ export type DaemonTokenDialogParams = {
  *
  * There is no way to re-fetch the token after this dialog closes. If the
  * operator loses it, they must delete the daemon and re-register.
+ *
+ * Opened with `disableClose`, so Escape, a backdrop click and the header X cannot
+ * dismiss it — the footer Close button is the only exit.
  */
 @Component({
   selector: "app-daemon-token-dialog",
@@ -68,6 +71,9 @@ export class DaemonTokenDialogComponent {
     dialogService: DialogService,
     config: DialogConfig<DaemonTokenDialogParams>,
   ): DialogRef<void> {
-    return dialogService.open<void, DaemonTokenDialogParams>(DaemonTokenDialogComponent, config);
+    return dialogService.open<void, DaemonTokenDialogParams>(DaemonTokenDialogComponent, {
+      ...config,
+      disableClose: true,
+    });
   }
 }
