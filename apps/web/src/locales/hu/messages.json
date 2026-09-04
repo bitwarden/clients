@@ -1801,7 +1801,7 @@
     "message": "Saját elemek"
   },
   "myItemsV2": {
-    "message": "My items"
+    "message": "Saját elemek"
   },
   "myVault": {
     "message": "Saját széf"
@@ -17569,10 +17569,10 @@
     }
   },
   "login": {
-    "message": "Login"
+    "message": "Bejelentkezés"
   },
   "orgNameVault": {
-    "message": "$ORGNAME$ vault",
+    "message": "$ORGNAME$ széf",
     "placeholders": {
       "orgname": {
         "content": "$1",
