@@ -226,7 +226,7 @@ export class ManagedCredentialsTabComponent {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "pamRotationConfigDeleteConfirmTitle" },
         content: { key: "pamRotationConfigDeleteConfirmContent" },
-        acceptButtonText: { key: "delete" },
+        acceptButtonText: { key: "remove" },
         cancelButtonText: { key: "cancel" },
         type: "warning",
       });
