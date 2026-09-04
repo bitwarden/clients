@@ -21,9 +21,6 @@ export class SideNavService {
   /** Width of the collapsed nav (icon strip / side rail), in rem. */
   readonly CLOSED_WIDTH = 4;
 
-  /** Pixels past CLOSED_WIDTH a drag must reach before open-state styling (labels, logo, sections) applies. */
-  private readonly OPEN_STYLE_THRESHOLD_PX = 80;
-
   /** Minimum main content width in rem, used to estimate push mode. Must match MAIN_MIN_WIDTH_REM in layout.component.ts. */
   private readonly MAIN_MIN_WIDTH_ESTIMATE_REM = 24;
 
@@ -74,22 +71,10 @@ export class SideNavService {
   /**
    * Visual width override (in rem) applied during a drag via a direct style binding: the preview
    * below MIN_OPEN_WIDTH when dragging out from collapsed, and the tension shrink when an open nav
-   * is dragged toward the snap threshold. Never persisted. Null when no drag is in progress.
+   * is dragged toward the snap threshold. Drives width alone — the nav keeps its closed styling
+   * until it actually opens. Never persisted. Null when no drag is in progress.
    */
   readonly dragDisplayWidth = signal<number | null>(null);
-
-  /**
-   * Whether to render open-state styling (labels, logo, sections). Distinct from `open`, which also
-   * drives push/overlay mode: a preview drag adopts open styling once it is OPEN_STYLE_THRESHOLD_PX
-   * past closed, while staying functionally closed until the drag commits.
-   */
-  readonly showLabels = computed(() => {
-    const preview = this.dragDisplayWidth();
-    if (preview !== null) {
-      return preview >= this.CLOSED_WIDTH + this.OPEN_STYLE_THRESHOLD_PX / this.rootFontSizePx;
-    }
-    return this.open();
-  });
 
   /** Owns the width and decides what is persisted. This service never writes to disk itself. */
   private readonly widthService = inject(SideNavWidthService);
@@ -145,7 +130,7 @@ export class SideNavService {
 
     if (!this.open()) {
       // Dragging out from collapsed — drive visual width via dragDisplayWidth without changing
-      // `open`, so no component adopts open-state styling prematurely.
+      // `open`, so push/overlay mode and open-state styling stay put until the drag commits.
       if (newWidthInRem < this.CLOSED_WIDTH) {
         // Dragged back onto the icon strip — abort the preview and stay collapsed.
         this.dragDisplayWidth.set(null);

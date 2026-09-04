@@ -480,34 +480,20 @@ describe("SideNavService", () => {
     });
   });
 
-  describe("showLabels", () => {
-    it("follows `open` when no preview drag is active", () => {
+  describe("preview drag", () => {
+    it("does not open the nav or flip to overlay mode", () => {
       createService();
-      service.open.set(true);
-      expect(service.showLabels()).toBe(true);
-
+      service.isPushMode.set(true);
       service.open.set(false);
-      expect(service.showLabels()).toBe(false);
-    });
+      const widthBefore = currentWidth();
 
-    it("stays false for a preview narrower than the open-style threshold", () => {
-      createService();
-      service.open.set(false);
-      service.dragDisplayWidth.set(service.CLOSED_WIDTH + 1);
+      dragTo(10);
 
-      expect(service.showLabels()).toBe(false);
-      expect(service.open()).toBe(false);
-    });
-
-    it("becomes true once the preview passes the threshold, without opening the nav", () => {
-      createService();
-      service.open.set(false);
-      service.dragDisplayWidth.set(service.CLOSED_WIDTH + 6);
-
-      expect(service.showLabels()).toBe(true);
-      // `open` drives push/overlay mode, so it must not flip mid-drag.
+      // `open` drives push/overlay mode, so a preview must not flip it mid-gesture.
       expect(service.open()).toBe(false);
       expect(service.isOverlay()).toBe(false);
+      expect(currentWidth()).toBe(widthBefore);
+      expect(service.dragDisplayWidth()).toBe(10);
     });
   });
 });

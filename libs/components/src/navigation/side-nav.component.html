@@ -1,5 +1,4 @@
 @let open = sideNavService.open();
-@let showLabels = sideNavService.showLabels();
 @let isOverlay = sideNavService.isOverlay();
 @let version = sideNavService.version();
 
@@ -47,10 +46,10 @@
               data-testid="side-nav-header"
               class="tw-flex tw-px-3 tw-pb-3 tw-justify-between tw-items-center tw-border-0 tw-border-solid tw-border-b tw-border-border-nav-divider"
               [class.tw-pt-3]="!isOverlay"
-              [class.tw-flex-col]="!showLabels"
-              [class.tw-gap-1]="!showLabels"
-              [class.tw-gap-2]="showLabels"
-              [class.tw-pe-3]="showLabels"
+              [class.tw-flex-col]="!open"
+              [class.tw-gap-1]="!open"
+              [class.tw-gap-2]="open"
+              [class.tw-pe-3]="open"
               [style.padding-top]="
                 isOverlay ? 'calc(0.75rem + var(--bit-sidenav-extra-top-padding, 0px))' : null
               "
@@ -59,7 +58,7 @@
               <button
                 #toggleButton
                 type="button"
-                [bitIconButton]="showLabels ? 'bwi-collapse-nav' : 'bwi-expand-nav'"
+                [bitIconButton]="open ? 'bwi-collapse-nav' : 'bwi-expand-nav'"
                 buttonType="side-nav"
                 size="small"
                 (click)="sideNavService.toggle()"
@@ -86,7 +85,7 @@
               data-footer
               class="tw-p-3 tw-flex tw-flex-col tw-gap-2 tw-border-solid tw-border-0 tw-border-t tw-border-border-nav-divider empty:tw-hidden"
             >
-              @if (showLabels) {
+              @if (open) {
                 <ng-content select="[slot=callout]"></ng-content>
               }
               <ng-content select="[slot=account]"></ng-content>
@@ -146,7 +145,7 @@
             <ng-container *ngTemplateOutlet="logoContent"></ng-container>
             <ng-container *ngTemplateOutlet="navContent"></ng-container>
           </div>
-          @if (showLabels) {
+          @if (open) {
             <div
               class="tw-w-full tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"
             >
@@ -157,7 +156,7 @@
       </div>
       <div class="tw-w-full tw-bg-bg-nav">
         <bit-nav-divider></bit-nav-divider>
-        @if (showLabels) {
+        @if (open) {
           <ng-container *ngTemplateOutlet="footerContent"></ng-container>
         }
         <div class="tw-m-4">
@@ -165,7 +164,7 @@
             #toggleButton
             type="button"
             class="tw-mx-auto tw-block"
-            [bitIconButton]="showLabels ? 'bwi-angle-left' : 'bwi-angle-right'"
+            [bitIconButton]="open ? 'bwi-angle-left' : 'bwi-angle-right'"
             buttonType="side-nav"
             size="small"
             (click)="sideNavService.toggle()"
