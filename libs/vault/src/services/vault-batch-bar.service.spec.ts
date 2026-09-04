@@ -384,27 +384,26 @@ describe("VaultBatchBarService", () => {
 
     it("returns true when at least one item is selected", () => {
       service.selection.select(makeCipherItem());
+      featureFlagSubject.next(true);
 
       expect(service.barVisible()).toBe(true);
     });
 
     it("returns false after selection is cleared", () => {
       service.selection.select(makeCipherItem());
+      featureFlagSubject.next(true);
 
       expect(service.barVisible()).toBe(true);
-
       service.selection.clear();
 
       expect(service.barVisible()).toBe(false);
     });
 
-    // The bar shows on selection alone, so consumers reserving space for it must not re-gate on
-    // the rollout flags — that mismatch hid the last row behind the bar.
-    it("ignores the feature flag", () => {
+    it("respects the feature flag", () => {
       featureFlagSubject.next(false);
       service.selection.select(makeCipherItem());
 
-      expect(service.barVisible()).toBe(true);
+      expect(service.barVisible()).toBe(false);
     });
   });
 

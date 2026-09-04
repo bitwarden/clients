@@ -286,7 +286,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   /** Bottom margin held while the bulk-actions bar is up. */
   protected readonly bulkBarClearance = computed(() =>
-    this.batchBarService?.selectedCount() > 0 ? BULK_BAR_CLEARANCE : 0,
+    (this.batchBarService?.selectedCount() ?? 0) > 0 ? BULK_BAR_CLEARANCE : 0,
   );
 
   /** The rows to display. */
