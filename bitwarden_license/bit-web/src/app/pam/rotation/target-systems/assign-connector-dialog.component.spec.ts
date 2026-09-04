@@ -11,7 +11,6 @@ import {
   AssignConnectorDialogParams,
 } from "./assign-connector-dialog.component";
 
-// Simple i18n stub: returns the key for any translation.
 const i18nStub: Pick<I18nService, "t"> = {
   t: (id: string) => id,
 };
