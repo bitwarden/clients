@@ -45,7 +45,7 @@ import type { CipherId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { OrgCiphersService } from "../org-ciphers.service";
-import { TargetSystemMethod, TargetSystem } from "../rotation";
+import { TargetSystemMethod, TargetSystem, TargetSystemId } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { RotationConfigRow } from "./rotation-config-row";
@@ -129,10 +129,22 @@ export class ManagedCredentialsTabComponent {
   });
   private readonly collectionFilterChip = viewChild("collectionFilter", { read: FILTER_CONTROL });
 
-  /** Distinct target system names present in the currently-loaded rows, sorted for the chip. */
-  protected readonly targetSystemNames = computed(() =>
-    [...new Set(this.rows().map((r) => r.targetSystemName))].sort((a, b) => a.localeCompare(b)),
-  );
+  /**
+   * Distinct target systems present in the currently-loaded rows, keyed by id and sorted by name
+   * for the chip. Keyed by id rather than name: target system names carry no uniqueness
+   * constraint (`target-system-edit.component.ts` validates only required + maxLength), so two
+   * systems sharing a name would otherwise collapse into one chip option that matched rows
+   * against either.
+   */
+  protected readonly targetSystemOptions = computed(() => {
+    const nameById = new Map<TargetSystemId, string>();
+    for (const row of this.rows()) {
+      nameById.set(row.config.targetSystemId, row.targetSystemName);
+    }
+    return [...nameById.entries()]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  });
 
   private readonly ciphers = toSignal(this.orgCiphersService.ciphers$, {
     initialValue: [] as CipherView[],
@@ -150,8 +162,8 @@ export class ManagedCredentialsTabComponent {
   /**
    * The org's collections, for resolving the ids above to names. Loaded directly here rather than
    * through a page-scoped service, since `CollectionAdminService` is already provided at the app
-   * root (see `apps/web/src/app/core/core.module.ts`) and `access-rules.component.ts` reads it the
-   * same way.
+   * root (see `apps/web/src/app/core/core.module.ts`) and `services/access-rules.service.ts` reads
+   * it the same way.
    */
   private readonly collections = signal<CollectionAdminView[]>([]);
 
@@ -164,7 +176,7 @@ export class ManagedCredentialsTabComponent {
     const nameById = new Map(this.collections().map((c) => [uuidAsString(c.id), c.name]));
     const present = new Set<string>();
     for (const row of this.rows()) {
-      for (const collectionId of this.cipherCollectionIds(row)) {
+      for (const collectionId of this.cipherCollectionIds(row) ?? []) {
         present.add(collectionId);
       }
     }
@@ -173,9 +185,17 @@ export class ManagedCredentialsTabComponent {
       .sort((a, b) => a.name.localeCompare(b.name));
   });
 
-  /** `row`'s cipher's collection ids, via {@link cipherCollectionIdsById}. */
-  private cipherCollectionIds(row: RotationConfigRow): string[] {
-    return this.cipherCollectionIdsById().get(row.config.cipherId) ?? [];
+  /**
+   * `row`'s cipher's collection ids, via {@link cipherCollectionIdsById}, or `undefined` when the
+   * cipher never loaded — a viewer without `canEditAllCiphers` only gets ciphers assigned to them
+   * from `OrgCiphersService`, so a row outside that set is not "in no collection", it is unknown.
+   * Callers must not treat the two the same: `collectionOptions` folds `undefined` into no
+   * contribution (fine, it only builds a menu from what's visible), but the collection filter
+   * below must not read it as "excluded", or a credential the viewer cannot decrypt would drop out
+   * of every collection selection with no sign that it was ever considered.
+   */
+  private cipherCollectionIds(row: RotationConfigRow): string[] | undefined {
+    return this.cipherCollectionIdsById().get(row.config.cipherId);
   }
 
   constructor() {
@@ -195,7 +215,8 @@ export class ManagedCredentialsTabComponent {
     effect(() => {
       const text = this.searchText().trim().toLowerCase();
       const status = this.statusFilterChip()?.value() as string | null | undefined;
-      const targetSystemName = this.targetSystemFilterChip()?.value() as string | null | undefined;
+      const targetSystemId = this.targetSystemFilterChip()?.value() as
+        TargetSystemId | null | undefined;
       const collectionId = this.collectionFilterChip()?.value() as string | null | undefined;
 
       this.dataSource.filter = (row) => {
@@ -209,10 +230,15 @@ export class ManagedCredentialsTabComponent {
         if (status != null && row.statusLabelKey !== status) {
           return false;
         }
-        if (targetSystemName != null && row.targetSystemName !== targetSystemName) {
+        if (targetSystemId != null && row.config.targetSystemId !== targetSystemId) {
           return false;
         }
-        if (collectionId != null && !this.cipherCollectionIds(row).includes(collectionId)) {
+        const rowCollectionIds = this.cipherCollectionIds(row);
+        if (
+          collectionId != null &&
+          rowCollectionIds !== undefined &&
+          !rowCollectionIds.includes(collectionId)
+        ) {
           return false;
         }
         return true;

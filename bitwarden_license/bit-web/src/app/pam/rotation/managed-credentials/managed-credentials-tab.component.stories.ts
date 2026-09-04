@@ -147,6 +147,7 @@ export default {
               status: "Status",
               all: "All",
               options: "Options",
+              search: "Search",
               pamCollectionFilter: "Collection",
               pamNoTargetSystemsYetTitle: "No target systems yet",
               pamRotationConfigColumnCredential: "Credential",
@@ -163,7 +164,7 @@ export default {
               pamRotationConfigInProgress: "Rotation in progress",
               pamRotationConfigManualDue: "Manual rotation due",
               pamRotationConfigNew: "New managed credential",
-              pamRotationConfigNoResults: "No results match your search.",
+              pamRotationConfigNoResultsFiltered: "No managed credentials match your filters.",
               pamRotationConfigNoTargetSystems:
                 "Set up a target system before you can rotate credentials. A target system defines where a credential lives and how Bitwarden rotates it.",
               pamRotationConfigPause: "Pause",
