@@ -118,7 +118,7 @@
                   type="button"
                   bitMenuItem
                   [disabled]="isRowBusy(r.id)"
-                  (click)="unassign(r.daemon, assignmentId, r.assignmentNames[i])"
+                  (click)="unassign(r, assignmentId, r.assignmentNames[i])"
                 >
                   <bit-icon name="bwi-minus-circle" class="tw-text-muted"></bit-icon>
                   {{ "pamDaemonUnassign" | i18n: r.assignmentNames[i] }}

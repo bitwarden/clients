@@ -71,17 +71,32 @@
                 {{ "edit" | i18n }}
               </button>
               @if (r.active) {
-                <button type="button" bitMenuItem (click)="disable(r.system)">
+                <button
+                  type="button"
+                  bitMenuItem
+                  [disabled]="isRowBusy(r.system.id)"
+                  (click)="disable(r.system)"
+                >
                   <bit-icon name="bwi-circle" class="tw-text-muted"></bit-icon>
                   {{ "pamTargetSystemDisable" | i18n }}
                 </button>
               } @else {
-                <button type="button" bitMenuItem (click)="enable(r.system)">
+                <button
+                  type="button"
+                  bitMenuItem
+                  [disabled]="isRowBusy(r.system.id)"
+                  (click)="enable(r.system)"
+                >
                   <bit-icon name="bwi-check-circle" class="tw-text-muted"></bit-icon>
                   {{ "pamTargetSystemEnable" | i18n }}
                 </button>
               }
-              <button type="button" bitMenuItem (click)="confirmDelete(r.system)">
+              <button
+                type="button"
+                bitMenuItem
+                [disabled]="isRowBusy(r.system.id)"
+                (click)="confirmDelete(r.system)"
+              >
                 <bit-icon name="bwi-trash" class="tw-text-danger"></bit-icon>
                 <span class="tw-text-danger">{{ "delete" | i18n }}</span>
               </button>
