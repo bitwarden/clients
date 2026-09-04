@@ -84,8 +84,8 @@
           (click)="item.group.toggle()"
         >
           <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
-          <!-- Count only on top-level group headers. -->
-          @if (item.level === 0) {
+          <!-- Count only on non-empty top-level group headers. -->
+          @if (item.level === 0 && item.count > 0) {
             <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
           }
           <bit-icon
@@ -102,11 +102,30 @@
           [style.height.px]="forceHeight ? headerHeight(item.level) : null"
         >
           <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
-          @if (item.level === 0) {
+          @if (item.level === 0 && item.count > 0) {
             <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
           }
         </div>
       }
+    </div>
+  } @else if (item.kind === "groupDescription") {
+    <!--
+      Virtualized, the cell takes the fixed height the scroll strategy allocated and clamps
+      the text to the two lines that height covers; otherwise it grows to content. The
+      tooltip reaches whatever the clamp cut off — the text itself stays in the
+      accessibility tree either way.
+    -->
+    <div role="row">
+      <div
+        role="cell"
+        [attr.aria-colspan]="columnCount()"
+        class="tw-px-1 tw-pb-2 tw-text-sm tw-text-fg-body-subtle"
+        [class.tw-line-clamp-2]="forceHeight"
+        [style.height.px]="forceHeight ? groupDescriptionHeight : null"
+        [bitTooltip]="item.group.description()"
+      >
+        {{ item.group.description() }}
+      </div>
     </div>
   } @else {
     <bit-row>
