@@ -38,6 +38,7 @@ import {
   resolveIconTileColor,
   resolveIconTileVariant,
 } from "../icon-tile";
+import { MenuDividerComponent } from "../menu/menu-divider.component";
 import { menuItemBaseStyles, menuItemPrimaryStyles } from "../menu/menu-item.component";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { MenuComponent } from "../menu/menu.component";
@@ -74,6 +75,55 @@ const SEARCH_THRESHOLD = 10;
 let nextRadioGroupId = 0;
 
 /**
+ * Flag each node's group boundaries, in place. A group is a section with its descendants,
+ * or a run of loose top-level rows; a divider ends the run it follows. Walks `entries`
+ * rather than the nodes, since a divider produces no node of its own.
+ */
+function markGroups(nodes: FilterTreeNode[], entries: readonly FilterEntry[]): void {
+  // Nodes are depth-first, so the top-level rows sit at the `level === 1` indices in the
+  // same order as the entries that produced them.
+  const topLevel = nodes.reduce<number[]>((indices, node, index) => {
+    if (node.level === 1) {
+      indices.push(index);
+    }
+    return indices;
+  }, []);
+
+  let cursor = 0;
+  let breakBefore = true;
+  let afterSection = false;
+  let afterDivider = false;
+  for (const entry of entries) {
+    if (entry.kind === "divider") {
+      afterDivider = true;
+      continue;
+    }
+    const section = entry.kind === "section";
+    const index = topLevel[cursor++];
+    if (index == null) {
+      continue;
+    }
+    if (section || afterSection || afterDivider) {
+      breakBefore = true;
+    }
+    if (breakBefore) {
+      nodes[index].groupStart = true;
+      nodes[index].dividerBefore = afterDivider;
+      if (index > 0) {
+        nodes[index - 1].groupEnd = true;
+      }
+    }
+    breakBefore = false;
+    afterSection = section;
+    afterDivider = false;
+  }
+
+  if (nodes.length > 0) {
+    nodes[nodes.length - 1].groupEnd = true;
+  }
+}
+
+/**
  * Sentinel value for the auto-injected "All" option on a single-select chip:
  * selecting it clears the chip, and it reads as selected while nothing else is.
  */
@@ -98,6 +148,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
     ChipContentComponent,
     ChipDismissButtonComponent,
     MenuComponent,
+    MenuDividerComponent,
     MenuTriggerForDirective,
     SearchComponent,
     ButtonModule,
@@ -429,6 +480,14 @@ export class FilterMenuComponent
     return options.some((option) => option.hasChildren() || this.groupExpands(option.children()));
   }
 
+  /** A section header's chevron, or `null` for an option — see the template's comment. */
+  protected sectionChevron(node: FilterTreeNode): BitwardenIcon | null {
+    if (node.row.kind !== "section") {
+      return null;
+    }
+    return node.expanded ? "bwi-angle-up" : "bwi-angle-down";
+  }
+
   /** The multi-select rows, flattened in document order, each carrying its own level. */
   protected readonly treeNodes = computed<FilterTreeNode[]>(() => {
     const nodes: FilterTreeNode[] = [];
@@ -450,6 +509,9 @@ export class FilterMenuComponent
           setsize: visible.length,
           posinset: index + 1,
           reserveExpander,
+          dividerBefore: false,
+          groupStart: false,
+          groupEnd: false,
         });
         // Children, not `expandable()`: a non-collapsible section still shows its options.
         if (expanded && row.children().length > 0) {
@@ -461,15 +523,20 @@ export class FilterMenuComponent
       });
     };
 
+    // Dividers aren't rows, so they're held back for the group pass below.
+    const entries = this.entries().filter(
+      (entry) => entry.kind === "divider" || this.rowVisible(entry as FilterRow),
+    );
+    const rows = entries.filter((entry) => entry.kind !== "divider") as FilterRow[];
     // Top-level rows align with each other: anything expandable on that line means every
     // row on it reserves the column.
-    const entries = (this.entries() as readonly FilterRow[]).filter((row) => this.rowVisible(row));
     push(
-      entries,
+      rows,
       1,
       null,
-      entries.some((row) => row.expandable()),
+      rows.some((row) => row.expandable()),
     );
+    markGroups(nodes, entries);
     return nodes;
   });
 

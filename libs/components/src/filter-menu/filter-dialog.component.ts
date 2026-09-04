@@ -91,6 +91,7 @@ export class FilterDialogComponent {
     "[&_[data-filter-search-row]]:tw-px-0",
     "[&_[data-filter-search-row]]:tw-pb-3",
     "[&_[data-filter-result-count]]:tw-pb-3",
+    // Single-select is one flat card around the whole list.
     "[&_[data-filter-option-list]]:tw-rounded-lg",
     "[&_[data-filter-option-list]]:tw-border",
     "[&_[data-filter-option-list]]:tw-border-solid",
@@ -100,7 +101,23 @@ export class FilterDialogComponent {
     "[&_[data-filter-option-row]]:tw-border-b",
     "[&_[data-filter-option-row]]:tw-border-solid",
     "[&_[data-filter-option-row]]:tw-border-border-base",
-    "[&_[data-filter-option-row]:last-child]:tw-border-b-0",
+    "[&_[data-filter-option-list]>[data-filter-option-row]:last-child]:tw-border-b-0",
+    // Multi-select draws a card per group instead, so a section reads as an accordion
+    // over its own options rather than a header inside one long list.
+    "[&_[data-filter-card-list]_[data-filter-option-row]]:tw-border-x",
+    // `!` where the utility ties with the `tw-rounded-none`/`tw-border-0` above on specificity.
+    "[&_[data-filter-card-top]]:!tw-rounded-t-lg",
+    "[&_[data-filter-card-top]]:!tw-border-t",
+    "[&_[data-filter-card-bottom]]:!tw-rounded-b-lg",
+    "[&_[data-filter-card-bottom]:not(:last-child)]:tw-mb-3",
+    // A divider reads as the gap between two cards, so the popover's rule is dropped.
+    "[&_[data-filter-divider]]:tw-hidden",
+    // The accordion bar: tinted, with the chevron trailing rather than leading.
+    "[&_[data-filter-section-row]]:tw-bg-bg-secondary",
+    "[&_[data-filter-section-row]]:tw-font-semibold",
+    "[&_[data-filter-section-row]_[data-filter-expander]]:tw-order-last",
+    "[&_[data-filter-section-row]_[data-filter-expander]]:tw-ms-1",
+    "[&_[data-filter-section-row]_[data-filter-expander]]:tw-me-0",
   ].join(" ");
 
   /** A row tap: drill into a filter that has options, or flip a toggle in place. */

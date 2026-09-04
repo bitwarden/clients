@@ -116,15 +116,22 @@
       [attr.aria-label]="placeholderText()"
       tabindex="-1"
       class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
-      [attr.data-filter-option-list]="treeNodes().length ? '' : null"
+      data-filter-card-list
       (keydown)="onTreeKeydown($event)"
     >
       @for (node of treeNodes(); track $index) {
         @let expandable = node.row.expandable();
         @let checked = nodeChecked(node);
+        @if (node.dividerBefore) {
+          <!-- The dialog hides this and separates the groups with a gap instead. -->
+          <bit-menu-divider data-filter-divider></bit-menu-divider>
+        }
         <div
           role="treeitem"
           data-filter-option-row
+          [attr.data-filter-section-row]="node.row.kind === 'section' ? '' : null"
+          [attr.data-filter-card-top]="node.groupStart ? '' : null"
+          [attr.data-filter-card-bottom]="node.groupEnd ? '' : null"
           [bitFilterTreeRow]="node"
           [class]="node.row.kind === 'option' ? optionRowClasses : rowBaseClasses"
           [style.padding-inline-start.rem]="0.5 + (node.level - 1) * 1.75"
@@ -140,12 +147,17 @@
         >
           @if (expandable) {
             <span
+              data-filter-expander
               class="-tw-me-1 tw-flex tw-size-6 tw-flex-none tw-items-center tw-justify-center tw-text-fg-body-subtle"
               aria-hidden="true"
               (click)="node.row.toggleExpanded(); $event.stopPropagation()"
             >
+              <!-- A section collapses a group, so it reads up/down like the flat branch's
+                   headers; an option discloses children, so it reads down/right. -->
               <bit-icon
-                [name]="node.expanded ? 'bwi-angle-down' : 'bwi-angle-right'"
+                [name]="
+                  sectionChevron(node) ?? (node.expanded ? 'bwi-angle-down' : 'bwi-angle-right')
+                "
                 class="tw-text-xs"
               ></bit-icon>
             </span>
@@ -261,6 +273,8 @@
               }
             }
           }
+        } @else if (entry.kind === "divider") {
+          <bit-menu-divider data-filter-divider></bit-menu-divider>
         } @else if (asOption(entry); as option) {
           @if (rowVisible(option)) {
             <ng-container
