@@ -91,6 +91,37 @@ describe("EmptyVaultComponent", () => {
     });
   });
 
+  describe("My items", () => {
+    const myItemsCollectionId = "aaaa1111-bbbb-4ccc-8ddd-eeee11112222" as any;
+
+    beforeEach(() => {
+      fixture.componentRef.setInput("scope", {
+        type: VaultScopeType.Organization,
+        organizationId: "org-1" as any,
+        collectionId: myItemsCollectionId,
+      } satisfies VaultScope);
+      fixture.componentRef.setInput("organizationName", "Acme Corp");
+      fixture.componentRef.setInput("defaultCollectionId", myItemsCollectionId);
+      fixture.detectChanges();
+    });
+
+    it("shows the My items title when empty", () => {
+      expect(fixture.nativeElement.textContent).toContain("emptyMyItems");
+    });
+
+    it("shows the My items description with the organization name", () => {
+      expect(fixture.nativeElement.textContent).toContain("emptyMyItemsDescription Acme Corp");
+    });
+
+    it("takes priority over the organization vault and shared folder states", () => {
+      fixture.componentRef.setInput("sharedFolderName", "Engineering");
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).not.toContain("noItemsInOrganizationVault");
+      expect(fixture.nativeElement.textContent).not.toContain("noItemsInSharedFolder");
+    });
+  });
+
   describe("a shared folder", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("scope", {
@@ -222,6 +253,7 @@ describe("EmptyVaultComponent", () => {
       [organizationName]="organizationName()"
       [hasMultipleVaults]="hasMultipleVaults()"
       [sharedFolderName]="sharedFolderName()"
+      [defaultCollectionId]="defaultCollectionId()"
     >
       <button slot="empty-add-item" type="button">Add item</button>
     </vault-empty-vault>
@@ -234,6 +266,7 @@ class TestHostComponent {
   readonly organizationName = signal<string | undefined>(undefined);
   readonly hasMultipleVaults = signal(false);
   readonly sharedFolderName = signal<string | undefined>(undefined);
+  readonly defaultCollectionId = signal<string | undefined>(undefined);
 }
 
 describe("EmptyVaultComponent's empty-add-item slot", () => {
@@ -282,6 +315,19 @@ describe("EmptyVaultComponent's empty-add-item slot", () => {
         host.scope.set({ type: VaultScopeType.Organization, organizationId: "org-1" as any });
         host.organizationName.set("Acme Corp");
         host.sharedFolderName.set("Engineering");
+      },
+    ],
+    [
+      "My items",
+      () => {
+        const myItemsId = "aaaa1111-bbbb-4ccc-8ddd-eeee11112222";
+        host.scope.set({
+          type: VaultScopeType.Organization,
+          organizationId: "org-1" as any,
+          collectionId: myItemsId as any,
+        });
+        host.organizationName.set("Acme Corp");
+        host.defaultCollectionId.set(myItemsId);
       },
     ],
   ])("is projected for %s", (_name, setScope) => {

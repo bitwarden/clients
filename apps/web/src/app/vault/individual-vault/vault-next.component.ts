@@ -46,6 +46,7 @@ import {
   scopedSharedFolderId,
   sharedFolderNameForScope,
   VaultScopeType,
+  defaultUserCollectionId,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -129,6 +130,14 @@ export class VaultNextComponent {
       resolveVaultScope(this.vaultIdParam(), this.collectionSegment(), this.vaultNav()) ??
       ALL_ITEMS_SCOPE,
   );
+
+  protected readonly defaultCollectionId = computed(() => {
+    const scope = this.vaultScope();
+    if (scope.type !== VaultScopeType.Organization) {
+      return undefined;
+    }
+    return defaultUserCollectionId(scope.organizationId, this.vaultNav());
+  });
 
   /**
    * Every item the user can see, in every state. Which of trashed, archived, and active items a

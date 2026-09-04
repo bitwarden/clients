@@ -522,6 +522,39 @@ describe("VaultNextComponent", () => {
     });
   });
 
+  describe("defaultCollectionId", () => {
+    const myItemsId = "aaaa1111-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
+
+    it("returns undefined when the scope is not an organization vault", () => {
+      scopeTo(MY_VAULT_ROUTE);
+
+      expect(component().defaultCollectionId()).toBeUndefined();
+    });
+
+    it("returns undefined when the org has no default user collection", () => {
+      // The default nav entries built by buildOrgNavItem carry no defaultUserCollectionId.
+      scopeTo(organizationId);
+
+      expect(component().defaultCollectionId()).toBeUndefined();
+    });
+
+    it("returns the org's default user collection ID when the nav carries one", () => {
+      vaultNav$.next({
+        vaults: [
+          personalNavItem,
+          {
+            ...buildOrgNavItem(organizationId, "Acme corporation"),
+            defaultUserCollectionId: myItemsId,
+          },
+        ],
+        organizationDataOwnership: true,
+      });
+      scopeTo(organizationId);
+
+      expect(component().defaultCollectionId()).toBe(myItemsId);
+    });
+  });
+
   describe("filter option inputs", () => {
     it("drops the empty-id pseudo-folder that folderViews$ appends", () => {
       folders$.next([buildFolder("folder-1", "Work"), buildFolder("", "No folder")]);

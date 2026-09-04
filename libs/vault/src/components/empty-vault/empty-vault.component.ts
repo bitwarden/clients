@@ -45,6 +45,7 @@ const EMPTY_VAULT_STATE = {
   emptyMultipleVaults: "emptyMultipleVaults",
   emptyTrash: "emptyTrash",
   emptyArchive: "emptyArchive",
+  emptyMyItems: "emptyMyItems",
 } as const;
 type EMPTY_VAULT_STATE = (typeof EMPTY_VAULT_STATE)[keyof typeof EMPTY_VAULT_STATE];
 
@@ -78,6 +79,9 @@ export class EmptyVaultComponent {
   /** The organization the current vault scope names, for an organization vault. */
   readonly organizationName = input<string>();
 
+  /** The default collection ID for the current vault scope, if any. */
+  readonly defaultCollectionId = input<string>();
+
   /** Whether the account has more than one vault (personal + at least one org). */
   readonly hasMultipleVaults = input(false);
 
@@ -97,6 +101,7 @@ export class EmptyVaultComponent {
     EMPTY_VAULT_STATE.emptyOrgVault,
     EMPTY_VAULT_STATE.emptyMultipleVaults,
     EMPTY_VAULT_STATE.emptySharedFolder,
+    EMPTY_VAULT_STATE.emptyMyItems,
   ];
 
   protected readonly emptyStateProperties: Signal<EmptyVaultProperties | null> = computed(() => {
@@ -114,7 +119,6 @@ export class EmptyVaultComponent {
   private readonly emptyVaultState: Signal<EMPTY_VAULT_STATE | null> = computed(() => {
     const filterValues = this.filterValues();
     const hasItems = this.hasItems();
-
     if (hasItems && filterValues[VAULT_FILTER_KEYS.search]) {
       return EMPTY_VAULT_STATE.noSearchMatches;
     }
@@ -139,13 +143,26 @@ export class EmptyVaultComponent {
       case VaultScopeType.MyVault:
         return EMPTY_VAULT_STATE.emptyPersonalVault;
       case VaultScopeType.Organization:
-        return this.sharedFolderName()
-          ? EMPTY_VAULT_STATE.emptySharedFolder
-          : EMPTY_VAULT_STATE.emptyOrgVault;
+        return this.resolveOrgEmptyState(scope);
       case VaultScopeType.AllItems:
         return this.hasMultipleVaults() ? EMPTY_VAULT_STATE.emptyMultipleVaults : null;
     }
   });
+
+  private resolveOrgEmptyState(
+    scope: Extract<VaultScope, { type: typeof VaultScopeType.Organization }>,
+  ) {
+    const myItemsId = this.defaultCollectionId();
+    const isDefaultCollection = myItemsId != null && scope.collectionId === myItemsId;
+
+    if (isDefaultCollection) {
+      return EMPTY_VAULT_STATE.emptyMyItems;
+    } else if (this.sharedFolderName()) {
+      return EMPTY_VAULT_STATE.emptySharedFolder;
+    }
+
+    return EMPTY_VAULT_STATE.emptyOrgVault;
+  }
 
   /**
    * Returns the variants of empty vaults.
@@ -171,6 +188,11 @@ export class EmptyVaultComponent {
         icon: BusinessWelcome,
         title: this.i18nService.t("noItemsInOrganizationVault", this.organizationName()),
         description: this.i18nService.t("emptyVaultsDescription"),
+      },
+      {
+        key: EMPTY_VAULT_STATE.emptyMyItems,
+        title: this.i18nService.t("emptyMyItems"),
+        description: this.i18nService.t("emptyMyItemsDescription", this.organizationName()),
       },
       {
         key: EMPTY_VAULT_STATE.emptySharedFolder,

@@ -557,6 +557,9 @@
   "noItemsInMyVault": {
     "message": "No items in My vault"
   },
+  "emptyMyItems": {
+    "message": "No items in My items"
+  },
   "noItemsInOrganizationVault": {
     "message": "No items in $VAULT_NAME$",
     "placeholders": {
@@ -2767,9 +2770,6 @@
   },
   "clearAll": {
     "message": "Clear all"
-  },
-  "clearSearch": {
-    "message": "Clear search"
   },
   "done": {
     "message": "Done"
@@ -7188,6 +7188,15 @@
   },
   "emptySharedFolderDescription": {
     "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
     "placeholders": {
       "vault_name": {
         "content": "$1",

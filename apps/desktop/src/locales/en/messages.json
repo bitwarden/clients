@@ -2379,9 +2379,6 @@
   "clearAll": {
     "message": "Clear all"
   },
-  "clearSearch": {
-    "message": "Clear search"
-  },
   "done": {
     "message": "Done"
   },
@@ -6309,6 +6306,9 @@
       }
     }
   },
+  "emptyMyItems": {
+    "message": "No items in My items"
+  },
   "noItemsInVaults": {
     "message": "Your vaults are empty"
   },
@@ -6329,6 +6329,15 @@
   },
   "emptySharedFolderDescription": {
     "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
     "placeholders": {
       "vault_name": {
         "content": "$1",

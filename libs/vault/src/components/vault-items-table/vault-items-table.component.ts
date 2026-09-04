@@ -280,6 +280,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   /** The organization the current vault scope names — relayed to the empty state untouched. */
   readonly organizationName = input<string>();
 
+  /** The default collection ID the current vault scope has drilled into — relayed to the empty state untouched. */
+  readonly defaultCollectionId = input<string>();
+
   /** Whether the account has more than one vault — relayed to the empty state untouched. */
   readonly hasMultipleVaults = input(false);
 
