@@ -15,6 +15,7 @@ import { RotationSdkService } from "../rotation-sdk.service";
 import {
   accessConnector,
   accessConnectorDetail,
+  connectorId,
   ORGANIZATION_ID,
   targetSystem,
 } from "../testing/rotation-builders";
@@ -26,9 +27,20 @@ const SAMPLE_DETAIL = accessConnectorDetail({
   connector: accessConnector({ name: "Prod on-prem connector" }),
 });
 
+const LONG_NAME_DETAIL = accessConnectorDetail({
+  connector: accessConnector({
+    id: connectorId("long-name"),
+    name: "AWS us-east-1 Production On-Prem Access Connector Primary",
+  }),
+});
+
+const CONNECTORS_BY_ID = new Map(
+  [SAMPLE_DETAIL, LONG_NAME_DETAIL].map((detail) => [detail.connector.id, detail]),
+);
+
 const rotationSdk: Partial<RotationSdkService> = {
   listTargetSystems: () => Promise.resolve([targetSystem()]),
-  getConnector: () => Promise.resolve(SAMPLE_DETAIL),
+  getConnector: (_organizationId, id) => Promise.resolve(CONNECTORS_BY_ID.get(id) ?? SAMPLE_DETAIL),
   enableConnector: () => Promise.resolve(),
   disableConnector: () => Promise.resolve(),
   deleteConnector: () => Promise.resolve(),
@@ -76,6 +88,15 @@ export const Default: Story = {
   decorators: [
     atUrl(
       `/organizations/${ORGANIZATION_ID}/pam/rotation/access-connectors/${SAMPLE_DETAIL.connector.id}`,
+    ),
+  ],
+};
+
+/** A realistic long connector name, to check the breadcrumb truncates rather than crowding the header buttons. */
+export const LongName: Story = {
+  decorators: [
+    atUrl(
+      `/organizations/${ORGANIZATION_ID}/pam/rotation/access-connectors/${LONG_NAME_DETAIL.connector.id}`,
     ),
   ],
 };
