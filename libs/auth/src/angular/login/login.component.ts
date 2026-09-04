@@ -106,6 +106,13 @@ export class LoginComponent implements OnInit, OnDestroy {
   loginUiState: LoginUiState = LoginUiState.EMAIL_ENTRY;
   ssoRequired = false;
 
+  /**
+   * When true, the email-entry screen offers only single sign-on: Continue, Log in with passkey,
+   * and the "or" divider are hidden, and the email field's Enter key routes to SSO. Derived from the
+   * environment's `ssoOnly` flag (set via the self-hosted config dialog or pre-configured by MDM).
+   */
+  protected ssoOnly = false;
+
   formGroup = this.formBuilder.group(
     {
       email: ["", [Validators.required, Validators.email]],
@@ -233,6 +240,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     // (if it was found in query params or was the remembered email)
     await this.initSsoRequiredTracking();
 
+    // Derive the "SSO only" login-screen state from the environment's ssoOnly flag.
+    this.initSsoOnlyTracking();
+
     // Listen for region/environment changes after initialization.
     // If the user switches region while on the password entry screen, we need to clear
     // any stale authentication errors from the previous region and refresh the prelogin
@@ -321,6 +331,20 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.ssoRequired = emailValue
           ? ssoRequiredCache.some((e) => e.email === emailValue && e.webVaultUrl === webVaultUrl)
           : false;
+      });
+  }
+
+  /**
+   * Collapses the email-entry screen to single sign-on only when the self-hosted environment's
+   * `ssoOnly` flag is set. The flag is a property of the environment, so it can be set either by
+   * the self-hosted config dialog or pre-configured by MDM (which seeds the environment on install).
+   * On Extension/Desktop the environment can change without a page reload, so this stays subscribed.
+   */
+  private initSsoOnlyTracking(): void {
+    this.environmentService.ssoOnly$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((ssoOnly) => {
+        this.ssoOnly = ssoOnly;
       });
   }
 
