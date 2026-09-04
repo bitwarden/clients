@@ -28,6 +28,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { TargetSystemMethod, TargetSystem } from "../rotation";
+import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { RotationConfigRow } from "./rotation-config-row";
@@ -58,6 +59,7 @@ import { RotationConfigsService } from "./rotation-configs.service";
     SvgComponent,
     TableModule,
     TooltipDirective,
+    RotationLoadErrorComponent,
     I18nPipe,
   ],
 })
@@ -73,6 +75,7 @@ export class ManagedCredentialsTabComponent {
   private readonly i18nService = inject(I18nService);
 
   protected readonly loading = toSignal(this.configsService.loading$, { initialValue: true });
+  protected readonly loadError = toSignal(this.configsService.loadError$, { initialValue: null });
 
   private readonly rows = toSignal(this.configsService.rows$, {
     initialValue: [] as RotationConfigRow[],
@@ -102,11 +105,7 @@ export class ManagedCredentialsTabComponent {
 
   constructor() {
     effect(() => {
-      const organizationId = this.organizationId();
-      void this.configsService.load(organizationId);
-      // Also load target systems so the empty state can tell whether the user must set one up
-      // first (the shell-scoped instance may be empty if this tab is visited before the others).
-      void this.targetSystemsService.load(organizationId);
+      void this.loadAll(this.organizationId());
     });
 
     effect(() => {
@@ -130,6 +129,20 @@ export class ManagedCredentialsTabComponent {
   protected readonly noResults = computed(
     () => !this.loading() && this.rows().length > 0 && this.processedRows().length === 0,
   );
+
+  /**
+   * Target systems are loaded alongside the configs so the empty state can tell whether the user
+   * must set one up first (the shell-scoped instance may be empty if this tab is visited before
+   * the others).
+   */
+  private async loadAll(organizationId: OrganizationId): Promise<void> {
+    await Promise.all([
+      this.configsService.load(organizationId),
+      this.targetSystemsService.load(organizationId),
+    ]);
+  }
+
+  protected readonly retryLoad = (): Promise<void> => this.loadAll(this.organizationId());
 
   protected readonly openCreate = (): Promise<boolean> =>
     this.router.navigate(["..", "managed-credentials", "new"], { relativeTo: this.route });

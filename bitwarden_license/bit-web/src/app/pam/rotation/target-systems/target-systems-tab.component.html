@@ -1,5 +1,7 @@
 @if (!loading()) {
-  @if (dataSource.data.length > 0 || searchControl.value) {
+  @if (loadError()) {
+    <pam-rotation-load-error (retry)="retryLoad()" />
+  } @else if (dataSource.data.length > 0 || searchControl.value) {
     <div class="tw-mb-4">
       <bit-search
         class="tw-max-w-md"

@@ -18989,6 +18989,12 @@
   "pamRotationConfigEmptyStateDescription": {
     "message": "Add a managed credential to start rotating it automatically."
   },
+  "pamRotationListLoadErrorTitle": {
+    "message": "Unable to load this list"
+  },
+  "pamRotationListLoadErrorDescription": {
+    "message": "Check your connection and try again. If the problem continues, refresh the page."
+  },
   "pamRotationConfigNoTargetSystems": {
     "message": "Set up a target system before you can rotate credentials. A target system defines where a credential lives and how Bitwarden rotates it."
   },

@@ -30,6 +30,7 @@ import {
   TargetSystemStatus,
   TargetSystem,
 } from "../rotation";
+import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 
 import {
   TargetSystemsEmptyStateComponent,
@@ -69,6 +70,7 @@ export type TargetSystemRow = {
     SearchModule,
     SpinnerComponent,
     TableModule,
+    RotationLoadErrorComponent,
     TargetSystemsEmptyStateComponent,
     I18nPipe,
   ],
@@ -88,6 +90,9 @@ export class TargetSystemsTabComponent {
   );
 
   protected readonly loading = toSignal(this.targetSystemsService.loading$, { initialValue: true });
+  protected readonly loadError = toSignal(this.targetSystemsService.loadError$, {
+    initialValue: null,
+  });
   private readonly systems = toSignal(this.targetSystemsService.systems$, {
     initialValue: [] as TargetSystem[],
   });
@@ -118,6 +123,9 @@ export class TargetSystemsTabComponent {
         (row.kindLabel?.toLowerCase().includes(text) ?? false);
     });
   }
+
+  protected readonly retryLoad = (): Promise<void> =>
+    this.targetSystemsService.load(this.organizationId());
 
   /** Navigate to the create page (sibling of the shell), shown from the empty state. */
   protected readonly openCreate = (): Promise<boolean> =>

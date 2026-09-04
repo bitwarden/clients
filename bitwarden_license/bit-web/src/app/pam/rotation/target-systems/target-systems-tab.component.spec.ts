@@ -40,6 +40,7 @@ describe("TargetSystemsTabComponent", () => {
   let component: TargetSystemsTabComponent;
   let targetSystemsService: {
     loading$: BehaviorSubject<boolean>;
+    loadError$: BehaviorSubject<unknown | null>;
     systems$: BehaviorSubject<TargetSystem[]>;
     systemById$: BehaviorSubject<Map<string, TargetSystem>>;
     activeAutomaticSystems$: BehaviorSubject<TargetSystem[]>;
@@ -52,25 +53,13 @@ describe("TargetSystemsTabComponent", () => {
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
 
-  beforeEach(async () => {
-    targetSystemsService = {
-      loading$: new BehaviorSubject<boolean>(false),
-      systems$: new BehaviorSubject<TargetSystem[]>([]),
-      systemById$: new BehaviorSubject(new Map()),
-      activeAutomaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
-      load: jest.fn().mockResolvedValue(undefined),
-      setEnabled: jest.fn().mockResolvedValue(undefined),
-      delete: jest.fn().mockResolvedValue(undefined),
-    };
-    daemonsService = { forgetTargetSystem: jest.fn() };
-    dialogService = mock<DialogService>();
-    dialogService.openSimpleDialog.mockResolvedValue(false);
-    toastService = mock<ToastService>();
-
-    // Override the template AND imports to avoid pulling in HeaderModule → SharedModule → DialogModule
-    // which would provide a real DialogService, overriding our test mock.
-    // Must come before configureTestingModule.
-    TestBed.overrideComponent(TargetSystemsTabComponent, { set: { template: "", imports: [] } });
+  async function createComponent({ renderTemplate = false } = {}) {
+    if (!renderTemplate) {
+      // Override the template AND imports to avoid pulling in HeaderModule → SharedModule → DialogModule
+      // which would provide a real DialogService, overriding our test mock.
+      // Must come before configureTestingModule.
+      TestBed.overrideComponent(TargetSystemsTabComponent, { set: { template: "", imports: [] } });
+    }
 
     await TestBed.configureTestingModule({
       imports: [TargetSystemsTabComponent, ReactiveFormsModule, NoopAnimationsModule],
@@ -97,6 +86,25 @@ describe("TargetSystemsTabComponent", () => {
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
+  }
+
+  beforeEach(async () => {
+    targetSystemsService = {
+      loading$: new BehaviorSubject<boolean>(false),
+      loadError$: new BehaviorSubject<unknown | null>(null),
+      systems$: new BehaviorSubject<TargetSystem[]>([]),
+      systemById$: new BehaviorSubject(new Map()),
+      activeAutomaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
+      load: jest.fn().mockResolvedValue(undefined),
+      setEnabled: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
+    };
+    daemonsService = { forgetTargetSystem: jest.fn() };
+    dialogService = mock<DialogService>();
+    dialogService.openSimpleDialog.mockResolvedValue(false);
+    toastService = mock<ToastService>();
+
+    await createComponent();
   });
 
   it("calls load with the organization id on init", () => {
@@ -269,5 +277,37 @@ describe("TargetSystemsTabComponent", () => {
       );
       expect(daemonsService.forgetTargetSystem).not.toHaveBeenCalled();
     }));
+  });
+
+  describe("load error state", () => {
+    beforeEach(async () => {
+      TestBed.resetTestingModule();
+
+      await createComponent({ renderTemplate: true });
+    });
+
+    it("renders the load-error state instead of the empty state", () => {
+      targetSystemsService.loadError$.next(new Error("boom"));
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
+      expect(el.textContent).toContain("pamRotationListLoadErrorTitle");
+      expect(el.textContent).not.toContain("pamNoTargetSystemsYetTitle");
+      expect(el.textContent).not.toContain("pamTargetSystemsStartFromTemplate");
+    });
+
+    it("retries the load from the error state", async () => {
+      targetSystemsService.loadError$.next(new Error("boom"));
+      fixture.detectChanges();
+      targetSystemsService.load.mockClear();
+
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLButtonElement>("#rotation-load-error_button_retry")!
+        .click();
+      await fixture.whenStable();
+
+      expect(targetSystemsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
+    });
   });
 });

@@ -27,9 +27,13 @@ export class TargetSystemsService {
 
   private readonly _systems$ = new BehaviorSubject<TargetSystem[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
+  private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
 
   readonly systems$: Observable<TargetSystem[]> = this._systems$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
+
+  /** The error from the last {@link load}, or null when it succeeded. */
+  readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
 
   /** A map from targetSystemId → TargetSystem for O(1) lookups in derived services. */
   readonly systemById$: Observable<Map<TargetSystemId, TargetSystem>> = this._systems$.pipe(
@@ -50,12 +54,25 @@ export class TargetSystemsService {
     ),
   );
 
-  /** Fetch the org's target systems, replacing local state. */
+  /**
+   * Fetch the org's target systems, replacing local state.
+   *
+   * Records a failure on {@link loadError$} rather than rejecting: every caller invokes this as
+   * `void load(...)`, so a rejection would leave the tab rendering its empty state.
+   *
+   * The managed-credentials tab runs two of these concurrently, so the outcome is recorded on
+   * success as well as on failure — clearing only on entry would latch the losing call's error
+   * over the winning call's data.
+   */
   async load(organizationId: OrganizationId): Promise<void> {
     this.organizationId = organizationId;
     this._loading$.next(true);
+    this._loadError$.next(null);
     try {
       this._systems$.next(await this.rotationSdk.listTargetSystems(organizationId));
+      this._loadError$.next(null);
+    } catch (e) {
+      this._loadError$.next(e);
     } finally {
       this._loading$.next(false);
     }

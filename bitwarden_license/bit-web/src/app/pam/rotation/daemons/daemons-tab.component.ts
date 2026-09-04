@@ -30,6 +30,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { AccessConnector, DaemonStatus, TargetSystemId, TargetSystem } from "../rotation";
+import { RotationLoadErrorComponent } from "../rotation-load-error.component";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { AssignTargetDialogComponent } from "./assign-target-dialog.component";
@@ -55,6 +56,7 @@ import { DaemonRow, DaemonsService } from "./daemons.service";
     StatusLockupComponent,
     SvgComponent,
     TableModule,
+    RotationLoadErrorComponent,
     I18nPipe,
   ],
 })
@@ -73,6 +75,7 @@ export class DaemonsTabComponent {
   private readonly i18nService = inject(I18nService);
 
   protected readonly loading = toSignal(this.daemonsService.loading$, { initialValue: true });
+  protected readonly loadError = toSignal(this.daemonsService.loadError$, { initialValue: null });
   private readonly rows = toSignal(this.daemonsService.rows$, { initialValue: [] as DaemonRow[] });
   private readonly activeAutomaticSystems = toSignal(
     this.targetSystemsService.activeAutomaticSystems$,
@@ -90,12 +93,7 @@ export class DaemonsTabComponent {
 
   constructor() {
     effect(() => {
-      const organizationId = this.organizationId();
-      void this.daemonsService.load(organizationId);
-      // The assignment badges and the assign-dialog options join against the
-      // target-systems map — load it too, in case this tab is visited first
-      // (the shell-scoped TargetSystemsService instance starts empty).
-      void this.targetSystemsService.load(organizationId);
+      void this.loadAll(this.organizationId());
     });
 
     effect(() => {
@@ -109,6 +107,20 @@ export class DaemonsTabComponent {
   }
 
   protected readonly totalRows = computed(() => this.rows().length);
+
+  /**
+   * The assignment badges and the assign-dialog options join against the target-systems map, so
+   * this tab loads it alongside its own list, in case it is visited first (the shell-scoped
+   * TargetSystemsService instance starts empty).
+   */
+  private async loadAll(organizationId: OrganizationId): Promise<void> {
+    await Promise.all([
+      this.daemonsService.load(organizationId),
+      this.targetSystemsService.load(organizationId),
+    ]);
+  }
+
+  protected readonly retryLoad = (): Promise<void> => this.loadAll(this.organizationId());
 
   /** Navigate to the daemon detail page (sibling of the shell). */
   protected readonly openDetail = (row: DaemonRow): Promise<boolean> =>

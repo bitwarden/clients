@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
@@ -23,6 +24,7 @@ describe("DaemonsTabComponent", () => {
 
   const rows$ = new BehaviorSubject<DaemonRow[]>([]);
   const loading$ = new BehaviorSubject<boolean>(false);
+  const loadError$ = new BehaviorSubject<unknown | null>(null);
 
   function makeDaemonRow(overrides: Partial<DaemonRow> = {}): DaemonRow {
     return {
@@ -44,9 +46,39 @@ describe("DaemonsTabComponent", () => {
     };
   }
 
+  async function createComponent({ renderTemplate = false } = {}) {
+    if (!renderTemplate) {
+      // Override the template to avoid CDK overlay and other browser-only concerns
+      // in tests focused on component logic and service interactions.
+      TestBed.overrideComponent(DaemonsTabComponent, { set: { template: "" } });
+    }
+
+    await TestBed.configureTestingModule({
+      imports: [DaemonsTabComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        { provide: DaemonsService, useValue: daemonsService },
+        { provide: TargetSystemsService, useValue: targetSystemsService },
+        { provide: DialogService, useValue: dialogService },
+        { provide: ToastService, useValue: toastService },
+        { provide: I18nService, useValue: i18nService },
+        {
+          provide: ActivatedRoute,
+          useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(DaemonsTabComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
   beforeEach(async () => {
     daemonsService = {
       loading$: loading$.asObservable(),
+      loadError$: loadError$.asObservable(),
       rows$: rows$.asObservable(),
       load: jest.fn().mockResolvedValue(undefined),
       registerCompleted: jest.fn().mockResolvedValue(undefined),
@@ -67,30 +99,7 @@ describe("DaemonsTabComponent", () => {
       t: (key: string) => key,
     } as unknown as jest.Mocked<I18nService>;
 
-    // Override the template to avoid CDK overlay and other browser-only concerns
-    // in tests focused on component logic and service interactions.
-    TestBed.overrideComponent(DaemonsTabComponent, { set: { template: "" } });
-
-    await TestBed.configureTestingModule({
-      imports: [DaemonsTabComponent],
-      providers: [
-        provideRouter([]),
-        { provide: DaemonsService, useValue: daemonsService },
-        { provide: TargetSystemsService, useValue: targetSystemsService },
-        { provide: DialogService, useValue: dialogService },
-        { provide: ToastService, useValue: toastService },
-        { provide: I18nService, useValue: i18nService },
-        {
-          provide: ActivatedRoute,
-          useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
-        },
-      ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(DaemonsTabComponent);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
+    await createComponent();
   });
 
   it("calls daemonsService.load on init", async () => {
@@ -209,5 +218,45 @@ describe("DaemonsTabComponent", () => {
     await component.unassign(daemon, sysId("ts-1"), "Prod");
 
     expect(daemonsService.unassign).toHaveBeenCalledWith(daemon, sysId("ts-1"));
+  });
+
+  describe("load error state", () => {
+    beforeEach(async () => {
+      TestBed.resetTestingModule();
+      loadError$.next(null);
+      rows$.next([]);
+      loading$.next(false);
+
+      await createComponent({ renderTemplate: true });
+    });
+
+    afterEach(() => {
+      loadError$.next(null);
+    });
+
+    it("renders the load-error state instead of the empty state", () => {
+      loadError$.next(new Error("boom"));
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
+      expect(el.textContent).toContain("pamRotationListLoadErrorTitle");
+      expect(el.textContent).not.toContain("pamDaemonEmptyStateTitle");
+    });
+
+    it("retries both loads from the error state", async () => {
+      loadError$.next(new Error("boom"));
+      fixture.detectChanges();
+      (daemonsService.load as jest.Mock).mockClear();
+      (targetSystemsService.load as jest.Mock).mockClear();
+
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLButtonElement>("#rotation-load-error_button_retry")!
+        .click();
+      await fixture.whenStable();
+
+      expect(daemonsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
+      expect(targetSystemsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
+    });
   });
 });

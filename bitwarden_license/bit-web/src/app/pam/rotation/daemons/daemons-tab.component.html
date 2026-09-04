@@ -8,6 +8,8 @@
 
 @if (loading()) {
   <bit-spinner />
+} @else if (loadError()) {
+  <pam-rotation-load-error (retry)="retryLoad()" />
 } @else if (totalRows() === 0) {
   <bit-status-lockup>
     <bit-svg slot="graphic" [content]="noItemsIcon"></bit-svg>

@@ -50,12 +50,37 @@ describe("TargetSystemsService", () => {
       expect(systems[0].id).toBe(sysId("sys-abc"));
     });
 
-    it("sets loading false even when the API throws", async () => {
-      rotationSdk.listTargetSystems.mockRejectedValue(new Error("network fail"));
-      await expect(service.load(ORG_ID)).rejects.toThrow("network fail");
+    it("records the failure and clears loading when the API throws", async () => {
+      const failure = new Error("network fail");
+      rotationSdk.listTargetSystems.mockRejectedValue(failure);
 
-      const loading = await firstValueFrom(service.loading$);
-      expect(loading).toBe(false);
+      await expect(service.load(ORG_ID)).resolves.toBeUndefined();
+
+      expect(await firstValueFrom(service.loading$)).toBe(false);
+      expect(await firstValueFrom(service.loadError$)).toBe(failure);
+    });
+
+    it("clears a previous failure at the start of the next load", async () => {
+      rotationSdk.listTargetSystems.mockRejectedValueOnce(new Error("network fail"));
+      await service.load(ORG_ID);
+      rotationSdk.listTargetSystems.mockResolvedValue([makeSystem()]);
+
+      await service.load(ORG_ID);
+
+      expect(await firstValueFrom(service.loadError$)).toBeNull();
+    });
+
+    it("does not latch a concurrent load's failure over a later success", async () => {
+      rotationSdk.listTargetSystems
+        .mockRejectedValueOnce(new Error("network fail"))
+        .mockResolvedValueOnce([makeSystem()]);
+
+      const failing = service.load(ORG_ID);
+      const succeeding = service.load(ORG_ID);
+      await Promise.all([failing, succeeding]);
+
+      expect(await firstValueFrom(service.systems$)).toHaveLength(1);
+      expect(await firstValueFrom(service.loadError$)).toBeNull();
     });
   });
 
