@@ -182,25 +182,6 @@ describe("RotationHistoryComponent", () => {
       expect((component as any).failureCauseLabelKey(failureReason)).toBeNull();
     });
   });
-
-  describe("explainedFailureDetail", () => {
-    it("returns the recorded reason when an explanation replaced it", () => {
-      setup([]);
-      expect(
-        (component as any).explainedFailureDetail("target_rejected: LDAP result code 50"),
-      ).toBe("target_rejected: LDAP result code 50");
-    });
-
-    it("returns null for an unrecognised reason", () => {
-      setup([]);
-      expect((component as any).explainedFailureDetail("flaky target")).toBeNull();
-    });
-
-    it("returns null when no reason was recorded", () => {
-      setup([]);
-      expect((component as any).explainedFailureDetail(undefined)).toBeNull();
-    });
-  });
 });
 
 describe("RotationHistoryComponent rendering", () => {
@@ -300,5 +281,22 @@ describe("RotationHistoryComponent rendering", () => {
     const text = fixture.nativeElement.textContent;
     expect(text).toContain("pamRotationFailureCauseInsufficientRights");
     expect(text).toContain("pamRotationFailureReportedDetail target_rejected: LDAP result code 50");
+  });
+
+  it("shows an unrecognised failure reason alone, with no explanation line", () => {
+    const fixture = render([
+      rotationJob({
+        attempts: [
+          rotationAttempt({
+            status: RotationAttemptStatus.Errored,
+            failureReason: "flaky target",
+          }),
+        ],
+      }),
+    ]);
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain("flaky target");
+    expect(text).not.toContain("pamRotationFailureReportedDetail");
   });
 });

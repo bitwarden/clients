@@ -159,12 +159,4 @@ export class RotationHistoryComponent {
 
     return null;
   }
-
-  /** The recorded reason, to show as secondary detail — only when an explanation replaced it. */
-  protected explainedFailureDetail(failureReason: string | undefined): string | null {
-    if (!failureReason || this.failureCauseLabelKey(failureReason) === null) {
-      return null;
-    }
-    return failureReason;
-  }
 }
