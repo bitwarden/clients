@@ -3,7 +3,6 @@ import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/
 import {
   applicationConfig,
   componentWrapperDecorator,
-  Decorator,
   Meta,
   moduleMetadata,
   StoryObj,
@@ -19,6 +18,7 @@ import {
   ORGANIZATION_ID,
   targetSystem,
 } from "../testing/rotation-builders";
+import { atUrl } from "../testing/story-helpers";
 
 import { DaemonDetailComponent } from "./daemon-detail.component";
 
@@ -49,14 +49,6 @@ const routes: Routes = [
     ],
   },
 ];
-
-/** Renders the story at `url`; hash routing keeps Storybook's own query string intact. */
-const atUrl =
-  (url: string): Decorator =>
-  (storyFn, context) => {
-    window.location.hash = url;
-    return storyFn(context);
-  };
 
 export default {
   title: "Web/PAM/Rotation/Access Connector Detail",

@@ -3,7 +3,6 @@ import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/
 import {
   applicationConfig,
   componentWrapperDecorator,
-  Decorator,
   Meta,
   moduleMetadata,
   StoryObj,
@@ -17,6 +16,7 @@ import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests"
 
 import { RotationSdkService } from "../rotation-sdk.service";
 import { ORGANIZATION_ID, rotationConfigDetail, targetSystem } from "../testing/rotation-builders";
+import { atUrl } from "../testing/story-helpers";
 
 import { RotationConfigEditComponent } from "./rotation-config-edit.component";
 
@@ -45,14 +45,6 @@ const routes: Routes = [
     ],
   },
 ];
-
-/** Renders the story at `url`; hash routing keeps Storybook's own query string intact. */
-const atUrl =
-  (url: string): Decorator =>
-  (storyFn, context) => {
-    window.location.hash = url;
-    return storyFn(context);
-  };
 
 export default {
   title: "Web/PAM/Rotation/Config Edit",
