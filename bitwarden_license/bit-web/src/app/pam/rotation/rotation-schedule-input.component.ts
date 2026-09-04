@@ -9,7 +9,10 @@ import {
   ReactiveFormsModule,
   ValidationErrors,
   Validator,
+  ValidatorFn,
+  Validators,
 } from "@angular/forms";
+import { merge, tap } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FormFieldModule, SelectModule } from "@bitwarden/components";
@@ -19,19 +22,87 @@ import { QuartzSchedulePreset } from "./rotation";
 import { RotationSdkService } from "./rotation-sdk.service";
 
 /**
+ * The interval builder's mode value.
+ *
+ * Deliberately not a {@link QuartzSchedulePreset}: that union is the SDK's and names expressions
+ * the SDK itself resolves. An interval is composed here, so it is a presentation mode the select
+ * carries alongside the SDK's presets.
+ */
+export const SCHEDULE_INTERVAL_MODE = "interval" as const;
+
+/** What the schedule select can hold: any SDK preset, or the interval builder. */
+export type ScheduleMode = QuartzSchedulePreset | typeof SCHEDULE_INTERVAL_MODE;
+
+/** The units the interval builder can step. Quartz steps day-of-month and month; not weeks. */
+export const ScheduleIntervalUnit = Object.freeze({
+  Days: "days",
+  Months: "months",
+} as const);
+export type ScheduleIntervalUnit = (typeof ScheduleIntervalUnit)[keyof typeof ScheduleIntervalUnit];
+
+/** Quartz day-of-month is 1-31 and month is 1-12; `1/N` beyond those is rejected. */
+const MAX_INTERVAL_COUNT: Readonly<Record<ScheduleIntervalUnit, number>> = Object.freeze({
+  [ScheduleIntervalUnit.Days]: 31,
+  [ScheduleIntervalUnit.Months]: 12,
+});
+
+const MAX_HOUR = 23;
+const MAX_MINUTE = 59;
+
+/** `<input type="time">` emits "HH:MM"; seconds are accepted and dropped. */
+const TIME_OF_DAY = /^(\d{1,2}):(\d{2})(?::\d{2})?$/;
+
+/**
+ * Rejects a fractional count.
+ *
+ * `min` and `max` both accept 1.5, so without this the count reports valid while the builder
+ * refuses to compose an expression from it — a save that fails with nothing shown on any field.
+ */
+function wholeNumber(message: string): ValidatorFn {
+  return ({ value }) =>
+    value == null || Number.isInteger(value) ? null : { notWholeNumber: { message } };
+}
+
+/** A bare or zero-padded cron clock field, or `null` when it is not a number within `max`. */
+function clockField(field: string, max: number): number | null {
+  if (!/^\d{1,2}$/.test(field)) {
+    return null;
+  }
+  const value = Number(field);
+  return value <= max ? value : null;
+}
+
+/** The step `N` a `*` or `1/N` cron field carries, or `null` when it is neither or out of range. */
+function intervalStep(field: string, unit: ScheduleIntervalUnit): number | null {
+  if (field === "*") {
+    return 1;
+  }
+  const match = /^1\/(\d{1,2})$/.exec(field);
+  if (match == null) {
+    return null;
+  }
+  const step = Number(match[1]);
+  return step >= 1 && step <= MAX_INTERVAL_COUNT[unit] ? step : null;
+}
+
+/**
  * CVA sub-editor for a Quartz cron schedule (or null for "no schedule").
  *
  * Presents a preset `bit-select` (None / Hourly / Every 6 hours / Daily / Weekly /
- * Monthly / Custom) plus, when Custom is selected, a free-text input. The outer value
- * is `string | null`:
+ * Monthly / Interval / Custom) plus, when Interval is selected, a count/unit/time-of-day builder,
+ * and when Custom is selected, a free-text input. The outer value is `string | null`:
  *
  * - `null` → None (no scheduled rotation)
  * - a preset's cron expression → the matching preset
+ * - an expression the interval builder could have composed → Interval, with its parts filled in
  * - any other string → Custom
  *
  * Every cron rule here — which expression a preset maps to, which preset an expression matches,
  * and whether a custom expression is Quartz-shaped — belongs to the SDK, so this component asks
- * rather than reimplements. Those calls are asynchronous (reaching the SDK needs a client) while
+ * rather than reimplements. Composing an expression from operator-chosen interval parts is the one
+ * exception, because the SDK exposes no builder; its inverse recognises only the two shapes this
+ * component emits and everything else falls through to Custom, and therefore back to the SDK.
+ * Those calls are asynchronous (reaching the SDK needs a client) while
  * `ControlValueAccessor` and `Validator` are not, so the preset table is resolved once on
  * construction and the last shape verdict is kept, re-running validation when it lands.
  *
@@ -78,10 +149,32 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
   /** Expose preset const for template comparisons. */
   protected readonly QuartzSchedulePreset = QuartzSchedulePreset;
 
-  protected readonly presetControl = this.fb.nonNullable.control<QuartzSchedulePreset>(
+  /** Expose the interval mode and its units for template comparisons. */
+  protected readonly ScheduleInterval = SCHEDULE_INTERVAL_MODE;
+  protected readonly ScheduleIntervalUnit = ScheduleIntervalUnit;
+
+  protected readonly presetControl = this.fb.nonNullable.control<ScheduleMode>(
     QuartzSchedulePreset.None,
   );
   protected readonly customControl = this.fb.nonNullable.control<string>("");
+  protected readonly intervalCountControl = this.fb.nonNullable.control<number | null>(
+    1,
+    this.countValidators(ScheduleIntervalUnit.Days),
+  );
+  protected readonly intervalUnitControl = this.fb.nonNullable.control<ScheduleIntervalUnit>(
+    ScheduleIntervalUnit.Days,
+  );
+  protected readonly intervalTimeControl = this.fb.nonNullable.control<string>("00:00", [
+    Validators.required,
+  ]);
+
+  private readonly editorControls: readonly AbstractControl[] = [
+    this.presetControl,
+    this.customControl,
+    this.intervalCountControl,
+    this.intervalUnitControl,
+    this.intervalTimeControl,
+  ];
 
   // ControlValueAccessor wiring — reassigned by Angular.
   // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties
@@ -103,6 +196,21 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
       this.emitValue();
       void this.refreshCronShape(value);
     });
+    merge(
+      this.intervalCountControl.valueChanges,
+      this.intervalTimeControl.valueChanges,
+      // The new unit's ceiling has to land before the count is validated against it.
+      this.intervalUnitControl.valueChanges.pipe(tap((unit) => this.applyCountBounds(unit))),
+    )
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        this.emitValue();
+        this.onValidatorChange();
+      });
+  }
+
+  protected get intervalCountMax(): number {
+    return MAX_INTERVAL_COUNT[this.intervalUnitControl.value];
   }
 
   /**
@@ -147,15 +255,44 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
 
   private async applyPreset(value: string | null): Promise<void> {
     const preset = await this.rotationSdk.presetForCron(value);
-    this.presetControl.setValue(preset, { emitEvent: false });
-    if (preset === QuartzSchedulePreset.Custom) {
-      this.customControl.setValue(value ?? "", { emitEvent: false });
-      await this.refreshCronShape(value ?? "");
-    } else {
-      this.customControl.setValue("", { emitEvent: false });
+    // A named preset wins over the builder: an expression the SDK names stays a named preset.
+    if (preset !== QuartzSchedulePreset.Custom) {
+      this.presetControl.setValue(preset, { emitEvent: false });
+      this.resetCustom();
+      this.resetInterval();
       this.cronShapeValid = true;
       this.onValidatorChange();
+      return;
     }
+
+    const interval = value == null ? null : this.parseIntervalCron(value);
+    if (interval != null) {
+      this.presetControl.setValue(SCHEDULE_INTERVAL_MODE, { emitEvent: false });
+      this.resetCustom();
+      this.intervalUnitControl.setValue(interval.unit, { emitEvent: false });
+      this.applyCountBounds(interval.unit);
+      this.intervalCountControl.setValue(interval.count, { emitEvent: false });
+      this.intervalTimeControl.setValue(interval.time, { emitEvent: false });
+      this.cronShapeValid = true;
+      this.onValidatorChange();
+      return;
+    }
+
+    this.presetControl.setValue(QuartzSchedulePreset.Custom, { emitEvent: false });
+    this.resetInterval();
+    this.customControl.setValue(value ?? "", { emitEvent: false });
+    await this.refreshCronShape(value ?? "");
+  }
+
+  private resetCustom(): void {
+    this.customControl.setValue("", { emitEvent: false });
+  }
+
+  private resetInterval(): void {
+    this.intervalUnitControl.setValue(ScheduleIntervalUnit.Days, { emitEvent: false });
+    this.applyCountBounds(ScheduleIntervalUnit.Days);
+    this.intervalCountControl.setValue(1, { emitEvent: false });
+    this.intervalTimeControl.setValue("00:00", { emitEvent: false });
   }
 
   registerOnChange(fn: (value: string | null) => void): void {
@@ -167,12 +304,12 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
   }
 
   setDisabledState(isDisabled: boolean): void {
-    if (isDisabled) {
-      this.presetControl.disable({ emitEvent: false });
-      this.customControl.disable({ emitEvent: false });
-    } else {
-      this.presetControl.enable({ emitEvent: false });
-      this.customControl.enable({ emitEvent: false });
+    for (const control of this.editorControls) {
+      if (isDisabled) {
+        control.disable({ emitEvent: false });
+      } else {
+        control.enable({ emitEvent: false });
+      }
     }
   }
 
@@ -180,6 +317,12 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
 
   validate(_control: AbstractControl): ValidationErrors | null {
     const preset = this.presetControl.value;
+    if (preset === SCHEDULE_INTERVAL_MODE) {
+      // An incomplete builder emits null, which the server reads as "no scheduled rotation".
+      return this.intervalParts() == null
+        ? { invalidInterval: { message: this.i18n.t("pamRotationScheduleInvalidInterval") } }
+        : null;
+    }
     if (preset !== QuartzSchedulePreset.Custom) {
       return null;
     }
@@ -212,10 +355,109 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     if (preset === QuartzSchedulePreset.None) {
       return null;
     }
+    if (preset === SCHEDULE_INTERVAL_MODE) {
+      return this.composeIntervalCron();
+    }
     if (preset === QuartzSchedulePreset.Custom) {
       const raw = this.customControl.value.trim();
       return raw === "" ? null : raw;
     }
     return this.cronByPreset.get(preset) ?? null;
+  }
+
+  private countValidators(unit: ScheduleIntervalUnit): ValidatorFn[] {
+    return [
+      Validators.required,
+      Validators.min(1),
+      Validators.max(MAX_INTERVAL_COUNT[unit]),
+      wholeNumber(this.i18n.t("pamRotationScheduleIntervalCountWholeNumber")),
+    ];
+  }
+
+  private applyCountBounds(unit: ScheduleIntervalUnit): void {
+    this.intervalCountControl.setValidators(this.countValidators(unit));
+    this.intervalCountControl.updateValueAndValidity({ emitEvent: false });
+  }
+
+  /** The builder's parts, or `null` when they cannot make an expression. */
+  private intervalParts(): {
+    count: number;
+    unit: ScheduleIntervalUnit;
+    hh: number;
+    mm: number;
+  } | null {
+    const unit = this.intervalUnitControl.value;
+    const count = this.intervalCountControl.value;
+    const max = MAX_INTERVAL_COUNT[unit];
+    if (count == null || !Number.isInteger(count) || count < 1 || count > max) {
+      return null;
+    }
+    const match = TIME_OF_DAY.exec(this.intervalTimeControl.value.trim());
+    if (match == null) {
+      return null;
+    }
+    const hh = clockField(match[1], MAX_HOUR);
+    const mm = clockField(match[2], MAX_MINUTE);
+    if (hh == null || mm == null) {
+      return null;
+    }
+    return { count, unit, hh, mm };
+  }
+
+  /**
+   * The Quartz expression for the builder's current parts, or `null` when they are incomplete.
+   *
+   * Six fields, matching the shape the SDK's own presets use. Day-of-week is always `?` because
+   * day-of-month is specified, which Quartz requires. A count of 1 emits `*` rather than `1/1`, so
+   * every 1 day at 00:00 is the SDK's own daily expression and every 1 month at 00:00 its monthly.
+   */
+  private composeIntervalCron(): string | null {
+    const parts = this.intervalParts();
+    if (parts == null) {
+      return null;
+    }
+    const { count, unit, hh, mm } = parts;
+    const step = count === 1 ? "*" : `1/${count}`;
+    return unit === ScheduleIntervalUnit.Months
+      ? `0 ${mm} ${hh} 1 ${step} ?`
+      : `0 ${mm} ${hh} ${step} * ?`;
+  }
+
+  /**
+   * The builder's controls for an expression it could have produced, or `null`.
+   *
+   * The inverse of {@link composeIntervalCron}, and deliberately strict: anything it does not
+   * recognise falls through to Custom rather than being approximated.
+   */
+  private parseIntervalCron(
+    cron: string,
+  ): { count: number; unit: ScheduleIntervalUnit; time: string } | null {
+    const fields = cron.trim().split(/\s+/);
+    if (fields.length !== 6) {
+      return null;
+    }
+    const [second, minute, hour, dom, month, dow] = fields;
+    if (second !== "0" || dow !== "?") {
+      return null;
+    }
+    const hh = clockField(hour, MAX_HOUR);
+    const mm = clockField(minute, MAX_MINUTE);
+    if (hh == null || mm == null) {
+      return null;
+    }
+    const time = `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+
+    if (month === "*") {
+      if (dom === "1") {
+        return { count: 1, unit: ScheduleIntervalUnit.Months, time };
+      }
+      const count = intervalStep(dom, ScheduleIntervalUnit.Days);
+      return count == null ? null : { count, unit: ScheduleIntervalUnit.Days, time };
+    }
+    if (dom !== "1") {
+      return null;
+    }
+    const count = intervalStep(month, ScheduleIntervalUnit.Months);
+    return count == null || count === 1 ? null : { count, unit: ScheduleIntervalUnit.Months, time };
   }
 }

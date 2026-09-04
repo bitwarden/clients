@@ -18635,6 +18635,33 @@
   "pamRotationScheduleTimezoneHint": {
     "message": "Schedules run in UTC, not your local time zone."
   },
+  "pamRotationScheduleInterval": {
+    "message": "Interval"
+  },
+  "pamRotationScheduleIntervalCountLabel": {
+    "message": "Repeat every"
+  },
+  "pamRotationScheduleIntervalUnitLabel": {
+    "message": "Unit"
+  },
+  "pamRotationScheduleIntervalUnitDays": {
+    "message": "Days"
+  },
+  "pamRotationScheduleIntervalUnitMonths": {
+    "message": "Months"
+  },
+  "pamRotationScheduleIntervalTimeLabel": {
+    "message": "Time of day (UTC)"
+  },
+  "pamRotationScheduleIntervalHint": {
+    "message": "Intervals are anchored to the calendar. Day intervals restart on the 1st of each month, and month intervals run on the 1st and restart in January."
+  },
+  "pamRotationScheduleInvalidInterval": {
+    "message": "Enter how often the rotation repeats and the time of day."
+  },
+  "pamRotationScheduleIntervalCountWholeNumber": {
+    "message": "Enter a whole number."
+  },
   "pamTargetSystemNew": {
     "message": "New target system"
   },
