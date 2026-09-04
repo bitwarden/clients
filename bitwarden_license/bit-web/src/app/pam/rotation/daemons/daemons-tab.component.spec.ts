@@ -34,7 +34,7 @@ describe("DaemonsTabComponent", () => {
     return {
       id,
       name,
-      statusLabelKey: "pamDaemonStatusEnabled",
+      statusLabelKey: "pamAccessConnectorStatusEnabled",
       isConnected: true,
       assignmentNames: [],
       enabled: true,
@@ -480,7 +480,7 @@ describe("DaemonsTabComponent", () => {
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
       expect(el.textContent).toContain("pamRotationListLoadErrorTitle");
-      expect(el.textContent).not.toContain("pamDaemonEmptyStateTitle");
+      expect(el.textContent).not.toContain("pamAccessConnectorEmptyStateTitle");
     });
 
     it("retries both loads from the error state", async () => {

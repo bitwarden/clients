@@ -49,7 +49,7 @@
             id="rotation-config-edit_input_account-identity"
             formControlName="accountIdentity"
           />
-          <bit-hint>{{ "pamRotationConfigAccountIdentityHint" | i18n }}</bit-hint>
+          <bit-hint>{{ "pamRotationConfigAccountIdentityHintConnector" | i18n }}</bit-hint>
         </bit-form-field>
 
         <bit-form-control>
@@ -197,7 +197,7 @@
                   id="rotation-config-edit_input_account-identity-edit"
                   formControlName="accountIdentity"
                 />
-                <bit-hint>{{ "pamRotationConfigAccountIdentityHint" | i18n }}</bit-hint>
+                <bit-hint>{{ "pamRotationConfigAccountIdentityHintConnector" | i18n }}</bit-hint>
               </bit-form-field>
 
               <bit-form-control disableMargin>
@@ -254,7 +254,7 @@
           </p>
           @if (detail.config.hasActiveJob) {
             <bit-callout type="info" class="tw-mb-3">
-              {{ "pamRotationConfigRemoveLockedContent" | i18n }}
+              {{ "pamRotationConfigRemoveLockedContentConnector" | i18n }}
             </bit-callout>
           }
           <button

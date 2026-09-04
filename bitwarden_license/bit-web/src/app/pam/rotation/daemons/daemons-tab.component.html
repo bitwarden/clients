@@ -1,7 +1,7 @@
 <div class="tw-mb-4">
   <bit-search
     class="tw-max-w-md"
-    [placeholder]="'pamDaemonSearch' | i18n"
+    [placeholder]="'pamAccessConnectorSearch' | i18n"
     [formControl]="searchControl"
   ></bit-search>
 </div>
@@ -13,8 +13,8 @@
 } @else if (totalRows() === 0) {
   <bit-status-lockup>
     <bit-svg slot="graphic" [content]="noItemsIcon"></bit-svg>
-    <span slot="title">{{ "pamDaemonEmptyStateTitle" | i18n }}</span>
-    <span slot="description">{{ "pamDaemonEmptyStateDescription" | i18n }}</span>
+    <span slot="title">{{ "pamAccessConnectorEmptyStateTitle" | i18n }}</span>
+    <span slot="description">{{ "pamAccessConnectorEmptyStateDescription" | i18n }}</span>
     <button
       slot="button"
       type="button"
@@ -23,7 +23,7 @@
       [bitAction]="registerDaemon"
       id="daemons-tab_button_register-empty"
     >
-      {{ "pamDaemonNew" | i18n }}
+      {{ "pamAccessConnectorNew" | i18n }}
     </button>
   </bit-status-lockup>
 } @else {
@@ -32,8 +32,8 @@
       <tr>
         <th bitCell bitSortable="name">{{ "name" | i18n }}</th>
         <th bitCell>{{ "status" | i18n }}</th>
-        <th bitCell>{{ "pamDaemonConnection" | i18n }}</th>
-        <th bitCell>{{ "pamDaemonAssignments" | i18n }}</th>
+        <th bitCell>{{ "pamAccessConnectorConnection" | i18n }}</th>
+        <th bitCell>{{ "pamAccessConnectorAssignments" | i18n }}</th>
         <th bitCell class="tw-w-0"></th>
       </tr>
     </ng-container>
@@ -65,9 +65,9 @@
         <!-- Connection liveness -->
         <td bitCell>
           @if (r.isConnected) {
-            <span bitBadge variant="success">{{ "pamDaemonConnected" | i18n }}</span>
+            <span bitBadge variant="success">{{ "pamAccessConnectorConnected" | i18n }}</span>
           } @else {
-            <span bitBadge variant="secondary">{{ "pamDaemonOffline" | i18n }}</span>
+            <span bitBadge variant="secondary">{{ "pamAccessConnectorOffline" | i18n }}</span>
           }
         </td>
 
@@ -108,7 +108,7 @@
               id="daemons-tab_button_assign-{{ r.id }}"
             >
               <bit-icon name="bwi-plus-circle" class="tw-text-muted"></bit-icon>
-              {{ "pamDaemonAssignTarget" | i18n }}
+              {{ "pamAccessConnectorAssignTarget" | i18n }}
             </button>
             @if (r.daemon.assignedTargetSystemIds.length > 0) {
               @for (
@@ -123,19 +123,19 @@
                   (click)="unassign(r, assignmentId, r.assignmentNames[i])"
                 >
                   <bit-icon name="bwi-minus-circle" class="tw-text-muted"></bit-icon>
-                  {{ "pamDaemonUnassign" | i18n: r.assignmentNames[i] }}
+                  {{ "pamAccessConnectorUnassign" | i18n: r.assignmentNames[i] }}
                 </button>
               }
             }
             @if (r.enabled) {
               <button type="button" bitMenuItem [disabled]="isRowBusy(r.id)" (click)="disable(r)">
                 <bit-icon name="bwi-circle" class="tw-text-muted"></bit-icon>
-                {{ "pamDaemonDisable" | i18n }}
+                {{ "pamAccessConnectorDisable" | i18n }}
               </button>
             } @else {
               <button type="button" bitMenuItem [disabled]="isRowBusy(r.id)" (click)="enable(r)">
                 <bit-icon name="bwi-check-circle" class="tw-text-muted"></bit-icon>
-                {{ "pamDaemonEnable" | i18n }}
+                {{ "pamAccessConnectorEnable" | i18n }}
               </button>
             }
             <button
@@ -154,7 +154,7 @@
       @if (dataSource.filteredData.length === 0) {
         <tr bitRow>
           <td bitCell colspan="5" class="tw-py-6 tw-text-center tw-text-muted">
-            {{ "pamDaemonNoResults" | i18n }}
+            {{ "pamAccessConnectorNoResults" | i18n }}
           </td>
         </tr>
       }

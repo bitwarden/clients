@@ -150,7 +150,7 @@ export class DaemonsTabComponent {
       await this.daemonsService.registerCompleted(orgId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamDaemonRegistered"),
+        message: this.i18nService.t("pamAccessConnectorRegistered"),
       });
     }
   };
@@ -183,7 +183,7 @@ export class DaemonsTabComponent {
         await this.daemonsService.assign(row.daemon, asUuid<TargetSystemId>(targetSystemId));
         this.toastService.showToast({
           variant: "success",
-          message: this.i18nService.t("pamDaemonAssigned"),
+          message: this.i18nService.t("pamAccessConnectorAssigned"),
         });
       } catch (e) {
         this.showError(e);
@@ -197,8 +197,8 @@ export class DaemonsTabComponent {
   ): Promise<void> =>
     this.busyRows.run(row.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "pamDaemonUnassignConfirmTitle" },
-        content: { key: "pamDaemonUnassignConfirmContent", placeholders: [targetName] },
+        title: { key: "pamAccessConnectorUnassignConfirmTitle" },
+        content: { key: "pamAccessConnectorUnassignConfirmContent", placeholders: [targetName] },
         acceptButtonText: { key: "remove" },
         cancelButtonText: { key: "cancel" },
         type: "warning",
@@ -210,7 +210,7 @@ export class DaemonsTabComponent {
         await this.daemonsService.unassign(row.daemon, asUuid<TargetSystemId>(targetSystemId));
         this.toastService.showToast({
           variant: "success",
-          message: this.i18nService.t("pamDaemonUnassigned"),
+          message: this.i18nService.t("pamAccessConnectorUnassigned"),
         });
       } catch (e) {
         this.showError(e);
@@ -220,9 +220,9 @@ export class DaemonsTabComponent {
   protected readonly disable = (row: DaemonRow): Promise<void> =>
     this.busyRows.run(row.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "pamDaemonDisableConfirmTitle" },
-        content: { key: "pamDaemonDisableConfirmContent", placeholders: [row.name] },
-        acceptButtonText: { key: "pamDaemonDisable" },
+        title: { key: "pamAccessConnectorDisableConfirmTitle" },
+        content: { key: "pamAccessConnectorDisableConfirmContent", placeholders: [row.name] },
+        acceptButtonText: { key: "pamAccessConnectorDisable" },
         cancelButtonText: { key: "cancel" },
         type: "warning",
       });
@@ -233,7 +233,7 @@ export class DaemonsTabComponent {
         await this.daemonsService.setEnabled(row.daemon, false);
         this.toastService.showToast({
           variant: "success",
-          message: this.i18nService.t("pamDaemonDisabled"),
+          message: this.i18nService.t("pamAccessConnectorDisabled"),
         });
       } catch (e) {
         this.showError(e);
@@ -246,7 +246,7 @@ export class DaemonsTabComponent {
         await this.daemonsService.setEnabled(row.daemon, true);
         this.toastService.showToast({
           variant: "success",
-          message: this.i18nService.t("pamDaemonEnabled"),
+          message: this.i18nService.t("pamAccessConnectorEnabled"),
         });
       } catch (e) {
         this.showError(e);
@@ -256,8 +256,8 @@ export class DaemonsTabComponent {
   protected readonly confirmDelete = (row: DaemonRow): Promise<void> =>
     this.busyRows.run(row.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "pamDaemonDeleteConfirmTitle" },
-        content: { key: "pamDaemonDeleteConfirmContent", placeholders: [row.name] },
+        title: { key: "pamAccessConnectorDeleteConfirmTitle" },
+        content: { key: "pamAccessConnectorDeleteConfirmContent", placeholders: [row.name] },
         acceptButtonText: { key: "delete" },
         cancelButtonText: { key: "cancel" },
         type: "danger",
@@ -269,7 +269,7 @@ export class DaemonsTabComponent {
         await this.daemonsService.delete(row.daemon);
         this.toastService.showToast({
           variant: "success",
-          message: this.i18nService.t("pamDaemonDeleted"),
+          message: this.i18nService.t("pamAccessConnectorDeleted"),
         });
       } catch (e) {
         this.showError(e);

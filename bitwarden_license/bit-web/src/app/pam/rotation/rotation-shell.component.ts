@@ -125,7 +125,7 @@ export class RotationShellComponent {
       await this.daemonsService.registerCompleted(orgId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamDaemonRegistered"),
+        message: this.i18nService.t("pamAccessConnectorRegistered"),
       });
     }
   };
