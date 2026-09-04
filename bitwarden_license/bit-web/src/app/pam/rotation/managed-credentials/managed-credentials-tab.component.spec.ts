@@ -348,7 +348,6 @@ describe("ManagedCredentialsTabComponent", () => {
 
     it("leaves no cell in the column empty", () => {
       const cells = renderCells([rotates(), doesNotRotate()]);
-      expect(cells).toHaveLength(2);
       expect(cells.map((cell) => cell.textContent!.trim())).toEqual(["yes", "no"]);
     });
   });
