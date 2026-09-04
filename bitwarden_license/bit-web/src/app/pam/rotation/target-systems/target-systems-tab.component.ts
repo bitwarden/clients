@@ -154,14 +154,11 @@ export class TargetSystemsTabComponent {
    * to the same {@link DaemonsService.assign} call with the two ids in the same positions.
    */
   protected readonly openAssignConnectorDialog = async (system: TargetSystem): Promise<void> => {
+    const daemons = this.daemons();
     const assigned = new Set(
-      this.daemons()
-        .filter((d) => d.assignedTargetSystemIds.includes(system.id))
-        .map((d) => d.id),
+      daemons.filter((d) => d.assignedTargetSystemIds.includes(system.id)).map((d) => d.id),
     );
-    const options = this.daemons().filter(
-      (d) => d.status === DaemonStatus.Enabled && !assigned.has(d.id),
-    );
+    const options = daemons.filter((d) => d.status === DaemonStatus.Enabled && !assigned.has(d.id));
 
     const ref = AssignConnectorDialogComponent.open(this.dialogService, {
       data: { targetSystem: system, options },
