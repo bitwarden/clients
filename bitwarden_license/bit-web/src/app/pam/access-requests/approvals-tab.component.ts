@@ -6,6 +6,7 @@ import {
   effect,
   inject,
   signal,
+  viewChild,
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -23,9 +24,9 @@ import {
   AccordionGroupComponent,
   BadgeComponent,
   ButtonModule,
-  ChipFilterComponent,
-  ChipFilterOption,
   DialogService,
+  FilterMenuComponent,
+  FilterOptionComponent,
   StatusLockupComponent,
   SvgComponent,
   SearchModule,
@@ -52,6 +53,9 @@ import { DurationShortPipe } from "../date/duration-short.pipe";
 /** The fields the toolbar filters against, carried by both sections' row models. */
 type FilterableRow = { searchText: string; collectionName: string | null; requester: string };
 
+/** An option offered by a `bit-filter-menu` chip. Also used by the "My requests" tab. */
+export type FilterOption = { label: string; value: string };
+
 /**
  * "Approvals" tab — the requests awaiting the caller's decision, oldest first, and the access
  * already running on the collections they manage.
@@ -77,8 +81,9 @@ type FilterableRow = { searchText: string; collectionName: string | null; reques
     AccordionGroupComponent,
     BadgeComponent,
     ButtonModule,
-    ChipFilterComponent,
     DurationShortPipe,
+    FilterMenuComponent,
+    FilterOptionComponent,
     IconComponent,
     StatusLockupComponent,
     SvgComponent,
@@ -133,16 +138,22 @@ export class ApprovalsTabComponent {
   private readonly loadError = toSignal(this.inbox.loadError$, { initialValue: null });
 
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
-  protected readonly collectionControl = new FormControl<string | null>(null);
-  protected readonly requesterControl = new FormControl<string | null>(null);
 
   private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: "" });
-  private readonly collectionFilter = toSignal(this.collectionControl.valueChanges, {
-    initialValue: null,
-  });
-  private readonly requesterFilter = toSignal(this.requesterControl.valueChanges, {
-    initialValue: null,
-  });
+
+  /**
+   * `bit-filter-menu` isn't a `ControlValueAccessor`, so the Collection and Requester chips own
+   * their own selection and are read directly off their view-child refs rather than through a
+   * `FormControl`.
+   */
+  private readonly collectionFilterMenu = viewChild<FilterMenuComponent>("collectionFilter");
+  private readonly requesterFilterMenu = viewChild<FilterMenuComponent>("requesterFilter");
+  private readonly collectionFilter = computed(
+    () => this.collectionFilterMenu()?.value() as string | undefined,
+  );
+  private readonly requesterFilter = computed(
+    () => this.requesterFilterMenu()?.value() as string | undefined,
+  );
 
   private readonly allRows = toSignal(this.inbox.inboxRows$, { initialValue: [] as ApprovalRow[] });
 
@@ -187,12 +198,12 @@ export class ApprovalsTabComponent {
   ]);
 
   /** Every distinct collection present on the tab, for the Collection filter. */
-  protected readonly collectionOptions = computed<ChipFilterOption<string>[]>(() =>
+  protected readonly collectionOptions = computed<FilterOption[]>(() =>
     distinctOptions(this.filterableRows().map((row) => row.collectionName)),
   );
 
   /** Every distinct requester present on the tab, for the Requester filter. */
-  protected readonly requesterOptions = computed<ChipFilterOption<string>[]>(() =>
+  protected readonly requesterOptions = computed<FilterOption[]>(() =>
     distinctOptions(this.filterableRows().map((row) => row.requester)),
   );
 
@@ -423,7 +434,7 @@ function sameRows(a: readonly ManagedLeaseRow[], b: readonly ManagedLeaseRow[]):
 }
 
 /** Deduped, locale-sorted chip options from a list of possibly-blank labels. */
-function distinctOptions(labels: Array<string | null>): ChipFilterOption<string>[] {
+function distinctOptions(labels: Array<string | null>): FilterOption[] {
   const distinct = new Set(labels.filter((label): label is string => !!label));
   return [...distinct].sort((a, b) => a.localeCompare(b)).map((label) => ({ value: label, label }));
 }

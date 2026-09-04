@@ -6,6 +6,7 @@ import {
   effect,
   inject,
   signal,
+  viewChild,
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -21,9 +22,9 @@ import {
   AccordionGroupComponent,
   BadgeComponent,
   ButtonModule,
-  ChipFilterComponent,
-  ChipFilterOption,
   DialogService,
+  FilterMenuComponent,
+  FilterOptionComponent,
   SearchModule,
   SortDirection,
   SortFn,
@@ -41,6 +42,7 @@ import { AccessStateBadgeComponent } from "../access-state-badge/access-state-ba
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { RemainingTimePipe } from "../date/remaining-time.pipe";
 
+import type { FilterOption } from "./approvals-tab.component";
 import {
   MyAccessLeaseRow,
   MyAccessRequestRow,
@@ -103,7 +105,8 @@ const byWindowEnd = (a: ActiveAccessRow, b: ActiveAccessRow): number =>
     AccordionGroupComponent,
     BadgeComponent,
     ButtonModule,
-    ChipFilterComponent,
+    FilterMenuComponent,
+    FilterOptionComponent,
     IconComponent,
     SearchModule,
     TableModule,
@@ -129,12 +132,17 @@ export class MyRequestsTabComponent {
 
   /** Free-text search across item + collection names; the Collection filter selects one collection. */
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
-  protected readonly collectionControl = new FormControl<string | null>(null);
 
   private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: "" });
-  private readonly selectedCollection = toSignal(this.collectionControl.valueChanges, {
-    initialValue: null,
-  });
+
+  /**
+   * `bit-filter-menu` isn't a `ControlValueAccessor`, so the Collection chip owns its own
+   * selection and is read directly off its view-child ref rather than through a `FormControl`.
+   */
+  private readonly collectionFilter = viewChild<FilterMenuComponent>("collectionFilter");
+  private readonly selectedCollection = computed(
+    () => this.collectionFilter()?.value() as string | undefined,
+  );
 
   private readonly allPending = toSignal(this.myAccess.pendingRows$, {
     initialValue: [] as MyAccessRequestRow[],
@@ -168,7 +176,7 @@ export class MyRequestsTabComponent {
   });
 
   /** Every distinct collection present across the caller's rows, for the Collection filter. */
-  protected readonly collectionOptions = computed<ChipFilterOption<string>[]>(() => {
+  protected readonly collectionOptions = computed<FilterOption[]>(() => {
     const byId = new Map<string, string>();
     for (const row of [...this.allPending(), ...this.allExtensions(), ...this.allLeases()]) {
       if (row.collectionName != null && !byId.has(row.collectionId)) {
