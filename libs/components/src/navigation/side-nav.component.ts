@@ -1,6 +1,6 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { DragDropModule, CdkDragEnd, CdkDragMove } from "@angular/cdk/drag-drop";
-import { AsyncPipe, NgTemplateOutlet } from "@angular/common";
+import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -36,7 +36,6 @@ export type SideNavVariant = "primary" | "secondary";
     BitIconButtonComponent,
     I18nPipe,
     DragDropModule,
-    AsyncPipe,
     NgTemplateOutlet,
   ],
   host: {

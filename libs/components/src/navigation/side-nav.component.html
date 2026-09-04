@@ -23,7 +23,7 @@
       class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-nav tw-text-fg-nav tw-outline-none"
       [style.width.rem]="
         sideNavService.dragDisplayWidth() ??
-        (open ? (sideNavService.width$ | async) : sideNavService.CLOSED_WIDTH)
+        (open ? sideNavService.widthRem() : sideNavService.CLOSED_WIDTH)
       "
       [style.transition]="animateWidth() ? 'width 150ms ease-out' : 'none'"
       [style]="
@@ -103,7 +103,7 @@
       tabindex="0"
       (keydown)="onKeydown($event)"
       role="separator"
-      [attr.aria-valuenow]="open ? (sideNavService.width$ | async) : sideNavService.CLOSED_WIDTH"
+      [attr.aria-valuenow]="open ? sideNavService.widthRem() : sideNavService.CLOSED_WIDTH"
       [attr.aria-valuemax]="sideNavService.MAX_OPEN_WIDTH"
       [attr.aria-valuemin]="sideNavService.CLOSED_WIDTH"
       aria-orientation="vertical"
@@ -124,7 +124,7 @@
       [attr.data-nav-version]="version"
       class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-nav tw-text-fg-nav tw-outline-none"
       [style.width.rem]="
-        sideNavService.dragDisplayWidth() ?? (open ? (sideNavService.width$ | async) : undefined)
+        sideNavService.dragDisplayWidth() ?? (open ? sideNavService.widthRem() : undefined)
       "
       [style.transition]="animateWidth() ? 'width 150ms ease-out' : 'none'"
       [style]="
@@ -184,7 +184,7 @@
       tabindex="0"
       (keydown)="onKeydown($event)"
       role="separator"
-      [attr.aria-valuenow]="open ? (sideNavService.width$ | async) : sideNavService.CLOSED_WIDTH"
+      [attr.aria-valuenow]="open ? sideNavService.widthRem() : sideNavService.CLOSED_WIDTH"
       [attr.aria-valuemax]="sideNavService.MAX_OPEN_WIDTH"
       [attr.aria-valuemin]="sideNavService.CLOSED_WIDTH"
       aria-orientation="vertical"
