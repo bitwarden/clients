@@ -20,7 +20,19 @@ async function run(context) {
   }
   console.log("## After pack");
   // console.log(context);
+  try {
+    await doBuild(context);
+  } catch (error) {
+    console.error("### Error occurred during after-pack phase:", error.stack);
+    throw error;
+  } finally {
+    if (IS_GITHUB_ACTIONS) {
+      console.log(`::endgroup::`);
+    }
+  }
+}
 
+async function doBuild(context) {
   const isMacOsBuild = ["darwin", "mas"].includes(context.electronPlatformName);
 
   let isTargetArch;
@@ -125,11 +137,6 @@ async function run(context) {
         `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${inheritProxyPath}"`,
       );
     }
-  }
-
-  console.log("### After pack ended");
-  if (IS_GITHUB_ACTIONS) {
-    console.log("::endgroup::");
   }
 }
 
