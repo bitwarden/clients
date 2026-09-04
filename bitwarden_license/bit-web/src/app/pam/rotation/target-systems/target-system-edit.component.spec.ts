@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { FormGroup } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
@@ -47,6 +48,17 @@ function makeSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
     supportsSessionTermination: true,
     ...overrides,
   } as TargetSystem;
+}
+
+const NO_CHARACTER_CLASSES = {
+  includeUppercase: false,
+  includeLowercase: false,
+  includeDigits: false,
+  includeSymbols: false,
+};
+
+function policyFormOf(fixture: ComponentFixture<TargetSystemEditComponent>): FormGroup {
+  return (fixture.componentInstance as unknown as { policyForm: FormGroup }).policyForm;
 }
 
 /** Build a configured TestBed for create mode (no targetSystemId). */
@@ -225,42 +237,16 @@ describe("TargetSystemEditComponent — create mode", () => {
   });
 
   it("marks the policy invalid when every character class is cleared", () => {
-    const policyForm = (
-      fixture.componentInstance as unknown as {
-        policyForm: {
-          patchValue: (v: unknown) => void;
-          invalid: boolean;
-          errors: Record<string, unknown> | null;
-        };
-      }
-    ).policyForm;
-    policyForm.patchValue({
-      includeUppercase: false,
-      includeLowercase: false,
-      includeDigits: false,
-      includeSymbols: false,
-    });
+    const policyForm = policyFormOf(fixture);
+    policyForm.patchValue(NO_CHARACTER_CLASSES);
 
     expect(policyForm.invalid).toBe(true);
     expect(policyForm.errors?.["noCharacterClass"]).toBe(true);
   });
 
   it("clears the character-class error when one class is re-enabled", () => {
-    const policyForm = (
-      fixture.componentInstance as unknown as {
-        policyForm: {
-          patchValue: (v: unknown) => void;
-          valid: boolean;
-          errors: Record<string, unknown> | null;
-        };
-      }
-    ).policyForm;
-    policyForm.patchValue({
-      includeUppercase: false,
-      includeLowercase: false,
-      includeDigits: false,
-      includeSymbols: false,
-    });
+    const policyForm = policyFormOf(fixture);
+    policyForm.patchValue(NO_CHARACTER_CLASSES);
     policyForm.patchValue({ includeSymbols: true });
 
     expect(policyForm.errors).toBeNull();
@@ -273,7 +259,6 @@ describe("TargetSystemEditComponent — create mode", () => {
 
     const comp = fixture.componentInstance as unknown as {
       createForm: { patchValue: (v: unknown) => void };
-      policyForm: { patchValue: (v: unknown) => void };
       submitCreate: () => Promise<void>;
     };
     comp.createForm.patchValue({
@@ -281,13 +266,7 @@ describe("TargetSystemEditComponent — create mode", () => {
       method: TargetSystemMethod.Automatic,
       kind: TargetSystemKind.Entra,
     });
-    comp.policyForm.patchValue({
-      includeUppercase: false,
-      includeLowercase: false,
-      includeDigits: false,
-      includeSymbols: false,
-    });
-    fixture.detectChanges();
+    policyFormOf(fixture).patchValue(NO_CHARACTER_CLASSES);
     await comp.submitCreate();
 
     expect(rotationSdk.createTargetSystem).not.toHaveBeenCalled();
@@ -486,17 +465,8 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector("#target-system-edit_error_character-class")).toBeNull();
 
-    const policyForm = (
-      fixture.componentInstance as unknown as {
-        policyForm: { patchValue: (v: unknown) => void; markAllAsTouched: () => void };
-      }
-    ).policyForm;
-    policyForm.patchValue({
-      includeUppercase: false,
-      includeLowercase: false,
-      includeDigits: false,
-      includeSymbols: false,
-    });
+    const policyForm = policyFormOf(fixture);
+    policyForm.patchValue(NO_CHARACTER_CLASSES);
     policyForm.markAllAsTouched();
     fixture.detectChanges();
 
@@ -569,17 +539,10 @@ describe("TargetSystemEditComponent — edit mode", () => {
   it("does not save when every character class is cleared", async () => {
     rotationSdk.updateTargetSystem.mockResolvedValue(undefined);
 
-    const comp = fixture.componentInstance as unknown as {
-      policyForm: { patchValue: (v: unknown) => void };
-      submitEdit: () => Promise<void>;
-    };
-    comp.policyForm.patchValue({
-      includeUppercase: false,
-      includeLowercase: false,
-      includeDigits: false,
-      includeSymbols: false,
-    });
-    await comp.submitEdit();
+    policyFormOf(fixture).patchValue(NO_CHARACTER_CLASSES);
+    await (
+      fixture.componentInstance as unknown as { submitEdit: () => Promise<void> }
+    ).submitEdit();
 
     expect(rotationSdk.updateTargetSystem).not.toHaveBeenCalled();
   });
