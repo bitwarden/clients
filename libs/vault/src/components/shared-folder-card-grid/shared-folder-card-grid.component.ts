@@ -263,9 +263,12 @@ export class SharedFolderCardGridComponent {
    */
   private folderRoute(folder: CollectionView): string[] {
     const scope = this.scope();
-    return vaultScopeCommands(
-      scope.type === VaultScopeType.Organization ? { ...scope, collectionId: folder.id } : scope,
-    );
+    if (scope.type !== VaultScopeType.Organization) {
+      return vaultScopeCommands(scope);
+    }
+
+    // A child of "My items" is a shared folder in its own right.
+    return vaultScopeCommands({ ...scope, collectionId: folder.id, myItems: false });
   }
 
   protected readonly count = computed(() => this.cards().length);

@@ -39,6 +39,7 @@
       [collections]="scopedCollections"
       [allCollections]="allCollections"
       [scopedOrganizationId]="(selectedOrganization$ | async)?.id"
+      [scopedToMyItems]="scopedToMyItems()"
       [organizations]="scopedOrganizations"
       [orgRequiresDataOwnership]="(enforceOrgDataOwnershipPolicy$ | async) ?? false"
       [loading]="refreshing || performingInitialLoad"

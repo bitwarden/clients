@@ -893,6 +893,19 @@ describe("VaultItemsTableComponent", () => {
 
       expect(component["showSharedFolders"]()).toBe(false);
     });
+
+    it("is false when the page is scoped to My items", () => {
+      fixture.componentRef.setInput("organizations", [
+        { id: "org-1", name: "Acme corporation" } as Organization,
+      ]);
+      fixture.componentRef.setInput("collections", [
+        { id: "col-1", name: "Engineering", organizationId: "org-1" } as CollectionView,
+      ]);
+      fixture.componentRef.setInput("scopedToMyItems", true);
+
+      expect(component["showSharedFolders"]()).toBe(false);
+      expect(component["visibleColumns"]()).not.toContain("sharedFolders");
+    });
   });
 
   describe("resolving display names", () => {

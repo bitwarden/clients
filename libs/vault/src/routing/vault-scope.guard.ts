@@ -12,7 +12,6 @@ import { VaultNavItemType } from "../models/vault-nav-view-model";
 import {
   defaultUserCollectionId,
   isPersonalOnly,
-  MY_ITEMS_ROUTE,
   parseVaultScope,
   vaultScopeCommands,
   VaultScopeType,
@@ -78,16 +77,16 @@ export const vaultScopeGuard: CanActivateFn = async (route) => {
     return allItems();
   }
 
-  const { organizationId, collectionId } = scope;
-
-  if (collectionId == null) {
-    return true;
-  }
+  const { organizationId, collectionId, myItems } = scope;
 
   // "My items" names a destination only for an organization that has such a collection — one under
   // the data ownership policy. Elsewhere the segment names nothing, the way a typo would.
-  if (collectionId === MY_ITEMS_ROUTE) {
+  if (myItems) {
     return defaultUserCollectionId(organizationId, nav) == null ? allItems() : true;
+  }
+
+  if (collectionId == null) {
+    return true;
   }
 
   // A shared folder is reachable only if the user holds it — a folder they are not assigned, one

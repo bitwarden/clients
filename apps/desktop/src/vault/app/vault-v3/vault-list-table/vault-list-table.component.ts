@@ -65,6 +65,7 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   readonly collections = input<CollectionView[]>([]);
   readonly allCollections = input<CollectionView[]>([]);
   readonly scopedOrganizationId = input<OrganizationId | undefined>();
+  readonly scopedToMyItems = input<boolean>(false);
   readonly organizations = input<Organization[]>([]);
   readonly orgRequiresDataOwnership = input<boolean>(false);
   readonly loading = input<boolean>(false);
