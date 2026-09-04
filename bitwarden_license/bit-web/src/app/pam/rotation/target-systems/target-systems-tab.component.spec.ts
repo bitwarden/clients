@@ -239,7 +239,10 @@ describe("TargetSystemsTabComponent", () => {
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "danger",
-          content: { key: "pamTargetSystemDeleteContentDisableInstead", placeholders: ["Prod Entra"] },
+          content: {
+            key: "pamTargetSystemDeleteContentDisableInstead",
+            placeholders: ["Prod Entra"],
+          },
         }),
       );
     }));
