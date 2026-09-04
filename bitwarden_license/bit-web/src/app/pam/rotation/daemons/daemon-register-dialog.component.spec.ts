@@ -15,6 +15,9 @@ import {
 } from "./daemon-register-dialog.component";
 import { DaemonTokenDialogComponent } from "./daemon-token-dialog.component";
 
+/** Drains the microtasks queued by the resolved SDK mock before assertions. */
+const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
 describe("DaemonRegisterDialogComponent", () => {
   let fixture: ComponentFixture<DaemonRegisterDialogComponent>;
   let component: DaemonRegisterDialogComponent;
@@ -122,6 +125,44 @@ describe("DaemonRegisterDialogComponent", () => {
         }),
       }),
     );
+  });
+
+  it("does not open the token dialog until the register dialog has closed", async () => {
+    let resolveClose!: (value: unknown) => void;
+    dialogRef.close.mockReturnValue(new Promise((resolve) => (resolveClose = resolve)));
+    const openSpy = jest
+      .spyOn(injectedDialogService, "open")
+      .mockReturnValue({ closed: { toPromise: jest.fn() } } as any);
+
+    (component as any).form.controls.name.setValue("Good Daemon");
+    const submitted = (component as any).submit();
+    await settle();
+
+    expect(dialogRef.close).toHaveBeenCalledWith({ registered: true });
+    expect(openSpy).not.toHaveBeenCalled();
+
+    resolveClose({ closed: true });
+    await submitted;
+
+    expect(openSpy).toHaveBeenCalledWith(
+      DaemonTokenDialogComponent,
+      expect.objectContaining({
+        data: expect.objectContaining({
+          token: fakeRegistration.token,
+          daemonName: "Good Daemon",
+        }),
+      }),
+    );
+  });
+
+  it("does not open the token dialog when registration fails", async () => {
+    rotationSdk.registerConnector.mockRejectedValue(new ErrorResponse({ Message: "boom" }, 500));
+    const openSpy = jest.spyOn(injectedDialogService, "open");
+
+    (component as any).form.controls.name.setValue("Bad Daemon");
+    await (component as any).submit();
+
+    expect(openSpy).not.toHaveBeenCalled();
   });
 
   it("shows an error toast when registration fails", async () => {
