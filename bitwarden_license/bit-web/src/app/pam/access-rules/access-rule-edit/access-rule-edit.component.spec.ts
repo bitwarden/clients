@@ -164,6 +164,12 @@ describe("AccessRuleEditComponent — page furniture", () => {
     return fixture;
   };
 
+  const singleHeading = (fixture: ComponentFixture<AccessRuleEditComponent>): HTMLElement => {
+    const headings = fixture.nativeElement.querySelectorAll("h1");
+    expect(headings).toHaveLength(1);
+    return headings[0];
+  };
+
   it("shows the rule's name as the heading, with the list and edit-page crumbs", async () => {
     const fixture = await render(
       { params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } },
@@ -192,6 +198,24 @@ describe("AccessRuleEditComponent — page furniture", () => {
       '[slot="breadcrumbs"] > [aria-current="page"]',
     );
     expect(pageTypeCrumb.textContent.trim()).toBe("pamAccessRuleEditTitle");
+
+    // `bit-breadcrumbs`' host carries `tw-w-full`, which otherwise resolves against the whole
+    // breadcrumbs row and pushes the page-type crumb to the row's far edge, squeezed to a wrap.
+    // Wrapping it gives that `tw-w-full` a shrink-to-content container instead, so both crumbs
+    // stay on one line.
+    const breadcrumbsSlot = fixture.nativeElement.querySelector(
+      '[slot="breadcrumbs"]',
+    ) as HTMLElement;
+    const breadcrumbsEl = breadcrumbsSlot.querySelector("bit-breadcrumbs") as HTMLElement;
+    expect(breadcrumbsEl.parentElement).not.toBe(breadcrumbsSlot);
+    expect(breadcrumbsEl.parentElement?.classList.contains("tw-min-w-0")).toBe(true);
+    // Reserved so it can never be squeezed back into a wrap by a long rule name or a narrow trail.
+    expect(pageTypeCrumb.classList.contains("tw-shrink-0")).toBe(true);
+    expect(pageTypeCrumb.classList.contains("tw-whitespace-nowrap")).toBe(true);
+
+    // The rule's name stays the page's real `<h1>`; the page-type crumb above is a static span,
+    // never a routed `bit-breadcrumb` that VFO1 could promote into a second heading.
+    expect(singleHeading(fixture).textContent).toContain("Production database access");
   });
 
   it("shows the create-page crumb and heading in create mode", async () => {
@@ -211,8 +235,7 @@ describe("AccessRuleEditComponent — page furniture", () => {
     );
     expect(pageTypeCrumb.textContent.trim()).toBe("pamAccessRuleCreateTitle");
 
-    const heading = fixture.nativeElement.querySelector("h1");
-    expect(heading.textContent).toContain("pamAccessRuleCreateTitle");
+    expect(singleHeading(fixture).textContent).toContain("pamAccessRuleCreateTitle");
   });
 
   it("badges the saved rule as on, inside the heading", async () => {
