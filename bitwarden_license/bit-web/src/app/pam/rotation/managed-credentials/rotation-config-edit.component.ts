@@ -29,6 +29,7 @@ import {
 import type { CipherId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { discardConfirmOptions } from "../../helpers/discard-confirm";
 import { OrgCiphersService } from "../org-ciphers.service";
 import {
   RotationConfigCreateRequest,
@@ -349,7 +350,6 @@ export class RotationConfigEditComponent {
     }
   };
 
-  /** The form group that holds user input for the current mode. */
   private liveForm(): AbstractControl {
     return this.editing ? this.editForm : this.createForm;
   }
@@ -364,23 +364,12 @@ export class RotationConfigEditComponent {
       return true;
     }
 
-    // Creating: name the thing being abandoned, the managed credential itself. Editing: the
-    // credential already exists and only the edits are lost.
-    const copy = this.editing
-      ? {
-          title: { key: "discardEditsTitle" },
-          content: { key: "discardEditsConfirmation" },
-          acceptButtonText: { key: "discardEdits" },
-          cancelButtonText: { key: "keepEditing" },
-        }
-      : {
-          title: { key: "pamRotationConfigDiscardTitle" },
-          content: { key: "pamAccessRuleDiscardContent" },
-          acceptButtonText: { key: "pamAccessRuleDiscardConfirm" },
-          cancelButtonText: { key: "cancel" },
-        };
-
-    return await this.dialogService.openSimpleDialog({ ...copy, type: "warning" });
+    return await this.dialogService.openSimpleDialog(
+      discardConfirmOptions({
+        editing: this.editing,
+        createTitleKey: "pamRotationConfigDiscardTitle",
+      }),
+    );
   }
 
   protected readonly cancel = async (): Promise<void> => {
