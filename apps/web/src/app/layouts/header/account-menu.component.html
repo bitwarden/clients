@@ -1,11 +1,33 @@
 @if (account()) {
-  <button
-    type="button"
-    [bitMenuTriggerFor]="accountMenu"
-    class="tw-border-0 tw-bg-transparent tw-p-0 tw-shrink-0"
-  >
-    <dynamic-avatar [id]="account().id" [text]="account() | userName"></dynamic-avatar>
-  </button>
+  @if (expanded()) {
+    <span class="tw-flex tw-w-full tw-justify-start tw-overflow-hidden tw-gap-2 tw-pl-1">
+      <button
+        type="button"
+        [bitMenuTriggerFor]="accountMenu"
+        menuPosition="above-start"
+        class="tw-py-3"
+      >
+        <dynamic-avatar [id]="account().id" [text]="account() | userName"></dynamic-avatar>
+      </button>
+      <span class="tw-flex tw-justify-center tw-flex-col tw-overflow-hidden">
+        <span class="tw-truncate">{{ account() | userName }}</span>
+        <small class="tw-truncate tw-text-fg-body-subtle">{{ account().email }}</small>
+      </span>
+    </span>
+  }
+
+  @if (!expanded()) {
+    <span class="tw-flex tw-w-full tw-justify-center tw-overflow-hidden tw-gap-2">
+      <button
+        type="button"
+        [bitMenuTriggerFor]="accountMenu"
+        menuPosition="above-start"
+        class="tw-py-3"
+      >
+        <dynamic-avatar [id]="account().id" [text]="account() | userName"></dynamic-avatar>
+      </button>
+    </span>
+  }
 
   <bit-menu #accountMenu>
     <div class="tw-flex tw-min-w-52 tw-max-w-72 tw-flex-col">
@@ -32,15 +54,15 @@
       <bit-menu-divider></bit-menu-divider>
 
       <a bitMenuItem routerLink="/settings/account">
-        <i class="bwi bwi-fw bwi-user" aria-hidden="true"></i>
+        <bit-icon name="bwi-user" class="bwi-fw" aria-hidden="true"></bit-icon>
         {{ "accountSettings" | i18n }}
       </a>
       <a bitMenuItem href="https://bitwarden.com/help/" target="_blank" rel="noreferrer">
-        <i class="bwi bwi-fw bwi-question-circle" aria-hidden="true"></i>
+        <bit-icon name="bwi-question-circle" class="bwi-fw" aria-hidden="true"></bit-icon>
         {{ "getHelp" | i18n }}
       </a>
       <a bitMenuItem href="https://bitwarden.com/download/" target="_blank" rel="noreferrer">
-        <i class="bwi bwi-fw bwi-download" aria-hidden="true"></i>
+        <bit-icon name="bwi-download" class="bwi-fw" aria-hidden="true"></bit-icon>
         {{ "getApps" | i18n }}
       </a>
 
@@ -48,13 +70,13 @@
 
       @if (canLock$ | async) {
         <button bitMenuItem type="button" (click)="lock()">
-          <i class="bwi bwi-fw bwi-lock" aria-hidden="true"></i>
+          <bit-icon name="bwi-lock" class="bwi-fw" aria-hidden="true"></bit-icon>
           {{ "lockNow" | i18n }}
         </button>
       }
 
       <button bitMenuItem type="button" (click)="logout()">
-        <i class="bwi bwi-fw bwi-sign-out" aria-hidden="true"></i>
+        <bit-icon name="bwi-sign-out" class="bwi-fw" aria-hidden="true"></bit-icon>
         {{ "logOut" | i18n }}
       </button>
     </div>
