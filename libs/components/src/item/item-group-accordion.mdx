@@ -1,0 +1,36 @@
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./item-group-accordion.stories";
+
+<Meta of={stories} />
+
+```ts
+import { ItemModule } from "@bitwarden/components";
+```
+
+# Item Group Accordion
+
+`<bit-item-group-accordion>` is a convenience wrapper that renders a group of `bit-item` rows inside
+a `bit-accordion`. It is purely compositional — all accordion behavior (ARIA, single-select
+coordination, two-way `open`) comes from `bit-accordion`.
+
+The projected rows render as a single joined list: a full-width divider between each row, flush to
+the accordion body edges, with no per-item border, radius, or gap.
+
+<Primary />
+<Controls />
+
+## End slot
+
+Content passed with `slot="end"` is reprojected into the accordion header, between the title and the
+chevron — for example a count badge.
+
+```html
+<bit-item-group-accordion title="Logins" subtitle="3 items">
+  <bit-badge slot="end" variant="primary">3</bit-badge>
+  <bit-item>...</bit-item>
+  <bit-item>...</bit-item>
+</bit-item-group-accordion>
+```
+
+<Canvas of={stories.WithEndSlot} />
