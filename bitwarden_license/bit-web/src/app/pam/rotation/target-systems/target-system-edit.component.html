@@ -116,7 +116,9 @@
               id="target-system-edit_checkbox_session-termination"
             />
             <bit-label>{{ "pamTargetSystemSupportsSessionTermination" | i18n }}</bit-label>
-            <bit-hint>{{ "pamTargetSystemSupportsSessionTerminationHint" | i18n }}</bit-hint>
+            <bit-hint>{{
+              "pamTargetSystemSupportsSessionTerminationHintConnector" | i18n
+            }}</bit-hint>
           </bit-form-control>
 
           @if (showTerminationWarning()) {
@@ -232,11 +234,11 @@
       <bit-callout type="info" [title]="'pamTargetSystemSetupGuidanceTitle' | i18n">
         @if (existing()?.method === TargetSystemMethod.Automatic) {
           <ol class="tw-mb-0 tw-ps-4">
-            <li>{{ "pamTargetSystemSetupGuidanceAutomaticDaemon" | i18n }}</li>
+            <li>{{ "pamTargetSystemSetupGuidanceAutomaticConnector" | i18n }}</li>
             <li>{{ "pamTargetSystemSetupGuidanceAutomaticCredential" | i18n }}</li>
           </ol>
         } @else {
-          <p class="tw-mb-0">{{ "pamTargetSystemSetupGuidanceManual" | i18n }}</p>
+          <p class="tw-mb-0">{{ "pamTargetSystemSetupGuidanceManualConnector" | i18n }}</p>
         }
       </bit-callout>
 

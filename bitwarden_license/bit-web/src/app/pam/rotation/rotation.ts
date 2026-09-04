@@ -166,9 +166,9 @@ export type QuartzSchedulePreset = SdkQuartzSchedulePreset;
 /**
  * The UI's name for {@link AccessConnectorStatus}.
  *
- * The server and the SDK say *access connector*; this admin surface says *daemon*, as does every
- * `pamDaemon*` i18n key and the standalone agent that consumes a registration token. Aliasing
- * rather than renaming keeps that user-facing vocabulary intact without introducing a second type.
+ * The server, the SDK and every user-facing string say *access connector*. The alias survives
+ * because this feature's identifiers are named `Daemon*` (`DaemonRow`, `DaemonsService`, the
+ * `daemons/` directory and route segment), and the status type reads alongside them.
  */
 export const DaemonStatus = AccessConnectorStatus;
 export type DaemonStatus = AccessConnectorStatus;
