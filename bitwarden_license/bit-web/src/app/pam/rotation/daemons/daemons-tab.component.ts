@@ -1,5 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -149,120 +156,150 @@ export class DaemonsTabComponent {
   };
 
   /**
+   * Ids of the rows with a mutation in flight. Clicking a bitMenuItem closes the menu and the
+   * overlay disposes its view, so a per-button flag would not survive the reopen-and-click-again
+   * path this guards against; the state has to live on the component.
+   */
+  private readonly busyRowIds = signal<ReadonlySet<string>>(new Set<string>());
+
+  protected readonly isRowBusy = (rowId: string): boolean => this.busyRowIds().has(rowId);
+
+  private async runForRow(rowId: string, action: () => Promise<void>): Promise<void> {
+    if (this.busyRowIds().has(rowId)) {
+      return;
+    }
+    this.busyRowIds.update((ids) => new Set(ids).add(rowId));
+    try {
+      await action();
+    } finally {
+      this.busyRowIds.update((ids) => {
+        const next = new Set(ids);
+        next.delete(rowId);
+        return next;
+      });
+    }
+  }
+
+  /**
    * A failed target-systems load leaves the shared list empty, which is indistinguishable from an
    * org that genuinely has none — so the failure is surfaced rather than letting the dialog assert
    * the org has no active automatic target system.
    */
-  protected readonly openAssignDialog = async (row: DaemonRow): Promise<void> => {
-    const targetSystemsError = this.targetSystemsLoadError();
-    if (targetSystemsError) {
-      this.showError(targetSystemsError);
-      return;
-    }
+  protected readonly openAssignDialog = async (row: DaemonRow): Promise<void> =>
+    this.runForRow(row.id, async () => {
+      const targetSystemsError = this.targetSystemsLoadError();
+      if (targetSystemsError) {
+        this.showError(targetSystemsError);
+        return;
+      }
 
-    const activeSystems = this.activeAutomaticSystems();
-    const assigned = new Set(row.daemon.assignedTargetSystemIds);
-    const options = activeSystems.filter((s) => !assigned.has(s.id));
+      const activeSystems = this.activeAutomaticSystems();
+      const assigned = new Set(row.daemon.assignedTargetSystemIds);
+      const options = activeSystems.filter((s) => !assigned.has(s.id));
 
-    const ref = AssignTargetDialogComponent.open(this.dialogService, {
-      data: { daemon: row.daemon, options, noActiveAutomaticSystems: activeSystems.length === 0 },
-    });
-    const targetSystemId = await ref.closed.toPromise();
-    if (!targetSystemId) {
-      return;
-    }
-    try {
-      await this.daemonsService.assign(row.daemon, asUuid<TargetSystemId>(targetSystemId));
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamDaemonAssigned"),
+      const ref = AssignTargetDialogComponent.open(this.dialogService, {
+        data: { daemon: row.daemon, options, noActiveAutomaticSystems: activeSystems.length === 0 },
       });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
+      const targetSystemId = await ref.closed.toPromise();
+      if (!targetSystemId) {
+        return;
+      }
+      try {
+        await this.daemonsService.assign(row.daemon, asUuid<TargetSystemId>(targetSystemId));
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamDaemonAssigned"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
+    });
 
   protected readonly unassign = async (
     daemon: AccessConnector,
     targetSystemId: string,
     targetName: string,
-  ): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamDaemonUnassignConfirmTitle" },
-      content: { key: "pamDaemonUnassignConfirmContent", placeholders: [targetName] },
-      acceptButtonText: { key: "remove" },
-      cancelButtonText: { key: "cancel" },
-      type: "warning",
+  ): Promise<void> =>
+    this.runForRow(daemon.id, async () => {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "pamDaemonUnassignConfirmTitle" },
+        content: { key: "pamDaemonUnassignConfirmContent", placeholders: [targetName] },
+        acceptButtonText: { key: "remove" },
+        cancelButtonText: { key: "cancel" },
+        type: "warning",
+      });
+      if (!confirmed) {
+        return;
+      }
+      try {
+        await this.daemonsService.unassign(daemon, asUuid<TargetSystemId>(targetSystemId));
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamDaemonUnassigned"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
     });
-    if (!confirmed) {
-      return;
-    }
-    try {
-      await this.daemonsService.unassign(daemon, asUuid<TargetSystemId>(targetSystemId));
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamDaemonUnassigned"),
-      });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
 
-  protected readonly disable = async (row: DaemonRow): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamDaemonDisableConfirmTitle" },
-      content: { key: "pamDaemonDisableConfirmContent", placeholders: [row.name] },
-      acceptButtonText: { key: "pamDaemonDisable" },
-      cancelButtonText: { key: "cancel" },
-      type: "warning",
+  protected readonly disable = async (row: DaemonRow): Promise<void> =>
+    this.runForRow(row.id, async () => {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "pamDaemonDisableConfirmTitle" },
+        content: { key: "pamDaemonDisableConfirmContent", placeholders: [row.name] },
+        acceptButtonText: { key: "pamDaemonDisable" },
+        cancelButtonText: { key: "cancel" },
+        type: "warning",
+      });
+      if (!confirmed) {
+        return;
+      }
+      try {
+        await this.daemonsService.setEnabled(row.daemon, false);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamDaemonDisabled"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
     });
-    if (!confirmed) {
-      return;
-    }
-    try {
-      await this.daemonsService.setEnabled(row.daemon, false);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamDaemonDisabled"),
-      });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
 
-  protected readonly enable = async (row: DaemonRow): Promise<void> => {
-    try {
-      await this.daemonsService.setEnabled(row.daemon, true);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamDaemonEnabled"),
-      });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
-
-  protected readonly confirmDelete = async (row: DaemonRow): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamDaemonDeleteConfirmTitle" },
-      content: { key: "pamDaemonDeleteConfirmContent", placeholders: [row.name] },
-      acceptButtonText: { key: "delete" },
-      cancelButtonText: { key: "cancel" },
-      type: "danger",
+  protected readonly enable = async (row: DaemonRow): Promise<void> =>
+    this.runForRow(row.id, async () => {
+      try {
+        await this.daemonsService.setEnabled(row.daemon, true);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamDaemonEnabled"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
     });
-    if (!confirmed) {
-      return;
-    }
-    try {
-      await this.daemonsService.delete(row.daemon);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamDaemonDeleted"),
+
+  protected readonly confirmDelete = async (row: DaemonRow): Promise<void> =>
+    this.runForRow(row.id, async () => {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "pamDaemonDeleteConfirmTitle" },
+        content: { key: "pamDaemonDeleteConfirmContent", placeholders: [row.name] },
+        acceptButtonText: { key: "delete" },
+        cancelButtonText: { key: "cancel" },
+        type: "danger",
       });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
+      if (!confirmed) {
+        return;
+      }
+      try {
+        await this.daemonsService.delete(row.daemon);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamDaemonDeleted"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
+    });
 
   private showError(e: unknown): void {
     const message =

@@ -9,6 +9,7 @@ import type { RotationConfig } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import {
   ORGANIZATION_ID,
+  configId,
   rotationConfigDescription,
   rotationConfig,
 } from "../testing/rotation-builders";
@@ -240,6 +241,72 @@ describe("ManagedCredentialsTabComponent", () => {
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success" }),
       );
+    });
+  });
+
+  describe("in-flight row guard", () => {
+    beforeEach(() => setupTestBed(true));
+
+    function deferred(): { promise: Promise<void>; settle: () => void } {
+      let settle!: () => void;
+      const promise = new Promise<void>((resolve) => (settle = () => resolve()));
+      return { promise, settle };
+    }
+
+    it("does not dispatch a second rotateNow while the first is unsettled", async () => {
+      const pending = deferred();
+      configsService.rotateNow.mockReturnValue(pending.promise);
+      const row = makeRow();
+
+      const first = component.rotateNow(row);
+      const second = component.rotateNow(row);
+      pending.settle();
+      await Promise.all([first, second]);
+
+      expect(configsService.rotateNow).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not dispatch a second pause while the first is unsettled", async () => {
+      const pending = deferred();
+      configsService.pause.mockReturnValue(pending.promise);
+      const row = makeRow();
+
+      const first = component.pause(row);
+      const second = component.pause(row);
+      pending.settle();
+      await Promise.all([first, second]);
+
+      expect(configsService.pause).toHaveBeenCalledTimes(1);
+    });
+
+    it("re-enables the row once the request settles", async () => {
+      const pending = deferred();
+      configsService.rotateNow.mockReturnValue(pending.promise);
+      const row = makeRow();
+
+      const first = component.rotateNow(row);
+      expect(component.isRowBusy(row.id)).toBe(true);
+
+      pending.settle();
+      await first;
+      expect(component.isRowBusy(row.id)).toBe(false);
+
+      await component.rotateNow(row);
+      expect(configsService.rotateNow).toHaveBeenCalledTimes(2);
+    });
+
+    it("allows a second action on a different row while one is in flight", async () => {
+      const pending = deferred();
+      configsService.pause.mockReturnValue(pending.promise);
+      const rowA = makeRow();
+      const rowB = makeRow({ id: configId("7") });
+
+      const first = component.pause(rowA);
+      const second = component.pause(rowB);
+      pending.settle();
+      await Promise.all([first, second]);
+
+      expect(configsService.pause).toHaveBeenCalledTimes(2);
     });
   });
 
