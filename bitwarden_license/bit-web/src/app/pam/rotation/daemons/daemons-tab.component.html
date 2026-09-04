@@ -98,7 +98,12 @@
           ></button>
           <bit-menu #rowMenu>
             @if (r.canAssign) {
-              <button type="button" bitMenuItem (click)="openAssignDialog(r)">
+              <button
+                type="button"
+                bitMenuItem
+                [disabled]="isRowBusy(r.id)"
+                (click)="openAssignDialog(r)"
+              >
                 <bit-icon name="bwi-plus-circle" class="tw-text-muted"></bit-icon>
                 {{ "pamDaemonAssignTarget" | i18n }}
               </button>
@@ -112,6 +117,7 @@
                 <button
                   type="button"
                   bitMenuItem
+                  [disabled]="isRowBusy(r.id)"
                   (click)="unassign(r.daemon, assignmentId, r.assignmentNames[i])"
                 >
                   <bit-icon name="bwi-minus-circle" class="tw-text-muted"></bit-icon>
@@ -120,17 +126,22 @@
               }
             }
             @if (r.enabled) {
-              <button type="button" bitMenuItem (click)="disable(r)">
+              <button type="button" bitMenuItem [disabled]="isRowBusy(r.id)" (click)="disable(r)">
                 <bit-icon name="bwi-circle" class="tw-text-muted"></bit-icon>
                 {{ "pamDaemonDisable" | i18n }}
               </button>
             } @else {
-              <button type="button" bitMenuItem (click)="enable(r)">
+              <button type="button" bitMenuItem [disabled]="isRowBusy(r.id)" (click)="enable(r)">
                 <bit-icon name="bwi-check-circle" class="tw-text-muted"></bit-icon>
                 {{ "pamDaemonEnable" | i18n }}
               </button>
             }
-            <button type="button" bitMenuItem (click)="confirmDelete(r)">
+            <button
+              type="button"
+              bitMenuItem
+              [disabled]="isRowBusy(r.id)"
+              (click)="confirmDelete(r)"
+            >
               <bit-icon name="bwi-trash" class="tw-text-danger"></bit-icon>
               <span class="tw-text-danger">{{ "delete" | i18n }}</span>
             </button>

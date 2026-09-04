@@ -223,6 +223,88 @@ describe("DaemonsTabComponent", () => {
     expect(daemonsService.unassign).toHaveBeenCalledWith(daemon, sysId("ts-1"));
   });
 
+  describe("in-flight row guard", () => {
+    type Guarded = {
+      disable: (row: DaemonRow) => Promise<void>;
+      confirmDelete: (row: DaemonRow) => Promise<void>;
+      isRowBusy: (rowId: string) => boolean;
+    };
+
+    function deferred(): { promise: Promise<void>; settle: () => void } {
+      let settle!: () => void;
+      const promise = new Promise<void>((resolve) => (settle = () => resolve()));
+      return { promise, settle };
+    }
+
+    function guarded(): Guarded {
+      return fixture.componentInstance as unknown as Guarded;
+    }
+
+    beforeEach(() => {
+      (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(true);
+    });
+
+    it("does not dispatch a second setEnabled while the first is unsettled", async () => {
+      const pending = deferred();
+      (daemonsService.setEnabled as jest.Mock).mockReturnValue(pending.promise);
+      const row = makeDaemonRow();
+      const component = guarded();
+
+      const first = component.disable(row);
+      const second = component.disable(row);
+      pending.settle();
+      await Promise.all([first, second]);
+
+      expect(daemonsService.setEnabled).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not dispatch a second delete while the first is unsettled", async () => {
+      const pending = deferred();
+      (daemonsService.delete as jest.Mock).mockReturnValue(pending.promise);
+      const row = makeDaemonRow();
+      const component = guarded();
+
+      const first = component.confirmDelete(row);
+      const second = component.confirmDelete(row);
+      pending.settle();
+      await Promise.all([first, second]);
+
+      expect(daemonsService.delete).toHaveBeenCalledTimes(1);
+    });
+
+    it("re-enables the row once the request settles", async () => {
+      const pending = deferred();
+      (daemonsService.setEnabled as jest.Mock).mockReturnValue(pending.promise);
+      const row = makeDaemonRow();
+      const component = guarded();
+
+      const first = component.disable(row);
+      expect(component.isRowBusy(row.id)).toBe(true);
+
+      pending.settle();
+      await first;
+      expect(component.isRowBusy(row.id)).toBe(false);
+
+      await component.disable(row);
+      expect(daemonsService.setEnabled).toHaveBeenCalledTimes(2);
+    });
+
+    it("allows a second action on a different row while one is in flight", async () => {
+      const pending = deferred();
+      (daemonsService.setEnabled as jest.Mock).mockReturnValue(pending.promise);
+      const rowA = makeDaemonRow({ id: connectorId("1") });
+      const rowB = makeDaemonRow({ id: connectorId("2") });
+      const component = guarded();
+
+      const first = component.disable(rowA);
+      const second = component.disable(rowB);
+      pending.settle();
+      await Promise.all([first, second]);
+
+      expect(daemonsService.setEnabled).toHaveBeenCalledTimes(2);
+    });
+  });
+
   describe("openAssignDialog", () => {
     const activeSystem = { id: sysId("ts-1"), name: "Prod DB" } as unknown as TargetSystem;
 
