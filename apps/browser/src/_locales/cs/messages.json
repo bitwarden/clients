@@ -9,6 +9,10 @@
     "message": "Bitwarden - Správce hesel",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Správce hesel Bitwarden (Beta)",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "Bitwarden zabezpečí všechna Vaše hesla, přístupové klíče a citlivé informace doma, v práci nebo na cestách",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -535,6 +539,9 @@
   "foldersFilterTooltip": {
     "message": "Přidejte složky k položkám pro jejich filtrování zde."
   },
+  "sharedFolderFilterTooltip": {
+    "message": "Přidejte položky do sdílené složky pro filtrování."
+  },
   "editItemWithName": {
     "message": "Upravit položku - $NAME$",
     "placeholders": {
@@ -750,6 +757,15 @@
   },
   "launchWebsite": {
     "message": "Otevřít webovou stránku"
+  },
+  "launchWebsiteForName": {
+    "message": "Spustit web pro $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Webová stránka"
@@ -1406,17 +1422,29 @@
   "additionalOptions": {
     "message": "Další volby"
   },
-  "fillAssistActiveNotice": {
-    "message": "Automatické vyplňování na této stránce využívá Fill Assist."
+  "fillAssistActiveNoticeV2": {
+    "message": "Automatické vyplňování na této stránce využívá asistenta vyplňování."
   },
-  "activateFillAssist": {
-    "message": "Zapnout Fill Assist"
+  "activateFillAssistV2": {
+    "message": "Zapnout asistenta vyplňování"
   },
-  "activateFillAssistDescription": {
-    "message": "Fill Assist zvyšuje přesnost automatického vyplňování na podporovaných webech pomocí pravidel specifických pro daný web. Při používání této funkce se žádná data neshromažďují ani neukládají."
+  "activateFillAssistDescriptionV2": {
+    "message": "Asistent vyplňování zvyšuje přesnost automatického vyplňování na podporovaných stránkách pomocí pravidel pro konkrétní web. Při použití této funkce nejsou shromažďována ani ukládána žádná data."
   },
-  "aboutFillAssistLabel": {
-    "message": "O Fill Assist"
+  "aboutFillAssistLabelV2": {
+    "message": "O asistentovi vyplňování"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Povolit webovým stránkám vyloučit pole pro automatické vyplňování"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Přeskočit pole, která označí webové stránky s atributem \"data-bwignore\"."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Povolit webovým stránkám přidat pole pro automatické vyplňování"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Použije všechny prvky typu \"span\", které webová stránka označuje atributem \"data-bwautofill\"."
   },
   "enableContextMenuItem": {
     "message": "Zobrazit volby v kontextovém menu"
@@ -2737,6 +2765,18 @@
   "noMatchingItems": {
     "message": "Žádné odpovídající položky"
   },
+  "noFiltersMatch": {
+    "message": "Žádné filtry neodpovídají \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Vymazat hledání"
+  },
   "selected": {
     "message": "Vybráno"
   },
@@ -3182,12 +3222,6 @@
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "Nebyly nalezeny žádné obnovovací tokeny nebo API klíče. Zkuste se odhlásit a znovu se přihlásit."
-  },
-  "desktopSyncVerificationTitle": {
-    "message": "Ověření synchronizace s aplikací pro počítač"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Ověřte, zda aplikace pro počítač zobrazuje tento otisk: "
   },
   "desktopIntegrationDisabledTitle": {
     "message": "Integrace prohlížeče není nastavena"
@@ -5939,6 +5973,12 @@
   "clearFiltersOrTryAnother": {
     "message": "Vymažte filtry nebo zkuste jiný hledaný výraz"
   },
+  "noSharedFoldersAdded": {
+    "message": "Nebyly přidány žádné sdílené složky"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Přidejte sdílenou složku pro bezpečné sdílení položek trezoru s ostatními uživateli."
+  },
   "moreOptionsLabel": {
     "message": "Více voleb, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -7020,9 +7060,6 @@
   "compactMode": {
     "message": "Kompaktní režim"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "extensionWidth": {
     "message": "Šířka rozšíření"
   },
@@ -7079,12 +7116,6 @@
         "example": "Work, Personal"
       }
     }
-  },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Aktualizujte aplikaci pro stolní počítač"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "Chcete-li použít biometrické odemknutí, aktualizujte aplikaci pro stolní počítač nebo v nastavení vypněte odemknutí otiskem prstů."
   },
   "changeAtRiskPassword": {
     "message": "Změnit zranitelné heslo"
@@ -7274,6 +7305,15 @@
   },
   "showMore": {
     "message": "Zobrazit více"
+  },
+  "showMoreCount": {
+    "message": "Zobrazit další $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Zobrazit méně"
@@ -7889,9 +7929,32 @@
     "message": "Zjištěná rizika",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
+  "upgradeToViewPasswords": {
+    "message": "Aktualizujte pro zobrazení hesel"
+  },
   "categoryHealthy": {
     "message": "Žádné položky nepotřebují pozornost",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Prohledávání Vašeho trezoru",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Kontrola odhalených, slabých a znovu použitých hesel.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "Probíhá kontrola",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Něco se pokazilo",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "Prohledávání Vašeho trezoru nebylo dokončeno kvůli neočekávané chybě.",
+    "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
     "message": "Odhalená hesla"
@@ -7911,8 +7974,8 @@
   "reusedPasswordsDescription": {
     "message": "U těchto přihlašovacích údajů se opakuje stejné heslo. Vytvořte pro každý účet jedinečné heslo, abyste zabránili tomu, že by někdo mohl pomocí jednoho hesla získat přístup k více účtům."
   },
-  "deleteAtRiskItemDescription": {
-    "message": "Smazáním tohoto přihlášení jej odeberte z Vašeho trezoru, ale nevyřešíte riziko. Pro ochranu účtu si nejprve změňte heslo."
+  "deleteAtRiskItemDesc": {
+    "message": "Nejprve si nezapomeňte změnit heslo. Smazáním se položka pouze odebere z Vašeho trezoru, riziko to však nevyřeší."
   },
   "passwordHasAdditionalRisks": {
     "message": "Toto heslo má další rizika:"
@@ -7942,5 +8005,20 @@
   },
   "youreAllSet": {
     "message": "Vše je nastaveno!"
+  },
+  "permissions": {
+    "message": "Oprávnění"
+  },
+  "viewItems": {
+    "message": "Zobrazit položky"
+  },
+  "viewItemsHidePass": {
+    "message": "Zobrazit položky, skrytá hesla"
+  },
+  "editItems": {
+    "message": "Upravit položky"
+  },
+  "editItemsHidePass": {
+    "message": "Upravit položky, skrytá hesla"
   }
 }

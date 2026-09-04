@@ -9,6 +9,10 @@
     "message": "Bitwarden – менеджер паролів",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden – менеджер паролів Beta",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "Вдома, на роботі чи в дорозі, Bitwarden захищає ваші паролі, ключі доступу та конфіденційну інформацію",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -518,7 +522,7 @@
     }
   },
   "noSharedFolder": {
-    "message": "Спільна тека відсутня"
+    "message": "Немає спільної теки"
   },
   "filterByName": {
     "message": "Фільтрувати за $NAME$",
@@ -530,10 +534,13 @@
     }
   },
   "favoritesFilterTooltip": {
-    "message": "Додайте записи до обраного, щоб відфільтрувати їх тут."
+    "message": "Додайте записи до обраного, щоб фільтрувати їх тут."
   },
   "foldersFilterTooltip": {
-    "message": "Додайте теки до записів, щоб відфільтрувати їх тут."
+    "message": "Додайте теки до записів, щоб фільтрувати їх тут."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Додайте записи до спільної теки, щоб фільтрувати їх тут."
   },
   "editItemWithName": {
     "message": "Редагувати запис - $NAME$",
@@ -750,6 +757,15 @@
   },
   "launchWebsite": {
     "message": "Відкрити вебсайт"
+  },
+  "launchWebsiteForName": {
+    "message": "Запустити вебсайт для $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Вебсайт"
@@ -1406,17 +1422,29 @@
   "additionalOptions": {
     "message": "Додаткові налаштування"
   },
-  "fillAssistActiveNotice": {
-    "message": "Автозаповнення використовує Fill Assist на цій сторінці."
+  "fillAssistActiveNoticeV2": {
+    "message": "На цій сторінці для автозаповнення використовується помічник із заповнення."
   },
-  "activateFillAssist": {
-    "message": "Увімкнути функцію «Помічник заповнення»"
+  "activateFillAssistV2": {
+    "message": "Увімкнути помічник із заповнення"
   },
-  "activateFillAssistDescription": {
-    "message": "Функція «Fill Assist» підвищує точність автозаповнення на підтримуваних сайтах завдяки застосуванню правил, специфічних для кожного сайту. Під час використання цієї функції дані не збираються та не зберігаються."
+  "activateFillAssistDescriptionV2": {
+    "message": "Помічник із заповнення покращує точність автозаповнення на підтримуваних сайтах, використовуючи спеціальні правила. Під час використання цієї функції дані не збираються і не зберігаються."
   },
-  "aboutFillAssistLabel": {
-    "message": "Про Fill Assist"
+  "aboutFillAssistLabelV2": {
+    "message": "Про помічника із заповнення"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Дозволити вебсайтам виключати поля автозаповнення"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Пропускати поля, позначені на вебсайті атрибутом \"data-bwignore\"."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Дозволити вебсайтам додавати поля для автозаповнення"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Використовувати будь-які елементи span, позначені на вебсайті атрибутом \"data-bwautofill\"."
   },
   "enableContextMenuItem": {
     "message": "Показувати в контекстному меню"
@@ -2652,10 +2680,10 @@
     "description": "To clear something out. example: To clear browser history."
   },
   "selectAllRows": {
-    "message": "Вибрати усі рядки"
+    "message": "Вибрати всі рядки"
   },
   "selectRow": {
-    "message": "Обрати рядок"
+    "message": "Вибрати рядок"
   },
   "showingItemRange": {
     "message": "Показано $START$ – $END$ із $TOTAL$",
@@ -2675,10 +2703,10 @@
     }
   },
   "rowsPerPage": {
-    "message": "Рядки на сторінку"
+    "message": "Рядків на сторінці"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$ рядків на сторінку",
+    "message": "$COUNT$ рядків на сторінці",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2702,13 +2730,13 @@
     "message": "Очистити все"
   },
   "done": {
-    "message": "Готово"
+    "message": "Виконано"
   },
   "filter": {
     "message": "Фільтр"
   },
   "filtersSelected": {
-    "message": "$COUNT$ вибрано",
+    "message": "Вибрано $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2736,6 +2764,18 @@
   },
   "noMatchingItems": {
     "message": "Немає відповідних записів"
+  },
+  "noFiltersMatch": {
+    "message": "Немає фільтрів, що відповідають запиту \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Очистити пошук"
   },
   "selected": {
     "message": "Вибрано"
@@ -2890,14 +2930,14 @@
     "description": "ex. A good password. Scale: Weak -> Good -> Strong"
   },
   "weak": {
-    "message": "Слабкий",
+    "message": "Ненадійний",
     "description": "ex. A weak password. Scale: Weak -> Good -> Strong"
   },
   "weakMasterPassword": {
-    "message": "Слабкий головний пароль"
+    "message": "Ненадійний головний пароль"
   },
   "weakMasterPasswordDesc": {
-    "message": "Обраний вами головний пароль є слабким. Для належного захисту свого облікового запису Bitwarden, вам слід використовувати надійний головний пароль (або парольну фразу). Ви впевнені, що хочете використати цей пароль?"
+    "message": "Ваш головний пароль ненадійний. Для належного захисту свого облікового запису Bitwarden використовуйте надійний головний пароль (або парольну фразу). Ви дійсно хочете використати цей пароль?"
   },
   "rotateAccountEncKey": {
     "message": "Також оновити ключ шифрування мого облікового запису"
@@ -3183,12 +3223,6 @@
   "errorRefreshingAccessTokenDesc": {
     "message": "Не знайдено токен оновлення або ключі API. Спробуйте вийти, а потім увійти знову."
   },
-  "desktopSyncVerificationTitle": {
-    "message": "Перевірка синхронізації на комп'ютері"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Перевірте, чи програма на комп'ютері показує цю фразу відбитка: "
-  },
   "desktopIntegrationDisabledTitle": {
     "message": "Інтеграцію з браузером не налаштовано"
   },
@@ -3330,7 +3364,7 @@
     "message": "Ризиковані паролі"
   },
   "atRisk": {
-    "message": "у групі ризику",
+    "message": "ризиковані",
     "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
@@ -3756,7 +3790,7 @@
     "message": "Ваш головний пароль нещодавно був змінений адміністратором організації. Щоб отримати доступ до сховища, вам необхідно оновити його зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
+    "message": "Ваш головний пароль не відповідає щонайменше одній політиці вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Ваша організація вимкнула шифрування довірених пристроїв. Встановіть головний пароль для доступу до сховища."
@@ -4180,7 +4214,7 @@
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
   },
   "forwarderWebsitePrefixHint": {
-    "message": "Якщо цю опцію увімкнути, домен поточного вебсайту буде використовуватися як префікс для згенерованої адреси е-пошти",
+    "message": "Використання домену поточного вебсайту як префіксу для згенерованої адреси електронної пошти",
     "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
@@ -4339,10 +4373,10 @@
     "message": "Пароль знайдено у витоку даних. Використовуйте унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати викритий пароль?"
   },
   "weakAndExposedMasterPassword": {
-    "message": "Слабкий і викритий головний пароль"
+    "message": "Ненадійний і викритий головний пароль"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "Виявлено слабкий пароль, який знайдено у витоку даних. Використовуйте надійний та унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати цей пароль?"
+    "message": "Виявлено ненадійний пароль, який знайдено у витоку даних. Використовуйте надійний та унікальний пароль для захисту свого облікового запису. Ви дійсно хочете використати цей пароль?"
   },
   "checkForBreaches": {
     "message": "Перевірити відомі витоки даних для цього пароля"
@@ -4955,7 +4989,7 @@
     }
   },
   "importPartialErrorTitleSingular": {
-    "message": "$COUNT$ запис буде пропущено",
+    "message": "Буде пропущено $COUNT$ запис",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4967,13 +5001,13 @@
     "message": "Не вдалося прочитати зазначені записи, тому вони не будуть включені до вашого імпорту:"
   },
   "importSkipReasonSshKeyParse": {
-    "message": "Цей ключ SSH не вдалося імпортувати"
+    "message": "Не вдається імпортувати цей ключ SSH"
   },
   "importSkipReasonUnsupportedType": {
     "message": "Непідтримуваний тип запису"
   },
   "importSkipReasonGeneric": {
-    "message": "Цей запис не можна імпортувати"
+    "message": "Не вдається імпортувати цей запис"
   },
   "identifier": {
     "message": "Ідентифікатор"
@@ -5066,7 +5100,7 @@
     }
   },
   "fileAdded": {
-    "message": "Файл додано: $FILE_NAME$",
+    "message": "Додано файл: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5075,7 +5109,7 @@
     }
   },
   "filesAdded": {
-    "message": "$COUNT$ файлів додано: $FILE_NAMES$",
+    "message": "Додано $COUNT$ файлів: $FILE_NAMES$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5088,7 +5122,7 @@
     }
   },
   "fileRemoved": {
-    "message": "Файл вилучено: $FILE_NAME$",
+    "message": "Вилучено файл: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5097,10 +5131,10 @@
     }
   },
   "oneFileUploaded": {
-    "message": "1 файл вивантажено"
+    "message": "Вивантажено 1 файл"
   },
   "filesUploaded": {
-    "message": "$COUNT$ файлів вивантажено",
+    "message": "Вивантажено $COUNT$ файлів",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5112,7 +5146,7 @@
     "message": "Вивантажені файли"
   },
   "clickToUploadOrDragAndDrop": {
-    "message": "Натисніть, щоб вивантажити, або перетягніть файл"
+    "message": "Натисніть, щоб вивантажити, або перетягніть"
   },
   "chooseFiles": {
     "message": "Вибрати файли"
@@ -5157,16 +5191,16 @@
     "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
   },
   "importKeepassxInstructions": {
-    "message": "У настільній програмі KeePassX перейдіть до меню \"База даних\" → \"Експортувати у файл CSV\" і збережіть файл CSV."
+    "message": "У комп'ютерній програмі KeePassX відкрийте меню \"База даних\" → \"Експорт у файл CSV\" і збережіть файл CSV."
   },
   "importAviraInstructions": {
-    "message": "У вебсховищі Avira перейдіть до \"Налаштування\" → \"Мої дані\" → \"Експортувати дані\" та збережіть файл у форматі CSV."
+    "message": "У вебсховищі Avira відкрийте \"Налаштування\" → \"Мої дані\" → \"Експортувати дані\" та збережіть файл CSV."
   },
   "importBlurInstructions": {
-    "message": "У вебсховищі Blur, натисніть на своє ім’я користувача у верхній частині екрана та перейдіть до \"Налаштування\" → \"Експортувати дані\", а потім натисніть \"Експортувати CSV\" для розділу \"Облікові записи\"."
+    "message": "У вебсховищі Blur, натисніть на своє ім'я користувача у верхній частині екрана та відкрийте \"Налаштування\" → \"Експортувати дані\", а потім натисніть \"Експортувати CSV\" для розділу \"Облікові записи\"."
   },
   "importSafeincloudInstructions": {
-    "message": "У настільній програмі SafeInCloud перейдіть до меню \"Файл\" → \"Експортувати\" → \"Як XML\" і збережіть XML-файл."
+    "message": "У комп'ютерній програмі SafeInCloud відкрийте меню \"Файл\" → \"Експортувати\" → \"Як XML\" і збережіть файл XML."
   },
   "importPadlockInstructions": {
     "message": "У настільній програмі Padlock натисніть на іконку «гамбургера» у верхньому лівому куті, перейдіть до \"Налаштування\" → натисніть кнопку \"Експорт\" і збережіть файл \"у форматі CSV\"."
@@ -5236,14 +5270,14 @@
     "message": "У мобільному застосунку PassKeep перейдіть до розділу \"Резервне копіювання/Відновлення\". Знайдіть розділ \"Резервне копіювання/Відновлення у форматі CSV\" і натисніть \"Створити резервну копію у форматі CSV\", щоб зберегти файл CSV."
   },
   "importGnomeInstructionsIntro": {
-    "message": "Переконайтеся, що у вас установлено python-keyring та python-gnomekeying. Збережіть",
+    "message": "Переконайтеся, що у вас установлено python-keyring та python-gnomekeyring. Збережіть",
     "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
   },
   "importGnomeInstructionsLinkText": {
     "message": "Імпорт/Експорт GNOME Keyring"
   },
   "importGnomeInstructionsScriptLabel": {
-    "message": "python-скрипт на стільницю як",
+    "message": "python-скрипт на робочий стіл як",
     "description": "Followed by a literal filename (pw_helper.py) rendered as code."
   },
   "importGnomeInstructionsRunTerminal": {
@@ -5287,58 +5321,58 @@
     "message": "Відкрийте настільну програму RememBear і перейдіть до \"Налаштування\" → \"Обліковий запис\" → \"Експорт\". Введіть головний пароль і натисніть кнопку \"Експортувати все одно\", щоб зберегти файл у форматі CSV."
   },
   "importPasswordwalletInstructions": {
-    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+    "message": "Відкрийте настільну програму PasswordWallet і перейдіть до меню \"Файл\" → \"Експорт\" → \"Видимі записи у текстовий файл\". Введіть пароль і натисніть кнопку \"ОК\", щоб зберегти файл у форматі TXT."
   },
   "importMykiInstructions": {
-    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+    "message": "Відкрийте розширення для браузера Myki на комп’ютері, перейдіть у розділ \"Додаткові налаштування\" → \"Експортувати облікові записи\", а потім проскануйте QR-код за допомогою мобільного пристрою. Після цього у теці \"Завантаження\" на вашому комп’ютері будуть збережені різні файли у форматі CSV."
   },
   "importSecuresafeInstructions": {
-    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+    "message": "Експортуйте свій сейф паролів SecureSafe у файл CSV із роздільником у вигляді коми."
   },
   "importLogmeonceInstructions": {
-    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+    "message": "Відкрийте розширення для браузера LogMeOnce, потім перейдіть до \"Відкрити меню\" → \"Експортувати в\" і виберіть \"Файл CSV\", щоб зберегти файл у форматі CSV."
   },
   "importBlackberryInstructions": {
-    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+    "message": "Відкрийте програму BlackBerry Password Keeper, а потім перейдіть до \"Налаштування\" → \"Імпорт/Експорт\". Виберіть \"Експортувати паролі\" та дотримуйтесь інструкцій на екрані, щоб зберегти незашифрований файл у форматі CSV."
   },
   "importButtercupInstructions": {
-    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+    "message": "Відкрийте настільну програму Buttercup і розблокуйте своє сховище. Клацніть правою кнопкою миші на піктограмі сховища та виберіть \"Експортувати\", щоб зберегти файл у форматі CSV."
   },
   "importCodebookInstructions": {
-    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+    "message": "Відкрийте настільну програму Codebook і увійдіть у систему. Перейдіть до меню \"Файл\" → \"Експортувати все\", потім у діалоговому вікні натисніть \"Так\"» і збережіть файл у форматі CSV."
   },
   "importEncryptrInstructions": {
-    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+    "message": "Відкрийте найновішу версію настільної програми Encryptr і дозвольте синхронізувати всі ваші дані. Після завершення синхронізації даних піктограма завантаження у верхньому правому куті стане рожевою. Клацніть на піктограму завантаження та збережіть файл у форматі CSV."
   },
   "importYotiInstructions": {
-    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+    "message": "У розширенні для браузера Yoti натисніть \"Налаштування\", потім \"Експортувати збережені дані для входу\" та збережіть файл у форматі CSV."
   },
   "importPsonoInstructions": {
-    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+    "message": "Увійдіть у вебсховище Psono, натисніть на спадне меню \"Увійшли як\", виберіть \"Інші\". Перейдіть на вкладку \"Експорт\", виберіть експорт у форматі JSON, а потім натисніть \"Експорт\"."
   },
   "importPasskyInstructions": {
-    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+    "message": "Увійдіть у розділ \"https://vault.passky.org\" → \"Імпорт та експорт\" → \"Експорт\" у розділі Passky. (Функція \"Резервне копіювання\" не підтримується, оскільки дані зашифровані)."
   },
   "importProtonpassInstructions": {
-    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+    "message": "У розширенні для браузера ProtonPass перейдіть у меню \"Налаштування\" > \"Експорт\". Здійсніть експорт без шифрування PGP і збережіть файл у форматі zip."
   },
   "importPasswordxpInstructions": {
-    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+    "message": "Виберіть пункт меню \"База даних\" → \"Експортувати у файл...\". → У налаштуваннях експорту переконайтеся, що встановлено прапорець \"Назви тек та заголовки стовпців\". → Натисніть кнопку \"Огляд...\", виберіть файл призначення та вкажіть його тип як \"CSV-файл\"."
   },
   "importNetwrixInstructions": {
-    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+    "message": "Відкрийте FullClient, перейдіть до головного меню та виберіть пункт \"Експорт\". Запустіть майстер експорту паролів і дотримуйтесь інструкцій, щоб експортувати файл у форматі CSV."
   },
   "importNordpassInstructions": {
-    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+    "message": "Увійдіть у NordPass і відкрийте \"Налаштування\" → Прокрутіть вниз до розділу \"Імпорт та експорт\" і виберіть \"Експортувати елементи\" → Введіть головний пароль і натисніть \"Продовжити\" → Збережіть файл CSV на своєму пристрої."
   },
   "importPassworddepot17Instructions": {
-    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+    "message": "У настільній програмі перейдіть до меню \"Інструменти\" → \"Експорт\" → Введіть головний пароль → Виберіть формат XML (*.xml) як формат експорту → Натисніть \"Далі\" → Виберіть, які записи слід включити в експорт → Натисніть \"Далі\", щоб експортувати дані у раніше обране місце."
   },
   "importDelineaInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+    "message": "Увійдіть у Delinea, знайдіть пункт \"Імпорт/Експорт\" -> виберіть \"Експорт\" -> виберіть \"XML\" як формат експорту -> виберіть \"QuantumLock\" як тип автентифікатора -> введіть свій пароль і натисніть \"Експорт\", щоб зберегти XML-файл."
   },
   "importDelineaCsvInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+    "message": "Увійдіть у Delinea, знайдіть пункт \"Імпорт/Експорт\" -> виберіть \"Експорт\" -> виберіть \"CSV\" як формат експорту -> виберіть \"QuantumLock\" як тип автентифікатора -> введіть свій пароль і натисніть \"Експорт\", щоб зберегти CSV-файл."
   },
   "confirmVaultImport": {
     "message": "Підтвердити імпорт сховища"
@@ -5916,7 +5950,7 @@
     "message": "Видалити ключ доступу"
   },
   "deletePasskeyConfirmation": {
-    "message": "Цей ключ доступу буде назавжди видалено з вашого запису входу. Цю дію неможливо скасувати."
+    "message": "Цей ключ доступу буде остаточно видалено з вашого запису входу. Цю дію неможливо скасувати."
   },
   "passkeyRemoved": {
     "message": "Ключ доступу вилучено"
@@ -5938,6 +5972,12 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "Скиньте фільтри або спробуйте іншу умову пошуку"
+  },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
   },
   "moreOptionsLabel": {
     "message": "Інші можливості, $ITEMNAME$",
@@ -6015,7 +6055,7 @@
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
-    "message": "Немає деталей для копіювання"
+    "message": "Немає даних для копіювання"
   },
   "assignToCollections": {
     "message": "Призначити до збірок"
@@ -6179,7 +6219,7 @@
     }
   },
   "collectionAriaLabel": {
-    "message": "Колекція $NAME$",
+    "message": "Збірка $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6494,13 +6534,13 @@
     "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати запис."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
-    "message": "Переглянути цей запис зможуть лише учасники сховища, які мають доступ до цих спільних тек."
+    "message": "Лише учасники сховища з доступом до цих спільних тек зможуть переглядати запис."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати записи."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
-    "message": "Переглядати ці записи зможуть лише учасники сховища, які мають доступ до цих спільних тек."
+    "message": "Лише учасники сховища з доступом до цих спільних тек зможуть переглядати записи."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Ви вибрали $TOTAL_COUNT$ записів. Ви не можете оновити $READONLY_COUNT$ записів, тому що у вас немає дозволу на редагування.",
@@ -6607,7 +6647,7 @@
     "message": "1 запис буде остаточно перенесено до вибраної організації. Ви більше не будете власником цього запису."
   },
   "personalItemVaultTransferWarningSingular": {
-    "message": "1 запис буде остаточно перенесено до вибраного сховища. Ви більше не будете володіти цим записом."
+    "message": "1 запис буде остаточно перенесено до вибраного сховища. Ви більше не будете власником цього запису."
   },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ записів будуть остаточно перенесені до вибраної організації. Ви більше не будете власником цих записів.",
@@ -6619,7 +6659,7 @@
     }
   },
   "personalItemsVaultTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ записів буде назавжди перенесено до обраного сховища. Ви більше не будете володіти цими записами.",
+    "message": "$PERSONAL_ITEMS_COUNT$ записів будуть остаточно перенесені до вибраного сховища. Ви більше не будете власником цих записів.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -7020,9 +7060,6 @@
   "compactMode": {
     "message": "Компактний режим"
   },
-  "beta": {
-    "message": "Бета"
-  },
   "extensionWidth": {
     "message": "Ширина вікна розширення"
   },
@@ -7072,19 +7109,13 @@
     }
   },
   "cannotRemoveViewOnlySharedFolders": {
-    "message": "Неможливо вилучити спільні теки з правами доступу «Тільки перегляд»: $SHAREDFOLDERS$",
+    "message": "Ви не можете вилучати спільні теки, маючи дозвіл лише на перегляд: $SHAREDFOLDERS$",
     "placeholders": {
       "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
     }
-  },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Оновіть свою комп'ютерну програму"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "Щоб використовувати біометричне розблокування, оновіть комп'ютерну програму, або вимкніть розблокування відбитком пальця в налаштуваннях системи."
   },
   "changeAtRiskPassword": {
     "message": "Змінити ризикований пароль"
@@ -7275,6 +7306,15 @@
   "showMore": {
     "message": "Розгорнути"
   },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "showLess": {
     "message": "Згорнути"
   },
@@ -7446,7 +7486,7 @@
     }
   },
   "upgrade": {
-    "message": "Оновити"
+    "message": "Покращити"
   },
   "leaveConfirmationDialogTitle": {
     "message": "Ви дійсно хочете покинути?"
@@ -7783,14 +7823,14 @@
     "message": "Представляємо Здоров'я"
   },
   "healthIntroDescription": {
-    "message": "Стежте за станом свого сховища та покращуйте його, виправляючи паролі, які стали загальнодоступними, є слабкими або використовуються повторно."
+    "message": "Стежте за станом свого сховища та покращуйте його, виправляючи розкриті та ненадійні паролі, а також ті, що використовуються повторно."
   },
   "yourVaultIsHealthy": {
-    "message": "Ваше сховище здорове",
+    "message": "З вашим сховищем усе добре",
     "description": "Heading shown when none of the user's passwords are at risk."
   },
   "yourVaultRiskIsHigh": {
-    "message": "Рівень ризику вашого сховища є високим",
+    "message": "У вашого сховища високий рівень ризику",
     "description": "Heading shown when at least one of the user's passwords is at risk."
   },
   "passwordsNeedFixing": {
@@ -7826,23 +7866,23 @@
     }
   },
   "exposedPasswordsDesc": {
-    "message": "Викриті внаслідок витоків даних",
+    "message": "Викрито з витоком даних",
     "description": "Explains what makes a password count as exposed."
   },
   "exposedPasswordsNoneDesc": {
-    "message": "Жодного з ваших паролів не було виявлено в базах даних, що зазнали витоку",
+    "message": "Жодного з ваших паролів не виявлено у витоках даних",
     "description": "Description of the exposed risk category row when no passwords are exposed."
   },
   "weakPasswordsNone": {
-    "message": "Немає слабких паролів",
+    "message": "Немає ненадійних паролів",
     "description": "Title of the weak risk category row when no passwords are weak."
   },
   "weakPassword": {
-    "message": "1 слабкий пароль",
+    "message": "1 ненадійний пароль",
     "description": "Title of the weak risk category row when exactly one password is weak."
   },
   "weakPasswordsPlural": {
-    "message": "$COUNT$ слабких паролів",
+    "message": "$COUNT$ ненадійних паролів",
     "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7852,11 +7892,11 @@
     }
   },
   "weakPasswordsDesc": {
-    "message": "Занадто короткий або простий",
+    "message": "Закороткий або простий",
     "description": "Explains what makes a password count as weak."
   },
   "weakPasswordsNoneDesc": {
-    "message": "Усі ваші паролі міцні",
+    "message": "Усі ваші паролі надійні",
     "description": "Description of the weak risk category row when no passwords are weak."
   },
   "reusedPasswordsNone": {
@@ -7864,11 +7904,11 @@
     "description": "Title of the reused risk category row when no passwords are reused."
   },
   "reusedPassword": {
-    "message": "1 перевикористаний пароль",
+    "message": "1 повторюваний пароль",
     "description": "Title of the reused risk category row when exactly one password is reused."
   },
   "reusedPasswordsPlural": {
-    "message": "$COUNT$ повторно використаних паролів",
+    "message": "$COUNT$ повторюваних паролів",
     "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7889,30 +7929,53 @@
     "message": "Визначено ризики",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
+  "upgradeToViewPasswords": {
+    "message": "Покращте, щоб переглянути паролі"
+  },
   "categoryHealthy": {
-    "message": "Немає потреби в записах",
+    "message": "Немає записів, що потребують уваги",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Сканування сховища",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Перевірка викритих, ненадійних і повторно використаних паролів.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "Виконується",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Щось пішло не так",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "Сканування вашого сховища не завершено через неочікувану помилку.",
+    "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
     "message": "Викриті паролі"
   },
   "exposedPasswordsDescription": {
-    "message": "Паролі для цих облікових записів стали відомими внаслідок витоків даних. Негайно змініть їх, щоб захистити свої облікові записи."
+    "message": "Паролі для цих облікових записів викрито у витоках даних. Негайно змініть їх, щоб захистити свої облікові записи."
   },
   "weakPasswordsTitle": {
-    "message": "Слабкі паролі"
+    "message": "Ненадійні паролі"
   },
   "weakPasswordsDescription": {
-    "message": "Ці паролі легко вгадати, оскільки вони занадто короткі або прості. Зробіть їх надійнішими, зробивши їх складнішими."
+    "message": "Ці паролі легко вгадати, оскільки вони занадто короткі або прості. Ускладніть їх для покращення надійності."
   },
   "reusedPasswordsTitle": {
     "message": "Повторювані паролі"
   },
   "reusedPasswordsDescription": {
-    "message": "Для цих облікових записів використовується один і той самий пароль. Створіть унікальний пароль для кожного облікового запису, щоб ніхто не зміг отримати доступ до кількох облікових записів за допомогою одного пароля."
+    "message": "Для цих облікових записів використовується однаковий пароль. Створіть унікальний пароль для кожного облікового запису, щоб ніхто не зміг отримати доступ до кількох облікових записів за допомогою одного пароля."
   },
-  "deleteAtRiskItemDescription": {
-    "message": "Видалення цього запису вилучить його з вашого сховища, але не усуне ризик. Щоб захистити свій обліковий запис, спочатку змініть пароль."
+  "deleteAtRiskItemDesc": {
+    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
   },
   "passwordHasAdditionalRisks": {
     "message": "Цей пароль має додаткові ризики:"
@@ -7932,15 +7995,30 @@
     }
   },
   "exposedPasswordsEmpty": {
-    "message": "Жодного з ваших паролів не було виявлено в базах даних, що зазнали витоку."
+    "message": "Жодного з ваших паролів не виявлено у витоках даних."
   },
   "weakPasswordEmpty": {
-    "message": "Усі ваші паролі міцні."
+    "message": "Усі ваші паролі надійні."
   },
   "reusedPasswordEmpty": {
     "message": "Усі ваші паролі унікальні."
   },
   "youreAllSet": {
     "message": "Усе налаштовано!"
+  },
+  "permissions": {
+    "message": "Permissions"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   }
 }
