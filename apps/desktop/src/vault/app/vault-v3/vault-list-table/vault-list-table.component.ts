@@ -73,14 +73,17 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   readonly canCreateCipher = input<boolean>(true);
   readonly showAddCipherBtn = input<boolean>(true);
 
-  /**
-   * The vault scope — relayed to `vault-items-table` untouched. Desktop has no route for a
-   * shared folder, so {@link EmptyVaultComponent}'s shared-folder state is never reachable here.
-   */
+  /** The vault scope — relayed to `vault-items-table` untouched. */
   readonly scope = input<VaultScope>();
 
   /** The organization the current vault scope names — relayed to `vault-items-table` untouched. */
   readonly organizationName = input<string>();
+
+  /**
+   * The shared folder the current vault scope has drilled into — relayed to `vault-items-table`
+   * untouched.
+   */
+  readonly sharedFolderName = input<string>();
 
   /** Whether the account has more than one vault — relayed to `vault-items-table` untouched. */
   readonly hasMultipleVaults = input(false);

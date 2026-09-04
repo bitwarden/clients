@@ -128,6 +128,7 @@ import {
   resolveVaultScope,
   scopedCollectionSegment,
   SharedFolderCardGridComponent,
+  sharedFolderNameForScope,
   VaultNavService,
   VaultScopeType,
 } from "@bitwarden/vault";
@@ -398,6 +399,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected scopedOrganizations: Organization[] = [];
   protected scopedCollections: CollectionView[] = [];
   protected collectionsToDisplay: CollectionView[] = [];
+
+  /**
+   * The shared folder the current vault scope has drilled into, by name — relayed through
+   * `app-vault-list-table` to {@link EmptyVaultComponent} untouched. `undefined` outside an
+   * organization vault's shared-folder route, or while `vfo1Foundation` is off.
+   */
+  protected emptySharedFolderName?: string;
 
   protected readonly searchPlaceholderText = computed(() =>
     this.i18nService.t(this.calculateSearchBarLocalizationString(this.activeFilter())),
@@ -721,6 +729,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.scopedCollections = vfo1Foundation
             ? allCollections.filter((collection) => collectionInScope(collection, scope))
             : allCollections;
+          this.emptySharedFolderName = vfo1Foundation
+            ? sharedFolderNameForScope(scope, this.scopedCollections)
+            : undefined;
           this.scopedOrganizations = vfo1Foundation
             ? allOrganizations.filter((organization) => organizationInScope(organization, scope))
             : allOrganizations;
