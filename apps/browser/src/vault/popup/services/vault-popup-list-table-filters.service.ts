@@ -226,6 +226,20 @@ export class VaultPopupListTableFiltersService {
   );
 
   /**
+   * Organization names by id, for every organization the user is a member of.
+   *
+   * Kept separate from {@link organizations$}, which drops suspended organizations so they aren't
+   * offered as a filter option. Collections owned by a suspended organization are still listed, so
+   * name resolution has to read the unfiltered membership or those collections lose their label.
+   */
+  organizationNames$: Observable<Map<string, string>> = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.organizationService.memberOrganizations$(userId)),
+    map((orgs) => new Map(orgs.map((org) => [idString(org.id)!, org.name]))),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  /**
    * Organizations, structured for `bit-filter-menu`.
    */
   organizations$: Observable<ChipFilterOption<Organization>[]> =

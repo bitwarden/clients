@@ -250,6 +250,11 @@ const ORGANIZATION_OPTIONS = [
   },
 ];
 
+// The names the collection groups are labeled from, keyed by organization id.
+const ORGANIZATION_NAMES = new Map(
+  ORGANIZATION_OPTIONS.map((option) => [option.value.id, option.label]),
+);
+
 const COLLECTION_OPTIONS = [
   { value: { id: "col-eng", name: "Engineering" } as CollectionView, label: "Engineering" },
   { value: { id: "col-mkt", name: "Marketing" } as CollectionView, label: "Marketing" },
@@ -316,6 +321,7 @@ const buildProviders = (args: StoryArgs) => {
         selectedOrganizations: signal<string[]>([]),
         cipherTypes$: of(CIPHER_TYPE_OPTIONS),
         organizations$: of(ORGANIZATION_OPTIONS),
+        organizationNames$: of(ORGANIZATION_NAMES),
         collections$: of(COLLECTION_OPTIONS),
         folders$: of(FOLDER_OPTIONS),
       },
