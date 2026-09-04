@@ -261,6 +261,10 @@ export class CipherAttachmentsComponent {
           : undefined,
       );
 
+      // Re-read the cipher rather than trusting the server's echo of the write: for a PAM-gated
+      // cipher that echo is the stripped shape, so the attachment just added would not appear.
+      this.cipherDomain = (await this.getCipher(this.cipherId())) ?? this.cipherDomain;
+
       // re-decrypt the cipher to update the attachments
       this.cipher.set(await this.cipherService.decrypt(this.cipherDomain, this.activeUserId));
 
@@ -338,12 +342,38 @@ export class CipherAttachmentsComponent {
     // First try to get the cipher directly with user permissions
     const localCipher = await this.cipherService.get(id, this.activeUserId);
 
+    // A PAM-gated cipher is only ever held locally in its stripped form, which carries no
+    // attachment metadata — the list would read as empty however many attachments the item has.
+    // Read the full copy from the server instead; a valid active lease is what releases it.
+    if (localCipher?.partialData != null) {
+      return (await this.getFullCipherFromServer(id)) ?? localCipher;
+    }
+
     // If we got the cipher or there's no organization context, return the result
     if (localCipher != null || !this.organizationId()) {
       return localCipher;
     }
 
     return null;
+  }
+
+  /**
+   * Reads a cipher's full copy straight from the server, for a PAM-gated cipher whose local copy is
+   * stripped. The copy is used for this dialog only and never written to local state, matching how
+   * the item dialog holds the cipher a lease reveals.
+   *
+   * Returns null when the server withholds it anyway — no lease covers the cipher — so the caller
+   * keeps the stripped copy it already has rather than showing nothing at all.
+   */
+  private async getFullCipherFromServer(id: CipherId): Promise<Cipher | null> {
+    try {
+      const cipher = new Cipher(new CipherData(await this.apiService.getFullCipherDetails(id)));
+
+      return cipher.partialData == null ? cipher : null;
+    } catch (e) {
+      this.logService.error(e);
+      return null;
+    }
   }
 
   /**

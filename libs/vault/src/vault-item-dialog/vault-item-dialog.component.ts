@@ -566,6 +566,17 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
       // Update organizationUseTotp from server response
       this.cipher.organizationUseTotp = cipher.organizationUseTotp;
+    } else if (this.formConfig.leaseGated) {
+      // Neither local state nor the save's own echo can supply a leasing-gated cipher — both carry
+      // the stripped copy — so leaving either in place presents the item as locked again while the
+      // lease that revealed it is still running. Re-read it and swap it back in, which moves the
+      // rendered view and `originalCipher` together and re-stamps the lease marker.
+      const revealed = await this.reloadGatedCipher();
+
+      if (revealed != null) {
+        await this.swapInCipher(revealed, true);
+        cipher = revealed;
+      }
     }
 
     // Store the updated cipher so any following edits use the most up to date cipher
@@ -663,7 +674,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     ) {
       const activeUserId = await firstValueFrom(this.userId$);
 
-      let updatedCipherView: CipherView;
+      let updatedCipherView: CipherView | undefined;
 
       if (this.formConfig.admin) {
         const cipherResponse = await this.apiService.getCipherAdmin(
@@ -675,6 +686,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         updatedCipherView = await cipher.decrypt(
           await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
         );
+      } else if (this.formConfig.leaseGated) {
+        updatedCipherView = await this.reloadGatedCipherView(activeUserId);
       } else {
         updatedCipherView = await firstValueFrom(
           this.cipherService.cipherView$(
@@ -684,16 +697,57 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         );
       }
 
-      this.cipherFormComponent().patchCipher((currentCipher) => {
-        currentCipher.attachments = updatedCipherView.attachments;
-        currentCipher.revisionDate = updatedCipherView.revisionDate;
+      // Patch only from a view we actually obtained. Dereferencing an absent one threw and
+      // abandoned the rest of the handler, leaving the form holding the revision date from before
+      // the upload — which the server then refused the next save on as out of date.
+      if (updatedCipherView == null) {
+        this.logService.error(
+          new Error(
+            `Could not reload cipher ${this.formConfig.originalCipher?.id} after an attachment change.`,
+          ),
+        );
+      } else {
+        const reloadedCipherView = updatedCipherView;
+        this.cipherFormComponent().patchCipher((currentCipher) => {
+          currentCipher.attachments = reloadedCipherView.attachments;
+          currentCipher.revisionDate = reloadedCipherView.revisionDate;
 
-        return currentCipher;
-      });
+          return currentCipher;
+        });
+      }
 
       this._cipherModified = true;
     }
   };
+
+  /**
+   * Re-read a leasing-gated cipher's full copy through {@link GATED_CIPHER_RELOADER}, for refreshing
+   * the dialog after a mutation.
+   *
+   * Local state is not a source here: `cipherView$` excludes gated ciphers by design, and the copy
+   * it would otherwise carry is the stripped one — no attachment metadata, and a revision date from
+   * before the mutation. The read is the same transient one that revealed the cipher, so the full
+   * copy still never reaches local state.
+   *
+   * Null means the lease lapsed between the mutation and this read; there is no full copy to be had,
+   * and the stripped one must not be written over the revealed cipher.
+   */
+  private async reloadGatedCipher(): Promise<Cipher | null> {
+    const cipherId = this.formConfig.originalCipher?.id as CipherId;
+
+    if (this.gatedCipherReloader == null || cipherId == null) {
+      return null;
+    }
+
+    return await firstValueFrom(this.gatedCipherReloader.fullCipher$(cipherId));
+  }
+
+  /** Decrypted counterpart of {@link reloadGatedCipher}, for callers that patch a view. */
+  private async reloadGatedCipherView(userId: UserId): Promise<CipherView | undefined> {
+    const fullCipher = await this.reloadGatedCipher();
+
+    return fullCipher == null ? undefined : await this.cipherService.decrypt(fullCipher, userId);
+  }
 
   switchToEdit = async () => {
     if (!this.cipher) {
