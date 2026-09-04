@@ -1,4 +1,3 @@
-import { OverlayModule } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 
@@ -7,6 +6,7 @@ import {
   ChipActionComponent,
   ChipFilterComponent,
   TooltipDirective,
+  BreadcrumbsModule,
 } from "@bitwarden/components";
 import {
   CipherFormConfigService,
@@ -37,7 +37,6 @@ import { ReportsSharedModule } from "./shared";
 @NgModule({
   imports: [
     CommonModule,
-    OverlayModule,
     SharedModule,
     ReportsSharedModule,
     ReportsRoutingModule,
@@ -50,6 +49,7 @@ import { ReportsSharedModule } from "./shared";
     PasskeyReportComponent,
     TooltipDirective,
     Vfo1IconPipe,
+    BreadcrumbsModule,
   ],
   declarations: [
     BreachReportComponent,
