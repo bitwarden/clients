@@ -79,6 +79,7 @@ import { SecurityRoutingModule } from "./auth/settings/security/security-routing
 import { SsoLoginFailedComponent } from "./auth/sso/sso-login-failed.component";
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "./auth/verify-recover-delete.component";
+import { govModeBlockedGuard } from "./billing/guards/gov-mode-blocked.guard";
 import { PremiumCheckoutSuccessComponent } from "./billing/individual/premium-checkout/premium-checkout-success.component";
 import { SponsoredFamiliesComponent } from "./billing/settings/sponsored-families.component";
 import { CompleteTrialInitiationComponent } from "./billing/trial-initiation/complete-trial-initiation/complete-trial-initiation.component";
@@ -105,7 +106,7 @@ import { setupExtensionRedirectGuard } from "./vault/guards/setup-extension-redi
 import { VaultModule } from "./vault/individual-vault/vault.module";
 import { MyFoldersComponent } from "./vault/my-folders/my-folders.component";
 
-const routes: Routes = [
+export const routes: Routes = [
   // These need to be placed at the top of the list prior to the root
   // so that the redirectGuard does not interrupt the navigation.
   {
@@ -605,7 +606,7 @@ const routes: Routes = [
       },
       {
         path: "trial-initiation",
-        canActivate: [unauthGuardFn()],
+        canActivate: [unauthGuardFn(), govModeBlockedGuard()],
         component: CompleteTrialInitiationComponent,
         resolve: {
           pageTitle: freeTrialTextResolver,
@@ -617,7 +618,7 @@ const routes: Routes = [
       },
       {
         path: "secrets-manager-trial-initiation",
-        canActivate: [unauthGuardFn()],
+        canActivate: [unauthGuardFn(), govModeBlockedGuard()],
         component: CompleteTrialInitiationComponent,
         resolve: {
           pageTitle: freeTrialTextResolver,
@@ -732,7 +733,7 @@ const routes: Routes = [
       {
         path: "create-organization",
         component: CreateOrganizationComponent,
-        canActivate: [addPlanRedirectGuard],
+        canActivate: [govModeBlockedGuard(), addPlanRedirectGuard],
         data: { titleId: "newOrganization" } satisfies RouteDataProperties,
       },
       {
@@ -766,6 +767,7 @@ const routes: Routes = [
           {
             path: "add-plan",
             component: CreateOrganizationComponent,
+            canActivate: [govModeBlockedGuard()],
             data: { titleId: "addPlan" } satisfies RouteDataProperties,
           },
           {

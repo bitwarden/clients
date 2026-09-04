@@ -13,6 +13,7 @@ import { Provider } from "@bitwarden/common/admin-console/models/domain/provider
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -32,6 +33,7 @@ describe("ProductSwitcherService", () => {
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let activeRouteParams = convertToParamMap({ organizationId: "1234" });
   let singleOrgPolicyEnabled = false;
+  let isGovModeEnabled = false;
   let vfo1Enabled = false;
   const getLastSync = jest.fn().mockResolvedValue(new Date("2024-05-14"));
   const userId = Utils.newGuid() as UserId;
@@ -49,6 +51,7 @@ describe("ProductSwitcherService", () => {
     singleOrgPolicyEnabled = false;
     vfo1Enabled = false;
     getLastSync.mockResolvedValue(new Date("2024-05-14"));
+    isGovModeEnabled = false;
     router = mock<Router>();
     organizationService = mock<OrganizationService>();
     providerService = mock<ProviderService>();
@@ -93,6 +96,12 @@ describe("ProductSwitcherService", () => {
           },
         },
         { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
+        {
+          provide: GovModeService,
+          useValue: {
+            isGovMode$: () => of(isGovModeEnabled),
+          },
+        },
         {
           provide: ConfigService,
           useValue: { getFeatureFlag$: () => of(vfo1Enabled) },
@@ -223,6 +232,29 @@ describe("ProductSwitcherService", () => {
         const products = await firstValueFrom(service.products$);
 
         expect(products.other.find((p) => p.name === "Organizations")).not.toBeDefined();
+      });
+
+      it("does not include Organizations in Gov mode", async () => {
+        isGovModeEnabled = true;
+        initiateService();
+
+        const products = await firstValueFrom(service.products$);
+
+        expect(products.other.find((p) => p.name === "Organizations")).not.toBeDefined();
+      });
+
+      it("still includes Admin Console in bento in Gov mode", async () => {
+        isGovModeEnabled = true;
+        organizationService.organizations$.mockReturnValue(
+          of([{ id: "1234", isOwner: true }] as Organization[]),
+        );
+
+        initiateService();
+
+        const products = await firstValueFrom(service.products$);
+
+        expect(products.bento.find((p) => p.name === "Admin Console")).toBeDefined();
+        expect(products.other.find((p) => p.name === "Organizations")).toBeUndefined();
       });
 
       it("does not include Organizations when the VFO1 foundation flag is enabled", async () => {
