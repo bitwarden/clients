@@ -7791,7 +7791,7 @@
   "minimumNumberOfWords": {
     "message": "Minimum number of words"
   },
-  "overridePasswordTypePolicy": {
+  "overridePasswordTypePolicyV2": {
     "message": "Password type",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -7995,9 +7995,9 @@
   "singleOrgDesc": {
     "message": "Restrict members from joining other organizations."
   },
-  "singleOrgPolicyDescVfo1": {
+  "singleOrgPolicyDescListVfo1": {
     "message": "Members cannot join other organization vaults.",
-    "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
+    "description": "VFO1 terminology variant of 'singleOrgPolicyDesc', shown in the policies list"
   },
   "singleOrgPolicyDescV2": {
     "message": "Members of this organization cannot join other organizations. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins."
@@ -8019,7 +8019,7 @@
     "message": "Require SSO",
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
-  "requireSsoPolicyDescListVfo1": {
+  "requireSsoPolicyDescListV2Vfo1": {
     "message": "Require members to log in using SSO.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
   },
