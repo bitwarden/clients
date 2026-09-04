@@ -9,6 +9,10 @@
     "message": "Bitwarden — управител на пароли",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden — управител на пароли — бета",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "У дома, на работа или на път – Битуорден защитава всички Ваши пароли, секретни ключове и лична информация",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -535,6 +539,9 @@
   "foldersFilterTooltip": {
     "message": "Добавете папки към елементите, за да ги филтрирате тук."
   },
+  "sharedFolderFilterTooltip": {
+    "message": "Добавете записи в споделена папка, за да филтрирате тук."
+  },
   "editItemWithName": {
     "message": "Редактиране на елемент – $NAME$",
     "placeholders": {
@@ -750,6 +757,15 @@
   },
   "launchWebsite": {
     "message": "Посещаване на уеб сайта"
+  },
+  "launchWebsiteForName": {
+    "message": "Отваряне на уеб сайта за $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Сайт"
@@ -1406,17 +1422,29 @@
   "additionalOptions": {
     "message": "Допълнителни настройки"
   },
-  "fillAssistActiveNotice": {
+  "fillAssistActiveNoticeV2": {
     "message": "Автоматичното попълване използва асистираното попълване на тази страница."
   },
-  "activateFillAssist": {
+  "activateFillAssistV2": {
     "message": "Включване на асистираното попълване"
   },
-  "activateFillAssistDescription": {
+  "activateFillAssistDescriptionV2": {
     "message": "Асистираното попълване подобрява точността на автоматичното попълване в поддържаните уеб сайтове, чрез използване на определени правила. Никакви данни не се събират или съхраняват, когато използвате тази функционалност."
   },
-  "aboutFillAssistLabel": {
+  "aboutFillAssistLabelV2": {
     "message": "Относно асистираното попълване"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Разрешаване на уеб сайтовете да изключват полета от автоматичното попълване"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Пропускане на полетата, които са отбелязани от уеб сайтовете с атрибута `data-bwignore`."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Разрешаване на уеб сайтовете да добавят полета към автоматичното попълване"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Използване на елементите „span“, които са отбелязани от уеб сайтовете с атрибута `data-bwautofill`."
   },
   "enableContextMenuItem": {
     "message": "Показване на опции в контекстното меню"
@@ -2737,6 +2765,18 @@
   "noMatchingItems": {
     "message": "Няма съвпадащи елементи"
   },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
+  },
   "selected": {
     "message": "Избрано"
   },
@@ -3182,12 +3222,6 @@
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "Няма намерен идентификатор за опресняване или ключове за ППИ. Опитайте да се отпишете и да се впишете отново."
-  },
-  "desktopSyncVerificationTitle": {
-    "message": "Потвърждаване на синхронизацията на самостоятелното приложение"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Уверете се, че самостоятелното приложение показва следния идентификатор:"
   },
   "desktopIntegrationDisabledTitle": {
     "message": "Интеграцията с браузър е изключена"
@@ -5939,6 +5973,12 @@
   "clearFiltersOrTryAnother": {
     "message": "Изчистете филтрите или опитайте да търсите нещо друго"
   },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
+  },
   "moreOptionsLabel": {
     "message": "Още опции, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -7020,9 +7060,6 @@
   "compactMode": {
     "message": "Компактен режим"
   },
-  "beta": {
-    "message": "Бета"
-  },
   "extensionWidth": {
     "message": "Ширина на разширението"
   },
@@ -7079,12 +7116,6 @@
         "example": "Work, Personal"
       }
     }
-  },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Моля, обновете самостоятелното приложение"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "За да използвате отключването чрез биометрични данни, обновете самостоятелното приложение или изключете отключването чрез пръстов отпечатък в настройките му."
   },
   "changeAtRiskPassword": {
     "message": "Промяна на парола в риск"
@@ -7274,6 +7305,15 @@
   },
   "showMore": {
     "message": "Показване на повече"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Показване на по-малко"
@@ -7889,9 +7929,32 @@
     "message": "Открити рискове",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
+  "upgradeToViewPasswords": {
+    "message": "Надградете, за да прегледате паролите"
+  },
   "categoryHealthy": {
     "message": "Няма нуждаещи се от внимание елементи",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Сканиране на трезора Ви",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Проверява се за разкрити, слаби и преизползвани пароли.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "В процес на работа",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Нещо се обърка",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "Сканирането на трезора Ви не завърши поради неочаквана грешка.",
+    "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
     "message": "Разобличени пароли"
@@ -7911,8 +7974,8 @@
   "reusedPasswordsDescription": {
     "message": "Тези записи имате преизползвани пароли. Създайте уникална парола за всеки акаунт, за да не може някой да получи достъп до няколко Ваши акаунта с една разкрита парола."
   },
-  "deleteAtRiskItemDescription": {
-    "message": "Изтриването на този елемент го премахва от трезора, но не премахва риска. За да защитите акаунта си, първо сменете паролата му."
+  "deleteAtRiskItemDesc": {
+    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
   },
   "passwordHasAdditionalRisks": {
     "message": "Тази парола има допълнителни рискове:"
@@ -7942,5 +8005,20 @@
   },
   "youreAllSet": {
     "message": "Всичко е готово!"
+  },
+  "permissions": {
+    "message": "Permissions"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   }
 }

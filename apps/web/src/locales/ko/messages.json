@@ -9,28 +9,28 @@
     "message": "모든 비밀번호"
   },
   "activity": {
-    "message": "Activity"
+    "message": "활동"
   },
   "criticalAppsAtRisk": {
-    "message": "Critical apps at risk"
+    "message": "위험한 중요 앱"
   },
   "criticalApplicationsAtRisk": {
-    "message": "Critical applications at risk"
+    "message": "위험한 중요 애플리케이션"
   },
   "allCriticalApps": {
-    "message": "All critical apps"
+    "message": "모든 중요 앱"
   },
   "appLogoLabel": {
     "message": "Bitwarden 로고"
   },
   "criticalApplications": {
-    "message": "Critical applications"
+    "message": "중요 애플리케이션"
   },
   "noCriticalAppsAtRisk": {
-    "message": "No critical applications at risk"
+    "message": "위험한 중요 애플리케이션 없음"
   },
   "critical": {
-    "message": "Critical ($COUNT$)",
+    "message": "중요 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -39,7 +39,7 @@
     }
   },
   "notCritical": {
-    "message": "Not critical ($COUNT$)",
+    "message": "일반 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -148,10 +148,10 @@
     "message": "Once you mark applications critical, they will display here."
   },
   "viewAtRiskMembers": {
-    "message": "View at-risk members"
+    "message": "위험한 구성원 보기"
   },
   "viewAtRiskApplications": {
-    "message": "View at-risk applications"
+    "message": "위험한 애플리케이션 보기"
   },
   "criticalApplicationsAreAtRisk": {
     "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
@@ -170,7 +170,7 @@
     "message": "critical applications marked"
   },
   "countOfCriticalApplications": {
-    "message": "$COUNT$ critical applications",
+    "message": "중요 애플리케이션 $COUNT$개",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -179,7 +179,7 @@
     }
   },
   "countOfApplicationsAtRisk": {
-    "message": "$COUNT$ applications at-risk",
+    "message": "위험한 애플리케이션 $COUNT$개",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -188,7 +188,7 @@
     }
   },
   "countOfAtRiskPasswords": {
-    "message": "$COUNT$ passwords at-risk",
+    "message": "위험한 비밀번호 $COUNT$개",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -197,7 +197,7 @@
     }
   },
   "newPasswordsAtRisk": {
-    "message": "$COUNT$ new passwords at-risk",
+    "message": "위험한 새 비밀번호 $COUNT$개",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -206,7 +206,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "Notified members ($COUNT$)",
+    "message": "구성원에게 알림 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -290,10 +290,10 @@
     "message": "Select critical applications"
   },
   "markAppAsCritical": {
-    "message": "Mark app as critical"
+    "message": "중요한 앱으로 표시"
   },
   "markAsCritical": {
-    "message": "Mark as critical"
+    "message": "중요 표시"
   },
   "applicationsSelected": {
     "message": "applications selected"
@@ -335,7 +335,7 @@
     }
   },
   "markAppCountAsCritical": {
-    "message": "Mark $COUNT$ as critical",
+    "message": "$COUNT$개 중요 표시",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -344,7 +344,7 @@
     }
   },
   "markAppCountAsNotCritical": {
-    "message": "Mark $COUNT$ as not critical",
+    "message": "$COUNT$개 중요 표시 해제",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -377,7 +377,7 @@
     "message": "애플리케이션 검색"
   },
   "atRiskMembers": {
-    "message": "At-risk members"
+    "message": "위험한 구성원"
   },
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "These members have access to vulnerable items for critical applications."
@@ -411,7 +411,7 @@
     }
   },
   "atRiskMembersWithCount": {
-    "message": "At-risk members ($COUNT$)",
+    "message": "위험한 구성원 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -420,7 +420,7 @@
     }
   },
   "atRiskApplicationsWithCount": {
-    "message": "At-risk applications ($COUNT$)",
+    "message": "위험한 애플리케이션 ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -429,7 +429,7 @@
     }
   },
   "ofCountTotal": {
-    "message": "of $TOTAL$ total",
+    "message": "/ 총 $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -468,7 +468,7 @@
     }
   },
   "totalMembers": {
-    "message": "Total members"
+    "message": "총 구성원"
   },
   "atRiskApplications": {
     "message": "위험한 애플리케이션"
@@ -1224,6 +1224,48 @@
   "sharedFolders": {
     "message": "공유 폴더"
   },
+  "sharedFoldersInParent": {
+    "message": "Shared folders in $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ shared folder",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ more shared folders shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 more shared folder shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "내 폴더"
   },
@@ -1232,6 +1274,9 @@
   },
   "foldersFilterTooltip": {
     "message": "항목에 폴더를 추가하면 여기에 분류됩니다."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
   },
   "addSharedFolder": {
     "message": "공유 폴더 추가"
@@ -1359,19 +1404,19 @@
     "message": "Grant member access to shared folders by adding them to 1 or more groups."
   },
   "manageAllSharedFolders": {
-    "message": "Manage all shared folders"
+    "message": "모든 공유 폴더 관리"
   },
   "createNewSharedFolders": {
-    "message": "Create new shared folders"
+    "message": "새 공유 폴더 생성"
   },
   "editAnySharedFolder": {
-    "message": "Edit any shared folder"
+    "message": "아무 공유 폴더 편집"
   },
   "deleteAnySharedFolder": {
-    "message": "Delete any shared folder"
+    "message": "아무 공유 폴더 삭제"
   },
   "cannotAddYourselfToSharedFolders": {
-    "message": "You cannot add yourself to shared folders."
+    "message": "스스로를 공유 폴더에 추가할 수는 없습니다."
   },
   "attachments": {
     "message": "첨부 파일"
@@ -1386,7 +1431,7 @@
     "message": "항목 추가"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "추가할 항목 선택"
   },
   "editItem": {
     "message": "항목 편집"
@@ -1467,11 +1512,11 @@
     "description": "Header for new passport item type"
   },
   "newItemHeaderTextSendV2": {
-    "message": "New text",
+    "message": "새 텍스트",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "New file",
+    "message": "새 파일",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -1491,23 +1536,23 @@
     "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
-    "message": "Edit secure note",
+    "message": "보안 메모 편집",
     "description": "Header for edit secure note item type"
   },
   "editItemHeaderLoginSentenceCase": {
-    "message": "Edit login",
+    "message": "로그인 편집",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCardSentenceCase": {
-    "message": "Edit card",
+    "message": "카드 편집",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentitySentenceCase": {
-    "message": "Edit identity",
+    "message": "신원 편집",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNoteSentenceCase": {
-    "message": "Edit note",
+    "message": "메모 편집",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
@@ -1515,23 +1560,23 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "은행 계좌 편집",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "면허 편집",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "여권 편집",
     "description": "Header for edit passport item type"
   },
   "editItemHeaderTextSendV2": {
-    "message": "Edit text",
+    "message": "텍스트 편집",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "Edit file",
+    "message": "파일 편집",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -1543,51 +1588,51 @@
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "신원 보기",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "메모 보기",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSecureNote": {
-    "message": "View secure note",
+    "message": "보안 메모 보기",
     "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "SSH 키 보기",
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "은행 계좌 보기",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "면허 보기",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "여권 보기",
     "description": "Header for view passport item type"
   },
   "viewItemHeaderLoginSentenceCase": {
-    "message": "View login",
+    "message": "로그인 보기",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCardSentenceCase": {
-    "message": "View card",
+    "message": "카드 보기",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentitySentenceCase": {
-    "message": "View identity",
+    "message": "신원 보기",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNoteSentenceCase": {
-    "message": "View note",
+    "message": "메모 보기",
     "description": "Header for view note item type"
   },
   "create": {
-    "message": "Create",
+    "message": "생성",
     "description": "for adding new items"
   },
   "new": {
@@ -1598,13 +1643,13 @@
     "message": "항목"
   },
   "itemLower": {
-    "message": "item"
+    "message": "항목"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "항목 세부사항"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "항목 이름"
   },
   "ex": {
     "message": "예)",
@@ -1630,7 +1675,7 @@
     }
   },
   "copySuccessful": {
-    "message": "Copy Successful"
+    "message": "복사 성공"
   },
   "copyValue": {
     "message": "값 복사",
@@ -1641,7 +1686,7 @@
     "description": "Copy password to clipboard"
   },
   "copyPassphrase": {
-    "message": "Copy passphrase",
+    "message": "비밀구절 복사",
     "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
@@ -1755,6 +1800,9 @@
   "myItems": {
     "message": "내 항목"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "myVault": {
     "message": "내 보관함"
   },
@@ -1859,6 +1907,18 @@
   "noMatchingItems": {
     "message": "일치하는 항목 없음"
   },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
+  },
   "deselectAll": {
     "message": "모두 선택 해제"
   },
@@ -1882,10 +1942,10 @@
     }
   },
   "selectionCleared": {
-    "message": "Selection cleared"
+    "message": "선택 해제함"
   },
   "additionalActions": {
-    "message": "Additional actions"
+    "message": "추가 동작"
   },
   "launch": {
     "message": "열기"
@@ -1906,7 +1966,7 @@
     "message": "파일"
   },
   "photo": {
-    "message": "Photo"
+    "message": "사진"
   },
   "selectFile": {
     "message": "파일을 선택하세요."
@@ -1955,7 +2015,7 @@
     "message": "항목 삭제"
   },
   "deleteItemsCount": {
-    "message": "Delete $COUNT$ items",
+    "message": "항목 $COUNT$개 삭제",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1970,10 +2030,10 @@
     "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
   },
   "deleteItemPermanently": {
-    "message": "Delete item permanently"
+    "message": "항목 영구 삭제"
   },
   "deleteItemsPermanentlyCount": {
-    "message": "Delete $COUNT$ items permanently",
+    "message": "항목 $COUNT$개 영구 삭제",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1982,16 +2042,16 @@
     }
   },
   "deleteItemPermanentlyDesc": {
-    "message": "You will not be able to recover this item."
+    "message": "이 항목을 복원할 수 없게 됩니다."
   },
   "deleteItemsPermanentlyDesc": {
-    "message": "You will not be able to recover these items."
+    "message": "이 항목을 복원할 수 없게 됩니다."
   },
   "deleteSelection": {
-    "message": "Delete selection"
+    "message": "선택 항목 삭제"
   },
   "deleteItemsAndCollectionsDesc": {
-    "message": "The selected items and collections will be permanently deleted."
+    "message": "선택한 항목과 컬렉션이 영구적으로 삭제됩니다."
   },
   "deleteFolder": {
     "message": "폴더 삭제"
@@ -2000,7 +2060,7 @@
     "message": "첨부 파일 삭제"
   },
   "deleteAttachmentName": {
-    "message": "Delete attachment $NAME$",
+    "message": "첨부파일 $NAME$ 삭제",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -2009,7 +2069,7 @@
     }
   },
   "downloadAttachmentName": {
-    "message": "Download $NAME$",
+    "message": "$NAME$ 다운로드",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -2027,7 +2087,7 @@
     "message": "항목 삭제함"
   },
   "movedItem": {
-    "message": "Item moved"
+    "message": "항목 이동함"
   },
   "movedItems": {
     "message": "항목 이동함"
@@ -2048,13 +2108,13 @@
     "message": "폴더 삭제함"
   },
   "folderEdited": {
-    "message": "Folder edited"
+    "message": "폴더 편집함"
   },
   "foldersDeleted": {
-    "message": "Folders deleted"
+    "message": "폴더 삭제함"
   },
   "deleteFoldersCount": {
-    "message": "Delete $COUNT$ folders",
+    "message": "폴더 $COUNT$개 삭제",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2075,7 +2135,7 @@
     "message": "When you delete these folders, they will be removed from every item they've been applied to. The items themselves won't be deleted."
   },
   "enterAName": {
-    "message": "Enter a name."
+    "message": "이름을 입력하세요."
   },
   "editInfo": {
     "message": "정보 편집"
@@ -2087,28 +2147,28 @@
     "message": "접근 권한"
   },
   "accessing": {
-    "message": "Accessing"
+    "message": "접근 중"
   },
   "loggedOut": {
     "message": "로그아웃됨"
   },
   "loggedOutDesc": {
-    "message": "You have been logged out of your account."
+    "message": "계정이 로그아웃 되었습니다."
   },
   "loginExpired": {
     "message": "로그인 세션이 만료되었습니다."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "등록 재시작"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "만료된 링크"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "등록을 다시 시작하거나 로그인을 시도해 주세요."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "계정이 이미 있을 수 있습니다"
   },
   "logOutConfirmation": {
     "message": "정말 로그아웃하시겠습니까?"
@@ -2126,13 +2186,13 @@
     "message": "아니오"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "링크가 있는 모든 사용자"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "내가 설정한 비밀번호를 아는 모든 사용자"
   },
   "location": {
-    "message": "Location"
+    "message": "위치"
   },
   "loginOrCreateNewAccount": {
     "message": "안전 보관함에 접근하려면 로그인하거나 새 계정을 만드세요."
@@ -2144,19 +2204,19 @@
     "message": "기기로 로그인은 Bitwarden 앱 설정에서 구성돼야 합니다. 다른 방식이 필요하신가요?"
   },
   "needAnotherOptionV1": {
-    "message": "Need another option?"
+    "message": "다른 옵션이 필요하신가요?"
   },
   "readingPasskeyLoading": {
     "message": "패스키를 읽는 중..."
   },
   "readingPasskeyLoadingInfo": {
-    "message": "Keep this window open and follow prompts from your browser."
+    "message": "창을 열어둔 채로 브라우저의 안내를 따르세요."
   },
   "passkeyAuthenticationFailed": {
-    "message": "Passkey authentication failed. Please try again."
+    "message": "패스키 인증이 실패했습니다. 다시 시도해 주세요."
   },
   "useDifferentLoginMethod": {
-    "message": "Use different login method"
+    "message": "다른 로그인 방법 사용"
   },
   "logInWithPasskey": {
     "message": "패스키로 로그인"
@@ -2168,10 +2228,10 @@
     "message": "Your organization requires single sign-on."
   },
   "loginPageMasterPasswordEntryScreenTitle": {
-    "message": "Welcome back"
+    "message": "돌아온 것을 환영합니다"
   },
   "invalidPasskeyPleaseTryAgain": {
-    "message": "Invalid Passkey. Please try again."
+    "message": "패스키가 잘못되었습니다. 다시 시도해 주세요."
   },
   "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
     "message": "2FA for passkeys is not supported. Update the app to log in."
@@ -2534,6 +2594,9 @@
   "addPlan": {
     "message": "Add plan"
   },
+  "addPlanDesc": {
+    "message": "You can create a new shared vault with 1 other person for free. If you'd like to store, manage, and share items with more people, you will need to add a new plan first. Just know that some options may require a billing change."
+  },
   "noOrganizationsList": {
     "message": "당신은 어떤 조직에도 속해있지 않습니다. 조직은 다른 사용자들과 안전하게 항목을 공유할 수 있게 해줍니다."
   },
@@ -2596,7 +2659,7 @@
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "복구 코드 사용"
   },
   "insertU2f": {
     "message": "보안 키를 컴퓨터의 USB 포트에 삽입하고 버튼이 있는 경우 누르세요."
@@ -2614,13 +2677,13 @@
     "message": "2단계 인증 옵션"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "2단계 인증 선택"
   },
   "recoveryCodeTitle": {
     "message": "복구 코드"
   },
   "invalidRecoveryCode": {
-    "message": "Invalid recovery code"
+    "message": "유효하지 않은 복구 코드"
   },
   "authenticatorAppTitle": {
     "message": "인증 앱"
@@ -2630,7 +2693,7 @@
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
-    "message": "Yubico OTP security key"
+    "message": "YubiKey OTP 보안 키"
   },
   "yubiKeyDesc": {
     "message": "YubiKey를 사용하여 사용자의 계정에 접근합니다. YubiKey 4, 4 Nano, 4C 및 NEO 기기를 사용할 수 있습니다."
@@ -2704,10 +2767,10 @@
     "message": "정말 계속하시겠습니까?"
   },
   "deleteCollection": {
-    "message": "Delete collection"
+    "message": "컬렉션 삭제"
   },
   "deleteCollectionsCount": {
-    "message": "Delete $COUNT$ collections",
+    "message": "컬렉션 $COUNT$개 삭제",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2737,28 +2800,28 @@
     "message": "인증 코드 복사"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "사용자 이름 없음"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "비밀번호 없음"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "인증 코드 없음"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "번호 없음"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "보안 코드 없음"
   },
   "copyUuid": {
     "message": "UUID 복사"
   },
   "errorRefreshingAccessToken": {
-    "message": "Access Token Refresh Error"
+    "message": "엑세스 토큰 새로고침 오류"
   },
   "errorRefreshingAccessTokenDesc": {
-    "message": "No refresh token or API keys found. Please try logging out and logging back in."
+    "message": "새로 고침 토큰이나 API 키를 찾을 수 없습니다. 로그아웃하고 다시 로그인해 주세요."
   },
   "warning": {
     "message": "경고"
@@ -2811,22 +2874,22 @@
     "message": "파일 암호 확인"
   },
   "keePassMasterPassword": {
-    "message": "KeePass master password"
+    "message": "KeePass 마스터 비밀번호"
   },
   "addKeyFile": {
-    "message": "Add key file"
+    "message": "키 파일 추가"
   },
   "keyFileUpload": {
-    "message": "Key file upload"
+    "message": "키 파일 업로드"
   },
   "kdbxFileUpload": {
-    "message": "KDBX file upload"
+    "message": "KDBX 파일 업로드"
   },
   "acceptedFormatsKdbx": {
-    "message": "Accepted formats: kdbx"
+    "message": "허용되는 형식: kdbx"
   },
   "kdbxCorruptOrOutdated": {
-    "message": "Data is not formatted correctly. Please check your import file and try again."
+    "message": "데이터의 포맷이 올바르지 않습니다. 불러올 파일을 확인하고 다시 시도해 주십시오."
   },
   "kdbxWrongFileType": {
     "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
@@ -2865,10 +2928,10 @@
     "message": "An error occurred while exporting your vault data"
   },
   "exportSuccessSkippedAttachment": {
-    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+    "message": "내보내는 중 손상된 파일 1개를 건너뛰었습니다. 나머지 보관함 데이터 및 첨부 파일은 성공적으로 내보냈습니다."
   },
   "exportSuccessSkippedAttachments": {
-    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "message": "내보내는 중 손상된 파일 $COUNT$개를 건너뛰었습니다. 나머지 보관함 데이터 및 첨부 파일은 성공적으로 내보냈습니다.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2890,14 +2953,14 @@
     "description": "Minimum special characters"
   },
   "minSpecialCharacters": {
-    "message": "Minimum special characters"
+    "message": "특수 문자 최소 개수"
   },
   "ambiguous": {
     "message": "모호한 문자 사용 안 함",
     "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "모호한 문자 사용 안 함",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "length": {
@@ -2935,29 +2998,29 @@
     "message": "숫자 추가"
   },
   "generatorPolicyInEffect": {
-    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "message": "기업 정책에 따른 요구사항이 생성기 옵션에 적용되어 있습니다.",
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "passwordHistory": {
     "message": "비밀번호 변경 기록"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "생성기 기록"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "생성기 기록 지우기"
   },
   "clearGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "계속하면 모든 항목이 생성기 기록에서 영구적으로 삭제됩니다. 계속하시겠습니까?"
   },
   "noPasswordsInList": {
     "message": "비밀번호가 없습니다."
   },
   "clearHistory": {
-    "message": "Clear history"
+    "message": "기록 지우기"
   },
   "nothingToShow": {
-    "message": "Nothing to show"
+    "message": "항목 없음"
   },
   "nothingGeneratedRecently": {
     "message": "You haven't generated anything recently"
@@ -3234,7 +3297,7 @@
     }
   },
   "importPartialErrorTitleSingular": {
-    "message": "$COUNT$ item will be skipped",
+    "message": "항목 $COUNT$개를 건너뜁니다",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3243,58 +3306,58 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "다음 항목들을 읽을 수 없으며 가져오기에 포함되지 않습니다:"
   },
   "importSkipReasonSshKeyParse": {
-    "message": "This SSH key could not be imported"
+    "message": "이 SSH 키는 가져올 수 없음"
   },
   "importSkipReasonUnsupportedType": {
-    "message": "Unsupported item type"
+    "message": "미지원 항목 유형"
   },
   "importSkipReasonGeneric": {
-    "message": "This item could not be imported"
+    "message": "이 항목은 가져올 수 없음"
   },
   "contact": {
-    "message": "Contact"
+    "message": "연락처"
   },
   "membership": {
-    "message": "Membership"
+    "message": "멤버십"
   },
   "passport": {
-    "message": "Passport"
+    "message": "여권"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "운전 면허증"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "신분증"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "출생 증명서"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "데이터베이스 자격 증명"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "서버 자격 증명"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "소프트웨어 라이선스"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "건강 보험"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Wi-Fi 자격 증명"
   },
   "general": {
-    "message": "General"
+    "message": "일반"
   },
   "importEncKeyError": {
     "message": "내보내려는 파일을 복호화하던 중 오류가 발생했습니다. 암호화 키가 내보내려는 데이터를 암호화한 키와 일치하지 않습니다."
   },
   "destination": {
-    "message": "Destination"
+    "message": "수신자"
   },
   "learnAboutImportOptions": {
     "message": "가져오기 설정 알아보기"
@@ -3373,10 +3436,10 @@
     }
   },
   "oneFileUploaded": {
-    "message": "1 file uploaded"
+    "message": "파일 1개 업로드함"
   },
   "filesUploaded": {
-    "message": "$COUNT$ files uploaded",
+    "message": "파일 $COUNT$개 업로드함",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3385,16 +3448,16 @@
     }
   },
   "uploadedFiles": {
-    "message": "Uploaded files"
+    "message": "업로드한 파일"
   },
   "clickToUploadOrDragAndDrop": {
-    "message": "Click to upload or drag and drop"
+    "message": "클릭하거나 드래그 드롭하여 업로드"
   },
   "chooseFiles": {
-    "message": "Choose files"
+    "message": "파일 선택"
   },
   "maxFileSizeParam": {
-    "message": "Max. file size: $SIZE$ MB",
+    "message": "최대 파일 크기: $SIZE$MB",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -3416,7 +3479,7 @@
     }
   },
   "importHelpCenterInstructions": {
-    "message": "See detailed $NAME$ instructions in our",
+    "message": "$NAME$ 지침을 확인하세요:",
     "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
     "placeholders": {
       "name": {
@@ -3426,7 +3489,7 @@
     }
   },
   "importHelpCenterLinkText": {
-    "message": "Help Center"
+    "message": "도움말 센터"
   },
   "importChromiumAliasPreamble": {
     "message": "The process is exactly the same as importing from Google Chrome.",
@@ -3736,9 +3799,6 @@
   },
   "restrictedItemTypePolicy": {
     "message": "Remove card item type"
-  },
-  "restrictedItemTypePolicyDesc": {
-    "message": "Do not allow members to create card item types. Existing cards will be automatically removed."
   },
   "restrictedItemTypePolicyDescV2": {
     "message": "Do not allow members to create and store credit card items in their vaults. When this policy is turned on, existing cards will be automatically hidden."
@@ -4135,12 +4195,6 @@
   },
   "instructions": {
     "message": "안내사항"
-  },
-  "passwordlessLogin": {
-    "message": "Passwordless login"
-  },
-  "multifactorAuthentication": {
-    "message": "Multifactor authentication"
   },
   "exposedPasswordsReport": {
     "message": "노출된 비밀번호 보고서"
@@ -4912,6 +4966,9 @@
   },
   "chooseYourPlan": {
     "message": "요금제를 선택하세요"
+  },
+  "choosePlan": {
+    "message": "Choose plan"
   },
   "users": {
     "message": "사용자"
@@ -6793,7 +6850,7 @@
   "openOrgInviteAcceptFailed": {
     "message": "Unable to accept invitation. Ask an organization admin to send a new invitation link."
   },
-  "openOrgInviteAcceptFailedTitle": {
+  "cannotAcceptInvitation": {
     "message": "Cannot accept invitation"
   },
   "openOrgInviteAcceptAlreadyMember": {
@@ -7369,6 +7426,21 @@
       }
     }
   },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Check your email to finish joining $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
+  },
+  "inviteSentToEmail": {
+    "message": "Invite sent to email"
+  },
   "acceptPolicies": {
     "message": "이 박스를 체크하면 다음에 동의하는 것으로 간주됩니다:"
   },
@@ -7638,17 +7710,11 @@
   "twoStepLoginPolicyDescV2": {
     "message": "Require members to set up two-step login. This policy won't be enforced for owners and admins."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "2단계 로그인을 활성화하지 않은 단체 맴버는 단체에서 제거되며 변경 사항에 대한 이메일 알림을 받습니다."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "Enabling this policy will revoke any users who do not have two-step login enabled on their accounts. Affected users will be notified by email."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "사용자 계정에 대해서 2단계 로그인을 요구하는 단체의 멤버입니다. 모든 2단계 로그인 수단을 비활성화한다면 단체에서 자동으로 제거됩니다."
-  },
-  "passwordGeneratorPolicyDesc": {
-    "message": "비밀번호 생성기 설정에 최소 요구 사항을 설정해주세요."
   },
   "passwordGeneratorPolicyDescV2": {
     "message": "Select a set of minimum requirements for any member-generated passwords."
@@ -7912,9 +7978,6 @@
   "singleOrgDesc": {
     "message": "사용자들이 다른 조직에 가입하지 못하도록 제한합니다."
   },
-  "singleOrgPolicyDesc": {
-    "message": "Restrict members from joining other organizations. This policy is required for organizations that have enabled domain verification."
-  },
   "singleOrgPolicyDescVfo1": {
     "message": "Restrict members from joining other shared or organization vaults.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
@@ -7947,9 +8010,6 @@
     "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
   },
-  "requireSsoPolicyDesc": {
-    "message": "엔터프라이즈 통합 로그인 (SSO) 수단을 사용해서 로그인해야 합니다."
-  },
   "requireSsoPolicyTitle": {
     "message": "Require single sign-on (SSO)"
   },
@@ -7959,15 +8019,19 @@
   "prerequisite": {
     "message": "필요 조건"
   },
-  "requireSsoPolicyReq": {
-    "message": "이 정책을 활성화하기 전에 통합 조직 엔터프라이즈 정책이 활성화되어 있어야합니다."
-  },
   "requireSsoPolicyReqV2": {
     "message": "You must enable the single organization policy before enabling this one."
   },
   "requireSsoPolicyReqV2Vfo1": {
     "message": "You must enable the single organization membership policy before enabling this one.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "You must enable the single organization policy before enabling this one."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "You must enable the single organization membership policy before enabling this one.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "통합 조직 정책이 활성화되지 않았습니다."
@@ -8379,9 +8443,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Prompt members to transfer their items"
   },
@@ -8390,9 +8451,6 @@
   },
   "centralizeDataOwnershipWarningLink": {
     "message": "Learn more about the transfer"
-  },
-  "promptUsersToMoveItems": {
-    "message": "Prompt users to move individual vault items to the organization"
   },
   "promptUsersToMoveItemsCallout": {
     "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
@@ -8605,10 +8663,6 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "Desktop autotype default setting"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "Enable desktop autotype for members. Members will be able to turn autotype off manually in the desktop client."
   },
@@ -8694,9 +8748,6 @@
   "uriMatchDetectionPolicy": {
     "message": "Default URI match detection"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
-  },
   "uriMatchDetectionPolicyDescVfo1": {
     "message": "Set the default URI match detection for all items created by members.",
     "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
@@ -8710,6 +8761,23 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Please select a valid URI match detection option.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "Activate fill assist",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Turn on fill assist by default for all members. This feature uses reviewed, site-specific instructions to improve autofill accuracy on websites known to be difficult to autofill."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Custom autofill rule set"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "By default, fill assist uses Bitwarden's curated rule set. Enter a URL here to override it with your own."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Enter a valid URL",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "$ID$ 정책을 편집했습니다.",
@@ -8725,6 +8793,9 @@
   },
   "estimatedTax": {
     "message": "예상 세금"
+  },
+  "subtotal": {
+    "message": "Subtotal"
   },
   "custom": {
     "message": "사용자 지정"
@@ -9493,9 +9564,6 @@
   "automaticAppLoginWithSSO": {
     "message": "Automatic login with SSO"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "Extend SSO security and convenience to unmanaged apps. When users launch an app from your identity provider, their login details are automatically filled and submitted, creating a one-click, secure flow from the identity provider to the app."
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
   },
@@ -9630,9 +9698,6 @@
   },
   "disableExport": {
     "message": "Remove export"
-  },
-  "disablePersonalVaultExportDescription": {
-    "message": "Do not allow members to export data from their individual vault."
   },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Do not allow members to export data from their individual vaults. This policy won't be enforced for owners and admins."
@@ -11514,6 +11579,9 @@
   },
   "noSharedFoldersAdded": {
     "message": "No shared folders added"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
   },
   "noMembersAdded": {
     "message": "추가된 구성원이 없습니다"
@@ -14134,6 +14202,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Get Secrets Manager"
+  },
   "secureYourInfrastructure": {
     "message": "Secure your infrastructure"
   },
@@ -14848,9 +14919,6 @@
     "message": "Remove Sponsored Families Plan",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
   },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Do not allow members to redeem a Families plan through this organization."
-  },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Do not allow members to redeem a Families plan sponsored by your organization."
   },
@@ -15308,9 +15376,6 @@
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "Do not allow members to unlock their account with a PIN."
-  },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Members will not be allowed to unlock their account with a PIN."
   },
@@ -15698,8 +15763,20 @@
   "providersubCanceledmessage": {
     "message": "To resubscribe, contact Bitwarden Customer Support."
   },
+  "showAll": {
+    "message": "Show all"
+  },
   "showMore": {
     "message": "Show more"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Show less"
@@ -15745,16 +15822,21 @@
   "checkInputFormat": {
     "message": "Check input format for typos."
   },
-  "exampleTaxIdFormat": {
-    "message": "Example $CODE$ format: $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Example tax ID format: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Recognized format: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -15959,6 +16041,9 @@
   "upgradeNow": {
     "message": "Upgrade now"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Get advanced online security with Bitwarden premium."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
   },
@@ -16010,9 +16095,6 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Block account creation for claimed domains"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
-  },
   "blockClaimedDomainAccountCreationDescVfo1": {
     "message": "Prevent account creation from claimed domains.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
@@ -16023,9 +16105,6 @@
   "blockClaimedDomainAccountCreationDescV2Vfo1": {
     "message": "Block members from using your claimed domain to create Bitwarden accounts outside of your organization vault.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
-  },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "A domain must be claimed before activating this policy."
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "Before turning on this policy, you must claim a domain."
@@ -16147,6 +16226,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "Verifying folder integrity"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Verifying attachment integrity"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ item(s) have file attachments with old encryption. Open an item below and go to Attachments to fix it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "Data Recovery and Diagnostics"
@@ -16483,6 +16574,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "Premium subscription credit"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Applied subscription credits"
   },
   "enterpriseMembership": {
     "message": "Enterprise membership"
@@ -17471,6 +17565,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Login"
+  },
+  "orgNameVault": {
+    "message": "$ORGNAME$ vault",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }
