@@ -271,18 +271,10 @@ export default class RuntimeBackground {
     const frameId = sender.frameId;
 
     if (tabId != null && frameId != null) {
-      /**
-       * Because content scripts are injected into all _frames_, frame URI takes precedence over tab URI
-       * to avoid selector collision with coincidentally-matching in-frame structures. `sender.url` is
-       * not a usable source for that: it reports the frame's last _cross-document_ navigation, so a
-       * same-document navigation (`history.pushState` / `replaceState`) leaves it pinned to the URL the
-       * document was committed at. Single-page apps that route after load would otherwise be matched
-       * against their entry URL for the life of the document.
-       *
-       * `webNavigation` tracks same-document navigations, so the frame lookup reports the live URL. The
-       * fallbacks cover a frame the lookup cannot resolve: the tab URI for a top-level frame (also
-       * same-document aware), and `sender.url` as a last resort.
-       */
+      // `frame.url` takes precedence over `tab.url` to minimize selector
+      // collisions between frames with similar in-frame markup. `frame.url`
+      // takes precedence over `sender.url` because the sender's value is pinned
+      // to the frame URI when the port was opened.
       const frameUrl = await BrowserApi.getFrameDetails({ tabId, frameId })
         .then((frame) => frame?.url)
         .catch((): undefined => undefined);
