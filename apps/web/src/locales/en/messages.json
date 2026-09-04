@@ -19042,6 +19042,9 @@
   "pamAccessConnectorDeleted": {
     "message": "Access connector deleted."
   },
+  "pamAccessConnectorRegisterTitle": {
+    "message": "Register access connector"
+  },
   "pamAccessConnectorNamePlaceholder": {
     "message": "e.g. On-prem production server"
   },
@@ -19078,7 +19081,7 @@
   "pamAccessConnectorStatusDisabled": {
     "message": "Disabled"
   },
-  "pamAccessConnectorToken": {
+  "pamAccessConnectorTokenTitle": {
     "message": "Access connector token"
   },
   "pamAccessConnectorTokenWarningTitle": {
@@ -19086,6 +19089,9 @@
   },
   "pamAccessConnectorTokenWarningBody": {
     "message": "This token is shown only once and cannot be retrieved later. Copy it and deliver it to the access connector operator out of band, then paste it into the access connector configuration file. If the token is lost, delete this access connector and register a new one."
+  },
+  "pamAccessConnectorTokenLabel": {
+    "message": "Access connector token"
   },
   "pamAccessConnectorTokenHint": {
     "message": "This token will not be shown again."

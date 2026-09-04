@@ -165,8 +165,8 @@ export type QuartzSchedulePreset = SdkQuartzSchedulePreset;
 
 /**
  * {@link AccessConnectorStatus} under this feature's local `Daemon*` naming (`DaemonRow`,
- * `DaemonsService`, the `daemons/` directory and route segment). Only those identifiers still say
- * daemon; every user-facing string says *access connector*.
+ * `DaemonsService`, the `daemons/` directory and route segment). The alias lets the status type
+ * read alongside them without introducing a second type.
  */
 export const DaemonStatus = AccessConnectorStatus;
 export type DaemonStatus = AccessConnectorStatus;

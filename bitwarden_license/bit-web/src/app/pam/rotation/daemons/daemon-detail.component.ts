@@ -264,7 +264,10 @@ export class DaemonDetailComponent {
     try {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "pamAccessConnectorUnassignConfirmTitle" },
-        content: { key: "pamAccessConnectorUnassignConfirmContent", placeholders: [assignment.name] },
+        content: {
+          key: "pamAccessConnectorUnassignConfirmContent",
+          placeholders: [assignment.name],
+        },
         acceptButtonText: { key: "remove" },
         cancelButtonText: { key: "cancel" },
         type: "warning",
