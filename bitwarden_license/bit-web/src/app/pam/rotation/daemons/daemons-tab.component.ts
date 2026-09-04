@@ -110,12 +110,12 @@ export class DaemonsTabComponent {
 
   protected readonly totalRows = computed(() => this.rows().length);
 
-  /** Navigate to the daemon detail page (sibling of the shell). */
+  /** Navigate to the access-connector detail page (sibling of the shell). */
   protected readonly openDetail = (row: DaemonRow): Promise<boolean> =>
-    this.router.navigate(["..", "daemons", row.id], { relativeTo: this.route });
+    this.router.navigate(["..", "access-connectors", row.id], { relativeTo: this.route });
 
   /**
-   * Open the daemon registration dialog and refresh the shared list on success.
+   * Open the access-connector registration dialog and refresh the shared list on success.
    * Owned by the empty state; the shell's header button covers the non-empty list.
    */
   protected readonly registerDaemon = async (): Promise<void> => {
@@ -128,7 +128,7 @@ export class DaemonsTabComponent {
       await this.daemonsService.registerCompleted(orgId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamDaemonRegistered"),
+        message: this.i18nService.t("pamAccessConnectorRegistered"),
       });
     }
   };
@@ -148,7 +148,7 @@ export class DaemonsTabComponent {
       await this.daemonsService.assign(row.daemon, asUuid<TargetSystemId>(targetSystemId));
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamDaemonAssigned"),
+        message: this.i18nService.t("pamAccessConnectorAssigned"),
       });
     } catch (e) {
       this.showError(e);
@@ -161,8 +161,8 @@ export class DaemonsTabComponent {
     targetName: string,
   ): Promise<void> => {
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamDaemonUnassignConfirmTitle" },
-      content: { key: "pamDaemonUnassignConfirmContent", placeholders: [targetName] },
+      title: { key: "pamAccessConnectorUnassignConfirmTitle" },
+      content: { key: "pamAccessConnectorUnassignConfirmContent", placeholders: [targetName] },
       acceptButtonText: { key: "remove" },
       cancelButtonText: { key: "cancel" },
       type: "warning",
@@ -174,7 +174,7 @@ export class DaemonsTabComponent {
       await this.daemonsService.unassign(daemon, asUuid<TargetSystemId>(targetSystemId));
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamDaemonUnassigned"),
+        message: this.i18nService.t("pamAccessConnectorUnassigned"),
       });
     } catch (e) {
       this.showError(e);
@@ -183,9 +183,9 @@ export class DaemonsTabComponent {
 
   protected readonly disable = async (row: DaemonRow): Promise<void> => {
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamDaemonDisableConfirmTitle" },
-      content: { key: "pamDaemonDisableConfirmContent", placeholders: [row.name] },
-      acceptButtonText: { key: "pamDaemonDisable" },
+      title: { key: "pamAccessConnectorDisableConfirmTitle" },
+      content: { key: "pamAccessConnectorDisableConfirmContent", placeholders: [row.name] },
+      acceptButtonText: { key: "pamAccessConnectorDisable" },
       cancelButtonText: { key: "cancel" },
       type: "warning",
     });
@@ -196,7 +196,7 @@ export class DaemonsTabComponent {
       await this.daemonsService.setEnabled(row.daemon, false);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamDaemonDisabled"),
+        message: this.i18nService.t("pamAccessConnectorDisabled"),
       });
     } catch (e) {
       this.showError(e);
@@ -208,7 +208,7 @@ export class DaemonsTabComponent {
       await this.daemonsService.setEnabled(row.daemon, true);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamDaemonEnabled"),
+        message: this.i18nService.t("pamAccessConnectorEnabled"),
       });
     } catch (e) {
       this.showError(e);
@@ -217,8 +217,8 @@ export class DaemonsTabComponent {
 
   protected readonly confirmDelete = async (row: DaemonRow): Promise<void> => {
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamDaemonDeleteConfirmTitle" },
-      content: { key: "pamDaemonDeleteConfirmContent", placeholders: [row.name] },
+      title: { key: "pamAccessConnectorDeleteConfirmTitle" },
+      content: { key: "pamAccessConnectorDeleteConfirmContent", placeholders: [row.name] },
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
       type: "danger",
@@ -230,7 +230,7 @@ export class DaemonsTabComponent {
       await this.daemonsService.delete(row.daemon);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamDaemonDeleted"),
+        message: this.i18nService.t("pamAccessConnectorDeleted"),
       });
     } catch (e) {
       this.showError(e);

@@ -28,7 +28,7 @@ describe("DaemonsTabComponent", () => {
     return {
       id: connectorId("daemon-1"),
       name: "Test Daemon",
-      statusLabelKey: "pamDaemonStatusEnabled",
+      statusLabelKey: "pamAccessConnectorStatusEnabled",
       isConnected: true,
       assignmentNames: [],
       enabled: true,
@@ -108,7 +108,7 @@ describe("DaemonsTabComponent", () => {
     await component.openDetail(row);
 
     expect(navigateSpy).toHaveBeenCalledWith(
-      ["..", "daemons", connectorId("daemon-9")],
+      ["..", "access-connectors", connectorId("daemon-9")],
       expect.objectContaining({ relativeTo: expect.anything() }),
     );
   });

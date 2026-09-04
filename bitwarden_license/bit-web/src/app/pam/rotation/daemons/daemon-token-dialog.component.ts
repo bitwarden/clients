@@ -56,7 +56,7 @@ export class DaemonTokenDialogComponent {
     this.platformUtilsService.copyToClipboard(this.params.token);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("pamDaemonTokenCopied"),
+      message: this.i18nService.t("pamAccessConnectorTokenCopied"),
     });
   }
 

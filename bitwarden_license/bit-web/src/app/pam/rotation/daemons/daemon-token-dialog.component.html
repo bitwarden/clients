@@ -1,15 +1,15 @@
 <bit-dialog
-  [title]="'pamDaemonTokenTitle' | i18n"
+  [title]="'pamAccessConnectorTokenTitle' | i18n"
   [subtitle]="params.daemonName"
   dialogSize="large"
 >
   <ng-container bitDialogContent>
-    <bit-callout type="warning" [title]="'pamDaemonTokenWarningTitle' | i18n">
-      {{ "pamDaemonTokenWarningBody" | i18n }}
+    <bit-callout type="warning" [title]="'pamAccessConnectorTokenWarningTitle' | i18n">
+      {{ "pamAccessConnectorTokenWarningBody" | i18n }}
     </bit-callout>
 
     <bit-form-field class="tw-mb-0">
-      <bit-label>{{ "pamDaemonTokenLabel" | i18n }}</bit-label>
+      <bit-label>{{ "pamAccessConnectorTokenLabel" | i18n }}</bit-label>
       <input
         bitInput
         type="text"
@@ -22,11 +22,11 @@
         type="button"
         bitIconButton="bwi-clone"
         bitSuffix
-        [label]="'pamDaemonTokenCopy' | i18n"
+        [label]="'pamAccessConnectorTokenCopy' | i18n"
         (click)="copyToken()"
         id="daemon-token-dialog_button_copy"
       ></button>
-      <bit-hint>{{ "pamDaemonTokenHint" | i18n }}</bit-hint>
+      <bit-hint>{{ "pamAccessConnectorTokenHint" | i18n }}</bit-hint>
     </bit-form-field>
   </ng-container>
 
