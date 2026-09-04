@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, forwardRef, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  forwardRef,
+  inject,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
@@ -86,6 +92,54 @@ function intervalStep(field: string, unit: ScheduleIntervalUnit): number | null 
 }
 
 /**
+ * Preset → the key of the sentence describing what it does.
+ *
+ * `Custom` is absent by design: an arbitrary Quartz expression cannot be described without a cron
+ * parser, and cron semantics belong to the SDK. Anything not in this table falls through to
+ * echoing the expression itself.
+ */
+const SCHEDULE_ECHO_KEYS: Partial<Record<QuartzSchedulePreset, string>> = {
+  [QuartzSchedulePreset.None]: "pamRotationScheduleEchoNone",
+  [QuartzSchedulePreset.Hourly]: "pamRotationScheduleEchoHourly",
+  [QuartzSchedulePreset.Every6Hours]: "pamRotationScheduleEchoEvery6Hours",
+  [QuartzSchedulePreset.Daily]: "pamRotationScheduleEchoDaily",
+  [QuartzSchedulePreset.Weekly]: "pamRotationScheduleEchoWeekly",
+  [QuartzSchedulePreset.Monthly]: "pamRotationScheduleEchoMonthly",
+};
+
+/**
+ * Interval unit → the sentence for a count of one, and the sentence for any other count.
+ *
+ * A whole sentence per plural form: substitution here is positional and the repository has no
+ * plural helper. The unit is not substituted into one shared sentence, because the only unit
+ * strings available are the builder's `bit-option` labels — capitalised and always plural — and
+ * lower-casing a noun in code is wrong in the languages that capitalise it.
+ */
+const INTERVAL_ECHO_KEYS: Readonly<Record<ScheduleIntervalUnit, { one: string; many: string }>> =
+  Object.freeze({
+    [ScheduleIntervalUnit.Days]: {
+      one: "pamRotationScheduleEchoIntervalDay",
+      many: "pamRotationScheduleEchoIntervalDays",
+    },
+    [ScheduleIntervalUnit.Months]: {
+      one: "pamRotationScheduleEchoIntervalMonth",
+      many: "pamRotationScheduleEchoIntervalMonths",
+    },
+  });
+
+/** What the echo line renders: a message key, plus the parameters that message takes. */
+interface ScheduleEcho {
+  key: string;
+  p1?: string | number;
+  p2?: string | number;
+}
+
+/** A clock reading as `<input type="time">` and the SDK's presets both spell it: zero-padded. */
+function timeOfDay(hh: number, mm: number): string {
+  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+}
+
+/**
  * CVA sub-editor for a Quartz cron schedule (or null for "no schedule").
  *
  * Presents a preset `bit-select` (None / Hourly / Every 6 hours / Daily / Weekly /
@@ -133,6 +187,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
   private readonly fb = inject(FormBuilder);
   private readonly i18n = inject(I18nService);
   private readonly rotationSdk = inject(RotationSdkService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   /** Preset → cron expression, resolved once from the SDK. Empty until that read lands. */
   private readonly cronByPreset = new Map<QuartzSchedulePreset, string>();
@@ -234,8 +289,10 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
         this.cronByPreset.set(preset, cron);
       }
     });
-    // A preset selected before the table landed emitted null; re-emit now that it resolves.
+    // A preset selected before the table landed emitted null, and its echo stayed silent; re-emit
+    // and repaint now that it resolves.
     this.emitValue();
+    this.cdr.markForCheck();
   }
 
   /** Re-checks the custom expression's shape and re-runs validation once the verdict is in. */
@@ -244,6 +301,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     // An empty field is "no schedule", not a malformed one — see validate().
     this.cronShapeValid = raw === "" || (await this.rotationSdk.isLikelyQuartzCron(raw));
     this.onValidatorChange();
+    this.cdr.markForCheck();
   }
 
   // --- ControlValueAccessor ---
@@ -260,8 +318,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
       this.presetControl.setValue(preset, { emitEvent: false });
       this.resetCustom();
       this.resetInterval();
-      this.cronShapeValid = true;
-      this.onValidatorChange();
+      this.acceptKnownShape();
       return;
     }
 
@@ -273,8 +330,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
       this.applyCountBounds(interval.unit);
       this.intervalCountControl.setValue(interval.count, { emitEvent: false });
       this.intervalTimeControl.setValue(interval.time, { emitEvent: false });
-      this.cronShapeValid = true;
-      this.onValidatorChange();
+      this.acceptKnownShape();
       return;
     }
 
@@ -282,6 +338,13 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     this.resetInterval();
     this.customControl.setValue(value ?? "", { emitEvent: false });
     await this.refreshCronShape(value ?? "");
+  }
+
+  /** Settles a value this component recognised: nothing is left for the shape check to judge. */
+  private acceptKnownShape(): void {
+    this.cronShapeValid = true;
+    this.onValidatorChange();
+    this.cdr.markForCheck();
   }
 
   private resetCustom(): void {
@@ -365,6 +428,37 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     return this.cronByPreset.get(preset) ?? null;
   }
 
+  /**
+   * The plain-English echo rendered beneath the control, or `null` when there is nothing honest to
+   * say — an incomplete builder and an empty or malformed custom expression each describe no
+   * schedule.
+   */
+  protected get scheduleEcho(): ScheduleEcho | null {
+    const preset = this.presetControl.value;
+    if (preset === SCHEDULE_INTERVAL_MODE) {
+      const parts = this.intervalParts();
+      if (parts == null) {
+        return null;
+      }
+      const keys = INTERVAL_ECHO_KEYS[parts.unit];
+      const time = timeOfDay(parts.hh, parts.mm);
+      return parts.count === 1
+        ? { key: keys.one, p1: time }
+        : { key: keys.many, p1: parts.count, p2: time };
+    }
+    const key = SCHEDULE_ECHO_KEYS[preset];
+    if (key != null) {
+      // Until a named preset's expression is in hand, currentValue emits null — no schedule at
+      // all — so its sentence would be describing something the form is not about to save.
+      return preset === QuartzSchedulePreset.None || this.cronByPreset.has(preset) ? { key } : null;
+    }
+    if (!this.cronShapeValid) {
+      return null;
+    }
+    const cron = this.currentValue;
+    return cron == null ? null : { key: "pamRotationScheduleEchoCustom", p1: cron };
+  }
+
   private countValidators(unit: ScheduleIntervalUnit): ValidatorFn[] {
     return [
       Validators.required,
@@ -445,7 +539,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     if (hh == null || mm == null) {
       return null;
     }
-    const time = `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+    const time = timeOfDay(hh, mm);
 
     if (month === "*") {
       if (dom === "1") {
