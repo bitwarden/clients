@@ -62,11 +62,11 @@ export const rotationRoutes: Routes = [
     component: RotationShellComponent,
     providers: [RotationConfigsService, TargetSystemsService, DaemonsService, OrgCiphersService],
     children: [
-      { path: "", pathMatch: "full", redirectTo: "managed-credentials" },
+      { path: "", pathMatch: "full", redirectTo: "daemons" },
       {
-        path: "managed-credentials",
-        component: ManagedCredentialsTabComponent,
-        data: { titleId: "pamRotationTabManagedCredentials" },
+        path: "daemons",
+        component: DaemonsTabComponent,
+        data: { titleId: "pamRotationTabDaemons" },
       },
       {
         path: "target-systems",
@@ -74,9 +74,9 @@ export const rotationRoutes: Routes = [
         data: { titleId: "pamRotationTabTargetSystems" },
       },
       {
-        path: "daemons",
-        component: DaemonsTabComponent,
-        data: { titleId: "pamRotationTabDaemons" },
+        path: "managed-credentials",
+        component: ManagedCredentialsTabComponent,
+        data: { titleId: "pamRotationTabManagedCredentials" },
       },
     ],
   },
