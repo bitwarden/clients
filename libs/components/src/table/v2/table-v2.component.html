@@ -4,11 +4,6 @@
       role="columnheader"
       class="tw-mb-0 tw-flex tw-h-12 tw-cursor-pointer tw-items-center tw-px-4 tw-py-0"
     >
-      <!--
-        Single-select has no select-all: `toggleAll` could only ever keep one row, so the checkbox
-        would sit permanently indeterminate and never clear. The cell still renders to keep the
-        header aligned with the rows' checkbox column.
-      -->
       @if (sel.multiSelect) {
         <input
           bitCheckbox

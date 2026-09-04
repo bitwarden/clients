@@ -7,10 +7,7 @@ export type TableSelectionConfig<T> = {
   initial?: readonly T[];
   /** Which rows may be selected. Defaults to "every row". */
   canSelect?: (row: T) => boolean;
-  /**
-   * Upper bound on how many rows may be selected at once. Unlimited by default. Bounds the
-   * selection itself, so the checkboxes always show exactly what a consumer will act on.
-   */
+  /** Upper bound on how many rows may be selected at once. */
   max?: number;
   /**
    * The rows in scope for select-all / indeterminate — the table's filtered
@@ -59,33 +56,21 @@ export class TableSelectionModel<T> {
     this.max === Infinity ? this.selectable() : this.selectable().slice(0, this.max),
   );
 
-  /**
-   * Whether every selectable in-scope row is selected. Measured over the full set even under a
-   * `max`, so a capped select-all reads as partial rather than claiming rows that are unchecked.
-   */
+  /** Whether every selectable in-scope row is selected. */
   readonly allSelected = computed(() => {
     const rows = this.selectable();
     return rows.length > 0 && rows.every((row) => this.isSelected(row));
   });
 
-  /**
-   * Whether some but not all selectable in-scope rows are selected. Measured over the full in-scope
-   * set: bounding it by `max` would read as empty while a row past the cap window sits checked.
-   */
+  /** Whether some but not all selectable in-scope rows are selected. */
   readonly indeterminate = computed(
     () => this.selectable().some((row) => this.isSelected(row)) && !this.allSelected(),
   );
 
-  /**
-   * Whether the cap is reached. Bind unselected rows' checkbox `disabled` to this: left enabled, a
-   * rejected click flips `checked` and Angular's unchanged `[checked]` never writes it back.
-   */
+  /** Whether the cap is reached. Bind unselected rows' checkbox `disabled` to this: left enabled */
   readonly full = computed(() => this.count() >= this.max);
 
-  /**
-   * Whether more than one row may be selected at a time. The table skips select-all when false,
-   * since `toggleAll` could only keep one row and the header would sit permanently indeterminate.
-   */
+  /** Whether more than one row may be selected at a time. The table skips select-all when false */
   get multiSelect(): boolean {
     return this.multiple;
   }
@@ -100,10 +85,7 @@ export class TableSelectionModel<T> {
     return this.canSelect(row);
   }
 
-  /**
-   * Selects rows, ignoring any that aren't {@link isSelectable}. Single-select keeps only the last;
-   * stops at the configured `max`.
-   */
+  /** Selects rows, ignoring any that aren't {@link isSelectable}. */
   select(...rows: T[]): void {
     const allowed = rows.filter((row) => this.canSelect(row));
     if (allowed.length === 0) {
@@ -146,8 +128,6 @@ export class TableSelectionModel<T> {
    */
   toggleAll(): void {
     if (this.count() >= this.max) {
-      // No budget left, so clear outright — including rows held from a previous scope, since those
-      // are what consumed it.
       this.clear();
     } else if (this.allSelected()) {
       this.deselect(...this.selectable());

@@ -308,10 +308,7 @@ export class VaultNextComponent {
     );
   });
 
-  /**
-   * Drops the selection when the side nav rescopes the page: Angular reuses this component across
-   * destinations, so a stale selection would run actions against items from the vault just left.
-   */
+  /** Used to ensure the selection is cleared when the side nav rescopes the page */
   private readonly lastScopeKey = signal<string | undefined>(undefined);
 
   private readonly clearSelectionOnScopeChange = effect(() => {
@@ -319,7 +316,6 @@ export class VaultNextComponent {
     const scope = this.vaultScope();
     const key = `${scope.type}:${scope.type === VaultScopeType.Organization ? scope.organizationId : ""}`;
     untracked(() => {
-      // Skip the first run: nothing is selected yet, so clearing would be a misleading no-op.
       if (this.lastScopeKey() !== undefined && this.lastScopeKey() !== key) {
         this.batchBarService.clearSelection();
       }
