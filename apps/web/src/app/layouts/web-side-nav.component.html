@@ -12,7 +12,9 @@
   </ng-container>
 
   <ng-container slot="account">
-    <app-account-menu [expanded]="sideNavService.open()"></app-account-menu>
+    @if (vfo1FoundationEnabled()) {
+      <app-account-menu [expanded]="sideNavService.open()"></app-account-menu>
+    }
   </ng-container>
 
   <ng-container slot="callout">
