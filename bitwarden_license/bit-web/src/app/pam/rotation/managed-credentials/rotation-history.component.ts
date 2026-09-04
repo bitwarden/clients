@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
-import { BadgeModule, BadgeVariant, TableModule } from "@bitwarden/components";
+import { BadgeModule, BadgeVariant, CalloutModule, TableModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
@@ -23,7 +23,7 @@ import {
   selector: "app-rotation-history",
   templateUrl: "./rotation-history.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, BadgeModule, TableModule, I18nPipe],
+  imports: [CommonModule, BadgeModule, CalloutModule, TableModule, I18nPipe],
 })
 export class RotationHistoryComponent {
   readonly jobs = input.required<RotationJob[]>();
@@ -158,5 +158,41 @@ export class RotationHistoryComponent {
     }
 
     return null;
+  }
+
+  /**
+   * The one plain-cause key that explains a whole job, or `null` when the job's attempts do not
+   * agree on one.
+   *
+   * `failureReason` is per-attempt and `RotationJob` has no failure field, so a job-level cause is a
+   * derivation, not data. It is only safe to state once when every attempt this screen *recognises*
+   * resolves to the same key: a job whose first attempt could not reach the target and whose retry
+   * the directory refused failed two ways, and claiming one cause for it would misdescribe why an
+   * access change failed. Attempts whose reason is unrecognised are skipped rather than
+   * disqualifying - they keep their own raw reason on their own row.
+   *
+   * A job that is still running, or that retried and succeeded, carries errored attempts too, so
+   * the job's own status gates the derivation: only a job that finished failed has a cause to
+   * state.
+   */
+  protected jobFailureCauseLabelKey(job: RotationJob): string | null {
+    if (job.status !== RotationJobStatus.Failed && job.status !== RotationJobStatus.TimedOut) {
+      return null;
+    }
+
+    let shared: string | null = null;
+
+    for (const attempt of job.attempts) {
+      const key = attempt.failureReason ? this.failureCauseLabelKey(attempt.failureReason) : null;
+      if (key === null) {
+        continue;
+      }
+      if (shared !== null && shared !== key) {
+        return null;
+      }
+      shared = key;
+    }
+
+    return shared;
   }
 }
