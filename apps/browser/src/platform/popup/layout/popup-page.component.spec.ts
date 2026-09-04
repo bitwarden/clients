@@ -73,7 +73,12 @@ describe("PopupPageComponent", () => {
   it("pads the scroll region so the floating action does not occlude the last row", () => {
     const wrapper = floatingActionWrapper();
 
-    expect(wrapper.classList).toContain("[&:has([slot=floating-action])~div]:!tw-pb-20");
+    expect(wrapper.classList).toContain(
+      "[&:has([slot=floating-action])~div:not(:has(cdk-virtual-scroll-viewport))]:!tw-pb-20",
+    );
+    expect(wrapper.classList).toContain(
+      "[&:has([slot=floating-action])~div_cdk-virtual-scroll-viewport>div]:!tw-pb-20",
+    );
     expect(wrapper.matches(":has([slot=floating-action])")).toBe(true);
     expect(wrapper.nextElementSibling).toBe(scrollRegion());
 

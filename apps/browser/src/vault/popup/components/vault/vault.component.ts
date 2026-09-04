@@ -19,6 +19,7 @@ import {
   withLatestFrom,
 } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType, PremiumUpsellService } from "@bitwarden/angular/vault";
@@ -66,6 +67,7 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
+import { VaultPopupListTableFiltersService } from "../../services/vault-popup-list-table-filters.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { AtRiskPasswordCalloutComponent } from "../at-risk-callout/at-risk-password-callout.component";
@@ -79,8 +81,10 @@ import {
   NewItemDropdownComponent,
   NewItemInitialValues,
 } from "./new-item-dropdown/new-item-dropdown.component";
+import { AppVaultFabComponent } from "./vault-fab/vault-fab.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultPopupListTableComponent } from "./vault-popup-list-table/vault-popup-list-table.component";
+
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
@@ -111,6 +115,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     VaultListItemsContainerComponent,
     ButtonModule,
     NewItemDropdownComponent,
+    AppVaultFabComponent,
     ScrollingModule,
     VaultHeaderComponent,
     AtRiskPasswordCalloutComponent,
@@ -218,6 +223,15 @@ export class VaultComponent implements OnInit, OnDestroy {
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
+  protected popupListFiltersValues = this.vaultPopupListTableFiltersService.cachedFilters;
+
+  protected organizations$ = this.activeUserId$.pipe(
+    switchMap((userId) => this.organizationService.memberOrganizations$(userId)),
+  );
+  protected collections$ = this.activeUserId$.pipe(
+    switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+  );
+
   /**
    * Whether a new cipher can be created in the currently selected organization.
    * `false` when the target organization is suspended, since items cannot be saved to it.
@@ -247,6 +261,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   constructor(
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupListFiltersService: VaultPopupListFiltersService,
+    private vaultPopupListTableFiltersService: VaultPopupListTableFiltersService,
     private vaultScrollPositionService: VaultPopupScrollPositionService,
     private vaultPopupLoadingService: VaultPopupLoadingService,
     private accountService: AccountService,
@@ -268,6 +283,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private organizationService: InternalOrganizationServiceAbstraction,
     private premiumUpsellService: PremiumUpsellService,
     private scrollLayoutService: ScrollLayoutService,
+    private collectionService: CollectionService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,

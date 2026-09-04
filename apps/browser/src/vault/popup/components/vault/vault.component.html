@@ -1,15 +1,25 @@
 <popup-page [hideOverflow]="showSkeletonsLoaders$ | async">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
-      <app-new-item-dropdown
-        [initialValues]="newItemItemValues$ | async"
-        [canCreateCipher]="(canCreateCipher$ | async) ?? true"
-      ></app-new-item-dropdown>
+      @if (!vfo1Enabled()) {
+        <app-new-item-dropdown
+          [initialValues]="newItemItemValues$ | async"
+          [canCreateCipher]="(canCreateCipher$ | async) ?? true"
+        ></app-new-item-dropdown>
+      }
 
       <app-pop-out></app-pop-out>
       <app-current-account></app-current-account>
     </ng-container>
   </popup-header>
+  @if (vfo1Enabled() && (canCreateCipher$ | async)) {
+    <app-vault-fab
+      slot="floating-action"
+      [initialValues]="popupListFiltersValues()"
+      [organizations]="(organizations$ | async) ?? []"
+      [collections]="(collections$ | async) ?? []"
+    ></app-vault-fab>
+  }
 
   @if (vaultState === VaultStateEnum.Empty) {
     <vault-fade-in-out>

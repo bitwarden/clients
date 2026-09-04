@@ -102,7 +102,7 @@ export class NewItemDropdownComponent implements OnInit {
 
     return {
       type: type.toString(),
-      collectionId: this.initialValues?.collectionId,
+      collectionIds: this.initialValues?.collectionId,
       organizationId: this.initialValues?.organizationId,
       folderId: this.initialValues?.folderId,
       ...loginDetails,
@@ -118,7 +118,7 @@ export class NewItemDropdownComponent implements OnInit {
       queryParams: {
         folderId: this.initialValues?.folderId,
         organizationId: this.initialValues?.organizationId,
-        collectionId: this.initialValues?.collectionId,
+        collectionIds: this.initialValues?.collectionId,
       },
     });
   }
