@@ -28,10 +28,10 @@ export type AssignTargetDialogParams = {
   options: TargetSystem[];
   /**
    * True when the organization has no active automatic target system at all, as opposed to
-   * having some that are all already assigned to this daemon. Optional: a caller that does not
-   * know gets the existing, weaker message.
+   * having some that are all already assigned to this daemon. `options` is empty either way,
+   * so only the caller can tell the two apart.
    */
-  noEligibleTargets?: boolean;
+  noActiveAutomaticSystems: boolean;
 };
 
 /**
@@ -60,6 +60,9 @@ export type AssignTargetDialogResult = string | undefined;
 })
 export class AssignTargetDialogComponent {
   protected readonly params = inject<AssignTargetDialogParams>(DIALOG_DATA);
+  private readonly dialogRef = inject<DialogRef<AssignTargetDialogResult>>(DialogRef);
+  private readonly fb = inject(FormBuilder);
+
   protected readonly targetSystemsRoute = [
     "/organizations",
     this.params.daemon.organizationId,
@@ -67,8 +70,6 @@ export class AssignTargetDialogComponent {
     "rotation",
     "target-systems",
   ];
-  private readonly dialogRef = inject<DialogRef<AssignTargetDialogResult>>(DialogRef);
-  private readonly fb = inject(FormBuilder);
 
   protected readonly form = this.fb.nonNullable.group({
     targetSystemId: ["", [Validators.required]],

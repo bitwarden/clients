@@ -33,8 +33,14 @@ describe("AssignTargetDialogComponent", () => {
     assignments: [],
   } as unknown as AccessConnector;
 
-  function createComponent(options: TargetSystem[], noEligibleTargets?: boolean): Promise<void> {
-    const params: AssignTargetDialogParams = { daemon, options, noEligibleTargets };
+  const targetSystemsLink = () =>
+    fixture.nativeElement.querySelector("#assign-target-dialog_anchor_target-systems");
+
+  function createComponent(
+    options: TargetSystem[],
+    noActiveAutomaticSystems = false,
+  ): Promise<void> {
+    const params: AssignTargetDialogParams = { daemon, options, noActiveAutomaticSystems };
     dialogRef = {
       close: jest.fn().mockReturnValue(Promise.resolve()),
     } as unknown as jest.Mocked<DialogRef<string | undefined>>;
@@ -83,18 +89,14 @@ describe("AssignTargetDialogComponent", () => {
 
   it("links to the Target systems tab when none exist", async () => {
     await createComponent([], true);
-    const anchor = fixture.nativeElement.querySelector(
-      "#assign-target-dialog_anchor_target-systems",
-    ) as HTMLAnchorElement | null;
-    expect(anchor?.getAttribute("href")).toBe("/organizations/org-1/pam/rotation/target-systems");
+    expect(targetSystemsLink().getAttribute("href")).toBe(
+      "/organizations/org-1/pam/rotation/target-systems",
+    );
   });
 
   it("dismisses the dialog when the Target systems link is followed", async () => {
     await createComponent([], true);
-    const anchor = fixture.nativeElement.querySelector(
-      "#assign-target-dialog_anchor_target-systems",
-    ) as HTMLAnchorElement;
-    anchor.click();
+    targetSystemsLink().click();
     expect(dialogRef.close).toHaveBeenCalledWith(undefined);
   });
 
