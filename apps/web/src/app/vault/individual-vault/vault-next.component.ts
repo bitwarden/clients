@@ -37,7 +37,9 @@ import {
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
+  MY_ITEMS_ROUTE,
   organizationInScope,
+  parseVaultScope,
   resolveVaultScope,
   scopedCollectionSegment,
   VaultScopeType,
@@ -126,9 +128,13 @@ export class VaultNextComponent {
       ALL_ITEMS_SCOPE,
   );
 
+  protected readonly parsedVaultScope = computed(
+    () => parseVaultScope(this.vaultIdParam(), this.collectionSegment()) ?? ALL_ITEMS_SCOPE,
+  );
+
   protected readonly collectionSelected = computed(() => {
-    const scope = this.vaultScope();
-    return scope.type === VaultScopeType.Organization && scope.collectionId != null;
+    const seg = this.collectionSegment();
+    return seg != null && seg !== MY_ITEMS_ROUTE;
   });
 
   /**

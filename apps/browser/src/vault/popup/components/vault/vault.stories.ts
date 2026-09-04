@@ -246,6 +246,11 @@ const FILTER_ORGANIZATION_OPTIONS = [
   { value: { id: STORY_ORG_ID } as Organization, label: "Acme Co", icon: "bwi-business" as const },
 ];
 
+// The names the collection groups are labeled from, keyed by organization id.
+const FILTER_ORGANIZATION_NAMES = new Map(
+  FILTER_ORGANIZATION_OPTIONS.map((option) => [option.value.id, option.label]),
+);
+
 const FILTER_COLLECTION_OPTIONS = [
   {
     value: { id: "00000000-0000-4000-8000-0000000000fa", name: "Engineering" } as CollectionView,
@@ -456,6 +461,7 @@ const buildProviders = (args: StoryArgs) => {
         selectedOrganizations: signal<Organization[]>([]),
         cipherTypes$: of(FILTER_CIPHER_TYPE_OPTIONS),
         organizations$: of(FILTER_ORGANIZATION_OPTIONS),
+        organizationNames$: of(FILTER_ORGANIZATION_NAMES),
         collections$: of(FILTER_COLLECTION_OPTIONS),
         folders$: of(FILTER_FOLDER_OPTIONS),
       },

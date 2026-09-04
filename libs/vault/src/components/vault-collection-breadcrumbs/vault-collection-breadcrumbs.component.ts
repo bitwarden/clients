@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute } from "@angular/router";
 import { switchMap } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
@@ -11,23 +10,22 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { BreadcrumbsModule, IconTileComponent, IconTileOptions } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { navIconTile } from "../../models/vault-icon-tile";
 import {
-  parseVaultScope,
-  SHARED_FOLDERS_ROUTE,
   sharedFoldersCommands,
   vaultScopeCommands,
+  VaultScope,
   VaultScopeType,
 } from "../../models/vault-scope";
-import { Vfo1I18nPipe } from "../../pipes/vfo1-i18n.pipe";
 import { VaultNavService } from "../../services/vault-nav.service";
 
 @Component({
   selector: "vault-collection-breadcrumbs",
   templateUrl: "./vault-collection-breadcrumbs.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BreadcrumbsModule, IconTileComponent, Vfo1I18nPipe],
+  imports: [BreadcrumbsModule, IconTileComponent, I18nPipe],
   host: {
     // `bit-breadcrumbs` sizes itself to its container, so this wrapper has to be one.
     class: "tw-flex tw-w-full tw-min-w-0",
@@ -37,22 +35,19 @@ export class VaultCollectionBreadcrumbsComponent {
   private readonly accountService = inject(AccountService);
   private readonly collectionService = inject(CollectionService);
   private readonly vaultNavService = inject(VaultNavService);
-  private readonly route = inject(ActivatedRoute);
+
+  readonly scope = input.required<VaultScope>();
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
-  private readonly routeParams = toSignal(this.route.paramMap);
-
-  private readonly vaultIdParam = computed(() => this.routeParams()?.get("vaultId"));
-
-  /** Raw collectionId from URL params — null for my-items (which lives in route data, not params). */
-  protected readonly collectionIdParam = computed(() => this.routeParams()?.get("collectionId"));
-
-  private readonly parsedScope = computed(() => parseVaultScope(this.vaultIdParam()));
-
   private readonly organizationId = computed(() => {
-    const scope = this.parsedScope();
-    return scope?.type === VaultScopeType.Organization ? scope.organizationId : undefined;
+    const s = this.scope();
+    return s.type === VaultScopeType.Organization ? s.organizationId : undefined;
+  });
+
+  private readonly collectionId = computed(() => {
+    const s = this.scope();
+    return s.type === VaultScopeType.Organization ? s.collectionId : undefined;
   });
 
   private readonly vaultNav = toSignal(
@@ -103,7 +98,7 @@ export class VaultCollectionBreadcrumbsComponent {
   );
 
   private readonly sharedFolderNode = computed(() => {
-    const collectionId = this.collectionIdParam();
+    const collectionId = this.collectionId();
     if (collectionId == null) {
       return undefined;
     }
@@ -140,13 +135,4 @@ export class VaultCollectionBreadcrumbsComponent {
       collectionId: folder.id,
     });
   }
-
-  protected readonly currentFolderRoute = computed(() => {
-    const vaultId = this.vaultIdParam();
-    const collectionId = this.collectionIdParam();
-    if (!vaultId || !collectionId) {
-      return undefined;
-    }
-    return ["/vault", vaultId, SHARED_FOLDERS_ROUTE, collectionId];
-  });
 }
