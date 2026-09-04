@@ -29,7 +29,12 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import {
+  CompactModeService,
+  DialogRef,
+  DialogService,
+  ScrollLayoutHostDirective,
+} from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { HealthDeleteAtRiskItemDialogComponent } from "./health-delete-at-risk-item-dialog.component";
@@ -53,9 +58,14 @@ console.error = (...args: unknown[]) => {
   originalError(...args);
 };
 
+/**
+ * Mirrors the real page's scroll host: the virtual scroll viewport in the page's content resolves
+ * its scrollable through `ScrollLayoutService`, so without a host it has nothing to measure.
+ */
 @Component({
   selector: "popup-page",
-  template: `<ng-content></ng-content>`,
+  template: `<div bitScrollLayoutHost><ng-content></ng-content></div>`,
+  imports: [ScrollLayoutHostDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockPopupPageComponent {}
@@ -146,6 +156,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
   /** Overrides the status the report mock derives; null means derive it. */
   let status$: BehaviorSubject<VaultHealthReportStatus | null>;
   let cipherViews$: BehaviorSubject<CipherView[]>;
+  let compactEnabled$: BehaviorSubject<boolean>;
   let logService: MockProxy<LogService>;
   let reportService: MockProxy<VaultHealthReportService>;
   let cipherService: MockProxy<CipherService>;
@@ -154,6 +165,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let dialogService: MockProxy<DialogService>;
+  let compactModeService: MockProxy<CompactModeService>;
 
   /**
    * `login.uri` is a getter over `login.uris`, so fixtures have to be real views — an object
@@ -213,7 +225,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
   async function initComponent() {
     fixture = TestBed.createComponent(HealthRiskCategoryDetailComponent);
     fixture.detectChanges();
-    await fixture.whenStable();
+    await settle();
   }
 
   /** The localized title handed to the page header. */
@@ -248,6 +260,11 @@ describe("HealthRiskCategoryDetailComponent", () => {
 
   /** Settles pending work and re-renders. */
   async function settle() {
+    await fixture.whenStable();
+    fixture.detectChanges();
+    // The virtual scroll viewport defers its own init by a microtask, so the rows it renders are
+    // only in the DOM after the pass that follows that microtask. The viewport is created the
+    // first time the list is shown, which can be any of these settles.
     await fixture.whenStable();
     fixture.detectChanges();
   }
@@ -363,6 +380,11 @@ describe("HealthRiskCategoryDetailComponent", () => {
     dialogService = mock<DialogService>();
     dialogService.open.mockReturnValue({ closed: of(undefined) } as DialogRef<unknown>);
 
+    // `enabled$` is a property, not a method, so the mock has to hold the stream itself.
+    compactEnabled$ = new BehaviorSubject<boolean>(false);
+    compactModeService = mock<CompactModeService>();
+    compactModeService.enabled$ = compactEnabled$;
+
     await TestBed.configureTestingModule({
       imports: [HealthRiskCategoryDetailComponent],
       providers: [
@@ -380,6 +402,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: LogService, useValue: logService },
+        { provide: CompactModeService, useValue: compactModeService },
       ],
     })
       .overrideComponent(HealthRiskCategoryDetailComponent, {

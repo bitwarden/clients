@@ -9,6 +9,10 @@
     "message": "Bitwarden - Менеджер паролей",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden - Менеджер паролей Beta",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "Дома, на работе или в пути - Bitwarden всегда защитит ваши пароли, passkeys и конфиденциальную информацию",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -535,6 +539,9 @@
   "foldersFilterTooltip": {
     "message": "Добавить папки к элементам, чтобы отфильтровать их здесь."
   },
+  "sharedFolderFilterTooltip": {
+    "message": "Добавляйте элементы в общую папку для фильтрации здесь."
+  },
   "editItemWithName": {
     "message": "Изменить элемент - $NAME$",
     "placeholders": {
@@ -750,6 +757,15 @@
   },
   "launchWebsite": {
     "message": "Открыть сайт"
+  },
+  "launchWebsiteForName": {
+    "message": "Открыть сайт для $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Сайт"
@@ -1406,17 +1422,29 @@
   "additionalOptions": {
     "message": "Дополнительные настройки"
   },
-  "fillAssistActiveNotice": {
+  "fillAssistActiveNoticeV2": {
     "message": "Автозаполнение использует помощника по заполнению на этой странице."
   },
-  "activateFillAssist": {
-    "message": "Включить помощника по заполнению"
+  "activateFillAssistV2": {
+    "message": "Включить помощник по заполнению"
   },
-  "activateFillAssistDescription": {
-    "message": "Помощник по заполнению повышает точность автозаполнения на поддерживаемых сайтах за счет использования правил, специфичных для конкретного сайта. При использовании этой функции данные не собираются и не сохраняются."
+  "activateFillAssistDescriptionV2": {
+    "message": "Функция помощник по заполнению повышает точность автозаполнения на поддерживаемых сайтах за счет использования правил, специфичных для конкретного сайта. При использовании этой функции данные не собираются и не сохраняются."
   },
-  "aboutFillAssistLabel": {
+  "aboutFillAssistLabelV2": {
     "message": "О помощнике по заполнению"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Allow websites to exclude fields to autofill"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Skip fields that a website marks with the `data-bwignore` attribute."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Allow websites to add fields to autofill"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Use any span elements that a website marks with the `data-bwautofill` attribute."
   },
   "enableContextMenuItem": {
     "message": "Показать опции контекстного меню"
@@ -2737,6 +2765,18 @@
   "noMatchingItems": {
     "message": "Нет подходящих элементов"
   },
+  "noFiltersMatch": {
+    "message": "Нет фильтров, соответствующих \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Очистить поиск"
+  },
   "selected": {
     "message": "Выбрано"
   },
@@ -3182,12 +3222,6 @@
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "Не найдены токен обновления или ключи API. Пожалуйста, попробуйте выполнить выход и повторно авторизоваться."
-  },
-  "desktopSyncVerificationTitle": {
-    "message": "Проверка синхронизации на компьютере"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Пожалуйста, убедитесь, что приложение для компьютера отображает этот отпечаток: "
   },
   "desktopIntegrationDisabledTitle": {
     "message": "Интеграция с браузером не настроена"
@@ -5939,6 +5973,12 @@
   "clearFiltersOrTryAnother": {
     "message": "Очистите фильтры или попробуйте другой поисковый запрос"
   },
+  "noSharedFoldersAdded": {
+    "message": "Нет добавленных общих папок"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Добавьте общую папку, чтобы безопасно делиться элементами хранилища с другими участниками."
+  },
   "moreOptionsLabel": {
     "message": "Больше опций, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -7020,9 +7060,6 @@
   "compactMode": {
     "message": "Компактный режим"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "extensionWidth": {
     "message": "Ширина расширения"
   },
@@ -7079,12 +7116,6 @@
         "example": "Work, Personal"
       }
     }
-  },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Пожалуйста, обновите приложение для компьютера"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "Чтобы использовать биометрическую разблокировку, обновите приложение для компьютера или отключите разблокировку по отпечатку пальца в настройках компьютера."
   },
   "changeAtRiskPassword": {
     "message": "Изменить пароль, подверженный риску"
@@ -7274,6 +7305,15 @@
   },
   "showMore": {
     "message": "Больше"
+  },
+  "showMoreCount": {
+    "message": "Показать еще $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Меньше"
@@ -7889,9 +7929,32 @@
     "message": "Обнаружены риски",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
+  "upgradeToViewPasswords": {
+    "message": "Обновите, чтобы просматривать пароли"
+  },
   "categoryHealthy": {
     "message": "Элементов, требующих внимания нет",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Сканирование вашего хранилища",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Проверка на наличие скомпрометированных, слабых и повторно используемых паролей.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "Выполняется",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Что-то пошло не так",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "Сканирование хранилища не было выполнено из-за непредвиденной ошибки.",
+    "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
     "message": "Скомпрометированные пароли"
@@ -7911,8 +7974,8 @@
   "reusedPasswordsDescription": {
     "message": "Эти логины имеют повторно используемый пароль. Создайте уникальный пароль для каждого аккаунта, чтобы предотвратить доступ с использованием одного пароля к разным аккаунтам."
   },
-  "deleteAtRiskItemDescription": {
-    "message": "Удаление этого логина приведет к его удалению из хранилища, но не устранит угрозу. Чтобы защитить свой аккаунт, сначала смените пароль."
+  "deleteAtRiskItemDesc": {
+    "message": "Обязательно сначала смените пароль. Удаление лишь избавляет от этого элемента в хранилище, но не устраняет саму угрозу."
   },
   "passwordHasAdditionalRisks": {
     "message": "Этот пароль имеет дополнительные риски:"
@@ -7942,5 +8005,20 @@
   },
   "youreAllSet": {
     "message": "Все готово!"
+  },
+  "permissions": {
+    "message": "Разрешения"
+  },
+  "viewItems": {
+    "message": "Просмотр элементов"
+  },
+  "viewItemsHidePass": {
+    "message": "Просмотр элементов, пароли скрыты"
+  },
+  "editItems": {
+    "message": "Изменение элементов"
+  },
+  "editItemsHidePass": {
+    "message": "Изменение элементов, пароли скрыты"
   }
 }

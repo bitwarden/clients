@@ -122,7 +122,11 @@
   <bit-column sortable defaultSort="asc" width="minmax(240px, 480px)">
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
 
-    <bit-cell *bitCellDef="table.columns.name; let row">
+    <bit-cell
+      *bitCellDef="table.columns.name; let row"
+      [class.tw-cursor-pointer]="itemAction() != null"
+      (click)="onCellActivate(row, $event)"
+    >
       <app-vault-icon slot="start" [cipher]="row" />
 
       <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5">
@@ -175,7 +179,11 @@
   <!-- Vault -->
   <bit-column sortable [sortFn]="sortByVault" width="minmax(176px, 280px)">
     <bit-header-cell>{{ "vault" | i18n }}</bit-header-cell>
-    <bit-cell *bitCellDef="table.columns.vault; let row">
+    <bit-cell
+      *bitCellDef="table.columns.vault; let row"
+      [class.tw-cursor-pointer]="itemAction() != null"
+      (click)="onCellActivate(row, $event)"
+    >
       @let vaultTile = vaultIconTile(row);
       <bit-icon-tile
         slot="start"
@@ -192,7 +200,11 @@
   <!-- Shared folders -->
   <bit-column sortable [sortFn]="sortBySharedFolders" width="minmax(176px, 280px)">
     <bit-header-cell>{{ "sharedFolders" | i18n }}</bit-header-cell>
-    <bit-cell *bitCellDef="table.columns.sharedFolders; let row">
+    <bit-cell
+      *bitCellDef="table.columns.sharedFolders; let row"
+      [class.tw-cursor-pointer]="itemAction() != null"
+      (click)="onCellActivate(row, $event)"
+    >
       <vault-items-table-chips-cell
         [chips]="sharedFolderChips(row)"
         icon="bwi-shared-folder"
@@ -205,7 +217,11 @@
   <!-- My folders -->
   <bit-column sortable [sortFn]="sortByFolders" width="minmax(140px, 1fr)">
     <bit-header-cell>{{ "myFolders" | i18n }}</bit-header-cell>
-    <bit-cell *bitCellDef="table.columns.myFolders; let row">
+    <bit-cell
+      *bitCellDef="table.columns.myFolders; let row"
+      [class.tw-cursor-pointer]="itemAction() != null"
+      (click)="onCellActivate(row, $event)"
+    >
       <vault-items-table-chips-cell
         [chips]="folderChips(row)"
         icon="bwi-folder"
