@@ -13,6 +13,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { DaemonsService } from "./daemons/daemons.service";
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
 import { RotationShellComponent } from "./rotation-shell.component";
+import { rotationRoutes } from "./rotation.routes";
 import { TargetSystemsService } from "./target-systems/target-systems.service";
 import { configId } from "./testing/rotation-builders";
 
@@ -86,12 +87,16 @@ describe("RotationShellComponent", () => {
     fixture.detectChanges();
   };
 
-  it("renders the three tab links", async () => {
+  it("renders the three tab links ordered by the setup each one requires", async () => {
     await init();
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? "";
-    expect(text).toContain("pamRotationTabManagedCredentials");
-    expect(text).toContain("pamRotationTabTargetSystems");
-    expect(text).toContain("pamRotationTabDaemons");
+    const labels = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll("bit-tab-link"),
+    ).map((el) => el.textContent?.trim());
+    expect(labels).toEqual([
+      "pamRotationTabDaemons",
+      "pamRotationTabTargetSystems",
+      "pamRotationTabManagedCredentials",
+    ]);
   });
 
   it("calls load on RotationConfigsService with the organization id on init", async () => {
@@ -199,26 +204,21 @@ describe("RotationShellComponent (real router)", () => {
   })
   class StubComponent {}
 
-  // Mirrors rotation.routes.ts: the shell is an empty-path child of "rotation",
-  // and the create page is its sibling (not a child).
+  // Route-level providers and guards are dropped as well, so the shell resolves
+  // the TestBed doubles instead of constructing the real page-scoped services.
+  const stubEveryComponentButTheShell = (config: Routes): Routes =>
+    config.map((route) => ({
+      ...route,
+      providers: undefined,
+      canDeactivate: undefined,
+      ...(route.component && route.component !== RotationShellComponent
+        ? { component: StubComponent }
+        : {}),
+      ...(route.children ? { children: stubEveryComponentButTheShell(route.children) } : {}),
+    }));
+
   const routes: Routes = [
-    {
-      path: "rotation",
-      children: [
-        { path: "managed-credentials/new", component: StubComponent },
-        { path: "target-systems/new", component: StubComponent },
-        {
-          path: "",
-          component: RotationShellComponent,
-          children: [
-            { path: "", pathMatch: "full", redirectTo: "target-systems" },
-            { path: "managed-credentials", component: StubComponent },
-            { path: "target-systems", component: StubComponent },
-            { path: "daemons", component: StubComponent },
-          ],
-        },
-      ],
-    },
+    { path: "rotation", children: stubEveryComponentButTheShell(rotationRoutes) },
   ];
 
   let harness: RouterTestingHarness;
@@ -258,6 +258,11 @@ describe("RotationShellComponent (real router)", () => {
 
     router = TestBed.inject(Router);
     harness = await RouterTestingHarness.create();
+  });
+
+  it("lands on the daemons tab from the shell's bare path", async () => {
+    await harness.navigateByUrl("/rotation", RotationShellComponent);
+    expect(router.url).toBe("/rotation/daemons");
   });
 
   it("reports the active tab from the child route", async () => {

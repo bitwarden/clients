@@ -1,15 +1,15 @@
 <app-header [title]="'pamRotationTitle' | i18n">
   @switch (activeTab()) {
-    @case ("managed-credentials") {
-      @if (hasConfigs()) {
+    @case ("daemons") {
+      @if (hasDaemons()) {
         <button
           type="button"
           bitButton
           buttonType="primary"
-          [bitAction]="createManagedCredential"
-          id="rotation-shell_button_new-managed-credential"
+          [bitAction]="registerDaemon"
+          id="rotation-shell_button_new-daemon"
         >
-          {{ "pamRotationConfigNew" | i18n }}
+          {{ "pamDaemonNew" | i18n }}
         </button>
       }
     }
@@ -26,26 +26,26 @@
         </button>
       }
     }
-    @case ("daemons") {
-      @if (hasDaemons()) {
+    @case ("managed-credentials") {
+      @if (hasConfigs()) {
         <button
           type="button"
           bitButton
           buttonType="primary"
-          [bitAction]="registerDaemon"
-          id="rotation-shell_button_new-daemon"
+          [bitAction]="createManagedCredential"
+          id="rotation-shell_button_new-managed-credential"
         >
-          {{ "pamDaemonNew" | i18n }}
+          {{ "pamRotationConfigNew" | i18n }}
         </button>
       }
     }
   }
   <bit-tab-nav-bar slot="tabs" [label]="'pamRotationTitle' | i18n">
+    <bit-tab-link route="daemons">{{ "pamRotationTabDaemons" | i18n }}</bit-tab-link>
+    <bit-tab-link route="target-systems">{{ "pamRotationTabTargetSystems" | i18n }}</bit-tab-link>
     <bit-tab-link route="managed-credentials" [berryValue]="awaitingManualCount()">{{
       "pamRotationTabManagedCredentials" | i18n
     }}</bit-tab-link>
-    <bit-tab-link route="target-systems">{{ "pamRotationTabTargetSystems" | i18n }}</bit-tab-link>
-    <bit-tab-link route="daemons">{{ "pamRotationTabDaemons" | i18n }}</bit-tab-link>
   </bit-tab-nav-bar>
 </app-header>
 
