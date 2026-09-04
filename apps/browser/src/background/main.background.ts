@@ -296,7 +296,11 @@ import {
   LegacyCompatKeyService as LegacyCompatKeyServiceAbstraction,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
-import { DefaultManagedSettingsService, ManagedSettingsService } from "@bitwarden/managed-settings";
+import {
+  DefaultManagedSettingsService,
+  DevManagedSettingsService,
+  ManagedSettingsService,
+} from "@bitwarden/managed-settings";
 import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
 import {
   ActiveUserStateProvider,
@@ -378,7 +382,7 @@ import { BrowserActionsService } from "../platform/actions/browser-actions.servi
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
 import { BadgeService } from "../platform/badge/badge.service";
 import { BrowserApi } from "../platform/browser/browser-api";
-import { flagEnabled } from "../platform/flags";
+import { devFlagEnabled, devFlagValue, flagEnabled } from "../platform/flags";
 import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
 import { IpcContentScriptManagerService } from "../platform/ipc/ipc-content-script-manager.service";
 /* eslint-disable no-restricted-imports */
@@ -549,7 +553,7 @@ export default class MainBackground {
   registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
   managedSettingsService: ManagedSettingsService;
-  private managedConfigReader: BrowserManagedConfigReader;
+  private managedConfigReader?: BrowserManagedConfigReader;
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
@@ -962,11 +966,21 @@ export default class MainBackground {
       : new NoopSdkClientFactory();
     this.sdkLoadService = new BrowserSdkLoadService(this.logService);
 
-    this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
-    this.managedConfigReader = new BrowserManagedConfigReader(
-      this.managedSettingsService,
-      this.logService,
-    );
+    if (devFlagEnabled("managedSettingsDevSource")) {
+      // The dev source replaces host acquisition rather than layering on top of it. Left running,
+      // the reader would find no policy on the developer's machine and clear the pushed profile.
+      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
+      devManagedSettingsService.pushExplicit(
+        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
+      );
+      this.managedSettingsService = devManagedSettingsService;
+    } else {
+      this.managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+      this.managedConfigReader = new BrowserManagedConfigReader(
+        this.managedSettingsService,
+        this.logService,
+      );
+    }
 
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
@@ -1808,8 +1822,8 @@ export default class MainBackground {
 
     // Acquired first so no consumer can observe an empty profile that acquisition would have
     // filled. Pushing before the SDK loads is safe: the profile is mirrored into the SDK handle
-    // lazily, once the WASM module is ready.
-    await this.managedConfigReader.init();
+    // lazily, once the WASM module is ready. Absent when a dev source supplies the profile instead.
+    await this.managedConfigReader?.init();
 
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations

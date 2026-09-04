@@ -1,9 +1,5 @@
 import { LogService } from "@bitwarden/logging";
-import {
-  flattenSettings,
-  ManagedSettingsService,
-  MANAGEMENT_PROFILE_VERSION,
-} from "@bitwarden/managed-settings";
+import { createManagementProfile, ManagedSettingsService } from "@bitwarden/managed-settings";
 
 import { BrowserApi } from "../browser/browser-api";
 
@@ -48,23 +44,19 @@ export class BrowserManagedConfigReader {
         return;
       }
 
-      const settings = flattenSettings(managed);
+      const profile = createManagementProfile(managed);
 
-      if (settings.size === 0) {
+      if (profile.settings.size === 0) {
         this.logService.info("Managed configuration: no managed settings are set.");
         this.managedSettingsService.updateProfile(undefined);
         return;
       }
 
-      this.managedSettingsService.updateProfile({
-        version: MANAGEMENT_PROFILE_VERSION,
-        updatedAt: Math.floor(Date.now() / 1000),
-        settings,
-      });
+      this.managedSettingsService.updateProfile(profile);
 
       this.logService.info(
-        `Managed configuration: applied ${settings.size} managed setting(s).`,
-        [...settings.keys()].sort(),
+        `Managed configuration: applied ${profile.settings.size} managed setting(s).`,
+        [...profile.settings.keys()].sort(),
       );
     } catch (e) {
       // A failed read means the managed state is unknown, not absent, so the last known profile
