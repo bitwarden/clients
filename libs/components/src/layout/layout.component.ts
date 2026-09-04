@@ -28,17 +28,10 @@ import { drawerSizeToWidthRem } from "../dialog/dialog/dialog.component";
 import { DrawerService } from "../dialog/drawer.service";
 import { LinkComponent, LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
-import { getRootFontSizePx } from "../shared";
+import { getRootFontSizePx, MAIN_MIN_WIDTH_REM, SIDERAIL_WIDTH_REM } from "../shared";
 
 import { LayoutFooterService } from "./layout-footer.service";
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
-
-/** Matches tw-min-w-96 on <main>. */
-const MAIN_MIN_WIDTH_REM = 24;
-
-/** Approximate rendered width of the closed nav (siderail / icon strip).
- *  Derived from tw-w-[3.75rem] + tw-mx-0.5 margins in side-nav.component.html. */
-const SIDERAIL_WIDTH_REM = 4;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

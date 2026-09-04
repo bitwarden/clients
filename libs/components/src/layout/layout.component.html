@@ -36,6 +36,7 @@
   <!-- Siderail width placeholder — keeps the col 1 auto track stable when the nav
        is position:fixed (overlay) and therefore out of the grid's normal flow. -->
   @if (sideNavService.isOverlay() && siderailIsPushMode()) {
+    <!-- 3.75rem + 2x0.125rem margins = SIDERAIL_WIDTH_REM in ../shared. The nav's own width uses CLOSED_WIDTH. -->
     <div
       aria-hidden="true"
       class="tw-pointer-events-none tw-w-[3.75rem] tw-mx-0.5 tw-col-start-1 tw-row-start-1"
@@ -43,6 +44,7 @@
   }
 
   <!-- Main content (always col 2) -->
+  <!-- tw-min-w-96 is 24rem, which must match MAIN_MIN_WIDTH_REM in ../shared. -->
   <main
     #main
     [id]="mainContentId"

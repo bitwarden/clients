@@ -2,7 +2,7 @@ import { computed, inject, Injectable, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Observable, fromEvent, map, startWith } from "rxjs";
 
-import { getRootFontSizePx } from "../shared";
+import { getRootFontSizePx, MAIN_MIN_WIDTH_REM, SIDERAIL_WIDTH_REM } from "../shared";
 
 import { SIDE_NAV_WIDTH_BOUNDS, SideNavWidthService } from "./side-nav-width.service";
 
@@ -19,10 +19,7 @@ export class SideNavService {
   readonly SNAP_TO_CLOSED_THRESHOLD = 4; // 64px — 176px of tension past the 240px minimum
 
   /** Width of the collapsed nav (icon strip / side rail), in rem. */
-  readonly CLOSED_WIDTH = 4;
-
-  /** Minimum main content width in rem, used to estimate push mode. Must match MAIN_MIN_WIDTH_REM in layout.component.ts. */
-  private readonly MAIN_MIN_WIDTH_ESTIMATE_REM = 24;
+  readonly CLOSED_WIDTH = SIDERAIL_WIDTH_REM;
 
   private rootFontSizePx: number;
 
@@ -92,7 +89,7 @@ export class SideNavService {
     // the correct layout before LayoutComponent's ResizeObserver fires.
     const estimatedPushMode =
       window.innerWidth - this.DEFAULT_OPEN_WIDTH * this.rootFontSizePx >=
-      this.MAIN_MIN_WIDTH_ESTIMATE_REM * this.rootFontSizePx;
+      MAIN_MIN_WIDTH_REM * this.rootFontSizePx;
     if (estimatedPushMode) {
       this.open.set(true);
     }
