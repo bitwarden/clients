@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { IsActiveMatchOptions } from "@angular/router";
+import { isActive, IsActiveMatchOptions, QueryParamsHandling, Router } from "@angular/router";
 import { switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -20,18 +20,8 @@ import {
   vaultScopeCommands,
   VaultScopeType,
 } from "../../models/vault-scope";
+import { EXACT_PATH } from "../../routing/exact-path";
 import { VaultNavService } from "../../services/vault-nav.service";
-
-/**
- * Matches the route itself and nothing nested beneath it, ignoring every dimension a vault route
- * never varies in so the path is the only thing compared.
- */
-const EXACT_PATH: IsActiveMatchOptions = {
-  paths: "exact",
-  queryParams: "ignored",
-  fragment: "ignored",
-  matrixParams: "ignored",
-};
 
 /**
  * Renders the Password Manager side-nav Vaults section from the shared {@link VaultNavService}
@@ -48,6 +38,7 @@ export class VaultNavSectionComponent {
 
   private readonly vaultNavService = inject(VaultNavService);
   private readonly accountService = inject(AccountService);
+  private readonly router = inject(Router);
 
   protected readonly vaultNav = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -116,6 +107,42 @@ export class VaultNavSectionComponent {
           ]) ?? [],
       ),
   );
+
+  /**
+   * Whether each entry's route names the page in view, paired with the route. Matched on the exact
+   * path, so a Shared folders drill-in is not that entry's own page — see
+   * {@link exactRouteOptions}. Rebuilt only when the vault list changes; each `isActive` signal
+   * tracks the router from then on.
+   */
+  private readonly entryActive = computed(() => {
+    const routes = [
+      this.allItemsRoute,
+      ...this.vaultRoutes().values(),
+      ...this.sharedFolderRoutes().values(),
+      ...this.myItemsRoutes().values(),
+    ];
+    return routes.map(
+      (route) =>
+        [route, isActive(this.router.createUrlTree(route), this.router, EXACT_PATH)] as const,
+    );
+  });
+
+  /**
+   * Compared by reference against the arrays the template binds, which {@link vaultRoutes},
+   * {@link sharedFolderRoutes} and {@link myItemsRoutes} keep stable.
+   */
+  private readonly currentPageRoute = computed(
+    () => this.entryActive().find(([, active]) => active())?.[0],
+  );
+
+  /**
+   * `"preserve"` for the entry naming the page in view, which makes its click a no-op; unset for
+   * every other entry, so moving between scopes resets the filters rather than carrying one
+   * scope's into another.
+   */
+  protected queryParamsHandling(route: string[] | undefined): QueryParamsHandling | undefined {
+    return route != null && route === this.currentPageRoute() ? "preserve" : undefined;
+  }
 
   /** Whether to render one unscoped entry rather than All items and a list. */
   protected readonly personalOnly = computed(() => {
