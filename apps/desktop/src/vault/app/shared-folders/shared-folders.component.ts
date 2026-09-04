@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 import {
   SharedFoldersBreadcrumbsComponent,
   SharedFoldersComponent as VaultSharedFoldersComponent,
+  VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header";
@@ -19,9 +20,15 @@ import { DesktopHeaderComponent } from "../../../app/layout/header";
   templateUrl: "./shared-folders.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    // Desktop pages own their page padding; matches the vault page's spacing.
-    class: "tw-flex tw-flex-col tw-h-full tw-min-h-0 tw-px-8 tw-py-6",
+    // Unpadded so the banner can span the full content width; the gutters sit on the content
+    // below it instead. Matches the vault page.
+    class: "tw-flex tw-flex-col tw-h-full tw-min-h-0",
   },
-  imports: [DesktopHeaderComponent, SharedFoldersBreadcrumbsComponent, VaultSharedFoldersComponent],
+  imports: [
+    DesktopHeaderComponent,
+    SharedFoldersBreadcrumbsComponent,
+    VaultSharedFoldersComponent,
+    VaultOrganizationUserNotificationsComponent,
+  ],
 })
 export class SharedFoldersComponent {}
