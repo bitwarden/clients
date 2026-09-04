@@ -48,8 +48,12 @@
           {{ "noPasskeyLogin" | i18n }}
         </bit-callout>
       } @else {
-        <bit-callout type="warning" title="{{ 'passkeyLoginFound' | i18n }}">
-          {{ "passkeyLoginFoundReportDesc" | i18n: (ciphers().length | number) }}
+        <bit-callout type="info" title="{{ 'passkeyLoginFound' | i18n }}">
+          {{ "passkeyLoginFoundInfoPrefix" | i18n }}
+          <strong class="tw-font-semibold">{{
+            "loginsCount" | i18n: (ciphers().length | number)
+          }}</strong>
+          {{ "passkeyLoginFoundInfoSuffixSingular" | i18n }}
         </bit-callout>
         <bit-table-scroll [dataSource]="dataSource" [rowSize]="75" layout="fixed">
           <ng-container header>

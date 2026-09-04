@@ -101,7 +101,7 @@ export class PasskeyReportComponent implements OnInit {
   // Filter state
   protected readonly filterStatus = signal<(number | string)[]>([0]);
   protected readonly showFilterToggle = signal(false);
-  protected readonly reportDescriptionKey = signal("passkeyLoginFoundReportDesc");
+  protected readonly infoBannerSuffixKey = signal("passkeyLoginFoundInfoSuffixSingular");
   protected readonly chipSelectOptions = signal<{ label: string; value: string | number }[]>([]);
   protected readonly selectedFilterChip = "0";
   private readonly maxItemsToSwitchToChipSelect = 5;
@@ -305,10 +305,10 @@ export class PasskeyReportComponent implements OnInit {
 
     if (statuses.length > 2) {
       this.showFilterToggle.set(true);
-      this.reportDescriptionKey.set("passkeyLoginFoundReportDescPlural");
+      this.infoBannerSuffixKey.set("passkeyLoginFoundInfoSuffixPlural");
     } else {
       this.showFilterToggle.set(false);
-      this.reportDescriptionKey.set("passkeyLoginFoundReportDesc");
+      this.infoBannerSuffixKey.set("passkeyLoginFoundInfoSuffixSingular");
     }
 
     this.chipSelectOptions.set(this.setupChipSelectOptions(statuses));
