@@ -13,6 +13,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { DaemonsService } from "./daemons/daemons.service";
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
 import { RotationShellComponent } from "./rotation-shell.component";
+import { rotationRoutes } from "./rotation.routes";
 import { TargetSystemsService } from "./target-systems/target-systems.service";
 import { configId } from "./testing/rotation-builders";
 
@@ -203,26 +204,21 @@ describe("RotationShellComponent (real router)", () => {
   })
   class StubComponent {}
 
-  // Mirrors rotation.routes.ts: the shell is an empty-path child of "rotation",
-  // and the create page is its sibling (not a child).
+  // Route-level providers and guards are dropped as well, so the shell resolves
+  // the TestBed doubles instead of constructing the real page-scoped services.
+  const stubEveryComponentButTheShell = (config: Routes): Routes =>
+    config.map((route) => ({
+      ...route,
+      providers: undefined,
+      canDeactivate: undefined,
+      ...(route.component && route.component !== RotationShellComponent
+        ? { component: StubComponent }
+        : {}),
+      ...(route.children ? { children: stubEveryComponentButTheShell(route.children) } : {}),
+    }));
+
   const routes: Routes = [
-    {
-      path: "rotation",
-      children: [
-        { path: "managed-credentials/new", component: StubComponent },
-        { path: "target-systems/new", component: StubComponent },
-        {
-          path: "",
-          component: RotationShellComponent,
-          children: [
-            { path: "", pathMatch: "full", redirectTo: "daemons" },
-            { path: "managed-credentials", component: StubComponent },
-            { path: "target-systems", component: StubComponent },
-            { path: "daemons", component: StubComponent },
-          ],
-        },
-      ],
-    },
+    { path: "rotation", children: stubEveryComponentButTheShell(rotationRoutes) },
   ];
 
   let harness: RouterTestingHarness;
