@@ -55,6 +55,13 @@ class TestVaultItemDialogComponent extends VaultItemDialogComponent {
     this.formConfig = { ...this.formConfig, ...config } as CipherFormConfig;
   }
 
+  mockCipherFormComponent(patchCipher: jest.Mock) {
+    Object.defineProperty(this, "cipherFormComponent", {
+      value: () => ({ patchCipher }),
+      configurable: true,
+    });
+  }
+
   mockViewChildren() {
     Object.defineProperty(this, "dialogContent", {
       value: () => ({ nativeElement: { parentElement: { scrollTop: 0 } } }),
@@ -641,6 +648,8 @@ describe("VaultItemDialogComponent", () => {
 
   describe("gated cipher reveal (GATED_CIPHER_RELOADER)", () => {
     let fullCipher$: BehaviorSubject<Cipher | null>;
+    /** The reloader's own method, so a test can make a single re-read answer differently. */
+    let reloaderFullCipher$: jest.Mock;
     let gatedComponent: TestVaultItemDialogComponent;
     let gatedFixture: ComponentFixture<TestVaultItemDialogComponent>;
 
@@ -665,6 +674,7 @@ describe("VaultItemDialogComponent", () => {
     async function setup(reloaderProvided = true): Promise<void> {
       TestBed.resetTestingModule();
       fullCipher$ = new BehaviorSubject<Cipher | null>(null);
+      reloaderFullCipher$ = jest.fn(() => fullCipher$);
 
       const formConfig = { ...baseFormConfig, originalCipher: partialCipher };
       const providers: any[] = [
@@ -700,7 +710,7 @@ describe("VaultItemDialogComponent", () => {
       if (reloaderProvided) {
         providers.push({
           provide: GATED_CIPHER_RELOADER,
-          useValue: { fullCipher$: () => fullCipher$ },
+          useValue: { fullCipher$: reloaderFullCipher$ },
         });
       }
 
@@ -786,6 +796,107 @@ describe("VaultItemDialogComponent", () => {
 
       expect(gatedComponent["cipher"]?.partial).toBe(true);
       expect(gatedComponent["formConfig"].originalCipher).toBe(partialCipher);
+    });
+
+    describe("refreshing the form after an attachment change", () => {
+      /** What the reloader's re-read carries once the attachment has landed. */
+      const reloadedView = {
+        id: "gated-1",
+        attachments: [{ id: "attachment-1" }],
+        revisionDate: new Date("2026-09-04T10:30:59.000Z"),
+      } as unknown as CipherView;
+      let patchCipher: jest.Mock;
+
+      /** Reveal the cipher under a lease and stand the attachments dialog up around it. */
+      async function revealThenPrepareUpload(): Promise<void> {
+        cipherServiceMock.decrypt.mockResolvedValue(reloadedView);
+        await setup();
+        fullCipher$.next(leasedCipher);
+        await settle();
+
+        (
+          TestBed.inject(BillingAccountProfileStateService)
+            .hasPremiumFromAnySource$ as unknown as jest.Mock
+        ).mockReturnValue(of(true));
+        mockDialogService.open.mockReturnValue({
+          closed: of({ action: AttachmentDialogResult.Uploaded }),
+        });
+        patchCipher = jest.fn();
+        gatedComponent.mockCipherFormComponent(patchCipher);
+      }
+
+      it("patches attachments and revision date from a fresh read of the leased cipher", async () => {
+        await revealThenPrepareUpload();
+
+        await gatedComponent["openAttachmentsDialog"]();
+
+        // Local state is the wrong source: it excludes gated ciphers, and the copy it holds is the
+        // stripped one — no attachments, and a revision date from before the upload.
+        expect(cipherServiceMock.cipherView$).not.toHaveBeenCalled();
+
+        const currentCipher = {
+          attachments: [],
+          revisionDate: new Date(0),
+        } as unknown as CipherView;
+        patchCipher.mock.calls[0][0](currentCipher);
+        expect(currentCipher.attachments).toBe(reloadedView.attachments);
+        expect(currentCipher.revisionDate).toBe(reloadedView.revisionDate);
+      });
+
+      it("leaves the form alone, without throwing, when the re-read finds no lease", async () => {
+        await revealThenPrepareUpload();
+        // The lease lapsed between the upload and the re-read. Patching from the absent view threw,
+        // and the revision date left behind made the next save fail as out of date.
+        reloaderFullCipher$.mockReturnValueOnce(of(null));
+
+        await expect(gatedComponent["openAttachmentsDialog"]()).resolves.toBeUndefined();
+
+        expect(patchCipher).not.toHaveBeenCalled();
+        // The attachment was still uploaded, so the dialog must still report the item as modified.
+        expect(gatedComponent["_cipherModified"]).toBe(true);
+      });
+    });
+
+    describe("returning to view mode after a save", () => {
+      beforeEach(() => {
+        jest
+          .spyOn(VaultItemDialogComponent.prototype as any, "changeMode")
+          .mockResolvedValue(undefined);
+      });
+
+      it("keeps the item revealed, from a fresh read rather than the save's stripped echo", async () => {
+        await setup();
+        fullCipher$.next(leasedCipher);
+        await settle();
+
+        // What the form hands back is the server's echo of the write, which for a gated cipher is
+        // the stripped shape — taking it at face value re-locked the item mid-lease.
+        await gatedComponent["onCipherSaved"]({
+          id: "gated-1",
+          partial: true,
+          collectionIds: [],
+        } as unknown as CipherView);
+
+        expect(gatedComponent["cipher"]?.partial).toBe(false);
+        expect(gatedComponent["cipher"]?.leaseGated).toBe(true);
+        expect(gatedComponent["formConfig"].originalCipher).toBe(leasedCipher);
+      });
+
+      it("falls back to the stripped copy when the lease ended before the read", async () => {
+        await setup();
+        fullCipher$.next(leasedCipher);
+        await settle();
+        reloaderFullCipher$.mockReturnValueOnce(of(null));
+
+        const echoedView = {
+          id: "gated-1",
+          partial: true,
+          collectionIds: [],
+        } as unknown as CipherView;
+        await expect(gatedComponent["onCipherSaved"](echoedView)).resolves.toBeUndefined();
+
+        expect(gatedComponent["cipher"]).toBe(echoedView);
+      });
     });
   });
 });
