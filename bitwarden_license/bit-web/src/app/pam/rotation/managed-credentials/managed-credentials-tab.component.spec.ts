@@ -20,6 +20,7 @@ import {
   id,
   rotationConfigDescription,
   rotationConfig,
+  sysId,
 } from "../testing/rotation-builders";
 
 import { ManagedCredentialsTabComponent } from "./managed-credentials-tab.component";
@@ -268,16 +269,19 @@ describe("ManagedCredentialsTabComponent", () => {
 
     const rowA = makeRow({
       cipherId: cipherA,
+      targetSystemId: sysId("1"),
       targetSystemName: "Prod Entra",
       enabled: true,
     });
     const rowB = makeRow({
       cipherId: cipherB,
+      targetSystemId: sysId("2"),
       targetSystemName: "Staging AD",
       enabled: false,
     });
     const rowC = makeRow({
       cipherId: cipherC,
+      targetSystemId: sysId("1"),
       targetSystemName: "Prod Entra",
       enabled: true,
     });
@@ -323,7 +327,24 @@ describe("ManagedCredentialsTabComponent", () => {
 
     it("derives target-system options from the loaded rows, sorted by name", () => {
       setupWithData([rowA, rowB, rowC], []);
-      expect(component.targetSystemNames()).toEqual(["Prod Entra", "Staging AD"]);
+      expect(component.targetSystemOptions()).toEqual([
+        { id: sysId("1"), name: "Prod Entra" },
+        { id: sysId("2"), name: "Staging AD" },
+      ]);
+    });
+
+    it("keys target-system options by id, so two systems sharing a name stay distinct", () => {
+      const rowSameNameOtherSystem = makeRow({
+        cipherId: cipherC,
+        targetSystemId: sysId("2"),
+        targetSystemName: "Prod Entra",
+        enabled: true,
+      });
+      setupWithData([rowA, rowSameNameOtherSystem], []);
+      expect(component.targetSystemOptions()).toEqual([
+        { id: sysId("1"), name: "Prod Entra" },
+        { id: sysId("2"), name: "Prod Entra" },
+      ]);
     });
 
     it("derives collection options from the rows' ciphers, not every org collection", async () => {
@@ -358,7 +379,7 @@ describe("ManagedCredentialsTabComponent", () => {
 
     it("narrows rows to the selected target system", () => {
       setupWithData([rowA, rowB, rowC], []);
-      chip("targetSystem").toggle("Staging AD");
+      chip("targetSystem").toggle(sysId("2"));
       fixture.detectChanges();
       expect(component.processedRows()).toHaveLength(1);
       expect(component.processedRows()[0].config.cipherId).toBe(cipherB);
@@ -367,7 +388,11 @@ describe("ManagedCredentialsTabComponent", () => {
     it("narrows rows to the selected collection", () => {
       setupWithData(
         [rowA, rowB, rowC],
-        [makeCipher(cipherA, ["col-1"]), makeCipher(cipherB, ["col-2"])],
+        [
+          makeCipher(cipherA, ["col-1"]),
+          makeCipher(cipherB, ["col-2"]),
+          makeCipher(cipherC, ["col-2"]),
+        ],
         [
           { id: "col-1", name: "Engineering" } as CollectionAdminView,
           { id: "col-2", name: "Finance" } as CollectionAdminView,
@@ -379,6 +404,20 @@ describe("ManagedCredentialsTabComponent", () => {
       expect(component.processedRows()[0].config.cipherId).toBe(cipherA);
     });
 
+    it("does not exclude a row from the collection filter when its cipher never loaded", () => {
+      // cipherC is absent from the loaded ciphers: a viewer without canEditAllCiphers only
+      // gets ciphers OrgCiphersService assigned them, so rowC's collections are unknown, not empty.
+      setupWithData(
+        [rowA, rowC],
+        [makeCipher(cipherA, ["col-1"])],
+        [{ id: "col-1", name: "Engineering" } as CollectionAdminView],
+      );
+      chip("collection").toggle("col-1");
+      fixture.detectChanges();
+      const ids = component.processedRows().map((r: RotationConfigRow) => r.config.cipherId);
+      expect(ids.sort()).toEqual([cipherA, cipherC].sort());
+    });
+
     it("ANDs the chips with each other and with the search text", () => {
       setupWithData([rowA, rowB, rowC], []);
       component.searchControl.setValue("prod");
@@ -386,6 +425,13 @@ describe("ManagedCredentialsTabComponent", () => {
       fixture.detectChanges();
       const ids = component.processedRows().map((r: RotationConfigRow) => r.config.cipherId);
       expect(ids.sort()).toEqual([cipherA, cipherC].sort());
+    });
+
+    it("shows the generic no-results message when chip filters alone empty the table", () => {
+      setupWithData([rowA], []);
+      chip("status").toggle("pamRotationConfigStatusPaused");
+      fixture.detectChanges();
+      expect(fixture.nativeElement.textContent).toContain("pamRotationConfigNoResultsFiltered");
     });
   });
 });
