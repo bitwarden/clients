@@ -114,7 +114,7 @@ describe("ManagedCredentialsTabComponent", () => {
       fixture.detectChanges();
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector('[data-testid="managed-credentials-load-error"]')).not.toBeNull();
+      expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
       expect(el.textContent).toContain("pamRotationListLoadErrorTitle");
       expect(el.textContent).not.toContain("pamNoTargetSystemsYetTitle");
       expect(el.textContent).not.toContain("pamRotationConfigEmptyState");
@@ -125,10 +125,9 @@ describe("ManagedCredentialsTabComponent", () => {
       configsService.loadError$.next(new Error("boom"));
       fixture.detectChanges();
 
-      const retry = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
-        "#managed-credentials-tab_button_retry-load",
-      );
-      retry!.click();
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLButtonElement>("#rotation-load-error_button_retry")!
+        .click();
       await fixture.whenStable();
 
       expect(configsService.load).toHaveBeenCalledTimes(2);

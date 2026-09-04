@@ -58,7 +58,6 @@ describe("TargetSystemsService", () => {
 
       expect(await firstValueFrom(service.loading$)).toBe(false);
       expect(await firstValueFrom(service.loadError$)).toBe(failure);
-      expect(service.lastLoadError).toBe(failure);
     });
 
     it("clears a previous failure at the start of the next load", async () => {

@@ -40,7 +40,7 @@ describe("RotationConfigsService", () => {
     load: jest.Mock;
     systems$: BehaviorSubject<TargetSystem[]>;
     loading$: BehaviorSubject<boolean>;
-    lastLoadError: unknown;
+    loadError$: BehaviorSubject<unknown | null>;
   };
   let orgCiphersService: {
     cipherNameById$: BehaviorSubject<Map<CipherId, string>>;
@@ -75,7 +75,7 @@ describe("RotationConfigsService", () => {
       load: jest.fn().mockResolvedValue(undefined),
       systems$: new BehaviorSubject([target]),
       loading$: new BehaviorSubject(false),
-      lastLoadError: null as unknown,
+      loadError$: new BehaviorSubject<unknown | null>(null),
     };
 
     orgCiphersService = {
@@ -126,7 +126,7 @@ describe("RotationConfigsService", () => {
 
   it("reports a target-systems failure as its own load error", async () => {
     const failure = new Error("target systems unavailable");
-    targetSystemsService.lastLoadError = failure;
+    targetSystemsService.loadError$.next(failure);
 
     await service.load(ORG_ID);
 

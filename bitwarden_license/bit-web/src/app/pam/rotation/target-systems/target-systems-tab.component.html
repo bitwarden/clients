@@ -1,22 +1,6 @@
 @if (!loading()) {
   @if (loadError()) {
-    <div role="alert" data-testid="target-systems-load-error">
-      <bit-status-lockup>
-        <bit-svg slot="graphic" [content]="loadErrorIcon"></bit-svg>
-        <span slot="title">{{ "pamRotationListLoadErrorTitle" | i18n }}</span>
-        <span slot="description">{{ "pamRotationListLoadErrorDescription" | i18n }}</span>
-        <button
-          slot="button"
-          type="button"
-          bitButton
-          buttonType="primary"
-          id="target-systems-tab_button_retry-load"
-          (click)="retryLoad()"
-        >
-          {{ "tryAgain" | i18n }}
-        </button>
-      </bit-status-lockup>
-    </div>
+    <pam-rotation-load-error (retry)="retryLoad()" />
   } @else if (dataSource.data.length > 0 || searchControl.value) {
     <div class="tw-mb-4">
       <bit-search
