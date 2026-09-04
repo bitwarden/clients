@@ -35,6 +35,12 @@ const CONNECTOR_PROD = accessConnector({
   assignedTargetSystemIds: [sysId("1")],
 });
 
+const CONNECTOR_EU = accessConnector({
+  id: connectorId("connector-eu"),
+  name: "EU region connector",
+  isConnected: false,
+});
+
 const CONNECTOR_STAGING = accessConnector({
   id: connectorId("connector-staging"),
   name: "Staging connector",
@@ -42,7 +48,11 @@ const CONNECTOR_STAGING = accessConnector({
   isConnected: false,
 });
 
-const ROWS: DaemonRow[] = [row(CONNECTOR_PROD, ["Prod Entra"]), row(CONNECTOR_STAGING, [])];
+const ROWS: DaemonRow[] = [
+  row(CONNECTOR_PROD, ["Prod Entra"]),
+  row(CONNECTOR_EU, ["Prod Entra", "Reporting SQL"]),
+  row(CONNECTOR_STAGING, []),
+];
 
 function rotationServices(rows: DaemonRow[]) {
   return moduleMetadata({
@@ -90,7 +100,9 @@ export default {
               delete: "Delete",
               name: "Name",
               status: "Status",
+              all: "All",
               options: "Options",
+              removeItem: "Remove __$1__",
               pamAccessConnectorSearch: "Search access connectors",
               pamAccessConnectorEmptyStateTitle: "No access connectors registered",
               pamAccessConnectorEmptyStateDescription:
@@ -120,7 +132,10 @@ export default {
 
 type Story = StoryObj<DaemonsTabComponent>;
 
-/** One connected/enabled connector with an assignment, and one disabled/offline connector. */
+/**
+ * Both statuses and both connection states, so the Status and Connection chips each narrow the
+ * table — including an enabled connector that is offline, which only one of them excludes.
+ */
 export const Default: Story = {
   decorators: [rotationServices(ROWS)],
 };
