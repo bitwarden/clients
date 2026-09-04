@@ -18842,6 +18842,9 @@
   "pamDaemonAssignTarget": {
     "message": "Assign to target"
   },
+  "pamDaemonAssignTargetDisabled": {
+    "message": "Can't assign a target system while this connector is disabled. Enable it first."
+  },
   "pamDaemonAssignTargetTitle": {
     "message": "Assign target system"
   },
