@@ -5,17 +5,21 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
 
+import { ReportBreach } from "@bitwarden/assets/svg";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   BadgeModule,
+  ButtonModule,
   DialogService,
   IconButtonModule,
   IconModule,
   MenuModule,
   SearchModule,
   SpinnerComponent,
+  StatusLockupComponent,
+  SvgComponent,
   TableDataSource,
   TableModule,
   ToastService,
@@ -63,11 +67,14 @@ export type TargetSystemRow = {
     CommonModule,
     ReactiveFormsModule,
     BadgeModule,
+    ButtonModule,
     IconButtonModule,
     IconModule,
     MenuModule,
     SearchModule,
     SpinnerComponent,
+    StatusLockupComponent,
+    SvgComponent,
     TableModule,
     TargetSystemsEmptyStateComponent,
     I18nPipe,
@@ -88,9 +95,14 @@ export class TargetSystemsTabComponent {
   );
 
   protected readonly loading = toSignal(this.targetSystemsService.loading$, { initialValue: true });
+  protected readonly loadError = toSignal(this.targetSystemsService.loadError$, {
+    initialValue: null as unknown,
+  });
   private readonly systems = toSignal(this.targetSystemsService.systems$, {
     initialValue: [] as TargetSystem[],
   });
+
+  protected readonly loadErrorIcon = ReportBreach;
 
   protected readonly dataSource = new TableDataSource<TargetSystemRow>();
   protected readonly searchControl = new FormControl("", { nonNullable: true });
@@ -118,6 +130,11 @@ export class TargetSystemsTabComponent {
         (row.kindLabel?.toLowerCase().includes(text) ?? false);
     });
   }
+
+  /** Re-runs the same load the init effect runs, so a retry matches a fresh navigation. */
+  protected readonly retryLoad = async (): Promise<void> => {
+    await this.targetSystemsService.load(this.organizationId());
+  };
 
   /** Navigate to the create page (sibling of the shell), shown from the empty state. */
   protected readonly openCreate = (): Promise<boolean> =>

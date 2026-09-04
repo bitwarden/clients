@@ -8,6 +8,24 @@
 
 @if (loading()) {
   <bit-spinner />
+} @else if (loadError()) {
+  <div role="alert" data-testid="daemons-load-error">
+    <bit-status-lockup>
+      <bit-svg slot="graphic" [content]="loadErrorIcon"></bit-svg>
+      <span slot="title">{{ "pamRotationListLoadErrorTitle" | i18n }}</span>
+      <span slot="description">{{ "pamRotationListLoadErrorDescription" | i18n }}</span>
+      <button
+        slot="button"
+        type="button"
+        bitButton
+        buttonType="primary"
+        id="daemons-tab_button_retry-load"
+        (click)="retryLoad()"
+      >
+        {{ "tryAgain" | i18n }}
+      </button>
+    </bit-status-lockup>
+  </div>
 } @else if (totalRows() === 0) {
   <bit-status-lockup>
     <bit-svg slot="graphic" [content]="noItemsIcon"></bit-svg>

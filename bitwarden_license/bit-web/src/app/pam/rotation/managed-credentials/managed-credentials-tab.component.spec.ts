@@ -37,6 +37,7 @@ function makeRow(
 function makeConfigsServiceStub(rows: RotationConfigRow[] = [makeRow()]) {
   return {
     loading$: new BehaviorSubject(false),
+    loadError$: new BehaviorSubject<unknown | null>(null),
     rows$: new BehaviorSubject(rows),
     configs$: new BehaviorSubject(rows.map((r) => r.config)),
     awaitingManualCount$: new BehaviorSubject(0),
@@ -57,7 +58,11 @@ describe("ManagedCredentialsTabComponent", () => {
   let toastService: { showToast: jest.Mock };
   let dialogService: { openSimpleDialog: jest.Mock };
 
-  function setupTestBed(dialogResult = true, targetSystems: unknown[] = [{ id: "ts-1" }]) {
+  function setupTestBed(
+    dialogResult = true,
+    targetSystems: unknown[] = [{ id: "ts-1" }],
+    renderTemplate = false,
+  ) {
     configsService = makeConfigsServiceStub();
     targetSystemsService = {
       systems$: new BehaviorSubject<unknown[]>(targetSystems),
@@ -66,9 +71,11 @@ describe("ManagedCredentialsTabComponent", () => {
     toastService = { showToast: jest.fn() };
     dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(dialogResult) };
 
-    TestBed.overrideComponent(ManagedCredentialsTabComponent, {
-      set: { template: "<div>stub</div>", imports: [] },
-    });
+    if (!renderTemplate) {
+      TestBed.overrideComponent(ManagedCredentialsTabComponent, {
+        set: { template: "<div>stub</div>", imports: [] },
+      });
+    }
 
     TestBed.configureTestingModule({
       imports: [ManagedCredentialsTabComponent],
@@ -97,6 +104,35 @@ describe("ManagedCredentialsTabComponent", () => {
     it("also loads target systems so the empty state can gate on them", () => {
       setupTestBed();
       expect(targetSystemsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
+    });
+  });
+
+  describe("load error state", () => {
+    it("renders the load-error state instead of the empty state", () => {
+      setupTestBed(true, [], true);
+      configsService.loadError$.next(new Error("boom"));
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.querySelector('[data-testid="managed-credentials-load-error"]')).not.toBeNull();
+      expect(el.textContent).toContain("pamRotationListLoadErrorTitle");
+      expect(el.textContent).not.toContain("pamNoTargetSystemsYetTitle");
+      expect(el.textContent).not.toContain("pamRotationConfigEmptyState");
+    });
+
+    it("retries both loads from the error state", async () => {
+      setupTestBed(true, [], true);
+      configsService.loadError$.next(new Error("boom"));
+      fixture.detectChanges();
+
+      const retry = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+        "#managed-credentials-tab_button_retry-load",
+      );
+      retry!.click();
+      await fixture.whenStable();
+
+      expect(configsService.load).toHaveBeenCalledTimes(2);
+      expect(targetSystemsService.load).toHaveBeenCalledTimes(2);
     });
   });
 
