@@ -2,13 +2,13 @@
   @if (view.showSwitcher) {
     @if (view.activeAccount?.email != null) {
       @if (expanded()) {
-        <div class="tw-flex tw-w-full tw-items-center tw-gap-2 tw-overflow-hidden tw-px-3 tw-py-2">
+        <span class="tw-flex tw-w-full tw-justify-start tw-overflow-hidden tw-gap-2 tw-pl-1">
           <button
-            class="tw-shrink-0 tw-border-0 tw-bg-transparent tw-p-0"
             type="button"
             [bitMenuTriggerFor]="switcherMenu"
             [menuPosition]="menuPosition()"
             [disabled]="disabled"
+            class="tw-border-0 tw-bg-transparent tw-px-0 tw-py-3"
           >
             <bit-avatar
               [text]="view.activeAccount.name ?? view.activeAccount.email"
@@ -17,30 +17,30 @@
               [attr.aria-label]="view.activeAccount.name ?? view.activeAccount.email"
             ></bit-avatar>
           </button>
-          <span class="tw-flex tw-min-w-0 tw-flex-col tw-overflow-hidden tw-text-start">
-            <span class="tw-w-full tw-truncate">{{
+          <span class="tw-flex tw-justify-center tw-flex-col tw-overflow-hidden">
+            <span class="tw-truncate">{{
               view.activeAccount.name ?? view.activeAccount.email
             }}</span>
-            <small class="tw-w-full tw-truncate tw-text-fg-nav-heading">{{
-              view.activeAccount.email
-            }}</small>
+            <small class="tw-truncate tw-text-fg-body-subtle">{{ view.activeAccount.email }}</small>
           </span>
-        </div>
+        </span>
       } @else {
-        <button
-          class="tw-w-full tw-flex tw-items-center tw-justify-center tw-border-0 tw-bg-transparent tw-py-3"
-          type="button"
-          [bitMenuTriggerFor]="switcherMenu"
-          [menuPosition]="menuPosition()"
-          [disabled]="disabled"
-        >
-          <bit-avatar
-            [text]="view.activeAccount.name ?? view.activeAccount.email"
-            [id]="view.activeAccount.id"
-            [color]="view.activeAccount.avatarColor"
-            [attr.aria-label]="view.activeAccount.name ?? view.activeAccount.email"
-          ></bit-avatar>
-        </button>
+        <span class="tw-flex tw-w-full tw-justify-center tw-overflow-hidden tw-gap-2">
+          <button
+            type="button"
+            [bitMenuTriggerFor]="switcherMenu"
+            [menuPosition]="menuPosition()"
+            [disabled]="disabled"
+            class="tw-border-0 tw-bg-transparent tw-px-0 tw-py-3"
+          >
+            <bit-avatar
+              [text]="view.activeAccount.name ?? view.activeAccount.email"
+              [id]="view.activeAccount.id"
+              [color]="view.activeAccount.avatarColor"
+              [attr.aria-label]="view.activeAccount.name ?? view.activeAccount.email"
+            ></bit-avatar>
+          </button>
+        </span>
       }
     } @else {
       <div class="tw-flex tw-w-full tw-justify-center tw-py-3">
@@ -64,46 +64,43 @@
         @if (view.numberOfAccounts > 0) {
           @for (account of view.inactiveAccounts | keyvalue; track account.key) {
             <button bitMenuItem type="button" (click)="switch(account.key)">
-              @if (account.value.email != null) {
-                <bit-avatar
-                  slot="start"
-                  [text]="account.value.name ?? account.value.email"
-                  [id]="account.value.id"
-                  [color]="account.value.avatarColor"
-                  aria-hidden="true"
-                ></bit-avatar>
-              }
-              <span class="sr-only">{{ "switchAccount" | i18n }}:&nbsp;</span>
-              <span class="tw-flex tw-min-w-0 tw-flex-col tw-overflow-hidden tw-text-start">
-                <span class="tw-w-full tw-truncate">{{ account.value.email }}</span>
-                <small class="tw-w-full tw-truncate tw-text-fg-nav-heading">
-                  <span class="sr-only"> / </span>{{ account.value.server }}
-                </small>
-                <small class="tw-w-full tw-truncate tw-text-fg-nav-heading">
-                  <span class="sr-only">&nbsp;(</span
-                  >{{
-                    (account.value.authenticationStatus === authStatus.Unlocked
-                      ? "unlocked"
-                      : "locked"
-                    ) | i18n
-                  }}<span class="sr-only">)</span>
-                </small>
+              <span class="tw-flex tw-gap-2">
+                @if (account.value.email != null) {
+                  <span class="tw-pt-1">
+                    <bit-avatar
+                      slot="start"
+                      [text]="account.value.name ?? account.value.email"
+                      [id]="account.value.id"
+                      [color]="account.value.avatarColor"
+                      aria-hidden="true"
+                    ></bit-avatar>
+                  </span>
+                }
+                <span class="sr-only">{{ "switchAccount" | i18n }}:&nbsp;</span>
+                <span class="tw-flex tw-min-w-0 tw-flex-col tw-overflow-hidden tw-text-start">
+                  <span class="tw-w-full tw-truncate">{{ account.value.email }}</span>
+                  <small class="tw-w-full tw-truncate tw-text-fg-nav-heading">
+                    <span class="sr-only"> / </span>{{ account.value.server }}
+                  </small>
+                </span>
+                @if (account.value.authenticationStatus === authStatus.Unlocked) {
+                  <bit-badge variant="secondary" class="tw-flex tw-justify-center">
+                    <bit-icon name="bwi-unlock" slot="end" class="text-muted" aria-hidden="true">
+                    </bit-icon>
+                    <span>Unlocked</span>
+                  </bit-badge>
+                } @else {
+                  <bit-badge variant="secondary">
+                    <bit-icon
+                      name="bwi-lock"
+                      slot="end"
+                      class="text-muted"
+                      aria-hidden="true"
+                    ></bit-icon>
+                    <span>Locked</span>
+                  </bit-badge>
+                }
               </span>
-              @if (account.value.authenticationStatus === authStatus.Unlocked) {
-                <bit-icon
-                  name="bwi-unlock"
-                  slot="end"
-                  class="bwi-2x text-muted"
-                  aria-hidden="true"
-                ></bit-icon>
-              } @else {
-                <bit-icon
-                  name="bwi-lock"
-                  slot="end"
-                  class="bwi-2x text-muted"
-                  aria-hidden="true"
-                ></bit-icon>
-              }
             </button>
           }
         }
