@@ -18650,19 +18650,46 @@
   "pamRotationScheduleEchoMonthly": {
     "message": "Rotates once a month, at midnight on the 1st."
   },
-  "pamRotationScheduleEchoInterval": {
-    "message": "Rotates every $COUNT$ $UNIT$, at $TIME$.",
+  "pamRotationScheduleEchoIntervalDay": {
+    "message": "Rotates every day, at $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalDays": {
+    "message": "Rotates every $COUNT$ days, at $TIME$.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "90"
-      },
-      "unit": {
-        "content": "$2",
-        "example": "Days"
+        "example": "7"
       },
       "time": {
-        "content": "$3",
+        "content": "$2",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonth": {
+    "message": "Rotates every month, at $TIME$.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoIntervalMonths": {
+    "message": "Rotates every $COUNT$ months, at $TIME$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "time": {
+        "content": "$2",
         "example": "02:00"
       }
     }

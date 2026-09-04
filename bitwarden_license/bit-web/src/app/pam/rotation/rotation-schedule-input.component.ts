@@ -107,18 +107,31 @@ const SCHEDULE_ECHO_KEYS: Partial<Record<QuartzSchedulePreset, string>> = {
   [QuartzSchedulePreset.Monthly]: "pamRotationScheduleEchoMonthly",
 };
 
-/** The interval echo names its unit with the builder's own option label, not fresh copy. */
-const INTERVAL_UNIT_KEYS: Readonly<Record<ScheduleIntervalUnit, string>> = Object.freeze({
-  [ScheduleIntervalUnit.Days]: "pamRotationScheduleIntervalUnitDays",
-  [ScheduleIntervalUnit.Months]: "pamRotationScheduleIntervalUnitMonths",
-});
+/**
+ * Interval unit → the sentence for a count of one, and the sentence for any other count.
+ *
+ * A whole sentence per plural form: substitution here is positional and the repository has no
+ * plural helper. The unit is not substituted into one shared sentence, because the only unit
+ * strings available are the builder's `bit-option` labels — capitalised and always plural — and
+ * lower-casing a noun in code is wrong in the languages that capitalise it.
+ */
+const INTERVAL_ECHO_KEYS: Readonly<Record<ScheduleIntervalUnit, { one: string; many: string }>> =
+  Object.freeze({
+    [ScheduleIntervalUnit.Days]: {
+      one: "pamRotationScheduleEchoIntervalDay",
+      many: "pamRotationScheduleEchoIntervalDays",
+    },
+    [ScheduleIntervalUnit.Months]: {
+      one: "pamRotationScheduleEchoIntervalMonth",
+      many: "pamRotationScheduleEchoIntervalMonths",
+    },
+  });
 
 /** What the echo line renders: a message key, plus the parameters that message takes. */
 interface ScheduleEcho {
   key: string;
   p1?: string | number;
   p2?: string | number;
-  p3?: string | number;
 }
 
 /** A clock reading as `<input type="time">` and the SDK's presets both spell it: zero-padded. */
@@ -276,8 +289,10 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
         this.cronByPreset.set(preset, cron);
       }
     });
-    // A preset selected before the table landed emitted null; re-emit now that it resolves.
+    // A preset selected before the table landed emitted null, and its echo stayed silent; re-emit
+    // and repaint now that it resolves.
     this.emitValue();
+    this.cdr.markForCheck();
   }
 
   /** Re-checks the custom expression's shape and re-runs validation once the verdict is in. */
@@ -425,16 +440,17 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
       if (parts == null) {
         return null;
       }
-      return {
-        key: "pamRotationScheduleEchoInterval",
-        p1: parts.count,
-        p2: this.i18n.t(INTERVAL_UNIT_KEYS[parts.unit]),
-        p3: timeOfDay(parts.hh, parts.mm),
-      };
+      const keys = INTERVAL_ECHO_KEYS[parts.unit];
+      const time = timeOfDay(parts.hh, parts.mm);
+      return parts.count === 1
+        ? { key: keys.one, p1: time }
+        : { key: keys.many, p1: parts.count, p2: time };
     }
     const key = SCHEDULE_ECHO_KEYS[preset];
     if (key != null) {
-      return { key };
+      // Until a named preset's expression is in hand, currentValue emits null — no schedule at
+      // all — so its sentence would be describing something the form is not about to save.
+      return preset === QuartzSchedulePreset.None || this.cronByPreset.has(preset) ? { key } : null;
     }
     if (!this.cronShapeValid) {
       return null;

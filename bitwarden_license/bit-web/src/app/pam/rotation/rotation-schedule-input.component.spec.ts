@@ -496,6 +496,10 @@ describe("RotationScheduleInputComponent", () => {
     fixture.detectChanges();
   }
 
+  it("gives the echo a stable id rather than a generated hint id", () => {
+    expect(echoElement().id).toBe("rotation-schedule-input_status_echo");
+  });
+
   it("renders the echo as a polite live region", () => {
     const echo = echoElement();
     expect(echo).not.toBeNull();
@@ -521,16 +525,60 @@ describe("RotationScheduleInputComponent", () => {
     expect(echoText()).toBe("pamRotationScheduleEchoWeekly");
   });
 
-  it("describes an interval with its count, its unit label and its time", () => {
+  it("describes a multi-day interval with its count and its time", () => {
     buildInterval(ScheduleIntervalUnit.Days, 7, "02:00");
-    expect(echoText()).toBe(
-      "pamRotationScheduleEchoInterval:7:pamRotationScheduleIntervalUnitDays:02:00",
-    );
+    expect(echoText()).toBe("pamRotationScheduleEchoIntervalDays:7:02:00");
+  });
+
+  it("describes a one-day interval with the singular sentence", () => {
+    buildInterval(ScheduleIntervalUnit.Days, 1, "00:00");
+    expect(echoText()).toBe("pamRotationScheduleEchoIntervalDay:00:00");
+  });
+
+  it("describes a multi-month interval with its count and its time", () => {
+    buildInterval(ScheduleIntervalUnit.Months, 3, "02:00");
+    expect(echoText()).toBe("pamRotationScheduleEchoIntervalMonths:3:02:00");
+  });
+
+  it("describes a one-month interval with the singular sentence", () => {
+    buildInterval(ScheduleIntervalUnit.Months, 1, "06:45");
+    expect(echoText()).toBe("pamRotationScheduleEchoIntervalMonth:06:45");
   });
 
   it("says nothing about an incomplete interval", () => {
     buildInterval(ScheduleIntervalUnit.Days, null, "02:00");
     expect(echoText()).toBe("");
+  });
+
+  function presetCrons(): Map<QuartzSchedulePreset, string> {
+    return (component as unknown as { cronByPreset: Map<QuartzSchedulePreset, string> })
+      .cronByPreset;
+  }
+
+  it("says nothing about a named preset before its expression resolves", () => {
+    presetCrons().clear();
+    presetCtrl().setValue(QuartzSchedulePreset.Daily);
+    fixture.detectChanges();
+    expect(echoText()).toBe("");
+  });
+
+  it("describes the None preset before any expression resolves", () => {
+    presetCrons().clear();
+    presetCtrl().setValue(QuartzSchedulePreset.None);
+    fixture.detectChanges();
+    expect(echoText()).toBe("pamRotationScheduleEchoNone");
+  });
+
+  it("describes a preset once its expression resolves", async () => {
+    presetCrons().clear();
+    presetCtrl().setValue(QuartzSchedulePreset.Daily);
+    fixture.detectChanges();
+    expect(echoText()).toBe("");
+
+    fixture.autoDetectChanges();
+    await (component as unknown as { loadPresetCrons: () => Promise<void> }).loadPresetCrons();
+    await fixture.whenStable();
+    expect(echoText()).toBe("pamRotationScheduleEchoDaily");
   });
 
   it("echoes a well-shaped custom expression verbatim", async () => {
