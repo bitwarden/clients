@@ -10,6 +10,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -230,6 +231,95 @@ describe("VaultItemsTableComponent", () => {
       .filtered()
       .map((cipher) => cipher.name);
   }
+
+  describe("clicking a row cell", () => {
+    /** The `role="cell"` divs of the first body row, in column order. */
+    function firstRowCells(): HTMLElement[] {
+      const row = fixture.nativeElement.querySelector("bit-row");
+      return Array.from(row.querySelectorAll('[role="cell"]'));
+    }
+
+    /**
+     * The data cells — everything between the selection checkbox cell and the actions cell, which
+     * are the two the row-click affordance deliberately leaves to their own controls.
+     */
+    function firstRowDataCells(): HTMLElement[] {
+      return firstRowCells().slice(1, -1);
+    }
+
+    /** Two ciphers spanning both vaults, so every optional column and its chips render. */
+    function renderRows(itemAction?: jest.Mock) {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon", organizationId: "org-1", collectionIds: ["col-1"] }),
+        cipherView({ id: "b", name: "Bank" }),
+      ]);
+      fixture.componentRef.setInput("organizations", [
+        { id: "org-1", name: "Acme corporation" } as Organization,
+      ]);
+      fixture.componentRef.setInput("collections", [
+        { id: "col-1", name: "Operations" } as CollectionView,
+      ]);
+      if (itemAction) {
+        fixture.componentRef.setInput("itemAction", itemAction);
+      }
+      fixture.detectChanges();
+    }
+
+    it("runs itemAction from any data cell, not just the name button", () => {
+      const itemAction = jest.fn();
+      renderRows(itemAction);
+
+      const dataCells = firstRowDataCells();
+      expect(dataCells.length).toBeGreaterThan(1);
+
+      for (const cell of dataCells) {
+        itemAction.mockClear();
+        cell.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        expect(itemAction).toHaveBeenCalledWith(expect.objectContaining({ id: "a" }));
+      }
+    });
+
+    it("fires once, not twice, when the name button itself is clicked", () => {
+      const itemAction = jest.fn();
+      renderRows(itemAction);
+
+      const nameButton = fixture.nativeElement.querySelector("bit-row button[bitlink]");
+      nameButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+      expect(itemAction).toHaveBeenCalledTimes(1);
+    });
+
+    it("leaves the filter chips inside a cell to their own click handler", () => {
+      const itemAction = jest.fn();
+      renderRows(itemAction);
+
+      const chip = fixture.nativeElement.querySelector("bit-row button[bit-chip-action]");
+      expect(chip).not.toBeNull();
+      chip.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+      expect(itemAction).not.toHaveBeenCalled();
+    });
+
+    it("ignores modifier clicks so selection and browser gestures stay available", () => {
+      const itemAction = jest.fn();
+      renderRows(itemAction);
+      const cell = firstRowDataCells()[0];
+
+      for (const modifier of ["ctrlKey", "metaKey", "shiftKey", "altKey"]) {
+        cell.dispatchEvent(new MouseEvent("click", { bubbles: true, [modifier]: true }));
+      }
+
+      expect(itemAction).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when no itemAction is supplied", () => {
+      renderRows();
+
+      expect(() =>
+        firstRowDataCells()[0].dispatchEvent(new MouseEvent("click", { bubbles: true })),
+      ).not.toThrow();
+    });
+  });
 
   it("renders a row per cipher", () => {
     fixture.componentRef.setInput("ciphers", [
@@ -684,8 +774,8 @@ describe("VaultItemsTableComponent", () => {
   describe("vaults present in the rows", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
-        { id: "org-1", name: "Acme corporation" } as Organization,
-        { id: "org-2", name: "Contoso" } as Organization,
+        { id: "org-1", name: "Acme corporation", enabled: true } as Organization,
+        { id: "org-2", name: "Contoso", enabled: true } as Organization,
       ]);
     });
 
@@ -697,6 +787,32 @@ describe("VaultItemsTableComponent", () => {
         ]);
 
         expect(component["sortedOrganizations"]().map((o) => o.id)).toEqual(["org-1", "org-2"]);
+      });
+
+      it("hides a disabled organization, and stops counting it toward the Vault chip", () => {
+        fixture.componentRef.setInput("organizations", [
+          { id: "org-1", name: "Acme corporation", enabled: true } as Organization,
+          { id: "org-2", name: "Contoso", enabled: false } as Organization,
+        ]);
+        // Scoping to the enabled org suppresses the My vault option, so one vault remains.
+        fixture.componentRef.setInput("scopedOrganizationId", "org-1" as never);
+
+        expect(component["sortedOrganizations"]().map((o) => o.id)).toEqual(["org-1"]);
+        expect(component["showVaults"]()).toBe(false);
+      });
+
+      it("keeps the Vault column when the only organization is disabled", () => {
+        fixture.componentRef.setInput("organizations", [
+          { id: "org-2", name: "Contoso", enabled: false } as Organization,
+        ]);
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ id: "a", organizationId: "org-2" as never }),
+        ]);
+
+        // The chip has nothing to offer, but the disabled org still owns rows that need a label.
+        expect(component["showVaults"]()).toBe(false);
+        expect(component["showVaultColumn"]()).toBe(true);
+        expect(component["visibleColumns"]()).toContain("vault");
       });
 
       it("offers My vault when every cipher is organization-owned but the view is unscoped", () => {
@@ -738,10 +854,46 @@ describe("VaultItemsTableComponent", () => {
       });
     });
 
+    describe("chip option icon tiles", () => {
+      it("tints the My vault option with the user's avatar color", () => {
+        expect(component["myVaultFilterTile"]()).toEqual({
+          icon: "bwi-user",
+          color: "#175ddc",
+        });
+      });
+
+      it("gives each organization the tile its product tier earns", () => {
+        fixture.componentRef.setInput("organizations", [
+          {
+            id: "org-1",
+            name: "Acme corporation",
+            enabled: true,
+            productTierType: ProductTierType.Enterprise,
+          } as Organization,
+          {
+            id: "org-2",
+            name: "Contoso",
+            enabled: true,
+            productTierType: ProductTierType.Families,
+          } as Organization,
+        ]);
+
+        const tiles = component["organizationTiles"]();
+
+        expect(tiles.get("org-1")?.variant).toBe("purple");
+        expect(tiles.get("org-2")?.variant).toBe("teal");
+      });
+
+      it("keeps the tile identity stable across reads so the filter menu is not re-dirtied", () => {
+        expect(component["organizationTiles"]()).toBe(component["organizationTiles"]());
+        expect(component["myVaultFilterTile"]()).toBe(component["myVaultFilterTile"]());
+      });
+    });
+
     describe("visibleColumns", () => {
       it("drops the Vault column when there is one organization and no personal vault option", () => {
         fixture.componentRef.setInput("organizations", [
-          { id: "org-1", name: "Acme corporation" } as Organization,
+          { id: "org-1", name: "Acme corporation", enabled: true } as Organization,
         ]);
         // Scoping to the org suppresses the My vault option, leaving nothing to distinguish.
         fixture.componentRef.setInput("scopedOrganizationId", "org-1" as never);
@@ -779,7 +931,7 @@ describe("VaultItemsTableComponent", () => {
 
     it("is true when organizations are provided", () => {
       fixture.componentRef.setInput("organizations", [
-        { id: "org-1", name: "Acme corporation" } as Organization,
+        { id: "org-1", name: "Acme corporation", enabled: true } as Organization,
       ]);
 
       expect(component["showSharedFolders"]()).toBe(true);
@@ -809,7 +961,7 @@ describe("VaultItemsTableComponent", () => {
   describe("resolving display names", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
-        { id: "org-1", name: "Acme corporation" } as Organization,
+        { id: "org-1", name: "Acme corporation", enabled: true } as Organization,
       ]);
       fixture.componentRef.setInput("collections", [
         { id: "col-1", name: "Operations" } as CollectionView,
@@ -834,14 +986,24 @@ describe("VaultItemsTableComponent", () => {
       );
     });
 
+    /** Puts the fixture in the table first, so this reads the memoized lists rather than the fallback. */
+    function chipsFor(cipher: CipherView) {
+      fixture.componentRef.setInput("ciphers", [cipher]);
+      fixture.detectChanges();
+      return {
+        sharedFolders: component["sharedFolderChips"](cipher),
+        folders: component["folderChips"](cipher),
+      };
+    }
+
     it("resolves shared folder chips and drops unknown ids", () => {
       const cipher = cipherView({
         organizationId: "org-1" as never,
         collectionIds: ["col-2", "col-unknown"] as never,
       });
 
-      expect(component["sharedFolderChips"](cipher)).toEqual([
-        { value: "col-2", name: "Engineering" },
+      expect(chipsFor(cipher).sharedFolders).toEqual([
+        { id: "col-2", label: "Engineering", variant: "subtle", startIcon: "bwi-shared-folder" },
       ]);
     });
 
@@ -852,24 +1014,24 @@ describe("VaultItemsTableComponent", () => {
         collectionIds: ["col-1", "col-2"] as never,
       });
 
-      expect(component["sharedFolderChips"](cipher)).toEqual([
-        { value: "col-2", name: "Engineering" },
-        { value: "col-1", name: "Operations" },
+      expect(chipsFor(cipher).sharedFolders.map((chip) => chip.label)).toEqual([
+        "Engineering",
+        "Operations",
       ]);
     });
 
     it("resolves the folder as a single-entry chip list", () => {
-      expect(component["folderChips"](cipherView({ folderId: "folder-1" as never }))).toEqual([
-        { value: "folder-1", name: "Work" },
+      expect(chipsFor(cipherView({ folderId: "folder-1" as never })).folders).toEqual([
+        { id: "folder-1", label: "Work", variant: "subtle", startIcon: "bwi-folder" },
       ]);
-      expect(component["folderChips"](cipherView({ folderId: undefined }))).toEqual([]);
+      expect(chipsFor(cipherView({ folderId: undefined })).folders).toEqual([]);
     });
   });
 
   describe("filtering from a membership chip", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
-        { id: "org-1", name: "Acme" } as Organization,
+        { id: "org-1", name: "Acme", enabled: true } as Organization,
       ]);
       fixture.componentRef.setInput("collections", [
         { id: "col-1", name: "Operations" } as CollectionView,
@@ -881,8 +1043,8 @@ describe("VaultItemsTableComponent", () => {
     /** A rendered membership chip, found by the name it displays. */
     function chipButton(name: string) {
       const chip = fixture.debugElement
-        .queryAll(By.css("button[bit-chip-action]"))
-        .find((candidate) => candidate.nativeElement.getAttribute("title") === name);
+        .queryAll(By.css("bit-chip-group button[bit-chip-action]"))
+        .find((candidate) => candidate.nativeElement.textContent.trim() === name);
       if (!chip) {
         throw new Error(`No membership chip rendered for "${name}"`);
       }
@@ -928,7 +1090,7 @@ describe("VaultItemsTableComponent", () => {
       fixture.detectChanges();
 
       filterControl("sharedFolder").setValue(["col-1"]);
-      component["filterTo"](bitTable(), "sharedFolder", "col-2");
+      component["filterTo"](bitTable(), "sharedFolder", { id: "col-2", label: "Engineering" });
 
       expect(filterControl("sharedFolder").value()).toEqual(["col-2"]);
     });
@@ -939,22 +1101,31 @@ describe("VaultItemsTableComponent", () => {
 
       filterControl("search").setValue("amazon");
       filterControl("type").setValue(CipherType.Login);
-      component["filterTo"](bitTable(), "folder", "folder-1");
+      component["filterTo"](bitTable(), "folder", { id: "folder-1", label: "Work" });
 
       expect(filterControl("search").value()).toBe("amazon");
       expect(filterControl("type").value()).toBe(CipherType.Login);
     });
 
-    it("names the chip after the action, not just the membership", () => {
+    /**
+     * A chip announces only its own membership name, so the group carries the column's name to
+     * say what the collection of them is.
+     */
+    it("names the chip group after its column", () => {
       fixture.componentRef.setInput("ciphers", [
         cipherView({
           organizationId: "org-1" as never,
           collectionIds: ["col-2"] as never,
+          folderId: "folder-1" as never,
         }),
       ]);
       fixture.detectChanges();
 
-      expect(chipButton("Engineering").getAttribute("aria-label")).toBe("filterByName");
+      const groups = fixture.debugElement
+        .queryAll(By.css("bit-chip-group [role='group']"))
+        .map((group) => group.nativeElement.getAttribute("aria-label"));
+
+      expect(groups).toEqual(["sharedFolders", "myFolders"]);
     });
   });
 
@@ -965,9 +1136,9 @@ describe("VaultItemsTableComponent", () => {
 
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
-        { id: "org-1", name: "Acme" } as Organization,
+        { id: "org-1", name: "Acme", enabled: true } as Organization,
         // Two orgs ensure the Vault chip renders via the multiple-vaults path.
-        { id: "org-2", name: "Contoso" } as Organization,
+        { id: "org-2", name: "Contoso", enabled: true } as Organization,
       ]);
       fixture.componentRef.setInput("collections", [
         { id: "col-1", name: "Engineering", organizationId: "org-1" } as CollectionView,
@@ -1032,8 +1203,8 @@ describe("VaultItemsTableComponent", () => {
 
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
-        { id: "org-1", name: "Acme corporation" } as Organization,
-        { id: "org-2", name: "Contoso" } as Organization,
+        { id: "org-1", name: "Acme corporation", enabled: true } as Organization,
+        { id: "org-2", name: "Contoso", enabled: true } as Organization,
       ]);
     });
 
@@ -1112,7 +1283,7 @@ describe("VaultItemsTableComponent", () => {
   describe("sorting synthetic columns", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
-        { id: "org-1", name: "Acme corporation" } as Organization,
+        { id: "org-1", name: "Acme corporation", enabled: true } as Organization,
       ]);
       fixture.componentRef.setInput("collections", [
         { id: "col-1", name: "Operations" } as CollectionView,

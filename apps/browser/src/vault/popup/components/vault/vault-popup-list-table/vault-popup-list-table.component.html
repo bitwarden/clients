@@ -2,6 +2,7 @@
   class="[&_[role=row]]:tw-mx-3"
   [tableDef]="table"
   [filter]="filterPredicate"
+  [filters]="filtersToRestore()"
   [loading]="loading()"
   [trackBy]="trackRow"
   presentation="list"
@@ -41,6 +42,7 @@
         @for (option of organizationOptions(); track option.value.id) {
           <bit-filter-option
             [value]="option.value.id"
+            [iconTile]="option.iconTile"
             [count]="optionCount('organization', [option.value.id])"
             >{{ option.label }}</bit-filter-option
           >

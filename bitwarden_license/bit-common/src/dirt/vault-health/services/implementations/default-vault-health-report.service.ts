@@ -191,11 +191,27 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
       checkExposed: true,
     });
 
+    // A failed breach lookup arrives per login rather than a rejection, and reads as not exposed.
+    this.throwIfExposedCheckFailed(risks);
+
     // Each CipherRiskResult carries its own `id`, so map results to per-login
     // views directly by id (no reliance on array position).
     return VaultHealthReportView.fromCipherHealth(
       risks.map((risk) => this.toCipherHealthView(risk)),
       totalCount,
+    );
+  }
+
+  private throwIfExposedCheckFailed(risks: CipherRiskResult[]): void {
+    const messages = risks.flatMap((risk) =>
+      risk.exposed_result.type === "Error" ? [risk.exposed_result.value] : [],
+    );
+    if (messages.length === 0) {
+      return;
+    }
+
+    throw new Error(
+      `Exposed-password check failed for ${messages.length} of ${risks.length} logins: ${messages[0]}`,
     );
   }
 
