@@ -8,7 +8,7 @@
     @if (sideNavService.version() === "default") {
       <bit-nav-divider></bit-nav-divider>
     }
-    <navigation-product-switcher></navigation-product-switcher>
+    <navigation-product-switcher [variant]="variant()"></navigation-product-switcher>
   </ng-container>
 
   <ng-container slot="callout">
