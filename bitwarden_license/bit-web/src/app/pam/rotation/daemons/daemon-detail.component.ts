@@ -124,7 +124,7 @@ export class DaemonDetailComponent {
   );
 
   private readonly targetSystemsLoadError = toSignal(this.targetSystemsService.loadError$, {
-    initialValue: null as unknown | null,
+    initialValue: null,
   });
 
   /**
@@ -229,17 +229,18 @@ export class DaemonDetailComponent {
     }
   };
 
-  /** Assign an active automatic target system to this daemon. */
+  /**
+   * Assign an active automatic target system to this daemon.
+   *
+   * A failed target-systems load leaves the shared list empty, which is indistinguishable from an
+   * org that genuinely has none — so the failure is surfaced rather than letting the dialog assert
+   * the org has no active automatic target system.
+   */
   protected readonly assignTarget = async (): Promise<void> => {
     const connector = this.connector();
     if (connector == null || !this.enabled()) {
       return;
     }
-    /**
-     * A failed target-systems load leaves the list empty, which is indistinguishable from an org
-     * that genuinely has none — so the failure is surfaced rather than letting the dialog assert
-     * the org has no active automatic target system.
-     */
     const targetSystemsError = this.targetSystemsLoadError();
     if (targetSystemsError) {
       this.showError(targetSystemsError);
