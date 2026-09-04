@@ -23,10 +23,11 @@
             class="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-lg tw-border tw-border-solid tw-border-secondary-300 tw-bg-transparent tw-p-3 tw-text-start tw-text-main hover:tw-bg-secondary-100 focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus"
             (click)="select(filter)"
           >
-            <span
-              class="tw-size-2 tw-flex-none tw-rounded-full"
-              [class.tw-bg-bg-brand]="filter.active()"
-            ></span>
+            <!-- Rendered only when active: the spec lets an inactive row's icon take the
+                 dot's place rather than holding the column open. -->
+            @if (filter.active()) {
+              <span class="tw-size-2 tw-flex-none tw-rounded-full tw-bg-bg-brand"></span>
+            }
             @if (filter.icon(); as icon) {
               <bit-icon [name]="icon" class="tw-flex-none" aria-hidden="true"></bit-icon>
             }

@@ -480,20 +480,13 @@ export class FilterMenuComponent
     return options.some((option) => option.hasChildren() || this.groupExpands(option.children()));
   }
 
-  /** A section header's chevron, or `null` for an option — see the template's comment. */
-  protected sectionChevron(node: FilterTreeNode): BitwardenIcon | null {
-    if (node.row.kind !== "section") {
-      return null;
-    }
-    return node.expanded ? "bwi-angle-up" : "bwi-angle-down";
-  }
-
   /** The multi-select rows, flattened in document order, each carrying its own level. */
   protected readonly treeNodes = computed<FilterTreeNode[]>(() => {
     const nodes: FilterTreeNode[] = [];
     const push = (
       rows: readonly FilterRow[],
       level: number,
+      indent: number,
       parent: number | null,
       reserveExpander: boolean,
     ) => {
@@ -506,6 +499,7 @@ export class FilterMenuComponent
           parent,
           expanded,
           level,
+          indent,
           setsize: visible.length,
           posinset: index + 1,
           reserveExpander,
@@ -517,8 +511,11 @@ export class FilterMenuComponent
         if (expanded && row.children().length > 0) {
           // A section is its own group: it reserves only if something inside it expands.
           const children = row.children();
-          const reserve = row.kind === "section" ? this.groupExpands(children) : reserveExpander;
-          push(children, level + 1, self, reserve);
+          const section = row.kind === "section";
+          const reserve = section ? this.groupExpands(children) : reserveExpander;
+          // A section heads its group rather than parenting a row, so its options hold the
+          // section's own indent instead of stepping in from it.
+          push(children, level + 1, section ? indent : indent + 1, self, reserve);
         }
       });
     };
@@ -532,6 +529,7 @@ export class FilterMenuComponent
     // row on it reserves the column.
     push(
       rows,
+      1,
       1,
       null,
       rows.some((row) => row.expandable()),

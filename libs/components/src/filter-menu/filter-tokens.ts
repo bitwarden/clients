@@ -111,6 +111,12 @@ export type FilterTreeNode = {
   /** Whether the row's children are shown — its own state, or forced open while searching. */
   expanded: boolean;
   level: number;
+  /**
+   * The row's depth for indentation, which can be shallower than {@link level}: a section
+   * is drawn as its group's header rather than a parent row, so its options sit at the
+   * group's base indent even though they are its tree children.
+   */
+  indent: number;
   setsize: number;
   posinset: number;
   /**

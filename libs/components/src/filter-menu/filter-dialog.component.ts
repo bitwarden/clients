@@ -112,12 +112,18 @@ export class FilterDialogComponent {
     "[&_[data-filter-card-bottom]:not(:last-child)]:tw-mb-3",
     // A divider reads as the gap between two cards, so the popover's rule is dropped.
     "[&_[data-filter-divider]]:tw-hidden",
-    // The accordion bar: tinted, with the chevron trailing rather than leading.
+    // The accordion bar: tinted, label inset 12px, with the chevron trailing rather than
+    // leading. The tint is what marks it as a header, so its label keeps the option rows'
+    // weight — unlike the popover, where there is no tint to do that job.
     "[&_[data-filter-section-row]]:tw-bg-bg-secondary",
-    "[&_[data-filter-section-row]]:tw-font-semibold",
+    "[&_[data-filter-section-row]]:tw-ps-3",
+    "[&_[data-filter-section-row]_[data-filter-row-label]]:tw-font-normal",
     "[&_[data-filter-section-row]_[data-filter-expander]]:tw-order-last",
     "[&_[data-filter-section-row]_[data-filter-expander]]:tw-ms-1",
     "[&_[data-filter-section-row]_[data-filter-expander]]:tw-me-0",
+    // Hug the glyph so the bar's chevron shares the option rows' trailing edge and lines
+    // up with their counts; the 24px box would otherwise centre it 12px further in.
+    "[&_[data-filter-section-row]_[data-filter-expander]]:!tw-w-auto",
   ].join(" ");
 
   /** A row tap: drill into a filter that has options, or flip a toggle in place. */
