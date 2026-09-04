@@ -2,38 +2,6 @@
   <bit-breadcrumbs slot="breadcrumbs">
     <bit-breadcrumb [route]="['..']">{{ "pamRotationTabAccessConnectors" | i18n }}</bit-breadcrumb>
   </bit-breadcrumbs>
-  @if (daemon()) {
-    @if (enabled()) {
-      <button
-        type="button"
-        bitButton
-        buttonType="secondary"
-        [bitAction]="disable"
-        id="daemon-detail_button_disable"
-      >
-        {{ "pamAccessConnectorDisable" | i18n }}
-      </button>
-    } @else {
-      <button
-        type="button"
-        bitButton
-        buttonType="secondary"
-        [bitAction]="enable"
-        id="daemon-detail_button_enable"
-      >
-        {{ "pamAccessConnectorEnable" | i18n }}
-      </button>
-    }
-    <button
-      type="button"
-      bitButton
-      buttonType="danger"
-      [bitAction]="deleteDaemon"
-      id="daemon-detail_button_delete"
-    >
-      {{ "delete" | i18n }}
-    </button>
-  }
 </bit-header>
 
 @if (loading()) {
@@ -126,5 +94,38 @@
         </bit-card>
       }
     </bit-section>
+    <div class="tw-flex tw-items-center tw-gap-2">
+      @if (enabled()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          [bitAction]="disable"
+          id="daemon-detail_button_disable"
+        >
+          {{ "pamAccessConnectorDisable" | i18n }}
+        </button>
+      } @else {
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          [bitAction]="enable"
+          id="daemon-detail_button_enable"
+        >
+          {{ "pamAccessConnectorEnable" | i18n }}
+        </button>
+      }
+      <button
+        type="button"
+        bitButton
+        buttonType="danger"
+        [bitAction]="deleteDaemon"
+        class="tw-ms-auto"
+        id="daemon-detail_button_delete"
+      >
+        {{ "delete" | i18n }}
+      </button>
+    </div>
   </div>
 }

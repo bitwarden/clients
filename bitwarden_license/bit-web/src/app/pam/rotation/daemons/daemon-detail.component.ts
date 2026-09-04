@@ -148,7 +148,6 @@ export class DaemonDetailComponent {
 
   protected readonly titleText = computed(() => this.connector()?.name ?? "");
 
-  /** True when the daemon is enabled — drives Disable vs Enable in the header. */
   protected readonly enabled = computed(() => this.connector()?.status === DaemonStatus.Enabled);
 
   constructor() {

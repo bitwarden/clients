@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -45,6 +46,24 @@ function makeOtherSystem(): TargetSystem {
   return targetSystem({ id: sysId("ts-2"), name: "Prod MSSQL" });
 }
 
+function daemonProviders(
+  rotationSdk: ReturnType<typeof mock<RotationSdkService>>,
+  daemonId = connectorId("daemon-1"),
+  dialogService: ReturnType<typeof mock<DialogService>> = mock<DialogService>(),
+) {
+  return [
+    provideRouter([]),
+    { provide: RotationSdkService, useValue: rotationSdk },
+    { provide: I18nService, useValue: i18nFake },
+    { provide: ToastService, useValue: mock<ToastService>() },
+    { provide: DialogService, useValue: dialogService },
+    {
+      provide: ActivatedRoute,
+      useValue: { snapshot: { params: { organizationId: ORGANIZATION_ID, daemonId } } },
+    },
+  ];
+}
+
 async function setup(
   rotationSdk: ReturnType<typeof mock<RotationSdkService>>,
   daemonId = connectorId("daemon-1"),
@@ -53,17 +72,7 @@ async function setup(
   TestBed.overrideComponent(DaemonDetailComponent, { set: { template: "", imports: [] } });
   await TestBed.configureTestingModule({
     imports: [DaemonDetailComponent],
-    providers: [
-      provideRouter([]),
-      { provide: RotationSdkService, useValue: rotationSdk },
-      { provide: I18nService, useValue: i18nFake },
-      { provide: ToastService, useValue: mock<ToastService>() },
-      { provide: DialogService, useValue: dialogService },
-      {
-        provide: ActivatedRoute,
-        useValue: { snapshot: { params: { organizationId: ORGANIZATION_ID, daemonId } } },
-      },
-    ],
+    providers: daemonProviders(rotationSdk, daemonId, dialogService),
   }).compileComponents();
 }
 
@@ -364,5 +373,56 @@ describe("DaemonDetailComponent", () => {
 
     expect(nav).toHaveBeenCalled();
     expect(toast.showToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+  });
+});
+
+describe("DaemonDetailComponent action row (rendered)", () => {
+  async function render(daemon: AccessConnectorDetail): Promise<HTMLElement> {
+    const rotationSdk = mock<RotationSdkService>();
+    rotationSdk.getConnector.mockResolvedValue(daemon);
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem()]);
+    await TestBed.configureTestingModule({
+      imports: [DaemonDetailComponent, NoopAnimationsModule],
+      providers: daemonProviders(rotationSdk),
+    }).compileComponents();
+    const fixture: ComponentFixture<DaemonDetailComponent> =
+      TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  function actionRow(el: HTMLElement): HTMLElement {
+    return el.querySelector(".tw-max-w-4xl")?.lastElementChild as HTMLElement;
+  }
+
+  it("leaves the page header with its title and breadcrumbs only", async () => {
+    const el = await render(makeDaemon());
+
+    const header = el.querySelector("bit-header") as HTMLElement;
+    expect(header).toBeTruthy();
+    expect(header.querySelector("#daemon-detail_button_disable")).toBeNull();
+    expect(header.querySelector("#daemon-detail_button_enable")).toBeNull();
+    expect(header.querySelector("#daemon-detail_button_delete")).toBeNull();
+  });
+
+  it("puts Disable and Delete in one row at the foot of the page content, Delete pushed to the end", async () => {
+    const el = await render(makeDaemon());
+
+    const row = actionRow(el);
+    expect(Array.from(row.querySelectorAll("button")).map((b) => b.id)).toEqual([
+      "daemon-detail_button_disable",
+      "daemon-detail_button_delete",
+    ]);
+    expect(row.querySelector("#daemon-detail_button_delete")?.className).toContain("tw-ms-auto");
+  });
+
+  it("offers Enable in the same row when the connector is disabled", async () => {
+    const el = await render(makeDaemon({ status: DaemonStatus.Disabled }));
+
+    const row = actionRow(el);
+    expect(row.querySelector("#daemon-detail_button_enable")).toBeTruthy();
+    expect(row.querySelector("#daemon-detail_button_disable")).toBeNull();
   });
 });
