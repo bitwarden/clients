@@ -25,7 +25,6 @@
     [defaultCollectionId]="defaultCollectionId()"
     [hasMultipleVaults]="hasMultipleVaults()"
     (selectedChange)="handleSelectionChange($event)"
-    id="vault-list-table_empty-new-cipher-menu"
   >
     @if (showAddCipherBtn()) {
       <vault-new-cipher-menu
@@ -37,6 +36,7 @@
         [disabled]="!canCreateCipher()"
         (cipherAdded)="onAddCipher.emit($event)"
         (onAddItemDialog)="onAddItemDialog.emit()"
+        id="vault-list-table_empty-new-cipher-menu"
       />
     }
 
