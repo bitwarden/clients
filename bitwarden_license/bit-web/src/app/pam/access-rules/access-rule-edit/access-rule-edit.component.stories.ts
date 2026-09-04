@@ -19,6 +19,7 @@ import { DialogModule, DialogService, ToastService } from "@bitwarden/components
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessRuleSdkService, AccessRuleView } from "../..";
+import { GovernedCollectionsService } from "../../services/governed-collections.service";
 
 import { AccessRuleEditComponent } from "./access-rule-edit.component";
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
@@ -98,6 +99,7 @@ export default {
           provide: CollectionAdminService,
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
+        { provide: GovernedCollectionsService, useValue: { rules$: () => of([]) } },
         { provide: CidrValidationService, useValue: { isValid: () => true } },
         {
           provide: OrganizationService,
@@ -121,9 +123,60 @@ export const CreateFromTemplate: Story = {
   decorators: [atUrl("/organizations/org-1/access-rules/new?template=approval-required")],
 };
 
-/** Edit mode: the form is populated from an existing rule (conditions + extensions enabled). */
+/**
+ * Create mode with two collections already governed by other rules: `col-1` (a disabled
+ * rule still counts, per `AccessRuleWriteValidator`) and `col-3` (an enabled rule) are missing
+ * from the picker; `col-2` is ungoverned and stays selectable.
+ */
+export const CreateWithGovernedCollections: Story = {
+  decorators: [
+    atUrl("/organizations/org-1/access-rules/new"),
+    moduleMetadata({
+      providers: [
+        {
+          provide: GovernedCollectionsService,
+          useValue: {
+            rules$: () =>
+              of([
+                {
+                  id: "rule-disabled",
+                  name: "Disabled rule",
+                  enabled: false,
+                  collections: ["col-1"],
+                  conditions: [],
+                  singleActiveLease: false,
+                } as unknown as AccessRuleView,
+                {
+                  id: "rule-enabled",
+                  name: "Enabled rule",
+                  enabled: true,
+                  collections: ["col-3"],
+                  conditions: [],
+                  singleActiveLease: false,
+                } as unknown as AccessRuleView,
+              ]),
+          },
+        },
+      ],
+    }),
+  ],
+};
+
+/**
+ * Edit mode: the form is populated from an existing rule (conditions + extensions enabled).
+ * `GovernedCollectionsService` reports the rule under edit as the sole governor of its own
+ * collections, so this also shows self-exclusion: `col-1` and `col-3` remain selectable despite
+ * `rule-1` itself "governing" them.
+ */
 export const Edit: Story = {
-  decorators: [atUrl("/organizations/org-1/access-rules/rule-1")],
+  decorators: [
+    atUrl("/organizations/org-1/access-rules/rule-1"),
+    moduleMetadata({
+      providers: [
+        { provide: GovernedCollectionsService, useValue: { rules$: () => of([SAMPLE_RULE]) } },
+      ],
+    }),
+  ],
 };
 
 /** Edit mode on a deactivated rule: the header badge reads "Off" and the Status checkbox is clear. */
