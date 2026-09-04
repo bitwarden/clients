@@ -69,6 +69,19 @@ describe("TargetSystemsService", () => {
 
       expect(await firstValueFrom(service.loadError$)).toBeNull();
     });
+
+    it("does not latch a concurrent load's failure over a later success", async () => {
+      rotationSdk.listTargetSystems
+        .mockRejectedValueOnce(new Error("network fail"))
+        .mockResolvedValueOnce([makeSystem()]);
+
+      const failing = service.load(ORG_ID);
+      const succeeding = service.load(ORG_ID);
+      await Promise.all([failing, succeeding]);
+
+      expect(await firstValueFrom(service.systems$)).toHaveLength(1);
+      expect(await firstValueFrom(service.loadError$)).toBeNull();
+    });
   });
 
   describe("systemById$", () => {
