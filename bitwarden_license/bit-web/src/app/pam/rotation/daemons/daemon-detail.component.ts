@@ -25,9 +25,17 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { RotationHistoryComponent } from "../managed-credentials/rotation-history.component";
-import { AccessConnectorDetail, AccessConnectorId, DaemonStatus } from "../rotation";
+import {
+  AccessConnectorDetail,
+  AccessConnectorId,
+  DaemonStatus,
+  TargetSystem,
+  TargetSystemId,
+} from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
+
+import { AssignTargetDialogComponent } from "./assign-target-dialog.component";
 
 /**
  * Routed detail page for a single rotation daemon — a sibling of the rotation shell (own
@@ -81,6 +89,11 @@ export class DaemonDetailComponent {
     initialValue: new Map(),
   });
 
+  private readonly activeAutomaticSystems = toSignal(
+    this.targetSystemsService.activeAutomaticSystems$,
+    { initialValue: [] as TargetSystem[] },
+  );
+
   /** The connector itself; the detail's other half is its recent job history. */
   private readonly connector = computed(() => this.daemon()?.connector ?? null);
 
@@ -92,6 +105,16 @@ export class DaemonDetailComponent {
     }
     const map = this.systemById();
     return connector.assignedTargetSystemIds.map((id) => map.get(id)?.name ?? id);
+  });
+
+  /** Active+automatic systems not already assigned to this connector — mirrors the tab's `openAssignDialog` filter (`daemons-tab.component.ts`). */
+  private readonly assignableSystems = computed(() => {
+    const connector = this.connector();
+    if (connector == null) {
+      return [];
+    }
+    const assigned = new Set(connector.assignedTargetSystemIds);
+    return this.activeAutomaticSystems().filter((s) => !assigned.has(s.id));
   });
 
   protected readonly titleText = computed(() => this.connector()?.name ?? "");
@@ -177,6 +200,36 @@ export class DaemonDetailComponent {
     }
   };
 
+  /**
+   * Assign a target system to this connector. Uses `RotationSdkService.assignTarget` directly
+   * rather than `DaemonsService` — that service is tab-scoped and owns a full list this page
+   * doesn't have; patches the local `daemon` signal the same way {@link patchStatus} does.
+   */
+  protected readonly openAssignDialog = async (): Promise<void> => {
+    const connector = this.connector();
+    if (connector == null) {
+      return;
+    }
+    const ref = AssignTargetDialogComponent.open(this.dialogService, {
+      data: { daemon: connector, options: this.assignableSystems() },
+    });
+    const targetSystemId = await ref.closed.toPromise();
+    if (!targetSystemId) {
+      return;
+    }
+    try {
+      const id = asUuid<TargetSystemId>(targetSystemId);
+      await this.rotationSdk.assignTarget(this.organizationId, connector.id, id);
+      this.patchAssignment(id);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamAccessConnectorAssigned"),
+      });
+    } catch (e) {
+      this.showError(e);
+    }
+  };
+
   private async initialize(): Promise<void> {
     try {
       const [daemon] = await Promise.all([
@@ -216,6 +269,21 @@ export class DaemonDetailComponent {
       return;
     }
     this.daemon.set({ ...daemon, connector: { ...daemon.connector, status } });
+  }
+
+  /** Patch the loaded daemon's assignments locally, mirroring {@link patchStatus}. */
+  private patchAssignment(targetSystemId: TargetSystemId): void {
+    const daemon = this.daemon();
+    if (daemon == null) {
+      return;
+    }
+    this.daemon.set({
+      ...daemon,
+      connector: {
+        ...daemon.connector,
+        assignedTargetSystemIds: [...daemon.connector.assignedTargetSystemIds, targetSystemId],
+      },
+    });
   }
 
   private showError(e: unknown): void {
