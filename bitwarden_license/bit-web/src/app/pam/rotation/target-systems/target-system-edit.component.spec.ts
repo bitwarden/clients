@@ -435,6 +435,16 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
     expect(el.querySelector("#target-system-edit_radio_manual")).toBeTruthy();
   });
 
+  it("renders a consequence hint under each method radio", () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector("#target-system-edit_radio_automatic bit-hint")?.textContent).toContain(
+      "pamTargetSystemMethodAutomaticHint",
+    );
+    expect(el.querySelector("#target-system-edit_radio_manual bit-hint")?.textContent).toContain(
+      "pamTargetSystemMethodManualHint",
+    );
+  });
+
   it("shows the Integration (kind) select only for the Automatic method", () => {
     const el = fixture.nativeElement as HTMLElement;
     // Defaults to Automatic → kind select present.

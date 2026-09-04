@@ -18719,6 +18719,12 @@
   "pamTargetSystemMethodManual": {
     "message": "Manual"
   },
+  "pamTargetSystemMethodAutomaticHint": {
+    "message": "A registered access connector performs the rotations on the schedule you set."
+  },
+  "pamTargetSystemMethodManualHint": {
+    "message": "No rotation job is created. You rotate the credential by hand and record each rotation."
+  },
   "pamTargetSystemKindEntra": {
     "message": "Entra"
   },
