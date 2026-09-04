@@ -865,7 +865,7 @@ describe("HistoryTabComponent", () => {
     });
 
     it("names the item by id in the confirm when the cipher is not in the approver's vault", async () => {
-      const unnamed = { ...unstartedApproval, cipherName: null };
+      const unnamed = { ...unstartedApproval, cipherName: null as string | null };
       managedRows$.next([unnamed]);
       create();
       showManaged();
