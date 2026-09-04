@@ -290,6 +290,21 @@ describe("vaultScopeCommands", () => {
     expect(vaultScopeCommands(scope)).toEqual(expected);
   });
 
+  it.each([
+    [ALL_ITEMS_SCOPE, ["/tabs/vault"]],
+    [myVaultScope, ["/tabs/vault", MY_VAULT_ROUTE]],
+    [organizationScope, ["/tabs/vault", organizationId]],
+    [trashScope, ["/tabs/vault", TRASH_ROUTE]],
+    [archiveScope, ["/tabs/vault", ARCHIVE_ROUTE]],
+    [sharedFolderScope, ["/tabs/vault", organizationId, SHARED_FOLDERS_ROUTE, collectionId]],
+    [myItemsScope, ["/tabs/vault", organizationId, MY_ITEMS_ROUTE]],
+  ])(
+    "rebases the route onto a client's own base path for %p",
+    (scope: VaultScope, expected: string[]) => {
+      expect(vaultScopeCommands(scope, "/tabs/vault")).toEqual(expected);
+    },
+  );
+
   it("round-trips through parseVaultScope", () => {
     for (const scope of [
       ALL_ITEMS_SCOPE,

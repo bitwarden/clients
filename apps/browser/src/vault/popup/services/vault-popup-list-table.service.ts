@@ -1,13 +1,17 @@
 import { inject, Injectable, NgZone } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import {
+  BehaviorSubject,
   combineLatest,
   debounce,
   distinctUntilChanged,
   firstValueFrom,
   map,
   Observable,
+  shareReplay,
   startWith,
+  switchMap,
   tap,
   timer,
 } from "rxjs";
@@ -20,13 +24,25 @@ import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.se
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService } from "@bitwarden/components";
-import { DecryptionFailureDialogComponent, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  ALL_ITEMS_SCOPE,
+  cipherInScope,
+  DecryptionFailureDialogComponent,
+  matchesFolder,
+  matchesSharedFolder,
+  matchesType,
+  matchesVault,
+  PasswordRepromptService,
+  type VaultScope,
+  VaultScopeType,
+} from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
@@ -34,6 +50,7 @@ import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 import { VaultPopupItemsService } from "./vault-popup-items.service";
+import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filters.service";
 import { VaultPopupLoadingService } from "./vault-popup-loading.service";
 
 /** The section a row belongs to within the vault list table. */
@@ -94,7 +111,24 @@ export class VaultPopupListTableService {
   private readonly router = inject(Router);
   private readonly vaultPopupAutofillService = inject(VaultPopupAutofillService);
   private readonly configService = inject(ConfigService);
+  private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
   private readonly vaultSettingsService = inject(VaultSettingsService);
+
+  /**
+   * The vault the page's `:vaultId` route segment narrows to.
+   */
+  private readonly scope$ = new BehaviorSubject<VaultScope>(ALL_ITEMS_SCOPE);
+
+  /** The scope currently narrowing the rows. Read by the table to gate its organization chip. */
+  readonly vaultScope = toSignal(this.scope$, { initialValue: ALL_ITEMS_SCOPE });
+
+  /**
+   * Narrows the vault to `scope`; {@link ALL_ITEMS_SCOPE} shows every vault's items. Does not
+   * clear the chips — this also fires on popup open, so the switcher does that instead.
+   */
+  setScope(scope: VaultScope | null): void {
+    this.scope$.next(scope ?? ALL_ITEMS_SCOPE);
+  }
 
   /**
    * Timeout used to add a small delay when selecting a cipher to allow for double click to launch.
@@ -137,19 +171,90 @@ export class VaultPopupListTableService {
     this.vaultPopupItemsService.filteredCiphers$,
     this.vaultPopupItemsService.hasSearchText$,
     this.rowActionContext$,
+    this.scope$,
   ]).pipe(
-    map(([autoFillCiphers, favoriteCiphers, filteredCiphers, hasSearchText, context]) => {
+    map(([autoFillCiphers, favoriteCiphers, filteredCiphers, hasSearchText, context, scope]) => {
+      /** One section's rows: the ciphers the scope admits, in display order. */
+      const section = (ciphers: PopupCipherViewLike[], name: VaultSection) =>
+        ciphers
+          .filter((cipher) => cipherInScope(cipher, scope))
+          .map((cipher) => this.toRow(cipher, name, context));
+
       if (hasSearchText) {
-        return filteredCiphers.map((cipher) => this.toRow(cipher, "allItems", context));
+        return section(filteredCiphers, "allItems");
       }
 
       return [
-        ...autoFillCiphers.map((cipher) => this.toRow(cipher, "autofill", context)),
-        ...favoriteCiphers.map((cipher) => this.toRow(cipher, "favorites", context)),
-        ...filteredCiphers.map((cipher) => this.toRow(cipher, "allItems", context)),
+        ...section(autoFillCiphers, "autofill"),
+        ...section(favoriteCiphers, "favorites"),
+        ...section(filteredCiphers, "allItems"),
       ];
     }),
+    // The table renders these and the header counts them, so build the list once per emission.
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
+
+  /**
+   * Whether the vault in view is suspended, by route scope or by chip — only one is ever active.
+   */
+  readonly suspendedVault$: Observable<boolean> = combineLatest([
+    this.scope$,
+    this.listFiltersService.selectedFilters$,
+  ]).pipe(
+    switchMap(([scope, selected]) =>
+      this.listFiltersService.suspended$(
+        scope.type === VaultScopeType.Organization ? [scope.organizationId] : selected.organization,
+      ),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /**
+   * The header's item count. Counts the `allItems` section, which holds every cipher once, and
+   * re-applies the chips, which never reach {@link rows$}. A suspended vault counts zero.
+   */
+  readonly itemCount$: Observable<number> = combineLatest([
+    this.rows$,
+    this.listFiltersService.selectedFilters$,
+    this.scope$,
+    this.suspendedVault$,
+  ]).pipe(
+    map(([rows, selected, scope, suspended]) => {
+      if (suspended) {
+        return 0;
+      }
+
+      const filters = this.scopedFilters(selected, scope);
+
+      return rows.filter(
+        (row) =>
+          row._section === "allItems" &&
+          matchesType(row.cipher, filters.cipherType) &&
+          matchesVault(row.cipher, filters.organization) &&
+          matchesSharedFolder(row.cipher, filters.collection) &&
+          matchesFolder(row.cipher, filters.folder),
+      ).length;
+    }),
+  );
+
+  /**
+   * The chip selection, less what the scope has taken away — a scoped vault renders no vault chip.
+   */
+  private scopedFilters(
+    selected: {
+      cipherType: CipherType | null;
+      organization: string[];
+      collection: string[];
+      folder: string[];
+    },
+    scope: VaultScope,
+  ) {
+    if (scope.type === VaultScopeType.AllItems) {
+      return selected;
+    }
+
+    return { ...selected, organization: [] as string[] };
+  }
 
   private toRow(
     cipher: PopupCipherViewLike,

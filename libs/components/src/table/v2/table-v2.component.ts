@@ -9,6 +9,7 @@ import {
   AfterContentInit,
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   TrackByFunction,
   booleanAttribute,
   computed,
@@ -21,6 +22,7 @@ import {
   output,
   signal,
   untracked,
+  viewChild,
 } from "@angular/core";
 
 import { NoResults } from "@bitwarden/assets/svg";
@@ -30,6 +32,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { CheckboxModule } from "../../checkbox";
 import { FILTER_HOST, FilterControl, FilterHost } from "../../filter-menu/filter-tokens";
 import { IconComponent } from "../../icon/icon.component";
+import { ScrollLayoutService } from "../../layout/scroll-layout.directive";
 import { SearchComponent } from "../../search/search.component";
 import { SkeletonTextComponent } from "../../skeleton";
 import { StatusLockupComponent } from "../../status-lockup/status-lockup.component";
@@ -253,6 +256,12 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * (minimum 4), and applies only when {@link virtualRowHeight} is set.
    */
   readonly height = input<"fill" | number>();
+
+  /**
+   * Registers the scrolling body as the page's scroll region, like `bitScrollLayoutHost`. A
+   * `"fill"` table is what scrolls, since the layout's region wraps it exactly. `"fill"` only.
+   */
+  readonly scrollLayoutHost = input(false, { transform: booleanAttribute });
 
   /** Optional trackBy for the virtualized row list. */
   readonly trackBy = input<TrackByFunction<T>>();
@@ -637,6 +646,42 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   /** True when {@link height} is `"fill"`. */
   protected readonly isFill = computed(() => this.height() === "fill");
+
+  private readonly scrollLayout = inject(ScrollLayoutService);
+
+  /**
+   * The element the body scrolls in, virtualized or not — replaced when the table swaps between
+   * them
+   */
+  private readonly scrollBody = viewChild<ElementRef<HTMLElement> | CdkVirtualScrollViewport>(
+    "scrollBody",
+  );
+
+  /**
+   * Publishes the scrolling body as the page's scroll region while {@link scrollLayoutHost} is set.
+   */
+  private readonly _scrollLayoutHostEffect = effect((onCleanup) => {
+    if (!this.scrollLayoutHost()) {
+      return;
+    }
+
+    const body = this.scrollBody();
+    const element = body instanceof CdkVirtualScrollViewport ? body.elementRef : body;
+
+    if (element == null) {
+      return;
+    }
+
+    const previous = untracked(() => this.scrollLayout.scrollableRef());
+    this.scrollLayout.scrollableRef.set(element);
+
+    onCleanup(() => {
+      // Only give the region back if it is still ours; a later host taking over must not be undone.
+      if (this.scrollLayout.scrollableRef() === element) {
+        this.scrollLayout.scrollableRef.set(previous);
+      }
+    });
+  });
 
   /** Row-count cap from {@link height} (clamped to a minimum of 4), or undefined when it isn't a number. */
   protected readonly maxRows = computed(() => {

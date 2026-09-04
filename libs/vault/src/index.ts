@@ -139,6 +139,7 @@ export { organizationVaultGuard } from "./routing/organization-vault.guard";
 export { MY_ITEMS_ROUTE_DATA, scopedCollectionSegment } from "./routing/scoped-collection";
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
 export { vaultScopeGuard } from "./routing/vault-scope.guard";
+export { VAULT_BASE_ROUTE } from "./routing/vault-base-route";
 export {
   matchesType,
   matchesFavorite,

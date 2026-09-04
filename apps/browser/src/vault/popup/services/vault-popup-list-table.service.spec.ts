@@ -1,18 +1,23 @@
 import { TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, of, Subject } from "rxjs";
+import { BehaviorSubject, firstValueFrom, map, of, Subject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService } from "@bitwarden/components";
-import { DecryptionFailureDialogComponent, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  DecryptionFailureDialogComponent,
+  PasswordRepromptService,
+  VaultScopeType,
+} from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
@@ -20,6 +25,7 @@ import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 import { VaultPopupItemsService } from "./vault-popup-items.service";
+import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filters.service";
 import { VaultPopupListTableService } from "./vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "./vault-popup-loading.service";
 
@@ -42,6 +48,15 @@ describe("VaultPopupListTableService", () => {
   const simplifiedItemActionEnabled$ = new BehaviorSubject<boolean>(false);
   const currentTabIsOnBlocklist$ = new BehaviorSubject<boolean>(false);
   const clickItemsToAutofillVaultView$ = new BehaviorSubject<boolean>(true);
+  /** The chip selection, as the table's `filterValues` reports it. */
+  const selectedFilters$ = new BehaviorSubject<{
+    cipherType: CipherType | null;
+    organization: string[];
+    collection: string[];
+    folder: string[];
+  }>({ cipherType: null, organization: [], collection: [], folder: [] });
+  /** The organizations `memberOrganizations$` reports, for the suspended-vault check. */
+  const memberOrganizations$ = new BehaviorSubject<{ id: string; enabled: boolean }[]>([]);
 
   const makeCipher = (overrides: Partial<PopupCipherViewLike> = {}): PopupCipherViewLike =>
     ({ id: "cipher-1", name: "Item", type: CipherType.Login, ...overrides }) as PopupCipherViewLike;
@@ -57,6 +72,8 @@ describe("VaultPopupListTableService", () => {
     simplifiedItemActionEnabled$.next(false);
     currentTabIsOnBlocklist$.next(false);
     clickItemsToAutofillVaultView$.next(true);
+    selectedFilters$.next({ cipherType: null, organization: [], collection: [], folder: [] });
+    memberOrganizations$.next([]);
 
     cipherService = mock<CipherService>();
     vaultPopupAutofillService = mock<VaultPopupAutofillService>();
@@ -108,6 +125,20 @@ describe("VaultPopupListTableService", () => {
             clickItemsToAutofillVaultView$: clickItemsToAutofillVaultView$.asObservable(),
           },
         },
+        {
+          provide: VaultPopupListTableFiltersService,
+          useValue: {
+            selectedFilters$: selectedFilters$.asObservable(),
+            // Mirrors the real predicate, which the table service composes with the route scope.
+            suspended$: (ids: string[]) =>
+              memberOrganizations$.pipe(
+                map((orgs) => {
+                  const named = orgs.filter((o) => ids.includes(o.id));
+                  return named.length > 0 && named.every((o) => !o.enabled);
+                }),
+              ),
+          },
+        },
       ],
     });
 
@@ -128,6 +159,265 @@ describe("VaultPopupListTableService", () => {
 
       expect(rows.map((r) => r._section)).toEqual(["autofill", "favorites", "allItems"]);
       expect(rows.map((r) => r.cipher.name)).toEqual(["Autofill", "Favorite", "All Items"]);
+    });
+
+    /**
+     * `setScope` narrows every section, as the web vault does — `cipherInScope` decides both.
+     */
+    describe("vault scope", () => {
+      const ORG_ID = "11111111-1111-4111-8111-111111111111";
+
+      beforeEach(() => {
+        filteredCiphers$.next([
+          makeCipher({ id: "personal", organizationId: null }),
+          makeCipher({ id: "org", organizationId: ORG_ID }),
+        ]);
+      });
+
+      it("shows every vault's items when unscoped", async () => {
+        const rows = await firstValueFrom(service.rows$);
+
+        expect(rows.map((r) => r.cipher.id)).toEqual(["personal", "org"]);
+      });
+
+      it("narrows to the personal vault", async () => {
+        service.setScope({ type: VaultScopeType.MyVault });
+
+        const rows = await firstValueFrom(service.rows$);
+
+        expect(rows.map((r) => r.cipher.id)).toEqual(["personal"]);
+      });
+
+      it("narrows to an organization's vault", async () => {
+        service.setScope({
+          type: VaultScopeType.Organization,
+          organizationId: ORG_ID as OrganizationId,
+        });
+
+        const rows = await firstValueFrom(service.rows$);
+
+        expect(rows.map((r) => r.cipher.id)).toEqual(["org"]);
+      });
+
+      /** The header reads this, so a scoped page must not report the whole vault's total. */
+      it("counts only the items the scope admits", async () => {
+        expect(await firstValueFrom(service.itemCount$)).toBe(2);
+
+        service.setScope({ type: VaultScopeType.MyVault });
+
+        expect(await firstValueFrom(service.itemCount$)).toBe(1);
+      });
+
+      it("widens again when the scope clears", async () => {
+        service.setScope({ type: VaultScopeType.MyVault });
+        service.setScope(null);
+
+        const rows = await firstValueFrom(service.rows$);
+
+        expect(rows.map((r) => r.cipher.id)).toEqual(["personal", "org"]);
+      });
+
+      /** The rows are withheld, not filtered, so they are still in `rows$`. */
+      describe("a suspended organization", () => {
+        beforeEach(() => {
+          filteredCiphers$.next([
+            makeCipher({ id: "org", organizationId: ORG_ID }),
+            makeCipher({ id: "org-2", organizationId: ORG_ID }),
+          ]);
+          memberOrganizations$.next([{ id: ORG_ID, enabled: false }]);
+        });
+
+        it("counts zero when named by the chip", async () => {
+          selectedFilters$.next({
+            cipherType: null,
+            organization: [ORG_ID],
+            collection: [],
+            folder: [],
+          });
+
+          expect(await firstValueFrom(service.itemCount$)).toBe(0);
+        });
+
+        /** The scoped page renders no chip, so only the route names the organization. */
+        it("counts zero when named by the route scope", async () => {
+          service.setScope({
+            type: VaultScopeType.Organization,
+            organizationId: ORG_ID as OrganizationId,
+          });
+
+          expect(await firstValueFrom(service.itemCount$)).toBe(0);
+        });
+
+        it("counts its items once it is enabled again", async () => {
+          service.setScope({
+            type: VaultScopeType.Organization,
+            organizationId: ORG_ID as OrganizationId,
+          });
+          memberOrganizations$.next([{ id: ORG_ID, enabled: true }]);
+
+          expect(await firstValueFrom(service.itemCount$)).toBe(2);
+        });
+      });
+
+      /**
+       * Clearing is the switcher's job. The service's part is not inventing a vault selection.
+       */
+      describe("with a chip selection under a scope", () => {
+        const COLLECTION_ID = "33333333-3333-4333-8333-333333333333";
+
+        it("keeps applying a shared-folder selection the chip still offers", async () => {
+          filteredCiphers$.next([
+            makeCipher({ id: "org", organizationId: ORG_ID, collectionIds: [COLLECTION_ID] }),
+            makeCipher({ id: "org-2", organizationId: ORG_ID, collectionIds: [] }),
+          ]);
+          selectedFilters$.next({
+            cipherType: null,
+            organization: [],
+            collection: [COLLECTION_ID],
+            folder: [],
+          });
+          service.setScope({
+            type: VaultScopeType.Organization,
+            organizationId: ORG_ID as OrganizationId,
+          });
+
+          expect(await firstValueFrom(service.itemCount$)).toBe(1);
+        });
+
+        it("keeps applying a type selection, which spans every vault", async () => {
+          filteredCiphers$.next([
+            makeCipher({ id: "personal", organizationId: null, type: CipherType.Login }),
+            makeCipher({ id: "personal-card", organizationId: null, type: CipherType.Card }),
+          ]);
+          selectedFilters$.next({
+            cipherType: CipherType.Card,
+            organization: [],
+            collection: [],
+            folder: [],
+          });
+          service.setScope({ type: VaultScopeType.MyVault });
+
+          expect(await firstValueFrom(service.itemCount$)).toBe(1);
+        });
+
+        /** Publishing a scope is not a switch — it also happens on popup open. */
+        it("does not clear the selection", () => {
+          selectedFilters$.next({
+            cipherType: null,
+            organization: [],
+            collection: [COLLECTION_ID],
+            folder: [],
+          });
+
+          service.setScope({ type: VaultScopeType.MyVault });
+
+          expect(selectedFilters$.value.collection).toEqual([COLLECTION_ID]);
+        });
+      });
+
+      /**
+       * A scoped vault drops the chip but keeps the cached selection; applying it would put the
+       * count below its own list.
+       */
+      describe("with a stale vault chip selection", () => {
+        beforeEach(() => {
+          selectedFilters$.next({
+            cipherType: null,
+            organization: [ORG_ID],
+            collection: [],
+            folder: [],
+          });
+        });
+
+        it("ignores it under a personal-vault scope", async () => {
+          service.setScope({ type: VaultScopeType.MyVault });
+
+          const rows = await firstValueFrom(service.rows$);
+
+          expect(rows.map((r) => r.cipher.id)).toEqual(["personal"]);
+          expect(await firstValueFrom(service.itemCount$)).toBe(1);
+        });
+
+        it("ignores it under a different organization's scope", async () => {
+          const OTHER_ORG = "22222222-2222-4222-8222-222222222222";
+          filteredCiphers$.next([
+            makeCipher({ id: "personal", organizationId: null }),
+            makeCipher({ id: "org", organizationId: ORG_ID }),
+            makeCipher({ id: "other", organizationId: OTHER_ORG }),
+          ]);
+          service.setScope({
+            type: VaultScopeType.Organization,
+            organizationId: OTHER_ORG as OrganizationId,
+          });
+
+          const rows = await firstValueFrom(service.rows$);
+
+          expect(rows.map((r) => r.cipher.id)).toEqual(["other"]);
+          expect(await firstValueFrom(service.itemCount$)).toBe(1);
+        });
+
+        /** Applied again once All items renders the chip that holds it. */
+        it("applies it again when the scope widens", async () => {
+          service.setScope({ type: VaultScopeType.MyVault });
+          service.setScope(null);
+
+          expect(await firstValueFrom(service.itemCount$)).toBe(1);
+        });
+      });
+    });
+
+    /** The table applies the chips, not `rows$`, so a raw count contradicts the list. */
+    describe("chip filters", () => {
+      beforeEach(() => {
+        filteredCiphers$.next([
+          makeCipher({ id: "login", name: "Login", type: CipherType.Login }),
+          makeCipher({ id: "card", name: "Card", type: CipherType.Card }),
+          makeCipher({ id: "note", name: "Note", type: CipherType.SecureNote }),
+        ]);
+      });
+
+      it("counts every item when no chip is selected", async () => {
+        expect(await firstValueFrom(service.itemCount$)).toBe(3);
+      });
+
+      it("counts only the items a type chip admits", async () => {
+        selectedFilters$.next({
+          cipherType: CipherType.Card,
+          organization: [],
+          collection: [],
+          folder: [],
+        });
+
+        expect(await firstValueFrom(service.itemCount$)).toBe(1);
+      });
+
+      it("counts every item again when the chip clears", async () => {
+        selectedFilters$.next({
+          cipherType: CipherType.Card,
+          organization: [],
+          collection: [],
+          folder: [],
+        });
+        selectedFilters$.next({
+          cipherType: null,
+          organization: [],
+          collection: [],
+          folder: [],
+        });
+
+        expect(await firstValueFrom(service.itemCount$)).toBe(3);
+      });
+    });
+
+    /** A cipher in several sections still counts once — `rows$` holds up to three rows for it. */
+    it("counts a cipher once even when it appears in several sections", async () => {
+      const cipher = makeCipher({ id: "a", name: "Autofill" });
+      autoFillCiphers$.next([cipher]);
+      favoriteCiphers$.next([cipher]);
+      filteredCiphers$.next([cipher]);
+
+      expect((await firstValueFrom(service.rows$)).length).toBe(3);
+      expect(await firstValueFrom(service.itemCount$)).toBe(1);
     });
 
     it("folds to a single all-items section of filtered ciphers when searching", async () => {

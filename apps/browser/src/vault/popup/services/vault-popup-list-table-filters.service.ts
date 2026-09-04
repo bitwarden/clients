@@ -1,6 +1,16 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, filter, map, Observable, shareReplay, switchMap, take } from "rxjs";
+import {
+  combineLatest,
+  filter,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  Subject,
+  switchMap,
+  take,
+} from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
@@ -38,24 +48,17 @@ import { idString, MY_VAULT, NO_FOLDER } from "@bitwarden/vault";
 
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
-/** Nesting delimiter for folder path segments. */
 const NESTING_DELIMITER = "/";
 
-/** Persisted filter state for the view cache. */
 interface CachedTableFilterState {
   organizationIds?: string[];
   collectionIds?: string[];
-  /** Folder ids; {@link NO_FOLDER} marks the "no folder" selection. */
   folderIds?: string[];
   cipherType?: CipherType | null;
 }
 
 /**
  * Filter service for the vault popup list table (`VaultPopupListTableComponent`).
- *
- * Provides filter chip option streams, per-option item counts, cache persistence,
- * and cache restore. The table component owns its chip selections via `BitTableV2Component`;
- * this service supplies the option data and saves/restores state from the view cache.
  */
 @Injectable({
   providedIn: "root",
@@ -108,13 +111,50 @@ export class VaultPopupListTableFiltersService {
   /** Observable mirror of {@link hasFilterApplied} for use in RxJS pipelines. */
   hasFilterApplied$ = toObservable(this.hasFilterApplied);
 
+  private readonly vaultScopedFiltersCleared = new Subject<void>();
+
+  /** Emits on {@link clearVaultScopedFilters}, so the table can reset its own chip controls. */
+  readonly vaultScopedFiltersCleared$ = this.vaultScopedFiltersCleared.asObservable();
+
+  /**
+   * Whether every organization in `ids` is suspended, which blanks the rows rather than filtering
+   * them. Takes ids because either the chip or the route scope can name them.
+   */
+  suspended$(ids: string[]): Observable<boolean> {
+    const named = ids.filter((id) => id !== MY_VAULT);
+    if (!named.length || named.length !== ids.length) {
+      return of(false);
+    }
+
+    return this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.organizationService.memberOrganizations$(userId)),
+      map((orgs) => {
+        const selected = orgs.filter((org) => named.includes(idString(org.id)!));
+        return selected.length > 0 && selected.every((org) => !org.enabled);
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+  }
+
+  /**
+   * The current chip selection, in the shape the table's `filterValues` uses.
+   */
+  readonly selectedFilters$ = toObservable(
+    computed(() => {
+      const filters = this.cachedFilters();
+      return {
+        cipherType: filters.cipherType ?? null,
+        organization: filters.organizationIds ?? [],
+        collection: filters.collectionIds ?? [],
+        folder: filters.folderIds ?? [],
+      };
+    }),
+  );
+
   /**
    * Persists the current chip selection to the view cache.
    * Call this whenever the table's `filterValues` signal emits a new value.
-   *
-   * Also keeps {@link selectedOrganizations} in sync: this service is `providedIn: "root"` and
-   * outlives any one component instance, so every call site that changes the org selection
-   * (including clearing it) must go through here rather than setting the signal separately.
    */
   saveFilters(values: {
     cipherType?: CipherType | null;
@@ -129,6 +169,21 @@ export class VaultPopupListTableFiltersService {
       cipherType: values.cipherType ?? null,
     });
     this.selectedOrganizations.set(values.organization ?? []);
+  }
+
+  /**
+   * Drops the vault, shared-folder, and folder selections for a switch. Type is kept: item types
+   * span vaults.
+   */
+  clearVaultScopedFilters(): void {
+    this.cachedFilters.set({
+      organizationIds: [],
+      collectionIds: [],
+      folderIds: [],
+      cipherType: this.cachedFilters().cipherType ?? null,
+    });
+    this.selectedOrganizations.set([]);
+    this.vaultScopedFiltersCleared.next();
   }
 
   /**

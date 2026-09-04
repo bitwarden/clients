@@ -7,6 +7,7 @@
   [trackBy]="trackRow"
   presentation="list"
   height="fill"
+  scrollLayoutHost
   [virtualRowHeight]="itemHeight()"
 >
   <bit-table-toolbar>
@@ -32,7 +33,7 @@
       }
     </bit-filter-menu>
 
-    @if (organizationOptions().length) {
+    @if (organizationOptions().length && !vaultSelected()) {
       <bit-filter-menu
         key="organization"
         [placeholderText]="'vault' | vfo1I18n: 'vaults'"
