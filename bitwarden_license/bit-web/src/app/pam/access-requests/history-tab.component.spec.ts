@@ -162,7 +162,7 @@ describe("HistoryTabComponent", () => {
     jest.useRealTimers();
   });
 
-  describe("scope toggle", () => {
+  describe("scope filter", () => {
     it("lands on All", () => {
       canApprove$.next(true);
       myRows$.next([historyRow({ id: "mine-1" })]);
@@ -171,7 +171,7 @@ describe("HistoryTabComponent", () => {
       create();
 
       expect(component["scope"]()).toBe("all");
-      expect(query('[data-testid="history-scope-all"]')).not.toBeNull();
+      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
     });
 
     it("is hidden from a viewer who can neither approve nor has managed rows", () => {
@@ -179,8 +179,7 @@ describe("HistoryTabComponent", () => {
 
       create();
 
-      expect(query('[data-testid="history-scope-all"]')).toBeNull();
-      expect(query('[data-testid="history-scope-managed"]')).toBeNull();
+      expect(query('[data-testid="history-scope-filter"]')).toBeNull();
     });
 
     it("appears once the caller has managed history", () => {
@@ -188,16 +187,16 @@ describe("HistoryTabComponent", () => {
 
       create();
 
-      expect(query('[data-testid="history-scope-managed"]')).not.toBeNull();
+      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
     });
 
-    it("offers the toggle to an approver with no managed history yet", () => {
+    it("offers the filter to an approver with no managed history yet", () => {
       canApprove$.next(true);
       myRows$.next([historyRow({ id: "mine-1" })]);
 
       create();
 
-      expect(query('[data-testid="history-scope-managed"]')).not.toBeNull();
+      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
     });
 
     it("shows both sources merged under All, newest first", () => {
@@ -330,9 +329,9 @@ describe("HistoryTabComponent", () => {
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1", "mine-1"]);
     });
 
-    // A non-approver whose managed rows go away loses the toggle, so their pinned filter stops
+    // A non-approver whose managed rows go away loses the filter, so their pinned filter stops
     // applying.
-    it("falls back to All if the toggle goes away while a filter is applied", () => {
+    it("falls back to All if the filter goes away while a filter is applied", () => {
       managedRows$.next([historyRow({ id: "managed-1" })]);
       myRows$.next([historyRow({ id: "mine-1" })]);
       create();
@@ -347,7 +346,7 @@ describe("HistoryTabComponent", () => {
 
     // The fallback has to forget the pick, not just stop applying it: a background load that brings
     // a managed row back would otherwise narrow the table again with no user action.
-    it("does not restore the filter it fell back from when the toggle returns", () => {
+    it("does not restore the filter it fell back from when the filter returns", () => {
       managedRows$.next([historyRow({ id: "managed-1" })]);
       myRows$.next([historyRow({ id: "mine-1" })]);
       create();
