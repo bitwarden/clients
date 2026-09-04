@@ -5,7 +5,7 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
 
-import { NoResults } from "@bitwarden/assets/svg";
+import { NoResults, ReportBreach } from "@bitwarden/assets/svg";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -63,6 +63,7 @@ import { RotationConfigsService } from "./rotation-configs.service";
 })
 export class ManagedCredentialsTabComponent {
   protected readonly noItemsIcon = NoResults;
+  protected readonly loadErrorIcon = ReportBreach;
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -73,6 +74,9 @@ export class ManagedCredentialsTabComponent {
   private readonly i18nService = inject(I18nService);
 
   protected readonly loading = toSignal(this.configsService.loading$, { initialValue: true });
+  protected readonly loadError = toSignal(this.configsService.loadError$, {
+    initialValue: null as unknown,
+  });
 
   private readonly rows = toSignal(this.configsService.rows$, {
     initialValue: [] as RotationConfigRow[],
@@ -130,6 +134,15 @@ export class ManagedCredentialsTabComponent {
   protected readonly noResults = computed(
     () => !this.loading() && this.rows().length > 0 && this.processedRows().length === 0,
   );
+
+  /** Re-runs the same pair of loads the init effect runs, so a retry matches a fresh navigation. */
+  protected readonly retryLoad = async (): Promise<void> => {
+    const organizationId = this.organizationId();
+    await Promise.all([
+      this.configsService.load(organizationId),
+      this.targetSystemsService.load(organizationId),
+    ]);
+  };
 
   protected readonly openCreate = (): Promise<boolean> =>
     this.router.navigate(["..", "managed-credentials", "new"], { relativeTo: this.route });

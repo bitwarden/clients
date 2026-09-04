@@ -40,6 +40,7 @@ describe("TargetSystemsTabComponent", () => {
   let component: TargetSystemsTabComponent;
   let targetSystemsService: {
     loading$: BehaviorSubject<boolean>;
+    loadError$: BehaviorSubject<unknown | null>;
     systems$: BehaviorSubject<TargetSystem[]>;
     systemById$: BehaviorSubject<Map<string, TargetSystem>>;
     activeAutomaticSystems$: BehaviorSubject<TargetSystem[]>;
@@ -55,6 +56,7 @@ describe("TargetSystemsTabComponent", () => {
   beforeEach(async () => {
     targetSystemsService = {
       loading$: new BehaviorSubject<boolean>(false),
+      loadError$: new BehaviorSubject<unknown | null>(null),
       systems$: new BehaviorSubject<TargetSystem[]>([]),
       systemById$: new BehaviorSubject(new Map()),
       activeAutomaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
@@ -269,5 +271,58 @@ describe("TargetSystemsTabComponent", () => {
       );
       expect(daemonsService.forgetTargetSystem).not.toHaveBeenCalled();
     }));
+  });
+
+  describe("load error state", () => {
+    beforeEach(async () => {
+      TestBed.resetTestingModule();
+
+      await TestBed.configureTestingModule({
+        imports: [TargetSystemsTabComponent, ReactiveFormsModule, NoopAnimationsModule],
+        providers: [
+          provideRouter([]),
+          { provide: TargetSystemsService, useValue: targetSystemsService },
+          { provide: DaemonsService, useValue: daemonsService },
+          { provide: I18nService, useValue: i18nFake },
+          { provide: DialogService, useValue: dialogService },
+          { provide: ToastService, useValue: toastService },
+          {
+            provide: ActivatedRoute,
+            useValue: {
+              params: of({ organizationId: ORGANIZATION_ID }),
+              snapshot: { params: { organizationId: ORGANIZATION_ID } },
+            },
+          },
+        ],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(TargetSystemsTabComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    });
+
+    it("renders the load-error state instead of the empty state", () => {
+      targetSystemsService.loadError$.next(new Error("boom"));
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.querySelector('[data-testid="target-systems-load-error"]')).not.toBeNull();
+      expect(el.textContent).toContain("pamRotationListLoadErrorTitle");
+      expect(el.textContent).not.toContain("pamNoTargetSystemsYetTitle");
+      expect(el.textContent).not.toContain("pamTargetSystemsStartFromTemplate");
+    });
+
+    it("retries the load from the error state", async () => {
+      targetSystemsService.loadError$.next(new Error("boom"));
+      fixture.detectChanges();
+      targetSystemsService.load.mockClear();
+
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLButtonElement>("#target-systems-tab_button_retry-load")!
+        .click();
+      await fixture.whenStable();
+
+      expect(targetSystemsService.load).toHaveBeenCalledWith(ORGANIZATION_ID);
+    });
   });
 });

@@ -52,9 +52,13 @@ export class DaemonsService {
 
   private readonly _daemons$ = new BehaviorSubject<AccessConnector[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
+  private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
 
   readonly daemons$: Observable<AccessConnector[]> = this._daemons$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
+
+  /** The error from the last {@link load}, or null when it succeeded. */
+  readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
 
   /**
    * Daemons projected into presentation rows, joined with target-system names.
@@ -65,12 +69,20 @@ export class DaemonsService {
     this.targetSystemsService.systemById$,
   ]).pipe(map(([daemons, systemById]) => this.buildRows(daemons, systemById)));
 
-  /** Fetch the org's daemons, replacing local state. */
+  /**
+   * Fetch the org's daemons, replacing local state.
+   *
+   * Records a failure on {@link loadError$} rather than rejecting: every caller invokes this as
+   * `void load(...)`, so a rejection would leave the tab rendering its empty state.
+   */
   async load(organizationId: OrganizationId): Promise<void> {
     this.organizationId = organizationId;
     this._loading$.next(true);
+    this._loadError$.next(null);
     try {
       this._daemons$.next(await this.rotationSdk.listConnectors(organizationId));
+    } catch (e) {
+      this._loadError$.next(e);
     } finally {
       this._loading$.next(false);
     }

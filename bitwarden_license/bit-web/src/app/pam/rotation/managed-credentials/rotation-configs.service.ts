@@ -28,9 +28,13 @@ export class RotationConfigsService {
 
   private readonly _configs$ = new BehaviorSubject<RotationConfig[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
+  private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
 
   readonly configs$: Observable<RotationConfig[]> = this._configs$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
+
+  /** The error from the last {@link load}, or null when it succeeded. */
+  readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
 
   /** Count of configs currently awaiting a manual rotation from the operator. */
   readonly awaitingManualCount$: Observable<number> = this._configs$.pipe(
@@ -76,10 +80,14 @@ export class RotationConfigsService {
    * Load the org's rotation configs and kick off sibling loads for target systems and
    * org ciphers in parallel. All three fetches must complete before the loading spinner
    * clears — the rows depend on all three.
+   *
+   * Records a failure on {@link loadError$} rather than rejecting: every caller invokes this as
+   * `void load(...)`, so a rejection would leave the tab rendering its empty state.
    */
   async load(organizationId: OrganizationId): Promise<void> {
     this.organizationId = organizationId;
     this._loading$.next(true);
+    this._loadError$.next(null);
     try {
       const [configs] = await Promise.all([
         this.rotationSdk.listConfigs(organizationId),
@@ -87,6 +95,13 @@ export class RotationConfigsService {
         this.orgCiphers.load(organizationId),
       ]);
       this._configs$.next(configs);
+      // `TargetSystemsService.load` records its own failure instead of rejecting, so `Promise.all`
+      // resolves even when the target systems this tab's rows and empty state depend on are missing.
+      if (this.targetSystems.lastLoadError != null) {
+        this._loadError$.next(this.targetSystems.lastLoadError);
+      }
+    } catch (e) {
+      this._loadError$.next(e);
     } finally {
       this._loading$.next(false);
     }
