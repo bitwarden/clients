@@ -5,9 +5,10 @@ import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import type { TargetSystem } from "../rotation";
+import type { TargetSystem, TargetSystemId } from "../rotation";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
@@ -59,6 +60,10 @@ const NO_CHARACTER_CLASSES = {
 
 function policyFormOf(fixture: ComponentFixture<TargetSystemEditComponent>): FormGroup {
   return (fixture.componentInstance as unknown as { policyForm: FormGroup }).policyForm;
+}
+
+function nameFormOf(fixture: ComponentFixture<TargetSystemEditComponent>): FormGroup {
+  return (fixture.componentInstance as unknown as { nameForm: FormGroup }).nameForm;
 }
 
 /** Build a configured TestBed for create mode (no targetSystemId). */
@@ -116,7 +121,10 @@ async function setupCreateWithTemplate(template: string): Promise<
 }
 
 /** Build a configured TestBed for edit mode (with targetSystemId). */
-async function setupEdit(rotationSdk: ReturnType<typeof mock<RotationSdkService>>) {
+async function setupEdit(
+  rotationSdk: ReturnType<typeof mock<RotationSdkService>>,
+  routeTargetSystemId: string = uuidAsString(sysId("sys-1")),
+) {
   TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
   await TestBed.configureTestingModule({
     imports: [TargetSystemEditComponent, NoopAnimationsModule],
@@ -129,7 +137,7 @@ async function setupEdit(rotationSdk: ReturnType<typeof mock<RotationSdkService>
       {
         provide: ActivatedRoute,
         useValue: {
-          snapshot: { params: { organizationId: ORG_ID, targetSystemId: sysId("sys-1") } },
+          snapshot: { params: { organizationId: ORG_ID, targetSystemId: routeTargetSystemId } },
         },
       },
     ],
@@ -729,4 +737,35 @@ describe("TargetSystemEditComponent — edit mode", () => {
       expect.objectContaining({ variant: "error" }),
     );
   });
+
+  const mixedCaseIdCases: [string, TargetSystemId, string][] = [
+    ["the route id is uppercase", sysId("sys-1"), uuidAsString(sysId("sys-1")).toUpperCase()],
+    [
+      "the stored id is uppercase and the route id is lower case",
+      asUuid<TargetSystemId>(uuidAsString(sysId("sys-1")).toUpperCase()),
+      uuidAsString(sysId("sys-1")),
+    ],
+  ];
+
+  it.each(mixedCaseIdCases)(
+    "loads the record when %s",
+    async (_case, storedId, routeTargetSystemId) => {
+      TestBed.resetTestingModule();
+      const caseSdk = mock<RotationSdkService>();
+      const caseToast = mock<ToastService>();
+      caseSdk.listTargetSystems.mockResolvedValue([makeSystem({ id: storedId })]);
+      await setupEdit(caseSdk, routeTargetSystemId);
+      TestBed.overrideProvider(ToastService, { useValue: caseToast });
+      const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+      const fx = TestBed.createComponent(TargetSystemEditComponent);
+      fx.detectChanges();
+      await fx.whenStable();
+      fx.detectChanges();
+
+      expect(nameFormOf(fx).getRawValue().name).toBe("Prod Entra");
+      expect(nav).not.toHaveBeenCalled();
+      expect(caseToast.showToast).not.toHaveBeenCalled();
+    },
+  );
 });
