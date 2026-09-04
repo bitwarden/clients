@@ -13,8 +13,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
  */
 const BACKGROUND_LIGHT = "/images/health-tab/health_intro_bg_light.png";
 const BACKGROUND_DARK = "/images/health-tab/health_intro_bg_dark.png";
-const INTRO_IMAGE_LIGHT = "/images/health-tab/health_intro.png";
-const INTRO_IMAGE_DARK = "/images/health-tab/health_intro_dark.png";
+const INTRO_IMAGE_LIGHT = "/images/health-tab/health_intro.svg";
+const INTRO_IMAGE_DARK = "/images/health-tab/health_intro_dark.svg";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
