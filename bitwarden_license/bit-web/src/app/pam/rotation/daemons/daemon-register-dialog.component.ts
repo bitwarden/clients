@@ -36,7 +36,7 @@ export type DaemonRegisterDialogResult = { registered: true } | undefined;
  *
  * On successful submit:
  * 1. Calls {@link DaemonRegistrationService.register} to derive the key + POST to the server.
- * 2. Closes itself and waits for the overlay to be torn down.
+ * 2. Closes itself, awaiting the promise {@link DialogRef.close} returns.
  * 3. Opens {@link DaemonTokenDialogComponent} to show the one-time token.
  *
  * `DaemonRegistrationService` is provided in this component's `providers` so it
@@ -80,9 +80,6 @@ export class DaemonRegisterDialogComponent {
       // The SDK derives the key material, calls the server, and assembles the one-time token.
       const { token } = await this.rotationSdk.registerConnector(this.params.organizationId, name);
 
-      // A closePredicate defers the overlay teardown, so opening the token dialog before this
-      // resolves leaves two overlays fighting over the focus trap. The one-time token cannot
-      // be fetched again if the token dialog is the one that loses.
       await this.dialogRef.close({ registered: true });
 
       // Show the operator-entered name (not the daemon's GUID) as the dialog subtitle.
