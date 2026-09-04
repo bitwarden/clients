@@ -207,7 +207,11 @@ import {
 } from "@bitwarden/legacy-crypto";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
-import { DefaultManagedSettingsService } from "@bitwarden/managed-settings";
+import {
+  DefaultManagedSettingsService,
+  DevManagedSettingsService,
+  ManagedSettingsService,
+} from "@bitwarden/managed-settings";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -251,7 +255,7 @@ import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
 import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
 import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
-import { flagEnabled } from "../platform/flags";
+import { devFlagEnabled, devFlagValue, flagEnabled } from "../platform/flags";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
 import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
 import { CliSystemService } from "../platform/services/cli-system.service";
@@ -685,7 +689,17 @@ export class ServiceContainer {
       : new NoopSdkClientFactory();
     this.sdkLoadService = new CliSdkLoadService();
 
-    const managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+    let managedSettingsService: ManagedSettingsService;
+    if (devFlagEnabled("managedSettingsDevSource")) {
+      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
+      devManagedSettingsService.pushExplicit(
+        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
+      );
+      managedSettingsService = devManagedSettingsService;
+    } else {
+      // The CLI has no host acquisition code, so nothing pushes a profile here.
+      managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+    }
 
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,

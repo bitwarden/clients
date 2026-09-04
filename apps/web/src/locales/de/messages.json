@@ -907,7 +907,7 @@
     "message": "Ordner bearbeiten"
   },
   "editFolderNamed": {
-    "message": "Edit $NAME$",
+    "message": "$NAME$ bearbeiten",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -916,7 +916,7 @@
     }
   },
   "deleteFolderNamed": {
-    "message": "Delete $NAME$",
+    "message": "$NAME$ löschen",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1084,7 +1084,7 @@
     "message": "Alle Einträge"
   },
   "allVaultItems": {
-    "message": "All vault items"
+    "message": "Alle Tresor-Einträge"
   },
   "favorites": {
     "message": "Favoriten"
@@ -1224,6 +1224,48 @@
   "sharedFolders": {
     "message": "Geteilte Ordner"
   },
+  "sharedFoldersInParent": {
+    "message": "Geteilte Ordner $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ geteilte Ordner",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ geteilter Ordner",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ weitere geteilte Ordner, die über diesem Button angezeigt werden",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 weiterer geteilter Ordner, der über diesem Button angezeigt wird",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "Mein Ordner"
   },
@@ -1232,6 +1274,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Füge Ordner zu Einträgen hinzu, um sie hier zu filtern."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Füge Einträge zu einem geteiltem Ordner hinzu, um hier zu filtern."
   },
   "addSharedFolder": {
     "message": "Geteilten Ordner erstellen"
@@ -1755,6 +1800,9 @@
   "myItems": {
     "message": "Meine Einträge"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "myVault": {
     "message": "Mein Tresor"
   },
@@ -1858,6 +1906,18 @@
   },
   "noMatchingItems": {
     "message": "Keine passenden Einträge"
+  },
+  "noFiltersMatch": {
+    "message": "Keine Filter stimmen mit \"$SEARCH$\" überein",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Suche löschen"
   },
   "deselectAll": {
     "message": "Alles abwählen"
@@ -2048,13 +2108,13 @@
     "message": "Ordner gelöscht"
   },
   "folderEdited": {
-    "message": "Folder edited"
+    "message": "Ordner bearbeitet"
   },
   "foldersDeleted": {
-    "message": "Folders deleted"
+    "message": "Ordner gelöscht"
   },
   "deleteFoldersCount": {
-    "message": "Delete $COUNT$ folders",
+    "message": "$COUNT$ Ordner löschen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2063,7 +2123,7 @@
     }
   },
   "deleteFolderDescription": {
-    "message": "When you delete the $NAME$ folder, it will be removed from every item it's been applied to. The items themselves won't be deleted.",
+    "message": "Wenn du den Ordner „$NAME$“ löscht, wird er aus allen Einträgen entfernt, mit denen er verknüpft ist. Die Einträge selbst werden dabei nicht gelöscht.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -2072,10 +2132,10 @@
     }
   },
   "deleteFoldersDescription": {
-    "message": "When you delete these folders, they will be removed from every item they've been applied to. The items themselves won't be deleted."
+    "message": "Wenn du diese Ordner löscht, werde sie aus allen Einträgen entfernt, mit denen sie verknüpft sind. Die Einträge selbst werden dabei nicht gelöscht."
   },
   "enterAName": {
-    "message": "Enter a name."
+    "message": "Einen Namen eingeben."
   },
   "editInfo": {
     "message": "Informationen bearbeiten"
@@ -2532,7 +2592,10 @@
     "message": "Neuer Tresor"
   },
   "addPlan": {
-    "message": "Add plan"
+    "message": "Tarif hinzufügen"
+  },
+  "addPlanDesc": {
+    "message": "Du kannst kostenlos einen neuen geteilten Tresor mit einer weiteren Person erstellen. Wenn du Einträge speichern, verwalten und mit weiteren Personen teilen möchtest, musst du zuerst einen neuen Tarif abschließen. Bitte beachte, dass für einige Optionen möglicherweise eine Änderung der Abrechnungsdaten erforderlich ist."
   },
   "noOrganizationsList": {
     "message": "Du gehörst keiner Organisation an. Organisationen erlauben es dir, Passwörter sicher mit anderen zu teilen."
@@ -3416,7 +3479,7 @@
     }
   },
   "importHelpCenterInstructions": {
-    "message": "See detailed $NAME$ instructions in our",
+    "message": "Ausführliche Anleitungen zu $NAME$ findest du in unserem",
     "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
     "placeholders": {
       "name": {
@@ -3426,7 +3489,7 @@
     }
   },
   "importHelpCenterLinkText": {
-    "message": "Help Center"
+    "message": "Hilfezentrum"
   },
   "importChromiumAliasPreamble": {
     "message": "The process is exactly the same as importing from Google Chrome.",
@@ -3737,14 +3800,11 @@
   "restrictedItemTypePolicy": {
     "message": "Karten-Eintragstyp entfernen"
   },
-  "restrictedItemTypePolicyDesc": {
-    "message": "Mitgliedern nicht erlauben, Karten-Eintragstypen zu erstellen. Vorhandene Karten werden automatisch entfernt."
-  },
   "restrictedItemTypePolicyDescV2": {
     "message": "Mitgliedern nicht erlauben, Kreditkarten-Einträge in ihren Tresoren anzulegen und zu speichern. Wenn diese Richtlinie aktiviert ist, werden vorhandene Karten automatisch ausgeblendet."
   },
   "restrictedItemTypePolicyDescVfo1": {
-    "message": "Do not allow members to create and store credit card items. When this policy is turned on, existing cards will be automatically hidden.",
+    "message": "Mitgliedern nicht erlauben, Kreditkarten-Einträge anzulegen und zu speichern. Wenn diese Richtlinie aktiviert ist, werden vorhandene Karten automatisch ausgeblendet.",
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
   "restrictCardTypeImport": {
@@ -4135,12 +4195,6 @@
   },
   "instructions": {
     "message": "Anleitung"
-  },
-  "passwordlessLogin": {
-    "message": "Passwortlose Anmeldung"
-  },
-  "multifactorAuthentication": {
-    "message": "Multi-Faktor-Authentifizierung"
   },
   "exposedPasswordsReport": {
     "message": "Kompromittierte Passwörter"
@@ -4912,6 +4966,9 @@
   },
   "chooseYourPlan": {
     "message": "Wähle dein Abonnement"
+  },
+  "choosePlan": {
+    "message": "Tarif auswählen"
   },
   "users": {
     "message": "Benutzer"
@@ -6793,7 +6850,7 @@
   "openOrgInviteAcceptFailed": {
     "message": "Die Einladung kann nicht angenommen werden. Bitte einen Organisations-Administrator, dir einen neuen Einladungslink zu senden."
   },
-  "openOrgInviteAcceptFailedTitle": {
+  "cannotAcceptInvitation": {
     "message": "Die Einladung kann nicht angenommen werden"
   },
   "openOrgInviteAcceptAlreadyMember": {
@@ -7369,6 +7426,21 @@
       }
     }
   },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Überprüfe deine E-Mails, um die Anmeldung bei $ORGANIZATION_NAME$ abzuschließen.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "Diese Organisation kann derzeit keine neuen Mitglieder aufnehmen. Kontaktiere deinen Administrator für Hilfe."
+  },
+  "inviteSentToEmail": {
+    "message": "Einladung an E-Mail-Adresse gesendet"
+  },
   "acceptPolicies": {
     "message": "Durch Anwählen dieses Kästchens erklärst du dich mit Folgendem einverstanden:"
   },
@@ -7638,23 +7710,17 @@
   "twoStepLoginPolicyDescV2": {
     "message": "Von Mitgliedern verlangen, die Zwei-Faktor-Authentifizierung einzurichten. Diese Richtlinie gilt nicht für Eigentümer und Administratoren."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "Organisationsmitglieder, die keine Zwei-Faktor-Authentifizierung für ihr persönliches Konto aktiviert haben, werden aus der Organisation entfernt und erhalten eine E-Mail, die sie über die Änderung benachrichtigt."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "Durch die Aktivierung dieser Richtlinie werden alle Benutzer widerrufen, bei denen die Zwei-Faktor-Authentifizierung für ihr Konto nicht aktiviert ist. Die betroffenen Benutzer werden per E-Mail benachrichtigt."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Du bist Mitglied einer Organisation, die eine Zwei-Faktor-Authentifizierung für dein Benutzerkonto verlangt. Wenn du alle Zwei-Faktor-Authentifizierungsanbieter deaktivierst, wirst du automatisch aus diesen Organisationen entfernt."
   },
-  "passwordGeneratorPolicyDesc": {
-    "message": "Mindestanforderungen für den Passwort-Generator festlegen."
-  },
   "passwordGeneratorPolicyDescV2": {
     "message": "Lege eine Reihe von Mindestanforderungen für alle von Mitgliedern generierten Passwörter fest."
   },
   "passwordGeneratorPolicyDescVfo1": {
-    "message": "Set requirements for password generator.",
+    "message": "Mindestanforderungen für den Passwort-Generator festlegen.",
     "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
   },
   "generatedPassword": {
@@ -7906,24 +7972,21 @@
     "message": "Einzelne Organisation"
   },
   "singleOrgVfo1": {
-    "message": "Single organization membership",
+    "message": "Mitgliedschaft in einer einzelnen Organisation",
     "description": "VFO1 terminology variant of 'singleOrg'"
   },
   "singleOrgDesc": {
     "message": "Benutzern verbieten, anderen Organisationen beizutreten."
   },
-  "singleOrgPolicyDesc": {
-    "message": "Verbiete Mitgliedern den Beitritt zu anderen Organisationen. Diese Richtlinie ist für Organisationen erforderlich, die die Domain-Verifizierung aktiviert haben."
-  },
   "singleOrgPolicyDescVfo1": {
-    "message": "Restrict members from joining other shared or organization vaults.",
+    "message": "Mitglieder daran hindern, anderen geteilten oder Organisationstresoren beizutreten.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
   },
   "singleOrgPolicyDescV2": {
     "message": "Mitglieder dieser Organisation dürfen keiner anderen Organisation beitreten. Bestehenden Mitgliedern, die anderen Organisationen angehören, wird der Zugriff widerrufen, sobald diese Richtlinie aktiviert wird. Für Eigentümer und Administratoren gilt diese Richtlinie nicht."
   },
   "singleOrgPolicyDescV2Vfo1": {
-    "message": "Members cannot join other organization vaults. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins.",
+    "message": "Mitglieder können keinen anderen Organisationstresoren beitreten. Bestehenden Mitgliedern, die anderen Organisationen angehören, wird der Zugriff entzogen, sobald diese Richtlinie aktiviert wird. Diese Richtlinie gilt nicht für Eigentümer und Administratoren.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDescV2'"
   },
   "singleOrgBlockCreateMessage": {
@@ -7936,19 +7999,16 @@
     "message": "Single Sign-on-Authentifizierung erfordern"
   },
   "requireSsoVfo1": {
-    "message": "Require SSO",
+    "message": "SSO voraussetzen",
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
   "requireSsoPolicyDescListVfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method.",
+    "message": "Mitglieder müssen sich per Enterprise Single-Sign-On anmelden.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
   },
   "requireSsoPolicyDescV2Vfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
+    "message": "Mitglieder müssen sich per Enterprise Single-Sign-On anmelden. Diese Richtlinie gilt nicht für Eigentümer und Administratoren.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
-  },
-  "requireSsoPolicyDesc": {
-    "message": "Mitglieder müssen sich per Enterprise Single-Sign-on anmelden."
   },
   "requireSsoPolicyTitle": {
     "message": "Single Sign-On (SSO) verlangen"
@@ -7959,15 +8019,19 @@
   "prerequisite": {
     "message": "Voraussetzung"
   },
-  "requireSsoPolicyReq": {
-    "message": "Die Unternehmensrichtlinie für eine einzelne Organisation muss aktiviert sein, bevor diese Richtlinie aktiviert werden kann."
-  },
   "requireSsoPolicyReqV2": {
     "message": "Du musst die Richtlinie für eine einzelne Organisation aktivieren, bevor du diese Richtlinie aktivieren kannst."
   },
   "requireSsoPolicyReqV2Vfo1": {
-    "message": "You must enable the single organization membership policy before enabling this one.",
+    "message": "Du musst die Richtlinie zur Mitgliedschaft in nur einer Organisation aktivieren, bevor du diese aktivieren kannst.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "Du musst die Richtlinie für eine einzelne Organisation aktivieren, bevor du diese Richtlinie aktivieren kannst."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "Du musst die Richtlinie zur Mitgliedschaft in nur einer Organisation aktivieren, bevor du diese aktivieren kannst.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "Richtlinie für eine einzelne Organisation nicht aktiviert."
@@ -8356,14 +8420,14 @@
     "message": "Zentralisierung der Eigentumsrechte an Organisationen"
   },
   "centralizeDataOwnershipVfo1": {
-    "message": "Centralized organization ownership",
+    "message": "Zentralisierte Organisations-Eigentümerschaft",
     "description": "VFO1 terminology variant of 'centralizeDataOwnership'"
   },
   "centralizeDataOwnershipDesc": {
     "message": "Alle Mitgliedereinträge gehen in den Besitz der Organisation über und werden von dieser verwaltet. Administratoren und Eigentümer sind davon ausgenommen. "
   },
   "centralizeDataOwnershipDescVfo1": {
-    "message": "Require members to save items to the organization by removing their personally owned My vault.",
+    "message": "Von den Mitgliedern verlangen, dass sie Einträge in der Organisation speichern, indem Sie ihren persönlichen „Mein Tresor“ entfernen.",
     "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
   },
   "centralizeDataOwnershipContentAnchor": {
@@ -8379,9 +8443,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "Übertrage Einträge bei Austritt und Ablösung von Mitgliedern ganz einfach und sorge dafür, dass keine Zugriffslücken entstehen."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "Stelle allen Benutzern einen eigenen \"Meine Einträge\"-Bereich für die Verwaltung ihrer eigenen Zugangsdaten zur Verfügung."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Mitglieder auffordern, ihre Einträge zu übertragen"
   },
@@ -8391,9 +8452,6 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Erfahre mehr über die Übertragung"
   },
-  "promptUsersToMoveItems": {
-    "message": "Benutzer auffordern, einzelne Tresoreinträge in die Organisation zu verschieben"
-  },
   "promptUsersToMoveItemsCallout": {
     "message": "Mitglieder werden aufgefordert, ihre Einträge entweder an die Organisation zu übertragen oder sie zu verlassen. Wenn sie gehen, wird ihr Zugang deaktiviert, kann aber jederzeit wiederhergestellt werden."
   },
@@ -8401,21 +8459,21 @@
     "message": "Alle Einträge der Mitglieder werden Eigentum der Organisation sein und von ihr verwaltet. Diese Richtlinie gilt nicht für Eigentümer und Administratoren. Erfahre mehr über "
   },
   "centralizeDataOwnershipDescV3": {
-    "message": "All member items will be owned and managed by the organization. This policy won't be enforced for owners and admins. ",
+    "message": "Alle Einträge von Mitgliedern sind Eigentum der Organisation und werden von ihr verwaltet. Diese Richtlinie gilt nicht für Eigentümer und Administratoren. ",
     "description": "Replaces centralizeDataOwnershipDescV2 to avoid duplicating the 'Learn more about' text already present in the adjacent centralizeDataOwnershipContentAnchor link"
   },
   "centralizeDataOwnershipBenefit3V2": {
     "message": "Allen Benutzern einen eigenen \"Meine Einträge\"-Bereich für die Verwaltung ihrer eigenen Zugangsdaten zur Verfügung stellen."
   },
   "centralizeDataOwnershipBenefit3Vfo1": {
-    "message": "Give all users a dedicated My items space for managing their own logins.",
+    "message": "Allen Benutzern einen eigenen \"Meine Einträge\"-Bereich für die Verwaltung ihrer eigenen Zugangsdaten zur Verfügung stellen.",
     "description": "VFO1 terminology variant of 'centralizeDataOwnershipBenefit3V2'"
   },
   "promptUsersToMoveItemsV2": {
     "message": "Benutzer auffordern, ihre Tresor-Einträge in die Organisation zu verschieben"
   },
   "promptUsersToMoveItemsVfo1": {
-    "message": "Prompt users to move their My vault items to the organization",
+    "message": "Benutzer auffordern, ihre \"Mein Tresor\"-Einträge in die Organisation zu verschieben",
     "description": "VFO1 terminology variant of 'promptUsersToMoveItemsV2'"
   },
   "organizationDataOwnership": {
@@ -8463,7 +8521,7 @@
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
   "autoConfirmDescriptionVfo1": {
-    "message": "New users invited to the organization vault will be automatically confirmed when an admin’s device is unlocked.",
+    "message": "Neue Benutzer, die zum Organisationstresor eingeladen werden, werden automatisch bestätigt, wenn das Gerät eines Administrators entsperrt wird.",
     "description": "VFO1 terminology variant of 'autoConfirmDescription', shown in the policies list"
   },
   "howToTurnOnAutoConfirm": {
@@ -8488,7 +8546,7 @@
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
   "autoConfirmPolicyEditDescriptionVfo1": {
-    "message": "New users invited to the organization vault will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "message": "Neue Benutzer, die zum Organisationstresor eingeladen werden, werden automatisch bestätigt, wenn das Gerät eines Administrators entsperrt wird. Bevor du diese Richtlinie aktivierst, lies bitte Folgendes durch und stimme zu: ",
     "description": "VFO1 terminology variant of 'autoConfirmPolicyEditDescription'"
   },
   "autoConfirmAcceptSecurityRiskTitle": {
@@ -8505,21 +8563,21 @@
     "message": "Richtlinie einer einzelnen Organisation erforderlich. "
   },
   "autoConfirmSingleOrgRequiredVfo1": {
-    "message": "Single organization vault policy required. ",
+    "message": "Die Richtlinie für einzelne Organisationstresore ist erforderlich. ",
     "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequired'"
   },
   "autoConfirmSingleOrgRequiredDesc": {
     "message": "Alle Mitglieder dürfen nur dieser Organisation angehören, um diese Automatisierung zu aktivieren."
   },
   "autoConfirmSingleOrgRequiredDescVfo1": {
-    "message": "All members must only belong to this organization vault to activate this automation.",
+    "message": "Alle Mitglieder dürfen nur diesem Organisationstresor angehören, um diese Automatisierung zu aktivieren.",
     "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequiredDesc'"
   },
   "autoConfirmSingleOrgExemption": {
     "message": "Die Richtlinie für einzelne Organisationen wird für alle Rollen gelten. "
   },
   "autoConfirmSingleOrgExemptionVfo1": {
-    "message": "Single organization vault policy will extend to all roles. ",
+    "message": "Die Richtlinie für einzelne Organisationstresore gilt für alle Rollen. ",
     "description": "VFO1 terminology variant of 'autoConfirmSingleOrgExemption'"
   },
   "autoConfirmNoEmergencyAccess": {
@@ -8605,10 +8663,6 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "Desktop-Autotype-Standard­einstellung"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "Aktiviere Desktop-Autotype standardmäßig für Mitglieder. Mitglieder können Autotype im Desktop-Client manuell deaktivieren.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "Desktop-Autotype für Mitglieder aktivieren. Mitglieder können Autotype manuell im Desktop-Client deaktivieren."
   },
@@ -8661,7 +8715,7 @@
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "manageSendAndShareVfo1": {
-    "message": "Manage Send and share",
+    "message": "Send und Teilen verwalten",
     "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendControlsPolicyDesc": {
@@ -8673,7 +8727,7 @@
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescVfo1": {
-    "message": "Set Send configuration options.",
+    "message": "Send-Konfigurationsoptionen festlegen.",
     "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
@@ -8694,11 +8748,8 @@
   "uriMatchDetectionPolicy": {
     "message": "Standard URI-Übereinstimmungserkennung"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "Lege fest, wann Zugangsdaten für Auto-Ausfüllen vorgeschlagen werden. Administratoren und Eigentümer sind von dieser Richtlinie ausgenommen."
-  },
   "uriMatchDetectionPolicyDescVfo1": {
-    "message": "Set the default URI match detection for all items created by members.",
+    "message": "Die Standard-URI-Übereinstimmungserkennung für alle von Mitgliedern erstellten Einträge festlegen.",
     "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
   },
   "uriMatchDetectionPolicyDescV2": {
@@ -8710,6 +8761,23 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Bitte wähle eine gültige URI-Übereinstimmungserkennungs-Option aus.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "Ausfüllhilfe aktivieren",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Aktiviert die Ausfüllhilfe standardmäßig für alle Mitglieder. Diese Funktion nutzt geprüfte, Website-spezifische Anweisungen, um die Genauigkeit von Auto-Ausfüllen auf Websites zu verbessern, die bekanntermaßen schwer automatisch auszufüllen sind."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Eigener Regelsatz für Auto-Ausfüllen"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "Standardmäßig verwendet die Ausfüllhilfe den von Bitwarden zusammengestellten Regelsatz. Gib hier eine URL ein, um diesen durch deinen eigenen zu überschreiben."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Gib eine gültige URL ein",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "Richtlinie $ID$ geändert.",
@@ -8725,6 +8793,9 @@
   },
   "estimatedTax": {
     "message": "Voraussichtliche Steuern"
+  },
+  "subtotal": {
+    "message": "Zwischensumme"
   },
   "custom": {
     "message": "Benutzerdefiniert"
@@ -9115,7 +9186,7 @@
     "message": "Kontowiederherstellungsverwaltung"
   },
   "accountRecoveryPolicyDescVfo1": {
-    "message": "Allow admins to reset master passwords for members.",
+    "message": "Administratoren erlauben, das Master-Passwort der Mitglieder zurückzusetzen.",
     "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
   },
   "accountRecoverySingleOrgRequirementDesc": {
@@ -9125,7 +9196,7 @@
     "message": "Du musst die Richtlinie für eine einzelne Organisation aktivieren, bevor du diese Richtlinie aktivieren kannst."
   },
   "accountRecoveryPolicySingleOrgReqV2Vfo1": {
-    "message": "You must enable the single organization membership policy before enabling this one.",
+    "message": "Du musst die Richtlinie zur Mitgliedschaft in nur einer Organisation aktivieren, bevor du diese aktivieren kannst.",
     "description": "VFO1 terminology variant of 'accountRecoveryPolicySingleOrgReqV2'"
   },
   "accountRecoveryPolicyDescV3Part1": {
@@ -9493,14 +9564,11 @@
   "automaticAppLoginWithSSO": {
     "message": "Automatische Anmeldung mit SSO"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "Erweitere die Sicherheit und den Komfort von SSO auf nicht verwaltete Anwendungen. Wenn Benutzer eine Anwendung über Ihren Identitätsanbieter starten, werden deren Anmeldedaten automatisch ausgefüllt und übermittelt, sodass ein sicherer Ablauf mit nur einem Klick vom Identitätsanbieter zur Anwendung entsteht."
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "Wenn Benutzer eine App über deinen Identitätsanbieter starten, werden ihre Zugangsdaten automatisch ausgefüllt und übermittelt, sodass eine sichere Anmeldung mit nur einem Klick möglich ist."
   },
   "automaticAppLoginWithSSODescListVfo1": {
-    "message": "Login forms will automatically be filled and submitted for apps launched from your configured identity provider.",
+    "message": "Anmeldeformulare von Apps, die über deinen konfigurierten Identitätsanbieter gestartet wurden, werden automatisch ausgefüllt und abgesendet.",
     "description": "VFO1 terminology variant of 'automaticAppLoginWithSSODescV2', shown in the policies list"
   },
   "automaticAppLoginIdpHostLabel": {
@@ -9519,7 +9587,7 @@
     "message": "Lege ein maximales Sitzungs-Timeout für alle Mitglieder außer für Eigentümer fest."
   },
   "sessionTimeoutPolicyDescriptionVfo1": {
-    "message": "Set a maximum vault timeout for members.",
+    "message": "Konfiguriere ein maximales Tresor-Timeout für alle Mitglieder.",
     "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
   },
   "maximumAllowedTimeout": {
@@ -9631,18 +9699,15 @@
   "disableExport": {
     "message": "Export entfernen"
   },
-  "disablePersonalVaultExportDescription": {
-    "message": "Mitgliedern nicht erlauben, Daten aus ihrem persönlichen Tresor zu exportieren."
-  },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Mitgliedern nicht erlauben, Daten aus ihren persönlichen Tresoren zu exportieren. Diese Richtlinie gilt nicht für Eigentümer und Administratoren."
   },
   "disablePersonalVaultExportDescriptionVfo1": {
-    "message": "Do not allow members to export their vault data. This policy won't be enforced for owners and admins.",
+    "message": "Mitgliedern nicht erlauben, ihre Tresor-Daten zu exportieren. Diese Richtlinie gilt nicht für Eigentümer und Administratoren.",
     "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescriptionV2'"
   },
   "disablePersonalVaultExportDescriptionListVfo1": {
-    "message": "Do not allow members to export their vault data.",
+    "message": "Mitgliedern nicht erlauben, ihre Tresor-Daten zu exportieren.",
     "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescription', shown in the policies list"
   },
   "vaultExportDisabled": {
@@ -9661,7 +9726,7 @@
     "message": "Aktiviere die Einstellung \"Auto-Ausfüllen beim Laden einer Seite\" in der Browser-Erweiterung für alle bestehenden und neuen Mitglieder."
   },
   "activateAutofillPolicyDescriptionVfo1": {
-    "message": "Automatically fill logins on websites and apps.",
+    "message": "Zugangsdaten auf Websites und in Apps automatisch ausfüllen.",
     "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
   },
   "activateAutofillPolicyDescV2": {
@@ -11515,6 +11580,9 @@
   "noSharedFoldersAdded": {
     "message": "Keine geteilten Ordner hinzugefügt"
   },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
+  },
   "noMembersAdded": {
     "message": "Keine Mitglieder hinzugefügt"
   },
@@ -12709,7 +12777,7 @@
     "message": "Kostenlose Organisationen mit 2 Personen"
   },
   "freePlanWithSharedVault": {
-    "message": "Free plan with shared vault"
+    "message": "Kostenloser Tarif mit geteiltem Tresor"
   },
   "unlimitedSecrets": {
     "message": "Unbegrenzte Geheimnisse"
@@ -14134,6 +14202,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Secrets Manager verwenden"
+  },
   "secureYourInfrastructure": {
     "message": "Sichere deine Infrastruktur"
   },
@@ -14841,21 +14912,18 @@
     "message": "Gesponserten Families-Tarif entfernen"
   },
   "freeFamiliesSponsorshipTitleVfo1": {
-    "message": "Remove Sponsored Family Plan",
+    "message": "Gesponserten Family-Tarif entfernen",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the policies list"
   },
   "freeFamiliesSponsorshipPolicyTitleV2Vfo1": {
-    "message": "Remove Sponsored Families Plan",
+    "message": "Gesponserten Families-Tarif entfernen",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
-  },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Erlaube Mitgliedern nicht, einen Families-Tarif über diese Organisation einzulösen."
   },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Erlaube Mitgliedern nicht, einen von deiner Organisation gesponserten Families-Tarif in Anspruch zu nehmen."
   },
   "freeFamiliesSponsorshipDescVfo1": {
-    "message": "Remove the option for members to redeem a free Families plan.",
+    "message": "Für Mitglieder die Option entfernen, einen kostenlosen Families-Tarif einzulösen.",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
@@ -15308,9 +15376,6 @@
   "removeUnlockWithPinPolicyTitle": {
     "message": "Entsperren mit PIN entfernen"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "Mitgliedern nicht erlauben, ihr Konto mit einer PIN zu entsperren."
-  },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Mitglieder dürfen ihr Konto nicht mit einer PIN entsperren."
   },
@@ -15698,8 +15763,20 @@
   "providersubCanceledmessage": {
     "message": "Kontaktiere den Bitwarden Kundensupport, um erneut zu abonnieren."
   },
+  "showAll": {
+    "message": "Alles anzeigen"
+  },
   "showMore": {
     "message": "Mehr anzeigen"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Weniger anzeigen"
@@ -15745,16 +15822,21 @@
   "checkInputFormat": {
     "message": "Überprüfe das Eingabeformat auf Tippfehler."
   },
-  "exampleTaxIdFormat": {
-    "message": "Beispiel $CODE$-Format: $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Beispiel für das Format einer Steuernummer: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Erkanntes Format: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -15959,6 +16041,9 @@
   "upgradeNow": {
     "message": "Jetzt upgraden"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Erhalte mit Bitwarden Premium erweiterte Online-Sicherheit."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Durch das Ausfüllen dieses Formulars wird eine neue Families-Organisation erstellt. Du kannst deine kostenlose Organisation über die Administrator-Konsole upgraden."
   },
@@ -16010,22 +16095,16 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Erstellung von Konten für beanspruchte Domains blockieren"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "Verhindere, dass Benutzer außerhalb deiner Organisation Konten mit E-Mail-Adressen aus beanspruchten Domains erstellen."
-  },
   "blockClaimedDomainAccountCreationDescVfo1": {
-    "message": "Prevent account creation from claimed domains.",
+    "message": "Die Kontoerstellung von beanspruchten Domains verhindern.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
   },
   "blockClaimedDomainAccountCreationDescV2": {
     "message": "Verhindere, dass Mitglieder deine beanspruchte Domain verwenden, um Bitwarden-Konten außerhalb deiner Organisation anzulegen."
   },
   "blockClaimedDomainAccountCreationDescV2Vfo1": {
-    "message": "Block members from using your claimed domain to create Bitwarden accounts outside of your organization vault.",
+    "message": "Verhindere, dass Mitglieder deine beanspruchte Domain verwenden, um Bitwarden-Konten außerhalb deines Organisationstresors anzulegen.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
-  },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "Vor der Aktivierung dieser Richtlinie muss eine Domain beansprucht werden."
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "Bevor du diese Richtlinie aktivierst, musst du eine Domain beanspruchen."
@@ -16147,6 +16226,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "Ordnerintegrität wird verifiziert"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Die Integrität von Anhängen wird überprüft"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ Eintrag/Einträge enthält/enthalten Dateianhänge mit alter Verschlüsselung. Öffne einen der unten aufgeführten Einträge und gehe zu „Anhänge“, um das Problem zu beheben.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "Datenwiederherstellung und Diagnose"
@@ -16483,6 +16574,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "Premium-Abonnement-Guthaben"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Angewendete Abonnement-Guthaben"
   },
   "enterpriseMembership": {
     "message": "Enterprise-Mitgliedschaft"
@@ -17471,6 +17565,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Login"
+  },
+  "orgNameVault": {
+    "message": "$ORGNAME$ vault",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }

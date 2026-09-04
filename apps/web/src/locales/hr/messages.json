@@ -1224,6 +1224,48 @@
   "sharedFolders": {
     "message": "Shared folders"
   },
+  "sharedFoldersInParent": {
+    "message": "Shared folders in $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ shared folder",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ more shared folders shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 more shared folder shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "My folder"
   },
@@ -1232,6 +1274,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Add folders to items to filter them here."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
   },
   "addSharedFolder": {
     "message": "Add shared folder"
@@ -1755,6 +1800,9 @@
   "myItems": {
     "message": "Moje stavke"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "myVault": {
     "message": "Moj trezor"
   },
@@ -1858,6 +1906,18 @@
   },
   "noMatchingItems": {
     "message": "No matching items"
+  },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
   },
   "deselectAll": {
     "message": "Odznači sve"
@@ -2533,6 +2593,9 @@
   },
   "addPlan": {
     "message": "Add plan"
+  },
+  "addPlanDesc": {
+    "message": "You can create a new shared vault with 1 other person for free. If you'd like to store, manage, and share items with more people, you will need to add a new plan first. Just know that some options may require a billing change."
   },
   "noOrganizationsList": {
     "message": "Ne pripadaš niti jednoj organizaciji. Organizacije omogućuju sigurno dijeljenje stavki s drugim korisnicima."
@@ -3737,9 +3800,6 @@
   "restrictedItemTypePolicy": {
     "message": "Ukloni stavku Platna kartica"
   },
-  "restrictedItemTypePolicyDesc": {
-    "message": "Nemoj dozvoliti članovima stvaranje stavaka vrste Platna kartica. Postojeće stavke ove vrste biti će automatski uklonjenje."
-  },
   "restrictedItemTypePolicyDescV2": {
     "message": "Do not allow members to create and store credit card items in their vaults. When this policy is turned on, existing cards will be automatically hidden."
   },
@@ -4135,12 +4195,6 @@
   },
   "instructions": {
     "message": "Upute"
-  },
-  "passwordlessLogin": {
-    "message": "Passwordless login"
-  },
-  "multifactorAuthentication": {
-    "message": "Multifactor authentication"
   },
   "exposedPasswordsReport": {
     "message": "Izvještaj o izloženim lozinkama"
@@ -4912,6 +4966,9 @@
   },
   "chooseYourPlan": {
     "message": "Odaberi svoj paket"
+  },
+  "choosePlan": {
+    "message": "Choose plan"
   },
   "users": {
     "message": "Korisnici"
@@ -6793,7 +6850,7 @@
   "openOrgInviteAcceptFailed": {
     "message": "Unable to accept invitation. Ask an organization admin to send a new invitation link."
   },
-  "openOrgInviteAcceptFailedTitle": {
+  "cannotAcceptInvitation": {
     "message": "Cannot accept invitation"
   },
   "openOrgInviteAcceptAlreadyMember": {
@@ -7369,6 +7426,21 @@
       }
     }
   },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Check your email to finish joining $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
+  },
+  "inviteSentToEmail": {
+    "message": "Invite sent to email"
+  },
   "acceptPolicies": {
     "message": "Označavanjem ove kućice slažete se sa sljedećim:"
   },
@@ -7638,17 +7710,11 @@
   "twoStepLoginPolicyDescV2": {
     "message": "Require members to set up two-step login. This policy won't be enforced for owners and admins."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "Članovi organizacije koji nisu Vlasnici ili Administratori i nemaju uključenu prijavu dvostrukom autentifikacijom na svojim osobnim računima biti će uklonjeni iz organizacije i primiti će o tome obavijest e-poštom."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "Enabling this policy will revoke any users who do not have two-step login enabled on their accounts. Affected users will be notified by email."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Član si organizacije koja zahtijeva uključenu prijavu u dva koraka na tvojem računu. Ako onemogućiš sve pružatelje prijave u dva koraka, automatski ćeš biti uklonjen/a iz organizacije."
-  },
-  "passwordGeneratorPolicyDesc": {
-    "message": "Postavi pravila sigurnosti koje mora zadovoljiti generator lozinki."
   },
   "passwordGeneratorPolicyDescV2": {
     "message": "Select a set of minimum requirements for any member-generated passwords."
@@ -7912,9 +7978,6 @@
   "singleOrgDesc": {
     "message": "Onemogući korisnicima da se pridruže drugim organizacijama."
   },
-  "singleOrgPolicyDesc": {
-    "message": "Ograniči članove da se pridruže drugim organizacijama. Ovo je pravilo potrebno za organizacije koje imaju omogućenu provjeru domene."
-  },
   "singleOrgPolicyDescVfo1": {
     "message": "Restrict members from joining other shared or organization vaults.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
@@ -7947,9 +8010,6 @@
     "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
   },
-  "requireSsoPolicyDesc": {
-    "message": "Zahtijeva da se korisnici prijave koristeći tvrtkin SSO."
-  },
   "requireSsoPolicyTitle": {
     "message": "Require single sign-on (SSO)"
   },
@@ -7959,15 +8019,19 @@
   "prerequisite": {
     "message": "Preduvjet"
   },
-  "requireSsoPolicyReq": {
-    "message": "Prije aktivacije ovog pravila mora se uključiti pravilo Isključive organizacije."
-  },
   "requireSsoPolicyReqV2": {
     "message": "You must enable the single organization policy before enabling this one."
   },
   "requireSsoPolicyReqV2Vfo1": {
     "message": "You must enable the single organization membership policy before enabling this one.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "You must enable the single organization policy before enabling this one."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "You must enable the single organization membership policy before enabling this one.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "Nije postavljeno pravilo Isključive organizacije."
@@ -8379,9 +8443,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "Pri odlasku članova ili nasljeđivanju, jednostavno prenesi stavke osiguravajući da nema praznina u pristupu."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "Dodijeli svim korisnicima poseban prostor „Moje stavke” za upravljanje vlastitim prijavama."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "Pitaj članove da prenesu svoje stavke"
   },
@@ -8390,9 +8451,6 @@
   },
   "centralizeDataOwnershipWarningLink": {
     "message": "Saznaj više o transferu"
-  },
-  "promptUsersToMoveItems": {
-    "message": "Pitaj korisnike da premjeste svoje stavke trezora u organizaciju"
   },
   "promptUsersToMoveItemsCallout": {
     "message": "Članovi će biti pitani žele li svoje stavke prebaciti u organizaciju ili izaći. Ako izađu, pristup će im biti opozvan, ali može u bilo kojem trenu biti vraćen."
@@ -8605,10 +8663,6 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "Desktop autotype default setting"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "Uključi automatsko tipkanje na radnoj površini prema zadanim postavkama za članove. Članovi mogu ručno isključiti automatsko tipkanje u klijentu za radnu površinu.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "Enable desktop autotype for members. Members will be able to turn autotype off manually in the desktop client."
   },
@@ -8694,9 +8748,6 @@
   "uriMatchDetectionPolicy": {
     "message": "Zadano otkrivanje podudaranja URI-ja"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "Odredi kada se prijave predlažu za auto-ispunu. Administratori i vlasnici su izuzeti od ovog pravila."
-  },
   "uriMatchDetectionPolicyDescVfo1": {
     "message": "Set the default URI match detection for all items created by members.",
     "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
@@ -8710,6 +8761,23 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Odaberite valjanu opciju otkrivanja podudaranja URI-ja.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "Activate fill assist",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Turn on fill assist by default for all members. This feature uses reviewed, site-specific instructions to improve autofill accuracy on websites known to be difficult to autofill."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Custom autofill rule set"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "By default, fill assist uses Bitwarden's curated rule set. Enter a URL here to override it with your own."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Enter a valid URL",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "Izmijenjena polica $ID$.",
@@ -8725,6 +8793,9 @@
   },
   "estimatedTax": {
     "message": "Procjena poreza"
+  },
+  "subtotal": {
+    "message": "Subtotal"
   },
   "custom": {
     "message": "Prilagođeno"
@@ -9493,9 +9564,6 @@
   "automaticAppLoginWithSSO": {
     "message": "Automatska jedinstvena prijava"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "Proširi sigurnost i praktičnost SSO-a na neupravljane aplikacije. Kada korisnici pokrenu aplikaciju vašeg davatelja identiteta, njihovi se podaci za prijavu automatski popunjavaju i šalju, stvarajući siguran tijek od davatelja identiteta do aplikacije jednim klikom."
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
   },
@@ -9630,9 +9698,6 @@
   },
   "disableExport": {
     "message": "Ukloni izvoz"
-  },
-  "disablePersonalVaultExportDescription": {
-    "message": "Onemogućuje korisnicima izvoz osobnog trezora."
   },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Do not allow members to export data from their individual vaults. This policy won't be enforced for owners and admins."
@@ -11514,6 +11579,9 @@
   },
   "noSharedFoldersAdded": {
     "message": "No shared folders added"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
   },
   "noMembersAdded": {
     "message": "Niti jedan član nije dodan"
@@ -14134,6 +14202,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Get Secrets Manager"
+  },
   "secureYourInfrastructure": {
     "message": "Osiguraj svoju infrastrukturu"
   },
@@ -14848,9 +14919,6 @@
     "message": "Remove Sponsored Families Plan",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
   },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "Nemoj dopustiti članovima da koriste Families paket putem ove organizacije."
-  },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Do not allow members to redeem a Families plan sponsored by your organization."
   },
@@ -15308,9 +15376,6 @@
   "removeUnlockWithPinPolicyTitle": {
     "message": "Ukloni otključavanje PIN-om"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "Ne dozvoli članovima otključavanje računa PIN-om."
-  },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Members will not be allowed to unlock their account with a PIN."
   },
@@ -15698,8 +15763,20 @@
   "providersubCanceledmessage": {
     "message": "Za ponovnu pretplatu, kontaktiraj Bitwarden korisničku podršku."
   },
+  "showAll": {
+    "message": "Show all"
+  },
   "showMore": {
     "message": "Prikaži više"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Pokaži manje"
@@ -15745,16 +15822,21 @@
   "checkInputFormat": {
     "message": "Potvrdi domenu kontektora ključa."
   },
-  "exampleTaxIdFormat": {
-    "message": "Primjer $CODE$ oblika: $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Example tax ID format: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Recognized format: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -15959,6 +16041,9 @@
   "upgradeNow": {
     "message": "Nadogradi sada"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Get advanced online security with Bitwarden premium."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Ispunjavanjem ovog obrasca stvorit ćeš novu obiteljsku organizaciju. Svoju besplatnu organizaciju možeš nadograditi u administratorskoj konzoli."
   },
@@ -16010,9 +16095,6 @@
   "blockClaimedDomainAccountCreation": {
     "message": "Blokiraj stvaranje računa za potvrđene domene"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "Spriječi korisnike da stvaraju račune izvan organizacije koristeći adrese e-pošte s potvrđenim domenama."
-  },
   "blockClaimedDomainAccountCreationDescVfo1": {
     "message": "Prevent account creation from claimed domains.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
@@ -16023,9 +16105,6 @@
   "blockClaimedDomainAccountCreationDescV2Vfo1": {
     "message": "Block members from using your claimed domain to create Bitwarden accounts outside of your organization vault.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
-  },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "Domena mora biti potvrđena prije aktiviranja ovog pravila."
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "Before turning on this policy, you must claim a domain."
@@ -16147,6 +16226,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "Provjera integriteta mapa"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Verifying attachment integrity"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ item(s) have file attachments with old encryption. Open an item below and go to Attachments to fix it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "Povrat podataka i dijagnostika"
@@ -16483,6 +16574,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "Kredit Premium pretplate"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Applied subscription credits"
   },
   "enterpriseMembership": {
     "message": "Enterprise članstvo"
@@ -17471,6 +17565,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Login"
+  },
+  "orgNameVault": {
+    "message": "$ORGNAME$ vault",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }
