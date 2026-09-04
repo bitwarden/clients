@@ -11,7 +11,11 @@ import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
 import { Lock } from "../../../../content/components/icons";
-import { InlineMenuCipherList, InlineMenuPrompt } from "../../../../content/components/inline-menu";
+import {
+  InlineMenuCipherList,
+  InlineMenuPrompt,
+  InlineMenuPasswordGenerator,
+} from "../../../../content/components/inline-menu";
 import { InlineMenuFillType } from "../../../../enums/autofill-overlay.enum";
 import { buildSvgDomElement, specialCharacterToKeyMap, throttle } from "../../../../utils";
 import { EventSecurity } from "../../../../utils/event-security";
@@ -334,6 +338,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param generatedPassword - The generated password to display.
    */
   private buildPasswordGenerator(generatedPassword: string) {
+    if (this.useLitComponents) {
+      this.renderLitPasswordGenerator(generatedPassword);
+      return;
+    }
+
     this.passwordGeneratorContainer = globalThis.document.createElement("div");
     this.passwordGeneratorContainer.classList.add("password-generator-container");
 
@@ -397,6 +406,31 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     this.passwordGeneratorContainer.appendChild(passwordGeneratorActions);
     this.inlineMenuListContainer.appendChild(this.passwordGeneratorContainer);
+  }
+
+  private renderLitPasswordGenerator(generatedPassword: string) {
+    const characterDescriptors: Record<string, string> = {};
+    for (const key of Object.values(specialCharacterToKeyMap)) {
+      characterDescriptors[key] = this.getTranslation(key);
+    }
+
+    this.renderLit(
+      InlineMenuPasswordGenerator({
+        password: generatedPassword,
+        headingText: this.getTranslation("fillGeneratedPassword"),
+        theme: this.theme,
+        i18n: {
+          generatedPassword: this.getTranslation("generatedPassword"),
+          lowercaseAriaLabel: this.getTranslation("lowercaseAriaLabel"),
+          uppercaseAriaLabel: this.getTranslation("uppercaseAriaLabel"),
+          regeneratePassword: this.getTranslation("regeneratePassword"),
+          characterDescriptors,
+        },
+        handleFillPassword: () => this.postMessageToParent({ command: "fillGeneratedPassword" }),
+        handleRefreshPassword: () =>
+          this.postMessageToParent({ command: "refreshGeneratedPassword" }),
+      }),
+    );
   }
 
   /**
@@ -559,6 +593,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     message: UpdateAutofillInlineMenuGeneratedPasswordMessage,
   ) {
     if (this.authStatus !== AuthenticationStatus.Unlocked || !message.generatedPassword) {
+      return;
+    }
+
+    if (this.useLitComponents) {
+      if (!this.inlineMenuListContainer.querySelector("[data-fill-generated-password]")) {
+        this.resetInlineMenuContainer();
+      }
+      this.renderLitPasswordGenerator(message.generatedPassword);
       return;
     }
 
@@ -1810,7 +1852,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     const firstListElement = this.inlineMenuListContainer.querySelector(
-      ".inline-menu-list-action, [data-testid='inline-menu-save-login-button'], [data-fill-cipher]",
+      ".inline-menu-list-action, [data-testid='inline-menu-save-login-button'], [data-fill-cipher], [data-fill-generated-password]",
     ) as HTMLElement;
     firstListElement?.focus();
   }

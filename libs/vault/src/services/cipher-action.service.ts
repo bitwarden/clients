@@ -1,12 +1,10 @@
 import { inject, Injectable } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { firstValueFrom, Subject, switchMap } from "rxjs";
-import { filter } from "rxjs/operators";
+import { firstValueFrom, map, Subject, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -20,6 +18,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import {
@@ -57,19 +56,20 @@ export class CipherActionService {
   /** Emits after any action completes (success or no-op). Subscribe to trigger a vault refresh. */
   readonly cipherModified$ = this._cipherModified.asObservable();
 
+  private readonly userId$ = this.accountService.activeAccount$.pipe(
+    map((a) => a?.id),
+    filterOutNullish(),
+  );
+
   private readonly userCanArchive = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
-    ),
+    this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId))),
     { initialValue: false },
   );
 
   private readonly userHasPremium = toSignal(
-    this.accountService.activeAccount$.pipe(
-      filter((account): account is Account => !!account),
-      switchMap((account) =>
-        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+    this.userId$.pipe(
+      switchMap((userId) =>
+        this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
       ),
     ),
     { initialValue: false },
@@ -77,15 +77,12 @@ export class CipherActionService {
 
   /** The organizations the active user belongs to, for resolving an item's owning organization. */
   private readonly organizations = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.organizationService.organizations$(userId)),
-    ),
+    this.userId$.pipe(switchMap((userId) => this.organizationService.organizations$(userId))),
     { initialValue: [] as Organization[] },
   );
 
   async toggleFavorite(cipher: CipherViewLike): Promise<void> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userId = await firstValueFrom(this.userId$);
     const fullCipher = await this.cipherService.getFullCipherView(cipher);
     fullCipher.favorite = !fullCipher.favorite;
 
@@ -114,7 +111,7 @@ export class CipherActionService {
       ? this.i18nService.t("archivedItemRestored")
       : this.i18nService.t("restoredItem");
 
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userId = await firstValueFrom(this.userId$);
 
     try {
       await this.cipherService.restoreWithServer(cipher.id as CipherId, userId);
@@ -200,7 +197,7 @@ export class CipherActionService {
       return;
     }
 
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userId = await firstValueFrom(this.userId$);
     try {
       await (isDeleted
         ? this.cipherService.deleteWithServer(cipher.id as CipherId, userId)

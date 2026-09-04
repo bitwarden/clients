@@ -7,11 +7,16 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { autotypeFeatureFlagEnabled$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Account, UserId } from "@bitwarden/common/platform/models/domain/account";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
+
+jest.mock("@bitwarden/common/desktop-native/services/autotype-feature-flags", () => ({
+  autotypeFeatureFlagEnabled$: jest.fn(),
+}));
 
 describe("DesktopAutotypeDefaultSettingPolicy", () => {
   let service: DesktopAutotypeDefaultSettingPolicy;
@@ -21,7 +26,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
   let configService: MockProxy<ConfigService>;
 
   let mockAccountSubject: BehaviorSubject<Account | null>;
-  let mockFeatureFlagSubject: BehaviorSubject<boolean>;
+  let featureFlagSubject: BehaviorSubject<boolean>;
   let mockAuthStatusSubject: BehaviorSubject<AuthenticationStatus>;
   let mockPolicyAppliesSubject: BehaviorSubject<boolean>;
 
@@ -35,7 +40,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
         name: "Test User",
       }),
     });
-    mockFeatureFlagSubject = new BehaviorSubject<boolean>(true);
+    featureFlagSubject = new BehaviorSubject<boolean>(true);
     mockAuthStatusSubject = new BehaviorSubject<AuthenticationStatus>(
       AuthenticationStatus.Unlocked,
     );
@@ -47,9 +52,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     configService = mock<ConfigService>();
 
     accountService.activeAccount$ = mockAccountSubject.asObservable();
-    configService.getFeatureFlag$ = jest
-      .fn()
-      .mockReturnValue(mockFeatureFlagSubject.asObservable());
+    jest.mocked(autotypeFeatureFlagEnabled$).mockReturnValue(featureFlagSubject.asObservable());
     authService.authStatusFor$ = jest
       .fn()
       .mockImplementation((_: UserId) => mockAuthStatusSubject.asObservable());
@@ -73,16 +76,17 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
   afterEach(() => {
     jest.clearAllMocks();
     mockAccountSubject.complete();
-    mockFeatureFlagSubject.complete();
+    featureFlagSubject.complete();
     mockAuthStatusSubject.complete();
     mockPolicyAppliesSubject.complete();
   });
 
   describe("autotypeDefaultSetting$", () => {
     it("should emit null when feature flag is disabled", async () => {
-      mockFeatureFlagSubject.next(false);
+      featureFlagSubject.next(false);
       const result = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(result).toBeNull();
+      expect(autotypeFeatureFlagEnabled$).toHaveBeenCalledWith(configService);
     });
 
     it("does not emit until an account appears", async () => {
@@ -176,7 +180,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
       mockPolicyAppliesSubject.next(true);
       expect(await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)))).toBe(true);
 
-      mockFeatureFlagSubject.next(false);
+      featureFlagSubject.next(false);
       expect(await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)))).toBeNull();
     });
 

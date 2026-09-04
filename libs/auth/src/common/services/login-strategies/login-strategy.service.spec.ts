@@ -63,7 +63,7 @@ import { UserDecryptionOptionsService } from "../user-decryption-options/user-de
 import { LoginStrategyService } from "./login-strategy.service";
 import { CacheData } from "./login-strategy.state";
 
-const argon2PreloginData = new PasswordPreloginData(new Argon2KdfConfig(2, 16, 1));
+const argon2PreloginData = new PasswordPreloginData(new Argon2KdfConfig(2, 16, 1), "prelogin-salt");
 
 describe("LoginStrategyService", () => {
   let sut: LoginStrategyService;
@@ -161,7 +161,7 @@ describe("LoginStrategyService", () => {
     });
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
-      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault())),
+      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault(), "prelogin-salt")),
     );
     legacyCompatKeyService.makeMasterKey.mockResolvedValue({} as any);
 

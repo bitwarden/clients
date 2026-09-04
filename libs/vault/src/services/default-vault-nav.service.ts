@@ -1,14 +1,16 @@
 import { inject, Injectable } from "@angular/core";
 import { combineLatest, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { getAvatarDefaultColor } from "@bitwarden/components";
 
 import { getOrgIconForTier } from "../components/org-icon.directive";
@@ -21,49 +23,73 @@ import {
 
 import { VaultNavService } from "./vault-nav.service";
 
-const EMPTY_VIEW_MODEL: VaultsNavViewModel = {
-  vaults: [],
-  organizationDataOwnership: false,
-};
-
 @Injectable()
 export class DefaultVaultNavService extends VaultNavService {
-  private readonly accountService = inject(AccountService);
   private readonly organizationService = inject(OrganizationService);
   private readonly policyService = inject(PolicyService);
   private readonly avatarService = inject(AvatarService);
+  private readonly collectionService = inject(CollectionService);
   private readonly i18nService = inject(I18nService);
 
-  readonly viewModel$: Observable<VaultsNavViewModel> = this.accountService.activeAccount$.pipe(
-    switchMap((account) => {
-      if (!account) {
-        return of(EMPTY_VIEW_MODEL);
-      }
-      const userId = account.id;
-      return combineLatest([
-        this.organizationService.memberOrganizations$(userId),
-        this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
-        this.avatarService.getUserAvatarColor$(userId),
-      ]).pipe(
-        map(([orgs, dataOwnership, avatarColor]) =>
-          this.buildViewModel(account, orgs, dataOwnership, avatarColor),
-        ),
-      );
-    }),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  /**
+   * Built once per user and shared, the way the sibling per-user vault services cache theirs: the
+   * side nav, the vault page, and the route guard all read this, and each would otherwise stand up
+   * its own organization, policy, and collection subscriptions.
+   */
+  private readonly viewModelCache = new Map<UserId, Observable<VaultsNavViewModel>>();
+
+  viewModel$(userId: UserId): Observable<VaultsNavViewModel> {
+    const cached = this.viewModelCache.get(userId);
+    if (cached != null) {
+      return cached;
+    }
+
+    const viewModel$ = combineLatest([
+      this.organizationService.memberOrganizations$(userId),
+      this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+      this.avatarService.getUserAvatarColor$(userId),
+    ]).pipe(
+      switchMap(([orgs, dataOwnership, avatarColor]) => {
+        if (!(dataOwnership && orgs.length > 0)) {
+          return of(this.buildViewModel(userId, orgs, dataOwnership, avatarColor, new Map()));
+        }
+        return combineLatest(
+          orgs.map((org) =>
+            this.collectionService
+              .defaultUserCollection$(userId, org.id as OrganizationId)
+              .pipe(map((collection) => [org.id, collection?.id] as const)),
+          ),
+        ).pipe(
+          map((entries) =>
+            this.buildViewModel(
+              userId,
+              orgs,
+              dataOwnership,
+              avatarColor,
+              new Map<string, CollectionId | undefined>(entries),
+            ),
+          ),
+        );
+      }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+
+    this.viewModelCache.set(userId, viewModel$);
+    return viewModel$;
+  }
 
   private buildViewModel(
-    account: Account,
+    userId: UserId,
     orgs: Organization[],
     dataOwnership: boolean,
     avatarColor: string | null,
+    defaultUserCollectionIds: Map<string, CollectionId | undefined>,
   ): VaultsNavViewModel {
-    const personalColor: VaultNavColor =
-      avatarColor ?? getAvatarDefaultColor(account.id, account.name);
+    // The account's own id seeds the default palette, so the avatar's name fallback never applies.
+    const personalColor: VaultNavColor = avatarColor ?? getAvatarDefaultColor(userId);
 
     const personalItem: VaultNavItemViewModel = {
-      id: account.id,
+      id: userId,
       label: this.i18nService.t("myVault"),
       color: personalColor,
       icon: "bwi-user",
@@ -75,9 +101,9 @@ export class DefaultVaultNavService extends VaultNavService {
       .map((org) => ({
         id: org.id,
         label: org.name,
-        color: this.orgColor(org),
         icon: getOrgIconForTier(org.productTierType),
         type: this.orgType(org),
+        defaultUserCollectionId: defaultUserCollectionIds.get(org.id),
       }));
 
     const ownershipApplies = dataOwnership && sortedOrgItems.length > 0;
@@ -97,9 +123,5 @@ export class DefaultVaultNavService extends VaultNavService {
       default:
         return VaultNavItemType.Organization;
     }
-  }
-
-  private orgColor(org: Organization): VaultNavColor {
-    return this.orgType(org) === VaultNavItemType.Family ? "teal" : "purple";
   }
 }

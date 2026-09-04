@@ -2,17 +2,36 @@
   "bitwarden": {
     "message": "Bitwarden"
   },
+  "bitwardenBeta": {
+    "message": "Bitwarden Beta",
+    "description": "Product name for the beta channel; shown in the tray tooltip and About dialog"
+  },
   "filters": {
     "message": "Filtros"
   },
   "allItems": {
     "message": "Todos os itens"
   },
+  "allVaultItems": {
+    "message": "Todos os itens do cofre"
+  },
+  "myItemsV2": {
+    "message": "Os meus itens"
+  },
+  "vaults": {
+    "message": "Cofres"
+  },
+  "tools": {
+    "message": "Ferramentas"
+  },
+  "manage": {
+    "message": "Gerir"
+  },
   "favorites": {
     "message": "Favoritos"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Marque itens como favoritos para os filtrar aqui."
   },
   "unfavorite": {
     "message": "Remover dos favoritos"
@@ -113,6 +132,48 @@
   "sharedFolders": {
     "message": "Pastas partilhadas"
   },
+  "sharedFoldersInParent": {
+    "message": "Pastas partilhadas em $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ pastas partilhadas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ pasta partilhada",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "Mais $COUNT$ pastas partilhadas apresentadas acima deste botão",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "Mais uma pasta partilhada apresentada acima deste botão",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "A minha pasta"
   },
@@ -120,7 +181,10 @@
     "message": "As minhas pastas"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Adicione pastas aos itens para os filtrar aqui."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Adicione itens a uma pasta partilhada para os filtrar aqui."
   },
   "addSharedFolder": {
     "message": "Adicionar pasta partilhada"
@@ -525,17 +589,8 @@
   "launch": {
     "message": "Iniciar"
   },
-  "launchWebsiteForName": {
-    "message": "Abrir o site de $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Abrir site"
   },
   "copyValue": {
     "message": "Copiar valor",
@@ -684,7 +739,7 @@
     "message": "Introduzir palavra-passe"
   },
   "sshAgentUnlockRequired": {
-    "message": "Por favor, desbloqueie o seu cofre para aprovar o pedido de chave SSH."
+    "message": "Desbloqueie o seu cofre para aprovar o pedido de chave SSH."
   },
   "sshAgentUnlockTimeout": {
     "message": "O pedido de chave SSH expirou."
@@ -1181,6 +1236,24 @@
   "editFolder": {
     "message": "Editar pasta"
   },
+  "editFolderNamed": {
+    "message": "Editar $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "Eliminar $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "regeneratePassword": {
     "message": "Regenerar palavra-passe"
   },
@@ -1202,20 +1275,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Copiar código de verificação (TOTP)"
-  },
-  "copyFieldCipherName": {
-    "message": "Copiar $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "Copiar chave privada"
@@ -1370,7 +1429,7 @@
     "message": "O tamanho máximo do ficheiro é de 500 MB."
   },
   "legacyEncryptionUnsupported": {
-    "message": "A encriptação herdada já não é suportada. Por favor, contacte o suporte para recuperar a sua conta."
+    "message": "A encriptação legada já não é suportada. Contacte o suporte para recuperar a sua conta."
   },
   "editedFolder": {
     "message": "Pasta guardada"
@@ -1378,11 +1437,41 @@
   "addedFolder": {
     "message": "Pasta adicionada"
   },
+  "folderEdited": {
+    "message": "Pasta editada"
+  },
+  "enterAName": {
+    "message": "Introduza um nome."
+  },
   "deleteFolderConfirmation": {
     "message": "Tem a certeza de que pretende eliminar esta pasta?"
   },
   "deletedFolder": {
     "message": "Pasta eliminada"
+  },
+  "foldersDeleted": {
+    "message": "Pastas eliminadas"
+  },
+  "deleteFoldersCount": {
+    "message": "Eliminar $COUNT$ pastas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "Ao eliminar a pasta $NAME$, esta será removida de todos os itens aos quais foi aplicada. Os próprios itens não serão eliminados.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "Ao eliminar estas pastas, estas serão removidas de todos os itens aos quais foram aplicadas. Os próprios itens não serão eliminados."
   },
   "loginOrCreateNewAccount": {
     "message": "Inicie sessão ou crie uma nova conta para aceder ao seu cofre seguro."
@@ -1415,7 +1504,7 @@
     "message": "Prima a sua YubiKey para se autenticar"
   },
   "logInWithPasskey": {
-    "message": "Iniciar sessão com a chave de acesso"
+    "message": "Iniciar sessão com chave de acesso"
   },
   "loginWithDevice": {
     "message": "Iniciar sessão com o dispositivo"
@@ -1592,7 +1681,7 @@
     "message": "É necessário o código de verificação."
   },
   "webauthnCancelOrTimeout": {
-    "message": "A autenticação foi cancelada ou demorou demasiado tempo. Por favor, tente novamente."
+    "message": "A autenticação foi cancelada ou demorou demasiado tempo. Tente novamente."
   },
   "openInNewTab": {
     "message": "Abrir num novo separador"
@@ -1680,7 +1769,7 @@
     "message": "Esta conta tem a verificação de dois passos configurada, no entanto, nenhum dos fornecedores da verificação de dois passos configurada é suportado por este dispositivo."
   },
   "noTwoStepProviders2": {
-    "message": "Por favor, adicione outros fornecedores que sejam mais bem suportados em todos os dispositivos (por exemplo, uma aplicação de autenticação)."
+    "message": "Adicione outros métodos de autenticação que sejam mais compatíveis com diferentes dispositivos (como uma app de autenticação)."
   },
   "twoStepOptions": {
     "message": "Opções de verificação de dois passos"
@@ -1713,7 +1802,7 @@
     "message": "Tempo limite de autenticação"
   },
   "authenticationSessionTimedOut": {
-    "message": "A sessão de autenticação expirou. Por favor, reinicie o processo de início de sessão."
+    "message": "A sessão de autenticação expirou. Reinicie o processo de início de sessão."
   },
   "selfHostBaseUrl": {
     "message": "URL do servidor auto-hospedado",
@@ -1816,7 +1905,7 @@
     "message": "Link expirado"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Por favor, reinicie o registo ou tente iniciar sessão."
+    "message": "Reinicie o registo ou tente iniciar sessão."
   },
   "youMayAlreadyHaveAnAccount": {
     "message": "É possível que já tenha uma conta"
@@ -2027,16 +2116,6 @@
   "showQuickCopyActionsInVault": {
     "message": "Mostrar ações rápidas de cópia no cofre"
   },
-  "copyNoteTitle": {
-    "message": "Copiar nota - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noDetailsToCopy": {
     "message": "Não há detalhes para copiar"
   },
@@ -2151,16 +2230,6 @@
   "noSecurityCode": {
     "message": "Sem código de segurança"
   },
-  "copyDetailsTitle": {
-    "message": "Copiar detalhes de $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
   "copyUsername": {
     "message": "Copiar nome de utilizador"
   },
@@ -2179,9 +2248,6 @@
     "message": "Copiar código de segurança",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "número do cartão"
-  },
   "premiumMembership": {
     "message": "Subscrição Premium"
   },
@@ -2191,62 +2257,14 @@
   "premiumManageAlert": {
     "message": "Pode gerir a sua subscrição no cofre web em bitwarden.com. Pretende visitar o site agora?"
   },
-  "premiumRefresh": {
-    "message": "Atualizar subscrição"
-  },
-  "premiumNotCurrentMember": {
-    "message": "Atualmente, não é um membro Premium."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Subscreva uma subscrição Premium e obtenha:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB de armazenamento encriptado para anexos de ficheiros."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ de armazenamento encriptado para anexos de ficheiros.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Opções proprietárias de verificação de dois passos, como YubiKey e Duo."
-  },
-  "premiumSignUpReports": {
-    "message": "Relatórios de segurança de palavras-passe, estado das contas e fugas de dados para manter o seu cofre seguro."
-  },
-  "premiumSignUpTotp": {
-    "message": "Gerador de códigos de verificação TOTP (2FA) para credenciais no seu cofre."
-  },
-  "premiumSignUpSupport": {
-    "message": "Prioridade no apoio ao cliente."
-  },
-  "premiumSignUpFuture": {
-    "message": "Todas as futuras funcionalidades Premium. Mais em breve!"
   },
   "premiumPurchase": {
     "message": "Adquirir Premium"
   },
   "premiumPurchaseAlertV2": {
     "message": "Pode adquirir o Premium a partir das definições da sua conta na aplicação web do Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "É um membro Premium!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Obrigado por apoiar o Bitwarden."
-  },
-  "premiumPrice": {
-    "message": "Tudo por apenas $PRICE$ /ano!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "mês"
@@ -2397,6 +2415,18 @@
   "noMatchingItems": {
     "message": "Nenhum item correspondente"
   },
+  "noFiltersMatch": {
+    "message": "Nenhum filtro corresponde a \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Limpar pesquisa"
+  },
   "selected": {
     "message": "Selecionado(s)"
   },
@@ -2490,7 +2520,7 @@
     "message": "Erro no acesso ao token de atualização"
   },
   "errorRefreshingAccessTokenDesc": {
-    "message": "Não foi encontrado nenhum token de atualização ou chaves API. Por favor, tente terminar a sessão e voltar a iniciá-la."
+    "message": "Não foram encontrados tokens de atualização nem chaves de API. Tente terminar sessão e voltar a iniciá-la."
   },
   "help": {
     "message": "Ajuda"
@@ -2623,7 +2653,7 @@
     "message": "Protegido por palavra-passe"
   },
   "passwordProtectedOptionDescription": {
-    "message": "Defina uma palavra-passe do ficheiro para encriptar a exportação e importe-a para qualquer conta Bitwarden utilizando a palavra-passe de desencriptação."
+    "message": "Definir uma palavra-passe de ficheiro para encriptar a exportação e importá-la para qualquer conta Bitwarden utilizando a palavra-passe para a desencriptar."
   },
   "exportTypeHeading": {
     "message": "Tipo de exportação"
@@ -2694,7 +2724,7 @@
     "message": "Desbloquear com PIN"
   },
   "setYourPinCode": {
-    "message": "Defina o seu código PIN para desbloquear o Bitwarden. As suas definições de PIN serão redefinidas se alguma vez terminar sessão por completo da aplicação."
+    "message": "Defina o seu código PIN para desbloquear o Bitwarden. As definições do seu PIN serão repostas se terminar sessão completamente na aplicação."
   },
   "pinRequired": {
     "message": "É necessário o código PIN."
@@ -3332,7 +3362,7 @@
     "message": "Confirmação da palavra-passe mestra"
   },
   "passwordConfirmationDesc": {
-    "message": "Esta ação está protegida. Para continuar, por favor, reintroduza a sua palavra-passe mestra para verificar a sua identidade."
+    "message": "Esta ação está protegida. Para continuar, introduza novamente a sua palavra-passe mestra para confirmar a sua identidade."
   },
   "masterPasswordSuccessfullySet": {
     "message": "Palavra-passe mestra definida com sucesso"
@@ -3359,7 +3389,7 @@
     "message": "A sua palavra-passe mestra não cumpre os requisitos desta organização. Altere a sua palavra-passe mestra para continuar."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "A sua organização desativou a encriptação de dispositivos fiáveis. Por favor, defina uma palavra-passe mestra para aceder ao seu cofre."
+    "message": "A sua organização desativou a encriptação de dispositivos fidedignos. Defina uma palavra-passe mestra para aceder ao seu cofre."
   },
   "tryAgain": {
     "message": "Tentar novamente"
@@ -3553,7 +3583,7 @@
     "message": "Mais opções"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Opções para $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3562,10 +3592,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Nenhuma pasta partilhada"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Filtrar por $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3574,7 +3604,7 @@
     }
   },
   "sessionTimeout": {
-    "message": "A sua sessão expirou. Por favor, volte atrás e tente iniciar sessão novamente."
+    "message": "A sua sessão expirou. Volte atrás e tente iniciar sessão novamente."
   },
   "exportingPersonalVaultTitle": {
     "message": "A exportar o cofre pessoal"
@@ -3961,7 +3991,7 @@
     "message": "Precisa de outra opção?"
   },
   "fingerprintMatchInfo": {
-    "message": "Por favor, certifique-se de que o cofre está desbloqueado e que a frase de impressão digital corresponde à do outro dispositivo."
+    "message": "Certifique-se de que o seu cofre está desbloqueado e de que a frase de impressão digital corresponde à do outro dispositivo."
   },
   "fingerprintPhraseHeader": {
     "message": "Frase de impressão digital"
@@ -4132,10 +4162,10 @@
     "message": "A aceder a"
   },
   "accessTokenUnableToBeDecrypted": {
-    "message": "A sua sessão foi encerrada porque o seu token de acesso não pôde ser desencriptado. Por favor, inicie sessão novamente para resolver este problema."
+    "message": "A sua sessão foi terminada porque não foi possível desencriptar o seu token de acesso. Inicie sessão novamente para resolver este problema."
   },
   "refreshTokenSecureStorageRetrievalFailure": {
-    "message": "A sessão foi encerrada porque o seu token de atualização não pôde ser recuperado. Por favor, inicie sessão novamente para resolver este problema."
+    "message": "A sua sessão foi terminada porque não foi possível obter o seu token de atualização. Inicie sessão novamente para resolver este problema."
   },
   "masterPasswordHint": {
     "message": "A sua palavra-passe mestra não pode ser recuperada se a esquecer!"
@@ -4431,7 +4461,7 @@
     "message": "Erro de importação"
   },
   "importErrorDesc": {
-    "message": "Ocorreu um problema com os dados que tentou importar. Por favor, resolva os erros indicados abaixo no seu ficheiro de origem e tente novamente."
+    "message": "Ocorreu um problema com os dados que tentou importar. Resolva os erros indicados abaixo no ficheiro de origem e tente novamente."
   },
   "resolveTheErrorsBelowAndTryAgain": {
     "message": "Resolva os erros abaixo e tente novamente."
@@ -4684,6 +4714,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "Consulte instruções detalhadas para $NAME$ no nosso",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Centro de ajuda"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "O processo é exatamente igual ao da importação a partir do Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "Na aplicação para computador KeePassX, aceda a \"Base de dados\" → \"Exportar para ficheiro CSV\" e guarde o ficheiro CSV."
+  },
+  "importAviraInstructions": {
+    "message": "No cofre web da Avira, aceda a \"Definições\" → \"Os meus dados\" → \"Exportar dados\" e guarde o ficheiro CSV."
+  },
+  "importBlurInstructions": {
+    "message": "No cofre web da Blur, clique no seu nome de utilizador na parte superior e aceda a \"Definições\" → \"Exportar dados\". Em seguida, clique em \"Exportar CSV\" para as suas \"Contas\"."
+  },
+  "importSafeincloudInstructions": {
+    "message": "Na aplicação para computador SafeInCloud, aceda a \"Ficheiro\" → \"Exportar\" → \"Como XML\" e guarde o ficheiro XML."
+  },
+  "importPadlockInstructions": {
+    "message": "Na aplicação para computador Padlock, clique no ícone de menu no canto superior esquerdo e aceda a \"Definições\" → botão \"Exportar\" e guarde o ficheiro \"Como CSV\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "Na aplicação para computador KeePass 2, aceda a \"Ficheiro\" → \"Exportar\" e selecione a opção \"KeePass XML (2.x)\"."
+  },
+  "importUpmInstructions": {
+    "message": "Na aplicação para computador Universal Password Manager, aceda a \"Base de dados\" → \"Exportar\" e guarde o ficheiro CSV."
+  },
+  "importSaferpassInstructions": {
+    "message": "Na extensão de navegador do SaferPass, clique no ícone de menu no canto superior esquerdo e aceda a \"Definições\". Clique no botão \"Exportar contas\" para guardar o ficheiro CSV."
+  },
+  "importMeldiumInstructions": {
+    "message": "No cofre web do Meldium, aceda a \"Definições\". Localize a função \"Exportar dados\" e clique em \"Mostrar os meus dados\" para guardar o ficheiro CSV."
+  },
+  "importPassworddragonInstructions": {
+    "message": "Na aplicação para computador Password Dragon, aceda a \"Ficheiro\" → \"Exportar\" → \"Para XML\". Na caixa de diálogo que aparece, selecione \"Todas as linhas\" e selecione todos os campos. Clique no botão \"Exportar\" e guarde o ficheiro XML."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "Na aplicação para computador Enpass, aceda a \"Ficheiro\" → \"Exportar\" → \"Como CSV\". Selecione \"OK\" no aviso apresentado e guarde o ficheiro CSV. Tenha em atenção que o importador só é compatível com ficheiros exportados quando o Enpass está definido para inglês, pelo que deve ajustar as suas definições em conformidade."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "Na aplicação para computador Enpass 6, clique no botão de menu e aceda a \"Ficheiro\" → \"Exportar\". Selecione a opção de formato de ficheiro \".json\" e guarde o ficheiro JSON."
+  },
+  "importPwsafeInstructions": {
+    "message": "Na aplicação para computador Password Safe, aceda a \"Ficheiro\" → \"Exportar para\" → \"Formato XML...\" e guarde o ficheiro XML."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Inicie sessão no Dashlane, clique em \"A minha conta\" → \"Definições\" → \"Exportar ficheiro\" e selecione \"Exportar como ficheiro CSV\". Esta ação transferirá um ficheiro ZIP que contém vários ficheiros CSV. Extraia o conteúdo do ficheiro e importe cada ficheiro CSV individualmente."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "O Dashlane já não é compatível com o formato JSON. Utilize esta opção apenas se tiver um ficheiro JSON existente para importar. Utilize o importador CSV ao criar novas exportações."
+  },
+  "importMsecureInstructions": {
+    "message": "Na aplicação para computador mSecure, aceda a \"Ficheiro\" → \"Exportar\" → \"Ficheiro CSV...\" e guarde o ficheiro CSV."
+  },
+  "importStickypasswordInstructions": {
+    "message": "Na aplicação para computador Sticky Password, aceda a \"Menu\" (canto superior direito) → \"Exportar\" → \"Exportar tudo\". Selecione a opção de formato XML não encriptado e guarde o ficheiro XML."
+  },
+  "importTruekeyInstructions": {
+    "message": "Na aplicação para computador True Key, clique no ícone de engrenagem (canto superior direito) e, em seguida, aceda a \"Definições da aplicação\". Clique no botão \"Exportar\", introduza a sua palavra-passe e guarde o ficheiro CSV."
+  },
+  "importClipperzInstructions": {
+    "message": "Na aplicação web Clipperz, inicie sessão em (clipperz.is/app). Clique no ícone de menu no canto superior direito para expandir a barra de navegação. Aceda a \"Dados\" → \"Exportar\". Clique no botão \"transferir HTML+JSON\" para guardar o ficheiro HTML."
+  },
+  "importRoboformInstructions": {
+    "message": "Na aplicação para computador RoboForm Editor, aceda a \"RoboForm\" (canto superior esquerdo) → \"Opções\" → \"Conta e dados\" e clique no botão \"Exportar\". Selecione todos os seus dados, altere o \"Formato\" para \"Ficheiro CSV\" e, em seguida, clique no botão \"Exportar\" para guardar o ficheiro CSV. Nota: o RoboForm só permite exportar credenciais. Os restantes itens não serão exportados."
+  },
+  "importPassboltInstructions": {
+    "message": "No cofre web do Passbolt, inicie sessão e aceda à lista de \"Palavras-passe\". Selecione todas as palavras-passe que pretende exportar e clique no botão \"Exportar\" na parte superior da lista. Selecione o formato de exportação \"csv (lastpass)\" e clique no botão \"Exportar\"."
+  },
+  "importAscendoInstructions": {
+    "message": "Na aplicação para computador Ascendo DataVault, aceda a \"Ferramentas\" → \"Exportar\". Na caixa de diálogo que aparece, selecione a opção \"Todos os itens (DVX, CSV)\". Clique no botão \"OK\" para guardar o ficheiro CSV."
+  },
+  "importPasswordbossInstructions": {
+    "message": "Na aplicação para computador Password Boss, aceda a \"Ficheiro\" → \"Exportar dados\" → \"Password Boss JSON - não encriptado\" e guarde o ficheiro JSON."
+  },
+  "importZohoInstructions": {
+    "message": "No cofre web do Zoho, inicie sessão em (vault.zoho.com). Aceda a \"Ferramentas\" → \"Exportar segredos\". Selecione \"Todos os segredos\" e clique no botão \"CSV no formato Zoho Vault\". Selecione e copie os dados da área de texto. Abra um editor de texto, como o Bloco de notas, e cole os dados. Guarde os dados do editor de texto como",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "Na aplicação para computador SplashID Safe, clique no logótipo azul de cadeado do SplashID no canto superior direito. Aceda a \"Exportar\" → \"Exportar como CSV\" e guarde o ficheiro CSV."
+  },
+  "importPasskeepInstructions": {
+    "message": "Na aplicação móvel PassKeep, aceda a \"Cópia de segurança/Restauro\". Localize a secção \"Cópia de segurança/Restauro CSV\" e clique em \"Criar cópia de segurança em CSV\" para guardar o ficheiro CSV."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Certifique-se de que tem o python-keyring e o python-gnomekeyring instalados. Guarde o",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "script Python GNOME Keyring Import/Export"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "no seu ambiente de trabalho como",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Abra o terminal e execute",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "e, em seguida,",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Em seguida, carregue o ficheiro",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "gerado aqui para o Bitwarden.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "Na aplicação para computador Password Agent, aceda a \"Ficheiro\" → \"Exportar\", selecione o botão \"Campos a exportar\" e marque todos os campos, altere o \"Formato de saída\" para \"CSV\" e, em seguida, clique no botão \"Iniciar\" para guardar o ficheiro CSV."
+  },
+  "importPasspackInstructions": {
+    "message": "No cofre web do Passpack, inicie sessão e aceda a \"Definições\" → \"Exportar\". Em seguida, clique no botão \"Transferir\" para guardar o ficheiro CSV."
+  },
+  "importPassmanInstructions": {
+    "message": "Abra o seu cofre Passman e clique em \"Definições\" no canto inferior esquerdo. Na janela \"Definições\", selecione o separador \"Exportar credenciais\" e escolha \"JSON\" como tipo de exportação. Introduza a frase de acesso do seu cofre e clique no botão \"Exportar\" para guardar o ficheiro JSON."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Abra a aplicação para computador Avast Passwords e aceda a \"Definições\" → \"Importar/exportar dados\". Selecione o botão \"Exportar\" para a opção \"Exportar para ficheiro CSV\" para guardar o ficheiro CSV."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Abra a aplicação para computador Avast Passwords e aceda a \"Definições\" → \"Importar/exportar dados\". Selecione o botão \"Exportar\" para a opção \"Exportar para ficheiro JSON\" para guardar o ficheiro JSON."
+  },
+  "importFsecureInstructions": {
+    "message": "Abra a aplicação para computador F-Secure KEY e aceda a \"Definições\" → \"Exportar palavras-passe\". Selecione o botão \"Exportar\", introduza a sua palavra-passe principal e guarde o ficheiro FSK."
+  },
+  "importKasperskyInstructions": {
+    "message": "Abra a aplicação para computador Kaspersky Password Manager e aceda a \"Definições\" → \"Importar/Exportar\". Localize a secção \"Exportar para ficheiro de texto\" e selecione o botão \"Exportar\" para guardar o ficheiro TXT."
+  },
+  "importRemembearInstructions": {
+    "message": "Abra a aplicação para computador RememBear e aceda a \"Definições\" → \"Conta\" → \"Exportar\". Introduza a sua palavra-passe principal e selecione o botão \"Exportar mesmo assim\" para guardar o ficheiro CSV."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Abra a aplicação para computador PasswordWallet e aceda a \"Ficheiro\" → \"Exportar\" → \"Entradas visíveis para ficheiro de texto\". Introduza a sua palavra-passe e selecione o botão \"OK\" para guardar o ficheiro TXT."
+  },
+  "importMykiInstructions": {
+    "message": "Abra a extensão de navegador para computador Myki e aceda a \"Avançadas\" → \"Exportar contas\" e, em seguida, leia o código QR com o seu dispositivo móvel. Serão então guardados vários ficheiros CSV na pasta de transferências do seu computador."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Exporte o seu cofre de palavras-passe SecureSafe para um ficheiro CSV com uma vírgula como delimitador."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Abra a extensão de navegador LogMeOnce e, em seguida, aceda a \"Abrir menu\" → \"Exportar para\" e selecione \"Ficheiro CSV\" para guardar o ficheiro CSV."
+  },
+  "importBlackberryInstructions": {
+    "message": "Abra a aplicação BlackBerry Password Keeper e, em seguida, aceda a \"Definições\" → \"Importar/Exportar\". Selecione \"Exportar palavras-passe\" e siga as instruções apresentadas no ecrã para guardar o ficheiro CSV não encriptado."
+  },
+  "importButtercupInstructions": {
+    "message": "Abra a aplicação para computador Buttercup e desbloqueie o seu cofre. Clique com o botão direito do rato no ícone do seu cofre e selecione \"Exportar\" para guardar o ficheiro CSV."
+  },
+  "importCodebookInstructions": {
+    "message": "Abra a aplicação para computador Codebook e inicie sessão. Aceda a \"Ficheiro\" → \"Exportar tudo\", clique em \"Sim\" na caixa de diálogo e guarde o ficheiro CSV."
+  },
+  "importEncryptrInstructions": {
+    "message": "Abra a versão mais recente da aplicação para computador Encryptr e permita que todos os seus dados sejam sincronizados. Quando a sincronização dos seus dados estiver concluída, o ícone de transferência no canto superior direito ficará cor-de-rosa. Clique no ícone de transferência e guarde o ficheiro CSV."
+  },
+  "importYotiInstructions": {
+    "message": "Na extensão de navegador do Yoti, clique em \"Definições\" e, em seguida, em \"Exportar credenciais guardadas\" e guarde o ficheiro CSV."
+  },
+  "importPsonoInstructions": {
+    "message": "No cofre web do Psono, inicie sessão, clique no menu pendente \"Sessão iniciada como\" e selecione \"Outros\". Aceda ao separador \"Exportar\", selecione a exportação do tipo JSON e, em seguida, clique em \"Exportar\"."
+  },
+  "importPasskyInstructions": {
+    "message": "Inicie sessão em \"https://vault.passky.org\" → \"Importar e exportar\" → \"Exportar\", na secção Passky. (A \"Cópia de segurança\" não é compatível, pois está encriptada.)"
+  },
+  "importProtonpassInstructions": {
+    "message": "Na extensão de navegador do ProtonPass, aceda a \"Definições\" > \"Exportar\". Exporte sem encriptação PGP e guarde o ficheiro ZIP."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Selecione o menu \"Base de dados\" → \"Exportar para ficheiro...\". → Nas opções de exportação, certifique-se de que \"Nomes das pastas\" e \"Títulos das colunas\" estão selecionados. → Clique no botão \"Procurar...\" e escolha o ficheiro de destino, definindo o tipo como ficheiro CSV."
+  },
+  "importNetwrixInstructions": {
+    "message": "Abra o FullClient, aceda ao menu principal e selecione \"Exportar\". Inicie o assistente de exportação de palavras-passe e siga as instruções para exportar um ficheiro CSV."
+  },
+  "importNordpassInstructions": {
+    "message": "Inicie sessão no NordPass e abra as \"Definições\" → desça até à secção \"Importar e exportar\" e selecione \"Exportar itens\" → introduza a sua palavra-passe mestra e selecione \"Continuar\". → Guarde o ficheiro CSV no seu dispositivo."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "Na aplicação para computador, aceda a \"Ferramentas\" → \"Exportar\" → introduza a sua palavra-passe mestra → selecione \"Formato XML (.xml)\" como formato de exportação → clique em \"Seguinte\" → escolha as entradas que devem ser incluídas na exportação → clique em \"Seguinte\" para exportar para a localização escolhida anteriormente."
+  },
+  "importDelineaInstructions": {
+    "message": "Inicie sessão no Delinea, pesquise por \"Importar/exportar\" → selecione \"Exportar\" → selecione \"XML\" como formato de exportação → selecione \"QuantumLock\" como tipo de autenticador → introduza a sua palavra-passe e selecione \"Exportar\" para guardar o ficheiro XML."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Inicie sessão no Delinea, pesquise por \"Importar/exportar\" → selecione \"Exportar\" → selecione \"CSV\" como formato de exportação → selecione \"QuantumLock\" como tipo de autenticador → introduza a sua palavra-passe e selecione \"Exportar\" para guardar o ficheiro CSV."
+  },
   "confirmVaultImport": {
     "message": "Confirmar a importação do cofre"
   },
@@ -4790,17 +5021,13 @@
     "message": "A aguardar autenticação SSO"
   },
   "awaitingSSODesc": {
-    "message": "Por favor, continue a iniciar sessão utilizando as credenciais da sua empresa."
+    "message": "Continue a iniciar sessão utilizando as credenciais da sua empresa."
   },
   "importDirectlyFromBrowser": {
     "message": "Importar diretamente do navegador"
   },
   "browserProfile": {
     "message": "Perfil do navegador"
-  },
-  "seeDetailedInstructions": {
-    "message": "Consulte as instruções detalhadas no nosso site de ajuda em",
-    "description": "This is followed a by a hyperlink to the help website."
   },
   "importDirectlyFromLastPass": {
     "message": "Importar diretamente do LastPass"
@@ -5267,25 +5494,36 @@
     "message": "Alterar o e-mail da conta"
   },
   "passkeyLogin": {
-    "message": "Iniciar sessão com a chave de acesso?"
+    "message": "Iniciar sessão com chave de acesso?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Iniciar sessão com chave de acesso"
   },
   "savePasskeyQuestion": {
-    "message": "Guardar a chave de acesso?"
+    "message": "Guardar chave de acesso?"
+  },
+  "savePasskey": {
+    "message": "Guardar chave de acesso"
   },
   "saveNewPasskey": {
     "message": "Guardar como nova credencial"
   },
   "savePasskeyNewLogin": {
-    "message": "Guarde a chave de acesso como uma nova credencial"
+    "message": "Guardar chave de acesso como nova credencial"
   },
   "noMatchingLoginsForSite": {
     "message": "Sem credenciais correspondentes para este site"
   },
   "overwritePasskey": {
-    "message": "Substituir chave de acesso?"
+    "message": "Substituir chave de acesso?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Substituir chave de acesso"
   },
   "unableToSavePasskey": {
-    "message": "Não é possível guardar a chave de acesso"
+    "message": "Não foi possível guardar a chave de acesso"
   },
   "alreadyContainsPasskey": {
     "message": "Este item já contém uma chave de acesso. Tem a certeza de que pretende substituir a chave de acesso atual?"
@@ -5309,7 +5547,7 @@
     "message": "Janela de confirmação ainda visível"
   },
   "confirmWindowStillVisibleContent": {
-    "message": "Por favor, confirme se a janela ainda está visível."
+    "message": "Confirme se a janela continua visível."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Atualização da extensão necessária"
@@ -5676,6 +5914,15 @@
   "showMore": {
     "message": "Mostrar mais"
   },
+  "showMoreCount": {
+    "message": "Mostrar mais $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "showLess": {
     "message": "Mostrar menos"
   },
@@ -5931,7 +6178,7 @@
     "message": "O tempo limite da sessão é controlado pela aplicação para computador"
   },
   "chromiumImporterBrowserNotInstalled": {
-    "message": "O $BROWSER$ não está instalado. Por favor, instale o $BROWSER$ antes de importar palavras-passe a partir dele.",
+    "message": "O $BROWSER$ não está instalado. Instale o $BROWSER$ antes de importar palavras-passe do mesmo.",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -5940,7 +6187,7 @@
     }
   },
   "chromiumImporterPickerMessage": {
-    "message": "Por favor, selecione a pasta de dados do $BROWSER$",
+    "message": "Selecione a pasta de dados do $BROWSER$",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -6046,6 +6293,12 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "Limpe os filtros ou tente outro termo de pesquisa"
+  },
+  "noSharedFoldersAdded": {
+    "message": "Nenhuma pasta partilhada adicionada"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Adicione uma pasta partilhada para partilhar itens do cofre de forma segura com outros membros."
   },
   "sendPasswordHelperText": {
     "message": "Os indivíduos terão de introduzir a palavra-passe para ver este Send",
@@ -6403,5 +6656,104 @@
         "example": "Login"
       }
     }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "criar uma nova chave de acesso de $RPID$ para $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "substituir uma chave de acesso de $RPID$ para $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "iniciar sessão como $USERNAME$ com a sua chave de acesso de $RPID$",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Verifique a sua identidade para criar uma nova chave de acesso $RPID$ para $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Verifique a sua identidade para substituir uma chave de acesso $RPID$ de $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Verifique a sua identidade para iniciar sessão como $USERNAME$ com a sua chave de acesso $RPID$.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "permissions": {
+    "message": "Permissões"
+  },
+  "viewItems": {
+    "message": "Ver itens"
+  },
+  "viewItemsHidePass": {
+    "message": "Ver itens, palavras-passe ocultas"
+  },
+  "editItems": {
+    "message": "Editar itens"
+  },
+  "editItemsHidePass": {
+    "message": "Editar itens, palavras-passe ocultas"
   }
 }

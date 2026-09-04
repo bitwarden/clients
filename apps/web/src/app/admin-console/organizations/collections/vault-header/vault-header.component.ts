@@ -125,7 +125,7 @@ export class VaultHeaderComponent {
   protected readonly icon = computed(() =>
     this.filter().collectionId !== undefined
       ? this.vfo1TerminologyService.iconClass("bwi-collection-shared")
-      : "",
+      : undefined,
   );
 
   protected readonly showBreadcrumbs = computed(

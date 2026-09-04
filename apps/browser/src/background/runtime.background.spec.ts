@@ -44,7 +44,6 @@ describe("RuntimeBackground collectPageDetailsResponse routing", () => {
       undefined as any,
       undefined as any,
       undefined as any,
-      undefined as any,
       mock<LogService>(),
       undefined as any,
       undefined as any,

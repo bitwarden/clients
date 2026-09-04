@@ -14,7 +14,7 @@ import {
 } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
-import { AuthRequestServiceAbstraction, LockService, LogoutService } from "@bitwarden/auth/common";
+import { AuthRequestServiceAbstraction, LogoutService } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -51,6 +51,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogRef, DialogService, ScrollLayoutService, ToastService } from "@bitwarden/components";
 import { MessageListener } from "@bitwarden/messaging";
+import { LockService } from "@bitwarden/unlock";
 import {
   ASSIGN_COLLECTIONS_DIALOG,
   AssignCollectionsDialogRef,

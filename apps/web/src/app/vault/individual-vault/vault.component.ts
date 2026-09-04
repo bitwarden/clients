@@ -123,6 +123,7 @@ import {
   VaultBatchActionComponent,
   ASSIGN_COLLECTIONS_DIALOG,
   BULK_DELETE_DIALOG,
+  openDeleteSharedFolderDialog,
   VaultOrganizationUserNotificationsComponent,
   Vfo1TerminologyService,
 } from "@bitwarden/vault";
@@ -143,7 +144,6 @@ import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 
 import { openBulkDeleteDialog } from "./bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
-import { openDeleteSharedFolderDialog } from "./bulk-action-dialogs/delete-shared-folder-dialog/delete-shared-folder-dialog.component";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";

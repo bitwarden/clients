@@ -6,9 +6,10 @@ import { CreditCardIcon } from "@bitwarden/assets/svg";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-no-invoices",
-  template: `<bit-no-items [icon]="icon">
+  template: `<bit-status-lockup>
+    <bit-svg slot="graphic" [content]="icon"></bit-svg>
     <div slot="title">{{ "noInvoicesToList" | i18n }}</div>
-  </bit-no-items>`,
+  </bit-status-lockup>`,
   standalone: false,
 })
 export class NoInvoicesComponent {

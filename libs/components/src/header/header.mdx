@@ -1,0 +1,126 @@
+import { Meta, Primary, Controls, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./header.stories";
+
+<Meta of={stories} />
+
+```ts
+import { HeaderComponent } from "@bitwarden/components";
+```
+
+<Title />
+
+<Description />
+
+<Primary />
+
+<Controls />
+
+## Page heading
+
+`bit-header` renders the page's `<h1>`, so a page should contain exactly one header. That heading is
+the required `title` input, prefixed by `icon` and followed by anything in `slot="title-suffix"`.
+
+<Canvas of={stories.WithLongTitle} />
+
+### When breadcrumbs take over the heading
+
+When a `bit-breadcrumbs` projected into the header has an **active** breadcrumb — one whose `route`
+matches the current URL — that breadcrumb becomes the page's `<h1>` instead, marked
+`aria-current="page"`. The header then skips its own heading so the page never has two `<h1>`
+elements, which means `title`, `icon`, and `slot="title-suffix"` don't render in this case.
+
+<Canvas of={stories.WithActiveBreadcrumbVfo1} />
+
+Keep passing a real `title` regardless: it is what renders whenever no breadcrumb is active, which
+covers pages with no breadcrumbs, breadcrumbs with no `route` (they render as buttons and never
+match the active route), and any breadcrumb list whose routes don't match the current URL.
+
+Since the active crumb is itself the heading, don't pair it with the breadcrumbs'
+`showTrailingArrow` — that arrow exists for the case where the heading is a separate element below
+the breadcrumbs.
+
+### How the header and breadcrumbs coordinate
+
+The two components talk through `HeaderContext`. The breadcrumbs hand it a signal saying whether
+they render the heading, and `bit-header` reads that signal to decide whether to render its own.
+
+A wrapper that projects `slot="breadcrumbs"` through to `bit-header` must provide `HeaderContext`.
+Without it the breadcrumbs have no context to register with.
+
+## Content slots
+
+| Slot                  | Description                                                            |
+| --------------------- | ---------------------------------------------------------------------- |
+| default               | controls that act on the page, aligned to the end of the title row     |
+| `slot="breadcrumbs"`  | a `bit-breadcrumbs` showing where the page sits in the hierarchy       |
+| `slot="title-suffix"` | content appended inline to the title, typically an icon or icon button |
+| `slot="subtitle"`     | additional page information to complement the page title               |
+| `slot="tabs"`         | a `bit-tab-nav-bar` for navigation within the page                     |
+| `slot="secondary"`    | **Deprecated.** A second row of controls below the default slot        |
+
+### Default slot
+
+Anything passed to the default slot is placed at the end of the title row: search inputs, primary
+buttons, menus, and any other page-level controls. A gap is applied automatically between children.
+
+<Canvas of={stories.TitleWithPrimaryContentVfo1} />
+
+### Breadcrumbs
+
+Breadcrumbs render above the title. An active breadcrumb also changes what the heading is — see
+[Page heading](#page-heading).
+
+<Canvas of={stories.BreadcrumbsWithPrimaryContentVfo1} />
+
+### Title suffix
+
+The title suffix is part of the heading, so it is rendered only when the header renders its own
+heading — a promoted breadcrumb drops the suffix along with the title. See
+[Page heading](#page-heading).
+
+<Canvas of={stories.WithTitleSuffixComponent} />
+
+### Tabs
+
+<Canvas of={stories.WithTabsVfo1} />
+
+### Secondary slot (deprecated)
+
+> **`slot="secondary"` is deprecated.** The header no longer has a second row of controls — put page
+> controls in the default slot instead. Content projected into `slot="secondary"` renders while the
+> `VFO1Foundation` feature flag is off, and is dropped entirely once the flag is on, so migrate any
+> remaining usages rather than leaving them in place.
+
+<Canvas of={stories.WithSecondaryContent} />
+
+To migrate, remove the `slot="secondary"` attribute so the content falls into the default slot:
+
+```html
+<!-- Before -->
+<bit-header title="Project">
+  <button bitButton slot="secondary" buttonType="secondary">Edit</button>
+</bit-header>
+
+<!-- After -->
+<bit-header title="Project">
+  <button bitButton buttonType="secondary">Edit</button>
+</bit-header>
+```
+
+While both layouts still need to be supported, branch on the flag rather than moving the content
+outright. Angular matches `slot` at compile time and only looks one level into control flow, so the
+two branches must stay flat — nesting them inside another `@if` sends the content to the default
+slot in both cases:
+
+```html
+@if (canEdit() && vfo1Enabled()) {
+<button bitButton buttonType="secondary" (click)="edit()">Edit</button>
+} @else if (canEdit()) {
+<button bitButton slot="secondary" buttonType="secondary" (click)="edit()">Edit</button>
+}
+```
+
+Remove the `@else if` branch along with the flag. See
+[Feature Flags](?path=/docs/documentation-feature-flags--docs) for previewing stories in either
+state.

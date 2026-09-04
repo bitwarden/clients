@@ -11,6 +11,7 @@ import {
   ProductTierType,
   ProductType,
 } from "@bitwarden/common/billing/enums";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { OrganizationPlansComponent } from "../../billing";
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -20,7 +21,7 @@ import { SharedModule } from "../../shared";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "create-organization.component.html",
-  imports: [SharedModule, OrganizationPlansComponent, HeaderModule],
+  imports: [SharedModule, OrganizationPlansComponent, HeaderModule, Vfo1I18nPipe],
 })
 export class CreateOrganizationComponent implements OnInit, OnDestroy {
   protected secretsManager = false;

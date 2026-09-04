@@ -25,7 +25,7 @@ export function getOpenOrgInviteAcceptErrorUi(
     labelI18nKey: "goToVault",
     navigateTo: "/",
   };
-  const pageTitle = { key: "openOrgInviteAcceptFailedTitle" };
+  const pageTitle = { key: "cannotAcceptInvitation" };
   switch (kind) {
     case "link-not-found":
       return {

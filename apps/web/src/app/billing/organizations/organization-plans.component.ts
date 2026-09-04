@@ -45,6 +45,7 @@ import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/mode
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -862,6 +863,13 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.messagingService.send("organizationCreated", { organizationId });
     } catch (error: unknown) {
       if (error instanceof Error && error.message === "Payment method validation failed") {
+        return;
+      }
+      if (error instanceof ErrorResponse && error.message === "billingTaxIdTypeInferenceError") {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("billingTaxIdTypeInferenceError"),
+        });
         return;
       }
       if (this.premiumOrgUpgradeService.isBankAccountNotSupportedError(error)) {

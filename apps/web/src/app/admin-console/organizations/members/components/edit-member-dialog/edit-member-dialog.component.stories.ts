@@ -14,7 +14,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProblemDetailsErrorResponse } from "@bitwarden/common/models/response/problem-details-error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -85,7 +84,7 @@ function defaultParams(overrides: Partial<EditMemberDialogParams> = {}): EditMem
     usesKeyConnector: false,
     claimedByOrganization: false,
     isOnSecretsManagerStandalone: false,
-    initialTab: MemberDialogTab.Role,
+    initialTab: MemberDialogTab.Details,
     ...overrides,
   };
 }
@@ -155,10 +154,9 @@ const mockLogService: Partial<LogService> = {
   error: () => {},
 };
 
-function makeConfigService(detailsTabEnabled: boolean) {
+function makeConfigService() {
   return {
-    getFeatureFlag: (flag: FeatureFlag) =>
-      Promise.resolve(flag === FeatureFlag.PM28365_ChangeMemberEmail ? detailsTabEnabled : false),
+    getFeatureFlag: () => Promise.resolve(false),
   };
 }
 
@@ -167,7 +165,6 @@ function makeOrganizationService(org: Organization) {
 }
 
 type StoryArgs = {
-  detailsTabEnabled: boolean;
   /** Toggles the vfo1-foundation flag - "Collection" copy becomes "Shared folder" copy. */
   vfo1FoundationEnabled: boolean;
 };
@@ -210,11 +207,6 @@ export default {
   component: EditMemberDialogComponent,
   decorators: sharedDecorators,
   argTypes: {
-    detailsTabEnabled: {
-      control: "boolean",
-      description: "Toggle between the legacy Role tab and the new Details tab (PM-28365)",
-      name: "Details tab (flag on)",
-    },
     vfo1FoundationEnabled: {
       control: "boolean",
       description: 'Toggle the vfo1-foundation flag ("Collection" → "Shared folder" copy).',
@@ -222,7 +214,6 @@ export default {
     },
   },
   args: {
-    detailsTabEnabled: false,
     vfo1FoundationEnabled: false,
   },
 } as Meta<StoryArgs>;
@@ -234,7 +225,7 @@ function makeRender(
   org: Organization,
   userDetails?: OrganizationUserAdminView,
 ): Story["render"] {
-  return ({ detailsTabEnabled, vfo1FoundationEnabled }) => ({
+  return ({ vfo1FoundationEnabled }) => ({
     moduleMetadata: {
       providers: [
         {
@@ -244,14 +235,12 @@ function makeRender(
             initialTab:
               params.initialTab !== MemberDialogTab.Groups &&
               params.initialTab !== MemberDialogTab.Collections
-                ? detailsTabEnabled
-                  ? MemberDialogTab.Details
-                  : MemberDialogTab.Role
+                ? MemberDialogTab.Details
                 : params.initialTab,
           },
         },
         { provide: OrganizationService, useValue: makeOrganizationService(org) },
-        { provide: ConfigService, useValue: makeConfigService(detailsTabEnabled) },
+        { provide: ConfigService, useValue: makeConfigService() },
         {
           provide: Vfo1TerminologyService,
           useValue: {
@@ -367,77 +356,11 @@ export const WithCustomPermissionsSharedFolderTerminology: Story = {
   ),
 };
 
-// ─── Flag ON (new Details tab design) ────────────────────────────────────────
-
-/**
- * Details tab — Name, Email, Member role select, Created date.
- */
-export const DetailsTab: Story = {
-  args: { detailsTabEnabled: true },
-  render: makeRender(defaultParams(), mockOrganization()),
-};
-
-/**
- * Details tab with Secrets Manager checkbox visible.
- */
-export const DetailsTabWithSecretsManager: Story = {
-  args: { detailsTabEnabled: true },
-  render: makeRender(defaultParams(), mockOrganization({ useSecretsManager: true })),
-};
-
-/**
- * Details tab with custom permissions — Custom option selectable in role select.
- */
-export const DetailsTabWithCustomPermissions: Story = {
-  args: { detailsTabEnabled: true },
-  render: makeRender(
-    defaultParams(),
-    mockOrganization({ useCustomPermissions: true, productTierType: ProductTierType.Enterprise }),
-  ),
-};
-
-/**
- * Details tab, revoked member — "Revoked" badge in header; More actions shows Restore.
- */
-export const DetailsTabRevokedMember: Story = {
-  args: { detailsTabEnabled: true },
-  render: makeRender(
-    defaultParams(),
-    mockOrganization(),
-    mockUserDetails({ status: OrganizationUserStatusType.Revoked }),
-  ),
-};
-
-/**
- * Details tab, member claimed by the organization — More actions shows Delete instead of Remove.
- */
-export const DetailsTabClaimedByOrganization: Story = {
-  args: { detailsTabEnabled: true },
-  render: makeRender(
-    defaultParams({ claimedByOrganization: true }),
-    mockOrganization({ productTierType: ProductTierType.Enterprise }),
-    mockUserDetails({ claimedByOrganization: true }),
-  ),
-};
-
-/**
- * Details tab with groups — Groups tab visible alongside Details and Collections.
- */
-export const DetailsTabWithGroups: Story = {
-  args: { detailsTabEnabled: true },
-  render: makeRender(
-    defaultParams(),
-    mockOrganization({ useGroups: true }),
-    mockUserDetails({ groups: ["grp-1"] }),
-  ),
-};
-
 /**
  * Details tab with email editing enabled — member is claimed by the org and has no master
  * password, so the email field is editable.
  */
 export const DetailsTabEditEmail: Story = {
-  args: { detailsTabEnabled: true },
   render: makeRender(
     defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
     mockOrganization({ productTierType: ProductTierType.Enterprise }),
@@ -450,8 +373,7 @@ export const DetailsTabEditEmail: Story = {
  * inline field error after submit.
  */
 export const DetailsTabEditEmailError: Story = {
-  args: { detailsTabEnabled: true },
-  render: ({ detailsTabEnabled }) => ({
+  render: () => ({
     moduleMetadata: {
       providers: [
         {
@@ -459,7 +381,7 @@ export const DetailsTabEditEmailError: Story = {
           useValue: defaultParams({
             claimedByOrganization: true,
             hasMasterPassword: false,
-            initialTab: detailsTabEnabled ? MemberDialogTab.Details : MemberDialogTab.Role,
+            initialTab: MemberDialogTab.Details,
           }),
         },
         {
@@ -468,7 +390,7 @@ export const DetailsTabEditEmailError: Story = {
             mockOrganization({ productTierType: ProductTierType.Enterprise }),
           ),
         },
-        { provide: ConfigService, useValue: makeConfigService(detailsTabEnabled) },
+        { provide: ConfigService, useValue: makeConfigService() },
         {
           provide: UserAdminService,
           useValue: {

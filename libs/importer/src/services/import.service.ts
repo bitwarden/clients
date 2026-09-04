@@ -15,6 +15,7 @@ import { ImportCiphersRequest } from "@bitwarden/common/models/request/import-ci
 import { ImportOrganizationCiphersRequest } from "@bitwarden/common/models/request/import-organization-ciphers.request";
 import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -101,15 +102,14 @@ import {
 } from "../importers";
 import { Importer } from "../importers/importer";
 import {
-  featuredImportOptions,
+  importOptions,
+  importOptionsById,
   ImportOption,
   ImportType,
-  regularImportOptions,
 } from "../models/import-options";
 import { CollectionRelationship, FolderRelationship, ImportResult } from "../models/import-result";
 import {
   buildSdkImporterRegistry,
-  CredentialKind,
   SdkImportCredentials,
   SdkImporterRegistry,
   SdkImportSummary,
@@ -118,9 +118,7 @@ import { ImportApiServiceAbstraction } from "../services/import-api.service.abst
 import { ImportServiceAbstraction } from "../services/import.service.abstraction";
 
 export class ImportService implements ImportServiceAbstraction {
-  featuredImportOptions = featuredImportOptions as readonly ImportOption[];
-
-  regularImportOptions = regularImportOptions as readonly ImportOption[];
+  importOptions = importOptions;
 
   private readonly sdkImporters: SdkImporterRegistry = buildSdkImporterRegistry();
 
@@ -135,11 +133,17 @@ export class ImportService implements ImportServiceAbstraction {
     private keyGenerationService: KeyGenerationService,
     private accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private configService: ConfigService,
     private sdkService: SdkService,
   ) {}
 
   getImportOptions(): ImportOption[] {
-    return this.featuredImportOptions.concat(this.regularImportOptions);
+    return [...this.importOptions];
+  }
+
+  getImportOption(id: ImportType): ImportOption | undefined {
+    const option = importOptionsById[id];
+    return option ? { id, ...option } : undefined;
   }
 
   async import(
@@ -248,21 +252,6 @@ export class ImportService implements ImportServiceAbstraction {
     return importer;
   }
 
-  /** True when the format's parse/encrypt/submit is handled by an SDK importer strategy. */
-  isSdkImporter(format: ImportType): boolean {
-    return this.sdkImporters.has(format);
-  }
-
-  /** The credentials an SDK importer requires, so callers can collect them generically. */
-  credentialKindFor(format: ImportType): CredentialKind | undefined {
-    return this.sdkImporters.get(format)?.credentialKind;
-  }
-
-  /** Optional file-picker `accept` hint declared by an SDK importer. */
-  sdkFileTypeHint(format: ImportType): string | undefined {
-    return this.sdkImporters.get(format)?.fileTypeHint;
-  }
-
   /** Maps an SDK importer error to a localization key, or `undefined` to surface the raw error. */
   sdkErrorMessageKey(format: ImportType, error: unknown): string | undefined {
     return this.sdkImporters.get(format)?.errorMessageKey?.(error);
@@ -316,6 +305,8 @@ export class ImportService implements ImportServiceAbstraction {
     );
   }
 
+  // Intentionally redundant with respect to importOptions/SdkImporterRegistry because of heterogeneous
+  // constructor dependencies (e.g. BitwardenPasswordProtectedImporter needs 6 injected services)
   private getImporterInstance(
     format: ImportType | "bitwardenpasswordprotected",
     promptForPassword_callback: () => Promise<string>,
@@ -340,7 +331,7 @@ export class ImportService implements ImportServiceAbstraction {
         );
       case "lastpasscsv":
       case "passboltcsv":
-        return new LastPassCsvImporter();
+        return new LastPassCsvImporter(this.configService);
       case "keepassxcsv":
         return new KeePassXCsvImporter();
       case "aviracsv":
@@ -372,17 +363,17 @@ export class ImportService implements ImportServiceAbstraction {
       case "meldiumcsv":
         return new MeldiumCsvImporter();
       case "1password1pif":
-        return new OnePassword1PifImporter();
+        return new OnePassword1PifImporter(this.configService);
       case "1password1pux":
-        return new OnePassword1PuxImporter();
+        return new OnePassword1PuxImporter(this.configService);
       case "1passwordwincsv":
         return new OnePasswordWinCsvImporter();
       case "1passwordmaccsv":
         return new OnePasswordMacCsvImporter();
       case "keepercsv":
-        return new KeeperCsvImporter();
+        return new KeeperCsvImporter(this.configService);
       case "keeperjson":
-        return new KeeperJsonImporter();
+        return new KeeperJsonImporter(this.configService);
       case "passworddragonxml":
         return new PasswordDragonXmlImporter();
       case "enpasscsv":
@@ -392,7 +383,7 @@ export class ImportService implements ImportServiceAbstraction {
       case "pwsafexml":
         return new PasswordSafeXmlImporter();
       case "dashlanecsv":
-        return new DashlaneCsvImporter();
+        return new DashlaneCsvImporter(this.configService);
       case "dashlanejson":
         return new DashlaneJsonImporter();
       case "msecurecsv":
@@ -458,13 +449,13 @@ export class ImportService implements ImportServiceAbstraction {
       case "passkyjson":
         return new PasskyJsonImporter();
       case "protonpass":
-        return new ProtonPassJsonImporter(this.i18nService);
+        return new ProtonPassJsonImporter(this.i18nService, this.configService);
       case "passwordxpcsv":
         return new PasswordXPCsvImporter();
       case "netwrixpasswordsecure":
         return new NetwrixPasswordSecureCsvImporter();
       case "passworddepot17xml":
-        return new PasswordDepot17XmlImporter();
+        return new PasswordDepot17XmlImporter(this.configService);
       case "delineaxml":
         return new DelineaXmlImporter();
       case "delineacsv":

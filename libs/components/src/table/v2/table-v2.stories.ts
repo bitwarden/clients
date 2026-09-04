@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormRecord, ReactiveFormsModule } from "@angular/forms";
@@ -5,7 +6,7 @@ import { NavigationEnd, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { filter as rxFilter, map } from "rxjs";
-import { userEvent } from "storybook/test";
+import { screen, userEvent, within } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
@@ -16,7 +17,7 @@ import { BulkActionsBarComponent } from "../../bulk-actions-bar/bulk-actions-bar
 import { BulkAdditionalActionComponent } from "../../bulk-actions-bar/bulk-additional-action.component";
 import { ButtonModule } from "../../button";
 import { DialogModule } from "../../dialog";
-import { FilterMenuModule } from "../../filter-menu";
+import { FilterMenuModule, type FilterOptionIconTile } from "../../filter-menu";
 import { FormFieldModule } from "../../form-field";
 import { IconTileComponent } from "../../icon-tile/icon-tile.component";
 import { InputModule } from "../../input/input.module";
@@ -128,11 +129,16 @@ const COLLECTION_ORGS = [
   {
     name: "Acme corporation",
     collections: [
-      { id: "eng", name: "Engineering" },
+      {
+        id: "eng",
+        name: "Engineering",
+        children: [
+          { id: "monitoring", name: "Monitoring" },
+          { id: "infra", name: "Infrastructure", children: [{ id: "ci", name: "CI/CD" }] },
+        ],
+      },
       { id: "ops", name: "Operations" },
       { id: "pm", name: "Project management" },
-      { id: "infra", name: "Infrastructure" },
-      { id: "monitoring", name: "Monitoring" },
       { id: "security", name: "Security" },
       { id: "design", name: "Design" },
       { id: "marketing", name: "Marketing" },
@@ -181,6 +187,7 @@ type VaultFilters = {
     SearchModule,
     ButtonModule,
     LayoutComponent,
+    NgTemplateOutlet,
   ],
   template: `
     <bit-layout>
@@ -213,6 +220,16 @@ type VaultFilters = {
                 @for (collection of org.collections; track collection.id) {
                   <bit-filter-option [value]="collection.id">
                     {{ collection.name }}
+                    @for (child of collection.children ?? []; track child.id) {
+                      <bit-filter-option [value]="child.id">
+                        {{ child.name }}
+                        @for (grandchild of child.children ?? []; track grandchild.id) {
+                          <bit-filter-option [value]="grandchild.id">
+                            {{ grandchild.name }}
+                          </bit-filter-option>
+                        }
+                      </bit-filter-option>
+                    }
                   </bit-filter-option>
                 }
               </bit-filter-section>
@@ -270,6 +287,145 @@ class DemoFilterableTableComponent {
 
   /** Collections grouped by org. The in-menu search narrows them automatically. */
   protected readonly collectionOrgs = COLLECTION_ORGS;
+
+  protected vaultName(id: string): string {
+    return VAULTS.find((v) => v.id === id)?.name ?? id;
+  }
+}
+
+@Component({
+  selector: "demo-kitchen-sink-table",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitTableToolbarComponent,
+    BitTablePaginatorComponent,
+    FilterMenuModule,
+    SearchModule,
+    ButtonModule,
+    LayoutComponent,
+  ],
+  template: `
+    <bit-layout>
+      <bit-table-v2 [tableDef]="table" [filter]="filter">
+        <bit-table-toolbar>
+          <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
+          <button
+            bitButton
+            buttonType="secondary"
+            type="button"
+            slot="end"
+            startIcon="bwi-download"
+          >
+            Import
+          </button>
+          <button bitButton buttonType="secondary" type="button" slot="end" startIcon="bwi-sliders">
+            Customize
+          </button>
+          <button bitButton buttonType="primary" type="button" slot="end" startIcon="bwi-plus">
+            Add
+          </button>
+
+          <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
+            @for (option of typeOptions; track option.value) {
+              <bit-filter-option [value]="option.value">
+                {{ option.label }}
+              </bit-filter-option>
+            }
+          </bit-filter-menu>
+
+          <bit-filter-divider></bit-filter-divider>
+
+          <bit-filter-menu key="vault" placeholderText="Vault" multiple>
+            @for (option of vaultOptions; track option.value) {
+              <bit-filter-option [value]="option.value">
+                {{ option.label }}
+              </bit-filter-option>
+            }
+          </bit-filter-menu>
+
+          <bit-filter-menu key="collection" placeholderText="Collections" multiple>
+            @for (org of collectionOrgs; track org.name) {
+              <bit-filter-section [label]="org.name" collapsible>
+                @for (collection of org.collections; track collection.id) {
+                  <bit-filter-option [value]="collection.id" [iconTile]="collectionTile" expanded>
+                    {{ collection.name }}
+                    @for (child of collection.children ?? []; track child.id) {
+                      <bit-filter-option [value]="child.id" [iconTile]="collectionTile" expanded>
+                        {{ child.name }}
+                        @for (grandchild of child.children ?? []; track grandchild.id) {
+                          <bit-filter-option [value]="grandchild.id" [iconTile]="collectionTile">
+                            {{ grandchild.name }}
+                          </bit-filter-option>
+                        }
+                      </bit-filter-option>
+                    }
+                  </bit-filter-option>
+                }
+              </bit-filter-section>
+            }
+          </bit-filter-menu>
+
+          <bit-filter-toggle
+            key="favorite"
+            label="Favorites"
+            icon="bwi-star"
+            iconActive="bwi-star-f"
+          ></bit-filter-toggle>
+        </bit-table-toolbar>
+
+        <bit-column sortable defaultSort="asc">
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+        <bit-column sortable width="120px">
+          <bit-header-cell>Type</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.type; let row">{{ row.type }}</bit-cell>
+        </bit-column>
+        <bit-column width="160px">
+          <bit-header-cell>Vault</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.vault; let row">{{ vaultName(row.vault) }}</bit-cell>
+        </bit-column>
+
+        <bit-table-paginator [pageSize]="5" [pageSizeOptions]="pageSizeOptions">
+        </bit-table-paginator>
+      </bit-table-v2>
+    </bit-layout>
+  `,
+})
+class DemoKitchenSinkTableComponent {
+  protected readonly data = signal(VAULT_ROWS);
+  protected readonly table = defineTable<VaultRow>(this.data);
+
+  protected readonly pageSizeOptions = [5, 10, 25];
+
+  protected readonly filter = (row: VaultRow, f: Partial<VaultFilters>) =>
+    (!f.search || row.name.toLowerCase().includes(f.search.toLowerCase())) &&
+    (f.type == null || row.type === f.type) &&
+    (!f.vault?.length || f.vault.includes(row.vault)) &&
+    (!f.collection?.length || f.collection.some((c) => row.collectionIds.includes(c))) &&
+    (!f.favorite || row.favorite);
+
+  protected readonly typeOptions = (["login", "card", "note"] as const).map((value) => ({
+    value,
+    label: value,
+  }));
+
+  protected readonly vaultOptions = VAULTS.map((vault) => ({
+    value: vault.id,
+    label: vault.name,
+  }));
+
+  protected readonly collectionOrgs = COLLECTION_ORGS;
+
+  protected readonly collectionTile: FilterOptionIconTile = {
+    icon: "bwi-collection-shared",
+    variant: "brand",
+  };
 
   protected vaultName(id: string): string {
     return VAULTS.find((v) => v.id === id)?.name ?? id;
@@ -531,6 +687,7 @@ export default {
         SkeletonTextComponent,
         DemoStatusColumnComponent,
         DemoFilterableTableComponent,
+        DemoKitchenSinkTableComponent,
         DemoSearchableTableComponent,
         DemoUrlSyncTableComponent,
         DemoFormTableComponent,
@@ -575,6 +732,8 @@ export default {
               filtersApplied: (count) => `${count} filters applied`,
               nothingToShow: "Nothing to show",
               noMatchingItems: "No matching items",
+              noFiltersMatch: (term) => `No filters match "${term}"`,
+              clearSearch: "Clear search",
               selectAllRows: "Select all rows",
               selectRow: "Select row",
               showingItemRange: (start, end, total) => `Showing ${start} - ${end} of ${total}`,
@@ -1080,6 +1239,84 @@ export const Filterable: Story = {
   }),
 };
 
+/** The open filter surface — the chip's popover, or the responsive dialog. */
+async function filterSurface() {
+  const surfaces = await screen.findAllByRole("dialog");
+  return within(surfaces[surfaces.length - 1]);
+}
+
+/**
+ * Opens the Collections filter, whichever surface the viewport is showing: the chip's popover above
+ * `md`, or the collapsed trigger's dialog drilled into Collections below it. Lets one story snapshot
+ * both surfaces across viewports.
+ */
+async function openCollectionsFilter(canvasElement: HTMLElement): Promise<void> {
+  // Above `md` the chip is on screen; below it the row collapses to one icon trigger. The hidden
+  // chips inherit `visibility: hidden`, so they are out of the accessibility tree and never match here.
+  const trigger = await within(canvasElement).findByRole("button", {
+    name: /^(Collections|Filters)$/,
+  });
+  await userEvent.click(trigger);
+
+  if (trigger.getAttribute("aria-label") !== "Filters") {
+    return;
+  }
+  await userEvent.click(
+    await (await filterSurface()).findByRole("button", { name: /^Collections/ }),
+  );
+}
+
+/** Searches the open filter surface for a term nothing matches. */
+async function searchForNothing(): Promise<void> {
+  // By label, not role: `bit-search` renders `type="text"` on Safari, which changes the role.
+  await userEvent.type(await (await filterSurface()).findByLabelText("Search"), "zzz");
+}
+
+/**
+ * The toolbar at full stretch: search, every kind of filter chip, three `slot=end`
+ * action buttons, and a paginator. Useful for checking the responsive behaviour —
+ * below `md` the chip row collapses into the filter dialog and the action buttons
+ * take a full-width row of their own, split evenly.
+ */
+export const KitchenSink: Story = {
+  render: () => ({
+    template: `<demo-kitchen-sink-table></demo-kitchen-sink-table>`,
+  }),
+};
+
+/**
+ * The Collections filter open, nested three levels deep with an icon tile on every row. Snapshotted
+ * at two widths: the chip's popover above `md`, and the responsive dialog's drill-in below it.
+ */
+export const KitchenSinkFilterOpen: Story = {
+  render: () => ({
+    template: `<demo-kitchen-sink-table></demo-kitchen-sink-table>`,
+  }),
+  play: async ({ canvasElement }) => {
+    await openCollectionsFilter(canvasElement);
+  },
+  parameters: {
+    chromatic: { viewports: [390, 1280] },
+  },
+};
+
+/**
+ * The same filter searched for a term nothing matches, so the no-results state renders on both
+ * surfaces.
+ */
+export const KitchenSinkFilterEmpty: Story = {
+  render: () => ({
+    template: `<demo-kitchen-sink-table></demo-kitchen-sink-table>`,
+  }),
+  play: async ({ canvasElement }) => {
+    await openCollectionsFilter(canvasElement);
+    await searchForNothing();
+  },
+  parameters: {
+    chromatic: { viewports: [390, 1280] },
+  },
+};
+
 /**
  * Search with no filter chips — the toolbar holds only `<bit-search>` and an action
  * button. Searching is just another filter key, so nothing else has to be wired up.
@@ -1219,7 +1456,7 @@ export const SelectableSubset: Story = {
 
 /**
  * When no rows render (in column-def mode) — empty data, or a filter that
- * excluded everything — the table shows a default `<bit-no-items>`. Project
+ * excluded everything — the table shows a default `<bit-status-lockup>`. Project
  * `slot="empty"` to override it with your own empty state.
  */
 export const Empty: Story = {

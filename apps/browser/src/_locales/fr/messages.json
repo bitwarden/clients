@@ -9,6 +9,10 @@
     "message": "Gestionnaire de mots de passe Bitwarden",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden Password Manager Beta",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "Où que vous soyez, Bitwarden sécurise tous vos mots de passe, clés d'accès et informations sensibles",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -509,7 +513,7 @@
     "message": "Options"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Options pour $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -518,10 +522,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Aucun dossier partagé"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Filtrer par $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -530,13 +534,16 @@
     }
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Marquer les éléments comme favoris pour les filtrer ici."
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Ajouter des dossiers aux éléments pour les filtrer ici."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Modifier l'élément - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -545,7 +552,7 @@
     }
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Aucun élément dans le coffre"
   },
   "length": {
     "message": "Longueur"
@@ -752,7 +759,7 @@
     "message": "Ouvrir le site web"
   },
   "launchWebsiteForName": {
-    "message": "Lancer le site web de $ITEMNAME$",
+    "message": "Launch website for $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1097,6 +1104,12 @@
   "addedFolder": {
     "message": "Dossier ajouté"
   },
+  "folderEdited": {
+    "message": "Dossier modifié"
+  },
+  "enterAName": {
+    "message": "Saisissez un nom."
+  },
   "twoStepLoginConfirmation": {
     "message": "L'authentification à deux facteurs rend votre compte plus sûr en vous demandant de vérifier votre connexion avec un autre dispositif tel qu'une clé de sécurité, une application d'authentification, un SMS, un appel téléphonique ou un courriel. L'authentification à deux facteurs peut être configurée dans le coffre web de bitwarden.com. Voulez-vous visiter le site web maintenant ?"
   },
@@ -1409,17 +1422,29 @@
   "additionalOptions": {
     "message": "Options supplémentaires"
   },
-  "fillAssistActiveNotice": {
-    "message": "Le remplissage automatique utilise l'Aide de Remplissage sur cette page."
+  "fillAssistActiveNoticeV2": {
+    "message": "Le remplissage automatique utilise l'aide de remplissage sur cette page."
   },
-  "activateFillAssist": {
+  "activateFillAssistV2": {
     "message": "Activer l'Aide de Remplissage"
   },
-  "activateFillAssistDescription": {
-    "message": "L'Aide de Remplissage améliore la précision de la saisie automatique sur les sites compatibles avec des règles spécifiques au site. Aucune donnée n'est collectée ou enregistrée lorsque vous utilisez cette fonctionnalité."
+  "activateFillAssistDescriptionV2": {
+    "message": "L'aide de remplissage améliore la précision de la saisie automatique sur les sites compatibles avec des règles spécifiques au site. Aucune donnée n'est collectée ou enregistrée lorsque vous utilisez cette fonctionnalité."
   },
-  "aboutFillAssistLabel": {
-    "message": "À propos de l'Aide de Remplissage"
+  "aboutFillAssistLabelV2": {
+    "message": "À propos de l'aide de remplissage"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Autoriser les sites web à exclure les champs de saisie automatique"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Ignorer les champs qu'un site web a marqué avec l'attribut `data-bwignore`."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Autoriser les sites web à ajouter des champs de saisie automatique"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Utiliser n'importe quel élément span qu'un site web a marqué avec l'attribut `data-bwautofill`."
   },
   "enableContextMenuItem": {
     "message": "Afficher les options du menu contextuel"
@@ -1683,12 +1708,6 @@
   "premiumRefresh": {
     "message": "Actualiser l'adhésion"
   },
-  "premiumNotCurrentMember": {
-    "message": "Vous n'êtes pas actuellement un membre Premium."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Inscrivez-vous pour une adhésion Premium et obtenez :"
-  },
   "premiumSignUpStorage": {
     "message": "1 Go de stockage chiffré pour les fichiers joints."
   },
@@ -1733,12 +1752,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Vous pouvez acheter la version Premium depuis les paramètres de votre compte dans l'application web Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "Vous êtes un membre Premium !"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Merci de soutenir Bitwarden."
   },
   "premiumFeatures": {
     "message": "Mettre à niveau à la version Premium et recevez :"
@@ -2213,9 +2226,6 @@
   "securityCode": {
     "message": "Code de sécurité"
   },
-  "cardNumber": {
-    "message": "numéro de carte"
-  },
   "ex": {
     "message": "ex."
   },
@@ -2632,6 +2642,15 @@
       }
     }
   },
+  "nSharedFolders": {
+    "message": "$COUNT$ dossiers partagés",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "favorites": {
     "message": "Favoris"
   },
@@ -2745,6 +2764,18 @@
   },
   "noMatchingItems": {
     "message": "Aucun élément correspondant"
+  },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
   },
   "selected": {
     "message": "Sélectionné(s)"
@@ -3191,12 +3222,6 @@
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "Aucun jeton de rafraîchissement ou clé d'API trouvé. Veuillez essayer de vous déconnecter et de vous reconnecter."
-  },
-  "desktopSyncVerificationTitle": {
-    "message": "Vérification de la synchronisation avec l'application de bureau"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Veuillez vérifier que l'application de bureau affiche cette phrase d'empreinte : "
   },
   "desktopIntegrationDisabledTitle": {
     "message": "L'intégration avec le navigateur n'est pas activée"
@@ -5148,6 +5173,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "Consultez les instructions détaillées de $NAME$ dans notre",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Centre d'Aide"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "Le processus est exactement le même que l'importation depuis Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "En utilisant l'application de bureau KeePassX, accédez à \"Base de données\" → \"Exporter vers un fichier CSV\" et enregistrez le fichier CSV."
+  },
+  "importAviraInstructions": {
+    "message": "Dans le coffre web d'Avira, accédez à \"Paramètres\" → \"Mes données\" → \"Exporter les données\" et enregistrez le fichier CSV."
+  },
+  "importBlurInstructions": {
+    "message": "Dans le coffre web de Blur, cliquez sur votre nom d'utilisateur en haut et allez dans \"Paramètres\" → \"Données d’exportation\", puis cliquez sur \"Exporter CSV\" pour vos \"Comptes\"."
+  },
+  "importSafeincloudInstructions": {
+    "message": "En utilisant l'application bureau SafeInCloud, accédez à \"Fichier\" → \"Exporter\" → \"En XML\" et enregistrez le fichier XML."
+  },
+  "importPadlockInstructions": {
+    "message": "Dans l’application Padlock, cliquez sur l’icône hamburger dans le coin supérieur gauche et accédez à \"Paramètres\" → Bouton \"Exporter\" et enregistrer le fichier \"en CSV\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "En utilisant l'application bureau KeePass 2, accédez à \"Fichier\" → \"Exporter\" et sélectionnez l'option \"KeePass XML (2.x)\"."
+  },
+  "importUpmInstructions": {
+    "message": "En utilisant l'application de bureau Universal Password Manager, accédez à \"Base de données\" → \"Exporter vers un fichier CSV\" et enregistrez le fichier CSV."
+  },
+  "importSaferpassInstructions": {
+    "message": "Dans l'extension de navigateur SaferPass, cliquez sur l'icône hamburger dans le coin supérieur gauche et accédez à \"Paramètres\". Cliquez sur le bouton \"Exporter les comptes\" pour enregistrer le fichier CSV."
+  },
+  "importMeldiumInstructions": {
+    "message": "Dans le coffre web de Meldium, accédez à \"Paramètres\". Localisez l’action \"Exporter les données\" et cliquez sur \"Afficher mes données\" pour enregistrer le fichier CSV."
+  },
+  "importPassworddragonInstructions": {
+    "message": "Dans l’application Password Dragon, accédez à \"Fichier\" → \"Exporter\" → \"vers XML\". Dans la boîte de dialogue qui apparaît, sélectionnez \"Toutes les lignes\" et cochez tous les champs. Cliquez sur le bouton \"Exporter\" et enregistrez le fichier XML."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "En utilisant l'application bureau Enpass, accédez à \"Fichier\" → \"Exporter\" → \"En CSV\". Sélectionnez \"OK\" sur l'avertissement et enregistrez le fichier CSV. Notez que l'importateur ne prend en charge que des fichiers exportés lorsque Enpass est configuré en anglais, ajustez donc vos paramètres en conséquence."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "En utilisant l'application bureau Enpass 6, cliquez sur le bouton de menu et accédez à \"Fichier\" → \"Exporter\". Sélectionnez le format de fichier \".json\" et enregistrez le fichier JSON."
+  },
+  "importPwsafeInstructions": {
+    "message": "En utilisant l'application bureau Password Safe, accédez à \"Fichier\" → \"Exporter en\" → \"Format XML...\" et enregistrez le fichier XML."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Connectez-vous à Dashlane, cliquez sur \"Mon compte\" → \"Paramètres\" → \"Exporter le fichier\" et sélectionner \"Exporter en fichier CSV\". Ceci téléchargera une archive zip contenant des fichiers CSV divers. Décompressez l'archive et importez chaque fichier CSV individuellement."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane ne prend plus en charge le format JSON. N'utilisez ceci que si vous avez un fichier JSON existant pour l'importation. Utilisez l'importateur CSV lors de la création de nouveaux exports."
+  },
+  "importMsecureInstructions": {
+    "message": "En utilisant l'application bureau mSecure, accédez à \"Fichier\" → \"Exporter\" → \"Fichier CSV...\" et enregistrez le fichier CSV."
+  },
+  "importStickypasswordInstructions": {
+    "message": "Dans l’application bureau Sticky Password, accédez au \"Menu\" (en haut à droite) → \"Exporter\" → \"Exporter tous\". Sélectionnez l'option format XML non chiffré et enregistrez le fichier XML."
+  },
+  "importTruekeyInstructions": {
+    "message": "En utilisant l'application bureau True Key, cliquez sur l'icône d'engrenage (en haut à droite) et accédez ensuite à \"Paramètres de l'application\". Cliquez sur le bouton \"Exporter\", saisissez votre mot de passe et enregistrez le fichier CSV."
+  },
+  "importClipperzInstructions": {
+    "message": "Connectez-vous dans l’application web Clipperz (clipperz.is/app). Cliquez sur l'icône du menu hamburger en haut à droite pour étendre la barre de navigation. Allez sur \"Données\" → \"Exporter\". Cliquez sur le bouton \"Télécharger HTML+JSON\" et enregistrez le fichier HTML."
+  },
+  "importRoboformInstructions": {
+    "message": "Dans l’application RoboForm Editor, accédez à \"RoboForm\" (en haut à gauche) → \"Options\" → \"Compte et Données\" et cliquez sur le bouton \"Exporter\". Sélectionnez toutes vos données, changez le \"Format\" en \"Fichier CSV\", puis cliquez sur le bouton \"Exporter\" pour enregistrer le fichier CSV. Remarque : RoboForm vous permet uniquement d'exporter des identifiants de connexion. Les autres éléments ne seront pas exportés."
+  },
+  "importPassboltInstructions": {
+    "message": "Dans le coffre web de Passbolt, accédez à la liste \"Mots de passe\". Sélectionnez tous les mots de passe que vous souhaitez exporter et cliquez sur le bouton \"Exporter\" en haut de la liste. Choisissez le format d’exportation \"csv (lastpass)\" et cliquez sur le bouton \"Exporter\"."
+  },
+  "importAscendoInstructions": {
+    "message": "Dans l’application Ascendo DataVault, accédez à \"Outils\" → \"Exporter\". Dans la boîte de dialogue qui apparaît, sélectionnez l'option \"Tous les éléments (DVX, CSV)\". Cliquez sur le bouton \"Ok\" pour enregistrer le fichier CSV."
+  },
+  "importPasswordbossInstructions": {
+    "message": "Dans l’application Password Boss Desktop, accédez à \"Fichier\" → \"Exporter les données\" → \"Password Boss JSON - non chiffré\" et enregistrez le fichier JSON."
+  },
+  "importZohoInstructions": {
+    "message": "Connectez-vous dans le coffre web Zoho (vault.zoho.com). Accédez à \"Outils\" → \"Exporter les secrets\". Sélectionnez \"Tous les secrets\" et cliquez sur le bouton \"Format CSV Zoho Vault\". Sélectionnez et copiez les données de la zone de texte. Ouvrez un éditeur de texte comme Notepad et copiez les données. Enregistrez les donnés de l'éditeur de texte comme",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "Dans l’application SplashID Safe, cliquez sur le logo bleu de cadenas SplashID dans le coin supérieur droit. Naviguez vers \"Exporter\" → \"Exporter en CSV\" et enregistrez le fichier CSV."
+  },
+  "importPasskeepInstructions": {
+    "message": "En utilisant l'application mobile PassKeep, accédez à \"Sauvegarde/Restauration\". Localisez la section \"Sauvegarde/Restauration CSV\" et cliquez sur \"Sauvegarder en CSV\" pour enregistrer le fichier CSV."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Assurez-vous d'avoir installé python-keyring et python-gnomekeyring. Enregistrez le",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "Importation/Exportation GNOME Keyring"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "script python sur votre bureau comme",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Ouvrez le terminal et exécutez",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "et ensuite",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Ensuite téléchargez le résultat",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "fichier obtenu ici vers Bitwarden.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "Dans l’application Password Agent, naviguez vers \"Fichier\" → \"Exporter\", sélectionnez le bouton \"Champs à exporter\" et cochez tous les champs, changez le \"Format de sortie\" en \"CSV\", puis cliquez sur le bouton \"Démarrer\" pour enregistrer le fichier CSV."
+  },
+  "importPasspackInstructions": {
+    "message": "Connectez-vous dans le coffre web de Passpack, accédez à \"Paramètres\" → \"Exporter\", puis cliquez sur le bouton \"Télécharger\" pour enregistrer le fichier CSV."
+  },
+  "importPassmanInstructions": {
+    "message": "Dans le coffre de Passman, cliquez sur \"Paramètres\" dans le coin inférieur gauche. Dans la fenêtre \"Paramètres\", basculez vers l'onglet \"Exporter les identifiants\" et choisissez \"JSON\" comme type d’exportation. Entrer le mot de passe de votre coffre et cliquez sur le bouton \"Exporter\" pour enregistrer le fichier JSON."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Ouvrez l'application bureau Avast Passwords et accédez à \"Paramètres\" → \"Importer/Exporter les données\". Sélectionnez le bouton \"Exporter\" avec l'option \"Exporter en fichier CSV\" pour enregistrer le fichier CSV."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Ouvrez l'application bureau Avast Passwords et accédez à \"Paramètres\" → \"Importer/Exporter les données\". Sélectionnez le bouton \"Exporter\" avec l'option \"Exporter en fichier JSON\" pour enregistrer le fichier JSON."
+  },
+  "importFsecureInstructions": {
+    "message": "Dans l’application F-Secure KEY, accédez à \"Paramètres\" → \"Exporter les mots de passe\". Sélectionnez le bouton \"Exporter\", entrez votre mot de passe principal et enregistrez le fichier FSK."
+  },
+  "importKasperskyInstructions": {
+    "message": "Dans l’application Kaspersky Password Manager, accédez à \"Paramètres\" → \"Importer/Exporter\". Recherchez la section \"Exporter vers un fichier texte\" et sélectionnez le bouton \"Exporter\" pour enregistrer le fichier TXT."
+  },
+  "importRemembearInstructions": {
+    "message": "Dans l’application RememBear, accédez à \"Paramètres\" → \"Compte\" → \"Exporter\". Entrez votre mot de passe principal et sélectionnez le bouton \"Exporter quand même\" pour enregistrer le fichier CSV."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Dans l’application PasswordWallet, accédez à \"Fichier \" → \"Exporter\" → \"Entrées visibles vers un fichier texte\". Entrez votre mot de passe et sélectionnez le bouton \"Ok\" pour enregistrer le fichier TXT."
+  },
+  "importMykiInstructions": {
+    "message": "Ouvrez l'extension de navigateur Myki et accédez à \"Avancé\" → \"Exporter les comptes\" puis scannez le code QR avec votre appareil mobile. Différents fichiers CSV seront ensuite enregistrés dans le dossier de téléchargements de votre ordinateur."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Exportez votre coffre de mots de passe SecureSafe dans un fichier CSV avec des virgules comme délimiteurs."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Ouvrez l'extension de navigateur LogMeOnce, puis accédez à \"Ouvrir le menu\" → \"Exporter vers\" et sélectionnez \"Fichiers CSV\" pour enregistrer le fichier CSV."
+  },
+  "importBlackberryInstructions": {
+    "message": "Ouvrez l'application BlackBerry Password Keeper, puis accédez à \"Paramètres\" → \"Importer/Exporter\". Sélectionnez \"Exporter les mots de passe\" et suivez les instructions à l'écran pour enregistrer le fichier CSV non chiffré."
+  },
+  "importButtercupInstructions": {
+    "message": "Ouvrez l'application de bureau Buttercup et déverrouillez votre coffre. Faites un clic droit sur l'icône de votre coffre et sélectionnez \"Exporter\" pour enregistrer le fichier CSV."
+  },
+  "importCodebookInstructions": {
+    "message": "Ouvrez l'application de bureau Codebook et connectez-vous. Accédez à \"Fichier\" → \"Exporter tout\", puis cliquez sur \"Oui\" dans la boîte de dialogue et enregistrez le fichier CSV."
+  },
+  "importEncryptrInstructions": {
+    "message": "Ouvrez la dernière version de l'application de bureau Encryptr et autorisez toutes vos données à se synchroniser. Une fois que la synchronisation de vos données est terminée, l'icône de téléchargement dans le coin supérieur droit devient rose. Cliquez sur l'icône de téléchargement et enregistrez le fichier CSV."
+  },
+  "importYotiInstructions": {
+    "message": "À partir de l'extension de navigateur Yoti, cliquez sur \"Paramètres\", puis \"Exporter les identifiants enregistrés\" et enregistrez le fichier CSV."
+  },
+  "importPsonoInstructions": {
+    "message": "Connectez-vous dans le coffre Web de Psono, cliquez sur le menu déroulant \"Connecté en tant que\", sélectionnez \"Autres\". Allez dans l'onglet \"Exporter\" et sélectionnez le type d'exportation json, puis cliquez sur Exporter."
+  },
+  "importPasskyInstructions": {
+    "message": "Connectez-vous à \"https://vault.passky.org\" → \"Importer et Exporter\" → \"Exporter\" dans la section Passky. (\"Sauvegarde\" n'est pas pris en charge car il est chiffré)."
+  },
+  "importProtonpassInstructions": {
+    "message": "Dans l'extension ProtonPass du navigateur, allez dans Paramètres > Exporter. Exportez sans chiffrement PGP et enregistrez le fichier zip."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Sélectionnez Base de données → Exporter vers un fichier... menu. → Dans les options d'exportation, assurez-vous que les noms des dossiers et les titres des colonnes sont cochés. → Appuyez sur le bouton Parcourir... et choisissez le fichier cible et définissez son type à fichier CSV."
+  },
+  "importNetwrixInstructions": {
+    "message": "Ouvrez FullClient, allez dans le menu principal et sélectionnez Exporter. Démarrez l'assistant d'exportation des mots de passe et suivez les instructions pour exporter un fichier CSV."
+  },
+  "importNordpassInstructions": {
+    "message": "Connectez-vous à NordPass et ouvrez Paramètres → Faites défiler vers le bas dans la section Importer et exporter et sélectionnez Exporter les éléments → Entrer votre mot de passe principal et sélectionnez Continuer. → Enregistrez le fichier CSV sur votre appareil."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "Dans l'application de bureau, allez dans Outils → Exporter → Entrez votre mot de passe principal → Sélectionnez le format XML (*.xml) comme format d'exportation → Cliquez sur suivant → Choisissez les entrées à inclure dans l'export → Cliquez sur suivant pour exporter vers l'emplacement précédemment choisi."
+  },
+  "importDelineaInstructions": {
+    "message": "Connectez-vous à Delinea, recherchez \"Importer/Exportater\" -> sélectionnez \"Exporter\" -> Sélectionnez \"XML\" comme format d'exportation -> Sélectionnez \"QuantumLock\" en tant que type d'authentificateur -> entrez votre mot de passe et sélectionnez \"Exporter\" pour enregistrer le fichier XML."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Connectez-vous à Delinea, recherchez \"Importer/Exportater\" -> sélectionnez \"Exporter\" -> Sélectionnez \"CSV\" comme format d'exportation -> Sélectionnez \"QuantumLock\" en tant que type d'authentificateur -> entrez votre mot de passe et sélectionnez \"Exporter\" pour enregistrer le fichier CSV."
+  },
   "confirmVaultImport": {
     "message": "Confirmez l'import du coffre"
   },
@@ -5318,10 +5544,6 @@
   },
   "awaitingSSODesc": {
     "message": "Veuillez continuer à vous connecter en utilisant les identifiants de votre entreprise."
-  },
-  "seeDetailedInstructions": {
-    "message": "Consultez les instructions détaillées sur notre site d'aide à",
-    "description": "This is followed a by a hyperlink to the help website."
   },
   "importDirectlyFromLastPass": {
     "message": "Importer directement de LastPass"
@@ -5751,25 +5973,11 @@
   "clearFiltersOrTryAnother": {
     "message": "Effacer les filtres ou essayer un autre terme de recherche"
   },
-  "copyDetailsTitle": {
-    "message": "Copier les informations de $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
   },
-  "copyNoteTitle": {
-    "message": "Copier la note - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
   },
   "moreOptionsLabel": {
     "message": "Plus d'options, $ITEMNAME$",
@@ -5839,20 +6047,6 @@
       "field": {
         "content": "$2",
         "example": "Username"
-      }
-    }
-  },
-  "copyFieldCipherName": {
-    "message": "Copier $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
     }
   },
@@ -6866,9 +7060,6 @@
   "compactMode": {
     "message": "Mode compact"
   },
-  "beta": {
-    "message": "Bêta"
-  },
   "extensionWidth": {
     "message": "Largeur de l'extension"
   },
@@ -6925,12 +7116,6 @@
         "example": "Work, Personal"
       }
     }
-  },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Veuillez mettre à jour votre application de bureau"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "Pour utiliser le déverrouillage par biométrie, veuillez mettre à jour votre application de bureau ou désactiver le déverrouillage par empreinte digitale dans les paramètres de l'application de bureau."
   },
   "changeAtRiskPassword": {
     "message": "Changer le mot de passe à risque"
@@ -7120,6 +7305,15 @@
   },
   "showMore": {
     "message": "Afficher plus"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Afficher moins"
@@ -7632,15 +7826,15 @@
     "message": "Surveillez et améliorez la santé de votre coffre en corrigeant les mots de passes exposé, faibles ou réutilisés."
   },
   "yourVaultIsHealthy": {
-    "message": "Your vault is healthy",
+    "message": "Votre coffre-fort est sain",
     "description": "Heading shown when none of the user's passwords are at risk."
   },
   "yourVaultRiskIsHigh": {
-    "message": "Your vault risk is high",
+    "message": "Le risque de votre coffre est élevé",
     "description": "Heading shown when at least one of the user's passwords is at risk."
   },
   "passwordsNeedFixing": {
-    "message": "$AT_RISK$ of $TOTAL$ passwords need fixing",
+    "message": "$AT_RISK$ de $TOTAL$ mots de passe doivent être corrigés",
     "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
     "placeholders": {
       "at_risk": {
@@ -7654,15 +7848,15 @@
     }
   },
   "exposedPasswordsNone": {
-    "message": "No exposed passwords",
+    "message": "Aucun mot de passe exposé",
     "description": "Title of the exposed risk category row when no passwords are exposed."
   },
   "exposedPassword": {
-    "message": "1 exposed password",
+    "message": "1 mot de passe exposé",
     "description": "Title of the exposed risk category row when exactly one password is exposed."
   },
   "exposedPasswordsPlural": {
-    "message": "$COUNT$ exposed passwords",
+    "message": "$COUNT$ mots de passe exposés",
     "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7672,23 +7866,23 @@
     }
   },
   "exposedPasswordsDesc": {
-    "message": "Exposed in data breaches",
+    "message": "Exposé dans des fuites de données",
     "description": "Explains what makes a password count as exposed."
   },
   "exposedPasswordsNoneDesc": {
-    "message": "None of your passwords were found in data breaches",
+    "message": "Aucun de vos mots de passe n'a été trouvé dans des fuites de données",
     "description": "Description of the exposed risk category row when no passwords are exposed."
   },
   "weakPasswordsNone": {
-    "message": "No weak passwords",
+    "message": "Aucun mot de passe faible",
     "description": "Title of the weak risk category row when no passwords are weak."
   },
   "weakPassword": {
-    "message": "1 weak password",
+    "message": "1 mot de passe faible",
     "description": "Title of the weak risk category row when exactly one password is weak."
   },
   "weakPasswordsPlural": {
-    "message": "$COUNT$ weak passwords",
+    "message": "$COUNT$ mots de passe faibles",
     "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7698,23 +7892,23 @@
     }
   },
   "weakPasswordsDesc": {
-    "message": "Too short or simple",
+    "message": "Trop court ou simple",
     "description": "Explains what makes a password count as weak."
   },
   "weakPasswordsNoneDesc": {
-    "message": "All your passwords are strong",
+    "message": "Tous vos mots de passe sont forts",
     "description": "Description of the weak risk category row when no passwords are weak."
   },
   "reusedPasswordsNone": {
-    "message": "No reused passwords",
+    "message": "Aucun mot de passe réutilisé",
     "description": "Title of the reused risk category row when no passwords are reused."
   },
   "reusedPassword": {
-    "message": "1 reused password",
+    "message": "1 mot de passe réutilisé",
     "description": "Title of the reused risk category row when exactly one password is reused."
   },
   "reusedPasswordsPlural": {
-    "message": "$COUNT$ reused passwords",
+    "message": "$COUNT$ mots de passe réutilisés",
     "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7724,19 +7918,107 @@
     }
   },
   "reusedPasswordsDesc": {
-    "message": "Reused for several logins",
+    "message": "Réutilisé dans plusieurs identifiants",
     "description": "Explains what makes a password count as reused."
   },
   "reusedPasswordsNoneDesc": {
-    "message": "All your passwords are unique",
+    "message": "Tous vos mots de passe sont uniques",
     "description": "Description of the reused risk category row when no passwords are reused."
   },
   "risksIdentified": {
-    "message": "Risks identified",
+    "message": "Risques identifiés",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
+  "upgradeToViewPasswords": {
+    "message": "Mettez à niveau pour afficher les mots de passe"
+  },
   "categoryHealthy": {
-    "message": "No items need attention",
+    "message": "Aucun élément ne nécessite d'attetion",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Analyse de votre coffre en cours",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Vérification des mots de passe exposés, faibles ou réutilisés.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "En cours",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Un problème est survenu",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "L'analyse de votre coffre n'a pas été terminée en raison d'une erreur inattendue.",
+    "description": "Explains that the vault health scan did not complete."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Mots de passe exposés"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Les mots de passe pour ces identifiants ont été exposés dans des fuites de données. Changez-les immédiatement pour protéger vos comptes."
+  },
+  "weakPasswordsTitle": {
+    "message": "Mots de passe faibles"
+  },
+  "weakPasswordsDescription": {
+    "message": "Ces mots de passe peuvent être facilement devinés car ils sont trop courts ou simples. Renforcez-les en les rendant plus complexes."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Mots de passe réutilisés"
+  },
+  "reusedPasswordsDescription": {
+    "message": "Ces identifiants ont un mot de passe réutilisé. Créez un mot de passe unique pour chaque compte pour empêcher quelqu'un d'accéder à plusieurs comptes avec un seul mot de passe."
+  },
+  "deleteAtRiskItemDesc": {
+    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "Ce mot de passe comporte des risques supplémentaires :"
+  },
+  "reused": {
+    "message": "Réutilisé",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ fois",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "Aucun de vos mots de passe n'a été trouvé dans des fuites de données."
+  },
+  "weakPasswordEmpty": {
+    "message": "Tous vos mots de passe sont forts."
+  },
+  "reusedPasswordEmpty": {
+    "message": "Tous vos mots de passe sont uniques."
+  },
+  "youreAllSet": {
+    "message": "Vous êtes prêt !"
+  },
+  "permissions": {
+    "message": "Permissions"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   }
 }

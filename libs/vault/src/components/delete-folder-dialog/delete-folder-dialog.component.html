@@ -1,0 +1,35 @@
+<bit-simple-dialog>
+  <bit-icon bitDialogIcon name="bwi-error" class="tw-text-3xl tw-text-danger"></bit-icon>
+
+  <span bitDialogTitle>{{ title }}</span>
+
+  <span bitDialogContent>
+    @if (folderName) {
+      {{ descriptionBefore }}<span class="tw-italic">{{ folderName }}</span
+      >{{ descriptionAfter }}
+    } @else {
+      {{ descriptionBefore }}
+    }
+  </span>
+
+  <ng-container bitDialogFooter>
+    <button
+      bitButton
+      type="button"
+      buttonType="danger"
+      id="delete-folder-dialog_button_delete"
+      (click)="delete()"
+    >
+      {{ "delete" | i18n }}
+    </button>
+    <button
+      bitButton
+      type="button"
+      buttonType="secondary"
+      id="delete-folder-dialog_button_cancel"
+      (click)="cancel()"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>

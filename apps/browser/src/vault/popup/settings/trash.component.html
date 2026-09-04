@@ -17,17 +17,15 @@
         [ciphers]="deletedItems"
       ></app-trash-list-items-container>
     } @else {
-      <bit-no-items
-        [icon]="emptyTrashIcon"
-        class="tw-flex tw-h-full tw-items-center tw-justify-center"
-      >
+      <bit-status-lockup class="tw-flex tw-h-full tw-items-center tw-justify-center">
+        <bit-svg slot="graphic" [content]="emptyTrashIcon"></bit-svg>
         <ng-container slot="title">
           {{ "noItemsInTrash" | i18n }}
         </ng-container>
         <ng-container slot="description">
           {{ "noItemsInTrashDesc" | i18n }}
         </ng-container>
-      </bit-no-items>
+      </bit-status-lockup>
     }
   }
 </popup-page>

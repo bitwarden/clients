@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, model } from "@angular/core";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -81,6 +81,9 @@ const borderRadius: Record<IconTileSize, string[]> = {
   selector: "bit-icon-tile",
   templateUrl: "icon-tile.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "tw-inline-flex",
+  },
 })
 export class IconTileComponent {
   /**
@@ -108,9 +111,12 @@ export class IconTileComponent {
   readonly emphasis = input<IconTileEmphasis>("subtle");
 
   /**
-   * The size of the icon tile
+   * The size of the icon tile.
+   *
+   * Exposed as a `model` so a parent that renders a projected tile (e.g. `bit-breadcrumb`)
+   * can drive the size programmatically while consumers can still bind it declaratively.
    */
-  readonly size = input<IconTileSize>("base");
+  readonly size = model<IconTileSize>("base");
 
   /**
    * Optional aria-label for accessibility when the icon has semantic meaning

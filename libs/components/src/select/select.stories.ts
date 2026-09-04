@@ -66,3 +66,24 @@ export const Disabled: Story = {
     disabled: true,
   },
 };
+
+export const IconTiles: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+    },
+    template: /*html*/ `
+      <bit-form-field>
+        <bit-label>Choose a value</bit-label>
+        <bit-select [disabled]="disabled">
+          <bit-option value="login" label="Login" [iconTile]="{ icon: 'bwi-globe', variant: 'brand' }" description="Very cool hint text that is also incredibly long, so helpful that it will need to truncate if you shrink the window width"></bit-option>
+          <bit-option value="card" label="Card with a very long label though so it will truncate on small screens" [iconTile]="{ icon: 'bwi-credit-card', variant: 'teal' }"></bit-option>
+          <bit-option value="identity" label="Identity" [iconTile]="{ icon: 'bwi-id-card', variant: 'purple', emphasis: 'bold' }"></bit-option>
+          <bit-option value="note" label="Note with a custom color" [iconTile]="{ icon: 'bwi-sticky-note', color: '#f8e71c' }"></bit-option>
+          <bit-option value="sshKey" label="SSH key" [iconTile]="{ icon: 'bwi-key', variant: 'green' }" disabled></bit-option>
+        </bit-select>
+      </bit-form-field>
+    `,
+  }),
+  args: {},
+};

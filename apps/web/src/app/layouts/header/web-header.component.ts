@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core
 import { ActivatedRoute } from "@angular/router";
 import { map, Observable } from "rxjs";
 
-import { BannerModule, HeaderComponent } from "@bitwarden/components";
+import { BannerModule, BitwardenIcon, HeaderComponent, HeaderContext } from "@bitwarden/components";
+import { safeProvider } from "@bitwarden/ui-common";
 
 import { SharedModule } from "../../shared";
 import { ProductSwitcherModule } from "../product-switcher/product-switcher.module";
@@ -20,6 +21,11 @@ import { AccountMenuComponent } from "./account-menu.component";
     AccountMenuComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  /**
+   * Required to provide one HeaderContext instance to both the `bit-breadrumbs` declared in this
+   * template and the `bit-header`
+   */
+  providers: [safeProvider(HeaderContext)],
 })
 export class WebHeaderComponent {
   private readonly route = inject(ActivatedRoute);
@@ -32,7 +38,7 @@ export class WebHeaderComponent {
   /**
    * Icon to show before the title
    */
-  readonly icon = input<string>();
+  readonly icon = input<BitwardenIcon>();
 
   protected readonly routeData$: Observable<{ titleId: string }> = this.route.data.pipe(
     map((params) => {

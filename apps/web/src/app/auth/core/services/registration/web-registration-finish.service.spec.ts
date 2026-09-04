@@ -2,9 +2,6 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { PasswordInputResult } from "@bitwarden/auth/angular";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import {
@@ -39,7 +36,6 @@ describe("WebRegistrationFinishService", () => {
   let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let accountApiService: MockProxy<AccountApiService>;
   let organizationInviteService: MockProxy<OrganizationInviteService>;
-  let policyService: MockProxy<PolicyService>;
   let masterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
   let configService: MockProxy<ConfigService>;
   let sdkService: MockProxy<SdkService>;
@@ -58,7 +54,6 @@ describe("WebRegistrationFinishService", () => {
     legacyCompatKeyService = mock<LegacyCompatKeyService>();
     accountApiService = mock<AccountApiService>();
     organizationInviteService = mock<OrganizationInviteService>();
-    policyService = mock<PolicyService>();
     masterPasswordService = mock<MasterPasswordServiceAbstraction>();
     configService = mock<ConfigService>();
     sdkService = mock<SdkService>();
@@ -70,7 +65,6 @@ describe("WebRegistrationFinishService", () => {
       configService,
       sdkService,
       organizationInviteService,
-      policyService,
     );
 
     configService.getFeatureFlag.mockResolvedValue(false);
@@ -78,130 +72,6 @@ describe("WebRegistrationFinishService", () => {
 
   it("instantiates", () => {
     expect(service).not.toBeFalsy();
-  });
-
-  describe("getOrgNameFromOrgInvite()", () => {
-    let directOrgInvite: DirectOrganizationInvite | null;
-
-    beforeEach(() => {
-      directOrgInvite = new DirectOrganizationInvite({
-        organizationId: "organizationId",
-        organizationUserId: "organizationUserId",
-        token: "orgInviteToken",
-        email: "email",
-        organizationName: "organizationName",
-        initOrganization: false,
-        orgUserHasExistingUser: false,
-      });
-    });
-
-    it("returns null when the org invite is null", async () => {
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-
-      const result = await service.getOrgNameFromOrgInvite();
-
-      expect(result).toBeNull();
-      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-    });
-
-    it("returns the organization name from the organization invite when it exists", async () => {
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(directOrgInvite);
-
-      const result = await service.getOrgNameFromOrgInvite();
-
-      expect(result).toEqual(directOrgInvite!.organizationName);
-      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-    });
-
-    it("returns the organization name when a stashed open org invite is active", async () => {
-      const openOrgInvite = new OpenOrganizationInvite({
-        organizationId: "organizationId",
-        inviteLinkCode: "link-code",
-        inviteKey: "link-key",
-        organizationName: "openOrgName",
-      });
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(openOrgInvite);
-
-      const result = await service.getOrgNameFromOrgInvite();
-
-      expect(result).toEqual("openOrgName");
-      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-    });
-  });
-
-  describe("getMasterPasswordPolicyOptsFromOrgInvite()", () => {
-    let directOrgInvite: DirectOrganizationInvite | null;
-
-    beforeEach(() => {
-      directOrgInvite = new DirectOrganizationInvite({
-        organizationId: "organizationId",
-        organizationUserId: "organizationUserId",
-        token: "orgInviteToken",
-        email: "email",
-        organizationName: "organizationName",
-        initOrganization: false,
-        orgUserHasExistingUser: false,
-      });
-    });
-
-    it("returns null when the org invite is null", async () => {
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
-
-      const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
-
-      expect(result).toBeNull();
-      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-    });
-
-    it("returns null when the policies are undefined", async () => {
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(directOrgInvite);
-      organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(undefined);
-
-      const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
-
-      expect(result).toBeNull();
-      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(
-        directOrgInvite,
-      );
-    });
-
-    it("returns the master password policy options from the organization invite when it exists", async () => {
-      const masterPasswordPolicies = [new Policy()];
-      const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
-
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(directOrgInvite);
-      organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(masterPasswordPolicies);
-      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(masterPasswordPolicyOptions));
-
-      const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
-
-      expect(result).toEqual(masterPasswordPolicyOptions);
-      expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(
-        directOrgInvite,
-      );
-    });
-
-    it("returns policy options when a stashed open org invite is active", async () => {
-      const openOrgInvite = new OpenOrganizationInvite({
-        organizationId: "organizationId",
-        inviteLinkCode: "link-code",
-        inviteKey: "link-key",
-        organizationName: "openOrgName",
-      });
-      const masterPasswordPolicies = [new Policy()];
-      const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
-
-      organizationInviteService.getOrganizationInvite.mockResolvedValue(openOrgInvite);
-      organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(masterPasswordPolicies);
-      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(masterPasswordPolicyOptions));
-
-      const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
-
-      expect(result).toEqual(masterPasswordPolicyOptions);
-      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(openOrgInvite);
-    });
   });
 
   // ============================================================================

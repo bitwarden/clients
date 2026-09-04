@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EmptyTrash } from "@bitwarden/assets/svg";
-import { CalloutModule, NoItemsModule } from "@bitwarden/components";
+import { CalloutModule, StatusLockupComponent, SvgComponent } from "@bitwarden/components";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -22,7 +22,8 @@ import { TrashListItemsContainerComponent } from "./trash-list-items-container/t
     PopOutComponent,
     TrashListItemsContainerComponent,
     CalloutModule,
-    NoItemsModule,
+    StatusLockupComponent,
+    SvgComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

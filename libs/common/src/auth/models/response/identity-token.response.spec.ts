@@ -206,4 +206,86 @@ describe("IdentityTokenResponse", () => {
       );
     });
   });
+  describe("key connector unlock", () => {
+    const keyConnectorUrl = "https://key-connector.example.com";
+
+    const buildResponse = (options: {
+      key?: string;
+      hasMasterPassword: boolean;
+      withKeyConnectorOption: boolean;
+    }) =>
+      new IdentityTokenResponse({
+        access_token: accessToken,
+        token_type: tokenType,
+        Key: options.key,
+        ...kdfFields,
+        UserDecryptionOptions: {
+          HasMasterPassword: options.hasMasterPassword,
+          KeyConnectorOption: options.withKeyConnectorOption
+            ? { KeyConnectorUrl: keyConnectorUrl }
+            : undefined,
+        },
+      });
+
+    describe("canUnlockWithKeyConnector", () => {
+      it("returns true when a key connector option and a wrapped user key are present and there is no master password", () => {
+        const response = buildResponse({
+          key: encryptedUserKey.encryptedString,
+          hasMasterPassword: false,
+          withKeyConnectorOption: true,
+        });
+
+        expect(response.canUnlockWithKeyConnector()).toBe(true);
+      });
+
+      it("returns false for a newly JIT provisioned user that has no wrapped user key yet", () => {
+        const response = buildResponse({ hasMasterPassword: false, withKeyConnectorOption: true });
+
+        expect(response.canUnlockWithKeyConnector()).toBe(false);
+      });
+
+      it("returns false when the user still has a master password", () => {
+        const response = buildResponse({
+          key: encryptedUserKey.encryptedString,
+          hasMasterPassword: true,
+          withKeyConnectorOption: true,
+        });
+
+        expect(response.canUnlockWithKeyConnector()).toBe(false);
+      });
+
+      it("returns false when there is no key connector option", () => {
+        const response = buildResponse({
+          key: encryptedUserKey.encryptedString,
+          hasMasterPassword: false,
+          withKeyConnectorOption: false,
+        });
+
+        expect(response.canUnlockWithKeyConnector()).toBe(false);
+      });
+    });
+
+    describe("intoKeyConnectorUnlockData", () => {
+      it("returns the key connector url and the wrapped user key", () => {
+        const response = buildResponse({
+          key: encryptedUserKey.encryptedString,
+          hasMasterPassword: false,
+          withKeyConnectorOption: true,
+        });
+
+        expect(response.intoKeyConnectorUnlockData()).toEqual({
+          url: keyConnectorUrl,
+          keyConnectorKeyWrappedUserKey: encryptedUserKey.toSdk(),
+        });
+      });
+
+      it("throws for a newly JIT provisioned user that has no wrapped user key yet", () => {
+        const response = buildResponse({ hasMasterPassword: false, withKeyConnectorOption: true });
+
+        expect(() => response.intoKeyConnectorUnlockData()).toThrow(
+          "Identity token response cannot be used for key connector unlock",
+        );
+      });
+    });
+  });
 });

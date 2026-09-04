@@ -4,10 +4,7 @@
   <main>, whose `contain: strict` establishes a containing block that traps `position: fixed`.
 -->
 <ng-template #barPortal>
-  <bit-bulk-actions-bar
-    [selectedCount]="service.selectedCount()"
-    (clear)="service.selection.clear()"
-  >
+  <bit-bulk-actions-bar [selectedCount]="service.selectedCount()" (clear)="service.clear()">
     @for (action of primaryActions(); track action.label) {
       <bit-bulk-action [action]="action.action" [icon]="action.icon" [label]="action.label" />
     }

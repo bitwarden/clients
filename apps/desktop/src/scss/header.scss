@@ -11,6 +11,10 @@
   @include themify($themes) {
     background-color: themed("headerBackgroundColor");
 
+    &.vfo1 {
+      background-color: themed("headerBackgroundColorVfo1");
+    }
+
     app-search {
       grid-column-start: 2;
       width: 100%;

@@ -1,0 +1,26 @@
+<div class="tw-mx-auto tw-flex tw-flex-col tw-items-center tw-justify-center tw-p-6">
+  <div
+    class="tw-flex tw-flex-col tw-gap-6 tw-items-center"
+    [class.tw-max-w-[600px]]="effectiveSize() === 'base'"
+    [class.tw-max-w-[480px]]="effectiveSize() === 'small'"
+  >
+    <div class="tw-flex tw-items-center tw-justify-center [&_bit-svg]:tw-size-20 empty:tw-hidden">
+      <ng-content select="[slot=graphic]"></ng-content>
+    </div>
+    <div class="tw-flex tw-flex-col tw-gap-2">
+      <h3
+        class="tw-font-medium tw-text-center !tw-mb-0 tw-text-fg-heading"
+        [class.tw-text-base]="effectiveSize() === 'base'"
+        [class.tw-text-sm]="effectiveSize() === 'small'"
+      >
+        <ng-content select="[slot=title]"></ng-content>
+      </h3>
+      <div bitTypography="body2" class="tw-text-center empty:tw-hidden tw-text-fg-body">
+        <ng-content select="[slot=description]"></ng-content>
+      </div>
+    </div>
+    <div class="tw-space-x-2 empty:tw-hidden">
+      <ng-content select="[slot=button]"></ng-content>
+    </div>
+  </div>
+</div>

@@ -19,7 +19,7 @@
   <bit-nav-item
     [text]="text()"
     [icon]="icon()"
-    [route]="route()"
+    [route]="effectiveRoute()"
     [treeDepth]="treeDepth()"
     [relativeTo]="relativeTo()"
     [routerLinkActiveOptions]="routerLinkActiveOptions()"
@@ -27,7 +27,8 @@
     [ariaLabel]="ariaLabel()"
     [hideActiveStyles]="parentHideActiveStyles()"
     [ariaCurrentWhenActive]="ariaCurrent()"
-    [forceActiveStyles]="forceActiveStyles()"
+    [forceActiveStyles]="forceActiveStyles() || (routeIsActive() && !parentHideActiveStyles())"
+    [ariaCurrentValue]="routeIsActive() ? ariaCurrent() : undefined"
     [ariaExpanded]="!toggleInStartSlot() ? open() : undefined"
     [ariaControls]="!toggleInStartSlot() ? contentId : undefined"
     [hasForwardedIconTile]="!toggleInStartSlot() && hasStartSlotTile()"

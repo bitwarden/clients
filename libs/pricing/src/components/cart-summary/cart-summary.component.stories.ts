@@ -43,6 +43,8 @@ export default {
                   return "Additional Storage";
                 case "estimatedTax":
                   return "Estimated tax";
+                case "subtotal":
+                  return "Subtotal";
                 case "total":
                   return "Total";
                 case "expandPurchaseDetails":
@@ -444,8 +446,17 @@ export const WithDiscountAndCredit: Story = {
   },
 };
 
-export const WithItemDiscount: Story = {
-  name: "With Item-Level Discount (Premium Renewal)",
+export const SinglePerLineDiscount: Story = {
+  name: "With Single Per-Line Discount (Premium Renewal)",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "A single per-line discount carrying the server's authoritative `amount`. " +
+          "The renderer uses that amount verbatim rather than deriving it from `type` and `value`.",
+      },
+    },
+  },
   args: {
     cart: {
       passwordManager: {
@@ -453,10 +464,13 @@ export const WithItemDiscount: Story = {
           quantity: 1,
           translationKey: "premiumMembership",
           cost: 10.0,
-          discount: {
-            type: DiscountTypes.PercentOff,
-            value: 25,
-          },
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 25,
+              amount: 2.5,
+            },
+          ],
         },
       },
       cadence: "annually",
@@ -465,8 +479,81 @@ export const WithItemDiscount: Story = {
   },
 };
 
-export const WithCartAndItemDiscount: Story = {
-  name: "With Both Cart-Level and Item-Level Discounts",
+export const FlagOffRegression: Story = {
+  name: "Flag-Off Regression (Legacy One-Element Shim)",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "The shape the legacy `CartItemResponse` shim emits when the feature flag is off: a " +
+          "one-element `discounts` array with no `amount` and no `label`. Proves the renderer " +
+          "still derives both via `getAmount` / `getLabel`, so flag-off carts render unchanged.",
+      },
+    },
+  },
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 25,
+            },
+          ],
+        },
+      },
+      cadence: "monthly",
+      estimatedTax: 9.6,
+    } satisfies Cart,
+  },
+};
+
+export const MultiplePerLineDiscounts: Story = {
+  name: "With Multiple Per-Line Discounts",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Two discounts on a single line: a percent-off coupon with no `amount` (derived) and a " +
+          "labeled amount-off promotion with an authoritative `amount`. Both rows render beneath " +
+          "the line. Per-line discounts do not cascade — each is measured against the same " +
+          "extended price, unlike the cart-wide loop.",
+      },
+    },
+  },
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 20,
+            },
+            {
+              type: DiscountTypes.AmountOff,
+              value: 15,
+              amount: 15,
+              label: "Loyalty promotion",
+            },
+          ],
+        },
+      },
+      cadence: "monthly",
+      estimatedTax: 8.55,
+    } satisfies Cart,
+  },
+};
+
+export const PerLineAndCartWideStacked: Story = {
+  name: "With Per-Line and Cart-Wide Discounts Stacked",
   parameters: {
     docs: {
       description: {
@@ -485,10 +572,12 @@ export const WithCartAndItemDiscount: Story = {
           quantity: 5,
           translationKey: "members",
           cost: 50.0,
-          discount: {
-            type: DiscountTypes.PercentOff,
-            value: 25,
-          },
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 25,
+            },
+          ],
         },
         additionalStorage: {
           quantity: 2,
@@ -501,6 +590,57 @@ export const WithCartAndItemDiscount: Story = {
         {
           type: DiscountTypes.PercentOff,
           value: 10,
+        },
+      ],
+      estimatedTax: 8.55,
+    } satisfies Cart,
+  },
+};
+
+export const CartLevelDiscountSummaryBlock: Story = {
+  name: "With Cart-Level Discount Summary Block (Design Mockup)",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "The approved design-review layout for carts mixing item-level and cart-level " +
+          "discounts: item-level discounts render indented beneath their line, while the " +
+          "cart-level discount renders in a grouped summary block — divider, Subtotal, " +
+          "discount, Estimated tax, divider, Total. The Subtotal row appears only when a " +
+          "cart-level discount is present. Labels here are server-supplied (`label` " +
+          "pass-through) with authoritative `amount`s.",
+      },
+    },
+  },
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 25,
+              amount: 62.5,
+              label: "Team plan discount (25% off members)",
+            },
+          ],
+        },
+        additionalStorage: {
+          quantity: 2,
+          translationKey: "additionalStorageGB",
+          cost: 10.0,
+        },
+      },
+      cadence: "monthly",
+      discounts: [
+        {
+          type: DiscountTypes.PercentOff,
+          value: 10,
+          amount: 27.0,
+          label: "Promo: SAVE10 (10% off subtotal)",
         },
       ],
       estimatedTax: 8.55,

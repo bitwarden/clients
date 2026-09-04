@@ -14,7 +14,7 @@ import {
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import { LockService, LogoutService } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -39,11 +39,19 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { DialogService, ScrollLayoutHostDirective, ToastService } from "@bitwarden/components";
+import {
+  DialogService,
+  LayoutComponent,
+  ScrollLayoutHostDirective,
+  StorybookGlobalStateProvider,
+  ToastService,
+} from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService } from "@bitwarden/legacy-crypto";
-import { featureFlagModes } from "@bitwarden/storybook";
+import { GlobalStateProvider } from "@bitwarden/state";
+import { enabledFlags } from "@bitwarden/storybook";
+import { LockService } from "@bitwarden/unlock";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { MemberAccessReportComponent } from "./member-access-report.component";
@@ -91,10 +99,12 @@ export default {
   decorators: [
     componentWrapperDecorator(
       (story) =>
-        `<div bitScrollLayoutHost class="tw-flex tw-flex-col tw-h-screen tw-p-6 tw-overflow-auto">${story}</div>`,
+        `<bit-layout>
+          <div bitScrollLayoutHost class="tw-flex tw-flex-col tw-h-screen tw-p-6 tw-overflow-auto">${story}</div>
+        </bit-layout>`,
     ),
     moduleMetadata({
-      imports: [ScrollLayoutHostDirective],
+      imports: [ScrollLayoutHostDirective, LayoutComponent],
       providers: [],
     }),
     applicationConfig({
@@ -183,7 +193,10 @@ export default {
         { provide: LockService, useValue: { lock: () => Promise.resolve() } },
         { provide: LogoutService, useValue: { logout: () => Promise.resolve() } },
         { provide: SyncService, useValue: { getLastSync: () => Promise.resolve(new Date()) } },
-
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
+        },
         // Router
         {
           provide: ActivatedRoute,
@@ -214,9 +227,7 @@ export default {
 type Story = StoryObj<MemberAccessReportComponent>;
 
 export const Default: Story = {
-  parameters: {
-    chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
-  },
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
 
 export const Loading: Story = {

@@ -6,6 +6,7 @@ import { Params, Router } from "@angular/router";
 import { LockIcon } from "@bitwarden/assets/svg";
 import {
   DefaultLoginComponentService,
+  HandleQueryParamErrorsResult,
   LoginComponentService,
   PasswordPolicies,
 } from "@bitwarden/auth/angular";
@@ -22,12 +23,13 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { AnonLayoutWrapperData, ToastService } from "@bitwarden/components";
+import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 // eslint-disable-next-line no-restricted-imports
 import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
 import { RouterService } from "../../../../core/router.service";
+import { SsoLoginFailedErrorKind } from "../../../sso/sso-login-failed-error-kind.type";
 
 /**
  * Error codes emitted by the server's SSO callback as the `error` query
@@ -37,9 +39,12 @@ import { RouterService } from "../../../../core/router.service";
 const SsoRedirectErrorCode = Object.freeze({
   InviteAcceptanceRequired: "ssoOrgInviteAcceptanceRequired",
   OrgMembershipRequired: "ssoOrgMembershipRequired",
+  StagedOrgUserInviteAcceptanceRequired: "ssoStagedOrgUserInviteAcceptanceRequired",
   // Future: AccessRevoked: "ssoOrganizationAccessRevoked", etc.
 } as const);
 type SsoRedirectErrorCode = (typeof SsoRedirectErrorCode)[keyof typeof SsoRedirectErrorCode];
+
+const SsoLoginFailedRoute = "/sso-login-failed";
 
 @Injectable()
 export class WebLoginComponentService
@@ -88,11 +93,9 @@ export class WebLoginComponentService
     return;
   }
 
-  async handleQueryParamErrors(
-    params: Params,
-  ): Promise<{ autoSubmit: boolean; mpEntryLayoutOverride?: Partial<AnonLayoutWrapperData> }> {
+  async handleQueryParamErrors(params: Params): Promise<HandleQueryParamErrorsResult> {
     if (!params.organizationName || !params.organizationId || !params.email) {
-      return { autoSubmit: false };
+      return { kind: "none" };
     }
 
     switch (params.error) {
@@ -112,19 +115,11 @@ export class WebLoginComponentService
          * No match → warning toast. Covers: no invite stashed, a stashed invite
          * for a different org, or a stashed direct invite with an email mismatch.
          */
-        const orgInvite = await this.organizationInviteService.getOrganizationInvite();
-        const directMatch =
-          orgInvite?.kind === OrgInviteKind.Direct &&
-          orgInvite.organizationId === params.organizationId &&
-          orgInvite.email?.toLowerCase() === params.email.toLowerCase();
-        const openMatch =
-          orgInvite?.kind === OrgInviteKind.Open &&
-          orgInvite.organizationId === params.organizationId;
-        if (directMatch || openMatch) {
+        if (await this.hasMatchingStashedOrgInvite(params)) {
           return this.autoProgressToMpEntry(params);
         }
         this.showInviteAcceptanceRequiredToast(params);
-        return { autoSubmit: false };
+        return { kind: "none" };
       }
 
       case SsoRedirectErrorCode.OrgMembershipRequired: {
@@ -144,24 +139,58 @@ export class WebLoginComponentService
          * No match → warning toast. Covers: no invite stashed, or a stashed
          * invite for a different org.
          */
-        const orgInvite = await this.organizationInviteService.getOrganizationInvite();
-        const directMatch =
-          orgInvite?.kind === OrgInviteKind.Direct &&
-          orgInvite.organizationId === params.organizationId &&
-          orgInvite.email?.toLowerCase() === params.email.toLowerCase();
-        const openMatch =
-          orgInvite?.kind === OrgInviteKind.Open &&
-          orgInvite.organizationId === params.organizationId;
-        if (directMatch || openMatch) {
+        if (await this.hasMatchingStashedOrgInvite(params)) {
           return this.autoProgressToMpEntry(params);
         }
         this.showInviteAcceptanceRequiredToast(params);
-        return { autoSubmit: false };
+        return { kind: "none" };
+      }
+
+      case SsoRedirectErrorCode.StagedOrgUserInviteAcceptanceRequired: {
+        /**
+         * Server tells us: the existing Bitwarden user tried to SSO against a
+         * Staged OrganizationUser row. The server promoted the row to Invited
+         * and dispatched a direct-invite email; SSO is refused until an invite
+         * is accepted.
+         *
+         * Only a stashed Open invite (matched on org id) can auto-progress here.
+         * Staged status implies no Direct invite row exists yet, so no stashed
+         * Direct can match. The server dispatches the direct invite regardless
+         * because it has no signal the client already holds an open invite.
+         *
+         * No match → navigate to the terminal error page.
+         */
+        if (await this.hasMatchingStashedOrgInvite(params)) {
+          return this.autoProgressToMpEntry(params);
+        }
+        await this.router.navigate([SsoLoginFailedRoute], {
+          queryParams: {
+            kind: SsoLoginFailedErrorKind.StagedOrgUserDirectInviteSent,
+            organizationName: params.organizationName,
+          },
+        });
+        return { kind: "redirected" };
       }
 
       default:
-        return { autoSubmit: false };
+        return { kind: "none" };
     }
+  }
+
+  /**
+   * Whether the stashed org invite matches the SSO redirect params:
+   *  - Direct invite: org id + email (case-insensitive).
+   *  - Open invite: org id only (open invites carry no user identity).
+   */
+  private async hasMatchingStashedOrgInvite(params: Params): Promise<boolean> {
+    const orgInvite = await this.organizationInviteService.getOrganizationInvite();
+    const directMatch =
+      orgInvite?.kind === OrgInviteKind.Direct &&
+      orgInvite.organizationId === params.organizationId &&
+      orgInvite.email?.toLowerCase() === params.email.toLowerCase();
+    const openMatch =
+      orgInvite?.kind === OrgInviteKind.Open && orgInvite.organizationId === params.organizationId;
+    return directMatch || openMatch;
   }
 
   /**
@@ -170,12 +199,11 @@ export class WebLoginComponentService
    * (`/accept-organization/...` or `/join/...`) and the corresponding component's
    * authedHandler fires the downstream accept. Same shape for both invite kinds.
    */
-  private autoProgressToMpEntry(params: Params): {
-    autoSubmit: true;
-    mpEntryLayoutOverride: Partial<AnonLayoutWrapperData>;
-  } {
+  private autoProgressToMpEntry(
+    params: Params,
+  ): Extract<HandleQueryParamErrorsResult, { kind: "auto-submit" }> {
     return {
-      autoSubmit: true,
+      kind: "auto-submit",
       mpEntryLayoutOverride: {
         pageTitle: { key: "joinOrganizationName", placeholders: [params.organizationName] },
         pageSubtitle: { key: "acceptInviteWithMasterPassword" },
