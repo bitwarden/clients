@@ -1,5 +1,4 @@
 export { VaultFabComponent } from "./components/fab/fab.component";
-export { VaultCollectionBreadcrumbsComponent } from "./components/vault-collection-breadcrumbs/vault-collection-breadcrumbs.component";
 export {
   AtRiskPasswordCalloutService,
   AtRiskPasswordCalloutData,
@@ -148,3 +147,4 @@ export {
   matchesFolder,
   idString,
 } from "./utils/vault-filter-predicates";
+export { VaultCollectionBreadcrumbsComponent } from "./components/vault-collection-breadcrumbs/vault-collection-breadcrumbs.component";

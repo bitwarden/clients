@@ -126,6 +126,11 @@ export class VaultNextComponent {
       ALL_ITEMS_SCOPE,
   );
 
+  protected readonly collectionSelected = computed(() => {
+    const scope = this.vaultScope();
+    return scope.type === VaultScopeType.Organization && scope.collectionId != null;
+  });
+
   /**
    * Every item the user can see, in every state. Which of trashed, archived, and active items a
    * page shows is the scope's call — see {@link cipherInScope} — so this narrows by nothing but

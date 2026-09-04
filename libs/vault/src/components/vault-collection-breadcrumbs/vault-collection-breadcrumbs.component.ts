@@ -11,12 +11,12 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { BreadcrumbsModule, IconTileComponent, IconTileOptions } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
 
 import { navIconTile } from "../../models/vault-icon-tile";
 import {
   parseVaultScope,
   SHARED_FOLDERS_ROUTE,
+  sharedFoldersCommands,
   vaultScopeCommands,
   VaultScopeType,
 } from "../../models/vault-scope";
@@ -27,7 +27,7 @@ import { VaultNavService } from "../../services/vault-nav.service";
   selector: "vault-collection-breadcrumbs",
   templateUrl: "./vault-collection-breadcrumbs.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BreadcrumbsModule, IconTileComponent, I18nPipe, Vfo1I18nPipe],
+  imports: [BreadcrumbsModule, IconTileComponent, Vfo1I18nPipe],
   host: {
     // `bit-breadcrumbs` sizes itself to its container, so this wrapper has to be one.
     class: "tw-flex tw-w-full tw-min-w-0",
@@ -72,6 +72,11 @@ export class VaultCollectionBreadcrumbsComponent {
     return item == null ? undefined : navIconTile(item);
   });
 
+  protected readonly sharedFoldersRoute = computed((): string[] => {
+    const orgId = this.organizationId();
+    return orgId == null ? [] : sharedFoldersCommands(orgId);
+  });
+
   protected readonly orgRootRoute = computed((): string[] => {
     const orgId = this.organizationId();
     if (orgId == null) {
@@ -108,9 +113,6 @@ export class VaultCollectionBreadcrumbsComponent {
 
   protected readonly sharedFolderName = computed(() => this.sharedFolderNode()?.node.name ?? "");
 
-  /** True when the URL has drilled into a shared folder — drives breadcrumb visibility. */
-  protected readonly collectionSelected = computed(() => this.collectionIdParam() != null);
-
   /** Ancestors of the selected folder, from org root to immediate parent. Current folder excluded. */
   protected readonly collectionBreadcrumbs = computed((): CollectionView[] => {
     const node = this.sharedFolderNode();
@@ -127,7 +129,6 @@ export class VaultCollectionBreadcrumbsComponent {
       .map((n) => n.node);
   });
 
-  /** Drilling deeper replaces the collection segment, not appends — see vaultScopeCommands. */
   protected sharedFolderRoute(folder: CollectionView): string[] {
     const orgId = this.organizationId();
     if (orgId == null) {
