@@ -16,8 +16,8 @@
     <app-vault-fab
       slot="floating-action"
       [initialValues]="popupListFiltersValues()"
-      [organizations]="organizations$ | async"
-      [collections]="collections$ | async"
+      [organizations]="(organizations$ | async) ?? []"
+      [collections]="(collections$ | async) ?? []"
     ></app-vault-fab>
   }
 
