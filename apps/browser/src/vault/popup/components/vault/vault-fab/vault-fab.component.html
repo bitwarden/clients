@@ -1,4 +1,5 @@
 @if (useNewItemTypes()) {
+  <!-- Button content is set via `label` input -->
   <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
   <button
     type="button"
@@ -7,6 +8,7 @@
     (click)="navigateToNewItemPage()"
   ></button>
 } @else {
+  <!-- Button content is set via `label` input -->
   <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
   <button
     type="button"
