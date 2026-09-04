@@ -6,6 +6,7 @@ import { of } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { DaemonStatus } from "../rotation";
 import type { AccessConnector, AccessConnectorDetail, TargetSystem } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import {
@@ -143,6 +144,53 @@ describe("DaemonDetailComponent", () => {
       data: { options: TargetSystem[] };
     };
     expect(config.data.options.map((s) => s.id)).toEqual([sysId("ts-2")]);
+  });
+
+  it("does not open the assign dialog while the daemon is disabled", async () => {
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon({ status: DaemonStatus.Disabled }));
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+    const dialog = mock<DialogService>();
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as { assignTarget: () => Promise<void> };
+    await comp.assignTarget();
+
+    expect(dialog.open).not.toHaveBeenCalled();
+    expect(rotationSdk.assignTarget).not.toHaveBeenCalled();
+  });
+
+  it("keeps a newly assigned target when a removal overlaps the assign", async () => {
+    let resolveAssign: (() => void) | undefined;
+    const assigning = new Promise<void>((resolve) => {
+      resolveAssign = resolve;
+    });
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);
+    rotationSdk.assignTarget.mockReturnValue(assigning);
+    rotationSdk.unassignTarget.mockResolvedValue(undefined);
+    const dialog = mock<DialogService>();
+    dialog.open.mockReturnValue({ closed: of(sysId("ts-2")) } as never);
+    dialog.openSimpleDialog.mockResolvedValue(true);
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as {
+      assignTarget: () => Promise<void>;
+      unassign: (assignment: DaemonAssignment) => Promise<void>;
+      assignments: () => DaemonAssignment[];
+    };
+    const assigned = comp.assignTarget();
+    const removed = comp.unassign({ id: sysId("ts-1"), name: "Prod Entra" });
+    resolveAssign?.();
+    await assigned;
+    await removed;
+
+    expect(comp.assignments().map((a) => a.id)).toEqual([sysId("ts-2")]);
   });
 
   it("does not call assignTarget when the dialog is dismissed", async () => {
