@@ -139,6 +139,7 @@ describe("VaultPopupListTableComponent", () => {
   const vaultScopedFiltersCleared$ = new Subject<void>();
   /** Whether the vault in view is suspended, which blanks the rows. */
   const suspendedVault$ = new BehaviorSubject<boolean>(false);
+  const organizationNames$ = new BehaviorSubject<Map<string, string>>(new Map());
 
   const vaultPopupListTableFiltersService = {
     restoreFilters$: jest.fn().mockReturnValue(of({})),
@@ -154,6 +155,7 @@ describe("VaultPopupListTableComponent", () => {
     selectedOrganizations: signal<Organization[]>([]),
     cipherTypes$: cipherTypes$.asObservable(),
     organizations$: organizations$.asObservable(),
+    organizationNames$: organizationNames$.asObservable(),
     collections$: collections$.asObservable(),
     folders$: folders$.asObservable(),
   };
@@ -180,6 +182,7 @@ describe("VaultPopupListTableComponent", () => {
     compactModeEnabled$.next(false);
     cipherTypes$.next([]);
     organizations$.next([]);
+    organizationNames$.next(new Map());
     collections$.next([]);
     folders$.next([]);
     clickItemsToAutofillVaultView$.next(true);
@@ -662,10 +665,12 @@ describe("VaultPopupListTableComponent", () => {
       });
 
       it("places each collection under its owning organization", () => {
-        organizations$.next([
-          { value: { id: "org-1" } as Organization, label: "Acme" },
-          { value: { id: "org-2" } as Organization, label: "Zeta" },
-        ]);
+        organizationNames$.next(
+          new Map([
+            ["org-1", "Acme"],
+            ["org-2", "Zeta"],
+          ]),
+        );
         collections$.next([
           { value: col1, label: "Alpha" },
           { value: col3, label: "Gamma" },
@@ -679,10 +684,12 @@ describe("VaultPopupListTableComponent", () => {
       });
 
       it("sorts groups alphabetically by organization name", () => {
-        organizations$.next([
-          { value: { id: "org-2" } as Organization, label: "Zeta" },
-          { value: { id: "org-1" } as Organization, label: "Acme" },
-        ]);
+        organizationNames$.next(
+          new Map([
+            ["org-2", "Zeta"],
+            ["org-1", "Acme"],
+          ]),
+        );
         collections$.next([
           { value: col3, label: "Gamma" },
           { value: col1, label: "Alpha" },
@@ -690,6 +697,41 @@ describe("VaultPopupListTableComponent", () => {
         fixture.detectChanges();
 
         expect(component["collectionsByOrg"]().map((g) => g.name)).toEqual(["Acme", "Zeta"]);
+      });
+
+      it("labels a suspended organization's group, which the filter options omit", () => {
+        // `organizations$` drops suspended orgs so they aren't offered as a filter option, but
+        // their collections are still listed — the name has to come from the membership instead.
+        organizations$.next([{ value: { id: "org-1" } as Organization, label: "Acme" }]);
+        organizationNames$.next(
+          new Map([
+            ["org-1", "Acme"],
+            ["org-2", "Suspended Co"],
+          ]),
+        );
+        collections$.next([
+          { value: col1, label: "Alpha" },
+          { value: col3, label: "Gamma" },
+        ]);
+        fixture.detectChanges();
+
+        expect(component["collectionsByOrg"]().map((g) => g.name)).toEqual([
+          "Acme",
+          "Suspended Co",
+        ]);
+      });
+
+      it("falls back to the generic organization label when the name is unknown", () => {
+        collections$.next([
+          { value: col1, label: "Alpha" },
+          { value: col3, label: "Gamma" },
+        ]);
+        fixture.detectChanges();
+
+        expect(component["collectionsByOrg"]().map((g) => g.name)).toEqual([
+          "organization",
+          "organization",
+        ]);
       });
 
       it("renders a flat option list when there is only one organization", () => {
