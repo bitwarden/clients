@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import type { TargetSystem, TargetSystemId } from "../rotation";
@@ -123,7 +123,7 @@ async function setupCreateWithTemplate(template: string): Promise<
 /** Build a configured TestBed for edit mode (with targetSystemId). */
 async function setupEdit(
   rotationSdk: ReturnType<typeof mock<RotationSdkService>>,
-  routeTargetSystemId: string = sysId("sys-1"),
+  routeTargetSystemId: string = uuidAsString(sysId("sys-1")),
 ) {
   TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
   await TestBed.configureTestingModule({
@@ -739,11 +739,11 @@ describe("TargetSystemEditComponent — edit mode", () => {
   });
 
   const mixedCaseIdCases: [string, TargetSystemId, string][] = [
-    ["the route id is uppercase", sysId("sys-1"), sysId("sys-1").toUpperCase()],
+    ["the route id is uppercase", sysId("sys-1"), uuidAsString(sysId("sys-1")).toUpperCase()],
     [
       "the stored id is uppercase and the route id is lower case",
-      asUuid<TargetSystemId>(sysId("sys-1").toUpperCase()),
-      sysId("sys-1"),
+      asUuid<TargetSystemId>(uuidAsString(sysId("sys-1")).toUpperCase()),
+      uuidAsString(sysId("sys-1")),
     ],
   ];
 
