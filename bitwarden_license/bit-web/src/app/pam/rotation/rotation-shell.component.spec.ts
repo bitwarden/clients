@@ -94,6 +94,18 @@ describe("RotationShellComponent", () => {
     expect(text).toContain("pamRotationTabDaemons");
   });
 
+  it("orders the tab links by the setup each one requires", async () => {
+    await init();
+    const labels = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll("bit-tab-link"),
+    ).map((el) => el.textContent?.trim());
+    expect(labels).toEqual([
+      "pamRotationTabDaemons",
+      "pamRotationTabTargetSystems",
+      "pamRotationTabManagedCredentials",
+    ]);
+  });
+
   it("calls load on RotationConfigsService with the organization id on init", async () => {
     await init();
     expect(loadMock).toHaveBeenCalledWith(ORG_ID);
@@ -211,7 +223,7 @@ describe("RotationShellComponent (real router)", () => {
           path: "",
           component: RotationShellComponent,
           children: [
-            { path: "", pathMatch: "full", redirectTo: "target-systems" },
+            { path: "", pathMatch: "full", redirectTo: "daemons" },
             { path: "managed-credentials", component: StubComponent },
             { path: "target-systems", component: StubComponent },
             { path: "daemons", component: StubComponent },
@@ -258,6 +270,11 @@ describe("RotationShellComponent (real router)", () => {
 
     router = TestBed.inject(Router);
     harness = await RouterTestingHarness.create();
+  });
+
+  it("lands on the daemons tab from the shell's bare path", async () => {
+    await harness.navigateByUrl("/rotation", RotationShellComponent);
+    expect(router.url).toBe("/rotation/daemons");
   });
 
   it("reports the active tab from the child route", async () => {
