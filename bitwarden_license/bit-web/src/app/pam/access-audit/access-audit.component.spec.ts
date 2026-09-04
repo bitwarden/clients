@@ -277,7 +277,10 @@ describe("AccessAuditComponent", () => {
    * `bit-filter-menu` owns its own selection — there is no form control to set — and the chips only
    * exist once the ready branch has rendered.
    */
-  const selectFilter = (chip: "kind" | "actor" | "requester" | "timePeriod", value: unknown) => {
+  const selectFilter = (
+    chip: "kind" | "actor" | "requester" | "item" | "timePeriod",
+    value: unknown,
+  ) => {
     fixture.detectChanges();
     component()[`${chip}Chip`]().setValue(value);
     fixture.detectChanges();

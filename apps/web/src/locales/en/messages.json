@@ -18995,8 +18995,8 @@
   "pamRotationConfigSetUpTargetSystem": {
     "message": "Set up a target system"
   },
-  "pamRotationConfigNoResults": {
-    "message": "No results match your search."
+  "pamRotationConfigNoResultsFiltered": {
+    "message": "No managed credentials match your filters."
   },
   "pamRotationConfigColumnCredential": {
     "message": "Credential"

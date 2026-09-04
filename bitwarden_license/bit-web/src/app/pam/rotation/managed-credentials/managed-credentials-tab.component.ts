@@ -1,18 +1,34 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { map } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
+import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { NoResults } from "@bitwarden/assets/svg";
+import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeModule,
   ButtonModule,
   DialogService,
+  FILTER_CONTROL,
+  FilterMenuModule,
   IconButtonModule,
   IconModule,
   MenuModule,
@@ -25,9 +41,11 @@ import {
   ToastService,
   TooltipDirective,
 } from "@bitwarden/components";
+import type { CipherId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { TargetSystemMethod, TargetSystem } from "../rotation";
+import { OrgCiphersService } from "../org-ciphers.service";
+import { TargetSystemMethod, TargetSystem, TargetSystemId } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { RotationConfigRow } from "./rotation-config-row";
@@ -49,6 +67,7 @@ import { RotationConfigsService } from "./rotation-configs.service";
     ReactiveFormsModule,
     BadgeModule,
     ButtonModule,
+    FilterMenuModule,
     IconButtonModule,
     IconModule,
     MenuModule,
@@ -68,6 +87,9 @@ export class ManagedCredentialsTabComponent {
   private readonly router = inject(Router);
   private readonly configsService = inject(RotationConfigsService);
   private readonly targetSystemsService = inject(TargetSystemsService);
+  private readonly orgCiphersService = inject(OrgCiphersService);
+  private readonly collectionAdminService = inject(CollectionAdminService);
+  private readonly accountService = inject(AccountService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
@@ -100,6 +122,82 @@ export class ManagedCredentialsTabComponent {
   /** Expose for template. */
   protected readonly TargetSystemMethod = TargetSystemMethod;
 
+  /** Status/target-system/collection toolbar chips; read directly rather than via a form control. */
+  private readonly statusFilterChip = viewChild("statusFilter", { read: FILTER_CONTROL });
+  private readonly targetSystemFilterChip = viewChild("targetSystemFilter", {
+    read: FILTER_CONTROL,
+  });
+  private readonly collectionFilterChip = viewChild("collectionFilter", { read: FILTER_CONTROL });
+
+  /**
+   * Distinct target systems present in the currently-loaded rows, keyed by id and sorted by name
+   * for the chip. Keyed by id rather than name: target system names carry no uniqueness
+   * constraint (`target-system-edit.component.ts` validates only required + maxLength), so two
+   * systems sharing a name would otherwise collapse into one chip option that matched rows
+   * against either.
+   */
+  protected readonly targetSystemOptions = computed(() => {
+    const nameById = new Map<TargetSystemId, string>();
+    for (const row of this.rows()) {
+      nameById.set(row.config.targetSystemId, row.targetSystemName);
+    }
+    return [...nameById.entries()]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  });
+
+  private readonly ciphers = toSignal(this.orgCiphersService.ciphers$, {
+    initialValue: [] as CipherView[],
+  });
+
+  /** Each cipher's collection ids, keyed by its id, for resolving a row's collections via `cipherId`. */
+  private readonly cipherCollectionIdsById = computed(() => {
+    const map = new Map<CipherId, string[]>();
+    for (const cipher of this.ciphers()) {
+      map.set(asUuid<CipherId>(cipher.id), cipher.collectionIds);
+    }
+    return map;
+  });
+
+  /**
+   * The org's collections, for resolving the ids above to names. Loaded directly here rather than
+   * through a page-scoped service, since `CollectionAdminService` is already provided at the app
+   * root (see `apps/web/src/app/core/core.module.ts`) and `services/access-rules.service.ts` reads
+   * it the same way.
+   */
+  private readonly collections = signal<CollectionAdminView[]>([]);
+
+  /**
+   * Collection filter options: only the collections actually reachable from a visible row's
+   * cipher, not every collection in the org — an option nothing on this page matches is noise, not
+   * a filter.
+   */
+  protected readonly collectionOptions = computed(() => {
+    const nameById = new Map(this.collections().map((c) => [uuidAsString(c.id), c.name]));
+    const present = new Set<string>();
+    for (const row of this.rows()) {
+      for (const collectionId of this.cipherCollectionIds(row) ?? []) {
+        present.add(collectionId);
+      }
+    }
+    return [...present]
+      .map((id) => ({ id, name: nameById.get(id) ?? id }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  });
+
+  /**
+   * `row`'s cipher's collection ids, via {@link cipherCollectionIdsById}, or `undefined` when the
+   * cipher never loaded — a viewer without `canEditAllCiphers` only gets ciphers assigned to them
+   * from `OrgCiphersService`, so a row outside that set is not "in no collection", it is unknown.
+   * Callers must not treat the two the same: `collectionOptions` folds `undefined` into no
+   * contribution (fine, it only builds a menu from what's visible), but the collection filter
+   * below must not read it as "excluded", or a credential the viewer cannot decrypt would drop out
+   * of every collection selection with no sign that it was ever considered.
+   */
+  private cipherCollectionIds(row: RotationConfigRow): string[] | undefined {
+    return this.cipherCollectionIdsById().get(row.config.cipherId);
+  }
+
   constructor() {
     effect(() => {
       const organizationId = this.organizationId();
@@ -107,6 +205,7 @@ export class ManagedCredentialsTabComponent {
       // Also load target systems so the empty state can tell whether the user must set one up
       // first (the shell-scoped instance may be empty if this tab is visited before the others).
       void this.targetSystemsService.load(organizationId);
+      void this.loadCollections(organizationId);
     });
 
     effect(() => {
@@ -115,11 +214,44 @@ export class ManagedCredentialsTabComponent {
 
     effect(() => {
       const text = this.searchText().trim().toLowerCase();
-      this.dataSource.filter = (row) =>
-        text === "" ||
-        row.cipherName.toLowerCase().includes(text) ||
-        row.targetSystemName.toLowerCase().includes(text);
+      const status = this.statusFilterChip()?.value() as string | null | undefined;
+      const targetSystemId = this.targetSystemFilterChip()?.value() as
+        TargetSystemId | null | undefined;
+      const collectionId = this.collectionFilterChip()?.value() as string | null | undefined;
+
+      this.dataSource.filter = (row) => {
+        if (
+          text !== "" &&
+          !row.cipherName.toLowerCase().includes(text) &&
+          !row.targetSystemName.toLowerCase().includes(text)
+        ) {
+          return false;
+        }
+        if (status != null && row.statusLabelKey !== status) {
+          return false;
+        }
+        if (targetSystemId != null && row.config.targetSystemId !== targetSystemId) {
+          return false;
+        }
+        const rowCollectionIds = this.cipherCollectionIds(row);
+        if (
+          collectionId != null &&
+          rowCollectionIds !== undefined &&
+          !rowCollectionIds.includes(collectionId)
+        ) {
+          return false;
+        }
+        return true;
+      };
     });
+  }
+
+  private async loadCollections(organizationId: OrganizationId): Promise<void> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const collections = await firstValueFrom(
+      this.collectionAdminService.collectionAdminViews$(organizationId, userId),
+    );
+    this.collections.set(collections);
   }
 
   protected readonly processedRows = toSignal(this.dataSource.connect(), {
