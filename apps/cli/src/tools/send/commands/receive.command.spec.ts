@@ -342,9 +342,9 @@ describe("SendReceiveCommand", () => {
           file: {
             id: "file-123",
             fileName: "test.pdf",
-            size: 1024,
+            size: "1024",
           },
-        } as any as SendAccessView;
+        } as SendAccessView;
 
         sendApiService.postSendAccess.mockResolvedValue({} as any);
         sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
@@ -379,9 +379,9 @@ describe("SendReceiveCommand", () => {
           file: {
             id: "file-123",
             fileName: `../../${fileName}`,
-            size: 1024,
+            size: "1024",
           },
-        } as any as SendAccessView;
+        } as SendAccessView;
 
         sendApiService.postSendAccess.mockResolvedValue({} as any);
         sendDecryptionService.decryptSendAccess.mockResolvedValueOnce([
