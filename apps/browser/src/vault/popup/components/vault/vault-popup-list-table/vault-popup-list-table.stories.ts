@@ -37,7 +37,13 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
-import { MY_VAULT, PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
+import {
+  MY_VAULT,
+  orgIconTile,
+  PasswordRepromptService,
+  personalIconTile,
+  VaultCopyButtonsService,
+} from "@bitwarden/vault";
 
 import { PopupWidthOptions } from "../../../../../platform/browser/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
@@ -232,13 +238,22 @@ type StoryArgs = {
 // Option sets for the toolbar's filter chips. A chip only renders when its stream has entries, so
 // these also control which chips appear.
 const ORGANIZATION_OPTIONS = [
-  { value: { id: MY_VAULT } as Organization, label: "My vault", icon: "bwi-user" as const },
+  {
+    value: { id: MY_VAULT } as Organization,
+    label: "My vault",
+    iconTile: personalIconTile("brand"),
+  },
   {
     value: { id: "org-engineering" } as Organization,
     label: "Acme Co",
-    icon: "bwi-business" as const,
+    iconTile: orgIconTile(ProductTierType.Enterprise),
   },
 ];
+
+// The names the collection groups are labeled from, keyed by organization id.
+const ORGANIZATION_NAMES = new Map(
+  ORGANIZATION_OPTIONS.map((option) => [option.value.id, option.label]),
+);
 
 const COLLECTION_OPTIONS = [
   { value: { id: "col-eng", name: "Engineering" } as CollectionView, label: "Engineering" },
@@ -306,6 +321,7 @@ const buildProviders = (args: StoryArgs) => {
         selectedOrganizations: signal<string[]>([]),
         cipherTypes$: of(CIPHER_TYPE_OPTIONS),
         organizations$: of(ORGANIZATION_OPTIONS),
+        organizationNames$: of(ORGANIZATION_NAMES),
         collections$: of(COLLECTION_OPTIONS),
         folders$: of(FOLDER_OPTIONS),
       },
