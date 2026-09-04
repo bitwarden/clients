@@ -187,7 +187,7 @@ type Story = StoryObj<HistoryTabComponent>;
 
 /**
  * The caller's own history, for a member who cannot approve. With no managed rows and no approval
- * privilege the toggle is not rendered at all: every filter would narrow the same one list.
+ * privilege the chip is not rendered at all: every filter would narrow the same one list.
  */
 export const Default: Story = {
   decorators: [history()],
@@ -200,7 +200,7 @@ export const Empty: Story = {
 
 /**
  * An approver's view. The table opens on All — both the rows they raised and the ones they decided,
- * newest first — with revoke and withdraw offered only on the rows they manage. The toggle narrows
+ * newest first — with revoke and withdraw offered only on the rows they manage. The chip narrows
  * that list to either source.
  */
 export const WithManagedHistory: Story = {
