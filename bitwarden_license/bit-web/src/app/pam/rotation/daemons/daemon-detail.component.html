@@ -1,7 +1,24 @@
 <bit-header [title]="titleText()" icon="bwi-terminal">
-  <bit-breadcrumbs slot="breadcrumbs">
-    <bit-breadcrumb [route]="['..']">{{ "pamRotationTabAccessConnectors" | i18n }}</bit-breadcrumb>
-  </bit-breadcrumbs>
+  <div slot="breadcrumbs" class="tw-flex tw-items-baseline tw-min-w-0">
+    <!-- `bit-breadcrumbs`' host carries `tw-w-full`, sized against its own containing block; this
+         wrapper gives it one shaped to its content instead of the whole row, so the static crumb
+         below stays in flow next to it rather than being pushed to the row's far edge. -->
+    <div class="tw-min-w-0">
+      <bit-breadcrumbs showTrailingArrow>
+        <bit-breadcrumb [route]="['..']">{{
+          "pamRotationTabAccessConnectors" | i18n
+        }}</bit-breadcrumb>
+      </bit-breadcrumbs>
+    </div>
+    <!-- A route-less bit-breadcrumb falls back to a focusable button that does nothing and never
+         gets aria-current; a static span carries the current-page semantics without that trap. -->
+    <span
+      bitTypography="h3"
+      aria-current="page"
+      class="tw-inline-block tw-shrink-0 tw-whitespace-nowrap !tw-m-0 !tw-text-fg-heading"
+      >{{ titleText() }}</span
+    >
+  </div>
   @if (daemon()) {
     @if (enabled()) {
       <button
