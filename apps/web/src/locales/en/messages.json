@@ -1803,6 +1803,9 @@
   "myItems": {
     "message": "My Items"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "myVault": {
     "message": "My vault"
   },
@@ -1909,6 +1912,18 @@
   },
   "noMatchingItems": {
     "message": "No matching items"
+  },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
   },
   "deselectAll": {
     "message": "Deselect all"
@@ -4186,12 +4201,6 @@
   },
   "instructions": {
     "message": "Instructions"
-  },
-  "passwordlessLogin": {
-    "message": "Passwordless login"
-  },
-  "multifactorAuthentication": {
-    "message": "Multifactor authentication"
   },
   "exposedPasswordsReport": {
     "message": "Exposed passwords"
@@ -11577,6 +11586,9 @@
   "noSharedFoldersAdded": {
     "message": "No shared folders added"
   },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
+  },
   "noMembersAdded": {
     "message": "No members added"
   },
@@ -15763,6 +15775,15 @@
   "showMore": {
     "message": "Show more"
   },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "showLess": {
     "message": "Show less"
   },
@@ -17550,6 +17571,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Login"
+  },
+  "orgNameVault": {
+    "message": "$ORGNAME$ vault",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }
