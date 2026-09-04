@@ -52,8 +52,15 @@ const MAX_MINUTE = 59;
 /** `<input type="time">` emits "HH:MM"; seconds are accepted and dropped. */
 const TIME_OF_DAY = /^(\d{1,2}):(\d{2})(?::\d{2})?$/;
 
-function intervalCountValidators(unit: ScheduleIntervalUnit): ValidatorFn[] {
-  return [Validators.required, Validators.min(1), Validators.max(MAX_INTERVAL_COUNT[unit])];
+/**
+ * Rejects a fractional count.
+ *
+ * `min` and `max` both accept 1.5, so without this the count reports valid while the builder
+ * refuses to compose an expression from it — a save that fails with nothing shown on any field.
+ */
+function wholeNumber(message: string): ValidatorFn {
+  return ({ value }) =>
+    value == null || Number.isInteger(value) ? null : { notWholeNumber: { message } };
 }
 
 /** A bare or zero-padded cron clock field, or `null` when it is not a number within `max`. */
@@ -152,7 +159,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
   protected readonly customControl = this.fb.nonNullable.control<string>("");
   protected readonly intervalCountControl = this.fb.nonNullable.control<number | null>(
     1,
-    intervalCountValidators(ScheduleIntervalUnit.Days),
+    this.countValidators(ScheduleIntervalUnit.Days),
   );
   protected readonly intervalUnitControl = this.fb.nonNullable.control<ScheduleIntervalUnit>(
     ScheduleIntervalUnit.Days,
@@ -358,8 +365,17 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     return this.cronByPreset.get(preset) ?? null;
   }
 
+  private countValidators(unit: ScheduleIntervalUnit): ValidatorFn[] {
+    return [
+      Validators.required,
+      Validators.min(1),
+      Validators.max(MAX_INTERVAL_COUNT[unit]),
+      wholeNumber(this.i18n.t("pamRotationScheduleIntervalCountWholeNumber")),
+    ];
+  }
+
   private applyCountBounds(unit: ScheduleIntervalUnit): void {
-    this.intervalCountControl.setValidators(intervalCountValidators(unit));
+    this.intervalCountControl.setValidators(this.countValidators(unit));
     this.intervalCountControl.updateValueAndValidity({ emitEvent: false });
   }
 

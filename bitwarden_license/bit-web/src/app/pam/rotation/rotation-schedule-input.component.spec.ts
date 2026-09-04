@@ -443,4 +443,36 @@ describe("RotationScheduleInputComponent", () => {
 
     ids.forEach((id) => expect(fixture.nativeElement.querySelector(id)).not.toBeNull());
   });
+
+  it("puts a fractional count in error on the count field itself", () => {
+    buildInterval(ScheduleIntervalUnit.Days, 1.5, "02:00");
+    expect(intervalCountCtrl().errors).toMatchObject({
+      notWholeNumber: { message: "pamRotationScheduleIntervalCountWholeNumber" },
+    });
+    expect(component.validate({ value: outerControl.value } as never)).toMatchObject({
+      invalidInterval: { message: "pamRotationScheduleInvalidInterval" },
+    });
+  });
+
+  it("renders the count error once the field is blurred", () => {
+    buildInterval(ScheduleIntervalUnit.Days, 50, "02:00");
+    const count: HTMLInputElement = fixture.nativeElement.querySelector(
+      "#rotation-schedule-input_input_interval-count",
+    );
+    count.dispatchEvent(new Event("blur"));
+    fixture.detectChanges();
+
+    expect(count.closest("bit-form-field")?.querySelector("bit-error")).not.toBeNull();
+  });
+
+  it("renders the time error once the field is blurred", () => {
+    buildInterval(ScheduleIntervalUnit.Days, 7, "");
+    const time: HTMLInputElement = fixture.nativeElement.querySelector(
+      "#rotation-schedule-input_input_interval-time",
+    );
+    time.dispatchEvent(new Event("blur"));
+    fixture.detectChanges();
+
+    expect(time.closest("bit-form-field")?.querySelector("bit-error")).not.toBeNull();
+  });
 });
