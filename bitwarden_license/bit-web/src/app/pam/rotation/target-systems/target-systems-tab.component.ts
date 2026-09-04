@@ -197,7 +197,7 @@ export class TargetSystemsTabComponent {
     this.busyRows.run(system.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "pamTargetSystemDeleteTitle" },
-        content: { key: "pamTargetSystemDeleteContent", placeholders: [system.name] },
+        content: { key: "pamTargetSystemDeleteContentDisableInstead", placeholders: [system.name] },
         acceptButtonText: { key: "delete" },
         cancelButtonText: { key: "cancel" },
         type: "danger",

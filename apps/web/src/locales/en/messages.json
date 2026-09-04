@@ -18701,8 +18701,8 @@
   "pamTargetSystemDeleteTitle": {
     "message": "Delete target system?"
   },
-  "pamTargetSystemDeleteContent": {
-    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first.",
+  "pamTargetSystemDeleteContentDisableInstead": {
+    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first. To stop rotations without losing the target system, disable it instead. Disabling holds pending jobs and can be undone.",
     "placeholders": {
       "name": {
         "content": "$1",
