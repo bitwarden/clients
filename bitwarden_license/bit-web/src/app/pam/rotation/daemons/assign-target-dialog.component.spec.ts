@@ -64,7 +64,7 @@ describe("AssignTargetDialogComponent", () => {
   it("shows an empty-options message when there are no options", async () => {
     await createComponent([]);
     const html = fixture.nativeElement.textContent as string;
-    expect(html).toContain("pamDaemonAssignNoOptions");
+    expect(html).toContain("pamAccessConnectorAssignNoOptions");
   });
 
   it("closes with undefined on cancel", async () => {

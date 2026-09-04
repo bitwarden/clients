@@ -23,7 +23,7 @@ import { TargetSystemsService } from "./target-systems/target-systems.service";
 
 /**
  * Rotation feature shell: renders the page header and the three routed tabs (Managed
- * credentials / Target systems / Daemons); page-scoped services stay shared across tab
+ * credentials / Target systems / Access connectors); page-scoped services stay shared across tab
  * navigation since the shell stays mounted.
  *
  * The header hosts the active tab's primary create action, driven by the active child route, so
@@ -54,7 +54,7 @@ export class RotationShellComponent {
     { requireSync: true },
   );
 
-  /** The path of the active child route ("target-systems" / "daemons" / ...), driving the header button. */
+  /** The path of the active child route ("target-systems" / "access-connectors" / ...), driving the header button. */
   protected readonly activeTab = toSignal(
     this.router.events.pipe(
       filter((e) => e instanceof NavigationEnd),
@@ -80,7 +80,7 @@ export class RotationShellComponent {
   });
   protected readonly hasConfigs = computed(() => this.configs().length > 0);
 
-  /** Whether any daemons exist; hides the "New daemon" header button, since the empty state owns that action. */
+  /** Whether any access connectors exist; hides the "New access connector" header button, since the empty state owns that action. */
   private readonly daemons = toSignal(this.daemonsService.daemons$, {
     initialValue: [] as AccessConnector[],
   });
@@ -101,7 +101,7 @@ export class RotationShellComponent {
   protected readonly createTargetSystem = (): Promise<boolean> =>
     this.router.navigate(["target-systems", "new"], { relativeTo: this.route });
 
-  /** Open the daemon registration dialog and refresh the shared list on success. */
+  /** Open the access-connector registration dialog and refresh the shared list on success. */
   protected readonly registerDaemon = async (): Promise<void> => {
     const orgId = this.organizationId();
     const ref = DaemonRegisterDialogComponent.open(this.dialogService, {
@@ -112,7 +112,7 @@ export class RotationShellComponent {
       await this.daemonsService.registerCompleted(orgId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamDaemonRegistered"),
+        message: this.i18nService.t("pamAccessConnectorRegistered"),
       });
     }
   };

@@ -119,18 +119,18 @@ describe("DaemonsService", () => {
       expect(rows[0].canAssign).toBe(false);
     });
 
-    it("uses pamDaemonStatusEnabled key for enabled daemons", async () => {
+    it("uses pamAccessConnectorStatusEnabled key for enabled daemons", async () => {
       rotationSdk.listConnectors.mockResolvedValue([makeDaemon({ status: DaemonStatus.Enabled })]);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
-      expect(rows[0].statusLabelKey).toBe("pamDaemonStatusEnabled");
+      expect(rows[0].statusLabelKey).toBe("pamAccessConnectorStatusEnabled");
     });
 
-    it("uses pamDaemonStatusDisabled key for disabled daemons", async () => {
+    it("uses pamAccessConnectorStatusDisabled key for disabled daemons", async () => {
       rotationSdk.listConnectors.mockResolvedValue([makeDaemon({ status: DaemonStatus.Disabled })]);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
-      expect(rows[0].statusLabelKey).toBe("pamDaemonStatusDisabled");
+      expect(rows[0].statusLabelKey).toBe("pamAccessConnectorStatusDisabled");
     });
   });
 

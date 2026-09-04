@@ -1,6 +1,6 @@
 <bit-header [title]="titleText()" icon="bwi-terminal">
   <bit-breadcrumbs slot="breadcrumbs">
-    <bit-breadcrumb [route]="['..']">{{ "pamRotationTabDaemons" | i18n }}</bit-breadcrumb>
+    <bit-breadcrumb [route]="['..']">{{ "pamRotationTabAccessConnectors" | i18n }}</bit-breadcrumb>
   </bit-breadcrumbs>
   @if (daemon()) {
     @if (enabled()) {
@@ -11,7 +11,7 @@
         [bitAction]="disable"
         id="daemon-detail_button_disable"
       >
-        {{ "pamDaemonDisable" | i18n }}
+        {{ "pamAccessConnectorDisable" | i18n }}
       </button>
     } @else {
       <button
@@ -21,7 +21,7 @@
         [bitAction]="enable"
         id="daemon-detail_button_enable"
       >
-        {{ "pamDaemonEnable" | i18n }}
+        {{ "pamAccessConnectorEnable" | i18n }}
       </button>
     }
     <button
@@ -43,32 +43,34 @@
     <!-- Details -->
     <bit-section>
       <bit-section-header>
-        <h2 bitTypography="h5">{{ "pamDaemonDetailsHeading" | i18n }}</h2>
+        <h2 bitTypography="h5">{{ "pamAccessConnectorDetailsHeading" | i18n }}</h2>
       </bit-section-header>
       <bit-card>
         <div class="tw-mb-4">
           <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">{{ "status" | i18n }}</p>
           @if (d.connector.status === DaemonStatus.Enabled) {
-            <span bitBadge variant="success">{{ "pamDaemonStatusEnabled" | i18n }}</span>
+            <span bitBadge variant="success">{{ "pamAccessConnectorStatusEnabled" | i18n }}</span>
           } @else {
-            <span bitBadge variant="secondary">{{ "pamDaemonStatusDisabled" | i18n }}</span>
+            <span bitBadge variant="secondary">{{
+              "pamAccessConnectorStatusDisabled" | i18n
+            }}</span>
           }
         </div>
 
         <div class="tw-mb-4">
           <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
-            {{ "pamDaemonConnection" | i18n }}
+            {{ "pamAccessConnectorConnection" | i18n }}
           </p>
           @if (d.connector.isConnected) {
-            <span bitBadge variant="success">{{ "pamDaemonConnected" | i18n }}</span>
+            <span bitBadge variant="success">{{ "pamAccessConnectorConnected" | i18n }}</span>
           } @else {
-            <span bitBadge variant="secondary">{{ "pamDaemonOffline" | i18n }}</span>
+            <span bitBadge variant="secondary">{{ "pamAccessConnectorOffline" | i18n }}</span>
           }
         </div>
 
         <div>
           <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
-            {{ "pamDaemonAssignments" | i18n }}
+            {{ "pamAccessConnectorAssignments" | i18n }}
           </p>
           @if (assignmentNames().length === 0) {
             <span class="tw-text-muted">&mdash;</span>
@@ -86,14 +88,14 @@
     <!-- Recent activity -->
     <bit-section>
       <bit-section-header>
-        <h2 bitTypography="h5">{{ "pamDaemonActivityHeading" | i18n }}</h2>
+        <h2 bitTypography="h5">{{ "pamAccessConnectorActivityHeading" | i18n }}</h2>
       </bit-section-header>
       @if (d.jobs.length > 0) {
         <app-rotation-history [jobs]="d.jobs"></app-rotation-history>
       } @else {
         <bit-card>
           <p bitTypography="body2" class="tw-m-0 tw-text-muted">
-            {{ "pamDaemonActivityEmpty" | i18n }}
+            {{ "pamAccessConnectorActivityEmpty" | i18n }}
           </p>
         </bit-card>
       }

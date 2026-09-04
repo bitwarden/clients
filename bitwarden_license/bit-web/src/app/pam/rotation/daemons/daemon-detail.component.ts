@@ -109,9 +109,9 @@ export class DaemonDetailComponent {
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamDaemonDisableConfirmTitle" },
-      content: { key: "pamDaemonDisableConfirmContent", placeholders: [connector.name] },
-      acceptButtonText: { key: "pamDaemonDisable" },
+      title: { key: "pamAccessConnectorDisableConfirmTitle" },
+      content: { key: "pamAccessConnectorDisableConfirmContent", placeholders: [connector.name] },
+      acceptButtonText: { key: "pamAccessConnectorDisable" },
       cancelButtonText: { key: "cancel" },
       type: "warning",
     });
@@ -123,7 +123,7 @@ export class DaemonDetailComponent {
       this.patchStatus(DaemonStatus.Disabled);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamDaemonDisabled"),
+        message: this.i18nService.t("pamAccessConnectorDisabled"),
       });
     } catch (e) {
       this.showError(e);
@@ -141,7 +141,7 @@ export class DaemonDetailComponent {
       this.patchStatus(DaemonStatus.Enabled);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamDaemonEnabled"),
+        message: this.i18nService.t("pamAccessConnectorEnabled"),
       });
     } catch (e) {
       this.showError(e);
@@ -155,8 +155,8 @@ export class DaemonDetailComponent {
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamDaemonDeleteConfirmTitle" },
-      content: { key: "pamDaemonDeleteConfirmContent", placeholders: [connector.name] },
+      title: { key: "pamAccessConnectorDeleteConfirmTitle" },
+      content: { key: "pamAccessConnectorDeleteConfirmContent", placeholders: [connector.name] },
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
       type: "danger",
@@ -168,7 +168,7 @@ export class DaemonDetailComponent {
       await this.rotationSdk.deleteConnector(this.organizationId, connector.id);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamDaemonDeleted"),
+        message: this.i18nService.t("pamAccessConnectorDeleted"),
       });
       await this.navigateToList();
     } catch (e) {
@@ -197,7 +197,7 @@ export class DaemonDetailComponent {
     } catch {
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("pamDaemonNotFound"),
+        message: this.i18nService.t("pamAccessConnectorNotFound"),
       });
       await this.navigateToList();
       return null;

@@ -8,7 +8,8 @@
  *
  * Note the vocabulary shift: what this module called a *rotation daemon* the server calls an
  * *access connector*; the standalone agent consuming a registration token is still the rotation
- * daemon.
+ * daemon. This file's identifiers (`DaemonStatus`, `DaemonsService`, the `daemons/` directory) are
+ * untouched pending a follow-up rename.
  */
 import type {
   AccessConnectorStatus as SdkAccessConnectorStatus,
@@ -161,9 +162,11 @@ export type QuartzSchedulePreset = SdkQuartzSchedulePreset;
 /**
  * The UI's name for {@link AccessConnectorStatus}.
  *
- * The server and the SDK say *access connector*; this admin surface says *daemon*, as does every
- * `pamDaemon*` i18n key and the standalone agent that consumes a registration token. Aliasing
- * rather than renaming keeps that user-facing vocabulary intact without introducing a second type.
+ * The server, the SDK, and now the admin UI's own copy all say *access connector* — only this
+ * module's code identifiers (`DaemonStatus`, `DaemonsService`, the `daemons/` directory) and the
+ * standalone agent that consumes a registration token still say *daemon*. Aliasing rather than
+ * renaming keeps that identifier rename out of this diff without introducing a second type; see
+ * DECISIONS.md for why.
  */
 export const DaemonStatus = AccessConnectorStatus;
 export type DaemonStatus = AccessConnectorStatus;

@@ -94,7 +94,7 @@ export function accessConnector(overrides: Partial<AccessConnector> = {}): Acces
   return {
     id: ACCESS_CONNECTOR_ID,
     organizationId: ORGANIZATION_ID,
-    name: "Rotation daemon 1",
+    name: "Access connector 1",
     status: "enabled" as AccessConnectorStatus,
     isConnected: true,
     lastHeartbeatAt: TIMESTAMP,

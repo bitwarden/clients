@@ -26,16 +26,16 @@
         </button>
       }
     }
-    @case ("daemons") {
+    @case ("access-connectors") {
       @if (hasDaemons()) {
         <button
           type="button"
           bitButton
           buttonType="primary"
           [bitAction]="registerDaemon"
-          id="rotation-shell_button_new-daemon"
+          id="rotation-shell_button_new-access-connector"
         >
-          {{ "pamDaemonNew" | i18n }}
+          {{ "pamAccessConnectorNew" | i18n }}
         </button>
       }
     }
@@ -45,7 +45,9 @@
       "pamRotationTabManagedCredentials" | i18n
     }}</bit-tab-link>
     <bit-tab-link route="target-systems">{{ "pamRotationTabTargetSystems" | i18n }}</bit-tab-link>
-    <bit-tab-link route="daemons">{{ "pamRotationTabDaemons" | i18n }}</bit-tab-link>
+    <bit-tab-link route="access-connectors">{{
+      "pamRotationTabAccessConnectors" | i18n
+    }}</bit-tab-link>
   </bit-tab-nav-bar>
 </app-header>
 
