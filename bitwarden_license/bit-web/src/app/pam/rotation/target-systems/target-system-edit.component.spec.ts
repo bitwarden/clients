@@ -5,12 +5,13 @@ import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import type { TargetSystem } from "../rotation";
+import type { TargetSystem, TargetSystemId } from "../rotation";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
-import { ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
+import { ORGANIZATION_ID, id, sysId } from "../testing/rotation-builders";
 
 import { TargetSystemEditComponent } from "./target-system-edit.component";
 
@@ -116,7 +117,10 @@ async function setupCreateWithTemplate(template: string): Promise<
 }
 
 /** Build a configured TestBed for edit mode (with targetSystemId). */
-async function setupEdit(rotationSdk: ReturnType<typeof mock<RotationSdkService>>) {
+async function setupEdit(
+  rotationSdk: ReturnType<typeof mock<RotationSdkService>>,
+  routeTargetSystemId: string = id("sys-1"),
+) {
   TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
   await TestBed.configureTestingModule({
     imports: [TargetSystemEditComponent, NoopAnimationsModule],
@@ -129,7 +133,7 @@ async function setupEdit(rotationSdk: ReturnType<typeof mock<RotationSdkService>
       {
         provide: ActivatedRoute,
         useValue: {
-          snapshot: { params: { organizationId: ORG_ID, targetSystemId: sysId("sys-1") } },
+          snapshot: { params: { organizationId: ORG_ID, targetSystemId: routeTargetSystemId } },
         },
       },
     ],
@@ -728,5 +732,51 @@ describe("TargetSystemEditComponent — edit mode", () => {
     expect(toastService2.showToast).toHaveBeenCalledWith(
       expect.objectContaining({ variant: "error" }),
     );
+  });
+
+  it("loads the record when the route id is uppercase", async () => {
+    TestBed.resetTestingModule();
+    const rotationSdk2 = mock<RotationSdkService>();
+    const toastService2 = mock<ToastService>();
+    rotationSdk2.listTargetSystems.mockResolvedValue([makeSystem()]);
+    await setupEdit(rotationSdk2, id("sys-1").toUpperCase());
+    TestBed.overrideProvider(ToastService, { useValue: toastService2 });
+    const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+    const fixture2 = TestBed.createComponent(TargetSystemEditComponent);
+    fixture2.detectChanges();
+    await fixture2.whenStable();
+    fixture2.detectChanges();
+
+    const nameForm = (
+      fixture2.componentInstance as unknown as { nameForm: { getRawValue: () => { name: string } } }
+    ).nameForm;
+    expect(nameForm.getRawValue().name).toBe("Prod Entra");
+    expect(nav).not.toHaveBeenCalled();
+    expect(toastService2.showToast).not.toHaveBeenCalled();
+  });
+
+  it("loads the record when the stored id is uppercase and the route id is lower case", async () => {
+    TestBed.resetTestingModule();
+    const rotationSdk3 = mock<RotationSdkService>();
+    const toastService3 = mock<ToastService>();
+    rotationSdk3.listTargetSystems.mockResolvedValue([
+      makeSystem({ id: asUuid<TargetSystemId>(id("sys-1").toUpperCase()) }),
+    ]);
+    await setupEdit(rotationSdk3, id("sys-1"));
+    TestBed.overrideProvider(ToastService, { useValue: toastService3 });
+    const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+    const fixture3 = TestBed.createComponent(TargetSystemEditComponent);
+    fixture3.detectChanges();
+    await fixture3.whenStable();
+    fixture3.detectChanges();
+
+    const nameForm = (
+      fixture3.componentInstance as unknown as { nameForm: { getRawValue: () => { name: string } } }
+    ).nameForm;
+    expect(nameForm.getRawValue().name).toBe("Prod Entra");
+    expect(nav).not.toHaveBeenCalled();
+    expect(toastService3.showToast).not.toHaveBeenCalled();
   });
 });

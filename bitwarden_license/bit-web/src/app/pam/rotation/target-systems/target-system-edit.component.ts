@@ -15,7 +15,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -309,7 +309,8 @@ export class TargetSystemEditComponent {
   private async loadSystem(): Promise<void> {
     try {
       const systems = await this.rotationSdk.listTargetSystems(this.organizationId);
-      const system = systems.find((s) => s.id === this.targetSystemId);
+      const routeId = uuidAsString(this.targetSystemId!).toLowerCase();
+      const system = systems.find((s) => uuidAsString(s.id).toLowerCase() === routeId);
       if (system == null) {
         this.toastService.showToast({
           variant: "error",
