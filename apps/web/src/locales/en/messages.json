@@ -8716,7 +8716,7 @@
     "message": "Manage how members use Send. This policy will apply to Sends created after you turn on this policy. Admins and owners are exempt.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescVfo1": {
+  "sendControlsPolicyDescVfo1V2": {
     "message": "Manage how members use Send and share vault items. This policy won't be enforced for owners and admins.",
     "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list and drawer. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
