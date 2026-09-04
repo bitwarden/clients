@@ -1,5 +1,6 @@
-import { NgModule } from "@angular/core";
+import { inject, NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { map } from "rxjs";
 
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
 import { AuthRoute } from "@bitwarden/angular/auth/constants";
@@ -41,6 +42,7 @@ import {
   NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import {
   LockComponent,
@@ -520,6 +522,20 @@ const routes: Routes = [
         component: SendComponent,
         data: { pageTitle: { key: "send" } } satisfies RouteDataProperties,
         canDeactivate: [unsavedSendEditsGuard],
+      },
+      {
+        path: "import",
+        canMatch: [
+          () =>
+            inject(ConfigService)
+              .getFeatureFlag$(FeatureFlag.ImportUpgrade)
+              .pipe(map((flagValue) => flagValue === true)),
+        ],
+        loadComponent: () =>
+          import("./tools/import/import-source-select-desktop.component").then(
+            (mod) => mod.ImportSourceSelectDesktopComponent,
+          ),
+        data: { pageTitle: { key: "importNoun" } } satisfies RouteDataProperties,
       },
     ],
   },

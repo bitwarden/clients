@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -8,6 +8,8 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -87,6 +89,7 @@ export class VaultNextComponent {
   private readonly cipherRowMenuService = inject(CipherRowMenuService);
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
+  private readonly configService = inject(ConfigService);
   private readonly copyButtonsService = inject(VaultCopyButtonsService);
   private readonly dialogService = inject(DialogService);
   private readonly folderService = inject(FolderService);
@@ -96,6 +99,7 @@ export class VaultNextComponent {
   private readonly vaultNavService = inject(VaultNavService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly i18nService = inject(I18nService);
+  private readonly router = inject(Router);
   private readonly policyService = inject(PolicyService);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -317,7 +321,11 @@ export class VaultNextComponent {
     await this.itemActions.add(result.cipherType);
   }
 
-  protected openImportDialog(): void {
+  protected async openImport(): Promise<void> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      await this.router.navigate(["/tools/import"]);
+      return;
+    }
     ImportDialogComponent.open(this.dialogService);
   }
 }

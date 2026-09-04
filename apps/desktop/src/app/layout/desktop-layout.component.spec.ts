@@ -17,6 +17,7 @@ import { GlobalStateProvider } from "@bitwarden/state";
 import { VaultNavItemType, VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
 
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
+import { ImportDesktopComponent } from "../tools/import/import-desktop.component";
 import { SendFiltersNavComponent } from "../tools/send/send-filters-nav.component";
 
 import { DesktopLayoutComponent } from "./desktop-layout.component";
@@ -208,6 +209,34 @@ describe("DesktopLayoutComponent", () => {
 
     it("keeps Send in Tools", () => {
       expect(fixture.nativeElement.querySelector("app-send-filters-nav")).toBeTruthy();
+    });
+  });
+
+  describe("openImport", () => {
+    it("opens the legacy import dialog when the import upgrade flag is off", async () => {
+      const configService = TestBed.inject(ConfigService);
+      jest.spyOn(configService, "getFeatureFlag").mockResolvedValue(false);
+      const dialogService = TestBed.inject(DialogService);
+      const router = TestBed.inject(Router);
+      jest.spyOn(router, "navigate");
+
+      await component["openImport"]();
+
+      expect(dialogService.open).toHaveBeenCalledWith(ImportDesktopComponent);
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it("navigates to the new import source picker page when the import upgrade flag is on", async () => {
+      const configService = TestBed.inject(ConfigService);
+      jest.spyOn(configService, "getFeatureFlag").mockResolvedValue(true);
+      const dialogService = TestBed.inject(DialogService);
+      const router = TestBed.inject(Router);
+      jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+      await component["openImport"]();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/import"]);
+      expect(dialogService.open).not.toHaveBeenCalled();
     });
   });
 });

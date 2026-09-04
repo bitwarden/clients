@@ -14,11 +14,12 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { ToastService } from "@bitwarden/components";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+import { ImportUpgradeNavigationService } from "../../../tools/popup/settings/import/import-upgrade-navigation.service";
 
 import { VaultSettingsComponent } from "./vault-settings.component";
 
@@ -53,6 +54,7 @@ describe("VaultSettingsComponent", () => {
   let fixture: ComponentFixture<VaultSettingsComponent>;
   let router: Router;
   let mockCipherArchiveService: jest.Mocked<CipherArchiveService>;
+  let mockImportUpgradeNavigationService: jest.Mocked<ImportUpgradeNavigationService>;
 
   const mockActiveAccount$ = new BehaviorSubject<{ id: string }>({
     id: "user-id",
@@ -77,6 +79,8 @@ describe("VaultSettingsComponent", () => {
     mockArchivedCiphers$.next([]);
     mockShowNudgeBadge$.next(false);
 
+    mockImportUpgradeNavigationService = mock<ImportUpgradeNavigationService>();
+
     mockCipherArchiveService = mock<CipherArchiveService>({
       userCanArchive$: jest.fn().mockReturnValue(mockUserCanArchive$),
       archivedCiphers$: jest.fn().mockReturnValue(mockArchivedCiphers$),
@@ -92,8 +96,14 @@ describe("VaultSettingsComponent", () => {
         { provide: SyncService, useValue: mock<SyncService>() },
         { provide: MessagingService, useValue: mock<MessagingService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
-        { provide: DialogService, useValue: mock<DialogService>() },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: () => of(false),
+            getFeatureFlag: () => Promise.resolve(false),
+          },
+        },
+        { provide: ImportUpgradeNavigationService, useValue: mockImportUpgradeNavigationService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: CipherArchiveService, useValue: mockCipherArchiveService },
         {
@@ -183,6 +193,28 @@ describe("VaultSettingsComponent", () => {
 
       expect(component["premiumBadgeComponent"]()).toBeTruthy();
       expect(component["userHasArchivedItems"]()).toBe(true);
+    });
+  });
+
+  describe("import", () => {
+    it("navigates to the internal import route when the import upgrade flag is off", async () => {
+      const configService = TestBed.inject(ConfigService);
+      jest.spyOn(configService, "getFeatureFlag").mockResolvedValue(false);
+      (router.navigate as jest.Mock).mockResolvedValue(true);
+
+      await component["import"]();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/import"]);
+    });
+
+    it("opens the import picker's own extension tab immediately, with no confirmation, when the import upgrade flag is on", async () => {
+      const configService = TestBed.inject(ConfigService);
+      jest.spyOn(configService, "getFeatureFlag").mockResolvedValue(true);
+
+      await component["import"]();
+
+      expect(mockImportUpgradeNavigationService.openImportSourceSelectTab).toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalledWith(["/import"]);
     });
   });
 });
