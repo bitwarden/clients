@@ -2,8 +2,9 @@ import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 
-import type { RotationJob } from "../rotation";
+import type { RotationAttempt, RotationAttemptId, RotationJob } from "../rotation";
 import {
   RotationAttemptStatus,
   RotationJobStatus,
@@ -11,12 +12,24 @@ import {
   RotationSyncState,
   SessionTerminationOutcome,
 } from "../rotation";
-import { jobId, rotationAttempt, rotationJob } from "../testing/rotation-builders";
+import { id, jobId, rotationAttempt, rotationJob } from "../testing/rotation-builders";
 
 import { RotationHistoryComponent } from "./rotation-history.component";
 
 function makeJob(overrides: Partial<RotationJob> = {}): RotationJob {
   return rotationJob(overrides);
+}
+
+function attemptId(label: string): RotationAttemptId {
+  return asUuid<RotationAttemptId>(id(label));
+}
+
+function failedAttempt(label: string, failureReason: string): RotationAttempt {
+  return rotationAttempt({
+    id: attemptId(label),
+    status: RotationAttemptStatus.Errored,
+    failureReason,
+  });
 }
 
 describe("RotationHistoryComponent", () => {
@@ -182,6 +195,61 @@ describe("RotationHistoryComponent", () => {
       expect((component as any).failureCauseLabelKey(failureReason)).toBeNull();
     });
   });
+
+  describe("jobFailureCauseLabelKey", () => {
+    it("returns the shared key when every attempt failed the same recognised way", () => {
+      setup([]);
+      const job = makeJob({
+        attempts: [
+          failedAttempt("7", "target_rejected: LDAP result code 50"),
+          failedAttempt("8", "target_rejected: LDAP result code 50"),
+          failedAttempt("9", "target_rejected: ldap error code 50"),
+        ],
+      });
+
+      expect((component as any).jobFailureCauseLabelKey(job)).toBe(
+        "pamRotationFailureCauseInsufficientRights",
+      );
+    });
+
+    it("returns null when the attempts resolve to two different causes", () => {
+      setup([]);
+      const job = makeJob({
+        attempts: [
+          failedAttempt("7", "target_rejected: LDAP result code 50"),
+          failedAttempt("8", "target_unreachable: error kind: ConnectionRefused"),
+        ],
+      });
+
+      expect((component as any).jobFailureCauseLabelKey(job)).toBeNull();
+    });
+
+    it("skips an unrecognised attempt rather than letting it disqualify the job", () => {
+      setup([]);
+      const job = makeJob({
+        attempts: [
+          failedAttempt("7", "target_rejected: LDAP result code 50"),
+          failedAttempt("8", "flaky target"),
+        ],
+      });
+
+      expect((component as any).jobFailureCauseLabelKey(job)).toBe(
+        "pamRotationFailureCauseInsufficientRights",
+      );
+    });
+
+    it("returns null when no attempt failed", () => {
+      setup([]);
+      expect((component as any).jobFailureCauseLabelKey(makeJob())).toBeNull();
+    });
+
+    it("returns null when the only failure is unrecognised", () => {
+      setup([]);
+      const job = makeJob({ attempts: [failedAttempt("7", "flaky target")] });
+
+      expect((component as any).jobFailureCauseLabelKey(job)).toBeNull();
+    });
+  });
 });
 
 describe("RotationHistoryComponent rendering", () => {
@@ -298,5 +366,75 @@ describe("RotationHistoryComponent rendering", () => {
     const text = fixture.nativeElement.textContent;
     expect(text).toContain("flaky target");
     expect(text).not.toContain("pamRotationFailureReportedDetail");
+  });
+
+  it("states one shared cause once for the job instead of once per attempt row", () => {
+    const fixture = render([
+      rotationJob({
+        attempts: [
+          failedAttempt("7", "target_rejected: LDAP result code 50"),
+          failedAttempt("8", "target_rejected: LDAP result code 50"),
+          failedAttempt("9", "target_rejected: LDAP result code 50"),
+        ],
+      }),
+    ]);
+
+    expect(fixture.debugElement.queryAll(By.css("bit-callout"))).toHaveLength(1);
+
+    const text = fixture.nativeElement.textContent;
+    expect(text.match(/pamRotationFailureCauseInsufficientRights/g)).toHaveLength(1);
+
+    const attemptRows = fixture.debugElement.queryAll(
+      By.css("[data-testid='rotation-history-attempt-row']"),
+    );
+    expect(attemptRows).toHaveLength(3);
+    attemptRows.forEach((row) =>
+      expect(row.nativeElement.textContent).toContain("pamRotationFailureReportedDetail"),
+    );
+  });
+
+  it("spans the cause row across all four columns", () => {
+    const fixture = render([
+      rotationJob({ attempts: [failedAttempt("7", "target_rejected: LDAP result code 50")] }),
+    ]);
+
+    const cells = fixture.debugElement.queryAll(
+      By.css("[data-testid='rotation-history-job-cause-row'] td"),
+    );
+    expect(cells).toHaveLength(1);
+    expect(cells[0].nativeElement.getAttribute("colspan")).toBe("4");
+    expect(cells[0].query(By.css("bit-callout"))).not.toBeNull();
+  });
+
+  it("keeps a cause on every attempt row when the job failed in two different ways", () => {
+    const fixture = render([
+      rotationJob({
+        attempts: [
+          failedAttempt("7", "target_rejected: LDAP result code 50"),
+          failedAttempt("8", "target_unreachable: error kind: ConnectionRefused"),
+        ],
+      }),
+    ]);
+
+    expect(fixture.debugElement.queryAll(By.css("bit-callout"))).toHaveLength(0);
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain("pamRotationFailureCauseInsufficientRights");
+    expect(text).toContain("pamRotationFailureCauseTargetUnreachable");
+  });
+
+  it("keeps an unrecognised reason on its own row beside the job-level cause", () => {
+    const fixture = render([
+      rotationJob({
+        attempts: [
+          failedAttempt("7", "target_rejected: LDAP result code 50"),
+          failedAttempt("8", "target_rejected: LDAP result code 50"),
+          failedAttempt("9", "flaky target"),
+        ],
+      }),
+    ]);
+
+    expect(fixture.debugElement.queryAll(By.css("bit-callout"))).toHaveLength(1);
+    expect(fixture.nativeElement.textContent).toContain("flaky target");
   });
 });
