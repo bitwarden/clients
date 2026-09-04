@@ -34,6 +34,7 @@ import { SearchComponent } from "../../search/search.component";
 import { SkeletonTextComponent } from "../../skeleton";
 import { StatusLockupComponent } from "../../status-lockup/status-lockup.component";
 import { SvgComponent } from "../../svg";
+import { TooltipDirective } from "../../tooltip";
 import { ParamState, ParamValue, queryParamStore } from "../../utils";
 import { SortDirection, SortFn } from "../table-data-source";
 
@@ -184,6 +185,7 @@ type RenderItem<T> =
     SkeletonTextComponent,
     SvgComponent,
     SyncScrollLeftDirective,
+    TooltipDirective,
     I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
