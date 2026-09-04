@@ -176,7 +176,7 @@ export class TargetSystemsTabComponent {
       await this.daemonsService.assign(daemon, system.id);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamAccessConnectorAssigned"),
+        message: this.i18nService.t("pamTargetSystemAssignConnectorSuccess"),
       });
     } catch (e) {
       this.showError(e);

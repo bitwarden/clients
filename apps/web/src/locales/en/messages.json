@@ -18881,6 +18881,9 @@
   "pamAccessConnectorAssigned": {
     "message": "Target system assigned."
   },
+  "pamTargetSystemAssignConnectorSuccess": {
+    "message": "Access connector assigned."
+  },
   "pamAccessConnectorUnassign": {
     "message": "Remove $NAME$",
     "placeholders": {
