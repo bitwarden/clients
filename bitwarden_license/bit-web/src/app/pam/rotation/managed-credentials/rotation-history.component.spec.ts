@@ -194,7 +194,11 @@ describe("RotationHistoryComponent rendering", () => {
 
   it("shows in progress and no ended label while an attempt is running", () => {
     const fixture = render([
-      rotationJob({ attempts: [rotationAttempt({ endedAt: undefined, status: "executing" })] }),
+      rotationJob({
+        attempts: [
+          rotationAttempt({ endedAt: undefined, status: RotationAttemptStatus.Executing }),
+        ],
+      }),
     ]);
 
     const text = fixture.nativeElement.textContent;
@@ -218,9 +222,9 @@ describe("RotationHistoryComponent rendering", () => {
       rotationJob({
         attempts: [
           rotationAttempt({
-            status: "errored",
+            status: RotationAttemptStatus.Errored,
             failureReason: "LDAP result code 53",
-            syncState: "indeterminate",
+            syncState: RotationSyncState.Indeterminate,
           }),
         ],
       }),
