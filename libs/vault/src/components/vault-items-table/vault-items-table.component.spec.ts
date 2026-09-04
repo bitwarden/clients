@@ -1546,6 +1546,49 @@ describe("VaultItemsTableComponent", () => {
 
       const selectedRows = selectionModel().selected();
       expect(batchBar.selected()).toEqual(selectedRows.map((cipher) => ({ cipher })));
+      expect(batchBarIds()).toEqual(["a"]);
+    });
+
+    it("re-points the selection at the new row objects when rows are re-emitted", () => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Apple ID" }),
+      ]);
+      fixture.detectChanges();
+
+      selectionModel().select(bitTable().filtered()[0]);
+      fixture.detectChanges();
+
+      // A background sync hands the table all-new references for the same ciphers.
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Apple ID" }),
+      ]);
+      fixture.detectChanges();
+
+      // Without reconciliation the selection holds detached objects: the checkbox reads unchecked
+      // while the bar still reports the row.
+      const row = bitTable().filtered()[0];
+      expect(selectionModel().isSelected(row)).toBe(true);
+      expect(batchBarIds()).toEqual(["a"]);
+    });
+
+    it("drops a selected row that is gone after a re-emit", () => {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Apple ID" }),
+      ]);
+      fixture.detectChanges();
+
+      selectionModel().select(...bitTable().filtered());
+      fixture.detectChanges();
+      expect(batchBarIds()).toEqual(["a", "b"]);
+
+      // "Amazon" was deleted elsewhere, so the sync re-emits without it.
+      fixture.componentRef.setInput("ciphers", [cipherView({ id: "b", name: "Apple ID" })]);
+      fixture.detectChanges();
+
+      expect(batchBarIds()).toEqual(["b"]);
     });
 
     it("does not clear a new selection on subsequent renders", () => {

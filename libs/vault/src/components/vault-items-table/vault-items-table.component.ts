@@ -8,6 +8,7 @@ import {
   input,
   output,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -52,6 +53,7 @@ import {
   SortFn,
   StatusLockupComponent,
   SvgComponent,
+  TableSelectionModel,
   TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -713,7 +715,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * {@link SEARCH_FILTER_KEY}. A view query rather than the predicate's `values`, because a
    * memoized search result has to be computed outside the per-row call.
    */
-  private readonly tableComponent = viewChild(BitTableV2Component);
+  private readonly tableComponent = viewChild(BitTableV2Component<C>);
 
   /**
    * Registers the table's `TableSelectionModel<C>` as the batch bar's selection source, so checking
@@ -731,7 +733,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     }
 
     const teardown = batchBar.registerSelection({
-      selected: computed(() => model.selected().map((cipher) => ({ cipher }) as VaultItem<C>)),
+      selected: computed(() => model.selected().map((cipher): VaultItem<C> => ({ cipher }))),
       clear: () => model.clear(),
     });
 
@@ -740,10 +742,43 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     onCleanup(teardown);
   });
 
+  /** Carries the selection onto each new set of rows — see {@link reconcileSelection}. */
+  private readonly keepSelectionOnRows = effect(() => {
+    const rows = this.sortedCiphers();
+    const model = this.tableComponent()?.selectionModel();
+    if (model == null) {
+      return;
+    }
+    untracked(() => this.reconcileSelection(model, rows));
+  });
+
   /**
-   * The live search term. Cast because a view query erases the table's generics, so its
-   * `filterValues()` comes back as an untyped record.
+   * Re-points the selection at the current rows, by cipher id.
+   *
+   * The selection holds row *objects*, and `bit-table-v2` rebuilds its model only when the selection
+   * config's identity changes — never when the data does. But `cipherListViews$` rebuilds every view
+   * on each emission, so any sync or edit hands us fresh objects for the same ciphers.
+   *
+   * Matched on id rather than cleared outright, so a background sync doesn't cost an in-progress
+   * selection. A cipher that's gone from the rows drops out of it.
    */
+  private reconcileSelection(model: TableSelectionModel<C>, rows: readonly C[]): void {
+    const selected = model.selected();
+    if (selected.length === 0) {
+      return;
+    }
+
+    const ids = new Set(selected.map((cipher) => String(cipher.id)));
+    const current = rows.filter((row) => ids.has(String(row.id)));
+
+    if (current.length === selected.length && current.every((row) => selected.includes(row))) {
+      return;
+    }
+
+    model.clear();
+    model.select(...current);
+  }
+
   private readonly searchTerm = computed(
     () =>
       (this.tableComponent()?.filterValues() as VaultItemsTableFilters | undefined)?.search ?? "",

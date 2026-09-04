@@ -413,8 +413,10 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       }
     });
 
-    // (Re)build the selection model from config — in an effect, since the model's
-    // constructor writes a signal (not allowed in a computed).
+    /** (Re)build the selection model from config — in an effect, since the model's
+     * constructor writes a signal (not allowed in a computed). Scoped over the rows in display
+     * order (see {@link sorted}), so a capped select-all keeps the ones the user sees first.
+     */
     effect(() => {
       const config = this.selection();
       this._selectionModel.set(
