@@ -16,7 +16,7 @@
     "message": "Todos los elementos de la caja fuerte"
   },
   "myItemsV2": {
-    "message": "My items"
+    "message": "Mis elementos"
   },
   "vaults": {
     "message": "Caja fuerte"
@@ -2416,7 +2416,7 @@
     "message": "No se han encontrado resultados"
   },
   "noFiltersMatch": {
-    "message": "No filters match \"$SEARCH$\"",
+    "message": "No hay filtros que coincidan con «$SEARCH$»",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -2425,7 +2425,7 @@
     }
   },
   "clearSearch": {
-    "message": "Clear search"
+    "message": "Borrar búsqueda"
   },
   "selected": {
     "message": "Seleccionado"
@@ -2619,7 +2619,7 @@
     "message": "Exportar desde"
   },
   "exportNoun": {
-    "message": "Exportación",
+    "message": "Exportar",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
@@ -4789,7 +4789,7 @@
     "message": "Inicia sesión en la aplicación web de Clipperz (clipperz.is/app). Haz clic en el icono del menú de hamburguesa situado en la esquina superior derecha para desplegar la barra de navegación. Ve a \"Datos\" → \"Exportar\". Haz clic en el botón \"Descargar HTML+JSON\" para guardar el archivo HTML."
   },
   "importRoboformInstructions": {
-    "message": "Con la aplicación de escritorio RoboForm Editor, ve a \"RoboForm\" (arriba a la izquierda) → \"Opciones\" → \"Cuenta y datos\" y haz clic en el botón \"Exportar\". Selecciona todos tus datos, cambia el \"Formato\" a \"Archivo CSV\" y, a continuación, haz clic en el botón \"Exportar\" para guardar el archivo CSV. Nota: RoboForm solo te permite exportar datos de inicio de sesión. El resto de elementos no se exportarán.\n\n"
+    "message": "Con la aplicación de escritorio RoboForm Editor, ve a \"RoboForm\" (arriba a la izquierda) → \"Opciones\" → \"Cuenta y datos\" y haz clic en el botón \"Exportar\". Selecciona todos tus datos, cambia el \"Formato\" a \"Archivo CSV\" y, a continuación, haz clic en el botón \"Exportar\" para guardar el archivo CSV. Nota: RoboForm solo te permite exportar datos de inicio de sesión. El resto de elementos no se exportarán."
   },
   "importPassboltInstructions": {
     "message": "Inicia sesión en el almacén web de Passbolt y ve a la lista \"Contraseñas\". Selecciona todas las contraseñas que quieras exportar y haz clic en el botón \"Exportar\" situado en la parte superior de la lista. Elige el formato de exportación \"csv (lastpass)\" y haz clic en el botón \"Exportar\"."
@@ -5915,7 +5915,7 @@
     "message": "Mostrar más"
   },
   "showMoreCount": {
-    "message": "Show $COUNT$ more",
+    "message": "Mostrar $COUNT$ más",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6295,10 +6295,10 @@
     "message": "Borrar filtros o probar otro término de búsqueda"
   },
   "noSharedFoldersAdded": {
-    "message": "No shared folders added"
+    "message": "No se han añadido carpetas compartidas"
   },
   "noSharedFoldersAddedDescription": {
-    "message": "Add a shared folder to securely share vault items with other members."
+    "message": "Añade una carpeta compartida para compartir de forma segura los elementos del almacén con otros miembros."
   },
   "sendPasswordHelperText": {
     "message": "Las personas deberán introducir la contraseña para Enviar y ver",
@@ -6742,18 +6742,18 @@
     }
   },
   "permissions": {
-    "message": "Permissions"
+    "message": "Permisos"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "Ver elementos"
   },
   "viewItemsHidePass": {
-    "message": "View items, hidden passwords"
+    "message": "Ver elementos, contraseñas ocultas"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Editar elementos"
   },
   "editItemsHidePass": {
-    "message": "Edit items, hidden passwords"
+    "message": "Editar elementos, contraseñas ocultas"
   }
 }

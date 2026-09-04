@@ -193,13 +193,13 @@
     "message": "Nieuwe gedeelde map"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "Door gedeelde map zoeken"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "Door mijn mappen zoeken"
   },
   "viewSharedFolderWithName": {
-    "message": "View shared folder - $NAME$",
+    "message": "Gedeelde map $NAME$ weergeven",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -208,10 +208,10 @@
     }
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "Verwijder gedeelde map"
   },
   "deleteSharedFoldersCount": {
-    "message": "Delete $COUNT$ shared folders",
+    "message": "Verwijder $COUNT$ gedeelde mappen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1277,13 +1277,13 @@
     "message": "Verificatiecode kopiëren (TOTP)"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Privésleutel kopiëren"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Publieke sleutel kopiëren"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Vingerafdruk kopiëren"
   },
   "length": {
     "message": "Lengte"
@@ -2117,7 +2117,7 @@
     "message": "Show quick copy actions in vault"
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Geen details om te kopiëren"
   },
   "runInBackground": {
     "message": "Bitwarden actief op de achtergrond houden"
@@ -2216,16 +2216,16 @@
     "message": "Verificatiecode kopiëren"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Geen gebruikersnaam"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Geen wachtwoord"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Geen verificatiecode"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Geen nummer"
   },
   "noSecurityCode": {
     "message": "No security code"
@@ -2431,7 +2431,7 @@
     "message": "Geselecteerd"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "geselecteerd",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
@@ -3580,7 +3580,7 @@
     "message": "Opties"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "Meer opties"
   },
   "optionsForItem": {
     "message": "Opties voor $NAME$",
@@ -5845,7 +5845,7 @@
     "message": "Items aan gedeelde mappen toegevoegd"
   },
   "itemAssignedToCollections": {
-    "message": "Item assigned to collections"
+    "message": "Item aan collecties toegewezen"
   },
   "itemsAssignedToCollections": {
     "message": "Items assigned to collections"
