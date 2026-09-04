@@ -5354,7 +5354,7 @@
     "message": "Inicie sessão em \"https://vault.passky.org\" → \"Importar e exportar\" → \"Exportar\", na secção Passky. (A \"Cópia de segurança\" não é compatível, pois está encriptada.)"
   },
   "importProtonpassInstructions": {
-    "message": "Na extensão de navegador do ProtonPass, aceda a \"Definições\" > \"Exportar\". Exporte sem encriptação PGP e guarde o ficheiro ZIP.\n"
+    "message": "Na extensão de navegador do ProtonPass, aceda a \"Definições\" > \"Exportar\". Exporte sem encriptação PGP e guarde o ficheiro ZIP."
   },
   "importPasswordxpInstructions": {
     "message": "Selecione o menu \"Base de dados\" → \"Exportar para ficheiro...\". → Nas opções de exportação, certifique-se de que \"Nomes das pastas\" e \"Títulos das colunas\" estão selecionados. → Clique no botão \"Procurar...\" e escolha o ficheiro de destino, definindo o tipo como ficheiro CSV."

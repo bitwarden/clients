@@ -7975,7 +7975,7 @@
     "message": "Ezek a bejelentkezések újrafelhasznált jelszóval rendelkeznek. Hozzunk létre egy egyedi jelszót minden fiókhoz, hogy megakadályozza, hogy valaki több fiókhoz férjen hozzá egy jelszóval."
   },
   "deleteAtRiskItemDesc": {
-    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
+    "message": "Először biztosítsuk a jelszó megváltoztatását. A törlés csak az elemet távolítja el a széfből, nem oldja meg a kockázatot."
   },
   "passwordHasAdditionalRisks": {
     "message": "Ez a jelszó további kockázatokkal jár:"

@@ -10,7 +10,7 @@
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extNameBeta": {
-    "message": "Bitwarden Password Manager Beta",
+    "message": "Bitwarden 비밀번호 관리자 베타",
     "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
@@ -1423,16 +1423,16 @@
     "message": "추가 옵션"
   },
   "fillAssistActiveNoticeV2": {
-    "message": "Autofill is using fill assist on this page."
+    "message": "자동 채우기 기능이 이 페이지에서 채우기 지원을 사용 중입니다."
   },
   "activateFillAssistV2": {
-    "message": "Turn on fill assist"
+    "message": "채우기 지원 켜기"
   },
   "activateFillAssistDescriptionV2": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+    "message": "채우기 지원은 사이트별 규칙을 사용하여 지원되는 사이트에서 자동 채우기 정확도를 향상시킵니다. 이 기능을 사용할 때 수집되거나 저장되는 데이터는 없습니다."
   },
   "aboutFillAssistLabelV2": {
-    "message": "About fill assist"
+    "message": "채우기 지원 정보"
   },
   "honorDataBitwardenIgnoreAttributeLabel": {
     "message": "Allow websites to exclude fields to autofill"
@@ -2775,7 +2775,7 @@
     }
   },
   "clearSearch": {
-    "message": "Clear search"
+    "message": "검색 초기화"
   },
   "selected": {
     "message": "선택됨"
@@ -8007,16 +8007,16 @@
     "message": "모두 완료했습니다!"
   },
   "permissions": {
-    "message": "Permissions"
+    "message": "권한"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "항목 보기"
   },
   "viewItemsHidePass": {
     "message": "View items, hidden passwords"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "항목 편집"
   },
   "editItemsHidePass": {
     "message": "Edit items, hidden passwords"
