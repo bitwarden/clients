@@ -60,6 +60,15 @@ const SELECTION_COLUMN_WIDTH = "56px";
 const GROUP_HEADER_HEIGHT = 40;
 const SUBGROUP_HEADER_HEIGHT = 28;
 
+/**
+ * Fixed height (px) of a group description when virtualized: two `text-sm` lines (20px
+ * each) plus the cell's `tw-pb-2`. Descriptions are consumer-supplied localized strings,
+ * so they wrap in narrow tables even where English doesn't — two lines is the allowance,
+ * and the cell clamps past it. The strategy never measures, so every description gets
+ * this height whether or not it wraps.
+ */
+const GROUP_DESCRIPTION_HEIGHT = 48;
+
 /** The `filterValues` key a projected `bit-search`'s term is adopted under. */
 const SEARCH_FILTER_KEY = "search";
 
@@ -767,10 +776,18 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (rowHeight === undefined) {
       return [];
     }
-    return this.renderItems().map((item) =>
-      item.kind === "row" ? rowHeight : this.headerHeight(item.level),
-    );
+    return this.renderItems().map((item) => {
+      if (item.kind === "row") {
+        return rowHeight;
+      }
+      return item.kind === "groupDescription"
+        ? this.groupDescriptionHeight
+        : this.headerHeight(item.level);
+    });
   });
+
+  /** @see {@link GROUP_DESCRIPTION_HEIGHT} */
+  protected readonly groupDescriptionHeight = GROUP_DESCRIPTION_HEIGHT;
 
   /** Fixed virtualized height for a group header at `level` (0 = top, 1 = subgroup). */
   protected headerHeight(level: number): number {

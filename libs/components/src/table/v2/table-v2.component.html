@@ -109,13 +109,17 @@
       }
     </div>
   } @else if (item.kind === "groupDescription") {
-    <!-- Sized like a header, so the scroll strategy's fixed height holds; text clips past one line. -->
+    <!--
+      Virtualized, the cell takes the fixed height the scroll strategy allocated and clamps
+      the text to the two lines that height covers; otherwise it grows to content.
+    -->
     <div role="row">
       <div
         role="cell"
         [attr.aria-colspan]="columnCount()"
         class="tw-px-1 tw-pb-2 tw-text-sm tw-text-muted"
-        [style.height.px]="forceHeight ? headerHeight(item.level) : null"
+        [class.tw-line-clamp-2]="forceHeight"
+        [style.height.px]="forceHeight ? groupDescriptionHeight : null"
       >
         {{ item.group.description() }}
       </div>

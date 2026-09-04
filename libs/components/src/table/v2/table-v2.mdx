@@ -537,9 +537,8 @@ projected content is the header label, and the row count is appended automatical
 - **First-match-wins**, in declaration order. Rows no group claims render in a trailing headerless
   block; empty groups render nothing by default.
 - **`collapsible`** turns the header into a toggle that hides the group's rows (open by default).
-- **`[description]`** renders a line of explanatory text under the header. Keep it to one line —
-  under virtualization the row is fixed to the header's height, so longer text clips. Top-level
-  groups only.
+- **`[description]`** renders explanatory text under the header. Under virtualization it gets a
+  fixed two-line allowance and clamps past that, so keep it short. Top-level groups only.
 - **`[hideOnEmpty]`** (default `true`) drops a group with no matching rows. Clear it to keep the
   header and description on screen instead, so the description stands in for the missing rows — the
   extension's "Save a login item for this site to autofill" tip under an empty autofill-suggestions
