@@ -299,10 +299,10 @@
             bitButton
             buttonType="secondary"
             [bitAction]="disableSystem"
-            id="target-system-edit_button_disable"
+            id="target-system-edit_button_deactivate"
             class="tw-ms-auto"
           >
-            {{ "pamTargetSystemDisable" | i18n }}
+            {{ "pamTargetSystemDeactivate" | i18n }}
           </button>
         } @else {
           <button
@@ -310,10 +310,10 @@
             bitButton
             buttonType="secondary"
             [bitAction]="enableSystem"
-            id="target-system-edit_button_enable"
+            id="target-system-edit_button_activate"
             class="tw-ms-auto"
           >
-            {{ "pamTargetSystemEnable" | i18n }}
+            {{ "pamTargetSystemActivate" | i18n }}
           </button>
         }
       </div>

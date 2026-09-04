@@ -9,11 +9,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { DaemonsService } from "../daemons/daemons.service";
-import type { TargetSystem } from "../rotation";
+import { DaemonStatus, type AccessConnector, type TargetSystem } from "../rotation";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
-import { ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
+import { accessConnector, connectorId, ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
 
-import { TargetSystemsTabComponent } from "./target-systems-tab.component";
+import { TargetSystemRow, TargetSystemsTabComponent } from "./target-systems-tab.component";
 import { TargetSystemsService } from "./target-systems.service";
 
 /** Echoes the key as its translation so form-field components don't crash. */
@@ -47,7 +47,11 @@ describe("TargetSystemsTabComponent", () => {
     setEnabled: jest.Mock;
     delete: jest.Mock;
   };
-  let daemonsService: { forgetTargetSystem: jest.Mock };
+  let daemonsService: {
+    daemons$: BehaviorSubject<AccessConnector[]>;
+    forgetTargetSystem: jest.Mock;
+    assign: jest.Mock;
+  };
   let router: Router;
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
@@ -62,7 +66,11 @@ describe("TargetSystemsTabComponent", () => {
       setEnabled: jest.fn().mockResolvedValue(undefined),
       delete: jest.fn().mockResolvedValue(undefined),
     };
-    daemonsService = { forgetTargetSystem: jest.fn() };
+    daemonsService = {
+      daemons$: new BehaviorSubject<AccessConnector[]>([]),
+      forgetTargetSystem: jest.fn(),
+      assign: jest.fn().mockResolvedValue(undefined),
+    };
     dialogService = mock<DialogService>();
     dialogService.openSimpleDialog.mockResolvedValue(false);
     toastService = mock<ToastService>();
@@ -268,6 +276,100 @@ describe("TargetSystemsTabComponent", () => {
         expect.objectContaining({ variant: "error" }),
       );
       expect(daemonsService.forgetTargetSystem).not.toHaveBeenCalled();
+    }));
+  });
+
+  describe("canAssignConnectors row flag", () => {
+    it("is true only for an active, automatic-method target", () => {
+      targetSystemsService.systems$.next([
+        makeSystem({
+          id: sysId("sys-active-automatic"),
+          status: TargetSystemStatus.Active,
+          method: TargetSystemMethod.Automatic,
+        }),
+        makeSystem({
+          id: sysId("sys-disabled-automatic"),
+          status: TargetSystemStatus.Disabled,
+          method: TargetSystemMethod.Automatic,
+        }),
+        makeSystem({
+          id: sysId("sys-active-manual"),
+          status: TargetSystemStatus.Active,
+          method: TargetSystemMethod.Manual,
+        }),
+      ]);
+      fixture.detectChanges();
+
+      const rows = (component as unknown as { dataSource: { data: TargetSystemRow[] } }).dataSource
+        .data;
+
+      expect(rows.find((r) => r.id === sysId("sys-active-automatic"))?.canAssignConnectors).toBe(
+        true,
+      );
+      expect(rows.find((r) => r.id === sysId("sys-disabled-automatic"))?.canAssignConnectors).toBe(
+        false,
+      );
+      expect(rows.find((r) => r.id === sysId("sys-active-manual"))?.canAssignConnectors).toBe(
+        false,
+      );
+    });
+  });
+
+  describe("openAssignConnectorDialog", () => {
+    type AssignComp = { openAssignConnectorDialog: (s: TargetSystem) => Promise<void> };
+
+    it("assigns the selected connector and shows a success toast", fakeAsync(() => {
+      const sys = makeSystem({ id: sysId("sys-1") });
+      const connector = accessConnector({ id: connectorId("c-1"), status: DaemonStatus.Enabled });
+      daemonsService.daemons$.next([connector]);
+      dialogService.open.mockReturnValue({ closed: of(connectorId("c-1")) } as any);
+
+      void (component as unknown as AssignComp).openAssignConnectorDialog(sys);
+      flushMicrotasks();
+
+      expect(daemonsService.assign).toHaveBeenCalledWith(connector, sys.id);
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+    }));
+
+    it("does not assign when the dialog is dismissed", fakeAsync(() => {
+      const sys = makeSystem({ id: sysId("sys-1") });
+      dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
+
+      void (component as unknown as AssignComp).openAssignConnectorDialog(sys);
+      flushMicrotasks();
+
+      expect(daemonsService.assign).not.toHaveBeenCalled();
+    }));
+
+    it("excludes connectors already assigned to this target and disabled connectors from the options", fakeAsync(() => {
+      const sys = makeSystem({ id: sysId("sys-1") });
+      const alreadyAssigned = accessConnector({
+        id: connectorId("c-assigned"),
+        status: DaemonStatus.Enabled,
+        assignedTargetSystemIds: [sys.id],
+      });
+      const disabled = accessConnector({
+        id: connectorId("c-disabled"),
+        status: DaemonStatus.Disabled,
+      });
+      const available = accessConnector({
+        id: connectorId("c-available"),
+        status: DaemonStatus.Enabled,
+      });
+      daemonsService.daemons$.next([alreadyAssigned, disabled, available]);
+      dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
+
+      void (component as unknown as AssignComp).openAssignConnectorDialog(sys);
+      flushMicrotasks();
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: expect.objectContaining({ options: [available] }),
+        }),
+      );
     }));
   });
 });

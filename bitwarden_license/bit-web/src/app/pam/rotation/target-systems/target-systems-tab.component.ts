@@ -7,6 +7,7 @@ import { map } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   BadgeModule,
@@ -24,6 +25,9 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DaemonsService } from "../daemons/daemons.service";
 import {
+  AccessConnector,
+  AccessConnectorId,
+  DaemonStatus,
   TargetSystemId,
   TargetSystemKind,
   TargetSystemMethod,
@@ -31,6 +35,7 @@ import {
   TargetSystem,
 } from "../rotation";
 
+import { AssignConnectorDialogComponent } from "./assign-connector-dialog.component";
 import {
   TargetSystemsEmptyStateComponent,
   TargetSystemTemplateKey,
@@ -46,6 +51,12 @@ export type TargetSystemRow = {
   kindLabel: string | null;
   statusLabel: string;
   active: boolean;
+  /**
+   * Only an active, automatic-method target can claim a connector assignment — mirrors
+   * `TargetSystemsService.activeAutomaticSystems$`, the same gate the connector-side "Assign
+   * targets" dialog uses to build its own options.
+   */
+  canAssignConnectors: boolean;
 };
 
 /**
@@ -91,6 +102,9 @@ export class TargetSystemsTabComponent {
   private readonly systems = toSignal(this.targetSystemsService.systems$, {
     initialValue: [] as TargetSystem[],
   });
+  private readonly daemons = toSignal(this.daemonsService.daemons$, {
+    initialValue: [] as AccessConnector[],
+  });
 
   protected readonly dataSource = new TableDataSource<TargetSystemRow>();
   protected readonly searchControl = new FormControl("", { nonNullable: true });
@@ -133,6 +147,41 @@ export class TargetSystemsTabComponent {
   /** Navigate to the edit page for a target system. */
   protected readonly openEdit = (system: TargetSystem): Promise<boolean> =>
     this.router.navigate(["..", "target-systems", system.id], { relativeTo: this.route });
+
+  /**
+   * Open the mirror of the access-connectors tab's "Assign targets" dialog: pick an enabled
+   * connector for this target instead of picking a target for a fixed connector. Both resolve
+   * to the same {@link DaemonsService.assign} call with the two ids in the same positions.
+   */
+  protected readonly openAssignConnectorDialog = async (system: TargetSystem): Promise<void> => {
+    const daemons = this.daemons();
+    const assigned = new Set(
+      daemons.filter((d) => d.assignedTargetSystemIds.includes(system.id)).map((d) => d.id),
+    );
+    const options = daemons.filter((d) => d.status === DaemonStatus.Enabled && !assigned.has(d.id));
+
+    const ref = AssignConnectorDialogComponent.open(this.dialogService, {
+      data: { targetSystem: system, options },
+    });
+    const selectedId = await ref.closed.toPromise();
+    if (!selectedId) {
+      return;
+    }
+    const accessConnectorId = asUuid<AccessConnectorId>(selectedId);
+    const daemon = this.daemons().find((d) => d.id === accessConnectorId);
+    if (!daemon) {
+      return;
+    }
+    try {
+      await this.daemonsService.assign(daemon, system.id);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamTargetSystemAssignConnectorSuccess"),
+      });
+    } catch (e) {
+      this.showError(e);
+    }
+  };
 
   /** Disable a target system after confirming with the operator. */
   protected readonly disable = async (system: TargetSystem): Promise<void> => {
@@ -216,6 +265,9 @@ export class TargetSystemsTabComponent {
           : "pamTargetSystemStatusDisabled",
       ),
       active: system.status === TargetSystemStatus.Active,
+      canAssignConnectors:
+        system.status === TargetSystemStatus.Active &&
+        system.method === TargetSystemMethod.Automatic,
     }));
   }
 

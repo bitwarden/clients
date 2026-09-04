@@ -18677,11 +18677,29 @@
   "pamTargetSystemNoResults": {
     "message": "No target systems match your search."
   },
-  "pamTargetSystemDisable": {
-    "message": "Disable"
+  "pamTargetSystemEditTarget": {
+    "message": "Edit target"
   },
-  "pamTargetSystemEnable": {
-    "message": "Enable"
+  "pamTargetSystemDeactivate": {
+    "message": "Deactivate"
+  },
+  "pamTargetSystemActivate": {
+    "message": "Activate"
+  },
+  "pamTargetSystemDeleteTarget": {
+    "message": "Delete target"
+  },
+  "pamTargetSystemAssignConnectors": {
+    "message": "Assign access connectors"
+  },
+  "pamTargetSystemAssignConnectorTitle": {
+    "message": "Assign access connector"
+  },
+  "pamTargetSystemAssignConnectorLabel": {
+    "message": "Access connector"
+  },
+  "pamTargetSystemAssignConnectorNoOptions": {
+    "message": "All enabled access connectors are already assigned to this target system."
   },
   "pamTargetSystemDisableTitle": {
     "message": "Disable target system?"
@@ -18839,8 +18857,14 @@
   "pamAccessConnectorOffline": {
     "message": "Offline"
   },
-  "pamAccessConnectorAssignTarget": {
-    "message": "Assign to target"
+  "pamAccessConnectorViewDetails": {
+    "message": "View details"
+  },
+  "pamAccessConnectorAssignTargets": {
+    "message": "Assign targets"
+  },
+  "pamAccessConnectorDeleteAccessConnector": {
+    "message": "Delete access connector"
   },
   "pamAccessConnectorAssignTargetTitle": {
     "message": "Assign target system"
@@ -18856,6 +18880,9 @@
   },
   "pamAccessConnectorAssigned": {
     "message": "Target system assigned."
+  },
+  "pamTargetSystemAssignConnectorSuccess": {
+    "message": "Access connector assigned."
   },
   "pamAccessConnectorUnassign": {
     "message": "Remove $NAME$",
@@ -19052,8 +19079,14 @@
   "pamRotationConfigRecordManualSuccess": {
     "message": "Manual rotation recorded."
   },
-  "pamRotationConfigPause": {
-    "message": "Pause"
+  "pamRotationConfigEditCredential": {
+    "message": "Edit credential"
+  },
+  "pamRotationConfigDeleteCredential": {
+    "message": "Delete credential"
+  },
+  "pamRotationConfigPauseScheduledRotations": {
+    "message": "Pause scheduled rotations"
   },
   "pamRotationConfigPauseSuccess": {
     "message": "Rotation paused."
