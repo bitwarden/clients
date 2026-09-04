@@ -221,10 +221,7 @@ export default class RuntimeBackground {
         return result;
       }
       case "getUrlAutofillTargetingRules": {
-        // Because content scripts are injected into all _frames_, we give precedence
-        // to targeting rules matching by frame URI (`sender.url`) over tab URI, to avoid
-        // selector collision with coincidentally-matching in-frame structures.
-        const senderURL = sender.url ?? sender.tab?.url;
+        const senderURL = await this.resolveSenderFrameUrl(sender);
         const targetingRulesForUrl =
           await this.main.domainSettingsService.getTargetingRulesForUrl(senderURL);
 
@@ -264,6 +261,42 @@ export default class RuntimeBackground {
         break;
       }
     }
+  }
+
+  /** Resolves the URL currently loaded in the frame a message came from. */
+  private async resolveSenderFrameUrl(
+    sender: chrome.runtime.MessageSender,
+  ): Promise<string | undefined> {
+    const tabId = sender.tab?.id;
+    const frameId = sender.frameId;
+
+    if (tabId != null && frameId != null) {
+      /**
+       * Because content scripts are injected into all _frames_, frame URI takes precedence over tab URI
+       * to avoid selector collision with coincidentally-matching in-frame structures. `sender.url` is
+       * not a usable source for that: it reports the frame's last _cross-document_ navigation, so a
+       * same-document navigation (`history.pushState` / `replaceState`) leaves it pinned to the URL the
+       * document was committed at. Single-page apps that route after load would otherwise be matched
+       * against their entry URL for the life of the document.
+       *
+       * `webNavigation` tracks same-document navigations, so the frame lookup reports the live URL. The
+       * fallbacks cover a frame the lookup cannot resolve: the tab URI for a top-level frame (also
+       * same-document aware), and `sender.url` as a last resort.
+       */
+      const frameUrl = await BrowserApi.getFrameDetails({ tabId, frameId })
+        .then((frame) => frame?.url)
+        .catch((): undefined => undefined);
+
+      if (frameUrl) {
+        return frameUrl;
+      }
+    }
+
+    if (frameId === 0 && sender.tab?.url) {
+      return sender.tab.url;
+    }
+
+    return sender.url ?? sender.tab?.url;
   }
 
   private async handleSetBitwardenAsDefaultPasswordManager(
