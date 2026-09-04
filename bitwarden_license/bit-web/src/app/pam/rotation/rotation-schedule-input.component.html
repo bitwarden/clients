@@ -30,12 +30,65 @@
       [label]="'pamRotationScheduleMonthly' | i18n"
     ></bit-option>
     <bit-option
+      [value]="ScheduleInterval"
+      [label]="'pamRotationScheduleInterval' | i18n"
+    ></bit-option>
+    <bit-option
       [value]="QuartzSchedulePreset.Custom"
       [label]="'pamRotationScheduleCustom' | i18n"
     ></bit-option>
   </bit-select>
   <bit-hint>{{ "pamRotationScheduleTimezoneHint" | i18n }}</bit-hint>
 </bit-form-field>
+
+@if (presetControl.value === ScheduleInterval) {
+  <div class="tw-mt-4 tw-flex tw-gap-4">
+    <div class="tw-w-28">
+      <bit-form-field>
+        <bit-label>{{ "pamRotationScheduleIntervalCountLabel" | i18n }}</bit-label>
+        <input
+          bitInput
+          id="rotation-schedule-input_input_interval-count"
+          type="number"
+          min="1"
+          [attr.max]="intervalCountMax"
+          [formControl]="intervalCountControl"
+          (blur)="markTouched()"
+        />
+      </bit-form-field>
+    </div>
+    <div class="tw-flex-1">
+      <bit-form-field>
+        <bit-label>{{ "pamRotationScheduleIntervalUnitLabel" | i18n }}</bit-label>
+        <bit-select
+          id="rotation-schedule-input_select_interval-unit"
+          [formControl]="intervalUnitControl"
+          (blur)="markTouched()"
+        >
+          <bit-option
+            [value]="ScheduleIntervalUnit.Days"
+            [label]="'pamRotationScheduleIntervalUnitDays' | i18n"
+          ></bit-option>
+          <bit-option
+            [value]="ScheduleIntervalUnit.Months"
+            [label]="'pamRotationScheduleIntervalUnitMonths' | i18n"
+          ></bit-option>
+        </bit-select>
+      </bit-form-field>
+    </div>
+  </div>
+  <bit-form-field>
+    <bit-label>{{ "pamRotationScheduleIntervalTimeLabel" | i18n }}</bit-label>
+    <input
+      bitInput
+      id="rotation-schedule-input_input_interval-time"
+      type="time"
+      [formControl]="intervalTimeControl"
+      (blur)="markTouched()"
+    />
+    <bit-hint>{{ "pamRotationScheduleIntervalHint" | i18n }}</bit-hint>
+  </bit-form-field>
+}
 
 @if (presetControl.value === QuartzSchedulePreset.Custom) {
   <bit-form-field>
