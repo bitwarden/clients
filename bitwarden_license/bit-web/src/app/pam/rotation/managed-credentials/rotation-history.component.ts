@@ -170,8 +170,16 @@ export class RotationHistoryComponent {
    * the directory refused failed two ways, and claiming one cause for it would misdescribe why an
    * access change failed. Attempts whose reason is unrecognised are skipped rather than
    * disqualifying - they keep their own raw reason on their own row.
+   *
+   * A job that is still running, or that retried and succeeded, carries errored attempts too, so
+   * the job's own status gates the derivation: only a job that finished failed has a cause to
+   * state.
    */
   protected jobFailureCauseLabelKey(job: RotationJob): string | null {
+    if (job.status !== RotationJobStatus.Failed && job.status !== RotationJobStatus.TimedOut) {
+      return null;
+    }
+
     let shared: string | null = null;
 
     for (const attempt of job.attempts) {

@@ -195,6 +195,7 @@ describe("RotationHistoryComponent", () => {
     it("returns the shared key when every attempt failed the same recognised way", () => {
       setup([]);
       const job = makeJob({
+        status: RotationJobStatus.Failed,
         attempts: [
           failedAttempt("7", "target_rejected: LDAP result code 50"),
           failedAttempt("8", "target_rejected: LDAP result code 50"),
@@ -210,6 +211,7 @@ describe("RotationHistoryComponent", () => {
     it("returns null when the attempts resolve to two different causes", () => {
       setup([]);
       const job = makeJob({
+        status: RotationJobStatus.Failed,
         attempts: [
           failedAttempt("7", "target_rejected: LDAP result code 50"),
           failedAttempt("8", "target_unreachable: error kind: ConnectionRefused"),
@@ -222,6 +224,7 @@ describe("RotationHistoryComponent", () => {
     it("skips an unrecognised attempt rather than letting it disqualify the job", () => {
       setup([]);
       const job = makeJob({
+        status: RotationJobStatus.Failed,
         attempts: [
           failedAttempt("7", "target_rejected: LDAP result code 50"),
           failedAttempt("8", "flaky target"),
@@ -235,14 +238,54 @@ describe("RotationHistoryComponent", () => {
 
     it("returns null when no attempt failed", () => {
       setup([]);
-      expect((component as any).jobFailureCauseLabelKey(makeJob())).toBeNull();
+      expect(
+        (component as any).jobFailureCauseLabelKey(makeJob({ status: RotationJobStatus.Failed })),
+      ).toBeNull();
     });
 
     it("returns null when the only failure is unrecognised", () => {
       setup([]);
-      const job = makeJob({ attempts: [failedAttempt("7", "flaky target")] });
+      const job = makeJob({
+        status: RotationJobStatus.Failed,
+        attempts: [failedAttempt("7", "flaky target")],
+      });
 
       expect((component as any).jobFailureCauseLabelKey(job)).toBeNull();
+    });
+
+    it("returns null for a job that retried and succeeded", () => {
+      setup([]);
+      const job = makeJob({
+        status: RotationJobStatus.Succeeded,
+        attempts: [
+          failedAttempt("7", "target_rejected: LDAP result code 53"),
+          rotationAttempt({ id: attemptId("8"), status: RotationAttemptStatus.Rotated }),
+        ],
+      });
+
+      expect((component as any).jobFailureCauseLabelKey(job)).toBeNull();
+    });
+
+    it("returns null for a job that is still pending", () => {
+      setup([]);
+      const job = makeJob({
+        status: RotationJobStatus.Pending,
+        attempts: [failedAttempt("7", "target_rejected: LDAP result code 53")],
+      });
+
+      expect((component as any).jobFailureCauseLabelKey(job)).toBeNull();
+    });
+
+    it("returns the shared key for a timed-out job", () => {
+      setup([]);
+      const job = makeJob({
+        status: RotationJobStatus.TimedOut,
+        attempts: [failedAttempt("7", "target_rejected: LDAP result code 53")],
+      });
+
+      expect((component as any).jobFailureCauseLabelKey(job)).toBe(
+        "pamRotationFailureCauseDirectoryRefused",
+      );
     });
   });
 });
@@ -366,6 +409,7 @@ describe("RotationHistoryComponent rendering", () => {
   it("states one shared cause once for the job instead of once per attempt row", () => {
     const fixture = render([
       rotationJob({
+        status: RotationJobStatus.Failed,
         attempts: [
           failedAttempt("7", "target_rejected: LDAP result code 50"),
           failedAttempt("8", "target_rejected: LDAP result code 50"),
@@ -390,7 +434,10 @@ describe("RotationHistoryComponent rendering", () => {
 
   it("spans the cause row across all four columns", () => {
     const fixture = render([
-      rotationJob({ attempts: [failedAttempt("7", "target_rejected: LDAP result code 50")] }),
+      rotationJob({
+        status: RotationJobStatus.Failed,
+        attempts: [failedAttempt("7", "target_rejected: LDAP result code 50")],
+      }),
     ]);
 
     const cells = fixture.debugElement.queryAll(
@@ -404,6 +451,7 @@ describe("RotationHistoryComponent rendering", () => {
   it("keeps a cause on every attempt row when the job failed in two different ways", () => {
     const fixture = render([
       rotationJob({
+        status: RotationJobStatus.Failed,
         attempts: [
           failedAttempt("7", "target_rejected: LDAP result code 50"),
           failedAttempt("8", "target_unreachable: error kind: ConnectionRefused"),
@@ -421,6 +469,7 @@ describe("RotationHistoryComponent rendering", () => {
   it("keeps an unrecognised reason on its own row beside the job-level cause", () => {
     const fixture = render([
       rotationJob({
+        status: RotationJobStatus.Failed,
         attempts: [
           failedAttempt("7", "target_rejected: LDAP result code 50"),
           failedAttempt("8", "target_rejected: LDAP result code 50"),
@@ -431,5 +480,26 @@ describe("RotationHistoryComponent rendering", () => {
 
     expect(fixture.debugElement.queryAll(By.css("bit-callout"))).toHaveLength(1);
     expect(fixture.nativeElement.textContent).toContain("flaky target");
+  });
+
+  it("states no job-level cause for a job that retried and succeeded", () => {
+    const fixture = render([
+      rotationJob({
+        status: RotationJobStatus.Succeeded,
+        attempts: [
+          failedAttempt("7", "target_rejected: LDAP result code 53"),
+          rotationAttempt({ id: attemptId("8"), status: RotationAttemptStatus.Rotated }),
+        ],
+      }),
+    ]);
+
+    expect(fixture.debugElement.queryAll(By.css("bit-callout"))).toHaveLength(0);
+    expect(
+      fixture.debugElement.queryAll(By.css("[data-testid='rotation-history-job-cause-row']")),
+    ).toHaveLength(0);
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain("pamRotationJobStatusSucceeded");
+    expect(text.match(/pamRotationFailureCauseDirectoryRefused/g)).toHaveLength(1);
   });
 });
