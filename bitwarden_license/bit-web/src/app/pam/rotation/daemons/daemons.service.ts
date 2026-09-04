@@ -22,7 +22,7 @@ import { TargetSystemsService } from "../target-systems/target-systems.service";
 export type DaemonRow = {
   id: AccessConnectorId;
   name: string;
-  /** i18n key for the status badge label: pamDaemonStatusEnabled | pamDaemonStatusDisabled. */
+  /** i18n key for the status badge label: pamAccessConnectorStatusEnabled | pamAccessConnectorStatusDisabled. */
   statusLabelKey: string;
   isConnected: boolean;
   /** Target system names for the assignment badges; falls back to the raw ID when not found. */
@@ -223,8 +223,8 @@ export class DaemonsService {
       name: daemon.name,
       statusLabelKey:
         daemon.status === DaemonStatus.Enabled
-          ? "pamDaemonStatusEnabled"
-          : "pamDaemonStatusDisabled",
+          ? "pamAccessConnectorStatusEnabled"
+          : "pamAccessConnectorStatusDisabled",
       isConnected: daemon.isConnected,
       assignmentNames: daemon.assignedTargetSystemIds.map(
         (id) => systemById.get(id)?.name ?? String(id),

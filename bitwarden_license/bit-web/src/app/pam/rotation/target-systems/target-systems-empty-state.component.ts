@@ -40,7 +40,7 @@ const TEMPLATES: TargetSystemTemplate[] = [
     key: "custom-script",
     icon: "bwi-terminal",
     titleKey: "pamTargetSystemKindCustomScript",
-    summaryKey: "pamTargetSystemTemplateCustomScriptSummary",
+    summaryKey: "pamTargetSystemTemplateCustomScriptConnectorSummary",
   },
 ];
 

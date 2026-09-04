@@ -18584,8 +18584,8 @@
   "pamRotationTabTargetSystems": {
     "message": "Target systems"
   },
-  "pamRotationTabDaemons": {
-    "message": "Daemons"
+  "pamRotationTabAccessConnectors": {
+    "message": "Access connectors"
   },
   "pamRotationConfigCreateTitle": {
     "message": "Add managed credential"
@@ -18671,8 +18671,8 @@
   "pamTargetSystemTemplateEntraSummary": {
     "message": "Bitwarden automatically rotates a Microsoft Entra ID application secret."
   },
-  "pamTargetSystemTemplateCustomScriptSummary": {
-    "message": "Bitwarden automatically rotates the credential by running your script on a registered daemon."
+  "pamTargetSystemTemplateCustomScriptConnectorSummary": {
+    "message": "Bitwarden automatically rotates the credential by running your script on a registered access connector."
   },
   "pamTargetSystemNoResults": {
     "message": "No target systems match your search."
@@ -18779,8 +18779,8 @@
   "pamTargetSystemSupportsSessionTermination": {
     "message": "Supports session termination"
   },
-  "pamTargetSystemSupportsSessionTerminationHint": {
-    "message": "When enabled, the daemon will terminate active sessions after a credential is rotated."
+  "pamTargetSystemSupportsSessionTerminationConnectorHint": {
+    "message": "When enabled, the access connector will terminate active sessions after a credential is rotated."
   },
   "pamTargetSystemSessionTerminationSupported": {
     "message": "Supported"
@@ -18800,64 +18800,64 @@
   "pamTargetSystemSetupGuidanceTitle": {
     "message": "Finish setting up rotation"
   },
-  "pamTargetSystemSetupGuidanceAutomaticDaemon": {
-    "message": "On the Daemons tab, register a rotation daemon (or reuse an existing one) and assign this target system to it — the daemon performs the rotations."
+  "pamTargetSystemSetupGuidanceAutomaticAccessConnector": {
+    "message": "On the Access connectors tab, register an access connector (or reuse an existing one) and assign this target system to it — the access connector performs the rotations."
   },
   "pamTargetSystemSetupGuidanceAutomaticCredential": {
     "message": "On the Managed credentials tab, add a credential for this target system, then set the account to rotate and a schedule."
   },
-  "pamTargetSystemSetupGuidanceManual": {
-    "message": "On the Managed credentials tab, add a credential for this target system. There is no daemon to connect — you rotate the credential by hand and record each rotation there."
+  "pamTargetSystemSetupGuidanceManualConnector": {
+    "message": "On the Managed credentials tab, add a credential for this target system. There is no access connector to connect — you rotate the credential by hand and record each rotation there."
   },
   "pamTargetSystemNotFound": {
     "message": "Target system not found."
   },
-  "pamDaemonSearch": {
-    "message": "Search daemons"
+  "pamAccessConnectorSearch": {
+    "message": "Search access connectors"
   },
-  "pamDaemonNew": {
-    "message": "New daemon"
+  "pamAccessConnectorNew": {
+    "message": "New access connector"
   },
-  "pamDaemonRegister": {
-    "message": "Register daemon"
+  "pamAccessConnectorRegister": {
+    "message": "Register access connector"
   },
-  "pamDaemonEmptyStateTitle": {
-    "message": "No daemons registered"
+  "pamAccessConnectorEmptyStateTitle": {
+    "message": "No access connectors registered"
   },
-  "pamDaemonEmptyStateDescription": {
-    "message": "Register a daemon to start rotating credentials."
+  "pamAccessConnectorEmptyStateDescription": {
+    "message": "Register an access connector to start rotating credentials."
   },
-  "pamDaemonConnection": {
+  "pamAccessConnectorConnection": {
     "message": "Connection"
   },
-  "pamDaemonAssignments": {
+  "pamAccessConnectorAssignments": {
     "message": "Assigned targets"
   },
-  "pamDaemonConnected": {
+  "pamAccessConnectorConnected": {
     "message": "Connected"
   },
-  "pamDaemonOffline": {
+  "pamAccessConnectorOffline": {
     "message": "Offline"
   },
-  "pamDaemonAssignTarget": {
+  "pamAccessConnectorAssignTarget": {
     "message": "Assign to target"
   },
-  "pamDaemonAssignTargetTitle": {
+  "pamAccessConnectorAssignTargetTitle": {
     "message": "Assign target system"
   },
-  "pamDaemonAssignTargetLabel": {
+  "pamAccessConnectorAssignTargetLabel": {
     "message": "Target system"
   },
-  "pamDaemonAssignNoOptions": {
-    "message": "All active automatic target systems are already assigned to this daemon."
+  "pamAccessConnectorAssignNoOptions": {
+    "message": "All active automatic target systems are already assigned to this access connector."
   },
-  "pamDaemonAssignConfirm": {
+  "pamAccessConnectorAssignConfirm": {
     "message": "Assign"
   },
-  "pamDaemonAssigned": {
+  "pamAccessConnectorAssigned": {
     "message": "Target system assigned."
   },
-  "pamDaemonUnassign": {
+  "pamAccessConnectorUnassign": {
     "message": "Remove $NAME$",
     "placeholders": {
       "name": {
@@ -18866,11 +18866,11 @@
       }
     }
   },
-  "pamDaemonUnassignConfirmTitle": {
+  "pamAccessConnectorUnassignConfirmTitle": {
     "message": "Remove assignment?"
   },
-  "pamDaemonUnassignConfirmContent": {
-    "message": "Remove $NAME$ from this daemon? Active rotation jobs claimed by this daemon will continue to completion.",
+  "pamAccessConnectorUnassignConfirmContent": {
+    "message": "Remove $NAME$ from this access connector? Active rotation jobs claimed by this access connector will continue to completion.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -18878,19 +18878,19 @@
       }
     }
   },
-  "pamDaemonUnassigned": {
+  "pamAccessConnectorUnassigned": {
     "message": "Target system removed."
   },
-  "pamDaemonDisable": {
+  "pamAccessConnectorDisable": {
     "message": "Disable"
   },
-  "pamDaemonEnable": {
+  "pamAccessConnectorEnable": {
     "message": "Enable"
   },
-  "pamDaemonDisableConfirmTitle": {
-    "message": "Disable daemon?"
+  "pamAccessConnectorDisableConfirmTitle": {
+    "message": "Disable access connector?"
   },
-  "pamDaemonDisableConfirmContent": {
+  "pamAccessConnectorDisableConfirmContent": {
     "message": "Disable $NAME$? It stops claiming new rotation jobs and any jobs it is currently running are released. You can re-enable it later.",
     "placeholders": {
       "name": {
@@ -18899,17 +18899,17 @@
       }
     }
   },
-  "pamDaemonDisabled": {
-    "message": "Daemon disabled."
+  "pamAccessConnectorDisabled": {
+    "message": "Access connector disabled."
   },
-  "pamDaemonEnabled": {
-    "message": "Daemon enabled."
+  "pamAccessConnectorEnabled": {
+    "message": "Access connector enabled."
   },
-  "pamDaemonDeleteConfirmTitle": {
-    "message": "Delete daemon?"
+  "pamAccessConnectorDeleteConfirmTitle": {
+    "message": "Delete access connector?"
   },
-  "pamDaemonDeleteConfirmContent": {
-    "message": "Deleting $NAME$ is permanent and invalidates its credentials. This daemon held the organization key in memory — if you suspect a compromise, rotate the organization key as a remediation. Running rotation jobs are released. Register a new daemon to resume rotation.",
+  "pamAccessConnectorDeleteConfirmContent": {
+    "message": "Deleting $NAME$ is permanent and invalidates its credentials. This access connector held the organization key in memory — if you suspect a compromise, rotate the organization key as a remediation. Running rotation jobs are released. Register a new access connector to resume rotation.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -18917,65 +18917,65 @@
       }
     }
   },
-  "pamDaemonDeleted": {
-    "message": "Daemon deleted."
+  "pamAccessConnectorDeleted": {
+    "message": "Access connector deleted."
   },
-  "pamDaemonRegisterTitle": {
-    "message": "Register daemon"
+  "pamAccessConnectorRegisterTitle": {
+    "message": "Register access connector"
   },
-  "pamDaemonNamePlaceholder": {
+  "pamAccessConnectorNamePlaceholder": {
     "message": "e.g. On-prem production server"
   },
-  "pamDaemonNameHint": {
-    "message": "A descriptive name to identify this daemon. Max 200 characters."
+  "pamAccessConnectorNameHint": {
+    "message": "A descriptive name to identify this access connector. Max 200 characters."
   },
-  "pamDaemonRegistered": {
-    "message": "Daemon registered."
+  "pamAccessConnectorRegistered": {
+    "message": "Access connector registered."
   },
-  "pamDaemonNoResults": {
-    "message": "No daemons match your search."
+  "pamAccessConnectorNoResults": {
+    "message": "No access connectors match your search."
   },
-  "pamDaemonDetailTitle": {
-    "message": "Daemon"
+  "pamAccessConnectorDetailTitle": {
+    "message": "Access connector"
   },
-  "pamDaemonNotFound": {
-    "message": "Daemon not found."
+  "pamAccessConnectorNotFound": {
+    "message": "Access connector not found."
   },
-  "pamDaemonDetailsHeading": {
+  "pamAccessConnectorDetailsHeading": {
     "message": "Details"
   },
-  "pamDaemonActivityHeading": {
+  "pamAccessConnectorActivityHeading": {
     "message": "Recent activity"
   },
-  "pamDaemonActivityEmpty": {
+  "pamAccessConnectorActivityEmpty": {
     "message": "No rotation activity yet."
   },
-  "pamDaemonStatusEnabled": {
+  "pamAccessConnectorStatusEnabled": {
     "message": "Enabled"
   },
-  "pamDaemonStatusDisabled": {
+  "pamAccessConnectorStatusDisabled": {
     "message": "Disabled"
   },
-  "pamDaemonTokenTitle": {
-    "message": "Daemon token"
+  "pamAccessConnectorTokenTitle": {
+    "message": "Access connector token"
   },
-  "pamDaemonTokenWarningTitle": {
+  "pamAccessConnectorTokenWarningTitle": {
     "message": "Save this token now"
   },
-  "pamDaemonTokenWarningBody": {
-    "message": "This token is shown only once and cannot be retrieved later. Copy it and deliver it to the daemon operator out of band — paste it into the daemon configuration file. If the token is lost, delete this daemon and register a new one."
+  "pamAccessConnectorTokenDaemonWarningBody": {
+    "message": "This token is shown only once and cannot be retrieved later. Copy it and deliver it out of band to the operator of the rotation daemon that will use this access connector — paste it into the daemon's configuration file. If the token is lost, delete this access connector and register a new one."
   },
-  "pamDaemonTokenLabel": {
-    "message": "Daemon token"
+  "pamAccessConnectorTokenLabel": {
+    "message": "Access connector token"
   },
-  "pamDaemonTokenHint": {
+  "pamAccessConnectorTokenHint": {
     "message": "This token will not be shown again."
   },
-  "pamDaemonTokenCopy": {
+  "pamAccessConnectorTokenCopy": {
     "message": "Copy token"
   },
-  "pamDaemonTokenCopied": {
-    "message": "Daemon token copied."
+  "pamAccessConnectorTokenCopied": {
+    "message": "Access connector token copied."
   },
   "pamRotationConfigNew": {
     "message": "New managed credential"
@@ -19088,8 +19088,8 @@
   "pamRotationConfigRemove": {
     "message": "Remove rotation configuration"
   },
-  "pamRotationConfigRemoveLockedContent": {
-    "message": "A rotation job is currently in progress. You can remove the rotation configuration once the daemon finishes it — or once it times out. Pausing only stops new jobs; it does not cancel the one already running."
+  "pamRotationConfigRemoveLockedConnectorContent": {
+    "message": "A rotation job is currently in progress. You can remove the rotation configuration once the access connector finishes it — or once it times out. Pausing only stops new jobs; it does not cancel the one already running."
   },
   "pamRotationConfigCreateHeading": {
     "message": "Credential details"
@@ -19124,8 +19124,8 @@
   "pamRotationConfigAccountIdentity": {
     "message": "Account identity"
   },
-  "pamRotationConfigAccountIdentityHint": {
-    "message": "The account to rotate in the target system, e.g. a UPN, SQL login, or script argument. Passed to the daemon as-is."
+  "pamRotationConfigAccountIdentityConnectorHint": {
+    "message": "The account to rotate in the target system, e.g. a UPN, SQL login, or script argument. Passed to the access connector as-is."
   },
   "pamRotationConfigTerminateSessions": {
     "message": "Terminate active sessions after rotation"

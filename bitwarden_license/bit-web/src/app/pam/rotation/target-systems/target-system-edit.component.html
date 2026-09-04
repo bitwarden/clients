@@ -110,7 +110,9 @@
               id="target-system-edit_checkbox_session-termination"
             />
             <bit-label>{{ "pamTargetSystemSupportsSessionTermination" | i18n }}</bit-label>
-            <bit-hint>{{ "pamTargetSystemSupportsSessionTerminationHint" | i18n }}</bit-hint>
+            <bit-hint>{{
+              "pamTargetSystemSupportsSessionTerminationConnectorHint" | i18n
+            }}</bit-hint>
           </bit-form-control>
 
           @if (showTerminationWarning()) {
@@ -220,15 +222,15 @@
          ================================================================ -->
 
     <div class="tw-max-w-4xl">
-      <!-- Setup guidance: how to connect this target system to a daemon + add a credential -->
+      <!-- Setup guidance: how to connect this target system to an access connector + add a credential -->
       <bit-callout type="info" [title]="'pamTargetSystemSetupGuidanceTitle' | i18n">
         @if (existing()?.method === TargetSystemMethod.Automatic) {
           <ol class="tw-mb-0 tw-ps-4">
-            <li>{{ "pamTargetSystemSetupGuidanceAutomaticDaemon" | i18n }}</li>
+            <li>{{ "pamTargetSystemSetupGuidanceAutomaticAccessConnector" | i18n }}</li>
             <li>{{ "pamTargetSystemSetupGuidanceAutomaticCredential" | i18n }}</li>
           </ol>
         } @else {
-          <p class="tw-mb-0">{{ "pamTargetSystemSetupGuidanceManual" | i18n }}</p>
+          <p class="tw-mb-0">{{ "pamTargetSystemSetupGuidanceManualConnector" | i18n }}</p>
         }
       </bit-callout>
 

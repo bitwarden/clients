@@ -91,7 +91,7 @@ describe("RotationShellComponent", () => {
     const text = (fixture.nativeElement as HTMLElement).textContent ?? "";
     expect(text).toContain("pamRotationTabManagedCredentials");
     expect(text).toContain("pamRotationTabTargetSystems");
-    expect(text).toContain("pamRotationTabDaemons");
+    expect(text).toContain("pamRotationTabAccessConnectors");
   });
 
   it("calls load on RotationConfigsService with the organization id on init", async () => {
@@ -214,7 +214,7 @@ describe("RotationShellComponent (real router)", () => {
             { path: "", pathMatch: "full", redirectTo: "target-systems" },
             { path: "managed-credentials", component: StubComponent },
             { path: "target-systems", component: StubComponent },
-            { path: "daemons", component: StubComponent },
+            { path: "access-connectors", component: StubComponent },
           ],
         },
       ],
@@ -262,10 +262,10 @@ describe("RotationShellComponent (real router)", () => {
 
   it("reports the active tab from the child route", async () => {
     const shell = (await harness.navigateByUrl(
-      "/rotation/daemons",
+      "/rotation/access-connectors",
       RotationShellComponent,
     )) as unknown as { activeTab: () => string | null };
-    expect(shell.activeTab()).toBe("daemons");
+    expect(shell.activeTab()).toBe("access-connectors");
   });
 
   it("navigates from the shell to the sibling create page", async () => {
