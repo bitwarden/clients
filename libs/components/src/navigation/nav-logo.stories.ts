@@ -2,10 +2,8 @@ import { provideRouter } from "@angular/router";
 import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/angular";
 
 import { PasswordManagerLogo, SideNavLogoBeta } from "@bitwarden/assets/svg";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { enabledFlags } from "@bitwarden/storybook";
 
 import { LayoutComponent } from "../layout";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
@@ -64,9 +62,9 @@ export const Default: Story = {
   }),
 };
 
-export const DefaultVfo1: Story = {
+export const Dark: Story = {
   ...Default,
-  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  parameters: { themes: { themeOverride: "dark" } },
 };
 
 /**
@@ -82,4 +80,9 @@ export const Beta: Story = {
       <bit-nav-logo [openIcon]="logo" [route]="['']" label="Password Manager"></bit-nav-logo>
     `,
   }),
+};
+
+export const BetaDark: Story = {
+  ...Beta,
+  parameters: { themes: { themeOverride: "dark" } },
 };
