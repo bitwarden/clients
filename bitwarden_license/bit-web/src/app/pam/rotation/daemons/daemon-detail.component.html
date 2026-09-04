@@ -67,15 +67,40 @@
         </div>
 
         <div>
-          <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
-            {{ "pamDaemonAssignments" | i18n }}
-          </p>
-          @if (assignmentNames().length === 0) {
+          <div class="tw-mb-1 tw-flex tw-items-center tw-gap-3">
+            <p bitTypography="helper" class="tw-m-0 tw-font-semibold">
+              {{ "pamDaemonAssignments" | i18n }}
+            </p>
+            <button
+              type="button"
+              bitButton
+              buttonType="secondary"
+              size="small"
+              [bitAction]="assignTarget"
+              [disabled]="!enabled()"
+              [bitTooltip]="enabled() ? '' : ('pamDaemonDetailAssignDisabledTooltip' | i18n)"
+              id="daemon-detail_button_assign"
+            >
+              {{ "pamDaemonAssignTarget" | i18n }}
+            </button>
+          </div>
+          @if (assignments().length === 0) {
             <span class="tw-text-muted">&mdash;</span>
           } @else {
-            <div class="tw-flex tw-flex-wrap tw-gap-1">
-              @for (name of assignmentNames(); track $index) {
-                <span bitBadge variant="subtle">{{ name }}</span>
+            <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+              @for (assignment of assignments(); track assignment.id) {
+                <span class="tw-inline-flex tw-items-center tw-gap-1">
+                  <span bitBadge variant="subtle">{{ assignment.name }}</span>
+                  <button
+                    type="button"
+                    bitIconButton="bwi-minus-circle"
+                    size="small"
+                    [disabled]="unassigning()"
+                    label="{{ 'pamDaemonUnassign' | i18n: assignment.name }}"
+                    (click)="unassign(assignment)"
+                    [id]="'daemon-detail_button_unassign-' + assignment.id"
+                  ></button>
+                </span>
               }
             </div>
           }
