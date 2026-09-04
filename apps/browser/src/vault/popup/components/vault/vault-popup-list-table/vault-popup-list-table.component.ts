@@ -246,6 +246,14 @@ export class VaultPopupListTableComponent {
     initialValue: [] as ChipFilterOption<Organization>[],
   });
 
+  /**
+   * Organization names by id, including suspended organizations. {@link organizationOptions} omits
+   * those, so it can't label their collections — see {@link collectionsByOrg}.
+   */
+  private readonly organizationNames = toSignal(this.listFiltersService.organizationNames$, {
+    initialValue: new Map<string, string>(),
+  });
+
   private readonly collectionTree = toSignal(this.listFiltersService.collections$, {
     initialValue: [] as ChipFilterOption<CollectionView>[],
   });
@@ -277,7 +285,8 @@ export class VaultPopupListTableComponent {
 
   /**
    * Collections grouped by owning org, each group sorted alphabetically (the service pre-sorts),
-   * with groups themselves sorted by organization name.
+   * with groups themselves sorted by organization name. A collection whose organization isn't in
+   * {@link organizationNames} falls back to the localized "organization" label.
    */
   protected readonly collectionsByOrg = computed(() => {
     const groups = new Map<
@@ -292,9 +301,7 @@ export class VaultPopupListTableComponent {
       }
 
       if (!groups.has(orgId)) {
-        const orgName =
-          this.organizationOptions().find((o) => o.value?.id === option.value?.organizationId)
-            ?.label ?? orgId;
+        const orgName = this.organizationNames().get(orgId) ?? this.i18nService.t("organization");
         groups.set(orgId, { id: orgId, name: orgName, collections: [] });
       }
       groups.get(orgId)!.collections.push(option);

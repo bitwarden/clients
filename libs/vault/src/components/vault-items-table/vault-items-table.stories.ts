@@ -36,8 +36,8 @@ import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
 import { VaultItemsTableComponent, VaultItemsTableFilters } from "./vault-items-table.component";
 
 const organizations = [
-  { id: "org-1", name: "Acme corporation" },
-  { id: "org-2", name: "Contoso" },
+  { id: "org-1", name: "Acme corporation", enabled: true },
+  { id: "org-2", name: "Contoso", enabled: true },
 ] as Organization[];
 
 /**

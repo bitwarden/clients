@@ -535,8 +535,14 @@ projected content is the header label, and the row count is appended automatical
 ```
 
 - **First-match-wins**, in declaration order. Rows no group claims render in a trailing headerless
-  block; empty groups render nothing.
+  block; empty groups render nothing by default.
 - **`collapsible`** turns the header into a toggle that hides the group's rows (open by default).
+- **`[description]`** renders explanatory text under the header. Under virtualization it gets a
+  fixed two-line allowance and clamps past that, so keep it short. Top-level groups only.
+- **`[hideOnEmpty]`** (default `true`) drops a group with no matching rows. Clear it to keep the
+  header and description on screen instead, so the description stands in for the missing rows — the
+  extension's "Save a login item for this site to autofill" tip under an empty autofill-suggestions
+  group. Top-level groups only; an empty nested subgroup always hides.
 - **One level of nesting** — a `<bit-row-group>` inside another sub-partitions its parent's rows;
   deeper nesting is ignored (and warns).
 
@@ -545,6 +551,8 @@ combined with a paginator. It composes with [virtual scrolling](#virtual-scrolli
 viewport renders the interleaved headers and rows.
 
 <Canvas of={stories.GroupedVirtualized} />
+
+<Canvas of={stories.GroupedDescription} />
 
 ## Scrolling and the sticky header
 
