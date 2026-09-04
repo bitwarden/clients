@@ -2,11 +2,30 @@
   "bitwarden": {
     "message": "Bitwarden"
   },
+  "bitwardenBeta": {
+    "message": "Bitwarden Beta",
+    "description": "Product name for the beta channel; shown in the tray tooltip and About dialog"
+  },
   "filters": {
     "message": "Filtry"
   },
   "allItems": {
     "message": "Všechny položky"
+  },
+  "allVaultItems": {
+    "message": "Všechny položky trezoru"
+  },
+  "myItemsV2": {
+    "message": "My items"
+  },
+  "vaults": {
+    "message": "Trezory"
+  },
+  "tools": {
+    "message": "Nástroje"
+  },
+  "manage": {
+    "message": "Spravovat"
   },
   "favorites": {
     "message": "Oblíbené"
@@ -113,6 +132,48 @@
   "sharedFolders": {
     "message": "Sdílené složky"
   },
+  "sharedFoldersInParent": {
+    "message": "Sdílené složky v $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ sdílených složek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ sdílená složka",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ dalších sdílených složek zobrazených nad tímto tlačítkem",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 další sdílená složka zobrazená nad tímto tlačítkem",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "Moje složka"
   },
@@ -121,6 +182,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Přidejte složky k položkám pro jejich filtrování zde."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Přidejte položky do sdílené složky pro filtrování."
   },
   "addSharedFolder": {
     "message": "Přidat sdílenou složku"
@@ -1172,6 +1236,24 @@
   "editFolder": {
     "message": "Upravit složku"
   },
+  "editFolderNamed": {
+    "message": "Upravit $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "Smazat $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "regeneratePassword": {
     "message": "Vygenerovat jiné heslo"
   },
@@ -1355,11 +1437,41 @@
   "addedFolder": {
     "message": "Složka byla přidána"
   },
+  "folderEdited": {
+    "message": "Složka byla upravena"
+  },
+  "enterAName": {
+    "message": "Zadejte název."
+  },
   "deleteFolderConfirmation": {
     "message": "Opravdu chcete smazat tuto složku?"
   },
   "deletedFolder": {
     "message": "Složka byla smazána"
+  },
+  "foldersDeleted": {
+    "message": "Složky byly smazány"
+  },
+  "deleteFoldersCount": {
+    "message": "Smazat $COUNT$ složek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "Když smažete složku $NAME$, bude odebrána ze všech položek, na které byla použita. Samotné položky nebudou smazány.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "Když smažete tyto složky, budou odebrány ze všech položek, na které byly použity. Samotné položky nebudou smazány."
   },
   "loginOrCreateNewAccount": {
     "message": "Pro přístup do Vašeho bezpečného trezoru se přihlaste nebo si vytvořte nový účet."
@@ -2302,6 +2414,18 @@
   },
   "noMatchingItems": {
     "message": "Žádné odpovídající položky"
+  },
+  "noFiltersMatch": {
+    "message": "Žádné filtry neodpovídají \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Vymazat hledání"
   },
   "selected": {
     "message": "Vybráno"
@@ -4590,6 +4714,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "Podrobné pokyny k $NAME$ najdete v našem",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Centru nápovědy"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "Tento proces je naprosto stejný jako import z Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "V desktopové aplikaci KeePassX přejděte do \"Database\" → \"Export to CSV file\" a uložte CSV soubor."
+  },
+  "importAviraInstructions": {
+    "message": "Ve webovém trezoru Avira, přejděte do \"Settings\" → \"My data\" → \"Export data\" a uložte soubor CSV."
+  },
+  "importBlurInstructions": {
+    "message": "Ve webovém trezoru Blur klepměte na své uživatelské jméno v horní části a přejděte do \"Settings\" → \"Export data\" a poté klepněte na \"Export CSV\" pro \"Accounts\"."
+  },
+  "importSafeincloudInstructions": {
+    "message": "V desktopové aplikaci SafeInCloud přejděte do \"File\" → \"Export\" → \"As XML\" a uložte XML soubor."
+  },
+  "importPadlockInstructions": {
+    "message": "V desktopové aplikaci Padlock klepněte na ikonu menu v horní levé části a přejděte do \"Settings\" → \"Export\" a uložte soubor \"As CSV\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "V desktopové aplikaci KeePass 2 přejděte do \"File\" → \"Export\" a vyberte volbu \"KeePass XML (2.x)\"."
+  },
+  "importUpmInstructions": {
+    "message": "V desktopové aplikaci Universal Password Manager přejděte do \"Database\" → \"Export\" a uložte CSV soubor."
+  },
+  "importSaferpassInstructions": {
+    "message": "V rozšíření prohlížeče SaferPass klepněte na ikonu menu v horní levé části a přejděte do \"Settings\". Klepněte na tlačítko \"Export accounts\" pro uložení souboru CSV."
+  },
+  "importMeldiumInstructions": {
+    "message": "Ve webovém trezoru Meldium, přejděte do \"Settings\". Najděte funkci \"Export data\" a klepněte na \"Show me my data\" pro uložení souboru CSV."
+  },
+  "importPassworddragonInstructions": {
+    "message": "V desktopové aplikaci Password Dragon přejděte do \"File\" → \"Export\" → \"To XML\". V zobrazeném dialogovém okně vyberte volbu \"All Rows\" a zaškrtněte všechna pole. Klepněte na tlačítko \"Export\" a uložte soubor XML."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "V desktopové aplikaci Enpass přejděte do \"File\" → \"Export\" → \"As CSV\". Vyberte \"OK\" do výstrahy a uložte soubor CSV. Upozorňujeme, že importér podporuje jen soubory exportované v programu s nastavenou angličtinou, proto nastavení odpovídajícím způsobem upravte."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "V desktopové aplikaci Enpass 6 klepněte na tlačítko menu a přejděte do \"File\" → \"Export\". Zvolte formát souboru \".json\" a uložte JSON soubor."
+  },
+  "importPwsafeInstructions": {
+    "message": "V desktopové aplikaci Password Safe přejděte do \"File\" → \"Export To\" → \"XML format…\" a uložte XML soubor."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Přihlaste se do Dashlane, klepněte na \"My Account\" → \"Settings\" → \"Export file\" a vyberte \"Export jako soubor CSV\". Tímto stáhnete zip archiv obsahující různé CSV soubory. Rozbalte archiv a importujte každý CSV soubor jednotlivě."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane již nepodporuje formát JSON. Použijte jen pokud máte existující JSON pro import. Při vytváření nových exportů použijte CSV importéra."
+  },
+  "importMsecureInstructions": {
+    "message": "V desktopové aplikaci mSecure přejděte do \"File\" → \"Export\" → \"CSV File…\" a uložte CSV soubor."
+  },
+  "importStickypasswordInstructions": {
+    "message": "V desktopové aplikaci Sticky Password přejděte do menu (vpravo nahoře) a zvolte \"Export\" → \"Export all\". Vyberte nešifrované XML a uložte XML soubor."
+  },
+  "importTruekeyInstructions": {
+    "message": "V desktopové aplikaci True Key klepněte na ikonu ozubeného kola (vpravo nahoře) a přejděte do \"App Settings\". Klepněte na tlačítko \"Export\", zadejte Vaše heslo a uložte CSV soubor."
+  },
+  "importClipperzInstructions": {
+    "message": "Přihlaste se do webové aplikace Clipperz (clipperz.is/app). Klepněte na ikonu menu vpravo nahoře pro rozbalení navigačního panelu. Přejděte do \"Data\" → \"Export\". Klepněte na tlačítko \"Download HTML+JSON\" pro uložení HTML souboru."
+  },
+  "importRoboformInstructions": {
+    "message": "V desktopové aplikaci RoboForm Editor přejděte do \"DoboForm\" (vlevo nahoře) a přejděte do \"Options\" → \"Account & Data\" a klepněte na tlačítko \"Export\". Vyberte všechna data, změňte \"Format\" na \"CSV file\" a poté klepněte na tlačítko \"Export\", abyste soubor CSV uložili. Poznámka: RoboForm umožňuje exportovat jen přihlašovací údaje. Ostatní položky nebudou exportovány."
+  },
+  "importPassboltInstructions": {
+    "message": "Přihlaste se do webového trezoru Passbolt a přejděte do seznamu \"Hesla\". Vyberte všechna hesla, která chcete exportovat a klepněte na tlačítko \"Export\" v horní části seznamu. Vyberte formát exportu \"csv (lastpass)\" a klepněte na tlačítko \"Export\"."
+  },
+  "importAscendoInstructions": {
+    "message": "V desktopové aplikaci Ascendo DataVault přejděte do \"Tools\" → \"Export\". V zobrazeném dialogovém okně vyberte volbu \"All Items (DVX, CSV)\". Klepnutím na tlačítko \"OK\" uložte CSV soubor."
+  },
+  "importPasswordbossInstructions": {
+    "message": "V desktopové aplikaci Password Boss přejděte do \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" a uložte JSON soubor."
+  },
+  "importZohoInstructions": {
+    "message": "Přihlaste se do webového trezoru Zoho (vault.zoho.com). Přejděte do \"Tools\" → \"Export Secrets\". Vyberte volbu \"All Secrets\" a klepněte na tlačítko \"Zoho Vault Format CSV\". Zvýrazněte a zkopírujte data z textového pole. Otevřete textový editor, například Poznámkový blok, a vložte do něj data. Uložte data z textového editoru jako",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "V desktopové aplikaci SplashID Safe klepněte na modré logo zámku vpravo nahoře. Přejděte do \"Export\" → \"Export as CSV\" a uložte CSV soubor."
+  },
+  "importPasskeepInstructions": {
+    "message": "V mobilní aplikaci PassKeep přejděte do \"Backup/Restore\". Najděte sekci \"CSV Backup/Restore\" a klepněte na \"Backup to CSV\" pro uložení CSV souboru."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Ujistěte se, že máte nainstalovaný python-keyring a python-gnomekeying. Uložte",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "Import/Export klíče GNOME"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "python skript na plochu jako",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Otevřete terminál a spusťte",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "a pak",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Nahrajte výsledný",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "soubor sem do Bitwardenu.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "V desktopové aplikaci Password Agent přejděte do \"File\" → \"Export\", klepněte na tlačítko \"Fields to export\" a zaškrtněte všechna políčka, změňte \"Output format\" na \"CSV\" a pak klepněte na tlačítko \"Start\", aby se uložil CSV soubor."
+  },
+  "importPasspackInstructions": {
+    "message": "Přihlaste se do webového trezoru Passpack a přejděte do \"Nastavení\" → \"Export\" a klepněte na tlačítko \"Download\" pro uložení CSV souboru."
+  },
+  "importPassmanInstructions": {
+    "message": "Otevřete trezor Passman a klepněte na \"Settings\" v levém dolním rohu. V okně \"Settings\" přepněte na záložku \"Export credentials\" a zvolte \"JSON\" jako typ exportu. Zadejte heslo Vašeho trezoru a klepněte na tlačítko \"Export\" pro uložení JSON souboru."
+  },
+  "importAvastCsvInstructions": {
+    "message": "V desktopové aplikaci Avast Passwords přejděte do \"Settings\" → \"Import/export data\". Vyberte tlačítko \"Export\" a zvolte \"Export to CSV file\" pro uložení CSV souboru."
+  },
+  "importAvastJsonInstructions": {
+    "message": "V desktopové aplikaci Avast Passwords přejděte do \"Settings\" → \"Import/export data\". Vyberte tlačítko \"Export\" a zvolte \"Export to JSON file\" pro uložení JSON souboru."
+  },
+  "importFsecureInstructions": {
+    "message": "V desktopové aplikaci F-Secure KEY přejděte do \"Settings\" → \"Export Passwrods\". Vyberte tlačítko \"Export\", zadejte hlavní heslo a uložte FSK soubor."
+  },
+  "importKasperskyInstructions": {
+    "message": "V desktopové aplikaci Kaspersky Password Manager přejděte do \"Settings\" → \"Import/Export\". Vyhledejte sekci \"Export to text file\" a vyberte tlačítko \"Export\" pro uložení TXT souboru."
+  },
+  "importRemembearInstructions": {
+    "message": "V desktopové aplikaci RememBear přejděte do \"Settings\" → \"Account\" → \"Export\". Zadejte své hlavní heslo a vyberte tlačítko \"Export Anyway\" pro uložení CSV souboru."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "V desktopové aplikaci PasswordWallet přejděte do \"File\" → \"Export\" → \"Visible entries to text file\". Zadejte své heslo a vyberte tlačítko \"OK\" pro uložení TXT souboru."
+  },
+  "importMykiInstructions": {
+    "message": "V rozšíření prohlížeče Myki přejděte do \"Advanced\" → \"Export Accounts\" a pak naskenujte QR kód pomocí Vašeho mobilního zařízení. Do složky pro stahování ve Vašem počítači pak budou uloženy různé CSV soubory."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Exportujte Vaše heslo SecureSafe bezpečně do souboru CSV pomocí oddělovače čárkou."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Otevřete rozšíření prohlížeče LogMeOnce a přejděte do \"Open Menu\" → \"Export To\" a vyberte \"CSV soubor\" pro uložení CSV souboru."
+  },
+  "importBlackberryInstructions": {
+    "message": "V aplikaci BlackBerry Password Keeper přejděte do \"Settings\" → \"Import/Export\". Vyberte \"Export Passwords\" a postupujte podle pokynů na obrazovce pro uložení nešifrovaného CSV souboru."
+  },
+  "importButtercupInstructions": {
+    "message": "V desktopové aplikaci Buttercup odemkněte Váš trezor. Klepněte pravým tlačítkem myši na ikonu Vašeho trezoru a vyberte \"Export\" pro uložení CSV souboru."
+  },
+  "importCodebookInstructions": {
+    "message": "Otevřete aplikaci Codebook a přihlaste se. Přejděte do \"File\" → \"Export all\" a pak klepněte na \"Yes\" v dialogovém okně a uložte CSV soubor."
+  },
+  "importEncryptrInstructions": {
+    "message": "Otevřete nejnovější verzi desktopové aplikace Encryptr a umožněte synchronizaci všech Vašich dat. Po dokončení synchronizace dat se ikona stahování v pravém horním rohu změní na růžovou. Klepněte na ikonu stahování a uložte CSV soubor."
+  },
+  "importYotiInstructions": {
+    "message": "V rozšíření prohlížeče Yoti klepněte na \"Settings\", pak \"Export Saved Logins\" a uložte CSV soubor."
+  },
+  "importPsonoInstructions": {
+    "message": "Přihlaste se do webového trezoru Psono, klepněte na \"Signed in as\", vyberte \"Others\". Přejděte na záložku \"Export\" a vyberte export typu JSON a poté klepněte na \"Export\"."
+  },
+  "importPasskyInstructions": {
+    "message": "Přihlaste se do \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" v části Passky. (\"Backup\" není podporována, protože je šifrována)."
+  },
+  "importProtonpassInstructions": {
+    "message": "V rozšíření prohlížeče ProtonPass přejděte do Settings → Export. Exportujte bez PGP šifrování a uložte ZIP soubor."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Vyberte Database → Export to file… V rámci voleb exportu se ujistěte, že jsou zaškrtnuté názvy složek a sloupců. Stiskněte tlačítko \"Browse…\", vyberte cílový soubor a nastavte jeho typ na CSV soubor."
+  },
+  "importNetwrixInstructions": {
+    "message": "Otevřete FullClient, přejděte do hlavního menu a vyberte \"Export\". Spusťte export hesel a postupujte podle pokynů pro export CSV souboru."
+  },
+  "importNordpassInstructions": {
+    "message": "Přihlaste se do NordPass a otevřete Settings → Import and Export a vyberte položky pro export. Zadejte hlavní heslo a vyberte \"Pokračovat\". Uložte CSV soubor do Vašeho zařízení."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "V desktopové aplikaci přejděte do Tools → Export → Zadejte své hlavní heslo → Vyberte \"XML Format (*. xml)\" jako formát exportu → Klepněte na \"Next\" → Vyberte, které položky by měly být zahrnuty do exportu → Klepnutím na \"Next\" se provede export do dříve zvoleného umístění."
+  },
+  "importDelineaInstructions": {
+    "message": "Přihlaste se do Delinea, najděte \"Import/Export\" → vyberte \"Export\" → zvolte \"XML\" jako formát pro export → zvolte \"QuantumLock\" jako typ ověřování → zadejte Vaše heslo a zvolte \"Export\" pro uložení XML souboru."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Přihlaste se do Delinea, najděte \"Import/Export\" → vyberte \"Export\" → zvolte \"CSV\" jako formát pro export → zvolte \"QuantumLock\" jako typ ověřování → zadejte Vaše heslo a zvolte \"Export\" pro uložení CSV souboru."
+  },
   "confirmVaultImport": {
     "message": "Potvrdit import trezoru"
   },
@@ -4703,10 +5028,6 @@
   },
   "browserProfile": {
     "message": "Profil prohlížeče"
-  },
-  "seeDetailedInstructions": {
-    "message": "Podívejte se na podrobné pokyny na našem webu s nápovědou na",
-    "description": "This is followed a by a hyperlink to the help website."
   },
   "importDirectlyFromLastPass": {
     "message": "Importovat přímo z LastPass"
@@ -5593,6 +5914,15 @@
   "showMore": {
     "message": "Zobrazit více"
   },
+  "showMoreCount": {
+    "message": "Zobrazit další $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "showLess": {
     "message": "Zobrazit méně"
   },
@@ -5963,6 +6293,12 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "Vymažte filtry nebo zkuste jiný hledaný výraz"
+  },
+  "noSharedFoldersAdded": {
+    "message": "Nebyly přidány žádné sdílené složky"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Přidejte sdílenou složku pro bezpečné sdílení položek trezoru s ostatními uživateli."
   },
   "sendPasswordHelperText": {
     "message": "Pro zobrazení tohoto Send budou muset jednotlivci zadat heslo",
@@ -6404,5 +6740,20 @@
         "example": "user@acme.com"
       }
     }
+  },
+  "permissions": {
+    "message": "Oprávnění"
+  },
+  "viewItems": {
+    "message": "Zobrazit položky"
+  },
+  "viewItemsHidePass": {
+    "message": "Zobrazit položky, skrytá hesla"
+  },
+  "editItems": {
+    "message": "Upravit položky"
+  },
+  "editItemsHidePass": {
+    "message": "Upravit položky, skrytá hesla"
   }
 }

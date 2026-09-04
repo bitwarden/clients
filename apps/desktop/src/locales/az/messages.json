@@ -2,11 +2,30 @@
   "bitwarden": {
     "message": "Bitwarden"
   },
+  "bitwardenBeta": {
+    "message": "Bitwarden Beta",
+    "description": "Product name for the beta channel; shown in the tray tooltip and About dialog"
+  },
   "filters": {
     "message": "Filtrlər"
   },
   "allItems": {
     "message": "Bütün elementlər"
+  },
+  "allVaultItems": {
+    "message": "Bütün seyf elementləri"
+  },
+  "myItemsV2": {
+    "message": "My items"
+  },
+  "vaults": {
+    "message": "Seyflər"
+  },
+  "tools": {
+    "message": "Alətlər"
+  },
+  "manage": {
+    "message": "İdarə et"
   },
   "favorites": {
     "message": "Sevimlilər"
@@ -113,6 +132,48 @@
   "sharedFolders": {
     "message": "Paylaşılan qovluqlar"
   },
+  "sharedFoldersInParent": {
+    "message": "$NAME$ daxilindəki paylaşılan qovluqlar",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ paylaşılan qovluq",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ paylaşılan qovluq",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "Bu düymənin üzərində daha $COUNT$ ədəd paylaşılan qovluq göstərilir",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "Bu düymənin üzərində daha 1 ədəd paylaşılan qovluq göstərilir",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "Qovluğum"
   },
@@ -121,6 +182,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Elementləri burada filtrləmək üçün onlara qovluq əlavə edin."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Burada filtrləmək üçün elementləri paylaşılan qovluğa əlavə et."
   },
   "addSharedFolder": {
     "message": "Paylaşılan qovluq əlavə et"
@@ -190,7 +254,7 @@
     }
   },
   "noEditPermissions": {
-    "message": "Bu elementə düzəliş etmə icazəniz yoxdur"
+    "message": "Bu elementə düzəliş etmə izniniz yoxdur"
   },
   "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Yenidən xoş gəlmisiniz"
@@ -426,7 +490,7 @@
     "message": "Özəl not"
   },
   "sendDetails": {
-    "message": "Send detalları",
+    "message": "Send ayrıntıları",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
@@ -1172,6 +1236,24 @@
   "editFolder": {
     "message": "Qovluğa düzəliş et"
   },
+  "editFolderNamed": {
+    "message": "$NAME$ - düzəliş et",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "$NAME$ - sil",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "regeneratePassword": {
     "message": "Parolu yenidən yarat"
   },
@@ -1355,11 +1437,41 @@
   "addedFolder": {
     "message": "Qovluq əlavə edildi"
   },
+  "folderEdited": {
+    "message": "Qovluğa düzəliş edildi"
+  },
+  "enterAName": {
+    "message": "Bir ad daxil edin."
+  },
   "deleteFolderConfirmation": {
     "message": "Bu qovluğu silmək istədiyinizə əminsiniz?"
   },
   "deletedFolder": {
     "message": "Qovluq silindi"
+  },
+  "foldersDeleted": {
+    "message": "Qovluqlar silindi."
+  },
+  "deleteFoldersCount": {
+    "message": "$COUNT$ qovluğu sil",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "$NAME$ qovluğunu sildiyiniz zaman, bu qovluq tətbiq edildiyi bütün elementlərdən silinəcək. Elementlərin özləri silinməyəcək.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "Bu qovluqları sildiyiniz zaman, bu qovluqlar tətbiq edildiyi bütün elementlərdən silinəcək. Elementlərin özləri silinməyəcək."
   },
   "loginOrCreateNewAccount": {
     "message": "Güvənli seyfinizə erişmək üçün giriş edin və ya yeni bir hesab yaradın."
@@ -2005,7 +2117,7 @@
     "message": "Seyfdə cəld kopyalama fəaliyyətlərini göstər"
   },
   "noDetailsToCopy": {
-    "message": "Kopyalanacaq detal yoxdur"
+    "message": "Kopyalanacaq ayrıntı yoxdur"
   },
   "runInBackground": {
     "message": "Bitwarden-i arxaplanda çalışan halda saxla"
@@ -2302,6 +2414,18 @@
   },
   "noMatchingItems": {
     "message": "Uyuşan element yoxdur"
+  },
+  "noFiltersMatch": {
+    "message": "\"$SEARCH$\" ilə uyuşan heç bir filtr yoxdur",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Axtarışı təmizlə"
   },
   "selected": {
     "message": "Seçildi"
@@ -2813,7 +2937,7 @@
     "message": "Ana parolu ayarla"
   },
   "orgPermissionsUpdatedMustSetPassword": {
-    "message": "Təşkilatınızın icazələri güncəlləndi və bir ana parol ayarlamağınızı tələb edir.",
+    "message": "Təşkilatınızın izinləri güncəlləndi və bir ana parol ayarlamağınızı tələb edir.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "orgRequiresYouToSetPassword": {
@@ -2830,10 +2954,10 @@
     }
   },
   "cardDetails": {
-    "message": "Kart detalları"
+    "message": "Kart məlumatları"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ detalları",
+    "message": "$BRAND$ məlumatları",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -3024,7 +3148,7 @@
     "message": "Bir təşkilat siyasəti, elementlərin fərdi seyfinizə köçürülməsini əngəllədi."
   },
   "personalDetails": {
-    "message": "Fərdi detallar"
+    "message": "Fərdi məlumatlar"
   },
   "identification": {
     "message": "İdentifikasiya"
@@ -4105,7 +4229,7 @@
     "message": "self-hosted"
   },
   "accessDenied": {
-    "message": "Erişim rədd edildi. Bu səhifəyə baxmaq üçün icazəniz yoxdur."
+    "message": "Erişim rədd edildi. Bu səhifəyə baxmaq üçün izniniz yoxdur."
   },
   "accountSuccessfullyCreated": {
     "message": "Hesab uğurla yaradıldı!"
@@ -4590,6 +4714,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "Ayrıntılı $NAME$ təlimatlarına burada baxın:",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Kömək Mərkəzi"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "Proses, Google Chrome-dan daxilə köçürmə prosesi ilə eynidir.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "KeePassX masaüstü tətbiqini istifadə edərək \"Veri bazası\" → \"CSV faylına köçür\"ü seçin və CSV faylını saxlayın."
+  },
+  "importAviraInstructions": {
+    "message": "Avira veb seyfində \"Ayarlar\" → \"Verilərim\" → \"Veriləri xaricə köçür\"ü seçin və CSV faylını saxlayın."
+  },
+  "importBlurInstructions": {
+    "message": "Blur veb seyfində ən üstdəki istifadəçi adınıza klikləyin və \"Ayarlar\" → \"Veriləri xaricə köçür\"ü seçin, sonra \"Hesablar\"ınız üçün \"CSV xaricə köçürmə\"yə klikləyin."
+  },
+  "importSafeincloudInstructions": {
+    "message": "SafeInCloud masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"XML olaraq\"ı seçin və XML faylını saxlayın."
+  },
+  "importPadlockInstructions": {
+    "message": "Padlock masaüstü tətbiqini istifadə edərək, sol üst küncdəki 3 xətt ikonuna klikləyin və \"Ayarlar\" → \"Xaricə köçür\" düyməsinə basın və faylı \"CSV olaraq\" saxlayın."
+  },
+  "importKeepass2Instructions": {
+    "message": "KeePass 2 masaüstü tətbiqini istifadə edərək, \"Fayl\" → \"Xaricə köçür\"ü seçin və \"KeePass XML (2.x)\" seçimini edin."
+  },
+  "importUpmInstructions": {
+    "message": "Universal Password Manager masaüstü tətbiqini istifadə edərək \"Veri bazası\" → \"Xaricə köçür\"ü seçin və CSV faylını saxlayın."
+  },
+  "importSaferpassInstructions": {
+    "message": "SaferPass brauzer uzantısını istifadə edərək, sol üst küncdəki 3 xətt ikonuna klikləyin və \"Ayarlar\"a gedin. CSV faylını saxlamaq üçün \"Hesabları xaricə köçür\" düyməsinə klikləyin."
+  },
+  "importMeldiumInstructions": {
+    "message": "Meldium veb seyfini istifadə edərək, \"Ayarlar\"a gedin. \"Veriləri xaricə köçür\" funksiyasını tapın və CSV faylını saxlamaq üçün \"Mənə verilərimi göstər\"ə klikləyin."
+  },
+  "importPassworddragonInstructions": {
+    "message": "Password Dragon masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"XML olaraq\"ı seçin. Açılan pəncərədə \"Bütün sətirlər\"i seçin və bütün xanaları işarələyin. \"Xaricə köçür\" düyməsinə klikləyin və XML faylını saxlayın."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "Enpass masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"CSV olaraq\"ı seçin. Xəbərdarlıq mesajı üçün \"Oldu\"nu seçin və CSV faylını saxlayın. Nəzərə alın ki, daxilə köçürmə, yalnız Enpass ingiliscə olaraq ayarlandığı zaman xaricə köçürülən faylları dəstəkləyir, ona görə də ayarlarınızı buna uyğun qurun."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "EnPass 6 masaüstü tətbiqini istifadə edərək menyu düyməsinə klikləyin və \"Fayl\" → \"Xaricə köçür\"ü seçin. \".json\" fayl formatını seçin və JSON faylını saxlayın."
+  },
+  "importPwsafeInstructions": {
+    "message": "Password Safe masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"XML formatı...\"nı seçin və XML faylını saxlayın."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Dashlane-ə giriş edin, \"Hesabım\" → \"Ayarlar\" → \"Faylı xaricə köçür\"ə klikləyin və \"CSV faylı kimi xaricə köçür\"ü seçin. Bu proseslə müxtəlif CSV fayllarını ehtiva edən bir zip arxivi endiriləcək. Arxivi açın və hər bir CSV faylını ayrıca daxilə köçürün."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane artıq JSON formatını dəstəkləmir. Bunu yalnız daxilə köçürüləcək JSON faylı mövcud olduğu zaman istifadə edin. Yeni xaricə köçürmələr yaradarkən CSV daxilə köçürücünü istifadə edin."
+  },
+  "importMsecureInstructions": {
+    "message": "nSecure masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"CSV faylı...\"nı seçin və CSV faylını saxlayın."
+  },
+  "importStickypasswordInstructions": {
+    "message": "Sticky Password masaüstü tətbiqini istifadə edərək, \"Menyu\" (üst sağda) → \"Xaricə köçür\" → \"Hamısını xaricə köçür\"ü seçin. Şifrələnməmiş XML formatını seçin və XML faylını saxlayın."
+  },
+  "importTruekeyInstructions": {
+    "message": "True Key masaüstü tətbiqini istifadə edərək, sağ üstdəki dişli çarx ikonuna klikləyin və \"Tətbiq ayarları\"na gedin. \"Xaricə köçür\" düyməsinə klikləyin, parolunuzu daxil edin və CSV faylını saxlayın."
+  },
+  "importClipperzInstructions": {
+    "message": "Clipperz veb tətbiqinə (clipperz.is/app) giriş edin. Naviqasiya çubuğunu genişləndirmək üçün sağ üst küncdəki 3 xətt menyu ikonuna klikləyin. \"Verilər\" → \"Xaricə köçür\"ü seçin. HTML faylını saxlamaq üçün \"HTML+JSON endir\" düyməsinə klikləyin."
+  },
+  "importRoboformInstructions": {
+    "message": "RoboForm Editor masaüstü tətbiqini istifadə etmək üçün sol üstdəki \"RoboForm\" → \"Seçimlər\" → \"Hesab və verilər\"ə gedin və \"Xaricə köçür\" düyməsinə klikləyin. Verilərinizin hamısını seçin, \"Format\"ı \"CSV faylı\" kimi dəyişdirin və sonra CSV faylını saxlamaq üçün \"Xaricə köçür\" düyməsinə klikləyin. Qeyd: RoboForm, yalnız giriş etmə məlumatlarını xaricə köçürməyinizə icazə verir. Digər elementlər xaricə köçürülməyəcək."
+  },
+  "importPassboltInstructions": {
+    "message": "Passbolt veb seyfində giriş edin və \"Parollar\" bölməsinə gedin. Xaricə köçürmək istədiyiniz bütün parolları seçin və ən üstdəki \"Xaricə köçür\" düyməsinə klikləyin. \"csv (lastpass)\" xaricə köçürmə formatını seçin və \"Xaricə köçür\" düyməsinə klikləyin."
+  },
+  "importAscendoInstructions": {
+    "message": "Ascendo DataVault masaüstü tətbiqini istifadə edərək, \"Alətlər\" → \"Xaricə köçür\"ə gedin. Açılan pəncərədə \"Bütün elementlər (DVX, CSV)\" seçimini edin. CSV faylını saxlamaq üçün \"Oldu\" düyməsinə klikləyin."
+  },
+  "importPasswordbossInstructions": {
+    "message": "Password Boss masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Veriləri xaricə köçür\" → \"Password Boss JSON - şifrələnməmiş\"i seçin və JSON faylını saxlayın."
+  },
+  "importZohoInstructions": {
+    "message": "Zoho veb seyfində (vault.zoho.com) giriş edin. \"Alətlər\" → \"Sirrləri xaricə köçür\"ü seçin. \"Bütün sirrlər\"i seçin və \"Zoho Seyf Formatı CSV\" düyməsinə klikləyin. Mətn sahəsindəki veriləri seçib kopyalayın. Notepad kimi mətn redaktoru açın və veriləri yapışdırın. Həmin verilər olan faylı mətn redaktorunda bu formatda saxlayın",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "SplashID Safe masaüstü tətbiqini istifadə edərək, sağ üst küncdəki göy SplashID kilid loqosuna klikləyin. \"Xaricə köçür\" → \"CSV kimi köçür\"ə gedin və CSV faylı kimi saxlayın."
+  },
+  "importPasskeepInstructions": {
+    "message": "PassKeep mobil tətbiqini istifadə edərək, \"Nüsxələmə/Bərpa etmə\"yə gedin. \"CSV Nüsxələmə/Bərpa etmə\" bölməsini tapın və CSV faylı kimi saxlamaq üçün \"CSV-yə nüsxələ\"yə klikləyin."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Əmin olun ki, python-keyring və python-gnomekeyring quraşdırılıb. Saxlayın:",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "GNOME Keyring Daxilə/Xaricə köçürmə"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "python script-i masaüstündə",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Terminalı aç və çalışdır",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "və sonra",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Sonra nəticə faylını",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "Bitwarden-ə yüklə.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "Password Agent masaüstü tətbiqini istifadə edərək, \"Fayl\" → \"Xaricə köçür\"ə gedin, \"Xaricə köçürüləcək xanalar\" düyməsini seçin və bütün xanaları işarələyin, \"Çıxış formatı\"nı \"CSV\" olaraq dəyişdirin, sonra CSV faylı saxlamaq üçün \"Başlat\" düyməsinə klikləyin."
+  },
+  "importPasspackInstructions": {
+    "message": "Passpack veb saytında seyfə giriş edin və \"Ayarlar\" → \"Xaricə köçür\"ə gedin, sonra CSV faylını saxlamaq üçün \"Endir\" düyməsinə klikləyin."
+  },
+  "importPassmanInstructions": {
+    "message": "Passman seyfinizi açın və sol alt küncdəki \"Ayarlar\"a klikləyin. \"Ayarlar\" pəncərəsində \"Kimlik məlumatlarını xaricə köçür\" vərəqinə keçin və xaricə köçürmə növü kimi \"JSON\"u seçin. Seyfinizin keçid ifadəsini daxil edin və JSON faylını saxlamaq üçün \"Xaricə köçür\" düyməsinə klikləyin."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Avast Passwords masaüstü tətbiqini açın və \"Ayarlar\" → \"Veriləri daxilə/xaricə köçür\"ə gedin. CSV faylı kimi saxlamaq üçün \"Xaricə köçür\"ü, sonra \"CSV faylı olaraq xaricə köçür\"ü seçin."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Avast Passwords masaüstü tətbiqini açın və \"Ayarlar\" → \"Veriləri daxilə/xaricə köçür\"ə gedin. JSON faylı kimi saxlamaq üçün \"Xaricə köçür\"ü, sonra \"JSON faylı olaraq xaricə köçür\"ü seçin."
+  },
+  "importFsecureInstructions": {
+    "message": "F-Secure KEY masaüstü tətbiqini açın və \"Ayarlar\" → \"Parolları xaricə köçür\"ə gedin. \"Xaricə köçür\" düyməsini seçin, ana parolunuzu daxil edin və FSK faylını saxlayın."
+  },
+  "importKasperskyInstructions": {
+    "message": "Kaspersky Password Manager masaüstü tətbiqini açın və \"Ayarlar\" → \"Daxilə/Xaricə köçür\"ə gedin. \"Mətn faylına köçür\" bölməsini tapın və TXT faylı kimi saxlamaq üçün \"Xaricə köçür\" düyməsini seçin."
+  },
+  "importRemembearInstructions": {
+    "message": "RememBear masaüstü tətbiqini açın və \"Ayarlar\" → \"Hesab\" → \"Xaricə köçür\"ə gedin. Ana parolunuzu daxil edin və CSV faylı kimi saxlamaq üçün \"Yenə də xaricə köçür\"ü seçin."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "PasswordWallet masaüstü tətbiqini açın və \"Fayl\" → \"Xaricə köçür\" → \"Görünən girişləri mətn faylına köçür\"ə gedin. Ana parolunuzu daxil edin və TXT faylı kimi saxlamaq üçün \"Oldu\" düyməsinə basın."
+  },
+  "importMykiInstructions": {
+    "message": "Myki masaüstü brauzer uzantısını açın və \"Qabaqcıl\" → \"Hesabları xaricə köçür\"ə gedin və QR kodu mobil cihazınızla skan edin. Müxtəlif CSV faylları kompüterinizin endirilənlər qovluğunda saxlanılacaq."
+  },
+  "importSecuresafeInstructions": {
+    "message": "SecureSafe parol seyfinizi vergül ayırıcı ilə CSV faylına köçürün."
+  },
+  "importLogmeonceInstructions": {
+    "message": "LogMeOnce brauzer uzantısını açın, \"Menyunu aç\" → \"Xaricə köçür\"ə gedin və CSV faylını saxlamaq üçün \"CSV faylı\"nı seçin."
+  },
+  "importBlackberryInstructions": {
+    "message": "BlackBerry Password Keeper tətbiqini açın, \"Ayarlar\" → \"Daxilə/Xaricə köçür\"ə gedin. \"Parolları xaricə köçür\"ü seçin və şifrələnməmiş CSV faylını saxlamaq üçün ekrandakı təlimatları izləyin."
+  },
+  "importButtercupInstructions": {
+    "message": "Buttercup masaüstü tətbiqini açın və seyfinizin kilidini açın. Seyfinizin ikonuna sağ klikləyin və CSV faylını saxlamaq üçün \"Xaricə köçür\"ü seçin."
+  },
+  "importCodebookInstructions": {
+    "message": "Codebook masaüstü tətbiqini açın və giriş edin. \"Fayl\" → \"Hamısını xaricə köçür\"ü seçin, sonra pəncərədə görünən \"Bəli\" düyməsinə klikləyin və CSV faylını saxlayın."
+  },
+  "importEncryptrInstructions": {
+    "message": "Ecryptr masaüstü tətbiqinin ən yeni versiyasını açın və bütün verilərinizin sinxronlaşdırılmasına icazə verin. Verilərinizin sinxronlaşdırılması tamamlandıqdan sonra, sağ üst küncdəki endir ikonu çəhrayı rəngə çevriləcək. Endir ikonuna klikləyin və CSV faylını saxlayın."
+  },
+  "importYotiInstructions": {
+    "message": "Yoti brauzer uzantısında \"Ayarlar\"a, sonra \"Saxlanılmış girişləri xaricə köçür\"ə klikləyin və CSV faylını saxlayın."
+  },
+  "importPsonoInstructions": {
+    "message": "Psono veb seyfinə giriş edin, \"Hesaba daxil ol\" açılan menyusuna klikləyin, \"Digərləri\"ni seçin. \"Xaricə köçür\" vərəqinə gedin, json xaricə köçürmə növünü seçin və sonra \"Xaricə köçür\"ə klikləyin."
+  },
+  "importPasskyInstructions": {
+    "message": "\"https://vault.passky.org\" ünvanında giriş edin → \"Daxilə və Xaricə köçür\" → Passky bölməsində \"Xaricə köçür\"ü seçin. (\"Nüsxələmə\" şifrələndiyi üçün dəstəklənmir)."
+  },
+  "importProtonpassInstructions": {
+    "message": "ProtonPass brauzer uzantısında \"Ayarlar\" > \"Xaricə köçür\"ə gedin. PGP şifrələmə olmadan xaricə köçürün və zip faylını saxlayın."
+  },
+  "importPasswordxpInstructions": {
+    "message": "\"Veri bazası\"nı → \"Fayla köçür\" menyusunu seçin → Xaricə köçürmə seçimləri daxilində Qovluq adlarının və Sütun başlıqlarının işarələndiyinə əmin olun. → \"Nəzər sal\" düyməsinə basın və hədəf faylı seçin və növünü CSV faylı olaraq təyin edin."
+  },
+  "importNetwrixInstructions": {
+    "message": "FullClient-i açın, \"Əsas menyu\"ya gedin və \"Xaricə köçür\"ü seçin. \"Xaricə köçürmə sehrbazı\"nı başladın və CSV faylına köçürmək üçün təlimatları izləyin."
+  },
+  "importNordpassInstructions": {
+    "message": "NordPass-a giriş edin və \"Ayarlar\"ı açın → \"Daxilə və Xaricə köçür\" bölməsi üçün aşağı diyirləyin və \"Elementləri xaricə köçür\"ü seçin → Ana parolunuzu daxil edin və \"Davam et\"i seçin. → Cihazınızda CSV faylını saxlayın."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "Masaüstü tətbiqində, \"Alətlər\" → \"Xaricə köçür\" → \"Ana parolunuzu daxil edin\" → Xaricə köçürmə formatı olaraq \"XML Formatı\"nı (*.xml) seçin → \"Növbəti\"yə klikləyin → Xaricə köçürüləcək veriləri seçin → Daha əvvəl seçilmiş yerləşməyə köçürmək üçün \"Növbəti\"yə klikləyin."
+  },
+  "importDelineaInstructions": {
+    "message": "Delinea-ya giriş edin, \"Daxilə/Xaricə köçür\"ü axtarın -> \"Xaricə köçür\"ü seçin -> Xaricə köçürmə formatı olaraq \"XML\"i seçin -> Kimlik doğrulayıcı növü olaraq \"QuantumLock\"u seçin -> parolunuzu daxil edin və XML faylını saxlamaq üçün \"Xaricə köçür\"ü seçin."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Delinea-ya giriş edin, \"Daxilə/Xaricə köçür\"ü axtarın -> \"Xaricə köçür\"ü seçin -> Xaricə köçürmə formatı olaraq \"CSV\"i seçin -> Kimlik doğrulayıcı növü olaraq \"QuantumLock\"u seçin -> parolunuzu daxil edin və CSV faylını saxlamaq üçün \"Xaricə köçür\"ü seçin."
+  },
   "confirmVaultImport": {
     "message": "Seyfi daxilə köçürməyi təsdiqlə"
   },
@@ -4703,10 +5028,6 @@
   },
   "browserProfile": {
     "message": "Brauzer profili"
-  },
-  "seeDetailedInstructions": {
-    "message": "Kömək saytımızda detallı təlimatlara baxın",
-    "description": "This is followed a by a hyperlink to the help website."
   },
   "importDirectlyFromLastPass": {
     "message": "Birbaşa \"LastPass\"dan daxilə köçür"
@@ -5068,7 +5389,7 @@
     "message": "Bilinməyən bilinməyən bir səbəbə görə biometrik kilid açma əlçatmazdır."
   },
   "itemDetails": {
-    "message": "Element detalları"
+    "message": "Element ayrıntıları"
   },
   "itemName": {
     "message": "Element adı"
@@ -5250,10 +5571,10 @@
     "message": "Əskik veb sayt"
   },
   "missingPermissions": {
-    "message": "Bu əməliyyatı icra etmək üçün lazımi icazələrin yoxdur."
+    "message": "Bu əməliyyatı icra etmək üçün gərəkli izinləri əldə etməmisiniz."
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
+    "message": "\"Sırf baxma\" izinlərinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -5262,7 +5583,7 @@
     }
   },
   "cannotRemoveViewOnlySharedFolders": {
-    "message": "\"Yalnız baxma\" icazələrinə sahib paylaşılan qovluqları silə bilməzsiniz: $SHAREDFOLDERS$",
+    "message": "\"Sırf baxma\" izinlərinə sahib paylaşılan qovluqları silə bilməzsiniz: $SHAREDFOLDERS$",
     "placeholders": {
       "sharedfolders": {
         "content": "$1",
@@ -5347,7 +5668,7 @@
     "message": "Həssas verilərinizi əmniyyətdə saxlayın"
   },
   "newNoteNudgeBody": {
-    "message": "Notlarla, bankçılıq və ya sığorta təfsilatları kimi həssas veriləri təhlükəsiz saxlayın."
+    "message": "Notları istifadə edərək bankçılıq və ya sığorta ayrıntıları kimi həssas veriləri təhlükəsiz şəkildə depolayın."
   },
   "newSshNudgeTitle": {
     "message": "Gəlişdirici dostu SSH erişimi"
@@ -5411,7 +5732,7 @@
     "message": "Yalnız bu kolleksiyalara erişimi olan təşkilat üzvləri bu elementləri görə biləcək."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "$TOTAL_COUNT$ element seçmisiniz. Düzəliş icazəniz olmadığı üçün $READONLY_COUNT$ elementi güncəlləyə bilməzsiniz.",
+    "message": "$TOTAL_COUNT$ element seçmisiniz. Düzəliş izniniz olmadığı üçün $READONLY_COUNT$ elementi güncəlləyə bilməzsiniz.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -5593,6 +5914,15 @@
   "showMore": {
     "message": "Daha çox göstər"
   },
+  "showMoreCount": {
+    "message": "Daha $COUNT$ ədəd göstər",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "showLess": {
     "message": "Daha az göstər"
   },
@@ -5714,7 +6044,7 @@
     "message": "Premium abunəliyiniz bitdi"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin detallarına düzəliş etsəniz, həmin element seyfinizə daşınacaq."
+    "message": "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin ayrıntılarına düzəliş etsəniz, həmin element seyfinizə daşınacaq."
   },
   "itemRestored": {
     "message": "Element bərpa edildi"
@@ -5963,6 +6293,12 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "Filtrləri təmizləyin və ya başqa bir axtarış terminini sınayın"
+  },
+  "noSharedFoldersAdded": {
+    "message": "Heç bir paylaşılan qovluq əlavə olunmayıb"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Seyf elementlərini digər üzvlərlə təhlükəsiz şəkildə paylaşmaq üçün paylaşılan qovluq əlavə edin."
   },
   "sendPasswordHelperText": {
     "message": "Şəxslər, Send-ə baxması üçün parolu daxil etməli olacaqlar",
@@ -6404,5 +6740,20 @@
         "example": "user@acme.com"
       }
     }
+  },
+  "permissions": {
+    "message": "İzinlər"
+  },
+  "viewItems": {
+    "message": "Elementlərə bax"
+  },
+  "viewItemsHidePass": {
+    "message": "Elementlərə, gizli parollara bax"
+  },
+  "editItems": {
+    "message": "Elementlərə düzəliş et"
+  },
+  "editItemsHidePass": {
+    "message": "Elementlərə, gizli parollara düzəliş et"
   }
 }

@@ -2,11 +2,30 @@
   "bitwarden": {
     "message": "Bitwarden"
   },
+  "bitwardenBeta": {
+    "message": "Bitwarden béta",
+    "description": "Product name for the beta channel; shown in the tray tooltip and About dialog"
+  },
   "filters": {
     "message": "Szűrők"
   },
   "allItems": {
     "message": "Összes elem"
+  },
+  "allVaultItems": {
+    "message": "Összes széf elem"
+  },
+  "myItemsV2": {
+    "message": "My items"
+  },
+  "vaults": {
+    "message": "Széfek"
+  },
+  "tools": {
+    "message": "Eszközök"
+  },
+  "manage": {
+    "message": "Kezelés"
   },
   "favorites": {
     "message": "Kedvencek"
@@ -113,6 +132,48 @@
   "sharedFolders": {
     "message": "Megosztott mappák"
   },
+  "sharedFoldersInParent": {
+    "message": "$NAME$ megosztott mappák",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ megosztott mappa",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ megosztott mappa",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ további megosztott mappa ezen gomb felett.",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 további megosztott mappa ezen gomb felett.",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "Saját mappa"
   },
@@ -121,6 +182,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Adjunk hozzá mappákat az elemekhez az itteni szűréshez."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Elemek hozzáadása egy megosztott mappához a szűréshez itt."
   },
   "addSharedFolder": {
     "message": "Megosztott mappa hozzadása"
@@ -1172,6 +1236,24 @@
   "editFolder": {
     "message": "Mappa szerkesztése"
   },
+  "editFolderNamed": {
+    "message": "$NAME$ szerkesztése",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "$NAME$ törlése",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "regeneratePassword": {
     "message": "Jelszó újragenerálása"
   },
@@ -1355,11 +1437,41 @@
   "addedFolder": {
     "message": "A mappa hozzáadásra került."
   },
+  "folderEdited": {
+    "message": "A mappa szerkesztésre került."
+  },
+  "enterAName": {
+    "message": "Adjunk meg egy nevet."
+  },
   "deleteFolderConfirmation": {
     "message": "Biztosan törlésre kerüljön ez a mappa?"
   },
   "deletedFolder": {
     "message": "A mappa törlésre került."
+  },
+  "foldersDeleted": {
+    "message": "A mappa törlésre került."
+  },
+  "deleteFoldersCount": {
+    "message": "$COUNT$ mappa törlése",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "$NAME$ mappa törlésekor az eltávolításra kerül minden elemből, amelyre alkalmazták. Maguk az elemek nem törlődnek.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "Ezen mappák törlésekor a rendszer eltávolítja azokat minden elemből, amelyre alkalmazták. Maguk az elemek nem törlődnek."
   },
   "loginOrCreateNewAccount": {
     "message": "Bejelentkezés vagy új fiók létrehozása a biztonsági széf eléréséhez."
@@ -2302,6 +2414,18 @@
   },
   "noMatchingItems": {
     "message": "Nincsenek egyező elemek."
+  },
+  "noFiltersMatch": {
+    "message": "Nincs egyező szűrő: \"$SEARCH$“",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Keresés törlése"
   },
   "selected": {
     "message": "Kiválasztva"
@@ -4590,6 +4714,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "Tekintsük meg a részletes $NAME$ utasításokat:",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Súgóközpont"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "A folyamat pontosan ugyanaz, mint a Google Chrome-ból történő importálás.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "A KeePassX asztali alkalmazás segítségével navigáljunk az \"Adatbázis\" → \"Exportálás CSV-be\" elemre és mentsük el a CSV fájlt."
+  },
+  "importAviraInstructions": {
+    "message": "Az Avira webszéfben lépjünk a \"Beállítások\" → \"Saját adatok\" → \"Adatok exportálása\" menüpontra és mentsük el a CSV fájlt."
+  },
+  "importBlurInstructions": {
+    "message": "A Blur webszéfben kattintsunk a felhasználónévre fent és lépjünk a \"Beállítások\" → \"Adatok exportálása\" menüpontra, majd kattintsunk a \"CSV exportálása\" lehetőségre a \"Fiókok\" számára."
+  },
+  "importSafeincloudInstructions": {
+    "message": "A SafeInCloud asztali alkalmazás segítségével navigáljunk a \"Fájl\" → \"Exportálás\" → \"XML-ként“ elemre és mentsük el az XML fájlt."
+  },
+  "importPadlockInstructions": {
+    "message": "A Padlock asztali alkalmazás segítségével kattintsunk a hamburger ikonra a bal felső sarokban, és navigáljunk a \"Beállítások\" → \"Exportálás\" gombra és mentsük a fájlt \"CSV-ként\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "A KeePass 2 asztali alkalmazás segítségével navigáljunk a \"Fájl\" → \"Exportálás\" elemre és válasszuk a \"KeePass XML (2. x)\" opciót."
+  },
+  "importUpmInstructions": {
+    "message": "Az Universal Password Manager asztali alkalmazás segítségével navigáljunk az \"Adatbázis\" → \"Exportálás\" elemre és mentsük el a CSV-fájlt."
+  },
+  "importSaferpassInstructions": {
+    "message": "A SaferPass böngésző bővítmény használatával kattintsunk a bal felső sarokban található hamburger ikonra és navigáljunk a \"Beállítások\" menüpontra. Kattintsunk a \"Fiókok exportálása\" gombra a CSV-fájl mentéséhez."
+  },
+  "importMeldiumInstructions": {
+    "message": "A Meldium webes széf segítségével navigáljunk a BBeállítások\" menüponthoz. Keressük meg az \"Adatok exportálása\" funkciót, majd kattintsunk a \"Saját adatok megjelenítése\" gombra a CSV-fájl mentéséhez."
+  },
+  "importPassworddragonInstructions": {
+    "message": "A Password Dragon asztali alkalmazás segítségével navigáljunk a \"Fájl\" → \"Exportálás\" → \"XML-be\" elemre. A megjelenő párbeszédablakban válasszuk az \"Összes sor\" lehetőséget és ellenőrizzük az összes mezőt. Kattintsunk az \"Exportálás\" gombra és mentsük az XML fájlt."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "Az Enpass asztali alkalmazás segítségével navigáljunk a \"Fájl\" → \"Exportálás\" → \"CSV-ként\" elemre. Válasszuk az \"OK\" lehetőséget a figyelmeztető riasztáshoz és mentsük el a CSV fájlt. Vegyük figyelembe, hogy az importáló csak az exportált fájlokat támogatja, miközben az Enpass angol nyelvre van állítva, ezért ennek megfelelően módosítsuk a beállításokat."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "Az Enpass 6 asztali alkalmazás segítségével kattintsunk a menügombra és navigáljunk a \"Fájl\" → \"Exportálás\" elemre. Válasszuk a \".json\" fájlformátum opciót és mentsük a JSON fájlt."
+  },
+  "importPwsafeInstructions": {
+    "message": "A Password Safe asztali alkalmazás segítségével navigáljunk a \"Fájl\" → \"Exportálás\" → \"XML-ként“ elemre és mentsük el az XML-fájlt."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Jelentkezzünk be a Dashlane-be, kattintsunk a \"Saját fiók\" → \"Beállítások\" → \"Fájl exportálása\" elemre és válasszuk az \"Exportálás CSV-fájlként\" lehetőséget. Ez letölt egy zip archívumot, amely különböző CSV fájlokat tartalmaz. Csomagoljuk ki az archívumot és importáljunk minden CSV fájlt külön-külön."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "A Dashlane már nem támogatja a JSON formátumot. Csak akkor használjuk ezt, ha van egy meglévő JSON az importáláshoz. Használjuk a CSV importálót új exportálások létrehozásakor."
+  },
+  "importMsecureInstructions": {
+    "message": "Az mSecure asztali alkalmazás segítségével navigáljunk a \"Fájl\" → \"Exportálás\" → \"CSV fájl“ elemre és mentsük el a CSV fájlt."
+  },
+  "importStickypasswordInstructions": {
+    "message": "A Sticky Password asztali alkalmazás segítségével navigáljon a \"Menü\" (jobbra fent) → \"Exportálás\" → \"Összes exportálása\" elemre. Válasszuk ki a titkosítatlan formátumú XML opciót és mentsük az XML fájlt."
+  },
+  "importTruekeyInstructions": {
+    "message": "A True Key asztali alkalmazás segítségével kattintsunk a fogaskerék ikonra (jobbra fent), majd navigáljunk az \"Alkalmazás beállítások\" elemre. Kattintsunk az \"Exportálás\" gombra, adjuk meg jelszót és mentsük el a CSV fájlt."
+  },
+  "importClipperzInstructions": {
+    "message": "Jelentkezzünk be a Clipperz webes alkalmazásba (clipperz.is/app). Kattintsunk a hamburger menü ikonjára a jobb felső sarokban a navigációs sáv kibontásához. Navigáljunk az \"Adatok\" → \"Exportálás\" elemre. Kattintsunk a \"HTML+JSON letöltése\" gombra a HTML fájl mentéséhez."
+  },
+  "importRoboformInstructions": {
+    "message": "A RoboForm Editor asztali alkalmazás segítségével navigáljunk a \"RoboForm\" (balra fent) → \"Opciók\" → \"Fiók és adatok\" elemre és kattintsunk az \"Exportálás\" gombra. Válasszuk ki az összes adatot, módosítsuk a \"Formátum\" beállítást \"CSV fájlra\", majd kattintsunk az \"Exportálás\" gombra a CSV fájl mentéséhez. Megjegyzés: A RoboForm csak a bejelentkezések exportálását teszi lehetővé. Más elemek nem kerülnek exportálásra."
+  },
+  "importPassboltInstructions": {
+    "message": "Jelentkezzünk be a Passbolt webes széfbe és navigáljunk a \"Jelszavak\" listához. Válasszuk ki az összes exportálni kívánt jelszót és kattintsunk az \"Exportálás\" gombra a lista tetején. Válasszuk ki a \"csv (lastpass)“ exportálás formátumot, majd kattintsunk az \"Exportálás\" gombra."
+  },
+  "importAscendoInstructions": {
+    "message": "Az Ascendo DataVault asztali alkalmazás segítségével navigáljunk az \"Eszközök\" → \"Exportálás\" elemre. A felbukkanó párbeszédablakban válasszuk az \"Összes elem (DVX, CSV)“ opciót. Kattintsunk az \"Ok\" gombra a CSV fájl mentéséhez."
+  },
+  "importPasswordbossInstructions": {
+    "message": "A Password Boss asztali alkalmazás segítségével navigáljunk a \"Fájl\" → \"Adatok exportálása\" → \"Jelszó Boss JSON - nincs titkosítva\" elemre és mentsük el a JSON fájlt."
+  },
+  "importZohoInstructions": {
+    "message": "Jelentkezzünk be a Zoho web széfbe (vault.zoho.com). Navigáljunk az \"Eszközök\" → \"Titkos kódok exportálása\" oldalra. Válasszuk az \"Összes titkos kód\" lehetőséget, majd kattintsunk a \"Zoho Vault Format CSV“ gombra. Jelöljuk ki és másoljuk ki az adatokat a szövegeterület mezőből. Nyissunk meg egy szövegszerkesztőt, például a Jegyzettömböt és illesszük be az adatokat. Mentsük el az adatokat a szövegszerkesztőből mint",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "A SplashID Safe asztali alkalmazás segítségével kattintsunk a SplashID kék zár logóra a jobb felső sarokban. Navigáljunk az \"Exportálás\" → \"Exportálás CSV-ként\" elemre és mentsük el a CSV fájlt."
+  },
+  "importPasskeepInstructions": {
+    "message": "A PassKeep mobil alkalmazás segítségével navigáljunk a \"Biztonsági mentés/visszaállítás“ elemre. Keressük meg a \"CSV biztonsági mentés/visszaállítás\" részt és kattintsunk a \"Biztonsági mentés CSV-re“ gombra a CSV fájl mentéséhez."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Győződjünk meg róla, hogy van egy python meghajtó és python-gnomekeyring telepítve. Mentsük el",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "GNOME Keyring Importálás/Exportálás"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "python szkriptet az asztalra mint",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Nyissuk meg a terminált és futtatssuk",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "és azután",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Ezután töltsük fel az eredményt",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "fájlt ide a Bitwardenhez.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "A Password Agent asztali alkalmazás segítségével navigáljunk a \"Fájl\" → \"Exportálás\" elemre, válasszuk ki az \"Exportálandó mezők“ gombot és ellenőrizzük az összes mezőt, módosítsuk a \"Kimeneti formátumot\" \"CSV\"-re, majd kattintsunk a \"Start\" gombra a CSV fájl mentéséhez."
+  },
+  "importPasspackInstructions": {
+    "message": "Jelentkezzünk be a Passpack webhely széfbe és navigáljunk a \"Beállítások\" → \"Exportálás\" elemre, majd kattintsunk a \"Letöltés\" gombra a CSV fájl mentéséhez."
+  },
+  "importPassmanInstructions": {
+    "message": "Nyissuk meg Passman széfet és kattintsunk a \"Beállítások\" gombra a bal alsó sarokban. A \"Beállítások\" ablakban váltsunk a \"Hitelesítő adatok exportálása“ fülre és válasszuk a \"JSON\" lehetőséget exportálási típusként. Adjuk meg a széf jelmondatát és kattintsunk az \"Exportálás\" gombra a JSON fájl mentéséhez."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Nyissuk meg az Avast Passwords asztali alkalmazást és navigáljunk a \"Beállítások\" → \"Adatok importálása/exportálása\" menüpontra. Válasszuk az \"Exportálás\" gombot az \"Exportálás CSV fájlba\" opcióhoz a CSV fájl mentése érdekében."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Nyissuk meg az Avast Passwords asztali alkalmazást és navigáljunk a \"Beállítások\" → \"Adatok importálása/exportálása\" menüpontra. Válasszuk az \"Exportálás\" gombot az \"Exportálás JSON fájlba\" opcióhoz a JSON fájl mentése érdekében."
+  },
+  "importFsecureInstructions": {
+    "message": "Nyissuk meg az F-Secure KEY asztali alkalmazást és navigáljunk a \"Beállítások\" → \"Jelszavak exportálása\" elemre. Válasszuk ki az \"Exportálás\" gombot, adjuk meg a mesterjelszót és mentsük el az FSK fájlt."
+  },
+  "importKasperskyInstructions": {
+    "message": "Nyissuk meg a Kaspersky Password Manager asztali alkalmazást és navigáljunk a \"Beállítások\" → „Importálás/exportálás“ menüpontra. Keressük meg az \"Exportálás szövegfájlba“ szakaszt és válasszuk az \"Exportálás\" gombot a TXT fájl mentéséhez."
+  },
+  "importRemembearInstructions": {
+    "message": "Nyissuk meg a RememBear asztali alkalmazást és navigáljunk a \"Beállítások\" → \"Fiók\" → \"Exportálás\" menüpontra. Adjuk meg a mesterjelszót és válasszuk az \"Exportálás mindenképpen“ gombot a CSV fájl mentéséhez."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Nyissuk meg a PasswordWallet asztali alkalmazást és navigáljunk a \"Fájl\" → \"Exportálás\" → \"Látható bejegyzések szöveges fájlba\" elemre. Adjuk meg jelszót és válasszuk az \"Ok\" gombot a TXT fájl mentéséhez."
+  },
+  "importMykiInstructions": {
+    "message": "Nyissuk meg a Myki asztali böngésző bővítményt és navigáljuk a \"Speciális\" → \"Fiókok exportálása\" elemre, majd olvassuk be a QR-kódot a mobileszközzel. Ezután különféle CSV fájlok kerülnek mentésre a számítógép letöltési mappájába."
+  },
+  "importSecuresafeInstructions": {
+    "message": "A SecureSafe jelszó biztonságos exportálása egy vessző határolóval ellátott CSV fájlba."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Nyissuk meg a LogMeOnce böngésző bővítményt, majd lépjünk a \"Menü megnyitása\" → \"Exportálás ide\" menüpontra és válasszuk a \"CSV fájl\" lehetőséget a CSV fájl mentéséhez."
+  },
+  "importBlackberryInstructions": {
+    "message": "Nyissuk meg a BlackBerry Password Keeper alkalmazást, majd navigáljunk a \"Beállítások\" → \"Importálás/exportálás\" menüpontra. Válasszuk a \"Jelszavak exportálása\" lehetőséget és kövessük a képernyőn megjelenő utasításokat a titkosítatlan CSV fájl mentéséhez."
+  },
+  "importButtercupInstructions": {
+    "message": "Nyissuk meg a Buttercup asztali alkalmazást és oldjuk fel a széfet. Kattintsunk a jobb gombbal a széf ikonján és válasszuk az \"Exportálás\" lehetőséget a CSV fájl mentéséhez."
+  },
+  "importCodebookInstructions": {
+    "message": "Nyissuk meg a Codebook asztali alkalmazást és jelentkezzünk be. Navigáljunk a \"File\" → \"Összes exportálása\" elemre, majd kattintsunk az \"Igen\" gombra a párbeszédpanelen és mentsük el a CSV fájlt."
+  },
+  "importEncryptrInstructions": {
+    "message": "Nyissuk meg az Encryptr asztali alkalmazás legújabb verzióját és engedélyezzük az összes adat szinkronizálását. Miután az adatok szinkronizálása befejeződött, a jobb felső sarokban található letöltési ikon rózsaszínűvé válik. Kattintsunk a letöltés ikonra és mentsük el a CSV fájlt."
+  },
+  "importYotiInstructions": {
+    "message": "A Yoti böngésző bővítményből kattintsunk a \"Beállítások\", majd a \"Mentett bejelentkezések exportálása\" elemre és mentsük el a CSV fájlt."
+  },
+  "importPsonoInstructions": {
+    "message": "Jelentkezzünk be a Psono webes széfbe, kattintson az \"Aláírva mint\" legördülő menüre, válasszuk az \"Egyebek\" lehetőséget. Lépjeünk az \"Exportálás\" fülre és válasszuk ki a json típusú exportálást, majd kattintsunk az Exportálás gombra."
+  },
+  "importPasskyInstructions": {
+    "message": "Jelentkezzünk be a \"https://vault.passky.org\" webhely → \"Importálás és exportálás\" → \"Exportálás\" oldalára a Passky szakaszban. (A \"Biztonsági mentés\" nem támogatott, mivel titkosított)."
+  },
+  "importProtonpassInstructions": {
+    "message": "A ProtonPass böngésző bővítményben lépjünk a Beállítások > Exportálás menüpontba. Exportálás PGP titkosítás nélkül és a zip fájl mentése."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Válasszuk az Adatbázis → Exportálás fájlba lehetőséget... menüpontot. → Az exportálási beállításokon belül győződjünk meg arról, hogy a mappanevek és az oszlopcímek be vannak jelölve. → Nyomjuk meg a Tallózás... gombot, válasszuk ki a célfájlt és állítsuk be a típusát CSV fájlra."
+  },
+  "importNetwrixInstructions": {
+    "message": "Nyissuk meg a FullClientet, lépjünk a Főmenübe és válasszuk az Exportálás lehetőséget. Indítsuk el a jelszavak exportálása varázslót és kövesse az utasításokat a CSV fájl exportálásához."
+  },
+  "importNordpassInstructions": {
+    "message": "Jelentkezzünk be a NordPassba és nyissuk meg a Beállítások oldalt → Görgessünk le az Importálás és exportálás szakaszhoz és válasszuk az Elemek exportálása lehetőséget → Adjuk meg a mesterjelszót és válasszuk a Folytatás lehetőséget. → Mentsük el a CSV fájlt az eszközre."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "Az asztali alkalmazásban lépjünk az Eszközök → Export oldalra → Írja be a mesterjelszót → Válasszuk ki az XML formátumot (*.xml) Exportálás formátumként → Kattintsunk a Következőre → Válasszuk ki, melyik bejegyzéseket kell tartalmaznia az exportálásnak → Kattintsunk a Következőre az exportáláshoz a korábban kiválasztott helyre."
+  },
+  "importDelineaInstructions": {
+    "message": "Jelentkezzünk be a Delinea-ba, keressük meg a “Importálás/Exportálás” lehetőséget -> Válasszuk a “Exportálás” lehetőséget -> Válasszuk ki a “XML”-t exportálási formátumként -> Válasszuk a “QuantumLock” lehetőséget hitelesítő típusként - > írjuk be a jelszót és válasszuk a “Exportálás” lehetőséget az XML fájl mentéséhez."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Jelentkezzünk be Delineába, keressük meg a “Importálás/Exportálás” lehetőséget -> Válasszuk a “Exportálás” lehetőséget -> Válasszuk a “CSV” lehetőséget exportálási formátumként -> Válasszuk a “QuantumLock” lehetőséget hitelesítő típusként - > írjuk be a jelszót és válasszuk a “Exportálás” lehetőséget a CSV fájl mentéséhez."
+  },
   "confirmVaultImport": {
     "message": "Széf importálás megerősítése"
   },
@@ -4703,10 +5028,6 @@
   },
   "browserProfile": {
     "message": "Böngésző profil"
-  },
-  "seeDetailedInstructions": {
-    "message": "Tekintsük meg a részletes utasításokat a súgó oldalon:",
-    "description": "This is followed a by a hyperlink to the help website."
   },
   "importDirectlyFromLastPass": {
     "message": "Importálás közvetlenül a LastPassból"
@@ -5593,6 +5914,15 @@
   "showMore": {
     "message": "Több megjelenítése"
   },
+  "showMoreCount": {
+    "message": "$COUNT$ további megjelenítése",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "showLess": {
     "message": "Kevesebb megjelenítése"
   },
@@ -5963,6 +6293,12 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "Töröljük a szűrőket vagy próbálkozzunk másik keresési kifejezéssel."
+  },
+  "noSharedFoldersAdded": {
+    "message": "Nem lettek megosztott mappák hozzáadva."
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": ""
   },
   "sendPasswordHelperText": {
     "message": "A személyeknek meg kell adniuk a jelszót a Send elem megtekintéséhez.",
@@ -6404,5 +6740,20 @@
         "example": "user@acme.com"
       }
     }
+  },
+  "permissions": {
+    "message": "Jogosultságok"
+  },
+  "viewItems": {
+    "message": "Elemek megtekintése"
+  },
+  "viewItemsHidePass": {
+    "message": "Elemek megtekintése, rejtett jelszavak"
+  },
+  "editItems": {
+    "message": "Elemek szerkesztése"
+  },
+  "editItemsHidePass": {
+    "message": "Elemek szerkesztése, rejtett jelszavak"
   }
 }
