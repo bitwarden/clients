@@ -27,7 +27,7 @@ import {
   BadgeModule,
   ButtonModule,
   DialogService,
-  FilterMenuComponent,
+  FILTER_CONTROL,
   FilterMenuModule,
   IconButtonModule,
   IconModule,
@@ -123,9 +123,11 @@ export class ManagedCredentialsTabComponent {
   protected readonly TargetSystemMethod = TargetSystemMethod;
 
   /** Status/target-system/collection toolbar chips; read directly rather than via a form control. */
-  private readonly statusFilterChip = viewChild<FilterMenuComponent>("statusFilter");
-  private readonly targetSystemFilterChip = viewChild<FilterMenuComponent>("targetSystemFilter");
-  private readonly collectionFilterChip = viewChild<FilterMenuComponent>("collectionFilter");
+  private readonly statusFilterChip = viewChild("statusFilter", { read: FILTER_CONTROL });
+  private readonly targetSystemFilterChip = viewChild("targetSystemFilter", {
+    read: FILTER_CONTROL,
+  });
+  private readonly collectionFilterChip = viewChild("collectionFilter", { read: FILTER_CONTROL });
 
   /** Distinct target system names present in the currently-loaded rows, sorted for the chip. */
   protected readonly targetSystemNames = computed(() =>
@@ -160,10 +162,9 @@ export class ManagedCredentialsTabComponent {
    */
   protected readonly collectionOptions = computed(() => {
     const nameById = new Map(this.collections().map((c) => [uuidAsString(c.id), c.name]));
-    const collectionIdsByCipher = this.cipherCollectionIdsById();
     const present = new Set<string>();
     for (const row of this.rows()) {
-      for (const collectionId of collectionIdsByCipher.get(row.config.cipherId) ?? []) {
+      for (const collectionId of this.cipherCollectionIds(row)) {
         present.add(collectionId);
       }
     }
@@ -171,6 +172,11 @@ export class ManagedCredentialsTabComponent {
       .map((id) => ({ id, name: nameById.get(id) ?? id }))
       .sort((a, b) => a.name.localeCompare(b.name));
   });
+
+  /** `row`'s cipher's collection ids, via {@link cipherCollectionIdsById}. */
+  private cipherCollectionIds(row: RotationConfigRow): string[] {
+    return this.cipherCollectionIdsById().get(row.config.cipherId) ?? [];
+  }
 
   constructor() {
     effect(() => {
@@ -191,7 +197,6 @@ export class ManagedCredentialsTabComponent {
       const status = this.statusFilterChip()?.value() as string | null | undefined;
       const targetSystemName = this.targetSystemFilterChip()?.value() as string | null | undefined;
       const collectionId = this.collectionFilterChip()?.value() as string | null | undefined;
-      const collectionIdsByCipher = this.cipherCollectionIdsById();
 
       this.dataSource.filter = (row) => {
         if (
@@ -207,10 +212,7 @@ export class ManagedCredentialsTabComponent {
         if (targetSystemName != null && row.targetSystemName !== targetSystemName) {
           return false;
         }
-        if (
-          collectionId != null &&
-          !(collectionIdsByCipher.get(row.config.cipherId) ?? []).includes(collectionId)
-        ) {
+        if (collectionId != null && !this.cipherCollectionIds(row).includes(collectionId)) {
           return false;
         }
         return true;
