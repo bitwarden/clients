@@ -5,20 +5,18 @@
   </ng-container>
 
   <div bitDialogContent>
-    @if (params.options.length === 0) {
-      @if (params.noEligibleTargets) {
-        <p class="tw-text-muted">{{ "pamDaemonAssignNoTargetSystems" | i18n }}</p>
-        <a
-          bitLink
-          linkType="primary"
-          [routerLink]="targetSystemsRoute"
-          (click)="cancel()"
-          id="assign-target-dialog_anchor_target-systems"
-          >{{ "pamDaemonAssignGoToTargetSystems" | i18n }}</a
-        >
-      } @else {
-        <p class="tw-text-muted">{{ "pamDaemonAssignNoOptions" | i18n }}</p>
-      }
+    @if (params.noActiveAutomaticSystems) {
+      <p class="tw-text-muted">{{ "pamDaemonAssignNoTargetSystems" | i18n }}</p>
+      <a
+        bitLink
+        linkType="primary"
+        [routerLink]="targetSystemsRoute"
+        (click)="cancel()"
+        id="assign-target-dialog_anchor_target-systems"
+        >{{ "pamDaemonAssignGoToTargetSystems" | i18n }}</a
+      >
+    } @else if (params.options.length === 0) {
+      <p class="tw-text-muted">{{ "pamDaemonAssignNoOptions" | i18n }}</p>
     } @else {
       <bit-form-field>
         <bit-label>{{ "pamDaemonAssignTargetLabel" | i18n }}</bit-label>

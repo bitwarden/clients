@@ -151,7 +151,7 @@ export class DaemonsTabComponent {
     const options = activeSystems.filter((s) => !assigned.has(s.id));
 
     const ref = AssignTargetDialogComponent.open(this.dialogService, {
-      data: { daemon: row.daemon, options, noEligibleTargets: activeSystems.length === 0 },
+      data: { daemon: row.daemon, options, noActiveAutomaticSystems: activeSystems.length === 0 },
     });
     const targetSystemId = await ref.closed.toPromise();
     if (!targetSystemId) {
