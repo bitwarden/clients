@@ -19381,6 +19381,33 @@
   "pamRotationSessionTerminationUnknown": {
     "message": "Unknown"
   },
+  "pamRotationFailureCauseInsufficientRights": {
+    "message": "The access connector's account is not allowed to change this password. Grant it permission to reset the target account's password, then rotate again."
+  },
+  "pamRotationFailureCauseInvalidCredentials": {
+    "message": "The target system rejected the access connector's sign in. Check the credentials the connector uses for this target system, then rotate again."
+  },
+  "pamRotationFailureCausePasswordRejected": {
+    "message": "The target system rejected the new password. Check that this credential's password policy meets the target system's own password rules, then rotate again."
+  },
+  "pamRotationFailureCauseAccountNotFound": {
+    "message": "The target system could not find the account to rotate. Check the account identity on this managed credential, then rotate again."
+  },
+  "pamRotationFailureCauseDirectoryRefused": {
+    "message": "The target system refused to make the change. This commonly means the new password broke a password rule, or the connection to the target system was not encrypted."
+  },
+  "pamRotationFailureCauseTargetUnreachable": {
+    "message": "The access connector could not reach the target system. Check the target system's address and that the connector can reach it on the network, then rotate again."
+  },
+  "pamRotationFailureReportedDetail": {
+    "message": "Reported by the access connector: $REASON$",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "target_rejected: LDAP result code 50"
+      }
+    }
+  },
   "pamAuditKindRotationConfigCreated": {
     "message": "Rotation config created"
   },
