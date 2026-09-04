@@ -49,9 +49,7 @@
                   @if (failureCauseKey) {
                     <span class="tw-ml-2 tw-text-danger">— {{ failureCauseKey | i18n }}</span>
                   } @else if (attempt.failureReason; as failureReason) {
-                    <span class="tw-ml-2 tw-text-danger" [title]="failureReason">
-                      — {{ failureReason }}
-                    </span>
+                    <span class="tw-ml-2 tw-text-danger">— {{ failureReason }}</span>
                   }
                   @if (
                     attempt.status === RotationAttemptStatus.Errored && attempt.syncState !== null
@@ -84,7 +82,7 @@
                 }
               </div>
               @if (failureCauseKey && attempt.failureReason; as failureReason) {
-                <span class="tw-mt-0.5 tw-block tw-text-muted" [title]="failureReason">
+                <span class="tw-mt-0.5 tw-block tw-text-muted">
                   {{ "pamRotationFailureReportedDetail" | i18n: failureReason }}
                 </span>
               }
