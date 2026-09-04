@@ -26,11 +26,7 @@
         sideNavService.dragDisplayWidth() ??
         (open ? (sideNavService.width$ | async) : sideNavService.CLOSED_WIDTH)
       "
-      [style.transition]="
-        sideNavService.isDragging() || !sideNavService.transitionsEnabled()
-          ? 'none'
-          : 'width 150ms ease-out'
-      "
+      [style.transition]="animateWidth() ? 'width 150ms ease-out' : 'none'"
       [style]="
         variant() === 'secondary'
           ? '--color-nav-bg-brand: var(--color-nav-bg-admin); --color-nav-bg-brand-soft: var(--color-nav-bg-admin-soft); --color-nav-bg-brand-hover: var(--color-nav-bg-admin-hover);'
@@ -131,11 +127,7 @@
       [style.width.rem]="
         sideNavService.dragDisplayWidth() ?? (open ? (sideNavService.width$ | async) : undefined)
       "
-      [style.transition]="
-        sideNavService.isDragging() || !sideNavService.transitionsEnabled()
-          ? 'none'
-          : 'width 150ms ease-out'
-      "
+      [style.transition]="animateWidth() ? 'width 150ms ease-out' : 'none'"
       [style]="
         variant() === 'secondary'
           ? '--color-nav-fg-primary: var(--color-nav-fg-secondary); --color-nav-bg-primary: var(--color-nav-bg-secondary); --color-nav-bg-primary-strong: var(--color-nav-bg-secondary-strong); --color-nav-bg-primary-hover: var(--color-nav-bg-secondary-hover); --color-nav-bg-primary-hover-strong: var(--color-nav-bg-secondary-hover-strong); --color-nav-border-primary-focus: var(--color-nav-border-secondary-focus); --color-nav-border-primary: var(--color-nav-border-secondary);'

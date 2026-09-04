@@ -5,6 +5,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  computed,
   input,
   viewChild,
   inject,
@@ -76,6 +77,18 @@ export class SideNavComponent {
   );
 
   protected readonly isTouchDevice = toSignal(media("(pointer: coarse)"), { initialValue: false });
+
+  private readonly reducedMotion = toSignal(media("(prefers-reduced-motion: reduce)"), {
+    initialValue: false,
+  });
+
+  /** True when it is safe to animate the nav's width. */
+  protected readonly animateWidth = computed(
+    () =>
+      this.sideNavService.transitionsEnabled() &&
+      !this.sideNavService.isDragging() &&
+      !this.reducedMotion(),
+  );
 
   protected readonly handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
