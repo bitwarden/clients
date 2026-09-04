@@ -230,12 +230,16 @@ export default class RuntimeBackground {
         }
         break;
       }
-      case AutofillMessageCommand.pageTransitionDetected:
+      case AutofillMessageCommand.pageTransitionDetected: {
         // A page-lifecycle monitor reports a transition as a fact. The service
         // buffers it against monitoring state and `AutofillOrchestrator` decides whether
         // it warrants a collection.
-        this.autofillLifecycleService.reportPageTransition(sender.tab, sender.frameId, sender.url);
+        //
+        // handle potential same-frame navigation
+        const frameUrl = await this.resolveSenderFrameUrl(sender);
+        this.autofillLifecycleService.reportPageTransition(sender.tab, sender.frameId, frameUrl);
         break;
+      }
       case BiometricsCommands.AuthenticateWithBiometrics: {
         return await this.main.biometricsService.authenticateWithBiometrics();
       }
