@@ -1247,9 +1247,9 @@ describe("VaultItemsTableComponent", () => {
       expect(fixture.nativeElement.textContent).toContain("noItemsMatchSelectedFilters");
     });
 
-    it("relays the host's scope inputs to explain a genuinely empty vault", () => {
+    it("relays the host's scope input to explain a genuinely empty vault", () => {
       fixture.componentRef.setInput("ciphers", []);
-      fixture.componentRef.setInput("isMyVaultScope", true);
+      fixture.componentRef.setInput("scope", { type: "myVault" });
       fixture.detectChanges();
 
       expect(fixture.nativeElement.textContent).toContain("noItemsInMyVault");

@@ -53,6 +53,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { orgIconTile, personalIconTile } from "../../models/vault-icon-tile";
+import { VaultScope } from "../../models/vault-scope";
 import {
   idString,
   matchesFavorite,
@@ -271,10 +272,10 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   readonly orgRequiresDataOwnership = input<boolean>(false);
 
   /**
-   * Whether the current vault scope is the personal vault — relayed to the empty state untouched;
-   * see {@link EmptyVaultComponent}. The table has no notion of vault scope itself.
+   * The vault scope — relayed to the empty state untouched; see {@link EmptyVaultComponent}.
+   * The table has no notion of vault scope itself.
    */
-  readonly isMyVaultScope = input(false);
+  readonly scope = input<VaultScope>();
 
   /** The organization the current vault scope names — relayed to the empty state untouched. */
   readonly organizationName = input<string>();
@@ -284,12 +285,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   /** The shared folder the current vault scope has drilled into — relayed to the empty state untouched. */
   readonly sharedFolderName = input<string>();
-
-  /** Whether the current vault scope is the trash — relayed to the empty state untouched. */
-  readonly isTrashScope = input(false);
-
-  /** Whether the current vault scope is the archive — relayed to the empty state untouched. */
-  readonly isArchiveScope = input(false);
 
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();

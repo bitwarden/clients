@@ -44,6 +44,8 @@ import {
   OrgIconDirective,
   PasswordRepromptService,
   Vfo1I18nPipe,
+  VaultScope,
+  VaultScopeType,
 } from "@bitwarden/vault";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
@@ -96,6 +98,8 @@ export class ArchiveComponent {
 
   /** Legacy (flag-off) empty-archive icon — see {@link vfo1Enabled}. */
   protected readonly noItemsIcon = NoResults;
+
+  protected readonly archiveScope: VaultScope = { type: VaultScopeType.Archive };
 
   /** When enabled, the empty-archive state renders via the shared `EmptyVaultComponent`. */
   protected readonly vfo1Enabled = toSignal(

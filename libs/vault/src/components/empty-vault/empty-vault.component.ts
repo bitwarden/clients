@@ -19,6 +19,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { ButtonModule, StatusLockupComponent, SvgComponent } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 import {
   VAULT_FILTER_KEYS,
   VaultItemsTableFilters,
@@ -71,8 +72,8 @@ export class EmptyVaultComponent {
   /** The host table's combined filter-chip values, if any. */
   readonly filterValues = input<VaultItemsTableFilters>({});
 
-  /** Whether the current vault scope is the personal vault. */
-  readonly isMyVaultScope = input(false);
+  /** The vault scope, used to determine which empty state to show. */
+  readonly scope = input<VaultScope>();
 
   /** The organization the current vault scope names, for an organization vault. */
   readonly organizationName = input<string>();
@@ -82,12 +83,6 @@ export class EmptyVaultComponent {
 
   /** The shared folder the current vault scope has drilled into, when it has. */
   readonly sharedFolderName = input<string>();
-
-  /** Whether the current vault scope is the trash. */
-  readonly isTrashScope = input(false);
-
-  /** Whether the current vault scope is the archive. */
-  readonly isArchiveScope = input(false);
 
   /** Emitted when the user asks to clear the active search term. */
   readonly clearSearch = output<void>();
@@ -130,25 +125,26 @@ export class EmptyVaultComponent {
     ) {
       return EMPTY_VAULT_STATE.noFilterMatches;
     }
-    if (this.isTrashScope()) {
-      return EMPTY_VAULT_STATE.emptyTrash;
+
+    const scope = this.scope();
+    if (!scope) {
+      return null;
     }
-    if (this.isArchiveScope()) {
-      return EMPTY_VAULT_STATE.emptyArchive;
+
+    switch (scope.type) {
+      case VaultScopeType.Trash:
+        return EMPTY_VAULT_STATE.emptyTrash;
+      case VaultScopeType.Archive:
+        return EMPTY_VAULT_STATE.emptyArchive;
+      case VaultScopeType.MyVault:
+        return EMPTY_VAULT_STATE.emptyPersonalVault;
+      case VaultScopeType.Organization:
+        return this.sharedFolderName()
+          ? EMPTY_VAULT_STATE.emptySharedFolder
+          : EMPTY_VAULT_STATE.emptyOrgVault;
+      case VaultScopeType.AllItems:
+        return this.hasMultipleVaults() ? EMPTY_VAULT_STATE.emptyMultipleVaults : null;
     }
-    if (this.isMyVaultScope()) {
-      return EMPTY_VAULT_STATE.emptyPersonalVault;
-    }
-    if (this.sharedFolderName()) {
-      return EMPTY_VAULT_STATE.emptySharedFolder;
-    }
-    if (this.organizationName()) {
-      return EMPTY_VAULT_STATE.emptyOrgVault;
-    }
-    if (this.hasMultipleVaults()) {
-      return EMPTY_VAULT_STATE.emptyMultipleVaults;
-    }
-    return null;
   });
 
   /**

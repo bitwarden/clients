@@ -135,7 +135,7 @@ describe("ArchiveComponent", () => {
       // (flag-off) branch below.
       const emptyVault = fixture.debugElement.query(By.css("vault-empty-vault"));
       expect(emptyVault).not.toBeNull();
-      expect(emptyVault.componentInstance.isArchiveScope()).toBe(true);
+      expect(emptyVault.componentInstance.scope()?.type).toBe("archive");
       expect(emptyVault.componentInstance.hasItems()).toBe(false);
     });
 

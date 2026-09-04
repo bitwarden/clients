@@ -7,7 +7,7 @@ import { EmptyTrash } from "@bitwarden/assets/svg";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CalloutModule, StatusLockupComponent, SvgComponent } from "@bitwarden/components";
-import { EmptyVaultComponent } from "@bitwarden/vault";
+import { EmptyVaultComponent, VaultScope, VaultScopeType } from "@bitwarden/vault";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -37,6 +37,8 @@ export class TrashComponent {
 
   /** Legacy (flag-off) empty-trash icon — see {@link vfo1Enabled}. */
   protected readonly emptyTrashIcon = EmptyTrash;
+
+  protected readonly trashScope: VaultScope = { type: VaultScopeType.Trash };
 
   /** When enabled, the empty-trash state renders via the shared `EmptyVaultComponent`. */
   protected readonly vfo1Enabled = toSignal(

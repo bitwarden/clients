@@ -26,6 +26,7 @@ import { SearchService as DefaultSearchService } from "@bitwarden/common/vault/s
 import { ButtonModule, I18nMockService, TypographyModule } from "@bitwarden/components";
 import { ConsoleLogService } from "@bitwarden/logging";
 
+import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 
 import {
@@ -381,12 +382,10 @@ type StoryProps = {
   heading?: string;
   itemAction: (item: CipherView) => void;
   /** Relayed to the empty state untouched — see {@link Empty} and its siblings. */
-  isMyVaultScope: boolean;
+  scope?: VaultScope;
   organizationName?: string;
   hasMultipleVaults: boolean;
   sharedFolderName?: string;
-  isTrashScope: boolean;
-  isArchiveScope: boolean;
 };
 
 /**
@@ -414,12 +413,10 @@ const template = `
       [copyPresentation]="copyPresentation"
       [initialFilterValues]="initialFilterValues"
       [itemAction]="itemAction"
-      [isMyVaultScope]="isMyVaultScope"
+      [scope]="scope"
       [organizationName]="organizationName"
       [hasMultipleVaults]="hasMultipleVaults"
       [sharedFolderName]="sharedFolderName"
-      [isTrashScope]="isTrashScope"
-      [isArchiveScope]="isArchiveScope"
     >
       <button slot="empty-add-item" bitButton buttonType="primary" type="button" startIcon="bwi-plus">
         Add item
@@ -444,10 +441,7 @@ const baseProps: StoryProps = {
   organizations,
   copyPresentation: DEFAULT_COPY_PRESENTATION,
   itemAction: () => {},
-  isMyVaultScope: false,
   hasMultipleVaults: false,
-  isTrashScope: false,
-  isArchiveScope: false,
 };
 
 export default {
@@ -622,12 +616,12 @@ export const Loading: Story = {
 };
 
 /**
- * An empty `ciphers` array, scoped to the personal vault via `isMyVaultScope`. The copy invites the
+ * An empty `ciphers` array, scoped to the personal vault via `scope`. The copy invites the
  * user to add their first item, which is why this state is worth distinguishing from
  * [Filtered To Zero](#filtered-to-zero) — there, the fix is to clear a filter rather than to add
  * anything.
  *
- * `isMyVaultScope`/`organizationName`/`hasMultipleVaults`/`sharedFolderName`/`isTrashScope`/`isArchiveScope`
+ * `scope`/`organizationName`/`hasMultipleVaults`/`sharedFolderName`
  * are what a host relays from its own vault-scope resolution — the table has no notion of scope
  * itself, so an empty `ciphers` array with none of them set renders no empty state at all. See
  * [Empty Organization Vault](#empty-organization-vault),
@@ -637,17 +631,21 @@ export const Loading: Story = {
  * [Empty Archive](#empty-archive) for the other variants.
  */
 export const Empty: Story = {
-  args: { ciphers: [], isMyVaultScope: true },
+  args: { ciphers: [], scope: { type: VaultScopeType.MyVault } },
 };
 
 /** The same empty vault, scoped to a single organization instead of the personal vault. */
 export const EmptyOrganizationVault: Story = {
-  args: { ciphers: [], organizationName: "Acme corporation" },
+  args: {
+    ciphers: [],
+    scope: { type: VaultScopeType.Organization, organizationId: "org-1" as OrganizationId },
+    organizationName: "Acme corporation",
+  },
 };
 
 /** The same empty vault, with none of the account's vaults holding an item. */
 export const EmptyMultipleVaults: Story = {
-  args: { ciphers: [], hasMultipleVaults: true },
+  args: { ciphers: [], scope: { type: VaultScopeType.AllItems }, hasMultipleVaults: true },
 };
 
 /**
@@ -656,17 +654,22 @@ export const EmptyMultipleVaults: Story = {
  * is the more specific destination.
  */
 export const EmptySharedFolder: Story = {
-  args: { ciphers: [], organizationName: "Acme corporation", sharedFolderName: "Engineering" },
+  args: {
+    ciphers: [],
+    scope: { type: VaultScopeType.Organization, organizationId: "org-1" as OrganizationId },
+    organizationName: "Acme corporation",
+    sharedFolderName: "Engineering",
+  },
 };
 
 /** The trash, with no deleted items in it. */
 export const EmptyTrash: Story = {
-  args: { ciphers: [], isTrashScope: true },
+  args: { ciphers: [], scope: { type: VaultScopeType.Trash } },
 };
 
 /** The archive, with no archived items in it. */
 export const EmptyArchive: Story = {
-  args: { ciphers: [], isArchiveScope: true },
+  args: { ciphers: [], scope: { type: VaultScopeType.Archive } },
 };
 
 /**

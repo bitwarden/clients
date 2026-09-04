@@ -39,7 +39,6 @@ import {
   cipherInScope,
   collectionInScope,
   hasMultipleVaults,
-  isMyVaultScope,
   organizationInScope,
   organizationNameForScope,
   resolveVaultScope,
@@ -239,17 +238,12 @@ export class VaultNextComponent {
   });
 
   /**
-   * The vault-scope facts {@link EmptyVaultComponent} needs for its copy, relayed through
-   * `vault-items-table` untouched — the table itself has no notion of vault scope.
+   * The vault-scope display-name facts {@link EmptyVaultComponent} needs for its copy, relayed
+   * through `vault-items-table` untouched — the table itself has no notion of vault scope.
    *
-   * Gated the same way as {@link showItemCreation}: Trash and Archive are not vaults a "My vault" /
-   * "No items in {org}" / "Add item" message makes sense for, even for an account these facts would
-   * otherwise resolve non-empty for.
+   * Gated by {@link showItemCreation}: Trash and Archive are not vaults an "Add item" message
+   * makes sense for, even for an account these facts would otherwise resolve non-empty for.
    */
-  protected readonly isMyVaultScope = computed(
-    () => this.showItemCreation() && isMyVaultScope(this.vaultScope()),
-  );
-
   protected readonly emptyVaultOrganizationName = computed(() =>
     this.showItemCreation()
       ? organizationNameForScope(this.vaultScope(), this.vaultNav())
@@ -264,12 +258,6 @@ export class VaultNextComponent {
     this.showItemCreation()
       ? sharedFolderNameForScope(this.vaultScope(), this.scopedCollections())
       : undefined,
-  );
-
-  protected readonly isTrashScope = computed(() => this.vaultScope().type === VaultScopeType.Trash);
-
-  protected readonly isArchiveScope = computed(
-    () => this.vaultScope().type === VaultScopeType.Archive,
   );
 
   /**

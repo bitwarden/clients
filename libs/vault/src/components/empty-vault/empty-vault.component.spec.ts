@@ -4,6 +4,8 @@ import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { VaultScope, VaultScopeType } from "../../models/vault-scope";
+
 import { EmptyVaultComponent } from "./empty-vault.component";
 
 describe("EmptyVaultComponent", () => {
@@ -45,7 +47,7 @@ describe("EmptyVaultComponent", () => {
 
   describe("My vault", () => {
     beforeEach(() => {
-      fixture.componentRef.setInput("isMyVaultScope", true);
+      fixture.componentRef.setInput("scope", { type: VaultScopeType.MyVault } satisfies VaultScope);
       fixture.detectChanges();
     });
 
@@ -57,6 +59,9 @@ describe("EmptyVaultComponent", () => {
 
   describe("multiple vaults", () => {
     beforeEach(() => {
+      fixture.componentRef.setInput("scope", {
+        type: VaultScopeType.AllItems,
+      } satisfies VaultScope);
       fixture.componentRef.setInput("hasMultipleVaults", true);
       fixture.detectChanges();
     });
@@ -69,6 +74,10 @@ describe("EmptyVaultComponent", () => {
 
   describe("an organization vault", () => {
     beforeEach(() => {
+      fixture.componentRef.setInput("scope", {
+        type: VaultScopeType.Organization,
+        organizationId: "org-1" as any,
+      } satisfies VaultScope);
       fixture.componentRef.setInput("organizationName", "Acme Corp");
       fixture.detectChanges();
     });
@@ -84,6 +93,10 @@ describe("EmptyVaultComponent", () => {
 
   describe("a shared folder", () => {
     beforeEach(() => {
+      fixture.componentRef.setInput("scope", {
+        type: VaultScopeType.Organization,
+        organizationId: "org-1" as any,
+      } satisfies VaultScope);
       fixture.componentRef.setInput("organizationName", "Acme Corp");
       fixture.componentRef.setInput("sharedFolderName", "Engineering");
       fixture.detectChanges();
@@ -104,7 +117,7 @@ describe("EmptyVaultComponent", () => {
 
   describe("trash", () => {
     beforeEach(() => {
-      fixture.componentRef.setInput("isTrashScope", true);
+      fixture.componentRef.setInput("scope", { type: VaultScopeType.Trash } satisfies VaultScope);
       fixture.detectChanges();
     });
 
@@ -114,8 +127,9 @@ describe("EmptyVaultComponent", () => {
     });
 
     it("takes priority over personal vault and organization states", () => {
-      fixture.componentRef.setInput("isMyVaultScope", true);
+      // Trash scope is unambiguous — passing extra org name / hasMultipleVaults has no effect
       fixture.componentRef.setInput("organizationName", "Acme Corp");
+      fixture.componentRef.setInput("hasMultipleVaults", true);
       fixture.detectChanges();
 
       expect(fixture.nativeElement.textContent).toContain("noItemsInTrash");
@@ -126,7 +140,7 @@ describe("EmptyVaultComponent", () => {
 
   describe("archive", () => {
     beforeEach(() => {
-      fixture.componentRef.setInput("isArchiveScope", true);
+      fixture.componentRef.setInput("scope", { type: VaultScopeType.Archive } satisfies VaultScope);
       fixture.detectChanges();
     });
 
@@ -136,8 +150,9 @@ describe("EmptyVaultComponent", () => {
     });
 
     it("takes priority over personal vault and organization states", () => {
-      fixture.componentRef.setInput("isMyVaultScope", true);
+      // Archive scope is unambiguous — passing extra org name / hasMultipleVaults has no effect
       fixture.componentRef.setInput("organizationName", "Acme Corp");
+      fixture.componentRef.setInput("hasMultipleVaults", true);
       fixture.detectChanges();
 
       expect(fixture.nativeElement.textContent).toContain("noItemsInArchive");
@@ -186,7 +201,7 @@ describe("EmptyVaultComponent", () => {
     });
 
     it("takes priority over My vault and organization states", () => {
-      fixture.componentRef.setInput("isMyVaultScope", true);
+      fixture.componentRef.setInput("scope", { type: VaultScopeType.MyVault } satisfies VaultScope);
       fixture.detectChanges();
 
       expect(fixture.nativeElement.textContent).toContain("noItemsMatchSelectedFilters");
@@ -203,12 +218,10 @@ describe("EmptyVaultComponent", () => {
     <vault-empty-vault
       [hasItems]="hasItems()"
       [filterValues]="filterValues()"
-      [isMyVaultScope]="isMyVaultScope()"
+      [scope]="scope()"
       [organizationName]="organizationName()"
       [hasMultipleVaults]="hasMultipleVaults()"
       [sharedFolderName]="sharedFolderName()"
-      [isTrashScope]="isTrashScope()"
-      [isArchiveScope]="isArchiveScope()"
     >
       <button slot="empty-add-item" type="button">Add item</button>
     </vault-empty-vault>
@@ -217,12 +230,10 @@ describe("EmptyVaultComponent", () => {
 class TestHostComponent {
   readonly hasItems = signal(false);
   readonly filterValues = signal({});
-  readonly isMyVaultScope = signal(false);
+  readonly scope = signal<VaultScope | undefined>(undefined);
   readonly organizationName = signal<string | undefined>(undefined);
   readonly hasMultipleVaults = signal(false);
   readonly sharedFolderName = signal<string | undefined>(undefined);
-  readonly isTrashScope = signal(false);
-  readonly isArchiveScope = signal(false);
 }
 
 describe("EmptyVaultComponent's empty-add-item slot", () => {
@@ -250,12 +261,25 @@ describe("EmptyVaultComponent's empty-add-item slot", () => {
   }
 
   it.each([
-    ["My vault", () => host.isMyVaultScope.set(true)],
-    ["an organization vault", () => host.organizationName.set("Acme Corp")],
-    ["multiple empty vaults", () => host.hasMultipleVaults.set(true)],
+    ["My vault", () => host.scope.set({ type: VaultScopeType.MyVault })],
+    [
+      "an organization vault",
+      () => {
+        host.scope.set({ type: VaultScopeType.Organization, organizationId: "org-1" as any });
+        host.organizationName.set("Acme Corp");
+      },
+    ],
+    [
+      "multiple empty vaults",
+      () => {
+        host.scope.set({ type: VaultScopeType.AllItems });
+        host.hasMultipleVaults.set(true);
+      },
+    ],
     [
       "an empty shared folder",
       () => {
+        host.scope.set({ type: VaultScopeType.Organization, organizationId: "org-1" as any });
         host.organizationName.set("Acme Corp");
         host.sharedFolderName.set("Engineering");
       },
@@ -290,14 +314,14 @@ describe("EmptyVaultComponent's empty-add-item slot", () => {
   });
 
   it("is not projected for the trash state", () => {
-    host.isTrashScope.set(true);
+    host.scope.set({ type: VaultScopeType.Trash });
     fixture.detectChanges();
 
     expect(addItemButton()).toBeNull();
   });
 
   it("is not projected for the archive state", () => {
-    host.isArchiveScope.set(true);
+    host.scope.set({ type: VaultScopeType.Archive });
     fixture.detectChanges();
 
     expect(addItemButton()).toBeNull();

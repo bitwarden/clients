@@ -19,11 +19,9 @@
     [loading]="loading()"
     [rowActions]="rowActions()"
     [itemAction]="itemAction"
-    [isMyVaultScope]="isMyVaultScope()"
+    [scope]="scope()"
     [organizationName]="organizationName()"
     [hasMultipleVaults]="hasMultipleVaults()"
-    [isTrashScope]="isTrashScope()"
-    [isArchiveScope]="isArchiveScope()"
     (selectedChange)="handleSelectionChange($event)"
   >
     @if (showAddCipherBtn()) {

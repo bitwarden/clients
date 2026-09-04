@@ -123,7 +123,6 @@ import {
   collectionInScope,
   FilterFunction,
   hasMultipleVaults,
-  isMyVaultScope,
   organizationInScope,
   organizationNameForScope,
   resolveVaultScope,
@@ -337,17 +336,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   );
 
   /**
-   * The vault-scope facts {@link EmptyVaultComponent} needs for its copy, relayed through
-   * `app-vault-list-table` untouched. Only meaningful once `vfo1Foundation` is on — see
+   * The vault-scope display-name facts {@link EmptyVaultComponent} needs for its copy, relayed
+   * through `app-vault-list-table` untouched. Only meaningful once `vfo1Foundation` is on — see
    * {@link vaultScope$} — the legacy nav renders its own empty states instead.
+   *
+   * Gated by {@link isVaultBrowsingScope$}: Trash and Archive are not vaults an "Add item" message
+   * makes sense for, even for an account these facts would otherwise resolve non-empty for.
    */
-  protected readonly isMyVaultScope = toSignal(
-    combineLatest([this.vaultScope$, this.isVaultBrowsingScope$]).pipe(
-      map(([scope, browsing]) => browsing && isMyVaultScope(scope)),
-    ),
-    { initialValue: false },
-  );
-
   protected readonly emptyVaultOrganizationName = toSignal(
     combineLatest([this.vaultScope$, this.vaultNav$, this.isVaultBrowsingScope$]).pipe(
       map(([scope, nav, browsing]) =>
@@ -360,16 +355,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     combineLatest([this.vaultNav$, this.isVaultBrowsingScope$]).pipe(
       map(([nav, browsing]) => browsing && hasMultipleVaults(nav)),
     ),
-    { initialValue: false },
-  );
-
-  protected readonly isTrashScope = toSignal(
-    this.vaultScope$.pipe(map((scope) => scope.type === VaultScopeType.Trash)),
-    { initialValue: false },
-  );
-
-  protected readonly isArchiveScope = toSignal(
-    this.vaultScope$.pipe(map((scope) => scope.type === VaultScopeType.Archive)),
     { initialValue: false },
   );
 

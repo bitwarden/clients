@@ -25,6 +25,7 @@ import {
   VaultBatchBarService,
   VaultItemsTableComponent,
   VaultItemsTableRowAction,
+  VaultScope,
 } from "@bitwarden/vault";
 
 import { VaultItemEvent } from "../vault-items/vault-item-event";
@@ -73,23 +74,16 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   readonly showAddCipherBtn = input<boolean>(true);
 
   /**
-   * Whether the current vault scope is the personal vault — relayed to `vault-items-table`
-   * untouched. Desktop has no route for a shared folder, so {@link EmptyVaultComponent}'s
-   * shared-folder state is never reachable here.
+   * The vault scope — relayed to `vault-items-table` untouched. Desktop has no route for a
+   * shared folder, so {@link EmptyVaultComponent}'s shared-folder state is never reachable here.
    */
-  readonly isMyVaultScope = input(false);
+  readonly scope = input<VaultScope>();
 
   /** The organization the current vault scope names — relayed to `vault-items-table` untouched. */
   readonly organizationName = input<string>();
 
   /** Whether the account has more than one vault — relayed to `vault-items-table` untouched. */
   readonly hasMultipleVaults = input(false);
-
-  /** Whether the current vault scope is the trash — relayed to `vault-items-table` untouched. */
-  readonly isTrashScope = input(false);
-
-  /** Whether the current vault scope is the archive — relayed to `vault-items-table` untouched. */
-  readonly isArchiveScope = input(false);
 
   readonly onEvent = output<VaultItemEvent<C>>();
   readonly onAddCipher = output<CipherType>();

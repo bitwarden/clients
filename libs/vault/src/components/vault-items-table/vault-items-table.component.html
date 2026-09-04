@@ -104,12 +104,10 @@
     slot="empty"
     [hasItems]="ciphers().length > 0"
     [filterValues]="vaultTable.filterValues()"
-    [isMyVaultScope]="isMyVaultScope()"
+    [scope]="scope()"
     [organizationName]="organizationName()"
     [hasMultipleVaults]="hasMultipleVaults()"
     [sharedFolderName]="sharedFolderName()"
-    [isTrashScope]="isTrashScope()"
-    [isArchiveScope]="isArchiveScope()"
     (clearSearch)="clearSearch(vaultTable)"
     (clearFilters)="clearChipFilters(vaultTable)"
   >
