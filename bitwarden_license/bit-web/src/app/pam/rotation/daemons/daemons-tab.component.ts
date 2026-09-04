@@ -160,11 +160,8 @@ export class DaemonsTabComponent {
    * org that genuinely has none — so the failure is surfaced rather than letting the dialog assert
    * the org has no active automatic target system.
    */
-  protected readonly openAssignDialog = async (row: DaemonRow): Promise<void> => {
-    if (!row.canAssign) {
-      return;
-    }
-    await this.busyRows.run(row.id, async () => {
+  protected readonly openAssignDialog = (row: DaemonRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
       const targetSystemsError = this.targetSystemsLoadError();
       if (targetSystemsError) {
         this.showError(targetSystemsError);
@@ -192,7 +189,6 @@ export class DaemonsTabComponent {
         this.showError(e);
       }
     });
-  };
 
   protected readonly unassign = (
     row: DaemonRow,
