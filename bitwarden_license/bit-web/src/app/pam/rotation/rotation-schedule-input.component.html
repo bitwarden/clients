@@ -104,9 +104,19 @@
   </bit-form-field>
 }
 
-<!-- Only the content is conditional: a live region created and destroyed by @if does not announce. -->
-<bit-hint role="status" aria-live="polite" data-testid="schedule-echo">
+<!--
+  Only the content is conditional: a live region created and destroyed by @if does not announce.
+  Not a bit-hint: BitHintDirective host-binds its own generated id, which would overwrite the
+  stable one this element is addressed by.
+-->
+<p
+  id="rotation-schedule-input_status_echo"
+  role="status"
+  aria-live="polite"
+  data-testid="schedule-echo"
+  class="tw-text-muted tw-font-normal tw-inline-block tw-mt-1 tw-text-xs"
+>
   @if (scheduleEcho; as echo) {
-    {{ echo.key | i18n: echo.p1 : echo.p2 : echo.p3 }}
+    {{ echo.key | i18n: echo.p1 : echo.p2 }}
   }
-</bit-hint>
+</p>
