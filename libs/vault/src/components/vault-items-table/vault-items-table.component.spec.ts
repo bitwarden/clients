@@ -712,6 +712,20 @@ describe("VaultItemsTableComponent", () => {
         expect(component["showVaults"]()).toBe(false);
       });
 
+      it("keeps the Vault column when the only organization is disabled", () => {
+        fixture.componentRef.setInput("organizations", [
+          { id: "org-2", name: "Contoso", enabled: false } as Organization,
+        ]);
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ id: "a", organizationId: "org-2" as never }),
+        ]);
+
+        // The chip has nothing to offer, but the disabled org still owns rows that need a label.
+        expect(component["showVaults"]()).toBe(false);
+        expect(component["showVaultColumn"]()).toBe(true);
+        expect(component["visibleColumns"]()).toContain("vault");
+      });
+
       it("offers My vault when every cipher is organization-owned but the view is unscoped", () => {
         fixture.componentRef.setInput("ciphers", [
           cipherView({ id: "a", organizationId: "org-1" as never }),

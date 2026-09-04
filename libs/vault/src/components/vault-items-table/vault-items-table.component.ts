@@ -331,7 +331,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   protected readonly visibleColumns = computed<VaultItemsTableColumn[]>(() => {
     const hidden = new Set<VaultItemsTableColumn>();
-    if (!this.showVaults()) {
+    if (!this.showVaultColumn()) {
       hidden.add("vault");
     }
     if (!this.showSharedFolders()) {
@@ -466,19 +466,30 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   });
 
   /**
-   * Whether the Vault chip and column should be shown.
-   *
-   * Shown when the user's items can span more than one vault:
-   * - multiple organizations are present (user can filter between them), or
-   * - exactly one organization is present alongside a personal vault option
-   *   (user can distinguish personal items from org-owned ones).
+   * Whether the user's items can span more than one vault:
+   * - multiple organizations are present, or
+   * - exactly one organization is present alongside a personal vault option.
    */
-  protected readonly showVaults = computed(() => {
-    const hasMultipleVaults = this.sortedOrganizations().length > 1;
-    const hasPersonalAndOrgVault =
-      this.showMyVaultOption() && this.sortedOrganizations().length === 1;
-    return hasMultipleVaults || hasPersonalAndOrgVault;
-  });
+  private spansMultipleVaults(organizations: Organization[]): boolean {
+    return organizations.length > 1 || (this.showMyVaultOption() && organizations.length === 1);
+  }
+
+  /**
+   * Whether the Vault chip should be shown. Driven by {@link sortedOrganizations}, so the chip
+   * only appears when the user can filter between the vaults it actually offers.
+   */
+  protected readonly showVaults = computed(() =>
+    this.spansMultipleVaults(this.sortedOrganizations()),
+  );
+
+  /**
+   * Whether the Vault column should be shown. Driven by the unfiltered `organizations` input
+   * rather than {@link sortedOrganizations}: a disabled organization still owns rows in the table,
+   * so the column has to label them even though the chip doesn't offer the organization.
+   */
+  protected readonly showVaultColumn = computed(() =>
+    this.spansMultipleVaults(this.organizations()),
+  );
 
   /**
    * The organizations the Vault chip offers. Derived from the `organizations` input
