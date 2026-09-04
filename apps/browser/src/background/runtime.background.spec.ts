@@ -6,6 +6,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
+import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
+import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { createChromeTabMock } from "../autofill/spec/autofill-mocks";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
@@ -243,5 +245,73 @@ describe("RuntimeBackground getUrlAutofillTargetingRules", () => {
     const result = await runtimeBackground.processMessageWithSender(message, sender);
 
     expect(result).toBe(rules);
+  });
+});
+
+describe("RuntimeBackground pageTransitionDetected", () => {
+  const committedUrl = "https://example.test/entry";
+  const routedUrl = "https://example.test/logged-in/step-one";
+
+  let runtimeBackground: RuntimeBackground;
+  let autofillLifecycleService: MockProxy<AutofillLifecycleService>;
+
+  const message = { command: AutofillMessageCommand.pageTransitionDetected };
+  const tab = createChromeTabMock({ id: 1, url: routedUrl });
+
+  /** Stands in for the frame lookup `BrowserApi.getFrameDetails` performs. */
+  const mockFrameLookup = (url: string | undefined) => {
+    (chrome.webNavigation.getFrame as unknown as jest.Mock).mockImplementation(
+      (_details, callback) => callback(url == null ? undefined : { url }),
+    );
+  };
+
+  beforeEach(() => {
+    (chrome.runtime as any).onInstalled = { addListener: jest.fn() };
+
+    autofillLifecycleService = mock<AutofillLifecycleService>();
+
+    runtimeBackground = new RuntimeBackground(
+      mock<MainBackground>(),
+      mock<AutofillService>(),
+      mock<BrowserPlatformUtilsService>(),
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      mock<LogService>(),
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      undefined as any,
+      autofillLifecycleService,
+      undefined as any,
+      mock<AutofillOrchestrator>(),
+    );
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it("reports the frame's live URL rather than the URL it was committed at", async () => {
+    mockFrameLookup(routedUrl);
+    // `sender.url` stays pinned to the entry URL across the same-document navigation the
+    // monitor is reporting.
+    const sender = { frameId: 0, url: committedUrl, tab } as chrome.runtime.MessageSender;
+
+    await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(autofillLifecycleService.reportPageTransition).toHaveBeenCalledWith(tab, 0, routedUrl);
+  });
+
+  it("falls back to the sender URL when the frame lookup resolves nothing", async () => {
+    mockFrameLookup(undefined);
+    const subFrameUrl = "https://widget.example.test/form";
+    const sender = { frameId: 7, url: subFrameUrl, tab } as chrome.runtime.MessageSender;
+
+    await runtimeBackground.processMessageWithSender(message, sender);
+
+    expect(autofillLifecycleService.reportPageTransition).toHaveBeenCalledWith(tab, 7, subFrameUrl);
   });
 });
