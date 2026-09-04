@@ -1,25 +1,40 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 import { Component, EventEmitter, inject, Input, Output } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, map, Observable, switchMap } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import type { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { DialogService, IconModule, NavigationModule } from "@bitwarden/components";
+import {
+  A11yTitleDirective,
+  DialogService,
+  IconModule,
+  IconTileComponent,
+  IconTileOptions,
+  NavigationModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+import { orgIconTile } from "@bitwarden/vault";
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "org-switcher",
   templateUrl: "org-switcher.component.html",
-  imports: [CommonModule, JslibModule, NavigationModule, IconModule],
+  imports: [
+    AsyncPipe,
+    I18nPipe,
+    A11yTitleDirective,
+    NavigationModule,
+    IconModule,
+    IconTileComponent,
+  ],
 })
 export class OrgSwitcherComponent {
   /** Under VFO1, "Add plan" in Settings replaces the "New organization" entry. */
@@ -44,6 +59,17 @@ export class OrgSwitcherComponent {
     this.route.paramMap,
     this.organizations$,
   ]).pipe(map(([params, orgs]) => orgs.find((org) => org.id === params.get("organizationId"))));
+
+  /** The active organization with the tier-colored icon tile it shares with the vault switcher. */
+  protected activeOrganizationView$: Observable<{
+    organization: Organization;
+    tile: IconTileOptions;
+  }> = this.activeOrganization$.pipe(
+    map(
+      (organization) =>
+        organization && { organization, tile: orgIconTile(organization.productTierType) },
+    ),
+  );
 
   /**
    * Filter function for displayed organizations in the `org-switcher`
