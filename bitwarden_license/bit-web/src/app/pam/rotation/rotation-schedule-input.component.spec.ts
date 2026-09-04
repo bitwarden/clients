@@ -104,6 +104,12 @@ describe("RotationScheduleInputComponent", () => {
     ).customControl as ReturnType<typeof customCtrl>;
   }
 
+  function hintTexts(): (string | undefined)[] {
+    return [...fixture.nativeElement.querySelectorAll("bit-hint")].map((hint: HTMLElement) =>
+      hint.textContent?.trim(),
+    );
+  }
+
   // ---- writeValue (reverse-map) ----
 
   it("maps null to None preset", async () => {
@@ -223,18 +229,15 @@ describe("RotationScheduleInputComponent", () => {
   // ---- timezone hint ----
 
   it("renders the timezone hint under the preset select", () => {
-    fixture.detectChanges();
-    const hints: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll("bit-hint"));
-    expect(hints.map((h) => h.textContent?.trim())).toContain("pamRotationScheduleTimezoneHint");
+    expect(hintTexts()).toContain("pamRotationScheduleTimezoneHint");
   });
 
   it("keeps the timezone hint when the Custom preset is selected", async () => {
     presetCtrl().setValue(QuartzSchedulePreset.Custom);
     await fixture.whenStable();
     fixture.detectChanges();
-    const hints: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll("bit-hint"));
-    const text = hints.map((h) => h.textContent?.trim());
-    expect(text).toContain("pamRotationScheduleTimezoneHint");
-    expect(text).toContain("pamRotationScheduleCustomHint");
+    const hints = hintTexts();
+    expect(hints).toContain("pamRotationScheduleTimezoneHint");
+    expect(hints).toContain("pamRotationScheduleCustomHint");
   });
 });
