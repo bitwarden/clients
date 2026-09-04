@@ -9,7 +9,7 @@
     />
     {{ orgNavItem()?.label }}
   </bit-breadcrumb>
-  <bit-breadcrumb [icon]="'bwi-list-alt'" [route]="sharedFoldersRoute()">
+  <bit-breadcrumb [icon]="'bwi-shared-folder'" [route]="sharedFoldersRoute()">
     {{ "collections" | vfo1I18n: "sharedFolders" }}
   </bit-breadcrumb>
   @for (crumb of collectionBreadcrumbs(); track crumb.id) {
@@ -17,14 +17,7 @@
       {{ crumb.name }}
     </bit-breadcrumb>
   }
-  <!-- @for forces BreadcrumbComponent to recreate on folder change so ngOnInit re-checks the active route -->
-  @for (id of [collectionIdParam()]; track id) {
-    <bit-breadcrumb
-      [icon]="'bwi-shared-folder'"
-      [route]="currentFolderRoute()"
-      queryParamsHandling="preserve"
-    >
-      {{ sharedFolderName() }}
-    </bit-breadcrumb>
-  }
+  <bit-breadcrumb [icon]="'bwi-shared-folder'" [route]="[]" queryParamsHandling="preserve">
+    {{ sharedFolderName() }}
+  </bit-breadcrumb>
 </bit-breadcrumbs>

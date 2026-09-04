@@ -15,7 +15,6 @@ import { BreadcrumbsModule, IconTileComponent, IconTileOptions } from "@bitwarde
 import { navIconTile } from "../../models/vault-icon-tile";
 import {
   parseVaultScope,
-  SHARED_FOLDERS_ROUTE,
   sharedFoldersCommands,
   vaultScopeCommands,
   VaultScopeType,
@@ -140,13 +139,4 @@ export class VaultCollectionBreadcrumbsComponent {
       collectionId: folder.id,
     });
   }
-
-  protected readonly currentFolderRoute = computed(() => {
-    const vaultId = this.vaultIdParam();
-    const collectionId = this.collectionIdParam();
-    if (!vaultId || !collectionId) {
-      return undefined;
-    }
-    return ["/vault", vaultId, SHARED_FOLDERS_ROUTE, collectionId];
-  });
 }
