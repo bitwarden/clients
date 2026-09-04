@@ -123,8 +123,11 @@
         @let expandable = node.row.expandable();
         @let checked = nodeChecked(node);
         @if (node.dividerBefore) {
-          <!-- The dialog hides this and separates the groups with a gap instead. -->
-          <bit-menu-divider data-filter-divider></bit-menu-divider>
+          <!-- The dialog hides this and separates the groups with a gap instead.
+               `aria-hidden` because the rule is decorative and `role="tree"` owns only
+               `treeitem`/`group` — the divider's own `role="separator"` would fail
+               `aria-required-children` otherwise. -->
+          <bit-menu-divider data-filter-divider aria-hidden="true"></bit-menu-divider>
         }
         <div
           role="treeitem"
@@ -286,7 +289,10 @@
             }
           }
         } @else if (entry.kind === "divider") {
-          <bit-menu-divider data-filter-divider></bit-menu-divider>
+          <!-- Gated so a search can't leave a rule with nothing on one side of it. -->
+          @if (dividerVisible($index)) {
+            <bit-menu-divider data-filter-divider></bit-menu-divider>
+          }
         } @else if (asOption(entry); as option) {
           @if (rowVisible(option)) {
             <ng-container

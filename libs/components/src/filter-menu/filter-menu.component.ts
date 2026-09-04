@@ -108,7 +108,9 @@ function markGroups(nodes: FilterTreeNode[], entries: readonly FilterEntry[]): v
     }
     if (breakBefore) {
       nodes[index].groupStart = true;
-      nodes[index].dividerBefore = afterDivider;
+      // Only when a row precedes it: a search can hide everything above a divider, and a
+      // rule above the first result divides nothing.
+      nodes[index].dividerBefore = afterDivider && index > 0;
       if (index > 0) {
         nodes[index - 1].groupEnd = true;
       }
@@ -460,6 +462,29 @@ export class FilterMenuComponent
       row.label().toLowerCase().includes(term) ||
       row.children().some((child) => this.rowVisible(child))
     );
+  }
+
+  /**
+   * Whether a divider in the flat branch earns its rule: the runs on either side of it,
+   * up to the neighbouring dividers, must each still hold a visible row. Without this a
+   * search can strand a rule at the top or bottom of the list, or leave two adjacent when
+   * the run between them is filtered out.
+   */
+  protected dividerVisible(index: number): boolean {
+    const entries = this.entries();
+    const runHasRow = (from: number, step: number): boolean => {
+      for (let i = from; i >= 0 && i < entries.length; i += step) {
+        const entry = entries[i];
+        if (entry.kind === "divider") {
+          return false;
+        }
+        if (this.rowVisible(entry as FilterRow)) {
+          return true;
+        }
+      }
+      return false;
+    };
+    return runHasRow(index - 1, -1) && runHasRow(index + 1, 1);
   }
 
   /** A row's own state, or forced open while searching so matches aren't buried. */
