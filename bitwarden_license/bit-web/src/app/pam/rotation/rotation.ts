@@ -171,8 +171,7 @@ export type QuartzSchedulePreset = SdkQuartzSchedulePreset;
  * The server, the SDK, and now the admin UI's own copy all say *access connector* — only this
  * module's code identifiers (`DaemonStatus`, `DaemonsService`, the `daemons/` directory) and the
  * standalone agent that consumes a registration token still say *daemon*. Aliasing rather than
- * renaming keeps that identifier rename out of this diff without introducing a second type; see
- * DECISIONS.md for why.
+ * renaming keeps that identifier rename out of this diff without introducing a second type.
  */
 export const DaemonStatus = AccessConnectorStatus;
 export type DaemonStatus = AccessConnectorStatus;
