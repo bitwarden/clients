@@ -231,6 +231,95 @@ describe("VaultItemsTableComponent", () => {
       .map((cipher) => cipher.name);
   }
 
+  describe("clicking a row cell", () => {
+    /** The `role="cell"` divs of the first body row, in column order. */
+    function firstRowCells(): HTMLElement[] {
+      const row = fixture.nativeElement.querySelector("bit-row");
+      return Array.from(row.querySelectorAll('[role="cell"]'));
+    }
+
+    /**
+     * The data cells — everything between the selection checkbox cell and the actions cell, which
+     * are the two the row-click affordance deliberately leaves to their own controls.
+     */
+    function firstRowDataCells(): HTMLElement[] {
+      return firstRowCells().slice(1, -1);
+    }
+
+    /** Two ciphers spanning both vaults, so every optional column and its chips render. */
+    function renderRows(itemAction?: jest.Mock) {
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon", organizationId: "org-1", collectionIds: ["col-1"] }),
+        cipherView({ id: "b", name: "Bank" }),
+      ]);
+      fixture.componentRef.setInput("organizations", [
+        { id: "org-1", name: "Acme corporation" } as Organization,
+      ]);
+      fixture.componentRef.setInput("collections", [
+        { id: "col-1", name: "Operations" } as CollectionView,
+      ]);
+      if (itemAction) {
+        fixture.componentRef.setInput("itemAction", itemAction);
+      }
+      fixture.detectChanges();
+    }
+
+    it("runs itemAction from any data cell, not just the name button", () => {
+      const itemAction = jest.fn();
+      renderRows(itemAction);
+
+      const dataCells = firstRowDataCells();
+      expect(dataCells.length).toBeGreaterThan(1);
+
+      for (const cell of dataCells) {
+        itemAction.mockClear();
+        cell.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        expect(itemAction).toHaveBeenCalledWith(expect.objectContaining({ id: "a" }));
+      }
+    });
+
+    it("fires once, not twice, when the name button itself is clicked", () => {
+      const itemAction = jest.fn();
+      renderRows(itemAction);
+
+      const nameButton = fixture.nativeElement.querySelector("bit-row button[bitlink]");
+      nameButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+      expect(itemAction).toHaveBeenCalledTimes(1);
+    });
+
+    it("leaves the filter chips inside a cell to their own click handler", () => {
+      const itemAction = jest.fn();
+      renderRows(itemAction);
+
+      const chip = fixture.nativeElement.querySelector("bit-row button[bit-chip-action]");
+      expect(chip).not.toBeNull();
+      chip.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+      expect(itemAction).not.toHaveBeenCalled();
+    });
+
+    it("ignores modifier clicks so selection and browser gestures stay available", () => {
+      const itemAction = jest.fn();
+      renderRows(itemAction);
+      const cell = firstRowDataCells()[0];
+
+      for (const modifier of ["ctrlKey", "metaKey", "shiftKey", "altKey"]) {
+        cell.dispatchEvent(new MouseEvent("click", { bubbles: true, [modifier]: true }));
+      }
+
+      expect(itemAction).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when no itemAction is supplied", () => {
+      renderRows();
+
+      expect(() =>
+        firstRowDataCells()[0].dispatchEvent(new MouseEvent("click", { bubbles: true })),
+      ).not.toThrow();
+    });
+  });
+
   it("renders a row per cipher", () => {
     fixture.componentRef.setInput("ciphers", [
       cipherView({ id: "a", name: "Amazon" }),
