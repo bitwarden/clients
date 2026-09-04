@@ -1479,7 +1479,7 @@ export const WithVirtualScrollChild: Story = {
           <bit-section>
             @defer (on immediate) {
             <bit-item-group>
-              <cdk-virtual-scroll-viewport itemSize="59" bitScrollLayout>
+              <cdk-virtual-scroll-viewport itemSize="60" bitScrollLayout>
                 <bit-item *cdkVirtualFor="let item of data; index as i">
                   <button type="button" bit-item-content>
                     <i

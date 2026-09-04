@@ -205,12 +205,18 @@
       [class.tw-cursor-pointer]="itemAction() != null"
       (click)="onCellActivate(row, $event)"
     >
-      <vault-items-table-chips-cell
-        [chips]="sharedFolderChips(row)"
-        icon="bwi-shared-folder"
-        [emptyLabel]="'noSharedFolder' | i18n"
-        (chipSelect)="filterTo(vaultTable, filterKeys.sharedFolder, $event)"
-      />
+      @let sharedFolders = sharedFolderChips(row);
+      @if (sharedFolders.length) {
+        <bit-chip-group
+          class="tw-block tw-w-full tw-min-w-0"
+          [chips]="sharedFolders"
+          [accessibleName]="'sharedFolders' | i18n"
+          (chipSelect)="filterTo(vaultTable, filterKeys.sharedFolder, $event)"
+        />
+      } @else {
+        <span class="tw-text-muted" aria-hidden="true">&mdash;</span>
+        <span class="tw-sr-only">{{ "noSharedFolder" | i18n }}</span>
+      }
     </bit-cell>
   </bit-column>
 
@@ -222,12 +228,18 @@
       [class.tw-cursor-pointer]="itemAction() != null"
       (click)="onCellActivate(row, $event)"
     >
-      <vault-items-table-chips-cell
-        [chips]="folderChips(row)"
-        icon="bwi-folder"
-        [emptyLabel]="'noneFolder' | i18n"
-        (chipSelect)="filterTo(vaultTable, filterKeys.folder, $event)"
-      />
+      @let folders = folderChips(row);
+      @if (folders.length) {
+        <bit-chip-group
+          class="tw-block tw-w-full tw-min-w-0"
+          [chips]="folders"
+          [accessibleName]="'myFolders' | i18n"
+          (chipSelect)="filterTo(vaultTable, filterKeys.folder, $event)"
+        />
+      } @else {
+        <span class="tw-text-muted" aria-hidden="true">&mdash;</span>
+        <span class="tw-sr-only">{{ "noneFolder" | i18n }}</span>
+      }
     </bit-cell>
   </bit-column>
 

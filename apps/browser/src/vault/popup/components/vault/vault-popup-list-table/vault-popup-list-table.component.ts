@@ -237,6 +237,11 @@ export class VaultPopupListTableComponent {
     initialValue: [] as ChipFilterOption<CipherType>[],
   });
 
+  /**
+   * Cached filter state to seed the table's chips on load.
+   */
+  protected readonly filtersToRestore = toSignal(this.listFiltersService.restoreFilters$());
+
   protected readonly organizationOptions = toSignal(this.listFiltersService.organizations$, {
     initialValue: [] as ChipFilterOption<Organization>[],
   });
@@ -379,25 +384,12 @@ export class VaultPopupListTableComponent {
     // Resolve the keyboard-shortcut tooltip for the legacy (flag-off) autofill chip.
     void this.setAutofillShortcutTooltip();
 
-    // Set up chip lifecycle after the first render (chips are registered by then).
+    // Wire up persistence after the first render so we can access the table reference.
     afterNextRender(() => {
       const table = this.tableEl();
       if (!table) {
         return;
       }
-
-      // Seed chips from the persisted cache once the required data resolves.
-      this.listFiltersService
-        .restoreFilters$()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((filters) => {
-          for (const control of table.filterControls()) {
-            const value = (filters as Record<string, unknown>)[control.key()];
-            if (value !== undefined) {
-              control.setValue(value);
-            }
-          }
-        });
 
       // Persist cache and update service state whenever chip selections change.
       toObservable(table.filterValues, { injector: this.injector })
