@@ -15,6 +15,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
@@ -67,6 +68,8 @@ export class SideNavComponent {
 
   private readonly configService = inject(ConfigService);
 
+  private readonly i18nService = inject(I18nService);
+
   /**
    * Whether the VFO1 Foundation flag is enabled, which selects the v2 side nav layout.
    */
@@ -80,6 +83,16 @@ export class SideNavComponent {
   private readonly reducedMotion = toSignal(media("(prefers-reduced-motion: reduce)"), {
     initialValue: false,
   });
+
+  /**
+   * Spoken value for the resize handle. aria-valuenow alone would announce a bare number, and the
+   * collapsed end of the range is a state rather than a width the user can land on.
+   */
+  protected readonly widthValueText = computed(() =>
+    this.sideNavService.open()
+      ? this.i18nService.t("sideNavigationWidth", this.sideNavService.widthRem().toString())
+      : this.i18nService.t("sideNavigationCollapsed"),
+  );
 
   /** True when it is safe to animate the nav's width. */
   protected readonly animateWidth = computed(
