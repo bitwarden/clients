@@ -62,6 +62,8 @@ import {
   NO_FOLDER,
   OrgIconDirective,
   type VaultItemsTableFilters,
+  type VaultScope,
+  VaultScopeType,
   Vfo1I18nPipe,
 } from "@bitwarden/vault";
 
@@ -147,6 +149,9 @@ export class VaultPopupListTableComponent {
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 
   protected readonly deactivatedIcon = DeactivatedOrg;
+
+  /** Temporary hard-coded all items scope until scoping is builtin to the browser */
+  protected readonly allItemsScope: VaultScope = { type: VaultScopeType.AllItems };
 
   protected searchText: string = "";
   private readonly searchText$ = new Subject<string>();
