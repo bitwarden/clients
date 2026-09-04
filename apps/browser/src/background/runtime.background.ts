@@ -221,10 +221,7 @@ export default class RuntimeBackground {
         return result;
       }
       case "getUrlAutofillTargetingRules": {
-        // Because content scripts are injected into all _frames_, we give precedence
-        // to targeting rules matching by frame URI (`sender.url`) over tab URI, to avoid
-        // selector collision with coincidentally-matching in-frame structures.
-        const senderURL = sender.url ?? sender.tab?.url;
+        const senderURL = await this.resolveSenderFrameUrl(sender);
         const targetingRulesForUrl =
           await this.main.domainSettingsService.getTargetingRulesForUrl(senderURL);
 
@@ -264,6 +261,34 @@ export default class RuntimeBackground {
         break;
       }
     }
+  }
+
+  /** Resolves the URL currently loaded in the frame a message came from. */
+  private async resolveSenderFrameUrl(
+    sender: chrome.runtime.MessageSender,
+  ): Promise<string | undefined> {
+    const tabId = sender.tab?.id;
+    const frameId = sender.frameId;
+
+    if (tabId != null && frameId != null) {
+      // `frame.url` takes precedence over `tab.url` to minimize selector
+      // collisions between frames with similar in-frame markup. `frame.url`
+      // takes precedence over `sender.url` because the sender's value is pinned
+      // to the frame URI when the port was opened.
+      const frameUrl = await BrowserApi.getFrameDetails({ tabId, frameId })
+        .then((frame) => frame?.url)
+        .catch((): undefined => undefined);
+
+      if (frameUrl) {
+        return frameUrl;
+      }
+    }
+
+    if (frameId === 0 && sender.tab?.url) {
+      return sender.tab.url;
+    }
+
+    return sender.url ?? sender.tab?.url;
   }
 
   private async handleSetBitwardenAsDefaultPasswordManager(
