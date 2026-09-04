@@ -19097,11 +19097,8 @@
   "pamRotationConfigHistoryEmpty": {
     "message": "No rotations have run yet."
   },
-  "pamRotationConfigRemoveHeading": {
-    "message": "Remove rotation"
-  },
-  "pamRotationConfigRemove": {
-    "message": "Remove rotation configuration"
+  "pamRotationConfigRemoveManagedCredential": {
+    "message": "Remove managed credential"
   },
   "pamRotationConfigRemoveLockedContent": {
     "message": "A rotation job is currently in progress. You can remove the rotation configuration once the daemon finishes it — or once it times out. Pausing only stops new jobs; it does not cancel the one already running."

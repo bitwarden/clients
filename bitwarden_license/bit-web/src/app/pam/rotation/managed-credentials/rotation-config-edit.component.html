@@ -243,10 +243,10 @@
         }
       </bit-section>
 
-      <!-- Remove rotation (keeps the credential) -->
+      <!-- Remove managed credential (keeps the credential) -->
       <bit-section>
         <bit-section-header>
-          <h2 bitTypography="h5">{{ "pamRotationConfigRemoveHeading" | i18n }}</h2>
+          <h2 bitTypography="h5">{{ "pamRotationConfigRemoveManagedCredential" | i18n }}</h2>
         </bit-section-header>
         <bit-card>
           <p bitTypography="body2" class="tw-mt-0 tw-text-muted">
@@ -265,7 +265,7 @@
             [disabled]="detail.config.hasActiveJob"
             id="rotation-config-edit_button_remove"
           >
-            {{ "pamRotationConfigRemove" | i18n }}
+            {{ "pamRotationConfigRemoveManagedCredential" | i18n }}
           </button>
         </bit-card>
       </bit-section>
