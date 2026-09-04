@@ -157,10 +157,12 @@ describe("RotationHistoryComponent", () => {
 });
 
 describe("RotationHistoryComponent rendering", () => {
+  const i18nFake: Pick<I18nService, "t"> = { t: (id: string) => id };
+
   function render(jobs: RotationJob[]) {
     TestBed.configureTestingModule({
       imports: [RotationHistoryComponent],
-      providers: [{ provide: I18nService, useValue: { t: (key: string) => key } }],
+      providers: [{ provide: I18nService, useValue: i18nFake }],
     });
 
     const fixture = TestBed.createComponent(RotationHistoryComponent);
@@ -172,10 +174,12 @@ describe("RotationHistoryComponent rendering", () => {
   it("gives each attempt row a single cell spanning every column", () => {
     const fixture = render([rotationJob()]);
 
-    const attemptRows = fixture.debugElement.queryAll(By.css("tr.tw-bg-background-alt"));
+    const attemptRows = fixture.debugElement.queryAll(
+      By.css("[data-testid='rotation-history-attempt-row']"),
+    );
     expect(attemptRows).toHaveLength(1);
 
-    const cells = fixture.debugElement.queryAll(By.css("tr.tw-bg-background-alt td"));
+    const cells = attemptRows[0].queryAll(By.css("td"));
     expect(cells).toHaveLength(1);
     expect(cells[0].nativeElement.getAttribute("colspan")).toBe("4");
   });
@@ -202,7 +206,9 @@ describe("RotationHistoryComponent rendering", () => {
   it("leaves the job row filling the four headers, with the attempt count last", () => {
     const fixture = render([rotationJob()]);
 
-    const cells = fixture.debugElement.queryAll(By.css("tbody tr:not(.tw-bg-background-alt) td"));
+    const cells = fixture.debugElement.queryAll(
+      By.css("[data-testid='rotation-history-job-row'] td"),
+    );
     expect(cells).toHaveLength(4);
     expect(cells[3].nativeElement.textContent.trim()).toBe("1");
   });
