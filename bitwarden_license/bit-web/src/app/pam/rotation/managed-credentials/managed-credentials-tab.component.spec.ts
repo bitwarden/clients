@@ -317,4 +317,39 @@ describe("ManagedCredentialsTabComponent", () => {
       );
     });
   });
+
+  describe("rotate-on-access-end cell", () => {
+    const rotates = () => makeRow({ rotateOnAccessEnd: true });
+    const doesNotRotate = () => makeRow({ rotateOnAccessEnd: false, id: configId("7") });
+
+    function renderCells(rows: RotationConfigRow[]): HTMLElement[] {
+      setupTestBed(true, [{ id: "ts-1" }], true);
+      configsService.rows$.next(rows);
+      fixture.detectChanges();
+
+      return Array.from(
+        (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(
+          '[id^="managed-credentials-tab_rotate-on-access-end_"]',
+        ),
+      );
+    }
+
+    it("reads as text, not only a check icon, when the credential rotates on access end", () => {
+      const [cell] = renderCells([rotates()]);
+      expect(cell.textContent).toContain("yes");
+      expect(cell.querySelector(".bwi-check")).not.toBeNull();
+    });
+
+    it("reads as text when the credential does not rotate on access end", () => {
+      const [cell] = renderCells([doesNotRotate()]);
+      expect(cell.textContent).toContain("no");
+      expect(cell.querySelector(".bwi-check")).toBeNull();
+    });
+
+    it("leaves no cell in the column empty", () => {
+      const cells = renderCells([rotates(), doesNotRotate()]);
+      expect(cells).toHaveLength(2);
+      expect(cells.map((cell) => cell.textContent!.trim())).toEqual(["yes", "no"]);
+    });
+  });
 });
