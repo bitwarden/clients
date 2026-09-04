@@ -11,7 +11,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import type { TargetSystem, TargetSystemId } from "../rotation";
 import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
-import { ORGANIZATION_ID, id, sysId } from "../testing/rotation-builders";
+import { ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
 
 import { TargetSystemEditComponent } from "./target-system-edit.component";
 
@@ -60,6 +60,10 @@ const NO_CHARACTER_CLASSES = {
 
 function policyFormOf(fixture: ComponentFixture<TargetSystemEditComponent>): FormGroup {
   return (fixture.componentInstance as unknown as { policyForm: FormGroup }).policyForm;
+}
+
+function nameFormOf(fixture: ComponentFixture<TargetSystemEditComponent>): FormGroup {
+  return (fixture.componentInstance as unknown as { nameForm: FormGroup }).nameForm;
 }
 
 /** Build a configured TestBed for create mode (no targetSystemId). */
@@ -119,7 +123,7 @@ async function setupCreateWithTemplate(template: string): Promise<
 /** Build a configured TestBed for edit mode (with targetSystemId). */
 async function setupEdit(
   rotationSdk: ReturnType<typeof mock<RotationSdkService>>,
-  routeTargetSystemId: string = id("sys-1"),
+  routeTargetSystemId: string = sysId("sys-1"),
 ) {
   TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
   await TestBed.configureTestingModule({
@@ -734,49 +738,34 @@ describe("TargetSystemEditComponent — edit mode", () => {
     );
   });
 
-  it("loads the record when the route id is uppercase", async () => {
-    TestBed.resetTestingModule();
-    const rotationSdk2 = mock<RotationSdkService>();
-    const toastService2 = mock<ToastService>();
-    rotationSdk2.listTargetSystems.mockResolvedValue([makeSystem()]);
-    await setupEdit(rotationSdk2, id("sys-1").toUpperCase());
-    TestBed.overrideProvider(ToastService, { useValue: toastService2 });
-    const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+  const mixedCaseIdCases: [string, TargetSystemId, string][] = [
+    ["the route id is uppercase", sysId("sys-1"), sysId("sys-1").toUpperCase()],
+    [
+      "the stored id is uppercase and the route id is lower case",
+      asUuid<TargetSystemId>(sysId("sys-1").toUpperCase()),
+      sysId("sys-1"),
+    ],
+  ];
 
-    const fixture2 = TestBed.createComponent(TargetSystemEditComponent);
-    fixture2.detectChanges();
-    await fixture2.whenStable();
-    fixture2.detectChanges();
+  it.each(mixedCaseIdCases)(
+    "loads the record when %s",
+    async (_case, storedId, routeTargetSystemId) => {
+      TestBed.resetTestingModule();
+      const caseSdk = mock<RotationSdkService>();
+      const caseToast = mock<ToastService>();
+      caseSdk.listTargetSystems.mockResolvedValue([makeSystem({ id: storedId })]);
+      await setupEdit(caseSdk, routeTargetSystemId);
+      TestBed.overrideProvider(ToastService, { useValue: caseToast });
+      const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
 
-    const nameForm = (
-      fixture2.componentInstance as unknown as { nameForm: { getRawValue: () => { name: string } } }
-    ).nameForm;
-    expect(nameForm.getRawValue().name).toBe("Prod Entra");
-    expect(nav).not.toHaveBeenCalled();
-    expect(toastService2.showToast).not.toHaveBeenCalled();
-  });
+      const fx = TestBed.createComponent(TargetSystemEditComponent);
+      fx.detectChanges();
+      await fx.whenStable();
+      fx.detectChanges();
 
-  it("loads the record when the stored id is uppercase and the route id is lower case", async () => {
-    TestBed.resetTestingModule();
-    const rotationSdk3 = mock<RotationSdkService>();
-    const toastService3 = mock<ToastService>();
-    rotationSdk3.listTargetSystems.mockResolvedValue([
-      makeSystem({ id: asUuid<TargetSystemId>(id("sys-1").toUpperCase()) }),
-    ]);
-    await setupEdit(rotationSdk3, id("sys-1"));
-    TestBed.overrideProvider(ToastService, { useValue: toastService3 });
-    const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
-
-    const fixture3 = TestBed.createComponent(TargetSystemEditComponent);
-    fixture3.detectChanges();
-    await fixture3.whenStable();
-    fixture3.detectChanges();
-
-    const nameForm = (
-      fixture3.componentInstance as unknown as { nameForm: { getRawValue: () => { name: string } } }
-    ).nameForm;
-    expect(nameForm.getRawValue().name).toBe("Prod Entra");
-    expect(nav).not.toHaveBeenCalled();
-    expect(toastService3.showToast).not.toHaveBeenCalled();
-  });
+      expect(nameFormOf(fx).getRawValue().name).toBe("Prod Entra");
+      expect(nav).not.toHaveBeenCalled();
+      expect(caseToast.showToast).not.toHaveBeenCalled();
+    },
+  );
 });
