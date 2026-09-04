@@ -81,6 +81,9 @@ export class DaemonsTabComponent {
     this.targetSystemsService.activeAutomaticSystems$,
     { initialValue: [] as TargetSystem[] },
   );
+  private readonly targetSystemsLoadError = toSignal(this.targetSystemsService.loadError$, {
+    initialValue: null as unknown | null,
+  });
 
   protected readonly dataSource = new TableDataSource<DaemonRow>();
   protected readonly searchControl = new FormControl("", { nonNullable: true });
@@ -145,7 +148,18 @@ export class DaemonsTabComponent {
     }
   };
 
+  /**
+   * A failed target-systems load leaves the shared list empty, which is indistinguishable from an
+   * org that genuinely has none — so the failure is surfaced rather than letting the dialog assert
+   * the org has no active automatic target system.
+   */
   protected readonly openAssignDialog = async (row: DaemonRow): Promise<void> => {
+    const targetSystemsError = this.targetSystemsLoadError();
+    if (targetSystemsError) {
+      this.showError(targetSystemsError);
+      return;
+    }
+
     const activeSystems = this.activeAutomaticSystems();
     const assigned = new Set(row.daemon.assignedTargetSystemIds);
     const options = activeSystems.filter((s) => !assigned.has(s.id));

@@ -25,6 +25,7 @@ describe("DaemonsTabComponent", () => {
   const rows$ = new BehaviorSubject<DaemonRow[]>([]);
   const loading$ = new BehaviorSubject<boolean>(false);
   const loadError$ = new BehaviorSubject<unknown | null>(null);
+  const targetSystemsLoadError$ = new BehaviorSubject<unknown | null>(null);
 
   function makeDaemonRow(overrides: Partial<DaemonRow> = {}): DaemonRow {
     return {
@@ -88,8 +89,10 @@ describe("DaemonsTabComponent", () => {
       delete: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<DaemonsService>;
 
+    targetSystemsLoadError$.next(null);
     targetSystemsService = {
       activeAutomaticSystems$: of([] as TargetSystem[]),
+      loadError$: targetSystemsLoadError$.asObservable(),
       load: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<TargetSystemsService>;
 
@@ -218,6 +221,63 @@ describe("DaemonsTabComponent", () => {
     await component.unassign(daemon, sysId("ts-1"), "Prod");
 
     expect(daemonsService.unassign).toHaveBeenCalledWith(daemon, sysId("ts-1"));
+  });
+
+  describe("openAssignDialog", () => {
+    const activeSystem = { id: sysId("ts-1"), name: "Prod DB" } as unknown as TargetSystem;
+
+    function daemonWithAssignments(...ids: TargetSystemId[]): DaemonRow {
+      const row = makeDaemonRow();
+      return {
+        ...row,
+        daemon: { ...row.daemon, assignedTargetSystemIds: ids } as unknown as AccessConnector,
+      };
+    }
+
+    async function openWith(systems: TargetSystem[], row: DaemonRow): Promise<void> {
+      TestBed.resetTestingModule();
+      targetSystemsService = {
+        activeAutomaticSystems$: of(systems),
+        loadError$: targetSystemsLoadError$.asObservable(),
+        load: jest.fn().mockResolvedValue(undefined),
+      } as unknown as jest.Mocked<TargetSystemsService>;
+      await createComponent();
+
+      (dialogService.open as jest.Mock).mockReturnValue({ closed: of(undefined) });
+      const component = fixture.componentInstance as unknown as {
+        openAssignDialog: (row: DaemonRow) => Promise<void>;
+      };
+      await component.openAssignDialog(row);
+    }
+
+    function dialogData(): { options: TargetSystem[]; noActiveAutomaticSystems: boolean } {
+      return (dialogService.open as jest.Mock).mock.calls[0][1].data;
+    }
+
+    it("flags that the org has no active automatic target system", async () => {
+      await openWith([], daemonWithAssignments());
+
+      expect(dialogData().options).toEqual([]);
+      expect(dialogData().noActiveAutomaticSystems).toBe(true);
+    });
+
+    it("does not flag when the only active system is already assigned to this daemon", async () => {
+      await openWith([activeSystem], daemonWithAssignments(activeSystem.id));
+
+      expect(dialogData().options).toEqual([]);
+      expect(dialogData().noActiveAutomaticSystems).toBe(false);
+    });
+
+    it("surfaces the error instead of opening the dialog when the target-systems load failed", async () => {
+      targetSystemsLoadError$.next(new Error("boom"));
+
+      await openWith([], daemonWithAssignments());
+
+      expect(dialogService.open).not.toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error" }),
+      );
+    });
   });
 
   describe("load error state", () => {
