@@ -596,7 +596,7 @@ describe("ApprovalsTabComponent", () => {
       inbox.activeLeaseRows$.next([leaseRow()]);
       create();
 
-      component["collectionControl"].setValue("Staging");
+      component["collectionFilterMenu"]()?.setValue("Staging");
       fixture.detectChanges();
 
       expect(query('[data-testid="approvals-lease-lease-1"]')).toBeNull();
@@ -610,7 +610,7 @@ describe("ApprovalsTabComponent", () => {
       inbox.activeLeaseRows$.next([leaseRow({ id: "req-live", collectionId: "col-2" })]);
       create();
 
-      component["collectionControl"].setValue("Staging");
+      component["collectionFilterMenu"]()?.setValue("Staging");
       fixture.detectChanges();
 
       expect(query('[data-testid="approvals-row-req-1"]')).toBeNull();

@@ -73,23 +73,31 @@
 } @else {
   <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
     <bit-search
-      class="tw-grow"
+      class="tw-grow tw-max-w-md"
       [formControl]="searchControl"
       [placeholder]="'pamApprovalsSearchPlaceholder' | i18n"
       id="pam-approvals_input_search"
     />
-    <bit-chip-filter
-      [formControl]="collectionControl"
+    <bit-filter-menu
+      #collectionFilter
+      key="collection"
       [placeholderText]="'pamApprovalsCollectionFilter' | i18n"
-      placeholderIcon="bwi-collection-shared"
-      [options]="collectionOptions()"
-    />
-    <bit-chip-filter
-      [formControl]="requesterControl"
+      [unsetLabel]="'all' | i18n"
+    >
+      @for (option of collectionOptions(); track option.value) {
+        <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+      }
+    </bit-filter-menu>
+    <bit-filter-menu
+      #requesterFilter
+      key="requester"
       [placeholderText]="'pamApprovalsRequesterFilter' | i18n"
-      placeholderIcon="bwi-user"
-      [options]="requesterOptions()"
-    />
+      [unsetLabel]="'all' | i18n"
+    >
+      @for (option of requesterOptions(); track option.value) {
+        <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+      }
+    </bit-filter-menu>
   </div>
 
   @if (rows().length === 0 && leaseRows().length === 0) {
