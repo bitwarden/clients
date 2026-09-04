@@ -19,7 +19,7 @@ import { ButtonModule } from "../../button";
 import { DialogModule } from "../../dialog";
 import { FilterMenuModule, type FilterOptionIconTile } from "../../filter-menu";
 import { FormFieldModule } from "../../form-field";
-import { IconTileComponent } from "../../icon-tile/icon-tile.component";
+import { IconTileComponent, type IconTileVariant } from "../../icon-tile/icon-tile.component";
 import { InputModule } from "../../input/input.module";
 import { LayoutComponent, PageComponent } from "../../layout";
 import { mockLayoutI18n } from "../../layout/mocks";
@@ -64,25 +64,67 @@ class DemoStatusColumnComponent {
   readonly table = input.required<TableDef<DemoRow>>();
 }
 
+/** The item types the spec's Type sheet lists, plus `note`. */
+const VAULT_ITEM_TYPES = [
+  { value: "login", label: "Login" },
+  { value: "card", label: "Card" },
+  { value: "bankAccount", label: "Bank account" },
+  { value: "identity", label: "Identity" },
+  { value: "sshKey", label: "SSH key" },
+  { value: "note", label: "Secure note" },
+] as const;
+
+type VaultItemType = (typeof VAULT_ITEM_TYPES)[number]["value"];
+
+const typeLabel = (type: VaultItemType) =>
+  VAULT_ITEM_TYPES.find((entry) => entry.value === type)?.label ?? type;
+
 type VaultRow = {
   id: number;
   name: string;
-  type: "login" | "card" | "note";
+  type: VaultItemType;
   vault: "mine" | "acme";
   collectionIds: string[];
+  /** `null` is the spec's "No folders" option. */
+  folderId: string | null;
   favorite: boolean;
 };
 
 const VAULT_ROWS: VaultRow[] = [
-  { id: 1, name: "Acme", type: "login", vault: "acme", collectionIds: ["eng"], favorite: true },
-  { id: 2, name: "Amazon", type: "login", vault: "mine", collectionIds: [], favorite: false },
-  { id: 3, name: "Apple ID", type: "login", vault: "mine", collectionIds: [], favorite: true },
+  {
+    id: 1,
+    name: "Acme",
+    type: "login",
+    vault: "acme",
+    collectionIds: ["eng"],
+    folderId: "work",
+    favorite: true,
+  },
+  {
+    id: 2,
+    name: "Amazon",
+    type: "login",
+    vault: "mine",
+    collectionIds: [],
+    folderId: "entertainment",
+    favorite: false,
+  },
+  {
+    id: 3,
+    name: "Apple ID",
+    type: "login",
+    vault: "mine",
+    collectionIds: [],
+    folderId: null,
+    favorite: true,
+  },
   {
     id: 4,
     name: "Chase Bank",
     type: "card",
     vault: "acme",
     collectionIds: ["ops"],
+    folderId: null,
     favorite: false,
   },
   {
@@ -91,15 +133,25 @@ const VAULT_ROWS: VaultRow[] = [
     type: "card",
     vault: "acme",
     collectionIds: ["ops", "eng"],
+    folderId: "work",
     favorite: true,
   },
-  { id: 6, name: "Datadog", type: "login", vault: "acme", collectionIds: ["eng"], favorite: false },
+  {
+    id: 6,
+    name: "Datadog",
+    type: "login",
+    vault: "acme",
+    collectionIds: ["eng"],
+    folderId: "utilities",
+    favorite: false,
+  },
   {
     id: 7,
     name: "Docusign",
     type: "login",
     vault: "acme",
     collectionIds: ["ops"],
+    folderId: "healthcare",
     favorite: false,
   },
   {
@@ -108,6 +160,7 @@ const VAULT_ROWS: VaultRow[] = [
     type: "note",
     vault: "mine",
     collectionIds: ["personal"],
+    folderId: "social",
     favorite: false,
   },
   {
@@ -116,6 +169,61 @@ const VAULT_ROWS: VaultRow[] = [
     type: "note",
     vault: "acme",
     collectionIds: ["pm"],
+    folderId: "subscriptions",
+    favorite: false,
+  },
+  {
+    id: 10,
+    name: "GitHub",
+    type: "login",
+    vault: "acme",
+    collectionIds: ["eng"],
+    folderId: "work",
+    favorite: false,
+  },
+  {
+    id: 11,
+    name: "Chase checking",
+    type: "bankAccount",
+    vault: "mine",
+    collectionIds: [],
+    folderId: "subscriptions",
+    favorite: false,
+  },
+  {
+    id: 12,
+    name: "Wells Fargo savings",
+    type: "bankAccount",
+    vault: "mine",
+    collectionIds: [],
+    folderId: null,
+    favorite: false,
+  },
+  {
+    id: 13,
+    name: "Home address",
+    type: "identity",
+    vault: "mine",
+    collectionIds: [],
+    folderId: "utilities",
+    favorite: false,
+  },
+  {
+    id: 14,
+    name: "Work identity",
+    type: "identity",
+    vault: "acme",
+    collectionIds: ["ops"],
+    folderId: "work",
+    favorite: false,
+  },
+  {
+    id: 15,
+    name: "Deploy key",
+    type: "sshKey",
+    vault: "acme",
+    collectionIds: ["eng", "ci"],
+    folderId: null,
     favorite: false,
   },
 ];
@@ -124,6 +232,20 @@ const VAULTS = [
   { id: "mine", name: "My vault" },
   { id: "acme", name: "Acme corporation" },
 ] as const;
+
+/**
+ * Matches the spec's My folders sheet: "No folders" is the `null` option, and each folder
+ * carries its own tag tile colour. There is no pink in the decorative families, so
+ * Subscriptions uses `brand`.
+ */
+const FOLDERS = [
+  { id: "entertainment", name: "Entertainment", variant: "green" },
+  { id: "healthcare", name: "Healthcare", variant: "red" },
+  { id: "social", name: "Social media", variant: "orange" },
+  { id: "subscriptions", name: "Subscriptions", variant: "brand" },
+  { id: "utilities", name: "Utilities", variant: "purple" },
+  { id: "work", name: "Work", variant: "gray" },
+] as const satisfies readonly { id: string; name: string; variant: IconTileVariant }[];
 
 const COLLECTION_ORGS = [
   {
@@ -160,6 +282,7 @@ type VaultFilters = {
   type?: VaultRow["type"];
   vault?: string[];
   collection?: string[];
+  folder?: (string | null)[];
   favorite?: boolean;
 };
 
@@ -248,9 +371,9 @@ type VaultFilters = {
           <bit-header-cell>Name</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
         </bit-column>
-        <bit-column sortable width="120px">
+        <bit-column sortable width="150px">
           <bit-header-cell>Type</bit-header-cell>
-          <bit-cell *bitCellDef="table.columns.type; let row">{{ row.type }}</bit-cell>
+          <bit-cell *bitCellDef="table.columns.type; let row">{{ typeName(row.type) }}</bit-cell>
         </bit-column>
         <bit-column width="160px">
           <bit-header-cell>Vault</bit-header-cell>
@@ -275,10 +398,7 @@ class DemoFilterableTableComponent {
 
   // Options carry no `count` — the table computes faceted counts automatically
   // (rows matching each option given the other active filters).
-  protected readonly typeOptions = (["login", "card", "note"] as const).map((value) => ({
-    value,
-    label: value,
-  }));
+  protected readonly typeOptions = VAULT_ITEM_TYPES;
 
   protected readonly vaultOptions = VAULTS.map((vault) => ({
     value: vault.id,
@@ -291,6 +411,8 @@ class DemoFilterableTableComponent {
   protected vaultName(id: string): string {
     return VAULTS.find((v) => v.id === id)?.name ?? id;
   }
+
+  protected readonly typeName = typeLabel;
 }
 
 @Component({
@@ -348,7 +470,7 @@ class DemoFilterableTableComponent {
             }
           </bit-filter-menu>
 
-          <bit-filter-menu key="collection" placeholderText="Collections" multiple>
+          <bit-filter-menu key="collection" placeholderText="Shared folders" multiple>
             @for (org of collectionOrgs; track org.name) {
               <bit-filter-section [label]="org.name" collapsible>
                 @for (collection of org.collections; track collection.id) {
@@ -370,6 +492,16 @@ class DemoFilterableTableComponent {
             }
           </bit-filter-menu>
 
+          <bit-filter-menu key="folder" placeholderText="My folders" multiple>
+            <bit-filter-option [value]="null">No folders</bit-filter-option>
+            <bit-filter-option-divider></bit-filter-option-divider>
+            @for (folder of folders; track folder.id) {
+              <bit-filter-option [value]="folder.id" [iconTile]="folderTile(folder.variant)">
+                {{ folder.name }}
+              </bit-filter-option>
+            }
+          </bit-filter-menu>
+
           <bit-filter-toggle
             key="favorite"
             label="Favorites"
@@ -382,9 +514,9 @@ class DemoFilterableTableComponent {
           <bit-header-cell>Name</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
         </bit-column>
-        <bit-column sortable width="120px">
+        <bit-column sortable width="150px">
           <bit-header-cell>Type</bit-header-cell>
-          <bit-cell *bitCellDef="table.columns.type; let row">{{ row.type }}</bit-cell>
+          <bit-cell *bitCellDef="table.columns.type; let row">{{ typeName(row.type) }}</bit-cell>
         </bit-column>
         <bit-column width="160px">
           <bit-header-cell>Vault</bit-header-cell>
@@ -408,12 +540,11 @@ class DemoKitchenSinkTableComponent {
     (f.type == null || row.type === f.type) &&
     (!f.vault?.length || f.vault.includes(row.vault)) &&
     (!f.collection?.length || f.collection.some((c) => row.collectionIds.includes(c))) &&
+    // `null` is a real selection here ("No folders"), so match on it rather than skip it.
+    (!f.folder?.length || f.folder.includes(row.folderId)) &&
     (!f.favorite || row.favorite);
 
-  protected readonly typeOptions = (["login", "card", "note"] as const).map((value) => ({
-    value,
-    label: value,
-  }));
+  protected readonly typeOptions = VAULT_ITEM_TYPES;
 
   protected readonly vaultOptions = VAULTS.map((vault) => ({
     value: vault.id,
@@ -422,14 +553,22 @@ class DemoKitchenSinkTableComponent {
 
   protected readonly collectionOrgs = COLLECTION_ORGS;
 
+  protected readonly folders = FOLDERS;
+
   protected readonly collectionTile: FilterOptionIconTile = {
     icon: "bwi-collection-shared",
     variant: "brand",
   };
 
+  protected folderTile(variant: IconTileVariant): FilterOptionIconTile {
+    return { icon: "bwi-tag", variant };
+  }
+
   protected vaultName(id: string): string {
     return VAULTS.find((v) => v.id === id)?.name ?? id;
   }
+
+  protected readonly typeName = typeLabel;
 }
 
 /**
@@ -464,9 +603,9 @@ class DemoKitchenSinkTableComponent {
           <bit-header-cell>Name</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
         </bit-column>
-        <bit-column sortable width="120px">
+        <bit-column sortable width="150px">
           <bit-header-cell>Type</bit-header-cell>
-          <bit-cell *bitCellDef="table.columns.type; let row">{{ row.type }}</bit-cell>
+          <bit-cell *bitCellDef="table.columns.type; let row">{{ typeName(row.type) }}</bit-cell>
         </bit-column>
         <bit-column width="160px">
           <bit-header-cell>Vault</bit-header-cell>
@@ -486,6 +625,8 @@ class DemoSearchableTableComponent {
   protected vaultName(id: string): string {
     return VAULTS.find((v) => v.id === id)?.name ?? id;
   }
+
+  protected readonly typeName = typeLabel;
 }
 
 /**
@@ -541,9 +682,9 @@ class DemoSearchableTableComponent {
           <bit-header-cell>Name</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
         </bit-column>
-        <bit-column sortable width="120px">
+        <bit-column sortable width="150px">
           <bit-header-cell>Type</bit-header-cell>
-          <bit-cell *bitCellDef="table.columns.type; let row">{{ row.type }}</bit-cell>
+          <bit-cell *bitCellDef="table.columns.type; let row">{{ typeName(row.type) }}</bit-cell>
         </bit-column>
         <bit-column width="160px">
           <bit-header-cell>Vault</bit-header-cell>
@@ -576,9 +717,7 @@ class DemoUrlSyncTableComponent {
     (!f.favorite || row.favorite);
 
   protected readonly typeOptions = computed(() =>
-    (["login", "card", "note"] as const)
-      .map((value) => ({ value, label: value }))
-      .filter((option) => this.data().some((r) => r.type === option.value)),
+    VAULT_ITEM_TYPES.filter((option) => this.data().some((r) => r.type === option.value)),
   );
 
   protected readonly vaultOptions = computed(() =>
@@ -588,6 +727,8 @@ class DemoUrlSyncTableComponent {
   protected vaultName(id: string): string {
     return VAULTS.find((v) => v.id === id)?.name ?? id;
   }
+
+  protected readonly typeName = typeLabel;
 }
 
 type SeatRow = { id: number; name: string; email: string };
