@@ -217,3 +217,8 @@ export function configId(label: string): RotationConfigId {
 export function jobId(label: string): RotationJobId {
   return asUuid<RotationJobId>(id(label));
 }
+
+/** A branded {@link RotationAttemptId} from a label. */
+export function attemptId(label: string): RotationAttemptId {
+  return asUuid<RotationAttemptId>(id(label));
+}

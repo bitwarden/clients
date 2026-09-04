@@ -2,9 +2,8 @@ import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 
-import type { RotationAttempt, RotationAttemptId, RotationJob } from "../rotation";
+import type { RotationAttempt, RotationJob } from "../rotation";
 import {
   RotationAttemptStatus,
   RotationJobStatus,
@@ -12,16 +11,12 @@ import {
   RotationSyncState,
   SessionTerminationOutcome,
 } from "../rotation";
-import { id, jobId, rotationAttempt, rotationJob } from "../testing/rotation-builders";
+import { attemptId, jobId, rotationAttempt, rotationJob } from "../testing/rotation-builders";
 
 import { RotationHistoryComponent } from "./rotation-history.component";
 
 function makeJob(overrides: Partial<RotationJob> = {}): RotationJob {
   return rotationJob(overrides);
-}
-
-function attemptId(label: string): RotationAttemptId {
-  return asUuid<RotationAttemptId>(id(label));
 }
 
 function failedAttempt(label: string, failureReason: string): RotationAttempt {
