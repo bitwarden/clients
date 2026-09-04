@@ -1,6 +1,6 @@
 <form [formGroup]="form" bit-dialog dialogSize="default">
   <ng-container bitDialogTitle>
-    {{ "pamDaemonAssignTargetTitle" | i18n }}
+    {{ "pamAccessConnectorAssignTargetTitle" | i18n }}
     <span class="tw-text-sm tw-normal-case tw-text-muted">{{ params.daemon.name }}</span>
   </ng-container>
 
@@ -16,10 +16,10 @@
         >{{ "pamDaemonAssignGoToTargetSystems" | i18n }}</a
       >
     } @else if (params.options.length === 0) {
-      <p class="tw-text-muted">{{ "pamDaemonAssignNoOptions" | i18n }}</p>
+      <p class="tw-text-muted">{{ "pamAccessConnectorAssignNoOptions" | i18n }}</p>
     } @else {
       <bit-form-field>
-        <bit-label>{{ "pamDaemonAssignTargetLabel" | i18n }}</bit-label>
+        <bit-label>{{ "pamAccessConnectorAssignTargetLabel" | i18n }}</bit-label>
         <bit-select formControlName="targetSystemId" id="assign-target-dialog_select_target">
           @for (system of params.options; track system.id) {
             <bit-option [value]="system.id" [label]="system.name"></bit-option>
@@ -38,7 +38,7 @@
         (click)="confirm()"
         id="assign-target-dialog_button_confirm"
       >
-        {{ "pamDaemonAssignConfirm" | i18n }}
+        {{ "pamAccessConnectorAssignConfirm" | i18n }}
       </button>
     }
     <button

@@ -55,7 +55,7 @@ export const rotationRoutes: Routes = [
   {
     path: "daemons/:daemonId",
     component: DaemonDetailComponent,
-    data: { titleId: "pamDaemonDetailTitle" },
+    data: { titleId: "pamAccessConnectorDetailTitle" },
   },
   {
     path: "",
@@ -66,7 +66,7 @@ export const rotationRoutes: Routes = [
       {
         path: "daemons",
         component: DaemonsTabComponent,
-        data: { titleId: "pamRotationTabDaemons" },
+        data: { titleId: "pamRotationTabAccessConnectors" },
       },
       {
         path: "target-systems",

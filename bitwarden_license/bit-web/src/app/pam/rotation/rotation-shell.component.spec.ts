@@ -93,7 +93,7 @@ describe("RotationShellComponent", () => {
       (fixture.nativeElement as HTMLElement).querySelectorAll("bit-tab-link"),
     ).map((el) => el.textContent?.trim());
     expect(labels).toEqual([
-      "pamRotationTabDaemons",
+      "pamRotationTabAccessConnectors",
       "pamRotationTabTargetSystems",
       "pamRotationTabManagedCredentials",
     ]);

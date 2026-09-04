@@ -76,7 +76,7 @@ describe("AssignTargetDialogComponent", () => {
   it("shows the all-assigned message when every eligible target is already assigned", async () => {
     await createComponent([]);
     const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain("pamDaemonAssignNoOptions");
+    expect(text).toContain("pamAccessConnectorAssignNoOptions");
     expect(text).not.toContain("pamDaemonAssignNoTargetSystems");
   });
 
@@ -84,7 +84,7 @@ describe("AssignTargetDialogComponent", () => {
     await createComponent([], true);
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain("pamDaemonAssignNoTargetSystems");
-    expect(text).not.toContain("pamDaemonAssignNoOptions");
+    expect(text).not.toContain("pamAccessConnectorAssignNoOptions");
   });
 
   it("links to the Target systems tab when none exist", async () => {
