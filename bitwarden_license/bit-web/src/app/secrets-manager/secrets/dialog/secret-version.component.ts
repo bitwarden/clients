@@ -1,22 +1,36 @@
+import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  Inject,
+  inject,
   OnInit,
   signal,
 } from "@angular/core";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
+  AccordionComponent,
+  AccordionGroupComponent,
+  AsyncActionsModule,
+  ButtonModule,
+  CardComponent,
   DIALOG_DATA,
   DialogConfig,
+  DialogModule,
   DialogRef,
   DialogService,
+  FormFieldModule,
+  IconButtonModule,
+  IconModule,
+  SectionComponent,
+  SectionHeaderComponent,
   ToastService,
+  TypographyModule,
 } from "@bitwarden/components";
 
 import { SecretVersionView } from "../../models/view/secret-version.view";
@@ -49,11 +63,31 @@ interface SecretVersionRow {
 
 @Component({
   templateUrl: "./secret-version.component.html",
-  standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    AccordionComponent,
+    AccordionGroupComponent,
+    AsyncActionsModule,
+    ButtonModule,
+    CardComponent,
+    CommonModule,
+    DialogModule,
+    FormFieldModule,
+    IconButtonModule,
+    IconModule,
+    JslibModule,
+    SectionComponent,
+    SectionHeaderComponent,
+    TypographyModule,
+  ],
 })
 export class SecretVersionDialogComponent implements OnInit {
-  readonly loading = signal(true);
+  /** Angular `DatePipe` format shared by the current version and every history row. */
+  protected readonly dateFormat = "MMM d, y, h:mm:ss a";
+  /** Stand-in rendered instead of the real value while a version is hidden. */
+  protected readonly maskedValue = "•".repeat(16);
+
+  protected readonly loading = signal(true);
   protected readonly rows = signal<SecretVersionRow[]>([]);
   protected readonly visibleVersionIds = signal(new Set<string>());
   protected readonly expandedVersionIds = signal(new Set<string>());
@@ -67,26 +101,24 @@ export class SecretVersionDialogComponent implements OnInit {
   protected readonly hasVersions = computed(() => this.rows().length > 0);
   protected readonly isEmpty = computed(() => !this.hasCurrentValue() && !this.hasVersions());
 
-  get name() {
+  private readonly params = inject<SecretVersionDialogParams>(DIALOG_DATA);
+  private readonly i18nService = inject(I18nService);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly toastService = inject(ToastService);
+  private readonly logService = inject(LogService);
+  private readonly validationService = inject(ValidationService);
+  private readonly secretVersionService = inject(SecretVersionService);
+  private readonly secretService = inject(SecretService);
+  private readonly dialogService = inject(DialogService);
+  readonly dialogRef = inject(DialogRef);
+
+  protected get name() {
     return this.params.name;
   }
 
-  get canWrite(): boolean {
+  protected get canWrite(): boolean {
     return this.params.canWrite ?? true;
   }
-
-  constructor(
-    @Inject(DIALOG_DATA) private readonly params: SecretVersionDialogParams,
-    private readonly i18nService: I18nService,
-    private readonly platformUtilsService: PlatformUtilsService,
-    private readonly toastService: ToastService,
-    private readonly logService: LogService,
-    private readonly validationService: ValidationService,
-    private readonly secretVersionService: SecretVersionService,
-    private readonly secretService: SecretService,
-    private readonly dialogService: DialogService,
-    readonly dialogRef: DialogRef,
-  ) {}
 
   protected readonly toggleCurrentValueVisibility = async (): Promise<void> => {
     this.currentValueVisible.update((v) => !v);
@@ -96,22 +128,23 @@ export class SecretVersionDialogComponent implements OnInit {
     await this.copyValue(this.currentValue() ?? "");
   };
 
-  protected toggleVersionExpansion(versionId: string): void {
-    if (this.expandedVersionIds().has(versionId)) {
-      this.expandedVersionIds.update((s) => {
-        const n = new Set(s);
-        n.delete(versionId);
-        return n;
-      });
-      // Hide the value when collapsing the accordion
-      this.visibleVersionIds.update((s) => {
-        const n = new Set(s);
-        n.delete(versionId);
-        return n;
-      });
-    } else {
+  protected setVersionExpanded(versionId: string, expanded: boolean): void {
+    if (expanded) {
       this.expandedVersionIds.update((s) => new Set([...s, versionId]));
+      return;
     }
+
+    this.expandedVersionIds.update((s) => {
+      const n = new Set(s);
+      n.delete(versionId);
+      return n;
+    });
+    // Hide the value when collapsing the accordion
+    this.visibleVersionIds.update((s) => {
+      const n = new Set(s);
+      n.delete(versionId);
+      return n;
+    });
   }
 
   async ngOnInit() {

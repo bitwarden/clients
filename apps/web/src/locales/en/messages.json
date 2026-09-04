@@ -11143,8 +11143,14 @@
     "description": "Label for the current version section in the secret version history."
   },
   "modifiedBy": {
-    "message": "Modified by",
-    "description": "Label indicating the user who modified a version."
+    "message": "Modified by: $NAME$",
+    "description": "Label indicating the user who modified a version.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
   },
   "secretValueCopied": {
     "message": "Secret value copied",
