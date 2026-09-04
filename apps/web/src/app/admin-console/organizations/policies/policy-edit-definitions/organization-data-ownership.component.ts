@@ -31,7 +31,6 @@ export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   nameVfo1 = "centralizeDataOwnershipVfo1";
   description = "centralizeDataOwnershipDesc";
   descriptionVfo1 = "centralizeDataOwnershipDescListVfo1";
-  drawerDescriptionVfo1 = "centralizeDataOwnershipDescVfo1";
   type = PolicyType.OrganizationDataOwnership;
   category = PolicyCategory.DataControl;
   priority = 20;

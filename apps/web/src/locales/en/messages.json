@@ -7732,10 +7732,6 @@
   "passwordGeneratorPolicyDescV2": {
     "message": "Select a set of minimum requirements for any member-generated passwords."
   },
-  "passwordGeneratorPolicyDescVfo1": {
-    "message": "Set requirements for password generator.",
-    "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the drawer"
-  },
   "passwordGeneratorPolicyDescListVfo1": {
     "message": "Set minimum requirements for any member-generated passwords.",
     "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
@@ -8442,10 +8438,6 @@
   },
   "centralizeDataOwnershipDesc": {
     "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
-  },
-  "centralizeDataOwnershipDescVfo1": {
-    "message": "Require members to save items to the organization by removing their personally owned My vault.",
-    "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the drawer"
   },
   "centralizeDataOwnershipDescListVfo1": {
     "message": "All member items will be owned and managed by the organization.",
@@ -9210,10 +9202,6 @@
   "accountRecoveryPolicy": {
     "message": "Account recovery administration"
   },
-  "accountRecoveryPolicyDescVfo1": {
-    "message": "Allow admins to reset master passwords for members.",
-    "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the drawer"
-  },
   "accountRecoveryPolicyDescListVfo1": {
     "message": "Allow admins to help members regain access to their accounts.",
     "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
@@ -9615,10 +9603,6 @@
   "sessionTimeoutPolicyDescription": {
     "message": "Set a maximum session timeout for all members except owners."
   },
-  "sessionTimeoutPolicyDescriptionVfo1": {
-    "message": "Set a maximum vault timeout for members.",
-    "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the drawer"
-  },
   "sessionTimeoutPolicyDescriptionListVfo1": {
     "message": "Set a maximum session timeout for members.",
     "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
@@ -9757,10 +9741,6 @@
   },
   "activateAutofillPolicyDescription": {
     "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
-  },
-  "activateAutofillPolicyDescriptionVfo1": {
-    "message": "Automatically fill logins on websites and apps.",
-    "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the drawer"
   },
   "activateAutofillPolicyDescriptionListVfo1": {
     "message": "Enable autofill on page load setting in the browser extension for all members.",

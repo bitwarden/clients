@@ -24,7 +24,6 @@ export class ResetPasswordPolicy extends BasePolicyEditDefinition {
   name = "accountRecoveryPolicy";
   description = "accountRecoveryPolicyDescV2";
   descriptionVfo1 = "accountRecoveryPolicyDescListVfo1";
-  drawerDescriptionVfo1 = "accountRecoveryPolicyDescVfo1";
   type = PolicyType.ResetPassword;
   category = PolicyCategory.Authentication;
   priority = 20;

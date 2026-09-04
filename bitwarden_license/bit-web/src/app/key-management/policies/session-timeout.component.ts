@@ -45,7 +45,6 @@ export class SessionTimeoutPolicy extends BasePolicyEditDefinition {
   name = "sessionTimeoutPolicyTitle";
   description = "sessionTimeoutPolicyDescription";
   descriptionVfo1 = "sessionTimeoutPolicyDescriptionListVfo1";
-  drawerDescriptionVfo1 = "sessionTimeoutPolicyDescriptionVfo1";
   type = PolicyType.MaximumVaultTimeout;
   category = PolicyCategory.Authentication;
   priority = 70;
