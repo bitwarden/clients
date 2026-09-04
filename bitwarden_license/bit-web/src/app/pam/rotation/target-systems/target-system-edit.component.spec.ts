@@ -13,7 +13,10 @@ import { TargetSystemKind, TargetSystemMethod, TargetSystemStatus } from "../rot
 import { RotationSdkService } from "../rotation-sdk.service";
 import { ORGANIZATION_ID, sysId } from "../testing/rotation-builders";
 
-import { TargetSystemEditComponent } from "./target-system-edit.component";
+import {
+  TargetSystemEditComponent,
+  targetSystemEditDiscardGuard,
+} from "./target-system-edit.component";
 
 // JSDOM has no ResizeObserver
 class ResizeObserverStub {
@@ -64,6 +67,10 @@ function policyFormOf(fixture: ComponentFixture<TargetSystemEditComponent>): For
 
 function nameFormOf(fixture: ComponentFixture<TargetSystemEditComponent>): FormGroup {
   return (fixture.componentInstance as unknown as { nameForm: FormGroup }).nameForm;
+}
+
+function createFormOf(fixture: ComponentFixture<TargetSystemEditComponent>): FormGroup {
+  return (fixture.componentInstance as unknown as { createForm: FormGroup }).createForm;
 }
 
 /** Build a configured TestBed for create mode (no targetSystemId). */
@@ -778,4 +785,140 @@ describe("TargetSystemEditComponent — edit mode", () => {
       expect(caseToast.showToast).not.toHaveBeenCalled();
     },
   );
+});
+
+describe("TargetSystemEditComponent — discard guard", () => {
+  let rotationSdk: ReturnType<typeof mock<RotationSdkService>>;
+  let dialogService: ReturnType<typeof mock<DialogService>>;
+  let router: Router;
+
+  const CREATE_DIALOG = {
+    title: { key: "pamTargetSystemDiscardTitle" },
+    content: { key: "pamAccessRuleDiscardContent" },
+    acceptButtonText: { key: "pamAccessRuleDiscardConfirm" },
+    cancelButtonText: { key: "cancel" },
+    type: "warning",
+  };
+
+  const EDIT_DIALOG = {
+    title: { key: "discardEditsTitle" },
+    content: { key: "discardEditsConfirmation" },
+    acceptButtonText: { key: "discardEdits" },
+    cancelButtonText: { key: "keepEditing" },
+    type: "warning",
+  };
+
+  function runGuard(component: TargetSystemEditComponent): Promise<boolean> {
+    return targetSystemEditDiscardGuard(
+      component,
+      null as never,
+      null as never,
+      null as never,
+    ) as Promise<boolean>;
+  }
+
+  async function mount(mode: "create" | "edit") {
+    rotationSdk = mock<RotationSdkService>();
+    dialogService = mock<DialogService>();
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem()]);
+    if (mode === "create") {
+      await setupCreate(rotationSdk);
+    } else {
+      await setupEdit(rotationSdk);
+    }
+    TestBed.overrideProvider(ToastService, { useValue: mock<ToastService>() });
+    TestBed.overrideProvider(DialogService, { useValue: dialogService });
+    router = TestBed.inject(Router);
+    const fixture = TestBed.createComponent(TargetSystemEditComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  it("leaves an untouched create form without asking", async () => {
+    const fixture = await mount("create");
+
+    await expect(runGuard(fixture.componentInstance)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+  });
+
+  it("asks about an abandoned new target system", async () => {
+    const fixture = await mount("create");
+    dialogService.openSimpleDialog.mockResolvedValue(true);
+
+    createFormOf(fixture).controls.name.markAsDirty();
+
+    await expect(runGuard(fixture.componentInstance)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(CREATE_DIALOG);
+  });
+
+  it("asks when only the policy card was touched", async () => {
+    const fixture = await mount("create");
+    dialogService.openSimpleDialog.mockResolvedValue(true);
+
+    policyFormOf(fixture).controls.minLength.markAsDirty();
+
+    await expect(runGuard(fixture.componentInstance)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(CREATE_DIALOG);
+  });
+
+  it("asks about unsaved edits with the shared edit wording", async () => {
+    const fixture = await mount("edit");
+    dialogService.openSimpleDialog.mockResolvedValue(true);
+
+    nameFormOf(fixture).controls.name.markAsDirty();
+
+    await expect(runGuard(fixture.componentInstance)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(EDIT_DIALOG);
+  });
+
+  it("stays on the page when the operator keeps editing", async () => {
+    const fixture = await mount("edit");
+    dialogService.openSimpleDialog.mockResolvedValue(false);
+    const nav = jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    nameFormOf(fixture).patchValue({ name: "Half typed" });
+    nameFormOf(fixture).markAsDirty();
+    await (fixture.componentInstance as unknown as { cancel: () => Promise<void> }).cancel();
+
+    await expect(runGuard(fixture.componentInstance)).resolves.toBe(false);
+    expect(nav).not.toHaveBeenCalled();
+    expect(nameFormOf(fixture).getRawValue().name).toBe("Half typed");
+  });
+
+  it("does not ask after a successful save", async () => {
+    const fixture = await mount("edit");
+    rotationSdk.updateTargetSystem.mockResolvedValue(undefined);
+
+    nameFormOf(fixture).patchValue({ name: "Renamed" });
+    nameFormOf(fixture).markAsDirty();
+    await (
+      fixture.componentInstance as unknown as { submitEdit: () => Promise<void> }
+    ).submitEdit();
+
+    await expect(runGuard(fixture.componentInstance)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+  });
+
+  it("does not ask after a successful create", async () => {
+    const fixture = await mount("create");
+    rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    const createForm = createFormOf(fixture);
+    createForm.patchValue({
+      name: "My System",
+      method: TargetSystemMethod.Automatic,
+      kind: TargetSystemKind.Entra,
+    });
+    createForm.markAsDirty();
+    await (
+      fixture.componentInstance as unknown as { submitCreate: () => Promise<void> }
+    ).submitCreate();
+
+    expect(rotationSdk.createTargetSystem).toHaveBeenCalled();
+    await expect(runGuard(fixture.componentInstance)).resolves.toBe(true);
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+  });
 });

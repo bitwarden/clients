@@ -1,8 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { ActivatedRoute, CanDeactivateFn, Router } from "@angular/router";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -29,6 +29,7 @@ import {
 import type { CipherId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { discardConfirmOptions } from "../../helpers/discard-confirm";
 import { OrgCiphersService } from "../org-ciphers.service";
 import {
   RotationConfigCreateRequest,
@@ -196,6 +197,7 @@ export class RotationConfigEditComponent {
       }
     } finally {
       this.loading.set(false);
+      this.markSaved();
     }
   }
 
@@ -324,6 +326,7 @@ export class RotationConfigEditComponent {
         request,
       );
       this.existingConfig.set(updated);
+      this.markSaved();
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamRotationConfigSaved"),
@@ -365,10 +368,54 @@ export class RotationConfigEditComponent {
     }
   };
 
-  protected readonly cancel = (): Promise<boolean> => this.navigateBack();
+  private liveForm(): AbstractControl {
+    return this.editing ? this.editForm : this.createForm;
+  }
+
+  /**
+   * The live form's value as the admin was last shown it, serialized.
+   *
+   * The guard compares against this rather than reading `dirty`, because the schedule sub-editor
+   * emits its resolved cron back through the value accessor while the page is still initialising,
+   * and Angular marks the bound control dirty for that emission with nothing typed.
+   */
+  private readonly savedValue = signal("");
+
+  private markSaved(): void {
+    this.savedValue.set(JSON.stringify(this.liveForm().getRawValue()));
+  }
+
+  /**
+   * Confirm before unsaved input is thrown away. Called both by Cancel and by the route's
+   * CanDeactivate guard, which covers the breadcrumb and browser back/forward — and which is the
+   * only protection on the edit view, where the footer carries no Cancel button.
+   */
+  async confirmDiscard(): Promise<boolean> {
+    if (JSON.stringify(this.liveForm().getRawValue()) === this.savedValue()) {
+      return true;
+    }
+
+    return await this.dialogService.openSimpleDialog(
+      discardConfirmOptions({
+        editing: this.editing,
+        createTitleKey: "pamRotationConfigDiscardTitle",
+      }),
+    );
+  }
+
+  protected readonly cancel = async (): Promise<void> => {
+    if (!(await this.confirmDiscard())) {
+      return;
+    }
+
+    await this.navigateBack();
+  };
 
   /** Return to the managed-credentials tab. */
   private navigateBack(): Promise<boolean> {
+    // A create, a removal, a confirmed discard, or a not-found bounce is an exit the admin has
+    // already agreed to, so the CanDeactivate guard must not ask a second time.
+    this.markSaved();
     return this.router.navigate([".."], { relativeTo: this.route });
   }
 
@@ -380,3 +427,7 @@ export class RotationConfigEditComponent {
     this.toastService.showToast({ variant: "error", message });
   }
 }
+
+export const rotationConfigEditDiscardGuard: CanDeactivateFn<RotationConfigEditComponent> = (
+  component,
+) => component.confirmDiscard();
