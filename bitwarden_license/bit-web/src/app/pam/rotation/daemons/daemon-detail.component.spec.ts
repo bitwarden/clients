@@ -146,6 +146,64 @@ describe("DaemonDetailComponent", () => {
     expect(config.data.options.map((s) => s.id)).toEqual([sysId("ts-2")]);
   });
 
+  it("flags that the org has no active automatic target system", async () => {
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon({ assignedTargetSystemIds: [] }));
+    rotationSdk.listTargetSystems.mockResolvedValue([]);
+    const dialog = mock<DialogService>();
+    dialog.open.mockReturnValue({ closed: of(undefined) } as never);
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as { assignTarget: () => Promise<void> };
+    await comp.assignTarget();
+
+    const config = dialog.open.mock.calls[0][1] as unknown as {
+      data: { options: TargetSystem[]; noActiveAutomaticSystems: boolean };
+    };
+    expect(config.data.options).toEqual([]);
+    expect(config.data.noActiveAutomaticSystems).toBe(true);
+  });
+
+  it("does not flag when the only active system is already assigned to this daemon", async () => {
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+    rotationSdk.listTargetSystems.mockResolvedValue([makeSystem()]);
+    const dialog = mock<DialogService>();
+    dialog.open.mockReturnValue({ closed: of(undefined) } as never);
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as { assignTarget: () => Promise<void> };
+    await comp.assignTarget();
+
+    const config = dialog.open.mock.calls[0][1] as unknown as {
+      data: { options: TargetSystem[]; noActiveAutomaticSystems: boolean };
+    };
+    expect(config.data.options).toEqual([]);
+    expect(config.data.noActiveAutomaticSystems).toBe(false);
+  });
+
+  it("surfaces the error instead of opening the dialog when the target-systems load failed", async () => {
+    rotationSdk.getConnector.mockResolvedValue(makeDaemon());
+    rotationSdk.listTargetSystems.mockRejectedValue(new Error("boom"));
+    const dialog = mock<DialogService>();
+    await setup(rotationSdk, connectorId("daemon-1"), dialog);
+    const toast = TestBed.inject(ToastService);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as { assignTarget: () => Promise<void> };
+    await comp.assignTarget();
+
+    expect(dialog.open).not.toHaveBeenCalled();
+    expect(rotationSdk.assignTarget).not.toHaveBeenCalled();
+    expect(toast.showToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+  });
+
   it("does not open the assign dialog while the daemon is disabled", async () => {
     rotationSdk.getConnector.mockResolvedValue(makeDaemon({ status: DaemonStatus.Disabled }));
     rotationSdk.listTargetSystems.mockResolvedValue([makeSystem(), makeOtherSystem()]);

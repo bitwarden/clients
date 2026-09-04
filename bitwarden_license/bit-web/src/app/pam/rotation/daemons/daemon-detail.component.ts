@@ -123,6 +123,10 @@ export class DaemonDetailComponent {
     { initialValue: [] as TargetSystem[] },
   );
 
+  private readonly targetSystemsLoadError = toSignal(this.targetSystemsService.loadError$, {
+    initialValue: null as unknown | null,
+  });
+
   /**
    * Holds every remove button, not just the clicked one: `bitIconButton` aria-disables rather than
    * natively disabling, so without this a second click stacks a second confirmation dialog over the
@@ -231,11 +235,23 @@ export class DaemonDetailComponent {
     if (connector == null || !this.enabled()) {
       return;
     }
+    /**
+     * A failed target-systems load leaves the list empty, which is indistinguishable from an org
+     * that genuinely has none — so the failure is surfaced rather than letting the dialog assert
+     * the org has no active automatic target system.
+     */
+    const targetSystemsError = this.targetSystemsLoadError();
+    if (targetSystemsError) {
+      this.showError(targetSystemsError);
+      return;
+    }
+
+    const activeSystems = this.activeAutomaticSystems();
     const assigned = new Set(connector.assignedTargetSystemIds);
-    const options = this.activeAutomaticSystems().filter((s) => !assigned.has(s.id));
+    const options = activeSystems.filter((s) => !assigned.has(s.id));
 
     const ref = AssignTargetDialogComponent.open(this.dialogService, {
-      data: { daemon: connector, options },
+      data: { daemon: connector, options, noActiveAutomaticSystems: activeSystems.length === 0 },
     });
     const selected = await ref.closed.toPromise();
     if (!selected) {
