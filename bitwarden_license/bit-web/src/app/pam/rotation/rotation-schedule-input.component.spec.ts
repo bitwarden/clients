@@ -63,7 +63,10 @@ describe("RotationScheduleInputComponent", () => {
   /** Outer FormControl wired into the CVA. */
   let outerControl: FormControl<string | null>;
 
-  const i18nService = { t: (key: string) => key };
+  const i18nService = {
+    t: (key: string, p1?: string, p2?: string, p3?: string) =>
+      [key, p1, p2, p3].filter((part) => part != null).join(":"),
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -474,5 +477,91 @@ describe("RotationScheduleInputComponent", () => {
     fixture.detectChanges();
 
     expect(time.closest("bit-form-field")?.querySelector("bit-error")).not.toBeNull();
+  });
+
+  // ---- plain-English echo ----
+
+  function echoElement(): HTMLElement {
+    return fixture.nativeElement.querySelector("#rotation-schedule-input_status_echo");
+  }
+
+  function echoText(): string {
+    return echoElement().textContent?.trim() ?? "";
+  }
+
+  async function selectCustom(cron: string): Promise<void> {
+    presetCtrl().setValue(QuartzSchedulePreset.Custom);
+    customCtrl().setValue(cron);
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  it("renders the echo as a polite live region", () => {
+    const echo = echoElement();
+    expect(echo).not.toBeNull();
+    expect(echo.getAttribute("role")).toBe("status");
+    expect(echo.getAttribute("aria-live")).toBe("polite");
+  });
+
+  it("describes the None preset", () => {
+    presetCtrl().setValue(QuartzSchedulePreset.None);
+    fixture.detectChanges();
+    expect(echoText()).toBe("pamRotationScheduleEchoNone");
+  });
+
+  it("describes the Daily preset", () => {
+    presetCtrl().setValue(QuartzSchedulePreset.Daily);
+    fixture.detectChanges();
+    expect(echoText()).toBe("pamRotationScheduleEchoDaily");
+  });
+
+  it("describes the Weekly preset", () => {
+    presetCtrl().setValue(QuartzSchedulePreset.Weekly);
+    fixture.detectChanges();
+    expect(echoText()).toBe("pamRotationScheduleEchoWeekly");
+  });
+
+  it("describes an interval with its count, its unit label and its time", () => {
+    buildInterval(ScheduleIntervalUnit.Days, 7, "02:00");
+    expect(echoText()).toBe(
+      "pamRotationScheduleEchoInterval:7:pamRotationScheduleIntervalUnitDays:02:00",
+    );
+  });
+
+  it("says nothing about an incomplete interval", () => {
+    buildInterval(ScheduleIntervalUnit.Days, null, "02:00");
+    expect(echoText()).toBe("");
+  });
+
+  it("echoes a well-shaped custom expression verbatim", async () => {
+    await selectCustom("0 0 */4 * * ?");
+    expect(echoText()).toBe("pamRotationScheduleEchoCustom:0 0 */4 * * ?");
+  });
+
+  it("says nothing about a malformed custom expression", async () => {
+    await selectCustom("not-a-cron");
+    expect(echoElement()).not.toBeNull();
+    expect(echoText()).toBe("");
+  });
+
+  it("says nothing about an empty custom expression", async () => {
+    await selectCustom("   ");
+    expect(echoText()).toBe("");
+  });
+
+  // An OnPush component with no inputs only repaints what it marks, so auto-detection is the
+  // assertion here: without markForCheck the saved schedule never reaches the view.
+  it("shows the saved schedule's sentence without the control being touched", async () => {
+    fixture.autoDetectChanges();
+    component.writeValue(PRESET_CRONS.monthly);
+    await fixture.whenStable();
+    expect(echoText()).toBe("pamRotationScheduleEchoMonthly");
+  });
+
+  it("shows a saved custom expression without the control being touched", async () => {
+    fixture.autoDetectChanges();
+    component.writeValue("0 0 */4 * * ?");
+    await fixture.whenStable();
+    expect(echoText()).toBe("pamRotationScheduleEchoCustom:0 0 */4 * * ?");
   });
 });

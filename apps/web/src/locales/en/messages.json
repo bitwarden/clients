@@ -18632,6 +18632,50 @@
   "pamRotationScheduleInvalidCron": {
     "message": "Please enter a valid Quartz cron expression (6 or 7 space-separated fields)."
   },
+  "pamRotationScheduleEchoNone": {
+    "message": "No scheduled rotation. This credential rotates only when you start one, or when access ends if that option is on."
+  },
+  "pamRotationScheduleEchoHourly": {
+    "message": "Rotates once an hour, on the hour."
+  },
+  "pamRotationScheduleEchoEvery6Hours": {
+    "message": "Rotates every 6 hours, on the hour."
+  },
+  "pamRotationScheduleEchoDaily": {
+    "message": "Rotates once a day, at midnight."
+  },
+  "pamRotationScheduleEchoWeekly": {
+    "message": "Rotates once a week, at midnight on Sunday."
+  },
+  "pamRotationScheduleEchoMonthly": {
+    "message": "Rotates once a month, at midnight on the 1st."
+  },
+  "pamRotationScheduleEchoInterval": {
+    "message": "Rotates every $COUNT$ $UNIT$, at $TIME$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "90"
+      },
+      "unit": {
+        "content": "$2",
+        "example": "Days"
+      },
+      "time": {
+        "content": "$3",
+        "example": "02:00"
+      }
+    }
+  },
+  "pamRotationScheduleEchoCustom": {
+    "message": "Custom Quartz schedule: $CRON$",
+    "placeholders": {
+      "cron": {
+        "content": "$1",
+        "example": "0 0 */4 * * ?"
+      }
+    }
+  },
   "pamRotationScheduleTimezoneHint": {
     "message": "Schedules run in UTC, not your local time zone."
   },
