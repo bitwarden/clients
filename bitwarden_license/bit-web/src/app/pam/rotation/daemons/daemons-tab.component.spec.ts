@@ -375,6 +375,90 @@ describe("DaemonsTabComponent", () => {
     });
   });
 
+  describe("assign availability", () => {
+    function assignRow(canAssign: boolean): DaemonRow {
+      return makeDaemonRow({
+        canAssign,
+        enabled: canAssign,
+        daemon: { assignedTargetSystemIds: [] } as unknown as AccessConnector,
+      });
+    }
+
+    /**
+     * `bit-menu` projects its content through an `ng-template` into a CDK overlay, so the items
+     * live outside the fixture and only while the menu is open.
+     */
+    async function openRowMenu(canAssign: boolean): Promise<HTMLButtonElement> {
+      TestBed.resetTestingModule();
+      rows$.next([assignRow(canAssign)]);
+      await createComponent({ renderTemplate: true });
+
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLButtonElement>('button[id^="daemons-tab_button_menu-"]')!
+        .click();
+      fixture.detectChanges();
+
+      return document.querySelector<HTMLButtonElement>(
+        '.bit-menu-panel [id^="daemons-tab_button_assign-"]',
+      )!;
+    }
+
+    afterEach(() => {
+      rows$.next([]);
+    });
+
+    it("renders the assign item without aria-disabled when the connector is enabled", async () => {
+      const item = await openRowMenu(true);
+
+      expect(item.getAttribute("aria-disabled")).toBeNull();
+    });
+
+    it("keeps the assign item visible and aria-disabled when the connector is disabled", async () => {
+      const item = await openRowMenu(false);
+
+      expect(item).not.toBeNull();
+      expect(item.getAttribute("aria-disabled")).toBe("true");
+      // The native attribute would suppress the hover and focus events the tooltip listens on.
+      expect(item.hasAttribute("disabled")).toBe(false);
+    });
+
+    it("does not open the assign dialog when the connector is disabled", async () => {
+      (await openRowMenu(false)).click();
+      await fixture.whenStable();
+
+      expect(dialogService.open).not.toHaveBeenCalled();
+    });
+
+    it("keeps the row menu open when the disabled assign item is clicked", async () => {
+      (await openRowMenu(false)).click();
+      fixture.detectChanges();
+
+      expect(document.querySelector(".bit-menu-panel")).not.toBeNull();
+    });
+
+    it("closes the row menu when the enabled assign item is clicked", async () => {
+      const item = await openRowMenu(true);
+      (dialogService.open as jest.Mock).mockReturnValue({ closed: of(undefined) });
+
+      item.click();
+      fixture.detectChanges();
+
+      expect(document.querySelector(".bit-menu-panel")).toBeNull();
+    });
+
+    it("describes the disabled assign item with the tooltip explaining why", async () => {
+      const item = await openRowMenu(false);
+
+      expect(item.getAttribute("aria-describedby")).toMatch(/^bit-tooltip-\d+$/);
+    });
+
+    it("leaves the enabled assign item undescribed", async () => {
+      const item = await openRowMenu(true);
+
+      expect(item.getAttribute("aria-describedby")).toBeNull();
+    });
+  });
+
   describe("load error state", () => {
     beforeEach(async () => {
       TestBed.resetTestingModule();

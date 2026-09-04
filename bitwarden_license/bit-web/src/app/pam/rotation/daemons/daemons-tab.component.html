@@ -97,17 +97,19 @@
             id="daemons-tab_button_menu-{{ r.id }}"
           ></button>
           <bit-menu #rowMenu>
-            @if (r.canAssign) {
-              <button
-                type="button"
-                bitMenuItem
-                [disabled]="isRowBusy(r.id)"
-                (click)="openAssignDialog(r)"
-              >
-                <bit-icon name="bwi-plus-circle" class="tw-text-muted"></bit-icon>
-                {{ "pamDaemonAssignTarget" | i18n }}
-              </button>
-            }
+            <button
+              type="button"
+              bitMenuItem
+              [disabled]="isRowBusy(r.id)"
+              [attr.aria-disabled]="r.canAssign ? null : true"
+              [bitTooltip]="r.canAssign ? '' : ('pamDaemonAssignTargetDisabled' | i18n)"
+              [addTooltipToDescribedby]="!r.canAssign"
+              (click)="r.canAssign ? openAssignDialog(r) : $event.stopPropagation()"
+              id="daemons-tab_button_assign-{{ r.id }}"
+            >
+              <bit-icon name="bwi-plus-circle" class="tw-text-muted"></bit-icon>
+              {{ "pamDaemonAssignTarget" | i18n }}
+            </button>
             @if (r.daemon.assignedTargetSystemIds.length > 0) {
               @for (
                 assignmentId of r.daemon.assignedTargetSystemIds;
