@@ -18719,6 +18719,12 @@
   "pamTargetSystemMethodManual": {
     "message": "Manual"
   },
+  "pamTargetSystemMethodAutomaticHint": {
+    "message": "Rotations run on the schedule you set, once you finish the setup steps shown after saving."
+  },
+  "pamTargetSystemMethodManualHint": {
+    "message": "No rotation job is created. You rotate the credential by hand and record each rotation."
+  },
   "pamTargetSystemKindEntra": {
     "message": "Entra"
   },

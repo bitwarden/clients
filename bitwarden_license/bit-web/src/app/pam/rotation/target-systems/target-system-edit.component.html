@@ -154,19 +154,21 @@
             />
           </bit-form-field>
 
-          <bit-radio-group formControlName="method">
+          <bit-radio-group formControlName="method" [block]="true">
             <bit-label>{{ "pamTargetSystemMethodLabel" | i18n }}</bit-label>
             <bit-radio-button
               id="target-system-edit_radio_automatic"
               [value]="TargetSystemMethod.Automatic"
             >
               <bit-label>{{ "pamTargetSystemMethodAutomatic" | i18n }}</bit-label>
+              <bit-hint>{{ "pamTargetSystemMethodAutomaticHint" | i18n }}</bit-hint>
             </bit-radio-button>
             <bit-radio-button
               id="target-system-edit_radio_manual"
               [value]="TargetSystemMethod.Manual"
             >
               <bit-label>{{ "pamTargetSystemMethodManual" | i18n }}</bit-label>
+              <bit-hint>{{ "pamTargetSystemMethodManualHint" | i18n }}</bit-hint>
             </bit-radio-button>
           </bit-radio-group>
         </bit-card>
