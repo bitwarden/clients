@@ -129,6 +129,14 @@ describe("VaultNavSectionComponent", () => {
   const navItemHref = (root: HTMLElement, text: string) =>
     navItem(root, text).querySelector("a")?.getAttribute("href");
 
+  const clickNavItem = async (root: HTMLElement, text: string) => {
+    navItem(root, text)
+      .querySelector("a")
+      ?.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
   /**
    * Whether the nav item labelled `text` is marked as the page in view. `routerLinkActive` writes
    * `aria-current="false"` rather than dropping the attribute, so this checks the token's value.
@@ -274,8 +282,7 @@ describe("VaultNavSectionComponent", () => {
     });
 
     it("leaves All vault items unlit on the My items route", async () => {
-      // Its own page beside All vault items rather than beneath it, so the vault route's exact
-      // match is what keeps them apart. My items has no nav entry of its own yet.
+      // My items sits beside All vault items, not beneath it, so the exact match keeps them apart.
       await navigateTo("/vault/org-a/my-items");
       const group = expandGroup("Acme corporation");
 
@@ -308,14 +315,66 @@ describe("VaultNavSectionComponent", () => {
       fixture.detectChanges();
     });
 
-    it("renders the org vault with no My items, Vaults header, or personal vault", () => {
+    it("renders the org vault with no Vaults header or personal vault", () => {
       const text = navText();
 
       expect(text).toContain("Acme corporation");
-      expect(text).not.toContain("myItems");
       expect(text).not.toContain("vaults");
       expect(text).not.toContain("My vault");
       expect(text).not.toContain("allItems");
+    });
+
+    it("links My items to the organization's collection by the sentinel segment", () => {
+      const group = expandGroup("Acme corporation");
+
+      expect(navItemHref(group, "myItemsV2")).toBe("/vault/org-a/my-items");
+    });
+
+    it("omits My items for an organization with no default user collection", () => {
+      viewModel$.next({ vaults: [orgA], organizationDataOwnership: true });
+      fixture.detectChanges();
+      const group = expandGroup("Acme corporation");
+
+      expect(navItem(group, "myItemsV2")).toBeUndefined();
+    });
+  });
+
+  describe("clicking the entry for the page in view", () => {
+    // The table writes its filters and sort to the query string, so a link that dropped them would
+    // reset the page the user is already looking at. PM-42525.
+    const withFilters = "/vault/org-a?vault.sort=name&vault.direction=asc";
+
+    beforeEach(() => {
+      viewModel$.next(withOrgs);
+      fixture.detectChanges();
+    });
+
+    it("leaves the page's query params in the URL", async () => {
+      await navigateTo(withFilters);
+      const group = expandGroup("Acme corporation");
+
+      await clickNavItem(group, "allVaultItems");
+
+      expect(TestBed.inject(Router).url).toBe(withFilters);
+    });
+
+    it("carries no query params onto another entry's page", async () => {
+      await navigateTo(withFilters);
+
+      await clickNavItem(fixture.nativeElement, "allItems");
+
+      expect(TestBed.inject(Router).url).toBe("/vault");
+    });
+
+    it("navigates up from a drill-in rather than holding the entry's own page", async () => {
+      // Shared folders is left on the default subset match so it lights on its drill-ins too; the
+      // current-page test is exact, so it stays a working link from one of them.
+      await navigateTo("/vault/org-a/shared-folders/22222222-2222-4222-8222-222222222222");
+      const group = expandGroup("Acme corporation");
+
+      await clickNavItem(group, "sharedFolders");
+
+      expect(TestBed.inject(Router).url).toBe("/vault/org-a/shared-folders");
     });
   });
 });

@@ -9,6 +9,10 @@
     "message": "Bitwarden Parola Yöneticisi",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden Parola Yöneticisi Beta",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "Bitwarden tüm parolalarınızı, geçiş anahtarlarınızı ve hassas bilgilerinizi güvenle saklar",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -521,7 +525,7 @@
     "message": "Paylaşılan klasör yok"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "$NAME$'e göre filtrele",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -530,10 +534,13 @@
     }
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Kayıtları burada filtrelemek için favori olarak işaretleyin."
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Burada filtrelemek için kayıtlara klasörler ekleyin."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Burada filtrelemek için kayıtları paylaşılan bir klasöre ekleyin."
   },
   "editItemWithName": {
     "message": "Kaydı düzenle - $NAME$",
@@ -750,6 +757,15 @@
   },
   "launchWebsite": {
     "message": "Web sitesini aç"
+  },
+  "launchWebsiteForName": {
+    "message": "$ITEMNAME$ sitesini aç",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Web sitesi"
@@ -1406,17 +1422,29 @@
   "additionalOptions": {
     "message": "Ek seçenekler"
   },
-  "fillAssistActiveNotice": {
-    "message": "Autofill is using Fill Assist on this page."
+  "fillAssistActiveNoticeV2": {
+    "message": "Otomatik doldurma bu sayfada doldurma yardımını kullanıyor."
   },
-  "activateFillAssist": {
+  "activateFillAssistV2": {
     "message": "Doldurma yardımcısını etkinleştir"
   },
-  "activateFillAssistDescription": {
-    "message": "Fill Assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  "activateFillAssistDescriptionV2": {
+    "message": "Doldurma yardımcısı, desteklenen sitelerde siteye özgü kuralları kullanarak otomatik doldurma doğruluğunu artırır. Bu özelliği kullandığınızda hiçbir veri toplanmaz ve kaydedilmez."
   },
-  "aboutFillAssistLabel": {
+  "aboutFillAssistLabelV2": {
     "message": "Doldurma yardımcısı hakkında"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Web sitelerinin otomatik doldurulacak alanları hariç tutmasına izin ver"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Bir web sitesinin `data-bwignore` özelliğiyle işaretlediği alanları atlayın."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Web sitelerinin otomatik doldurulacak alanlar eklemesine izin ver"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Bir web sitesinin `data-bwautofill` özelliğiyle işaretlediği yayılma öğelerini kullanın."
   },
   "enableContextMenuItem": {
     "message": "Bağlam menüsü seçeneklerini göster"
@@ -1711,7 +1739,7 @@
     "message": "Kasanızı güvende tutmak için parola hijyeni, hesap sağlığı ve veri ihlali raporları."
   },
   "premiumSignUpTotp": {
-    "message": "TOTP verification code (2FA) generator for logins in your vault."
+    "message": "Kasanızdaki hesaplar için TOTP doğrulama kodu (2FA) oluşturucu."
   },
   "premiumSignUpSupport": {
     "message": "Öncelikli müşteri desteği."
@@ -2652,10 +2680,10 @@
     "description": "To clear something out. example: To clear browser history."
   },
   "selectAllRows": {
-    "message": "Select all rows"
+    "message": "Tüm satırları seç"
   },
   "selectRow": {
-    "message": "Select row"
+    "message": "Satırı seç"
   },
   "showingItemRange": {
     "message": "Showing $START$ - $END$ of $TOTAL$",
@@ -2675,10 +2703,10 @@
     }
   },
   "rowsPerPage": {
-    "message": "Rows per page"
+    "message": "Sayfa başına satır"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$ rows per page",
+    "message": "Sayfa başına $COUNT$ satır",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2687,7 +2715,7 @@
     }
   },
   "itemCount": {
-    "message": "$COUNT$ items",
+    "message": "$COUNT$ kayıt",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2705,10 +2733,10 @@
     "message": "Tamam"
   },
   "filter": {
-    "message": "Filter"
+    "message": "Filtre"
   },
   "filtersSelected": {
-    "message": "$COUNT$ selected",
+    "message": "$COUNT$ seçildi",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2735,7 +2763,19 @@
     }
   },
   "noMatchingItems": {
-    "message": "No matching items"
+    "message": "Eşleşen öğe yok"
+  },
+  "noFiltersMatch": {
+    "message": "\"$SEARCH$\" ile hiçbir filtre eşleşmedi",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Aramayı temizle"
   },
   "selected": {
     "message": "Seçildi"
@@ -3182,12 +3222,6 @@
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "Yenileme veya API anahtarı bulunamadı. Lütfen çıkış yapıp tekrar giriş yapmayı deneyin."
-  },
-  "desktopSyncVerificationTitle": {
-    "message": "Masaüstü eşitleme doğrulaması"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Lütfen masaüstü uygulamasında bu parmak izinin göründüğünü onaylayın: "
   },
   "desktopIntegrationDisabledTitle": {
     "message": "Tarayıcı entegrasyonu ayarlanmadı"
@@ -4078,7 +4112,7 @@
     }
   },
   "forwarderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "Geçersiz $SERVICENAME$ API anahtarı",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -4088,7 +4122,7 @@
     }
   },
   "forwarderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "Geçersiz $SERVICENAME$ API anahtarı: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -4102,7 +4136,7 @@
     }
   },
   "forwarderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$, isteğinizi reddetti. Yardım için lütfen hizmet sağlayıcınızla iletişime geçin.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -4112,7 +4146,7 @@
     }
   },
   "forwarderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$, isteğinizi reddetti: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -4197,7 +4231,7 @@
     "message": "Anahtar bağlayıcı hatası: Anahtar bağlayıcının kullanılabilir olduğundan ve doğru çalıştığından emin olun."
   },
   "premiumSubscriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "Premium abonelik gerekli"
   },
   "organizationIsDisabled": {
     "message": "Kuruluş askıya alındı."
@@ -4967,13 +5001,13 @@
     "message": "The following items could not be read and will not be included in your import:"
   },
   "importSkipReasonSshKeyParse": {
-    "message": "This SSH key could not be imported"
+    "message": "Bu SSH anahtarı içe aktarılamadı"
   },
   "importSkipReasonUnsupportedType": {
-    "message": "Unsupported item type"
+    "message": "Desteklenmeyen kayıt türü"
   },
   "importSkipReasonGeneric": {
-    "message": "This item could not be imported"
+    "message": "Bu kayıt içe aktarılamadı"
   },
   "identifier": {
     "message": "Tanımlayıcı"
@@ -4997,10 +5031,10 @@
     "message": "Doğum belgesi"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "Veritabanı kimlik bilgileri"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "Sunucu kimlik bilgileri"
   },
   "softwareLicense": {
     "message": "Yazılım lisansı"
@@ -5009,7 +5043,7 @@
     "message": "Sağlık sigortası\n"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Wi-Fi kimlik bilgileri"
   },
   "importEncKeyError": {
     "message": "Dışa aktarılmış dosya çözülemedi. Şifreleme anahtarınız, veriler dışa aktarılırken kullanılanla uyuşmuyor."
@@ -5054,10 +5088,10 @@
     "message": "Dosya seçilmedi"
   },
   "noFileSelected": {
-    "message": "No file selected"
+    "message": "Hiçbir dosya seçilmedi"
   },
   "fileChosen": {
-    "message": "File chosen: $FILE_NAME$",
+    "message": "Seçilen dosya: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5066,7 +5100,7 @@
     }
   },
   "fileAdded": {
-    "message": "File added: $FILE_NAME$",
+    "message": "Dosya eklendi: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5075,7 +5109,7 @@
     }
   },
   "filesAdded": {
-    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "message": "$COUNT$ dosya eklendi: $FILE_NAMES$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5088,7 +5122,7 @@
     }
   },
   "fileRemoved": {
-    "message": "File removed: $FILE_NAME$",
+    "message": "Dosya kaldırıldı: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5097,10 +5131,10 @@
     }
   },
   "oneFileUploaded": {
-    "message": "1 file uploaded"
+    "message": "1 dosya yüklendi"
   },
   "filesUploaded": {
-    "message": "$COUNT$ files uploaded",
+    "message": "$COUNT$ dosya yüklendi",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5109,16 +5143,16 @@
     }
   },
   "uploadedFiles": {
-    "message": "Uploaded files"
+    "message": "Yüklenen dosyalar"
   },
   "clickToUploadOrDragAndDrop": {
-    "message": "Click to upload or drag and drop"
+    "message": "Yüklemek için tıklayın veya sürükleyin ve bırakın"
   },
   "chooseFiles": {
-    "message": "Choose files"
+    "message": "Dosyaları seçin"
   },
   "maxFileSizeParam": {
-    "message": "Max. file size: $SIZE$ MB",
+    "message": "Maks. dosya boyutu: $SIZE$ MB",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -5140,7 +5174,7 @@
     }
   },
   "importHelpCenterInstructions": {
-    "message": "See detailed $NAME$ instructions in our",
+    "message": "Ayrıntılı $NAME$ talimatlarına bakın",
     "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
     "placeholders": {
       "name": {
@@ -5150,59 +5184,59 @@
     }
   },
   "importHelpCenterLinkText": {
-    "message": "Help Center"
+    "message": "Yardım Merkezi"
   },
   "importChromiumAliasPreamble": {
-    "message": "The process is exactly the same as importing from Google Chrome.",
+    "message": "İşlem, Google Chrome'dan içe aktarmayla tamamen aynıdır.",
     "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
   },
   "importKeepassxInstructions": {
-    "message": "Using the KeePassX desktop application, navigate to \"Database\" → \"Export to CSV file\" and save the CSV file."
+    "message": "KeePassX masaüstü uygulamasını kullanarak \"Veritabanı\" → \"CSV dosyasına aktar\" seçeneğine gidin ve CSV dosyasını kaydedin."
   },
   "importAviraInstructions": {
-    "message": "In the Avira web vault, go to \"Settings\" → \"My Data\" → \"Export data\" and save the CSV file."
+    "message": "Avira web kasasında, \"Ayarlar\" → \"Verilerim\" → \"Verileri dışa aktar\" seçeneğine gidin ve CSV dosyasını kaydedin."
   },
   "importBlurInstructions": {
-    "message": "In the Blur web vault, click your username at the top and go to \"Settings\" → \"Export Data\", then click \"Export CSV\" for your \"Accounts\"."
+    "message": "Blur web kasasında, üstteki kullanıcı adınızı tıklayın ve \"Ayarlar\" → \"Verileri Dışa Aktar\" seçeneğine gidin, ardından \"Hesaplarınız\" için \"CSV'yi Dışa Aktar\" seçeneğini tıklayın."
   },
   "importSafeincloudInstructions": {
-    "message": "Using the SafeInCloud desktop application, navigate to \"File\" → \"Export\" → \"As XML\" and save the XML file."
+    "message": "SafeInCloud masaüstü uygulamasını kullanarak \"Dosya\" → \"Dışa Aktar\" → \"XML Olarak\" seçeneğine gidin ve XML dosyasını kaydedin."
   },
   "importPadlockInstructions": {
     "message": "Using the Padlock desktop application, click the hamburger icon in the top left corner and navigate to \"Settings\" → \"Export\" button and save the file \"As CSV\"."
   },
   "importKeepass2Instructions": {
-    "message": "Using the KeePass 2 desktop application, navigate to \"File\" → \"Export\" and select the \"KeePass XML (2.x)\" option."
+    "message": "KeePass 2 masaüstü uygulamasını kullanarak \"Dosya\" → \"Dışa Aktar\" seçeneğine gidin ve \"KeePass XML (2.x)\" seçeneğini seçin."
   },
   "importUpmInstructions": {
     "message": "Using the Universal Password Manager desktop application, navigate to \"Database\" → \"Export\" and save the CSV file."
   },
   "importSaferpassInstructions": {
-    "message": "Using the SaferPass browser extension, click the hamburger icon in the top left corner and navigate to \"Settings\". Click the \"Export accounts\" button to save the CSV file."
+    "message": "SaferPass tarayıcı uzantısını kullanarak sol üst köşedeki hamburger simgesine tıklayın ve \"Ayarlar\"a gidin. CSV dosyasını kaydetmek için \"Hesapları dışa aktar\" düğmesini tıklayın."
   },
   "importMeldiumInstructions": {
-    "message": "Using the Meldium web vault, navigate to \"Settings\". Locate the \"Export data\" function and click \"Show me my data\" to save the CSV file."
+    "message": "Meldium web kasasını kullanarak \"Ayarlar\"a gidin. \"Verileri dışa aktar\" işlevini bulun ve CSV dosyasını kaydetmek için \"Verilerimi göster\"e tıklayın."
   },
   "importPassworddragonInstructions": {
     "message": "Using the Password Dragon desktop application, navigate to \"File\" → \"Export\" → \"To XML\". In the dialog that pops up select \"All Rows\" and check all fields. Click the \"Export\" button and save the XML file."
   },
   "importEnpassCsvInstructions": {
-    "message": "Using the Enpass desktop application, navigate to \"File\" → \"Export\" → \"As CSV\". Select \"OK\" to the warning alert and save the CSV file. Note that the importer only supports files exported while Enpass is set to the English language, so adjust your settings accordingly."
+    "message": "Enpass masaüstü uygulamasını kullanarak \"Dosya\" → \"Dışa Aktar\" → \"CSV Olarak\" seçeneğine gidin. Uyarı uyarısı için \"Tamam\"ı seçin ve CSV dosyasını kaydedin. İçe aktarıcının yalnızca Enpass İngilizce diline ayarlıyken dışa aktarılan dosyaları desteklediğini unutmayın; dolayısıyla ayarlarınızı buna göre yapın."
   },
   "importEnpassJsonInstructions": {
-    "message": "Using the Enpass 6 desktop application, click the menu button and navigate to \"File\" → \"Export\". Select the \".json\" file format option and save the JSON file."
+    "message": "Enpass 6 masaüstü uygulamasını kullanarak menü düğmesine tıklayın ve \"Dosya\" → \"Dışa Aktar\" seçeneğine gidin. \".json\" dosya formatı seçeneğini seçin ve JSON dosyasını kaydedin."
   },
   "importPwsafeInstructions": {
     "message": "Using the Password Safe desktop application, navigate to \"File\" → \"Export To\" → \"XML format...\" and save the XML file."
   },
   "importDashlaneCsvInstructions": {
-    "message": "Log in to Dashlane, click on \"My Account\" → \"Settings\" → \"Export file\" and select \"Export as a CSV file\". This will download a zip archive containing various CSV files. Unzip the archive and import each CSV file individually."
+    "message": "Dashlane'de oturum açın, \"Hesabım\" → \"Ayarlar\" → \"Dosyayı dışa aktar\" seçeneğine tıklayın ve \"CSV dosyası olarak dışa aktar\" seçeneğini seçin. Bu, çeşitli CSV dosyalarını içeren bir zip arşivi indirecektir. Arşivi açın ve her CSV dosyasını ayrı ayrı içe aktarın."
   },
   "importDashlaneJsonInstructions": {
-    "message": "Dashlane no longer supports the JSON format. Only use this if you have an existing JSON for import. Use the CSV importer when creating new exports."
+    "message": "Dashlane artık JSON formatını desteklemiyor. Bunu yalnızca içe aktarma için mevcut bir JSON'unuz varsa kullanın. Yeni dışa aktarımlar oluştururken CSV içe aktarıcısını kullanın."
   },
   "importMsecureInstructions": {
-    "message": "Using the mSecure desktop application, navigate to \"File\" → \"Export\" → \"CSV File...\" and save the CSV file."
+    "message": "mSecure masaüstü uygulamasını kullanarak \"Dosya\" → \"Dışa Aktar\" → \"CSV Dosyası...\" seçeneğine gidin ve CSV dosyasını kaydedin."
   },
   "importStickypasswordInstructions": {
     "message": "Using the Sticky Password desktop application, navigate to \"Menu\" (top right) → \"Export\" → \"Export all\". Select the unencrypted format XML option and save the XML file."
@@ -5211,13 +5245,13 @@
     "message": "Using the True Key desktop application, click the gear icon (top right) and then navigate to \"App Settings\". Click the \"Export\" button, enter your password and save the CSV file."
   },
   "importClipperzInstructions": {
-    "message": "Log into the Clipperz web application (clipperz.is/app). Click the hamburger menu icon in the top right to expand the navigation bar. Navigate to \"Data\" → \"Export\". Click the \"download HTML+JSON\" button to save the HTML file."
+    "message": "Clipperz web uygulamasında (clipperz.is/app) oturum açın. Gezinme çubuğunu genişletmek için sağ üstteki hamburger menü simgesine tıklayın. \"Veri\" → \"Dışa Aktar\" seçeneğine gidin. HTML dosyasını kaydetmek için \"HTML+JSON'u indir\" düğmesini tıklayın."
   },
   "importRoboformInstructions": {
     "message": "Using the RoboForm Editor desktop application, navigate to \"RoboForm\" (top left) → \"Options\" → \"Account & Data\" and click the \"Export\" button. Select all of your data, change the \"Format\" to \"CSV file\" and then click the \"Export\" button to save the CSV file. Note: RoboForm only allows you to export Logins. Other items will not be exported."
   },
   "importPassboltInstructions": {
-    "message": "Log into the Passbolt web vault and navigate to the \"Passwords\" listing. Select all of the passwords you would like to export and click the \"Export\" button at the top of the listing. Choose the \"csv (lastpass)\" export format and click the \"Export\" button."
+    "message": "Passbolt web kasasında oturum açın ve \"Şifreler\" listesine gidin. Dışa aktarmak istediğiniz tüm şifreleri seçin ve listenin üst kısmındaki \"Dışa Aktar\" düğmesini tıklayın. \"csv (lastpass)\" dışa aktarma formatını seçin ve \"Dışa Aktar\" düğmesini tıklayın."
   },
   "importAscendoInstructions": {
     "message": "Using the Ascendo DataVault desktop application, navigate to \"Tools\" → \"Export\". In the dialog that pops up, select the \"All Items (DVX, CSV)\" option. Click the \"Ok\" button to save the CSV file."
@@ -5240,7 +5274,7 @@
     "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
   },
   "importGnomeInstructionsLinkText": {
-    "message": "GNOME Keyring Import/Export"
+    "message": "GNOME Anahtarlık İçe/Dışa Aktarma"
   },
   "importGnomeInstructionsScriptLabel": {
     "message": "python script to your desktop as",
@@ -5362,10 +5396,10 @@
     "message": "KDBX file upload"
   },
   "acceptedFormatsKdbx": {
-    "message": "Accepted formats: kdbx"
+    "message": "Kabul edilen formatlar: kdbx"
   },
   "kdbxCorruptOrOutdated": {
-    "message": "Data is not formatted correctly. Please check your import file and try again."
+    "message": "Veriler doğru biçimlendirilmemiş. Lütfen içe aktarma dosyanızı kontrol edin ve tekrar deneyin."
   },
   "kdbxWrongFileType": {
     "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
@@ -5539,16 +5573,16 @@
     "message": "Keeper master password"
   },
   "keeperMasterPasswordPrompt": {
-    "message": "Please enter your Keeper master password"
+    "message": "Lütfen Keeper ana şifrenizi girin"
   },
   "twoFactorCodePrompt": {
-    "message": "Please enter the code from your two-factor method"
+    "message": "Lütfen iki faktörlü yönteminizin kodunu girin"
   },
   "totpCodePrompt": {
-    "message": "Please enter the code from your authenticator app"
+    "message": "Lütfen kimlik doğrulayıcı uygulamanızdaki kodu girin"
   },
   "smsCodePrompt": {
-    "message": "Please enter the code sent via text message"
+    "message": "Lütfen kısa mesajla gönderilen kodu giriniz"
   },
   "keeperDnaCodePrompt": {
     "message": "Please enter the code from your Keeper DNA app"
@@ -5557,7 +5591,7 @@
     "message": "Yönetici onayı"
   },
   "adminDeviceApprovalPushDesc": {
-    "message": "We've sent an admin approval request to your admin"
+    "message": "Yöneticinize bir yönetici onay isteği gönderdik"
   },
   "method": {
     "message": "Yöntem"
@@ -5572,7 +5606,7 @@
     "message": "JSON"
   },
   "ssoAuthRequired": {
-    "message": "SSO authentication required"
+    "message": "SSO kimlik doğrulaması gerekli"
   },
   "keeperSsoDesc": {
     "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
@@ -5638,10 +5672,10 @@
     "message": "Choose how you want to verify your identity."
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "Kimlik Doğrulama uygulaması (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "Kısa mesaj (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -5650,19 +5684,19 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "Yedek kodlar"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "Güvenlik anahtarı (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "Güvenlik anahtarı (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "Keeper DNA doğrulaması"
   },
   "keeperDnaPushWaiting": {
     "message": "Approve the Keeper DNA notification on your device"
@@ -5674,13 +5708,13 @@
     "message": "Choose how you want to verify with Keeper DNA."
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "Anlık bildirim"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "Kodu manuel girin"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "İki faktörlü kimlik doğrulama"
   },
   "unknownMethod": {
     "message": "Bilinmeyen yöntem"
@@ -5856,7 +5890,7 @@
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
   "defaultPasswordManagerPromptTitle": {
-    "message": "Bitwarden'ı tarayıcınızın varsayılan parola yöneticisi yapın"
+    "message": "Bitwarden'ı tarayıcımın varsayılan parola yöneticisi yap"
   },
   "defaultPasswordManagerPromptTitleV2": {
     "message": "Bitwarden'ı varsayılan parola yöneticiniz yapın",
@@ -5938,6 +5972,12 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "Filtreleri temizleyin veya başka bir arama yapmayı deneyin"
+  },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
   },
   "moreOptionsLabel": {
     "message": "Diğer seçenekler, $ITEMNAME$",
@@ -7020,9 +7060,6 @@
   "compactMode": {
     "message": "Kompakt mod"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "extensionWidth": {
     "message": "Uzantı genişliği"
   },
@@ -7079,12 +7116,6 @@
         "example": "Work, Personal"
       }
     }
-  },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Lütfen masaüstü uygulamanızı güncelleyin"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "Biyometri ile kilidi açmayı kullanmak için lütfen masaüstü uygulamanızı güncelleyin veya masaüstü ayarlarında parmak izi ile kilidi açmayı devre dışı bırakın."
   },
   "changeAtRiskPassword": {
     "message": "Risk altındaki parolayı değiştirin"
@@ -7274,6 +7305,15 @@
   },
   "showMore": {
     "message": "Daha fazla göster"
+  },
+  "showMoreCount": {
+    "message": "$COUNT$ tane daha göster",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Daha az göster"
@@ -7790,7 +7830,7 @@
     "description": "Heading shown when none of the user's passwords are at risk."
   },
   "yourVaultRiskIsHigh": {
-    "message": "Your vault risk is high",
+    "message": "Kasa riskiniz yüksek",
     "description": "Heading shown when at least one of the user's passwords is at risk."
   },
   "passwordsNeedFixing": {
@@ -7808,15 +7848,15 @@
     }
   },
   "exposedPasswordsNone": {
-    "message": "No exposed passwords",
+    "message": "Açığa çıkan parola yok",
     "description": "Title of the exposed risk category row when no passwords are exposed."
   },
   "exposedPassword": {
-    "message": "1 exposed password",
+    "message": "1 tane açığa çıkan parola var",
     "description": "Title of the exposed risk category row when exactly one password is exposed."
   },
   "exposedPasswordsPlural": {
-    "message": "$COUNT$ exposed passwords",
+    "message": "$COUNT$ tane açığa çıkan parola var",
     "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7826,23 +7866,23 @@
     }
   },
   "exposedPasswordsDesc": {
-    "message": "Exposed in data breaches",
+    "message": "Veri ihlallerinde açığa çıkmış",
     "description": "Explains what makes a password count as exposed."
   },
   "exposedPasswordsNoneDesc": {
-    "message": "None of your passwords were found in data breaches",
+    "message": "Veri ihlallerinde hiçbir parolanız bulunamadı",
     "description": "Description of the exposed risk category row when no passwords are exposed."
   },
   "weakPasswordsNone": {
-    "message": "No weak passwords",
+    "message": "Zayıf parola yok",
     "description": "Title of the weak risk category row when no passwords are weak."
   },
   "weakPassword": {
-    "message": "1 weak password",
+    "message": "1 zayıf parola",
     "description": "Title of the weak risk category row when exactly one password is weak."
   },
   "weakPasswordsPlural": {
-    "message": "$COUNT$ weak passwords",
+    "message": "$COUNT$ zayıf parola",
     "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7852,23 +7892,23 @@
     }
   },
   "weakPasswordsDesc": {
-    "message": "Too short or simple",
+    "message": "Çok kısa ve basit",
     "description": "Explains what makes a password count as weak."
   },
   "weakPasswordsNoneDesc": {
-    "message": "All your passwords are strong",
+    "message": "Tüm parolalarınız güçlü",
     "description": "Description of the weak risk category row when no passwords are weak."
   },
   "reusedPasswordsNone": {
-    "message": "No reused passwords",
+    "message": "Yeniden kullanılan bir parola yok",
     "description": "Title of the reused risk category row when no passwords are reused."
   },
   "reusedPassword": {
-    "message": "1 reused password",
+    "message": "1 tane yeniden kullanılan parola var",
     "description": "Title of the reused risk category row when exactly one password is reused."
   },
   "reusedPasswordsPlural": {
-    "message": "$COUNT$ reused passwords",
+    "message": "$COUNT$ tane yeniden kullanılan parola var",
     "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7878,20 +7918,43 @@
     }
   },
   "reusedPasswordsDesc": {
-    "message": "Reused for several logins",
+    "message": "Birkaç hesap için yeniden kullanıldı",
     "description": "Explains what makes a password count as reused."
   },
   "reusedPasswordsNoneDesc": {
-    "message": "All your passwords are unique",
+    "message": "Tüm parolalarınız benzersiz",
     "description": "Description of the reused risk category row when no passwords are reused."
   },
   "risksIdentified": {
-    "message": "Risks identified",
+    "message": "Tanımlanan riskler",
     "description": "Section heading above the list of risk categories on the Health Overview."
+  },
+  "upgradeToViewPasswords": {
+    "message": "Parolaları görmek için yükseltme yapın"
   },
   "categoryHealthy": {
     "message": "No items need attention",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Kasanız taranıyor",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Açığa çıkan, zayıf ve yeniden kullanılan şifreler kontrol ediliyor.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "Taranıyor",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Bir sorun oluştu",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "Beklenmeyen bir hata nedeniyle kasa taramanız tamamlanamadı.",
+    "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
     "message": "Açığa çıkmış parolalar"
@@ -7911,18 +7974,18 @@
   "reusedPasswordsDescription": {
     "message": "These logins have a reused password. Create a unique password for each account to prevent someone accessing multiple accounts with one password."
   },
-  "deleteAtRiskItemDescription": {
-    "message": "Deleting this login removes it from your vault but doesn't fix the risk. To protect your account, change your password first."
+  "deleteAtRiskItemDesc": {
+    "message": "Önce parolanızı değiştirin. Kaydı silmeniz yalnızca bu kaydı kasanızdan siler, riski ortadan kaldırmaz."
   },
   "passwordHasAdditionalRisks": {
-    "message": "This password has additional risks:"
+    "message": "Bu parolanın ek riskleri vardır:"
   },
   "reused": {
-    "message": "Reused",
+    "message": "Yeniden Kullanılmış",
     "description": "ex. A password that is reused across multiple logins."
   },
   "xTimes": {
-    "message": "$COUNT$ times",
+    "message": "$COUNT$ kez",
     "description": "The number of times a password is reused. ex. 6 times",
     "placeholders": {
       "count": {
@@ -7942,5 +8005,20 @@
   },
   "youreAllSet": {
     "message": "Artık hazırsınız!"
+  },
+  "permissions": {
+    "message": "İzinler"
+  },
+  "viewItems": {
+    "message": "Kayıtları göster"
+  },
+  "viewItemsHidePass": {
+    "message": "Kayıtları göster, gizli parolalar"
+  },
+  "editItems": {
+    "message": "Kayıtları düzenle"
+  },
+  "editItemsHidePass": {
+    "message": "Kayıtları düzenle, gizli parolalar"
   }
 }

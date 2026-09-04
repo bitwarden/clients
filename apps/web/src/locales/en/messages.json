@@ -1803,6 +1803,9 @@
   "myItems": {
     "message": "My Items"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "myVault": {
     "message": "My vault"
   },
@@ -4175,8 +4178,11 @@
   "passkeyLoginFound": {
     "message": "Logins that support passkeys"
   },
-  "passkeyLoginFoundReportDesc": {
-    "message": "We found $COUNT$ login(s) in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+  "passkeyLoginFoundInfoPrefix": {
+    "message": "Great news! We found "
+  },
+  "loginsCount": {
+    "message": "$COUNT$ login(s)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4184,26 +4190,17 @@
       }
     }
   },
-  "passkeyLoginFoundReportDescPlural": {
-    "message": "We found $COUNT$ login(s) in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "8"
-      }
-    }
+  "passkeyLoginFoundInfoSuffixSingular": {
+    "message": " in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory"
+  },
+  "passkeyLoginFoundInfoSuffixPlural": {
+    "message": " in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory"
   },
   "noPasskeyLogin": {
     "message": "No accounts were found in your vault that support passkeys without one configured."
   },
   "instructions": {
     "message": "Instructions"
-  },
-  "passwordlessLogin": {
-    "message": "Passwordless login"
-  },
-  "multifactorAuthentication": {
-    "message": "Multifactor authentication"
   },
   "exposedPasswordsReport": {
     "message": "Exposed passwords"
@@ -10404,9 +10401,6 @@
   },
   "billingHistory": {
     "message": "Billing history"
-  },
-  "backToReports": {
-    "message": "Back to reports"
   },
   "organizationPicker": {
     "message": "Organization picker"
@@ -17574,6 +17568,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Login"
+  },
+  "orgNameVault": {
+    "message": "$ORGNAME$ vault",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }
