@@ -39,15 +39,6 @@ export class WebHeaderComponent {
   );
 
   /**
-   * Whether the VFO1 Foundation flag is enabled. Once enabled, the legacy header account menu
-   * is hidden in favor of the VFO1 side-nav footer account menu (see `WebSideNavComponent`).
-   */
-  protected readonly vfo1FoundationEnabled = toSignal(
-    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
-    { initialValue: false },
-  );
-
-  /**
    * Custom title that overrides the route data `titleId`
    */
   readonly title = input<string>();
