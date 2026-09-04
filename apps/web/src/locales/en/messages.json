@@ -9730,9 +9730,6 @@
   "personalVaultExportPolicyInEffect": {
     "message": "One or more organization policies prevents you from exporting your individual vault."
   },
-  "activateAutofillPolicy": {
-    "message": "Activate autofill"
-  },
   "enableAutofillOnPageLoad": {
     "message": "Enable autofill on page load"
   },
