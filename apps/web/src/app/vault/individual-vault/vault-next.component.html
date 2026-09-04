@@ -1,35 +1,5 @@
 <app-header [title]="title()">
-  @if (collectionSelected()) {
-    <bit-breadcrumbs slot="breadcrumbs">
-      <bit-breadcrumb [route]="orgRootRoute()">
-        <bit-icon-tile
-          slot="start"
-          [icon]="orgTile()?.icon"
-          [variant]="orgTile()?.variant ?? 'primary'"
-          [emphasis]="orgTile()?.emphasis ?? 'subtle'"
-        />
-        {{ orgNavItem()?.label }}
-      </bit-breadcrumb>
-      <bit-breadcrumb [icon]="'bwi-list-alt'" [route]="orgRootRoute()">
-        {{ "collections" | vfo1I18n: "sharedFolders" }}
-      </bit-breadcrumb>
-      @for (crumb of collectionBreadcrumbs(); track crumb.id) {
-        <bit-breadcrumb [icon]="'bwi-shared-folder'" [route]="sharedFolderRoute(crumb)">
-          {{ crumb.name }}
-        </bit-breadcrumb>
-      }
-      <!-- @for forces BreadcrumbComponent to recreate on folder change so ngOnInit re-checks the active route -->
-      @for (id of [collectionIdParam()]; track id) {
-        <bit-breadcrumb
-          [icon]="'bwi-shared-folder'"
-          [route]="currentFolderRoute()"
-          queryParamsHandling="preserve"
-        >
-          {{ sharedFolderName() }}
-        </bit-breadcrumb>
-      }
-    </bit-breadcrumbs>
-  }
+  <vault-collection-breadcrumbs slot="breadcrumbs"></vault-collection-breadcrumbs>
 </app-header>
 
 <vault-organization-user-notifications></vault-organization-user-notifications>

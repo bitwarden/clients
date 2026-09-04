@@ -6,25 +6,16 @@ import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
-import { getNestedCollectionTree } from "@bitwarden/common/admin-console/utils/collection-utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
-import {
-  BreadcrumbsModule,
-  ButtonModule,
-  DialogService,
-  IconTileComponent,
-  IconTileOptions,
-} from "@bitwarden/components";
+import { ButtonModule, DialogService } from "@bitwarden/components";
 import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
@@ -37,22 +28,18 @@ import {
   NewCipherMenuComponent,
   SharedFolderCardGridComponent,
   VaultCopyButtonsService,
+  VaultCollectionBreadcrumbsComponent,
   VaultItemsTableComponent,
   VaultItemsTableCopyPresentation,
   VaultItemsTableRowAction,
   VaultNavService,
   VaultOrganizationUserNotificationsComponent,
-  Vfo1I18nPipe,
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
-  navIconTile,
   organizationInScope,
   resolveVaultScope,
   scopedCollectionSegment,
-  scopedSharedFolderId,
-  SHARED_FOLDERS_ROUTE,
-  vaultScopeCommands,
   VaultScopeType,
 } from "@bitwarden/vault";
 
@@ -81,14 +68,12 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     class: "tw-flex tw-flex-col tw-h-full tw-min-h-0",
   },
   imports: [
-    BreadcrumbsModule,
     ButtonModule,
-    IconTileComponent,
     I18nPipe,
     HeaderModule,
-    Vfo1I18nPipe,
     NewCipherMenuComponent,
     VaultBannersComponent,
+    VaultCollectionBreadcrumbsComponent,
     VaultItemsTableComponent,
     VaultOnboardingComponent,
     VaultOrganizationUserNotificationsComponent,
@@ -125,8 +110,6 @@ export class VaultNextComponent {
   private readonly collectionSegment = computed(() =>
     scopedCollectionSegment(this.routeParams(), this.routeData()),
   );
-
-  protected readonly collectionIdParam = computed(() => this.routeParams()?.get("collectionId"));
 
   private readonly vaultNav = toSignal(
     this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
@@ -236,87 +219,6 @@ export class VaultNextComponent {
   protected readonly scopedOrganizationId = computed(() => {
     const scope = this.vaultScope();
     return scope.type === VaultScopeType.Organization ? scope.organizationId : undefined;
-  });
-
-  /** {@link scopedCollections} as a tree — used to derive the shared folder node for breadcrumbs. */
-  private readonly collectionTree = computed(() =>
-    getNestedCollectionTree(this.scopedCollections()),
-  );
-
-  private readonly sharedFolderNode = computed(() => {
-    const collectionId = scopedSharedFolderId(this.vaultScope());
-    if (collectionId == null) {
-      return undefined;
-    }
-    // Predates strict null checks: a miss comes back as `null` despite the signature.
-    return ServiceUtils.getTreeNodeObjectFromList(this.collectionTree(), collectionId) ?? undefined;
-  });
-
-  /** The folder's own name segment (not the full path). */
-  protected readonly sharedFolderName = computed(() => this.sharedFolderNode()?.node.name ?? "");
-
-  /** True when the URL has drilled into a shared folder — drives breadcrumb visibility. */
-  protected readonly collectionSelected = computed(
-    () => scopedSharedFolderId(this.vaultScope()) != null,
-  );
-
-  /** Ancestors of the selected folder, from org root to immediate parent. Current folder excluded. */
-  protected readonly collectionBreadcrumbs = computed((): CollectionView[] => {
-    const node = this.sharedFolderNode();
-    if (node == null) {
-      return [];
-    }
-    const chain = [node];
-    while (chain[chain.length - 1].parent != null) {
-      chain.push(chain[chain.length - 1].parent);
-    }
-    return chain
-      .slice(1)
-      .reverse()
-      .map((n) => n.node);
-  });
-
-  /** Nav item for the scoped org — provides icon, color, and label for the org crumb. */
-  protected readonly orgNavItem = computed(() => {
-    const scope = this.vaultScope();
-    if (scope.type !== VaultScopeType.Organization) {
-      return undefined;
-    }
-    return this.vaultNav()?.vaults.find((v) => v.id === scope.organizationId);
-  });
-
-  protected readonly orgTile = computed((): IconTileOptions | undefined => {
-    const item = this.orgNavItem();
-    return item == null ? undefined : navIconTile(item);
-  });
-
-  /** Route to the org vault root. */
-  protected readonly orgRootRoute = computed((): string[] => {
-    const scope = this.vaultScope();
-    if (scope.type !== VaultScopeType.Organization) {
-      return [];
-    }
-    return vaultScopeCommands({
-      type: VaultScopeType.Organization,
-      organizationId: scope.organizationId,
-    });
-  });
-
-  /** Drilling deeper replaces the collection segment, not appends — see vaultScopeCommands. */
-  protected sharedFolderRoute(folder: CollectionView): string[] {
-    const scope = this.vaultScope();
-    return vaultScopeCommands(
-      scope.type === VaultScopeType.Organization ? { ...scope, collectionId: folder.id } : scope,
-    );
-  }
-
-  protected readonly currentFolderRoute = computed(() => {
-    const vaultId = this.vaultIdParam();
-    const collectionId = this.collectionIdParam();
-    if (!vaultId || !collectionId) {
-      return undefined;
-    }
-    return ["/vault", vaultId, SHARED_FOLDERS_ROUTE, collectionId];
   });
 
   /**
