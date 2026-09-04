@@ -2,8 +2,10 @@
   class="vault tw-flex tw-flex-col tw-h-full tw-overflow-x-hidden"
   attr.aria-hidden="{{ showingModal }}"
 >
+  <vault-organization-user-notifications
+    class="tw-shrink-0"
+  ></vault-organization-user-notifications>
   <div [ngClass]="vfo1Foundation() ? 'tw-pt-6 tw-px-8' : 'tw-pt-6 tw-px-6'">
-    <vault-organization-user-notifications></vault-organization-user-notifications>
     <app-header>
       @if (!vfo1Foundation()) {
         <vault-new-cipher-menu
