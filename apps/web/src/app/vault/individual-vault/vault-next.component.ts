@@ -16,7 +16,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -121,7 +120,6 @@ export class VaultNextComponent {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly i18nService = inject(I18nService);
   private readonly batchBarService = inject(VaultBatchBarService);
-  private readonly configService = inject(ConfigService);
 
   private readonly policyService = inject(PolicyService);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
