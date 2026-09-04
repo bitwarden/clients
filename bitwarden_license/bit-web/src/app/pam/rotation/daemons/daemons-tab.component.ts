@@ -26,6 +26,7 @@ import {
   TableDataSource,
   TableModule,
   ToastService,
+  TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -57,6 +58,7 @@ import { DaemonRow, DaemonsService } from "./daemons.service";
     StatusLockupComponent,
     SvgComponent,
     TableModule,
+    TooltipDirective,
     RotationLoadErrorComponent,
     I18nPipe,
   ],
