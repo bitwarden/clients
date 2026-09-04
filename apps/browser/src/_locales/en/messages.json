@@ -7530,20 +7530,6 @@
   "resizeSideNavigation": {
     "message": "Resize side navigation"
   },
-  "sideNavigationWidth": {
-    "message": "$WIDTH$ rem wide",
-    "description": "Announced width of the side navigation while resizing it. $WIDTH$ is a number in rem.",
-    "placeholders": {
-      "width": {
-        "content": "$1",
-        "example": "18.5"
-      }
-    }
-  },
-  "sideNavigationCollapsed": {
-    "message": "Collapsed",
-    "description": "Announced state of the side navigation when it is collapsed to its icon strip."
-  },
   "whoCanView": {
     "message": "Who can view"
   },

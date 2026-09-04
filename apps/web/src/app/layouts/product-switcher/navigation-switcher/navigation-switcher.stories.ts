@@ -128,8 +128,6 @@ const translations: Record<string, string> = {
   skipToContent: "Skip to content",
   toggleSideNavigation: "Toggle side navigation",
   resizeSideNavigation: "Resize side navigation",
-  sideNavigationWidth: "__$1__ rem wide",
-  sideNavigationCollapsed: "Collapsed",
   submenu: "submenu",
   toggleCollapse: "toggle collapse",
   close: "Close",

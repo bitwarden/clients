@@ -88,8 +88,6 @@ export default {
               no: "No",
               loading: "Loading",
               resizeSideNavigation: "Resize side navigation",
-              sideNavigationWidth: "__$1__ rem wide",
-              sideNavigationCollapsed: "Collapsed",
               moreBreadcrumbs: "More breadcrumbs",
               breadcrumbs: "Breadcrumbs",
               sideNavigation: "Side navigation",

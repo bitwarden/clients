@@ -14,6 +14,7 @@ import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { NavGroupComponent } from "./nav-group.component";
 import { NavigationModule } from "./navigation.module";
+import { SideNavWidthService } from "./side-nav-width.service";
 import { SideNavService } from "./side-nav.service";
 
 @Component({
@@ -83,8 +84,6 @@ describe("side-nav v1 content projection", () => {
               sideNavigation: "Side navigation",
               toggleSideNavigation: "Toggle side navigation",
               resizeSideNavigation: "Resize side navigation",
-              sideNavigationWidth: "__$1__ rem wide",
-              sideNavigationCollapsed: "Collapsed",
               toggleCollapse: "Toggle collapse",
               submenu: "submenu",
             }),
@@ -389,8 +388,6 @@ describe("side-nav content projection through a wrapper component", () => {
               sideNavigation: "Side navigation",
               toggleSideNavigation: "Toggle side navigation",
               resizeSideNavigation: "Resize side navigation",
-              sideNavigationWidth: "__$1__ rem wide",
-              sideNavigationCollapsed: "Collapsed",
               toggleCollapse: "Toggle collapse",
               submenu: "submenu",
             }),
@@ -450,5 +447,83 @@ describe("side-nav content projection through a wrapper component", () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelectorAll("bit-nav-logo").length).toBe(1);
+  });
+});
+
+// Each side-nav version renders its own copy of the resize handle, so the announced value is
+// asserted against both branches — duplicated markup in this template has drifted before.
+describe.each([
+  ["v1", false],
+  ["vfo1", true],
+])("side-nav resize handle announcement (%s)", (_version, vfo1) => {
+  let fixture: ComponentFixture<HostComponent>;
+  let sideNavService: SideNavService;
+  let widthService: SideNavWidthService;
+
+  const handle = (): HTMLElement => fixture.nativeElement.querySelector("[role='separator']");
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [HostComponent, RouterModule.forRoot([])],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () =>
+            new I18nMockService({
+              sideNavigation: "Side navigation",
+              toggleSideNavigation: "Toggle side navigation",
+              resizeSideNavigation: "Resize side navigation",
+              toggleCollapse: "Toggle collapse",
+              submenu: "submenu",
+            }),
+        },
+        { provide: GlobalStateProvider, useClass: StorybookGlobalStateProvider },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: () => new BehaviorSubject<boolean>(vfo1).asObservable() },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(HostComponent);
+    sideNavService = TestBed.inject(SideNavService);
+    widthService = TestBed.inject(SideNavWidthService);
+  });
+
+  it("reports the floor of the range when collapsed", () => {
+    sideNavService.open.set(false);
+    fixture.detectChanges();
+
+    expect(handle().getAttribute("aria-valuenow")).toBe("0");
+  });
+
+  it("reports the ceiling of the range at the maximum width", () => {
+    sideNavService.open.set(true);
+    widthService.commit(sideNavService.MAX_OPEN_WIDTH);
+    fixture.detectChanges();
+
+    expect(handle().getAttribute("aria-valuenow")).toBe("100");
+  });
+
+  // A pointer drag commits an unrounded rem value, which used to be announced verbatim
+  // ("21.9375 rem wide"). The percentage must stay a whole number regardless.
+  it("announces a whole number after a fractional width is committed", () => {
+    sideNavService.open.set(true);
+    widthService.commit(21.9375);
+    fixture.detectChanges();
+
+    expect(handle().getAttribute("aria-valuenow")).toBe("54");
+  });
+
+  // The toggle button's aria-expanded already conveys the collapsed state, so the handle speaks
+  // only its position on the range.
+  it("never sets aria-valuetext", () => {
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+    expect(handle().hasAttribute("aria-valuetext")).toBe(false);
+
+    sideNavService.open.set(false);
+    fixture.detectChanges();
+    expect(handle().hasAttribute("aria-valuetext")).toBe(false);
   });
 });
