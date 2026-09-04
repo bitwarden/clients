@@ -115,6 +115,7 @@
       [attr.aria-label]="placeholderText()"
       tabindex="-1"
       class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
+      [attr.data-filter-option-list]="treeNodes().length ? '' : null"
       (keydown)="onTreeKeydown($event)"
     >
       @for (node of treeNodes(); track $index) {
@@ -124,8 +125,7 @@
           role="treeitem"
           data-filter-option-row
           [bitFilterTreeRow]="node"
-          [class]="optionRowClasses"
-          [class.tw-py-3]="node.row.kind === 'option'"
+          [class]="node.row.kind === 'option' ? optionRowClasses : rowBaseClasses"
           [style.padding-inline-start.rem]="0.5 + (node.level - 1) * 1.75"
           [attr.aria-level]="node.level"
           [attr.aria-setsize]="node.setsize"
@@ -203,6 +203,7 @@
       role="group"
       [attr.aria-label]="placeholderText()"
       class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
+      data-filter-option-list
     >
       @if (!multiple()) {
         @let allSelected = isSelected(clearValue);

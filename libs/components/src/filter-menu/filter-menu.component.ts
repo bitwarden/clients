@@ -169,8 +169,11 @@ export class FilterMenuComponent
   /** The selected options' labels, e.g. ["Login"]. Eager (options always exist), so it's never stale. */
   private readonly labels = signal<string[]>([]);
 
-  /** Row styling shared by every option row — `bitMenuItem`'s look plus the flex layout. */
-  protected readonly optionRowClasses = [
+  /**
+   * `bitMenuItem`'s look plus the flex layout, shared by every row. Section headers use
+   * it as-is; option rows use {@link optionRowClasses}.
+   */
+  protected readonly rowBaseClasses = [
     "tw-flex",
     "tw-items-center",
     "tw-gap-2",
@@ -189,6 +192,9 @@ export class FilterMenuComponent
     "has-[:disabled]:hover:tw-bg-background",
     "has-[:disabled]:!tw-text-fg-inactive",
   ];
+
+  /** An option row is 48px against a section header's 40px. */
+  protected readonly optionRowClasses = [...this.rowBaseClasses, "tw-py-3"];
 
   /** Shared `name` so a menu's radios form one group; unique per chip so menus don't merge. */
   protected readonly radioName = `bit-filter-menu-${nextRadioGroupId++}`;

@@ -61,7 +61,29 @@
 
   <ng-container bitDialogFooter>
     @if (activeFilter()) {
-      <button bitButton buttonType="primary" type="button" class="tw-ms-auto" (click)="back()">
+      @if (activeSelectedCount()) {
+        <span class="tw-text-sm tw-text-muted">{{
+          "filtersSelected" | i18n: activeSelectedCount()
+        }}</span>
+        <button
+          bitButton
+          buttonType="secondary"
+          type="button"
+          class="tw-ms-auto"
+          startIcon="bwi-clear"
+          (click)="clearActive()"
+        >
+          {{ "clear" | i18n }}
+        </button>
+      }
+      <button
+        bitButton
+        buttonType="primary"
+        type="button"
+        [class.tw-ms-auto]="!activeSelectedCount()"
+        (click)="back()"
+        #doneButton
+      >
         {{ "done" | i18n }}
       </button>
     } @else {
@@ -75,7 +97,7 @@
           type="button"
           class="tw-ms-auto"
           startIcon="bwi-clear"
-          (click)="clearAllAndKeepFocus()"
+          (click)="clearAll()"
         >
           {{ "clearAll" | i18n }}
         </button>

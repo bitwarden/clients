@@ -31,6 +31,11 @@ export interface FilterDialogParams {
   readonly filters: readonly FilterPresenter[];
 }
 
+/** A toggle reports no labels, so its `active` state stands in for its one selection. */
+function optionCount(filter: FilterPresenter): number {
+  return Math.max(filter.summaryLabels().length, filter.active() ? 1 : 0);
+}
+
 /** The small-screen filter view. Opened by `bit-table-toolbar`. */
 @Component({
   selector: "bit-filter-dialog",
@@ -60,8 +65,16 @@ export class FilterDialogComponent {
   /** The filter being drilled into, or `undefined` on the list page. */
   protected readonly activeFilter = signal<FilterPresenter | undefined>(undefined);
 
-  /** How many filters currently have a selection — shown in the footer. */
-  protected readonly selectedCount = computed(() => this.filters.filter((f) => f.active()).length);
+  /** How many options are selected across every filter — shown in the list page's footer. */
+  protected readonly selectedCount = computed(() =>
+    this.filters.reduce((total, filter) => total + optionCount(filter), 0),
+  );
+
+  /** The same count for the filter being drilled into. */
+  protected readonly activeSelectedCount = computed(() => {
+    const filter = this.activeFilter();
+    return filter ? optionCount(filter) : 0;
+  });
 
   /** Kept out of the template so no whitespace lands between the label and the colon. */
   protected rowLabel(filter: FilterPresenter): string {
@@ -69,13 +82,14 @@ export class FilterDialogComponent {
   }
 
   // The rows come from the chip's template, shared with the popover, so the card and
-  // dividers are applied from out here.
+  // dividers are applied from out here. The card lands on the row list rather than this
+  // wrapper so the in-menu search and result count stay outside it, per spec. The list
+  // scrolls, which already clips its rows to the rounded corners.
   protected readonly optionListClasses = [
-    "tw-overflow-hidden",
-    "tw-rounded-lg",
-    "tw-border",
-    "tw-border-solid",
-    "tw-border-border-base",
+    "[&_[data-filter-option-list]]:tw-rounded-lg",
+    "[&_[data-filter-option-list]]:tw-border",
+    "[&_[data-filter-option-list]]:tw-border-solid",
+    "[&_[data-filter-option-list]]:tw-border-border-base",
     "[&_[data-filter-option-row]]:tw-rounded-none",
     "[&_[data-filter-option-row]]:tw-border-0",
     "[&_[data-filter-option-row]]:tw-border-b",
@@ -101,11 +115,17 @@ export class FilterDialogComponent {
   /** Reset every filter's selection. */
   protected clearAll(): void {
     this.filters.forEach((filter) => filter.clear());
+    this.keepFocusOnDone();
   }
 
-  /** Clearing removes this button, so hand focus to Done rather than dropping it. */
-  protected clearAllAndKeepFocus(): void {
-    this.clearAll();
+  /** Reset just the filter being drilled into. */
+  protected clearActive(): void {
+    this.activeFilter()?.clear();
+    this.keepFocusOnDone();
+  }
+
+  /** Clearing removes the button that was clicked, so move focus rather than drop it. */
+  private keepFocusOnDone(): void {
     focusAfterRender(this.injector, () => this.doneButtonEl()?.nativeElement);
   }
 
