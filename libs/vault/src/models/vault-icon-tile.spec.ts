@@ -1,13 +1,7 @@
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BitwardenIcon } from "@bitwarden/components";
 
-import {
-  deactivatedOrgIconTile,
-  navIconTile,
-  orgIconTile,
-  personalIconTile,
-  vaultTileColor,
-} from "./vault-icon-tile";
+import { navIconTile, orgIconTile, personalIconTile, vaultTileColor } from "./vault-icon-tile";
 import { VaultNavItemType, VaultNavItemViewModel } from "./vault-nav-view-model";
 
 describe("vaultTileColor", () => {
@@ -39,15 +33,6 @@ describe("orgIconTile", () => {
   // `color` is an inline style and would render identically in both themes.
   it("uses a themed variant rather than a hardcoded color", () => {
     expect(orgIconTile(ProductTierType.Enterprise).color).toBeUndefined();
-  });
-});
-
-describe("deactivatedOrgIconTile", () => {
-  it("replaces the tier color with the warning tile", () => {
-    expect(deactivatedOrgIconTile()).toEqual({
-      icon: "bwi-exclamation-triangle",
-      variant: "danger",
-    });
   });
 });
 

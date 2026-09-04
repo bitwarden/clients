@@ -55,11 +55,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import {
-  deactivatedOrgIconTile,
-  orgIconTile,
-  personalIconTile,
-} from "../../models/vault-icon-tile";
+import { orgIconTile, personalIconTile } from "../../models/vault-icon-tile";
 import {
   idString,
   matchesFavorite,
@@ -433,12 +429,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     for (const organization of this.organizations()) {
       const id = idString(organization.id);
       if (id) {
-        tiles.set(
-          id,
-          organization.enabled
-            ? orgIconTile(organization.productTierType)
-            : deactivatedOrgIconTile(),
-        );
+        tiles.set(id, orgIconTile(organization.productTierType));
       }
     }
     return tiles;
@@ -491,10 +482,13 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   /**
    * The organizations the Vault chip offers. Derived from the `organizations` input
-   * so the options don't change as ciphers are filtered in or out.
+   * so the options don't change as ciphers are filtered in or out. Disabled organizations are
+   * left out: the user can't act on their items, so the option would be a dead end.
    */
   protected readonly sortedOrganizations = computed(() =>
-    [...this.organizations()].sort((a, b) => a.name.localeCompare(b.name)),
+    this.organizations()
+      .filter((organization) => organization.enabled)
+      .sort((a, b) => a.name.localeCompare(b.name)),
   );
 
   /**

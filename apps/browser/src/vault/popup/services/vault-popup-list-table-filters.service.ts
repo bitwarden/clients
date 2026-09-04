@@ -31,14 +31,7 @@ import {
   DIALOG_CIPHER_MENU_ITEMS,
 } from "@bitwarden/common/vault/types/cipher-menu-items";
 import { ChipFilterOption, getAvatarDefaultColor } from "@bitwarden/components";
-import {
-  deactivatedOrgIconTile,
-  idString,
-  MY_VAULT,
-  NO_FOLDER,
-  orgIconTile,
-  personalIconTile,
-} from "@bitwarden/vault";
+import { idString, MY_VAULT, NO_FOLDER, orgIconTile, personalIconTile } from "@bitwarden/vault";
 
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
@@ -251,7 +244,7 @@ export class VaultPopupListTableFiltersService {
           boolean,
           string | undefined,
         ] => [
-          orgs.sort(Utils.getSortFunction(this.i18nService, "name")),
+          orgs.filter((org) => org.enabled).sort(Utils.getSortFunction(this.i18nService, "name")),
           organizationDataOwnership,
           avatarColor,
         ],
@@ -279,7 +272,7 @@ export class VaultPopupListTableFiltersService {
           ...orgs.map((org) => ({
             value: org,
             label: org.name,
-            iconTile: org.enabled ? orgIconTile(org.productTierType) : deactivatedOrgIconTile(),
+            iconTile: orgIconTile(org.productTierType),
           })),
         ];
       }),

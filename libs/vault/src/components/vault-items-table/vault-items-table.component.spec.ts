@@ -685,8 +685,8 @@ describe("VaultItemsTableComponent", () => {
   describe("vaults present in the rows", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
-        { id: "org-1", name: "Acme corporation" } as Organization,
-        { id: "org-2", name: "Contoso" } as Organization,
+        { id: "org-1", name: "Acme corporation", enabled: true } as Organization,
+        { id: "org-2", name: "Contoso", enabled: true } as Organization,
       ]);
     });
 
@@ -698,6 +698,18 @@ describe("VaultItemsTableComponent", () => {
         ]);
 
         expect(component["sortedOrganizations"]().map((o) => o.id)).toEqual(["org-1", "org-2"]);
+      });
+
+      it("hides a disabled organization, and stops counting it toward the Vault chip", () => {
+        fixture.componentRef.setInput("organizations", [
+          { id: "org-1", name: "Acme corporation", enabled: true } as Organization,
+          { id: "org-2", name: "Contoso", enabled: false } as Organization,
+        ]);
+        // Scoping to the enabled org suppresses the My vault option, so one vault remains.
+        fixture.componentRef.setInput("scopedOrganizationId", "org-1" as never);
+
+        expect(component["sortedOrganizations"]().map((o) => o.id)).toEqual(["org-1"]);
+        expect(component["showVaults"]()).toBe(false);
       });
 
       it("offers My vault when every cipher is organization-owned but the view is unscoped", () => {
@@ -769,37 +781,6 @@ describe("VaultItemsTableComponent", () => {
         expect(tiles.get("org-2")?.variant).toBe("teal");
       });
 
-      it("swaps a deactivated organization's tier tile for the warning tile", () => {
-        fixture.componentRef.setInput("organizations", [
-          {
-            id: "org-1",
-            name: "Acme corporation",
-            enabled: false,
-            productTierType: ProductTierType.Enterprise,
-          } as Organization,
-        ]);
-
-        expect(component["organizationTiles"]().get("org-1")).toEqual({
-          icon: "bwi-exclamation-triangle",
-          variant: "danger",
-        });
-      });
-
-      it("carries the deactivated tile into the Vault column so both surfaces agree", () => {
-        fixture.componentRef.setInput("organizations", [
-          {
-            id: "org-1",
-            name: "Acme corporation",
-            enabled: false,
-            productTierType: ProductTierType.Enterprise,
-          } as Organization,
-        ]);
-
-        expect(
-          component["vaultIconTile"](cipherView({ organizationId: "org-1" as never })),
-        ).toEqual({ icon: "bwi-exclamation-triangle", variant: "danger" });
-      });
-
       it("keeps the tile identity stable across reads so the filter menu is not re-dirtied", () => {
         expect(component["organizationTiles"]()).toBe(component["organizationTiles"]());
         expect(component["myVaultFilterTile"]()).toBe(component["myVaultFilterTile"]());
@@ -809,7 +790,7 @@ describe("VaultItemsTableComponent", () => {
     describe("visibleColumns", () => {
       it("drops the Vault column when there is one organization and no personal vault option", () => {
         fixture.componentRef.setInput("organizations", [
-          { id: "org-1", name: "Acme corporation" } as Organization,
+          { id: "org-1", name: "Acme corporation", enabled: true } as Organization,
         ]);
         // Scoping to the org suppresses the My vault option, leaving nothing to distinguish.
         fixture.componentRef.setInput("scopedOrganizationId", "org-1" as never);
@@ -847,7 +828,7 @@ describe("VaultItemsTableComponent", () => {
 
     it("is true when organizations are provided", () => {
       fixture.componentRef.setInput("organizations", [
-        { id: "org-1", name: "Acme corporation" } as Organization,
+        { id: "org-1", name: "Acme corporation", enabled: true } as Organization,
       ]);
 
       expect(component["showSharedFolders"]()).toBe(true);
@@ -877,7 +858,7 @@ describe("VaultItemsTableComponent", () => {
   describe("resolving display names", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
-        { id: "org-1", name: "Acme corporation" } as Organization,
+        { id: "org-1", name: "Acme corporation", enabled: true } as Organization,
       ]);
       fixture.componentRef.setInput("collections", [
         { id: "col-1", name: "Operations" } as CollectionView,
@@ -937,7 +918,7 @@ describe("VaultItemsTableComponent", () => {
   describe("filtering from a membership chip", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
-        { id: "org-1", name: "Acme" } as Organization,
+        { id: "org-1", name: "Acme", enabled: true } as Organization,
       ]);
       fixture.componentRef.setInput("collections", [
         { id: "col-1", name: "Operations" } as CollectionView,
@@ -1033,9 +1014,9 @@ describe("VaultItemsTableComponent", () => {
 
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
-        { id: "org-1", name: "Acme" } as Organization,
+        { id: "org-1", name: "Acme", enabled: true } as Organization,
         // Two orgs ensure the Vault chip renders via the multiple-vaults path.
-        { id: "org-2", name: "Contoso" } as Organization,
+        { id: "org-2", name: "Contoso", enabled: true } as Organization,
       ]);
       fixture.componentRef.setInput("collections", [
         { id: "col-1", name: "Engineering", organizationId: "org-1" } as CollectionView,
@@ -1100,8 +1081,8 @@ describe("VaultItemsTableComponent", () => {
 
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
-        { id: "org-1", name: "Acme corporation" } as Organization,
-        { id: "org-2", name: "Contoso" } as Organization,
+        { id: "org-1", name: "Acme corporation", enabled: true } as Organization,
+        { id: "org-2", name: "Contoso", enabled: true } as Organization,
       ]);
     });
 
@@ -1180,7 +1161,7 @@ describe("VaultItemsTableComponent", () => {
   describe("sorting synthetic columns", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
-        { id: "org-1", name: "Acme corporation" } as Organization,
+        { id: "org-1", name: "Acme corporation", enabled: true } as Organization,
       ]);
       fixture.componentRef.setInput("collections", [
         { id: "col-1", name: "Operations" } as CollectionView,
