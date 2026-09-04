@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { FormGroup } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
@@ -47,6 +48,17 @@ function makeSystem(overrides: Partial<TargetSystem> = {}): TargetSystem {
     supportsSessionTermination: true,
     ...overrides,
   } as TargetSystem;
+}
+
+const NO_CHARACTER_CLASSES = {
+  includeUppercase: false,
+  includeLowercase: false,
+  includeDigits: false,
+  includeSymbols: false,
+};
+
+function policyFormOf(fixture: ComponentFixture<TargetSystemEditComponent>): FormGroup {
+  return (fixture.componentInstance as unknown as { policyForm: FormGroup }).policyForm;
 }
 
 /** Build a configured TestBed for create mode (no targetSystemId). */
@@ -219,6 +231,42 @@ describe("TargetSystemEditComponent — create mode", () => {
 
     // Leave name empty (invalid)
     const comp = fixture.componentInstance as unknown as { submitCreate: () => Promise<void> };
+    await comp.submitCreate();
+
+    expect(rotationSdk.createTargetSystem).not.toHaveBeenCalled();
+  });
+
+  it("marks the policy invalid when every character class is cleared", () => {
+    const policyForm = policyFormOf(fixture);
+    policyForm.patchValue(NO_CHARACTER_CLASSES);
+
+    expect(policyForm.invalid).toBe(true);
+    expect(policyForm.errors?.["noCharacterClass"]).toBe(true);
+  });
+
+  it("clears the character-class error when one class is re-enabled", () => {
+    const policyForm = policyFormOf(fixture);
+    policyForm.patchValue(NO_CHARACTER_CLASSES);
+    policyForm.patchValue({ includeSymbols: true });
+
+    expect(policyForm.errors).toBeNull();
+    expect(policyForm.valid).toBe(true);
+  });
+
+  it("does not create a target system when every character class is cleared", async () => {
+    rotationSdk.createTargetSystem.mockResolvedValue(makeSystem());
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    const comp = fixture.componentInstance as unknown as {
+      createForm: { patchValue: (v: unknown) => void };
+      submitCreate: () => Promise<void>;
+    };
+    comp.createForm.patchValue({
+      name: "No classes",
+      method: TargetSystemMethod.Automatic,
+      kind: TargetSystemKind.Entra,
+    });
+    policyFormOf(fixture).patchValue(NO_CHARACTER_CLASSES);
     await comp.submitCreate();
 
     expect(rotationSdk.createTargetSystem).not.toHaveBeenCalled();
@@ -412,6 +460,18 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
     patchKind(TargetSystemKind.CustomScript);
     expect(el.querySelector("#target-system-edit_checkbox_session-termination")).toBeTruthy();
   });
+
+  it("renders the character-class error only once every class is cleared", () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector("#target-system-edit_error_character-class")).toBeNull();
+
+    const policyForm = policyFormOf(fixture);
+    policyForm.patchValue(NO_CHARACTER_CLASSES);
+    policyForm.markAllAsTouched();
+    fixture.detectChanges();
+
+    expect(el.querySelector("#target-system-edit_error_character-class")).toBeTruthy();
+  });
 });
 
 describe("TargetSystemEditComponent — edit mode", () => {
@@ -474,6 +534,17 @@ describe("TargetSystemEditComponent — edit mode", () => {
         passwordPolicy: expect.any(Object),
       }),
     );
+  });
+
+  it("does not save when every character class is cleared", async () => {
+    rotationSdk.updateTargetSystem.mockResolvedValue(undefined);
+
+    policyFormOf(fixture).patchValue(NO_CHARACTER_CLASSES);
+    await (
+      fixture.componentInstance as unknown as { submitEdit: () => Promise<void> }
+    ).submitEdit();
+
+    expect(rotationSdk.updateTargetSystem).not.toHaveBeenCalled();
   });
 
   // Retirement — a target system has no delete route, so taking one out of service is disable.

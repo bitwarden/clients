@@ -18764,6 +18764,9 @@
   "pamTargetSystemPolicyMinExceedsMax": {
     "message": "Minimum length must be less than or equal to maximum length."
   },
+  "pamTargetSystemPolicyNoCharacterClass": {
+    "message": "Include at least one character type."
+  },
   "pamTargetSystemPolicyUppercase": {
     "message": "Include uppercase letters"
   },

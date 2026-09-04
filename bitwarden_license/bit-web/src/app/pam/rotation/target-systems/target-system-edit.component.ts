@@ -71,6 +71,19 @@ const minMaxValidator: ValidatorFn = (control: AbstractControl): ValidationError
   return min > max ? { minExceedsMax: true } : null;
 };
 
+/** Cross-field validator: at least one character class must be enabled. */
+const characterClassValidator: ValidatorFn = (
+  control: AbstractControl,
+): ValidationErrors | null => {
+  const group = control as PolicyGroup;
+  const anyEnabled =
+    group.controls.includeUppercase.value ||
+    group.controls.includeLowercase.value ||
+    group.controls.includeDigits.value ||
+    group.controls.includeSymbols.value;
+  return anyEnabled ? null : { noCharacterClass: true };
+};
+
 function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
   return new FormGroup<PolicyControls>(
     {
@@ -90,7 +103,7 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
       includeSymbols: fb.nonNullable.control(true),
       supportsSessionTermination: fb.nonNullable.control(false),
     },
-    { validators: [minMaxValidator] },
+    { validators: [minMaxValidator, characterClassValidator] },
   );
 }
 

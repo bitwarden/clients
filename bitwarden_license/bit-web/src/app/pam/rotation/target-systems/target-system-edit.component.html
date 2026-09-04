@@ -82,6 +82,12 @@
         />
         <bit-label>{{ "pamTargetSystemPolicySymbols" | i18n }}</bit-label>
       </bit-form-control>
+      @if (policyForm.errors?.["noCharacterClass"] && policyForm.touched) {
+        <!-- BitErrorComponent host-binds its own generated id, so the stable one goes on a wrapper -->
+        <div id="target-system-edit_error_character-class">
+          <bit-error>{{ "pamTargetSystemPolicyNoCharacterClass" | i18n }}</bit-error>
+        </div>
+      }
 
       <!-- Session termination (Automatic only): intrinsic for native integrations, opt-in for custom scripts -->
       @if (isAutomatic()) {
