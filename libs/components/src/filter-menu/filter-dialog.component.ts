@@ -86,6 +86,11 @@ export class FilterDialogComponent {
   // wrapper so the in-menu search and result count stay outside it, per spec. The list
   // scrolls, which already clips its rows to the rounded corners.
   protected readonly optionListClasses = [
+    // The popover insets the search to line up with its rows; here the card spans the
+    // full width, so drop the inset and use the spec's 12px gaps above the list.
+    "[&_[data-filter-search-row]]:tw-px-0",
+    "[&_[data-filter-search-row]]:tw-pb-3",
+    "[&_[data-filter-result-count]]:tw-pb-3",
     "[&_[data-filter-option-list]]:tw-rounded-lg",
     "[&_[data-filter-option-list]]:tw-border",
     "[&_[data-filter-option-list]]:tw-border-solid",

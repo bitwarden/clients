@@ -90,7 +90,7 @@
 
 <ng-template #optionsBody>
   @if (showSearch()) {
-    <div class="tw-px-2 tw-pb-1">
+    <div data-filter-search-row class="tw-px-2 tw-pb-1">
       <bit-search
         data-filter-search
         [ngModel]="searchTerm()"
@@ -100,6 +100,7 @@
   }
   @if (resultCount() != null) {
     <div
+      data-filter-result-count
       class="tw-px-4 tw-pb-1 tw-text-xs tw-font-normal tw-text-fg-body-subtle"
       aria-live="polite"
     >
