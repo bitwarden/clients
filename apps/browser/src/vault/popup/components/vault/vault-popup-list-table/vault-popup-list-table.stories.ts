@@ -1,5 +1,5 @@
 import { computed, signal } from "@angular/core";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { applicationConfig, Meta, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -461,6 +461,25 @@ const buildProviders = (args: StoryArgs) => {
           back: "Back",
           noMatchingItems: "No matching items",
           noDetailsToCopy: "No details to copy",
+          importItems: "Import items",
+          emptyMyItems: "No items in My items",
+          emptyMyItemsDescription:
+            "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+          noItemsMatchSearchTerm: (term) => `No items match "${term}"`,
+          noItemsMatchSelectedFilters: "No items match selected filters",
+          noItemsInMyVault: "No items in My vault",
+          noItemsInVaults: "Your vaults are empty",
+          noItemsInOrganizationVault: (name) => `No items in ${name}`,
+          noItemsInSharedFolder: (name) => `No items in ${name}`,
+          emptyVaultsDescription: "Add logins, IDs, cards, and other items to get started.",
+          emptySharedFolderDescription: (name) =>
+            `Add items to this shared folder, then give access to other ${name} members.`,
+          noItemsInTrash: "No items in trash",
+          noItemsInTrashDescription:
+            "Items you delete will appear here and be permanently deleted after 30 days.",
+          noItemsInArchive: "No items in archive",
+          noItemsInArchiveDesc:
+            "Archived items will appear here and will be excluded from general search results and autofill suggestions.",
         }),
     },
     {
@@ -517,6 +536,10 @@ const buildProviders = (args: StoryArgs) => {
       useValue: { hasPremiumFromAnySource$: () => of(true) },
     },
     { provide: Router, useValue: { navigate: () => Promise.resolve(true) } },
+    {
+      provide: ActivatedRoute,
+      useValue: { snapshot: { queryParams: {}, paramMap: new Map() }, queryParams: of({}) },
+    },
   ];
 };
 

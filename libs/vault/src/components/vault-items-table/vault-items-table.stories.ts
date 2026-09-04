@@ -550,6 +550,9 @@ export default {
               noVerificationCode: "No verification code",
               noNumber: "No number",
               noSecurityCode: "No security code",
+              emptyMyItems: "No items in My items",
+              emptyMyItemsDescription:
+                "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
             }),
         },
         {

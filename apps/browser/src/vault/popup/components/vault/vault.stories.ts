@@ -799,6 +799,9 @@ const buildProviders = (args: StoryArgs) => {
           noItemsInArchiveDesc:
             "Archived items will appear here and will be excluded from general search results and autofill suggestions.",
           appLogoLabel: "Bitwarden logo",
+          emptyMyItems: "No items in My items",
+          emptyMyItemsDescription:
+            "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
         }),
     },
   ];
