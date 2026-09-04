@@ -278,10 +278,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly filterNamespace = VAULT_FILTER_NAMESPACE;
   protected readonly filterKeys = VAULT_FILTER_KEYS;
 
-  /**
-   * Bottom margin held while the bulk-actions bar is up. The bar is `position: fixed` and never
-   * displaces content, so without this the last row sits underneath it and is unreachable.
-   */
+  /** Bottom margin held while the bulk-actions bar is up. */
   protected readonly bulkBarClearance = computed(() =>
     this.batchBarService?.barVisible() ? BULK_BAR_CLEARANCE : 0,
   );

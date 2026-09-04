@@ -233,8 +233,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   /** True when the batch bar feature flag is enabled. */
   readonly enabled = computed(() => this.batchBarFlag());
 
-  /** True when the batch bar is actively visible: feature flag on and at least one item selected. */
-  readonly barVisible = computed(() => this.batchBarFlag() && this.selectedCount() > 0);
+  readonly barVisible = computed(() => this.selectedCount() > 0);
 
   /** Selected items that are ciphers. */
   readonly selectedCiphers = computed(() =>
