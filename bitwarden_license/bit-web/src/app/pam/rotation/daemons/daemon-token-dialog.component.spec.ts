@@ -81,11 +81,16 @@ describe("DaemonTokenDialogComponent", () => {
   });
 
   describe("open", () => {
-    it("requests a dialog that cannot be dismissed by Escape, backdrop or the header X", () => {
-      const dialogService = mock<DialogService>();
-      const openedRef = mock<DialogRef>();
-      dialogService.open.mockReturnValue(openedRef);
+    let dialogService: jest.Mocked<DialogService>;
+    let openedRef: jest.Mocked<DialogRef>;
 
+    beforeEach(() => {
+      dialogService = mock<DialogService>();
+      openedRef = mock<DialogRef>();
+      dialogService.open.mockReturnValue(openedRef);
+    });
+
+    it("requests a dialog that cannot be dismissed by Escape, backdrop or the header X", () => {
       const result = DaemonTokenDialogComponent.open(dialogService, { data: params });
 
       expect(dialogService.open).toHaveBeenCalledWith(
@@ -96,9 +101,6 @@ describe("DaemonTokenDialogComponent", () => {
     });
 
     it("ignores a caller that asks for a dismissable dialog", () => {
-      const dialogService = mock<DialogService>();
-      dialogService.open.mockReturnValue(mock<DialogRef>());
-
       DaemonTokenDialogComponent.open(dialogService, { data: params, disableClose: false });
 
       expect(dialogService.open).toHaveBeenCalledWith(
