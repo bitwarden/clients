@@ -166,6 +166,13 @@ export class NativeMessagingMain {
       throw new Error(`Unable to find proxy binary: ${binaryPath}`);
     }
 
+    // When debugging against a dedicated chrome profile, only that profile gets a
+    // manifest, so the real browser installs are left untouched.
+    if (process.env.BITWARDEN_CHROME_PROFILE_DIR) {
+      await this.generateDebugChromeManifest(binaryPath);
+      return;
+    }
+
     switch (process.platform) {
       case "win32": {
         const destination = path.join(this.userPath, "browsers");
@@ -281,6 +288,23 @@ export class NativeMessagingMain {
       default:
         break;
     }
+  }
+
+  // Allow pointing chrome at a custom local profile for debugging
+  private async generateDebugChromeManifest(binaryPath: string) {
+    const profileDir = process.env.BITWARDEN_CHROME_PROFILE_DIR;
+
+    if (!profileDir) {
+      return;
+    }
+
+    const nmhsPath = path.join(profileDir, "NativeMessagingHosts");
+    await fs.mkdir(nmhsPath, { recursive: true });
+
+    await this.writeManifest(
+      path.join(nmhsPath, "com.8bit.bitwarden.json"),
+      await this.generateChromeJson(binaryPath),
+    );
   }
 
   async generateDdgManifests() {
@@ -487,6 +511,10 @@ export class NativeMessagingMain {
         ];
         break;
       }
+    }
+
+    if (process.env.BITWARDEN_CHROME_PROFILE_DIR) {
+      chromePaths.push(process.env.BITWARDEN_CHROME_PROFILE_DIR);
     }
 
     for (const chromePath of chromePaths) {
