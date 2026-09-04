@@ -17227,9 +17227,6 @@
   "copy": {
     "message": "Copy"
   },
-  "pam": {
-    "message": "PAM"
-  },
   "pamAccessRules": {
     "message": "Access rules"
   },
