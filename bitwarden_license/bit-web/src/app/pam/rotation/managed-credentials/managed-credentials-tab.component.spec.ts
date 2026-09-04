@@ -7,6 +7,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 
 import type { RotationConfig } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
+import { deferred } from "../testing/deferred";
 import {
   ORGANIZATION_ID,
   configId,
@@ -246,12 +247,6 @@ describe("ManagedCredentialsTabComponent", () => {
 
   describe("in-flight row guard", () => {
     beforeEach(() => setupTestBed(true));
-
-    function deferred(): { promise: Promise<void>; settle: () => void } {
-      let settle!: () => void;
-      const promise = new Promise<void>((resolve) => (settle = () => resolve()));
-      return { promise, settle };
-    }
 
     it("does not dispatch a second rotateNow while the first is unsettled", async () => {
       const pending = deferred();

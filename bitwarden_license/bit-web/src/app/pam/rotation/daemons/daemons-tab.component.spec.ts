@@ -7,8 +7,9 @@ import { BehaviorSubject, of } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import type { AccessConnector, TargetSystemId, TargetSystem } from "../rotation";
+import type { AccessConnector, AccessConnectorId, TargetSystemId, TargetSystem } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
+import { deferred } from "../testing/deferred";
 import { ORGANIZATION_ID, connectorId, sysId } from "../testing/rotation-builders";
 
 import { DaemonsTabComponent } from "./daemons-tab.component";
@@ -227,14 +228,8 @@ describe("DaemonsTabComponent", () => {
     type Guarded = {
       disable: (row: DaemonRow) => Promise<void>;
       confirmDelete: (row: DaemonRow) => Promise<void>;
-      isRowBusy: (rowId: string) => boolean;
+      isRowBusy: (rowId: AccessConnectorId) => boolean;
     };
-
-    function deferred(): { promise: Promise<void>; settle: () => void } {
-      let settle!: () => void;
-      const promise = new Promise<void>((resolve) => (settle = () => resolve()));
-      return { promise, settle };
-    }
 
     function guarded(): Guarded {
       return fixture.componentInstance as unknown as Guarded;

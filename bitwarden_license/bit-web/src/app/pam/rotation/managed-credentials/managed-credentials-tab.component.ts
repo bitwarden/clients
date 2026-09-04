@@ -1,12 +1,5 @@
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  signal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -34,8 +27,9 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { TargetSystemMethod, TargetSystem } from "../rotation";
+import { RotationConfigId, TargetSystemMethod, TargetSystem } from "../rotation";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
+import { RowBusyTracker } from "../row-busy-tracker";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { RotationConfigRow } from "./rotation-config-row";
@@ -110,6 +104,10 @@ export class ManagedCredentialsTabComponent {
   /** Expose for template. */
   protected readonly TargetSystemMethod = TargetSystemMethod;
 
+  private readonly busyRows = new RowBusyTracker<RotationConfigId>();
+
+  protected readonly isRowBusy = this.busyRows.isBusy;
+
   constructor() {
     effect(() => {
       void this.loadAll(this.organizationId());
@@ -161,33 +159,8 @@ export class ManagedCredentialsTabComponent {
   protected readonly openEdit = (row: RotationConfigRow): Promise<boolean> =>
     this.router.navigate(["..", "managed-credentials", row.id], { relativeTo: this.route });
 
-  /**
-   * Ids of the rows with a mutation in flight. Clicking a bitMenuItem closes the menu and the
-   * overlay disposes its view, so a per-button flag would not survive the reopen-and-click-again
-   * path this guards against; the state has to live on the component.
-   */
-  private readonly busyRowIds = signal<ReadonlySet<string>>(new Set<string>());
-
-  protected readonly isRowBusy = (rowId: string): boolean => this.busyRowIds().has(rowId);
-
-  private async runForRow(rowId: string, action: () => Promise<void>): Promise<void> {
-    if (this.busyRowIds().has(rowId)) {
-      return;
-    }
-    this.busyRowIds.update((ids) => new Set(ids).add(rowId));
-    try {
-      await action();
-    } finally {
-      this.busyRowIds.update((ids) => {
-        const next = new Set(ids);
-        next.delete(rowId);
-        return next;
-      });
-    }
-  }
-
-  protected readonly rotateNow = async (row: RotationConfigRow): Promise<void> =>
-    this.runForRow(row.id, async () => {
+  protected readonly rotateNow = (row: RotationConfigRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
       try {
         await this.configsService.rotateNow(row.config);
         this.toastService.showToast({
@@ -199,8 +172,8 @@ export class ManagedCredentialsTabComponent {
       }
     });
 
-  protected readonly confirmRecordManual = async (row: RotationConfigRow): Promise<void> =>
-    this.runForRow(row.id, async () => {
+  protected readonly confirmRecordManual = (row: RotationConfigRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "pamRotationConfigRecordManualTitle" },
         content: { key: "pamRotationConfigRecordManualContent" },
@@ -222,8 +195,8 @@ export class ManagedCredentialsTabComponent {
       }
     });
 
-  protected readonly pause = async (row: RotationConfigRow): Promise<void> =>
-    this.runForRow(row.id, async () => {
+  protected readonly pause = (row: RotationConfigRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
       try {
         await this.configsService.pause(row.config);
         this.toastService.showToast({
@@ -235,8 +208,8 @@ export class ManagedCredentialsTabComponent {
       }
     });
 
-  protected readonly resume = async (row: RotationConfigRow): Promise<void> =>
-    this.runForRow(row.id, async () => {
+  protected readonly resume = (row: RotationConfigRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
       try {
         await this.configsService.resume(row.config);
         this.toastService.showToast({
@@ -248,8 +221,8 @@ export class ManagedCredentialsTabComponent {
       }
     });
 
-  protected readonly confirmDelete = async (row: RotationConfigRow): Promise<void> =>
-    this.runForRow(row.id, async () => {
+  protected readonly confirmDelete = (row: RotationConfigRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "pamRotationConfigDeleteConfirmTitle" },
         content: { key: "pamRotationConfigDeleteConfirmContent" },

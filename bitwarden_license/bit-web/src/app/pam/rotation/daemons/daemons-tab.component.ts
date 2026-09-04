@@ -1,12 +1,5 @@
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  signal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -36,8 +29,15 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AccessConnector, DaemonStatus, TargetSystemId, TargetSystem } from "../rotation";
+import {
+  AccessConnector,
+  AccessConnectorId,
+  DaemonStatus,
+  TargetSystemId,
+  TargetSystem,
+} from "../rotation";
 import { RotationLoadErrorComponent } from "../rotation-load-error.component";
+import { RowBusyTracker } from "../row-busy-tracker";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { AssignTargetDialogComponent } from "./assign-target-dialog.component";
@@ -101,6 +101,10 @@ export class DaemonsTabComponent {
     { requireSync: true },
   );
 
+  private readonly busyRows = new RowBusyTracker<AccessConnectorId>();
+
+  protected readonly isRowBusy = this.busyRows.isBusy;
+
   constructor() {
     effect(() => {
       void this.loadAll(this.organizationId());
@@ -156,37 +160,12 @@ export class DaemonsTabComponent {
   };
 
   /**
-   * Ids of the rows with a mutation in flight. Clicking a bitMenuItem closes the menu and the
-   * overlay disposes its view, so a per-button flag would not survive the reopen-and-click-again
-   * path this guards against; the state has to live on the component.
-   */
-  private readonly busyRowIds = signal<ReadonlySet<string>>(new Set<string>());
-
-  protected readonly isRowBusy = (rowId: string): boolean => this.busyRowIds().has(rowId);
-
-  private async runForRow(rowId: string, action: () => Promise<void>): Promise<void> {
-    if (this.busyRowIds().has(rowId)) {
-      return;
-    }
-    this.busyRowIds.update((ids) => new Set(ids).add(rowId));
-    try {
-      await action();
-    } finally {
-      this.busyRowIds.update((ids) => {
-        const next = new Set(ids);
-        next.delete(rowId);
-        return next;
-      });
-    }
-  }
-
-  /**
    * A failed target-systems load leaves the shared list empty, which is indistinguishable from an
    * org that genuinely has none — so the failure is surfaced rather than letting the dialog assert
    * the org has no active automatic target system.
    */
-  protected readonly openAssignDialog = async (row: DaemonRow): Promise<void> =>
-    this.runForRow(row.id, async () => {
+  protected readonly openAssignDialog = (row: DaemonRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
       const targetSystemsError = this.targetSystemsLoadError();
       if (targetSystemsError) {
         this.showError(targetSystemsError);
@@ -215,12 +194,12 @@ export class DaemonsTabComponent {
       }
     });
 
-  protected readonly unassign = async (
+  protected readonly unassign = (
     daemon: AccessConnector,
     targetSystemId: string,
     targetName: string,
   ): Promise<void> =>
-    this.runForRow(daemon.id, async () => {
+    this.busyRows.run(daemon.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "pamDaemonUnassignConfirmTitle" },
         content: { key: "pamDaemonUnassignConfirmContent", placeholders: [targetName] },
@@ -242,8 +221,8 @@ export class DaemonsTabComponent {
       }
     });
 
-  protected readonly disable = async (row: DaemonRow): Promise<void> =>
-    this.runForRow(row.id, async () => {
+  protected readonly disable = (row: DaemonRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "pamDaemonDisableConfirmTitle" },
         content: { key: "pamDaemonDisableConfirmContent", placeholders: [row.name] },
@@ -265,8 +244,8 @@ export class DaemonsTabComponent {
       }
     });
 
-  protected readonly enable = async (row: DaemonRow): Promise<void> =>
-    this.runForRow(row.id, async () => {
+  protected readonly enable = (row: DaemonRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
       try {
         await this.daemonsService.setEnabled(row.daemon, true);
         this.toastService.showToast({
@@ -278,8 +257,8 @@ export class DaemonsTabComponent {
       }
     });
 
-  protected readonly confirmDelete = async (row: DaemonRow): Promise<void> =>
-    this.runForRow(row.id, async () => {
+  protected readonly confirmDelete = (row: DaemonRow): Promise<void> =>
+    this.busyRows.run(row.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "pamDaemonDeleteConfirmTitle" },
         content: { key: "pamDaemonDeleteConfirmContent", placeholders: [row.name] },
