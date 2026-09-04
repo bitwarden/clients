@@ -167,7 +167,9 @@ export default {
               pamRotationConfigNoResultsFiltered: "No managed credentials match your filters.",
               pamRotationConfigNoTargetSystems:
                 "Set up a target system before you can rotate credentials. A target system defines where a credential lives and how Bitwarden rotates it.",
-              pamRotationConfigPause: "Pause",
+              pamRotationConfigEditCredential: "Edit credential",
+              pamRotationConfigDeleteCredential: "Delete credential",
+              pamRotationConfigPauseScheduledRotations: "Pause scheduled rotations",
               pamRotationConfigRecordManual: "Record manual rotation",
               pamRotationConfigResume: "Resume",
               pamRotationConfigRotateNow: "Rotate now",

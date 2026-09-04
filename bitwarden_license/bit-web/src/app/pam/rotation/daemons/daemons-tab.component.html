@@ -95,10 +95,14 @@
             id="daemons-tab_button_menu-{{ r.id }}"
           ></button>
           <bit-menu #rowMenu>
+            <button type="button" bitMenuItem (click)="openDetail(r)">
+              <bit-icon name="bwi-list-alt" class="tw-text-muted"></bit-icon>
+              {{ "pamAccessConnectorViewDetails" | i18n }}
+            </button>
             @if (r.canAssign) {
               <button type="button" bitMenuItem (click)="openAssignDialog(r)">
                 <bit-icon name="bwi-plus-circle" class="tw-text-muted"></bit-icon>
-                {{ "pamAccessConnectorAssignTarget" | i18n }}
+                {{ "pamAccessConnectorAssignTargets" | i18n }}
               </button>
             }
             @if (r.daemon.assignedTargetSystemIds.length > 0) {
@@ -128,9 +132,12 @@
                 {{ "pamAccessConnectorEnable" | i18n }}
               </button>
             }
+            <bit-menu-divider />
             <button type="button" bitMenuItem (click)="confirmDelete(r)">
               <bit-icon name="bwi-trash" class="tw-text-danger"></bit-icon>
-              <span class="tw-text-danger">{{ "delete" | i18n }}</span>
+              <span class="tw-text-danger">{{
+                "pamAccessConnectorDeleteAccessConnector" | i18n
+              }}</span>
             </button>
           </bit-menu>
         </td>
