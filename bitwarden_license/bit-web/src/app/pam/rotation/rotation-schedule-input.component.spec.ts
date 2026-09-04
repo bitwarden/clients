@@ -104,6 +104,12 @@ describe("RotationScheduleInputComponent", () => {
     ).customControl as ReturnType<typeof customCtrl>;
   }
 
+  function hintTexts(): (string | undefined)[] {
+    return [...fixture.nativeElement.querySelectorAll("bit-hint")].map((hint: HTMLElement) =>
+      hint.textContent?.trim(),
+    );
+  }
+
   // ---- writeValue (reverse-map) ----
 
   it("maps null to None preset", async () => {
@@ -218,5 +224,20 @@ describe("RotationScheduleInputComponent", () => {
     fixture.detectChanges();
     const errors = component.validate({ value: outerControl.value } as never);
     expect(errors).toBeNull();
+  });
+
+  // ---- timezone hint ----
+
+  it("renders the timezone hint under the preset select", () => {
+    expect(hintTexts()).toContain("pamRotationScheduleTimezoneHint");
+  });
+
+  it("keeps the timezone hint when the Custom preset is selected", async () => {
+    presetCtrl().setValue(QuartzSchedulePreset.Custom);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const hints = hintTexts();
+    expect(hints).toContain("pamRotationScheduleTimezoneHint");
+    expect(hints).toContain("pamRotationScheduleCustomHint");
   });
 });

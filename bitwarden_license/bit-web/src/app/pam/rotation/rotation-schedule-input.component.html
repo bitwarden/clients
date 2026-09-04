@@ -34,6 +34,7 @@
       [label]="'pamRotationScheduleCustom' | i18n"
     ></bit-option>
   </bit-select>
+  <bit-hint>{{ "pamRotationScheduleTimezoneHint" | i18n }}</bit-hint>
 </bit-form-field>
 
 @if (presetControl.value === QuartzSchedulePreset.Custom) {

@@ -18632,6 +18632,9 @@
   "pamRotationScheduleInvalidCron": {
     "message": "Please enter a valid Quartz cron expression (6 or 7 space-separated fields)."
   },
+  "pamRotationScheduleTimezoneHint": {
+    "message": "Schedules run in UTC, not your local time zone."
+  },
   "pamTargetSystemNew": {
     "message": "New target system"
   },
