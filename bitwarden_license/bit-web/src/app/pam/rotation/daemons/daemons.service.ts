@@ -57,8 +57,16 @@ export class DaemonsService {
   readonly daemons$: Observable<AccessConnector[]> = this._daemons$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
-  /** The error from the last {@link load}, or null when it succeeded. */
-  readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
+  /**
+   * The error from the last {@link load}, or null when it succeeded. Covers the target-systems
+   * fetch too: it records its own failure instead of rejecting, so nothing else reports it, and
+   * without it {@link rows$} renders every assignment as a raw id and the assign dialog offers no
+   * targets.
+   */
+  readonly loadError$: Observable<unknown | null> = combineLatest([
+    this._loadError$,
+    this.targetSystemsService.loadError$,
+  ]).pipe(map(([own, targetSystemsError]) => own ?? targetSystemsError));
 
   /**
    * Daemons projected into presentation rows, joined with target-system names.

@@ -59,6 +59,10 @@ export class TargetSystemsService {
    *
    * Records a failure on {@link loadError$} rather than rejecting: every caller invokes this as
    * `void load(...)`, so a rejection would leave the tab rendering its empty state.
+   *
+   * The managed-credentials tab runs two of these concurrently, so the outcome is recorded on
+   * success as well as on failure — clearing only on entry would latch the losing call's error
+   * over the winning call's data.
    */
   async load(organizationId: OrganizationId): Promise<void> {
     this.organizationId = organizationId;
@@ -66,6 +70,7 @@ export class TargetSystemsService {
     this._loadError$.next(null);
     try {
       this._systems$.next(await this.rotationSdk.listTargetSystems(organizationId));
+      this._loadError$.next(null);
     } catch (e) {
       this._loadError$.next(e);
     } finally {

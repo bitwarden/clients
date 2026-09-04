@@ -33,9 +33,11 @@ describe("DaemonsService", () => {
   let rotationSdk: jest.Mocked<RotationSdkService>;
   let targetSystemsService: jest.Mocked<TargetSystemsService>;
   let systemById$: BehaviorSubject<Map<TargetSystemId, TargetSystem>>;
+  let targetSystemsLoadError$: BehaviorSubject<unknown | null>;
 
   beforeEach(() => {
     systemById$ = new BehaviorSubject<Map<TargetSystemId, TargetSystem>>(new Map());
+    targetSystemsLoadError$ = new BehaviorSubject<unknown | null>(null);
 
     rotationSdk = {
       listConnectors: jest.fn().mockResolvedValue([]),
@@ -48,6 +50,7 @@ describe("DaemonsService", () => {
 
     targetSystemsService = {
       systemById$: systemById$.asObservable(),
+      loadError$: targetSystemsLoadError$.asObservable(),
     } as unknown as jest.Mocked<TargetSystemsService>;
 
     TestBed.configureTestingModule({
@@ -97,6 +100,15 @@ describe("DaemonsService", () => {
       await service.load(orgId);
 
       expect(await firstValue(service.loadError$)).toBeNull();
+    });
+
+    it("reports a target-systems failure even when the daemon list loads", async () => {
+      const failure = new Error("target systems fail");
+
+      await service.load(orgId);
+      targetSystemsLoadError$.next(failure);
+
+      expect(await firstValue(service.loadError$)).toBe(failure);
     });
   });
 
