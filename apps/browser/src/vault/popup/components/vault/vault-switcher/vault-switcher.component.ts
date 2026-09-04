@@ -1,12 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
+  IconButtonModule,
   IconModule,
   IconTileComponent,
   IconTileOptions,
@@ -32,7 +34,6 @@ import { VaultPopupScrollPositionService } from "../../../services/vault-popup-s
 
 /** A menu entry: one of the account's vaults, or the unscoped "All items" entry. */
 interface VaultSwitcherEntry {
-  /** The `:vaultId` segment, or `null` for All items. */
   id: string | null;
   label: string;
   tile: IconTileOptions;
@@ -46,20 +47,23 @@ interface VaultSwitcherEntry {
   selector: "app-vault-switcher",
   templateUrl: "vault-switcher.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [I18nPipe, IconModule, IconTileComponent, MenuModule, TypographyModule],
+  imports: [
+    I18nPipe,
+    IconButtonModule,
+    IconModule,
+    IconTileComponent,
+    MenuModule,
+    TypographyModule,
+  ],
 })
 export class VaultSwitcherComponent {
   private readonly router = inject(Router);
   private readonly accountService = inject(AccountService);
   private readonly vaultNavService = inject(VaultNavService);
   private readonly basePath = inject(VAULT_BASE_ROUTE);
+  private readonly i18nService = inject(I18nService);
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
   private readonly scrollPositionService = inject(VaultPopupScrollPositionService);
-
-  /**
-   * Whether the menu is open. Held here — the directive clears `aria-expanded` without CD.
-   */
-  protected readonly menuOpen = signal(false);
 
   /** The scope the page resolved from the route. */
   readonly scope = input<VaultScope | null>(ALL_ITEMS_SCOPE);
@@ -83,7 +87,7 @@ export class VaultSwitcherComponent {
     return [
       {
         id: null,
-        label: "allItems",
+        label: this.i18nService.t("allItems"),
         tile: { icon: "bwi-list", variant: "brand", emphasis: "bold" },
       },
       ...nav.vaults.map((vault) => ({

@@ -168,32 +168,31 @@ describe("VaultSwitcherComponent", () => {
     });
 
     /**
-     * Regression: keyed to `aria-expanded`, which the directive clears without change detection.
+     * The open style is the button's `aria-expanded:` variants, so the attribute has to track the
+     * menu even on the close paths the directive runs outside change detection.
      */
-    describe("chevron highlight", () => {
-      const chevron = () =>
-        fixture.debugElement.query(By.css('[data-testid="vault-switcher-chevron"]'))
-          .nativeElement as HTMLElement;
+    describe("the trigger's expanded state", () => {
+      const expanded = () => trigger().nativeElement.getAttribute("aria-expanded");
 
       it("is unset while the menu is closed", () => {
-        expect(chevron().classList).not.toContain("tw-bg-primary-100");
+        expect(expanded()).toBe("false");
       });
 
       it("is set while the menu is open", () => {
         openMenu();
 
-        expect(chevron().classList).toContain("tw-bg-primary-100");
+        expect(expanded()).toBe("true");
       });
 
       it("clears once the menu closes", () => {
         openMenu();
-        expect(chevron().classList).toContain("tw-bg-primary-100");
+        expect(expanded()).toBe("true");
 
         // The menu emits `closed` however it was dismissed — Escape, backdrop, or a selection.
         fixture.debugElement.query(By.css("bit-menu")).componentInstance.closed.emit();
         fixture.detectChanges();
 
-        expect(chevron().classList).not.toContain("tw-bg-primary-100");
+        expect(expanded()).toBe("false");
       });
     });
 
