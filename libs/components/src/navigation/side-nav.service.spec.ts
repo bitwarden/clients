@@ -141,30 +141,23 @@ describe("SideNavService", () => {
         clearPersisted();
       });
 
-      it("restores the saved width via toggle()", () => {
-        service.toggle();
+      // A fourth way to expand the nav should be one more row here.
+      it.each([
+        ["toggle()", () => service.toggle()],
+        ["ArrowRight", () => service.setWidthFromKeys("ArrowRight")],
+        [
+          "releasing a preview drag",
+          () => {
+            dragTo(8);
+            service.onDragEnd();
+          },
+        ],
+      ])("restores the saved width via %s", (_label, expand) => {
+        expand();
         flushPersist();
 
         expect(service.open()).toBe(true);
-        expect(currentWidth()).toBe(SAVED);
-        expect(persistedWidths()).toEqual([]);
-      });
-
-      it.failing("restores the saved width via ArrowRight", () => {
-        service.setWidthFromKeys("ArrowRight");
-        flushPersist();
-
-        expect(service.open()).toBe(true);
-        expect(currentWidth()).toBe(SAVED);
-        expect(persistedWidths()).toEqual([]);
-      });
-
-      it.failing("restores the saved width when a preview drag is released", () => {
-        dragTo(8);
-        service.onDragEnd();
-        flushPersist();
-
-        expect(service.open()).toBe(true);
+        expect(service.userCollapsePreference()).toBe("open");
         expect(currentWidth()).toBe(SAVED);
         expect(persistedWidths()).toEqual([]);
       });

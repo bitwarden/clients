@@ -122,13 +122,13 @@ export class SideNavService {
 
   /** Toggle the open/close state of the side nav. */
   toggle() {
-    const opening = !this.open();
-    this.userCollapsePreference.set(opening ? "open" : "closed");
-    this.open.set(opening);
-
-    if (opening && this.widthService.saved() < this.MIN_OPEN_WIDTH) {
-      this.widthService.display(this.DEFAULT_OPEN_WIDTH);
+    if (this.open()) {
+      this.userCollapsePreference.set("closed");
+      this.open.set(false);
+      return;
     }
+
+    this._expand();
   }
 
   /**
@@ -194,9 +194,7 @@ export class SideNavService {
     if (!this.open()) {
       // Already at the low end — only ArrowRight moves off it.
       if (key === "ArrowRight") {
-        this.userCollapsePreference.set("open");
-        this.open.set(true);
-        this.widthService.display(this.DEFAULT_OPEN_WIDTH);
+        this._expand();
       }
       return;
     }
@@ -237,10 +235,18 @@ export class SideNavService {
       return;
     }
 
-    // Released in the collapsed preview zone — commit to open at the default width.
+    // Released in the collapsed preview zone — open at the width the user already had.
+    this._expand();
+  }
+
+  /**
+   * Open the nav at the width the user last chose. Display-only: restoring a saved width is not a
+   * new preference, so nothing is persisted and a later collapse still returns to the same width.
+   */
+  private _expand() {
     this.userCollapsePreference.set("open");
     this.open.set(true);
-    this.widthService.display(this.DEFAULT_OPEN_WIDTH);
+    this.widthService.display(this._pushClamped(this.widthService.saved()));
   }
 
   /** Commit the width, held within bounds and within what the container can push. */
