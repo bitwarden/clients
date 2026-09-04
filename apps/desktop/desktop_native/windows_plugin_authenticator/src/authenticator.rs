@@ -310,8 +310,7 @@ mod tests {
     use std::sync::atomic::{AtomicUsize, Ordering};
 
     use autofill_provider::{
-        ConnectionStatus, LockStatusResponse, PasskeyAssertionRequest,
-        PasskeyAssertionWithoutUserInterfaceRequest, PasskeyRegistrationRequest,
+        ConnectionStatus, LockStatusResponse, PasskeyAssertionRequest, PasskeyRegistrationRequest,
         PreparePasskeyAssertionCallback, PreparePasskeyRegistrationCallback,
         WindowHandleQueryResponse,
     };
@@ -407,14 +406,6 @@ mod tests {
         fn prepare_passkey_assertion(
             &self,
             _req: PasskeyAssertionRequest,
-            _cb: Arc<dyn PreparePasskeyAssertionCallback>,
-        ) {
-            unimplemented!("not needed in these tests")
-        }
-
-        fn prepare_passkey_assertion_without_user_interface(
-            &self,
-            _req: PasskeyAssertionWithoutUserInterfaceRequest,
             _cb: Arc<dyn PreparePasskeyAssertionCallback>,
         ) {
             unimplemented!("not needed in these tests")
