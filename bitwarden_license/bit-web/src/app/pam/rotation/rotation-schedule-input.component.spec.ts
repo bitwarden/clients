@@ -112,20 +112,13 @@ describe("RotationScheduleInputComponent", () => {
   }
 
   /** Convenience access to the protected interval builder controls. */
-  function intervalCountCtrl(): FormControl<number | null> {
-    return (component as unknown as { intervalCountControl: FormControl<number | null> })
-      .intervalCountControl;
+  function protectedControl<T>(name: string): FormControl<T> {
+    return (component as unknown as Record<string, FormControl<T>>)[name];
   }
 
-  function intervalUnitCtrl(): FormControl<ScheduleIntervalUnit> {
-    return (component as unknown as { intervalUnitControl: FormControl<ScheduleIntervalUnit> })
-      .intervalUnitControl;
-  }
-
-  function intervalTimeCtrl(): FormControl<string> {
-    return (component as unknown as { intervalTimeControl: FormControl<string> })
-      .intervalTimeControl;
-  }
+  const intervalCountCtrl = () => protectedControl<number | null>("intervalCountControl");
+  const intervalUnitCtrl = () => protectedControl<ScheduleIntervalUnit>("intervalUnitControl");
+  const intervalTimeCtrl = () => protectedControl<string>("intervalTimeControl");
 
   function buildInterval(unit: ScheduleIntervalUnit, count: number | null, time: string): void {
     presetCtrl().setValue(SCHEDULE_INTERVAL_MODE);

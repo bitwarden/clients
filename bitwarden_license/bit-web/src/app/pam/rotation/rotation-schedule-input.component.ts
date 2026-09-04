@@ -9,8 +9,10 @@ import {
   ReactiveFormsModule,
   ValidationErrors,
   Validator,
+  ValidatorFn,
   Validators,
 } from "@angular/forms";
+import { merge, tap } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FormFieldModule, SelectModule } from "@bitwarden/components";
@@ -39,11 +41,42 @@ export const ScheduleIntervalUnit = Object.freeze({
 export type ScheduleIntervalUnit = (typeof ScheduleIntervalUnit)[keyof typeof ScheduleIntervalUnit];
 
 /** Quartz day-of-month is 1-31 and month is 1-12; `1/N` beyond those is rejected. */
-const MAX_DAY_INTERVAL = 31;
-const MAX_MONTH_INTERVAL = 12;
+const MAX_INTERVAL_COUNT: Readonly<Record<ScheduleIntervalUnit, number>> = Object.freeze({
+  [ScheduleIntervalUnit.Days]: 31,
+  [ScheduleIntervalUnit.Months]: 12,
+});
+
+const MAX_HOUR = 23;
+const MAX_MINUTE = 59;
 
 /** `<input type="time">` emits "HH:MM"; seconds are accepted and dropped. */
 const TIME_OF_DAY = /^(\d{1,2}):(\d{2})(?::\d{2})?$/;
+
+function intervalCountValidators(unit: ScheduleIntervalUnit): ValidatorFn[] {
+  return [Validators.required, Validators.min(1), Validators.max(MAX_INTERVAL_COUNT[unit])];
+}
+
+/** A bare or zero-padded cron clock field, or `null` when it is not a number within `max`. */
+function clockField(field: string, max: number): number | null {
+  if (!/^\d{1,2}$/.test(field)) {
+    return null;
+  }
+  const value = Number(field);
+  return value <= max ? value : null;
+}
+
+/** The step `N` a `*` or `1/N` cron field carries, or `null` when it is neither or out of range. */
+function intervalStep(field: string, unit: ScheduleIntervalUnit): number | null {
+  if (field === "*") {
+    return 1;
+  }
+  const match = /^1\/(\d{1,2})$/.exec(field);
+  if (match == null) {
+    return null;
+  }
+  const step = Number(match[1]);
+  return step >= 1 && step <= MAX_INTERVAL_COUNT[unit] ? step : null;
+}
 
 /**
  * CVA sub-editor for a Quartz cron schedule (or null for "no schedule").
@@ -117,17 +150,24 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     QuartzSchedulePreset.None,
   );
   protected readonly customControl = this.fb.nonNullable.control<string>("");
-  protected readonly intervalCountControl = this.fb.nonNullable.control<number | null>(1, [
-    Validators.required,
-    Validators.min(1),
-    Validators.max(MAX_DAY_INTERVAL),
-  ]);
+  protected readonly intervalCountControl = this.fb.nonNullable.control<number | null>(
+    1,
+    intervalCountValidators(ScheduleIntervalUnit.Days),
+  );
   protected readonly intervalUnitControl = this.fb.nonNullable.control<ScheduleIntervalUnit>(
     ScheduleIntervalUnit.Days,
   );
   protected readonly intervalTimeControl = this.fb.nonNullable.control<string>("00:00", [
     Validators.required,
   ]);
+
+  private readonly editorControls: readonly AbstractControl[] = [
+    this.presetControl,
+    this.customControl,
+    this.intervalCountControl,
+    this.intervalUnitControl,
+    this.intervalTimeControl,
+  ];
 
   // ControlValueAccessor wiring — reassigned by Angular.
   // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties
@@ -149,26 +189,21 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
       this.emitValue();
       void this.refreshCronShape(value);
     });
-    this.intervalCountControl.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
-      this.emitValue();
-      this.onValidatorChange();
-    });
-    this.intervalTimeControl.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
-      this.emitValue();
-      this.onValidatorChange();
-    });
-    this.intervalUnitControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((unit) => {
-      this.applyCountBounds(unit);
-      this.emitValue();
-      this.onValidatorChange();
-    });
+    merge(
+      this.intervalCountControl.valueChanges,
+      this.intervalTimeControl.valueChanges,
+      // The new unit's ceiling has to land before the count is validated against it.
+      this.intervalUnitControl.valueChanges.pipe(tap((unit) => this.applyCountBounds(unit))),
+    )
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        this.emitValue();
+        this.onValidatorChange();
+      });
   }
 
-  /** The count field's ceiling for the unit currently selected. */
   protected get intervalCountMax(): number {
-    return this.intervalUnitControl.value === ScheduleIntervalUnit.Months
-      ? MAX_MONTH_INTERVAL
-      : MAX_DAY_INTERVAL;
+    return MAX_INTERVAL_COUNT[this.intervalUnitControl.value];
   }
 
   /**
@@ -262,18 +297,12 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
   }
 
   setDisabledState(isDisabled: boolean): void {
-    if (isDisabled) {
-      this.presetControl.disable({ emitEvent: false });
-      this.customControl.disable({ emitEvent: false });
-      this.intervalCountControl.disable({ emitEvent: false });
-      this.intervalUnitControl.disable({ emitEvent: false });
-      this.intervalTimeControl.disable({ emitEvent: false });
-    } else {
-      this.presetControl.enable({ emitEvent: false });
-      this.customControl.enable({ emitEvent: false });
-      this.intervalCountControl.enable({ emitEvent: false });
-      this.intervalUnitControl.enable({ emitEvent: false });
-      this.intervalTimeControl.enable({ emitEvent: false });
+    for (const control of this.editorControls) {
+      if (isDisabled) {
+        control.disable({ emitEvent: false });
+      } else {
+        control.enable({ emitEvent: false });
+      }
     }
   }
 
@@ -329,14 +358,8 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     return this.cronByPreset.get(preset) ?? null;
   }
 
-  /** Quartz's own ranges: `1/N` is day-of-month 1-31 and month 1-12. */
   private applyCountBounds(unit: ScheduleIntervalUnit): void {
-    const max = unit === ScheduleIntervalUnit.Months ? MAX_MONTH_INTERVAL : MAX_DAY_INTERVAL;
-    this.intervalCountControl.setValidators([
-      Validators.required,
-      Validators.min(1),
-      Validators.max(max),
-    ]);
+    this.intervalCountControl.setValidators(intervalCountValidators(unit));
     this.intervalCountControl.updateValueAndValidity({ emitEvent: false });
   }
 
@@ -349,7 +372,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
   } | null {
     const unit = this.intervalUnitControl.value;
     const count = this.intervalCountControl.value;
-    const max = unit === ScheduleIntervalUnit.Months ? MAX_MONTH_INTERVAL : MAX_DAY_INTERVAL;
+    const max = MAX_INTERVAL_COUNT[unit];
     if (count == null || !Number.isInteger(count) || count < 1 || count > max) {
       return null;
     }
@@ -357,9 +380,9 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     if (match == null) {
       return null;
     }
-    const hh = Number(match[1]);
-    const mm = Number(match[2]);
-    if (hh > 23 || mm > 59) {
+    const hh = clockField(match[1], MAX_HOUR);
+    const mm = clockField(match[2], MAX_MINUTE);
+    if (hh == null || mm == null) {
       return null;
     }
     return { count, unit, hh, mm };
@@ -401,35 +424,24 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     if (second !== "0" || dow !== "?") {
       return null;
     }
-    if (!/^\d{1,2}$/.test(minute) || !/^\d{1,2}$/.test(hour)) {
-      return null;
-    }
-    const mm = Number(minute);
-    const hh = Number(hour);
-    if (mm > 59 || hh > 23) {
+    const hh = clockField(hour, MAX_HOUR);
+    const mm = clockField(minute, MAX_MINUTE);
+    if (hh == null || mm == null) {
       return null;
     }
     const time = `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
-    const stepOf = (field: string, max: number): number | null => {
-      if (field === "*") {
-        return 1;
-      }
-      const match = /^1\/(\d{1,2})$/.exec(field);
-      const step = match == null ? null : Number(match[1]);
-      return step != null && step >= 1 && step <= max ? step : null;
-    };
 
     if (month === "*") {
       if (dom === "1") {
         return { count: 1, unit: ScheduleIntervalUnit.Months, time };
       }
-      const count = stepOf(dom, MAX_DAY_INTERVAL);
+      const count = intervalStep(dom, ScheduleIntervalUnit.Days);
       return count == null ? null : { count, unit: ScheduleIntervalUnit.Days, time };
     }
     if (dom !== "1") {
       return null;
     }
-    const count = stepOf(month, MAX_MONTH_INTERVAL);
+    const count = intervalStep(month, ScheduleIntervalUnit.Months);
     return count == null || count === 1 ? null : { count, unit: ScheduleIntervalUnit.Months, time };
   }
 }
