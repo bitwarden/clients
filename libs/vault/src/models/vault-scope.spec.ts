@@ -523,6 +523,14 @@ describe("organizationNameForScope", () => {
   it("names the account's one organization for All items, when it has no personal vault", () => {
     expect(organizationNameForScope(ALL_ITEMS_SCOPE, dataOwnershipNav)).toBe(organizationId);
   });
+
+  // Same single-vault case, but for a Free/Families-tier org rather than a paid one — the nav
+  // still holds exactly one non-personal vault, so it names it the same way.
+  it("names the account's one organization for All items, when that vault is a Family vault", () => {
+    const nav = buildNav([buildNavItem(organizationId, VaultNavItemType.Family)], true);
+
+    expect(organizationNameForScope(ALL_ITEMS_SCOPE, nav)).toBe(organizationId);
+  });
 });
 
 describe("sharedFolderNameForScope", () => {

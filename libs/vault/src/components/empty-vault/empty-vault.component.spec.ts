@@ -72,6 +72,27 @@ describe("EmptyVaultComponent", () => {
     });
   });
 
+  describe("all items, single organization vault (data ownership policy)", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput("scope", {
+        type: VaultScopeType.AllItems,
+      } satisfies VaultScope);
+      fixture.componentRef.setInput("organizationName", "Acme Corp");
+      fixture.detectChanges();
+    });
+
+    it("shows the organization vault title when the account's one vault is an organization's", () => {
+      expect(fixture.nativeElement.textContent).toContain("noItemsInOrganizationVault Acme Corp");
+    });
+
+    it("renders nothing when no organization name resolved", () => {
+      fixture.componentRef.setInput("organizationName", undefined);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent.trim()).toBe("");
+    });
+  });
+
   describe("an organization vault", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("scope", {

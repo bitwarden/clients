@@ -305,7 +305,7 @@ export function organizationNameForScope(
   }
 
   const hasOnlyOneOrgVault =
-    nav.vaults.length === 1 && nav.vaults[0].type === VaultNavItemType.Organization;
+    nav.vaults.length === 1 && nav.vaults[0].type !== VaultNavItemType.Personal;
 
   return hasOnlyOneOrgVault ? nav.vaults[0].label : undefined;
 }

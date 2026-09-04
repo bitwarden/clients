@@ -145,7 +145,10 @@ export class EmptyVaultComponent {
       case VaultScopeType.Organization:
         return this.resolveOrgEmptyState(scope);
       case VaultScopeType.AllItems:
-        return this.hasMultipleVaults() ? EMPTY_VAULT_STATE.emptyMultipleVaults : null;
+        if (this.hasMultipleVaults()) {
+          return EMPTY_VAULT_STATE.emptyMultipleVaults;
+        }
+        return this.organizationName() ? EMPTY_VAULT_STATE.emptyOrgVault : null;
     }
   });
 
