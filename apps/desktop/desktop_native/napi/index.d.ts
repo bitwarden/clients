@@ -322,6 +322,47 @@ export declare namespace clipboards {
   export function write(text: string, password: boolean): Promise<void>
 }
 
+export declare namespace credential_agent {
+  /** Wrapper for Electron to interface with the agent directly. */
+  export class CredentialAgentState {
+    /**
+     * Creates the agent and starts its listener.
+     *
+     * # Arguments
+     *
+     * * `request_callback` - Resolves a credential request, including user approval.
+     */
+    static serve(requestCallback: ((err: Error | null, arg: CredentialRequest) => Promise<CredentialResponse>)): Promise<CredentialAgentState>
+    stop(): void
+    isRunning(): boolean
+  }
+  export interface Credential {
+    cipherId: string
+    name: string
+    username?: string
+    password?: string
+    totp?: string
+  }
+  /** A credential request handed to Electron. */
+  export interface CredentialRequest {
+    uri?: string
+    name?: string
+    /** The process that opened the connection, when it could be resolved. */
+    processName?: string
+    processId?: number
+  }
+  /** Electron's answer. `credential` is set only when `status` is `granted`. */
+  export interface CredentialResponse {
+    status: CredentialStatus
+    credential?: Credential
+  }
+  export const enum CredentialStatus {
+    Granted = 'granted',
+    Denied = 'denied',
+    NotFound = 'notFound'
+  }
+}
+
 export declare namespace ipc {
   export class NativeIpcServer {
     /**
