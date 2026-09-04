@@ -1,6 +1,6 @@
 <app-header [title]="title()" [icon]="icon()">
   @if (showBreadcrumbs()) {
-    <bit-breadcrumbs slot="breadcrumbs" showTrailingArrow>
+    <bit-breadcrumbs slot="breadcrumbs">
       <bit-breadcrumb
         [route]="[]"
         [queryParams]="{ organizationId: organization().id, collectionId: null }"
@@ -23,6 +23,15 @@
           </bit-breadcrumb>
         }
       </ng-container>
+      @if (collection(); as col) {
+        <bit-breadcrumb
+          [icon]="'bwi-collection-shared' | vfo1Icon"
+          [route]="[]"
+          queryParamsHandling="preserve"
+        >
+          {{ col.node.name }}
+        </bit-breadcrumb>
+      }
     </bit-breadcrumbs>
   }
 

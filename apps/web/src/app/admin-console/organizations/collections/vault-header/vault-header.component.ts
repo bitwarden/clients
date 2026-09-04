@@ -131,7 +131,10 @@ export class VaultHeaderComponent {
   );
 
   protected readonly showBreadcrumbs = computed(
-    () => this.filter().collectionId !== undefined && this.filter().collectionId !== All,
+    () =>
+      this.vfo1TerminologyService.enabled() &&
+      this.filter().collectionId !== undefined &&
+      this.filter().collectionId !== All,
   );
 
   /**
