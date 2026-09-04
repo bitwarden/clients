@@ -40,6 +40,13 @@ describe("BitTableToolbarComponent", () => {
       "#bit-table-toolbar_button_clear-all",
     ) as HTMLButtonElement | null;
 
+  // The button stays in the DOM so the overflow list's item set never changes; `tw-hidden`
+  // is what hides it. Assert on visibility rather than presence.
+  const clearAllVisible = () => {
+    const button = clearAllButton();
+    return button != null && !button.classList.contains("tw-hidden");
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [HostComponent],
@@ -64,15 +71,15 @@ describe("BitTableToolbarComponent", () => {
     fixture.detectChanges();
   });
 
-  it("does not render the clear-all button when no filter is active", () => {
-    expect(clearAllButton()).toBeNull();
+  it("hides the clear-all button when no filter is active", () => {
+    expect(clearAllVisible()).toBe(false);
   });
 
-  it("renders the clear-all button once a filter becomes active", () => {
+  it("shows the clear-all button once a filter becomes active", () => {
     host.toggle().flip();
     fixture.detectChanges();
 
-    expect(clearAllButton()).not.toBeNull();
+    expect(clearAllVisible()).toBe(true);
   });
 
   it("clears active filter chips but leaves the search term untouched", () => {
@@ -88,6 +95,6 @@ describe("BitTableToolbarComponent", () => {
 
     expect(host.toggle().active()).toBe(false);
     expect(host.search().value()).toBe("vault");
-    expect(clearAllButton()).toBeNull();
+    expect(clearAllVisible()).toBe(false);
   });
 });
