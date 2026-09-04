@@ -2,7 +2,7 @@ import { EnvironmentProviders, Provider } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, provideRouter, Router } from "@angular/router";
-import { of, throwError } from "rxjs";
+import { of, Subject, throwError } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -11,6 +11,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
 
 import { ACCESS_RULE_DESCRIPTION_MAX_LENGTH, AccessRuleSdkService, AccessRuleView } from "../..";
+import { GovernedCollectionsService } from "../../services/governed-collections.service";
 
 import { AccessRuleEditComponent } from "./access-rule-edit.component";
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
@@ -74,6 +75,7 @@ const providersWith = (...overrides: Provider[]): (Provider | EnvironmentProvide
   { provide: I18nService, useValue: i18nFake },
   { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
   { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
+  { provide: GovernedCollectionsService, useValue: { rules$: () => of([]) } },
   { provide: CidrValidationService, useValue: cidrValidationStub },
   { provide: OrganizationService, useValue: organizationServiceStub() },
   { provide: DialogService, useValue: declinedDialogStub },
@@ -643,6 +645,131 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
   });
 });
 
+describe("AccessRuleEditComponent — governed collections filter", () => {
+  let component: AccessRuleEditComponent;
+
+  const ORG_COLLECTIONS = [
+    { id: "col-1", name: "Engineering" },
+    { id: "col-2", name: "Design" },
+    { id: "col-3", name: "Finance" },
+  ];
+
+  const otherRule = (
+    collections: string[],
+    overrides: Record<string, unknown> = {},
+  ): AccessRuleView =>
+    ({
+      id: "22222222-2222-2222-2222-222222222222",
+      name: "Other rule",
+      enabled: true,
+      conditions: [],
+      singleActiveLease: false,
+      collections,
+      ...overrides,
+    }) as unknown as AccessRuleView;
+
+  const setup = async (
+    state: RouteState,
+    existing: AccessRuleView | undefined,
+    rules: AccessRuleView[] | Subject<AccessRuleView[]>,
+  ) => {
+    TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
+    TestBed.configureTestingModule({
+      imports: [AccessRuleEditComponent, ReactiveFormsModule],
+      providers: providersWith(
+        { provide: ActivatedRoute, useValue: routeStub(state) },
+        {
+          provide: AccessRuleSdkService,
+          useValue: {
+            getAccessRule: jest.fn().mockResolvedValue(existing),
+            listBypassGaps: jest.fn().mockResolvedValue([]),
+          },
+        },
+        {
+          provide: CollectionAdminService,
+          useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
+        },
+        {
+          provide: GovernedCollectionsService,
+          useValue: { rules$: () => (rules instanceof Subject ? rules : of(rules)) },
+        },
+      ),
+    });
+
+    const fixture = TestBed.createComponent(AccessRuleEditComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  };
+
+  const options = () => component["collectionOptions"]().map((o: SelectItemView) => o.id);
+  const controls = () => component["formGroup"].controls;
+
+  it("excludes a collection governed by a different rule", async () => {
+    await setup({}, undefined, [otherRule(["col-1"])]);
+
+    expect(options()).toEqual(["col-2", "col-3"]);
+  });
+
+  it("excludes a collection governed by a disabled different rule too", async () => {
+    // AccessRuleWriteValidator.ValidateCollectionsAsync keys off Collection.AccessRuleId, not
+    // the owning rule's `enabled` flag — a disabled rule still blocks the collection server-side.
+    await setup({}, undefined, [otherRule(["col-1"], { enabled: false })]);
+
+    expect(options()).toEqual(["col-2", "col-3"]);
+  });
+
+  it("never excludes the rule's own collections when editing it, even though it is itself a governing rule", async () => {
+    const ruleId = "11111111-1111-1111-1111-111111111111";
+    const existingRule = {
+      id: ruleId,
+      name: "Rule under edit",
+      collections: ["col-1", "col-3"],
+      conditions: [],
+    } as unknown as AccessRuleView;
+
+    await setup({ params: { accessRuleId: ruleId } }, existingRule, [
+      existingRule,
+      otherRule(["col-2"]),
+    ]);
+
+    expect(options()).toEqual(["col-1", "col-3"]);
+    expect(controls().collections.value.map((c: SelectItemView) => c.id)).toEqual([
+      "col-1",
+      "col-3",
+    ]);
+  });
+
+  it("keeps a collection in the options once selected, even if a later refresh reports it governed elsewhere", async () => {
+    const rules$ = new Subject<AccessRuleView[]>();
+    await setup({}, undefined, rules$);
+
+    controls().collections.setValue([
+      {
+        id: "col-1",
+        listName: "Engineering",
+        labelName: "Engineering",
+        icon: "bwi-collection-shared",
+      },
+    ] satisfies SelectItemView[]);
+
+    // Another admin claims col-1 for a new rule between this read and this rule's save.
+    rules$.next([otherRule(["col-1"])]);
+
+    expect(options()).toEqual(expect.arrayContaining(["col-1"]));
+  });
+
+  it("keeps collectionsLoading true until the governed-rules read settles, even after collections have loaded", async () => {
+    const rules$ = new Subject<AccessRuleView[]>();
+    await setup({}, undefined, rules$);
+
+    expect(component["collectionsLoading"]()).toBe(true);
+
+    rules$.next([]);
+
+    expect(component["collectionsLoading"]()).toBe(false);
+  });
+});
+
 describe("AccessRuleEditComponent — form states", () => {
   let fixture: ComponentFixture<AccessRuleEditComponent>;
   let component: AccessRuleEditComponent;
@@ -686,6 +813,7 @@ describe("AccessRuleEditComponent — form states", () => {
           provide: CollectionAdminService,
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
+        { provide: GovernedCollectionsService, useValue: { rules$: () => of([]) } },
         { provide: CidrValidationService, useValue: cidrValidationStub },
         { provide: OrganizationService, useValue: organizationServiceStub() },
         { provide: DialogService, useValue: dialog },

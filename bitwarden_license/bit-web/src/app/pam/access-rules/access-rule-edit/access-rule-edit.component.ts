@@ -12,7 +12,7 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, CanDeactivateFn, Router, RouterLink } from "@angular/router";
-import { firstValueFrom, map, switchMap } from "rxjs";
+import { firstValueFrom, map, switchMap, tap } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -71,6 +71,7 @@ import {
   NO_DURATION_CAP,
   snapToNearestAccessRuleDuration,
 } from "../..";
+import { GovernedCollectionsService } from "../../services/governed-collections.service";
 import { ACCESS_RULE_TEMPLATES } from "../access-rule-templates";
 
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
@@ -131,6 +132,7 @@ export class AccessRuleEditComponent {
   private readonly i18nService = inject(I18nService);
   private readonly accountService = inject(AccountService);
   private readonly collectionAdminService = inject(CollectionAdminService);
+  private readonly governedCollections = inject(GovernedCollectionsService);
   private readonly organizationService = inject(OrganizationService);
   private readonly cidrValidation = inject(CidrValidationService);
   private readonly dialogService = inject(DialogService);
@@ -247,16 +249,61 @@ export class AccessRuleEditComponent {
   private readonly unknownConditions = signal<AccessCondition[]>([]);
 
   private readonly allCollections = signal<{ id: string; name: string }[]>([]);
-  protected readonly collectionsLoading = signal(true);
+  private readonly allCollectionsLoading = signal(true);
+  private readonly governedCollectionsLoading = signal(true);
 
-  protected readonly collectionOptions = computed<SelectItemView[]>(() =>
-    this.allCollections().map((c) => ({
-      id: c.id,
-      listName: c.name,
-      labelName: c.name,
-      icon: "bwi-collection-shared",
-    })),
+  /** Gates the collections control while either the org's collections or the governed-ids read is still in flight. */
+  protected readonly collectionsLoading = computed(
+    () => this.allCollectionsLoading() || this.governedCollectionsLoading(),
   );
+
+  /**
+   * Ids of collections a DIFFERENT access rule already claims, so the picker never offers a
+   * choice the server would reject with `CollectionsGoverned`
+   * (`helpers/access-rule-error.ts`). Mirrors the server's own check —
+   * `AccessRuleWriteValidator.ValidateCollectionsAsync` in the server repo rejects on
+   * `Collection.AccessRuleId` regardless of the owning rule's `enabled` flag, so a disabled
+   * rule's collections are excluded here too. This is a different question from
+   * `rulesGoverningCollection`'s enabled-only filter for the collection callout, which answers
+   * what is enforced today rather than what the server will reject. This rule's own collections
+   * are never excluded, matching the server's `existingRuleId` exemption.
+   *
+   * `GovernedCollectionsService.rules$` resolves to `[]` on a failed read, so this falls back to
+   * excluding nothing: the picker degrades to its pre-milestone behaviour and the server's
+   * `CollectionsGoverned` rejection remains the backstop.
+   */
+  private readonly governedCollectionIds = toSignal(
+    this.governedCollections.rules$(this.organizationId).pipe(
+      map(
+        (rules) =>
+          new Set(
+            rules
+              .filter((rule) => rule.id !== this.accessRuleId)
+              .flatMap((rule) => rule.collections.map((id) => uuidAsString(id))),
+          ),
+      ),
+      tap(() => this.governedCollectionsLoading.set(false)),
+    ),
+    { initialValue: new Set<string>() },
+  );
+
+  /**
+   * Never excludes a collection the form's `collections` control already holds: dropping one
+   * here would silently remove it from the rule on the next save rather than merely hiding it
+   * from new selection.
+   */
+  protected readonly collectionOptions = computed<SelectItemView[]>(() => {
+    const governed = this.governedCollectionIds();
+    const selectedIds = new Set(this.formGroup.controls.collections.value.map((c) => c.id));
+    return this.allCollections()
+      .filter((c) => selectedIds.has(c.id) || !governed.has(c.id))
+      .map((c) => ({
+        id: c.id,
+        listName: c.name,
+        labelName: c.name,
+        icon: "bwi-collection-shared",
+      }));
+  });
 
   constructor() {
     // `bit-callout` is not a live region and the callout renders above three sections of form
@@ -376,7 +423,7 @@ export class AccessRuleEditComponent {
         message: this.i18nService.t("pamAccessRuleCollectionsLoadError"),
       });
     } finally {
-      this.collectionsLoading.set(false);
+      this.allCollectionsLoading.set(false);
     }
   }
 
