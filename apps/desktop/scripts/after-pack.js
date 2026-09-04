@@ -19,7 +19,6 @@ async function run(context) {
     console.log(`::group::After Pack (${builder.Arch[context.arch]})`);
   }
   console.log("## After pack");
-  console.log("## After pack, started at", new Date().toISOString());
   // console.log(context);
 
   const isMacOsBuild = ["darwin", "mas"].includes(context.electronPlatformName);
@@ -58,28 +57,12 @@ async function run(context) {
     console.log("Copied memory-protection wrapper script");
   }
 
-  // The autofill extension is copied in here, before electron-builder signs the app, so that
-  // the app's own signature seals it. Copying it in after signing leaves the outer bundle
-  // invalid ("a sealed resource is missing or invalid") and notarization rejects it unless the
-  // whole package is signed a second time. electron-builder never signs anything under
-  // Contents/PlugIns, so the extension keeps the signature and entitlements Xcode gave it.
-  const isMasDevBuild =
-    context.electronPlatformName === "mas" && context.targets.at(0)?.name === "mas-dev";
-  if (context.electronPlatformName === "darwin" || isMasDevBuild) {
-    console.log("### Copying autofill extension");
-    // cannot use extraFiles because it modifies the extension's .plist and makes it invalid
-    const extensionPath = path.join(__dirname, "../macos/dist/autofill-extension.appex");
-    if (!fse.existsSync(extensionPath)) {
-      console.log("### Autofill extension not found - skipping");
-    } else {
-      const appName = context.packager.appInfo.productFilename;
-      const plugInsPath = path.join(context.appOutDir, `${appName}.app`, "Contents/PlugIns");
-      fse.mkdirSync(plugInsPath, { recursive: true });
-      fse.copySync(extensionPath, path.join(plugInsPath, "autofill-extension.appex"));
+  if (isMacOsBuild) {
+    if (isTargetArch) {
+      console.log("[macOS] Copying extensions...");
+      copyMacOsAutofillExtension(context);
+      copySafariExtension(context);
     }
-  }
-
-  if (["darwin", "mas"].includes(context.electronPlatformName)) {
     const is_mas = context.electronPlatformName === "mas";
 
     let id;
@@ -144,7 +127,7 @@ async function run(context) {
     }
   }
 
-  console.log("### After pack ended at", new Date().toISOString());
+  console.log("### After pack ended");
   if (IS_GITHUB_ACTIONS) {
     console.log("::endgroup::");
   }
@@ -237,4 +220,62 @@ async function addElectronFuses(context) {
     // Enables V8 signal handlers to trap Out of Bounds memory access from WebAssembly
     [FuseV1Options.WasmTrapHandlers]: true,
   });
+}
+
+function copyMacOsAutofillExtension(context) {
+  // Currently because the provisioning profiles in the portal do not have the
+  // correct entitlements, we leave out the autofill extension except for local
+  // dev builds.
+  const isMasDevBuild =
+    context.electronPlatformName === "mas" && context.targets.at(0)?.name === "mas-dev";
+  if (!isMasDevBuild) {
+    console.log("### Autofill extension: needs Apple Developer Portal changes. Skipping.");
+    return;
+  }
+
+  const extensionPath = path.join(__dirname, "../macos/dist/autofill-extension.appex");
+  copyMacOsPlugin(context, "Autofill extension", extensionPath);
+}
+
+function copySafariExtension(context) {
+  const plugIn = path.join(__dirname, "../PlugIns", "safari.appex");
+  copyMacOsPlugin(context, "Safari Extension", plugIn);
+}
+
+function copyMacOsPlugin(context, targetName, extensionPath) {
+  // Pre-signed macOS extensions are copied here in after-pack.js, before electron-builder signs the app, so that
+  // the app's own signature seals it.
+  //
+  // Copying it in after signing leaves the outer bundle invalid ("a sealed
+  // resource is missing or invalid") and notarization rejects it unless the
+  // whole package is signed a second time. electron-builder never signs
+  // anything under Contents/PlugIns, so the extension keeps the signature and
+  // entitlements XCode gave it.
+  //
+  // We cannot use extraFiles because it modifies the extension's .plist and makes it invalid. Cf.
+  // https://github.com/electron-userland/electron-builder/issues/5552.
+
+  if (!["darwin", "mas"].includes(context.electronPlatformName)) {
+    // not a macOS build, skipping.
+    console.log(`### ${targetName}: Not macOS build. Skipping.`);
+    return;
+  }
+
+  if (!fse.existsSync(extensionPath)) {
+    console.log(`### ${targetName}: ${extensionPath} not found - skipping`);
+    return;
+  }
+
+  console.log(`### ${targetName}: Copying plugin...`);
+
+  // Make PlugIns directory.
+  const appName = context.packager.appInfo.productFilename;
+  const plugInsPath = path.join(context.appOutDir, `${appName}.app`, "Contents/PlugIns");
+  fse.mkdirSync(plugInsPath, { recursive: true });
+
+  // Copy extension
+  const name = path.basename(extensionPath);
+  const output = path.join(plugInsPath, name);
+  fse.copySync(extensionPath, output);
+  console.log(`### ${targetName}: Copied ${extensionPath} to ${output}.`);
 }
