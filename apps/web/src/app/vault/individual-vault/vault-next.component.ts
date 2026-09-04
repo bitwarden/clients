@@ -212,7 +212,7 @@ export class VaultNextComponent {
   );
 
   protected readonly organizations = toSignal(
-    this.userId$.pipe(switchMap((userId) => this.organizationService.organizations$(userId))),
+    this.userId$.pipe(switchMap((userId) => this.organizationService.memberOrganizations$(userId))),
     { initialValue: [] },
   );
 
