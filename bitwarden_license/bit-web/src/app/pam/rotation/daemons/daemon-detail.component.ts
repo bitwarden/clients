@@ -1,5 +1,13 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 
@@ -95,6 +103,17 @@ export class DaemonDetailComponent {
   protected readonly loading = signal(true);
   protected readonly daemon = signal<AccessConnectorDetail | null>(null);
 
+  /**
+   * Removing an assignment destroys the button that was clicked, which drops focus to the document
+   * body; focus moves here instead, the one assignment control that always survives the re-render.
+   */
+  private readonly assignButton = viewChild<unknown, ElementRef<HTMLButtonElement>>(
+    "assignButton",
+    {
+      read: ElementRef,
+    },
+  );
+
   private readonly systemById = toSignal(this.targetSystemsService.systemById$, {
     initialValue: new Map(),
   });
@@ -105,8 +124,9 @@ export class DaemonDetailComponent {
   );
 
   /**
-   * Holds every remove button, not just the clicked one: each removal patches the assignment list
-   * it captured when it started, so two in flight at once would resurrect each other's target.
+   * Holds every remove button, not just the clicked one: `bitIconButton` aria-disables rather than
+   * natively disabling, so without this a second click stacks a second confirmation dialog over the
+   * first and can dispatch two removals.
    */
   protected readonly unassigning = signal(false);
 
@@ -208,7 +228,7 @@ export class DaemonDetailComponent {
   /** Assign an active automatic target system to this daemon. */
   protected readonly assignTarget = async (): Promise<void> => {
     const connector = this.connector();
-    if (connector == null) {
+    if (connector == null || !this.enabled()) {
       return;
     }
     const assigned = new Set(connector.assignedTargetSystemIds);
@@ -224,7 +244,7 @@ export class DaemonDetailComponent {
     const targetSystemId = asUuid<TargetSystemId>(selected);
     try {
       await this.rotationSdk.assignTarget(this.organizationId, connector.id, targetSystemId);
-      this.patchAssignments([...connector.assignedTargetSystemIds, targetSystemId]);
+      this.patchAssignments((ids) => [...ids, targetSystemId]);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamDaemonAssigned"),
@@ -253,7 +273,8 @@ export class DaemonDetailComponent {
         return;
       }
       await this.rotationSdk.unassignTarget(this.organizationId, connector.id, assignment.id);
-      this.patchAssignments(connector.assignedTargetSystemIds.filter((id) => id !== assignment.id));
+      this.patchAssignments((ids) => ids.filter((id) => id !== assignment.id));
+      this.assignButton()?.nativeElement.focus();
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamDaemonUnassigned"),
@@ -306,15 +327,22 @@ export class DaemonDetailComponent {
     this.daemon.set({ ...daemon, connector: { ...daemon.connector, status } });
   }
 
-  /** Patch the loaded daemon's assignments locally (new reference for OnPush; jobs + fields carried over). */
-  private patchAssignments(assignedTargetSystemIds: TargetSystemId[]): void {
+  /**
+   * Patch the loaded daemon's assignments locally (new reference for OnPush; jobs + fields carried
+   * over). The updater runs against the list as it stands when the call resolves, so an assign and
+   * a removal that overlap do not write each other's pre-request list back.
+   */
+  private patchAssignments(update: (ids: TargetSystemId[]) => TargetSystemId[]): void {
     const daemon = this.daemon();
     if (daemon == null) {
       return;
     }
     this.daemon.set({
       ...daemon,
-      connector: { ...daemon.connector, assignedTargetSystemIds },
+      connector: {
+        ...daemon.connector,
+        assignedTargetSystemIds: update(daemon.connector.assignedTargetSystemIds),
+      },
     });
   }
 

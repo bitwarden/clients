@@ -80,6 +80,7 @@
               [disabled]="!enabled()"
               [bitTooltip]="enabled() ? '' : ('pamDaemonDetailAssignDisabledTooltip' | i18n)"
               id="daemon-detail_button_assign"
+              #assignButton
             >
               {{ "pamDaemonAssignTarget" | i18n }}
             </button>
