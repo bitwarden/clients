@@ -86,6 +86,7 @@ describe("VaultPopupListTableComponent", () => {
   const searchText$ = new BehaviorSubject<string>("");
   const hasSearchText$ = new BehaviorSubject<boolean>(false);
   const showDeactivatedOrg$ = new BehaviorSubject<boolean>(false);
+  const emptyVault$ = new BehaviorSubject<boolean>(false);
   const liveAnnouncer = mock<LiveAnnouncer>();
   const clickItemsToAutofillVaultView$ = new BehaviorSubject<boolean>(true);
 
@@ -111,6 +112,7 @@ describe("VaultPopupListTableComponent", () => {
     searchText$: searchText$.asObservable(),
     hasSearchText$: hasSearchText$.asObservable(),
     showDeactivatedOrg$: showDeactivatedOrg$.asObservable(),
+    emptyVault$: emptyVault$.asObservable(),
     applyFilter: jest.fn(),
   };
 
@@ -291,30 +293,60 @@ describe("VaultPopupListTableComponent", () => {
   });
 
   /**
-   * Rows are filtered upstream, so the table's own `noMatches()` heuristic can't tell a zero-result
-   * search from an empty vault — both leave it with zero rows. The empty state is projected for
-   * that reason, so these assert the rendered copy.
+   * Rows are filtered upstream, so the table's own row count can't tell a zero-result search from
+   * an empty vault — both leave it with zero rows. `EmptyVaultComponent`, projected into the
+   * table's empty slot, resolves the right copy from `hasItems`/`filterValues`/scope inputs instead.
    */
   describe("empty state", () => {
-    it("shows the search-specific copy and recovery hint when a search matches nothing", () => {
+    /** `bit-search`'s CVA `writeValue` — the real trigger `bit-table-v2` reads `filterValues().search` off. */
+    const setSearchText = (text: string) => {
+      const search = fixture.debugElement.query(By.css("bit-search")).componentInstance as {
+        writeValue: (value: string) => void;
+      };
+      search.writeValue(text);
+    };
+
+    it("shows the search-specific copy with a working clear-search action when a search matches nothing", () => {
+      emptyVault$.next(false);
       hasSearchText$.next(true);
       filteredCiphers$.next([]);
       fixture.detectChanges();
+      setSearchText("no-match");
+      fixture.detectChanges();
 
       const text = fixture.nativeElement.textContent;
-      expect(text).toContain("noItemsMatchSearch");
-      expect(text).toContain("clearFiltersOrTryAnother");
+      expect(text).toContain("noItemsMatchSearchTerm");
+      expect(text).toContain("clearSearch");
+      expect(text).not.toContain("noItemsInVaults");
     });
 
-    it("shows the generic copy with no recovery hint when there is simply nothing to show", () => {
+    it("clicking clear-search clears the search box", () => {
+      emptyVault$.next(false);
+      hasSearchText$.next(true);
+      filteredCiphers$.next([]);
+      fixture.detectChanges();
+      setSearchText("no-match");
+      fixture.detectChanges();
+
+      const clearButton = fixture.debugElement
+        .queryAll(By.css("button"))
+        .find((el) => el.nativeElement.textContent.includes("clearSearch"));
+      clearButton!.nativeElement.click();
+
+      expect(component["searchText"]).toBe("");
+    });
+
+    it("shows the multiple-vaults copy with an import CTA when the account is genuinely empty", () => {
+      emptyVault$.next(true);
       hasSearchText$.next(false);
       filteredCiphers$.next([]);
       fixture.detectChanges();
 
       const text = fixture.nativeElement.textContent;
-      expect(text).toContain("nothingToShow");
-      expect(text).not.toContain("noItemsMatchSearch");
-      expect(text).not.toContain("clearFiltersOrTryAnother");
+      expect(text).toContain("noItemsInVaults");
+      expect(text).toContain("emptyVaultsDescription");
+      expect(text).toContain("importItems");
+      expect(text).not.toContain("noItemsMatchSearchTerm");
     });
 
     describe("deactivated organization", () => {
@@ -593,6 +625,35 @@ describe("VaultPopupListTableComponent", () => {
 
         expect(fixture.debugElement.queryAll(By.directive(FilterSectionComponent))).toHaveLength(2);
       });
+    });
+  });
+
+  describe("clearFilters", () => {
+    const makeControl = (key: string) => ({ key: () => key, setValue: jest.fn() });
+
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    it("calls setValue(undefined) on every non-search filter control", () => {
+      const cipherType = makeControl("cipherType");
+      const organization = makeControl("organization");
+      (component as any).tableEl = () => ({ filterControls: () => [cipherType, organization] });
+
+      component.clearFilters();
+
+      expect(cipherType.setValue).toHaveBeenCalledWith(undefined);
+      expect(organization.setValue).toHaveBeenCalledWith(undefined);
+    });
+
+    it("does not call setValue on the search filter control", () => {
+      const search = makeControl("search");
+      const cipherType = makeControl("cipherType");
+      (component as any).tableEl = () => ({ filterControls: () => [search, cipherType] });
+
+      component.clearFilters();
+
+      expect(search.setValue).not.toHaveBeenCalled();
     });
   });
 
