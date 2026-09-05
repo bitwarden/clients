@@ -25,14 +25,13 @@ import {
   AddItemDialogResult,
   CipherRowMenuHandlers,
   CipherRowMenuService,
+  copyPresentation$,
   DEFAULT_COPY_PRESENTATION,
   DefaultCipherFormConfigService,
   NewCipherMenuComponent,
   SharedFolderCardGridComponent,
-  VaultCopyButtonsService,
   VaultCollectionBreadcrumbsComponent,
   VaultItemsTableComponent,
-  VaultItemsTableCopyPresentation,
   VaultItemsTableRowAction,
   VaultNavService,
   VaultOrganizationUserNotificationsComponent,
@@ -98,7 +97,6 @@ export class VaultNextComponent {
   private readonly cipherRowMenuService = inject(CipherRowMenuService);
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
-  private readonly copyButtonsService = inject(VaultCopyButtonsService);
   private readonly dialogService = inject(DialogService);
   private readonly folderService = inject(FolderService);
   private readonly itemActions = inject(WebVaultItemActionsService);
@@ -307,14 +305,9 @@ export class VaultNextComponent {
     }
   });
 
-  protected readonly copyPresentation = toSignal(
-    this.copyButtonsService.showQuickCopyActions$.pipe(
-      map((showQuickCopyActions): VaultItemsTableCopyPresentation =>
-        showQuickCopyActions ? "expanded" : "collapsed",
-      ),
-    ),
-    { initialValue: DEFAULT_COPY_PRESENTATION },
-  );
+  protected readonly copyPresentation = toSignal(copyPresentation$(), {
+    initialValue: DEFAULT_COPY_PRESENTATION,
+  });
 
   private readonly rowMenuHandlers = computed<CipherRowMenuHandlers<CipherViewLike>>(() => ({
     edit: (item) => this.itemActions.edit(item),
