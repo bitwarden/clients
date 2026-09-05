@@ -3,10 +3,13 @@ import {
   asHostPlatform,
   asNodeArch,
   binaryFileName,
+  builtLibraryName,
+  libraryFileName,
   buildEnv,
   crossCompilationPlan,
+  cargoBuildCommand,
+  cargoTargetArg,
   rustTargetsFor,
-  usesXwin,
 } from "./rust-targets.mts";
 
 describe("rustTargetsFor", () => {
@@ -57,6 +60,32 @@ describe("binaryFileName", () => {
   });
 });
 
+describe("library naming", () => {
+  it("keeps the name cargo emits separate from the staged one", () => {
+    expect(builtLibraryName("process_isolation", "x86_64-unknown-linux-gnu")).toBe(
+      "libprocess_isolation.so",
+    );
+    expect(libraryFileName("process_isolation", "x86_64-unknown-linux-gnu")).toBe(
+      "libprocess_isolation.linux-x64.so",
+    );
+  });
+
+  it("distinguishes architectures that share a staging directory", () => {
+    expect(libraryFileName("process_isolation", "aarch64-unknown-linux-gnu")).toBe(
+      "libprocess_isolation.linux-arm64.so",
+    );
+  });
+
+  it("uses each platform's own library convention", () => {
+    expect(builtLibraryName("process_isolation", "aarch64-apple-darwin")).toBe(
+      "libprocess_isolation.dylib",
+    );
+    expect(builtLibraryName("process_isolation", "x86_64-pc-windows-msvc")).toBe(
+      "process_isolation.dll",
+    );
+  });
+});
+
 describe("crossCompilationPlan", () => {
   it("needs nothing beyond the rust targets when building for the host platform", () => {
     const plan = crossCompilationPlan("darwin", ["x86_64-apple-darwin", "aarch64-apple-darwin"]);
@@ -90,11 +119,15 @@ describe("crossCompilationPlan", () => {
     expect(plan.tools.map((tool) => tool.tool)).toEqual(["cargo-xwin", "clang"]);
   });
 
-  it("refuses to plan a Linux build from another platform, for now", () => {
+  it("requires cargo-zigbuild and zig to build for Linux elsewhere", () => {
     const plan = crossCompilationPlan("darwin", ["x86_64-unknown-linux-gnu"]);
 
-    expect(plan.unsupported).toEqual([expect.stringContaining("Linux is not supported yet")]);
-    expect(plan.tools).toEqual([]);
+    expect(plan.tools.map((tool) => tool.tool)).toEqual(["cargo-zigbuild", "zig"]);
+    expect(plan.unsupported).toEqual([]);
+  });
+
+  it("requires nothing extra to build for Linux on Linux", () => {
+    expect(crossCompilationPlan("linux", ["x86_64-unknown-linux-gnu"]).tools).toEqual([]);
   });
 
   it("refuses to plan a macOS build from another platform", () => {
@@ -140,11 +173,40 @@ describe("buildEnv", () => {
   });
 });
 
-describe("usesXwin", () => {
-  it("is true only for Windows targets built off Windows", () => {
-    expect(usesXwin("darwin", "x86_64-pc-windows-msvc")).toBe(true);
-    expect(usesXwin("win32", "x86_64-pc-windows-msvc")).toBe(false);
-    expect(usesXwin("darwin", "aarch64-apple-darwin")).toBe(false);
+describe("cargoBuildCommand", () => {
+  it("uses plain cargo for the host's own platform", () => {
+    expect(cargoBuildCommand("darwin", "aarch64-apple-darwin")).toEqual(["build"]);
+    expect(cargoBuildCommand("win32", "x86_64-pc-windows-msvc")).toEqual(["build"]);
+    expect(cargoBuildCommand("linux", "x86_64-unknown-linux-gnu")).toEqual(["build"]);
+  });
+
+  it("wraps build with cargo-xwin for Windows from elsewhere", () => {
+    expect(cargoBuildCommand("darwin", "x86_64-pc-windows-msvc")).toEqual(["xwin", "build"]);
+  });
+
+  it("replaces build with cargo-zigbuild for Linux from elsewhere", () => {
+    expect(cargoBuildCommand("darwin", "x86_64-unknown-linux-gnu")).toEqual(["zigbuild"]);
+    expect(cargoBuildCommand("win32", "aarch64-unknown-linux-gnu")).toEqual(["zigbuild"]);
+  });
+});
+
+describe("cargoTargetArg", () => {
+  it("appends the glibc version only where cargo-zigbuild can use it", () => {
+    expect(cargoTargetArg("darwin", "x86_64-unknown-linux-gnu", "2.35")).toBe(
+      "x86_64-unknown-linux-gnu.2.35",
+    );
+    expect(cargoTargetArg("linux", "x86_64-unknown-linux-gnu", "2.35")).toBe(
+      "x86_64-unknown-linux-gnu",
+    );
+    expect(cargoTargetArg("darwin", "x86_64-pc-windows-msvc", "2.35")).toBe(
+      "x86_64-pc-windows-msvc",
+    );
+  });
+
+  it("passes the plain triple when no glibc floor is configured", () => {
+    expect(cargoTargetArg("darwin", "x86_64-unknown-linux-gnu", undefined)).toBe(
+      "x86_64-unknown-linux-gnu",
+    );
   });
 });
 

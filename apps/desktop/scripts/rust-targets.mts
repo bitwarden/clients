@@ -83,9 +83,12 @@ export interface ToolRequirement {
   readonly install: string;
 }
 
+// Probed as the binary rather than the cargo subcommand: `cargo zigbuild --version` is
+// rejected by the subcommand's own argument parser, and a cargo subcommand is just a
+// `cargo-<name>` executable on PATH anyway.
 const CARGO_XWIN: ToolRequirement = {
   tool: "cargo-xwin",
-  probe: ["cargo", "xwin", "--version"],
+  probe: ["cargo-xwin", "--version"],
   pinnedAs: "cargo-xwin",
   install: "cargo install --version {version} --locked cargo-xwin",
 };
@@ -96,6 +99,21 @@ const CLANG: ToolRequirement = {
   // XWIN_CROSS_COMPILER export in buildEnv.
   probe: ["clang", "--version"],
   install: "install clang and make sure it is on PATH",
+};
+
+const CARGO_ZIGBUILD: ToolRequirement = {
+  tool: "cargo-zigbuild",
+  probe: ["cargo-zigbuild", "--version"],
+  pinnedAs: "cargo-zigbuild",
+  install: "cargo install --version {version} --locked cargo-zigbuild",
+};
+
+const ZIG: ToolRequirement = {
+  tool: "zig",
+  // cargo-zigbuild shells out to zig for the link step; it is not a cargo dependency and so
+  // is not pinned in [workspace.metadata.bin].
+  probe: ["zig", "version"],
+  install: "install Zig (brew install zig, apt install zig, or pip install ziglang)",
 };
 
 export interface CrossCompilationRule {
@@ -113,14 +131,7 @@ export interface CrossCompilationRule {
 /// A new combination is a new entry here, not a new branch somewhere else.
 const CROSS_COMPILATION_RULES: readonly CrossCompilationRule[] = [
   { hosts: ["darwin", "linux"], target: "windows", tools: [CARGO_XWIN, CLANG] },
-  {
-    hosts: ["darwin", "win32"],
-    target: "linux",
-    tools: [],
-    unsupported:
-      "cross-compiling to Linux is not supported yet; it needs a cross linker, and the rule " +
-      "for it goes in CROSS_COMPILATION_RULES in scripts/rust-targets.mts",
-  },
+  { hosts: ["darwin", "win32"], target: "linux", tools: [CARGO_ZIGBUILD, ZIG] },
   {
     hosts: ["linux", "win32"],
     target: "macos",
@@ -170,8 +181,32 @@ export function rustTargetsFor(platform: Platform, architectures: Architecture[]
 /// What a built binary is called once staged, e.g. `desktop_proxy.win32-x64.exe`.
 export function binaryFileName(bin: string, target: RustTarget): string {
   const { nodePlatform, nodeArch } = RUST_TARGETS[target];
-  const extension = nodePlatform === "win32" ? ".exe" : "";
-  return `${bin}.${nodePlatform}-${nodeArch}${extension}`;
+  return `${bin}.${nodePlatform}-${nodeArch}${binaryExtension(target)}`;
+}
+
+export function binaryExtension(target: RustTarget): string {
+  return RUST_TARGETS[target].nodePlatform === "win32" ? ".exe" : "";
+}
+
+const LIBRARY_NAMES: Record<HostPlatform, { prefix: string; extension: string }> = {
+  linux: { prefix: "lib", extension: ".so" },
+  darwin: { prefix: "lib", extension: ".dylib" },
+  win32: { prefix: "", extension: ".dll" },
+};
+
+/// What cargo names a cdylib, e.g. `libprocess_isolation.so`.
+export function builtLibraryName(cargoPackage: string, target: RustTarget): string {
+  const { prefix, extension } = LIBRARY_NAMES[RUST_TARGETS[target].nodePlatform];
+  return `${prefix}${cargoPackage}${extension}`;
+}
+
+/// What a built library is called once staged, e.g. `libprocess_isolation.linux-x64.so`. The
+/// architecture goes in the name because one staging directory holds every architecture the
+/// configuration asked for; the packaging step renames it back to the plain library name.
+export function libraryFileName(cargoPackage: string, target: RustTarget): string {
+  const { nodePlatform, nodeArch } = RUST_TARGETS[target];
+  const { prefix, extension } = LIBRARY_NAMES[nodePlatform];
+  return `${prefix}${cargoPackage}.${nodePlatform}-${nodeArch}${extension}`;
 }
 
 export function crossCompilationPlan(
@@ -226,9 +261,33 @@ export function buildEnv(
   return {};
 }
 
-/// True when cargo has to be dispatched as `cargo xwin build` rather than `cargo build`.
-export function usesXwin(host: HostPlatform, target: RustTarget): boolean {
-  return RUST_TARGETS[target].platform === "windows" && host !== "win32";
+/// How cargo has to be invoked for a target: through cargo-xwin for Windows from elsewhere,
+/// through cargo-zigbuild for Linux from elsewhere, plain cargo otherwise. Note the shapes
+/// differ -- xwin wraps `build`, while zigbuild replaces it.
+export function cargoBuildCommand(host: HostPlatform, target: RustTarget): string[] {
+  const { platform, nodePlatform } = RUST_TARGETS[target];
+  if (nodePlatform === host) {
+    return ["build"];
+  }
+  if (platform === "windows") {
+    return ["xwin", "build"];
+  }
+  if (platform === "linux") {
+    return ["zigbuild"];
+  }
+  return ["build"];
+}
+
+/// The `--target` value cargo is given, which is not always the plain triple: cargo-zigbuild
+/// takes a glibc version suffix that caps the symbol versions the binary requires. Artifacts
+/// still land under the plain triple, so callers keep using {@link RustTarget} for paths.
+export function cargoTargetArg(
+  host: HostPlatform,
+  target: RustTarget,
+  glibc: string | undefined,
+): string {
+  const usesZigbuild = cargoBuildCommand(host, target)[0] === "zigbuild";
+  return usesZigbuild && glibc != null ? `${target}.${glibc}` : target;
 }
 
 function rustTargetEntries(): [RustTarget, RustTargetDefinition][] {
