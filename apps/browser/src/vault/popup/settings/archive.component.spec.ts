@@ -10,6 +10,7 @@ import { PopupRouterCacheService } from "@bitwarden/browser/platform/popup/view-
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -39,6 +40,7 @@ describe("ArchiveComponent", () => {
   let showPasswordPrompt: jest.Mock;
   let userHasPremium$: jest.Mock;
   let archivedCiphers$: jest.Mock;
+  let vfo1Enabled$: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
     navigate = jest.fn();
@@ -47,6 +49,7 @@ describe("ArchiveComponent", () => {
     decryptedCollections$ = jest.fn().mockReturnValue(of([]));
     userHasPremium$ = jest.fn().mockReturnValue(of(false));
     archivedCiphers$ = jest.fn().mockReturnValue(of([{ id: "cipher-1" }]));
+    vfo1Enabled$ = new BehaviorSubject<boolean>(false);
 
     await TestBed.configureTestingModule({
       imports: [ArchiveComponent],
@@ -100,7 +103,13 @@ describe("ArchiveComponent", () => {
         },
         {
           provide: ConfigService,
-          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+          useValue: {
+            getFeatureFlag$: jest
+              .fn()
+              .mockImplementation((flag: FeatureFlag) =>
+                flag === FeatureFlag.VFO1Foundation ? vfo1Enabled$.asObservable() : of(false),
+              ),
+          },
         },
       ],
     })
@@ -113,6 +122,31 @@ describe("ArchiveComponent", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe("empty state", () => {
+    it("renders vault-empty-vault, scoped to archive, when vfo1 is enabled and there are no archived items", () => {
+      archivedCiphers$.mockReturnValue(of([]));
+      vfo1Enabled$.next(true);
+      fixture.detectChanges();
+
+      // EmptyVaultComponent renders its own bit-status-lockup internally, so `vault-empty-vault`
+      // itself — not the absence of bit-status-lockup — is what distinguishes this from the legacy
+      // (flag-off) branch below.
+      const emptyVault = fixture.debugElement.query(By.css("vault-empty-vault"));
+      expect(emptyVault).not.toBeNull();
+      expect(emptyVault.componentInstance.scope()?.type).toBe("archive");
+      expect(emptyVault.componentInstance.hasItems()).toBe(false);
+    });
+
+    it("renders the legacy bit-status-lockup when vfo1 is disabled and there are no archived items", () => {
+      archivedCiphers$.mockReturnValue(of([]));
+      vfo1Enabled$.next(false);
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.query(By.css("bit-status-lockup"))).not.toBeNull();
+      expect(fixture.debugElement.query(By.css("vault-empty-vault"))).toBeNull();
+    });
   });
 
   describe("canAssignCollections$", () => {

@@ -35,6 +35,7 @@ describe("VaultPopupListTableService", () => {
   const filteredCiphers$ = new BehaviorSubject<PopupCipherViewLike[]>([]);
   const hasSearchText$ = new BehaviorSubject<boolean>(false);
   const searchText$ = new BehaviorSubject<string>("");
+  const emptyVault$ = new BehaviorSubject<boolean>(false);
   const loading$ = new BehaviorSubject<boolean>(false);
   const applyFilter = jest.fn();
 
@@ -53,6 +54,7 @@ describe("VaultPopupListTableService", () => {
     filteredCiphers$.next([]);
     hasSearchText$.next(false);
     searchText$.next("");
+    emptyVault$.next(false);
     loading$.next(false);
     simplifiedItemActionEnabled$.next(false);
     currentTabIsOnBlocklist$.next(false);
@@ -88,6 +90,7 @@ describe("VaultPopupListTableService", () => {
             filteredCiphers$: filteredCiphers$.asObservable(),
             hasSearchText$: hasSearchText$.asObservable(),
             searchText$: searchText$.asObservable(),
+            emptyVault$: emptyVault$.asObservable(),
             applyFilter,
           },
         },
@@ -259,6 +262,16 @@ describe("VaultPopupListTableService", () => {
     it("passes through the items service value", async () => {
       hasSearchText$.next(true);
       expect(await firstValueFrom(service.hasSearchText$)).toBe(true);
+    });
+  });
+
+  describe("hasItems$", () => {
+    it("is the negation of the items service's emptyVault$", async () => {
+      emptyVault$.next(true);
+      expect(await firstValueFrom(service.hasItems$)).toBe(false);
+
+      emptyVault$.next(false);
+      expect(await firstValueFrom(service.hasItems$)).toBe(true);
     });
   });
 

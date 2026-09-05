@@ -7,7 +7,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -71,13 +71,22 @@ export class WebVaultItemActionsService {
   }
 
   /**
-   * Opens the add-item form.
-   *
-   * No `initialValues` are seeded — deriving a default organization, shared folder, or folder from
-   * the active filter arrives with the filter chip wiring.
+   * Opens the add-item form, prefilled with the organization and shared folder in scope, when
+   * supplied.
    */
-  async add(cipherType?: CipherType): Promise<void> {
+  async add(
+    cipherType?: CipherType,
+    scope?: { organizationId?: OrganizationId; collectionId?: CollectionId },
+  ): Promise<void> {
     const formConfig = await this.cipherFormConfigService.buildConfig("add", undefined, cipherType);
+
+    if (scope?.organizationId) {
+      formConfig.initialValues = {
+        organizationId: scope.organizationId,
+        collectionIds: scope.collectionId ? [scope.collectionId] : undefined,
+      };
+    }
+
     await this.openItemDialog("form", formConfig);
   }
 

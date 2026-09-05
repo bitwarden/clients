@@ -157,6 +157,7 @@ export class BitTableToolbarComponent {
     "tw-flex",
     "tw-items-center",
     "tw-gap-3",
+    "empty:tw-hidden",
     ...(this.isLargeScreen() ? ["tw-ms-auto"] : ["tw-w-full", "[&>*]:tw-flex-1"]),
   ]);
 

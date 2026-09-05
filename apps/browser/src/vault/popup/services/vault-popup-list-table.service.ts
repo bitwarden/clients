@@ -108,6 +108,15 @@ export class VaultPopupListTableService {
   readonly hasSearchText$ = this.vaultPopupItemsService.hasSearchText$;
 
   /**
+   * Whether the account has any active items at all, ignoring search/filters — the account-wide
+   * fact `EmptyVaultComponent` needs to distinguish "nothing here because of an active
+   * search/filter" from "the vault is genuinely empty."
+   */
+  readonly hasItems$: Observable<boolean> = this.vaultPopupItemsService.emptyVault$.pipe(
+    map((empty) => !empty),
+  );
+
+  /**
    * The inputs that decide each row's action affordances. `startWith` defaults keep {@link rows$}
    * emitting promptly: the feature flag and blocklist streams resolve asynchronously, so without a
    * seed the whole list would wait on them before first render.

@@ -106,23 +106,20 @@
     </bit-filter-menu>
   </bit-table-toolbar>
 
-  <bit-status-lockup slot="empty">
-    <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
-    <span slot="title">{{ emptyTitleKey() | i18n }}</span>
-    <span slot="description">{{ emptyDescriptionKey() | i18n }}</span>
-    <button
-      slot="button"
-      type="button"
-      bitButton
-      buttonType="secondary"
-      startIcon="bwi-clear"
-      [class.tw-hidden]="!hasActiveChipFilters(vaultTable)"
-      class="tw-mb-6"
-      (click)="clearChipFilters(vaultTable)"
-    >
-      {{ "clearAll" | i18n }}
-    </button>
-  </bit-status-lockup>
+  <vault-empty-vault
+    slot="empty"
+    [hasItems]="ciphers().length > 0"
+    [filterValues]="vaultTable.filterValues()"
+    [scope]="scope()"
+    [organizationName]="organizationName()"
+    [hasMultipleVaults]="hasMultipleVaults()"
+    [sharedFolderName]="sharedFolderName()"
+    [defaultCollectionId]="defaultCollectionId()"
+    (clearSearch)="clearSearch(vaultTable)"
+    (clearFilters)="clearChipFilters(vaultTable)"
+  >
+    <ng-content slot="empty-add-item" select="[slot=empty-add-item]"></ng-content>
+  </vault-empty-vault>
 
   <!-- Name -->
   <bit-column sortable defaultSort="asc" width="minmax(240px, 480px)">

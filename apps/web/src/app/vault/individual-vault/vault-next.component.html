@@ -25,10 +25,28 @@
   [collections]="scopedCollections()"
   [organizations]="scopedOrganizations()"
   [scopedOrganizationId]="scopedOrganizationId()"
+  [defaultCollectionId]="defaultCollectionId()"
   [orgRequiresDataOwnership]="orgRequiresDataOwnership()"
   [itemAction]="itemAction"
   [copyPresentation]="copyPresentation()"
+  [scope]="vaultScope()"
+  [organizationName]="emptyVaultOrganizationName()"
+  [hasMultipleVaults]="hasMultipleVaults()"
+  [sharedFolderName]="emptySharedFolderName()"
 >
+  @if (showItemCreation()) {
+    <vault-new-cipher-menu
+      slot="empty-add-item"
+      [canCreateCipher]="true"
+      [canCreateSshKey]="true"
+      [canCreateFolder]="false"
+      [canCreateCollection]="false"
+      (cipherAdded)="addCipher($event)"
+      (onAddItemDialog)="openAddItemDialog()"
+      id="vault-next_empty-new-cipher-menu"
+    />
+  }
+
   <div slot="toolbar" class="tw-flex tw-items-center tw-gap-3">
     @if (showItemCreation()) {
       <button

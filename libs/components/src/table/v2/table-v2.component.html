@@ -196,7 +196,7 @@
           Empty state: no rows render (no data, or all filtered out). Projects
           `[slot=empty]`; falls back to a default `<bit-status-lockup>`.
         -->
-        <div class="tw-border-0 tw-border-b tw-border-solid tw-border-border-base">
+        <div>
           <ng-content select="[slot=empty]">
             <bit-status-lockup>
               <bit-svg slot="graphic" [content]="noResultsSvg"></bit-svg>

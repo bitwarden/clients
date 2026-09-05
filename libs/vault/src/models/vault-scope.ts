@@ -270,6 +270,60 @@ export function scopedSharedFolderId(scope: VaultScope): ScopedCollectionId | un
   return scope.type === VaultScopeType.Organization ? scope.collectionId : undefined;
 }
 
+/** Whether the scope is the personal vault — drives the empty vault's "My vault" copy. */
+export function isMyVaultScope(scope: VaultScope): boolean {
+  return scope.type === VaultScopeType.MyVault;
+}
+
+/**
+ * Whether the account has more than one vault (personal + at least one org) — drives the empty
+ * vault's plural "Your vaults are empty" copy.
+ */
+export function hasMultipleVaults(nav: VaultsNavViewModel | undefined): boolean {
+  return (nav?.vaults.length ?? 0) > 1;
+}
+
+/**
+ * The organization the scope names, for the empty vault's "No items in {org}" copy: the nav's
+ * label for `scope.organizationId`, or — for an organization-only account landing on the unscoped
+ * route, which {@link resolveVaultScope} never turns into an {@link VaultScopeType.Organization}
+ * scope — the nav's one organization, when it has no personal vault to be ambiguous with.
+ */
+export function organizationNameForScope(
+  scope: VaultScope,
+  nav: VaultsNavViewModel | undefined,
+): string | undefined {
+  if (!nav) {
+    return undefined;
+  }
+
+  if (scope.type === VaultScopeType.Organization) {
+    const named = nav.vaults.find((vault) => vault.id === scope.organizationId)?.label;
+    if (named) {
+      return named;
+    }
+  }
+
+  const hasOnlyOneOrgVault =
+    nav.vaults.length === 1 && nav.vaults[0].type !== VaultNavItemType.Personal;
+
+  return hasOnlyOneOrgVault ? nav.vaults[0].label : undefined;
+}
+
+/**
+ * The shared folder the scope has drilled into, by name — `undefined` unless the scope names a
+ * collection {@link collections} can resolve. See {@link scopedSharedFolderId}.
+ */
+export function sharedFolderNameForScope(
+  scope: VaultScope,
+  collections: readonly CollectionView[],
+): string | undefined {
+  const collectionId = scopedSharedFolderId(scope);
+  return collectionId
+    ? collections.find((collection) => collection.id === collectionId)?.name
+    : undefined;
+}
+
 /**
  * Whether a cipher belongs in the scope — the single place every dimension of a scope is decided,
  * so no caller has to pair a vault filter with a state filter and risk getting one of them wrong.

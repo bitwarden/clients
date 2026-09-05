@@ -51,6 +51,7 @@ export class NewCipherMenuComponent {
   readonly canCreateSshKey = input(false);
   readonly icon = input<BitwardenIcon>("bwi-plus");
   readonly buttonType = input<ButtonType>("primary");
+  readonly id = input<string>();
 
   /**
    * When `true`, the "New" button is rendered in a disabled state, e.g. because the
