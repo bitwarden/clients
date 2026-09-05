@@ -50,7 +50,8 @@ export class ExtensionLoginComponentService
     codeChallenge: string,
     orgSsoIdentifier?: string,
   ): Promise<void> {
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // SSO starts before authentication, so use the server selected on the login screen.
+    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
     const webVaultUrl = env.getWebVaultUrl();
 
     const redirectUri = webVaultUrl + "/sso-connector.html";
