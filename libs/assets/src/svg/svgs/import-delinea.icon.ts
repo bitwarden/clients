@@ -1,0 +1,11 @@
+/* eslint-disable @bitwarden/components/require-theme-colors-in-svg -- third-party vendor brand mark(s), fixed brand colors rather than theme illustration tokens */
+
+import { svg } from "../svg";
+
+export const ImportDelineaIcon = svg`
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><g fill-rule="evenodd" stroke-linejoin="round" stroke-width=".03" clip-path="url(#import-delinea-clip)" clip-rule="evenodd"><path fill="#221556" stroke="#221556" d="m22.978 3.402.014 12.902-10.991 7.028L.992 16.304l.01-8.892h2.443c.165 1.76.013 3.605.013 5.373 0 .442-.112 1.802.026 2.14.072.174.384.282.535.383.555.37 1.128.71 1.686 1.074 1.407.915 2.847 1.787 4.243 2.715.664.44 1.44.795 2.053 1.297.657-.545 1.514-.983 2.246-1.423 1.304-.784 2.554-1.665 3.846-2.47.426-.266 2.145-1.224 2.37-1.517.131-.171.05-.594.05-.8V6.266c0-.94.072-1.915-.008-2.852q1.237-.005 2.473-.012ZM16.56 6.494l1.71 1.772-7.47 7.414-4.273-4.295L8.282 9.66l2.52 2.505z"/><path fill="#00ff59" stroke="#00ff59" d="m22.978 3.403-2.473.012c-.163-.207-.812-.093-1.066-.093H4.722c-.377 0-.834.069-1.2-.021V.907l19.436-.01zM3.445 7.412H1.002l.042-4.018 2.379-.007z"/></g><defs><clipPath id="import-delinea-clip"><path fill="#fff" d="M0 0h24v24H0z"/></clipPath></defs></svg>
+`;
+
+export const ImportDelineaDarkIcon = svg`
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><g fill-rule="evenodd" stroke-linejoin="round" stroke-width=".03" clip-path="url(#import-delinea-dark-clip)" clip-rule="evenodd"><path fill="#fff" stroke="#fff" d="m22.978 3.402.014 12.902-10.991 7.028L.992 16.304l.01-8.892h2.443c.165 1.76.013 3.605.013 5.373 0 .442-.112 1.802.026 2.14.072.174.384.282.535.383.555.37 1.128.71 1.686 1.074 1.407.915 2.847 1.787 4.243 2.715.664.44 1.44.795 2.053 1.297.657-.545 1.514-.983 2.246-1.423 1.304-.784 2.554-1.665 3.846-2.47.426-.266 2.145-1.224 2.37-1.517.131-.171.05-.594.05-.8V6.266c0-.94.072-1.915-.008-2.852q1.237-.005 2.473-.012ZM16.56 6.494l1.71 1.772-7.47 7.414-4.273-4.295L8.282 9.66l2.52 2.505z"/><path fill="#00ff59" stroke="#00ff59" d="m22.978 3.403-2.473.012c-.163-.207-.812-.093-1.066-.093H4.722c-.377 0-.834.069-1.2-.021V.907l19.436-.01zM3.445 7.412H1.002l.042-4.018 2.379-.007z"/></g><defs><clipPath id="import-delinea-dark-clip"><path fill="#fff" d="M0 0h24v24H0z"/></clipPath></defs></svg>
+`;
