@@ -11,5 +11,15 @@
 bit-layout {
   #main-content {
     padding: 0 0 0 0;
+
+    /**
+     * bit-banner bleeds to the edges of the content area by cancelling the padding removed
+     * above with negative margins. With that padding already gone, the offsets have nothing
+     * to cancel and push the banner past both sides of the content area, where it is clipped.
+     **/
+    bit-banner {
+      margin: 0;
+      padding-bottom: 0;
+    }
   }
 }
