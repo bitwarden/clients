@@ -1,10 +1,11 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
-import { DragDropModule, CdkDragMove } from "@angular/cdk/drag-drop";
-import { AsyncPipe, NgTemplateOutlet } from "@angular/common";
+import { DragDropModule, CdkDragEnd, CdkDragMove } from "@angular/cdk/drag-drop";
+import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  computed,
   input,
   viewChild,
   inject,
@@ -19,7 +20,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 
 import { NavDividerComponent } from "./nav-divider.component";
-import { SideNavService } from "./side-nav.service";
+import { media, SideNavService } from "./side-nav.service";
 
 export type SideNavVariant = "primary" | "secondary";
 
@@ -35,7 +36,6 @@ export type SideNavVariant = "primary" | "secondary";
     BitIconButtonComponent,
     I18nPipe,
     DragDropModule,
-    AsyncPipe,
     NgTemplateOutlet,
   ],
   host: {
@@ -60,6 +60,9 @@ export class SideNavComponent {
 
   private readonly toggleButton = viewChild("toggleButton", { read: ElementRef });
 
+  private readonly scrollContainer = viewChild<ElementRef<HTMLElement>>("scrollContainer");
+  private readonly footerWrapper = viewChild<ElementRef<HTMLElement>>("footerWrapper");
+
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   private readonly configService = inject(ConfigService);
@@ -70,6 +73,31 @@ export class SideNavComponent {
   private readonly vfo1Enabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
+  );
+
+  protected readonly isTouchDevice = toSignal(media("(pointer: coarse)"), { initialValue: false });
+
+  private readonly reducedMotion = toSignal(media("(prefers-reduced-motion: reduce)"), {
+    initialValue: false,
+  });
+
+  /**
+   * Handle position as a percentage of its travel, collapsed (0) to widest (100). A percentage
+   * carries more meaning than a rem measurement, and a whole number keeps a pointer drag from
+   * announcing the float it commits.
+   */
+  protected readonly widthPercent = computed(() => {
+    const { CLOSED_WIDTH, MAX_OPEN_WIDTH } = this.sideNavService;
+    const width = this.sideNavService.open() ? this.sideNavService.widthRem() : CLOSED_WIDTH;
+    return Math.round(((width - CLOSED_WIDTH) / (MAX_OPEN_WIDTH - CLOSED_WIDTH)) * 100);
+  });
+
+  /** True when it is safe to animate the nav's width. */
+  protected readonly animateWidth = computed(
+    () =>
+      this.sideNavService.transitionsEnabled() &&
+      !this.sideNavService.isDragging() &&
+      !this.reducedMotion(),
   );
 
   protected readonly handleKeyDown = (event: KeyboardEvent) => {
@@ -88,14 +116,43 @@ export class SideNavComponent {
 
     this.sideNavService.setWidthFromDrag(eventXPointer, rectX);
 
-    // Fix for CDK applying a transform that can cause visual drifting
-    const element = event.source.element.nativeElement;
-    element.style.transform = "none";
+    // Neutralize CDK's accumulated transform to prevent the handle from drifting
+    // away from the nav's right edge as the nav width changes.
+    event.source.element.nativeElement.style.transform = "none";
+  }
+
+  protected onDragEnded(event: CdkDragEnd) {
+    this.sideNavService.onDragEnd();
+    // Reset CDK's accumulated position so the next drag starts clean,
+    // then clear the inline transform so the handle returns to its CSS position.
+    event.source.reset();
+    event.source.element.nativeElement.style.transform = "none";
   }
 
   protected onKeydown(event: KeyboardEvent) {
     if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
       this.sideNavService.setWidthFromKeys(event.key);
+    }
+  }
+
+  protected scrollFocusedIntoView(event: FocusEvent) {
+    const scrollContainer = this.scrollContainer()?.nativeElement;
+    const footerWrapper = this.footerWrapper()?.nativeElement;
+    if (!scrollContainer || !footerWrapper) {
+      return;
+    }
+
+    const target = event.target as HTMLElement;
+    // Focus inside the footer can never be occluded by it.
+    if (footerWrapper.contains(target)) {
+      return;
+    }
+
+    const overlap =
+      target.getBoundingClientRect().bottom - footerWrapper.getBoundingClientRect().top;
+
+    if (overlap > 0) {
+      scrollContainer.scrollBy({ top: overlap, behavior: "instant" });
     }
   }
 

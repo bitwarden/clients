@@ -7,10 +7,13 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   ElementRef,
   inject,
+  Injector,
   input,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -25,17 +28,10 @@ import { drawerSizeToWidthRem } from "../dialog/dialog/dialog.component";
 import { DrawerService } from "../dialog/drawer.service";
 import { LinkComponent, LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
-import { getRootFontSizePx } from "../shared";
+import { getRootFontSizePx, MAIN_MIN_WIDTH_REM, SIDERAIL_WIDTH_REM } from "../shared";
 
 import { LayoutFooterService } from "./layout-footer.service";
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
-
-/** Matches tw-min-w-96 on <main>. */
-const MAIN_MIN_WIDTH_REM = 24;
-
-/** Approximate rendered width of the closed nav (siderail / icon strip).
- *  Derived from tw-w-[3.75rem] + tw-mx-0.5 margins in side-nav.component.html. */
-const SIDERAIL_WIDTH_REM = 4;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -84,6 +80,7 @@ export class LayoutComponent {
   private readonly drawerIsActive = computed(() => this.drawerPortal() != null);
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly container = viewChild.required<ElementRef<HTMLElement>>("container");
   private readonly mainContent = viewChild.required<ElementRef<HTMLElement>>("main");
   private readonly drawerContainer = viewChild.required<ElementRef<HTMLElement>>("drawerContainer");
@@ -158,7 +155,7 @@ export class LayoutComponent {
     if (!this.hasSideNav()) {
       col1 = "0px"; // no side nav projected — collapse the column entirely
     } else if (navOpen && navPush) {
-      col1 = `${this.sideNavService.widthRem()}rem`; // full nav, push+open
+      col1 = `${this.sideNavService.dragDisplayWidth() ?? this.sideNavService.widthRem()}rem`;
     } else if (navPush || siderailPush) {
       col1 = "auto"; // siderail in flow, size naturally
     } else {
@@ -190,6 +187,7 @@ export class LayoutComponent {
       const container = this.container().nativeElement;
       const drawerContainer = this.drawerContainer().nativeElement;
 
+      let hasReconciled = false;
       const update = () => {
         const rootFontSizePx = getRootFontSizePx();
         const containerWidth = container.clientWidth;
@@ -199,6 +197,7 @@ export class LayoutComponent {
         const drawerMinPx = drawerSizeToWidthRem.small * rootFontSizePx;
 
         this.containerWidthPx.set(containerWidth);
+        this.sideNavService.maxPushWidthRem.set((containerWidth - mainMinPx) / rootFontSizePx);
 
         // Use the push width declared by the drawer content (e.g. bit-dialog) via
         // DrawerService.declarePushWidth(). This is more reliable than DOM measurement
@@ -253,8 +252,15 @@ export class LayoutComponent {
         const wasInPushMode = this.sideNavService.isPushMode();
 
         // Transitioning out of push mode → close the nav.
-        // (If already in overlay and open, leave it — it's intentionally overlaying content.)
-        if (!navPush && this.sideNavService.open() && wasInPushMode) {
+        // Also close on the first reconciliation if the initial open estimate was wrong
+        // (the estimate uses DEFAULT_OPEN_WIDTH, but the persisted width loads async and
+        // may be wider, making push mode impossible at the current viewport).
+        const estimateWasWrong =
+          !hasReconciled &&
+          !navPush &&
+          this.sideNavService.open() &&
+          this.sideNavService.userCollapsePreference() !== "open";
+        if ((!navPush && this.sideNavService.open() && wasInPushMode) || estimateWasWrong) {
           this.sideNavService.open.set(false);
         }
 
@@ -270,12 +276,25 @@ export class LayoutComponent {
         this.sideNavService.isPushMode.set(navPush);
         this.siderailIsPushMode.set(siderailCanPush);
         this.drawerService.isPushMode.set(drawerPush);
+        this.sideNavService.markLayoutReady();
+        hasReconciled = true;
       };
 
       const resizeObserver = new ResizeObserver(update);
       resizeObserver.observe(container);
       resizeObserver.observe(drawerContainer);
       this.destroyRef.onDestroy(() => resizeObserver.disconnect());
+
+      // Changing the nav width resizes neither observed element, so push/overlay would
+      // otherwise stay stale after a drag or once the persisted width resolves. untracked()
+      // keeps update()'s own reads and writes out of this effect's dependencies.
+      effect(
+        () => {
+          this.sideNavService.widthRem();
+          untracked(update);
+        },
+        { injector: this.injector },
+      );
     });
   }
 
