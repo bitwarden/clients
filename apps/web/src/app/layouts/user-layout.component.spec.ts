@@ -14,7 +14,8 @@ import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { NavigationModule, SideNavService } from "@bitwarden/components";
+import { DialogService, NavigationModule, SideNavService } from "@bitwarden/components";
+import { FeatureFlagOverrideMenuService } from "@bitwarden/dev-tools";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
@@ -163,6 +164,11 @@ describe("UserLayoutComponent", () => {
         { provide: CoachmarkService, useValue: mock<CoachmarkService>() },
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        {
+          provide: FeatureFlagOverrideMenuService,
+          useValue: { enabled$: of(false) } as Partial<FeatureFlagOverrideMenuService>,
+        },
       ],
     })
       .overrideComponent(UserLayoutComponent, {

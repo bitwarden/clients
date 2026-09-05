@@ -100,6 +100,13 @@
           ></bit-nav-item>
         }
         <billing-free-families-nav-item></billing-free-families-nav-item>
+        @if (featureFlagOverrideMenuEnabled$ | async) {
+          <!-- Developer tooling, intentionally not localized. -->
+          <bit-nav-item
+            text="Feature flag overrides"
+            (mainContentClicked)="openFeatureFlagOverrides()"
+          ></bit-nav-item>
+        }
       </bit-nav-group>
     }
   </app-side-nav>

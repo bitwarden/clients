@@ -6,6 +6,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
 import { isDev } from "../../utils";
+import { featureFlagOverrideMenuEnvEnabled } from "../platform-utils.main";
 import { WindowMain } from "../window.main";
 
 import { IMenubarMenu } from "./menubar";
@@ -37,6 +38,10 @@ export class ViewMenu implements IMenubarMenu {
       items.push(this.toggleDevTools);
     }
 
+    if (isDev() || featureFlagOverrideMenuEnvEnabled() || this._featureFlagOverrideMenuEnabled) {
+      items.push(this.featureFlagOverrides);
+    }
+
     return items;
   }
 
@@ -44,17 +49,20 @@ export class ViewMenu implements IMenubarMenu {
   private readonly _messagingService: MessagingService;
   private readonly _isLocked: boolean;
   private readonly _windowMain: WindowMain;
+  private readonly _featureFlagOverrideMenuEnabled: boolean;
 
   constructor(
     i18nService: I18nService,
     messagingService: MessagingService,
     isLocked: boolean,
     windowMain: WindowMain,
+    featureFlagOverrideMenuEnabled: boolean,
   ) {
     this._i18nService = i18nService;
     this._messagingService = messagingService;
     this._isLocked = isLocked;
     this._windowMain = windowMain;
+    this._featureFlagOverrideMenuEnabled = featureFlagOverrideMenuEnabled;
   }
 
   private get searchVault(): MenuItemConstructorOptions {
@@ -153,6 +161,15 @@ export class ViewMenu implements IMenubarMenu {
       label: this.localize("toggleDevTools"),
       role: "toggleDevTools",
       accelerator: "F12",
+    };
+  }
+
+  /** Developer tooling. The label is intentionally not localized. */
+  private get featureFlagOverrides(): MenuItemConstructorOptions {
+    return {
+      id: "featureFlagOverrides",
+      label: "Feature flag overrides",
+      click: () => this.sendMessage("openFeatureFlagOverridesDialog"),
     };
   }
 
