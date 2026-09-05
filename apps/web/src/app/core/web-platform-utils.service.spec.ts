@@ -1,6 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { mock, MockProxy } from "jest-mock-extended";
+
 import { DeviceType } from "@bitwarden/common/enums";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { WebPlatformUtilsService } from "./web-platform-utils.service";
 
@@ -232,6 +235,72 @@ describe("Web Platform Utils Service", () => {
     test.each(nonChromiumDevices)("returns false when getDevice() is %s", (deviceType) => {
       jest.spyOn(webPlatformUtilsService, "getDevice").mockReturnValue(deviceType);
       expect(webPlatformUtilsService.isChromium()).toBe(false);
+    });
+  });
+
+  describe("readFromClipboard", () => {
+    let logService: MockProxy<LogService>;
+    let service: WebPlatformUtilsService;
+
+    beforeEach(() => {
+      logService = mock<LogService>();
+      service = new WebPlatformUtilsService(null, null, logService);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+      delete (navigator as any).clipboard;
+      delete (document as any).queryCommandSupported;
+      delete (document as any).execCommand;
+    });
+
+    it("reads text using the clipboard API when supported", async () => {
+      Object.defineProperty(navigator, "clipboard", {
+        value: { readText: jest.fn().mockResolvedValue("clipboard-text") },
+        configurable: true,
+      });
+
+      const result = await service.readFromClipboard();
+
+      expect(result).toBe("clipboard-text");
+    });
+
+    it("falls back to the legacy method when the clipboard API is not supported", async () => {
+      (document as any).queryCommandSupported = jest.fn().mockReturnValue(true);
+      (document as any).execCommand = jest.fn().mockImplementation((command) => {
+        if (command === "paste") {
+          document.querySelector("textarea").value = "legacy-text";
+          return true;
+        }
+        return false;
+      });
+
+      const result = await service.readFromClipboard();
+
+      expect(document.execCommand).toHaveBeenCalledWith("paste");
+      expect(result).toBe("legacy-text");
+    });
+
+    it("falls back to the legacy method when the clipboard API throws", async () => {
+      Object.defineProperty(navigator, "clipboard", {
+        value: { readText: jest.fn().mockRejectedValue(new Error("denied")) },
+        configurable: true,
+      });
+      (document as any).queryCommandSupported = jest.fn().mockReturnValue(true);
+      (document as any).execCommand = jest.fn().mockReturnValue(true);
+
+      await service.readFromClipboard();
+
+      expect(document.execCommand).toHaveBeenCalledWith("paste");
+      expect(logService.debug).toHaveBeenCalled();
+    });
+
+    it("returns an empty string when neither the clipboard API nor the legacy method are supported", async () => {
+      (document as any).queryCommandSupported = jest.fn().mockReturnValue(false);
+
+      const result = await service.readFromClipboard();
+
+      expect(result).toBe("");
     });
   });
 });

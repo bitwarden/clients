@@ -212,8 +212,44 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     }
   }
 
-  readFromClipboard(options?: any): Promise<string> {
-    throw new Error("Cannot read from clipboard on web.");
+  async readFromClipboard(): Promise<string> {
+    if (this.isClipboardApiSupported(window, "readText")) {
+      try {
+        return await window.navigator.clipboard.readText();
+      } catch (e) {
+        this.logService.debug(
+          `Error reading from clipboard using the clipboard API, attempting legacy method: ${e}`,
+        );
+      }
+    }
+
+    return this.readFromClipboardLegacy(window);
+  }
+
+  private readFromClipboardLegacy(win: Window): string {
+    const doc = win.document;
+    if (!doc.queryCommandSupported || !doc.queryCommandSupported("paste")) {
+      this.logService.debug("Legacy paste method not supported.");
+      return "";
+    }
+
+    const textarea = doc.createElement("textarea");
+    textarea.style.position = "fixed";
+    doc.body.appendChild(textarea);
+    textarea.focus();
+
+    try {
+      return doc.execCommand("paste") ? textarea.value : "";
+    } catch (e) {
+      this.logService.debug(`Error reading from clipboard: ${e}`);
+      return "";
+    } finally {
+      doc.body.removeChild(textarea);
+    }
+  }
+
+  private isClipboardApiSupported(win: Window, method: "writeText" | "readText"): boolean {
+    return "clipboard" in win.navigator && method in win.navigator.clipboard;
   }
 
   supportsSecureStorage() {
