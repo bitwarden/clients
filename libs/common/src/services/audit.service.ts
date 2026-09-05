@@ -12,6 +12,16 @@ import { Utils } from "../platform/misc/utils";
 
 const PwnedPasswordsApi = "https://api.pwnedpasswords.com/range/";
 
+/**
+ * Ceiling on a single range lookup.
+ *
+ * This is a safety valve, not a latency target: a request that never settles holds its slot in the
+ * concurrency limiter forever, so a caller fanning out over a whole vault silently loses throughput
+ * until nothing is left. Deliberately generous, because padded responses are ~40 kB and a slow
+ * network is not a failure.
+ */
+export const RangeRequestTimeoutMs = 30_000;
+
 export class AuditService implements AuditServiceAbstraction {
   private passwordLeakedSubject = new Subject<{
     password: string;
@@ -19,13 +29,20 @@ export class AuditService implements AuditServiceAbstraction {
     reject: (err: any) => void;
   }>();
 
+  /**
+   * @param maxConcurrent Ceiling on in-flight range lookups, shared by every caller of
+   * {@link passwordLeaked}. This is the only limiter on that path — callers fanning out over a
+   * vault should not add their own, or the effective ceiling stops being discoverable from either
+   * place. The Pwned Passwords API imposes no rate limit, needs no key, and asks for no
+   * attribution; the ceiling exists for self-hosted deployments, whose own network, proxy, or
+   * gateway may object to the volume.
+   */
   constructor(
     private cryptoFunctionService: CryptoFunctionService,
     private apiService: ApiService,
     private hibpApiService: HibpApiService,
-    private readonly maxConcurrent: number = 100, // default to 100, can be overridden
+    private readonly maxConcurrent: number = 100,
   ) {
-    this.maxConcurrent = maxConcurrent;
     this.passwordLeakedSubject
       .pipe(
         mergeMap(
@@ -38,7 +55,7 @@ export class AuditService implements AuditServiceAbstraction {
               req.reject(err);
             }
           },
-          this.maxConcurrent, // Limit concurrent API calls
+          this.maxConcurrent,
         ),
       )
       .subscribe();
@@ -52,6 +69,9 @@ export class AuditService implements AuditServiceAbstraction {
 
   /**
    * Fetches the count of leaked passwords from the Pwned Passwords API.
+   *
+   * Always settles, within {@link RangeRequestTimeoutMs}.
+   *
    * @param password The password to check.
    * @returns A promise that resolves to the number of times the password has been leaked.
    */
@@ -61,16 +81,31 @@ export class AuditService implements AuditServiceAbstraction {
     const hashStart = hash.substr(0, 5);
     const hashEnding = hash.substr(5);
 
-    const request = new Request(PwnedPasswordsApi + hashStart, {
-      headers: { "Add-Padding": "true" },
-    });
-    const response = await this.apiService.nativeFetch(request);
-    const leakedHashes = await response.text();
-    const match = leakedHashes.split(/\r?\n/).find((v) => {
-      return v.split(":")[0] === hashEnding;
-    });
+    const abortController = new AbortController();
+    const abortTimer = setTimeout(() => abortController.abort(), RangeRequestTimeoutMs);
 
-    return match != null ? parseInt(match.split(":")[1], 10) : 0;
+    try {
+      const request = new Request(PwnedPasswordsApi + hashStart, {
+        headers: { "Add-Padding": "true" },
+        signal: abortController.signal,
+      });
+      const response = await this.apiService.nativeFetch(request);
+      if (!response.ok) {
+        // An error body would otherwise be parsed as a hash list, matching nothing and reporting
+        // the password as not exposed.
+        throw new Error(`Pwned Passwords request failed with status ${response.status}.`);
+      }
+      const leakedHashes = await response.text();
+      // Matched in place rather than by splitting. Padding makes every body ~1,000 lines, and
+      // splitting allocated an array of lines and then a second array per line, for one hit. The
+      // hash is hex, so it carries no regex metacharacters. Anchored so a suffix appearing inside
+      // another line cannot match.
+      const match = new RegExp(`^${hashEnding}:(\\d+)`, "m").exec(leakedHashes);
+
+      return match != null ? parseInt(match[1], 10) : 0;
+    } finally {
+      clearTimeout(abortTimer);
+    }
   }
 
   async breachedAccounts(username: string): Promise<BreachAccountResponse[]> {

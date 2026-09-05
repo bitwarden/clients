@@ -49,6 +49,10 @@ export class DefaultReportGenerationService extends ReportGenerationService {
       groupCount: groupMemberships.length,
     });
 
+    const startedAt = performance.now();
+    const elapsedMs = () => Math.round(performance.now() - startedAt);
+    let pipelineAtMs = 0;
+
     return this.runHealthAndMappingPipeline(
       ciphers,
       members,
@@ -56,6 +60,11 @@ export class DefaultReportGenerationService extends ReportGenerationService {
       groupMemberships,
     ).pipe(
       map(({ ciphers: processedCiphers, healthMap, memberMapping, registry }) => {
+        pipelineAtMs = elapsedMs();
+        this.logService.debug(
+          `[Cipher Health Perf] health + member mapping done: ${pipelineAtMs}ms (includes all HIBP lookups)`,
+        );
+
         const reports = this.aggregateIntoReports(processedCiphers, healthMap, memberMapping);
 
         // Build view and populate with generated data
@@ -70,6 +79,11 @@ export class DefaultReportGenerationService extends ReportGenerationService {
 
         // Compute summary (delegates to smart model method)
         view.recomputeSummary();
+
+        // Everything since the pipeline is synchronous, so this is main-thread blocking time.
+        this.logService.debug(
+          `[Cipher Health Perf] aggregate + summarize done: ${elapsedMs() - pipelineAtMs}ms (blocking, apps=${reports.length})`,
+        );
 
         return view;
       }),
