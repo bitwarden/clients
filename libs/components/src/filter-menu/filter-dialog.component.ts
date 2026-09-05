@@ -31,6 +31,11 @@ export interface FilterDialogParams {
   readonly filters: readonly FilterPresenter[];
 }
 
+/** A toggle reports no labels, so its `active` state stands in for its one selection. */
+function optionCount(filter: FilterPresenter): number {
+  return Math.max(filter.summaryLabels().length, filter.active() ? 1 : 0);
+}
+
 /** The small-screen filter view. Opened by `bit-table-toolbar`. */
 @Component({
   selector: "bit-filter-dialog",
@@ -60,8 +65,16 @@ export class FilterDialogComponent {
   /** The filter being drilled into, or `undefined` on the list page. */
   protected readonly activeFilter = signal<FilterPresenter | undefined>(undefined);
 
-  /** How many filters currently have a selection — shown in the footer. */
-  protected readonly selectedCount = computed(() => this.filters.filter((f) => f.active()).length);
+  /** How many options are selected across every filter — shown in the list page's footer. */
+  protected readonly selectedCount = computed(() =>
+    this.filters.reduce((total, filter) => total + optionCount(filter), 0),
+  );
+
+  /** The same count for the filter being drilled into. */
+  protected readonly activeSelectedCount = computed(() => {
+    const filter = this.activeFilter();
+    return filter ? optionCount(filter) : 0;
+  });
 
   /** Kept out of the template so no whitespace lands between the label and the colon. */
   protected rowLabel(filter: FilterPresenter): string {
@@ -69,19 +82,48 @@ export class FilterDialogComponent {
   }
 
   // The rows come from the chip's template, shared with the popover, so the card and
-  // dividers are applied from out here.
+  // dividers are applied from out here. The card lands on the row list rather than this
+  // wrapper so the in-menu search and result count stay outside it, per spec. The list
+  // scrolls, which already clips its rows to the rounded corners.
   protected readonly optionListClasses = [
-    "tw-overflow-hidden",
-    "tw-rounded-lg",
-    "tw-border",
-    "tw-border-solid",
-    "tw-border-border-base",
+    // The popover insets the search to line up with its rows; here the card spans the
+    // full width, so drop the inset and use the spec's 12px gaps above the list.
+    "[&_[data-filter-search-row]]:tw-px-0",
+    "[&_[data-filter-search-row]]:tw-pb-3",
+    "[&_[data-filter-result-count]]:tw-pb-3",
+    // Single-select is one flat card around the whole list.
+    "[&_[data-filter-option-list]]:tw-rounded-lg",
+    "[&_[data-filter-option-list]]:tw-border",
+    "[&_[data-filter-option-list]]:tw-border-solid",
+    "[&_[data-filter-option-list]]:tw-border-border-base",
     "[&_[data-filter-option-row]]:tw-rounded-none",
     "[&_[data-filter-option-row]]:tw-border-0",
     "[&_[data-filter-option-row]]:tw-border-b",
     "[&_[data-filter-option-row]]:tw-border-solid",
     "[&_[data-filter-option-row]]:tw-border-border-base",
-    "[&_[data-filter-option-row]:last-child]:tw-border-b-0",
+    "[&_[data-filter-option-list]>[data-filter-option-row]:last-child]:tw-border-b-0",
+    // Multi-select draws a card per group instead, so a section reads as an accordion
+    // over its own options rather than a header inside one long list.
+    "[&_[data-filter-card-list]_[data-filter-option-row]]:tw-border-x",
+    // `!` where the utility ties with the `tw-rounded-none`/`tw-border-0` above on specificity.
+    "[&_[data-filter-card-top]]:!tw-rounded-t-lg",
+    "[&_[data-filter-card-top]]:!tw-border-t",
+    "[&_[data-filter-card-bottom]]:!tw-rounded-b-lg",
+    "[&_[data-filter-card-bottom]:not(:last-child)]:tw-mb-3",
+    // A divider reads as the gap between two cards, so the popover's rule is dropped.
+    "[&_[data-filter-divider]]:tw-hidden",
+    // The accordion bar: tinted, label inset 12px, with the chevron trailing rather than
+    // leading. The tint is what marks it as a header, so its label keeps the option rows'
+    // weight — unlike the popover, where there is no tint to do that job.
+    "[&_[data-filter-section-row]]:tw-bg-bg-secondary",
+    "[&_[data-filter-section-row]]:tw-ps-3",
+    "[&_[data-filter-section-row]_[data-filter-row-label]]:tw-font-normal",
+    "[&_[data-filter-section-row]_[data-filter-expander]]:tw-order-last",
+    "[&_[data-filter-section-row]_[data-filter-expander]]:tw-ms-1",
+    "[&_[data-filter-section-row]_[data-filter-expander]]:tw-me-0",
+    // Hug the glyph so the bar's chevron shares the option rows' trailing edge and lines
+    // up with their counts; the 24px box would otherwise centre it 12px further in.
+    "[&_[data-filter-section-row]_[data-filter-expander]]:!tw-w-auto",
   ].join(" ");
 
   /** A row tap: drill into a filter that has options, or flip a toggle in place. */
@@ -101,11 +143,17 @@ export class FilterDialogComponent {
   /** Reset every filter's selection. */
   protected clearAll(): void {
     this.filters.forEach((filter) => filter.clear());
+    this.keepFocusOnDone();
   }
 
-  /** Clearing removes this button, so hand focus to Done rather than dropping it. */
-  protected clearAllAndKeepFocus(): void {
-    this.clearAll();
+  /** Reset just the filter being drilled into. */
+  protected clearActive(): void {
+    this.activeFilter()?.clear();
+    this.keepFocusOnDone();
+  }
+
+  /** Clearing removes the button that was clicked, so move focus rather than drop it. */
+  private keepFocusOnDone(): void {
     focusAfterRender(this.injector, () => this.doneButtonEl()?.nativeElement);
   }
 

@@ -73,13 +73,14 @@
       name="bwi-search"
       class="tw-text-2xl tw-text-fg-body-subtle"
     ></bit-icon>
-    <span slot="title">{{ "noFiltersMatch" | i18n: searchTerm() }}</span>
+    <span slot="title">{{ "noFiltersMatchTerm" | i18n: searchTerm() }}</span>
     <button
       slot="button"
       bitButton
       buttonType="secondary"
       size="small"
       type="button"
+      startIcon="bwi-clear"
       (click)="clearSearch($event)"
     >
       {{ "clearSearch" | i18n }}
@@ -89,12 +90,23 @@
 
 <ng-template #optionsBody>
   @if (showSearch()) {
-    <div class="tw-px-2 tw-pb-1">
+    <div data-filter-search-row class="tw-px-2 tw-pb-1">
       <bit-search
         data-filter-search
         [ngModel]="searchTerm()"
         (ngModelChange)="setSearchTerm($event)"
       ></bit-search>
+    </div>
+  }
+  @if (resultCount() != null) {
+    <div
+      data-filter-result-count
+      class="tw-px-4 tw-pb-1 tw-text-xs tw-font-normal tw-text-fg-body-subtle"
+      aria-live="polite"
+    >
+      {{
+        resultCount() === 1 ? ("oneFilterResult" | i18n) : ("filterResults" | i18n: resultCount())
+      }}
     </div>
   }
   @if (multiple()) {
@@ -104,17 +116,30 @@
       [attr.aria-label]="placeholderText()"
       tabindex="-1"
       class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
+      data-filter-card-list
       (keydown)="onTreeKeydown($event)"
     >
       @for (node of treeNodes(); track $index) {
         @let expandable = node.row.expandable();
         @let checked = nodeChecked(node);
+        @if (node.dividerBefore) {
+          <!-- The dialog hides this and separates the groups with a gap instead.
+               `aria-hidden` because the rule is decorative and `role="tree"` owns only
+               `treeitem`/`group` — the divider's own `role="separator"` would fail
+               `aria-required-children` otherwise. -->
+          <bit-menu-divider data-filter-divider aria-hidden="true"></bit-menu-divider>
+        }
         <div
           role="treeitem"
           data-filter-option-row
+          [attr.data-filter-section-row]="node.row.kind === 'section' ? '' : null"
+          [attr.data-filter-card-top]="node.groupStart ? '' : null"
+          [attr.data-filter-card-bottom]="node.groupEnd ? '' : null"
           [bitFilterTreeRow]="node"
-          [class]="optionRowClasses"
-          [style.padding-inline-start.rem]="0.5 + (node.level - 1) * 1.75"
+          [class]="node.row.kind === 'option' ? optionRowClasses : rowBaseClasses"
+          [style.padding-inline-start.rem]="
+            node.row.kind === 'section' ? null : 0.5 + (node.indent - 1) * 1.75
+          "
           [attr.aria-level]="node.level"
           [attr.aria-setsize]="node.setsize"
           [attr.aria-posinset]="node.posinset"
@@ -127,14 +152,28 @@
         >
           @if (expandable) {
             <span
+              data-filter-expander
               class="-tw-me-1 tw-flex tw-size-6 tw-flex-none tw-items-center tw-justify-center tw-text-fg-body-subtle"
               aria-hidden="true"
               (click)="node.row.toggleExpanded(); $event.stopPropagation()"
             >
-              <bit-icon
-                [name]="node.expanded ? 'bwi-angle-down' : 'bwi-angle-right'"
-                class="tw-text-xs"
-              ></bit-icon>
+              @if (node.row.kind === "section") {
+                <!-- A section's bar collapses a group, so it takes a chevron like the flat
+                     branch's headers. -->
+                <bit-icon
+                  [name]="node.expanded ? 'bwi-angle-up' : 'bwi-angle-down'"
+                  class="tw-text-xs"
+                ></bit-icon>
+              } @else {
+                <!-- An option discloses children, so it takes the solid caret a nested
+                     `bit-nav-group` uses: one glyph, rotated when collapsed, sized as that
+                     group's `xsmall` icon button renders it. -->
+                <bit-icon
+                  name="bwi-down-solid"
+                  class="tw-text-xl"
+                  [class.-tw-rotate-90]="!node.expanded"
+                ></bit-icon>
+              }
             </span>
           } @else if (node.reserveExpander) {
             <span class="-tw-me-1 tw-size-6 tw-flex-none" aria-hidden="true"></span>
@@ -166,6 +205,7 @@
             }
           }
           <span
+            data-filter-row-label
             class="tw-min-w-0 tw-flex-1 tw-truncate"
             [class.tw-font-semibold]="node.row.kind === 'section'"
             >{{ node.row.label() }}</span
@@ -191,6 +231,7 @@
       role="group"
       [attr.aria-label]="placeholderText()"
       class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
+      data-filter-option-list
     >
       @if (!multiple()) {
         @let allSelected = isSelected(clearValue);
@@ -246,6 +287,11 @@
                 }
               }
             }
+          }
+        } @else if (entry.kind === "divider") {
+          <!-- Gated so a search can't leave a rule with nothing on one side of it. -->
+          @if (dividerVisible($index)) {
+            <bit-menu-divider data-filter-divider></bit-menu-divider>
           }
         } @else if (asOption(entry); as option) {
           @if (rowVisible(option)) {

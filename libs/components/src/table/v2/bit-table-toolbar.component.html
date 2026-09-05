@@ -36,9 +36,18 @@
   -->
   <div #filterRow bitOverflowList [gap]="8" [items]="overflowItems()" [class]="filterRowClasses()">
     <ng-content select="bit-filter-menu, bit-filter-toggle, bit-filter-divider"></ng-content>
-    @if (appliedCount()) {
+    <!--
+      Gated on `hasFilters`, then hidden by class rather than `@if`: entering the DOM on
+      selection would change the overflow list's item set, which drops its cached widths
+      and flashes the row fully expanded before the next measurement lands. `tw-hidden`
+      survives the directive's measurement reveal (it only clears inline `display`), so
+      this measures 0px and the item set holds. The outer `@if` keeps a search-only
+      toolbar's row free of element children, so `empty:tw-hidden` still collapses it.
+    -->
+    @if (hasFilters()) {
       <button
         bitOverflowItem
+        [class.tw-hidden]="!appliedCount()"
         id="bit-table-toolbar_button_clear-all"
         bitButton
         buttonType="subtleGhost"
