@@ -1,0 +1,27 @@
+<!--
+    Template for the manifest's <Extensions>, filled in per channel by scripts/configure.mts
+    and written to <build-dir>/intermediates/appx/. electron-builder inlines the generated file
+    verbatim through appx.customExtensionsPath, and scripts/appx.mts does the same when
+    packaging from a machine that is not Windows.
+
+    ${pluginConfig} is the channel's plugin authenticator config, and ${displayName} the
+    channel's product name. The class ID is left as a clsid macro naming that config, and is
+    resolved later -- by scripts/appx-manifest-created.js for the electron-builder path, and by
+    scripts/appx.mts for the cross-built one -- from the same file the app reads at runtime. A
+    package declaring a class ID it never serves takes the registration from the app that does,
+    so the class ID is written down in exactly one place.
+
+    This comment does not survive into the package: both resolvers strip comments. Keep
+    macro-shaped text out of it anyway, because they substitute anything matching.
+-->
+          <com:Extension xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+            Category="windows.comServer">
+            <com:ComServer>
+              <com:ExeServer Executable="app\bitwarden_plugin_authenticator.exe"
+                Arguments="serve"
+                DisplayName="${displayName} Passkey Manager">
+                <com:Class Id="${clsid:${pluginConfig}}"
+                  DisplayName="${displayName} Passkey Manager" />
+              </com:ExeServer>
+            </com:ComServer>
+          </com:Extension>
