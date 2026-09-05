@@ -169,6 +169,55 @@ describe("VaultCipherRowComponent", () => {
     });
   });
 
+  describe("onDoubleClick", () => {
+    let loginCipher: CipherView;
+    let copyCipherFieldService: CopyCipherFieldService;
+
+    beforeEach(() => {
+      loginCipher = new CipherView();
+      loginCipher.id = "cipher-1";
+      loginCipher.name = "Test Login";
+      loginCipher.type = CipherType.Login;
+      loginCipher.login = new LoginView();
+      loginCipher.login.password = "test-password";
+      loginCipher.viewPassword = true;
+      loginCipher.organizationId = undefined;
+      loginCipher.deletedDate = null;
+      loginCipher.archivedDate = null;
+
+      component.cipher = loginCipher;
+      component.disabled = false;
+
+      copyCipherFieldService = TestBed.inject(CopyCipherFieldService);
+    });
+
+    it("copies the password when the row is double clicked", async () => {
+      await component["onDoubleClick"]();
+
+      expect(copyCipherFieldService.copy).toHaveBeenCalledWith(
+        "test-password",
+        "password",
+        loginCipher,
+      );
+    });
+
+    it("does not copy the password when viewPassword is false", async () => {
+      loginCipher.viewPassword = false;
+
+      await component["onDoubleClick"]();
+
+      expect(copyCipherFieldService.copy).not.toHaveBeenCalled();
+    });
+
+    it("does not copy the password when the row is disabled", async () => {
+      component.disabled = true;
+
+      await component["onDoubleClick"]();
+
+      expect(copyCipherFieldService.copy).not.toHaveBeenCalled();
+    });
+  });
+
   describe("hasBankAccountOptions", () => {
     let bankAccountCipher: CipherView;
 
