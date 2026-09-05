@@ -11,7 +11,7 @@
         appAutofocus
         data-testid="login-email-input"
         (input)="onEmailInput($event)"
-        (keyup.enter)="ssoRequired ? handleSsoClick() : continuePressed()"
+        (keyup.enter)="ssoRequired || ssoOnly ? handleSsoClick() : continuePressed()"
       />
     </bit-form-field>
 
@@ -30,6 +30,7 @@
     <div class="tw-grid tw-gap-3">
       <!-- Continue button -->
       <button
+        *ngIf="!ssoOnly"
         type="button"
         bitButton
         block
@@ -43,10 +44,10 @@
         {{ "continue" | i18n }}
       </button>
 
-      <div class="tw-text-center">{{ "or" | i18n }}</div>
+      <div *ngIf="!ssoOnly" class="tw-text-center">{{ "or" | i18n }}</div>
 
       <!-- Button to Login with Passkey -->
-      <ng-container *ngIf="isLoginWithPasskeySupported()">
+      <ng-container *ngIf="!ssoOnly && isLoginWithPasskeySupported()">
         <button
           type="button"
           bitButton
@@ -68,7 +69,7 @@
         type="button"
         bitButton
         block
-        [buttonType]="ssoRequired ? 'primary' : 'secondary'"
+        [buttonType]="ssoRequired || ssoOnly ? 'primary' : 'secondary'"
         data-testid="login-sso-button"
         (click)="handleSsoClick()"
       >
