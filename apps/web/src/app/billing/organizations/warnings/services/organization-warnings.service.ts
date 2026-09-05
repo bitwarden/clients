@@ -19,6 +19,8 @@ import { take } from "rxjs/operators";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -48,6 +50,11 @@ const format = (date: Date) =>
   });
 
 type TrialPaymentModalDismissedOrgs = Partial<Record<OrganizationId, boolean>>;
+
+type GetWarningOptions = {
+  bypassCache?: boolean;
+  allowInGovMode?: boolean;
+};
 
 export const TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY =
   new UserKeyDefinition<TrialPaymentModalDismissedOrgs>(
@@ -80,6 +87,7 @@ export class OrganizationWarningsService {
     private accountService: AccountService,
     private logService: LogService,
     private stateProvider: StateProvider,
+    private govModeService: GovModeService,
   ) {}
 
   getFreeTrialWarning$ = (
@@ -87,9 +95,14 @@ export class OrganizationWarningsService {
     includeOrganizationNameInMessaging = false,
   ): Observable<OrganizationFreeTrialWarning | null> =>
     merge(
-      this.getWarning$(organization, (response) => response.freeTrial),
+      this.getWarning$(organization, (response) => response.freeTrial, { allowInGovMode: true }),
       this.refreshFreeTrialWarningTrigger.pipe(
-        switchMap(() => this.getWarning$(organization, (response) => response.freeTrial, true)),
+        switchMap(() =>
+          this.getWarning$(organization, (response) => response.freeTrial, {
+            bypassCache: true,
+            allowInGovMode: true,
+          }),
+        ),
       ),
     ).pipe(
       map((warning) => {
@@ -174,7 +187,7 @@ export class OrganizationWarningsService {
       this.getWarning$(organization, (response) => response.taxId),
       this.refreshTaxIdWarningTrigger.pipe(
         switchMap(() =>
-          this.getWarning$(organization, (response) => response.taxId, true).pipe(
+          this.getWarning$(organization, (response) => response.taxId, { bypassCache: true }).pipe(
             tap((warning) => this.taxIdWarningRefreshedSubject.next(warning ? warning.type : null)),
           ),
         ),
@@ -192,7 +205,9 @@ export class OrganizationWarningsService {
       this.getWarning$(organization, (response) => response.inactiveSubscription),
       this.refreshInactiveSubscriptionWarningTrigger.pipe(
         switchMap(() =>
-          this.getWarning$(organization, (response) => response.inactiveSubscription, true),
+          this.getWarning$(organization, (response) => response.inactiveSubscription, {
+            bypassCache: true,
+          }),
         ),
       ),
     ).pipe(
@@ -329,16 +344,27 @@ export class OrganizationWarningsService {
   private getWarning$ = <T>(
     organization: Organization,
     extract: (response: OrganizationWarningsResponse) => T | null | undefined,
-    bypassCache: boolean = false,
+    { bypassCache = false, allowInGovMode = false }: GetWarningOptions = {},
   ): Observable<T | null> => {
     if (this.platformUtilsService.isSelfHost()) {
       return of(null);
     }
 
-    return this.readThroughWarnings$(organization, bypassCache).pipe(
-      map((response) => {
-        const value = extract(response);
-        return value ? value : null;
+    return this.accountService.activeAccount$.pipe(
+      getOptionalUserId,
+      switchMap((userId) => (userId == null ? of(false) : this.govModeService.isGovMode$(userId))),
+      take(1),
+      switchMap((isGovMode) => {
+        if (isGovMode && !allowInGovMode) {
+          return of(null);
+        }
+
+        return this.readThroughWarnings$(organization, bypassCache).pipe(
+          map((response) => {
+            const value = extract(response);
+            return value ? value : null;
+          }),
+        );
       }),
       take(1),
     );

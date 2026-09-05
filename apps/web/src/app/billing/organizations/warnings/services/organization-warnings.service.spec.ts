@@ -16,6 +16,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -48,6 +49,7 @@ describe("OrganizationWarningsService", () => {
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
   let organizationBillingClient: MockProxy<OrganizationBillingClient>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
+  let govModeService: MockProxy<GovModeService>;
   let router: MockProxy<Router>;
   let stateProvider: MockProxy<StateProvider>;
 
@@ -81,6 +83,8 @@ describe("OrganizationWarningsService", () => {
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
     organizationBillingClient = mock<OrganizationBillingClient>();
     platformUtilsService = mock<PlatformUtilsService>();
+    govModeService = mock<GovModeService>();
+    govModeService.isGovMode$.mockReturnValue(of(false));
     router = mock<Router>();
     stateProvider = mock<StateProvider>();
 
@@ -132,6 +136,7 @@ describe("OrganizationWarningsService", () => {
         { provide: OrganizationApiServiceAbstraction, useValue: organizationApiService },
         { provide: OrganizationBillingClient, useValue: organizationBillingClient },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
+        { provide: GovModeService, useValue: govModeService },
         { provide: Router, useValue: router },
         { provide: StateProvider, useValue: stateProvider },
       ],
@@ -878,6 +883,186 @@ describe("OrganizationWarningsService", () => {
           expect(stateProvider.getUser).not.toHaveBeenCalled();
           done();
         },
+      });
+    });
+  });
+
+  describe("Gov mode", () => {
+    beforeEach(() => {
+      govModeService.isGovMode$.mockReturnValue(of(true));
+    });
+
+    it("keeps returning the free-trial countdown warning (opted in)", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 5 },
+      } as OrganizationWarningsResponse);
+
+      service.getFreeTrialWarning$(organization).subscribe((result) => {
+        expect(result).toEqual({
+          organization: organization,
+          message: "Your free trial ends in 5 days.",
+        });
+        done();
+      });
+    });
+
+    it("suppresses the reseller renewal warning", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        resellerRenewal: { type: "upcoming", upcoming: { renewalDate: new Date(2024, 11, 31) } },
+      } as OrganizationWarningsResponse);
+
+      service.getResellerRenewalWarning$(organization).subscribe((result) => {
+        expect(result).toBeNull();
+        done();
+      });
+    });
+
+    it("suppresses the scheduled price increase warning", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        scheduledPriceIncrease: {
+          seatPrice: 6,
+          effectiveDate: new Date("2026-07-15T02:00:00Z"),
+          cadence: "monthly",
+        },
+      } as OrganizationWarningsResponse);
+
+      service.getScheduledPriceIncreaseWarning$(organization).subscribe((result) => {
+        expect(result).toBeNull();
+        done();
+      });
+    });
+
+    it("suppresses the tax ID warning", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        taxId: { type: TaxIdWarningTypes.Missing },
+      } as OrganizationWarningsResponse);
+
+      service.getTaxIdWarning$(organization).subscribe((result) => {
+        expect(result).toBeNull();
+        done();
+      });
+    });
+
+    it("does not show the inactive subscription dialog", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        inactiveSubscription: { resolution: "add_payment_method" },
+      } as OrganizationWarningsResponse);
+
+      service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        expect(router.navigate).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("does not show the trial payment dialog", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 2 },
+      } as OrganizationWarningsResponse);
+
+      const openSpy = jest.spyOn(TrialPaymentDialogComponent, "open");
+      openSpy.mockClear();
+
+      service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
+        complete: () => {
+          expect(openSpy).not.toHaveBeenCalled();
+          expect(organizationApiService.getSubscription).not.toHaveBeenCalled();
+          done();
+        },
+      });
+    });
+
+    it("keeps returning the free-trial countdown warning after refresh (opt-in holds)", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 5 },
+      } as OrganizationWarningsResponse);
+
+      let invocationCount = 0;
+      const subscription = service.getFreeTrialWarning$(organization).subscribe((result) => {
+        invocationCount++;
+
+        if (invocationCount === 1) {
+          expect(result).toEqual({
+            organization: organization,
+            message: "Your free trial ends in 5 days.",
+          });
+        } else if (invocationCount === 2) {
+          expect(result).toEqual({
+            organization: organization,
+            message: "Your free trial ends in 5 days.",
+          });
+          subscription.unsubscribe();
+          done();
+        }
+      });
+
+      setTimeout(() => {
+        service.refreshFreeTrialWarning();
+      }, 10);
+    });
+
+    it("keeps suppressing the tax ID warning after refresh", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        taxId: { type: TaxIdWarningTypes.Missing },
+      } as OrganizationWarningsResponse);
+
+      let invocationCount = 0;
+      const subscription = service.getTaxIdWarning$(organization).subscribe((result) => {
+        invocationCount++;
+        expect(result).toBeNull();
+
+        if (invocationCount === 2) {
+          subscription.unsubscribe();
+          done();
+        }
+      });
+
+      setTimeout(() => {
+        service.refreshTaxIdWarning();
+      }, 10);
+    });
+
+    it("does not show the inactive subscription dialog after refresh", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        inactiveSubscription: { resolution: "add_payment_method" },
+      } as OrganizationWarningsResponse);
+
+      let emissionCount = 0;
+      const subscription = service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
+        emissionCount++;
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        expect(router.navigate).not.toHaveBeenCalled();
+
+        if (emissionCount === 2) {
+          subscription.unsubscribe();
+          done();
+        }
+      });
+
+      setTimeout(() => {
+        service.refreshInactiveSubscriptionWarning();
+      }, 10);
+    });
+  });
+
+  describe("null active account", () => {
+    beforeEach(() => {
+      accountService.activeAccount$ = of(null);
+      govModeService.isGovMode$.mockReturnValue(of(true));
+    });
+
+    it("treats a null active account as not Gov mode and does not suppress warnings", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 5 },
+      } as OrganizationWarningsResponse);
+
+      service.getFreeTrialWarning$(organization).subscribe((result) => {
+        expect(result).toEqual({
+          organization: organization,
+          message: "Your free trial ends in 5 days.",
+        });
+        expect(govModeService.isGovMode$).not.toHaveBeenCalled();
+        done();
       });
     });
   });
