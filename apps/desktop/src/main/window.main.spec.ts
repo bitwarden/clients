@@ -2,7 +2,9 @@ import * as fs from "fs";
 import { pathToFileURL } from "node:url";
 import * as path from "path";
 
-import { mock } from "jest-mock-extended";
+import { BrowserWindow } from "electron";
+import { mock, mockDeep } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
@@ -39,6 +41,59 @@ import { isSnapStore } from "./platform-utils.main";
 import { isConfinedSnap, WindowMain } from "./window.main";
 
 describe("WindowMain", () => {
+  describe("createWindow", () => {
+    it("enables Electron background throttling for the main window", async () => {
+      Object.defineProperty(globalThis, "BIT_ENVIRONMENT", {
+        value: "production",
+        configurable: true,
+      });
+
+      const browserWindow = mockDeep<BrowserWindow>();
+      Object.defineProperty(browserWindow.webContents, "userAgent", {
+        value: "Mozilla/5.0 (Macintosh) Bitwarden/2026 Electron/43 Safari/605.1.15",
+      });
+      browserWindow.loadURL.mockResolvedValue(undefined);
+      (BrowserWindow as unknown as jest.Mock).mockReturnValue(browserWindow);
+
+      const storageService = mock<AbstractStorageService>();
+      storageService.get.mockResolvedValue("light");
+
+      const desktopSettingsService = mock<DesktopSettingsService>();
+      Object.defineProperties(desktopSettingsService, {
+        window$: {
+          value: of({
+            x: 10,
+            y: 10,
+            width: 950,
+            height: 790,
+            isMaximized: false,
+          }),
+        },
+        alwaysOnTop$: { value: of(false) },
+        preventScreenshots$: { value: of(false) },
+      });
+
+      const sut = new WindowMain(
+        mock<BiometricStateService>(),
+        mock<LogService>(),
+        storageService,
+        desktopSettingsService,
+        mock<SafeShell>(),
+        null,
+        () => {},
+        null,
+      );
+
+      await sut.createWindow("full-app", false);
+
+      expect(BrowserWindow).toHaveBeenCalledWith(
+        expect.objectContaining({
+          webPreferences: expect.objectContaining({ backgroundThrottling: true }),
+        }),
+      );
+    });
+  });
+
   describe("isLocalBundleUrl", () => {
     let sut: WindowMain;
     // Access the private method under test without widening its visibility
