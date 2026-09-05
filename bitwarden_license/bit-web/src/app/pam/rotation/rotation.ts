@@ -67,6 +67,7 @@ export const TargetSystemKind = Object.freeze({
   Entra: "entra",
   Mssql: "mssql",
   CustomScript: "custom_script",
+  ActiveDirectory: "active_directory",
   Unknown: "unknown",
 } as const satisfies Record<string, SdkTargetSystemKind>);
 export type TargetSystemKind = SdkTargetSystemKind;
@@ -94,6 +95,7 @@ export const TargetSystemKindLabel = Object.freeze({
 export const SELECTABLE_TARGET_SYSTEM_KINDS = [
   TargetSystemKind.Entra,
   TargetSystemKind.Mssql,
+  TargetSystemKind.ActiveDirectory,
   TargetSystemKind.CustomScript,
 ] as const;
 

@@ -325,7 +325,7 @@ export class TargetSystemEditComponent {
 
   /**
    * Seed the create form from a starter template chosen on the empty state
-   * (Manual / Entra / Custom script). Unknown/absent values keep the defaults.
+   * (Manual / Entra / Active Directory / Custom script). Unknown/absent values keep the defaults.
    */
   private applyTemplate(template: string | undefined): void {
     switch (template) {
@@ -336,6 +336,12 @@ export class TargetSystemEditComponent {
         this.createForm.patchValue({
           method: TargetSystemMethod.Automatic,
           kind: TargetSystemKind.Entra,
+        });
+        break;
+      case "active-directory":
+        this.createForm.patchValue({
+          method: TargetSystemMethod.Automatic,
+          kind: TargetSystemKind.ActiveDirectory,
         });
         break;
       case "custom-script":

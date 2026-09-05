@@ -18671,6 +18671,9 @@
   "pamTargetSystemTemplateEntraSummary": {
     "message": "Bitwarden automatically rotates a Microsoft Entra ID application secret."
   },
+  "pamTargetSystemTemplateActiveDirectorySummary": {
+    "message": "Bitwarden automatically rotates a domain account password on an Active Directory server you run."
+  },
   "pamTargetSystemTemplateCustomScriptSummary": {
     "message": "Bitwarden automatically rotates the credential by running your script on a registered daemon."
   },
