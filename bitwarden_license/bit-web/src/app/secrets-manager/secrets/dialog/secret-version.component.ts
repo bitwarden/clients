@@ -46,11 +46,6 @@ export interface SecretVersionDialogParams {
   canWrite?: boolean;
 }
 
-/**
- * A single row of version history. The date and the action callbacks are built once when
- * the history loads so the template binds stable references instead of allocating a new
- * Date and new closures on every change detection pass.
- */
 interface SecretVersionRow {
   id: string;
   value: string;
