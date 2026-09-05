@@ -8,8 +8,8 @@
     <ng-content></ng-content>
     @if (!vfo1Enabled()) {
       <product-switcher></product-switcher>
+      <app-account-menu></app-account-menu>
     }
-    <app-account-menu></app-account-menu>
 
     <ng-container slot="title-suffix">
       <ng-content select="[slot=title-suffix]"></ng-content>

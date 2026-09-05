@@ -4,7 +4,7 @@
     [buttonType]="buttonType()"
     type="button"
     (click)="handleButtonClick()"
-    id="newItemButton"
+    [id]="id() ?? 'newItemButton'"
     [disabled]="disabled()"
     [appA11yTitle]="getButtonLabel() | i18n"
     [bitTooltip]="disabled() ? ('organizationIsSuspended' | i18n) : ''"
@@ -24,7 +24,7 @@
       type="button"
       [bitMenuTriggerFor]="isOnlyCollectionCreation() ? null : addOptions"
       (click)="handleButtonClick()"
-      id="newItemDropdown"
+      [id]="id() ?? 'newItemDropdown'"
       [disabled]="disabled()"
       [appA11yTitle]="getButtonLabel() | i18n"
       [bitTooltip]="disabled() ? ('organizationIsSuspended' | i18n) : ''"
@@ -37,7 +37,7 @@
     >
       {{ getButtonLabel() | i18n }}
     </button>
-    <bit-menu #addOptions aria-labelledby="newItemDropdown">
+    <bit-menu #addOptions>
       @for (item of cipherMenuItems$ | async; track item.type) {
         <button type="button" bitMenuItem (click)="cipherAdded.emit(item.type)">
           <i class="bwi {{ item.icon }}" slot="start" aria-hidden="true"></i>

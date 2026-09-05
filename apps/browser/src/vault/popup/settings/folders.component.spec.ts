@@ -2,7 +2,7 @@ import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -52,17 +52,19 @@ describe("FoldersComponent", () => {
   let component: FoldersComponent;
   let fixture: ComponentFixture<FoldersComponent>;
   const folderViews$ = new BehaviorSubject<FolderView[]>([]);
+  const vfo1Enabled$ = new BehaviorSubject<boolean>(false);
   const open = jest.spyOn(AddEditFolderDialogComponent, "open");
   const mockDialogService = { open: jest.fn() };
 
   beforeEach(async () => {
     open.mockClear();
+    vfo1Enabled$.next(false);
 
     await TestBed.configureTestingModule({
       imports: [FoldersComponent],
       providers: [
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => vfo1Enabled$ } },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: FolderService, useValue: { folderViews$: () => folderViews$ } },
         { provide: I18nService, useValue: { t: (key: string) => key } },
@@ -103,6 +105,36 @@ describe("FoldersComponent", () => {
       ]);
       done();
     });
+  });
+
+  it("filters out the id-less 'My Folder' entry when vfo1 is enabled", (done) => {
+    vfo1Enabled$.next(true);
+    folderViews$.next([
+      { id: "1", name: "Folder 1" },
+      { id: "2", name: "Folder 2" },
+      { id: "", name: "No Folder" },
+    ] as FolderView[]);
+    fixture.detectChanges();
+
+    component.folders$.subscribe((folders) => {
+      expect(folders).toEqual([
+        { id: "1", name: "Folder 1" },
+        { id: "2", name: "Folder 2" },
+      ]);
+      done();
+    });
+  });
+
+  it("shows the vfo1 empty state when only the id-less 'My Folder' entry remains and vfo1 is enabled", () => {
+    vfo1Enabled$.next(true);
+    folderViews$.next([{ id: "", name: "No Folder" }] as FolderView[]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain("youHaveNoFolders");
+    expect(fixture.nativeElement.textContent).toContain("emptyFoldersDescription");
+    expect(
+      fixture.debugElement.query(By.css('[data-testid="empty-new-folder-button"]')),
+    ).toBeFalsy();
   });
 
   it("opens edit dialog for existing folder", () => {

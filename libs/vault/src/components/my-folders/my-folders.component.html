@@ -28,6 +28,25 @@
     </button>
   </bit-table-toolbar>
 
+  <vault-empty-folders
+    slot="empty"
+    [hasItems]="hasItems()"
+    [search]="search()"
+    (clearSearch)="clearSearch()"
+  >
+    <button
+      bitButton
+      type="button"
+      buttonType="primary"
+      startIcon="bwi-plus"
+      slot="empty-add-folder"
+      id="my-folders_empty_button_add-folder"
+      (click)="addFolder()"
+    >
+      {{ "addFolder" | i18n }}
+    </button>
+  </vault-empty-folders>
+
   <bit-bulk-actions-bar>
     <bit-bulk-action
       [action]="deleteSelected"

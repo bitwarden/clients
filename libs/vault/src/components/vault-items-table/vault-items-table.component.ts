@@ -13,7 +13,6 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { map, of, switchMap } from "rxjs";
 
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
-import { NoResults } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -52,13 +51,12 @@ import {
   SelectionConfig,
   SkeletonTextComponent,
   SortFn,
-  StatusLockupComponent,
-  SvgComponent,
   TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { orgIconTile, personalIconTile } from "../../models/vault-icon-tile";
+import { VaultScope } from "../../models/vault-scope";
 import {
   idString,
   matchesFavorite,
@@ -69,31 +67,21 @@ import {
   MY_VAULT,
   NO_FOLDER,
 } from "../../utils/vault-filter-predicates";
+import { EmptyVaultComponent } from "../empty-vault/empty-vault.component";
 
 import { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
 import {
   DEFAULT_COPY_PRESENTATION,
   VaultItemsTableCopyPresentation,
 } from "./vault-items-table-copy-presentation";
+import { VAULT_FILTER_KEYS, type VaultItemsTableFilters } from "./vault-items-table-filter-keys";
 import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
 import { cipherSearchMatches } from "./vault-items-table-search";
 
 /** The `queryParam` namespace shared by every filter chip in the vault table. */
 export const VAULT_FILTER_NAMESPACE = "vault";
 
-/**
- * The `key` values for each filter chip in the vault table.
- * Export these so consumers (the guard, deep-link builders) can reference them
- * without coupling to string literals that diverge over time.
- */
-export const VAULT_FILTER_KEYS = Object.freeze({
-  type: "type",
-  favorites: "favorites",
-  vault: "vault",
-  sharedFolder: "sharedFolder",
-  folder: "folder",
-  search: "search",
-} as const);
+export { VAULT_FILTER_KEYS, type VaultItemsTableFilters } from "./vault-items-table-filter-keys";
 
 /**
  * Every column the table declares, in display order. Doubles as the default column set — which of
@@ -117,24 +105,6 @@ export type VaultItemsTableColumn = (typeof VAULT_COLUMNS)[number];
  * filters only, matching the toolbar's own `clearAll()`.
  */
 const SEARCH_FILTER_KEY = "search";
-
-/** The shape of {@link BitTableV2Component.filterValues} for this table. */
-export type VaultItemsTableFilters = {
-  /**
-   * Reserved key — the table adopts a projected `bit-search` under it automatically. It carries the
-   * term for seeding, URL sync, and Clear all, but matching runs through `SearchService` rather
-   * than off this value — see {@link VaultItemsTableComponent.filter}.
-   */
-  search?: string;
-  type?: CipherType;
-  favorites?: boolean;
-  /** Organization ids, or {@link MY_VAULT}. Multi-select: a cipher matches any selected value. */
-  vault?: string[];
-  /** Collection ids. Multi-select: a cipher matches any selected collection. */
-  sharedFolder?: string[];
-  /** Folder ids, or {@link NO_FOLDER}. Multi-select: a cipher matches any selected value. */
-  folder?: string[];
-};
 
 /**
  * Every cipher type the Type chip offers when a client doesn't narrow the list, in the order the
@@ -215,6 +185,7 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
     BitTableV2Component,
     ButtonModule,
     ChipGroupComponent,
+    EmptyVaultComponent,
     FilterMenuModule,
     I18nPipe,
     IconModule,
@@ -222,8 +193,6 @@ function chipItem(id: string, label: string, startIcon: BitwardenIcon): ChipGrou
     LinkModule,
     SearchModule,
     SkeletonTextComponent,
-    StatusLockupComponent,
-    SvgComponent,
     TooltipDirective,
     VaultIconComponent,
     VaultItemsTableActionsColumnComponent,
@@ -307,6 +276,24 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * Used within the logic of determining whether the "My vault" filter should be available to the user.
    */
   readonly orgRequiresDataOwnership = input<boolean>(false);
+
+  /**
+   * The vault scope — relayed to the empty state untouched; see {@link EmptyVaultComponent}.
+   * The table has no notion of vault scope itself.
+   */
+  readonly scope = input<VaultScope>();
+
+  /** The organization the current vault scope names — relayed to the empty state untouched. */
+  readonly organizationName = input<string>();
+
+  /** The default collection ID the current vault scope has drilled into — relayed to the empty state untouched. */
+  readonly defaultCollectionId = input<string>();
+
+  /** Whether the account has more than one vault — relayed to the empty state untouched. */
+  readonly hasMultipleVaults = input(false);
+
+  /** The shared folder the current vault scope has drilled into — relayed to the empty state untouched. */
+  readonly sharedFolderName = input<string>();
 
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
@@ -398,22 +385,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
   protected readonly MY_VAULT = MY_VAULT;
   protected readonly NO_FOLDER = NO_FOLDER;
-
-  /**
-   * Empty-state copy. A single `slot="empty"` has to cover both cases — rows filtered down to
-   * none, and a genuinely empty vault — so the branch resolves to an i18n key rather than
-   * wrapping the slots in an `@if`: content projection only matches the static top-level nodes
-   * of projected content, so anything inside a conditional block never reaches its slot.
-   */
-  protected readonly emptyTitleKey = computed(() =>
-    this.ciphers().length > 0 ? "noMatchingItems" : "noItemsInVault",
-  );
-
-  protected readonly emptyDescriptionKey = computed(() =>
-    this.ciphers().length > 0 ? "clearFiltersOrTryAnother" : "emptyVaultDescription",
-  );
-
-  protected readonly noResultsIcon = NoResults;
 
   protected readonly cipherTypeLabel = (type: CipherType) => CIPHER_TYPE_LABELS.get(type) ?? "";
 
@@ -784,17 +755,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   }
 
   /**
-   * Whether at least one chip filter is active, excluding the reserved {@link SEARCH_FILTER_KEY}.
-   */
-  protected hasActiveChipFilters(
-    table: BitTableV2Component<C, VaultItemsTableColumn, VaultItemsTableFilters>,
-  ): boolean {
-    return table
-      .filterControls()
-      .some((control: FilterControl) => control.key() !== SEARCH_FILTER_KEY && control.active());
-  }
-
-  /**
    * Narrows one multi-select chip to a single value, replacing whatever it held.
    *
    * Activating a membership chip in a row reads as "show me this folder", so it replaces that
@@ -823,5 +783,15 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
         control.setValue(undefined);
       }
     }
+  }
+
+  /** Clears the search term, leaving chip filters untouched — see {@link clearChipFilters}. */
+  protected clearSearch(
+    table: BitTableV2Component<C, VaultItemsTableColumn, VaultItemsTableFilters>,
+  ): void {
+    table
+      .filterControls()
+      .find((control) => control.key() === SEARCH_FILTER_KEY)
+      ?.setValue("");
   }
 }

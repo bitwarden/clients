@@ -21,5 +21,7 @@
     <ng-content select="[slot=tabs]" />
   </ng-container>
 
-  <app-account-switcher-v2 />
+  @if (!vfo1FoundationEnabled()) {
+    <app-account-switcher-v2 />
+  }
 </bit-header>

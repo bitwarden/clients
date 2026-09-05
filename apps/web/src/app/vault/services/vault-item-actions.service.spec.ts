@@ -6,13 +6,14 @@ import { of } from "rxjs";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
+  CipherFormConfig,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
   VaultItemDialogComponent,
@@ -219,7 +220,7 @@ describe("WebVaultItemActionsService", () => {
   });
 
   describe("add", () => {
-    it("builds an add config with no seeded values", async () => {
+    it("builds an add config with no seeded values when no scope is given", async () => {
       await service.add(CipherType.Card);
 
       expect(cipherFormConfigService.buildConfig).toHaveBeenCalledWith(
@@ -227,6 +228,42 @@ describe("WebVaultItemActionsService", () => {
         undefined,
         CipherType.Card,
       );
+    });
+
+    it("seeds the organization and shared folder when both are in scope", async () => {
+      const formConfig = {} as CipherFormConfig;
+      cipherFormConfigService.buildConfig.mockResolvedValue(formConfig);
+
+      await service.add(CipherType.Login, {
+        organizationId: "org-1" as OrganizationId,
+        collectionId: "collection-1" as CollectionId,
+      });
+
+      expect(formConfig.initialValues).toEqual({
+        organizationId: "org-1",
+        collectionIds: ["collection-1"],
+      });
+    });
+
+    it("seeds only the organization when no shared folder is in scope", async () => {
+      const formConfig = {} as CipherFormConfig;
+      cipherFormConfigService.buildConfig.mockResolvedValue(formConfig);
+
+      await service.add(CipherType.Login, { organizationId: "org-1" as OrganizationId });
+
+      expect(formConfig.initialValues).toEqual({
+        organizationId: "org-1",
+        collectionIds: undefined,
+      });
+    });
+
+    it("does not seed initial values for a personal-vault scope", async () => {
+      const formConfig = {} as CipherFormConfig;
+      cipherFormConfigService.buildConfig.mockResolvedValue(formConfig);
+
+      await service.add(CipherType.Login, {});
+
+      expect(formConfig.initialValues).toBeUndefined();
     });
   });
 

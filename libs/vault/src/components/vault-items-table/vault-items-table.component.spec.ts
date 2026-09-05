@@ -1393,102 +1393,80 @@ describe("VaultItemsTableComponent", () => {
   });
 
   describe("empty states", () => {
-    it("explains that filters excluded everything when there is data", fakeAsync(() => {
+    /** The empty state's action button — "Clear search" or "Clear all", whichever state renders it. */
+    function actionButton() {
+      return fixture.debugElement.query(By.css('button[slot="button"]'));
+    }
+
+    it("explains that no items match the search term when there is data", fakeAsync(() => {
       fixture.componentRef.setInput("ciphers", [cipherView({ name: "Amazon" })]);
       fixture.detectChanges();
 
       // Drives the search box the table adopts automatically under the reserved `search` key.
       search("no-such-item");
 
-      expect(fixture.nativeElement.textContent).toContain("noMatchingItems");
+      expect(fixture.nativeElement.textContent).toContain("noItemsMatchSearchTerm");
     }));
 
-    it("explains that the vault is empty when there is no data at all", () => {
-      fixture.componentRef.setInput("ciphers", []);
+    it("explains that no items match the active chip filters", () => {
+      fixture.componentRef.setInput("ciphers", [cipherView({ type: CipherType.Login })]);
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.textContent).toContain("noItemsInVault");
-    });
-  });
+      filterControl("type").setValue(CipherType.Card);
+      fixture.detectChanges();
 
-  describe("empty state Clear all", () => {
-    /** The empty state's "Clear all" button, present in the DOM only while `bit-table-v2` is empty. */
-    function clearAllButton() {
-      return fixture.debugElement.query(By.css('button[slot="button"]'));
-    }
-
-    describe("hasActiveChipFilters", () => {
-      it("is false when no filter is active", () => {
-        fixture.componentRef.setInput("ciphers", [cipherView({ name: "Amazon" })]);
-        fixture.detectChanges();
-
-        expect(component["hasActiveChipFilters"](bitTable())).toBe(false);
-      });
-
-      it("is true when a chip filter is active", () => {
-        fixture.componentRef.setInput("ciphers", [cipherView({ type: CipherType.Login })]);
-        fixture.detectChanges();
-
-        filterControl("type").setValue(CipherType.Login);
-        fixture.detectChanges();
-
-        expect(component["hasActiveChipFilters"](bitTable())).toBe(true);
-      });
-
-      it("is false when only the search term is active — the search-only empty state guard", () => {
-        fixture.componentRef.setInput("ciphers", [cipherView({ name: "Amazon" })]);
-        fixture.detectChanges();
-
-        filterControl("search").setValue("no-such-item");
-        fixture.detectChanges();
-
-        expect(component["hasActiveChipFilters"](bitTable())).toBe(false);
-      });
+      expect(fixture.nativeElement.textContent).toContain("noItemsMatchSelectedFilters");
     });
 
-    describe("clearChipFilters", () => {
-      it("resets chip controls but leaves the search control's value untouched", () => {
-        fixture.componentRef.setInput("ciphers", [cipherView({ type: CipherType.Login })]);
-        fixture.detectChanges();
+    it("relays the host's scope input to explain a genuinely empty vault", () => {
+      fixture.componentRef.setInput("ciphers", []);
+      fixture.componentRef.setInput("scope", { type: "myVault" });
+      fixture.detectChanges();
 
-        filterControl("type").setValue(CipherType.Login);
-        filterControl("search").setValue("amazon");
-        fixture.detectChanges();
-
-        component["clearChipFilters"](bitTable());
-        fixture.detectChanges();
-
-        expect(filterControl("type").value()).toBeUndefined();
-        expect(filterControl("search").value()).toBe("amazon");
-      });
+      expect(fixture.nativeElement.textContent).toContain("noItemsInMyVault");
     });
 
-    describe("rendered button visibility", () => {
-      it("stays hidden when there is no data and no filter is active", () => {
-        fixture.componentRef.setInput("ciphers", []);
-        fixture.detectChanges();
+    it("clears the search term when the Clear search button is clicked", fakeAsync(() => {
+      fixture.componentRef.setInput("ciphers", [cipherView({ name: "Amazon" })]);
+      fixture.detectChanges();
 
-        expect(clearAllButton().nativeElement.classList).toContain("tw-hidden");
-      });
+      search("no-such-item");
 
-      it("shows once a chip filter empties the rows", () => {
-        fixture.componentRef.setInput("ciphers", [cipherView({ type: CipherType.Login })]);
-        fixture.detectChanges();
+      actionButton().nativeElement.click();
+      fixture.detectChanges();
 
-        filterControl("type").setValue(CipherType.Card);
-        fixture.detectChanges();
+      expect(filterControl("search").value()).toBe("");
+    }));
 
-        expect(clearAllButton().nativeElement.classList).not.toContain("tw-hidden");
-      });
+    it("clears chip filters when the Clear all button is clicked", () => {
+      fixture.componentRef.setInput("ciphers", [cipherView({ type: CipherType.Login })]);
+      fixture.detectChanges();
 
-      it("stays hidden when only a search term empties the rows", fakeAsync(() => {
-        fixture.componentRef.setInput("ciphers", [cipherView({ name: "Amazon" })]);
-        fixture.detectChanges();
+      filterControl("type").setValue(CipherType.Card);
+      fixture.detectChanges();
 
-        search("no-such-item");
+      actionButton().nativeElement.click();
+      fixture.detectChanges();
 
-        expect(clearAllButton().nativeElement.classList).toContain("tw-hidden");
-      }));
+      expect(filterControl("type").value()).toBeUndefined();
+    });
+
+    // A truthy search term always wins the empty-state priority (see the component's
+    // `emptyVaultState`), so this exercises `clearChipFilters` directly rather than through a
+    // Clear all click — there is no state in which both buttons render at once.
+    it("clearChipFilters leaves the search control's value untouched", () => {
+      fixture.componentRef.setInput("ciphers", [cipherView({ type: CipherType.Login })]);
+      fixture.detectChanges();
+
+      filterControl("type").setValue(CipherType.Login);
+      filterControl("search").setValue("amazon");
+      fixture.detectChanges();
+
+      component["clearChipFilters"](bitTable());
+      fixture.detectChanges();
+
+      expect(filterControl("type").value()).toBeUndefined();
+      expect(filterControl("search").value()).toBe("amazon");
     });
   });
 
