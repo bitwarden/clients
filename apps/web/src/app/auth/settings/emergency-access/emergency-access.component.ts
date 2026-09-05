@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { lastValueFrom, Observable, firstValueFrom, switchMap, map } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
@@ -11,13 +12,15 @@ import { OrganizationManagementPreferencesService } from "@bitwarden/common/admi
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { BreadcrumbsModule, DialogService, ToastService } from "@bitwarden/components";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared/shared.module";
@@ -46,10 +49,15 @@ import {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "emergency-access.component.html",
-  imports: [SharedModule, HeaderModule, PremiumBadgeComponent],
+  imports: [SharedModule, HeaderModule, BreadcrumbsModule, PremiumBadgeComponent],
 })
 export class EmergencyAccessComponent implements OnInit {
   loaded = false;
+
+  protected readonly showBreadcrumbs = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
   canAccessPremium$: Observable<boolean>;
   trustedContacts: GranteeEmergencyAccess[];
   grantedContacts: GrantorEmergencyAccess[];
@@ -73,6 +81,7 @@ export class EmergencyAccessComponent implements OnInit {
     private toastService: ToastService,
     private apiService: ApiService,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {
     this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>

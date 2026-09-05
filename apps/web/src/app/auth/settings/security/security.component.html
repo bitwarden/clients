@@ -1,4 +1,14 @@
 <app-header>
+  @if (showBreadcrumbs()) {
+    <bit-breadcrumbs slot="breadcrumbs">
+      <bit-breadcrumb [route]="['/settings']" icon="bwi-cog">{{
+        "settings" | i18n
+      }}</bit-breadcrumb>
+      <bit-breadcrumb [route]="[]" queryParamsHandling="preserve">{{
+        "security" | i18n
+      }}</bit-breadcrumb>
+    </bit-breadcrumbs>
+  }
   <bit-tab-nav-bar slot="tabs">
     <bit-tab-link route="session-timeout">{{ "sessionTimeoutHeader" | i18n }}</bit-tab-link>
     @if (showChangePassword) {
