@@ -16,7 +16,7 @@ import {
 
 export interface SeatLimitResult {
   canAddUsers: boolean;
-  reason?: "reseller-limit" | "fixed-seat-limit" | "no-billing-permission";
+  reason?: "provider-limit" | "fixed-seat-limit";
   shouldShowUpgradeDialog?: boolean;
 }
 
@@ -45,10 +45,10 @@ export class BillingConstraintService {
       return { canAddUsers: true };
     }
 
-    if (organization.hasReseller) {
+    if (organization.hasReseller || organization.hasBillableProvider) {
       return {
         canAddUsers: false,
-        reason: "reseller-limit",
+        reason: "provider-limit",
       };
     }
 
@@ -73,23 +73,34 @@ export class BillingConstraintService {
     }
 
     switch (result.reason) {
-      case "reseller-limit":
+      case "provider-limit":
         this.toastService.showToast({
           variant: "error",
-          title: this.i18nService.t("seatLimitReached"),
-          message: this.i18nService.t("contactYourProvider"),
+          title: this.i18nService.t("errorOccurred"),
+          message: this.i18nService.t("seatLimitReachedContactProvider", organization.seats),
         });
         return true;
 
       case "fixed-seat-limit":
+        // Admins who can manage billing self-serve out of the limit through the change-plan dialog,
+        // for both invite and restore.
         if (result.shouldShowUpgradeDialog) {
           const dialogResult = await this.showChangePlanDialog(organization);
           // If the plan was successfully changed, the seat limit is no longer blocking
           return dialogResult !== ChangePlanDialogResultType.Submitted;
-        } else {
-          await this.showSeatLimitReachedDialog(organization, action);
+        }
+
+        if (action === "invite") {
+          this.toastService.showToast({
+            variant: "error",
+            title: this.i18nService.t("errorOccurred"),
+            message: this.i18nService.t("seatLimitReachedContactOwner", organization.seats),
+          });
           return true;
         }
+
+        await this.showSeatLimitReachedRestoreDialog(organization);
+        return true;
 
       default:
         return true;
@@ -114,17 +125,12 @@ export class BillingConstraintService {
     return result;
   }
 
-  private async showSeatLimitReachedDialog(
-    organization: Organization,
-    action: SeatLimitAction,
-  ): Promise<void> {
-    const dialogContent = this.getSeatLimitReachedDialogContent(organization, action);
+  private async showSeatLimitReachedRestoreDialog(organization: Organization): Promise<void> {
+    const dialogContent = this.getSeatLimitReachedDialogContent(organization);
     const acceptButtonText = this.getSeatLimitReachedDialogAcceptButtonText(organization);
 
     const orgUpgradeSimpleDialogOpts = {
-      title: this.i18nService.t(
-        action === "restore" ? "cannotRestoreAccessError" : "upgradeOrganization",
-      ),
+      title: this.i18nService.t("cannotRestoreAccessError"),
       content: dialogContent,
       type: "primary" as const,
       acceptButtonText,
@@ -151,11 +157,8 @@ export class BillingConstraintService {
     });
   }
 
-  private getSeatLimitReachedDialogContent(
-    organization: Organization,
-    action: SeatLimitAction,
-  ): string {
-    const productKey = this.getProductKey(organization, action);
+  private getSeatLimitReachedDialogContent(organization: Organization): string {
+    const productKey = this.getProductKey(organization);
     return this.i18nService.t(productKey, organization.seats);
   }
 
@@ -173,7 +176,7 @@ export class BillingConstraintService {
     return this.i18nService.t("upgrade");
   }
 
-  private getProductKey(organization: Organization, action: SeatLimitAction): string {
+  private getProductKey(organization: Organization): string {
     const manageBillingText = organization.canEditSubscription
       ? "ManageBilling"
       : "NoManageBilling";
@@ -192,8 +195,7 @@ export class BillingConstraintService {
       default:
         throw new Error(`Unsupported product type: ${organization.productTierType}`);
     }
-    const actionText = action === "restore" ? "Restore" : "Inv";
-    return `${product}${actionText}LimitReached${manageBillingText}`;
+    return `${product}RestoreLimitReached${manageBillingText}`;
   }
 
   async navigateToPaymentMethod(organization: Organization): Promise<void> {
