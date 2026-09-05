@@ -8,7 +8,8 @@ import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 export class RestrictedItemTypesPolicy extends BasePolicyEditDefinition {
   name = "restrictedItemTypePolicy";
   description = "restrictedItemTypePolicyDescV2";
-  descriptionVfo1 = "restrictedItemTypePolicyDescVfo1";
+  descriptionVfo1 = "restrictedItemTypePolicyDescListVfo1";
+  drawerDescriptionVfo1 = "restrictedItemTypePolicyDescVfo1";
   type = PolicyType.RestrictedItemTypes;
   category = PolicyCategory.VaultManagement;
   priority = 50;

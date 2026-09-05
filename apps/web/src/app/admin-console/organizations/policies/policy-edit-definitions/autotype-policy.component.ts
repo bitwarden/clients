@@ -11,6 +11,8 @@ import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 export class DesktopAutotypeDefaultSettingPolicy extends BasePolicyEditDefinition {
   name = "desktopAutotypePolicyTitleV2";
   description = "desktopAutotypePolicyDescV2";
+  descriptionVfo1 = "desktopAutotypePolicyDescVfo1";
+  drawerDescriptionVfo1 = "desktopAutotypePolicyDescV2";
   type = PolicyType.AutotypeDefaultSetting;
   category = PolicyCategory.VaultManagement;
   priority = 70;

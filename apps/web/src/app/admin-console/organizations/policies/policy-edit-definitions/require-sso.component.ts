@@ -13,7 +13,7 @@ export class RequireSsoPolicy extends BasePolicyEditDefinition {
   name = "requireSsoPolicyTitle";
   nameVfo1 = "requireSsoVfo1";
   description = "requireSsoPolicyDescV2";
-  descriptionVfo1 = "requireSsoPolicyDescListVfo1";
+  descriptionVfo1 = "requireSsoPolicyDescListV2Vfo1";
   drawerDescriptionVfo1 = "requireSsoPolicyDescV2Vfo1";
   type = PolicyType.RequireSso;
   category = PolicyCategory.Authentication;
