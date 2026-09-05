@@ -1308,6 +1308,18 @@
   "sharedFolderAdminConsoleManaged": {
     "message": "This shared folder is only accessible from the admin console"
   },
+  "cannotDecryptSharedFolderName": {
+    "message": "Cannot decrypt shared folder name",
+    "description": "Tooltip text for a shared folder whose name failed to decrypt and that the user cannot rename."
+  },
+  "cannotDecryptSharedFolderNameClickToRename": {
+    "message": "Cannot decrypt shared folder name - click to rename and repair it",
+    "description": "Tooltip text for a shared folder whose name failed to decrypt. Clicking opens the edit dialog so the user can save a new name, which re-encrypts the shared folder."
+  },
+  "cannotDecryptSharedFolderNameRepairHint": {
+    "message": "This shared folder's name could not be decrypted. Enter a new name and save to re-encrypt it. Items in the shared folder are not affected.",
+    "description": "Callout shown in the edit dialog for a shared folder whose name failed to decrypt, explaining that saving a new name repairs it."
+  },
   "editSharedFolder": {
     "message": "Edit shared folder"
   },
@@ -5908,6 +5920,18 @@
         "example": "Collection1"
       }
     }
+  },
+  "cannotDecryptCollectionName": {
+    "message": "Cannot decrypt collection name",
+    "description": "Tooltip text for a collection whose name failed to decrypt and that the user cannot rename."
+  },
+  "cannotDecryptCollectionNameClickToRename": {
+    "message": "Cannot decrypt collection name - click to rename and repair it",
+    "description": "Tooltip text for a collection whose name failed to decrypt. Clicking opens the edit dialog so the user can save a new name, which re-encrypts the collection."
+  },
+  "cannotDecryptCollectionNameRepairHint": {
+    "message": "This collection's name could not be decrypted. Enter a new name and save to re-encrypt it. Items in the collection are not affected.",
+    "description": "Callout shown in the edit dialog for a collection whose name failed to decrypt, explaining that saving a new name repairs it."
   },
   "editItemWithName": {
     "message": "Edit item - $NAME$",

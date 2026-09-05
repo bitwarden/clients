@@ -832,7 +832,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   async viewCipher(c: CipherViewLike) {
     if (CipherViewLikeUtils.decryptionFailure(c)) {
       DecryptionFailureDialogComponent.open(this.dialogService, {
-        cipherIds: [c.id as CipherId],
+        ids: [c.id as CipherId],
       });
       return;
     }

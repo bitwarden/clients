@@ -25,6 +25,18 @@
     @if (!loading()) {
       <bit-tab-group [selectedIndex]="tabIndex()" (selectedIndexChange)="tabIndex.set($event)">
         <bit-tab label="{{ 'collectionInfo' | vfo1I18n: 'sharedFolderInfo' }}">
+          @if (collection()?.decryptionFailure) {
+            <bit-callout
+              title="{{ 'decryptionError' | i18n }}"
+              type="warning"
+              data-testid="decryption-failure-callout"
+            >
+              {{
+                "cannotDecryptCollectionNameRepairHint"
+                  | vfo1I18n: "cannotDecryptSharedFolderNameRepairHint"
+              }}
+            </bit-callout>
+          }
           <bit-form-field>
             <bit-label>{{ "name" | i18n }}</bit-label>
             <input bitInput appAutofocus formControlName="name" />

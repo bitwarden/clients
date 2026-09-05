@@ -376,9 +376,12 @@ export class CollectionDialogComponent implements OnInit {
         if (collection) {
           const { name, parent: parentName } = parseName(collection);
           this.formGroup.patchValue({
-            name,
+            // A collection whose name failed to decrypt only has a placeholder for a name.
+            // Leave the field empty so the user supplies a real one instead of unknowingly
+            // saving the placeholder as the collection's name.
+            name: collection.decryptionFailure ? "" : name,
             externalId: collection.externalId,
-            parent: parentName,
+            parent: collection.decryptionFailure ? undefined : parentName,
             access: mapToAccessSelections(collection),
           });
         } else {

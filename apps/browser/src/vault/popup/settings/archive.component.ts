@@ -287,7 +287,7 @@ export class ArchiveComponent {
   private canInteract(cipher: CipherViewLike) {
     if (CipherViewLikeUtils.decryptionFailure(cipher)) {
       DecryptionFailureDialogComponent.open(this.dialogService, {
-        cipherIds: [cipher.id as CipherId],
+        ids: [cipher.id as CipherId],
       });
       return false;
     }
