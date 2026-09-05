@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
-import { EncString } from "@bitwarden/legacy-crypto";
+import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { CipherRepromptType } from "../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../vault/enums/cipher-type";
@@ -45,7 +45,17 @@ export class CipherExport {
     view.notes = req.notes;
     view.favorite = req.favorite;
     view.reprompt = req.reprompt ?? CipherRepromptType.None;
-    view.key = req.key != null ? new EncString(req.key) : undefined;
+    // Only overwrite an existing view.key when the export JSON explicitly carries one.
+    // Leaving it absent (e.g. after CLI redaction) preserves the already-decrypted key
+    // that the bw-edit path fetches before calling toView(), preventing silent key loss.
+    if (req.key != null) {
+      if (EncString.isSerializedEncString(req.key)) {
+        // Old exports stored the wrapped EncString key; it cannot be used without the vault key
+        view.key = undefined;
+      } else {
+        view.key = SymmetricCryptoKey.fromString(req.key);
+      }
+    }
 
     if (req.fields != null) {
       view.fields = req.fields.map((f) => FieldExport.toView(f));
@@ -210,7 +220,10 @@ export class CipherExport {
     this.name = safeGetString(o.name) ?? "";
     this.notes = safeGetString(o.notes);
     if ("key" in o) {
-      this.key = o.key?.encryptedString;
+      this.key =
+        o.key instanceof SymmetricCryptoKey
+          ? o.key.toBase64()
+          : (o.key as EncString | undefined)?.encryptedString;
     }
 
     this.favorite = o.favorite;
