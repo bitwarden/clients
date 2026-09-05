@@ -953,28 +953,29 @@ describe("1Password 1Pux Importer", () => {
     // The SSH key is skipped; only the login imports.
     expect(result.ciphers.length).toBe(1);
     expect(result.ciphers[0].name).toEqual("My Login");
-    // The skipped key's folder relationship must not remain — otherwise it would point at the login.
-    expect(result.folderRelationships).toEqual([]);
+    // The skipped key's folder must be rolled back. The login gets its own vault folder relationship.
+    expect(result.folderRelationships.length).toBe(1);
+    expect(result.folderRelationships[0][0]).toBe(0);
+    const loginFolderName = result.folders[result.folderRelationships[0][1]].name;
+    expect(loginFolderName).toBe("T's Test Vault");
   });
 
   it("should create folders", async () => {
     const importer = new OnePassword1PuxImporter(configService);
     const result = await expectSuccessfulParse(importer, SanitizedExportJson);
 
-    const folders = result.folders;
-    expect(folders.length).toBe(5);
-    expect(folders[0].name).toBe("Movies");
-    expect(folders[1].name).toBe("Finance");
-    expect(folders[2].name).toBe("Travel");
-    expect(folders[3].name).toBe("Education");
-    expect(folders[4].name).toBe("Starter Kit");
+    const folderNames = result.folders.map((f: { name: string }) => f.name);
+    expect(folderNames).toContain("T's Test Vault/Movies");
+    expect(folderNames).toContain("T's Test Vault/Finance");
+    expect(folderNames).toContain("T's Test Vault/Travel");
+    expect(folderNames).toContain("T's Test Vault/Education");
+    expect(folderNames).toContain("Personal/Starter Kit");
+    expect(folderNames).toContain("T's Test Vault");
+    expect(folderNames).toContain("Personal");
+    expect(result.folders.length).toBe(7);
 
-    // Check that folder/cipher relationships
-    expect(result.folderRelationships.filter(([_, f]) => f == 0).length).toBeGreaterThan(0);
-    expect(result.folderRelationships.filter(([_, f]) => f == 1).length).toBeGreaterThan(0);
-    expect(result.folderRelationships.filter(([_, f]) => f == 2).length).toBeGreaterThan(0);
-    expect(result.folderRelationships.filter(([_, f]) => f == 3).length).toBeGreaterThan(0);
-    expect(result.folderRelationships.filter(([_, f]) => f == 4).length).toBeGreaterThan(0);
+    // Check that folder/cipher relationships exist
+    expect(result.folderRelationships.length).toBeGreaterThan(0);
   });
 
   it("should create collections if part of an organization", async () => {
@@ -982,12 +983,225 @@ describe("1Password 1Pux Importer", () => {
     importer.organizationId = Utils.newGuid() as OrganizationId;
     const result = await expectSuccessfulParse(importer, SanitizedExportJson);
 
-    const collections = result.collections;
-    expect(collections.length).toBe(5);
-    expect(collections[0].name).toBe("Movies");
-    expect(collections[1].name).toBe("Finance");
-    expect(collections[2].name).toBe("Travel");
-    expect(collections[3].name).toBe("Education");
-    expect(collections[4].name).toBe("Starter Kit");
+    const collectionNames = result.collections.map((c: { name: string }) => c.name);
+    expect(collectionNames).toContain("T's Test Vault/Movies");
+    expect(collectionNames).toContain("T's Test Vault/Finance");
+    expect(collectionNames).toContain("T's Test Vault/Travel");
+    expect(collectionNames).toContain("T's Test Vault/Education");
+    expect(collectionNames).toContain("Personal/Starter Kit");
+    expect(collectionNames).toContain("T's Test Vault");
+    expect(collectionNames).toContain("Personal");
+    expect(result.collections.length).toBe(7);
+  });
+
+  describe("vault structure preservation", () => {
+    const threeVaultData = {
+      accounts: [
+        {
+          attrs: {
+            accountName: "Acme",
+            name: "Acme",
+            avatar: "",
+            email: "test@example.com",
+            uuid: "acc1",
+            domain: "my.1password.com",
+          },
+          vaults: [
+            {
+              attrs: { uuid: "v1", name: "Private", type: "P", desc: "", avatar: "" },
+              items: [
+                {
+                  uuid: "item1",
+                  favIndex: 0,
+                  createdAt: 1700000000,
+                  updatedAt: 1700000000,
+                  state: "active",
+                  categoryUuid: "001",
+                  details: {
+                    loginFields: [
+                      {
+                        value: "user@example.com",
+                        id: "username",
+                        name: "username",
+                        fieldType: "T",
+                        designation: "username",
+                      },
+                      {
+                        value: "pass1",
+                        id: "password",
+                        name: "password",
+                        fieldType: "P",
+                        designation: "password",
+                      },
+                    ],
+                    notesPlain: "",
+                    sections: [] as unknown[],
+                    passwordHistory: [] as unknown[],
+                  },
+                  overview: { title: "Login P", urls: [] as unknown[], tags: [] as string[] },
+                },
+              ],
+            },
+            {
+              attrs: { uuid: "v2", name: "Shared", type: "E", desc: "", avatar: "" },
+              items: [
+                {
+                  uuid: "item2",
+                  favIndex: 0,
+                  createdAt: 1700000001,
+                  updatedAt: 1700000001,
+                  state: "active",
+                  categoryUuid: "001",
+                  details: {
+                    loginFields: [
+                      {
+                        value: "user@example.com",
+                        id: "username",
+                        name: "username",
+                        fieldType: "T",
+                        designation: "username",
+                      },
+                      {
+                        value: "pass2",
+                        id: "password",
+                        name: "password",
+                        fieldType: "P",
+                        designation: "password",
+                      },
+                    ],
+                    notesPlain: "",
+                    sections: [] as unknown[],
+                    passwordHistory: [] as unknown[],
+                  },
+                  overview: { title: "Login E", urls: [] as unknown[], tags: [] as string[] },
+                },
+              ],
+            },
+            {
+              attrs: { uuid: "v3", name: "Work", type: "U", desc: "", avatar: "" },
+              items: [
+                {
+                  uuid: "item3",
+                  favIndex: 0,
+                  createdAt: 1700000002,
+                  updatedAt: 1700000002,
+                  state: "active",
+                  categoryUuid: "001",
+                  details: {
+                    loginFields: [
+                      {
+                        value: "user@example.com",
+                        id: "username",
+                        name: "username",
+                        fieldType: "T",
+                        designation: "username",
+                      },
+                      {
+                        value: "pass3",
+                        id: "password",
+                        name: "password",
+                        fieldType: "P",
+                        designation: "password",
+                      },
+                    ],
+                    notesPlain: "",
+                    sections: [] as unknown[],
+                    passwordHistory: [] as unknown[],
+                  },
+                  overview: { title: "Login U", urls: [] as unknown[], tags: [] as string[] },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    it("should create one folder per vault for every vault type", async () => {
+      const importer = new OnePassword1PuxImporter(configService);
+      const result = await importer.parse(JSON.stringify(threeVaultData));
+      expect(result.success).toBe(true);
+      expect(result.ciphers.length).toBe(3);
+      expect(result.folders.map((f: { name: string }) => f.name)).toEqual([
+        "Private",
+        "Shared",
+        "Work",
+      ]);
+      expect(result.folderRelationships.length).toBe(3);
+    });
+
+    it("should create one collection per vault when importing to an org", async () => {
+      const importer = new OnePassword1PuxImporter(configService);
+      importer.organizationId = Utils.newGuid() as OrganizationId;
+      const result = await importer.parse(JSON.stringify(threeVaultData));
+      expect(result.success).toBe(true);
+      expect(result.ciphers.length).toBe(3);
+      expect(result.collections.map((c: { name: string }) => c.name)).toEqual([
+        "Private",
+        "Shared",
+        "Work",
+      ]);
+      expect(result.folders.length).toBe(0);
+    });
+
+    it("should nest tag under vault name as folder name", async () => {
+      const taggedData = {
+        accounts: [
+          {
+            attrs: {
+              accountName: "Acme",
+              name: "Acme",
+              avatar: "",
+              email: "test@example.com",
+              uuid: "acc1",
+              domain: "my.1password.com",
+            },
+            vaults: [
+              {
+                attrs: { uuid: "v1", name: "Personal", type: "P", desc: "", avatar: "" },
+                items: [
+                  {
+                    uuid: "item1",
+                    favIndex: 0,
+                    createdAt: 1700000000,
+                    updatedAt: 1700000000,
+                    state: "active",
+                    categoryUuid: "001",
+                    details: {
+                      loginFields: [
+                        {
+                          value: "user@example.com",
+                          id: "username",
+                          name: "username",
+                          fieldType: "T",
+                          designation: "username",
+                        },
+                        {
+                          value: "pass1",
+                          id: "password",
+                          name: "password",
+                          fieldType: "P",
+                          designation: "password",
+                        },
+                      ],
+                      notesPlain: "",
+                      sections: [] as unknown[],
+                      passwordHistory: [] as unknown[],
+                    },
+                    overview: { title: "Bank Login", urls: [] as unknown[], tags: ["finance"] },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      const importer = new OnePassword1PuxImporter(configService);
+      const result = await importer.parse(JSON.stringify(taggedData));
+      expect(result.success).toBe(true);
+      const folderNames = result.folders.map((f: { name: string }) => f.name);
+      expect(folderNames).toContain("Personal/Finance");
+      expect(folderNames).toContain("Personal");
+    });
   });
 });
