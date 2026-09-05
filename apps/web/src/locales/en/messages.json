@@ -17119,6 +17119,9 @@
   "singleOrgPrerequisite": {
     "message": "The single organization policy must be turned on before activating this policy."
   },
+  "singleOrgPrerequisiteVfo1": {
+    "message": "The single organization membership policy must be turned on before activating this policy."
+  },
   "enableBanner": {
     "message": "Enable banner"
   },
