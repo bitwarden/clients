@@ -1,7 +1,7 @@
 import {
   ARCHITECTURES,
   CONFIG_VERSION,
-  ConfigureError,
+  BuildError,
   DISTRIBUTION_CHANNELS,
   TARGETS,
   diffKeys,
@@ -73,7 +73,7 @@ describe("parseConfigureArgs", () => {
   });
 
   it("rejects unknown flags", () => {
-    expect(() => parseConfigureArgs([...MAC_ARGS, "--with-nothing"])).toThrow(ConfigureError);
+    expect(() => parseConfigureArgs([...MAC_ARGS, "--with-nothing"])).toThrow(BuildError);
   });
 
   it("exposes a --with/--no pair for every flagged target", () => {
@@ -104,6 +104,12 @@ describe("validate", () => {
         expect.stringContaining("At least one --distribution-channel"),
       ]),
     );
+  });
+
+  it("rejects an unknown profile", () => {
+    expect(validateArgs([...MAC_ARGS, "--profile", "fast"])).toEqual([
+      expect.stringContaining("Unknown --profile 'fast'. Expected one of: debug, release."),
+    ]);
   });
 
   it("rejects an absolute build directory", () => {
@@ -335,6 +341,11 @@ describe("toBuildConfig", () => {
 
     expect(config.dependencies).toEqual({ safariExtension: { path: "../../out/safari.appex" } });
     expect(config.intermediates).not.toHaveProperty("safariExtension");
+  });
+
+  it("builds with the debug profile unless asked otherwise", () => {
+    expect(toBuildConfigFromArgs(MAC_ARGS).profile).toBe("debug");
+    expect(toBuildConfigFromArgs([...MAC_ARGS, "--profile", "release"]).profile).toBe("release");
   });
 
   it("defaults the channel and omits an unset build number", () => {
