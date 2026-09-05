@@ -7,13 +7,19 @@ use scopeguard::defer;
 use tracing::debug;
 use windows::{
     core::w,
-    Win32::Security::Cryptography::{
-        self, NCryptOpenKey, NCryptOpenStorageProvider, CERT_KEY_SPEC, CRYPTPROTECT_UI_FORBIDDEN,
-        NCRYPT_FLAGS, NCRYPT_KEY_HANDLE, NCRYPT_PROV_HANDLE, NCRYPT_SILENT_FLAG,
+    Win32::{
+        Foundation::{CloseHandle, HANDLE},
+        Security::Cryptography::{
+            self, NCryptOpenKey, NCryptOpenStorageProvider, CERT_KEY_SPEC,
+            CRYPTPROTECT_UI_FORBIDDEN, NCRYPT_FLAGS, NCRYPT_KEY_HANDLE, NCRYPT_PROV_HANDLE,
+            NCRYPT_SILENT_FLAG,
+        },
     },
 };
 
-use super::impersonate::{start_impersonating, stop_impersonating};
+use super::impersonate::{
+    duplicate_process_token, start_impersonating, start_impersonating_token, stop_impersonating,
+};
 
 //
 // Base64
@@ -38,25 +44,42 @@ pub(crate) fn encode_base64(data: &[u8]) -> String {
 // DPAPI decryption
 //
 
-pub(crate) fn decrypt_with_dpapi_as_system(encrypted: &[u8]) -> Result<Vec<u8>> {
+pub(crate) fn decrypt_app_bound_dpapi_layers(
+    encrypted: &[u8],
+    user_process: HANDLE,
+) -> Result<Vec<u8>> {
     // Impersonate a SYSTEM process to be able to decrypt data encrypted for the machine
     let system_token = start_impersonating()?;
-    defer! {
-        debug!("Stopping impersonation");
-        _ = stop_impersonating(system_token);
+    let outer_decrypted = decrypt_with_dpapi(encrypted, true);
+
+    // The helper may be running as a different user than the validated pipe server. Duplicate the
+    // server's user token while impersonating SYSTEM because the helper's primary user may not have
+    // permission to duplicate it.
+    let user_token = if outer_decrypted.is_ok() {
+        Some(duplicate_process_token(user_process))
+    } else {
+        None
+    };
+
+    debug!("Stopping SYSTEM impersonation");
+    if let Err(error) = stop_impersonating(system_token) {
+        if let Some(Ok(token)) = user_token {
+            unsafe {
+                _ = CloseHandle(token);
+            }
+        }
+        return Err(error);
     }
 
-    decrypt_with_dpapi_as_user(encrypted, true)
-}
+    let outer_decrypted = outer_decrypted?;
+    let user_token =
+        user_token.ok_or_else(|| anyhow!("Original-user token was not captured"))??;
 
-pub(crate) fn decrypt_with_dpapi_as_user(encrypted: &[u8], expect_appb: bool) -> Result<Vec<u8>> {
-    let system_decrypted = decrypt_with_dpapi(encrypted, expect_appb)?;
-    debug!(
-        "Decrypted data with SYSTEM {} bytes",
-        system_decrypted.len()
-    );
-
-    Ok(system_decrypted)
+    start_impersonating_token(user_token)?;
+    let inner_decrypted = decrypt_with_dpapi(&outer_decrypted, false);
+    debug!("Stopping original-user impersonation");
+    stop_impersonating(user_token)?;
+    inner_decrypted
 }
 
 fn decrypt_with_dpapi(data: &[u8], expect_appb: bool) -> Result<Vec<u8>> {
@@ -194,11 +217,10 @@ fn decrypt_abe_key_blob_chrome_cng(blob: &[u8]) -> Result<Vec<u8>> {
     // First, decrypt the AES key with CNG API
     let decrypted_aes_key: Vec<u8> = {
         let system_token = start_impersonating()?;
-        defer! {
-            debug!("Stopping impersonation");
-            _ = stop_impersonating(system_token);
-        }
-        decrypt_with_cng(&encrypted_aes_key)?
+        let decrypted = decrypt_with_cng(&encrypted_aes_key);
+        debug!("Stopping SYSTEM impersonation");
+        stop_impersonating(system_token)?;
+        decrypted?
     };
 
     const GOOGLE_XOR_KEY: [u8; 32] = [

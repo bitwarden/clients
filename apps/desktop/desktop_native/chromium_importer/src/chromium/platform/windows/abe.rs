@@ -118,11 +118,14 @@ where
             }
             Ok(bytes_read) => {
                 let message = String::from_utf8_lossy(&buffer[..bytes_read]);
-                let preview = message.chars().take(16).collect::<String>();
-                debug!(
-                    "Received from client: '{}...' ({} bytes)",
-                    preview, bytes_read,
-                );
+                if let Some(error) = message.strip_prefix('!') {
+                    debug!("Received error from helper: {:?}", error);
+                } else {
+                    debug!(
+                        "Received decrypted response from helper ({} encoded bytes)",
+                        bytes_read
+                    );
+                }
 
                 let response = process_message(&message);
                 match client.write_all(response.as_bytes()).await {
