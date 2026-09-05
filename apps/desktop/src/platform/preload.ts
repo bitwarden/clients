@@ -109,9 +109,16 @@ const localhostCallbackService = {
     codeChallenge: string,
     state: string,
     email: string,
+    useSsoLaunchConnector: boolean,
     orgSsoIdentifier?: string,
   ): Promise<void> => {
-    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state, email, orgSsoIdentifier });
+    return ipcRenderer.invoke("openSsoPrompt", {
+      codeChallenge,
+      state,
+      email,
+      useSsoLaunchConnector,
+      orgSsoIdentifier,
+    });
   },
 };
 
