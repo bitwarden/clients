@@ -19,6 +19,7 @@ export interface DomQueryService {
   checkForNewShadowRoots(
     addedElements?: Element[],
     mutationObserver?: MutationObserver,
+    fieldDetector?: (root: ShadowRoot) => boolean,
   ): ShadowRootScanResult;
   setOwnedShadowHostPredicate(predicate: (host: Element) => boolean): void;
   resetObservedShadowRoots(): void;
