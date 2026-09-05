@@ -71,7 +71,15 @@ export class UnlockCommand {
       }
     }
 
-    await this.encryptedMigrator.runMigrations(userId, password);
+    try {
+      await this.encryptedMigrator.runMigrations(userId, password);
+    } catch (e) {
+      // Migrations are best-effort background bookkeeping (e.g. informing the server of a key
+      // id, bumping a KDF setting) that run opportunistically after an unlock. A failure here -
+      // most commonly the server being unreachable - must not make an otherwise-successful
+      // unlock get reported back as a failure.
+      this.logService.warning(`[UnlockCommand] Skipping migrations after unlock: ${e.message}`);
+    }
 
     return this.successResponse();
   }
