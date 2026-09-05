@@ -327,8 +327,17 @@ export class WindowMain {
   /// Show the window with main window styles
   show() {
     if (this.win != null) {
-      applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+      if (!this.win.isVisible()) {
+        applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+      }
+      this.restoreMaximizedState();
       this.win.show();
+    }
+  }
+
+  private restoreMaximizedState() {
+    if (this.win != null && this.windowStates[mainWindowSizeKey]?.isMaximized) {
+      this.win.maximize();
     }
   }
 
@@ -489,9 +498,7 @@ export class WindowMain {
       await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
     });
 
-    if (this.windowStates[mainWindowSizeKey].isMaximized) {
-      this.win.maximize();
-    }
+    this.restoreMaximizedState();
 
     if (show) {
       this.win.show();
@@ -663,8 +670,15 @@ export class WindowMain {
         }
       }
 
-      // We treat fullscreen as maximized (would be even better to store isFullscreen as its own flag).
-      this.windowStates[configKey].isMaximized = win.isMaximized() || win.isFullScreen();
+      //. A minimized window reports isMaximized() === false; skip the write
+      // so we don't clobber the real maximized state before it can be
+      // restored on the next show. It might be better to early exit this
+      // function if win.isMinimized, but I've limited the condition to just
+      // this line for PM-41034
+      if (!win.isMinimized()) {
+        // We treat fullscreen as maximized (would be even better to store isFullscreen as its own flag)
+        this.windowStates[configKey].isMaximized = win.isMaximized() || win.isFullScreen();
+      }
       this.windowStates[configKey].displayBounds = screen.getDisplayMatching(bounds).bounds;
 
       // Maybe store these as well?
