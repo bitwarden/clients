@@ -3,8 +3,8 @@
     {{ (hasBillingToken ? "viewBillingToken" : "generateBillingToken") | i18n }}
   </span>
   <div bitDialogContent>
-    <app-user-verification formControlName="verification" *ngIf="!clientSecret">
-    </app-user-verification>
+    <app-user-verification-form-input formControlName="verification" *ngIf="!clientSecret">
+    </app-user-verification-form-input>
 
     <ng-container *ngIf="clientSecret && showRotateScreen">
       <p>{{ "rotateBillingSyncTokenTitle" | i18n }}</p>
