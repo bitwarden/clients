@@ -257,6 +257,110 @@ describe("MemberActionsService", () => {
     });
   });
 
+  describe("sendInvite", () => {
+    const bulkResponse = (results: { id: string; error: string }[]) =>
+      ({ data: results }) as ListResponse<OrganizationUserBulkResponse>;
+
+    it("should send invites to the given staged members", async () => {
+      organizationUserApiService.postOrganizationUserSendInvite.mockResolvedValue(
+        bulkResponse([{ id: userIdToManage, error: "" }]),
+      );
+
+      const result = await service.sendInvite(mockOrganization, userIdToManage);
+
+      expect(result).toEqual({ success: true });
+      expect(organizationUserApiService.postOrganizationUserSendInvite).toHaveBeenCalledWith(
+        organizationId,
+        [userIdToManage],
+      );
+    });
+
+    it("should refresh the metadata cache because promotion occupies a seat", async () => {
+      organizationUserApiService.postOrganizationUserSendInvite.mockResolvedValue(
+        bulkResponse([{ id: userIdToManage, error: "" }]),
+      );
+
+      await service.sendInvite(mockOrganization, userIdToManage);
+
+      expect(organizationMetadataService.refreshMetadataCache).toHaveBeenCalled();
+    });
+
+    it("should surface a per-member error reported by the server", async () => {
+      organizationUserApiService.postOrganizationUserSendInvite.mockResolvedValue(
+        bulkResponse([
+          { id: userIdToManage, error: "Only staged members can be sent an invitation." },
+        ]),
+      );
+
+      const result = await service.sendInvite(mockOrganization, userIdToManage);
+
+      expect(result).toEqual({
+        success: false,
+        error: "Only staged members can be sent an invitation.",
+      });
+      expect(organizationMetadataService.refreshMetadataCache).not.toHaveBeenCalled();
+    });
+
+    it("should handle send invite errors", async () => {
+      const errorMessage = "Send invite failed";
+      organizationUserApiService.postOrganizationUserSendInvite.mockRejectedValue(
+        new Error(errorMessage),
+      );
+
+      const result = await service.sendInvite(mockOrganization, userIdToManage);
+
+      expect(result).toEqual({ success: false, error: errorMessage });
+      expect(organizationMetadataService.refreshMetadataCache).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("bulkSendInvite", () => {
+    const stagedUserId = userIdToManage;
+    const skippedUserId = "no-longer-staged-user-id";
+
+    it("should split the response into successful and failed members", async () => {
+      organizationUserApiService.postOrganizationUserSendInvite.mockResolvedValue({
+        data: [
+          { id: stagedUserId, error: "" },
+          { id: skippedUserId, error: "Only staged members can be sent an invitation." },
+        ],
+      } as ListResponse<OrganizationUserBulkResponse>);
+
+      const result = await service.bulkSendInvite(mockOrganization, [stagedUserId, skippedUserId]);
+
+      expect(result.successful.map((r) => r.id)).toEqual([stagedUserId]);
+      expect(result.failed).toEqual([
+        { id: skippedUserId, error: "Only staged members can be sent an invitation." },
+      ]);
+      expect(organizationMetadataService.refreshMetadataCache).toHaveBeenCalled();
+    });
+
+    it("should not refresh the metadata cache when no member was invited", async () => {
+      organizationUserApiService.postOrganizationUserSendInvite.mockResolvedValue({
+        data: [{ id: skippedUserId, error: "Only staged members can be sent an invitation." }],
+      } as ListResponse<OrganizationUserBulkResponse>);
+
+      const result = await service.bulkSendInvite(mockOrganization, [skippedUserId]);
+
+      expect(result.successful).toHaveLength(0);
+      expect(organizationMetadataService.refreshMetadataCache).not.toHaveBeenCalled();
+    });
+
+    it("should fail every member when the request throws", async () => {
+      organizationUserApiService.postOrganizationUserSendInvite.mockRejectedValue(
+        new Error("Seat limit reached"),
+      );
+
+      const result = await service.bulkSendInvite(mockOrganization, [stagedUserId, skippedUserId]);
+
+      expect(result.successful).toHaveLength(0);
+      expect(result.failed).toEqual([
+        { id: stagedUserId, error: "Seat limit reached" },
+        { id: skippedUserId, error: "Seat limit reached" },
+      ]);
+    });
+  });
+
   describe("confirmUser", () => {
     const publicKey = new Uint8Array([1, 2, 3, 4, 5]);
 

@@ -143,6 +143,51 @@ export class MemberActionsService {
     }
   }
 
+  async sendInvite(organization: Organization, userId: string): Promise<MemberActionResult> {
+    const result = await this.bulkSendInvite(organization, [userId]);
+    const failure = result.failed[0];
+
+    return failure ? { success: false, error: failure.error } : { success: true };
+  }
+
+  /**
+   * Promotes staged members to invited. The endpoint skips members that are no longer staged and reports
+   * them per row, so a stale selection degrades to a partial send. A seat expansion failure still fails
+   * the whole call, because seats are reserved once for the entire set.
+   */
+  async bulkSendInvite(organization: Organization, userIds: string[]): Promise<BulkActionResult> {
+    const result = new BulkActionResult();
+    this.startProcessing();
+
+    try {
+      const response = await this.organizationUserApiService.postOrganizationUserSendInvite(
+        organization.id,
+        userIds,
+      );
+
+      for (const memberResult of response.data) {
+        if (memberResult.error) {
+          result.failed.push({ id: memberResult.id, error: memberResult.error });
+        } else {
+          result.successful.push(memberResult);
+        }
+      }
+
+      if (result.successful.length > 0) {
+        this.organizationMetadataService.refreshMetadataCache();
+      }
+    } catch (error) {
+      result.failed = userIds.map((id) => ({
+        id,
+        error: (error as Error).message ?? String(error),
+      }));
+    } finally {
+      this.endProcessing();
+    }
+
+    return result;
+  }
+
   async confirmUser(
     user: OrganizationUserView,
     publicKey: Uint8Array,

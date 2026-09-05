@@ -6699,11 +6699,26 @@
   "resendInvitation": {
     "message": "Resend invitation"
   },
+  "sendInvite": {
+    "message": "Send invite"
+  },
+  "sendInvites": {
+    "message": "Send invites"
+  },
   "resendEmail": {
     "message": "Resend email"
   },
   "hasBeenReinvited": {
     "message": "$USER$ reinvited",
+    "placeholders": {
+      "user": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "hasBeenInvited": {
+    "message": "$USER$ invited",
     "placeholders": {
       "user": {
         "content": "$1",
