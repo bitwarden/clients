@@ -12,7 +12,7 @@ const configurator = require(path.resolve(__dirname, "config/config"));
 
 module.exports.getEnv = function getEnv() {
   const NODE_ENV = process.env.NODE_ENV == null ? "development" : process.env.NODE_ENV;
-  const ENV = process.env.ENV == null ? "development" : process.env.ENV;
+  const ENV = process.env.ENV == null ? NODE_ENV : process.env.ENV;
 
   return { NODE_ENV, ENV };
 };
@@ -50,7 +50,7 @@ module.exports.buildConfig = function buildConfig(params) {
 
   console.log(`Building ${params.configName} Desktop App`);
 
-  const envConfig = configurator.load(NODE_ENV, process.env.CHANNEL);
+  const envConfig = configurator.load(ENV, process.env.CHANNEL);
   configurator.log(envConfig);
 
   const commonConfig = {
@@ -145,6 +145,7 @@ module.exports.buildConfig = function buildConfig(params) {
       new EnvironmentPlugin({
         FLAGS: envConfig.flags,
         DEV_FLAGS: NODE_ENV === "development" ? envConfig.devFlags : {},
+        ADDITIONAL_REGIONS: envConfig.additionalRegions ?? [],
       }),
     ],
     externals: {
