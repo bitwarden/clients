@@ -45,6 +45,15 @@ default size.
 
 <Canvas of={stories.SmallSize} />
 
+## Height options
+
+By default, the accordion enforces a maximum height and scrolls its content if it overflows. To
+remove that limit and let the panel size itself to its content, pass `height="auto"`. The panel does
+not scroll in this mode, so a parent that constrains the accordion's height will clip the content
+rather than reveal a scrollbar.
+
+<Canvas of={stories.AutoHeight} />
+
 ## Header content
 
 ### Start icon
