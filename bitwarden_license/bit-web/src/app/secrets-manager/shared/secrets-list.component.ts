@@ -1,7 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
-import { Component, EventEmitter, Input, OnDestroy, Output, OnInit, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  effect,
+  inject,
+  input,
+  output,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { catchError, concatMap, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
@@ -25,102 +33,70 @@ import { SecretListView } from "../models/view/secret-list.view";
 import { SecretView } from "../models/view/secret.view";
 import { SecretService } from "../secrets/secret.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-secrets-list",
   templateUrl: "./secrets-list.component.html",
   standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SecretsListComponent implements OnDestroy, OnInit {
+export class SecretsListComponent implements OnDestroy {
   private readonly configService = inject(ConfigService);
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
   );
 
-  protected dataSource = new TableDataSource<SecretListView>();
+  protected readonly dataSource = new TableDataSource<SecretListView>();
 
   readonly noItemsIcon = NoResults;
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  get secrets(): SecretListView[] {
-    return this._secrets;
-  }
-  set secrets(secrets: SecretListView[]) {
-    this.selection.clear();
-    this._secrets = secrets;
-    this.dataSource.data = secrets;
-  }
-  private _secrets: SecretListView[];
+  readonly secrets = input<SecretListView[]>();
+  readonly search = input<string>();
+  readonly trash = input(false);
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  set search(search: string) {
-    this.selection.clear();
-    this.dataSource.filter = search;
-  }
+  readonly editSecretEvent = output<string>();
+  readonly viewSecretEvent = output<string>();
+  readonly copySecretNameEvent = output<string>();
+  readonly copySecretValueEvent = output<string>();
+  readonly copySecretUuidEvent = output<string>();
+  readonly onSecretCheckedEvent = output<string[]>();
+  readonly deleteSecretsEvent = output<SecretListView[]>();
+  readonly newSecretEvent = output<void>();
+  readonly restoreSecretsEvent = output<string[]>();
+  readonly viewVersionHistoryEvent = output<string>();
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() trash: boolean;
+  private readonly destroy$ = new Subject<void>();
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() editSecretEvent = new EventEmitter<string>();
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() viewSecretEvent = new EventEmitter<string>();
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() copySecretNameEvent = new EventEmitter<string>();
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() copySecretValueEvent = new EventEmitter<string>();
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() copySecretUuidEvent = new EventEmitter<string>();
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onSecretCheckedEvent = new EventEmitter<string[]>();
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() deleteSecretsEvent = new EventEmitter<SecretListView[]>();
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() newSecretEvent = new EventEmitter();
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() restoreSecretsEvent = new EventEmitter();
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() viewVersionHistoryEvent = new EventEmitter<string>();
-
-  private destroy$: Subject<void> = new Subject<void>();
-
-  selection = new SelectionModel<string>(true, []);
-  protected viewEventsAllowed$: Observable<boolean>;
-  protected isAdmin$: Observable<boolean>;
-  protected secretVersioningEnabled$: Observable<boolean>;
+  readonly selection = new SelectionModel<string>(true, []);
+  protected readonly viewEventsAllowed$: Observable<boolean>;
+  protected readonly secretVersioningEnabled$: Observable<boolean>;
 
   constructor(
-    private i18nService: I18nService,
-    private toastService: ToastService,
-    private dialogService: DialogService,
-    private organizationService: OrganizationService,
-    private activatedRoute: ActivatedRoute,
-    private accountService: AccountService,
-    private logService: LogService,
+    private readonly i18nService: I18nService,
+    private readonly toastService: ToastService,
+    private readonly dialogService: DialogService,
+    private readonly organizationService: OrganizationService,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly accountService: AccountService,
+    private readonly logService: LogService,
   ) {
     this.selection.changed
       .pipe(takeUntil(this.destroy$))
       .subscribe((_) => this.onSecretCheckedEvent.emit(this.selection.selected));
-  }
 
-  ngOnInit(): void {
+    // The table data source is not signal based, so input changes have to be
+    // copied into it. Selections are cleared because the rows they point at
+    // may no longer be in the table.
+    effect(() => {
+      this.selection.clear();
+      this.dataSource.data = this.secrets() ?? [];
+    });
+
+    effect(() => {
+      this.selection.clear();
+      this.dataSource.filter = this.search() ?? "";
+    });
+
     this.viewEventsAllowed$ = this.activatedRoute.params.pipe(
       concatMap((params) =>
         getUserId(this.accountService.activeAccount$).pipe(
@@ -165,7 +141,7 @@ export class SecretsListComponent implements OnDestroy, OnInit {
     }
     return false;
   }
-  openEventsDialog = (secret: SecretView): DialogRef<void> =>
+  readonly openEventsDialog = (secret: SecretView): DialogRef<void> =>
     openEntityEventsDialog(this.dialogService, {
       data: {
         name: secret.name,
@@ -186,7 +162,7 @@ export class SecretsListComponent implements OnDestroy, OnInit {
   bulkDeleteSecrets() {
     if (this.selection.selected.length >= 1) {
       this.deleteSecretsEvent.emit(
-        this.secrets.filter((secret) => this.selection.isSelected(secret.id)),
+        this.secrets().filter((secret) => this.selection.isSelected(secret.id)),
       );
     } else {
       this.toastService.showToast({
@@ -209,7 +185,7 @@ export class SecretsListComponent implements OnDestroy, OnInit {
     }
   }
 
-  sortProjects = (a: SecretListView, b: SecretListView): number => {
+  readonly sortProjects = (a: SecretListView, b: SecretListView): number => {
     const aProjects = a.projects;
     const bProjects = b.projects;
     if (aProjects.length !== bProjects.length) {
