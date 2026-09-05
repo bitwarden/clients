@@ -1389,15 +1389,18 @@ async function filterSurface() {
 }
 
 /**
- * Opens the Collections filter, whichever surface the viewport is showing: the chip's popover above
- * `md`, or the collapsed trigger's dialog drilled into Collections below it. Lets one story snapshot
- * both surfaces across viewports.
+ * Opens the Shared folders filter, whichever surface the viewport is showing: the chip's popover
+ * above `md`, or the collapsed trigger's dialog drilled into Shared folders below it. Lets one
+ * story snapshot both surfaces across viewports.
+ *
+ * The names here track the kitchen sink's `placeholderText`, so renaming that chip breaks these
+ * queries — anchored so the sibling "My folders" chip can't match instead.
  */
-async function openCollectionsFilter(canvasElement: HTMLElement): Promise<void> {
+async function openSharedFoldersFilter(canvasElement: HTMLElement): Promise<void> {
   // Above `md` the chip is on screen; below it the row collapses to one icon trigger. The hidden
   // chips inherit `visibility: hidden`, so they are out of the accessibility tree and never match here.
   const trigger = await within(canvasElement).findByRole("button", {
-    name: /^(Collections|Filters)$/,
+    name: /^(Shared folders|Filters)$/,
   });
   await userEvent.click(trigger);
 
@@ -1405,7 +1408,7 @@ async function openCollectionsFilter(canvasElement: HTMLElement): Promise<void> 
     return;
   }
   await userEvent.click(
-    await (await filterSurface()).findByRole("button", { name: /^Collections/ }),
+    await (await filterSurface()).findByRole("button", { name: /^Shared folders/ }),
   );
 }
 
@@ -1428,15 +1431,16 @@ export const KitchenSink: Story = {
 };
 
 /**
- * The Collections filter open, nested three levels deep with an icon tile on every row. Snapshotted
- * at two widths: the chip's popover above `md`, and the responsive dialog's drill-in below it.
+ * The Shared folders filter open, nested three levels deep with an icon tile on every row.
+ * Snapshotted at two widths: the chip's popover above `md`, and the responsive dialog's drill-in
+ * below it.
  */
 export const KitchenSinkFilterOpen: Story = {
   render: () => ({
     template: `<demo-kitchen-sink-table></demo-kitchen-sink-table>`,
   }),
   play: async ({ canvasElement }) => {
-    await openCollectionsFilter(canvasElement);
+    await openSharedFoldersFilter(canvasElement);
   },
   parameters: {
     chromatic: { viewports: [390, 1280] },
@@ -1452,7 +1456,7 @@ export const KitchenSinkFilterEmpty: Story = {
     template: `<demo-kitchen-sink-table></demo-kitchen-sink-table>`,
   }),
   play: async ({ canvasElement }) => {
-    await openCollectionsFilter(canvasElement);
+    await openSharedFoldersFilter(canvasElement);
     await searchForNothing();
   },
   parameters: {
