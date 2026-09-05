@@ -1055,6 +1055,17 @@ export class BrowserApi {
   }
 
   /**
+   * Retrieves registered static content scripts within manifest v3.
+   *
+   * @param filter - Optional filter used to limit returned registrations.
+   */
+  static async getRegisteredContentScriptsMv3(
+    filter?: chrome.scripting.ContentScriptFilter,
+  ): Promise<chrome.scripting.RegisteredContentScript[]> {
+    return await chrome.scripting.getRegisteredContentScripts(filter);
+  }
+
+  /**
    * Handles unregistering of static content scripts within manifest v3.
    *
    * @param filter - Optional filter to unregister content scripts. Passing an empty object will unregister all content scripts.

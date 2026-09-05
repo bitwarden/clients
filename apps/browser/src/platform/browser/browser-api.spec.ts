@@ -1178,6 +1178,22 @@ describe("BrowserApi", () => {
     });
   });
 
+  describe("getRegisteredContentScriptsMv3", () => {
+    it("returns registrations from the scripting API", async () => {
+      const filter = { ids: ["autofill-bootstrap"] };
+      const registrations = [
+        mock<chrome.scripting.RegisteredContentScript>({ id: "autofill-bootstrap" }),
+      ];
+      const getRegisteredContentScripts = jest.fn().mockResolvedValue(registrations);
+      chrome.scripting.getRegisteredContentScripts = getRegisteredContentScripts;
+
+      await expect(BrowserApi.getRegisteredContentScriptsMv3(filter)).resolves.toEqual(
+        registrations,
+      );
+      expect(getRegisteredContentScripts).toHaveBeenCalledWith(filter);
+    });
+  });
+
   /*
    * Safari sometimes returns >1 tabs unexpectedly even when
    * specificing a `windowId` or `currentWindow: true` query option.
