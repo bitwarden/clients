@@ -46,6 +46,7 @@ export * from "./send";
 export * from "./settings";
 export * from "./shield";
 export * from "./side-nav-logo";
+export * from "./side-nav-logo-beta";
 export * from "./spot-report";
 export * from "./sso-key.icon";
 export * from "./two-factor-auth-authenticator.icon";

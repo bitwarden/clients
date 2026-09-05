@@ -12,9 +12,10 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { of } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { BitwardenLogo } from "@bitwarden/assets/svg";
+import { BitwardenLogo, BitwardenLogoBeta } from "@bitwarden/assets/svg";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { flagEnabled } from "@bitwarden/common/platform/misc/flags";
 import {
   AsyncActionsModule,
   ButtonType,
@@ -69,7 +70,7 @@ export class PopupHeaderComponent {
     { initialValue: false },
   );
 
-  protected readonly logo = BitwardenLogo;
+  protected readonly logo = flagEnabled("prereleaseBuild") ? BitwardenLogoBeta : BitwardenLogo;
 
   /**
    * Background treatment of the page title bar.
