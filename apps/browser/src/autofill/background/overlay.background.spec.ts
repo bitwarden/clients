@@ -50,6 +50,7 @@ import {
   AutofillOverlayElement,
   AutofillOverlayPort,
   InlineMenuAccountCreationFieldType,
+  InlineMenuFillType,
   InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
@@ -4378,6 +4379,266 @@ describe("OverlayBackground", () => {
       await flushPromises();
 
       expect(generatorService.generate$).toHaveBeenCalled();
+    });
+
+    it("initializes the list port before a generated password is available", async () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      const focusedFieldData = createFocusedFieldDataMock({
+        inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
+      });
+      const sender = mock<chrome.runtime.MessageSender>({
+        tab: createChromeTabMock({ id: 1 }),
+        frameId: 0,
+      });
+      sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+
+      await initOverlayElementPorts({ initList: true, initButton: false });
+      await flushPromises();
+
+      const postedCommands = (listPortSpy.postMessage as jest.Mock).mock.calls.map(
+        (call) => call[0].command,
+      );
+      expect(postedCommands).toEqual(
+        expect.arrayContaining([
+          "initAutofillInlineMenuList",
+          "updateAutofillInlineMenuGeneratedPassword",
+        ]),
+      );
+      expect(postedCommands.indexOf("initAutofillInlineMenuList")).toBeLessThan(
+        postedCommands.indexOf("updateAutofillInlineMenuGeneratedPassword"),
+      );
+    });
+
+    it("skips initializing an inline menu port that is no longer the active port", async () => {
+      const stalePort = createPortSpyMock(AutofillOverlayPort.List);
+
+      triggerPortOnConnectEvent(stalePort);
+      overlayBackground["inlineMenuListPort"] = createPortSpyMock(AutofillOverlayPort.List);
+      await flushPromises();
+
+      expect(stalePort.postMessage).not.toHaveBeenCalled();
+    });
+
+    it("skips initializing when the focused field changes while the port is connecting", async () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      const sender = mock<chrome.runtime.MessageSender>({
+        tab: createChromeTabMock({ id: 1 }),
+        frameId: 0,
+      });
+      sendMockExtensionMessage(
+        {
+          command: "updateFocusedFieldData",
+          focusedFieldData: createFocusedFieldDataMock({ focusedFieldOpid: "field-1" }),
+        },
+        sender,
+      );
+      await flushPromises();
+
+      const port = createPortSpyMock(AutofillOverlayPort.List);
+      triggerPortOnConnectEvent(port);
+      sendMockExtensionMessage(
+        {
+          command: "updateFocusedFieldData",
+          focusedFieldData: createFocusedFieldDataMock({ focusedFieldOpid: "field-2" }),
+        },
+        sender,
+      );
+      await flushPromises();
+
+      expect(port.postMessage).not.toHaveBeenCalled();
+    });
+
+    it("tears down the port when the focused field changes while the port is connecting", async () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      const sender = mock<chrome.runtime.MessageSender>({
+        tab: createChromeTabMock({ id: 1 }),
+        frameId: 0,
+      });
+      sendMockExtensionMessage(
+        {
+          command: "updateFocusedFieldData",
+          focusedFieldData: createFocusedFieldDataMock({ focusedFieldOpid: "field-1" }),
+        },
+        sender,
+      );
+      await flushPromises();
+      overlayBackground["isInlineMenuListVisible"] = true;
+
+      const port = createPortSpyMock(AutofillOverlayPort.List);
+      triggerPortOnConnectEvent(port);
+      sendMockExtensionMessage(
+        {
+          command: "updateFocusedFieldData",
+          focusedFieldData: createFocusedFieldDataMock({ focusedFieldOpid: "field-2" }),
+        },
+        sender,
+      );
+      await flushPromises();
+
+      expect(port.disconnect).toHaveBeenCalled();
+      expect(overlayBackground["inlineMenuListPort"]).toBeNull();
+      expect(overlayBackground["isInlineMenuListVisible"]).toBe(false);
+    });
+
+    it("resets the button visibility status when tearing down an uninitialized button port", () => {
+      const port = createPortSpyMock(AutofillOverlayPort.Button);
+      overlayBackground["inlineMenuButtonPort"] = port;
+      overlayBackground["isInlineMenuButtonVisible"] = true;
+
+      overlayBackground["tearDownUninitializedInlineMenuPort"](port);
+
+      expect(port.disconnect).toHaveBeenCalled();
+      expect(overlayBackground["inlineMenuButtonPort"]).toBeNull();
+      expect(overlayBackground["isInlineMenuButtonVisible"]).toBe(false);
+    });
+
+    it("skips sending a generated password to a list port that is no longer active", async () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      const stalePort = createPortSpyMock(AutofillOverlayPort.List);
+      overlayBackground["inlineMenuListPort"] = createPortSpyMock(AutofillOverlayPort.List);
+
+      await overlayBackground["generateInlineMenuPasswordForPort"](stalePort);
+
+      expect(overlayBackground["credential$"].value).toBe(generatedPassword);
+      expect(stalePort.postMessage).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("requestGeneratedCredential", () => {
+    function trackGenerateRequestSources() {
+      const sources: (string | undefined)[] = [];
+      overlayBackground["requestGeneratedPassword$"].subscribe((request) =>
+        sources.push(request.source),
+      );
+
+      return sources;
+    }
+
+    it("shares a single in-flight request across concurrent callers", async () => {
+      const sources = trackGenerateRequestSources();
+
+      const [focusCredential, portCredential] = await Promise.all([
+        overlayBackground["requestGeneratedCredential"](PasswordGenerateRequestSource.InlineMenu),
+        overlayBackground["requestGeneratedCredential"](
+          PasswordGenerateRequestSource.InlineMenuInit,
+        ),
+      ]);
+
+      expect(sources).toEqual([PasswordGenerateRequestSource.InlineMenu]);
+      expect(focusCredential).toBe(generatedPassword);
+      expect(portCredential).toBe(generatedPassword);
+    });
+
+    it("requests a new password when refreshing while a request is in flight", async () => {
+      const sources = trackGenerateRequestSources();
+
+      await Promise.all([
+        overlayBackground["requestGeneratedCredential"](PasswordGenerateRequestSource.InlineMenu),
+        overlayBackground["requestGeneratedCredential"](
+          PasswordGenerateRequestSource.InlineMenu,
+          true,
+        ),
+      ]);
+
+      expect(sources).toHaveLength(2);
+    });
+
+    it("requests a new password once the previous request has settled", async () => {
+      const sources = trackGenerateRequestSources();
+
+      await overlayBackground["requestGeneratedCredential"](
+        PasswordGenerateRequestSource.InlineMenu,
+      );
+      await overlayBackground["requestGeneratedCredential"](
+        PasswordGenerateRequestSource.InlineMenu,
+      );
+
+      expect(sources).toHaveLength(2);
+    });
+  });
+
+  describe("positioning the inline menu list for a password generation field", () => {
+    let positionSender: chrome.runtime.MessageSender;
+
+    beforeEach(async () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      positionSender = mock<chrome.runtime.MessageSender>({
+        tab: createChromeTabMock({ id: 1 }),
+        frameId: 0,
+      });
+      await flushPromises();
+    });
+
+    function focusField(inlineMenuFillType: InlineMenuFillType) {
+      sendMockExtensionMessage(
+        {
+          command: "updateFocusedFieldData",
+          focusedFieldData: createFocusedFieldDataMock({ inlineMenuFillType }),
+        },
+        positionSender,
+      );
+
+      return flushPromises();
+    }
+
+    it("appends the list only once a generated password exists", async () => {
+      await focusField(InlineMenuFillTypes.PasswordGeneration);
+      let credentialWhenAppended: string | undefined;
+      tabsSendMessageSpy.mockImplementation((_tab: chrome.tabs.Tab, message: any) => {
+        if (message?.command === "appendAutofillInlineMenuToDom") {
+          credentialWhenAppended = overlayBackground["credential$"].value;
+        }
+
+        return Promise.resolve();
+      });
+      expect(overlayBackground["credential$"].value).toBe("");
+
+      await overlayBackground["updateInlineMenuPosition"](
+        positionSender,
+        AutofillOverlayElement.List,
+      );
+
+      expect(credentialWhenAppended).toBe(generatedPassword);
+    });
+
+    it("does not request a password when positioning the list for a login field", async () => {
+      await focusField(CipherType.Login);
+      const sources: (string | undefined)[] = [];
+      overlayBackground["requestGeneratedPassword$"].subscribe((request) =>
+        sources.push(request.source),
+      );
+
+      await overlayBackground["updateInlineMenuPosition"](
+        positionSender,
+        AutofillOverlayElement.List,
+      );
+
+      expect(sources).toHaveLength(0);
+    });
+
+    it("appends the list without requesting a password when the vault is locked", async () => {
+      await focusField(InlineMenuFillTypes.PasswordGeneration);
+      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+      const sources: (string | undefined)[] = [];
+      overlayBackground["requestGeneratedPassword$"].subscribe((request) =>
+        sources.push(request.source),
+      );
+      let credentialWhenAppended: string | undefined;
+      tabsSendMessageSpy.mockImplementation((_tab: chrome.tabs.Tab, message: any) => {
+        if (message?.command === "appendAutofillInlineMenuToDom") {
+          credentialWhenAppended = overlayBackground["credential$"].value;
+        }
+
+        return Promise.resolve();
+      });
+
+      await overlayBackground["updateInlineMenuPosition"](
+        positionSender,
+        AutofillOverlayElement.List,
+      );
+
+      expect(sources).toHaveLength(0);
+      expect(credentialWhenAppended).toBe("");
     });
   });
 

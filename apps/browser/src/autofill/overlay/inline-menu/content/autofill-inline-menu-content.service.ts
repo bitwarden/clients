@@ -744,18 +744,22 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
-    if (
-      (lastChildIsInlineMenuList && !secondToLastChildIsInlineMenuButton) ||
-      (lastChildIsInlineMenuButton && isInlineMenuListVisible)
-    ) {
-      if (!this.listElement) {
+    try {
+      if (
+        (lastChildIsInlineMenuList && !secondToLastChildIsInlineMenuButton) ||
+        (lastChildIsInlineMenuButton && isInlineMenuListVisible)
+      ) {
+        if (!this.listElement) {
+          return;
+        }
+        containerElement.insertBefore(this.buttonElement, this.listElement);
         return;
       }
-      containerElement.insertBefore(this.buttonElement, this.listElement);
-      return;
-    }
 
-    containerElement.insertBefore(lastChild, this.buttonElement);
+      containerElement.insertBefore(lastChild, this.buttonElement);
+    } catch {
+      // The menu elements are re-appended on the next focus, which restores their order.
+    }
   };
 
   /**
