@@ -23,6 +23,7 @@ import {
 } from "../form-field/field-container.directive";
 import { IconComponent } from "../icon";
 import { BitIconButtonComponent } from "../icon-button";
+import { BitKbdComponent } from "../kbd";
 import { FocusableElement } from "../shared/focusable-element";
 
 let nextId = 0;
@@ -34,6 +35,9 @@ let nextId = 0;
   selector: "bit-search",
   templateUrl: "./search.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    "(document:keydown)": "handleDocumentShortcut($event)",
+  },
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -52,6 +56,7 @@ let nextId = 0;
     FormsModule,
     I18nPipe,
     BitIconButtonComponent,
+    BitKbdComponent,
   ],
 })
 export class SearchComponent implements ControlValueAccessor, FocusableElement {
@@ -73,6 +78,9 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   readonly autocomplete = input<string>();
   readonly size = input<FieldContainerSize>("base");
 
+  /** When true, enables ⌘/Ctrl+F focus shortcut and shows shortcut hints. Esc clears the field regardless. */
+  readonly useKeyShortcuts = input<boolean>(false);
+
   getFocusTarget() {
     return this.input()?.nativeElement;
   }
@@ -80,6 +88,28 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
   onChange(searchText: string) {
     this.searchText.set(searchText);
     this.notifyOnChange()?.(searchText);
+  }
+
+  protected handleDocumentShortcut(event: KeyboardEvent): void {
+    if (!this.useKeyShortcuts() || this.disabled()) {
+      return;
+    }
+
+    // Cmd+F (Mac) or Ctrl+F (Win/Linux) — exactly one of metaKey/ctrlKey
+    if (event.key.toLowerCase() !== "f" || event.metaKey === event.ctrlKey) {
+      return;
+    }
+
+    event.preventDefault();
+    this.input()?.nativeElement.focus();
+  }
+
+  // Safari uses type="text" so Escape won't natively clear the field; handle it manually.
+  protected handleInputKeydown(event: KeyboardEvent): void {
+    if (event.key === "Escape" && this.searchText()) {
+      event.preventDefault();
+      this.clearSearch();
+    }
   }
 
   // Handle the reset button click
