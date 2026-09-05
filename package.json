@@ -234,9 +234,9 @@
       "eslint": "$eslint"
     },
     "tailwindcss": "$tailwindcss",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "@types/react": "18.3.27",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "@types/react": "19.2.18",
     "@angular-devkit/build-angular": {
       "jest-environment-jsdom": "29.7.0"
     },
