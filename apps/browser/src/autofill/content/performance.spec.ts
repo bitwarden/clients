@@ -291,8 +291,11 @@ describe("Performance instrumentation", () => {
         wrapped();
         wrapped();
 
-        // 3 entries × 2 marks each = 6
-        expect(markSpy).toHaveBeenCalledTimes(6);
+        // 3 entries × 2 marks each = 6 (excluding the module-load beacon mark)
+        const seqMarks = markSpy.mock.calls.filter((c: unknown[]) =>
+          (c[0] as string).startsWith("seq:"),
+        );
+        expect(seqMarks).toHaveLength(6);
         expect(measureSpy).toHaveBeenCalledTimes(3);
       });
 
