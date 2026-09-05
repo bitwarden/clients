@@ -18725,6 +18725,9 @@
   "pamTargetSystemKindMssql": {
     "message": "MSSQL"
   },
+  "pamTargetSystemKindActiveDirectory": {
+    "message": "Active Directory (on-premises)"
+  },
   "pamTargetSystemKindCustomScript": {
     "message": "Custom script"
   },
@@ -18787,6 +18790,15 @@
   },
   "pamTargetSystemSessionTerminationNativeHint": {
     "message": "Native integrations always terminate active sessions after a credential is rotated."
+  },
+  "pamTargetSystemSessionTerminationNotSupported": {
+    "message": "Not supported"
+  },
+  "pamTargetSystemSessionTerminationUnsupportedHint": {
+    "message": "This integration cannot end sessions that are already open. Rotating the credential blocks new sign-ins, but existing sessions continue until they expire."
+  },
+  "pamTargetSystemSessionTerminationRetainedHint": {
+    "message": "This target is recorded as supporting session termination, and rotation configs can still use it. Saving here leaves that record as it is."
   },
   "pamTargetSystemTerminationWithdrawalWarning": {
     "message": "Warning: the server will reject removing session termination support while any rotation config on this target still relies on it. Update those configs first."

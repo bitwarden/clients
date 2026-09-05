@@ -83,9 +83,8 @@
         <bit-label>{{ "pamTargetSystemPolicySymbols" | i18n }}</bit-label>
       </bit-form-control>
 
-      <!-- Session termination (Automatic only): intrinsic for native integrations, opt-in for custom scripts -->
       @if (isAutomatic()) {
-        @if (isNativeIntegration()) {
+        @if (sessionTerminationAlways()) {
           <div>
             <p bitTypography="body2" class="tw-mb-1 tw-font-semibold">
               {{ "pamTargetSystemSupportsSessionTermination" | i18n }}
@@ -100,6 +99,31 @@
             <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
               {{ "pamTargetSystemSessionTerminationNativeHint" | i18n }}
             </p>
+          </div>
+        } @else if (sessionTerminationNever()) {
+          <div id="target-system-edit_session-termination-unsupported">
+            <p bitTypography="body2" class="tw-mb-1 tw-font-semibold">
+              {{ "pamTargetSystemSupportsSessionTermination" | i18n }}
+            </p>
+            <span
+              bitTypography="body2"
+              class="tw-inline-flex tw-items-center tw-gap-1 tw-text-muted"
+            >
+              <bit-icon name="bwi-minus-circle"></bit-icon>
+              {{ "pamTargetSystemSessionTerminationNotSupported" | i18n }}
+            </span>
+            <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
+              {{ "pamTargetSystemSessionTerminationUnsupportedHint" | i18n }}
+            </p>
+            @if (showRetainedTermination()) {
+              <p
+                bitTypography="helper"
+                class="tw-mb-0 tw-mt-1 tw-text-muted"
+                id="target-system-edit_session-termination-retained"
+              >
+                {{ "pamTargetSystemSessionTerminationRetainedHint" | i18n }}
+              </p>
+            }
           </div>
         } @else {
           <bit-form-control disableMargin>
@@ -128,9 +152,6 @@
   <bit-spinner />
 } @else {
   @if (!editing) {
-    <!-- ================================================================
-         CREATE MODE — single form for name + method + (automatic fields)
-         ================================================================ -->
     <form [formGroup]="createForm" [bitSubmit]="submitCreate" class="tw-max-w-4xl">
       <bit-section>
         <bit-section-header>
@@ -215,12 +236,7 @@
       </div>
     </form>
   } @else {
-    <!-- ================================================================
-         EDIT MODE — one Save action persists name + (automatic) policy
-         ================================================================ -->
-
     <div class="tw-max-w-4xl">
-      <!-- Setup guidance: how to connect this target system to a daemon + add a credential -->
       <bit-callout type="info" [title]="'pamTargetSystemSetupGuidanceTitle' | i18n">
         @if (existing()?.method === TargetSystemMethod.Automatic) {
           <ol class="tw-mb-0 tw-ps-4">
@@ -232,7 +248,6 @@
         }
       </bit-callout>
 
-      <!-- Name card -->
       <bit-section [formGroup]="nameForm">
         <bit-section-header>
           <h2 bitTypography="h5">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
@@ -241,15 +256,9 @@
           @if (existing()?.method === TargetSystemMethod.Automatic) {
             <p bitTypography="body2" class="tw-text-muted">
               {{ "pamTargetSystemMethodAutomatic" | i18n }}
-              @if (existing()?.kind != null) {
+              @if (existingKindLabel(); as kindLabel) {
                 ·
-                {{
-                  existing()!.kind === TargetSystemKind.Entra
-                    ? ("pamTargetSystemKindEntra" | i18n)
-                    : existing()!.kind === TargetSystemKind.Mssql
-                      ? ("pamTargetSystemKindMssql" | i18n)
-                      : ("pamTargetSystemKindCustomScript" | i18n)
-                }}
+                {{ kindLabel | i18n }}
               }
             </p>
           } @else {
@@ -265,7 +274,6 @@
         </bit-card>
       </bit-section>
 
-      <!-- Policy card (Automatic + Manual) -->
       @if (showPolicyCard()) {
         <ng-container *ngTemplateOutlet="policyCard"></ng-container>
       }

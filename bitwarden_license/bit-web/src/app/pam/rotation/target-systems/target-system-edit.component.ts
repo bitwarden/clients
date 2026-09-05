@@ -40,8 +40,10 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
   PasswordPolicy,
+  SELECTABLE_TARGET_SYSTEM_KINDS,
   TargetSystemId,
   TargetSystemKind,
+  TargetSystemKindLabel,
   TargetSystemMethod,
   TargetSystemStatus,
   TargetSystem,
@@ -51,6 +53,36 @@ import { RotationSdkService } from "../rotation-sdk.service";
 const NAME_MAX_LENGTH = 200;
 const DEFAULT_MIN_LENGTH = 14;
 const DEFAULT_MAX_LENGTH = 64;
+
+/**
+ * Whether an integration can end sessions that are already open, and who decides.
+ *
+ * - `always` — the integration ends them itself; the form states the fact rather than asking.
+ * - `never` — it cannot, whatever the operator would like; the form says so and claims nothing.
+ *   It declines the capability rather than withdrawing one — see {@link sessionTerminationForUpdate}.
+ * - `operatorDeclared` — only the operator's own implementation knows, so the form asks.
+ */
+type SessionTerminationCapability = "always" | "never" | "operatorDeclared";
+
+/**
+ * What each integration can do about sessions that are already open.
+ *
+ * This is a per-kind fact, not "native versus custom script": rotating an Active Directory account
+ * password blocks new sign-ins, but a Kerberos ticket already issued stays valid until it expires,
+ * so an LDAP write cannot revoke live sessions the way the Entra and MSSQL APIs do. Declaring it
+ * per kind over a `Record<TargetSystemKind, …>` also means a kind the SDK gains cannot reach this
+ * form until someone states what it can do.
+ *
+ * `Unknown` is `never` deliberately: a kind this SDK version cannot model must not claim a
+ * capability the operator would then rely on.
+ */
+const SESSION_TERMINATION_CAPABILITY = Object.freeze({
+  entra: "always",
+  mssql: "always",
+  custom_script: "operatorDeclared",
+  active_directory: "never",
+  unknown: "never",
+} as const satisfies Record<TargetSystemKind, SessionTerminationCapability>);
 
 type PolicyControls = {
   minLength: FormControl<number>;
@@ -153,20 +185,17 @@ export class TargetSystemEditComponent {
     this.i18nService.t(this.editing ? "pamTargetSystemEditTitle" : "pamTargetSystemCreateTitle"),
   );
 
-  /** Expose const objects for template comparisons. */
+  /**
+   * An Angular template can only resolve names against the component instance, so a module-level
+   * const has to be held as a field before the template can reference it.
+   */
   protected readonly TargetSystemMethod = TargetSystemMethod;
-  protected readonly TargetSystemKind = TargetSystemKind;
 
   /** Kind options for the bit-select in Automatic mode. */
-  protected readonly kindOptions = [
-    { value: TargetSystemKind.Entra, label: "pamTargetSystemKindEntra" },
-    { value: TargetSystemKind.Mssql, label: "pamTargetSystemKindMssql" },
-    { value: TargetSystemKind.CustomScript, label: "pamTargetSystemKindCustomScript" },
-  ] as const;
-
-  // -----------------------------------------------------------------------
-  // Create-mode form (single submit for everything)
-  // -----------------------------------------------------------------------
+  protected readonly kindOptions = SELECTABLE_TARGET_SYSTEM_KINDS.map((value) => ({
+    value,
+    label: TargetSystemKindLabel[value],
+  }));
 
   protected readonly createForm = this.formBuilder.nonNullable.group({
     name: ["", [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)]],
@@ -219,15 +248,44 @@ export class TargetSystemEditComponent {
       : null,
   );
 
-  /**
-   * Native integrations (Entra, Mssql — anything other than a custom script) always terminate
-   * active sessions after rotation; the capability is intrinsic, so the form shows a static
-   * "Supported" indicator rather than an editable checkbox.
-   */
-  protected readonly isNativeIntegration = computed(() => {
-    const kind = this.selectedKind();
-    return kind != null && kind !== TargetSystemKind.CustomScript;
+  /** The i18n id naming the loaded system's integration, or `null` when it has none. */
+  protected readonly existingKindLabel = computed(() => {
+    const kind = this.existing()?.kind;
+    return kind == null ? null : TargetSystemKindLabel[kind];
   });
+
+  /**
+   * What the integration in play can do about sessions that are already open. `null` while the
+   * method is Manual, which has no integration and no daemon session to end.
+   */
+  private readonly sessionTermination = computed<SessionTerminationCapability | null>(() => {
+    const kind = this.selectedKind();
+    return kind == null ? null : SESSION_TERMINATION_CAPABILITY[kind];
+  });
+
+  protected readonly sessionTerminationAlways = computed(
+    () => this.sessionTermination() === "always",
+  );
+
+  protected readonly sessionTerminationNever = computed(
+    () => this.sessionTermination() === "never",
+  );
+
+  /**
+   * A loaded system whose kind declares no session termination, which the server nonetheless
+   * records as supporting it — a capability written before this kind was named, or by a newer
+   * server this SDK version cannot model.
+   *
+   * The card's "Not supported" line then disagrees with the stored fact, and the fact is the one
+   * rotation configs still gate their terminateSessions control on, so the page says which of the
+   * two a save keeps.
+   */
+  protected readonly showRetainedTermination = computed(
+    () =>
+      this.editing &&
+      this.sessionTerminationNever() &&
+      this.existing()?.supportsSessionTermination === true,
+  );
 
   /**
    * Whether to show the session-termination withdrawal warning (only in edit mode,
@@ -244,10 +302,6 @@ export class TargetSystemEditComponent {
     }
     return !this.policyForm.controls.supportsSessionTermination.value;
   });
-
-  // -----------------------------------------------------------------------
-  // Edit-mode name form (separate from policy)
-  // -----------------------------------------------------------------------
 
   protected readonly nameForm = this.formBuilder.nonNullable.group({
     name: ["", [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)]],
@@ -332,10 +386,6 @@ export class TargetSystemEditComponent {
     }
   }
 
-  // -----------------------------------------------------------------------
-  // Submit handlers
-  // -----------------------------------------------------------------------
-
   /** Build a PasswordPolicy from the current policy-form values. */
   private buildPasswordPolicy(): PasswordPolicy {
     const policy = this.policyForm.getRawValue();
@@ -350,11 +400,38 @@ export class TargetSystemEditComponent {
   }
 
   /**
-   * Effective session-termination support for an Automatic system: native integrations always
-   * support it; custom scripts follow the checkbox. Callers gate this on the method being Automatic.
+   * Effective session-termination support for an Automatic system. Only `operatorDeclared` reads
+   * the checkbox, so a kind that cannot end sessions submits `false` even when the control still
+   * holds a `true` left over from a kind that could.
    */
   private resolvedSessionTermination(): boolean {
-    return this.isNativeIntegration() || this.policyForm.controls.supportsSessionTermination.value;
+    const capability = this.sessionTermination();
+    if (capability === "operatorDeclared") {
+      return this.policyForm.controls.supportsSessionTermination.value;
+    }
+    return capability === "always";
+  }
+
+  /**
+   * What a save writes for `supportsSessionTermination` on a system that already exists.
+   *
+   * Declining to claim a capability and withdrawing one already granted are different writes, and
+   * only the first is this form's to make. A `never` kind states that it cannot end sessions; it
+   * says nothing about what the server was told before it, and the update request has no "leave
+   * this alone" — the field is required — so the only way to leave the stored fact standing is to
+   * send it back. Without that, renaming a system of an unmodelled kind strips a capability that
+   * rotation configs gate on, through a card that shows no control to put it back with.
+   *
+   * Withdrawal stays available where the form does ask: unchecking the `operatorDeclared` box.
+   */
+  private sessionTerminationForUpdate(): boolean {
+    if (!this.isAutomatic()) {
+      return false;
+    }
+    if (this.sessionTermination() === "never") {
+      return this.existing()?.supportsSessionTermination ?? false;
+    }
+    return this.resolvedSessionTermination();
   }
 
   /** Create mode: single submit creates the target system. */
@@ -363,7 +440,6 @@ export class TargetSystemEditComponent {
     this.policyForm.markAllAsTouched();
     const method = this.createForm.controls.method.value;
 
-    // The password policy applies to both methods now, so it is always validated.
     if (this.createForm.invalid || this.policyForm.invalid) {
       return;
     }
@@ -408,19 +484,16 @@ export class TargetSystemEditComponent {
     this.nameForm.markAllAsTouched();
     this.policyForm.markAllAsTouched();
 
-    // Both methods carry a password policy now, so it is always validated + saved.
     if (this.nameForm.invalid || this.policyForm.invalid) {
       return;
     }
 
     const { name } = this.nameForm.getRawValue();
     try {
-      // One write, not two: the server takes the name, the policy and the capability together.
       await this.rotationSdk.updateTargetSystem(this.organizationId, this.targetSystemId!, {
         name,
         passwordPolicy: this.buildPasswordPolicy(),
-        // Automatic follows native/custom-script rules; Manual has no daemon session to terminate.
-        supportsSessionTermination: this.isAutomatic() && this.resolvedSessionTermination(),
+        supportsSessionTermination: this.sessionTerminationForUpdate(),
       });
 
       // The write answers with no content, so re-read rather than assume the request body is now
