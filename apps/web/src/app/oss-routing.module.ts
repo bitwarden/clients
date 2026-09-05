@@ -20,9 +20,9 @@ import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
-  TwoFactorTimeoutIcon,
-  TwoFactorAuthEmailIcon,
-  TwoFactorAuthSecurityKeyIcon,
+  ExpiredIcon,
+  EmailCodeSentIcon,
+  SecurityKeyIcon,
   UserLockIcon,
   VaultIcon,
   SsoKeyIcon,
@@ -162,7 +162,7 @@ const routes: Routes = [
         path: AuthRoute.LoginWithPasskey,
         canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: TwoFactorAuthSecurityKeyIcon,
+          pageIcon: SecurityKeyIcon,
           titleId: "logInWithPasskey",
           pageTitle: {
             key: "logInWithPasskey",
@@ -376,7 +376,7 @@ const routes: Routes = [
         path: AuthWebRoute.SignUpLinkExpired,
         canActivate: [unauthGuardFn()],
         data: {
-          pageIcon: TwoFactorTimeoutIcon,
+          pageIcon: ExpiredIcon,
           pageTitle: {
             key: "expiredLink",
           },
@@ -471,7 +471,7 @@ const routes: Routes = [
           },
         ],
         data: {
-          pageIcon: TwoFactorTimeoutIcon,
+          pageIcon: ExpiredIcon,
           pageTitle: {
             key: "authenticationTimeout",
           },
@@ -510,7 +510,7 @@ const routes: Routes = [
           },
         ],
         data: {
-          pageIcon: TwoFactorAuthEmailIcon,
+          pageIcon: EmailCodeSentIcon,
           pageTitle: {
             key: "verifyYourIdentity",
           },

@@ -20,8 +20,8 @@ import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-ma
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
-  TwoFactorTimeoutIcon,
-  TwoFactorAuthEmailIcon,
+  ExpiredIcon,
+  EmailCodeSentIcon,
   UserLockIcon,
   VaultIcon,
   LockIcon,
@@ -177,7 +177,7 @@ const routes: Routes = [
           pageTitle: {
             key: "authenticationTimeout",
           },
-          pageIcon: TwoFactorTimeoutIcon,
+          pageIcon: ExpiredIcon,
           elevation: 1,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
@@ -189,7 +189,7 @@ const routes: Routes = [
     canActivate: [unauthGuardFn(), activeAuthGuard()],
     children: [{ path: "", component: NewDeviceVerificationComponent }],
     data: {
-      pageIcon: TwoFactorAuthEmailIcon,
+      pageIcon: EmailCodeSentIcon,
       pageTitle: {
         key: "verifyYourIdentity",
       },
