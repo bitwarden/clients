@@ -41,7 +41,7 @@ import {
   WrappedPrivateKey,
   WrappedSigningKey,
 } from "@bitwarden/legacy-crypto";
-import { PureCrypto, TokenProvider } from "@bitwarden/sdk-internal";
+import { ManagedSettingsClient, PureCrypto, TokenProvider } from "@bitwarden/sdk-internal";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
@@ -336,8 +336,14 @@ export class UserKeyRotationService {
     masterKeySalt: string,
     cryptographicStateParameters: V1CryptographicStateParameters,
   ): Promise<V2UserCryptographicState> {
-    // Initialize an SDK with the current cryptographic state
-    const sdk = await this.sdkClientFactory.createSdkClient(new NoopTokenProvider());
+    // Initialize an SDK with the current cryptographic state. Web cannot read a management profile
+    // from the browser or OS, so this one-off client gets an empty handle. Safe to construct here
+    // because key rotation already awaited `SdkLoadService.Ready`.
+    const sdk = await this.sdkClientFactory.createSdkClient(
+      new NoopTokenProvider(),
+      undefined,
+      new ManagedSettingsClient(),
+    );
     await sdk.crypto().initialize_user_crypto({
       userId: asUuid(userId),
       kdfParams: kdfConfig.toSdkConfig(),
@@ -364,8 +370,14 @@ export class UserKeyRotationService {
     masterKeySalt: string,
     cryptographicStateParameters: V2CryptographicStateParameters,
   ): Promise<V2UserCryptographicState> {
-    // Initialize an SDK with the current cryptographic state
-    const sdk = await this.sdkClientFactory.createSdkClient(new NoopTokenProvider());
+    // Initialize an SDK with the current cryptographic state. Web cannot read a management profile
+    // from the browser or OS, so this one-off client gets an empty handle. Safe to construct here
+    // because key rotation already awaited `SdkLoadService.Ready`.
+    const sdk = await this.sdkClientFactory.createSdkClient(
+      new NoopTokenProvider(),
+      undefined,
+      new ManagedSettingsClient(),
+    );
     await sdk.crypto().initialize_user_crypto({
       userId: asUuid(userId),
       kdfParams: kdfConfig.toSdkConfig(),

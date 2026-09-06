@@ -1,4 +1,8 @@
-import { AuthType as SdkAuthType, SendType as SdkSendType } from "@bitwarden/sdk-internal";
+import {
+  AuthType as SdkAuthType,
+  SendType as SdkSendType,
+  SendView as SdkSendView,
+} from "@bitwarden/sdk-internal";
 
 import { Utils } from "../../../../platform/misc/utils";
 import { AuthType } from "../../types/auth-type";
@@ -102,5 +106,123 @@ describe("SendView.toSdkSendView", () => {
     view.authType = AuthType.None;
 
     expect(view.toSdkSendView().key).toBeUndefined();
+  });
+});
+
+describe("SendView.fromSdkSend", () => {
+  it("sets password field in destination object to truthy placeholder since source doesn't contain it", () => {
+    const sdkSendView = {
+      hasPassword: true,
+    } as SdkSendView;
+
+    const sendView = SendView.fromSdkSendView(sdkSendView);
+    expect(sendView.password).toEqual("************");
+  });
+
+  it("handles missing fields in the source object", () => {
+    const sdkSendView = {
+      name: "Test Send",
+      type: SdkSendType.Text,
+      text: {
+        text: "Test Send contents",
+        hidden: false,
+      },
+      authType: SdkAuthType.None,
+      hasPassword: false,
+      accessCount: 0,
+      disabled: false,
+      hideEmail: false,
+      revisionDate: new Date(),
+      deletionDate: new Date(),
+      emails: [],
+    } as any as SdkSendView;
+
+    const sendView = SendView.fromSdkSendView(sdkSendView);
+    expect(sendView).toEqual({
+      id: null,
+      name: "Test Send",
+      accessCount: 0,
+      accessId: null,
+      authType: AuthType.None,
+      deletionDate: sdkSendView.deletionDate,
+      disabled: false,
+      emails: [],
+      expirationDate: null,
+      file: null,
+      text: {
+        text: "Test Send contents",
+        hidden: false,
+      },
+      hideEmail: false,
+      key: null,
+      password: null,
+      revisionDate: sdkSendView.revisionDate,
+      type: SendType.Text,
+      maxAccessCount: undefined,
+      notes: undefined,
+    });
+  });
+});
+
+describe("SendView to SdkSendView round trip", () => {
+  it("gives you back the input value when called toSdkView() -> fromSdkView()", () => {
+    const key = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    const view = new SendView();
+    view.id = "00000000-0000-0000-0000-000000000001";
+    view.accessId = "access-id";
+    view.type = SendType.Text;
+    view.name = "plain name";
+    view.notes = "plain notes";
+    view.key = key;
+    view.text = Object.assign(new SendTextView(), { text: "hello", hidden: false });
+    view.file = null;
+    view.maxAccessCount = 5;
+    view.accessCount = 2;
+    view.disabled = false;
+    view.hideEmail = true;
+    view.revisionDate = new Date("2026-01-01T00:00:00.000Z");
+    view.deletionDate = new Date("2026-02-01T00:00:00.000Z");
+    view.expirationDate = new Date("2026-01-15T00:00:00.000Z");
+    view.emails = ["a@example.com"];
+    view.authType = AuthType.None;
+    view.password = null;
+
+    const sdkSendView = view.toSdkSendView();
+    const roundTripView = SendView.fromSdkSendView(sdkSendView);
+
+    expect(view).toEqual(roundTripView);
+  });
+
+  it("gives you back the input value when called fromSdkView() -> toSdkView()", () => {
+    const sdkSendView = {
+      accessId: undefined,
+      id: undefined,
+      key: undefined,
+      name: "Test Send",
+      notes: "Test Notes",
+      type: SdkSendType.Text,
+      text: {
+        text: "Test Send contents",
+        hidden: false,
+      },
+      file: undefined,
+      data: undefined,
+      maxAccessCount: undefined,
+      expirationDate: undefined,
+      newPassword: undefined,
+      authType: SdkAuthType.None,
+      hasPassword: false,
+      accessCount: 0,
+      disabled: false,
+      hideEmail: false,
+      revisionDate: new Date().toISOString(),
+      deletionDate: new Date().toISOString(),
+      emails: [],
+    } as SdkSendView;
+
+    const view = SendView.fromSdkSendView(sdkSendView);
+    const roundTripSdkSendView = view.toSdkSendView();
+
+    expect(sdkSendView).toEqual(roundTripSdkSendView);
   });
 });
