@@ -1,4 +1,4 @@
-import { NgModule, inject } from "@angular/core";
+import { inject, NgModule } from "@angular/core";
 import { Route, Router, RouterModule, Routes } from "@angular/router";
 import { map, switchMap } from "rxjs";
 
@@ -815,6 +815,22 @@ const routes: Routes = [
         canActivate: [authGuard],
         children: [
           { path: "", pathMatch: "full", redirectTo: "generator" },
+          {
+            path: "import",
+            canMatch: [
+              () =>
+                inject(ConfigService)
+                  .getFeatureFlag$(FeatureFlag.ImportUpgrade)
+                  .pipe(map((flagValue) => flagValue === true)),
+            ],
+            loadComponent: () =>
+              import("./tools/import/import-source-select-web.component").then(
+                (mod) => mod.ImportSourceSelectWebComponent,
+              ),
+            data: {
+              titleId: "importNoun",
+            } satisfies RouteDataProperties,
+          },
           {
             path: "import",
             loadComponent: () =>
