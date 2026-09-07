@@ -19,30 +19,18 @@ import { GatedCipherReloader } from "@bitwarden/vault";
 import { AccessRefreshService, AccessRequestSdkService } from "..";
 
 /**
- * PAM's {@link GatedCipherReloader}: reveals a gated cipher in place once the caller holds an active
- * lease over it, and re-locks it when the lease ends.
+ * PAM's {@link GatedCipherReloader}: reveals a gated cipher in place once an active lease
+ * covers it, and re-locks it when the lease ends.
  *
- * Emits `null` while no lease covers the cipher and the full {@link Cipher} while one does, keyed off
- * the lease id — `distinctUntilChanged` means an unrelated access-state re-emit (a sibling request
- * resolving, say) does not trigger another fetch of the same lease's cipher.
+ * Emits `null` while ungated, the full {@link Cipher} while covered, keyed off the lease id.
+ * Reads through the STANDARD single-cipher endpoint, not a PAM-specific one, since the server
+ * already decides per caller what a cipher's payload contains.
  *
- * The full cipher is read through the STANDARD single-cipher endpoint
- * (`ApiService.getFullCipherDetails`, the same read sync uses), not through a PAM-specific one. That
- * is the point of the partial-cipher pivot: the server already decides per caller what a cipher's
- * payload contains — restricted without a lease, complete with one — so no dedicated leased-cipher
- * route is needed, and the poc's `GET /leases/ciphers/{id}/cipher` (deprecated and scheduled for
- * removal) has no successor here.
+ * THIS IS THE MODULE'S LAST RAW-HTTP CALL: swap {@link fetchLeased} onto
+ * `pam().leases().leased_cipher(cipherId)` once a published `sdk-internal` carries it.
  *
- * THIS IS THE MODULE'S LAST RAW-HTTP CALL, and it is on its way out. The SDK now has
- * `pam().leases().leased_cipher(cipherId)`, which makes the same standard call, applies the same
- * "still restricted means no access" rule, and returns a decrypted view without writing to the
- * cipher repository. Swap {@link fetchLeased} onto it once a published `sdk-internal` carries it,
- * and this class stops depending on `ApiService` altogether — restoring "every PAM call goes
- * through the SDK" without an exception (see this module's CLAUDE.md).
- *
- * The result is NEVER written into the local cipher cache. The cache stays partial for the lifetime
- * of the lease, so closing and reopening the item re-reads it and a lapsed lease cannot leave
- * decryptable secrets behind in local state.
+ * The result is never written into the local cipher cache, so a lapsed lease can't leave
+ * decryptable secrets behind.
  */
 export class PamGatedCipherReloader implements GatedCipherReloader {
   constructor(

@@ -153,10 +153,8 @@ describe("GatedCollectionBannerComponent", () => {
     expect(banner()).not.toBeNull();
   });
 
-  // `getFeatureFlag$` and `organizations$` both re-emit on unrelated upstream events (a config
-  // refresh, any sync write) with no de-duplication of their own. A re-run of the rules read on
-  // every such re-emission would re-trigger its `startWith(false)` seed and blink a settled
-  // banner off and back on, even though the selected collection never changed.
+  // `getFeatureFlag$`/`organizations$` re-emit on unrelated upstream events; without
+  // de-duplication that re-triggers the `startWith(false)` seed and blinks the banner.
   it("does not re-read rules when an unrelated upstream source re-emits for the same collection", () => {
     create(PAM_ORG, COLLECTION);
     expect(banner()).not.toBeNull();

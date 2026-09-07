@@ -40,13 +40,12 @@ describe("PAM_ROUTES seam", () => {
 
   /**
    * The shape `OssRoutingModule` gives the user shell: one `UserLayoutComponent` mount behind
-   * `deepLinkGuard` + `authGuard`, with `pam` as one of its children. The guards are recorders
-   * rather than the real ones so their relative order is observable.
+   * `deepLinkGuard` + `authGuard`, with `pam` as a child. The guards are recorders, not the real
+   * ones, so their relative order is observable.
    *
-   * `canMatch` and `loadChildren` are copied verbatim from `OssRoutingModule` rather than
-   * simplified: both reach the seam through `inject()`, which is legal only because the router
-   * calls them inside an injection context. Nothing else fails if that stops holding — the
-   * callback runs on navigation, so neither `test:types` nor a production build executes it.
+   * `canMatch` and `loadChildren` are copied verbatim from `OssRoutingModule`: both reach the
+   * seam through `inject()`, legal only inside the router's injection context on navigation —
+   * neither `test:types` nor a production build executes this callback.
    */
   const routes: Routes = [
     {
@@ -99,8 +98,7 @@ describe("PAM_ROUTES seam", () => {
 
     await harness.navigateByUrl("/pam");
 
-    // canMatch declines, so /pam is not a route at all and the wildcard sends the user home —
-    // how an OSS-only build treats any unknown path.
+    // canMatch declines, so /pam isn't a route at all, and the wildcard sends the user home.
     expect(TestBed.inject(Router).url).toBe("/");
     expect(calls).not.toContain("canAccessFeature(Pam)");
   });
