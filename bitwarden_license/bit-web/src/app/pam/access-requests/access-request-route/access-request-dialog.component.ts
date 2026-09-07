@@ -65,28 +65,21 @@ const DECISION_LABEL_KEYS = {
 
 export type AccessRequestDialogParams = {
   /**
-   * Handed in rather than injected, because it is scoped to the `/pam/requests/:id` route that
-   * opened this dialog: `DialogService` builds the dialog's injector from its own, which is the
-   * root one, so a route-scoped provider is not reachable from inside here.
+   * Handed in rather than injected: `DialogService` builds the dialog's injector from the root
+   * one, so a provider scoped to the opening route isn't reachable from inside here.
    */
   detail: AccessRequestDetailService;
 };
 
 /**
  * One of the caller's own access requests, opened over the access-requests shell by the
- * `/pam/requests/:id` route. Reached by clicking a request/lease row in "My access", or a direct
- * link; the host route owns the URL and the close navigation, this dialog owns the view.
+ * `/pam/requests/:id` route; the host route owns the URL and close navigation, this dialog owns
+ * the view.
  *
- * Trimmed port of the `pam/poc` branch's `access-request-route.component`: the pass-1
- * `AccessRequestSdkService.getAccessRequest` is user-scoped (it only ever returns one of the
- * caller's own requests), so — unlike the poc, which could be opened by any approver — every
- * request this loads belongs to the viewer. That drops the poc's approver plumbing entirely:
- * no `canApprove$`/`currentUserId$`/`isRequester`, and no Approve/Deny + `DecideDialog` (a
- * requester never decides their own request — that's the deferred approver-inbox flow). Only
- * Start / Cancel / End access are offered here.
+ * `getAccessRequest` is user-scoped, so every request belongs to the viewer — only Start /
+ * Cancel / End, no approver plumbing.
  *
- * Data, name resolution, and mutations live in {@link AccessRequestDetailService}; this component
- * owns only the view (the live countdown clock and the action affordances).
+ * Data, name resolution, and mutations live in {@link AccessRequestDetailService}.
  */
 @Component({
   selector: "pam-access-request-dialog",
@@ -137,7 +130,7 @@ export class AccessRequestDialogComponent implements OnInit {
       : (this.names().cipherNameById.get(cipherId(request)) ?? cipherId(request));
   });
 
-  /** Collection name resolved from local vault state; null when unknown. */
+  /** Collection name resolved from local vault state, null when unknown. */
   protected readonly collectionName = computed(() => {
     const request = this.request();
     return request == null
@@ -145,13 +138,13 @@ export class AccessRequestDialogComponent implements OnInit {
       : (this.names().collectionNameById.get(collectionId(request)) ?? null);
   });
 
-  /** Owning organization's name resolved from the caller's membership; null when unknown. */
+  /** Owning organization's name resolved from the caller's membership, null when unknown. */
   protected readonly organizationName = computed(() => {
     const request = this.request();
     return request == null ? null : organizationNameFor(request, this.names());
   });
 
-  /** Ticks once a second so the lease / redemption countdowns stay live. */
+  /** Ticks every second so the lease / redemption countdowns stay live. */
   protected readonly nowMs = signal(Date.now());
 
   /** Per-action in-flight flags (prevent double-submit and drive button spinners). */
@@ -202,8 +195,8 @@ export class AccessRequestDialogComponent implements OnInit {
     return request.decisions.map((decision) => {
       const approver = humanApprover(decision);
       const denied = decision.verdict === "deny";
-      // A Deny recorded against a request that did not end Denied is the lease ending, not a
-      // denial: the revoke / self-end path stores its reason as a Deny decision.
+      // A Deny on a request that didn't end Denied is the lease ending; revoke/self-end stores
+      // its reason as Deny.
       const leaseEnd = denied && request.status !== "denied";
       const outcome = !denied
         ? "approved"
@@ -270,8 +263,8 @@ export class AccessRequestDialogComponent implements OnInit {
   protected readonly canEndLease = computed(() => this.leaseActive());
 
   ngOnInit(): void {
-    // Keep the countdown clock outside the Angular zone so a periodic in-zone timer never blocks
-    // `whenStable()` for tests/hosts; the signal write still drives change detection.
+    // Kept outside the Angular zone so a periodic in-zone timer never blocks `whenStable()`; the
+    // signal write still drives change detection.
     this.ngZone.runOutsideAngular(() => {
       const intervalId = setInterval(() => this.nowMs.set(Date.now()), 1000);
       this.destroyRef.onDestroy(() => clearInterval(intervalId));
@@ -373,9 +366,8 @@ export class AccessRequestDialogComponent implements OnInit {
   }
 
   /**
-   * `closeOnNavigation` is off because the host route, not the router, decides when this closes: a
-   * CDK close on the back-button navigation would run the host's close handler and send the
-   * browser back a second time.
+   * `closeOnNavigation` is off; the host route decides when this closes, not the router. A CDK
+   * close on back-navigation would send the browser back twice.
    */
   static open(
     dialogService: DialogService,

@@ -5,7 +5,7 @@ import { requestedWindowSeconds } from "./requested-window";
 /** An i18n `{ key, value }` pair, leaving localization to the template. */
 export type LabelValue = { key: string; value: number | null };
 
-/** The request's reason, trimmed, or null when blank. */
+/** The request's reason, trimmed, null if blank. */
 export function reasonText(request: Pick<AccessRequestView, "reason">): string | null {
   return request.reason?.trim() || null;
 }
@@ -32,10 +32,9 @@ export function durationLabel(
 }
 
 /**
- * A relative phrase for when the window opens ("starting now", "today", "tomorrow", "in N days").
- * Unlike the poc (whose `leaseNotBefore` could be absent for an open-ended/on-demand request),
- * this repo's `AccessRequestView` always resolves the window at submit — so "starting now" covers
- * a window whose start has already passed (an immediate/on-demand request), not a missing bound.
+ * A relative phrase for when the window opens ("starting now", "today", "tomorrow", "in N
+ * days"). `AccessRequestView` always resolves the window at submit, so "starting now" covers an
+ * already-passed start (an immediate/on-demand request), not a missing bound.
  */
 export function relativeStart(
   request: Pick<AccessRequestView, "leaseNotBefore">,
@@ -57,7 +56,7 @@ export function relativeStart(
   return { key: "pamInboxStartInDays", value: diffDays };
 }
 
-/** Shared formatter for the exact-window tooltip — built once, not per call. */
+/** Formatter for the exact-window tooltip, built once and reused. */
 const WINDOW_FORMAT = new Intl.DateTimeFormat(undefined, {
   dateStyle: "short",
   timeStyle: "short",

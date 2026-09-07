@@ -205,9 +205,9 @@ describe("CollectionView SDK mapping", () => {
       });
 
       /**
-       * The SDK's `Collection` and `CollectionView` are `#[serde(deny_unknown_fields)]`, so an extra
-       * key on either object thrown across the wasm boundary fails at runtime, not compile time.
-       * These pin that the flag rides alongside the SDK rather than through it.
+       * The SDK's `Collection` and `CollectionView` are `#[serde(deny_unknown_fields)]`, so an
+       * extra key fails at runtime, not compile time. These pin that the flag rides alongside
+       * the SDK, not through it.
        */
       it("does not send hasEnabledAccessRule across the wasm boundary", () => {
         const collection = makeCollection({ hasEnabledAccessRule: true });

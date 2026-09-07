@@ -18,25 +18,22 @@ import type {
 import { AccessRequestSdkService } from "..";
 
 /**
- * SDK-backed implementation of {@link AccessRequestSdkService}. Access-request
- * lifecycle goes through the Rust SDK's `commercial().pam().access_requests()`
- * client, not hand-rolled HTTP/DTOs. These calls are user-scoped (the
- * requester's own requests), so no `organizationId` is threaded through.
+ * SDK-backed implementation of {@link AccessRequestSdkService}. Access-request lifecycle goes
+ * through the Rust SDK's `commercial().pam().access_requests()` client, not hand-rolled
+ * HTTP/DTOs; these calls are user-scoped, so no `organizationId` is threaded through.
  *
- * Follows the canonical per-call SDK-consumption pattern (see
- * `SendSdkApiService` in `libs/common`): resolve the active user, take a client
- * `Ref` from `SdkService.userClient$`, and dispose it (`using`) once the call
- * settles. Errors surface as-is — the SDK's flat `LeasingError` shape — for
- * callers to interpret via `isLeasingError` (`..`); this service does not wrap
- * or translate them.
+ * Follows the canonical per-call SDK-consumption pattern: resolve the active user, take a
+ * client `Ref` from `SdkService.userClient$`, and dispose it (`using`) once the call settles.
+ * Errors surface as-is, for callers to interpret via `isLeasingError`.
  */
 export class AccessRequestsSdkService implements AccessRequestSdkService {
   /**
    * Reads for the same cipher that are still in flight, so concurrent callers share one SDK
-   * round trip. Several surfaces ask about the same row in the same render pass — the vault-row
-   * access badge and the sidebar's "Controlled access" narrowing, per row — and the SDK caches
-   * nothing. Entries are dropped the moment the read settles, so this collapses simultaneous
-   * duplicates without ever serving a stale access state.
+   * round trip — several surfaces (the vault-row badge, the sidebar's narrowing) ask about the
+   * same row in the same render pass, and the SDK caches nothing.
+   *
+   * Entries drop the moment the read settles, collapsing simultaneous duplicates without ever
+   * serving a stale access state.
    */
   private readonly cipherAccessStateReads = new Map<string, Promise<CipherAccessStateView>>();
 

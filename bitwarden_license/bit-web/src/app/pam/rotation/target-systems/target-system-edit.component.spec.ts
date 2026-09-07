@@ -134,7 +134,6 @@ describe("TargetSystemEditComponent — create mode", () => {
     rotationSdk = mock<RotationSdkService>();
     toastService = mock<ToastService>();
     await setupCreate(rotationSdk);
-    // Override toast with our spy
     TestBed.overrideProvider(ToastService, { useValue: toastService });
     router = TestBed.inject(Router);
     fixture = TestBed.createComponent(TargetSystemEditComponent);
@@ -337,8 +336,7 @@ describe("TargetSystemEditComponent — create mode", () => {
   });
 });
 
-// Mounts the real template (no override) so the radio group + reactive Integration/policy
-// cards are exercised end-to-end — things a template-stubbed spec cannot catch.
+// Mounts the real template so the radio group and reactive cards are exercised end-to-end.
 describe("TargetSystemEditComponent — create mode (rendered)", () => {
   let fixture: ComponentFixture<TargetSystemEditComponent>;
 
@@ -381,7 +379,7 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
 
   it("shows the Integration (kind) select only for the Automatic method", () => {
     const el = fixture.nativeElement as HTMLElement;
-    // Defaults to Automatic → kind select present.
+    // Automatic is the default: kind select is present.
     expect(el.querySelector("#target-system-edit_select_kind")).toBeTruthy();
 
     patchMethod(TargetSystemMethod.Manual);
@@ -402,7 +400,7 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
 
   it("hides the session-termination checkbox for native integrations", () => {
     const el = fixture.nativeElement as HTMLElement;
-    // Defaults to Automatic + Entra (native) → static "Supported", no checkbox.
+    // Automatic + Entra (native) is the default: static "Supported" text, no checkbox.
     patchKind(TargetSystemKind.Entra);
     expect(el.querySelector("#target-system-edit_checkbox_session-termination")).toBeNull();
   });

@@ -8,10 +8,9 @@ import type { AccessRuleView } from "../abstractions/access-rule";
 import { AccessRuleSdkService } from "../abstractions/access-rule-sdk.service";
 
 /**
- * How long a cached per-org read is served before a new consumer triggers a fresh one. Bounds how
- * stale the callout can be after rules change, while collapsing repeated opens of the collection
- * dialog into one read. Expiry is checked lazily on access (no timers), so an already-open callout
- * keeps its value and the next open re-reads.
+ * How long a cached per-org read is served before a new consumer triggers a fresh one, bounding
+ * staleness while collapsing repeated dialog opens into one read. Checked lazily on access, so
+ * an already-open callout keeps its value.
  */
 const CACHE_TTL_MS = 30_000;
 
@@ -21,15 +20,12 @@ type CacheEntry = { fetchedAt: number; rules$: Observable<readonly AccessRuleVie
  * One shared, cached `listAccessRules` read per organization, backing the collection-dialog
  * callout via `rulesGoverningCollection`.
  *
- * The vault-row "Privileged" badge used to derive from this too, but now reads the collection's
- * own server-derived `hasEnabledAccessRule`. The callout still needs the rules themselves because
- * it *names* the governing rules and summarises what they enforce — a boolean cannot say that.
- * Both surfaces nonetheless agree on what "governed" means: the server computes the flag as
- * "associated with a rule that is enabled", which is exactly what `rulesGoverningCollection`
- * filters for.
+ * The callout needs the rules themselves, since it names them and summarises what they
+ * enforce — a boolean can't say that; the vault-row badge instead reads the collection's own
+ * `hasEnabledAccessRule`, computed server-side from the same "governed" definition.
  *
- * An informational consumer only, so a failed read resolves to no rules (the callout simply
- * doesn't render) rather than erroring the host surface.
+ * An informational consumer only: a failed read resolves to no rules rather than erroring the
+ * host surface.
  */
 @Injectable()
 export class GovernedCollectionsService {

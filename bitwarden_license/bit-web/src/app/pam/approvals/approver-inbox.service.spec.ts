@@ -26,7 +26,7 @@ import { ApproverInboxService } from "./approver-inbox.service";
 
 const ME = "11111111-1111-4111-8111-111111111111" as UserId;
 
-/** A future window, so rows are actionable unless a test says otherwise. */
+/** A future window; rows are actionable by default. */
 const FUTURE = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
 function request(overrides: Record<string, unknown> = {}): AccessRequestView {
@@ -183,8 +183,7 @@ describe("ApproverInboxService", () => {
     });
 
     it("reloads on an approver-inbox push", async () => {
-      // The push an approver actually gets: someone else's request landed against a collection they
-      // manage, so nothing arrives on the requester-scoped stream.
+      // The push an approver gets: someone else's request landed on a collection they manage.
       await service.load();
       approvalApi.listInbox.mockClear();
 
@@ -350,10 +349,8 @@ describe("ApproverInboxService", () => {
     });
 
     it("lists an activated grant whose status does not read as approved", async () => {
-      // The server can serve an activated grant with a status the client reads as denied
-      // (uat-FLW-06-9e1cc0ec), which is why liveness is read off the produced lease and never off
-      // the display badge. Reverting this filter onto `statusBadge` empties the section in the
-      // product while every other test here still passes.
+      // Liveness reads off the produced lease, never the display badge, since an activated grant
+      // can carry a status read as denied.
       approvalApi.listHistory.mockResolvedValue([
         request({
           id: "reads-denied",

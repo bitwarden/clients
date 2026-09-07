@@ -24,8 +24,6 @@ describe("cipherAccessBadgeState", () => {
     expect(cipherAccessBadgeState(view(badge))).toEqual({ kind: badge });
   });
 
-  // Precedence between an active lease, an approved request and a pending one is applied in the
-  // SDK (`CipherAccessStateView`'s conversion) and covered by its tests — a badge derived from the
-  // ranked field cannot disagree with it, which is the point of reading `badgeState` rather than
-  // re-ranking the three here.
+  // Precedence between an active lease, an approved request and a pending one is applied and
+  // tested in the SDK; a badge from the ranked field can't disagree with it.
 });

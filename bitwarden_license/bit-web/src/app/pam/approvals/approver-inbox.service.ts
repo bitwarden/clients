@@ -44,16 +44,12 @@ import { isActionableInboxRequest } from "./inbox-request-filter";
 import { ManagedLeaseRow, isLiveManagedLease, toManagedLeaseRow } from "./managed-lease-row";
 
 /**
- * Page-level data service for the approver surfaces: the pending inbox and the decided history for
- * the collections the caller manages, plus the approver-side mutations (decide, revoke a lease,
- * cancel an approval).
+ * Page-level data service for the approver surfaces: the pending inbox and decided history for
+ * managed collections, plus decide/revoke/cancel mutations, all through
+ * {@link ApprovalSdkService}.
  *
- * Every read and mutation here goes through {@link ApprovalSdkService} and the SDK's other PAM
- * clients — nothing over raw HTTP.
- *
- * Provided on the Access requests shell route so the Approvals and History tabs share one instance
- * and one pair of reads. Reloads on every server-pushed access event, so a decision made by a second
- * approver removes the row here too.
+ * Provided on the shell route so Approvals and History share one instance, and reloads on every
+ * server-pushed access event.
  *
  * View concerns — toasts, dialogs, filters, the clock — stay in the tab components.
  */
@@ -74,8 +70,8 @@ export class ApproverInboxService {
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
   /**
-   * One clock shared by every row, stamped when the load landed. Rows that each called `new Date()`
-   * could disagree about which requests have lapsed within the same render.
+   * One clock shared by every row, stamped at load. Rows each calling `new Date()` could
+   * disagree about which requests have lapsed within the same render.
    */
   private readonly _renderedAt$ = new BehaviorSubject<Date>(new Date());
 
@@ -117,17 +113,11 @@ export class ApproverInboxService {
   );
 
   /**
-   * The leases that are live RIGHT NOW on the collections the caller manages, soonest to end first —
-   * the access an operator can still cut off.
+   * The leases live right now on the collections the caller manages, soonest to end first.
    *
-   * A filter over the history read rather than a governance read of its own: `listHistory()` already
-   * returns every managed non-pending request with its produced lease's id and status, and the SDK
-   * omits a list-active-leases call on purpose.
-   *
-   * The window is tested as well as the status, and only once the row's effective end is known: the
-   * server never transitions a lease out of `active` when its window closes, so status alone would
-   * keep listing — and offering Revoke on — access that ended on its own, while testing the
-   * request's own end first would drop a lease an extension has carried past it.
+   * Filters the history read rather than a separate governance read, since `listHistory()`
+   * already returns every managed lease's id and status. Tests the window too, not just status,
+   * since the server never transitions a lease out of `active` when its window closes.
    */
   readonly activeLeaseRows$: Observable<ManagedLeaseRow[]> = combineLatest([
     this._history$,
@@ -160,12 +150,8 @@ export class ApproverInboxService {
   );
 
   constructor() {
-    // Both halves of the server's access push: `accessChanged$` covers the caller's own requests,
-    // `approverInboxChanged$` covers requests against the collections they manage — which is most
-    // of what this surface renders, since an approver is rarely the requester.
-    //
-    // concatMap so two pushes arriving together cannot interleave their loads and leave the inbox
-    // and history describing different moments.
+    // Both halves of the server's push; `concatMap` so two pushes can't interleave and describe
+    // different moments.
     merge(this.accessEvents.accessChanged$(), this.accessEvents.approverInboxChanged$())
       .pipe(
         concatMap(() => from(this.load())),
@@ -200,13 +186,11 @@ export class ApproverInboxService {
   }
 
   /**
-   * Record an approve or deny. Removes the row from the inbox first so a slow server cannot leave a
-   * decided request sitting there invitingly; on failure it goes back where it was and the error is
-   * rethrown for the caller to toast.
+   * Records an approve or deny. Removes the row from the inbox first so a slow server can't
+   * leave a decided request sitting there; restores it and rethrows on failure.
    *
-   * On success the decided request moves to history carrying the fields it already had — the decision
-   * response only populates `status`, `resolvedAt`, and the decision just recorded, so replacing the
-   * row wholesale would blank the requester's resolved name and the produced lease.
+   * The decided request moves to history carrying its existing fields, since the decision
+   * response only populates `status`, `resolvedAt` and the decision itself.
    */
   async decide(
     id: AccessRequestId,
@@ -216,8 +200,8 @@ export class ApproverInboxService {
     const current = this._inbox$.value;
     const index = current.findIndex((request) => uuidAsString(request.id) === uuidAsString(id));
     if (index === -1) {
-      // Already gone (a double click, or a second approver got there first). Still call through, so
-      // one click is always one request and the server stays the arbiter.
+      // Already gone (a double click, or another approver got there first). Still calls
+      // through, so one click is always one request.
       await this.approvalApi.decide(id, { verdict, comment });
       return;
     }
@@ -242,10 +226,8 @@ export class ApproverInboxService {
   }
 
   /**
-   * End someone else's active lease early. Served by the SDK (`leases().end()`).
-   *
-   * Optimistically marks the produced lease `revoked` so the row re-buckets and the Revoke button
-   * disappears; restores it and rethrows on failure.
+   * Ends someone else's active lease early, served by the SDK (`leases().end()`); optimistically
+   * marks it `revoked` so the row re-buckets, restoring and rethrowing on failure.
    */
   async revokeLease(requestId: AccessRequestId, leaseId: AccessLeaseId): Promise<void> {
     const current = this._history$.value;

@@ -71,8 +71,8 @@ const BARE: AuditRow = {
 };
 
 /**
- * A rule deletion, whose name the store snapshotted at write time. The rule itself is gone, so the
- * name must render without an anchor however the viewer is permissioned.
+ * A rule deletion, whose name the store snapshotted at write time; the rule itself is gone, so
+ * the name renders without an anchor regardless of permission.
  */
 const RULE_DELETED: AuditRow = {
   ...POPULATED,
@@ -131,8 +131,8 @@ export default {
 type Story = StoryObj<AuditEventDrawerComponent>;
 
 /**
- * Everything an auditor needs about one event, in the order they read it: when, who, what, the window
- * granted, the free text the table's Detail column gave up, and the ids support asks for.
+ * Everything an auditor needs about one event, in read order: when, who, what, the granted
+ * window, the free-text Detail, and the ids support asks for.
  */
 export const Default: Story = {
   render: () => ({
@@ -171,9 +171,9 @@ export const DeletedRule: Story = {
 };
 
 /**
- * The same event read by an auditor holding AccessEventLogs and nothing more. Every name is still
- * there — the pane withholds no fact — but the rule and the collection are plain text, because the
- * pages behind them are guarded by permissions this viewer does not hold.
+ * The same event read by an auditor holding AccessEventLogs and nothing more. Every name is
+ * still there, but the rule and collection render as plain text, since those pages are guarded
+ * by permissions this viewer lacks.
  */
 export const WithoutLinkPermissions: Story = {
   render: () => ({
@@ -185,10 +185,10 @@ export const WithoutLinkPermissions: Story = {
 };
 
 /**
- * A reason with no break opportunity anywhere — a pasted token or a correlation id rather than prose.
- * This is the shape PM-42588 reported: unwrapped, it dragged a horizontal scrollbar onto the whole
- * page while Detail was still a column in the table. The pane holds it because its width comes from
- * the dialog's size token rather than its content, so the field wraps instead of widening.
+ * A reason with no break opportunity anywhere — a pasted token or correlation id, not prose.
+ *
+ * The pane holds it because its width comes from the dialog's size token, not its content, so
+ * the field wraps instead of widening.
  */
 export const LongUnbrokenReason: Story = {
   render: () => ({

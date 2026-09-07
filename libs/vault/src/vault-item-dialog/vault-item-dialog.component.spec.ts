@@ -667,15 +667,12 @@ describe("VaultItemDialogComponent", () => {
 
     /** The partial copy a gated cipher opens as: `partialData` set, secrets absent. */
     const partialCipher = { id: "gated-1", partialData: '{"name":"gated"}' } as unknown as Cipher;
-    /** What the reloader hands back once a lease covers the item. */
+    /** What the reloader hands back after a lease covers the item. */
     const leasedCipher = { id: "gated-1", partialData: undefined } as unknown as Cipher;
 
     /**
-     * Flush the reveal/re-lock promise chain. `fixture.whenStable()` is not enough on its own: the
-     * reloader's emissions originate outside the Angular zone, so the zone reports itself stable
-     * while `swapInCipher` is still awaiting. These assertions read component state rather than the
-     * DOM, so no further render is needed (and re-rendering here would pull in the whole cipher-view
-     * subtree's providers).
+     * Flush the reveal/re-lock promise chain. The reloader's emissions originate outside the
+     * Angular zone, so `fixture.whenStable()` reports stable while `swapInCipher` still awaits.
      */
     const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -767,8 +764,7 @@ describe("VaultItemDialogComponent", () => {
 
       expect(gatedComponent["cipher"]?.partial).toBe(false);
       expect(gatedComponent["cipher"]?.leaseGated).toBe(true);
-      // originalCipher must move with the view, or a save would write the partial copy's blanks
-      // over the fields the server suppressed.
+      // originalCipher must move with the view, or a save would blank the server-suppressed fields.
       expect(gatedComponent["formConfig"].originalCipher).toBe(leasedCipher);
     });
 
@@ -811,7 +807,7 @@ describe("VaultItemDialogComponent", () => {
     });
 
     describe("refreshing the form after an attachment change", () => {
-      /** What the reloader's re-read carries once the attachment has landed. */
+      /** What the reloader's re-read carries after the attachment lands. */
       const reloadedView = {
         id: "gated-1",
         attachments: [{ id: "attachment-1" }],
@@ -842,8 +838,7 @@ describe("VaultItemDialogComponent", () => {
 
         await gatedComponent["openAttachmentsDialog"]();
 
-        // Local state is the wrong source: it excludes gated ciphers, and the copy it holds is the
-        // stripped one — no attachments, and a revision date from before the upload.
+        // Local state excludes gated ciphers and holds only the stripped, pre-upload copy.
         expect(cipherServiceMock.cipherView$).not.toHaveBeenCalled();
 
         const currentCipher = {
@@ -857,8 +852,7 @@ describe("VaultItemDialogComponent", () => {
 
       it("leaves the form alone, without throwing, when the re-read finds no lease", async () => {
         await revealThenPrepareUpload();
-        // The lease lapsed between the upload and the re-read. Patching from the absent view threw,
-        // and the revision date left behind made the next save fail as out of date.
+        // A lapsed lease between upload and re-read used to throw, and leave a stale revision date.
         reloaderFullCipher$.mockReturnValueOnce(of(null));
 
         await expect(gatedComponent["openAttachmentsDialog"]()).resolves.toBeUndefined();
@@ -881,8 +875,8 @@ describe("VaultItemDialogComponent", () => {
         fullCipher$.next(leasedCipher);
         await settle();
 
-        // What the form hands back is the server's echo of the write, which for a gated cipher is
-        // the stripped shape — taking it at face value re-locked the item mid-lease.
+        // The form echoes the server's write, stripped for a gated cipher; taking it at face
+        // value re-locked the item mid-lease.
         await gatedComponent["onCipherSaved"]({
           id: "gated-1",
           partial: true,

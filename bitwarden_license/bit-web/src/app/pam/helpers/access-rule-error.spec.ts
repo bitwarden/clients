@@ -124,14 +124,11 @@ describe("accessRuleErrorMessageKey", () => {
 });
 
 /**
- * The SDK builds this sentence itself, before any request goes out, and offers no code to switch
- * on, so the mapping onto the Name field survives only while the catalog repeats it verbatim. The
- * first expectation spells the sentence out rather than reading it back from the catalog or
- * rebuilding it from ACCESS_RULE_NAME_MAX_LENGTH — either would pass against a reword the catalog
- * had absorbed — but on its own it can only catch an edit to the catalog, so the rest hold it to
- * the SDK. The wasm never spells the sentence out whole: it stores the literal pieces either side
- * of the maximum and formats the number in at runtime, which is why the number is pinned to
- * ACCESS_RULE_NAME_MAX_LENGTH while the pieces are matched against the binary.
+ * The SDK builds this sentence itself with no code to switch on, so the Name-field mapping
+ * survives only while the catalog repeats it verbatim.
+ *
+ * The first expectation pins the literal sentence; the rest hold it to the SDK, since the wasm
+ * formats the maximum in at runtime rather than spelling the sentence out whole.
  */
 describe("ACCESS_RULE_SERVER_ERRORS.NameRequiredLocally", () => {
   const { serverMessage } = ACCESS_RULE_SERVER_ERRORS.NameRequiredLocally;

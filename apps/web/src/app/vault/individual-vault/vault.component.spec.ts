@@ -136,8 +136,7 @@ describe("VaultComponent", () => {
 
     const cipherServiceMock = mock<CipherService>();
     cipherServiceMock.get.mockResolvedValue(mockCipher);
-    // The vault list opts into the partials-inclusive stream; the vault filter and other
-    // consumers use the partials-excluded stream.
+    // The vault list opts into the partials-inclusive stream; other consumers use the excluded one.
     cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(of([]));
     cipherServiceMock.cipherListViews$.mockReturnValue(of([]));
     cipherServiceMock.failedToDecryptCiphers$.mockReturnValue(of([]));
@@ -494,8 +493,7 @@ describe("VaultComponent", () => {
     }
 
     it("mounts the host's banner with the selected collection's organization and id", () => {
-      // `canEdit`/`canDelete` are here because the same node also feeds `app-vault-header`,
-      // whose template calls them; the banner outlet reads only the two ids.
+      // `canEdit`/`canDelete` are here only because the same node feeds `app-vault-header` too.
       selectCollection(
         new TreeNode(
           {
@@ -568,8 +566,7 @@ describe("VaultComponent", () => {
   });
 
   describe("viewCipherById", () => {
-    // viewCipherById awaits the dialog's `closed` stream, which the mock never completes,
-    // so kick it off and drain the pending microtasks instead of awaiting it.
+    // The mock's `closed` stream never completes, so this drains microtasks instead of awaiting it.
     async function openAndFlush(): Promise<void> {
       void component.viewCipherById(TEST_CIPHER_ID);
       await new Promise((resolve) => setTimeout(resolve, 0));

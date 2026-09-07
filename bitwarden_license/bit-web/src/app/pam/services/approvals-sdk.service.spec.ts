@@ -1,6 +1,4 @@
-// Polyfill Symbol.dispose for explicit resource management (the SDK-consumption
-// pattern's `using ref = sdk.take()`) — not reliably present in the jsdom test
-// environment. See e.g. `local-generator-history.service.spec.ts` for the same fix.
+// Polyfills Symbol.dispose for `using ref = sdk.take()`; not reliably present in jsdom.
 if (!(Symbol as any).dispose) {
   (Symbol as any).dispose = Symbol("Symbol.dispose");
 }

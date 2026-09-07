@@ -1017,9 +1017,8 @@ export class EventService {
         );
         break;
 
-      // PAM. These cover the subset of the PAM access-audit trail reported organization-wide. The item is named first
-      // because it is the fact an administrator reading this log wants; the trailing request or lease id is a
-      // correlation handle into PAM's own access-audit view, where the rule and the approver's comment live.
+      // PAM: the subset of the access-audit trail reported organization-wide; item named first,
+      // the trailing request/lease id is a correlation handle into PAM's own audit view.
       case EventType.Pam_AccessRequest_Submitted:
         msg = this.i18nService.t(
           "pamEventRequestedAccess",
@@ -1673,8 +1672,8 @@ export class EventService {
     return a.outerHTML;
   }
 
-  // PAM subject ids are shown as plain code, not links: the request-detail page is authorized for the requester or a
-  // managing approver, not for the AccessEventLogs permission this log is read with, so there is nowhere to link to.
+  // PAM subject ids are plain code, not links: the request-detail page needs a different
+  // permission than AccessEventLogs.
   private formatAccessRequestId(ev: EventResponse) {
     return "<code>" + this.escapeHtml(this.getShortId(ev.accessRequestId)) + "</code>";
   }

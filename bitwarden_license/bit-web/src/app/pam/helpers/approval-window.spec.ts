@@ -41,9 +41,8 @@ describe("durationLabel", () => {
 });
 
 describe("relativeStart", () => {
-  // Built from local date components (not a fixed UTC instant) so the day-boundary math — which
-  // `relativeStart` itself does in local time — is exercised the same way regardless of the
-  // timezone the test runs in.
+  // Built from local date components, not a fixed UTC instant, so day-boundary math is
+  // exercised regardless of timezone.
   const now = new Date(2024, 5, 15, 12, 0, 0);
 
   it("returns starting-now when the window has already opened", () => {

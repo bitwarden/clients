@@ -37,17 +37,13 @@ export class RotationConfigsService {
     map((configs) => configs.filter((c) => c.awaitingManualRotation).length),
   );
 
-  /**
-   * Rotation configs projected into presentation rows, joined with resolved target
-   * systems and cipher names. Updates whenever any of the three sources changes.
-   */
+  /** Rotation configs projected into presentation rows, joined with target systems and cipher names; updates with any source. */
   readonly rows$: Observable<RotationConfigRow[]> = combineLatest([
     this._configs$,
     this.targetSystems.systemById$,
     this.orgCiphers.cipherNameById$,
   ]).pipe(
-    // `switchMap`, not `concatMap`: each emission describes the whole list, so a newer one wholly
-    // supersedes an in-flight older one and there is nothing to preserve by queueing.
+    // `switchMap`, not `concatMap`: a newer emission wholly supersedes an in-flight older one.
     switchMap(async ([configs, systemById, cipherNameById]) => {
       const descriptions = await this.rotationSdk.describeConfigs(
         configs,
@@ -55,9 +51,8 @@ export class RotationConfigsService {
       );
       return configs.flatMap((config) => {
         const description = descriptions.get(config.id);
-        // `describeConfigs` returns one entry per config it was handed, so a miss means the list
-        // changed underneath this pass; drop the row rather than render it with no actions, and
-        // let the next emission carry it.
+        // A miss means the list changed underneath this pass; drop the row rather than render it
+        // with no actions.
         return description
           ? [
               buildRotationConfigRow(
@@ -154,9 +149,9 @@ export class RotationConfigsService {
   }
 
   /**
-   * Delete a rotation config, removing it from local state.
-   * Does not optimistically patch — waits for the server to confirm before removing.
-   * Rolls back is implicit: if the API throws, _configs$ is unchanged.
+   * Delete a rotation config, removing it from local state once the server confirms.
+   *
+   * Not optimistic, so a thrown API call leaves `_configs$` unchanged — an implicit rollback.
    */
   async delete(config: RotationConfig): Promise<void> {
     await this.rotationSdk.deleteConfig(this.requireOrganizationId(), config.id);
@@ -177,8 +172,7 @@ export class RotationConfigsService {
   private patchConfig(id: RotationConfigId, patch: Partial<RotationConfig>): void {
     this._configs$.next(
       this._configs$.value.map((c) =>
-        // A view crosses the WASM boundary as a plain object, so a spread is a faithful copy —
-        // there is no prototype to preserve, unlike the BaseResponse instances this replaced.
+        // A view crosses the WASM boundary as a plain object, so a spread is a faithful copy.
         c.id === id ? { ...c, ...patch } : c,
       ),
     );

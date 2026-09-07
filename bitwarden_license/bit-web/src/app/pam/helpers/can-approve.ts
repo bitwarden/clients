@@ -5,12 +5,11 @@ export type AccessRequestForApproval = { requesterId: string };
 export type UserForApproval = { id: string };
 
 /**
- * Whether `currentUser` may decide `request` — that is, whether it is somebody else's.
+ * Whether `currentUser` may decide `request` — whether it's somebody else's.
  *
- * This is ONLY the self-approval rule. Whether the viewer has approval privileges at all is a
- * separate question answered by `ApprovalPrivilegeService`, and the server enforces both regardless.
- * The parameter types are structural on purpose: this stays free of any dependency on the request or
- * account models so it can be unit-tested with two object literals.
+ * Only the self-approval rule; whether the viewer has approval privileges at all is answered by
+ * `ApprovalPrivilegeService`, and the server enforces both regardless. Structural parameter
+ * types keep this free of the request/account models, testable with two object literals.
  */
 export function canApprove(
   request: AccessRequestForApproval,

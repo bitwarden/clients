@@ -83,11 +83,11 @@ const emptyViewModel: VaultsNavViewModel = { vaults: [], organizationDataOwnersh
 const pamChildRoutes: Routes = [{ path: "", component: FeaturePageComponent }];
 
 /**
- * The production shape: ONE `UserLayoutComponent` mount at the root, with every feature — `/pam`
- * included — as a child of it. See `OssRoutingModule`.
+ * The production shape: ONE `UserLayoutComponent` mount at the root, with every feature —
+ * `/pam` included — as a child. See `OssRoutingModule`.
  *
- * `/pam` reaches its pages through the same lazy `PAM_ROUTES` seam production uses rather than
- * eager `children`, so what renders inside the layout here is what a licensed build renders.
+ * `/pam` reaches its pages through the same lazy `PAM_ROUTES` seam production uses, so what
+ * renders here is what a licensed build renders.
  */
 const routes: Routes = [
   {
@@ -125,14 +125,13 @@ Object.defineProperty(window, "matchMedia", {
 });
 
 /**
- * The side nav's ~20 items use RELATIVE routes (`route="settings/account"`), and Angular resolves
- * a relative `routerLink` against the `ActivatedRoute` of the component rendering it. Mounting PAM
- * under a second `UserLayoutComponent` at a top-level path therefore silently re-bases the whole
- * nav beneath `/pam`. This pins the constraint that mounting PAM places on itself: it joins the
- * root layout as a child, so the shared nav's links stay root-relative while a PAM page is open.
+ * The side nav's ~20 items use RELATIVE routes, resolved against the `ActivatedRoute` of the
+ * component rendering them. Mounting PAM under a second `UserLayoutComponent` at a top-level
+ * path would silently re-base the whole nav beneath `/pam`; this pins the constraint that PAM
+ * joins the root layout as a child, keeping the shared nav root-relative.
  *
- * `UserLayoutComponent` is the fixture here, not the subject — the nav is free to switch to
- * absolute routes without touching this spec; only a change to where PAM mounts breaks it.
+ * `UserLayoutComponent` is the fixture here, not the subject — only a change to where PAM mounts
+ * breaks this spec.
  */
 describe("PAM mount / shared nav link resolution", () => {
   const flag$ = new BehaviorSubject<boolean>(true);

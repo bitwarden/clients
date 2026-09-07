@@ -16,9 +16,8 @@ import {
   toRequestRow,
 } from "./my-access-row";
 
-// Overrides are loosely typed (not `Partial<AccessRequestView>`): the SDK's id/cipherId/collectionId
-// fields are opaque branded types, so tests stand in plain strings and rely on the final
-// `as unknown as` cast, matching the convention in the sibling SDK specs.
+// Loosely typed, not `Partial<AccessRequestView>`, since id/cipherId/collectionId are opaque
+// branded types.
 function request(id: string, overrides: Record<string, unknown> = {}): AccessRequestView {
   return {
     id,
@@ -43,8 +42,7 @@ function request(id: string, overrides: Record<string, unknown> = {}): AccessReq
   } as unknown as AccessRequestView;
 }
 
-// Overrides use the flat `deciderKind`/`id`/`name`/`email` shorthand and are folded into the SDK's
-// nested `decider: "automatic" | { human }` shape here, so the call sites stay terse.
+// Flat `deciderKind`/`id`/`name`/`email` overrides fold into the SDK's nested `decider` shape here.
 function decision(overrides: Record<string, unknown> = {}): AccessRequestDecisionView {
   const { deciderKind, id, name, email, ...rest } = overrides;
   return {
@@ -142,8 +140,8 @@ describe("historyDisplayStatus", () => {
   });
 
   it("reads Revoked off the lease status even with the requester's own deny on the log", () => {
-    // The label used to be derived from the decision log; `canceled` vs `revoked` settles it now,
-    // so a self-deny recorded alongside an operator revoke must not flip it back to Canceled.
+    // `canceled` vs `revoked` on the lease settles the label; a logged self-deny must not flip it
+    // back.
     const r = request("req-1", {
       status: "approved",
       requesterId: "user-1",
@@ -218,8 +216,8 @@ describe("resolveResolver", () => {
   });
 
   it("labels a cancelled request as withdrawn by the requester, not an access rule", () => {
-    // A withdrawal never enters the decision log (it is scoped to approval-authority verdicts),
-    // and even a cancel-after-approval was still ended by the requester, not the logged approver.
+    // A withdrawal never enters the decision log; even a cancel-after-approval was ended by the
+    // requester.
     expect(resolveResolver("canceled", undefined)).toEqual({
       resolverLabelKey: "pamResolverRequester",
       resolverName: null,
@@ -322,8 +320,7 @@ describe("toRequestRow", () => {
   });
 
   it("falls back to the automatic decision's comment when no human decided", () => {
-    // An automatically denied request has no approver to hang its explanation on, so the reason
-    // sits on the automatic decision — and is the only thing that says why (PM-42632).
+    // An automatically denied request has no approver; the reason sits on the automatic decision.
     const row = toRequestRow(
       request("ext-1", {
         status: "denied",
@@ -407,8 +404,7 @@ describe("buildMyAccessRequestRows", () => {
 
   it("keeps a denied extension as its own row rather than folding it away", () => {
     const original = request("req-1", { status: "approved", producedLeaseId: "lease-1" });
-    // Refused because the parent lease ended first, so it added nothing to fold onto the original —
-    // folding it away would leave no record of the ask at all (PM-42632).
+    // Refused because the parent lease ended first; folding it away would leave no record of the ask.
     const denied = request("ext-1", {
       extensionOfLeaseId: "lease-1",
       status: "denied",

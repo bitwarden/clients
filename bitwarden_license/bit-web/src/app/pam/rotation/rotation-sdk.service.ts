@@ -19,19 +19,11 @@ import type {
 import { QuartzSchedulePreset, TargetSystemStatus } from "./rotation";
 
 /**
- * The Admin Console's credential-rotation surface.
+ * The Admin Console's credential-rotation surface, backed by the Rust SDK's
+ * `commercial().pam().rotation()` client, so components inject a contract rather than the SDK.
  *
- * Backed by the Rust SDK's `commercial().pam().rotation()` client — the domain, the wire mapping,
- * the request validation and the registration crypto all live there. This abstraction exists only
- * so components and page services inject a contract rather than the SDK, which keeps them testable
- * without a WASM client.
- *
- * Rotation mutations deliberately do not feed the leasing refresh streams
- * (`AccessRefreshService`) — that path is for lease and cipher access state. The page-scoped
- * services (`RotationConfigsService`, `TargetSystemsService`, `DaemonsService`) own their own
- * refresh cycles.
- *
- * Errors surface as-is, in the SDK's flat `RotationError` shape, for callers to interpret.
+ * Rotation mutations don't feed the leasing refresh streams — that path is for lease and cipher
+ * access state. Errors surface as-is, in the SDK's flat `RotationError` shape.
  */
 /** The SDK-derived half of a rendered config row. See {@link RotationSdkService.describeConfigs}. */
 export type RotationConfigDescription = {
@@ -42,7 +34,6 @@ export type RotationConfigDescription = {
 };
 
 export abstract class RotationSdkService {
-  // Access connectors ————————————————————————————————————————————————————————
 
   /** Lists the organization's access connectors. */
   abstract listConnectors(organizationId: OrganizationId): Promise<AccessConnector[]>;
@@ -56,9 +47,8 @@ export abstract class RotationSdkService {
   /**
    * Registers a connector and returns its one-time token.
    *
-   * The SDK derives the key material and assembles the token; the server keeps only a hash of the
-   * client secret, so the token is unrecoverable. Show it once for the operator to copy and never
-   * persist or log it.
+   * The server keeps only a hash of the client secret, so the token is unrecoverable; show it
+   * for the operator to copy and never persist or log it.
    */
   abstract registerConnector(
     organizationId: OrganizationId,
@@ -74,8 +64,8 @@ export abstract class RotationSdkService {
   /**
    * Permanently deletes a connector and invalidates its credential.
    *
-   * The connector held the plaintext organization key, so if compromise is suspected, rotating the
-   * organization key — not this — is the remediation.
+   * The connector held the plaintext organization key; rotating the organization key, not this,
+   * is the remediation for suspected compromise.
    */
   abstract deleteConnector(organizationId: OrganizationId, id: AccessConnectorId): Promise<void>;
 
@@ -92,8 +82,6 @@ export abstract class RotationSdkService {
     id: AccessConnectorId,
     targetSystemId: TargetSystemId,
   ): Promise<void>;
-
-  // Target systems ———————————————————————————————————————————————————————————
 
   /** Lists the organization's target systems. */
   abstract listTargetSystems(organizationId: OrganizationId): Promise<TargetSystem[]>;
@@ -117,7 +105,7 @@ export abstract class RotationSdkService {
     request: TargetSystemUpdateRequest,
   ): Promise<void>;
 
-  /** Returns a disabled target system to service. */
+  /** Puts a disabled target system back into service. */
   abstract enableTargetSystem(organizationId: OrganizationId, id: TargetSystemId): Promise<void>;
 
   /** Stops new rotation jobs being dispatched for a target system. In-flight jobs finish. */
@@ -126,13 +114,10 @@ export abstract class RotationSdkService {
   /**
    * Permanently deletes a target system.
    *
-   * The server refuses this while any rotation config still names the target — deleting it would
-   * leave that config, and the credential it manages, pointing at nothing. Delete those configs
-   * first, which is also what releases each cipher. Connector assignments are the opposite case
-   * and go with it: an assignment is only that edge, and means nothing once the target is gone.
+   * The server refuses this while any rotation config still names the target; deleting those
+   * first also releases each cipher, and connector assignments go with it.
    *
-   * Deliberately narrower than {@link disableTargetSystem}, which stops new rotations while the
-   * target and its configs stay intact. Disable is for a target that is merely unavailable;
+   * Narrower than {@link disableTargetSystem}: disable is for a merely unavailable target,
    * delete is for one that has left the estate.
    */
   abstract deleteTargetSystem(organizationId: OrganizationId, id: TargetSystemId): Promise<void>;
@@ -191,20 +176,18 @@ export abstract class RotationSdkService {
    * Everything a rendered config row needs that the SDK derives: which actions it offers, and
    * which named schedule its cron matches.
    *
-   * Batched over the whole list rather than exposed per config because reaching the SDK means
-   * taking a client, and a list of fifty configs should not take fifty. The predicates themselves
-   * are synchronous once the client is in hand.
+   * Batched over the whole list, not exposed per config, since reaching the SDK takes a client
+   * and fifty configs shouldn't take fifty calls.
    *
-   * A target system missing from `targetStatusById` has not loaded yet; every predicate that
-   * depends on its status then fails closed, so a config never offers a rotation the server would
-   * refuse.
+   * A target system missing from `targetStatusById` hasn't loaded yet; predicates depending on
+   * its status fail closed.
    */
   abstract describeConfigs(
     configs: readonly RotationConfig[],
     targetStatusById: ReadonlyMap<TargetSystemId, TargetSystemStatus>,
   ): Promise<Map<RotationConfigId, RotationConfigDescription>>;
 
-  /** The preset that describes a stored cron expression, or `None` when there is no schedule. */
+  /** The preset that describes a stored cron expression; `None` for no schedule. */
   abstract presetForCron(cron: string | null): Promise<QuartzSchedulePreset>;
 
   /** The cron expression for a preset, or `null` for `None` and `Custom`. */

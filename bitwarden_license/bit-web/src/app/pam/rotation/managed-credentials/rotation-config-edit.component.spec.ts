@@ -86,9 +86,8 @@ function setup(options: SetupOptions = {}) {
     set: { template: "<div>stub</div>", imports: [] },
   });
 
-  // Override the component-level providers (OrgCiphersService, TargetSystemsService)
-  // so the real implementations (which inject AccountService, RotationSdkService, etc.)
-  // are never instantiated — component-level providers shadow module-level mocks.
+  // Overrides component-level providers so the real implementations are never instantiated;
+  // component-level providers shadow module-level mocks.
   TestBed.overrideProvider(OrgCiphersService, { useValue: orgCiphersService });
   TestBed.overrideProvider(TargetSystemsService, { useValue: targetSystemsService });
 

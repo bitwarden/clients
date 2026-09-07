@@ -6,14 +6,11 @@ import { AccessRefreshService, AccessRequestSdkService } from "..";
 
 /**
  * The one place a caller's outstanding access request for a gated cipher is withdrawn. Both
- * entry points that start from a CIPHER — the cipher-view banner and the vault-row menu — share
- * this flow; the pages that already hold a request id (`MyAccessService`,
- * `AccessRequestDetailService`, `ApproverInboxService`) keep their own cancel calls, because
- * their reload and toast semantics belong to those surfaces.
+ * entry points starting from a CIPHER — the cipher-view banner and the vault-row menu — share
+ * this flow; pages that already hold a request id keep their own cancel calls.
  *
- * "Outstanding" mirrors the banner's withdraw semantics: a pending request or an
- * approved-but-unactivated one — either can be withdrawn until a lease is minted, after which
- * the lease (not the request) governs access.
+ * "Outstanding" mirrors the banner's withdraw semantics: pending or approved-but-unactivated,
+ * either withdrawable until a lease mints, after which the lease governs access.
  */
 export class AccessRequestCancelService {
   constructor(
@@ -26,11 +23,12 @@ export class AccessRequestCancelService {
   ) {}
 
   /**
-   * Withdraw the cipher's outstanding request, after confirming. Re-reads the access state at the
-   * moment of the call rather than trusting what the caller rendered — the request may have been
-   * decided or activated since, and the confirmation has to describe the state that actually
-   * exists. Never rejects: the outcome is surfaced as a toast here, and the shared refresh signal
-   * is always announced so every leasing surface reconciles through the usual path.
+   * Withdraw the cipher's outstanding request, after confirming. Re-reads the access state at
+   * call time, not trusting what the caller rendered, since the request may have been decided
+   * or activated since.
+   *
+   * Never rejects: the outcome is surfaced as a toast, and the shared refresh signal always
+   * announces so every leasing surface reconciles through the usual path.
    */
   async cancelOutstandingRequest(cipherId: string): Promise<void> {
     try {

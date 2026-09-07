@@ -18,9 +18,7 @@ import { HistoryTabComponent } from "./history-tab.component";
 import { MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 
-// Overrides are loosely typed rather than `Partial<MyAccessRequestRow>`: the row's `id` is an opaque
-// branded type, so tests stand in plain strings and rely on the single cast below — the same
-// convention as `my-access.service.spec.ts`.
+// Loosely typed, not `Partial<MyAccessRequestRow>`, since `id` is an opaque branded type.
 function historyRow(overrides: Record<string, unknown> = {}): MyAccessRequestRow {
   return {
     id: "req-1",
@@ -228,8 +226,7 @@ describe("HistoryTabComponent", () => {
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["both-1"]);
     });
 
-    // Only the caller's own read folds an approved extension onto the grant it extended, so the
-    // managed copy of the same request has no "Extended" badge to show.
+    // Only the caller's own read folds an approved extension onto its grant.
     it("keeps the richer copy of a request both reads return", () => {
       canApprove$.next(true);
       myRows$.next([
@@ -249,8 +246,7 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="my-access-history-extended-both-1"]')).not.toBeNull();
     });
 
-    // Asserted on the rendered rows: the table re-orders whatever it is handed, so the merge's own
-    // sort proves nothing about what the reader sees.
+    // Asserted on rendered rows; the table re-orders whatever it's handed.
     it("sorts a row with no decision by when it was raised", () => {
       canApprove$.next(true);
       myRows$.next([
@@ -345,8 +341,7 @@ describe("HistoryTabComponent", () => {
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
     });
 
-    // The fallback has to forget the pick, not just stop applying it: a background load that brings
-    // a managed row back would otherwise narrow the table again with no user action.
+    // The fallback must forget the pick, not just stop applying it.
     it("does not restore the filter it fell back from when the toggle returns", () => {
       managedRows$.next([historyRow({ id: "managed-1" })]);
       myRows$.next([historyRow({ id: "mine-1" })]);
@@ -410,9 +405,6 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="history-loading-status"]')?.textContent?.trim()).toBe("");
     });
 
-    // The skeleton operator holds its own minimum display time, but what the reader sees is gated
-    // on the content: the rows replace the skeleton the moment they land, rather than sitting
-    // behind a skeleton drawn over a history that is already in hand.
     it("swaps the skeleton for the history the moment it lands, mid minimum-display-time", () => {
       canApprove$.next(true);
       managedLoading$.next(true);
@@ -440,8 +432,8 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="my-access-history-managed-1"]')).not.toBeNull();
     });
 
-    // A latched announcement leaves the region reporting a load that finished long ago to assistive
-    // tech that re-reads region contents later in the session.
+    // A latched announcement keeps reporting a long-finished load to assistive tech that re-reads
+    // the region later.
     it("clears the loaded announcement once it has been made", () => {
       canApprove$.next(true);
       managedLoading$.next(true);
@@ -465,9 +457,7 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="my-access-history-managed-1"]')).not.toBeNull();
     });
 
-    // The latch never resolves for a non-approver on a session that has not synced, so nothing but
-    // teardown ends the subscription it keeps on the privilege stream — and that stream keeps
-    // organization and collection state decrypting behind it.
+    // The latch never resolves for a non-approver on an unsynced session.
     it("drops its load-latch subscription when the tab is destroyed", () => {
       lastSync$.next(null);
       managedLoading$.next(true);
@@ -483,8 +473,7 @@ describe("HistoryTabComponent", () => {
       expect(canApprove$.observed).toBe(false);
     });
 
-    // A live region has to be in the DOM before its text changes for assistive tech to announce
-    // them, and emptying it announces nothing on its own.
+    // A live region must exist before its text changes, or assistive tech announces nothing.
     it("keeps one live region mounted and announces both halves of the load", () => {
       canApprove$.next(true);
       managedLoading$.next(true);
@@ -509,10 +498,7 @@ describe("HistoryTabComponent", () => {
       expect(status?.textContent).toContain("pamHistoryLoaded");
     });
 
-    // The latch resolves on the loading flags alone, so a failed read ends the skeleton exactly like
-    // a successful one and falls through to the same empty table — with the shell toasting the error
-    // beside it. A sighted reader can weigh those two against each other; "Request history loaded"
-    // read into the live region is the one claim that cannot be corrected.
+    // The latch resolves on loading flags alone; a failed read ends the skeleton same as success.
     it("does not announce a failed managed-history load as loaded", () => {
       canApprove$.next(true);
       managedLoading$.next(true);
@@ -530,8 +516,7 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="history-loading-status"]')?.textContent?.trim()).toBe("");
     });
 
-    // Either read failing leaves the merged list short by everything that side holds, so the
-    // requester's own history guards the announcement on the same terms as the managed one.
+    // Either read failing leaves the merged list short of its full history.
     it("does not announce a failed own-history load as loaded", () => {
       myLoading$.next(true);
 
@@ -548,8 +533,7 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="history-loading-status"]')?.textContent?.trim()).toBe("");
     });
 
-    // The shell never loads the inbox for a member who cannot approve, so its loading flag stays
-    // raised for the life of the page.
+    // The shell never loads the inbox for a member who can't approve.
     it("does not wait on the inbox for a member who cannot approve", () => {
       managedLoading$.next(true);
       myRows$.next([historyRow({ id: "mine-1" })]);
@@ -560,10 +544,7 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
     });
 
-    // On a cold load — a bookmark, or a hard refresh straight onto /pam/history — `canApprove$`
-    // answers false for a genuine approver: it is derived from organization and collection state the
-    // first sync has not delivered yet. The sync writes that state before stamping its date, so a
-    // non-null last-sync date is what makes a `false` here trustworthy.
+    // `canApprove$` answers false for a genuine approver before the first sync lands.
     it("waits for the first sync before reading a false approval privilege as settled", () => {
       lastSync$.next(null);
       managedLoading$.next(true);
@@ -669,8 +650,8 @@ describe("HistoryTabComponent", () => {
       expect(renderedHeaders()).not.toContain("pamColumnActions");
     });
 
-    // The column has to answer "can anything here be acted on", not "does the caller manage
-    // anything here" — a decided-and-done managed history is all a mature approver ever has.
+    // The column answers whether anything here is actionable, not whether the caller manages
+    // anything here.
     it("hides the Actions column when every managed row is already terminal", () => {
       canApprove$.next(true);
       managedRows$.next([
@@ -690,8 +671,6 @@ describe("HistoryTabComponent", () => {
       expect(renderedHeaders()).not.toContain("pamColumnActions");
     });
 
-    // A request the caller raised against a collection they also manage is in `managedIds`, but
-    // "Raised by me" only ever lists it once it is past anything Revoke or Withdraw could reach.
     it("hides the Actions column under Mine for a terminal row the caller both raised and manages", () => {
       canApprove$.next(true);
       myRows$.next([historyRow({ id: "managed-1", status: "denied" })]);
@@ -894,8 +873,7 @@ describe("HistoryTabComponent", () => {
     });
   });
 
-  // All spans both sources, so it cannot borrow either side's wording: an approver with no history
-  // at all lands here and would be told they have raised nothing.
+  // Spans both sources, so it can't borrow either side's empty-state wording.
   it("says which slice is empty", () => {
     canApprove$.next(true);
     create();

@@ -690,11 +690,9 @@ const routes: Routes = [
         loadChildren: () => VaultModule,
       },
       {
-        // A child of the shared user shell rather than a top-level route with its own
-        // UserLayoutComponent: the side nav's routerLinks are relative, so a second layout
-        // instance re-bases every one of them beneath this path. The pages themselves are
-        // commercial and are reached only through the optional PAM_ROUTES seam, which an
-        // OSS-only build leaves unprovided so canMatch declines and /pam is not a route at all.
+        // A child of the shared user shell, not a top-level route: the side nav's relative
+        // routerLinks would re-base beneath a second layout instance. Reached only through the
+        // optional PAM_ROUTES seam.
         path: "pam",
         canMatch: [() => inject(PAM_ROUTES, { optional: true }) != null],
         canActivate: [canAccessFeature(FeatureFlag.Pam)],

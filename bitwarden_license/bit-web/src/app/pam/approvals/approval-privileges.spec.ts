@@ -7,7 +7,7 @@ import { hasApprovalPrivileges } from "./approval-privileges";
 const pamOrgId = "org-1" as OrganizationId;
 const otherOrgId = "org-2" as OrganizationId;
 
-/** PAM-entitled with no organization-wide collection authority, unless overridden. */
+/** PAM-entitled, with no organization-wide collection authority unless overridden. */
 function org(
   options: {
     id?: OrganizationId;
@@ -35,14 +35,14 @@ describe("hasApprovalPrivileges", () => {
   });
 
   it("grants on organization-wide collection access with no assignment of one's own", () => {
-    // The server folds every collection in the organization into an Admin/Owner's manageable set
-    // when the organization allows it, so the inbox it serves them is not necessarily empty.
+    // The server folds every org collection into an Admin/Owner's manageable set when the org
+    // allows it.
     expect(hasApprovalPrivileges([org({ canEditAllCiphers: true })], [])).toBe(true);
   });
 
   it("denies anyone holding no collection Manage", () => {
-    // Covers both a member assigned without Manage and an Admin the organization does not let reach
-    // all collection items: neither holds Manage, so the server would serve them an empty inbox.
+    // Covers a member without Manage and an Admin the org doesn't let reach all items; neither
+    // holds Manage.
     expect(hasApprovalPrivileges([org()], [])).toBe(false);
     expect(hasApprovalPrivileges([org()], [collection(pamOrgId, false)])).toBe(false);
   });
@@ -52,8 +52,8 @@ describe("hasApprovalPrivileges", () => {
   });
 
   it("denies a provider user, whose client organization arrives typed as Owner", () => {
-    // `canEditAllCiphers` is true for them, but the server sets AccessPam = false and folds no
-    // collections in for a provider — so the tab could only ever render empty.
+    // `canEditAllCiphers` is true for a provider, but the server sets AccessPam = false and
+    // folds in no collections.
     const providerOrg = org({ canEditAllCiphers: true, isProviderUser: true });
 
     expect(hasApprovalPrivileges([providerOrg], [])).toBe(false);

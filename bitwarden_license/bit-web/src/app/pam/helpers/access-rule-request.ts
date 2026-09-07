@@ -19,10 +19,9 @@ import {
 export const NO_DURATION_CAP = 0;
 
 /**
- * The longest name the server will store. `dbo.AccessRule.Name` is `NVARCHAR(256)` and
- * `AccessRule_Create` declares its `@Name` parameter the same width — which means SQL Server
- * *silently truncates* anything longer rather than rejecting it, so a name must be kept within
- * this before it is sent, not after.
+ * The longest name the server will store. `dbo.AccessRule.Name` is `NVARCHAR(256)`, and SQL
+ * Server silently truncates anything longer rather than rejecting it, so a name must be kept
+ * within this before it's sent, not after.
  */
 export const ACCESS_RULE_NAME_MAX_LENGTH = 256;
 

@@ -88,9 +88,7 @@ describe("AccessNameResolverService", () => {
   });
 
   it("resolves names for PAM-gated (partial) ciphers", async () => {
-    // The whole point of this service: every id it is asked about names a gated cipher, so it must
-    // read the partial-inclusive accessor. Reading `getAllDecryptedForIds`/`cipherViews$` instead
-    // strips exactly these rows and the lists fall back to raw uuids.
+    // Every id here names a gated cipher, so it must read the partial-inclusive accessor.
     cipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValue([
       cipherView("cipher-gated", "AWS Root Account", true),
     ]);
@@ -101,7 +99,7 @@ describe("AccessNameResolverService", () => {
   });
 
   it("leaves ids the caller cannot resolve absent rather than guessing a name", async () => {
-    // An approver often cannot see the item they are granting access to; callers fall back to the id.
+    // An approver often can't see the item they're granting access to.
     const names = await service.resolveNames([{ cipherId: "cipher-9", collectionId: "col-9" }]);
 
     expect(names.cipherNameById.get("cipher-9")).toBeUndefined();
@@ -109,7 +107,7 @@ describe("AccessNameResolverService", () => {
   });
 
   it("dedupes cipher ids before decrypting", async () => {
-    // Several requests for the same item are common; decrypting it once is the point.
+    // Several requests for the same item are common; decrypt it once.
     await service.resolveNames([
       { cipherId: "cipher-1", collectionId: "col-1" },
       { cipherId: "cipher-1", collectionId: "col-2" },
@@ -137,8 +135,7 @@ describe("AccessNameResolverService", () => {
   });
 
   it("picks up collection state that warmed up after an earlier resolve", async () => {
-    // The poc needed a reactive back-fill for this; here every fetch re-resolves, so a later call
-    // simply sees the warm state. That is why this service is a plain one-shot promise.
+    // Every fetch re-resolves, so a later call simply sees the warm state.
     const refs = [{ cipherId: "cipher-1", collectionId: "col-1" }];
     expect((await service.resolveNames(refs)).collectionNameById.get("col-1")).toBeUndefined();
 

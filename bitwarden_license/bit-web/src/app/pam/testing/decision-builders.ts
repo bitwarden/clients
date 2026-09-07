@@ -1,20 +1,17 @@
 import type { AccessApprover, AccessRequestDecisionView } from "../abstractions/access-lease";
 
-/** Fixed so a test that asserts on a decision's timestamp does not depend on when it runs. */
+/** Fixed so a test asserting on a decision's timestamp doesn't depend on when it runs. */
 const DECIDED_AT = "2026-06-10T10:30:00.000Z";
 
 /**
  * A human decision, for tests that exercise decider resolution (`resolveResolver`,
  * `findHumanDecision`).
  *
- * The SDK models the decider as a tagged union, so a human decision is
- * `{ human: AccessApprover }` rather than a flat set of id/name/email fields. Building it here keeps
- * every spec from re-deriving that shape — and from getting it subtly wrong, since the union's other
- * arm is the bare string `"automatic"`.
+ * The SDK models the decider as a tagged union — `{ human: AccessApprover }`, not flat
+ * id/name/email fields — so building it here keeps specs from re-deriving that shape.
  *
- * `name`/`email` default to absent rather than to placeholder text, because the display chain under
- * test is `name || email || id` and a builder that always filled all three would never exercise its
- * fallbacks.
+ * `name`/`email` default to absent, not placeholder text, since the display chain under test is
+ * `name || email || id` and always filling all three would never exercise the fallbacks.
  */
 export function humanDecision(init: {
   id: string;
@@ -27,8 +24,8 @@ export function humanDecision(init: {
   return {
     decider: {
       human: {
-        // The SDK brands its own `UserId`, distinct from the one in `common/types/guid`; widening
-        // through the field's own type keeps the builder from depending on either brand.
+        // Widened through the field's own type, since the SDK's `UserId` brand differs from
+        // `common/types/guid`.
         id: init.id as unknown as AccessApprover["id"],
         name: init.name,
         email: init.email,
@@ -60,9 +57,9 @@ export function automaticDecision(
 }
 
 /**
- * The decision the server records when a lease holder ends their own lease: a `deny` whose decider is
- * the requester themself. That is how the client tells "ended by you" from "revoked by an operator",
- * since the SDK's lease status collapses both to `revoked`.
+ * The decision the server records when a lease holder ends their own lease: a `deny` whose
+ * decider is the requester. Tells "ended by holder" from "revoked by an operator", since the
+ * SDK's lease status collapses both to `revoked`.
  */
 export function selfEndDecision(requesterId: string, comment?: string): AccessRequestDecisionView {
   return humanDecision({ id: requesterId, verdict: "deny", comment });

@@ -72,7 +72,7 @@ function pam(
     mode?: "automatic" | "human";
     enabled?: boolean;
     maxDurationSeconds?: number;
-    /** The caller's own Privileged Access Manager seat. Licensed unless a story says otherwise. */
+    /** The caller's own Privileged Access Manager seat; licensed by default. */
     licensed?: boolean;
   } = {},
 ) {
@@ -174,10 +174,9 @@ export const PrivilegedHumanApproval: Story = {
 };
 
 /**
- * The caller belongs to a Privileged Access organization but holds no seat of their own. This card
- * replaces every other state, including an active lease: the server stops releasing the credential
- * to an unlicensed holder whatever lease they hold, so there is no access left to describe
- * (PM-39423).
+ * The caller belongs to a Privileged Access organization but holds no seat of their own. This
+ * card replaces every other state, including an active lease, since the server stops releasing
+ * the credential to an unlicensed holder regardless of lease.
  */
 export const Unlicensed: Story = {
   decorators: [pam({ state: () => ({ badgeState: "privileged" }), licensed: false })],

@@ -26,10 +26,11 @@ type BadgeRecipe = {
 
 /**
  * Renders the unified access-state badge for a gated item — the one pill recipe used across the
- * vault row, the cipher-view modal, and the Requests page (Figma node 88-1699). Callers resolve
- * an {@link AccessBadgeState} (e.g. via `cipherAccessBadgeState`) and pass it in; this component
- * owns the colour/icon/copy mapping, the 5-minute danger escalation, and the live countdown so
- * every surface behaves identically. Renders nothing when `state` is null.
+ * vault row, the cipher-view modal, and the Requests page (Figma node 88-1699).
+ *
+ * Callers resolve an {@link AccessBadgeState} (e.g. via `cipherAccessBadgeState`) and pass it
+ * in; this component owns the colour/icon/copy mapping, the 5-minute danger escalation, and the
+ * live countdown. Renders nothing when `state` is null.
  */
 @Component({
   selector: "app-pam-access-state-badge",
@@ -44,9 +45,8 @@ export class AccessStateBadgeComponent {
   private readonly ticker = inject(AccessBadgeTickerService);
 
   /**
-   * Ticks once a second while an active-lease countdown is showing so the label stays live.
-   * Only an active badge observes the shared ticker, so a table of resting badges leaves the one
-   * timer torn down rather than each row owning its own.
+   * Ticks once a second while an active-lease countdown is showing, so the label stays live.
+   * Only an active badge observes the shared ticker, so resting badges leave the timer torn down.
    */
   private readonly now = toSignal(
     toObservable(computed(() => this.state()?.kind === "active")).pipe(

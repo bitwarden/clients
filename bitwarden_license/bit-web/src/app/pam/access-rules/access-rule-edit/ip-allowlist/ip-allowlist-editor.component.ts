@@ -42,10 +42,9 @@ export function cidrRowControl(
  * Editor for the `ip_allowlist` access rule.
  *
  * Renders a repeatable list of CIDR inputs over a {@link FormArray} owned by the host form and
- * passed in via {@link cidrArray}. The host keeps value and validity on its own control — this
- * component manages the row UI (add/remove), surfaces the array's validation errors, and marks
- * each row that repeats another row's range. Empty rows stay in the value; the host trims and
- * drops them when serialising the rule.
+ * passed in via {@link cidrArray}; the host keeps value and validity, this component manages the
+ * row UI and marks rows that repeat another's range. Empty rows stay in the value — the host
+ * trims them when serializing.
  */
 @Component({
   selector: "app-pam-ip-allowlist-editor",
@@ -80,10 +79,9 @@ export class IpAllowlistEditorComponent implements OnInit, DoCheck {
   }
 
   /**
-   * The row marks have to track the array's own duplicate validator, which the host can re-run
-   * without any notification: it replaces the rows and toggles the array's enabled state under
-   * `emitEvent: false`, so neither `valueChanges` nor `statusChanges` fires. Checking each cycle
-   * is what keeps the two in step; {@link syncDuplicateErrors} writes nothing once they agree.
+   * The row marks must track the array's own duplicate validator, which the host can re-run
+   * with `emitEvent: false` — no `valueChanges`/`statusChanges` fires. Checking each cycle keeps
+   * the two in step; {@link syncDuplicateErrors} writes nothing once they agree.
    */
   ngDoCheck(): void {
     this.syncDuplicateErrors();
@@ -104,19 +102,19 @@ export class IpAllowlistEditorComponent implements OnInit, DoCheck {
     this.markTouched();
   }
 
-  /** Surface the array-level at-least-one error once the user interacts. */
+  /** Surfaces the array-level at-least-one error once the user interacts. */
   protected markTouched(): void {
     this.cidrArray().markAsTouched();
   }
 
   /**
    * Marks every row {@link duplicateCidrValues} reports as repeated, so `bit-form-field` renders
-   * `accessRuleIpAllowlistDuplicateCidr` through `bit-error` under each offending row — the same
-   * mechanism {@link cidrValidator} already gets for `invalidCidr`. A row can be both malformed and
-   * repeated; `invalidCidr` stays first in insertion order so the format error is what shows.
+   * `accessRuleIpAllowlistDuplicateCidr` under each offending row, same as {@link cidrValidator}
+   * does for `invalidCidr`. `invalidCidr` stays first, so a malformed-and-repeated row shows the
+   * format error.
    *
-   * The rows marked here and the array's own `duplicateCidrs` error come from that one function, so
-   * the array can never be rejected with no row saying why.
+   * Row marks and the array's `duplicateCidrs` error come from the same function, so the array
+   * is never rejected with no row saying why.
    */
   private syncDuplicateErrors(): void {
     const controls = this.cidrArray().controls;

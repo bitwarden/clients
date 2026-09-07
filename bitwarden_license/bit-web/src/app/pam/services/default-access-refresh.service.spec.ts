@@ -68,8 +68,8 @@ describe("DefaultAccessRefreshService", () => {
   });
 
   it("does not replay a notification that fired before subscribing", () => {
-    // A re-read has nothing to update with no watcher, and replaying to a freshly-opened item would
-    // make it re-read for no reason.
+    // Nothing to update with no watcher; replaying to a freshly-opened item would re-read for no
+    // reason.
     service.notifyAccessChanged("cipher-1");
 
     const cipherOne = watch("cipher-1");
@@ -78,8 +78,8 @@ describe("DefaultAccessRefreshService", () => {
   });
 
   it("treats a server push as invalidating every cipher", () => {
-    // The push says only "your access changed" — an approver's decision names no cipher, so it
-    // cannot be narrowed to the one the caller happens to have open.
+    // The push says only "access changed"; an approver's decision names no cipher, so it can't
+    // narrow to one open item.
     const cipherOne = watch("cipher-1");
     const cipherTwo = watch("cipher-2");
 

@@ -2,8 +2,7 @@ import type { AccessRequestDecisionView } from "../abstractions/access-lease";
 
 import { findHumanDecision, humanApprover } from "./find-human-decision";
 
-// Overrides use the flat `deciderKind`/`id`/`name`/`email` shorthand and are folded into the SDK's
-// nested `decider: "automatic" | { human }` shape here, so the call sites stay terse.
+// Flat `deciderKind`/`id`/`name`/`email` overrides fold into the SDK's nested `decider` shape here.
 function decision(overrides: Record<string, unknown> = {}): AccessRequestDecisionView {
   const { deciderKind, id, name, email, ...rest } = overrides;
   return {
