@@ -18,14 +18,11 @@ import type { ResolvedNames } from "../access-requests/access-name-resolver.serv
 /**
  * Shared fixtures for the PAM page-level stories.
  *
- * Stories build their rows through the real row builders (`toRequestRow`, `toApprovalRow`,
- * `toLeaseRow`) over these, rather than hand-writing row objects: the tabs, the detail route and
- * the approver inbox all render the same grants, and a hand-written row could quietly disagree with
- * what the builders actually produce.
+ * Stories build rows through the real row builders (`toRequestRow`, `toApprovalRow`,
+ * `toLeaseRow`), since a hand-written row could quietly disagree with what the builders produce.
  *
- * Everything is stamped relative to {@link STORY_NOW} rather than the wall clock, so a story's
- * "submitted 30 minutes ago" reads the same on every render and does not drift into a
- * visual-regression diff.
+ * Everything is stamped relative to {@link STORY_NOW}, not the wall clock, so timestamps don't
+ * drift into a visual-regression diff.
  */
 export const STORY_NOW = new Date("2026-08-17T12:00:00.000Z");
 
@@ -41,10 +38,9 @@ export function fromNow(ms: number): string {
 /**
  * Milliseconds offset from the REAL clock, evaluated when called.
  *
- * Some surfaces — the My requests tab, the request detail route, the cipher-view banner — tick their
- * own `Date.now()` signal and compute countdowns from it rather than from a passed-in `now`. A
- * {@link fromNow} window would already have elapsed against the real clock, so those fixtures would
- * render as expired. Call this inside a story's provider factory so it is fresh on every render.
+ * Some surfaces tick their own `Date.now()` signal rather than a passed-in `now`, so a
+ * {@link fromNow} window would already read as expired against the real clock. Call inside a
+ * story's provider factory so it stays fresh on every render.
  */
 export function liveFromNow(ms: number): string {
   return new Date(Date.now() + ms).toISOString();
@@ -55,9 +51,8 @@ export const HOUR = 60 * MINUTE;
 export const DAY = 24 * HOUR;
 
 /**
- * A pending access request for a gated cipher. Overrides are applied last and widened through
- * `unknown`, because the SDK brands most of these ids and a fixture that satisfied every brand
- * would be more ceremony than the stories it feeds.
+ * A pending access request for a gated cipher. Overrides widen through `unknown`, since the SDK
+ * brands most of these ids and a fully-branded fixture isn't worth the ceremony.
  */
 export function accessRequest(overrides: Record<string, unknown> = {}): AccessRequestView {
   return {
@@ -143,10 +138,9 @@ export function storyNames(): ResolvedNames {
 /**
  * A no-op {@link LogService}, as a ready-made provider.
  *
- * Every page-level PAM surface injects one to record the errors it deliberately swallows, and
- * Storybook's root injector has none — so without this a story dies on NG0201 before it renders
- * anything. Silent rather than console-backed: a story that logs on purpose should not look like a
- * story that is broken.
+ * Every page-level PAM surface injects one to record swallowed errors; Storybook's root injector
+ * has none, so without this a story dies on NG0201. Silent, not console-backed, so a story
+ * logging on purpose doesn't look broken.
  */
 export function provideStoryLogService() {
   const noop = () => {};
@@ -167,13 +161,12 @@ export function provideStoryLogService() {
 /**
  * A stub for the web header's product switcher.
  *
- * `app-header` renders the bento switcher, whose `ProductSwitcherService` is `providedIn: "root"`
- * and pulls in organizations, providers, sync, policies and billing state — an entire service graph
- * a page story has no interest in. Overriding the service itself in the root injector short-circuits
- * all of it; the switcher renders empty, which is what a story wants anyway.
+ * `ProductSwitcherService` is `providedIn: "root"` and pulls in an entire service graph a page
+ * story has no interest in; overriding it in the root injector short-circuits all of it, and the
+ * switcher renders empty, which is what a story wants.
  *
- * Must go in `applicationConfig` (the environment injector), not `moduleMetadata` — a
- * `providedIn: "root"` service is not resolved from the module injector.
+ * Must go in `applicationConfig`, not `moduleMetadata` — a root service isn't resolved from the
+ * module injector.
  */
 export function provideStoryProductSwitcher() {
   return {
@@ -183,11 +176,11 @@ export function provideStoryProductSwitcher() {
 }
 
 /**
- * Everything `app-header` needs beyond the product switcher: the account menu reads the active
- * account, whether the vault can be locked, and whether this is a self-hosted install.
+ * Everything `app-header` needs beyond the product switcher: active account, lock state, and
+ * self-hosted status.
  *
- * A page story is about the page, not the chrome around it — these exist so the header renders at
- * all. Root injector, for the same `providedIn: "root"` reason as {@link provideStoryProductSwitcher}.
+ * A page story is about the page, not the chrome; these just let the header render. Root
+ * injector, same reason as {@link provideStoryProductSwitcher}.
  */
 export function provideStoryWebHeader() {
   return [
@@ -205,14 +198,11 @@ export function provideStoryWebHeader() {
 /**
  * Zoneless change detection, overriding the zone-based provider in `.storybook/preview.tsx`.
  *
- * Storybook already warns that both strategies are configured (NG0408). With the zone-based
- * scheduler winning, a tick is driven by `NgZone.onMicrotaskEmpty` — but Storybook resolves a
- * story's async work outside the Angular zone, so nothing ever schedules one. Anything that
- * arrives after first paint then never renders: a promise-backed load, or `bit-table` assigning
- * its `rows$` in `ngAfterContentChecked`.
+ * Storybook resolves a story's async work outside the Angular zone, so the zone-based scheduler's
+ * `NgZone.onMicrotaskEmpty` tick never fires for work arriving after first paint. Zoneless
+ * schedules the tick directly off a signal write instead.
  *
- * Under zoneless, a signal write schedules the tick directly and both cases render. This is scoped
- * to these stories deliberately; changing the shared preview would touch every story in the repo.
+ * Scoped to these stories deliberately; the shared preview affects every story in the repo.
  */
 export function provideStoryChangeDetection() {
   return provideZonelessChangeDetection();

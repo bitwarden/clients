@@ -1,13 +1,9 @@
 /**
- * Format a millisecond duration as a short low-noise countdown:
- *   - "2h 5m" for 2 hours 5 minutes remaining
- *   - "2h" when minutes round to zero
- *   - "47m" when under one hour
- *   - "15s" when under one minute
- *   - "0s" when the duration is non-positive or non-finite
+ * Format a millisecond duration as a short low-noise countdown: "2h 5m", "2h" when minutes
+ * round to zero, "47m" under one hour, "15s" under one minute, "0s" when non-positive or
+ * non-finite.
  *
- * Rounding is `Math.ceil` so the countdown never undersells remaining time. Callers holding
- * `(notAfter, now)` can pass `notAfter.getTime() - now`.
+ * Rounds with `Math.ceil` so the countdown never undersells remaining time.
  */
 export function formatRemaining(remainingMs: number): string {
   if (!Number.isFinite(remainingMs) || remainingMs <= 0) {

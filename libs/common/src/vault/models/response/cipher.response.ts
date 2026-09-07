@@ -145,9 +145,8 @@ export class CipherResponse extends BaseResponse {
     this.data = this.getResponseProperty("Data");
 
     // PAM gated rows ship a reduced `partialData` envelope (encrypted name + login URIs) in
-    // place of the withheld secret fields. Keep it verbatim: the SDK parses the envelope and
-    // produces the partial decrypted view. Its presence is the gating marker carried through
-    // the cipher model (see {@link CipherResponse.partialData}).
+    // place of withheld secret fields, kept verbatim for the SDK to parse — its presence is
+    // the gating marker (see {@link CipherResponse.partialData}).
     const partialData = this.getResponseProperty("PartialData");
     if (partialData != null) {
       this.partialData =

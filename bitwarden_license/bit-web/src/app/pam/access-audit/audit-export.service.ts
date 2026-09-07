@@ -12,24 +12,22 @@ const FILE_NAME_PREFIX = "pam_audit";
 /**
  * The characters a spreadsheet reads as the opening of a formula rather than as text.
  *
- * The tab and the carriage return are triggers in their own right because Excel drops leading
- * whitespace before deciding what a cell is, so a value can reach the formula parser with the
- * character that matters no longer in first position.
+ * Tab and carriage return are triggers in their own right: Excel drops leading whitespace before
+ * deciding what a cell is, so the real trigger character can land back in first position.
  */
 const FORMULA_TRIGGERS = ["=", "+", "-", "@", "\t", "\r"];
 
 /**
  * One cell, neutralized against spreadsheet formula injection.
  *
- * Most of this file is free text an auditor never chose: an approver's comment, a revoke reason, a
- * name someone else set. A cell that opens with a formula trigger is evaluated when the file is
- * opened, so that text can run as a formula in the spreadsheet of the one reader this export exists
- * for — the classic form being a `HYPERLINK` that carries a neighbouring cell to an attacker's host.
+ * Most of this file is free text an auditor never chose — an approver's comment, a revoke
+ * reason, a name someone else set — and a cell opening with a formula trigger would be evaluated
+ * on open, the classic case being a `HYPERLINK` that carries a neighbouring cell to an
+ * attacker's host.
  *
- * A leading apostrophe is what Excel, LibreOffice and Sheets each read as "the rest of this cell is
- * text". It is applied only where a cell would otherwise evaluate, so an ordinary name or comment is
- * written through untouched, and it is an escape rather than a strip because an audit record must not
- * quietly differ from what was recorded — the auditor has to read the comment that was actually left.
+ * A leading apostrophe is what Excel, LibreOffice and Sheets read as "the rest of this cell is
+ * text", applied only where a cell would otherwise evaluate. An escape, not a strip: an audit
+ * record must not quietly differ from what was recorded.
  */
 function neutralizeFormula(value: string): string {
   return FORMULA_TRIGGERS.some((trigger) => value.startsWith(trigger)) ? `'${value}` : value;

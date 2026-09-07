@@ -18,10 +18,9 @@ import {
  * `buildRotationConfigRow` maps a config onto presentation: i18n keys, sortable columns, and the
  * SDK's already-decided actions.
  *
- * It deliberately decides nothing itself. Whether a config may rotate, and which preset its cron
- * matches, are the SDK's calls — covered by `rotation_config_actions` and `preset_for_cron` in
- * bitwarden-pam — and arrive here in the description. So the tests below assert the mapping and
- * the pass-through, not the rules.
+ * Decides nothing itself — whether a config may rotate and which preset its cron matches are
+ * the SDK's calls, arriving here in the description — so these tests assert the mapping and
+ * pass-through, not the rules.
  */
 describe("buildRotationConfigRow", () => {
   /**

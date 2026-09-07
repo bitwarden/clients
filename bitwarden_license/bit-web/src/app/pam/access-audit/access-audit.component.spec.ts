@@ -112,8 +112,7 @@ describe("AccessAuditComponent", () => {
         },
         {
           provide: I18nService,
-          // I18nMockService throws on an unknown key, so this covers every key the template can
-          // render across all four status branches.
+          // I18nMockService throws on an unknown key, so this covers every key across all four status branches.
           useValue: new I18nMockService({
             loading: "Loading",
             errorOccurred: "An error has occurred",
@@ -155,7 +154,7 @@ describe("AccessAuditComponent", () => {
             pamAuditSystem: "System",
             pamAuditIncomplete: "Incomplete",
             pamAuditIncompleteTooltip: "Outcome never confirmed.",
-            // Every kind, because the Event menu is now the vocabulary rather than what the page holds.
+            // Every kind: the Event menu is the vocabulary, not what the page holds.
             pamAuditKindRequestSubmitted: "Access requested",
             pamAuditKindRequestApproved: "Request approved",
             pamAuditKindRequestDenied: "Request denied",
@@ -185,9 +184,7 @@ describe("AccessAuditComponent", () => {
         },
       ],
     })
-      // Stub the design-system children so these tests exercise this component's own
-      // load / filter / status logic rather than table and chip rendering; the header module pulls
-      // in page chrome (route.data) this test has no interest in wiring up.
+      // Stubs the design-system children so these tests exercise this component's own logic, not table/chip rendering.
       .overrideComponent(AccessAuditComponent, {
         remove: { imports: [HeaderModule] },
         add: { schemas: [NO_ERRORS_SCHEMA] },
@@ -262,9 +259,8 @@ describe("AccessAuditComponent", () => {
   };
 
   /**
-   * Renders the page to its ready state with whatever the trail is currently stubbed to return. Two
-   * change-detection passes with a settle in between, because init reads the member roster and the first
-   * page before the ready branch — and its chips — exist to render.
+   * Renders the page to ready with whatever the trail stub currently returns. Needs two
+   * change-detection passes: init reads the roster, then the first page.
    */
   const renderReady = async () => {
     fixture.detectChanges();
@@ -273,9 +269,8 @@ describe("AccessAuditComponent", () => {
   };
 
   /**
-   * Selects a chip's option through the `FilterControl` contract the chips expose. A
-   * `bit-filter-menu` owns its own selection — there is no form control to set — and the chips only
-   * exist once the ready branch has rendered.
+   * Selects a chip's option through the `FilterControl` contract; `bit-filter-menu` owns its own
+   * selection rather than a form control.
    */
   const selectFilter = (chip: "kind" | "actor" | "requester" | "timePeriod", value: unknown) => {
     fixture.detectChanges();
@@ -296,9 +291,9 @@ describe("AccessAuditComponent", () => {
       }));
 
   /**
-   * Opens the Event menu and returns its rendered rows. The menu body is stamped into a CDK overlay
-   * on the document, not inside the fixture's host element, so it cannot be reached through the
-   * fixture. Multi-select, so the rows are checkboxes and there is no "All" row to reset from.
+   * Opens the Event menu and returns its rendered rows.
+   *
+   * The menu is stamped into a CDK overlay on the document, not the fixture's host element.
    */
   const openKindMenu = () => {
     (fixture.nativeElement as HTMLElement)
@@ -378,8 +373,6 @@ describe("AccessAuditComponent", () => {
     expect(component().status()).toBe("ready");
   });
 
-  // Only an event naming both a cipher and its collection can be matched to a local vault item, so
-  // the others must not be sent to the resolver.
   it("asks the name resolver only about events naming both a cipher and a collection", async () => {
     returnsTrail([
       event({ CipherId: "cipher-1", CollectionId: "col-1" }),
@@ -395,8 +388,7 @@ describe("AccessAuditComponent", () => {
     ]);
   });
 
-  // The menu is the vocabulary, not the page. Deriving it from fifty loaded rows would offer an auditor
-  // only the events they had already scrolled past, and withhold the filter for the one they came for.
+  // The Event menu offers every kind regardless of what happens to be loaded on the page.
   it("offers every event kind, whatever the page happens to hold", async () => {
     returnsTrail([event({ Kind: "requestApproved" })]);
 
@@ -424,9 +416,7 @@ describe("AccessAuditComponent", () => {
     expect(component().kindOptions()).toEqual(before);
   });
 
-  // The signal above is what the chip is bound to; this is what the chip does with it. Kept as its own
-  // test because the binding in between is where the option list has actually broken before — an option
-  // read a beat before Angular has bound its `value` throws NG0950 and renders nothing.
+  // The binding boundary where an early `value` read has thrown NG0950 before.
   it("declares every event kind into the Event menu, sorted", async () => {
     returnsTrail([event({ Kind: "requestApproved" })]);
 
@@ -435,8 +425,7 @@ describe("AccessAuditComponent", () => {
     expect(kindMenuOptions()).toEqual(component().kindOptions());
   });
 
-  // Declaring an option and rendering it are different failures. The rows are stamped into a CDK
-  // overlay only when the menu opens, which is the moment the NG0950 above would surface.
+  // Menu rows are stamped into the CDK overlay only once it opens.
   it("renders a checkable row per event kind when the Event menu is opened", async () => {
     returnsTrail([event({ Kind: "leaseActivated" })]);
 
@@ -449,8 +438,7 @@ describe("AccessAuditComponent", () => {
     );
   });
 
-  // The chip's values are the wire vocabulary, so a selection travels to the server as it stands rather
-  // than being translated out of a display label on the way.
+  // The chip's values are the wire vocabulary itself, sent to the server without translation.
   it("re-reads the trail with the kinds selected on the Event chip", async () => {
     returnsTrail([event({ Kind: "leaseActivated" }), event({ Kind: "requestApproved" })]);
     await renderReady();
@@ -463,9 +451,7 @@ describe("AccessAuditComponent", () => {
     expect(lastFilter().kinds).toEqual(["leaseActivated"]);
   });
 
-  // A LeaseRevoked whose actor is the requester is relabelled "Lease ended by holder" in the Event
-  // column, but the server records one kind and the filter follows the server: selecting "Lease revoked"
-  // asks for both, and the column is what still tells them apart.
+  // Server-side, a holder-ended lease is still LeaseRevoked; the column relabels it for display.
   it("folds a holder-ended lease into the Lease revoked filter, and still labels the row its own way", async () => {
     returnsTrail([
       event({ Kind: "leaseRevoked", ActorId: "user-1", ActorName: "Ada", RequesterId: "user-2" }),
@@ -488,8 +474,6 @@ describe("AccessAuditComponent", () => {
     expect(lastFilter().kinds).toEqual(["leaseRevoked"]);
   });
 
-  // An auditor reconstructing an incident is usually following two or three people at once; narrowing to
-  // each in turn would lose the order the events happened in.
   it("sends every selected actor, so several can be followed at once", async () => {
     returnsTrail([event()]);
     await renderReady();
@@ -531,8 +515,7 @@ describe("AccessAuditComponent", () => {
     expect(lastFilter().actorIds).toEqual([]);
   });
 
-  // Sourced from the organization's roster rather than the page, for the same reason the Event menu is
-  // the vocabulary: a page of fifty rows cannot be asked who else there is.
+  // Actor options come from the organization roster, not the loaded page.
   it("offers an actor option per organization member, plus the system bucket", async () => {
     returnsTrail([event({ ActorId: "user-1", ActorName: "Ada" })]);
 
@@ -545,9 +528,7 @@ describe("AccessAuditComponent", () => {
     ]);
   });
 
-  // The system bucket is offered whether or not the loaded page has an automated row: the page can no
-  // longer answer whether the organization has any, and a filter that comes and goes with the scroll
-  // position is worse than one that sometimes finds nothing.
+  // The system bucket is offered regardless of whether the loaded page has an automated row.
   it("offers the system bucket even when no loaded row is automated", async () => {
     returnsTrail([event({ ActorId: "user-1", ActorName: "Ada", Automated: false })]);
 
@@ -556,8 +537,7 @@ describe("AccessAuditComponent", () => {
     expect(component().actorOptions()).toContainEqual({ label: "System", value: "automated" });
   });
 
-  // A former member is gone from the roster while the events they left behind still name them — and
-  // those events are often exactly what an audit is about.
+  // A former member is gone from the roster, but events naming them are still worth filtering by.
   it("offers a former member the roster no longer carries but the rows still name", async () => {
     returnsTrail([
       event({ ActorId: "user-9", ActorName: "Linus", ActorEmail: "linus@example.com" }),
@@ -578,8 +558,6 @@ describe("AccessAuditComponent", () => {
     );
   });
 
-  // On the wire the automatic bucket is a flag rather than an id, because the events it selects have no
-  // actor to name. It unions with the ids alongside it rather than narrowing them.
   it("sends the system bucket as a flag alongside the selected ids", async () => {
     returnsTrail([event()]);
     await renderReady();
@@ -672,8 +650,7 @@ describe("AccessAuditComponent", () => {
       expect(aboutEqual(sentStart(), now().getTime() - 30 * DAY_MS)).toBe(true);
     });
 
-    // "All time" is the chip's own reset row. It sends no bounds at all, which the server answers with
-    // everything it still holds — the retention window, and nothing older exists to ask for.
+    // "All time" sends no bounds at all; the server answers with everything still in its retention window.
     it("sends no bounds at all when the chip is reset to All time", async () => {
       await renderTrail([now()]);
 
@@ -686,8 +663,6 @@ describe("AccessAuditComponent", () => {
       expect(lastFilter().end).toBeUndefined();
     });
 
-    // Choosing a period is a new read, not a narrowing of what is already here — which is what lets it
-    // reach events the first page never contained.
     it("re-reads the trail rather than narrowing the rows already loaded", async () => {
       await renderTrail([now()]);
       const before = readCount();
@@ -720,7 +695,7 @@ describe("AccessAuditComponent", () => {
         expect(component().selectedPeriod()).toBe("custom");
       });
 
-      // Reopening has to show what the table is filtered to, or the auditor is editing bounds they cannot see.
+      // Reopening the dialog must show the range currently in force, not the defaults.
       it("reopens the dialog on the range in force", async () => {
         await renderTrail([new Date(2026, 7, 18, 12, 0)]);
         closesWith({ action: "apply", from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
@@ -734,9 +709,7 @@ describe("AccessAuditComponent", () => {
         });
       });
 
-      // Re-selecting "Custom" writes the value the chip already holds, so its selection signal never
-      // notifies and the dialog cannot be reopened from the menu. Editing the bounds in force would
-      // otherwise mean dropping them first.
+      // Reselecting "Custom" doesn't change the chip's value, so it doesn't notify.
       it("reopens the dialog from Edit without dropping the range in force", async () => {
         await renderTrail([new Date(2026, 7, 18, 12, 0)]);
         closesWith({ action: "apply", from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
@@ -760,7 +733,6 @@ describe("AccessAuditComponent", () => {
         });
       });
 
-      // Nothing to edit until a range is in force, and nothing to edit once one of the presets is.
       it("offers Edit only while a custom range is the period in force", async () => {
         await renderTrail([new Date(2026, 7, 18, 12, 0)]);
         expect(fixture.nativeElement.querySelector("#access-audit_button_edit-range")).toBeNull();
@@ -787,12 +759,10 @@ describe("AccessAuditComponent", () => {
         await chooseCustom();
 
         expect(component().selectedPeriod()).toBe("past7Days");
-        // Still the preset's bounds: a cancelled dialog must not have re-read the trail for a range
-        // that was never applied.
+        // Still the preset's bounds: a cancelled dialog must not have re-read the trail for an unapplied range.
         expect(aboutEqual(sentStart(), now().getTime() - 7 * DAY_MS)).toBe(true);
       });
 
-      // Clear is the dialog's own way out of a custom range, so the chip goes back to All time with it.
       it("drops the chip back to All time when the dialog clears the range", async () => {
         const recent = new Date(now().getTime() - HOUR_MS);
         const older = new Date(now().getTime() - 40 * DAY_MS);
@@ -891,8 +861,7 @@ describe("AccessAuditComponent", () => {
     });
   });
 
-  // Every filter is a query parameter on the read, so changing one goes back to the server. That is what
-  // makes a filtered result the whole of what matches rather than the whole of what happened to be loaded.
+  // Each filter is a query parameter on the read, not a client-side narrowing.
   it("re-reads the trail whenever a filter changes", async () => {
     returnsTrail([event()]);
     await renderReady();
@@ -917,9 +886,7 @@ describe("AccessAuditComponent", () => {
     );
   });
 
-  // The chips mount only once the first page has rendered, and their first report is "nothing selected" —
-  // the very filter that page was read with. Without the guard on the filter in force, every load would be
-  // followed immediately by an identical second one.
+  // Chips mount already reporting the filter the page loaded with.
   it("does not re-read the trail when a chip settles on the filter already in force", async () => {
     returnsTrail([event()]);
 
@@ -944,8 +911,6 @@ describe("AccessAuditComponent", () => {
       fixture.nativeElement.querySelector("#access-audit_button_refresh").click();
     };
 
-    // Re-reading is how an event recorded since the page opened appears. The filters reach the server
-    // now, so Update starts again from the first page of whatever they select rather than appending.
     it("re-reads the first page for the filter in force when Update is pressed", async () => {
       await renderReady();
       expect(readCount()).toBe(1);
@@ -961,8 +926,7 @@ describe("AccessAuditComponent", () => {
       expect(component().status()).toBe("ready");
     });
 
-    // An organization whose first PAM event has not landed yet renders the empty state, which holds no
-    // toolbar. Without Update there, the only way to see that first event is a browser reload.
+    // The empty state has no toolbar; Update is the only way in.
     it("re-reads the trail from the empty state", async () => {
       await renderReady([]);
       expect(component().status()).toBe("empty");
@@ -977,8 +941,7 @@ describe("AccessAuditComponent", () => {
       expect(component().rows()).toHaveLength(1);
     });
 
-    // The Event menu is the vocabulary rather than the page, so a refresh cannot add to it — which is
-    // the point: the option for a kind was already there before the event of that kind arrived.
+    // The Event menu is a fixed vocabulary, not derived from the page.
     it("renders a trail whose kinds were already all on offer", async () => {
       await renderReady();
       const before = component().kindOptions();
@@ -992,8 +955,6 @@ describe("AccessAuditComponent", () => {
       expect(before).toContainEqual({ label: "Lease activated", value: "leaseActivated" });
     });
 
-    // The roster is read once and outlives every filter, so it is not re-read per refresh — otherwise
-    // every chip an auditor touched would cost a second request for a list that has not changed.
     it("does not re-read the member lookup on a refresh", async () => {
       await renderReady();
       expect(organizationUserApiService.getAllMiniUserDetails).toHaveBeenCalledTimes(1);
@@ -1004,8 +965,6 @@ describe("AccessAuditComponent", () => {
       expect(organizationUserApiService.getAllMiniUserDetails).toHaveBeenCalledTimes(1);
     });
 
-    // Dropping to the loading state would take the table, the filters and the pressed button out of
-    // the DOM for the length of the request.
     it("keeps the rendered trail on screen while a refresh is in flight", async () => {
       await renderReady();
 
@@ -1026,9 +985,7 @@ describe("AccessAuditComponent", () => {
       expect(component().rows()).toHaveLength(2);
     });
 
-    // A refresh leaves the chips live, so a second read can start while the first is still out. Whichever
-    // came back last would otherwise win, and a slow answer to a filter the auditor has already moved off
-    // would overwrite the one they are waiting for.
+    // A refresh started after a filter change discards a still-in-flight response for the old filter.
     it("discards a read the auditor has already moved off", async () => {
       await renderReady();
 
@@ -1088,8 +1045,6 @@ describe("AccessAuditComponent", () => {
       expect(toolbar.querySelector("input[type=datetime-local]")).toBeNull();
     });
 
-    // A long chip label wraps the chip row. The buttons sit above it so that wrap can never orphan
-    // Export onto a line of its own.
     it("keeps the actions out of the wrapping row, right-aligned above it", async () => {
       const toolbar = await renderToolbar();
 
@@ -1152,9 +1107,6 @@ describe("AccessAuditComponent", () => {
       await fixture.whenStable();
     };
 
-    // The file has to hold what the auditor narrowed the table down to — all of it. Serializing the rows
-    // on screen would stop at the page boundary, and a file that stops early is the one outcome an audit
-    // export must not produce: it looks complete.
     it("walks every page of the filtered trail rather than exporting what is on screen", async () => {
       returnsTrail([event({ ActorId: "user-3", ActorName: "Linus" })]);
       await renderReady();
@@ -1170,8 +1122,6 @@ describe("AccessAuditComponent", () => {
       expect(exportedRows().map((row) => row.actorName)).toEqual(["Linus", "Ada"]);
     });
 
-    // The walk carries the chips with it, or the file would be the whole trail rather than the part the
-    // auditor asked for.
     it("carries the active filter onto every page it reads", async () => {
       returnsTrail([event()]);
       await renderReady();
@@ -1189,9 +1139,7 @@ describe("AccessAuditComponent", () => {
       );
     });
 
-    // A server answering every request with the same position would otherwise spin here forever, writing
-    // the same page into the file until the tab died. Refusing outright is the right failure: bitAction
-    // reports it, and no file is written that claims to be the trail and is not.
+    // A server repeating the same page position would loop forever; refusing outright fails safely instead.
     it("refuses to write a file when the trail hands back the same page twice", async () => {
       returnsTrail([event()], "stuck");
       await renderReady();
@@ -1243,9 +1191,6 @@ describe("AccessAuditComponent", () => {
   });
 
   describe("item filter", () => {
-    // The menu is the subjects the trail names, narrowed to the ones this vault can label. Neither half
-    // works alone: a page names only some of what is in range, and the vault holds credentials the trail
-    // never mentions.
     it("offers an option per subject the trail names that this vault can name", async () => {
       returnsTrail([event()]);
       returnsItems([cipherItem("cipher-1"), ruleItem("rule-1", "Production database")], {
@@ -1260,8 +1205,6 @@ describe("AccessAuditComponent", () => {
       ]);
     });
 
-    // A cipher this viewer never held has no name to render, so offering it would put an unlabelled row
-    // in the menu — the same rule the Actor chip follows for an unresolved member.
     it("offers no option for a cipher this vault could not decrypt", async () => {
       returnsTrail([event()]);
       returnsItems([cipherItem("cipher-1"), cipherItem("cipher-unknown")], {
@@ -1285,8 +1228,7 @@ describe("AccessAuditComponent", () => {
       ]);
     });
 
-    // Two items under one name would let an auditor read a filtered half of one item's history as the
-    // whole of it. The collection the cipher was last gated through is what tells them apart.
+    // Two items sharing a name are told apart by the collection each was last gated through.
     it("tells apart two items that share a name", async () => {
       returnsTrail([event()]);
       returnsItems(
@@ -1339,8 +1281,7 @@ describe("AccessAuditComponent", () => {
       expect(lastItemRange().start).toBeInstanceOf(Date);
     });
 
-    // The other dimensions are not. Narrowing to one actor must not quietly drop the credentials they
-    // never touched from a menu an auditor is using to look for exactly that.
+    // Narrowing one filter must not drop untouched items from another filter's menu.
     it("leaves the menu alone when another chip changes", async () => {
       returnsTrail([event()]);
       await renderReady();
@@ -1354,8 +1295,6 @@ describe("AccessAuditComponent", () => {
       expect(itemReadCount()).toBe(before);
     });
 
-    // The trail is still readable without one of its filters; an auditor who cannot narrow by item is
-    // better off than one looking at an error page.
     it("leaves the menu empty when the read fails, without taking the page down", async () => {
       returnsTrail([event()]);
       auditApiService.listAccessAuditItems.mockRejectedValue(new Error("boom"));
@@ -1377,8 +1316,7 @@ describe("AccessAuditComponent", () => {
       fixture.detectChanges();
     };
 
-    // The server sends a position to resume from only while a page remains, so its absence is the end of
-    // the trail rather than a guess made by counting rows.
+    // The server's absent next-page token, not a row count, marks the end of the trail.
     it("offers Load more while the trail has a page left", async () => {
       returnsTrail([event()], "page-2");
 
@@ -1420,8 +1358,7 @@ describe("AccessAuditComponent", () => {
       expect(lastFilter().continuationToken).toBe("page-2");
     });
 
-    // An auditor reading down a trail is holding their place in it. Reloading the table to fetch what
-    // comes after would lose it.
+    // Reloading the table for the next page would lose the auditor's place in it.
     it("keeps the page on screen while the next one is in flight", async () => {
       returnsTrail([event()], "page-2");
       await renderReady();
@@ -1443,7 +1380,7 @@ describe("AccessAuditComponent", () => {
       expect(component().rows()).toHaveLength(2);
     });
 
-    // A stale position would ask the server to resume a trail the auditor is no longer looking at.
+    // A stale page position would resume a trail the auditor is no longer viewing.
     it("starts again from the first page when a filter changes", async () => {
       returnsTrail([event()], "page-2");
       await renderReady();
@@ -1595,8 +1532,7 @@ describe("AccessAuditComponent", () => {
       expect(cells()[3].textContent).toContain("Linus");
     });
 
-    // There is no entity-events dialog for an access rule, and the rule editor is behind
-    // canManageAccessRules, which this page's guard does not imply.
+    // No entity-events dialog exists for a rule.
     it("leaves a rule name as plain text", async () => {
       await render([event({ Kind: "ruleCreated", RuleName: "Production access" })]);
 
@@ -1612,8 +1548,7 @@ describe("AccessAuditComponent", () => {
       expect(cells()[4].textContent).toContain("—");
     });
 
-    // An auditor mid-table expects to keep their place; the organization event log's own member link
-    // routes on to the members page, which sits behind a permission this page's viewer need not hold.
+    // Opening a dialog must not trigger navigation, unlike the event log's own member link.
     it("does not navigate away when a dialog is opened", async () => {
       const router = TestBed.inject(Router);
       const navigate = jest.spyOn(router, "navigate").mockResolvedValue(true);
@@ -1677,9 +1612,7 @@ describe("AccessAuditComponent", () => {
       expect(drawerData().organizationId).toBe(ORGANIZATION_ID);
     });
 
-    // `openDrawer` defaults `closeOnNavigation` to false and `DrawerService` only tears the stack down
-    // when the bottom ref asked for it, so without this the pane stays mounted over whatever page the
-    // auditor navigates to next.
+    // `openDrawer` defaults `closeOnNavigation` to false, so closing on navigation is handled explicitly here.
     it("closes the drawer when the auditor navigates away", async () => {
       await render([event()]);
 
@@ -1691,8 +1624,6 @@ describe("AccessAuditComponent", () => {
       );
     });
 
-    // The member lookup ran once for the whole trail; the pane must link exactly what the row under
-    // it links, which it can only do if the page hands over the answer it already has.
     it("hands the drawer the identities the row resolved", async () => {
       await render([event({ ActorId: "user-1", RequesterId: "user-2" })]);
 
@@ -1723,8 +1654,7 @@ describe("AccessAuditComponent", () => {
       expect(drawerData().requester).toBeNull();
     });
 
-    // The page already read the viewer's membership; a pane re-deriving it could offer a link the
-    // page itself would not.
+    // The drawer reuses the page's already-read membership rather than re-deriving it.
     it("hands the drawer the permissions its links are gated on", async () => {
       await render([event()]);
 
@@ -1745,8 +1675,6 @@ describe("AccessAuditComponent", () => {
       expect(drawerData().canViewCollections).toBe(false);
     });
 
-    // An anchor inside the row already opens something of its own. Letting the click reach the row
-    // as well would stack a drawer behind the dialog the auditor actually asked for.
     it.each([
       ["actor", { ActorId: "user-1", ActorName: "Ada" }],
       ["requester", { RequesterId: "user-2", RequesterName: "Grace" }],
@@ -1772,8 +1700,7 @@ describe("AccessAuditComponent", () => {
       expect(dialogService.openDrawer).not.toHaveBeenCalled();
     });
 
-    // A `tr` is neither focusable nor nameable, so the affordance lives on a cell — one cell, not
-    // six, or a ninety-day trail would put hundreds of tab stops between an auditor and the table's end.
+    // One keyboard activator per row, not per cell, or a long trail multiplies tab stops.
     it("gives the row one keyboard activator, with a role and a name", async () => {
       await render([event()]);
 
@@ -1787,8 +1714,7 @@ describe("AccessAuditComponent", () => {
       ).toHaveLength(1);
     });
 
-    // `button` marks its children presentational, so the badge is not exposed as a node of its own and
-    // an in-doubt row would otherwise announce exactly the same as a settled one.
+    // `button` marks its children presentational, so the badge isn't announced as its own node.
     it("names the in-doubt badge on the cell that carries the role", async () => {
       await render([event({ Incomplete: true }), event({ Incomplete: false })]);
 
@@ -1835,8 +1761,7 @@ describe("AccessAuditComponent", () => {
       );
     });
 
-    // The column is gone from the TABLE, not from the trail: the file an auditor exports is the
-    // record they file, and it still has to carry the free text the column used to show.
+    // The detail column dropped from the table must still appear in the exported file.
     it("still exports the detail the column gave up", async () => {
       await render([event({ Detail: "Incident closed early." })]);
 
@@ -1878,7 +1803,7 @@ describe("AccessAuditComponent", () => {
       await overFilter();
 
       expect(component().rows()).toHaveLength(0);
-      // Still "ready", not "empty": a filter that matched nothing must leave the way out of it on screen.
+      // Still "ready", not "empty": a filter matching nothing must leave its way out on screen.
       expect(component().status()).toBe("ready");
       expect(fixture.nativeElement.querySelector("bit-status-lockup")).not.toBeNull();
       expect(fixture.nativeElement.querySelector("bit-callout")).toBeNull();
@@ -1918,8 +1843,7 @@ describe("AccessAuditComponent", () => {
       expect(emptyStateClearAll()).toBeNull();
     });
 
-    // The way out of an over-filtered table has to be where the auditor is looking, not only in the
-    // chip row above it.
+    // Clear all must be reachable from the empty state, not only from the chip row above it.
     it("resets every chip from the empty state's Clear all", async () => {
       await renderReady();
       selectFilter("actor", ["user-1"]);
@@ -1982,7 +1906,7 @@ describe("AccessAuditComponent", () => {
       expect(text(ACTOR)).toBe("—");
     });
 
-    // "System" is a value, not an absence: an automated row has an actor, it just is not a person.
+    // "System" is a value: an automated row has an actor, just not a person.
     it("keeps the System label rather than a dash for an automated row", async () => {
       await render([event({ ActorId: null, ActorName: null, ActorEmail: null, Automated: true })]);
 
@@ -2023,8 +1947,7 @@ describe("AccessAuditComponent", () => {
     });
   });
 
-  // The organization event log heads this column "Timestamp" and renders it `medium`; an auditor
-  // reading both surfaces should not have to translate between two renderings of the same instant.
+  // Matches the organization event log's Timestamp column and its `medium` format.
   describe("timestamp column", () => {
     const OCCURRED_AT = "2026-08-18T09:00:00.000Z";
 
@@ -2100,8 +2023,7 @@ describe("AccessAuditComponent", () => {
     it("keeps the bitCell padding alongside the width classes", async () => {
       const { headers, cells } = await renderTable();
 
-      // bitCell sets `class` through a HostBinding; a static class attribute on the same element
-      // has to survive that merge or every width class here is silently inert.
+      // A static class attribute must survive bitCell's HostBinding merge, or these width classes are inert.
       expect(headers[TIME].classList).toContain("tw-p-3");
       expect(cells[ITEM].classList).toContain("tw-p-3");
     });
@@ -2125,8 +2047,7 @@ describe("AccessAuditComponent", () => {
     it("keeps the Item floor beneath the cap and beside the bitCell padding", async () => {
       const { cells } = await renderTable();
 
-      // Same HostBinding merge as above: the floor is inert unless it survives alongside tw-p-3,
-      // and it is only a floor while the cap is still there to bound the other end.
+      // Same HostBinding merge as above: tw-p-3 must survive alongside the floor/cap classes.
       expect(cells[ITEM].classList).toContain("tw-p-3");
       expect(cells[ITEM].classList).toContain("tw-min-w-48");
       expect(cells[ITEM].classList).toContain("tw-max-w-64");
@@ -2160,10 +2081,8 @@ describe("AccessAuditComponent", () => {
     /**
      * The drawer refs the page opened, newest last.
      *
-     * `close()` and `forceClose()` are deliberately the same emission: `DrawerRef.close()` (the X
-     * button, Escape, and `openDrawer`'s own teardown of the outgoing stack) and `_forceClose()` (a
-     * route change under `closeOnNavigation`) both push one value onto `closed` and complete it. That
-     * they converge is what lets a single subscription cover every way out of the pane.
+     * `close()` and `forceClose()` both push one value onto `closed` and complete it, so one
+     * subscription covers every way out.
      */
     type FakeDrawer = { close: () => void; forceClose: () => void };
 
@@ -2172,9 +2091,7 @@ describe("AccessAuditComponent", () => {
     beforeEach(() => {
       drawers = [];
       dialogService.openDrawer.mockImplementation(() => {
-        // The real openDrawer closes the open stack before pushing the new ref, so the outgoing
-        // drawer emits on `closed` before this call has the incoming one. Mirrored here, because that
-        // ordering is the whole risk in replacing one drawer with another.
+        // Mirrors openDrawer's real order: the outgoing drawer's `closed` fires before the incoming ref exists.
         drawers.at(-1)?.close();
         const closed = new Subject<unknown>();
         const emit = () => {
@@ -2239,8 +2156,6 @@ describe("AccessAuditComponent", () => {
       expect(visibleColumns()).toEqual(WITH_DRAWER);
     });
 
-    // Hidden, not removed: a column dropped from the DOM would re-flow the table and, if the header
-    // and the cells ever disagreed about which one went, silently shift every value one column over.
     it("leaves the stood-down columns in the DOM, header and cells together", async () => {
       await render();
       await openRow();
@@ -2256,10 +2171,7 @@ describe("AccessAuditComponent", () => {
       }
     });
 
-    // The Actor and Requester anchors are unreachable while their columns are down, which is fine —
-    // the drawer offers the same links. What is not fine is a cell that is invisible but still read
-    // out and still focusable. `tw-hidden` is `display: none`, which takes the subtree out of the
-    // accessibility tree and out of the tab order; a visibility or opacity class would not.
+    // `tw-hidden` removes the cell from the accessibility tree and tab order; opacity or visibility would not.
     it("takes the stood-down cells out of the accessibility tree, not just out of view", async () => {
       await render();
       await openRow();
@@ -2273,8 +2185,7 @@ describe("AccessAuditComponent", () => {
       }
     });
 
-    // bitCell sets `class` through a HostBinding; the toggled class has to merge with that rather
-    // than replace it, or the padding goes with the column.
+    // The toggled class must merge with bitCell's HostBinding class, not replace it.
     it("keeps the bitCell padding and the Item bounds under the toggle", async () => {
       await render();
       await openRow();
@@ -2286,9 +2197,7 @@ describe("AccessAuditComponent", () => {
       expect(bodyRows()[0].querySelectorAll("td")[2].classList).toContain("tw-p-3");
     });
 
-    // Every way out of a drawer ends in one of these two, and both emit on `closed`. A drawer has no
-    // backdrop of its own to dismiss — it takes a grid column beside the table rather than covering
-    // the page — so there is no third route to miss.
+    // Every way out of the drawer emits on `closed`, so one subscription covers all of them.
     it.each([
       ["the close button", (drawer: FakeDrawer) => drawer.close()],
       ["Escape", (drawer: FakeDrawer) => drawer.close()],
@@ -2305,8 +2214,7 @@ describe("AccessAuditComponent", () => {
       expect(visibleColumns()).toEqual(ALL_COLUMNS);
     });
 
-    // Activating a second row replaces the drawer: the outgoing ref closes on the way, and its close
-    // must not be read as "no drawer" over the one that took its place.
+    // Replacing an open drawer closes the outgoing ref; that close must not be read as no drawer.
     it("stays at three columns when a different row replaces the open drawer", async () => {
       await render();
       await openRow(0);

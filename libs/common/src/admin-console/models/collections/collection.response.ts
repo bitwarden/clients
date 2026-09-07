@@ -28,9 +28,9 @@ export class CollectionDetailsResponse extends CollectionResponse {
   manage: boolean;
   hidePasswords: boolean;
   /**
-   * True when the collection is governed by an access rule that is currently enabled, meaning its
-   * items are gated behind PAM leasing. Server-derived: the association alone is not enough,
-   * because a disabled rule gates nothing.
+   * True when the collection is governed by a currently enabled access rule, gating its items
+   * behind PAM leasing. Server-derived: association alone isn't enough, since a disabled rule
+   * gates nothing.
    */
   hasEnabledAccessRule: boolean;
 

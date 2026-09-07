@@ -28,9 +28,9 @@ export class CollectionView implements View, ITreeNodeObject {
   type: CollectionType = CollectionTypes.SharedCollection;
   defaultUserCollectionEmail: string | undefined;
   /**
-   * True when the collection is governed by an access rule that is currently enabled, meaning its
-   * items are gated behind PAM leasing. Server-derived: the association alone is not enough,
-   * because a disabled rule gates nothing.
+   * True when the collection is governed by a currently enabled access rule, gating its items
+   * behind PAM leasing. Server-derived: association alone isn't enough, since a disabled rule
+   * gates nothing.
    */
   hasEnabledAccessRule: boolean = false;
 
@@ -185,15 +185,11 @@ export class CollectionView implements View, ITreeNodeObject {
   /**
    * Creates a CollectionView from the SDK CollectionView returned by SDK decrypt operations.
    *
-   * The `sourceCollection` parameter is required to preserve fields the SDK's CollectionView type
-   * does not carry:
-   *
-   * - `defaultUserCollectionEmail`, consumed by `canEditName()` to enforce the security restriction
-   *   that prevents editing names on offboarded default-user collections (see WARNING on
-   *   `canEditName`). Without it the restriction would be silently bypassed on the SDK decrypt path.
-   * - `hasEnabledAccessRule`, which drives the privileged-access badge in the vault list. It is
-   *   plaintext server-derived state with nothing to decrypt, so it rides alongside the SDK rather
-   *   than through it — the SDK's `Collection` is `deny_unknown_fields` and does not declare it.
+   * The `sourceCollection` parameter preserves two fields the SDK's type doesn't carry:
+   * `defaultUserCollectionEmail`, consumed by `canEditName()` to enforce the offboarded-collection
+   * name restriction (see WARNING there), and `hasEnabledAccessRule`, which drives the
+   * privileged-access badge — plaintext, server-derived state that rides alongside the SDK since
+   * its `Collection` is `deny_unknown_fields` and doesn't declare it.
    */
   static fromSdkCollectionView(
     sdkView: SdkCollectionView,

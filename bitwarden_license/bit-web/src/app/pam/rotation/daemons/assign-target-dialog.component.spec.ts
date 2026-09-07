@@ -76,7 +76,7 @@ describe("AssignTargetDialogComponent", () => {
   it("does not confirm when no option is selected", async () => {
     await createComponent([makeSystem("ts-1", "Prod")]);
     (component as any).confirm();
-    // Should NOT close because form is invalid
+    // Must not close: the form is invalid.
     expect(dialogRef.close).not.toHaveBeenCalledWith(expect.any(String));
   });
 

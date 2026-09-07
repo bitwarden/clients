@@ -33,23 +33,18 @@ import { isActionableInboxRequest } from "../approvals/inbox-request-filter";
  * PAM's {@link PamNavBadgeService}: how much unattended access work the caller has, refreshed
  * whenever the server says something changed.
  *
- * Two halves, one per tab the Access requests page badges of its own accord:
- *  - the caller's own requests still needing something from them (`list_mine()`), and
- *  - the requests awaiting the caller's decision (`list_inbox()`), read ONLY for a caller who can
- *    actually approve. Reading the inbox for everyone would mean a guaranteed-empty request per
- *    page open, and would badge the nav for a member with nothing to decide — which is why this
- *    gates on {@link ApprovalPrivilegeService} rather than just summing the two reads.
+ * Two halves: the caller's own requests still needing something from them (`list_mine()`), and
+ * the requests awaiting their decision (`list_inbox()`), read only for a caller who can
+ * actually approve — gated on {@link ApprovalPrivilegeService} rather than always summing both.
  *
- * The two are unioned by request id, not added: a manager who requests access to a cipher in a
- * collection they manage holds one request that appears on both tabs, and that is one piece of work,
- * not two.
+ * The two are unioned by request id, not added, since a manager's own request in a collection
+ * they manage appears on both tabs as one piece of work.
  *
- * `shareReplay({ refCount: true })` because the nav slot and anything else that badges the same
- * number must not each fire their own reads, while `refCount` still releases the upstream
- * subscription — and with it the push-channel attachment — once nothing is rendering a badge.
+ * `shareReplay({ refCount: true })` so every badge consumer shares one read, while `refCount`
+ * still releases the push-channel subscription once nothing renders a badge.
  *
- * A failed read reports the previous count rather than erroring: a nav badge must never be able to
- * break navigation. With the feature flag off it reports `0` without calling the SDK at all.
+ * A failed read reports the previous count rather than erroring, and reports `0` without
+ * calling the SDK when the feature flag is off.
  */
 export class DefaultPamNavBadgeService implements PamNavBadgeService {
   readonly count$: Observable<number>;
@@ -92,11 +87,10 @@ export class DefaultPamNavBadgeService implements PamNavBadgeService {
   }
 
   /**
-   * The requests awaiting the caller's decision, or nothing at all for a caller who approves
-   * nothing. Re-read on the approver-side push rather than the requester one: the server sends
-   * `RefreshApproverInbox` to every manager of the collection on submit, decide, activate, cancel,
-   * revoke and extend, so it covers every way the pending set can move — including the caller's own
-   * decisions, which they receive on their own device.
+   * The requests awaiting the caller's decision, or nothing for a caller who approves nothing.
+   * Re-read on the approver-side push, not the requester one: the server sends
+   * `RefreshApproverInbox` to every collection manager on submit, decide, activate, cancel,
+   * revoke and extend, covering every way the pending set can move.
    */
   private inboxRequestIds$(): Observable<string[]> {
     return this.approvalPrivilegeService.canApprove$.pipe(

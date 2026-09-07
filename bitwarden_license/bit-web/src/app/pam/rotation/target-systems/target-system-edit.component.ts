@@ -63,7 +63,7 @@ type PolicyControls = {
 };
 type PolicyGroup = FormGroup<PolicyControls>;
 
-/** Cross-field validator: minLength must be <= maxLength. */
+/** Cross-field validator: minLength no greater than maxLength. */
 const minMaxValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const group = control as PolicyGroup;
   const min = group.controls.minLength.value;
@@ -97,14 +97,9 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
 /**
  * Routed create/edit page for a PAM target system.
  *
- * Create mode: full form — name, method (radio Automatic/Manual), and (when Automatic)
- * kind select, password policy, session-termination checkbox.
- *
- * Edit mode (targetSystemId param present): method/kind are display-only (immutable once
- * created). A single Save action persists the name and — for Automatic systems — the
- * password policy together (with a withdrawal warning for supportsSessionTermination when
- * unchecking). The footer also carries the retirement action: Disable when the system is in
- * service, Enable when it is not. There is no delete — see {@link disableSystem}.
+ * Create mode collects name, method, and (for Automatic) kind, password policy and session
+ * termination; edit mode locks method/kind and saves name plus policy together. The footer
+ * carries Disable/Enable instead of delete — see {@link disableSystem}.
  */
 @Component({
   templateUrl: "./target-system-edit.component.html",
@@ -164,10 +159,6 @@ export class TargetSystemEditComponent {
     { value: TargetSystemKind.CustomScript, label: "pamTargetSystemKindCustomScript" },
   ] as const;
 
-  // -----------------------------------------------------------------------
-  // Create-mode form (single submit for everything)
-  // -----------------------------------------------------------------------
-
   protected readonly createForm = this.formBuilder.nonNullable.group({
     name: ["", [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)]],
     method: [TargetSystemMethod.Automatic as TargetSystemMethod, [Validators.required]],
@@ -205,8 +196,8 @@ export class TargetSystemEditComponent {
   protected readonly isManual = computed(() => this.method() === TargetSystemMethod.Manual);
 
   /**
-   * The password-policy card is shown for both methods: Automatic (the daemon enforces the rules)
-   * and Manual (the rules the operator follows when rotating the credential by hand).
+   * The password-policy card is shown for both methods: enforced by the daemon under Automatic,
+   * followed by the operator by hand under Manual.
    */
   protected readonly showPolicyCard = computed(() => this.isAutomatic() || this.isManual());
 
@@ -229,11 +220,7 @@ export class TargetSystemEditComponent {
     return kind != null && kind !== TargetSystemKind.CustomScript;
   });
 
-  /**
-   * Whether to show the session-termination withdrawal warning (only in edit mode,
-   * only when the existing system had supportsSessionTermination=true and the user
-   * unchecks it).
-   */
+  /** Shows the session-termination withdrawal warning: edit mode only, when an existing supportsSessionTermination system is unchecked. */
   protected readonly showTerminationWarning = computed(() => {
     if (!this.editing) {
       return false;
@@ -244,10 +231,6 @@ export class TargetSystemEditComponent {
     }
     return !this.policyForm.controls.supportsSessionTermination.value;
   });
-
-  // -----------------------------------------------------------------------
-  // Edit-mode name form (separate from policy)
-  // -----------------------------------------------------------------------
 
   protected readonly nameForm = this.formBuilder.nonNullable.group({
     name: ["", [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)]],
@@ -331,10 +314,6 @@ export class TargetSystemEditComponent {
       });
     }
   }
-
-  // -----------------------------------------------------------------------
-  // Submit handlers
-  // -----------------------------------------------------------------------
 
   /** Build a PasswordPolicy from the current policy-form values. */
   private buildPasswordPolicy(): PasswordPolicy {
@@ -445,12 +424,10 @@ export class TargetSystemEditComponent {
   );
 
   /**
-   * Take a target system out of service from the edit page.
+   * Takes a target system out of service from the edit page.
    *
-   * This is how a target system is retired: there is no delete, because rotation configs
-   * reference targets and a rotation's history has to stay attributable. Disable is reversible,
-   * so the page stays put and re-reads rather than navigating away — the operator can put it
-   * straight back with {@link enableSystem}.
+   * Disable, not delete, since rotation configs reference targets and history must stay
+   * attributable. Reversible, so the page re-reads rather than navigating away.
    */
   protected readonly disableSystem = async (): Promise<void> => {
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -476,7 +453,7 @@ export class TargetSystemEditComponent {
     }
   };
 
-  /** Return a retired target system to service. No confirmation: it is the recoverable direction. */
+  /** Returns a retired target system to service; no confirmation needed, since it's recoverable. */
   protected readonly enableSystem = async (): Promise<void> => {
     try {
       await this.rotationSdk.enableTargetSystem(this.organizationId, this.targetSystemId!);

@@ -82,8 +82,7 @@ describe("toAuditRow", () => {
     expect(result.cipherName).toBe("prod db");
   });
 
-  // The id rides on the row whether or not the item decrypted, but the Item cell only links a row that
-  // has a name to render as the link text.
+  // The id rides on the row regardless of decryption; the Item cell links only a row with a name.
   it("carries the subject cipher's id even when the item did not decrypt", () => {
     const event = new AccessAuditEventResponse({
       Kind: AccessAuditEventKind.CredentialAccessed,

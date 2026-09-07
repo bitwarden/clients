@@ -53,10 +53,7 @@ function approvalRow(
   );
 }
 
-/**
- * `DIALOG_DATA` is what every story varies, so it is provided per story rather than on the meta —
- * the dialog reads it once at construction and has no inputs to drive from args.
- */
+/** `DIALOG_DATA` is what every story varies, provided per story since the dialog reads it once at construction. */
 function withParams(params: DecideDialogParams) {
   return moduleMetadata({
     imports: [DecideDialogComponent],

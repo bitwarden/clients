@@ -12,10 +12,9 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { AccessRequestView } from "../abstractions/access-lease";
 
 /**
- * Cipher + collection + organization display names (and the decrypted cipher views, for the item
- * favicon) resolved from local vault state, keyed by the raw (string) id. Every map holds only what
- * this client could resolve; a missing entry means the id isn't in the caller's local vault (or
- * collection state wasn't warm), and callers fall back to the raw id / render nothing.
+ * Cipher + collection + organization display names (and decrypted cipher views, for the item
+ * favicon) resolved from local vault state, keyed by raw id. A missing entry means the id isn't
+ * in the caller's local vault; callers fall back to the raw id or render nothing.
  */
 export type ResolvedNames = {
   cipherNameById: Map<string, string>;
@@ -36,9 +35,8 @@ export function emptyResolvedNames(): ResolvedNames {
 }
 
 /**
- * The owning organization's display name for a request, or null when the server omitted the id or
- * the caller's membership does not name it. Never the raw uuid — an organization id tells an
- * approver nothing, so the surfaces render nothing at all rather than a meaningless pill.
+ * The owning organization's display name for a request, or null when the server omitted the id
+ * or membership doesn't name it. Never the raw uuid, since that tells an approver nothing.
  */
 export function organizationNameFor(
   request: Pick<AccessRequestView, "organizationId">,
@@ -51,20 +49,15 @@ export function organizationNameFor(
 }
 
 /**
- * One-shot cipher + collection + organization display-name (and favicon) lookup for the "My access" page and its
- * request-detail route, resolved from local vault state. An access-rule-gated cipher syncs to the
- * vault of anyone who requested it as a partial {@link CipherView} (name already decrypted by
- * {@link CipherService}), and its collection as a {@link CollectionView} — so names and the view
- * are read from there, keyed by id. No decryption happens here — only already-decrypted local
- * state is read — and no other Vault Data passes through this service.
+ * One-shot cipher + collection + organization display-name (and favicon) lookup for the "My
+ * access" page and its request-detail route, resolved from local vault state — no decryption
+ * happens here, only already-decrypted local state is read.
  *
- * The read MUST go through `getAllDecryptedForIdsIncludingPartials`. Every id this service is asked
- * about names a gated cipher, and the default accessors (`getAllDecryptedForIds`, `cipherViews$`)
- * strip partials — so using one of those resolves nothing at all and every row falls back to a raw
- * uuid.
+ * The read MUST go through `getAllDecryptedForIdsIncludingPartials`: every id here names a gated
+ * cipher, and the default accessors strip partials, so using one resolves nothing at all.
  *
- * Deliberately a plain one-shot `Promise` (not the poc's reactive/backfill machinery): both
- * callers re-resolve names on every fetch, so a live subscription buys nothing here.
+ * Deliberately a plain one-shot `Promise`: both callers re-resolve names on every fetch, so a
+ * live subscription buys nothing here.
  */
 @Injectable()
 export class AccessNameResolverService {
@@ -86,8 +79,7 @@ export class AccessNameResolverService {
     }
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipherIds = [...new Set(refs.map((ref) => ref.cipherId))];
-    // Organizations are keyed off the caller's whole membership rather than the refs, because a ref
-    // carries no organization id — the requests do, and they are joined against this map by id.
+    // Organizations are keyed off the caller's whole membership; a ref carries no organization id.
     const [cipherViews, collections, organizations] = await Promise.all([
       this.cipherService.getAllDecryptedForIdsIncludingPartials(userId, cipherIds),
       firstValueFrom(this.collectionService.decryptedCollections$(userId)),

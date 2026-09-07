@@ -70,8 +70,8 @@ function leaseRow(
 }
 
 /**
- * The ids of the once-a-second clocks a spied `setInterval` created, told apart from the
- * zero-delay timers Angular's own scheduler queues during change detection.
+ * The ids of the per-second clocks a spied `setInterval` created, apart from Angular's own
+ * zero-delay scheduler timers.
  */
 function secondlyIntervalIds(spy: jest.SpyInstance): unknown[] {
   return spy.mock.results
@@ -79,7 +79,7 @@ function secondlyIntervalIds(spy: jest.SpyInstance): unknown[] {
     .map((result) => result.value);
 }
 
-/** Asserts a cell is hidden below `visibleFrom` and shown from it up, and laddered nowhere else. */
+/** Asserts a cell stays hidden below `visibleFrom` and shown from it up, nowhere else. */
 function expectVisibleFrom(element: HTMLElement | null, visibleFrom: string): void {
   expect(element).not.toBeNull();
   expect(element?.classList).toContain("tw-hidden");
@@ -137,8 +137,7 @@ describe("ApprovalsTabComponent", () => {
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: mock<LogService>() },
         {
-          // Echoes the key (plus any params) rather than a lookup table: the component library asks
-          // for keys of its own, and I18nMockService throws on any key it was not given.
+          // Echoes the key plus params, since I18nMockService throws on any key not given.
           provide: I18nService,
           useValue: {
             t: (key: string, ...args: unknown[]) =>
@@ -233,8 +232,8 @@ describe("ApprovalsTabComponent", () => {
     });
 
     it("leaves the empty state up while an already-loaded empty inbox reloads", () => {
-      // PAM pushes on every managed request change, so an approver sitting on inbox zero reloads
-      // repeatedly; blanking the panel for the pre-skeleton second flickers the page each time.
+      // PAM pushes on every managed-request change, so blanking the panel each reload would
+      // flicker an empty inbox.
       create();
 
       expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
@@ -361,9 +360,7 @@ describe("ApprovalsTabComponent", () => {
       expect(text).toContain("prod incident");
     });
 
-    // jsdom performs no layout and loads no stylesheet, so these assert the breakpoint classes on
-    // both the header and the cell of each column, not that the buttons are on screen. The 1024px
-    // and 1280px behaviour still needs verifying in a browser.
+    // jsdom does no layout; these assert breakpoint classes only, not real 1024px/1280px behavior.
     it.each([
       ["window", "xl"],
       ["reason", "xl"],
@@ -380,8 +377,7 @@ describe("ApprovalsTabComponent", () => {
         expectVisibleFrom(element, visibleFrom);
       }
 
-      // The skeleton stands in for that table, so it has to hide the same columns at the same
-      // widths — otherwise the layout jumps as the real rows land.
+      // The skeleton stands in for the table, hiding the same columns at the same widths.
       fixture.destroy();
       inbox.inboxRows$.next([]);
       inbox.loading$.next(true);
@@ -438,8 +434,8 @@ describe("ApprovalsTabComponent", () => {
 
       create();
 
-      // `bitButton` marks aria-disabled and removes the native attribute, so the button stays
-      // focusable for screen readers — which is also why the component guards `decide()` itself.
+      // `bitButton` marks aria-disabled and keeps the native attribute off, so the button stays
+      // focusable for screen readers.
       expect(query('[data-testid="approvals-approve-mine"]')?.getAttribute("aria-disabled")).toBe(
         "true",
       );
@@ -449,7 +445,7 @@ describe("ApprovalsTabComponent", () => {
     });
 
     it("keeps the filter toolbar on screen when a filter matches nothing", () => {
-      // Otherwise there is no way to clear the filter that emptied the table.
+      // The only way to clear a filter that emptied the table.
       inbox.inboxRows$.next([row()]);
       create();
 
@@ -494,8 +490,7 @@ describe("ApprovalsTabComponent", () => {
     });
 
     it("records the verdict the dialog closed with, not the one it was opened on", async () => {
-      // The approve dialog offers "Deny request" and switches in place; recording the requested
-      // verdict here would approve a request the approver denied.
+      // The approve dialog offers "Deny request" and switches in place.
       dialogService.open.mockReturnValue({
         closed: of({ confirmed: true, verdict: "deny", comment: "wrong window" }),
       } as never);
@@ -640,8 +635,7 @@ describe("ApprovalsTabComponent", () => {
     });
 
     it("runs no clock at all when there is no lease to expire", () => {
-      // The shared ticker is ref-counted, so a pending-only queue must leave it torn down rather
-      // than scheduling a round of change detection every second that can never change anything.
+      // The shared ticker is ref-counted, so a pending-only queue leaves it torn down.
       const setIntervalSpy = jest.spyOn(global, "setInterval");
       inbox.inboxRows$.next([row()]);
 

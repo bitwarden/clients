@@ -26,9 +26,8 @@ function secondlyIntervalIds(spy: jest.SpyInstance): unknown[] {
     .map((result) => result.value);
 }
 
-// Overrides are loosely typed rather than `Partial<MyAccessLeaseRow>`: the row's ids are opaque
-// branded types, so tests stand in plain strings and rely on the single cast below — the same
-// convention as `history-tab.component.spec.ts`.
+// Loosely typed, not `Partial<MyAccessLeaseRow>`, since row ids are opaque branded types (same
+// convention as `history-tab.component.spec.ts`).
 function leaseRow(overrides: Record<string, unknown> = {}): MyAccessLeaseRow {
   return {
     id: "lease-1",
