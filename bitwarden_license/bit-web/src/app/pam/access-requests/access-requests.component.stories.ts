@@ -26,12 +26,12 @@ type ShellOptions = {
 };
 
 /**
- * The shell renders the header and the tab nav; the tabs are child routes, so the outlet is empty
- * here by design. What these stories pin is the tab nav — which tabs exist, and their berry counts.
+ * The shell renders the header and tab nav; the tabs are child routes, so the outlet is empty
+ * here by design. These stories pin the tab nav — which tabs exist, and their berry counts.
  *
- * `AccountService`/`OrganizationService` go in the ROOT injector rather than the module one: the
- * shared web header's `ProductSwitcherService` is `providedIn: "root"` and resolves them from the
- * environment injector, so a module-level provider is invisible to it.
+ * `AccountService`/`OrganizationService` go in the ROOT injector, not the module one: the
+ * shared header's `ProductSwitcherService` is `providedIn: "root"` and resolves from the
+ * environment injector, invisible to a module-level provider.
  */
 function shell(options: ShellOptions = {}) {
   const { pending = 0, extensions = 0, leases = 0, approvals = 0, canApprove = true } = options;

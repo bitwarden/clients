@@ -73,8 +73,8 @@ describe("DaemonRegisterDialogComponent", () => {
 
     fixture = TestBed.createComponent(DaemonRegisterDialogComponent);
     component = fixture.componentInstance;
-    // Retrieve the DialogService that the component actually uses (may be provided
-    // by DialogModule rather than the test-level override).
+    // Retrieves the DialogService the component actually uses, which may come from
+    // DialogModule, not the test override.
     injectedDialogService = fixture.debugElement.injector.get(DialogService);
     fixture.detectChanges();
   });

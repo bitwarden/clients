@@ -261,8 +261,8 @@ export class CipherAttachmentsComponent {
           : undefined,
       );
 
-      // Re-read the cipher rather than trusting the server's echo of the write: for a PAM-gated
-      // cipher that echo is the stripped shape, so the attachment just added would not appear.
+      // Re-reads rather than trusting the server's echo, since for a PAM-gated cipher that echo
+      // is the stripped shape.
       this.cipherDomain = (await this.getCipher(this.cipherId())) ?? this.cipherDomain;
 
       // re-decrypt the cipher to update the attachments
@@ -342,9 +342,8 @@ export class CipherAttachmentsComponent {
     // First try to get the cipher directly with user permissions
     const localCipher = await this.cipherService.get(id, this.activeUserId);
 
-    // A PAM-gated cipher is only ever held locally in its stripped form, which carries no
-    // attachment metadata — the list would read as empty however many attachments the item has.
-    // Read the full copy from the server instead; a valid active lease is what releases it.
+    // A PAM-gated cipher's stripped local copy carries no attachment metadata; reads the full
+    // copy from the server instead, released only by a valid active lease.
     if (localCipher?.partialData != null) {
       return (await this.getFullCipherFromServer(id)) ?? localCipher;
     }
@@ -358,12 +357,11 @@ export class CipherAttachmentsComponent {
   }
 
   /**
-   * Reads a cipher's full copy straight from the server, for a PAM-gated cipher whose local copy is
-   * stripped. The copy is used for this dialog only and never written to local state, matching how
-   * the item dialog holds the cipher a lease reveals.
+   * Reads a cipher's full copy straight from the server, for a PAM-gated cipher whose local copy
+   * is stripped. Used for this dialog only, never written to local state.
    *
-   * Returns null when the server withholds it anyway — no lease covers the cipher — so the caller
-   * keeps the stripped copy it already has rather than showing nothing at all.
+   * Returns null when the server withholds it too — no lease covers the cipher — so the caller
+   * keeps the stripped copy it already has.
    */
   private async getFullCipherFromServer(id: CipherId): Promise<Cipher | null> {
     try {

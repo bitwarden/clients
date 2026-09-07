@@ -3,13 +3,12 @@ import { DurationUnit, pickDurationUnit } from "..";
 const formatters = new Map<string, Intl.NumberFormat>();
 
 /**
- * Renders a duration in seconds as a localized label: picks the largest whole unit the
- * duration divides into (via {@link pickDurationUnit}) and formats it with
- * `Intl.NumberFormat`'s `style: "unit"`, so both the unit label and its plural form follow
- * the locale rather than a hand-rolled English string.
+ * Renders a duration in seconds as a localized label: picks the largest whole unit
+ * ({@link pickDurationUnit}) and formats it with `Intl.NumberFormat`'s `style: "unit"`, so the
+ * label follows the locale rather than a hand-rolled string.
  *
- * `unitDisplay` selects the compact (`"narrow"`) or spelled-out (`"long"`) rendering; unit
- * selection is shared so the two cannot drift apart.
+ * `unitDisplay` selects compact (`"narrow"`) or spelled-out (`"long"`) rendering; unit
+ * selection is shared so the two can't drift.
  */
 export function formatDuration(
   locale: string,

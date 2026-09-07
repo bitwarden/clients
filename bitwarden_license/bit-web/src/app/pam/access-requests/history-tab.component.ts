@@ -67,29 +67,15 @@ type HistoryScope = (typeof HistoryScope)[keyof typeof HistoryScope];
 const announcementHoldMs = 2000;
 
 /**
- * "History" tab — decided requests, drawn from two sources:
+ * "History" tab: decided requests merged from Mine (the caller's own terminal requests) and
+ * Managed (decided requests for collections the caller manages, the only ones they can undo a
+ * decision on).
  *
- *  - Mine: the caller's own terminal requests (everything but pending/approved, which live on the My
- *    requests tab).
- *  - Managed: the decided requests for the collections the caller manages — the only rows they can
- *    undo a decision on.
+ * Opens on All so the reader is never shown an empty table behind an unpressed toggle;
+ * `managedIds` is the per-row authority, so a row the caller both raised and manages appears
+ * once, keeping the richer copy.
  *
- * The tab opens on All, which lists both sources merged, and the toggle narrows that list to one
- * source. Landing on everything means the reader is never answered with an empty table while their
- * history sits behind a control they had no reason to press, and — unlike a default read off which
- * side happens to have rows — the selection cannot move under them when a background load arrives.
- *
- * Merging is safe because both sources are already the same row model, sorted on the same key. What
- * differs is what a row permits: `managedIds` is the per-row authority, so a row carries the same
- * actions under All as under the filter it came from, and a row the caller merely raised carries
- * none. A request the caller raised against a collection they also manage is returned by both reads,
- * so All de-duplicates by request id, keeping the caller's own copy — only that side fills in the
- * extension the grant was given.
- *
- * Own rows are read-only, so a caller with no approval privilege has no managed rows, gets no
- * Actions column, and is shown no toggle — every option would be a filter over the same one list.
- * `Managed` adds revoke (end a lease the caller granted) and withdraw (take back an approval the
- * requester has not started), both of which the SDK serves.
+ * A caller with no approval privilege has no managed rows, no Actions column, and no toggle.
  */
 @Component({
   selector: "pam-history-tab",
@@ -169,20 +155,12 @@ export class HistoryTabComponent {
   );
 
   /**
-   * Latched true the first time every source the table draws from has finished loading — which is
-   * all the skeleton is waiting for: nothing about the opening view is read off the rows.
+   * Latched true once every source the table draws from has finished loading.
    *
-   * Latched rather than tracked so a background reload cannot pull the table out from under whoever
-   * is reading it. Sampling the whole first load, rather than clearing as soon as any one source
-   * answers, also keeps All from rendering half its rows as though they were all of them.
-   *
-   * The shell only loads the inbox for a caller who can approve, so for everyone else that flag
-   * stays raised for the life of the page and cannot be waited on. `canApprove$` is derived from
-   * synced organization and collection state, so before the first sync lands it answers `false` for
-   * a genuine approver too; until a sync date exists a `false` there is not a settled "not an
-   * approver", and the inbox still has to be waited on. Nothing else on this path awaits the sync —
-   * the history route has no guard; `canViewApprovalsGuard` waits the same way for the same reason
-   * on the sibling tab.
+   * Latched, not tracked, so a background reload can't pull the table from under a reader, and
+   * sampled on the whole first load so All never renders a partial history as complete. A
+   * non-approver's inbox flag stays permanently unraised, and a genuine approver's brief false
+   * from `canApprove$` is covered by waiting for the first sync.
    */
   private readonly historyLoaded$ = combineLatest([
     this.myAccess.loading$,
@@ -218,35 +196,23 @@ export class HistoryTabComponent {
   );
 
   /**
-   * Whether the skeleton table is on screen. Drives the `role="status"` announcement as well, so
-   * that a load finishing inside the delay never announces a screen the user was not shown.
+   * Whether the skeleton table is on screen, driving the `role="status"` announcement too, so a
+   * load finishing inside the delay never announces a screen the user was not shown.
    *
-   * The `historyLoaded()` term buys nothing for the skeleton markup — the template gates that on the
-   * same flag, and so ends the skeleton as soon as the rows are in hand rather than holding it for
-   * whatever the operator has left of its minimum display time. It is the live region, which sits
-   * outside that block, that needs the term: without it the region goes on announcing "loading" over
-   * an already rendered table.
+   * The live region needs the `historyLoaded()` term even though the skeleton markup does not:
+   * without it the region keeps announcing "loading" over an already-rendered table.
    */
   protected readonly skeletonVisible = computed(() => this.showSkeleton() && !this.historyLoaded());
 
-  /**
-   * Raised once the skeleton has been on screen, so its removal can be announced in turn, and
-   * lowered again once that announcement has had its moment in the live region.
-   */
+  /** Raised once the skeleton has been on screen long enough to announce its removal; lowered after. */
   private readonly skeletonShown = signal(false);
 
   /**
-   * Whether the live region announces that the content has arrived. Emptying the region announces
-   * nothing on its own, so the "loading" announcement needs a counterpart once the rows land. Gated
-   * on the skeleton having been shown, so a load that finishes inside the delay announces neither
-   * half, and on both reads having succeeded — a failed read resolves the latch exactly like a
-   * successful one and leaves the same empty table behind, so without the guard the region claims a
-   * history has loaded while the shell is toasting the error for the very same load. A sighted user
-   * reads the toast against the empty table; the announcement is the reading that cannot be
-   * corrected.
+   * Whether the live region announces content arrival. Gated on the skeleton having shown and
+   * both reads finishing — a failed read resolves the latch like success too, so without the
+   * guard the region would claim "loaded" while the shell toasts the error.
    *
-   * The announcement is transient: assistive tech that re-reads a region's contents on demand would
-   * otherwise be handed a load that finished minutes ago as though it were current.
+   * Transient, so a later re-read isn't handed a stale "loaded".
    */
   protected readonly announceLoaded = computed(
     () => this.skeletonShown() && !this.skeletonVisible() && !this.loadFailed(),
@@ -255,17 +221,15 @@ export class HistoryTabComponent {
   private readonly hasManagedHistory = computed(() => this.managedRows().length > 0);
 
   /**
-   * The toggle is offered to anyone who can approve, rows or not — gating it on rows hides the
-   * filters until there is something to filter, which is exactly when the reader no longer needs
-   * telling they exist. The `hasManagedHistory()` term keeps it for a viewer who has managed rows
-   * but whom the privilege predicate does not recognise as an approver.
+   * Offered to anyone who can approve, rows or not — gating on rows would hide the filters until
+   * there is something to filter. `hasManagedHistory()` also covers a viewer with managed rows
+   * whom the privilege predicate does not recognize as an approver.
    */
   protected readonly canSwitchScope = computed(() => this.canApprove() || this.hasManagedHistory());
 
   /**
-   * Falls back to All if the toggle goes away while a filter is applied — synchronously here, and
-   * forgotten by the effect that clears the pick, so a toggle that returns cannot silently narrow
-   * the table back to a filter the reader last chose under different circumstances.
+   * Falls back to All, synchronously, if the toggle disappears while filtered; the choice is
+   * forgotten, so a returning toggle can't silently re-narrow the table.
    */
   protected readonly scope = computed<HistoryScope>(() =>
     this.canSwitchScope() ? this.selectedScope() : HistoryScope.All,
@@ -302,15 +266,9 @@ export class HistoryTabComponent {
   });
 
   /**
-   * Shown exactly when something in the current list can be acted on, asked with the same two
-   * predicates the cells answer to — so the column cannot outlive the buttons it exists to hold.
-   * Managed-ness alone is the weaker question: it holds for every request the caller manages,
-   * decided-and-done included, which is most of what a history accumulates.
-   *
-   * Keyed off the listed rows rather than the viewer's privilege because an approver who has
-   * decided nothing yet, and the caller's own rows under "Raised by me", would otherwise get a
-   * column of nothing but dashes — and off the rows rather than the scope because a request the
-   * caller raised against a collection they manage is actionable under every filter it appears in.
+   * Shown exactly when something in the current list is actionable, via the same predicates the
+   * cells use — managed-ness alone is weaker, since it also holds for decided-and-done requests.
+   * Keyed off the listed rows, not the viewer's privilege or the scope.
    */
   protected readonly showActionsColumn = computed(() =>
     this.historyRows().some((row) => this.canRevoke(row) || this.canCancelApproval(row)),
@@ -371,7 +329,7 @@ export class HistoryTabComponent {
     this.selectedScope.set(scope);
   }
 
-  /** The decrypted cipher for a row, or undefined when it isn't in the caller's vault. */
+  /** The decrypted cipher for a row, undefined when absent from the caller's vault. */
   protected cipherFor(cipherId: string): CipherView | undefined {
     return this.myCiphers().get(cipherId) ?? this.managedCiphers().get(cipherId);
   }
@@ -381,14 +339,11 @@ export class HistoryTabComponent {
   }
 
   /**
-   * A lease the caller granted and can still end: the row is one they manage, it produced a lease,
-   * and the server still holds that lease open. Openness comes from {@link isLiveManagedLease} — the
-   * same lease-status signal the Approvals tab's Active access section lists by, read off the
-   * request rather than off the derived status badge.
+   * A lease the caller granted and can still end: managed by them, produced a lease, and the
+   * server still holds it open ({@link isLiveManagedLease}).
    *
-   * Membership is not identical to that section's: Active access also drops rows whose effective end
-   * has passed, a test these rows cannot make because `toRequestRow` leaves them no `extendedUntil`.
-   * A lease still marked `active` past its window is therefore revocable here and absent there.
+   * Membership differs from Active access's: that section also drops leases past their effective
+   * end, a test these rows can't make since `toRequestRow` leaves them no `extendedUntil`.
    */
   protected canRevoke(row: MyAccessRequestRow): boolean {
     return this.managedIds().has(String(row.id)) && isLiveManagedLease(row);
@@ -423,8 +378,8 @@ export class HistoryTabComponent {
   }
 
   /**
-   * Withdraw an approval the requester has not started. Confirmed first because it takes a decision
-   * away from a third party, cannot be undone from this screen, and the requester is not told.
+   * Withdraws an approval the requester has not started. Confirmed first, since it takes a
+   * decision away from a third party and cannot be undone from this screen.
    */
   protected async cancelApproval(row: MyAccessRequestRow): Promise<void> {
     if (!this.canCancelApproval(row) || this.isActing(row)) {

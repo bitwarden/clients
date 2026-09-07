@@ -165,11 +165,8 @@ const EVENTS: AccessAuditEventResponse[] = [
 ];
 
 /**
- * Item renders unbounded free text, so the column widths only hold up under values long enough to
- * fight for room. These three are the shapes that broke the layout: a rule name well past sixty
- * characters, and a single token longer than the column cap — which has to break mid-word rather
- * than push the table wider than the page. Their details, now the drawer's, are carried along so
- * the pane behind them has something long to lay out too.
+ * Long text shapes that broke the layout: a rule name past sixty characters, and a single
+ * token longer than the column cap, which must break mid-word.
  */
 const LONG_TEXT_EVENTS: AccessAuditEventResponse[] = [
   event({
@@ -207,11 +204,8 @@ const LONG_TEXT_EVENTS: AccessAuditEventResponse[] = [
 ];
 
 /**
- * The organization's members as `getAllMiniUserDetails` returns them, keyed by platform user id and
- * carrying the organization user id the entity-events dialog needs.
- *
- * Deliberately short of the identities the trail names: `user-9` acted while a member and has since been
- * removed, so that row's actor and requester stay plain text however the rest of the table links.
+ * The organization's members as `getAllMiniUserDetails` returns them, keyed by platform user
+ * id. Deliberately short of the trail's named identities: `user-9` is a removed member.
  */
 const MEMBERS = [
   { userId: "user-1", id: "org-user-1", name: "Grace Hopper", email: "grace@example.com" },
@@ -230,10 +224,8 @@ const FORMER_MEMBER = {
 };
 
 /**
- * The linkability check. Every cell that must NOT become an anchor sits beside one that must, so a
- * regression that links everything is as visible as one that links nothing: the automated row's System
- * actor, a former member's name, an access rule (which has no entity-events dialog), and an item that
- * did not decrypt in this viewer's vault.
+ * The linkability check: cells that must not become an anchor sit beside ones that must —
+ * System actor, a former member, a rule (no entity-events dialog), and an undecrypted item.
  */
 const MIXED_LINK_EVENTS: AccessAuditEventResponse[] = [
   // Every cell linkable: a resolved actor, a resolved requester, and an item this vault decrypted.
@@ -282,9 +274,8 @@ const MIXED_LINK_EVENTS: AccessAuditEventResponse[] = [
 ];
 
 /**
- * The absence check. Every cell that can carry no value carries none here, so the four that render an em
- * dash — actor, requester, item, duration — line up in one look beside the one absence that is not
- * one: the automated row's Actor cell, which reads System because that IS the value.
+ * The absence check: every cell that can carry no value carries none, except the automated
+ * row's Actor cell, which reads System — that IS the value, not an absence.
  */
 const EMPTY_FIELD_EVENTS: AccessAuditEventResponse[] = [
   // Nothing but a time and a kind: no actor, no requester, no item, no duration, no detail.
@@ -301,7 +292,7 @@ const EMPTY_FIELD_EVENTS: AccessAuditEventResponse[] = [
     collectionId: null,
     requestId: null,
   }),
-  // Automated with nothing else: the Actor cell reads System while the rest of the row dashes.
+  // Automated with every other field empty: only the Actor cell reads System.
   event({
     kind: AccessAuditEventKind.LeaseExpired,
     occurredAt: fromNow(-25 * MINUTE),
@@ -388,8 +379,8 @@ async function selectChipOption(
   )!;
   await userEvent.click(trigger);
   await userEvent.click(await within(document.body).findByText(option));
-  // A multi-select menu stays open so more options can be picked; close it before the next chip is
-  // reached for, or the click lands on this menu's backdrop instead of that chip.
+  // Closes the open multi-select before the next chip, or the click lands on this menu's
+  // backdrop.
   await userEvent.keyboard("{Escape}");
 }
 
@@ -412,8 +403,8 @@ function audit(
     providers: [
       {
         provide: AuditApiService,
-        // A factory rather than a value so the read counter behind `refreshPending` starts again on
-        // every mount of the story, instead of once for the lifetime of the module.
+        // A factory, not a value, so the read counter behind `refreshPending` restarts on every
+        // mount.
         useFactory: () => {
           let reads = 0;
           return {
@@ -422,14 +413,13 @@ function audit(
               if (fails) {
                 return Promise.reject(new Error("audit read failed"));
               }
-              // One page, with no position to resume from: these stories are about how the trail
-              // renders, not how it pages, so every story is its own last page.
+              // One page, with no position to resume from — these stories are about rendering, not paging.
               return refreshPending && reads > 1
                 ? new Promise<AuditTrailPage>(() => undefined)
                 : Promise.resolve({ data: events, continuationToken: null });
             },
-            // The Item menu is read separately from the trail. These stories are about how the trail
-            // renders, so the chip is left with nothing to offer rather than given a fixture of its own.
+            // The Item menu is read separately from the trail; left with nothing to offer since these
+            // stories are about how the trail renders.
             listAccessAuditItems: () => Promise.resolve([]),
           };
         },
@@ -448,8 +438,8 @@ function audit(
         provide: DialogService,
         useValue: {
           open: () => ({ closed: of(undefined) }),
-          // A ref whose `closed` never emits is a drawer that stays open, which is what the page
-          // reads to decide how many columns the table can hold.
+          // A ref whose `closed` never emits stays open, which is what the page reads to size the
+          // table.
           openDrawer: () =>
             Promise.resolve(drawerStaysOpen ? { closed: NEVER, isDrawer: true } : undefined),
         },
@@ -522,13 +512,11 @@ export const LongValues: Story = {
 };
 
 /**
- * The table with the details drawer open. Actor, Requester and Duration stand down — the pane shows all
- * three for the selected row anyway — leaving Timestamp, Event and Item, which is what an auditor needs
- * to keep their place and step to the next row.
+ * The table with the details drawer open, standing down Actor, Requester and Duration — the
+ * pane shows all three for the selected row.
  *
- * The story mounts the page on its own, so there is no layout to render the pane in and nothing beside
- * the table; the narrow wrapper stands in for the width the drawer would leave, and the drawer itself is
- * a ref that never closes. What this shows is the column set and the fit, not the pane.
+ * The drawer here is a ref that never closes; this story is about the column set and the fit,
+ * not the pane itself.
  */
 export const DetailsDrawerOpen: Story = {
   decorators: [audit({ events: [...LONG_TEXT_EVENTS, ...EVENTS], drawerStaysOpen: true })],
@@ -549,10 +537,8 @@ export const EntityLinks: Story = {
 };
 
 /**
- * A refresh in flight. The trail is already live under every filter, so Update exists only to pull in what
- * the server has recorded since the page opened — and for as long as that read takes, the table, the chips
- * and the date range all stay exactly where the auditor left them, behind nothing but the button's own
- * pending state.
+ * A refresh in flight. The table, chips and date range stay exactly as the auditor left them,
+ * behind nothing but the button's own pending state.
  */
 export const Refreshing: Story = {
   decorators: [audit({ refreshPending: true })],
@@ -563,19 +549,16 @@ export const Refreshing: Story = {
 };
 
 /**
- * Absence, rendered the one way. Actor, Requester, Item and Duration each render the same muted em dash
- * where the trail carries no value, so a reader can tell "we have no value for this" from a cell that
- * failed to render — while the automated row keeps its System actor, which is a value rather than an absence.
+ * Absence, rendered one way: Actor, Requester, Item and Duration each show a muted em dash for
+ * no value, distinct from the automated row's System actor, which is a value, not an absence.
  */
 export const EmptyFields: Story = {
   decorators: [audit({ events: EMPTY_FIELD_EVENTS })],
 };
 
 /**
- * A filter that matches nothing — Today over a trail whose newest event is older than that. The standard
- * empty state, the same shape a trail with no events at all gets, rather than a callout: an over-narrow
- * filter is an ordinary outcome, not a warning. Export is disabled alongside it, the file following the
- * filtered table, and Clear all sits inside the empty state as well as at the end of the chip row.
+ * A filter that matches nothing. Renders the standard empty state, not a warning callout, with
+ * Export disabled and Clear all reachable from both the empty state and the chip row.
  */
 export const NoMatches: Story = {
   decorators: [audit()],
@@ -597,9 +580,8 @@ export const TimePeriodFiltered: Story = {
 };
 
 /**
- * Two chips narrowed at once, which is where Clear all earns its place: it is the only affordance that
- * undoes them in one move. The actions sit on their own row above, so a chip label long enough to wrap
- * the row can never orphan Export onto a line of its own.
+ * Two chips narrowed together — where Clear all earns its place, since it undoes both in one
+ * move.
  */
 export const FiltersActive: Story = {
   decorators: [audit({ events: liveEvents() })],

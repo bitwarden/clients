@@ -14,7 +14,6 @@
 </div>
 
 <bit-accordion-group>
-  <!-- Pending -->
   <bit-accordion [title]="'pamMyRequestsPendingSection' | i18n" [open]="true">
     <span slot="end" bitBadge variant="secondary" data-testid="my-access-pending-count">{{
       pendingRows().length
@@ -160,7 +159,6 @@
     </bit-accordion>
   }
 
-  <!-- Active access -->
   <bit-accordion [title]="'pamMyRequestsActiveAccessSection' | i18n" [open]="true">
     <span slot="end" bitBadge variant="secondary" data-testid="my-access-active-count">{{
       activeAccessRows().length

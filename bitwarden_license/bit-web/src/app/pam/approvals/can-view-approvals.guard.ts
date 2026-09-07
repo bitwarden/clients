@@ -8,22 +8,18 @@ import { ApprovalPrivilegeService } from "./approval-privilege.service";
 
 /**
  * Gates the Access requests page's `approvals` tab: users with approval privileges
- * ({@link ApprovalPrivilegeService}) pass, everyone else is redirected to the sibling `my-requests`
- * tab.
+ * ({@link ApprovalPrivilegeService}) pass, everyone else is redirected to the sibling
+ * `my-requests` tab.
  *
- * The redirect matters beyond blocking a deep link. The shell's empty-path route lands on
- * `my-requests`, but a non-approver who types or bookmarks `/pam/approvals` would otherwise reach a
- * tab that is hidden from their own tab bar. Redirecting rather than returning `false` keeps them on
- * a page that has something for them instead of a dead end.
+ * Redirecting, not returning `false`, keeps a non-approver who deep-links `/pam/approvals` on
+ * a page with something for them instead of a dead end.
  *
- * The first sync is awaited before deciding. The privilege is derived from synced collection state,
- * and on a cold load (a bookmark, a hard refresh, a link from a notification) a guard reading it
- * straight away sees "no collections yet" and bounces a genuine approver to `my-requests` — the very
- * symptom this guard was fixed to stop producing. `organizationPermissionsGuard` waits the same way
- * for the same reason, which is why the sibling `access-rules` route never had this problem.
+ * The first sync is awaited before deciding: the privilege derives from synced collection
+ * state, and a cold-load guard reading it immediately would bounce a genuine approver by
+ * seeing "no collections yet" — the same reason `organizationPermissionsGuard` waits.
  *
- * The URL tree is rebuilt from the matched path rather than hardcoded, so the guard still works if
- * these routes are ever mounted somewhere other than `/pam`.
+ * The URL tree is rebuilt from the matched path, not hardcoded, so the guard still works if
+ * these routes mount elsewhere.
  */
 export const canViewApprovalsGuard: CanActivateFn = async (route: ActivatedRouteSnapshot) => {
   const router = inject(Router);

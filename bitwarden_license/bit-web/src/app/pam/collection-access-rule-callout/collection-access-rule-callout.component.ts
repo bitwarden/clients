@@ -18,12 +18,12 @@ import { accessRuleSummaryKeys, rulesGoverningCollection } from "./access-rule-s
 /**
  * Names the privileged-access rule governing a collection, inside the collection edit dialog.
  *
- * Someone editing who can reach a collection needs to know a rule may already be gating its items,
- * or the member list looks like the whole story. Informational, not a gate — so a failed read hides
- * the callout rather than blocking the dialog, and the flag being off skips the read entirely.
+ * Someone editing who can reach a collection needs to know a rule may already be gating its
+ * items, or the member list looks like the whole story. Informational, not a gate: a failed
+ * read hides the callout rather than blocking the dialog.
  *
- * Bound to `COLLECTION_ACCESS_RULE_CALLOUT` in `provide-pam.ts`; the host passes `organizationId` and
- * `collectionId` and knows nothing else about PAM.
+ * Bound to `COLLECTION_ACCESS_RULE_CALLOUT` in `provide-pam.ts`; the host passes
+ * `organizationId` and `collectionId` and knows nothing else about PAM.
  */
 @Component({
   selector: "app-pam-collection-access-rule-callout",
@@ -78,10 +78,7 @@ export class CollectionAccessRuleCalloutComponent {
       .join(" + ");
   }
 
-  /**
-   * Close the host dialog when following the link to the rule. Leaving it open would strand a modal
-   * over the page just navigated to.
-   */
+  /** Closes the host dialog when following the link to the rule, so a modal doesn't strand over the page navigated to. */
   protected closeDialog(): void {
     void this.dialogRef?.close();
   }

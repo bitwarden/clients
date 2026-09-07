@@ -1691,8 +1691,7 @@ describe("Cipher Service", () => {
       sdkAdminOpsFeatureFlag$.next(false);
 
       // A gated row as the server sends it: secrets suppressed, a `PartialData` envelope in
-      // their place. Only the SDK decryption can read the envelope; legacy Cipher.decrypt
-      // would yield a nameless, blank row.
+      // their place.
       jest.spyOn(apiService, "send").mockResolvedValue({
         data: [
           {

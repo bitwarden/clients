@@ -10,8 +10,7 @@ import {
 
 describe("ACCESS_RULE_DURATION_PRESETS", () => {
   it("labels the 24-hour preset to match what the list renders for the same value", () => {
-    // pickDurationUnit promotes 86400s to "1 day" in the list's Maximum duration cell
-    // (see pickDurationUnit below); the editor's own label must read the same way.
+    // `pickDurationUnit` promotes 86400s to "1 day" in the list; the editor's label must match.
     const preset = ACCESS_RULE_DURATION_PRESETS.find((p) => p.seconds === 24 * 60 * 60);
 
     expect(preset?.labelKey).toBe("pamAccessRuleDuration1d");
@@ -75,7 +74,7 @@ describe("requestDurationOptions", () => {
   const seconds = (options: { seconds: number }[]) => options.map((o) => o.seconds);
 
   it("drops presets above the rule's cap", () => {
-    // PM-39858: a rule capped at 30m must not offer the 1h preset.
+    // A rule capped at 30m must not offer the 1h preset.
     expect(seconds(requestDurationOptions(30 * 60, 15 * 60))).toEqual([15 * 60, 30 * 60]);
   });
 

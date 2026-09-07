@@ -9,7 +9,6 @@
 @if (loading()) {
   <bit-spinner />
 } @else if (!editing) {
-  <!-- ====== CREATE MODE ====== -->
   <form [formGroup]="createForm" [bitSubmit]="submitCreate" class="tw-max-w-4xl">
     <bit-section>
       <bit-section-header>
@@ -102,7 +101,6 @@
     </div>
   </form>
 } @else {
-  <!-- ====== EDIT MODE ====== -->
 
   <!-- Read-only cipher + target labels -->
   @if (existingConfig(); as detail) {
@@ -151,7 +149,7 @@
         </bit-card>
       </bit-section>
 
-      <!-- Schedule + account: one form, because the server takes them in a single write. -->
+      <!-- Schedule + account: one form; the server takes them in a single write. -->
       <form [formGroup]="editForm" [bitSubmit]="submitEdit">
         <bit-section>
           <bit-section-header>
