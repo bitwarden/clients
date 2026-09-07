@@ -126,9 +126,8 @@
             </td>
             <!--
               `overflow-wrap: anywhere`, not `tw-break-words`: only `anywhere` counts toward the
-              cell's min-content width, so a name at the 256-character editor limit wraps instead
-              of widening this column until Status and Options sit off-screen. Descriptions inherit
-              it, so they must not set `tw-break-words` back.
+              cell's min-content width, so a maxed-out name wraps instead of widening the column.
+              Descriptions inherit this and must not override it.
             -->
             <td bitCell class="[overflow-wrap:anywhere]">
               <button type="button" bitLink linkType="primary" (click)="openEdit(r)">
@@ -183,9 +182,8 @@
               ></button>
               <bit-menu #rowMenu>
                 <!--
-                Edit stays first: `bitMenuTriggerFor` focuses the first item on every open,
-                so a stray Enter must land on a navigation, not on the unconfirmed
-                activate/deactivate toggle.
+                Edit stays first: `bitMenuTriggerFor` focuses the first item on open, so a
+                stray Enter lands on navigation, not the unconfirmed activate/deactivate toggle.
               -->
                 <button type="button" bitMenuItem (click)="openEdit(r)">
                   <bit-icon name="bwi-pencil" class="tw-text-muted" />

@@ -1,10 +1,9 @@
 @if (unlicensed()) {
   <!--
-    First, replacing every other state. The server withholds a gated cipher's secrets from an
-    unlicensed caller whatever lease they hold (`CipherLeaseGate.LeaseCanRelease`), so there is no
-    access left to describe: a countdown or a Start button here would be narrating something that is
-    no longer being served. Withdrawing an outstanding request stays reachable from the vault-row
-    menu and the My requests tab, neither of which is licensing-gated.
+    First, replacing every other state: the server withholds a gated cipher's secrets from an
+    unlicensed caller regardless of lease (`CipherLeaseGate.LeaseCanRelease`), so there's no
+    access left to describe. Withdrawing an outstanding request stays reachable from the
+    vault-row menu and the My requests tab, neither of which is licensing-gated.
   -->
   <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-unlicensed">
     <div class="tw-flex tw-items-start tw-gap-4">
@@ -203,9 +202,9 @@
         } @else if (requestMode() !== null) {
           @if (slotContention(); as contention) {
             <!--
-              Replaces the description rather than stacking on top of it: the automatic path's
-              "you'll get immediate access" is false while the slot is taken, so showing both would
-              contradict itself. The form below stays enabled — the request is still worth making.
+              Replaces the description rather than stacking on it: the automatic path's
+              immediate-access copy is false while the slot is taken. The form stays enabled —
+              the request is still worth making.
             -->
             <p bitTypography="body2" class="tw-mb-4 tw-mt-0 tw-flex tw-items-start tw-gap-2">
               <bit-icon name="bwi-exclamation-triangle" class="tw-mt-0.5 tw-text-warning" />

@@ -16,26 +16,17 @@ export type CopyNameTranslator = (key: string, name: string, count?: number) => 
 /**
  * The name to give a copy of `sourceName`, avoiding every name in `takenNames`.
  *
- * The server rejects a duplicate name outright (`AccessRuleWriteValidator.ValidateNameIsUniqueAsync`,
- * case-insensitive per organization), and the copy is created before the admin ever sees a form —
- * so unlike a rejected save, there is no field to correct the collision in. Copying the same rule
- * twice has to just work, hence the numbering: `X (copy)`, `X (copy 2)`, `X (copy 3)`.
+ * The server rejects a duplicate name outright, case-insensitive per organization, and the copy
+ * is created before the admin sees a form, so there's no field to correct a collision in — hence
+ * the numbering: `X (copy)`, `X (copy 2)`, `X (copy 3)`. Comparison is case-insensitive to match
+ * the server's own check.
  *
- * Comparison is case-insensitive to match the server's `OrdinalIgnoreCase`; a client-side match the
- * server would not make (or vice versa) would put us back to an unfixable rejection.
- *
- * Two hard limits shape the result:
- *
- * - Every candidate is trimmed to {@link ACCESS_RULE_NAME_MAX_LENGTH}, because the column and the
- *   stored procedure's parameter are both `NVARCHAR(256)` and SQL Server truncates silently. The
- *   *base* is trimmed, never the rendered suffix, so a 256-character source still yields a name
- *   visibly marked as a copy rather than one truncated back into a duplicate of its source.
- * - The search stops after `takenNames.length + 1` candidates. With distinct candidates one of
- *   them must be free, so the ceiling never binds in practice — it is there because distinctness
- *   rests on a *translation* keeping `$NUMBER$`. A locale that dropped it would render every
- *   numbered candidate identically and spin this loop forever. On exhaustion the last candidate
- *   is returned and the server's uniqueness check arbitrates, which surfaces as a mapped,
- *   actionable error rather than a frozen tab.
+ * Every candidate trims the *base*, never the rendered suffix, to
+ * {@link ACCESS_RULE_NAME_MAX_LENGTH} (both the column and stored-procedure parameter are
+ * `NVARCHAR(256)`), so a maxed-out source still reads as a copy rather than a truncated
+ * duplicate. The search caps at `takenNames.length + 1` candidates — distinctness relies on the
+ * `$NUMBER$` translation token staying in place, so exhaustion falls through to the server's own
+ * uniqueness check rather than looping forever.
  */
 export function copyRuleName(
   sourceName: string,
@@ -57,8 +48,8 @@ export function copyRuleName(
 }
 
 /**
- * Render `base` through `template`, shortening `base` — not the rendered suffix — by however much
- * the result overruns {@link ACCESS_RULE_NAME_MAX_LENGTH}.
+ * Render `base` through `template`, shortening `base` — not the rendered suffix — by whatever
+ * amount the result overruns {@link ACCESS_RULE_NAME_MAX_LENGTH}.
  */
 function withinNameLimit(template: (base: string) => string, base: string): string {
   const rendered = template(base);
@@ -70,17 +61,12 @@ function withinNameLimit(template: (base: string) => string, base: string): stri
 }
 
 /**
- * The create payload for a copy of `rule`: every editable field carried over from the source,
- * except two.
+ * The create payload for a copy of `rule`: every editable field carried over, except `name`
+ * (suffixed for uniqueness, see {@link copyRuleName}) and `collections` (left empty, since a
+ * collection can be governed by only one rule and the admin picks them in the edit form).
  *
- * - `name` — the server enforces uniqueness, so the copy is suffixed (see {@link copyRuleName}).
- * - `collections` — deliberately empty. A collection can be governed by exactly one rule
- *   (`AccessRuleWriteValidator.ValidateCollectionsAsync`), so carrying the source's collections
- *   over would be rejected on write; the admin picks them in the edit form the copy opens into.
- *
- * `enabled` is inherited rather than forced off. An active copy is inert either way while it
- * governs no collections, so there is nothing to protect against by disabling it, and inheriting
- * keeps the copy a faithful starting point.
+ * `enabled` is inherited, not forced off: an active copy is inert either way while it governs no
+ * collections, so inheriting keeps the copy a faithful starting point.
  */
 export function accessRuleToCopyRequest(
   rule: AccessRuleView,

@@ -52,9 +52,8 @@ describe("copyRuleName", () => {
     });
 
     it("gives up rather than spinning when a locale renders every candidate the same", () => {
-      // A translation that dropped $NUMBER$ makes each numbered candidate identical, so no
-      // amount of counting finds a free one. Terminating and letting the server reject the
-      // duplicate is the only outcome that is not a frozen tab.
+      // A translation dropping $NUMBER$ makes every candidate identical; the server rejects the
+      // duplicate instead of an infinite loop.
       const degenerate = (_key: string, name: string) => `${name} (copy)`;
 
       expect(copyRuleName("VPN", ["VPN (copy)", "other"], degenerate)).toBe("VPN (copy)");

@@ -245,9 +245,8 @@ describe("AutofocusDirective", () => {
     });
 
     it("does not re-select when it re-asserts focus after the user moved away", () => {
-      // Focus stays unlatched until the document owns it, so focusing is retried — but by then
-      // the user may have typed, and re-selecting would leave their work one keystroke from
-      // being erased.
+      // Focus stays unlatched until the document owns it, so focusing retries; by then the
+      // user may have typed, and re-selecting would erase a keystroke's work.
       jest.spyOn(document, "hasFocus").mockReturnValue(false);
       const fixture = TestBed.createComponent(TestHostSelectComponent);
       fixture.detectChanges();

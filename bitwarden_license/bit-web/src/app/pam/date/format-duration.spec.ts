@@ -1,8 +1,7 @@
 import { formatDuration } from "./format-duration";
 
 describe("formatDuration", () => {
-  // Assert against Intl.NumberFormat's own output (see duration-short.pipe.spec.ts for the
-  // same approach) so this doesn't hardcode ICU's exact wording.
+  // Asserts against Intl.NumberFormat's own output, so this doesn't hardcode ICU's wording.
   const expected = (
     value: number,
     unit: "day" | "hour" | "minute" | "second",

@@ -25,11 +25,11 @@ export type DaemonRow = {
   /** i18n key for the status badge label: pamDaemonStatusEnabled | pamDaemonStatusDisabled. */
   statusLabelKey: string;
   isConnected: boolean;
-  /** Target system names for the assignment badges; falls back to the raw ID when not found. */
+  /** Target system names for the assignment badges, falling back to the raw ID when unresolved. */
   assignmentNames: string[];
-  /** True when the daemon is enabled — drives Disable vs Enable and assign availability. */
+  /** True when the daemon is enabled; drives the Disable/Enable action and assignment availability. */
   enabled: boolean;
-  /** True when the daemon is enabled — only then can it be assigned a target. */
+  /** True only when the daemon is enabled; required for it to be assigned a target. */
   canAssign: boolean;
   /** The raw response, kept for mutation operations. */
   daemon: AccessConnector;
@@ -56,10 +56,7 @@ export class DaemonsService {
   readonly daemons$: Observable<AccessConnector[]> = this._daemons$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
 
-  /**
-   * Daemons projected into presentation rows, joined with target-system names.
-   * Updates automatically whenever the daemon list or target-systems map changes.
-   */
+  /** Daemons projected into presentation rows, joined with target-system names; updates with either source. */
   readonly rows$: Observable<DaemonRow[]> = combineLatest([
     this._daemons$,
     this.targetSystemsService.systemById$,
@@ -108,8 +105,9 @@ export class DaemonsService {
 
   /**
    * Delete a daemon permanently, removing it from local state once the server confirms.
-   * This invalidates the daemon's credentials; the daemon held the org key in memory, so if
-   * compromise is suspected, rotate the organization key as a remediation.
+   *
+   * This invalidates the daemon's credentials; since it held the org key in memory, rotate the
+   * organization key if compromise is suspected.
    */
   async delete(daemon: AccessConnector): Promise<void> {
     const orgId = this.requireOrganizationId();
@@ -120,10 +118,9 @@ export class DaemonsService {
   /**
    * Drop a deleted target system from every daemon's assignments.
    *
-   * Deleting a target takes its connector assignments with it server-side — an assignment is only
-   * that edge. Without this, {@link rows$} would keep projecting the dangling ID and fall back to
-   * rendering the raw UUID as an assignment name. Purely local: the delete itself is
-   * {@link TargetSystemsService.delete}'s call, and this reconciles what it implies here.
+   * Deleting a target takes its assignments with it server-side; without this, {@link rows$}
+   * would keep projecting the dangling ID as a raw UUID. Purely local reconciliation of that
+   * server-side delete.
    */
   forgetTargetSystem(targetSystemId: TargetSystemId): void {
     this._daemons$.next(

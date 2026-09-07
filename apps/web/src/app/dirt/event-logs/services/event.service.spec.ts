@@ -495,8 +495,7 @@ describe("EventService PAM events", () => {
     expect(info.message).toContain(`<code>${(subjectId as string).substring(0, 8)}</code>`);
   });
 
-  // The item is the fact an administrator reading this log wants, so it is named and linked into the
-  // vault the same way the ordinary cipher events link it.
+  // The item is named and linked into the vault the same way ordinary cipher events do.
   it("names the item and links it into the vault", async () => {
     const info = await sut.getEventInfo(pamEvent(EventType.Pam_AccessRequest_Submitted));
 
@@ -504,8 +503,8 @@ describe("EventService PAM events", () => {
     expect(info.message).toContain(`viewEvents=${cipherId}`);
   });
 
-  // The request-detail page is authorized for the requester or a managing approver, not for the
-  // AccessEventLogs permission this log is read with, so the subject id must not become a link.
+  // The request-detail page needs a different permission than AccessEventLogs, so the id must
+  // not link.
   it("renders the subject id as plain code, never a link", async () => {
     const info = await sut.getEventInfo(pamEvent(EventType.Pam_AccessLease_Revoked));
 

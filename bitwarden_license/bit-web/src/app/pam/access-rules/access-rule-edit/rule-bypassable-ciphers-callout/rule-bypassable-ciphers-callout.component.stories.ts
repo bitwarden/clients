@@ -18,11 +18,11 @@ const ENG = "col-eng" as CollectionId;
 const CONTRACTORS = "col-contractors" as CollectionId;
 
 /**
- * Wires the two reads the callout composes: the server's determination (which collections let this
- * rule's ciphers through) and the admin collection read that names them.
+ * Wires the two reads the callout composes: the server's determination (which collections let
+ * this rule's ciphers through) and the admin collection read that names them.
  *
- * The component declares no providers of its own, so these module-level stubs are what it resolves —
- * a component-level provider would win over the module injector and pull in the real service.
+ * The component declares no providers of its own, so these module-level stubs are what it
+ * resolves; a component-level provider would win over the module injector.
  */
 function withGaps(ungatedCollectionIds: CollectionId[], namesResolve = true) {
   return moduleMetadata({
