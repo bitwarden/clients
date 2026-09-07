@@ -29,10 +29,7 @@ export default {
 
 type Story = StoryObj<ExtendLeaseDialogComponent>;
 
-/**
- * As opened: the duration picker is seeded with the first `EXTENSION_DURATION_OPTIONS` entry (30m)
- * and Extend is disabled, because the server rejects an extension whose `reason` is empty.
- */
+/** As opened: the duration picker seeds the first `EXTENSION_DURATION_OPTIONS` entry (30m); Extend is disabled since `reason` starts empty. */
 export const Default: Story = {};
 
 /** A justification typed in — the only thing standing between the pristine form and a valid one. */
@@ -43,10 +40,7 @@ export const Completed: Story = {
   },
 };
 
-/**
- * The reason left empty and blurred. Extend stays disabled rather than submitting and bouncing off
- * the server, so the required error is what the field surfaces on touch.
- */
+/** The reason left empty and blurred: Extend stays disabled, and the required error surfaces on touch. */
 export const ReasonRequired: Story = {
   play: async ({ canvasElement }) => {
     const reason = canvasElement.querySelector<HTMLTextAreaElement>(REASON_INPUT)!;

@@ -23,14 +23,14 @@ export type ManagedLeaseRow = {
   leaseId: AccessLeaseId;
   cipherId: string;
   collectionId: string;
-  /** The gated cipher's display name, falling back to its raw id when it isn't in the local vault. */
+  /** The gated cipher's display name, falling back to its raw id when absent from the local vault. */
   cipherName: string;
   collectionName: string | null;
   /** The holder's name, falling back to their email, then empty. */
   requester: string;
   requesterEmail: string | null;
   startsAt: string;
-  /** The lease's EFFECTIVE end: the latest applied extension's end, else the request's window end. */
+  /** The lease's EFFECTIVE end — the latest extension's end, else the request's window end. */
   endsAt: string;
   /** Sort key for the Remaining column. */
   endsAtMs: number;
@@ -49,18 +49,14 @@ type LeaseProducing = {
 /**
  * Whether this request minted a lease the server still holds open.
  *
- * Not on its own "live right now": nothing ever moves a lease out of `active` when its window
- * closes, so a caller listing running access must also test the effective end.
+ * Not on its own "live right now": nothing moves a lease out of `active` when its window closes,
+ * so a caller listing running access must also test the effective end.
  *
  * Reads the request, never the display badge: `historyDisplayStatus` only reaches its activated
- * branch for `status === "approved"`, and an activated grant can arrive with a status the client
- * reads otherwise, which would empty this section in the product while every test still passed.
+ * branch for `status === "approved"`, and an activated grant can arrive with a different status.
  *
- * Structural rather than tied to {@link AccessRequestView} so every surface offering to end a lease
- * — Active access here, History's Managed scope over `MyAccessRequestRow` — reads this one
- * lease-status signal rather than its own display badge. That is the shared floor, not the whole
- * test: a surface that also applies the effective-end check above offers Revoke on strictly fewer
- * leases than one that stops here.
+ * Structural, not tied to {@link AccessRequestView}, so every surface offering to end a lease
+ * reads this one signal rather than its own display badge — the shared floor, not the whole test.
  */
 export function isLiveManagedLease<T extends LeaseProducing>(
   request: T,
@@ -71,9 +67,9 @@ export function isLiveManagedLease<T extends LeaseProducing>(
 /**
  * Build one live-lease row.
  *
- * `extension` is the summary for the produced lease, if any. An extension is applied to the lease in
- * place and never moves the originating request's `leaseNotAfter`, so an extended lease whose row
- * showed the request's end would tell an operator that access ends sooner than it does.
+ * `extension` is the summary for the produced lease, if any. An extension applies to the lease
+ * in place, never moving the request's `leaseNotAfter`, so showing the request's end would
+ * understate how long access actually runs.
  */
 export function toManagedLeaseRow(
   request: AccessRequestView & { producedLeaseId: AccessLeaseId },

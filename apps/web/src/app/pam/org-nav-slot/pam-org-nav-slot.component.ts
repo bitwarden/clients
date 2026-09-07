@@ -8,15 +8,13 @@ import { NavigationModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
- * Renders the PAM nav group (Access rules, Audit log, Rotation) in the Admin Console organization
- * side nav when the {@link FeatureFlag.Pam} feature flag is on and the viewer can reach at least one
- * of its items.
+ * Renders the PAM nav group (Access rules, Audit log, Rotation) in the Admin Console
+ * organization side nav when {@link FeatureFlag.Pam} is on and the viewer can reach at least
+ * one item.
  *
- * The items carry different permissions — managing access rules and reading event logs — and each
- * mirrors the guard on its own route, so the group appears whenever any would be reachable and
- * never renders an item that would redirect. Rotation additionally sits behind
- * {@link FeatureFlag.PamRotation}, matching the flag its route nests under. Encapsulates the flag lookup and both gates so the host
- * layout can plug PAM in with a single tag and no PAM-specific symbols.
+ * Each item mirrors the guard on its own route, so the group appears whenever any item would be
+ * reachable and never renders one that would redirect. Rotation additionally sits behind
+ * {@link FeatureFlag.PamRotation}.
  */
 @Component({
   selector: "app-pam-org-nav-slot",

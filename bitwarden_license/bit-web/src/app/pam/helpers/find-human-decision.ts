@@ -2,12 +2,10 @@ import type { AccessApprover, AccessRequestDecisionView } from "../abstractions/
 
 /**
  * The human decision on a request — the deciding approver, or the holder ending their own lease
- * (also recorded as a human "deny" decision) — if any. v0/v1 records at most one; an automatic
- * (access-rule) decision is not a human decision and is skipped. Used wherever the UI needs to
- * name "who approved/denied/ended" versus showing the access-rule label.
+ * (also recorded as a human "deny") — if any. An automatic decision is skipped.
  *
- * The SDK models the decider as `"automatic" | { human: AccessApprover }`, so a human decision is
- * simply one whose `decider` is not `"automatic"`.
+ * The SDK models the decider as `"automatic" | { human: AccessApprover }`, so a human decision
+ * is simply one whose `decider` isn't `"automatic"`.
  */
 export function findHumanDecision(
   decisions: AccessRequestDecisionView[],

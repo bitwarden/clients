@@ -59,17 +59,14 @@ const CONTROLLED_ACCESS_FILTERS: readonly ControlledAccessFilterDefinition[] = [
 
 /**
  * Binds `VAULT_CONTROLLED_ACCESS_FILTER`: the vault sidebar's "Controlled access" group and the
- * narrowing its children apply to the item list. Encapsulates every PAM dependency so the vault
- * stays PAM-free.
+ * narrowing its children apply to the item list.
  *
- * The group's children partition {@link AccessBadgeState}: "Privileged" is the resting state of a
- * gated item nobody has requested, and "My requests" covers the three states a request of this
- * user's own passes through (`pending`/`ready`/`active`). "Unavailable" cannot be built at all
- * because `cipherAccessBadgeState` never produces that kind (see `access-badge-state.ts`).
+ * The group's children partition {@link AccessBadgeState}: "Privileged" is a gated item nobody
+ * has requested, "My requests" covers `pending`/`ready`/`active`, and "Unavailable" can't be
+ * built at all, since `cipherAccessBadgeState` never produces that kind.
  *
- * Narrowing costs one `getCipherAccessState` call per gated row, the same read the row's own
- * badge makes, and is issued only for rows that are gated AND belong to an organization carrying
- * Privileged Access — no other row can be in any of these states.
+ * Narrowing costs one `getCipherAccessState` call per gated row, issued only for rows that are
+ * gated and belong to an organization carrying Privileged Access.
  */
 @Injectable()
 export class ControlledAccessVaultFilterService implements VaultControlledAccessFilter {
@@ -92,9 +89,8 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
           .map((o) => o.id)
           .sort(),
       ),
-      // `organizations$` re-emits on every sync, not just when PAM membership actually
-      // changes; dedupe on content so an unrelated sync doesn't re-trigger the per-row
-      // `getCipherAccessState` fan-out in `narrowToPrivileged$`.
+      // `organizations$` re-emits on every sync, not just PAM changes; dedupe on content so an
+      // unrelated sync doesn't re-trigger the fan-out in `narrowToPrivileged$`.
       distinctUntilChanged((a, b) => a.length === b.length && a.every((id, i) => id === b[i])),
       map((ids) => new Set(ids)),
       shareReplay({ refCount: true, bufferSize: 1 }),
@@ -113,10 +109,9 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
           }))
         : [],
     ),
-    // `getFeatureFlag$` re-emits its already-current value on every config renewal, and
-    // `pamOrganizationIds$` re-emits on every sync; without a dedupe here, `narrow$`'s
-    // `switchMap` on `options$` resubscribes and re-issues the `getCipherAccessState` fan-out
-    // even though the option list is identical.
+    // `getFeatureFlag$`/`pamOrganizationIds$` re-emit their current value on renewal/sync;
+    // without a dedupe, `narrow$`'s `switchMap` would re-issue the `getCipherAccessState`
+    // fan-out for an identical option list.
     distinctUntilChanged(
       (a, b) => a.length === b.length && a.every((option, i) => option.id === b[i].id),
     ),
