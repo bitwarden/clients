@@ -250,6 +250,26 @@ export const ActiveLease: Story = {
   ],
 };
 
+/**
+ * The same lease inside the five-minute cutoff: the tile turns danger and the heading warns, so the
+ * requester can extend or release before the window closes rather than discovering it has.
+ */
+export const ActiveLeaseEndingSoon: Story = {
+  args: { cipher: leasedCipher() },
+  decorators: [
+    pam({
+      state: () => ({
+        badgeState: { active: { expiresAt: liveFromNow(4 * MINUTE) } },
+        activeLease: accessLease({
+          notBefore: liveFromNow(-116 * MINUTE),
+          notAfter: liveFromNow(4 * MINUTE),
+        }),
+        extensionsAllowed: true,
+      }),
+    }),
+  ],
+};
+
 /** The same lease under a rule that does not allow extensions — only End access is offered. */
 export const ActiveLeaseNoExtensions: Story = {
   args: { cipher: leasedCipher() },
