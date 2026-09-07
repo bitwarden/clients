@@ -270,9 +270,8 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   ) {}
 
   async ngOnInit() {
-    // Must precede observeFormSelections(): in the Admin Console host the organizationId
-    // subject already holds a value, so its subscription emits immediately - before
-    // initOrganizationOnly() would otherwise have set this.
+    // Must precede observeFormSelections(): the Admin Console host's organizationId subject
+    // already holds a value and emits immediately.
     this.onlyManagedCollections = !this.organizationId;
 
     this.observeFormState();
@@ -359,26 +358,23 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
         // Admin Console: organizationId is already set via @Input, no update needed
       });
 
-    // Recompute the PAM-gated exclusion count whenever the selected vault changes, so the
-    // warning is on screen before the user exports rather than after the file is saved.
+    // Recomputes on vault change, so the warning is on screen before export, not after.
     combineLatest([
       this.accountService.activeAccount$.pipe(getUserId),
       this._organizationId$.pipe(distinctUntilChanged()),
     ])
       .pipe(
         switchMap(async ([userId, organizationId]) => {
-          // Zero for My Vault (the individual export skips organization ciphers, and gated
-          // ciphers are always organization ciphers) and for the Admin Console, which exports
-          // through the API under org-wide permissions and so withholds nothing.
+          // Zero for My Vault, which skips organization ciphers, and for the Admin Console,
+          // which withholds nothing.
           if (!organizationId || !this.onlyManagedCollections) {
             return 0;
           }
           try {
             return await this.exportService.getManagedExportGatedItemCount(userId, organizationId);
           } catch (e) {
-            // Caught per emission rather than with a pipe-level catchError: that would complete
-            // the stream, so one transient failure would stop the warning updating for every
-            // later vault selection. A failed count must not block the export.
+            // Caught per emission; a pipe-level catchError would complete the stream and stop
+            // future updates.
             this.logService.error(e);
             return 0;
           }
