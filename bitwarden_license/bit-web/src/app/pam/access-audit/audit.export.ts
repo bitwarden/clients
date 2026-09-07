@@ -1,10 +1,10 @@
 /**
- * One audit event as a CSV record. The property names are the file's column headers, so this type is the
- * export's column contract: renaming or reordering a field changes every file the auditor has downloaded.
+ * One audit event as a CSV record. Property names are the file's column headers, so renaming or
+ * reordering one changes every downloaded file.
  *
- * Item and collection names are the display row's — decrypted from the exporter's own local vault state. An
- * item outside that vault exports an empty cell; the response's `cipherName` and `collectionName` are Vault
- * Data (EncStrings this client holds no key for in that case) and never reach the file.
+ * Item and collection names are decrypted from the exporter's own local vault state; an item
+ * outside that vault exports an empty cell, since those fields are Vault Data this client may
+ * hold no key for.
  */
 export type AuditExport = {
   /**
@@ -32,14 +32,8 @@ export type AuditExport = {
   detail: string;
   automated: boolean;
   incomplete: boolean;
-  /**
-   * The request this event belongs to, if any. Never rendered in the table, and carried here because a
-   * correlation id is what joins this file to another export or to a support ticket.
-   */
+  /** The request this event belongs to, if any — a correlation id joining this file to another export or a ticket. */
   requestId: string;
-  /**
-   * The lease this event belongs to, if any. Carried for the same reason as {@link AuditExport.requestId}:
-   * it is the id support asks for, and the table has no column for it.
-   */
+  /** The lease this event belongs to, if any — the id support asks for; the table has no column for it. */
   leaseId: string;
 };

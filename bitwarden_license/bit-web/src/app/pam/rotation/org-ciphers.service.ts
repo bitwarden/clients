@@ -15,14 +15,11 @@ import type { CipherId } from "@bitwarden/sdk-internal";
 /**
  * Page-scoped service that loads the organization's decrypted vault ciphers.
  *
- * Provided at the shell route (alongside {@link RotationConfigsService}) so both the
- * configs tab list and the config-edit page share one loaded instance per navigation.
+ * Provided at the shell route (alongside {@link RotationConfigsService}) so both the configs
+ * tab and the config-edit page share one loaded instance per navigation.
  *
- * Only Login-type, non-deleted ciphers are exposed (the credential-rotation use-case
- * only manages login credentials).
- *
- * Cipher names are decrypted locally via the org key — no unencrypted vault data is
- * ever sent to the server (zero-knowledge invariant).
+ * Only Login-type, non-deleted ciphers are exposed; names decrypt locally via the org key, so
+ * no unencrypted vault data reaches the server.
  */
 @Injectable()
 export class OrgCiphersService {
@@ -51,11 +48,9 @@ export class OrgCiphersService {
   );
 
   /**
-   * Fetch the org's ciphers and store them locally.
-   *
-   * Uses `cipherService.getAllFromApiForOrganization` when the current user can
-   * edit all ciphers (admin/owner scope), and `getManyFromApiForOrganization`
-   * otherwise — mirroring the admin-console org-vault page.
+   * Fetch the org's ciphers and store them locally. Uses `getAllFromApiForOrganization` for
+   * admin/owner scope, `getManyFromApiForOrganization` otherwise — mirroring the admin-console
+   * org-vault page.
    */
   async load(organizationId: OrganizationId): Promise<void> {
     this._loading$.next(true);

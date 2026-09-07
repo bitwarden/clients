@@ -41,8 +41,7 @@ describe("RuleBypassableCiphersCalloutComponent", () => {
       "accessRuleId" in inputs ? inputs.accessRuleId : accessRuleId,
     );
     fixture.detectChanges();
-    // Twice: the read is kicked off from `afterNextRender`, and resolving it chains the server read
-    // and then the collection-name read. One flush lands mid-chain, before the callout renders.
+    // Twice: `afterNextRender` kicks off a chained server-then-name read; one flush lands mid-chain.
     await fixture.whenStable();
     fixture.detectChanges();
     await fixture.whenStable();
@@ -121,10 +120,7 @@ describe("RuleBypassableCiphersCalloutComponent", () => {
     expect(gapLinks().map((l) => l.text)).toEqual(["Contractors", "Engineering"]);
   });
 
-  /**
-   * Separated by commas, not whitespace: adjacent links otherwise render as one run-on phrase
-   * ("Marketing Security") and the reader cannot tell where one collection ends.
-   */
+  /** Separated by commas, not whitespace, or adjacent links render as one run-on phrase. */
   it("separates several gaps so they do not run together", async () => {
     accessRuleSdkService.listBypassGaps.mockResolvedValue([ENG, CONTRACTORS]);
 
@@ -195,10 +191,7 @@ describe("RuleBypassableCiphersCalloutComponent", () => {
     expect(accessRuleSdkService.listBypassGaps).not.toHaveBeenCalled();
   });
 
-  /**
-   * Informational, never a gate: this warns about someone else's misconfiguration, so a failed read
-   * must not break the form it sits above.
-   */
+  /** Informational, never a gate: warns about someone else's misconfiguration, so a failed read must not break the form above it. */
   it("hides itself when the read fails", async () => {
     accessRuleSdkService.listBypassGaps.mockRejectedValue(new Error("boom"));
 
