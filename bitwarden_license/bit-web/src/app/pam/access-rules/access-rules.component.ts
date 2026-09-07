@@ -220,11 +220,9 @@ export class AccessRulesComponent {
   /**
    * Copy a rule and open the copy for editing.
    *
-   * The copy is created straight away, without a confirmation step: it carries no collections
-   * (a collection can only be governed by one rule), so until the admin assigns some there is
-   * nothing for it to govern and nothing to undo. That is also why the edit page is where the
-   * admin lands — the copy is unfinished, and its required collections are the thing to finish.
-   * Backing out of that page leaves the copy in the table rather than discarding it.
+   * Created straight away, without confirmation: it carries no collections, so there's nothing
+   * yet to govern or undo. That's also why the edit page is where the admin lands — the copy is
+   * unfinished, and backing out leaves it in the table rather than discarding it.
    */
   protected readonly makeCopy = async (rule: AccessRuleView): Promise<void> => {
     let created: AccessRuleView;
@@ -235,8 +233,8 @@ export class AccessRulesComponent {
       return;
     }
 
-    // Announced only once the copy is definitely persisted, and outside the try: a failed
-    // navigation must not follow a success toast with an error one about a rule that exists.
+    // Announced only once the copy is persisted, and outside the try, so a failed navigation
+    // can't follow with an error toast.
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t("pamAccessRuleCopyCreated"),
@@ -253,9 +251,8 @@ export class AccessRulesComponent {
    * Create the copy, retrying once against a refreshed list if the name turned out to be taken.
    *
    * {@link copyRuleName} picks a free name from the rules this page loaded, which another admin
-   * (or another tab) can have moved on from since. Without the refresh that rejection is a dead
-   * end: the admin is on the table with no field to correct, and clicking again recomputes the
-   * same name from the same stale list and fails identically.
+   * can have moved on from since; without the refresh, clicking again just recomputes the same
+   * stale name and fails identically.
    */
   private async createCopy(rule: AccessRuleView): Promise<AccessRuleView> {
     try {
@@ -349,9 +346,7 @@ export class AccessRulesComponent {
 
   private async bulkSetEnabled(enabled: boolean): Promise<void> {
     const selected = this.selectedRules();
-    // Same speedbump as the row menu, over only the rules that will actually move — confirming
-    // the raw selection would overstate it. Nothing to move means no question at all: fall
-    // through to the existing no-op rather than asking about zero rules.
+    // Same speedbump as the row menu, over only the rules that will actually move.
     const deactivating = enabled ? [] : rulesChangingEnabled(selected, false);
     if (deactivating.length > 0) {
       const confirmed = await this.dialogService.openSimpleDialog(

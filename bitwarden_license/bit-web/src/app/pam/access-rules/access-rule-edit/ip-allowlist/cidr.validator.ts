@@ -36,10 +36,8 @@ export function cidrValidator(invalidMessage: string, isValid: CidrPredicate): V
  * The trimmed values that appear on more than one row. Empty rows are ignored.
  *
  * Single source of truth for "which ranges repeat": the array-level
- * {@link noDuplicateCidrsValidator} decides from it whether Save is blocked, and the editor marks
- * its rows from it. Deriving both from one function is what stops them disagreeing — were one side
- * to gain a normalisation the other lacked (case-folding IPv6, canonicalising equivalent ranges),
- * the array could reject a rule while no row showed the admin why.
+ * {@link noDuplicateCidrsValidator} and the editor's row marks both derive from it, so they
+ * can't disagree.
  */
 export function duplicateCidrValues(values: readonly string[]): Set<string> {
   const seen = new Set<string>();

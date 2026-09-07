@@ -53,16 +53,13 @@ import { DurationShortPipe } from "../date/duration-short.pipe";
 type FilterableRow = { searchText: string; collectionName: string | null; requester: string };
 
 /**
- * "Approvals" tab — the requests awaiting the caller's decision, oldest first, and the access
+ * "Approvals" tab: requests awaiting the caller's decision, oldest first, plus the access
  * already running on the collections they manage.
  *
- * Only ever rendered for an approver: `canViewApprovalsGuard` redirects a non-approver's deep
- * link to the sibling `my-requests` tab, and the shell (`access-requests.component.html`) only
- * renders the "Approvals" tab-link when {@link ApprovalPrivilegeService} says so — so a non-approver
- * never reaches this component.
+ * Only ever rendered for an approver — a non-approver is redirected and the tab-link is hidden.
  *
- * Data, ordering, and the optimistic decide/revoke live in {@link ApproverInboxService} (shared with
- * the History tab); this component owns the toolbar, the tables, the dialogs, and the toasts.
+ * Data, ordering, and optimistic decide/revoke live in {@link ApproverInboxService} (shared with
+ * History); this component owns the toolbar, tables, dialogs, and toasts.
  */
 @Component({
   selector: "pam-approvals-tab",
@@ -119,8 +116,8 @@ export class ApprovalsTabComponent {
   );
 
   /**
-   * Whether a load has ever completed. Latched, because only the first one has nothing to leave on
-   * screen — every later reload already has a rendered tab behind it.
+   * Whether a load has ever completed. Latched, since only the first load has nothing rendered
+   * to leave on screen.
    */
   private readonly hasLoadedOnce = toSignal(
     this.inbox.loading$.pipe(
@@ -150,12 +147,7 @@ export class ApprovalsTabComponent {
     initialValue: [] as ManagedLeaseRow[],
   });
 
-  /**
-   * Ticks once a second so a lease that lapses while the tab is open stops being listed. Shares the
-   * one clock the badges already run on, and only observes it while there is a lease to expire — an
-   * approver sitting on a pending-only queue leaves that clock torn down rather than scheduling a
-   * round of change detection every second that can never change anything.
-   */
+  /** Ticks once a second so a lapsed lease stops being listed, sharing the badges' clock; torn down when there's no lease to expire. */
   private readonly nowMs = toSignal(
     toObservable(computed(() => this.allLeases().length > 0)).pipe(
       switchMap((anyLeases) => (anyLeases ? this.ticker.ticks$ : EMPTY)),
@@ -168,12 +160,10 @@ export class ApprovalsTabComponent {
   });
 
   /**
-   * The leases still inside their window. `activeLeaseRows$` tests the window too, but against the
-   * clock stamped at load, and a lease lapsing on its own produces no server push to reload it away
-   * — so without a live clock here the row would stay listed, counted and revocable indefinitely.
+   * Leases still inside their window, checked against a live clock, not the load-time stamp
+   * `activeLeaseRows$` uses, since a lease can lapse with no server push.
    *
-   * Compared by identity so the once-a-second tick only reaches `leasesDataSource` when the rows
-   * really change; reassigning its data every second would re-create every row.
+   * Compared by identity so the per-second tick only reaches `leasesDataSource` when rows change.
    */
   private readonly liveLeases = computed(
     () => this.allLeases().filter((row) => row.endsAtMs > this.nowMs()),
@@ -201,9 +191,8 @@ export class ApprovalsTabComponent {
   protected readonly leaseRows = computed(() => this.applyFilters(this.liveLeases()));
 
   /**
-   * Whether a section is empty only because the toolbar filters excluded its own rows. Its empty
-   * copy asserts an absolute, so rendering it in this case tells an operator that no privileged
-   * access is running while a lease the filters hid is still live and still revocable.
+   * Whether a section is empty only because the toolbar filters excluded its rows — its empty
+   * copy asserts an absolute, so rendering it here would hide a still-live, still-revocable lease.
    */
   protected readonly pendingHiddenByFilters = computed(
     () => this.rows().length === 0 && this.allRows().length > 0,
@@ -227,11 +216,9 @@ export class ApprovalsTabComponent {
   protected readonly skeletonVisible = computed(() => this.showSkeleton() && !this.hasRows());
 
   /**
-   * Whether the loading region replaces the tab's content. Before anything has loaded it covers the
-   * whole load, skeleton or not, since there is nothing else to show; afterwards only the skeleton
-   * may take over, so a reload of an inbox that is already empty leaves its empty state up rather
-   * than blanking the tab for the length of the skeleton's show delay. PAM reloads on every managed
-   * request change, so that blank would recur for as long as the tab is left open.
+   * Whether the loading region replaces the tab's content. Covers the whole load before anything
+   * has loaded; afterwards only the skeleton takes over, so a reload of an already-empty inbox
+   * keeps its empty state up rather than blanking the tab on every managed-request change.
    */
   protected readonly loadingVisible = computed(() =>
     this.hasLoadedOnce()
@@ -243,20 +230,15 @@ export class ApprovalsTabComponent {
   protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
   /**
-   * Whether the load on screen has shown its skeleton, so that skeleton's removal can be announced
-   * in turn. Held for the length of one load rather than the component's life: a reload that never
-   * reaches the skeleton has nothing to announce the end of, and a retry must not inherit the
-   * previous attempt's skeleton.
+   * Whether the current load has shown its skeleton, so removal can be announced. Held per load,
+   * not for the component's life, so a retry doesn't inherit the previous attempt's skeleton.
    */
   private readonly skeletonShown = signal(false);
 
   /**
-   * Whether the live region announces that the content has arrived. Emptying the region announces
-   * nothing on its own, so the "loading" announcement needs a counterpart once the rows land. Gated
-   * on the skeleton having been shown, so a load that finishes inside the delay announces neither
-   * half, and on the load having succeeded — a failed load leaves the same empty table behind, and
-   * announcing it as loaded is the one reading a sighted user cannot correct against the shell's
-   * error toast.
+   * Whether the live region announces content arrival. Gated on the skeleton having shown and the
+   * load having succeeded — a failed load leaves the same empty table, and a false "loaded" is
+   * the one claim a sighted user can't correct against the shell's error toast.
    */
   protected readonly announceLoaded = computed(
     () => this.skeletonShown() && !this.skeletonVisible() && this.loadError() == null,
@@ -266,9 +248,8 @@ export class ApprovalsTabComponent {
   protected readonly leasesDataSource = new TableDataSource<ManagedLeaseRow>();
 
   /**
-   * Badge state is memoised per lease so the `[state]` input does not change identity on every
-   * change-detection pass. Keyed off the unfiltered rows so that typing in the search box does not
-   * churn the surviving badges.
+   * Badge state is memoised per lease so the `[state]` input keeps identity across change
+   * detection, keyed off the unfiltered rows so search doesn't churn surviving badges.
    */
   private readonly leaseBadgeStates = computed(
     () =>
@@ -329,13 +310,11 @@ export class ApprovalsTabComponent {
   }
 
   /**
-   * Confirm and record a decision. Only an explicit confirm decides — dismissing the dialog by any
-   * other route (Cancel, the header X, Escape, a backdrop click) closes with `undefined` and must
-   * leave the request untouched.
+   * Confirm and record a decision. Any dismissal other than an explicit confirm (Cancel, the
+   * header X, Escape, a backdrop click) closes with `undefined` and leaves the request untouched.
    *
-   * `verdict` is only what the dialog OPENS on. The approve variant offers "Deny request", which
-   * switches it in place, so the decision recorded here has to be the verdict the dialog closed
-   * with — recording the requested one would approve a request the approver denied.
+   * Records the verdict the dialog closed with, not `verdict` alone: the approve variant can
+   * switch to "Deny request" in place.
    */
   protected async decide(row: ApprovalRow, verdict: AccessDecisionVerdict): Promise<void> {
     if (!row.canDecide || this.isDeciding(row)) {

@@ -23,8 +23,7 @@ describe("PamOrgNavSlotComponent", () => {
 
   beforeEach(async () => {
     pamEnabled$ = new BehaviorSubject<boolean>(true);
-    // Off by default, matching the flag's shipped default, so the pre-rotation expectations below
-    // describe a nav group with only the two always-present items.
+    // Off by default, matching the flag's shipped default.
     rotationEnabled$ = new BehaviorSubject<boolean>(false);
     getFeatureFlag$ = jest.fn((flag: FeatureFlag) =>
       flag === FeatureFlag.PamRotation ? rotationEnabled$ : pamEnabled$,
@@ -85,8 +84,8 @@ describe("PamOrgNavSlotComponent", () => {
     expect(navGroup()).toBeNull();
   });
 
-  // The two items mirror the guards on their own routes: managing access rules and reading event
-  // logs are separate permissions, so neither item may ride in on the other's.
+  // The two items mirror their own routes' guards; managing access rules and reading event logs
+  // are separate permissions.
   it("shows only Access rules when the org cannot read event logs", () => {
     fixture.componentRef.setInput("organization", org(true, false));
     fixture.detectChanges();
@@ -106,8 +105,8 @@ describe("PamOrgNavSlotComponent", () => {
     expect(navItemRoutes()).toEqual(["pam/access-rules", "pam/audit"]);
   });
 
-  // Rotation nests under the PAM flag AND its own, and mirrors the access-rule permission its
-  // route guards on — so all three have to hold before the item appears.
+  // Rotation nests under the PAM flag, its own flag, and the access-rule permission its route
+  // guards on.
   describe("rotation", () => {
     it("gates on the rotation feature flag", () => {
       fixture.detectChanges();

@@ -34,13 +34,12 @@ export type DaemonRegisterDialogResult = { registered: true } | undefined;
 /**
  * Name-entry dialog for registering a new rotation daemon.
  *
- * On successful submit:
- * 1. Calls {@link DaemonRegistrationService.register} to derive the key + POST to the server.
- * 2. Closes itself.
- * 3. Opens {@link DaemonTokenDialogComponent} to show the one-time token.
+ * On successful submit: calls {@link DaemonRegistrationService.register} to derive the key and
+ * POST to the server, closes itself, then opens {@link DaemonTokenDialogComponent} to show the
+ * one-time token.
  *
- * `DaemonRegistrationService` is provided in this component's `providers` so it
- * only lives while the dialog is open — no singleton leakage.
+ * `DaemonRegistrationService` is provided in this component's `providers`, so it only lives
+ * while the dialog is open.
  */
 @Component({
   selector: "app-daemon-register-dialog",

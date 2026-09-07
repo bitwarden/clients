@@ -17,10 +17,8 @@ import { ApprovalSdkService } from "..";
  * decide mutation go through the Rust SDK's `commercial().pam().approvals()` client, not
  * hand-rolled HTTP/DTOs.
  *
- * Follows the canonical per-call SDK-consumption pattern (see `SendSdkApiService` in
- * `libs/common`): resolve the active user, take a client `Ref` from `SdkService.userClient$`, and
- * dispose it (`using`) once the call settles. Errors surface as-is; this service does not wrap or
- * translate them.
+ * Follows the canonical per-call SDK-consumption pattern: resolve the active user, take a
+ * client `Ref` from `SdkService.userClient$`, and dispose it (`using`) once the call settles.
  */
 export class ApprovalsSdkService implements ApprovalSdkService {
   constructor(

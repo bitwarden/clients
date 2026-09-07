@@ -36,22 +36,16 @@ import { SecureNote } from "./secure-note";
 import { SshKey } from "./ssh-key";
 
 /**
- * `SdkCipher` plus the PAM partial-cipher envelope. `sdk-internal` does not declare
- * `partialData` on `Cipher` yet, so the field is bridged here to keep the SDK mappers
- * round-tripping it (a gated row loses its marker if the field is dropped). The extra member is
- * optional, so a plain `SdkCipher` remains assignable and no caller needs to change.
+ * `SdkCipher` plus the PAM partial-cipher envelope. `sdk-internal` doesn't declare
+ * `partialData` on `Cipher` yet, so it's bridged here to keep the SDK mappers round-tripping
+ * it; optional, so a plain `SdkCipher` stays assignable.
  *
- * The Rust side is done but unpublished: `Cipher::partial_data` was added by sdk-internal commit
- * b19f4d40 ("decrypt server-restricted (PAM-gated) partial ciphers") in
- * `crates/bitwarden-vault/src/cipher/cipher.rs`, and generates as `partialData?: string`,
- * identical to this alias — building those bindings locally type-checks every call site here with
- * the alias removed. The field is not on `main`, only on the `pam/uat` branch, so no `main.*`
- * build carries it. Collapse this into `SdkCipher` once it ships.
+ * The Rust side shipped this as `partialData?: string` in sdk-internal commit b19f4d40, on
+ * `pam/uat`, not yet on `main`. Collapse into `SdkCipher` once it ships.
  *
- * Bumping the SDK that far is not a version bump alone. SDK commit 99ffb6ef ("Use state bridge
- * instead of platform state") also dropped `UserKeyState` and `EphemeralPinEnvelopeState`, which
- * `libs/common/src/key-management` still imports; those call sites need migrating in the same
- * change. The `partial` bridge in `cipher.view.ts` is released by the same SDK bump.
+ * That bump also needs migrating `libs/common/src/key-management` off `UserKeyState` and
+ * `EphemeralPinEnvelopeState`, dropped by SDK commit 99ffb6ef; the `partial` bridge in
+ * `cipher.view.ts` releases with the same bump.
  */
 type SdkCipherWithPartialData = SdkCipher & { partialData?: string };
 

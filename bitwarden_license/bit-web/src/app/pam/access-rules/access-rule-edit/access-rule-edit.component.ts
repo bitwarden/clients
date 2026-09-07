@@ -85,12 +85,12 @@ import {
 import { RuleBypassableCiphersCalloutComponent } from "./rule-bypassable-ciphers-callout/rule-bypassable-ciphers-callout.component";
 
 /**
- * Routed page for creating or editing a PAM access rule. Edit mode is entered via the
- * `accessRuleId` route param and fetches the rule with {@link AccessRuleSdkService.getAccessRule}
- * so the page works on deep-link/refresh; create mode reads an optional `template` query
- * param to prefill from a starter template. Groups the form into card sections
- * (General info / Status / Access duration / Optional conditions) per the design; on save it
- * routes back to the access-rules list.
+ * Routed page for creating or editing a PAM access rule. Edit mode fetches the rule via
+ * `accessRuleId` (route param) through {@link AccessRuleSdkService.getAccessRule}; create mode
+ * reads an optional `template` query param to prefill.
+ *
+ * Groups the form into card sections per the design; on save, routes back to the access-rules
+ * list.
  */
 @Component({
   templateUrl: "./access-rule-edit.component.html",
@@ -158,10 +158,9 @@ export class AccessRuleEditComponent {
   protected readonly loading = signal(true);
 
   /**
-   * The inline save-failure callout; null while there is nothing to report. A failed save must not
-   * toast — the notice has to persist alongside the entered values so the admin can retry without
-   * re-keying the form. Only a `generic` outcome offers a retry: a mapped failure needs the admin
-   * to change something first, so re-sending the same values would fail identically.
+   * The inline save-failure callout; null while there is nothing to report. Never toasted, so the
+   * notice persists alongside entered values. Retry shows only for a `generic` outcome — a mapped
+   * failure needs a change first, or resubmitting fails identically.
    */
   protected readonly saveError = signal<AccessRuleErrorOutcome | null>(null);
 
@@ -259,9 +258,8 @@ export class AccessRuleEditComponent {
   );
 
   constructor() {
-    // `bit-callout` is not a live region and the callout renders above three sections of form
-    // while Save sits below them, so without moving focus a failed save is silent for a screen
-    // reader and off-screen for everyone else.
+    // `bit-callout` isn't a live region and renders above Save; without moving focus a failed
+    // save goes unnoticed.
     effect(() => {
       if (this.saveError() == null) {
         return;
@@ -296,9 +294,8 @@ export class AccessRuleEditComponent {
 
   /** Fetch the rule under edit; on a stale/inaccessible id (or any other failure), toast and route back. */
   private async loadRule(): Promise<AccessRuleView | null> {
-    // `accessRuleId` is the raw route param branded as an `AccessRuleId` at the field, so it is
-    // only a *claimed* id until checked. `uuidAsString` unwraps the brand (a no-op at runtime) to
-    // hand `isGuid` the plain string it takes.
+    // `accessRuleId` is only a *claimed* id until checked; `uuidAsString` unwraps the brand for
+    // `isGuid`.
     if (!isGuid(uuidAsString(this.accessRuleId!))) {
       return await this.ruleNotFound();
     }
@@ -498,8 +495,7 @@ export class AccessRuleEditComponent {
       return true;
     }
 
-    // Creating: the design names the thing being abandoned, the rule itself. Editing: the rule
-    // already exists and only the edits are lost, so the repo's shared wording is the true one.
+    // Creating abandons the rule itself; editing only loses the edits — different copy for each.
     const copy = this.editing
       ? {
           title: { key: "discardEditsTitle" },
@@ -559,8 +555,7 @@ export class AccessRuleEditComponent {
 
   /** Return to the access-rules list (the parent of both the `new` and `:id` routes). */
   private navigateToList(): Promise<boolean> {
-    // A save, delete, or confirmed discard is an exit the admin has already agreed to, so the
-    // form has nothing left to lose and the CanDeactivate guard must not ask a second time.
+    // An exit the admin already agreed to; the CanDeactivate guard must not ask a second time.
     this.formGroup.markAsPristine();
     return this.router.navigate([".."], { relativeTo: this.route });
   }
