@@ -486,13 +486,34 @@ describe("EventService PAM events", () => {
     [EventType.Pam_AccessRequest_Submitted, "pamEventRequestedAccess", accessRequestId],
     [EventType.Pam_AccessRequest_Approved, "pamEventApprovedAccessRequest", accessRequestId],
     [EventType.Pam_AccessRequest_Denied, "pamEventDeniedAccessRequest", accessRequestId],
+    [EventType.Pam_AccessRequest_Cancelled, "pamEventCancelledAccessRequest", accessRequestId],
     [EventType.Pam_AccessLease_Activated, "pamEventActivatedAccessLease", accessLeaseId],
+    [
+      EventType.Pam_AccessLease_ActivationRejected,
+      "pamEventRejectedAccessLeaseActivation",
+      accessRequestId,
+    ],
+    [EventType.Pam_AccessLease_Extended, "pamEventExtendedAccessLease", accessLeaseId],
     [EventType.Pam_AccessLease_Revoked, "pamEventRevokedAccessLease", accessLeaseId],
+    [EventType.Pam_AccessLease_Expired, "pamEventExpiredAccessLease", accessLeaseId],
   ])("renders %s with its own message and the subject id", async (type, key, subjectId) => {
     const info = await sut.getEventInfo(pamEvent(type as EventType));
 
     expect(info.message).toContain(key);
     expect(info.message).toContain(`<code>${(subjectId as string).substring(0, 8)}</code>`);
+  });
+
+  // A rule spans collections and has no id column on the event, so these rows report the actor and
+  // the time only. Asserted so the bare message reads as intended rather than as a missing subject.
+  it.each([
+    [EventType.Pam_AccessRule_Created, "pamEventCreatedAccessRule"],
+    [EventType.Pam_AccessRule_Updated, "pamEventUpdatedAccessRule"],
+    [EventType.Pam_AccessRule_Deleted, "pamEventDeletedAccessRule"],
+  ])("renders %s with no subject id", async (type, key) => {
+    const info = await sut.getEventInfo(pamEvent(type as EventType));
+
+    expect(info.message).toBe(key);
+    expect(info.humanReadableMessage).toBe(key);
   });
 
   // The item is named and linked into the vault the same way ordinary cipher events do.

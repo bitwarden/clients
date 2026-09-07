@@ -18070,6 +18070,67 @@
       }
     }
   },
+  "pamEventCancelledAccessRequest": {
+    "message": "Cancelled the privileged access request for item $ITEM$ (request $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventExtendedAccessLease": {
+    "message": "Extended privileged access to item $ITEM$ (lease $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventExpiredAccessLease": {
+    "message": "Privileged access to item $ITEM$ expired (lease $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>9f8e7d6c</code>"
+      }
+    }
+  },
+  "pamEventRejectedAccessLeaseActivation": {
+    "message": "Could not activate privileged access to item $ITEM$ (request $ID$).",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<code>4a1b2c3d</code>"
+      }
+    }
+  },
+  "pamEventCreatedAccessRule": {
+    "message": "Created a privileged access rule."
+  },
+  "pamEventUpdatedAccessRule": {
+    "message": "Edited a privileged access rule."
+  },
+  "pamEventDeletedAccessRule": {
+    "message": "Deleted a privileged access rule."
+  },
   "pamAuditLoadError": {
     "message": "Could not load the audit trail"
   },
