@@ -121,9 +121,13 @@ describe("Enpass JSON Importer", () => {
   });
 
   it("normalizes androidapp:// URI without polynomial backtracking (FIND-5AD2A4CF3A3F)", async () => {
-    // An androidapp:// URL with no ==@ must return promptly without hanging.
-    // 13 ("androidapp://") + 500 = 513 chars — stays under fixUri()'s 1000-char truncation limit
-    const adversarialUrl = "androidapp://" + "a".repeat(500);
+    // The adversarial input that triggers quadratic backtracking in the old regex:
+    // repeated `androidapp://` prefixes with no `==@`. Both `.*` and `[^@]*` scan
+    // to end-of-string and backtrack O(n²) on each of the k prefix start offsets.
+    // The base64-alphabet class `[A-Za-z0-9\-_+/]*` terminates at `:` so it cannot
+    // span two occurrences — linear time regardless of repetition count.
+    // 13 chars × 76 reps = 988 chars, stays under fixUri()'s 1000-char truncation.
+    const adversarialUrl = "androidapp://".repeat(76);
     const importer = new EnpassJsonImporter();
     const item: EnpassItem = {
       archived: 0,
@@ -156,7 +160,7 @@ describe("Enpass JSON Importer", () => {
     const data: EnpassJsonFile = { folders: [], items: [item] };
     const result = await importer.parse(JSON.stringify(data));
     expect(result.success).toBe(true);
-    // URL passes through unchanged since there is no ==@ to strip
+    // No ==@ present, so the URL passes through unchanged
     expect(result.ciphers[0].login.uris[0].uri).toBe(adversarialUrl);
   });
 

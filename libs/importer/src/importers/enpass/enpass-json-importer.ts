@@ -12,9 +12,10 @@ import { Importer } from "../importer";
 import { EnpassJsonFile, EnpassFolder, EnpassField } from "./types/enpass-json-type";
 
 type EnpassFolderTreeItem = EnpassFolder & { children: EnpassFolderTreeItem[] };
-// Use [^@]* (negated character class) instead of .* to avoid polynomial
-// backtracking on inputs where ==@ does not appear after androidapp://.
-const androidUrlRegex = new RegExp("androidapp://[^@]*==@", "g");
+// Bound the repetition to the base64 alphabet so it cannot be pumped across
+// a repeated `androidapp://` prefix (`:` is not in the class, so it terminates
+// the run). `.*` / `[^@]*` both backtrack quadratically on such input.
+const androidUrlRegex = new RegExp("androidapp://[A-Za-z0-9\\-_+/]*==@", "g");
 
 export class EnpassJsonImporter extends BaseImporter implements Importer {
   parse(data: string): Promise<ImportResult> {
