@@ -345,6 +345,40 @@ describe("VaultItemDialogComponent", () => {
     });
   });
 
+  describe("delete", () => {
+    // PM-42916: a refused delete used to be reported as Deleted anyway, closing the dialog.
+    it("keeps the dialog open and explains the failure when the server refuses", async () => {
+      const toastService = TestBed.inject(ToastService);
+      component.setTestCipher({ id: "cipher-id", isDeleted: false, partial: true } as any);
+      cipherServiceMock.softDeleteWithServer.mockRejectedValue(new Error("not found"));
+
+      await component.delete();
+
+      expect(close).not.toHaveBeenCalled();
+      expect(TestBed.inject(MessagingService).send).not.toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "pamDeleteRequiresAccess" }),
+      );
+      expect(toastService.showToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+    });
+
+    it("closes as Deleted and reports success when the delete lands", async () => {
+      const toastService = TestBed.inject(ToastService);
+      component.setTestCipher({ id: "cipher-id", isDeleted: false } as any);
+      cipherServiceMock.softDeleteWithServer.mockResolvedValue(undefined);
+
+      await component.delete();
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success", message: "deletedItem" }),
+      );
+      expect(TestBed.inject(MessagingService).send).toHaveBeenCalledWith("deletedCipher");
+      expect(close).toHaveBeenCalledWith(VaultItemDialogResult.Deleted);
+    });
+  });
+
   describe("unarchive", () => {
     it("calls archiveService.unarchiveWithServer with the cipher id and active user id", async () => {
       component.setTestCipher({ id: "cipher-id", collectionIds: [] } as any);
