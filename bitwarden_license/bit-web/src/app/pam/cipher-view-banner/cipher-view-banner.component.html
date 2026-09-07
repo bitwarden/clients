@@ -26,12 +26,26 @@
 } @else if (activeLease(); as lease) {
   <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-active">
     <div class="tw-flex tw-items-start tw-gap-4">
-      <bit-icon-tile icon="bwi-clock" variant="teal" size="sm" />
+      <bit-icon-tile
+        [icon]="leaseEndingSoon() ? 'bwi-exclamation-triangle' : 'bwi-clock'"
+        [variant]="leaseEndingSoon() ? 'danger' : 'teal'"
+        size="sm"
+      />
       <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
         <div class="tw-flex tw-flex-col">
-          <h3 bitTypography="h5" noMargin>
-            {{ "pamActiveLeaseBannerTitle" | i18n: leaseRemainingLabel() }}
-          </h3>
+          <!--
+            Escalates on the same five-minute cutoff as the access-state badge (PM-40498). The
+            badge itself is suppressed on this surface, so this heading carries the warning.
+          -->
+          @if (leaseEndingSoon()) {
+            <h3 bitTypography="h5" noMargin data-testid="active-lease-ending-soon">
+              {{ "pamActiveLeaseBannerEndingSoonTitle" | i18n: leaseRemainingLabel() }}
+            </h3>
+          } @else {
+            <h3 bitTypography="h5" noMargin data-testid="active-lease-countdown">
+              {{ "pamActiveLeaseBannerTitle" | i18n: leaseRemainingLabel() }}
+            </h3>
+          }
           <span
             bitTypography="helper"
             class="tw-text-fg-body-subtle"

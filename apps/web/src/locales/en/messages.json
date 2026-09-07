@@ -18272,6 +18272,15 @@
       }
     }
   },
+  "pamActiveLeaseBannerEndingSoonTitle": {
+    "message": "Access to this item is ending soon — $DURATION$ remaining",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "4m"
+      }
+    }
+  },
   "pamPendingRequestBannerHeading": {
     "message": "Access request pending approval"
   },
