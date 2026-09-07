@@ -11,16 +11,16 @@ import { AutotypeConfig } from "../models/autotype-config";
 import { AutotypeMatchError } from "../models/autotype-errors";
 import { AutotypeVaultData } from "../models/autotype-vault-data";
 import { AUTOTYPE_MVP_IPC_CHANNELS } from "../models/ipc-channels";
-import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
+import { AutotypeMvpKeyboardShortcut } from "../models/main-autotype-mvp-keyboard-shortcut";
 
 export class MainDesktopAutotypeMvpService {
-  private autotypeKeyboardShortcut: AutotypeKeyboardShortcut;
+  private autotypeKeyboardShortcut: AutotypeMvpKeyboardShortcut;
 
   constructor(
     private logService: LogService,
     private windowMain: WindowMain,
   ) {
-    this.autotypeKeyboardShortcut = new AutotypeKeyboardShortcut();
+    this.autotypeKeyboardShortcut = new AutotypeMvpKeyboardShortcut();
 
     this.registerIpcListeners();
   }
@@ -35,7 +35,7 @@ export class MainDesktopAutotypeMvpService {
     });
 
     ipcMain.on(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE, (_event, config: AutotypeConfig) => {
-      const newKeyboardShortcut = new AutotypeKeyboardShortcut();
+      const newKeyboardShortcut = new AutotypeMvpKeyboardShortcut();
       const newKeyboardShortcutIsValid = newKeyboardShortcut.set(config.keyboardShortcut);
 
       if (!newKeyboardShortcutIsValid) {
@@ -123,7 +123,7 @@ export class MainDesktopAutotypeMvpService {
 
   // Set the keyboard shortcut if it differs from the present one. If
   // the keyboard shortcut is set, de-register the old shortcut first.
-  private setKeyboardShortcut(keyboardShortcut: AutotypeKeyboardShortcut) {
+  private setKeyboardShortcut(keyboardShortcut: AutotypeMvpKeyboardShortcut) {
     if (
       keyboardShortcut.getElectronFormat() !== this.autotypeKeyboardShortcut.getElectronFormat()
     ) {

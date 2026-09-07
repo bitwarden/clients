@@ -43,6 +43,7 @@ import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitward
 import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
 import { DesktopAutofillMain } from "./autofill/main/main-desktop-autofill.service";
 import { MainDesktopAutotypeMvpService } from "./autofill/main/main-desktop-autotype-mvp.service";
+import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
@@ -107,6 +108,7 @@ export class Main {
   sshAgentService: MainSshAgentService;
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeMvpService: MainDesktopAutotypeMvpService;
+  mainDesktopAutotypeService: MainDesktopAutotypeService;
   ssoCookieMain: SsoCookieMain;
   ipcService: IpcService;
 
@@ -355,9 +357,14 @@ export class Main {
       this.logService,
       this.windowMain,
     );
+    this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
+      this.logService,
+      this.windowMain,
+    );
 
     app.on("will-quit", () => {
       this.mainDesktopAutotypeMvpService.dispose();
+      this.mainDesktopAutotypeService.dispose();
       this.storageService.dispose();
     });
   }
