@@ -1,10 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+
 import {
   CollectionView,
   Collection as CollectionDomain,
 } from "../../admin-console/models/collections";
-import { EncString } from "../../key-management/crypto/models/enc-string";
 import { CollectionId, emptyGuid, OrganizationId } from "../../types/guid";
 
 import { safeGetString } from "./utils";

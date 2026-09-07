@@ -2,6 +2,7 @@ export { DisableSendPolicy } from "./disable-send.component";
 export { SendControlsPolicy } from "./send-controls.component";
 export { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 export { DesktopAutotypeDefaultSettingPolicy } from "./autotype-policy.component";
+export { FillAssistPolicy } from "./fill-assist.component";
 export { MasterPasswordPolicy } from "./master-password.component";
 export {
   OrganizationDataOwnershipPolicy,

@@ -1,0 +1,34 @@
+<p bitTypography="body1">
+  {{ "fillAssistPolicyDesc" | i18n }}
+  <a
+    bitLink
+    href="https://bitwarden.com/help/policies/#activate-fill-assist"
+    target="_blank"
+    rel="noreferrer"
+    endIcon="bwi-external-link"
+  >
+    {{ "learnMore" | i18n }}
+  </a>
+</p>
+
+<bit-form-control>
+  <bit-switch [formControl]="enabled" id="fill-assist-policy_input_enabled"></bit-switch>
+  <bit-label>{{ "enablePolicy" | i18n }}</bit-label>
+</bit-form-control>
+
+@if (isCloud$ | async) {
+  <div [formGroup]="data">
+    <bit-form-field class="tw-flex-auto">
+      <bit-label>{{ "fillAssistRulesUrl" | i18n }}</bit-label>
+      <span bitPrefix>https://</span>
+      <input
+        bitInput
+        type="text"
+        formControlName="rulesUrl"
+        id="fill-assist-policy_input_rules-url"
+        (blur)="onRulesUrlBlur()"
+      />
+      <bit-hint>{{ "fillAssistRulesUrlHint" | i18n }}</bit-hint>
+    </bit-form-field>
+  </div>
+}

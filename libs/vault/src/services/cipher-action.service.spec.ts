@@ -2,6 +2,8 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, BehaviorSubject, of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -33,6 +35,7 @@ function makeCipher(
     favorite: boolean;
     isDeleted: boolean;
     isArchived: boolean;
+    organizationId: string;
     reprompt: CipherRepromptType;
     type: CipherType;
   }> = {},
@@ -44,6 +47,7 @@ function makeCipher(
     favorite: false,
     isDeleted: false,
     isArchived: false,
+    organizationId: undefined,
     reprompt: CipherRepromptType.None,
     ...overrides,
   } as unknown as CipherView;
@@ -60,12 +64,14 @@ describe("CipherActionService", () => {
   let dialogService: MockProxy<DialogService>;
   let i18nService: MockProxy<I18nService>;
   let logService: MockProxy<LogService>;
+  let organizationService: MockProxy<OrganizationService>;
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
   let premiumUpgradePromptService: MockProxy<PremiumUpgradePromptService>;
   let toastService: MockProxy<ToastService>;
 
   let userCanArchiveSubject: BehaviorSubject<boolean>;
   let userHasPremiumSubject: BehaviorSubject<boolean>;
+  let organizationsSubject: BehaviorSubject<Organization[]>;
 
   beforeEach(() => {
     archiveCipherUtilitiesService = mock<ArchiveCipherUtilitiesService>();
@@ -75,6 +81,7 @@ describe("CipherActionService", () => {
     dialogService = mock<DialogService>();
     i18nService = mock<I18nService>();
     logService = mock<LogService>();
+    organizationService = mock<OrganizationService>();
     passwordRepromptService = mock<PasswordRepromptService>();
     premiumUpgradePromptService = mock<PremiumUpgradePromptService>();
     toastService = mock<ToastService>();
@@ -86,6 +93,9 @@ describe("CipherActionService", () => {
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(
       userHasPremiumSubject.asObservable(),
     );
+
+    organizationsSubject = new BehaviorSubject<Organization[]>([]);
+    organizationService.organizations$.mockReturnValue(organizationsSubject.asObservable());
 
     i18nService.t.mockImplementation((key) => key);
     dialogService.openSimpleDialog.mockResolvedValue(true);
@@ -106,6 +116,7 @@ describe("CipherActionService", () => {
         { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: i18nService },
         { provide: LogService, useValue: logService },
+        { provide: OrganizationService, useValue: organizationService },
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
         { provide: ToastService, useValue: toastService },
@@ -155,6 +166,14 @@ describe("CipherActionService", () => {
   describe("restore()", () => {
     it("does nothing when cipher is not deleted", async () => {
       await service.restore(makeCipher({ isDeleted: false }));
+
+      expect(cipherService.restoreWithServer).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when password reprompt is cancelled", async () => {
+      passwordRepromptService.showPasswordPrompt.mockResolvedValue(false);
+
+      await service.restore(makeCipher({ isDeleted: true, reprompt: CipherRepromptType.Password }));
 
       expect(cipherService.restoreWithServer).not.toHaveBeenCalled();
     });
@@ -294,6 +313,39 @@ describe("CipherActionService", () => {
       expect(openSpy).not.toHaveBeenCalled();
     });
 
+    it("does nothing when password reprompt is cancelled", async () => {
+      passwordRepromptService.showPasswordPrompt.mockResolvedValue(false);
+      const openSpy = jest.spyOn(AttachmentsV2Component, "open");
+
+      await service.viewAttachments(makeCipher({ reprompt: CipherRepromptType.Password }));
+
+      expect(openSpy).not.toHaveBeenCalled();
+    });
+
+    it("prompts to upgrade the organization when it has no storage allocated", async () => {
+      organizationsSubject.next([{ id: "org-1", maxStorageGb: 0 } as Organization]);
+      const openSpy = jest.spyOn(AttachmentsV2Component, "open");
+
+      await service.viewAttachments(makeCipher({ organizationId: "org-1" }));
+
+      expect(premiumUpgradePromptService.promptForPremium).toHaveBeenCalledWith("org-1");
+      expect(openSpy).not.toHaveBeenCalled();
+    });
+
+    it("opens for an organization item with storage, even without personal premium", async () => {
+      userHasPremiumSubject.next(false);
+      organizationsSubject.next([{ id: "org-1", maxStorageGb: 1 } as Organization]);
+      mockDialog(AttachmentDialogResult.Closed);
+
+      await service.viewAttachments(makeCipher({ organizationId: "org-1" }));
+
+      expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
+      expect(AttachmentsV2Component.open).toHaveBeenCalledWith(
+        dialogService,
+        expect.objectContaining({ organizationId: "org-1" }),
+      );
+    });
+
     it("opens the attachments dialog with the cipher id and edit flag", async () => {
       const cipher = makeCipher({ id: "my-cipher", edit: true });
       mockDialog(AttachmentDialogResult.Closed);
@@ -401,6 +453,18 @@ describe("CipherActionService", () => {
 
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({ content: { key: "permanentlyDeleteItemConfirmation" } }),
+      );
+    });
+
+    it("titles the confirmation for what is about to happen", async () => {
+      await service.delete(makeCipher({ isDeleted: false }));
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ title: { key: "deleteItem" } }),
+      );
+
+      await service.delete(makeCipher({ isDeleted: true }));
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ title: { key: "permanentlyDeleteItem" } }),
       );
     });
 

@@ -28,6 +28,7 @@ module.exports = {
     "<rootDir>/libs/admin-console/jest.config.js",
     "<rootDir>/libs/angular/jest.config.js",
     "<rootDir>/libs/assets/jest.config.js",
+    "<rootDir>/libs/automation-driver/jest.config.js",
     "<rootDir>/libs/auth/jest.config.js",
     "<rootDir>/libs/billing/jest.config.js",
     "<rootDir>/libs/client-type/jest.config.js",
@@ -45,6 +46,7 @@ module.exports = {
     "<rootDir>/libs/messaging/jest.config.js",
     "<rootDir>/libs/node/jest.config.js",
     "<rootDir>/libs/platform/jest.config.js",
+    "<rootDir>/libs/pricing/jest.config.js",
     "<rootDir>/libs/serialization/jest.config.js",
     "<rootDir>/libs/state-test-utils/jest.config.js",
     "<rootDir>/libs/state/jest.config.js",
@@ -58,6 +60,7 @@ module.exports = {
     "<rootDir>/libs/tools/generator/extensions/legacy/jest.config.js",
     "<rootDir>/libs/tools/generator/extensions/navigation/jest.config.js",
     "<rootDir>/libs/tools/send/send-ui/jest.config.js",
+    "<rootDir>/libs/tools/share/jest.config.js",
     "<rootDir>/libs/user-core/jest.config.js",
     "<rootDir>/libs/vault/jest.config.js",
     "<rootDir>/libs/auto-confirm/jest.config.js",
@@ -69,6 +72,7 @@ module.exports = {
     "<rootDir>/libs/pam/jest.config.js",
     "<rootDir>/libs/storybook/jest.config.js",
     "<rootDir>/libs/legacy-crypto/jest.config.js",
+    "<rootDir>/libs/managed-settings/jest.config.js",
   ],
 
   // Workaround for a memory leak that crashes tests in CI:

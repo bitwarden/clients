@@ -1,6 +1,7 @@
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { MasterKey } from "@bitwarden/common/types/key";
-import { KdfConfig } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KdfConfig } from "@bitwarden/legacy-crypto";
 
 export interface PasswordInputResult {
   currentPassword?: string;
@@ -10,16 +11,18 @@ export interface PasswordInputResult {
   newPasswordHint?: string;
   rotateUserKey?: boolean;
 
-  /**
-   * @deprecated Still required by the JIT_PROVISIONED_MP_ORG_USER flow in SetInitialPasswordComponent.
-   * Will be removed when that flow is updated to use MasterPasswordAuthenticationData and
-   * MasterPasswordUnlockData as part of https://bitwarden.atlassian.net/browse/PM-32526
-   */
+  // ============================================================
+  // PM-42990 — ROLLBACK NOTE
+  // ============================================================
+  // SetInitialPasswordComponent sets newMasterKey and newServerMasterKeyHash.
+  // It sets them only because the set-password endpoint uses the old request shape.
+  //
+  // DELETE: Delete newMasterKey and newServerMasterKeyHash below. Delete the
+  // code in SetInitialPasswordComponent that sets them. Delete the matching
+  // assertions in DefaultSetInitialPasswordService.setInitialPassword(). See
+  // https://github.com/bitwarden/clients/pull/20643 for initial pass at this
+  // refactor.
+  // ============================================================
   newMasterKey?: MasterKey;
-  /**
-   * @deprecated Still required by the JIT_PROVISIONED_MP_ORG_USER flow in SetInitialPasswordComponent.
-   * Will be removed when that flow is updated to use MasterPasswordAuthenticationData and
-   * MasterPasswordUnlockData as part of https://bitwarden.atlassian.net/browse/PM-32526
-   */
   newServerMasterKeyHash?: string;
 }

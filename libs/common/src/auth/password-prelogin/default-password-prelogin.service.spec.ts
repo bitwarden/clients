@@ -3,7 +3,7 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 import { PasswordPreloginResponse as SdkPasswordPreloginResponse } from "@bitwarden/sdk-internal";
 
 import { FeatureFlag } from "../../enums/feature-flag.enum";
@@ -36,17 +36,26 @@ describe("DefaultPasswordPreloginService", () => {
   const emailB = "b@example.com";
   const identityUrl = "https://identity.bitwarden.com";
 
+  // The API and SDK paths return different salts so tests can prove which source was used.
+  const apiSalt = "api-salt";
+  const sdkSalt = "sdk-salt";
+
   // PBKDF2 is used as a stand-in throughout; KDF type coverage is in password-prelogin.model.spec.ts.
   const response = new PasswordPreloginResponse({
-    Kdf: 0,
-    KdfIterations: PBKDF2KdfConfig.ITERATIONS.defaultValue,
+    KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
+    Salt: apiSalt,
   });
   const sdkResponse: SdkPasswordPreloginResponse = {
     kdf: { pBKDF2: { iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue } },
-    salt: "test-salt",
+    salt: sdkSalt,
   };
   const expectedData = new PasswordPreloginData(
     new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
+    apiSalt,
+  );
+  const expectedSdkData = new PasswordPreloginData(
+    new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue),
+    sdkSalt,
   );
 
   beforeEach(() => {
@@ -93,7 +102,7 @@ describe("DefaultPasswordPreloginService", () => {
 
       const result = await firstValueFrom(sut.getPreloginData$(email));
 
-      expect(result).toEqual(expectedData);
+      expect(result).toEqual(expectedSdkData);
       expect(apiService.getPreloginData).not.toHaveBeenCalled();
     });
 

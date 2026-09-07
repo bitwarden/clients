@@ -7,7 +7,6 @@ import { Subject, filter, firstValueFrom, map, timeout } from "rxjs";
 
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
-import { LockService } from "@bitwarden/auth/common";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -15,7 +14,7 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -26,6 +25,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { DialogService, RouterFocusManagerService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import { LockService, LockSource } from "@bitwarden/unlock";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
@@ -115,12 +115,11 @@ export class AppComponent implements OnDestroy, OnInit {
             break;
           case "lockVault": {
             const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-            await this.lockService.lock(userId);
+            await this.lockService.lock(userId, LockSource.Manual);
             break;
           }
           case "locked":
             await this.router.navigate(["/"]);
-            await this.processReloadService.startProcessReload();
             break;
           case "lockedUrl":
             break;
@@ -269,11 +268,11 @@ export class AppComponent implements OnDestroy, OnInit {
         await this.router.navigate(["/"]);
       }
 
-      await this.processReloadService.startProcessReload();
-
+      // Wipe the current process to clear active secrets in memory.
       // Normally we would need to reset the loading state to false or remove the layout_frontend
       // class from the body here, but the process reload completely reloads the app so
       // it handles it.
+      await this.processReloadService.reloadProcess();
     }, userId);
   }
 

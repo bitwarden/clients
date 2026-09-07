@@ -37,7 +37,6 @@ describe("renderer biometrics service tests", function () {
           getBiometricsStatusForUser: jest.fn(),
           deleteBiometricUnlockKeyForUser: jest.fn(),
           setupBiometrics: jest.fn(),
-          setClientKeyHalfForUser: jest.fn(),
           getShouldAutoprompt: jest.fn(),
           setShouldAutoprompt: jest.fn(),
           enrollPersistent: jest.fn(),

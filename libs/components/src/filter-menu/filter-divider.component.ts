@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 
+import { OverflowItemDirective } from "../overflow-list";
+
 /**
- * A vertical rule for separating groups of filter chips in a `bit-table-v2`'s
- * chrome. Purely presentational — drop it between chips in the chip row.
+ * A vertical rule for separating groups of filter chips.
  *
  * @example
  * ```html
@@ -18,7 +19,9 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
   host: {
     role: "separator",
     "aria-orientation": "vertical",
-    class: "tw-mx-1 tw-inline-block tw-h-6 tw-w-px tw-bg-secondary-500",
+    class: "tw-mx-2 tw-inline-block tw-h-6 tw-w-px tw-bg-border-base",
   },
+  // Lets a `bitOverflowList` ancestor measure the divider; inert with no such ancestor.
+  hostDirectives: [OverflowItemDirective],
 })
 export class FilterDividerComponent {}

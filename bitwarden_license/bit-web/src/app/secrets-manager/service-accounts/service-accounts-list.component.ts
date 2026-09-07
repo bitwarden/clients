@@ -6,6 +6,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { catchError, concatMap, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
 
+import { NoResults } from "@bitwarden/assets/svg";
 import {
   getOrganizationById,
   OrganizationService,
@@ -37,6 +38,8 @@ export class ServiceAccountsListComponent implements OnDestroy, OnInit {
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
   );
+
+  readonly noItemsIcon = NoResults;
 
   protected dataSource = new TableDataSource<ServiceAccountSecretsDetailsView>();
 

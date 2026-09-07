@@ -7,6 +7,7 @@ import { EncryptedString } from "@bitwarden/legacy-crypto";
 export class OrganizationUserUpdateRequest {
   type: OrganizationUserType;
   accessSecretsManager: boolean;
+  accessPam: boolean;
   collections: SelectionReadOnlyRequest[];
   groups: string[] | undefined;
   permissions: PermissionsApi;
@@ -18,6 +19,7 @@ export class OrganizationUserUpdateRequest {
     type: OrganizationUserType;
     permissions: PermissionsApi;
     accessSecretsManager?: boolean;
+    accessPam?: boolean;
     collections?: SelectionReadOnlyRequest[];
     groups?: string[];
     defaultUserCollectionName?: EncryptedString;
@@ -26,6 +28,7 @@ export class OrganizationUserUpdateRequest {
   }) {
     this.type = c.type;
     this.accessSecretsManager = c.accessSecretsManager ?? false;
+    this.accessPam = c.accessPam ?? false;
     this.collections = c.collections ?? [];
     this.groups = c.groups;
     this.permissions = c.permissions;

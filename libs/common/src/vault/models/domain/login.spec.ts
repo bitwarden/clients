@@ -1,7 +1,9 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
+
 import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
-import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { LoginData } from "../../models/data/login.data";
 import { Login } from "../../models/domain/login";

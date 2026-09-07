@@ -29,7 +29,7 @@ export function getOpenOrgInviteStatusErrorUi(
     case "not-found":
       return {
         anonLayoutData: {
-          pageTitle: { key: "openOrgInviteAcceptFailedTitle" },
+          pageTitle: { key: "cannotAcceptInvitation" },
           pageIcon: TwoFactorTimeoutIcon,
         },
         bodyMessageI18nKey: "openOrgInviteLinkNoLongerValid",
@@ -42,7 +42,7 @@ export function getOpenOrgInviteStatusErrorUi(
       // distinct semantic condition even if the copy overlaps.
       return {
         anonLayoutData: {
-          pageTitle: { key: "openOrgInviteAcceptFailedTitle" },
+          pageTitle: { key: "cannotAcceptInvitation" },
           pageIcon: AccountWarning,
         },
         bodyMessageI18nKey: "openOrgInviteLinkNoLongerValid",
@@ -51,7 +51,7 @@ export function getOpenOrgInviteStatusErrorUi(
     case "no-seats":
       return {
         anonLayoutData: {
-          pageTitle: { key: "openOrgInviteAcceptFailedTitle" },
+          pageTitle: { key: "cannotAcceptInvitation" },
           pageIcon: AccountWarning,
         },
         bodyMessageI18nKey: "openOrgInviteNoSeatsMessage",
@@ -60,7 +60,7 @@ export function getOpenOrgInviteStatusErrorUi(
     case "unexpected":
       return {
         anonLayoutData: {
-          pageTitle: { key: "openOrgInviteAcceptFailedTitle" },
+          pageTitle: { key: "cannotAcceptInvitation" },
           pageIcon: ReportBreach,
         },
         bodyMessageI18nKey: "openOrgInviteStatusUnexpectedErrorMessage",

@@ -6,8 +6,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   StateProvider,
   UserKeyDefinition,
@@ -48,7 +46,6 @@ export const NOTIFICATION_BANNER_DISMISSED_SESSION_KEY = new UserKeyDefinition<D
 export class VaultOrganizationUserNotificationsService {
   private readonly accountService = inject(AccountService);
   private readonly policyService = inject(PolicyService);
-  private readonly configService = inject(ConfigService);
   private readonly stateProvider = inject(StateProvider);
   private readonly eventCollectionService = inject(EventCollectionService);
 
@@ -108,11 +105,10 @@ export class VaultOrganizationUserNotificationsService {
         this.notificationData$,
         this.stateProvider.getUser(userId, NOTIFICATION_BANNER_DISMISSED_KEY).state$,
         this.stateProvider.getUser(userId, NOTIFICATION_BANNER_DISMISSED_SESSION_KEY).state$,
-        this.configService.getFeatureFlag$(FeatureFlag.PM31948_OrgUserNotificationBanner),
       ]),
     ),
-    map(([data, lastDismissedDate, lastDismissedSessionDate, featureFlagEnabled]) => {
-      if (!data || !featureFlagEnabled) {
+    map(([data, lastDismissedDate, lastDismissedSessionDate]) => {
+      if (!data) {
         return false;
       }
 

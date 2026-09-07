@@ -1,34 +1,99 @@
-<!-- 
-  end padding is less than start padding to prioritize visual alignment when icon buttons are used at the end of the end slot.
-  other elements used at the end of the end slot may need to add their own margin/padding to achieve visual alignment.
+<!--
+  `end` is the trailing edge of the topmost bar, so it renders into the app bar when that bar exists
+  and into the title bar otherwise. Declaring the slot once and rendering the template into whichever
+  branch is live is the only way to move it: a `select` repeated across both branches would bind all
+  matching content to whichever copy comes first, leaving the other empty.
 -->
-<header
-  class="tw-py-3 bit-compact:tw-py-2 tw-pe-1 bit-compact:tw-pe-0.5 tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid"
-  [ngClass]="{
-    'tw-bg-background-alt tw-border-transparent':
-      this.background === 'alt' && !pageContentScrolled(),
-    'tw-bg-background tw-border-secondary-300':
-      (this.background === 'alt' && pageContentScrolled()) || this.background === 'default',
-    'tw-ps-4 bit-compact:tw-ps-3': !showBackButton,
-    'tw-ps-1 bit-compact:tw-ps-0': showBackButton,
-  }"
->
-  <div class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-justify-between tw-w-full">
-    <div class="tw-inline-flex tw-items-center tw-gap-2 tw-h-9">
-      <button
-        bitIconButton="bwi-angle-left"
-        type="button"
-        *ngIf="showBackButton"
-        [label]="'back' | i18n"
-        [bitAction]="backAction"
-      ></button>
-      <h1 *ngIf="pageTitle" bitTypography="h3" class="!tw-mb-0.5">
-        {{ pageTitle }}
-      </h1>
-      <ng-content></ng-content>
+<ng-template #endSlot>
+  <ng-content select="[slot=end]"></ng-content>
+</ng-template>
+
+<!-- Declared once and rendered into whichever bar is live, same as `endSlot` above. -->
+<ng-template #backButtonSlot>
+  @if (showBackButton()) {
+    <button
+      bitIconButton="bwi-angle-left"
+      type="button"
+      [buttonType]="backButtonType()"
+      [label]="'back' | i18n"
+      [bitAction]="backAction()"
+      [size]="vfo1Enabled() ? 'small' : 'default'"
+    ></button>
+  }
+</ng-template>
+
+<!--
+  One `header` around both bars, so the banner landmark covers the whole region. The bars themselves
+  are plain containers: the app bar is chrome belonging to the extension, the title bar belongs to the
+  page, and neither is a landmark on its own.
+-->
+<header [class]="headerClasses()">
+  @if (vfo1Enabled()) {
+    <div
+      data-testid="app-bar"
+      class="tw-bg-bg-nav tw-text-fg-nav tw-py-2 bit-compact:tw-py-1.5 tw-px-4 bit-compact:tw-px-3"
+    >
+      <div
+        class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-w-full tw-items-center tw-justify-between tw-gap-2"
+      >
+        <div class="tw-inline-flex tw-items-center tw-gap-2">
+          @if (titleBarSuppressed()) {
+            <ng-container *ngTemplateOutlet="backButtonSlot"></ng-container>
+          }
+          <bit-svg
+            class="tw-block tw-w-[120px] [&_path]:tw-fill-fg-nav"
+            [content]="logo"
+            [ariaLabel]="'appLogoLabel' | i18n"
+          ></bit-svg>
+        </div>
+        <div class="tw-inline-flex tw-items-center tw-gap-2">
+          <ng-container *ngTemplateOutlet="endSlot"></ng-container>
+        </div>
+      </div>
     </div>
-    <div class="tw-inline-flex tw-items-center tw-gap-2 tw-h-9">
-      <ng-content select="[slot=end]"></ng-content>
+  }
+
+  <div data-testid="title-bar" [attr.data-state]="titleBarState()" [class]="titleBarClasses()">
+    <!-- `tw-min-h-0` lets the grid row shrink past this row's content height as the bar collapses. -->
+    <div class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-justify-between tw-w-full tw-min-h-0">
+      <!--
+        TODO: remove the `tw-h-9` bindings with the VFO1Foundation flag.
+        The one-bar header pins its content rows to a fixed 36px; the title bar sizes to its content.
+      -->
+      <div class="tw-inline-flex tw-items-center tw-gap-2" [class.tw-h-9]="!vfo1Enabled()">
+        @if (!titleBarSuppressed()) {
+          <ng-container *ngTemplateOutlet="backButtonSlot"></ng-container>
+        }
+        @if (vfo1Enabled()) {
+          <ng-content select="[slot=title-start]"></ng-content>
+        }
+        @if (pageTitle()) {
+          <div class="tw-inline-flex tw-items-center tw-gap-1">
+            <h1
+              [bitTypography]="vfo1Enabled() ? 'h5' : 'h3'"
+              [class]="vfo1Enabled() ? '!tw-mb-0' : '!tw-mb-0.5'"
+            >
+              {{ pageTitle() }}
+            </h1>
+            <ng-content select="[slot=title-suffix]"></ng-content>
+          </div>
+        }
+        <!--
+          TODO: remove with the VFO1Foundation flag.
+          The app bar owns the extension's branding, so the default slot's only consumers — which
+          project a Bitwarden logo — would otherwise render it twice.
+        -->
+        @if (!vfo1Enabled()) {
+          <ng-content></ng-content>
+        }
+      </div>
+      <div class="tw-inline-flex tw-items-center tw-gap-2" [class.tw-h-9]="!vfo1Enabled()">
+        @if (vfo1Enabled()) {
+          <ng-content select="[slot=title-end]"></ng-content>
+        } @else {
+          <ng-container *ngTemplateOutlet="endSlot"></ng-container>
+        }
+      </div>
     </div>
   </div>
 </header>

@@ -1,10 +1,12 @@
 <bit-callout title="{{ 'prerequisite' | i18n }}">
-  {{ "requireSsoPolicyReq" | i18n }}
+  {{ "requireSsoPolicyReqV2" | i18n }}
 </bit-callout>
 
+<p>{{ "sessionTimeoutPolicyDescription" | i18n }}</p>
+
 <bit-form-control>
-  <input type="checkbox" id="enabled" bitCheckbox [formControl]="enabled" />
-  <bit-label>{{ "turnOn" | i18n }}</bit-label>
+  <bit-switch [formControl]="enabled" id="enabled"></bit-switch>
+  <bit-label>{{ "enablePolicy" | i18n }}</bit-label>
 </bit-form-control>
 
 <div [formGroup]="data">

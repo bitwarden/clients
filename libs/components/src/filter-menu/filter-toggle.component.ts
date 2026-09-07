@@ -14,6 +14,7 @@ import {
 
 import { BaseChipDirective } from "../chips/shared/base-chip.directive";
 import { ChipContentComponent } from "../chips/shared/chip-content.component";
+import { OverflowItemDirective } from "../overflow-list";
 import { BitwardenIcon } from "../shared/icon";
 
 import {
@@ -25,12 +26,7 @@ import {
 } from "./filter-tokens";
 
 /**
- * A single on/off filter chip — no menu. Use it when a filter is one element
- * rather than a category (e.g. "Favorites"). Clicking toggles it; supply
- * `iconActive` to swap the icon while active. Its value is a boolean, exposed under its `key` via
- * {@link FILTER_CONTROL}. Projected into a filterable surface (e.g. `bit-table-v2`)
- * it resolves the surface's {@link FILTER_HOST} by DI and self-registers, so its
- * value joins the host's `filterValues`; inert when there's no host.
+ * A single on/off filter chip — no menu. Its value is a boolean.
  *
  * @example
  * ```html
@@ -51,7 +47,11 @@ import {
     { provide: FILTER_CONTROL, useExisting: forwardRef(() => FilterToggleComponent) },
     { provide: FILTER_PRESENTER, useExisting: forwardRef(() => FilterToggleComponent) },
   ],
-  hostDirectives: [{ directive: BaseChipDirective, inputs: ["disabled", "size", "fullWidth"] }],
+  hostDirectives: [
+    { directive: BaseChipDirective, inputs: ["disabled", "size", "fullWidth"] },
+    // Lets a `bitOverflowList` ancestor measure the chip; inert with no such ancestor.
+    OverflowItemDirective,
+  ],
 })
 export class FilterToggleComponent implements FilterControl, FilterPresenter, OnInit {
   /** The chip's key — the property its boolean value occupies in the host's `filterValues`. */
@@ -64,9 +64,8 @@ export class FilterToggleComponent implements FilterControl, FilterPresenter, On
   readonly icon = input<BitwardenIcon>();
 
   /**
-   * Icon shown while active — e.g. the filled `bwi-star-f` for an outline
-   * `bwi-star`. Falls back to {@link icon} when omitted, so the same icon is used
-   * in both states.
+   * Icon shown while active — e.g. `bwi-star-f` for an outline `bwi-star`. Falls
+   * back to {@link icon} when omitted.
    */
   readonly iconActive = input<BitwardenIcon>();
 
@@ -81,11 +80,17 @@ export class FilterToggleComponent implements FilterControl, FilterPresenter, On
   /** The toggle's boolean value. */
   readonly value = computed<unknown>(() => this._value());
 
+  /** @see FilterControl.clearedValue */
+  readonly clearedValue = computed<unknown>(() => false);
+
   /** Whether the toggle is on. */
   readonly active = computed(() => this._value());
 
   /** @see FilterPresenter.summary — a toggle has no per-option summary. */
   readonly summary = computed(() => "");
+
+  /** @see FilterPresenter.summaryLabels — likewise nothing to list. */
+  readonly summaryLabels = computed<readonly string[]>(() => []);
 
   /** @see FilterPresenter.optionsTemplate — a toggle has no drill-in; it flips in place. */
   readonly optionsTemplate = computed<TemplateRef<unknown> | undefined>(() => undefined);
@@ -98,6 +103,8 @@ export class FilterToggleComponent implements FilterControl, FilterPresenter, On
   protected readonly disabled = computed(() => this.baseChip.disabled());
 
   constructor() {
+    // The base chip defaults to `primary`, which it only draws while selected.
+    this.baseChip.variant.set("subtle");
     effect(() => this.baseChip.selectedState.set(this._value()));
   }
 

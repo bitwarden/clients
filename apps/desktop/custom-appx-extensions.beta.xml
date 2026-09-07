@@ -1,0 +1,26 @@
+<!--
+    Merged into the manifest's <Extensions> by electron-builder (appx.customExtensionsPath)
+    and by scripts/appx-cross-build.ps1. It is inlined verbatim: electron-builder expands
+    none of its own macros here, and its manifest declares no `com` prefix, so this
+    declares its own.
+
+    The class ID is left as a clsid macro naming this channel's plugin config, and is filled
+    in by scripts/appx-manifest-created.js — and by the matching step in
+    appx-cross-build.ps1 — from that config, which is also what the app reads at runtime. A
+    package declaring a class ID it never serves hijacks it from the app that does, so the
+    class ID is defined in exactly one place.
+
+    Keep macro-shaped text out of this comment: the resolvers substitute anything matching,
+    comments included.
+-->
+          <com:Extension xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+            Category="windows.comServer">
+            <com:ComServer>
+              <com:ExeServer Executable="app\bitwarden_plugin_authenticator.exe"
+                Arguments="serve"
+                DisplayName="Bitwarden Beta Passkey Manager">
+                <com:Class Id="${clsid:windows_plugin_authenticator_config.beta.json}"
+                  DisplayName="Bitwarden Beta Passkey Manager" />
+              </com:ExeServer>
+            </com:ComServer>
+          </com:Extension>

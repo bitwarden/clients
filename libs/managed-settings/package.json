@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/managed-settings",
+  "version": "0.0.1",
+  "description": "Administrator-forced client settings acquired from operating system device-management (UEM/MDM) channels",
+  "private": true,
+  "type": "commonjs",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "GPL-3.0",
+  "author": "platform"
+}

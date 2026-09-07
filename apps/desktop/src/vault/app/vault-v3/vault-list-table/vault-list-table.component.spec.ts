@@ -2,6 +2,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
+import { EMPTY } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -56,22 +57,6 @@ describe("VaultListTableComponent", () => {
     await setup();
   });
 
-  describe("initialFilterValues", () => {
-    it("returns an empty object when initialSearchText is not set", () => {
-      expect(component["initialFilterValues"]()).toEqual({});
-    });
-
-    it("returns an empty object when initialSearchText is an empty string", () => {
-      fixture.componentRef.setInput("initialSearchText", "");
-      expect(component["initialFilterValues"]()).toEqual({});
-    });
-
-    it("returns a search entry when initialSearchText has a value", () => {
-      fixture.componentRef.setInput("initialSearchText", "amazon");
-      expect(component["initialFilterValues"]()).toEqual({ search: "amazon" });
-    });
-  });
-
   describe("itemAction", () => {
     it("emits a viewCipher event for any cipher", () => {
       const cipher = cipherView();
@@ -83,14 +68,16 @@ describe("VaultListTableComponent", () => {
   });
 
   describe("rowActions", () => {
-    it("passes the collections input to CipherRowMenuService.getRowActions", () => {
-      const col = { id: "col-1" } as CollectionView;
-      fixture.componentRef.setInput("collections", [col]);
+    it("passes the unscoped allCollections input to CipherRowMenuService.getRowActions", () => {
+      const scoped = { id: "col-1" } as CollectionView;
+      const unscoped = { id: "col-2" } as CollectionView;
+      fixture.componentRef.setInput("collections", [scoped]);
+      fixture.componentRef.setInput("allCollections", [scoped, unscoped]);
 
       component["rowActions"]();
 
       expect(mockGetRowActions).toHaveBeenCalledWith(
-        [col],
+        [scoped, unscoped],
         expect.objectContaining({
           edit: expect.any(Function),
           clone: expect.any(Function),
@@ -115,7 +102,7 @@ describe("VaultListTableComponent", () => {
       await setup([
         {
           provide: VaultBatchBarService,
-          useValue: { selection: mockSelection },
+          useValue: { selection: mockSelection, cleared$: EMPTY },
         },
       ]);
     });
@@ -168,6 +155,21 @@ describe("VaultListTableComponent", () => {
       fixture.detectChanges();
 
       expect(fixture.debugElement.query(By.css("vault-new-cipher-menu"))).toBeNull();
+    });
+  });
+
+  describe("import button", () => {
+    it("emits onImport when clicked", () => {
+      const emit = jest.fn();
+      component.onImport.subscribe(emit);
+      fixture.componentRef.setInput("showAddCipherBtn", true);
+      fixture.detectChanges();
+
+      fixture.debugElement
+        .query(By.css("#vault-list-table_button_import"))
+        .triggerEventHandler("click", {});
+
+      expect(emit).toHaveBeenCalled();
     });
   });
 });

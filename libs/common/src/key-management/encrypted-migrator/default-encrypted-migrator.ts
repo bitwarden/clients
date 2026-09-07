@@ -13,6 +13,7 @@ import { ClientType } from "../../enums";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
+import { StateProvider } from "../../platform/state";
 import { SyncService } from "../../platform/sync";
 import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
@@ -22,6 +23,7 @@ import { EncryptedMigrator } from "./encrypted-migrator.abstraction";
 import { BiometricPersistentMigration } from "./migrations/biometric-persistent-encryption-migration";
 import { EncryptedMigration, MigrationRequirement } from "./migrations/encrypted-migration";
 import { MinimumKdfMigration } from "./migrations/minimum-kdf-migration";
+import { UserKeyIdBackfillMigration } from "./migrations/user-key-id-backfill-migration";
 import { V2KeyRotationMigration } from "./migrations/v2-key-rotation-migration";
 
 export class DefaultEncryptedMigrator implements EncryptedMigrator {
@@ -41,8 +43,15 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
     userKeyRotationService: UserKeyRotationServiceAbstraction,
     cipherService: CipherService,
     sdkService: SdkService,
+    stateProvider: StateProvider,
   ) {
     // Register migrations here
+
+    this.migrations.push({
+      name: "User Key Id Backfill Migration",
+      migration: new UserKeyIdBackfillMigration(sdkService, syncService, stateProvider, logService),
+    });
+
     this.migrations.push({
       name: "Minimum PBKDF2 Iteration Count Migration",
       migration: new MinimumKdfMigration(

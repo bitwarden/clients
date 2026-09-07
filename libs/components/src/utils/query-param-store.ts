@@ -161,6 +161,7 @@ export function queryParamStore<T extends ParamState>(
         queryParams: patch,
         queryParamsHandling: "merge",
         replaceUrl: true,
+        state: { focusAfterNav: false },
       });
     });
   }

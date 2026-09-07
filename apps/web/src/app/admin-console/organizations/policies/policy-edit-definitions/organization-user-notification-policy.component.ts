@@ -13,10 +13,7 @@ import { map, startWith, switchMap } from "rxjs";
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   BitFormFieldComponent,
@@ -25,7 +22,6 @@ import {
   TypographyModule,
   IconComponent,
   TooltipDirective,
-  CalloutComponent,
   SwitchComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -55,14 +51,7 @@ export class OrganizationUserNotificationPolicy extends BasePolicyEditDefinition
   component = OrganizationUserNotificationPolicyComponent;
   category = PolicyCategory.VaultManagement;
   priority = 70;
-  v2 = {
-    component: OrganizationUserNotificationPolicyV2Component,
-    prerequisiteKey: "singleOrgPrerequisite",
-  };
-
-  display$(organization: Organization, configService: ConfigService) {
-    return configService.getFeatureFlag$(FeatureFlag.PM31948_OrgUserNotificationBanner);
-  }
+  prerequisiteKey = "singleOrgPrerequisite";
 }
 
 interface OrganizationUserNotificationPolicyOptions {
@@ -84,7 +73,7 @@ interface OrganizationUserNotificationPolicyOptions {
     TypographyModule,
     IconComponent,
     TooltipDirective,
-    CalloutComponent,
+    SwitchComponent,
     I18nPipe,
   ],
 })
@@ -196,23 +185,3 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
       });
   }
 }
-
-// Drawer (v2) variant. Reuses all form logic from the standard component and only swaps the
-// template: the enable toggle is rendered as a switch and the policy description is rendered by
-// the surrounding PolicyEditDrawerComponent instead of the form.
-@Component({
-  templateUrl: "organization-user-notification-policy-v2.component.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    BitFormFieldComponent,
-    CheckboxModule,
-    FormFieldModule,
-    ReactiveFormsModule,
-    TypographyModule,
-    IconComponent,
-    TooltipDirective,
-    SwitchComponent,
-    I18nPipe,
-  ],
-})
-export class OrganizationUserNotificationPolicyV2Component extends OrganizationUserNotificationPolicyComponent {}

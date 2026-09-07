@@ -5,7 +5,13 @@ import { BehaviorSubject, Observable, filter, firstValueFrom, map, of, throwErro
 // eslint-disable-next-line no-restricted-imports
 import { CipherDecryptionKeys, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  EncArrayBuffer,
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { MessageSender } from "@bitwarden/messaging";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
@@ -16,16 +22,12 @@ import { ApiService } from "../../abstractions/api.service";
 import { AutofillSettingsService } from "../../autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { FeatureFlag, FeatureFlagValueType } from "../../enums/feature-flag.enum";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { FileUploadType } from "../../platform/enums";
 import { Utils } from "../../platform/misc/utils";
-import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../platform/services/container.service";
 import { CipherId, UserId, OrganizationId, CollectionId } from "../../types/guid";
 import { OrgKey, UserKey } from "../../types/key";
@@ -401,6 +403,37 @@ describe("Cipher Service", () => {
       expect(spy).toHaveBeenCalledWith(expectedObj);
     });
 
+    it("should send the key id the cipher was encrypted under", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+      encryptionContext.encryptedByKeyId = "000102030405060708090a0b0c0d0e0f";
+      const spy = jest
+        .spyOn(apiService, "postCipher")
+        .mockImplementation(() => Promise.resolve<any>(encryptionContext.cipher.toCipherData()));
+      const cipherView = new CipherView(encryptionContext.cipher);
+
+      await cipherService.createWithServer(cipherView, userId);
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({ encryptedByKeyId: "000102030405060708090a0b0c0d0e0f" }),
+      );
+    });
+
+    it("should omit the key id when the cipher was encrypted under a key without one", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+      const spy = jest
+        .spyOn(apiService, "postCipher")
+        .mockImplementation(() => Promise.resolve<any>(encryptionContext.cipher.toCipherData()));
+      const cipherView = new CipherView(encryptionContext.cipher);
+
+      await cipherService.createWithServer(cipherView, userId);
+
+      expect(spy.mock.calls[0][0].encryptedByKeyId).toBeUndefined();
+    });
+
     it("should delegate to cipherSdkService when feature flag is enabled", async () => {
       sdkCrudFeatureFlag$.next(true);
 
@@ -469,6 +502,25 @@ describe("Cipher Service", () => {
 
       expect(spy).toHaveBeenCalled();
       expect(spy).toHaveBeenCalledWith(encryptionContext.cipher.id, expectedObj);
+    });
+
+    it("should send the key id the cipher was encrypted under", async () => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)
+        .mockResolvedValue(false);
+      encryptionContext.cipher.edit = true;
+      encryptionContext.encryptedByKeyId = "000102030405060708090a0b0c0d0e0f";
+      const spy = jest
+        .spyOn(apiService, "putCipher")
+        .mockImplementation(() => Promise.resolve<any>(encryptionContext.cipher.toCipherData()));
+      const cipherView = new CipherView(encryptionContext.cipher);
+
+      await cipherService.updateWithServer(cipherView, userId);
+
+      expect(spy).toHaveBeenCalledWith(
+        encryptionContext.cipher.id,
+        expect.objectContaining({ encryptedByKeyId: "000102030405060708090a0b0c0d0e0f" }),
+      );
     });
 
     it("should call apiService.putPartialCipher when orgAdmin, and edit are false", async () => {

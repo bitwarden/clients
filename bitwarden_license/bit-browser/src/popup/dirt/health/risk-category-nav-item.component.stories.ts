@@ -7,7 +7,7 @@ import { I18nMockService, ItemModule } from "@bitwarden/components";
 import { RiskCategoryNavItemComponent } from "./risk-category-nav-item.component";
 
 export default {
-  title: "Browser/DIRT/Risk Category Nav Item",
+  title: "Browser/DIRT/Health/Risk Category Nav Item",
   component: RiskCategoryNavItemComponent,
   decorators: [
     moduleMetadata({
@@ -33,6 +33,7 @@ export default {
               reusedPasswordsDesc: "Reused for several logins",
               reusedPasswordsNoneDesc: "All your passwords are unique",
               categoryHealthy: "No items need attention",
+              premiumSubscriptionRequired: "Premium subscription required",
             }),
         },
       ],
@@ -60,6 +61,7 @@ export default {
     icon: "bwi-error",
     variant: "danger",
     route: "/health/exposed",
+    locked: false,
   },
   // The component renders the <a bit-item-content> only, so the wrapper supplies
   // the <bit-item> the row is designed to sit in.
@@ -78,6 +80,7 @@ export default {
             [icon]="icon"
             [variant]="variant"
             [route]="route"
+            [locked]="locked"
           />
         </bit-item>
       </bit-item-group>
@@ -97,6 +100,13 @@ export const AtRisk: Story = {};
 export const Healthy: Story = {
   args: {
     count: 0,
+  },
+};
+
+/** Locked: a free user sees the count, but the row is not a link. */
+export const Locked: Story = {
+  args: {
+    locked: true,
   },
 };
 

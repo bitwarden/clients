@@ -195,6 +195,25 @@ describe("OverflowListDirective", () => {
       expect(list().overflow()).toEqual(before);
     }));
 
+    it("clears the cache up front when asked to reset", fakeAsync(() => {
+      host.containerWidth.set(150);
+      settle();
+      expect(list().overflow()).toEqual([1, 2]);
+
+      // Consumers that only stamp an item's content while it's displayed need
+      // the all-displayed fallback before measurement, or the collapsed items
+      // measure as whatever skeleton is left in the row.
+      list().remeasure({ reset: true });
+      fixture.detectChanges();
+
+      expect(list().displayed()).toEqual([0, 1, 2]);
+      expect(list().overflow()).toEqual([]);
+
+      // The pass still lands and re-packs against the current widths.
+      settle();
+      expect(list().overflow()).toEqual([1, 2]);
+    }));
+
     it("no-ops before the first measurement pass has landed", fakeAsync(() => {
       host.containerWidth.set(250);
       settle();
