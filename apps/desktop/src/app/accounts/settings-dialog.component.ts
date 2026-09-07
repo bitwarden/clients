@@ -477,8 +477,7 @@ export class SettingsDialogComponent implements OnInit {
     }
 
     await this.biometricStateService.setBiometricUnlockEnabled(true, activeUserId);
-    if (this.isWindows) {
-      // Recommended settings for Windows Hello
+    if (this.isWindows || this.isLinux) {
       this.form.controls.autoPromptBiometrics.setValue(false);
       await this.biometricStateService.setPromptAutomatically(false, activeUserId);
 
@@ -489,10 +488,6 @@ export class SettingsDialogComponent implements OnInit {
       } else {
         this.form.controls.requireMasterPasswordOnAppRestart.setValue(true);
       }
-    } else if (this.isLinux) {
-      // Similar to Windows
-      this.form.controls.autoPromptBiometrics.setValue(false);
-      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
     }
     const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     await this.biometricsService.setBiometricProtectedUnlockKeyForUser(activeUserId, userKey);

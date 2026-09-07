@@ -35,7 +35,7 @@
         @if (
           supportsBiometric() &&
           form.value.biometric &&
-          isWindows &&
+          (isWindows || isLinux) &&
           (userHasMasterPassword() || (form.value.pin && userHasPinSet()))
         ) {
           <bit-form-control class="tw-ms-5">
