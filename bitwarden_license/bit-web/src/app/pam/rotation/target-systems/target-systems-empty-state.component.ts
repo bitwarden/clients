@@ -46,9 +46,9 @@ const TEMPLATES: TargetSystemTemplate[] = [
 
 /**
  * Empty state shown on the target-systems tab when an organization has no target systems yet:
- * a hero prompt to create one from scratch, plus a list of starter templates. Emits {@link create}
- * for the custom action and {@link useTemplate} with the chosen template key; the parent owns
- * navigation (and any create-form prefill). Mirrors the access-rules empty state.
+ * a hero prompt to create one, plus a list of starter templates. Emits {@link create} for the
+ * custom action and {@link useTemplate} with the chosen key; the parent owns navigation.
+ * Mirrors the access-rules empty state.
  */
 @Component({
   selector: "pam-target-systems-empty-state",
