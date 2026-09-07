@@ -301,7 +301,8 @@
           ]
         }
       },
-      "u2f-devices"
+      "u2f-devices",
+      "hardware-observe"
     ],
     "stagePackages": ["default"],
     "allowNativeWayland": true

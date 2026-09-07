@@ -9,6 +9,10 @@
     "message": "Bitwarden paroļu pārvaldnieks",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden Password Manager Beta",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "Bitwarden viegli aizsargā visas paroles, paroļu atslēgas un jutīgu informāciju mājās, darbā vai ceļā",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -535,6 +539,9 @@
   "foldersFilterTooltip": {
     "message": "Vienumiem jāpievieno mapes, lai tās atsijātu šeit."
   },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
+  },
   "editItemWithName": {
     "message": "Labot vienumu - $NAME$",
     "placeholders": {
@@ -750,6 +757,15 @@
   },
   "launchWebsite": {
     "message": "Atvērt tīmekļvietni"
+  },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Tīmekļa vietne"
@@ -1406,17 +1422,29 @@
   "additionalOptions": {
     "message": "Papildu iespējas"
   },
-  "fillAssistActiveNotice": {
-    "message": "Autofill is using Fill Assist on this page."
+  "fillAssistActiveNoticeV2": {
+    "message": "Autofill is using fill assist on this page."
   },
-  "activateFillAssist": {
-    "message": "Ieslēgt aizpildes palīgu"
+  "activateFillAssistV2": {
+    "message": "Turn on fill assist"
   },
-  "activateFillAssistDescription": {
-    "message": "Fill Assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  "activateFillAssistDescriptionV2": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
   },
-  "aboutFillAssistLabel": {
-    "message": "Par aizpildes palīgu"
+  "aboutFillAssistLabelV2": {
+    "message": "About fill assist"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Atļaut tīmekļvietnēm neiekļaut laukus automātiskajai aizpildei"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Izlaist laukus, kuri tīmekļvietnē ir atzīmēti ar atribūtu `data-bwignore`."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Atļaut tīmekļvietnēm pievienot laukus automātiskajai aizpildei"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Izmantot jebkuru span elementu, kuru tīmekļvietne atzīmē ar attribūtu `data-bwautofill`."
   },
   "enableContextMenuItem": {
     "message": "Rādīt konteksta izvēlnes iespējas"
@@ -2265,13 +2293,13 @@
     "message": "Copy nationality"
   },
   "issuingCountry": {
-    "message": "Issuing country"
+    "message": "Izdevējvalsts"
   },
   "copyIssuingCountry": {
     "message": "Copy issuing country"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "Pases veids"
   },
   "copyPassportType": {
     "message": "Copy passport type"
@@ -2280,13 +2308,13 @@
     "message": "National identification number"
   },
   "issuingAuthority": {
-    "message": "Issuing authority"
+    "message": "Izdevējiestāde"
   },
   "copyIssuingAuthority": {
     "message": "Copy issuing authority / office"
   },
   "issueDate": {
-    "message": "Issue date"
+    "message": "Izdošanas datums"
   },
   "licenseNumber": {
     "message": "Autovadītāja apliecības numurs"
@@ -2346,7 +2374,7 @@
     "message": "SSH atslēga"
   },
   "bankAccount": {
-    "message": "Bank account"
+    "message": "Bankas konts"
   },
   "bankAccountDetails": {
     "message": "Informācija par bankas kontu"
@@ -2355,7 +2383,7 @@
     "message": "Piezīme"
   },
   "typeBankAccount": {
-    "message": "Bank account"
+    "message": "Bankas konts"
   },
   "typeLoginSubtitle": {
     "message": "Website or app"
@@ -2382,10 +2410,10 @@
     "message": "Banking details"
   },
   "typePassport": {
-    "message": "Passport"
+    "message": "Pase"
   },
   "passportDetails": {
-    "message": "Passport details"
+    "message": "Pases informācija"
   },
   "passportAdded": {
     "message": "Passport added"
@@ -2400,7 +2428,7 @@
     "message": "Autovadītāja apliecība vai ID"
   },
   "driversLicenseDetails": {
-    "message": "License details"
+    "message": "Informācija par licenci"
   },
   "issuingState": {
     "message": "Issuing state / province"
@@ -2736,6 +2764,18 @@
   },
   "noMatchingItems": {
     "message": "Nav atbilstošu vienumu"
+  },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
   },
   "selected": {
     "message": "Selected"
@@ -3182,12 +3222,6 @@
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "Netika atrastas atsvaidzināšanas pilnvaras vai API atslēgas. Lūgums mēģināt izrakstīties un atkal pieteikties."
-  },
-  "desktopSyncVerificationTitle": {
-    "message": "Darbvirsmas sinhronizēšanas apliecinājums"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Lūgumus pārliecināties, ka darbvirsmas lietotne rāda šo atpazīšanas vārdkopu:"
   },
   "desktopIntegrationDisabledTitle": {
     "message": "Savienojums ar pārlūku nav iespējots"
@@ -5939,6 +5973,12 @@
   "clearFiltersOrTryAnother": {
     "message": "Jānotīra atlases vērtības vai jāmēģina cits meklēšanas vaicājums"
   },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
+  },
   "moreOptionsLabel": {
     "message": "Vairāk iespēju, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -7020,9 +7060,6 @@
   "compactMode": {
     "message": "Cieši"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "extensionWidth": {
     "message": "Paplašinājuma platums"
   },
@@ -7079,12 +7116,6 @@
         "example": "Work, Personal"
       }
     }
-  },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Lūgums atjaunināt darbvirsmas lietotni"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "Lai izmantotu atslēgšanu ar biometriju, lūgums atjaunināt darbvirsmas lietotni vai atspējot atslēgšanu ar pirkstu nospiedumu darbvirsmas iestatījumos."
   },
   "changeAtRiskPassword": {
     "message": "Mainīt riskam pakļautu paroli"
@@ -7274,6 +7305,15 @@
   },
   "showMore": {
     "message": "Rādīt vairāk"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Rādīt mazāk"
@@ -7889,9 +7929,32 @@
     "message": "Noteiktās bīstamības",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
+  "upgradeToViewPasswords": {
+    "message": "Jāuzlabo, lai apskatītu paroles"
+  },
   "categoryHealthy": {
     "message": "Nevienam vienumam nav jāpievērš uzmanība",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Nolasa glabātavu",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Pārbauda noplūdušas, vājas un atkārtoti izmantotas paroles.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "Izpildē",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Kaut kas nogājis greizi",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "Glabātavas nolasīšana netika pabaigta neparedzētas kļlūdas dēļ.",
+    "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
     "message": "Atklātās paroles"
@@ -7911,8 +7974,8 @@
   "reusedPasswordsDescription": {
     "message": "Šiem pieteikšanās vienumiem ir atkārtoti izmantotas parole. Katram kontam jāizveido parole, kas neatkārtojas, lai novērstu kāda piekļūšanu vairākiem kontiem ar vienu paroli."
   },
-  "deleteAtRiskItemDescription": {
-    "message": "Šī pieteikšanās vienuma izdzēšana noņems to no glabātavas, bet nenovērsīs apdraudējumu. Lai aizsargātu savu kontu, vispirms jānomaina parole."
+  "deleteAtRiskItemDesc": {
+    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
   },
   "passwordHasAdditionalRisks": {
     "message": "Šai parolei ir papildu apdraudējumi:"
@@ -7942,5 +8005,20 @@
   },
   "youreAllSet": {
     "message": "Viss ir gatavs."
+  },
+  "permissions": {
+    "message": "Permissions"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   }
 }

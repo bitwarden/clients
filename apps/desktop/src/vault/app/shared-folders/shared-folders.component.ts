@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import {
-  injectVaultOrganization,
+  SharedFoldersBreadcrumbsComponent,
   SharedFoldersComponent as VaultSharedFoldersComponent,
 } from "@bitwarden/vault";
 
@@ -22,14 +22,6 @@ import { DesktopHeaderComponent } from "../../../app/layout/header";
     // Desktop pages own their page padding; matches the vault page's spacing.
     class: "tw-flex tw-flex-col tw-h-full tw-min-h-0 tw-px-8 tw-py-6",
   },
-  imports: [DesktopHeaderComponent, VaultSharedFoldersComponent],
+  imports: [DesktopHeaderComponent, SharedFoldersBreadcrumbsComponent, VaultSharedFoldersComponent],
 })
-export class SharedFoldersComponent {
-  private readonly organization = injectVaultOrganization();
-
-  /**
-   * The organization's name as the page heading. `undefined` leaves the route's own `pageTitle` in
-   * place while the organization list loads. Breadcrumbs will replace both.
-   */
-  protected readonly title = computed(() => this.organization()?.name);
-}
+export class SharedFoldersComponent {}
