@@ -888,20 +888,32 @@ describe("VaultItemDialogComponent", () => {
         expect(gatedComponent["formConfig"].originalCipher).toBe(leasedCipher);
       });
 
-      it("falls back to the stripped copy when the lease ended before the read", async () => {
+      it("re-locks to the stripped copy when the lease ended before the read", async () => {
         await setup();
+        canEditCipherReturnValue$.next(true);
         fullCipher$.next(leasedCipher);
         await settle();
         reloaderFullCipher$.mockReturnValueOnce(of(null));
+        cipherServiceMock.get.mockResolvedValue(partialCipher as any);
 
+        // The echo the server returns for a gated write has its secrets blanked but is NOT flagged
+        // partial, so leaving it in place rendered the item populated-but-empty, Edit still on.
         const echoedView = {
           id: "gated-1",
-          partial: true,
+          partial: false,
           collectionIds: [],
         } as unknown as CipherView;
         await expect(gatedComponent["onCipherSaved"](echoedView)).resolves.toBeUndefined();
 
-        expect(gatedComponent["cipher"]).toBe(echoedView);
+        expect(gatedComponent["cipher"]?.partial).toBe(true);
+        expect(gatedComponent["cipher"]?.leaseGated).toBe(false);
+        expect(gatedComponent["formConfig"].originalCipher).toBe(partialCipher);
+        // Left set, a following save would take the gated path and diff against the blanks.
+        expect(gatedComponent["formConfig"].leaseGated).toBe(false);
+        expect(gatedComponent["loadForm"]).toBe(false);
+        expect(gatedComponent["canEdit"]).toBe(false);
+        // The save itself landed, so the dialog must still report the item as modified.
+        expect(gatedComponent["_cipherModified"]).toBe(true);
       });
     });
   });
