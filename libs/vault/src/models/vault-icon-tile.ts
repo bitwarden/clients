@@ -63,11 +63,6 @@ export function orgIconTile(tier: ProductTierType): IconTileOptions {
   };
 }
 
-/**
- * The icon tile for the "All items" destination, which spans every vault and so belongs to no one
- * of them — the brand list tile the side nav and the page header share. A fixed triple, so a shared
- * frozen value rather than a factory like {@link orgIconTile}.
- */
 export const ALL_ITEMS_ICON_TILE: IconTileOptions = Object.freeze({
   icon: "bwi-list",
   variant: "brand",
