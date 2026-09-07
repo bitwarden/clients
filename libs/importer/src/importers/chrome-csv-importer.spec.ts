@@ -44,6 +44,16 @@ const CipherData = [
 ];
 
 describe("Chrome CSV Importer", () => {
+  it("normalizes android:// URI without polynomial backtracking (FIND-DF8ECA3A491E)", async () => {
+    // A URL with no @ must be returned as-is (not converted to androidapp://)
+    // and must resolve promptly without backtracking.
+    const noAtUrl = "android://com.example.app.noemail";
+    const csv = `name,url,username,password\n,${noAtUrl},user,pass`;
+    const importer = new ChromeCsvImporter();
+    const result = await importer.parse(csv);
+    expect(result.ciphers[0].login.uris[0].uri).toBe(noAtUrl);
+  });
+
   CipherData.forEach((data) => {
     it(data.title, async () => {
       jest.useFakeTimers().setSystemTime(data.expected.creationDate);
