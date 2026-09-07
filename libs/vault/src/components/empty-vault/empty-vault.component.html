@@ -1,0 +1,49 @@
+@let emptyProperties = emptyStateProperties();
+
+@if (emptyProperties) {
+  <bit-status-lockup>
+    @if (emptyProperties.icon) {
+      <bit-svg slot="graphic" [content]="emptyProperties.icon"></bit-svg>
+    }
+
+    @if (emptyProperties.title) {
+      <span slot="title">{{ emptyProperties.title }}</span>
+    }
+
+    @if (emptyProperties.description) {
+      <span slot="description">{{ emptyProperties.description }}</span>
+    }
+
+    @if (addItemEmptyStates.includes(emptyProperties.key)) {
+      <ng-container slot="button">
+        <ng-content select="[slot=empty-add-item]"></ng-content>
+      </ng-container>
+    }
+
+    @if (emptyProperties.key === EMPTY_VAULT_STATE.noSearchMatches) {
+      <button
+        slot="button"
+        bitButton
+        type="button"
+        buttonType="secondary"
+        startIcon="bwi-clear"
+        (click)="clearSearch.emit()"
+      >
+        {{ "clearSearch" | i18n }}
+      </button>
+    }
+
+    @if (emptyProperties.key === EMPTY_VAULT_STATE.noFilterMatches) {
+      <button
+        slot="button"
+        bitButton
+        type="button"
+        buttonType="secondary"
+        startIcon="bwi-clear"
+        (click)="clearFilters.emit()"
+      >
+        {{ "clearAll" | i18n }}
+      </button>
+    }
+  </bit-status-lockup>
+}
