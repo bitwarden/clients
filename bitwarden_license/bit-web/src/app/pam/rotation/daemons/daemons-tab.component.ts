@@ -92,9 +92,8 @@ export class DaemonsTabComponent {
     effect(() => {
       const organizationId = this.organizationId();
       void this.daemonsService.load(organizationId);
-      // The assignment badges and the assign-dialog options join against the
-      // target-systems map — load it too, in case this tab is visited first
-      // (the shell-scoped TargetSystemsService instance starts empty).
+      // Assignment badges and assign-dialog options join against the target-systems map; loads
+      // it too, in case this tab is visited first.
       void this.targetSystemsService.load(organizationId);
     });
 

@@ -30,13 +30,12 @@ import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 /**
- * Routed detail page for a single rotation daemon — a sibling of the rotation shell (own
- * header + breadcrumbs, no tab bar), matching the target-system / rotation-config detail
- * pages. Reached from the daemons tab by clicking a daemon name.
+ * Routed detail page for a single rotation daemon — a sibling of the rotation shell, matching
+ * the target-system / rotation-config detail pages. Reached from the daemons tab.
  *
- * Shows the daemon's status, connection, assigned target systems (name-resolved via a
- * page-scoped {@link TargetSystemsService}), and its recent rotation activity (jobs +
- * attempts) via the shared {@link RotationHistoryComponent}.
+ * Shows status, connection, assigned target systems (via a page-scoped
+ * {@link TargetSystemsService}), and recent rotation activity via the shared
+ * {@link RotationHistoryComponent}.
  */
 @Component({
   templateUrl: "./daemon-detail.component.html",
@@ -84,7 +83,7 @@ export class DaemonDetailComponent {
   /** The connector itself; the detail's other half is its recent job history. */
   private readonly connector = computed(() => this.daemon()?.connector ?? null);
 
-  /** Assigned target-system display names, falling back to the raw ID when not yet resolved. */
+  /** Assigned target-system display names, falling back to the raw ID when unresolved. */
   protected readonly assignmentNames = computed(() => {
     const connector = this.connector();
     if (connector == null) {
@@ -96,7 +95,7 @@ export class DaemonDetailComponent {
 
   protected readonly titleText = computed(() => this.connector()?.name ?? "");
 
-  /** True when the daemon is enabled — drives Disable vs Enable in the header. */
+  /** True when the daemon is enabled; drives Disable vs Enable in the header. */
   protected readonly enabled = computed(() => this.connector()?.status === DaemonStatus.Enabled);
 
   constructor() {

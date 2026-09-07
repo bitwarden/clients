@@ -59,43 +59,16 @@ import {
 } from ".";
 
 /**
- * PAM-owned root-level providers. Consumed by the commercial web `AppModule` so
- * the shell imports a single function instead of enumerating each PAM provider
- * inline. Binds `AccessRuleSdkService` (the abstract CRUD contract from
- * `.`) to `AccessRulesSdkService`, which serves access-rule
- * CRUD via the Rust SDK's `commercial().pam().access_rules()` client,
- * `AccessRequestSdkService` to `AccessRequestsSdkService`,
- * `AccessLeaseSdkService` to `AccessLeasesSdkService` (the "My access"
- * request/lease lifecycle, both served via the Rust SDK's
- * `commercial().pam().access_requests()`/`leases()` clients), and
- * `ApprovalSdkService` to `ApprovalsSdkService` (the approver's inbox, history,
- * and decide mutation, served via `commercial().pam().approvals()`), plus
- * `CidrValidationService` to its SDK-backed default for the IP-allowlist editor.
+ * PAM-owned root-level providers, consumed by the commercial web `AppModule` so the shell imports
+ * one function instead of enumerating each PAM provider.
  *
- * Also fills the OSS seams PAM owns, each injected `{ optional: true }` on the OSS
- * side so an unprovided token stays inert: `CIPHER_VIEW_BANNER` (the requester's
- * leasing entry point on an open cipher), `ITEM_DETAILS_STATE_BADGE` (the access-state
- * pill on the open item's name row), `VAULT_ROW_LEASE_BADGE` (the same pill per row, on
- * cipher AND collection rows — collection rows show the "Privileged" pill straight off
- * the collection's server-derived `hasEnabledAccessRule`),
- * `VAULT_FILTER_GATED_COLLECTION_INDICATOR` (the lock glyph on a governed collection in
- * the vault's Filters sidebar, reading that same `hasEnabledAccessRule` off the sidebar's
- * collection node) and `VAULT_GATED_COLLECTION_BANNER` (the notice above the item list
- * naming the same restriction while a governed collection is the active filter, backed by
- * the shared `GovernedCollectionsService` lookup because it is handed ids alone, never a
- * collection), all component classes, plus `VAULT_CONTROLLED_ACCESS_FILTER` (the
- * sidebar's "Controlled access" group and the narrowing its children apply to the item
- * list), `GATED_CIPHER_RELOADER` (the observable that reveals a gated cipher in place
- * once a lease covers it),
- * `COLLECTION_ACCESS_RULE_CALLOUT` (the governing-rule notice in the collection
- * edit dialog), `PamNavBadgeService` (the nav badge count),
- * `VaultRowAccessActionsService` (withdrawing a gated row's outstanding access
- * request from the vault-list menu), and `PAM_ROUTES` (the lazy loader for the user-scoped
- * "Access requests" pages, which the OSS root shell mounts inside the shared user layout so
- * the side nav's relative links keep resolving against the root).
+ * Binds the SDK-backed service implementations (access rules, requests, leases, approvals, CIDR
+ * validation) and fills every OSS seam PAM owns, each injected `{ optional: true }` on the OSS
+ * side so an unprovided token stays inert — see this directory's `CLAUDE.md` for what each seam
+ * does.
  *
- * `AccessEventService` turns the server's access push into a tick; `AccessRefreshService`
- * merges that tick with local mutations so every leasing surface re-reads through one path.
+ * `AccessEventService` turns the server's access push into a tick; `AccessRefreshService` merges
+ * that with local mutations so every leasing surface re-reads through one path.
  */
 export function providePam(): SafeProvider[] {
   return [
@@ -131,9 +104,8 @@ export function providePam(): SafeProvider[] {
       useClass: DefaultLeasingErrorService,
       deps: [],
     }),
-    // The module's only HTTP-backed contract — see `access-audit/audit-api.service.ts` for why it is
-    // the one exception to the SDK rule. Bound here so swapping it for an SDK-backed implementation,
-    // once the SDK exposes an audit surface, is a change to this line alone.
+    // The module's only HTTP-backed contract — see `audit-api.service.ts`. Bound here so a future
+    // SDK swap is a one-line change.
     safeProvider({
       provide: AuditApiService,
       useClass: DefaultAuditApiService,
@@ -166,19 +138,15 @@ export function providePam(): SafeProvider[] {
       useClass: ControlledAccessVaultFilterService,
       deps: [],
     }),
-    // Root-level because the approvals route guard resolves it before any route-provided service
-    // exists, and the shared stream is then reused by the tab and the page shell.
+    // Root-level because the route guard resolves it before any route-provided service exists.
     safeProvider({
       provide: ApprovalPrivilegeService,
       useClass: ApprovalPrivilegeService,
       deps: [],
     }),
-    // Root-level (not per-consumer) so the gated-collection banner AND repeated opens of the
-    // collection dialog share one cached per-org rules read. Neither the vault-row badge nor the
-    // sidebar's lock indicator reads it any more — both show the "Privileged" state straight off
-    // the collection's server-derived `hasEnabledAccessRule`. The banner cannot take that
-    // shortcut, because it is handed ids alone, never a collection; and the callout needs the
-    // rules themselves, because it names the governing rules rather than just counting them.
+    // Root-level so the banner and repeated dialog opens share one cached per-org rules read.
+    // The vault-row badge and sidebar lock skip this, reading `hasEnabledAccessRule` off the
+    // collection directly instead.
     safeProvider({
       provide: GovernedCollectionsService,
       useClass: GovernedCollectionsService,
@@ -194,8 +162,7 @@ export function providePam(): SafeProvider[] {
     }),
     safeProvider({
       provide: AccessEventService,
-      // A factory, not useClass: the service takes the notification STREAM rather than the service,
-      // so it has no opinion about transport and unit tests hand it a plain Subject.
+      // A factory, not useClass: the service takes the notification STREAM, not the service itself.
       useFactory: (notificationsService: ServerNotificationsService) =>
         new DefaultAccessEventService(notificationsService.notifications$),
       deps: [ServerNotificationsService],

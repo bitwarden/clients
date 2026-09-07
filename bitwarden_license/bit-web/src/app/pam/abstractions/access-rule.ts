@@ -57,22 +57,16 @@ export function isIpAllowlist(
 /**
  * The `variant` values the SDK's access-rule operations can throw, plus `NotFound`.
  *
- * `NotFound` is bridged on rather than read straight off `AccessRuleError["variant"]` because the
- * Rust side has it — `AccessRulesClient` maps the server's 404 on its by-id calls — but no
- * published `sdk-internal` declares it yet. Same shape of bridge as the partial-cipher aliases in
- * `libs/common/src/vault/models/domain/cipher.ts`; collapse it to `AccessRuleError["variant"]`
- * once the bump lands, and nothing else here changes.
+ * `NotFound` is bridged on rather than read off the SDK type directly: the Rust side has it, but
+ * no published `sdk-internal` declares it yet. Collapse once the bump lands.
  */
 export type AccessRuleErrorVariant = AccessRuleError["variant"] | "NotFound";
 
 /**
  * Structural guard for the SDK's `AccessRuleError`.
  *
- * Deliberately NOT the SDK's own `isAccessRuleError`: that is a runtime import from the wasm
- * package, and this directory stays type-only so jest never resolves it (see this module's
- * `CLAUDE.md`; `LeasingErrorService` is the injectable seam the leasing guards use for the same
- * reason). The interface itself is now the SDK's, so the two cannot drift on shape — only this
- * detection is local.
+ * Deliberately not the SDK's own `isAccessRuleError` — that's a runtime wasm import, and this
+ * directory stays type-only. The interface itself is the SDK's, so only this detection is local.
  */
 function isAccessRuleError(e: unknown): e is AccessRuleError {
   return (
@@ -83,13 +77,11 @@ function isAccessRuleError(e: unknown): e is AccessRuleError {
 }
 
 /**
- * The toastable message carried by the SDK's `AccessRuleError`, or `undefined` when
- * `e` isn't that shape — callers fall back to a generic error message in that case.
+ * The toastable message carried by the SDK's `AccessRuleError`, or `undefined` when `e` isn't
+ * that shape.
  *
- * The `Api` variant needs unwrapping first through {@link apiErrorBodyMessage}, which digs the
- * server's sentence (`"A rule with that name already exists."`, …) out of the serialized response
- * body. When there is no parsable body (network failures, serde errors) return `undefined` so
- * callers use their generic fallback rather than toasting the raw wrapper.
+ * The `Api` variant needs unwrapping through {@link apiErrorBodyMessage} to reach the server's
+ * sentence; an unparsable body also returns `undefined`, so callers fall back to generic copy.
  */
 export function accessRuleErrorMessage(e: unknown): string | undefined {
   if (!isAccessRuleError(e)) {
@@ -99,17 +91,16 @@ export function accessRuleErrorMessage(e: unknown): string | undefined {
 }
 
 /**
- * True when `e` is the SDK reporting a rule that does not exist — the caller followed a link to a
- * rule someone else deleted, or deleted it in another tab.
+ * True when `e` is the SDK reporting a rule that no longer exists.
  *
- * Reads the variant through {@link AccessRuleErrorVariant} because `NotFound` is not on the
- * published SDK type yet; see that alias.
+ * Reads the variant through {@link AccessRuleErrorVariant}, since `NotFound` isn't on the
+ * published SDK type yet.
  */
 export function isAccessRuleNotFound(e: unknown): boolean {
   if (!isAccessRuleError(e)) {
     return false;
   }
-  // Widened at the comparison, not on a `const`: TypeScript narrows a const to its initializer's
-  // type, so annotating the variable would still leave `NotFound` outside the compared union.
+  // Widened at the comparison, not the `const`, since TypeScript would narrow that to its
+  // initializer's type.
   return (e.variant as AccessRuleErrorVariant) === "NotFound";
 }

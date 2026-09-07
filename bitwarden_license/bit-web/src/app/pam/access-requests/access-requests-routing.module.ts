@@ -16,8 +16,8 @@ const routes: Routes = [
   {
     path: "",
     component: AccessRequestsComponent,
-    // Provided on the shell route so the shell and every tab share one loaded instance of each
-    // (routed children inherit a parent route's providers, not a component's).
+    // Provided on the shell route so the shell and every tab share one instance (routed children
+    // inherit a parent route's providers, not a component's).
     providers: [AccessNameResolverService, MyAccessService, ApproverInboxService],
     children: [
       { path: "", pathMatch: "full", redirectTo: "my-requests" },
@@ -40,10 +40,8 @@ const routes: Routes = [
         data: { titleId: "pamTabHistory" },
       },
       {
-        // A shareable link to a single one of the caller's own requests/leases — every row links
-        // here, and it is the URL the planned approval deep link lands on. A child of the shell
-        // rather than a sibling so the header and tab bar stay mounted underneath: the detail
-        // renders as a dialog over them, and the host owns the navigation that closing it needs.
+        // A shareable link to a single request/lease; a shell child, not a sibling, so the
+        // header and tab bar stay mounted underneath.
         path: "requests/:id",
         component: AccessRequestRouteComponent,
         data: { titleId: "pamAccessRequestTitle" },

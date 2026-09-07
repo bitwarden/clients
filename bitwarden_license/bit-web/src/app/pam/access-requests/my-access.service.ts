@@ -35,16 +35,11 @@ import {
 
 /**
  * Page-level data service for "My access": owns the caller's own access requests and leases,
- * loads them, resolves display names, and performs the request/lease lifecycle mutations
- * (activate, cancel, end) via the Rust-SDK-served services
- * (`AccessRequestSdkService`/`AccessLeaseSdkService`). The page loads on open, reloads on every
- * server-pushed access event ({@link AccessEventService}) so an approver's decision appears without a
- * refresh, and after its own mutations reconciles itself either via an optimistic local patch
- * (cancel/endLease) or an explicit reload (activate).
+ * reloads on open and every server-pushed access event, resolves display names, and performs
+ * mutations via the SDK-backed services.
  *
- * Provided on the "Access requests" shell route so each visit gets one instance shared across its
- * tabs. View concerns (toasts, confirm dialogs, the live countdown clock, action gating) stay in
- * the tab components; this service just owns state and the SDK round-trips.
+ * Provided on the shell route so each visit shares one instance; view concerns stay in the tab
+ * components.
  */
 @Injectable()
 export class MyAccessService {
@@ -69,10 +64,7 @@ export class MyAccessService {
     this._names$,
   ]).pipe(map(([requests, names]) => buildMyAccessRequestRows(requests, names)));
 
-  /**
-   * The leases the caller currently holds (`status === "active"`), badged with any extension —
-   * the extension info lives on the requests, so it's joined in here.
-   */
+  /** The leases the caller holds (`status === "active"`), badged with any joined-in extension. */
   readonly leases$: Observable<MyAccessLeaseRow[]> = combineLatest([
     this._leases$,
     this._requests$,
@@ -87,15 +79,11 @@ export class MyAccessService {
   );
 
   /**
-   * Requests the requester can still act on: still pending a decision, or approved and awaiting an
+   * Requests the requester can still act on: still pending, or approved and awaiting an
    * activation that can still happen ({@link isRedeemableGrant}). A grant whose window lapsed
-   * unused is not one of them — it can mint nothing and offers no action, so it settles in
-   * {@link historyRows$} rather than being carried here forever. The window is read once per
-   * emission; a grant that lapses while the page is open moves on the next load, and the tab's own
-   * clock withholds its actions in the meantime.
+   * unused settles in {@link historyRows$} instead.
    *
-   * Extension requests are surfaced separately (see {@link extensionRows$}), so {@link rows$} —
-   * which already folds them away — never mixes them in here.
+   * Extension requests are surfaced separately (see {@link extensionRows$}).
    */
   readonly pendingRows$: Observable<MyAccessRequestRow[]> = this.rows$.pipe(
     map((rows) => {
@@ -107,12 +95,11 @@ export class MyAccessService {
   );
 
   /**
-   * Still-open extension requests (an extension is its own request pointing at a parent lease via
-   * `extensionOfLeaseId`; on approval it extends that lease in place rather than minting a new
-   * one). {@link rows$} folds these onto the originating grant, so they're rebuilt directly from
-   * the raw requests here to list them on their own. Terminal extensions drop off this section: an
-   * applied one shows as the "Extended" badge on its grant, and a denied one moves to
-   * {@link historyRows$}, which is where a resolved request belongs.
+   * Still-open extension requests, rebuilt directly from the raw requests rather than through
+   * {@link rows$}, which folds them onto their originating grant.
+   *
+   * Terminal extensions drop off this section: an applied one shows as the "Extended" badge on
+   * its grant, a denied one moves to {@link historyRows$}.
    */
   readonly extensionRows$: Observable<MyAccessRequestRow[]> = combineLatest([
     this._requests$,
@@ -127,16 +114,12 @@ export class MyAccessService {
   );
 
   /**
-   * Terminal requests (everything but pending, and a grant still awaiting an activation that can
-   * happen), newest first — the exact complement of {@link pendingRows$}, so a request is always in
-   * one of the two. A grant whose lease is still active is excluded on top of that: it belongs in
-   * Active access, not both places, and returns here once the lease ends.
+   * Terminal requests, newest first — the exact complement of {@link pendingRows$}; a grant whose
+   * lease is still active returns here once the lease ends.
    *
-   * An unactivated grant can only reach here by its window lapsing, which is not a state the
-   * caller-agnostic {@link historyDisplayStatus} can name, so its badge is corrected on the way in.
-   *
-   * Includes a denied extension, which {@link rows$} deliberately does not fold onto its grant: it
-   * added nothing to the lease, so this is the only place the requester can see it (PM-42632).
+   * An unactivated grant that lapses gets its badge corrected here, since
+   * {@link historyDisplayStatus} can't name that state. Includes a denied extension, which
+   * {@link rows$} doesn't fold onto its grant.
    */
   readonly historyRows$: Observable<MyAccessRequestRow[]> = combineLatest([
     this.rows$,
@@ -171,9 +154,8 @@ export class MyAccessService {
   );
 
   constructor() {
-    // Reload on every access push. `concatMap` (not `switchMap`) so two pushes arriving close
-    // together cannot interleave their loads and leave the three subjects describing different
-    // moments; an in-flight load always finishes before the next starts.
+    // Reloads on every access push with concatMap, not switchMap, so two close-together pushes
+    // can't interleave and leave the three subjects describing different moments.
     this.accessEvents
       .accessChanged$()
       .pipe(
@@ -230,11 +212,9 @@ export class MyAccessService {
   }
 
   /**
-   * End the caller's own active lease early. Optimistically drops the lease from Active access and
-   * marks its originating request's produced lease `canceled` — the status the server records for a
-   * self-service end, as against `revoked` for an operator ending it — so the grant reappears in
-   * History labelled "Canceled" straight away; then calls the API and, on failure, restores both
-   * and rethrows so the caller can toast.
+   * Ends the caller's own active lease early. Optimistically drops it from Active access and
+   * marks the originating request's produced lease `canceled`, so History shows it right away;
+   * restores both and rethrows on API failure.
    */
   async endLease(leaseId: AccessLeaseId): Promise<void> {
     const currentLeases = this._leases$.value;

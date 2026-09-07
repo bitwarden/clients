@@ -3,17 +3,13 @@ import { serverErrorSentence } from "../abstractions/api-error";
 import { UNLICENSED_SERVER_MESSAGE } from "./pam-license-error";
 
 /**
- * The activation endpoint's error catalog, as the server words it, paired with the copy we show
- * instead. Reproduced here rather than imported because the strings cross the wire as prose: the
- * SDK surfaces the server's rejection as an `AccessRequestError` with `variant: "Api"` and the
- * whole serialized response body on `.message` — envelope, exception message and server-side stack
- * trace included — with no machine-readable code to switch on. When the server grows a code, this
- * catalog is the single place to retire.
+ * The activation endpoint's error catalog, as the server words it, paired with the copy shown
+ * instead. Reproduced here, not imported, since the strings cross the wire as prose with no
+ * machine-readable code to switch on.
  *
  * Sourced from `ActivateAccessRequestCommand`, except the three "not permitted" sentences, which
- * the rule engine's `AccessDenialMessage` words for both this gate and the submit gate. The
- * rejections are a mix of `400` (window, condition denial) and `409` (state, lease contention), so
- * the status code does not disambiguate them either.
+ * the rule engine's `AccessDenialMessage` words for both this gate and the submit gate. Mixes
+ * `400` and `409` responses, so the status code doesn't disambiguate them either.
  */
 export const ACTIVATE_ACCESS_SERVER_ERRORS = Object.freeze({
   WindowNotStarted: {
@@ -53,10 +49,10 @@ export const ACTIVATE_ACCESS_SERVER_ERRORS = Object.freeze({
     messageKey: "pamStartLeaseErrorNotPermitted",
   },
   /**
-   * The caller holds no Privileged Controls license (PM-39423, `PamLicenseGuard`). Reachable from
-   * surfaces that have no licensing block of their own — the My requests tab and the shared
-   * request dialog both offer Start off a request row, with no cipher in hand to check licensing
-   * against — as well as from the banner when the seat is withdrawn between render and click.
+   * The caller holds no Privileged Controls license (`PamLicenseGuard`). Reachable from surfaces
+   * with no licensing block of their own — the My requests tab and shared request dialog, which
+   * offer Start with no cipher in hand — and from the banner when the seat is withdrawn between
+   * render and click.
    */
   Unlicensed: {
     serverMessage: UNLICENSED_SERVER_MESSAGE,

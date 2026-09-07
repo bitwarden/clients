@@ -294,10 +294,8 @@ describe("vault filter service", () => {
       });
 
       it("carries hasEnabledAccessRule onto the tree node", async () => {
-        // The sidebar's privileged-access lock reads this flag off the node. `buildCollectionTree`
-        // rebuilds each one through `new CollectionView(...)`, whose field initializer resets the
-        // flag to `false` rather than leaving it absent, so losing the carry-over unmarks every
-        // governed collection silently.
+        // `buildCollectionTree`'s `new CollectionView(...)` resets the flag to `false`; losing
+        // the carry-over unmarks every governed collection silently.
         const governed = createCollectionView("id-1", "Collection 1", "org test id");
         governed.hasEnabledAccessRule = true;
         const ungoverned = createCollectionView("id-2", "Collection 2", "org test id");

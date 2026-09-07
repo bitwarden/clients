@@ -170,8 +170,8 @@ export enum EventType {
   Send_Accessed_Text = 2510,
   Send_Accessed_File = 2511,
 
-  // PAM. Only a subset of the PAM audit trail is reported organization-wide; the full trail lives in PAM's own
-  // access-audit view. Keep these in sync with the server's EventType.
+  // PAM: only a subset of the audit trail is reported organization-wide; the full trail lives
+  // in PAM's own view. Keep in sync with the server's EventType.
   Pam_AccessRequest_Submitted = 2600,
   Pam_AccessRequest_Approved = 2601,
   Pam_AccessRequest_Denied = 2602,

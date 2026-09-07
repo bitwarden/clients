@@ -178,10 +178,8 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   /**
-   * Whether to render the "Controlled access" column. Shown only when the PAM feature flag is
-   * enabled, the viewer actually has PAM enabled — i.e. at least one organization in view has the
-   * Privileged Access capability (`usePam`) — and a host provides the badge seam. Otherwise the
-   * column is absent and the table is unchanged.
+   * Whether to render the "Controlled access" column: the PAM feature flag is enabled, at least
+   * one organization in view has `usePam`, and a host provides the badge seam.
    */
   get showControlledAccess() {
     return (
@@ -374,9 +372,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       .map((cipher) => ({ cipher }));
     const items: VaultItem<C>[] = [].concat(collections).concat(ciphers);
 
-    // Ciphers are selectable only if the user can edit them; collections only if they can be edited or deleted.
-    // PAM-gated ("partial") ciphers are never selectable — they are read-only, so keeping them out of
-    // the selection prevents any bulk action (move/share/delete/archive) from modifying them.
+    // PAM-gated ("partial") ciphers are never selectable; they're read-only.
     this.editableItems = items.filter(
       (item) =>
         (item.cipher !== undefined &&

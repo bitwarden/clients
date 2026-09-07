@@ -19,9 +19,8 @@ import { AccessStateBadgeComponent } from "../access-state-badge/access-state-ba
 
 /**
  * The collection field the badge reads, structurally — the host passes its own
- * `CollectionView`/`CollectionAdminView`, which this component must not import to stay
- * decoupled from the admin-console models. Optional because the vault list also renders
- * pseudo-collections ("Unassigned"), which carry no server state at all.
+ * `CollectionView`/`CollectionAdminView`, which this component must not import. Optional, since
+ * the vault list also renders pseudo-collections carrying no server state.
  */
 type BadgeCollection = { hasEnabledAccessRule?: boolean };
 
@@ -33,36 +32,15 @@ type BadgeCollection = { hasEnabledAccessRule?: boolean };
 type LeaseBadgeCell = AccessBadgeState | "none" | null;
 
 /**
- * Binds `VAULT_ROW_LEASE_BADGE` for one row in the vault list — cipher or collection.
- * Encapsulates every PAM dependency so the row components stay PAM-free: pass the row's
- * `cipher` (or a collection row's `collection`), get the shared access-state badge (or
- * nothing) back. The badge recipe, copy, and countdown live in
- * {@link AccessStateBadgeComponent} so every row renders exactly what the modal and
- * Requests page do.
+ * Binds `VAULT_ROW_LEASE_BADGE` for one row in the vault list — cipher or collection. The badge
+ * recipe, copy, and countdown live in {@link AccessStateBadgeComponent}.
  *
- * A cipher row fetches the cipher's access state once per cipher/flag change (not on an
- * interval — a vault list can render many gated rows at once, and the reveal-in-place
- * behavior that needs live polling lives in the cipher-view banner / gated-cipher reloader,
- * not here). The active-lease countdown ticks locally inside the shared badge once fetched.
+ * A cipher row fetches access state once per cipher/flag change; a collection row instead shows
+ * the resting "Privileged" pill straight off `hasEnabledAccessRule`, at no fetch cost.
  *
- * A collection row shows the resting "Privileged" pill straight off the collection's
- * `hasEnabledAccessRule`, which the server derives on the collection read paths. No fetch: the
- * flag arrives with the collection itself, so the badge costs nothing per row, cannot go stale
- * against the list it is rendered beside, and works for viewers who cannot read the
- * organization's access rules — notably provider users, whom `MemberRequirement` excludes from
- * the access-rules endpoint by design.
- *
- * A cipher row with no rule draws an em dash — paired with an equivalent screen-reader label,
- * since the dash itself is decorative — rather than an empty cell, so "checked, not governed" is
- * distinguishable from "not loaded yet". The placeholder lives here and not in
- * {@link AccessStateBadgeComponent}, which the cipher-view modal and the Requests page also
- * render and where the spec calls for nothing at all.
- *
- * A collection row never draws it. `hasEnabledAccessRule` is declared `boolean = false` and read
- * as `getResponseProperty("HasEnabledAccessRule") || false`, so a server too old to derive the
- * field is indistinguishable from one reporting no rule — the flag cannot express "I did not
- * check". Blank is the honest answer there, and it is what this column already means by an empty
- * cell.
+ * A cipher row with no rule draws an em dash — distinguishing "checked" from "not loaded" — but
+ * a collection row never does, since `hasEnabledAccessRule` defaults `false` and can't tell "no
+ * rule" from "server too old".
  */
 @Component({
   selector: "app-pam-vault-row-lease-badge",
@@ -82,10 +60,9 @@ export class VaultRowLeaseBadgeComponent {
   protected readonly noAccessRuleLabel = inject(I18nService).t("pamNoAccessRule");
 
   /**
-   * Ids of the organizations that actually carry Privileged Access. The column itself is
-   * table-wide — one PAM-enabled organization anywhere in view turns it on for every row — so the
-   * placeholder has to be narrowed to the row's own organization here, or a row from an
-   * organization that cannot have access rules would claim it was checked against them.
+   * Ids of the organizations that actually carry Privileged Access. The column is table-wide —
+   * one PAM-enabled organization anywhere in view turns it on for every row — so the placeholder
+   * must be narrowed to the row's own organization here.
    */
   private readonly pamOrganizationIds = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -135,9 +112,9 @@ export class VaultRowLeaseBadgeComponent {
   });
 
   private cipherCell$(cipher: CipherViewLike): Observable<LeaseBadgeCell> {
-    // Gating is driven by the SDK's `partial` flag, which only some `CipherViewLike` members
-    // carry; read it through the util rather than off the union. Not gated is a real answer;
-    // no id means the lookup could not run, which is not.
+    // Gating is driven by the SDK's `partial` flag, read through the util since only some
+    // `CipherViewLike` members carry it. Not gated is a real answer; no id means the lookup
+    // couldn't run.
     if (!CipherViewLikeUtils.isPartial(cipher)) {
       return of("none");
     }

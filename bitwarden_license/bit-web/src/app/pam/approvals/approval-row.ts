@@ -17,12 +17,11 @@ import {
 /**
  * A row in the approver's inbox.
  *
- * Every display value is precomputed here rather than in the template: `bit-table`'s `bitSortable`
- * sorts on literal row fields, and the free-text filter needs one lowercase haystack per row rather
- * than a predicate that re-reads five nested properties per keystroke.
+ * Every display value is precomputed here, not in the template: `bit-table`'s `bitSortable`
+ * sorts on literal row fields, and the free-text filter needs one lowercase haystack per row.
  *
- * The window and reason labels come from the shared `helpers/approval-window` functions the
- * requester-facing pages already use, so an approver and a requester never read the same window
+ * Window and reason labels come from the shared `helpers/approval-window` functions the
+ * requester-facing pages already use, so approver and requester never read the same window
  * differently.
  */
 export type ApprovalRow = {
@@ -31,12 +30,12 @@ export type ApprovalRow = {
   request: AccessRequestView;
   cipherId: string;
   collectionId: string;
-  /** The gated cipher's display name, falling back to its raw id when it isn't in the local vault. */
+  /** The gated cipher's display name, falling back to its raw id when absent from the local vault. */
   cipherName: string;
   collectionName: string | null;
-  /** The owning organization's display name, or null when the request or the lookup lacks it. */
+  /** The owning organization's display name, null when the request or lookup lacks it. */
   organizationName: string | null;
-  /** The requester's name, falling back to their email, then empty when the server resolved neither. */
+  /** The requester's name, falling back to email, then blank when the server resolved neither. */
   requester: string;
   requesterEmail: string | null;
   /** Sort key for the Submitted column. */
@@ -48,8 +47,8 @@ export type ApprovalRow = {
   relativeStart: LabelValue;
   exactWindow: string;
   /**
-   * False when the viewer raised this request themselves. No self-approval: the button is disabled
-   * rather than hidden so the reason can be explained in a tooltip instead of the row looking broken.
+   * False when the viewer raised this request themselves. No self-approval: the button is
+   * disabled, not hidden, so a tooltip can explain why.
    */
   canDecide: boolean;
   /** Lowercased haystack for the free-text filter. */
