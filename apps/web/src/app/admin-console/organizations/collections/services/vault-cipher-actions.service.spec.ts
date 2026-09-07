@@ -691,6 +691,34 @@ describe("VaultCipherActionsService", () => {
       expect(result).toBe(false);
       expect(logService.error).toHaveBeenCalled();
     });
+
+    // PM-42916: the throw used to be logged and nothing more.
+    it("shows an error toast when the server call throws", async () => {
+      const cipher = buildCipher();
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      cipherService.softDeleteWithServer.mockRejectedValue(new Error("network error"));
+
+      await service.deleteCipher(cipher);
+
+      expect(i18nService.t).toHaveBeenCalledWith("deleteItemError");
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error" }),
+      );
+    });
+
+    it("names the reason when a PAM-gated cipher's delete is refused", async () => {
+      const cipher = buildCipher();
+      (cipher as unknown as { partial: boolean }).partial = true;
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      cipherService.softDeleteWithServer.mockRejectedValue(new Error("not found"));
+
+      await service.deleteCipher(cipher);
+
+      expect(i18nService.t).toHaveBeenCalledWith("pamDeleteRequiresAccess");
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error" }),
+      );
+    });
   });
 
   describe("bulkDelete", () => {
