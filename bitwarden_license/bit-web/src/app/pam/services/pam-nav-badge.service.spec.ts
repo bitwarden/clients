@@ -103,8 +103,8 @@ describe("DefaultPamNavBadgeService", () => {
   });
 
   it("counts a request the caller both raised and manages once", async () => {
-    // A manager can be gated by a rule on a collection they manage, so their own request lands on
-    // both tabs. It is one piece of work.
+    // A manager gated by a rule on a collection they manage sees their own request on both
+    // tabs — one piece of work.
     const own = request("pending", "shared-id");
     requestsApi.listMyAccessRequests.mockResolvedValue([own]);
     approvalsApi.listInbox.mockResolvedValue([own]);

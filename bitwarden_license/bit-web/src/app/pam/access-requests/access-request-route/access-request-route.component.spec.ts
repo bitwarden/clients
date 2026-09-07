@@ -34,11 +34,7 @@ describe("AccessRequestRouteComponent", () => {
     return { finalUrl: new DefaultUrlSerializer().parse(path) } as Navigation;
   }
 
-  /**
-   * A stand-in for the browser history stack, so the close path can be exercised the way a real tab
-   * experiences it: a navigation pushes unless it is told to replace, and Back at the bottom of the
-   * stack does nothing.
-   */
+  /** A stand-in for the browser history stack: a navigation pushes unless told to replace, and Back at the bottom does nothing. */
   class BrowserHistory {
     readonly entries: string[];
     private index: number;
@@ -77,8 +73,7 @@ describe("AccessRequestRouteComponent", () => {
 
   beforeEach(async () => {
     closed$ = new Subject<void>();
-    // The real ref emits `closed` whichever way it is closed, which is what the host has to tell
-    // apart from a user dismissal.
+    // The real ref emits `closed` however it's closed; the host must tell that apart from dismissal.
     close = jest.fn(() => closed$.next());
     dialogService = mock<DialogService>();
     dialogService.open.mockReturnValue({
@@ -95,9 +90,7 @@ describe("AccessRequestRouteComponent", () => {
         { provide: Router, useValue: router },
       ],
     })
-      // The detail service is provided on this component so it can read the `:id` off
-      // `ActivatedRoute`; the backdrop tabs pull in the whole My-access surface, which this test
-      // has no interest in.
+      // The detail service is provided here so it can read `:id` off `ActivatedRoute`.
       .overrideComponent(AccessRequestRouteComponent, {
         remove: {
           imports: [ApprovalsTabComponent, HistoryTabComponent, MyRequestsTabComponent],
@@ -130,8 +123,7 @@ describe("AccessRequestRouteComponent", () => {
     expect(fixture.nativeElement.querySelector(selector)).not.toBeNull();
   });
 
-  // `/organizations/:id/billing/history` ends on the same segment as the PAM History tab, so a
-  // caller from there must not be mistaken for one.
+  // Ends on the same segment as the PAM History tab; must not be mistaken for it.
   it.each(["/vault", "/organizations/orgId/billing/history"])(
     "renders My requests behind the dialog when the caller arrived from outside the tabs (%s)",
     (path) => {
@@ -182,14 +174,12 @@ describe("AccessRequestRouteComponent", () => {
     const history = new BrowserHistory(detailUrl);
     trackHistory(history);
 
-    // A pasted link opened in a fresh tab: nothing behind it in history, and the shell is built by
-    // this same activation, so the router has already dropped the navigation.
+    // A pasted link opened in a fresh tab has nothing behind it in history.
     create(null);
     // The caller closes the dialog; the navigation that follows tears the route down.
     closed$.next();
     fixture.destroy();
-    // Back. Should the close have pushed rather than replaced, this lands on the dialog again —
-    // and this time the shell is mounted, so the activation does see a previous navigation.
+    // If close had pushed instead of replaced, this would land back on the dialog.
     history.back();
     create(cameFrom("/pam/my-requests"));
     // The caller closes it a second time.

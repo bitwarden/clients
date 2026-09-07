@@ -104,9 +104,8 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * sensitive fields the server suppressed, decrypted into a `partial` view carrying only the
    * title and, for logins, the URIs.
    *
-   * Opt-in, for the same reason {@link cipherListViewsWithPartials$} is: a surface that names a
-   * gated cipher (the PAM access-request lists, which are *about* gated ciphers) would otherwise
-   * resolve nothing and fall back to raw ids. Every other caller must use
+   * Opt-in, for the same reason {@link cipherListViewsWithPartials$} is: a surface naming a
+   * gated cipher would otherwise resolve nothing. Every other caller must use
    * {@link getAllDecryptedForIds}, which excludes partials.
    */
   abstract getAllDecryptedForIdsIncludingPartials(

@@ -1,16 +1,14 @@
 /**
  * The rotation domain, re-exported from the Rust SDK.
  *
- * Every type here is the SDK's — `bitwarden-pam`'s `rotation` module owns the domain, the wire
- * mapping, and the rules. This file exists so the module keeps one import path for them and so the
- * enum *values* stay ergonomic: the SDK models each enum as a string union, which is precise but
- * leaves nothing to reference by name, so each gets a frozen const object alongside its type. That
- * keeps `TargetSystemMethod.Automatic` reading the same as it always has while the value on the
- * wire is now `"automatic"` rather than a tinyint.
+ * Every type here is the SDK's; this file exists so the module keeps one import path and so the
+ * enum *values* stay ergonomic — the SDK models each as a string union, so each gets a frozen
+ * const object alongside its type (`TargetSystemMethod.Automatic` reads the same, though the
+ * wire value is now `"automatic"`, not a tinyint).
  *
  * Note the vocabulary shift: what this module called a *rotation daemon* the server calls an
- * *access connector*, and the SDK follows the server. The standalone agent that consumes a
- * registration token is still the rotation daemon.
+ * *access connector*; the standalone agent consuming a registration token is still the rotation
+ * daemon.
  */
 import type {
   AccessConnectorStatus as SdkAccessConnectorStatus,
@@ -48,12 +46,9 @@ export type {
 } from "@bitwarden/sdk-internal";
 
 /**
- * How a target system's credential is rotated.
- *
- * - `Automatic` — a connector writes the new secret into the target system.
- * - `Manual` — an operator applies it out of band and records that they did.
- * - `Unknown` — a method a newer server named that this SDK version cannot model. Treat as
- *   inert: offer no action that depends on knowing the method.
+ * How a target system's credential is rotated: `Automatic` (a connector writes the new secret),
+ * `Manual` (an operator applies it out of band and records having done so), or `Unknown` (a
+ * method a newer server named that this SDK can't model — treated as inert).
  */
 export const TargetSystemMethod = Object.freeze({
   Automatic: "automatic",
@@ -82,9 +77,9 @@ export type TargetSystemStatus = SdkTargetSystemStatus;
 /**
  * Lifecycle state of an access connector.
  *
- * `Disabled` is reversible. Deleting a connector invalidates its credential, but because it held
- * the plaintext organization key, rotating that key remains the remediation for a suspected
- * compromise.
+ * `Disabled` is reversible. Deleting a connector invalidates its credential, but rotating the
+ * organization key remains the remediation for suspected compromise, since it held that key in
+ * plaintext.
  */
 export const AccessConnectorStatus = Object.freeze({
   Enabled: "enabled",

@@ -23,11 +23,7 @@ import { MyRequestsTabComponent } from "./my-requests-tab.component";
 
 const names = storyNames();
 
-/**
- * This tab ticks its own `Date.now()` signal for the redemption and remaining countdowns, so every
- * window is built against the real clock when the story renders — a fixed timestamp would arrive
- * already elapsed and every row would render as expired.
- */
+/** Ticks its own `Date.now()` signal so windows build against the real clock at render time. */
 function content() {
   const pending = [
     // Approved and ready to activate: renders in the active-access section, badged "Ready to use".
@@ -159,10 +155,7 @@ export const Default: Story = {
   decorators: [myAccess()],
 };
 
-/**
- * Nothing outstanding. Pending and Active access carry their own empty state; Extension requests
- * renders nothing at all — it never shows once `extensionRows()` is empty.
- */
+/** Nothing outstanding. Pending and Active carry their own empty state; Extension requests renders nothing at all. */
 export const Empty: Story = {
   decorators: [myAccess({ content: empty })],
 };

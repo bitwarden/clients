@@ -187,10 +187,8 @@ describe("RotationShellComponent", () => {
   });
 });
 
-// Exercises the shell against the REAL production route shape so relative
-// navigation from the empty-path shell route and the router-driven activeTab
-// signal are validated end-to-end (things static checks / template-override
-// specs cannot catch).
+// Exercises the shell against the REAL route shape, validating relative navigation and the
+// activeTab signal end-to-end.
 describe("RotationShellComponent (real router)", () => {
   @Component({
     template: "",
