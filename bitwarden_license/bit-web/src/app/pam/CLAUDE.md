@@ -130,6 +130,12 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   three states into `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
   only adapts that onto the presentation model (a `kind` discriminant, a parsed `Date`).
   Add a state by teaching the SDK, not by re-ranking the parts client-side.
+  `ENDING_SOON_THRESHOLD_MS` (`access-badge-state.ts`) is the five-minute cutoff at which an
+  active lease escalates to the danger recipe — a fixed cutoff, not a fraction of the lease's
+  length (PM-40498). It is exported rather than private to the badge because the cipher-view
+  banner escalates on it too: that surface has the `active` badge suppressed, so its heading is
+  the only countdown there and has to carry the warning itself. A new countdown must read this
+  constant, not restate five minutes.
 - `collection-access-rule-callout/` — names the rules governing a collection, inside the
   collection edit dialog.
 - `services/` — the SDK-backed implementations of the `abstractions/` contracts.

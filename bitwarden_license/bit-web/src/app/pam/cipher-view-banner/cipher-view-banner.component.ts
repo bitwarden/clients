@@ -74,6 +74,7 @@ import {
   toDateInputValue,
 } from "..";
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
+import { ENDING_SOON_THRESHOLD_MS } from "../access-state-badge/access-badge-state";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { formatDuration } from "../date/format-duration";
@@ -290,6 +291,25 @@ export class CipherViewBannerComponent implements OnInit {
 
   protected readonly leaseRemainingLabel = computed(() =>
     this.activeLease() == null ? "" : formatRemaining(this.activeLeaseExpiryMs() - this.nowMs()),
+  );
+
+  /**
+   * Whether the active lease has crossed the five-minute cutoff, escalating this banner to the
+   * danger tile and the "ending soon" heading.
+   *
+   * The same {@link ENDING_SOON_THRESHOLD_MS} the access-state badge escalates on — and it has to
+   * be honoured here rather than left to that badge, because `ItemDetailsStateBadgeComponent`
+   * drops the `active` state on this surface to keep one timer on screen. Without this the heading
+   * below would be the modal's only countdown and the only one that never warns.
+   *
+   * Stays escalated once remaining time reaches zero: a lease that lapsed before the refresh lands
+   * is the strongest form of "ending soon", so falling back to the resting tile would read as calm
+   * at the worst moment.
+   */
+  protected readonly leaseEndingSoon = computed(
+    () =>
+      this.activeLease() != null &&
+      this.activeLeaseExpiryMs() - this.nowMs() <= ENDING_SOON_THRESHOLD_MS,
   );
 
   /**
