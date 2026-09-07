@@ -6,13 +6,13 @@ import { AsyncPipe } from "@angular/common";
 import { Component, OnInit, QueryList, ViewChildren } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { filter, of, Subject, switchMap, take } from "rxjs";
+import { filter, map, of, Subject, switchMap, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { autotypeFeatureFlags$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -105,9 +105,16 @@ export class AutofillOptionsComponent implements OnInit {
   private readonly isWindowsDesktop =
     this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
 
+  /**
+   * The "Add app" dropdown belongs to the GA Autotype implementation, so it is only shown
+   * when GA is on and the MVP implementation is off. While MVP is active it owns the
+   * Autotype experience and the GA UI must stay hidden.
+   */
   protected readonly showAddAppDropdown = toSignal(
     this.isWindowsDesktop
-      ? this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotypeGA)
+      ? autotypeFeatureFlags$(this.configService).pipe(
+          map(([mvpEnabled, gaEnabled]) => gaEnabled && !mvpEnabled),
+        )
       : of(false),
     { initialValue: false },
   );
