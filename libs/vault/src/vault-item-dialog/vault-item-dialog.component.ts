@@ -560,13 +560,20 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       // Update organizationUseTotp from server response
       this.cipher.organizationUseTotp = cipher.organizationUseTotp;
     } else if (this.formConfig.leaseGated) {
-      // Neither local state nor the save's echo can supply a gated cipher; both are the stripped
-      // copy, so it's re-read and swapped back in.
+      // Neither local state nor the save's echo can supply a gated cipher; local state is the
+      // stripped copy and the echo is blanked without being flagged partial, so it's re-read.
       const revealed = await this.reloadGatedCipher();
 
       if (revealed != null) {
         await this.swapInCipher(revealed, true);
         cipher = revealed;
+      } else if (cipher != null) {
+        // The lease lapsed, or the read failed: re-lock to the stripped copy, as reopening would,
+        // rather than leave blanks on screen for an Edit to write over the suppressed fields.
+        this._cipherModified = true;
+        await this.relockToPartial(cipher);
+        await this.changeMode("view");
+        return;
       }
     }
 
