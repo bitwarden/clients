@@ -518,6 +518,55 @@ describe("VaultComponent", () => {
     });
   });
 
+  describe("deleteCipher", () => {
+    // PM-42916: a refused delete used to be logged and nothing more.
+    let toastSpy: jest.SpyInstance;
+    let translateSpy: jest.SpyInstance;
+
+    function cipher(overrides: Record<string, unknown> = {}): any {
+      return { id: TEST_CIPHER_ID, edit: true, reprompt: 0, ...overrides };
+    }
+
+    beforeEach(() => {
+      // The component resolves its own DialogService, so patch the field as other suites here do.
+      (component as any).dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
+      toastSpy = jest.spyOn((component as any).toastService, "showToast");
+      translateSpy = jest.spyOn((component as any).i18nService, "t");
+    });
+
+    it("shows an error toast when the delete is refused", async () => {
+      const cipherService = TestBed.inject(CipherService);
+      (cipherService.softDeleteWithServer as jest.Mock).mockRejectedValue(new Error("not found"));
+
+      await component.deleteCipher(cipher());
+
+      expect(translateSpy).toHaveBeenCalledWith("deleteItemError");
+      expect(toastSpy).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+      expect(toastSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: "success" }));
+    });
+
+    it("names the reason when a PAM-gated cipher's delete is refused", async () => {
+      const cipherService = TestBed.inject(CipherService);
+      (cipherService.softDeleteWithServer as jest.Mock).mockRejectedValue(new Error("not found"));
+
+      await component.deleteCipher(cipher({ partial: true }));
+
+      expect(translateSpy).toHaveBeenCalledWith("pamDeleteRequiresAccess");
+      expect(toastSpy).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+    });
+
+    it("reports success when the delete lands", async () => {
+      const cipherService = TestBed.inject(CipherService);
+      (cipherService.softDeleteWithServer as jest.Mock).mockResolvedValue(undefined);
+
+      await component.deleteCipher(cipher());
+
+      expect(translateSpy).toHaveBeenCalledWith("deletedItem");
+      expect(toastSpy).toHaveBeenCalledWith(expect.objectContaining({ variant: "success" }));
+      expect(toastSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+    });
+  });
+
   describe("viewCipherById", () => {
     // viewCipherById awaits the dialog's `closed` stream, which the mock never completes,
     // so kick it off and drain the pending microtasks instead of awaiting it.

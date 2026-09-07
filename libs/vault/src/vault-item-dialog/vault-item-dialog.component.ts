@@ -69,6 +69,7 @@ import {
 import { CipherViewComponent } from "../cipher-view/cipher-view.component";
 import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
 import { GATED_CIPHER_RELOADER, GatedCipherReloader } from "../tokens/gated-cipher-reloader.token";
+import { deleteFailureMessageKey } from "../utils/delete-failure-message";
 
 export type VaultItemDialogMode = "view" | "form";
 
@@ -629,19 +630,26 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
     try {
       await this.deleteCipher();
+    } catch (e) {
+      // Reporting Deleted would close the dialog on a delete the server refused (PM-42916).
+      this.logService.error(e);
       this.toastService.showToast({
-        variant: "success",
-        title: this.i18nService.t("success"),
+        variant: "error",
         message: this.i18nService.t(
-          this.cipher.isDeleted ? "permanentlyDeletedItem" : "deletedItem",
+          deleteFailureMessageKey(this.cipher, this.formConfig.collections),
         ),
       });
-      this.messagingService.send(
-        this.cipher.isDeleted ? "permanentlyDeletedCipher" : "deletedCipher",
-      );
-    } catch (e) {
-      this.logService.error(e);
+      return;
     }
+
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("success"),
+      message: this.i18nService.t(this.cipher.isDeleted ? "permanentlyDeletedItem" : "deletedItem"),
+    });
+    this.messagingService.send(
+      this.cipher.isDeleted ? "permanentlyDeletedCipher" : "deletedCipher",
+    );
     this._cipherModified = false;
     await this.dialogRef.close(VaultItemDialogResult.Deleted);
   };

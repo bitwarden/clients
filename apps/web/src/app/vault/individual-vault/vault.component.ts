@@ -128,6 +128,7 @@ import {
   openDeleteSharedFolderDialog,
   VaultOrganizationUserNotificationsComponent,
   Vfo1TerminologyService,
+  deleteFailureMessageKey,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -1547,6 +1548,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       this.refresh();
     } catch (e) {
       this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(deleteFailureMessageKey(c, this.allCollections)),
+      });
     }
   }
 
