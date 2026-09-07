@@ -35,6 +35,12 @@ export class BrowserProcessReloadService extends DefaultProcessReloadService {
   }
 
   protected override async performProcessReload(): Promise<void> {
+    // Checked before anything else: the first step tells popups to close themselves, which an
+    // automated run driving one of those pages cannot survive.
+    if (!BrowserApi.isReloadEnabled()) {
+      return;
+    }
+
     // Sends the "reloadProcess" message, which popups close themselves upon receiving.
     await super.performProcessReload();
 
