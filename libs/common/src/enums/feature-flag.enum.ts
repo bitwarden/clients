@@ -13,7 +13,6 @@ export enum FeatureFlag {
   /* Admin Console Team */
   GenerateInviteLink = "pm-32497-generate-invite-link",
   StagedStatus = "pm-34423-staged-status",
-  PM28365_ChangeMemberEmail = "pm-28365-change-member-email-no-mp",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -76,9 +75,9 @@ export enum FeatureFlag {
   EnableAccountEncryptionV2UserPasswordRegistration = "pm-27278-v2-password-registration",
 
   /* Tools */
-  PM34203TemporaryItemSharing = "pm-34203-temporary-item-sharing",
   SendControls = "pm-31885-send-controls",
   Pm30110SdkSendsApi = "pm-30110-sdk-sends-api",
+  PM34203TemporaryItemSharing = "pm-34203-temporary-item-sharing",
 
   /* DIRT */
   EventManagementForBlumira = "event-management-for-blumira",
@@ -148,7 +147,6 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.StagedStatus]: FALSE,
-  [FeatureFlag.PM28365_ChangeMemberEmail]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
@@ -167,9 +165,9 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SSHecdsa]: FALSE,
 
   /* Tools */
-  [FeatureFlag.PM34203TemporaryItemSharing]: FALSE,
   [FeatureFlag.SendControls]: FALSE,
   [FeatureFlag.Pm30110SdkSendsApi]: FALSE,
+  [FeatureFlag.PM34203TemporaryItemSharing]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventManagementForBlumira]: FALSE,

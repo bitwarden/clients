@@ -14,7 +14,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SendSdkDecryptionService } from "@bitwarden/common/tools/send/services/send-sdk-decryption.service";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -32,7 +32,7 @@ describe("SendCreateCommand", () => {
   const accountService = mock<AccountService>();
   const policyService = mock<PolicyService>();
   const configService = mock<ConfigService>();
-  const sdkDecryptionService = mock<SendSdkDecryptionService>();
+  const sendDecryptionService = mock<SendDecryptionService>();
 
   const activeAccount = {
     id: "user-id" as UserId,
@@ -61,7 +61,7 @@ describe("SendCreateCommand", () => {
       accountService,
       policyService,
       configService,
-      sdkDecryptionService,
+      sendDecryptionService,
     );
   });
 

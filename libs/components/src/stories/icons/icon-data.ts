@@ -229,7 +229,7 @@ const actions = [
   },
   {
     id: "bwi-share-link",
-    usage: "Share via link action. Indicates sharing an item by generating a shareable URL.",
+    usage: "Creates or copies a shareable link.",
   },
   {
     id: "bwi-sign-in",
