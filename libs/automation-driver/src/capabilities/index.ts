@@ -2,6 +2,8 @@ export * from "./biometrics";
 export * from "./desktop-navigation";
 export * from "./feature-flags";
 export * from "./lock";
+export * from "./native-messaging";
 export * from "./logging";
 export * from "./process-reload";
+export * from "./session";
 export * from "./state";

@@ -62,7 +62,8 @@
     "webNavigation",
     "webRequest",
     "webRequestAuthProvider",
-    "notifications"
+    "notifications",
+    "nativeMessaging"
   ],
   "__firefox__permissions": [
     "activeTab",

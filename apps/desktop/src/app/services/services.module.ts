@@ -33,13 +33,16 @@ import {
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LoginEmailService,
+  LogoutService,
   SsoUrlService,
 } from "@bitwarden/auth/common";
 import {
   AutomationCapability,
   BiometricsCapability,
   DesktopNavigationCapability,
+  NativeMessagingCapability,
   ProcessReloadCapability,
+  SessionCapability,
 } from "@bitwarden/automation-driver";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -245,7 +248,7 @@ const safeProviders: SafeProvider[] = [
   // Desktop-only automation capabilities.
   safeProvider({
     provide: AutomationCapability,
-    useFactory: () => new ProcessReloadCapability(() => ipc.platform.reloadProcess()),
+    useFactory: () => new ProcessReloadCapability({ reload: () => ipc.platform.reloadProcess() }),
     deps: [],
     multi: true,
   }),
@@ -266,6 +269,22 @@ const safeProviders: SafeProvider[] = [
     useFactory: (messagingService: MessagingServiceAbstraction) =>
       new DesktopNavigationCapability(messagingService),
     deps: [MessagingServiceAbstraction],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (accountService: AccountServiceAbstraction, logoutService: LogoutService) =>
+      new SessionCapability(accountService, logoutService),
+    deps: [AccountServiceAbstraction, LogoutService],
+    multi: true,
+  }),
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (manifestService: NativeMessagingManifestService) =>
+      new NativeMessagingCapability({
+        generateManifests: (create) => manifestService.generate(create),
+      }),
+    deps: [NativeMessagingManifestService],
     multi: true,
   }),
   safeProvider(NativeMessagingService),

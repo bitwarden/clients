@@ -45,6 +45,7 @@ import {
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { AutomationCapability, ProcessReloadCapability } from "@bitwarden/automation-driver";
 import { ExtensionAuthRequestAnsweringService } from "@bitwarden/browser/auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/browser/auth/services/new-device-verification/extension-new-device-verification-component.service";
 import { BrowserRouterService } from "@bitwarden/browser/platform/popup/services/browser-router.service";
@@ -492,6 +493,17 @@ const safeProviders: SafeProvider[] = [
     provide: VaultTimeoutService,
     useClass: ForegroundVaultTimeoutService,
     deps: [MessagingServiceAbstraction],
+  }),
+  // Extension-only automation capability. Reloads happen in the background, so both are messages.
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (messagingService: MessagingServiceAbstraction) =>
+      new ProcessReloadCapability({
+        reload: () => messagingService.send("reloadExtension"),
+        setEnabled: (enabled) => messagingService.send("setProcessReloadEnabled", { enabled }),
+      }),
+    deps: [MessagingServiceAbstraction],
+    multi: true,
   }),
   safeProvider({
     provide: SECURE_STORAGE,

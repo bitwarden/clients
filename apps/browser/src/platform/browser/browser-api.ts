@@ -779,9 +779,27 @@ export class BrowserApi {
   }
 
   /**
+   * Set by the automation driver. A reload restarts the extension, which invalidates every page
+   * an automated run is driving, so a run that cannot tolerate that turns reloads off.
+   */
+  private static reloadEnabled = true;
+
+  static setReloadEnabled(enabled: boolean) {
+    this.reloadEnabled = enabled;
+  }
+
+  static isReloadEnabled() {
+    return this.reloadEnabled;
+  }
+
+  /**
    * Handles reloading the extension using the underlying functionality exposed by the browser API.
    */
   static reloadExtension() {
+    if (!this.reloadEnabled) {
+      return;
+    }
+
     // If we do `chrome.runtime.reload` on safari they will send an onInstalled reason of install
     // and that prompts us to show a new tab, this apparently doesn't happen on sideloaded
     // extensions and only shows itself production scenarios. See: https://bitwarden.atlassian.net/browse/PM-12298
