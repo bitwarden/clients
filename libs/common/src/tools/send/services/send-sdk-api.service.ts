@@ -33,6 +33,7 @@ import { SendType } from "../types/send-type";
 
 import { SendApiService } from "./send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "./send-api.service.abstraction";
+import { SendDecryptionService } from "./send-decryption.service";
 import { InternalSendService } from "./send.service.abstraction";
 
 /**
@@ -59,6 +60,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     private sendService: InternalSendService,
     private accountService: AccountService,
     private logService: LogService,
+    private sendDecryptionService: SendDecryptionService,
   ) {}
 
   /**
@@ -89,7 +91,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     if (send.id == null && send.type === SendType.File) {
       throw new Error("SendSdkApiService.save: file send creation requires SendApiService.");
     }
-    const sendView = await send.decrypt(userId);
+    const sendView = await this.sendDecryptionService.decryptSend(send, userId);
     const sdkView = await this.mutateSend(sendView, userId, plaintextPassword);
 
     // Patch server-assigned identifiers onto the input for callers that read them after

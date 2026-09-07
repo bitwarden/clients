@@ -9,6 +9,10 @@
     "message": "Bitwarden Parol Meneceri",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden Parol Meneceri Beta",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "Bitwarden evdə və ya işdə olarkən bütün parol, keçid açarı və həssas məlumatlarınızı asanlıqla qoruyur",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -535,6 +539,9 @@
   "foldersFilterTooltip": {
     "message": "Elementləri burada filtrləmək üçün onlara qovluq əlavə edin."
   },
+  "sharedFolderFilterTooltip": {
+    "message": "Burada filtrləmək üçün elementləri paylaşılan qovluğa əlavə et."
+  },
   "editItemWithName": {
     "message": "Elementə düzəliş et - $NAME$",
     "placeholders": {
@@ -750,6 +757,15 @@
   },
   "launchWebsite": {
     "message": "Veb saytı başlat"
+  },
+  "launchWebsiteForName": {
+    "message": "$ITEMNAME$ veb saytını başlat",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Veb sayt"
@@ -1367,7 +1383,7 @@
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Bunu saxlaya bilmədik. Məlumatları manual daxil etməyə çalışın.",
+    "message": "Bunu saxlaya bilmədik. Ayrıntıları manual daxil etməyə çalışın.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
@@ -1406,17 +1422,29 @@
   "additionalOptions": {
     "message": "Əlavə seçimlər"
   },
-  "fillAssistActiveNotice": {
-    "message": "Bu səhifədə Avto-doldurma, \"Doldurma Köməyi\"ni istifadə edir."
+  "fillAssistActiveNoticeV2": {
+    "message": "Bu səhifədə avto-doldurma \"Doldurma köməyi\"ni istifadə edir."
   },
-  "activateFillAssist": {
-    "message": "\"Doldurma Köməyi\"ni işə sal"
+  "activateFillAssistV2": {
+    "message": "\"Doldurma köməyi\"ni işə sal"
   },
-  "activateFillAssistDescription": {
-    "message": "Doldurma Köməyi, sayta xas qaydaları istifadə edərək dəstəklənən saytlarda avto-doldurma dəqiqliyini artırır. Bu özəlliyi istifadə etdiyiniz zaman heç bir veri yığılmır və ya saxlanılmır."
+  "activateFillAssistDescriptionV2": {
+    "message": "Doldurma köməyi, sayta xas qaydaları istifadə edərək dəstəklənən saytlarda avto-doldurma dəqiqliyini artırır. Bu özəlliyi istifadə etdiyiniz zaman heç bir veri yığılmır və ya saxlanılmır."
   },
-  "aboutFillAssistLabel": {
-    "message": "Doldurma Köməyi barədə"
+  "aboutFillAssistLabelV2": {
+    "message": "Doldurma köməyi barədə"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Veb saytların avto-doldurulmayacaq xanaları müəyyən etməsinə icazə ver"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Bir veb saytın `data-bwignore` atributu ilə işarələdiyi xanaları ötür."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Veb saytların avto-doldurulacaq xanaları əlavə etməsinə icazə ver"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Bir veb saytın `data-bwignore` atributu ilə işarələdiyi bütün span elementləri istifadə et."
   },
   "enableContextMenuItem": {
     "message": "Konteks menyu seçimlərini göstər"
@@ -1702,7 +1730,7 @@
     "message": "Premium abunəliyiniz bitdi"
   },
   "archivePremiumRestart": {
-    "message": "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin detallarına düzəliş etsəniz, həmin element seyfinizə daşınacaq."
+    "message": "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin ayrıntılarına düzəliş etsəniz, həmin element seyfinizə daşınacaq."
   },
   "restartPremium": {
     "message": "\"Premium\"u yenidən başlat"
@@ -2349,7 +2377,7 @@
     "message": "Bank hesabı"
   },
   "bankAccountDetails": {
-    "message": "Bank hesabı məlumatları"
+    "message": "Bank hesabı ayrıntıları"
   },
   "typeNote": {
     "message": "Not"
@@ -2379,7 +2407,7 @@
     "message": "Paylaşılan elementləri təşkil edin"
   },
   "typeBankAccountSubtitle": {
-    "message": "Bank məlumatları"
+    "message": "Bankçılıq məlumatları"
   },
   "typePassport": {
     "message": "Pasport"
@@ -2736,6 +2764,18 @@
   },
   "noMatchingItems": {
     "message": "Uyuşan element yoxdur"
+  },
+  "noFiltersMatch": {
+    "message": "\"$SEARCH$\" ilə uyuşan heç bir filtr yoxdur",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Axtarışı təmizlə"
   },
   "selected": {
     "message": "Seçildi"
@@ -3183,12 +3223,6 @@
   "errorRefreshingAccessTokenDesc": {
     "message": "Təzələmə tokeni və ya API açarlar tapılmadı. Lütfən çıxış edib yenidən giriş etməyə çalışın."
   },
-  "desktopSyncVerificationTitle": {
-    "message": "Masaüstü sinxr doğrulaması"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Lütfən masaüstü tətbiqin bu barmaq izini gördüyünü doğrulayın: "
-  },
   "desktopIntegrationDisabledTitle": {
     "message": "Brauzer inteqrasiyası qurulmayıb"
   },
@@ -3256,13 +3290,13 @@
     "message": "Biometriklər tamamlana bilmir, ana parol istifadə etməyi düşünün və ya çıxış edin. Bu problem davam edərsə, lütfən Bitwarden dəstəyi ilə əlaqə saxlayın."
   },
   "nativeMessagingPermissionErrorTitle": {
-    "message": "İcazə verilməyib"
+    "message": "İzin verilməyib"
   },
   "nativeMessagingPermissionErrorDesc": {
-    "message": "Bitwarden masaüstü tətbiqi ilə əlaqə qurma icazəsi olmadan, brauzer uzantısında biometrikləri təmin edə bilmirik. Lütfən yenidən sınayın."
+    "message": "Bitwarden masaüstü tətbiqi ilə əlaqə qurma izni olmadan, brauzer uzantısında biometrikləri təmin edə bilmirik. Lütfən yenidən sınayın."
   },
   "nativeMessagingPermissionSidebarTitle": {
-    "message": "İcazə tələb xətası"
+    "message": "İzin tələb xətası"
   },
   "nativeMessagingPermissionSidebarDesc": {
     "message": "Bu əməliyyat yan çubuqda icra edilə bilməz. Lütfən açılan pəncərədə yenidən sınayın."
@@ -3296,7 +3330,7 @@
     "message": "İstisna edilən domenlər"
   },
   "excludedDomainsDesc": {
-    "message": "Bitwarden, bu domenlər üçün giriş detallarını saxlamağı soruşmayacaq. Dəyişikliklərin qüvvəyə minməsi üçün səhifəni təzələməlisiniz."
+    "message": "Bitwarden, bu domenlər üçün giriş ayrıntılarını saxlamağı soruşmayacaq. Dəyişikliklərin qüvvəyə minməsi üçün səhifəni təzələməlisiniz."
   },
   "blockedDomainsDesc": {
     "message": "Bu veb saytlar üçün avto-doldurma və digər əlaqəli özəlliklər təklif olunmayacaq. Dəyişikliklərin qüvvəyə minməsi üçün səhifəni təzələməlisiniz."
@@ -3502,7 +3536,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDetails": {
-    "message": "Send detalları",
+    "message": "Send ayrıntıları",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeText": {
@@ -3775,7 +3809,7 @@
     "description": "Used as a message within the notification bar when no folders are found"
   },
   "orgPermissionsUpdatedMustSetPassword": {
-    "message": "Təşkilatınızın icazələri güncəlləndi və bir ana parol ayarlamağınızı tələb edir.",
+    "message": "Təşkilatınızın izinləri güncəlləndi və bir ana parol ayarlamağınızı tələb edir.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "orgRequiresYouToSetPassword": {
@@ -4566,7 +4600,7 @@
     "description": "European Union"
   },
   "accessDenied": {
-    "message": "Erişim rədd edildi. Bu səhifəyə baxmaq üçün icazəniz yoxdur."
+    "message": "Erişim rədd edildi. Bu səhifəyə baxmaq üçün izniniz yoxdur."
   },
   "general": {
     "message": "Ümumi"
@@ -5140,7 +5174,7 @@
     }
   },
   "importHelpCenterInstructions": {
-    "message": "$NAME$ təlimatlarına burada baxın:",
+    "message": "Ayrıntılı $NAME$ təlimatlarına burada baxın:",
     "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
     "placeholders": {
       "name": {
@@ -5230,115 +5264,115 @@
     "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
   },
   "importSplashidInstructions": {
-    "message": "Using the SplashID Safe desktop application, click on the SplashID blue lock logo in the top right corner. Navigate to \"Export\" → \"Export as CSV\" and save the CSV file."
+    "message": "SplashID Safe masaüstü tətbiqini istifadə edərək, sağ üst küncdəki göy SplashID kilid loqosuna klikləyin. \"Xaricə köçür\" → \"CSV kimi köçür\"ə gedin və CSV faylı kimi saxlayın."
   },
   "importPasskeepInstructions": {
-    "message": "Using the PassKeep mobile app, navigate to \"Backup/Restore\". Locate the \"CSV Backup/Restore\" section and click \"Backup to CSV\" to save the CSV file."
+    "message": "PassKeep mobil tətbiqini istifadə edərək, \"Nüsxələmə/Bərpa etmə\"yə gedin. \"CSV Nüsxələmə/Bərpa etmə\" bölməsini tapın və CSV faylı kimi saxlamaq üçün \"CSV-yə nüsxələ\"yə klikləyin."
   },
   "importGnomeInstructionsIntro": {
-    "message": "Make sure you have python-keyring and python-gnomekeyring installed. Save the",
+    "message": "Əmin olun ki, python-keyring və python-gnomekeyring quraşdırılıb. Saxlayın:",
     "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
   },
   "importGnomeInstructionsLinkText": {
-    "message": "GNOME Keyring Import/Export"
+    "message": "GNOME Keyring Daxilə/Xaricə köçürmə"
   },
   "importGnomeInstructionsScriptLabel": {
-    "message": "python script to your desktop as",
+    "message": "python script-i masaüstündə",
     "description": "Followed by a literal filename (pw_helper.py) rendered as code."
   },
   "importGnomeInstructionsRunTerminal": {
-    "message": ". Open terminal and run",
+    "message": ". Terminalı aç və çalışdır",
     "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
   },
   "importGnomeInstructionsAndThen": {
-    "message": "and then",
+    "message": "və sonra",
     "description": "Between two terminal commands rendered as code."
   },
   "importGnomeInstructionsUploadResult": {
-    "message": ". Then upload the resulting",
+    "message": ". Sonra nəticə faylını",
     "description": "Followed by a literal filename (my_passwords.json) rendered as code."
   },
   "importGnomeInstructionsFileHere": {
-    "message": "file here to Bitwarden.",
+    "message": "Bitwarden-ə yüklə.",
     "description": "Follows the my_passwords.json filename."
   },
   "importPasswordagentInstructions": {
-    "message": "Using the Password Agent desktop application navigate to \"File\" → \"Export\", select the \"Fields to export\" button and check all of the fields, change the \"Output format\" to \"CSV\", and then click the \"Start\" button to save the CSV file."
+    "message": "Password Agent masaüstü tətbiqini istifadə edərək, \"Fayl\" → \"Xaricə köçür\"ə gedin, \"Xaricə köçürüləcək xanalar\" düyməsini seçin və bütün xanaları işarələyin, \"Çıxış formatı\"nı \"CSV\" olaraq dəyişdirin, sonra CSV faylı saxlamaq üçün \"Başlat\" düyməsinə klikləyin."
   },
   "importPasspackInstructions": {
-    "message": "Log into the Passpack website vault and navigate to \"Settings\" → \"Export\", then click the \"Download\" button to save the CSV file."
+    "message": "Passpack veb saytında seyfə giriş edin və \"Ayarlar\" → \"Xaricə köçür\"ə gedin, sonra CSV faylını saxlamaq üçün \"Endir\" düyməsinə klikləyin."
   },
   "importPassmanInstructions": {
-    "message": "Open your Passman vault and click on \"Settings\" in the bottom left corner. In the \"Settings\" window switch to the \"Export credentials\" tab and choose \"JSON\" as the export type. Enter your vault's passphrase and click the \"Export\" button to save the JSON file."
+    "message": "Passman seyfinizi açın və sol alt küncdəki \"Ayarlar\"a klikləyin. \"Ayarlar\" pəncərəsində \"Kimlik məlumatlarını xaricə köçür\" vərəqinə keçin və xaricə köçürmə növü kimi \"JSON\"u seçin. Seyfinizin keçid ifadəsini daxil edin və JSON faylını saxlamaq üçün \"Xaricə köçür\" düyməsinə klikləyin."
   },
   "importAvastCsvInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to CSV file\" option to save the CSV file."
+    "message": "Avast Passwords masaüstü tətbiqini açın və \"Ayarlar\" → \"Veriləri daxilə/xaricə köçür\"ə gedin. CSV faylı kimi saxlamaq üçün \"Xaricə köçür\"ü, sonra \"CSV faylı olaraq xaricə köçür\"ü seçin."
   },
   "importAvastJsonInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to JSON file\" option to save the JSON file."
+    "message": "Avast Passwords masaüstü tətbiqini açın və \"Ayarlar\" → \"Veriləri daxilə/xaricə köçür\"ə gedin. JSON faylı kimi saxlamaq üçün \"Xaricə köçür\"ü, sonra \"JSON faylı olaraq xaricə köçür\"ü seçin."
   },
   "importFsecureInstructions": {
-    "message": "Open the F-Secure KEY desktop application and navigate to \"Settings\" → \"Export Passwords\". Select the \"Export\" button, enter your master password, and save the FSK file."
+    "message": "F-Secure KEY masaüstü tətbiqini açın və \"Ayarlar\" → \"Parolları xaricə köçür\"ə gedin. \"Xaricə köçür\" düyməsini seçin, ana parolunuzu daxil edin və FSK faylını saxlayın."
   },
   "importKasperskyInstructions": {
-    "message": "Open the Kaspersky Password Manager desktop application and navigate to \"Settings\" → \"Import/Export\". Locate the \"Export to text file\" section and select the \"Export\" button to save the TXT file."
+    "message": "Kaspersky Password Manager masaüstü tətbiqini açın və \"Ayarlar\" → \"Daxilə/Xaricə köçür\"ə gedin. \"Mətn faylına köçür\" bölməsini tapın və TXT faylı kimi saxlamaq üçün \"Xaricə köçür\" düyməsini seçin."
   },
   "importRemembearInstructions": {
-    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+    "message": "RememBear masaüstü tətbiqini açın və \"Ayarlar\" → \"Hesab\" → \"Xaricə köçür\"ə gedin. Ana parolunuzu daxil edin və CSV faylı kimi saxlamaq üçün \"Yenə də xaricə köçür\"ü seçin."
   },
   "importPasswordwalletInstructions": {
-    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+    "message": "PasswordWallet masaüstü tətbiqini açın və \"Fayl\" → \"Xaricə köçür\" → \"Görünən girişləri mətn faylına köçür\"ə gedin. Ana parolunuzu daxil edin və TXT faylı kimi saxlamaq üçün \"Oldu\" düyməsinə basın."
   },
   "importMykiInstructions": {
-    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+    "message": "Myki masaüstü brauzer uzantısını açın və \"Qabaqcıl\" → \"Hesabları xaricə köçür\"ə gedin və QR kodu mobil cihazınızla skan edin. Müxtəlif CSV faylları kompüterinizin endirilənlər qovluğunda saxlanılacaq."
   },
   "importSecuresafeInstructions": {
-    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+    "message": "SecureSafe parol seyfinizi vergül ayırıcı ilə CSV faylına köçürün."
   },
   "importLogmeonceInstructions": {
-    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+    "message": "LogMeOnce brauzer uzantısını açın, \"Menyunu aç\" → \"Xaricə köçür\"ə gedin və CSV faylını saxlamaq üçün \"CSV faylı\"nı seçin."
   },
   "importBlackberryInstructions": {
-    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+    "message": "BlackBerry Password Keeper tətbiqini açın, \"Ayarlar\" → \"Daxilə/Xaricə köçür\"ə gedin. \"Parolları xaricə köçür\"ü seçin və şifrələnməmiş CSV faylını saxlamaq üçün ekrandakı təlimatları izləyin."
   },
   "importButtercupInstructions": {
-    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+    "message": "Buttercup masaüstü tətbiqini açın və seyfinizin kilidini açın. Seyfinizin ikonuna sağ klikləyin və CSV faylını saxlamaq üçün \"Xaricə köçür\"ü seçin."
   },
   "importCodebookInstructions": {
-    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+    "message": "Codebook masaüstü tətbiqini açın və giriş edin. \"Fayl\" → \"Hamısını xaricə köçür\"ü seçin, sonra pəncərədə görünən \"Bəli\" düyməsinə klikləyin və CSV faylını saxlayın."
   },
   "importEncryptrInstructions": {
-    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+    "message": "Ecryptr masaüstü tətbiqinin ən yeni versiyasını açın və bütün verilərinizin sinxronlaşdırılmasına icazə verin. Verilərinizin sinxronlaşdırılması tamamlandıqdan sonra, sağ üst küncdəki endir ikonu çəhrayı rəngə çevriləcək. Endir ikonuna klikləyin və CSV faylını saxlayın."
   },
   "importYotiInstructions": {
-    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+    "message": "Yoti brauzer uzantısında \"Ayarlar\"a, sonra \"Saxlanılmış girişləri xaricə köçür\"ə klikləyin və CSV faylını saxlayın."
   },
   "importPsonoInstructions": {
-    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+    "message": "Psono veb seyfinə giriş edin, \"Hesaba daxil ol\" açılan menyusuna klikləyin, \"Digərləri\"ni seçin. \"Xaricə köçür\" vərəqinə gedin, json xaricə köçürmə növünü seçin və sonra \"Xaricə köçür\"ə klikləyin."
   },
   "importPasskyInstructions": {
-    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+    "message": "\"https://vault.passky.org\" ünvanında giriş edin → \"Daxilə və Xaricə köçür\" → Passky bölməsində \"Xaricə köçür\"ü seçin. (\"Nüsxələmə\" şifrələndiyi üçün dəstəklənmir)."
   },
   "importProtonpassInstructions": {
-    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+    "message": "ProtonPass brauzer uzantısında \"Ayarlar\" > \"Xaricə köçür\"ə gedin. PGP şifrələmə olmadan xaricə köçürün və zip faylını saxlayın."
   },
   "importPasswordxpInstructions": {
-    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+    "message": "\"Veri bazası\"nı → \"Fayla köçür\" menyusunu seçin → Xaricə köçürmə seçimləri daxilində Qovluq adlarının və Sütun başlıqlarının işarələndiyinə əmin olun. → \"Nəzər sal\" düyməsinə basın və hədəf faylı seçin və növünü CSV faylı olaraq təyin edin."
   },
   "importNetwrixInstructions": {
-    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+    "message": "FullClient-i açın, \"Əsas menyu\"ya gedin və \"Xaricə köçür\"ü seçin. \"Xaricə köçürmə sehrbazı\"nı başladın və CSV faylına köçürmək üçün təlimatları izləyin."
   },
   "importNordpassInstructions": {
-    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+    "message": "NordPass-a giriş edin və \"Ayarlar\"ı açın → \"Daxilə və Xaricə köçür\" bölməsi üçün aşağı diyirləyin və \"Elementləri xaricə köçür\"ü seçin → Ana parolunuzu daxil edin və \"Davam et\"i seçin. → Cihazınızda CSV faylını saxlayın."
   },
   "importPassworddepot17Instructions": {
-    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+    "message": "Masaüstü tətbiqində, \"Alətlər\" → \"Xaricə köçür\" → \"Ana parolunuzu daxil edin\" → Xaricə köçürmə formatı olaraq \"XML Formatı\"nı (*.xml) seçin → \"Növbəti\"yə klikləyin → Xaricə köçürüləcək veriləri seçin → Daha əvvəl seçilmiş yerləşməyə köçürmək üçün \"Növbəti\"yə klikləyin."
   },
   "importDelineaInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+    "message": "Delinea-ya giriş edin, \"Daxilə/Xaricə köçür\"ü axtarın -> \"Xaricə köçür\"ü seçin -> Xaricə köçürmə formatı olaraq \"XML\"i seçin -> Kimlik doğrulayıcı növü olaraq \"QuantumLock\"u seçin -> parolunuzu daxil edin və XML faylını saxlamaq üçün \"Xaricə köçür\"ü seçin."
   },
   "importDelineaCsvInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+    "message": "Delinea-ya giriş edin, \"Daxilə/Xaricə köçür\"ü axtarın -> \"Xaricə köçür\"ü seçin -> Xaricə köçürmə formatı olaraq \"CSV\"i seçin -> Kimlik doğrulayıcı növü olaraq \"QuantumLock\"u seçin -> parolunuzu daxil edin və CSV faylını saxlamaq üçün \"Xaricə köçür\"ü seçin."
   },
   "confirmVaultImport": {
     "message": "Seyfi daxilə köçürməyi təsdiqlə"
@@ -5834,7 +5868,7 @@
     "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
   },
   "defaultPasswordManagerCalloutDesc": {
-    "message": "Bitwarden-i ilkin parol meneceriniz etmək üçün $BROWSER$ brauzerinə icazə verməyiniz soruşulacaq.",
+    "message": "Bitwarden-i ilkin parol meneceriniz etmək üçün $BROWSER$ brauzer iznini verməyiniz istənəcək.",
     "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
     "placeholders": {
       "browser": {
@@ -5871,7 +5905,7 @@
     "description": "Link text to browser autofill settings in the default password manager setting hint."
   },
   "defaultPasswordManagerPromptStep2AfterAllow": {
-    "message": "brauzerinizdən Bitwarden-ə ayarlarınızı dəyişdirmə icazəsini vermək üçün sorğu gələcək."
+    "message": "brauzerinizdən Bitwarden-ə ayarlarınızı dəyişdirmə iznini vermək üçün sorğu gələcək."
   },
   "defaultPasswordManagerPromptStep3": {
     "message": "Güvənli giriş təcrübəsindən zövq ala bilməyiniz üçün brauzerinizin daxili parol menecerini söndürəcəyik."
@@ -5903,7 +5937,7 @@
     "description": "Notification message for when updating credentials has succeeded."
   },
   "saveCipherAttemptFailed": {
-    "message": "Kimlik məlumatlarını saxlama xətası. Detallar üçün konsolu yoxlayın.",
+    "message": "Kimlik məlumatlarını saxlama xətası. Ayrıntılar üçün konsolu yoxlayın.",
     "description": "Notification message for when saving credentials has failed."
   },
   "success": {
@@ -5938,6 +5972,12 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "Filtrləri təmizləyin və ya başqa bir axtarış terminini sınayın"
+  },
+  "noSharedFoldersAdded": {
+    "message": "Heç bir paylaşılan qovluq əlavə olunmayıb"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Seyf elementlərini digər üzvlərlə təhlükəsiz şəkildə paylaşmaq üçün paylaşılan qovluq əlavə edin."
   },
   "moreOptionsLabel": {
     "message": "Daha çox seçim, $ITEMNAME$",
@@ -6015,7 +6055,7 @@
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
-    "message": "Kopyalanacaq detal yoxdur"
+    "message": "Kopyalanacaq ayrıntı yoxdur"
   },
   "assignToCollections": {
     "message": "Kolleksiyalara təyin et"
@@ -6158,7 +6198,7 @@
     "message": "Qovluğu olmayan elementlər"
   },
   "itemDetails": {
-    "message": "Element detalları"
+    "message": "Element ayrıntıları"
   },
   "itemName": {
     "message": "Element adı"
@@ -6336,7 +6376,7 @@
     }
   },
   "personalDetails": {
-    "message": "Fərdi detallar"
+    "message": "Fərdi məlumatlar"
   },
   "identification": {
     "message": "İdentifikasiya"
@@ -6452,10 +6492,10 @@
     "message": "Yeniləmisinizsə, kart məlumatlarınızı güncəlləyin"
   },
   "cardDetails": {
-    "message": "Kart detalları"
+    "message": "Kart məlumatları"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ detalları",
+    "message": "$BRAND$ məlumatları",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -6503,7 +6543,7 @@
     "message": "Yalnız bu paylaşılan qovluqlara erişimi olan seyf üzvləri elementləri görə biləcək."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "$TOTAL_COUNT$ element seçmisiniz. Düzəliş icazəniz olmadığı üçün $READONLY_COUNT$ elementi güncəlləyə bilməzsiniz.",
+    "message": "$TOTAL_COUNT$ element seçmisiniz. Düzəliş izniniz olmadığı üçün $READONLY_COUNT$ elementi güncəlləyə bilməzsiniz.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -6823,7 +6863,7 @@
     "message": "Həmişəlik sil"
   },
   "noEditPermissions": {
-    "message": "Bu elementə düzəliş etmə icazəniz yoxdur"
+    "message": "Bu elementə düzəliş etmə izniniz yoxdur"
   },
   "biometricsStatusHelptextUnlockNeeded": {
     "message": "Əvvəlcə PIN və ya parol ilə kilid açma tələb olunduğu üçün biometrik ilə kilid açma əlçatmazdır."
@@ -7020,9 +7060,6 @@
   "compactMode": {
     "message": "Yığcam rejim"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "extensionWidth": {
     "message": "Uzantı eni"
   },
@@ -7063,7 +7100,7 @@
     "message": "SSH açarı uğurla daxilə köçürüldü"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
+    "message": "\"Sırf baxma\" izinlərinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -7072,19 +7109,13 @@
     }
   },
   "cannotRemoveViewOnlySharedFolders": {
-    "message": "\"Yalnız baxma\" icazələrinə sahib paylaşılan qovluqları silə bilməzsiniz: $SHAREDFOLDERS$",
+    "message": "\"Sırf baxma\" izinlərinə sahib paylaşılan qovluqları silə bilməzsiniz: $SHAREDFOLDERS$",
     "placeholders": {
       "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
     }
-  },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Lütfən masaüstü tətbiqinizi güncəlləyin"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "Biometrik kilid açmanı istifadə etmək üçün lütfən masaüstü tətbiqinizi güncəlləyin, ya da masaüstü ayarlarında barmaq izi ilə kilid açmanı sıradan çıxardın."
   },
   "changeAtRiskPassword": {
     "message": "Riskli parolları dəyişdir"
@@ -7224,7 +7255,7 @@
     "message": "Həssas verilərinizi əmniyyətdə saxlayın"
   },
   "newNoteNudgeBody": {
-    "message": "Notlarla, bankçılıq və ya sığorta təfsilatları kimi həssas veriləri təhlükəsiz saxlayın."
+    "message": "Notları istifadə edərək bankçılıq və ya sığorta ayrıntıları kimi həssas veriləri təhlükəsiz şəkildə depolayın."
   },
   "newSshNudgeTitle": {
     "message": "Gəlişdirici dostu SSH erişimi"
@@ -7266,7 +7297,7 @@
     "message": "İstifadəçi adınızı, parolunuzu və ya doğrulama kodunuzu lövhəyə kopyalamaq üçün elementlərin yanına 3 cəld kopyalama düyməsi əlavə edin."
   },
   "noPermissionsViewPage": {
-    "message": "Bu səhifəyə baxmaq icazəniz yoxdur. Fərqli hesabla giriş etməyə çalışın."
+    "message": "Bu səhifəyə baxmaq üçün izniniz yoxdur. Fərqli hesabla giriş etməyə çalışın."
   },
   "wasmNotSupported": {
     "message": "WebAssembly brauzerinizdə dəstəklənmir və ya fəal deyil. WebAssembly, Bitwarden tətbiqini istifadə etmək üçün tələb olunur.",
@@ -7274,6 +7305,15 @@
   },
   "showMore": {
     "message": "Daha çox göstər"
+  },
+  "showMoreCount": {
+    "message": "Daha $COUNT$ ədəd göstər",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Daha az göstər"
@@ -7509,7 +7549,7 @@
     "message": "Sadələşdirilmiş avto-doldurma"
   },
   "simplifiedAutofillDescription": {
-    "message": "Təklif edilən avto-doldurma elementinə kliklədiyiniz zaman, sizi detallara aparmaq əvəzinə avtomatik dolduracaq. Bu elementlərə Daha çox menyusunda baxa bilərsiniz."
+    "message": "Təklif edilən avto-doldurma elementinə kliklədiyiniz zaman, sizi ayrıntılara aparmaq əvəzinə avtomatik dolduracaq. Bu elementlərə Daha çox menyusunda baxa bilərsiniz."
   },
   "openSimplifiedAutofillPopover": {
     "message": "Sadələşdirilmiş avto-doldurma pəncərəsini aç"
@@ -7567,16 +7607,16 @@
     "message": "Paylaşılan kilid açma mövcud deyil, çünki bu cihazı xatırlamağı tərcih etməmisiniz. Bu ayarı fəallaşdırmaq üçün təkrar giriş etməyə çalışın."
   },
   "newPermissionNeeded": {
-    "message": "Yeni icazə lazımdır"
+    "message": "Yeni izin lazımdır"
   },
   "sharedUnlockDesktopPermissionDesc": {
-    "message": "Paylaşılan kilid açmanı istifadə etmək üçün Bitwarden-in masaüstü tətbiqi ilə əlaqə qurma icazəsinə ehtiyacı var. Davam etdiyiniz zaman, brauzeriniz sizdən bunu təsdiqləməyinizi istəyəcək."
+    "message": "Paylaşılan kilid açmanı istifadə etmək üçün Bitwarden-in masaüstü tətbiqi ilə əlaqə qurma izninə ehtiyacı var. Davam etdiyiniz zaman, brauzeriniz sizdən bunu təsdiqləməyinizi istəyəcək."
   },
   "sharedUnlockDesktopPermissionWarning": {
     "message": "Bitwarden kilidlənib yenidən yüklənəcək. Siz təsdiqlədikdən sonra uzantı yenidən yüklənir və seyfiniz kilidlənir."
   },
   "biometricPermissionDesc": {
-    "message": "Biometrik kilid açmanı istifadə etmək üçün Bitwarden-in masaüstü tətbiqi ilə əlaqə qurma icazəsinə ehtiyacı var. Davam etdiyiniz zaman, brauzeriniz sizdən bunu təsdiqləməyinizi istəyəcək."
+    "message": "Biometrik kilid açmanı istifadə etmək üçün Bitwarden-in masaüstü tətbiqi ilə əlaqə qurma izninə ehtiyacı var. Davam etdiyiniz zaman, brauzeriniz sizdən bunu təsdiqləməyinizi istəyəcək."
   },
   "enterMonth": {
     "message": "Ayı daxil edin."
@@ -7889,9 +7929,32 @@
     "message": "Müəyyən olunmuş risklər",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
+  "upgradeToViewPasswords": {
+    "message": "Parollara baxmaq üçün yüksəldin"
+  },
   "categoryHealthy": {
     "message": "Müdaxilə ediləcək heç nə yoxdur",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Seyfiniz skan edilir",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "İfşa olunmuş, zəif və təkrar istifadə olunmuş parolları yoxlayır.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "Davam edir",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Nəsə səhv getdi",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "Gözlənilməz xətaya görə seyfinizin skan prosesi tamamlanmadı.",
+    "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
     "message": "İfşa olunmuş parollar"
@@ -7911,8 +7974,8 @@
   "reusedPasswordsDescription": {
     "message": "Bu girişlərdəki parollar təkrar istifadə olunub. Kiminsə sadəcə bir parol istifadə edərək birdən çox hesaba erişməsini önləmək üçün hər hesaba unikal bir parol təyin edin."
   },
-  "deleteAtRiskItemDescription": {
-    "message": "Bu girişi silsəniz, sadəcə seyfinizdən xaric olunacaq, ancaq risk həll olunmayacaq. Hesabınızı qorumaq üçün əvvəlcə parolunuzu dəyişdirməlisiniz."
+  "deleteAtRiskItemDesc": {
+    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
   },
   "passwordHasAdditionalRisks": {
     "message": "Bu parol üçün əlavə risklər var:"
@@ -7932,15 +7995,30 @@
     }
   },
   "exposedPasswordsEmpty": {
-    "message": "None of your passwords were found in data breaches."
+    "message": "Parollarınızdan heç biri veri sızıntılarında tapılmadı."
   },
   "weakPasswordEmpty": {
-    "message": "All your passwords are strong."
+    "message": "Bütün parollarınız güclüdür."
   },
   "reusedPasswordEmpty": {
-    "message": "All your passwords are unique."
+    "message": "Bütün parollarınız unikaldır."
   },
   "youreAllSet": {
-    "message": "You're all set!"
+    "message": "Artıq hazırsınız!"
+  },
+  "permissions": {
+    "message": "İzinlər"
+  },
+  "viewItems": {
+    "message": "Elementlərə bax"
+  },
+  "viewItemsHidePass": {
+    "message": "Elementlərə, gizli parollara bax"
+  },
+  "editItems": {
+    "message": "Elementlərə düzəliş et"
+  },
+  "editItemsHidePass": {
+    "message": "Elementlərə, gizli parollara düzəliş et"
   }
 }

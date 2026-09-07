@@ -14,9 +14,9 @@ import { SendAccessToken } from "@bitwarden/common/auth/send-access";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   AnonLayoutWrapperDataService,
@@ -24,7 +24,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { SharedModule } from "../../../shared";
 
@@ -60,11 +60,11 @@ export class SendViewComponent implements OnInit {
   decKey!: SymmetricCryptoKey;
 
   constructor(
-    private legacyCompatKeyService: LegacyCompatKeyService,
     private sendApiService: SendApiService,
     private toastService: ToastService,
     private i18nService: I18nService,
     private layoutWrapperDataService: AnonLayoutWrapperDataService,
+    private sendDecryptionService: SendDecryptionService,
   ) {}
 
   ngOnInit() {
@@ -87,9 +87,11 @@ export class SendViewComponent implements OnInit {
       }
       const response = await this.sendApiService.postSendAccess(accessToken);
       const keyArray = Utils.fromUrlB64ToArray(this.key());
-      const sendAccess = new SendAccess(response);
-      this.decKey = await this.legacyCompatKeyService.makeSendKey(keyArray);
-      const decSend = await sendAccess.decrypt(this.decKey);
+      const [decSend, decKey] = await this.sendDecryptionService.decryptSendAccess(
+        response,
+        keyArray,
+      );
+      this.decKey = decKey;
       this.send.set(decSend);
     } catch (e) {
       this.send.set(null);
