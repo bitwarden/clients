@@ -1,12 +1,9 @@
-// MVP, delete with PM-41067
-
 import { Injectable, OnDestroy } from "@angular/core";
 import {
   combineLatest,
   concatMap,
   distinctUntilChanged,
   filter,
-  firstValueFrom,
   map,
   Observable,
   of,
@@ -29,52 +26,58 @@ import {
   KeyDefinition,
 } from "@bitwarden/common/platform/state";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
-import { UserId } from "@bitwarden/user-core";
 
-import { AutotypeConfig } from "../models/autotype-config";
-import { AutotypeVaultData } from "../models/autotype-vault-data";
-import { DEFAULT_KEYBOARD_SHORTCUT } from "../models/main-autotype-mvp-keyboard-shortcut";
+import { DEFAULT_KEYBOARD_SHORTCUT } from "../models/main-autotype-keyboard-shortcut";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
 
-export const AUTOTYPE_ENABLED = new KeyDefinition<boolean | null>(
+/*
+  The storage key definition for whether the user's local Autotype GA
+  setting is enabled or not.
+*/
+export const AUTOTYPE_GA_ENABLED = new KeyDefinition<boolean | null>(
   AUTOTYPE_SETTINGS_DISK,
-  "autotypeEnabled",
+  "autotypeGaEnabled",
   { deserializer: (b) => b },
 );
 
-export type Result<T, E = Error> = [E, null] | [null, T];
-
 /*
+  The storage key definition for the keyboard shortcut used to activate
+  Autotype GA.
+
   Valid windows shortcut keys: Control, Alt, Super, Shift, letters A - Z
   Valid macOS shortcut keys: Control, Alt, Command, Shift, letters A - Z
 
   See Electron keyboard shortcut docs for more info:
   https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts
 */
-export const AUTOTYPE_KEYBOARD_SHORTCUT = new KeyDefinition<string[]>(
+export const AUTOTYPE_GA_KEYBOARD_SHORTCUT = new KeyDefinition<string[]>(
   AUTOTYPE_SETTINGS_DISK,
-  "autotypeKeyboardShortcut",
+  "autotypeGaKeyboardShortcut",
   { deserializer: (b) => b },
 );
+
+export type Result<T, E = Error> = [E, null] | [null, T];
 
 @Injectable({
   providedIn: "root",
 })
-export class DesktopAutotypeMvpService implements OnDestroy {
-  private readonly autotypeEnabledState = this.globalStateProvider.get(AUTOTYPE_ENABLED);
-  private readonly autotypeKeyboardShortcut = this.globalStateProvider.get(
-    AUTOTYPE_KEYBOARD_SHORTCUT,
+export class DesktopAutotypeService implements OnDestroy {
+  private readonly autotypeEnabledState = this.globalStateProvider.get(AUTOTYPE_GA_ENABLED);
+  private readonly autotypeKeyboardShortcutState = this.globalStateProvider.get(
+    AUTOTYPE_GA_KEYBOARD_SHORTCUT,
   );
 
-  // if the user's account is Premium
+  // If the user's account is Premium
   private readonly isPremiumAccount$: Observable<boolean>;
 
-  // The enabled/disabled state from the user settings menu
+  // The observable representing if the user has enabled or disabled
+  // Autotype in the user settings menu
   autotypeEnabledUserSetting$: Observable<boolean> = of(false);
 
+  // The observable representing the keyboard shortcut the user
+  // has defined in the user settings menu
   autotypeKeyboardShortcut$: Observable<string[]> = of(DEFAULT_KEYBOARD_SHORTCUT);
 
   private destroy$ = new Subject<void>();
@@ -105,7 +108,7 @@ export class DesktopAutotypeMvpService implements OnDestroy {
       takeUntil(this.destroy$),
     );
 
-    this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcut.state$.pipe(
+    this.autotypeKeyboardShortcut$ = this.autotypeKeyboardShortcutState.state$.pipe(
       map((shortcut) => shortcut ?? DEFAULT_KEYBOARD_SHORTCUT),
       takeUntil(this.destroy$),
     );
@@ -116,13 +119,6 @@ export class DesktopAutotypeMvpService implements OnDestroy {
     if (this.platformUtilsService.getDevice() !== DeviceType.WindowsDesktop) {
       return;
     }
-
-    ipc.autofill.autotypeMvp.listenRequest(async (windowTitle, callback) => {
-      const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
-      const firstCipher = possibleCiphers?.at(0);
-      const [error, vaultData] = getAutotypeVaultData(firstCipher);
-      callback(error, vaultData);
-    });
 
     // If `autotypeDefaultPolicy` is `true` for a user's organization, and the
     // user has never changed their local autotype setting (`autotypeEnabledState`),
@@ -151,10 +147,11 @@ export class DesktopAutotypeMvpService implements OnDestroy {
     this.autotypeKeyboardShortcut$
       .pipe(
         concatMap(async (keyboardShortcut) => {
-          const config: AutotypeConfig = {
-            keyboardShortcut,
-          };
-          ipc.autofill.autotypeMvp.configure(config);
+          //const config: AutotypeConfig = {
+          //  keyboardShortcut,
+          //};
+          // TODO: inform the main process the keyboard shortcut setting changed
+          //       (PM-38967)
         }),
         takeUntil(this.destroy$),
       )
@@ -163,7 +160,8 @@ export class DesktopAutotypeMvpService implements OnDestroy {
     this.autotypeFeatureEnabled$
       .pipe(
         concatMap(async (enabled) => {
-          ipc.autofill.autotypeMvp.toggle(enabled);
+          // TODO: inform the main process the keyboard shortcut setting changed
+          //       (PM-38967)
         }),
         takeUntil(this.destroy$),
       )
@@ -176,7 +174,7 @@ export class DesktopAutotypeMvpService implements OnDestroy {
       // if the user has enabled the setting
       this.autotypeEnabledUserSetting$,
       // if the feature flag is set
-      this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype),
+      this.configService.getFeatureFlag$(FeatureFlag.WindowsDesktopAutotypeGA),
       // if there is an active account with an unlocked vault
       this.authService.activeAccountStatus$,
       // if the active user's account is Premium
@@ -201,63 +199,11 @@ export class DesktopAutotypeMvpService implements OnDestroy {
   }
 
   async setAutotypeKeyboardShortcutState(keyboardShortcut: string[]): Promise<void> {
-    await this.autotypeKeyboardShortcut.update(() => keyboardShortcut);
-  }
-
-  async matchCiphersToWindowTitle(windowTitle: string): Promise<CipherView[]> {
-    const URI_PREFIX = "apptitle://";
-    windowTitle = windowTitle.toLowerCase();
-
-    const ciphers = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(
-        map((account) => account?.id),
-        filter((userId): userId is UserId => userId != null),
-        switchMap((userId) => this.cipherService.cipherViews$(userId)),
-      ),
-    );
-
-    const possibleCiphers = ciphers.filter((c) => {
-      return (
-        c.login?.username &&
-        c.login?.password &&
-        c.deletedDate == null &&
-        c.login?.uris.some((u) => {
-          if (u.uri?.indexOf(URI_PREFIX) !== 0) {
-            return false;
-          }
-
-          const uri = u.uri.substring(URI_PREFIX.length).toLowerCase();
-
-          return windowTitle.indexOf(uri) > -1;
-        })
-      );
-    });
-
-    return possibleCiphers;
+    await this.autotypeKeyboardShortcutState.update(() => keyboardShortcut);
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-}
-
-/**
- * @return an `AutotypeVaultData` object or an `Error` if the
- * cipher or vault data within are undefined.
- */
-export function getAutotypeVaultData(
-  cipherView: CipherView | undefined,
-): Result<AutotypeVaultData> {
-  if (!cipherView) {
-    return [Error("No matching vault item."), null];
-  } else if (cipherView.login.username === undefined || cipherView.login.password === undefined) {
-    return [Error("Vault item is undefined."), null];
-  } else {
-    const vaultData: AutotypeVaultData = {
-      username: cipherView.login.username,
-      password: cipherView.login.password,
-    };
-    return [null, vaultData];
   }
 }
