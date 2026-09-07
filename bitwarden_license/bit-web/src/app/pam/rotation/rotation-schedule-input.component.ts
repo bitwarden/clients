@@ -21,24 +21,13 @@ import { RotationSdkService } from "./rotation-sdk.service";
 /**
  * CVA sub-editor for a Quartz cron schedule (or null for "no schedule").
  *
- * Presents a preset `bit-select` (None / Hourly / Every 6 hours / Daily / Weekly /
- * Monthly / Custom) plus, when Custom is selected, a free-text input. The outer value
- * is `string | null`:
+ * The outer value is `string | null`: `null` for None, a preset's own cron expression for that
+ * preset, any other string for Custom.
  *
- * - `null` → None (no scheduled rotation)
- * - a preset's cron expression → the matching preset
- * - any other string → Custom
+ * Every cron rule belongs to the SDK, not this component — which preset an expression maps to,
+ * and whether a custom one is Quartz-shaped, is resolved there and re-validated asynchronously.
  *
- * Every cron rule here — which expression a preset maps to, which preset an expression matches,
- * and whether a custom expression is Quartz-shaped — belongs to the SDK, so this component asks
- * rather than reimplements. Those calls are asynchronous (reaching the SDK needs a client) while
- * `ControlValueAccessor` and `Validator` are not, so the preset table is resolved once on
- * construction and the last shape verdict is kept, re-running validation when it lands.
- *
- * Client validation is advisory; the server is authoritative and enforces a
- * 15-minute interval floor. Server rejections should be surfaced via a toast.
- *
- * Usage: `<app-rotation-schedule-input formControlName="scheduleCron" />`
+ * Client validation is advisory; the server enforces a 15-minute interval floor.
  */
 @Component({
   selector: "app-rotation-schedule-input",
@@ -63,14 +52,12 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
   private readonly i18n = inject(I18nService);
   private readonly rotationSdk = inject(RotationSdkService);
 
-  /** Preset → cron expression, resolved once from the SDK. Empty until that read lands. */
+  /** Preset → cron expression, resolved from the SDK on construction; empty until that read lands. */
   private readonly cronByPreset = new Map<QuartzSchedulePreset, string>();
 
   /**
-   * Whether the custom expression currently looks like Quartz.
-   *
-   * Cached because {@link validate} is synchronous. Starts `true` so a control is never reported
-   * invalid on the strength of a check that has not run yet.
+   * Whether the custom expression looks like Quartz, cached since {@link validate} is
+   * synchronous. Starts `true` so a control is not reported invalid before the check runs.
    */
   // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties
   private cronShapeValid = true;
@@ -83,7 +70,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
   );
   protected readonly customControl = this.fb.nonNullable.control<string>("");
 
-  // ControlValueAccessor wiring — reassigned by Angular.
+  // ControlValueAccessor wiring, reassigned by Angular.
   // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties
   private onChange: (value: string | null) => void = () => {};
   // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties
@@ -94,7 +81,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
   constructor() {
     void this.loadPresetCrons();
 
-    // Propagate outward whenever preset OR custom text changes.
+    // Propagates outward on any preset or custom-text change.
     this.presetControl.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.emitValue();
       this.onValidatorChange();
@@ -130,7 +117,7 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     this.emitValue();
   }
 
-  /** Re-checks the custom expression's shape and re-runs validation once the verdict is in. */
+  /** Re-checks the custom expression's shape and re-validates against the new verdict. */
   private async refreshCronShape(value: string): Promise<void> {
     const raw = value.trim();
     // An empty field is "no schedule", not a malformed one — see validate().
@@ -138,10 +125,8 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     this.onValidatorChange();
   }
 
-  // --- ControlValueAccessor ---
-
   writeValue(value: string | null): void {
-    // Asking the SDK which preset this is takes a turn; the controls settle when it answers.
+    // Asking the SDK which preset this is takes a turn; controls settle after it answers.
     void this.applyPreset(value);
   }
 
@@ -176,8 +161,6 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     }
   }
 
-  // --- Validator ---
-
   validate(_control: AbstractControl): ValidationErrors | null {
     const preset = this.presetControl.value;
     if (preset !== QuartzSchedulePreset.Custom) {
@@ -195,13 +178,9 @@ export class RotationScheduleInputComponent implements ControlValueAccessor, Val
     this.onValidatorChange = fn;
   }
 
-  // --- Template event handlers ---
-
   protected markTouched(): void {
     this.onTouched();
   }
-
-  // --- Private helpers ---
 
   private emitValue(): void {
     this.onChange(this.currentValue);
