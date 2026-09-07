@@ -18,10 +18,8 @@ export const ACCESS_RULE_DURATION_PRESETS: ReadonlyArray<{ seconds: number; labe
 export const DEFAULT_ACCESS_RULE_DURATION_SECONDS = 60 * 60;
 
 /**
- * Preset durations offered by the requester's own duration picker on the automatic request path
- * (the cipher-view banner). A narrower list than {@link ACCESS_RULE_DURATION_PRESETS}: an
- * administrator configuring a rule can grant longer windows than a member may ask for in
- * self-service, and the top of this list is the server's 24h cap
+ * Preset durations for the requester's own duration picker (the cipher-view banner). Narrower
+ * than {@link ACCESS_RULE_DURATION_PRESETS}, topping out at the server's 24h cap
  * ({@link MAX_REQUEST_ACCESS_WINDOW_SECONDS}).
  */
 export const REQUEST_ACCESS_DURATION_PRESETS: ReadonlyArray<{
@@ -39,9 +37,8 @@ export const REQUEST_ACCESS_DURATION_PRESETS: ReadonlyArray<{
 /**
  * Duration pre-selected when the requester first opens the automatic-path form (1h).
  *
- * Only the fallback for a pre-check that names no default of its own. The governing rule's default
- * (published as `AccessPreCheckView.defaultDurationSeconds`) is the authority — preferring this
- * constant over it is what let a rule configured for 15 minutes still pre-fill an hour.
+ * Only the fallback for a pre-check naming no default of its own; the governing rule's own
+ * `defaultDurationSeconds` is the real authority.
  */
 export const DEFAULT_REQUEST_ACCESS_DURATION_SECONDS = 60 * 60;
 
@@ -49,18 +46,14 @@ export const DEFAULT_REQUEST_ACCESS_DURATION_SECONDS = 60 * 60;
 export type RequestDurationOption = { seconds: number; labelKey?: string };
 
 /**
- * The duration options a requester may pick from under a rule capped at `maxSeconds`, pre-selecting
- * `defaultSeconds`.
+ * The duration options a requester may pick from under a rule capped at `maxSeconds`,
+ * pre-selecting `defaultSeconds`.
  *
- * {@link REQUEST_ACCESS_DURATION_PRESETS} narrowed to what the cap allows, then widened to include
- * the cap and the default themselves. The widening matters twice: it keeps the picker non-empty for
- * a cap below the smallest preset (which would otherwise offer nothing at all), and it guarantees
- * the pre-selected default is a real option, so the select never renders blank. Every admin-settable
- * cap happens to coincide with a preset today, but a cap written straight to the API need not.
+ * {@link REQUEST_ACCESS_DURATION_PRESETS} narrowed to what the cap allows, then widened to
+ * include the cap and default themselves, so the picker is never empty and the default is
+ * always a real option.
  *
- * Entries the preset list does not cover carry no `labelKey`; the template formats those from their
- * value instead. Callers pass bounds already resolved server-side, so no clamping happens here
- * beyond dropping over-cap presets.
+ * Entries not in the preset list carry no `labelKey`; the template formats those from value.
  */
 export function requestDurationOptions(
   maxSeconds: number,

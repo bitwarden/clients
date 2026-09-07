@@ -25,22 +25,22 @@ import type { RotationConfigDescription } from "../rotation-sdk.service";
  * Builders for the rotation views, shared across this module's specs.
  *
  * The SDK's views are branded on every id and complete on every field, so hand-rolling one in a
- * spec means a cast that hides the next field the SDK adds. These give a valid default and take
- * an override, so a test states only what it is actually about.
+ * spec means a cast that hides the next field the SDK adds; these give a valid default and take
+ * an override.
  *
- * The ids are fixed, well-formed UUIDs rather than `"sys-1"` strings: `asUuid` validates, so a
+ * The ids are fixed, well-formed UUIDs, not `"sys-1"` strings: `asUuid` validates, so a
  * placeholder throws at the boundary rather than failing the assertion it was meant to set up.
  */
 
 /**
  * A stable, well-formed UUID for a label.
  *
- * `asUuid` validates, so a spec cannot use `"sys-1"` as an id any more. This hashes any label into
- * a real UUID that is the same on every run, so tests keep their readable names. A single hex digit
- * maps to the all-same-digit UUID (`id("1")` → `1111...`), which is what the constants below use.
+ * `asUuid` validates, so a spec can't use `"sys-1"` as an id; this hashes any label into a real
+ * UUID that's the same on every run. A single hex digit maps to the all-same-digit UUID
+ * (`id("1")` → `1111...`), used by the constants below.
  *
- * Distinct labels can collide onto the same UUID; where a test needs ids to differ, use two
- * different single digits or the exported constants.
+ * Distinct labels can collide onto the same UUID; where ids must differ, use two different
+ * digits or the exported constants.
  */
 export function id(label: string): string {
   const digit = /^[0-9a-f]$/.test(label)

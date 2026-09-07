@@ -58,9 +58,8 @@ type FilterableRow = {
 };
 
 /**
- * A row of the active-access table. Exactly one of `lease` / `request` is set: a lease the caller
- * holds right now, or an approved request they have not activated yet. `cipherName` / `notAfter`
- * are flattened onto the row because `bit-table` sorts on top-level row properties.
+ * A row of the active-access table. Exactly one of `lease` / `request` is set. `cipherName` /
+ * `notAfter` are flattened onto the row, since `bit-table` sorts on top-level properties.
  */
 type ActiveAccessRow = {
   readonly testId: string;
@@ -79,16 +78,11 @@ const byWindowEnd = (a: ActiveAccessRow, b: ActiveAccessRow): number =>
   Date.parse(a.notAfter) - Date.parse(b.notAfter);
 
 /**
- * "My requests" tab — the caller's own PAM access, grouped into three accordion sections mirroring
- * the design:
- *  - Pending — requests still awaiting an approver's decision.
- *  - Extension requests — open requests to extend a lease already held.
- *  - Active access — the leases the caller holds right now, together with approved grants the
- *    caller has not activated yet.
+ * "My requests" tab: the caller's own PAM access, in three sections — Pending, Extension
+ * requests, and Active access (leases held plus approved-but-unactivated grants).
  *
- * Data, name resolution, and optimistic cancel/end live in {@link MyAccessService} (provided on the
- * shell route and shared across tabs); this component owns only the view: the live countdown clock,
- * the search/collection filter, and the start/cancel/end affordance gating.
+ * Data, name resolution, and optimistic cancel/end live in {@link MyAccessService} (shared
+ * across tabs); this component owns the view: the live countdown, the filter, and action gating.
  */
 @Component({
   selector: "pam-my-requests-tab",
@@ -147,13 +141,10 @@ export class MyRequestsTabComponent {
   });
 
   /**
-   * Ticks once a second so the redemption/remaining countdowns stay live. Shares the one clock the
-   * badges already run on, and only observes it while a request is listed — the leases on this tab
-   * carry their own countdowns, so a tab showing nothing but held access leaves that clock torn
-   * down rather than scheduling a round of change detection every second that can change nothing.
+   * Ticks once a second so the countdowns stay live, sharing the clock the badges use; torn down
+   * while no request is listed, since leases carry their own countdowns.
    *
-   * Gated on the unfiltered requests rather than on anything downstream of the clock, which would
-   * feed the clock back into itself.
+   * Gated on the unfiltered requests, not on anything downstream of the clock, to avoid feedback.
    */
   protected readonly nowMs = toSignal(
     toObservable(computed(() => this.allPending().length > 0)).pipe(
@@ -200,15 +191,11 @@ export class MyRequestsTabComponent {
   private readonly leases = computed(() => this.applyFilters(this.allLeases()));
 
   /**
-   * Deliberately depends on `approvedRows` and `leases` only, never on `nowMs()`: a per-tick
-   * rebuild would hand every badge a fresh input object every second and restart its countdown
-   * (see {@link leaseBadgeStates}).
+   * Depends only on `approvedRows` and `leases`, never `nowMs()`, since a per-tick rebuild would
+   * hand every badge a fresh input and restart its countdown ({@link leaseBadgeStates}).
    *
-   * Held leases come first, and the Window column is not sortable, because `notAfter` means "when
-   * held access ends" on a lease but "activation deadline" on a grant. Ordering the merged set by
-   * it alone floats a grant the caller has not started — including, until the next load drops it,
-   * one whose window has already lapsed — above the access they actually hold. The Item column is
-   * sortable but keeps the same grouping; see {@link byItemName}.
+   * Held leases come first; the Window column isn't sortable, since `notAfter` means "ends" on a
+   * lease but "activation deadline" on a grant. The Item column sorts but keeps the same grouping.
    */
   protected readonly activeAccessRows = computed<ActiveAccessRow[]>(() => {
     const held: ActiveAccessRow[] = this.leases().map((lease): ActiveAccessRow => ({
@@ -237,10 +224,9 @@ export class MyRequestsTabComponent {
   });
 
   /**
-   * Badge state is memoised per lease so the shared badge component sees a stable input across the
-   * one-second `nowMs` tick. A fresh object every tick would re-run the badge's own effect and
-   * restart its countdown interval, so the label could never settle on a whole second. Keyed off
-   * the unfiltered rows so that typing in the search box does not churn the surviving badges.
+   * Badge state is memoised per lease so the shared badge component sees a stable input across
+   * the per-second tick; a fresh object each tick would restart its countdown interval. Keyed off
+   * the unfiltered rows so search does not churn surviving badges.
    */
   private readonly leaseBadgeStates = computed(
     () =>
@@ -307,10 +293,7 @@ export class MyRequestsTabComponent {
     });
   }
 
-  /**
-   * The decrypted cipher for a row, or undefined when it isn't in the caller's vault. The template
-   * renders `app-vault-icon` only when a cipher is present; otherwise no icon.
-   */
+  /** The decrypted cipher for a row, undefined when absent from the caller's vault; the template renders `app-vault-icon` only then. */
   protected cipherFor(cipherId: string): CipherView | undefined {
     return this.cipherById().get(cipherId);
   }
@@ -332,9 +315,8 @@ export class MyRequestsTabComponent {
   }
 
   /**
-   * A pending/approved request's window has already opened — the item shows "until X" instead of
-   * "from – to" ("effectively now": this backend's `leaseNotBefore` is never absent the way the
-   * poc's mocked one could be for an on-demand request).
+   * A pending/approved request's window has already opened — shown as "until X" instead of
+   * "from – to". This backend's `leaseNotBefore` is never absent, unlike the poc's mocked one.
    */
   protected startsNow(row: Pick<MyAccessRequestRow, "leaseNotBefore">): boolean {
     return Date.parse(row.leaseNotBefore) <= this.nowMs();
@@ -342,8 +324,8 @@ export class MyRequestsTabComponent {
 
   /**
    * A request the requester can withdraw: still pending, or an approved-but-not-activated request
-   * whose window can still produce access. Once its window lapses it can no longer be started, so —
-   * like Start — Cancel is withheld and it awaits server-side expiry.
+   * whose window can still produce access. Past that it can no longer be started, so Cancel is
+   * withheld like Start, awaiting server-side expiry.
    */
   protected canCancel(row: MyAccessRequestRow): boolean {
     if (row.status === "pending") {
@@ -353,8 +335,8 @@ export class MyRequestsTabComponent {
   }
 
   /**
-   * An approved request is startable only while its window can still produce access; once the window
-   * lapses the server rejects activation, so the Start button must not be offered.
+   * An approved request is startable only while its window can still produce access; past that
+   * the server rejects activation, so Start is not offered.
    */
   protected canStart(row: MyAccessRequestRow): boolean {
     return isRedeemableGrant(row, this.nowMs());
@@ -416,8 +398,8 @@ export class MyRequestsTabComponent {
       });
     } catch (e) {
       this.logService.error(e);
-      // A taken single-active-lease slot, an org-wide freeze, or anything else the server rejects
-      // activation for surfaces here; the approved request stays activatable for a manual retry.
+      // A taken slot, an org freeze, or any other server-side activation refusal surfaces here;
+      // the approved request stays activatable for a manual retry.
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t(activateAccessErrorMessageKey(e)),

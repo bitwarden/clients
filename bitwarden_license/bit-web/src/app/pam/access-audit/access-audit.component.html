@@ -76,12 +76,10 @@
         id="access-audit_container_filters"
       >
         <!--
-          Each option list sits inside an `@if` rather than directly under its chip. `refreshView` runs a
-          view's effects before it updates that view's embedded views, so an option created by a `@for` in
-          the chip's own host view is visible to `bit-filter-menu`'s summary effect a beat before Angular
-          has bound its required `value` — which throws NG0950 the first time a refresh brings a new event
-          kind or a new member into the trail. Nesting the loop one view deeper moves the option's creation
-          after those effects have run, so the chip only ever sees a fully bound option.
+          Each option list sits inside an `@if`, not directly under its chip: `refreshView` runs a
+          view's effects before updating its embedded views, so a same-view `@for` option would be
+          visible to the summary effect before Angular bound its required `value`, throwing
+          NG0950. Nesting one view deeper defers option creation until after those effects run.
         -->
         <bit-filter-menu
           #kindFilter
@@ -195,14 +193,12 @@
               <th bitCell class="tw-whitespace-nowrap">{{ "timestamp" | i18n }}</th>
               <th bitCell class="tw-whitespace-nowrap">{{ "pamAuditColumnEvent" | i18n }}</th>
               <!--
-                Actor, Requester and Duration stand down while the drawer is beside the table. Six
-                columns do not fit the half-width the drawer leaves, and these three are the ones the
-                reader loses least by: the pane they just opened already shows all three for the
-                selected row, actor and requester are a small repeating set of names across the trail,
-                and duration is an em dash on most kinds. Timestamp, Event and Item stay because they
-                are what keeps a place in the list — Item being what separates a run of rows sharing
-                one event label. `tw-hidden` rather than an opacity or width class, so the cells leave
-                the accessibility tree with the layout and no anchor is left focusable but unreadable.
+                Actor, Requester and Duration stand down while the drawer is open — the drawer
+                already shows them for the selected row, and Timestamp/Event/Item are what keep a
+                place in the list.
+
+                `tw-hidden`, not opacity or width, so the cells leave the accessibility tree with
+                no unreadable focusable anchor left behind.
               -->
               <th bitCell [class.tw-hidden]="detailsOpen()">
                 {{ "pamAuditColumnActor" | i18n }}
@@ -223,16 +219,13 @@
               <tr bitRow class="tw-cursor-pointer" (click)="openDetails(row)">
                 <td bitCell class="tw-whitespace-nowrap">{{ row.occurredAt | date: "medium" }}</td>
                 <!--
-                  The row's keyboard affordance, following the clickable-row pattern the access
-                  intelligence tables use (`role="button"` + `tabindex` + Enter/Space on the cell
-                  rather than on the `tr`, which is neither focusable nor nameable). One cell carries
-                  it rather than all six: a trail is ninety days long, and a tab stop per cell would
-                  put hundreds between an auditor and the end of the table. Pointer activation stays
-                  on the row itself, so the cell must not repeat it — the click would arrive twice.
+                  Keyboard affordance following the clickable-row pattern (`role="button"` +
+                  `tabindex` + Enter/Space on one cell, not the `tr`). One cell only, since a tab
+                  stop per cell would be hundreds across a 90-day trail; pointer activation stays
+                  on the row, so the cell must not repeat it.
 
-                  `button` marks its children presentational, so the in-doubt badge below is not
-                  exposed as a node of its own and only reaches a screen reader through this cell's
-                  accessible name.
+                  `button` marks its children presentational, so the in-doubt badge reaches a
+                  screen reader only through this cell's name.
                 -->
                 <td
                   bitCell
@@ -331,10 +324,8 @@
       </div>
       @if (canLoadMore()) {
         <!--
-          Below the table rather than beside Update, because it continues the list the auditor is
-          reading rather than acting on the page. It disappears on the last page: the server sends a
-          position to resume from only while one remains, so its absence is the end of the trail
-          rather than a guess made by counting rows.
+          Below the table, continuing the list rather than acting on the page. Disappears on the
+          last page: the server's resume token, not a row count, marks the end.
         -->
         <div class="tw-mt-4 tw-flex tw-justify-center">
           <button

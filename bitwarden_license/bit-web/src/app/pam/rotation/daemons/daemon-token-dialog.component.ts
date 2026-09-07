@@ -22,9 +22,8 @@ export type DaemonTokenDialogParams = {
   /**
    * The one-time token to display.
    *
-   * SECURITY: this token is shown exactly once. Never log it. Deliver it to the
-   * daemon operator out-of-band (e.g. paste into the daemon configuration file).
-   * Format: `0.daemon.{apiKeyId}.{clientSecret}:{keyMaterialBase64}`.
+   * SECURITY: shown exactly once; never log it. Deliver out-of-band (e.g. paste into the daemon
+   * config). Format: `0.daemon.{apiKeyId}.{clientSecret}:{keyMaterialBase64}`.
    */
   token: string;
 };
@@ -32,12 +31,11 @@ export type DaemonTokenDialogParams = {
 /**
  * Read-only copy-once dialog for the daemon registration token.
  *
- * Warning callout → single-line read-only token field with an inline copy
- * button (copies + shows a toast; leaves the dialog open so the operator can
- * confirm) → Close button.
+ * Warning callout → single-line read-only token field with an inline copy button (copies,
+ * toasts, and leaves the dialog open) → Close button.
  *
- * There is no way to re-fetch the token after this dialog closes. If the
- * operator loses it, they must delete the daemon and re-register.
+ * No way to re-fetch the token after this closes; a lost token means deleting and
+ * re-registering the daemon.
  */
 @Component({
   selector: "app-daemon-token-dialog",

@@ -9,11 +9,7 @@ import { AccessStateBadgeComponent } from "./access-state-badge.component";
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 
-/**
- * `active` is the only state whose recipe depends on the clock, so `expiresAt` is built at render
- * time rather than at module load — a story left open would otherwise drift past its own expiry and
- * silently fall back to the "Access ended" recipe.
- */
+/** `active` is the only state whose recipe depends on the clock, so `expiresAt` is built at render time, not module load. */
 function expiringIn(ms: number): AccessBadgeState {
   return { kind: "active", expiresAt: new Date(Date.now() + ms) };
 }
@@ -64,10 +60,7 @@ export const Ready: Story = {
   args: { state: { kind: "ready" } },
 };
 
-/**
- * A running lease with comfortable time left. The label re-renders every second; the formatted
- * value only changes once a minute, so it is stable well beyond a visual-regression capture.
- */
+/** A running lease with comfortable time left; the formatted value only changes once a minute, stable for a visual-regression capture. */
 export const Active: Story = {
   render: () => ({ props: { state: expiringIn(2 * HOUR + 5 * MINUTE) } }),
 };
@@ -118,10 +111,7 @@ export const NotGated: Story = {
   args: { state: null },
 };
 
-/**
- * Every recipe side by side. This is the view to check when changing a colour, icon, or the
- * five-minute escalation, since the point of the component is that all surfaces agree.
- */
+/** Every recipe side by side — the view to check when changing a colour, icon, or the five-minute escalation. */
 export const AllStates: Story = {
   render: () => ({
     props: {

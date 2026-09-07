@@ -48,8 +48,7 @@ const ROWS: ApprovalRow[] = [
     reason: "Quarterly key rotation.",
     submittedAt: new Date(STORY_NOW.getTime() - 15 * MINUTE).toISOString(),
   }),
-  // The viewer's own request: rendered, but the decide buttons are disabled rather than hidden so
-  // the reason can be explained in a tooltip instead of the row looking broken.
+  // The viewer's own request: decide buttons are disabled, not hidden, so a tooltip can explain why.
   row({ id: "req-4", cipherId: "cipher-2", requesterName: "You", reason: "Own request." }, false),
 ];
 
@@ -114,8 +113,7 @@ function inbox(
     providers: [
       {
         provide: ApproverInboxService,
-        // A factory rather than a value, so the real-clock lease windows are stamped when the
-        // story renders rather than when this module was first evaluated.
+        // A factory, so real-clock lease windows stamp when the story renders, not at module load.
         useFactory: () => ({
           loading$: of(loading),
           loadError$: of(null),

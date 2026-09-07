@@ -33,20 +33,16 @@ import { SecureNoteView } from "./secure-note.view";
 import { SshKeyView } from "./ssh-key.view";
 
 /**
- * `SdkCipherView` plus the PAM gating marker. `sdk-internal` does not declare `partial` on
- * `CipherView` yet, so the field is bridged here to keep {@link CipherView.fromSdkCipherView}
- * able to read it. The extra member is optional, so a plain `SdkCipherView` remains assignable
- * and no caller needs to change.
+ * `SdkCipherView` plus the PAM gating marker. `sdk-internal` doesn't declare `partial` on
+ * `CipherView` yet, so it's bridged here for {@link CipherView.fromSdkCipherView} to read;
+ * optional, so a plain `SdkCipherView` stays assignable.
  *
- * The Rust side is done but unpublished: `CipherView::partial` was added by sdk-internal commit
- * b19f4d40 ("decrypt server-restricted (PAM-gated) partial ciphers") in
- * `crates/bitwarden-vault/src/cipher/cipher.rs`, and generates as `partial?: boolean`, identical
- * to this alias. That commit declares it on `CipherListView` too, which is what lets
- * `CipherViewLikeUtils.isPartial` report gating for vault list rows rather than always returning
- * false. The field is not on `main`, only on `pam/uat`, so no `main.*` build carries it. Collapse
- * this into `SdkCipherView` once it ships.
+ * The Rust side shipped this as `partial?: boolean` in sdk-internal commit b19f4d40, on both
+ * `CipherView` and `CipherListView` (the latter is what lets `CipherViewLikeUtils.isPartial`
+ * report gating for list rows) — but unpublished, so no `main` build carries it yet. Collapse
+ * into `SdkCipherView` once it ships.
  *
- * See the sibling bridge in `domain/cipher.ts` for the migration the SDK bump also requires.
+ * See the sibling bridge in `domain/cipher.ts` for the same migration.
  */
 type SdkCipherViewWithPartial = SdkCipherView & { partial?: boolean };
 
