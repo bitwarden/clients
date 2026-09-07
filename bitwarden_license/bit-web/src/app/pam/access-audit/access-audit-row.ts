@@ -27,41 +27,34 @@ export type AuditRow = {
   requesterId: string | null;
   /** The requester's email — see {@link AuditRow.actorEmail}. */
   requesterEmail: string | null;
-  /** Decrypted cipher name from local vault state, or null when the item isn't in the caller's vault. */
+  /** Decrypted cipher name from local vault state, null when absent from the caller's vault. */
   cipherName: string | null;
   /** The subject cipher, when the event names one — the entity the Item cell opens an event history for. */
   cipherId: string | null;
   /** Decrypted collection name from local vault state, or null. */
   collectionName: string | null;
-  /**
-   * The subject collection, when the event names one — the identity behind a collection the drawer can
-   * open the organization vault on.
-   */
+  /** The subject collection, when the event names one — the id the drawer can open the org vault on. */
   collectionId: string | null;
-  /** The access rule's name (plaintext, provided by the server), for rule administration events; null otherwise. */
+  /** The access rule's name (plaintext, from the server), for rule administration events; null for others. */
   ruleName: string | null;
   /** The subject access rule, when the event names one — the identity behind a rule-named Item cell. */
   ruleId: string | null;
-  /** An approver comment or a revoke reason, if any. */
+  /** An approver comment or a revoke reason. */
   detail: string | null;
   /** True for a system / automatic event (expiry, an automatic decision). */
   automated: boolean;
-  /** True when the action's outcome never landed (only the write-ahead attempt) — shown as an in-doubt row. */
+  /** True for an action whose outcome never landed (only the write-ahead attempt) — shown as an in-doubt row. */
   inDoubt: boolean;
   /**
-   * The originating request, when the event has one. Shown in the details drawer but never as a link:
-   * the request-detail page is authorized for the requester or a managing approver, not for
-   * AccessEventLogs, so this trail offers no drill-down (see {@link AccessAuditComponent}).
+   * The originating request, if the event has one; shown in the drawer but never as a link — the
+   * request-detail page needs a different permission than AccessEventLogs.
    */
   requestId: string | null;
-  /**
-   * The lease the event concerns, when it has one. Like {@link AuditRow.requestId} it opens nothing;
-   * it is carried so the details drawer can hand an auditor the id support would ask them for.
-   */
+  /** The lease the event concerns, if any; carried, not linked, so the drawer can hand the id to support. */
   leaseId: string | null;
   /** The length of the granted access window, as an i18n key + value. Null on every other kind. */
   duration: LabelValue | null;
-  /** The exact "from – to" window behind {@link duration}, for the cell's tooltip. Null whenever {@link duration} is. */
+  /** The exact "from – to" window behind {@link duration}, for the cell's tooltip. Null exactly where {@link duration} is. */
   exactWindow: string | null;
   /** A lease-extended event's new lease end (the wire's ISO string). Null on every other kind. */
   extendedUntil: string | null;
@@ -123,9 +116,8 @@ export function toAuditRow(
   cipherNameById: Map<string, string>,
   collectionNameById: Map<string, string>,
 ): AuditRow {
-  // A lease ended by its own holder (RevokedBy == requester) is a self-end (AccessLeaseStatus.Cancelled), not an
-  // operator revoke. The server projects both as LeaseRevoked — distinguished by revoked_by — so the holder case gets
-  // its own label here rather than reading "Lease revoked".
+  // A lease ended by its own holder is a self-end (Cancelled), not an operator revoke — the
+  // server projects both as LeaseRevoked, distinguished by revoked_by.
   const selfEnded =
     event.kind === AccessAuditEventKind.LeaseRevoked &&
     event.actorId != null &&
@@ -175,10 +167,8 @@ export function toAuditRow(
 /**
  * Whether the event destroyed the rule it names.
  *
- * The audit store snapshots {@link AuditRow.ruleName} at write time, so such a row still reads as a name
- * long after the rule itself is gone — and the rule editor's route would answer that name with a 404 on
- * the very event an auditor is most likely to follow. Read off the label key rather than the wire kind
- * because that is what the row carries once shaped.
+ * The audit store snapshots {@link AuditRow.ruleName} at write time, so the name outlives the
+ * rule — its route would 404. Read off the label key the row carries once shaped.
  */
 export function auditRuleDeleted(row: AuditRow): boolean {
   return row.kindLabelKey === auditKindLabelKey(AccessAuditEventKind.RuleDeleted);
@@ -194,11 +184,11 @@ export const AUTOMATED_ACTOR = "automated";
 const END_OF_MINUTE_MS = 59_999;
 
 /**
- * The lower bound of an audit date range, from a `datetime-local` value. Blank or unparseable means unbounded.
+ * The lower bound of an audit date range, from a `datetime-local` value. Blank or unparseable
+ * means unbounded.
  *
- * Read as an instant in the viewer's own zone, so a bound typed as 09:00 means 09:00 where the auditor is
- * sitting — the same zone the Time column's `date` pipe renders in. Built from the parts rather than handed
- * to `Date.parse`, which reads a *date-only* string as UTC and only this date-time form as local.
+ * Built from the parts rather than `Date.parse`, which reads a date-only string as UTC but this
+ * date-time form as local.
  */
 export function auditRangeStart(value: string): Date | null {
   const parts = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value.trim());
@@ -225,11 +215,10 @@ export type AuditRange = { from: Date | null; to: Date | null };
 export const UNBOUNDED_AUDIT_RANGE: AuditRange = { from: null, to: null };
 
 /**
- * A choice in the Time period filter. Each one resolves to the bounds sent to the server as `start` and
- * `end`, so choosing a period re-reads the trail rather than hiding rows already fetched.
+ * A choice in the Time period filter, resolved to `start`/`end` bounds sent to the server.
  *
- * `allTime` is the store's retention window, not all of history: it sends no bounds, and the server answers
- * an unbounded request with everything it still holds — ninety days — so nothing older exists to show.
+ * `allTime` sends no bounds; the server answers with everything in its ninety-day retention
+ * window.
  */
 export type AuditTimePeriod = "today" | "past7Days" | "past30Days" | "allTime" | "custom";
 
@@ -249,9 +238,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 /**
  * The bounds a preset stands for, measured against `now`.
  *
- * Local time throughout, matching the Time column's `date` pipe: "Today" is the start of the auditor's own
- * day rather than the last 24 hours, so an event at 08:00 this morning is in it and one at 22:00 last night
- * is not. `allTime` carries no bounds, and `custom` takes its bounds from the dialog instead.
+ * Local time throughout, matching the Time column's `date` pipe: "Today" is the start of the
+ * auditor's own day, not the last 24 hours. `custom` takes its bounds from the dialog instead.
  */
 export function auditPresetRange(period: AuditTimePeriod, now: Date): AuditRange {
   switch (period) {

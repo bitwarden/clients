@@ -4,25 +4,18 @@ import { accessRuleErrorMessage, isAccessRuleNotFound } from "../abstractions/ac
 export type AccessRuleErrorField = "name" | "collections" | "maxExtensionDurationSeconds";
 
 /**
- * The access-rule endpoints' error catalog, as the server words it, paired with the copy we show
- * instead. Reproduced here rather than imported because the strings cross the wire as prose: the
- * SDK surfaces a server 400 as an `AccessRuleError` with `variant: "Api"` and the whole serialized
- * response body on `.message` — envelope, exception message and server-side stack trace included —
- * with no machine-readable code to switch on. When the server grows a code, this catalog is the
- * single place to retire.
+ * The access-rule endpoints' error catalog, as the server words it, paired with the copy shown
+ * instead. Reproduced here, not imported, since the strings cross the wire as prose with no
+ * machine-readable code to switch on.
  *
- * Sourced from `AccessRuleWriteValidator` and the create/update commands. The conditions-document
- * failures raised by `AccessRuleValidator` ("Conditions must be an array.", and its siblings) are
- * deliberately absent: the edit form builds that document itself, so any of them is a client bug
- * the admin cannot act on, and the generic system-error copy is the honest thing to show.
- * `NameRequiredLocally` is the one exception to "sourced from the server": it's the SDK's own
- * local (pre-HTTP) validation message, never a wire body. Nothing here reads that sentence from the
- * SDK — the wasm interpolates the maximum into it at runtime — so `access-rule-error.spec.ts`
- * holds this entry to the SDK instead, matching the literal pieces either side of the maximum
- * against the wasm, and the maximum itself against `ACCESS_RULE_NAME_MAX_LENGTH`. A reword on the
- * SDK's side fails that spec rather than quietly dropping the blank-name case back onto the
- * generic banner; a cap the SDK lowered without rewording stays invisible to it, so re-read the
- * maximum on each `@bitwarden/commercial-sdk-internal` bump.
+ * Sourced from `AccessRuleWriteValidator` and the create/update commands; the conditions-document
+ * failures from `AccessRuleValidator` are deliberately absent, since the edit form builds that
+ * document itself and any such failure is a client bug, not something the admin can act on.
+ *
+ * `NameRequiredLocally` is the one exception: the SDK's own local, pre-HTTP message, with the
+ * maximum interpolated at runtime. `access-rule-error.spec.ts` pins it against the SDK and
+ * `ACCESS_RULE_NAME_MAX_LENGTH` directly, so a reword or a lowered cap fails that spec instead of
+ * silently degrading to the generic banner.
  */
 export const ACCESS_RULE_SERVER_ERRORS = Object.freeze({
   NameRequired: {
@@ -68,11 +61,10 @@ export const ACCESS_RULE_SERVER_ERRORS = Object.freeze({
 /**
  * How the UI should report a rejected access-rule read, write or delete.
  *
- * The distinction is whether the admin can act on it. A `mapped` outcome names something they can
- * change, so it is offered as correctable copy — and, on the write path, never with a retry
- * affordance, since resending the same values would fail identically. Everything else is `generic`:
- * the server's own words are unfit for display (they carry its filesystem paths) and unfit for
- * logging, so the caller shows its own system-error copy.
+ * The distinction is whether the admin can act on it. A `mapped` outcome names something
+ * correctable — never with a retry on the write path, since resending the same values would
+ * fail identically. Everything else is `generic`: the server's own words carry filesystem paths,
+ * unfit for display or logging.
  */
 export type AccessRuleErrorOutcome =
   | {
@@ -84,12 +76,11 @@ export type AccessRuleErrorOutcome =
 
 /**
  * Classify a rejected access-rule call. The returned outcome carries i18n keys only — the raw
- * error never leaves this function, which is the point: its message is the server's serialized
- * response, and putting it on screen or in a log would publish the server's filesystem paths.
+ * error never leaves this function, since its message is the server's serialized response and
+ * would publish filesystem paths if shown or logged.
  *
- * Matched with `includes` rather than equality: the wire body wraps the server's sentence in a JSON
- * envelope and repeats it in `exceptionMessage`. The catalog entries are whole, distinct sentences,
- * so a substring match is unambiguous while tolerating that framing.
+ * Matched with `includes`, not equality: the wire body wraps the server's sentence in a JSON
+ * envelope and repeats it in `exceptionMessage`, so a substring match tolerates the framing.
  */
 export function classifyAccessRuleError(e: unknown): AccessRuleErrorOutcome {
   if (isAccessRuleNotFound(e)) {

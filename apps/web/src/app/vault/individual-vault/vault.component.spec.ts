@@ -496,8 +496,7 @@ describe("VaultComponent", () => {
     }
 
     it("mounts the host's banner with the selected collection's organization and id", () => {
-      // `canEdit`/`canDelete` are here because the same node also feeds `app-vault-header`,
-      // whose template calls them; the banner outlet reads only the two ids.
+      // `canEdit`/`canDelete` are here only because the same node feeds `app-vault-header` too.
       selectCollection(
         new TreeNode(
           {

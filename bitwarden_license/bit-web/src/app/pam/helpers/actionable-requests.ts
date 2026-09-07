@@ -4,17 +4,13 @@ import type { AccessRequestView } from "../abstractions/access-lease";
 type ActionableRequest = Pick<AccessRequestView, "status" | "leaseNotAfter" | "producedLeaseId">;
 
 /**
- * Whether a request still needs something from its requester: it is awaiting a decision, or it was
- * approved, not yet activated, and the window it was granted has not yet closed, so activating it
- * would still produce access.
+ * Whether a request still needs something from its requester: awaiting a decision, or approved,
+ * not yet activated, with a window that hasn't closed.
  *
- * An approved request whose window has lapsed is deliberately excluded. The server rejects
- * activating it, so counting it would badge the nav for something the requester cannot act on — the
- * same rule the "My requests" tab applies when it withholds the Start button.
+ * An approved request past its window is excluded, since the server rejects activating it — the
+ * same rule "My requests" applies when it withholds Start.
  *
- * Activation does not change the status — an activated request stays `approved` and is recognised by
- * the lease it minted — so `producedLeaseId` is what separates "still to start" from "already
- * running". Without it the badge would keep counting a grant the requester has already activated.
+ * Checked via `producedLeaseId`, not status, since an activated request stays `approved`.
  */
 export function isActionableRequest(request: ActionableRequest, now: Date): boolean {
   if (request.status === "pending") {
