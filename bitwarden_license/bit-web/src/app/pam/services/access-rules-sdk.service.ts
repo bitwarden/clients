@@ -17,18 +17,15 @@ import { AccessRuleSdkService } from "..";
 /**
  * The `bypassable_ciphers` call on the SDK's `AccessRulesClient`.
  *
- * Bridged locally rather than read off the SDK's own type, because the Rust side has it
- * (`bitwarden-pam`'s `access_rules().bypassable_ciphers()`) but the PUBLISHED `sdk-internal` this
- * repo pins does not — and CI installs the published package, so typing against the real method
- * would compile on a workspace with a locally rebuilt SDK linked in and fail in CI. Same shape of
- * bridge as `AccessRuleErrorVariant` (see `../abstractions/access-rule`), for the same reason.
+ * Bridged locally, not read off the SDK's own type: the Rust side has it, but the PUBLISHED
+ * `sdk-internal` this repo pins doesn't, and CI installs the published package. Same bridge
+ * shape as `AccessRuleErrorVariant`.
  *
- * Collapse it on the version bump that ships the method: delete this type and the guard below, and
+ * Collapse on the version bump that ships the method: delete this type and the guard below, and
  * call `access_rules().bypassable_ciphers(...)` directly.
  *
- * Declared `Partial` because on the published package the method is absent at RUNTIME too, so it
- * has to be feature-detected rather than called and caught — calling it would log a
- * "not a function" failure on every rule-edit page load, which reads as a real backend outage.
+ * Declared `Partial`, since on the published package the method is absent at RUNTIME too, so it
+ * must be feature-detected rather than called and caught.
  */
 type BypassGapsCapableClient = Partial<{
   /**

@@ -28,12 +28,12 @@ import {
 const names = storyNames();
 
 /**
- * The dialog reads everything off the route-scoped detail service the host hands it, so a stub of
- * that service is the whole fixture — the load/not-found/error states are its states, surfaced
- * here as the three streams the dialog branches on.
+ * The dialog reads everything off the route-scoped detail service the host hands it, so a stub
+ * of that service is the whole fixture — load/not-found/error surfaced as the three streams the
+ * dialog branches on.
  *
- * The dialog clocks its own countdown for a running lease, so windows that must still be open are
- * built against the real clock inside the factory.
+ * The dialog clocks its own countdown for a running lease, so open windows are built against the
+ * real clock inside the factory.
  */
 function detail(
   options: { request?: () => AccessRequestView; notFound?: boolean; error?: unknown } = {},

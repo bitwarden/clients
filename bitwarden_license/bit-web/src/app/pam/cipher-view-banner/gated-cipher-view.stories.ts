@@ -50,14 +50,11 @@ import {
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
 
 /**
- * The composed cipher view, rather than the banner on its own. This is where the card ORDER and
- * the name-row badge are visible, and those are the only things these stories exist to show:
- * the state badge opposite the item name, then identity, access, Autofill options, Item history.
+ * The composed cipher view, not the banner on its own — these stories exist to show card order
+ * and the name-row badge: state badge, identity, access, Autofill, Item history.
  *
- * {@link OrdinaryLogin} is the load-bearing one. `cipher-view.component.html` and
- * `item-details-v2.component.html` render every vault item in the product, so neither the banner
- * outlet nor the badge outlet may leave a mark on an ungoverned item; that story is the ungoverned
- * item, with neither `CIPHER_VIEW_BANNER` nor `ITEM_DETAILS_STATE_BADGE` bound at all.
+ * {@link OrdinaryLogin} is load-bearing: every vault item renders through these templates, so an
+ * ungoverned item must show neither outlet at all.
  */
 
 function loginCipher(id: string, name: string, uri: string): CipherView {
@@ -90,15 +87,11 @@ function ordinaryCipher(): CipherView {
   return cipher;
 }
 
-/**
- * Everything `CipherViewComponent` and its section children inject. Root injector, because
- * `Vfo1TerminologyService` is `providedIn: "root"` and resolves its own `ConfigService` there.
- */
+/** Everything `CipherViewComponent` and its section children inject. Root injector, since `Vfo1TerminologyService` is `providedIn: "root"`. */
 function provideStoryCipherView() {
   return [
-    // Only the PAM flag is on. `VFO1Foundation` and `PM32016RemoveAtRiskCallout` are read by the
-    // cipher view and its item-details child, and blanket-enabling every flag would silently swap
-    // the terminology and drop the at-risk callout, neither of which these stories are about.
+    // Only the PAM flag is on; enabling every flag would silently swap terminology and drop the
+    // at-risk callout.
     {
       provide: ConfigService,
       useValue: { getFeatureFlag$: (flag: FeatureFlag) => of(flag === FeatureFlag.Pam) },
@@ -145,10 +138,11 @@ function provideStoryCipherView() {
 }
 
 /**
- * Binds the real banner and the real name-row badge to their tokens, over one access state built at
- * render time. The two seams read the same state, so a story showing them disagreeing is a bug.
- * There is no active-lease story because that state badges only in the banner heading; see
- * `ItemDetailsStateBadgeComponent` for why.
+ * Binds the real banner and the real name-row badge to their tokens, over one access state built
+ * at render time. The two seams read the same state, so disagreement is a bug.
+ *
+ * No active-lease story, since that state only badges in the banner heading — see
+ * `ItemDetailsStateBadgeComponent`.
  */
 function gated(state: () => Record<string, unknown>) {
   return moduleMetadata({

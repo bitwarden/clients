@@ -67,9 +67,9 @@ describe("TargetSystemsTabComponent", () => {
     dialogService.openSimpleDialog.mockResolvedValue(false);
     toastService = mock<ToastService>();
 
-    // Override the template AND imports to avoid pulling in HeaderModule → SharedModule → DialogModule
-    // which would provide a real DialogService, overriding our test mock.
-    // Must come before configureTestingModule.
+    // Overrides the template AND imports to avoid pulling in HeaderModule → SharedModule →
+    // DialogModule, which would override the test mock DialogService. Must come before
+    // configureTestingModule.
     TestBed.overrideComponent(TargetSystemsTabComponent, { set: { template: "", imports: [] } });
 
     await TestBed.configureTestingModule({

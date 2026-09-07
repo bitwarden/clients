@@ -28,10 +28,9 @@ function rule(overrides: Record<string, unknown> = {}): AccessRuleView {
 }
 
 /**
- * `GovernedCollectionsService` is stubbed rather than provided over a stubbed SDK: the story is
- * about which rules the callout names, and the real service's per-org cache would otherwise carry
- * one story's rules into the next. The component still runs the real `rulesGoverningCollection`
- * filter over whatever this returns, so the enabled/targeting rules below are honest.
+ * `GovernedCollectionsService` is stubbed, not provided over a stubbed SDK: the real service's
+ * per-org cache would otherwise carry one story's rules into the next. The component still runs
+ * the real `rulesGoverningCollection` filter over this, so the results stay honest.
  */
 function withRules(rules: AccessRuleView[]) {
   return moduleMetadata({
@@ -89,7 +88,7 @@ export const MultipleRules: Story = {
   ],
 };
 
-/** Every condition at once, to check the summary joins its keys with " + " rather than wrapping oddly. */
+/** Every condition at once, checking the summary joins its keys with " + " rather than wrapping oddly. */
 export const AllConditions: Story = {
   decorators: [
     withRules([
@@ -102,10 +101,7 @@ export const AllConditions: Story = {
   ],
 };
 
-/**
- * A disabled rule gates nothing, so it is filtered out and the callout does not render — saying the
- * collection is governed when it is not would be worse than saying nothing.
- */
+/** A disabled rule gates nothing, so it's filtered out and the callout doesn't render. */
 export const DisabledRuleHidden: Story = {
   decorators: [withRules([rule({ enabled: false })])],
 };

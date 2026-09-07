@@ -67,8 +67,8 @@ describe("DaemonsTabComponent", () => {
       t: (key: string) => key,
     } as unknown as jest.Mocked<I18nService>;
 
-    // Override the template to avoid CDK overlay and other browser-only concerns
-    // in tests focused on component logic and service interactions.
+    // Overrides the template to avoid CDK overlay and other browser-only concerns in these
+    // logic-focused tests.
     TestBed.overrideComponent(DaemonsTabComponent, { set: { template: "" } });
 
     await TestBed.configureTestingModule({

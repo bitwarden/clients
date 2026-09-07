@@ -31,18 +31,17 @@ import {
 } from "../access-name-resolver.service";
 
 /**
- * Loads and holds the single access request behind the `/pam/requests/:id` dialog — a shareable
- * link to one of the caller's own requests — resolving display names from local vault state and
- * owning the requester-facing mutations (cancel / activate / end lease). Approve/Deny is not
- * offered here: a requester never decides their own request (that's the deferred approver-inbox
- * flow).
+ * Loads and holds the single access request behind the `/pam/requests/:id` dialog, resolving
+ * display names from local vault state and owning requester-facing mutations
+ * (cancel/activate/end lease); Approve/Deny is not offered here, since a requester never decides
+ * their own request.
  *
- * Scoped to that route (not root), so each visit gets its own instance. It reads the `:id` off
- * `ActivatedRoute`, so it is provided on the route's host component rather than the route config,
- * where an environment-injector lookup would fall through to the root route. Re-fetches
- * on the route id and on every server-pushed access event ({@link AccessEventService}), so an
- * approver's decision lands on an open page without a reload; mutations made here re-fetch
- * explicitly rather than waiting for their own push to come back.
+ * Scoped to the route so each visit gets its own instance, provided on the route's host component
+ * since it reads `:id` off `ActivatedRoute` (a route-config provider would resolve in the
+ * environment injector, which falls through to the root route).
+ *
+ * Re-fetches on the route id and on every server-pushed access event, so an approver's decision
+ * lands without a reload; mutations here re-fetch explicitly rather than waiting on their own push.
  */
 @Injectable()
 export class AccessRequestDetailService {
@@ -65,17 +64,16 @@ export class AccessRequestDetailService {
   readonly names$: Observable<ResolvedNames> = this._names$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
   readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
-  /** True when the request is missing or not visible to the caller (the server 404s both). */
+  /** True when the request is missing or invisible to the caller — the server 404s both. */
   readonly notFound$: Observable<boolean> = this._notFound$.asObservable();
-  /** Decrypted gated cipher keyed by id, for the item's favicon; empty when not in the vault. */
+  /** Decrypted gated cipher keyed by id, for the item's favicon; blank when absent from the vault. */
   readonly cipherById$: Observable<Map<string, CipherView>> = this.names$.pipe(
     map((names) => names.cipherById),
   );
 
   constructor() {
-    // Load when the id changes, and again on every access push. `startWith` gives the push stream an
-    // initial value so combineLatest emits on first paint rather than waiting for a push. fetch()
-    // records failures on loadError$/notFound$ rather than throwing, so the stream never tears down.
+    // Loads on id change and every access push; `startWith` gives the push stream an initial
+    // value so combineLatest emits on first paint. fetch() records failures rather than throwing.
     const id$ = this.route.paramMap.pipe(
       map((params) => params.get("id")),
       filter((id): id is string => id != null),
@@ -135,8 +133,8 @@ export class AccessRequestDetailService {
         ]),
       );
     } catch (e) {
-      // A 404 (the request doesn't exist, or isn't visible to this caller — the server returns
-      // the same for both, so ids can't be probed) is a not-found state, not an error banner.
+      // A 404 (missing or not visible — the server returns the same for both) is not-found, not
+      // an error.
       if (this.isRequestNotFoundError(e)) {
         this._request$.next(null);
         this._notFound$.next(true);
@@ -151,11 +149,10 @@ export class AccessRequestDetailService {
   /**
    * Whether a `getAccessRequest` failure means "not found".
    *
-   * The SDK's `LeasingError` has no distinct not-found variant (see `bitwarden-pam`'s `error.rs`):
-   * a 404 folds into the generic `"Api"` variant, whose flattened `message` is the only place the
-   * status code survives ("Received error message from server: [404] ..."). This is best-effort
-   * string-matching pending a structured variant from the SDK; a false negative just downgrades to
-   * the generic load-error banner instead of the not-found state.
+   * The SDK's `LeasingError` has no distinct not-found variant: a 404 folds into the generic
+   * `"Api"` variant, whose message is the only place the status code survives. Best-effort
+   * string-matching pending a structured SDK variant; a false negative just downgrades to the
+   * generic error banner.
    */
   private isRequestNotFoundError(e: unknown): boolean {
     return this.leasingErrors.isLeasingError(e) && e.variant === "Api" && /\[404\]/.test(e.message);

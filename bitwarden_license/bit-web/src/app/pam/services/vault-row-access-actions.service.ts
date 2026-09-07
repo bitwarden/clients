@@ -27,20 +27,14 @@ const NEVER_CANCELABLE$ = of(false);
 
 /**
  * PAM's {@link VaultRowAccessActionsService}: lets the vault-row menu withdraw the caller's
- * outstanding access request for a gated cipher without the row knowing anything about leasing.
- * The row calls both methods straight from its template, so the partial gate and id handling are
- * owned here, and the cancel itself (with its outcome toasts and refresh announcement) is the
- * shared {@link AccessRequestCancelService} flow — the same one the cipher-view banner runs.
+ * outstanding access request for a gated cipher, without the row knowing about leasing. The
+ * cancel itself runs through the shared {@link AccessRequestCancelService} flow.
  *
- * {@link cancelableRequest$} is memoized per cipher id and MUST stay that way: the row menu reads
- * it through an `async` pipe on every change-detection pass, and a fresh stream per call would
- * resubscribe (and re-fetch) each pass. The menu's content only instantiates when opened, so the
- * underlying `cipher_access_state()` read is lazy — one per open (`shareReplay` with `refCount`
- * releases the upstream when the menu closes, so the next open re-reads), re-driven by the shared
- * refresh signal while it stays open. The cache holds only cold, unsubscribed streams for rows no
- * longer rendered, so it is not emptied. "Cancelable" mirrors the banner's withdraw semantics: a
- * pending request or an approved-but-unactivated one, either of which can be withdrawn until a
- * lease is minted.
+ * {@link cancelableRequest$} is memoized per cipher id and MUST stay that way, since the row
+ * menu reads it via `async` pipe on every change-detection pass. The underlying read is lazy,
+ * one per menu open, released on close via `shareReplay`/`refCount`.
+ *
+ * "Cancelable" mirrors the banner's withdraw semantics: pending or approved-but-unactivated.
  */
 export class DefaultVaultRowAccessActionsService implements VaultRowAccessActionsService {
   private readonly cancelableByCipherId = new Map<string, Observable<boolean>>();

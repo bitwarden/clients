@@ -14,30 +14,23 @@ import { rulesGoverningCollection } from "../collection-access-rule-callout/acce
 import { GovernedCollectionsService } from "./governed-collections.service";
 
 /**
- * The collection fields the gating check reads, structurally — the host passes its own node (the
- * vault's selected filter), which PAM must not import to stay decoupled from the admin-console
- * models. Both fields are optional because a host may have no collection selected, or a
- * pseudo-collection ("All collections", "Unassigned") that carries neither.
+ * The collection fields the gating check reads, structurally — the host passes its own node,
+ * which PAM must not import to stay decoupled from admin-console models. Both optional, since a
+ * host may have no collection selected or a pseudo-collection carrying neither.
  */
 export type GatedCollection = { id?: string; organizationId?: OrganizationId };
 
 /**
  * Whether an enabled access rule governs the given collection, for the vault banner. Must be
- * called from an injection context. The collection-dialog callout asks the same underlying
- * question, but reads directly from `GovernedCollectionsService` / `rulesGoverningCollection`
- * rather than going through this helper, because it names the governing rules rather than just
- * counting them.
+ * called from an injection context.
  *
- * The collection-row badge and the sidebar lock answer the same question from the collection's
- * own server-derived `hasEnabledAccessRule`, which is both cheaper and works for a provider
- * browsing a client org (a `listAccessRules` read requires organization membership, which a
- * provider has none of, and so fails closed to ungated). The banner cannot take that shortcut,
- * and the reason is invisible at the call site: it is handed collection ids alone, never a
- * collection, so there is no flag on hand to read.
+ * The collection-row badge and sidebar lock answer the same question more cheaply, off the
+ * collection's own server-derived `hasEnabledAccessRule` — which also works for a provider
+ * browsing a client org, since `listAccessRules` needs membership a provider lacks. The banner
+ * can't take that shortcut: it's handed collection ids alone, never a collection.
  *
- * The rules read is issued only for a collection whose own organization has Privileged Access:
- * a member can select a collection in any organization, and asking for the access rules of an
- * organization that cannot have any is a refused request and a logged error.
+ * The rules read is issued only for a collection whose own organization has Privileged Access;
+ * asking for any other organization's rules is a refused request and a logged error.
  */
 export function gatedCollection(
   collection: Signal<GatedCollection | null | undefined>,
@@ -68,20 +61,18 @@ export function gatedCollection(
         ? { id, organizationId }
         : null;
     }),
-    // `getFeatureFlag$` and `pamOrganizationIds$` both re-emit on unrelated upstream events (a
-    // config refresh, any sync write), with no de-duplication of their own. Without this, those
-    // re-emissions would re-run the switchMap below for the SAME collection and re-trigger its
-    // `startWith(false)` seed, blinking a settled banner/lock off and back on.
+    // `getFeatureFlag$`/`pamOrganizationIds$` re-emit on unrelated upstream events with no
+    // de-duplication of their own; without this, re-emissions would re-run the switchMap and
+    // re-trigger its `startWith(false)` seed, blinking a settled banner off and back on.
     distinctUntilChanged((a, b) => a?.id === b?.id && a?.organizationId === b?.organizationId),
     switchMap((target) => {
       if (target == null) {
         return of(false);
       }
-      // `startWith(false)` because the vault banner is ONE component instance whose inputs the
-      // host swaps as the user moves between collections. Without a seed, `switchMap` leaves the
-      // previous collection's verdict standing until the new read lands, so the banner would keep
-      // asserting "requires a request" over an ungated collection's items for the length of a
-      // network round trip. A cached read still emits synchronously, so this adds no flicker.
+      // `startWith(false)` since the vault banner is ONE instance whose inputs the host swaps
+      // between collections; without a seed, `switchMap` would leave the previous verdict
+      // standing until the new read lands. A cached read still emits synchronously, so this adds
+      // no flicker.
       return governedCollections.rules$(target.organizationId).pipe(
         map((rules) => rulesGoverningCollection(rules, target.id).length > 0),
         startWith(false),
