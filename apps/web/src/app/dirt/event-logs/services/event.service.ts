@@ -1079,6 +1079,65 @@ export class EventService {
           this.getShortId(ev.accessLeaseId),
         );
         break;
+      case EventType.Pam_AccessRequest_Cancelled:
+        msg = this.i18nService.t(
+          "pamEventCancelledAccessRequest",
+          this.formatCipherId(ev, options),
+          this.formatAccessRequestId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventCancelledAccessRequest",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessRequestId),
+        );
+        break;
+      case EventType.Pam_AccessLease_Extended:
+        msg = this.i18nService.t(
+          "pamEventExtendedAccessLease",
+          this.formatCipherId(ev, options),
+          this.formatAccessLeaseId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventExtendedAccessLease",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessLeaseId),
+        );
+        break;
+      case EventType.Pam_AccessLease_Expired:
+        msg = this.i18nService.t(
+          "pamEventExpiredAccessLease",
+          this.formatCipherId(ev, options),
+          this.formatAccessLeaseId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventExpiredAccessLease",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessLeaseId),
+        );
+        break;
+      // A refused activation mints no lease, so the request is the only subject it can name.
+      case EventType.Pam_AccessLease_ActivationRejected:
+        msg = this.i18nService.t(
+          "pamEventRejectedAccessLeaseActivation",
+          this.formatCipherId(ev, options),
+          this.formatAccessRequestId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "pamEventRejectedAccessLeaseActivation",
+          this.getShortId(ev.cipherId),
+          this.getShortId(ev.accessRequestId),
+        );
+        break;
+      // Rule administration names no subject: a rule spans collections and has no id column on the event.
+      case EventType.Pam_AccessRule_Created:
+        msg = humanReadableMsg = this.i18nService.t("pamEventCreatedAccessRule");
+        break;
+      case EventType.Pam_AccessRule_Updated:
+        msg = humanReadableMsg = this.i18nService.t("pamEventUpdatedAccessRule");
+        break;
+      case EventType.Pam_AccessRule_Deleted:
+        msg = humanReadableMsg = this.i18nService.t("pamEventDeletedAccessRule");
+        break;
 
       default:
         break;
