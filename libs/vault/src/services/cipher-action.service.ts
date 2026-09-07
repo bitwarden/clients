@@ -3,6 +3,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, map, Subject, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -25,6 +26,7 @@ import {
   AttachmentDialogResult,
   AttachmentsV2Component,
 } from "../cipher-view/attachments/attachments-v2.component";
+import { deleteFailureMessageKey } from "../utils/delete-failure-message";
 
 import { ArchiveCipherUtilitiesService } from "./archive-cipher-utilities.service";
 import { PasswordRepromptService } from "./password-reprompt.service";
@@ -181,7 +183,8 @@ export class CipherActionService {
     }
   }
 
-  async delete(cipher: CipherViewLike): Promise<void> {
+  /** @param collections the caller's visible collections, used only to explain a refused delete. */
+  async delete(cipher: CipherViewLike, collections: CollectionView[] = []): Promise<void> {
     if (!(await this.promptPassword(cipher))) {
       return;
     }
@@ -208,6 +211,10 @@ export class CipherActionService {
       });
     } catch (e) {
       this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(deleteFailureMessageKey(cipher, collections)),
+      });
     }
     this._cipherModified.next();
   }
