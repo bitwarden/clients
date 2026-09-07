@@ -7,22 +7,20 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { AccessEventService } from "..";
 
 /**
- * Default {@link AccessEventService}: filters the application-wide server-notification stream down to
- * the two PAM push types — `RefreshAccessRequest` for the requester and `RefreshApproverInbox` for
- * the approvers — and shares each result.
+ * Default {@link AccessEventService}: filters the application-wide server-notification stream
+ * down to the two PAM push types — `RefreshAccessRequest` for the requester,
+ * `RefreshApproverInbox` for approvers — and shares each result.
  *
- * Takes the stream as a constructor argument rather than the whole notifications service so this
- * class has no opinion about transport, and unit tests hand it a plain `Subject`.
+ * Takes the stream as a constructor argument, not the whole notifications service, so this
+ * class has no opinion about transport and unit tests hand it a plain `Subject`.
  *
- * Reads `ServerNotificationsService.notifications$` directly. That member is marked deprecated in
- * favour of adding a case to `DefaultServerNotificationsService.processNotification`, but doing so
- * would put a commercial PAM concern in `libs/common`; `DefaultTaskService` filters the same stream
- * for `RefreshSecurityTasks` for the same reason, so this follows an established precedent rather
- * than inventing one.
+ * Reads `ServerNotificationsService.notifications$` directly rather than adding a case to
+ * `DefaultServerNotificationsService.processNotification`, which would put a commercial PAM
+ * concern in `libs/common` — the same precedent `DefaultTaskService` follows for
+ * `RefreshSecurityTasks`.
  *
- * User scoping comes from upstream — the stream is already scoped to the active account — so the
- * `UserId` half of each emission is deliberately unused. `share()` without replay matches the
- * fire-and-forget semantics of the push channel.
+ * User scoping comes from upstream, so the `UserId` half of each emission is unused; `share()`
+ * without replay matches the push channel's fire-and-forget semantics.
  */
 export class DefaultAccessEventService implements AccessEventService {
   private readonly changed$: Observable<void>;
@@ -37,10 +35,9 @@ export class DefaultAccessEventService implements AccessEventService {
       );
 
     this.changed$ = ticksFor(NotificationType.RefreshAccessRequest);
-    // Kept a separate stream rather than merged into `changed$`: the approver push says a collection
-    // the caller manages changed, which is no reason for the requester-side surfaces (the lease
-    // banner, a cipher's access state) to re-read. Surfaces that span both sides subscribe to both —
-    // `ApproverInboxService` and the nav badge do.
+    // Kept separate from `changed$`: the approver push names a collection the caller manages,
+    // not a reason for requester-side surfaces to re-read. Surfaces spanning both sides
+    // subscribe to both.
     this.inboxChanged$ = ticksFor(NotificationType.RefreshApproverInbox);
   }
 

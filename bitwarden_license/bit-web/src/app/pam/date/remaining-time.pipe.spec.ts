@@ -4,7 +4,7 @@ describe("RemainingTimePipe", () => {
   const pipe = new RemainingTimePipe();
 
   // The exhaustive ms-formatting cases live in format-remaining.spec.ts; these cover the
-  // notAfter/now wiring the pipe adds on top.
+  // notAfter/now wiring the pipe adds.
   it("formats the remaining time until notAfter relative to nowMs", () => {
     const now = Date.parse("2026-01-01T00:00:00.000Z");
     const notAfter = "2026-01-01T02:05:00.000Z"; // 2h 5m later

@@ -8,14 +8,12 @@ import type {
 
 /**
  * Lease lifecycle (list mine/extend/end) is served by the Rust SDK
- * (`client.commercial().pam().leases()`). Like {@link AccessRequestSdkService}
- * these calls are user-scoped, not org-scoped — no `organizationId` is
- * threaded through. Errors surface as the SDK's flat `LeasingError` shape
- * (see `./access-lease`) rather than `ErrorResponse`.
+ * (`client.commercial().pam().leases()`); like {@link AccessRequestSdkService}, these calls are
+ * user-scoped, not org-scoped. Errors surface as the SDK's flat `LeasingError` shape, not
+ * `ErrorResponse`.
  *
- * Deliberately omits `list_active` — that governance-facing read (all active
- * leases across an org) is out of scope for the "My access" surface this
- * service backs.
+ * Deliberately omits `list_active` — that governance-facing read is out of scope for the "My
+ * access" surface this service backs.
  */
 export abstract class AccessLeaseSdkService {
   abstract listMyLeases(): Promise<AccessLeaseView[]>;

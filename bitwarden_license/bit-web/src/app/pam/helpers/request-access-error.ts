@@ -1,21 +1,15 @@
 import { UNLICENSED_SERVER_MESSAGE } from "./pam-license-error";
 
 /**
- * The PAM lease-request endpoint's error catalog, as the server words it. Two jobs:
+ * The PAM lease-request endpoint's error catalog, as the server words it: detects the
+ * reconciliation cases where the requester already has what they asked for, and the field-level
+ * validation failures worth echoing inline.
  *
- * - detect the three RECONCILIATION cases — the requester asked for something they already have —
- *   which are not really failures and must not surface as errors, and
- * - recognise the field-level validation failures worth echoing inline on the form.
+ * Reproduced here, not imported, since the strings cross the wire as prose — the SDK surfaces a
+ * server 400 with no machine-readable code to switch on.
  *
- * Reproduced here rather than imported because the strings cross the wire as prose: the SDK
- * surfaces a server 400 as a `LeasingError` with `variant: "Api"` and the server's message on
- * `.message`, with no machine-readable code to switch on. When the server grows a code, this
- * catalog is the single place to retire.
- *
- * Every entry must be the sentence the SERVER actually throws — see
- * `SubmitAccessRequestCommand`. A refusal the SDK raises before the wire is worded on its own
- * terms and belongs in {@link REQUEST_ACCESS_SDK_ERRORS} instead; the two are NOT kept in step
- * (PM-42592).
+ * Every entry must be the sentence the SERVER actually throws; a refusal the SDK raises before
+ * the wire belongs in {@link REQUEST_ACCESS_SDK_ERRORS} instead, and the two are not kept in step.
  */
 export const REQUEST_ACCESS_SERVER_ERRORS = Object.freeze({
   ReasonRequired: "A reason is required for items that need human approval.",
@@ -35,19 +29,16 @@ export const REQUEST_ACCESS_SERVER_ERRORS = Object.freeze({
   StartEndRequired: "A start and end date are required.",
   PositiveDurationRequired: "A positive duration is required.",
   /**
-   * Both cap sentences pin the GLOBAL 24h ceiling, but the server interpolates the governing
-   * rule's own `EffectiveMax` — so a rule with a narrower `MaxLeaseDurationSeconds` throws a
-   * sentence carrying that number and misses this entry, falling through to the generic copy. The
-   * form already narrows its picker to the rule's cap, so it only bites on skew; matching on the
-   * prefix instead is tracked separately.
+   * Pins the GLOBAL 24h ceiling; the server interpolates the governing rule's own
+   * `EffectiveMax`, so a narrower rule cap misses this entry and falls through to generic copy.
+   * Only reachable on skew, since the form already narrows its picker to the rule's cap.
    */
   DurationExceedsMax: "The requested duration exceeds the maximum of 86400 seconds.",
   WindowExceedsMax: "The requested window exceeds the maximum of 86400 seconds.",
   NotLeasingGated: "This item does not require a lease.",
   /**
-   * The caller holds no Privileged Controls license (PM-39423). The banner blocks the form before
-   * a submit can be attempted, so reaching this means the license lapsed between render and
-   * submit — surface it inline rather than as the generic failure, since the reason is actionable.
+   * The caller holds no Privileged Controls license. The banner blocks the form before a submit
+   * can be attempted, so reaching this means the license lapsed between render and submit.
    */
   Unlicensed: UNLICENSED_SERVER_MESSAGE,
 } as const);
@@ -55,12 +46,10 @@ export const REQUEST_ACCESS_SERVER_ERRORS = Object.freeze({
 /**
  * Refusals the SDK raises locally, before the request reaches the wire.
  *
- * `AccessRequestError::Validation` is `#[error(transparent)]`, so what arrives on `.message` is
- * the inner `AccessRequestWindowError`'s own `Display` — worded independently of the sentence the
- * server throws for the same condition. Kept apart from {@link REQUEST_ACCESS_SERVER_ERRORS} so
- * neither side has to be spelled like the other: the two drifted while three comments claimed
- * they could not, which cost the requester the inline message on every server-side refusal
- * (PM-42592).
+ * `AccessRequestError::Validation` is `#[error(transparent)]`, so `.message` is the inner
+ * `AccessRequestWindowError`'s own `Display` — worded independently of the server's sentence for
+ * the same condition. Kept apart from {@link REQUEST_ACCESS_SERVER_ERRORS}; the two are not kept
+ * in step.
  */
 export const REQUEST_ACCESS_SDK_ERRORS = Object.freeze({
   /** `AccessRequestWindowError::EndInPast`, the local twin of `WindowInPast`. */
@@ -77,8 +66,8 @@ export type RequestAccessErrorOutcome =
   | { readonly kind: "reconcile"; readonly toastKey: string }
   /**
    * A validation failure the requester can fix in place: echo `serverMessage` under the form and,
-   * when `field` is set, mark that control invalid too. Named for the common case; it carries a
-   * local SDK refusal verbatim too, since both are already prose in the requester's language.
+   * when `field` is set, mark that control invalid. Also carries a local SDK refusal verbatim,
+   * since both are already prose in the requester's language.
    */
   | { readonly kind: "inline"; readonly serverMessage: string; readonly field?: "reason" }
   /** Unrecognised — fall back to the generic "could not request access" copy. */
@@ -99,10 +88,7 @@ const RECONCILIATION_TOAST_KEYS: ReadonlyArray<{ serverMessage: string; toastKey
   },
 ];
 
-/**
- * Every message echoed inline under the form, from either source. The SDK's local refusals sit
- * alongside the server's because the requester's fix is the same whichever side caught it.
- */
+/** Every message echoed inline under the form, from either source — the requester's fix is the same either way. */
 const INLINE_MESSAGES: ReadonlyArray<string> = [
   REQUEST_ACCESS_SERVER_ERRORS.PositiveDurationRequired,
   REQUEST_ACCESS_SERVER_ERRORS.DurationExceedsMax,

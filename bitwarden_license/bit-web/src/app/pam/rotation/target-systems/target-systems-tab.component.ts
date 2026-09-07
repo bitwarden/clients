@@ -173,10 +173,9 @@ export class TargetSystemsTabComponent {
   /**
    * Permanently delete a target system after confirming with the operator.
    *
-   * The server, not this component, decides whether the delete is allowed: it refuses while any
-   * rotation config still names the target, and that refusal arrives as an ordinary error for
-   * {@link showError} to surface. Offering the action unconditionally and letting the server
-   * reject it keeps one authority on the rule rather than a client-side copy that can drift.
+   * The server, not this component, decides whether the delete is allowed: it refuses while
+   * any rotation config still names the target, surfaced as an ordinary error for
+   * {@link showError}. Offering the action unconditionally keeps one authority on the rule.
    */
   protected readonly confirmDelete = async (system: TargetSystem): Promise<void> => {
     const confirmed = await this.dialogService.openSimpleDialog({

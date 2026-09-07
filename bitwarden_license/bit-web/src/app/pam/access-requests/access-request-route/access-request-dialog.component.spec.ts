@@ -86,8 +86,7 @@ describe("AccessRequestDialogComponent", () => {
     toastService = mock<ToastService>();
     dialogService.openSimpleDialog.mockResolvedValue(true);
 
-    // The detail service is route-scoped and handed in by the host route, so the dialog reads it
-    // off `DIALOG_DATA` rather than injecting it.
+    // The detail service is route-scoped, handed in by the host route via `DIALOG_DATA`.
     const params = {
       detail: detail as unknown as AccessRequestDetailService,
     } satisfies AccessRequestDialogParams;
@@ -105,9 +104,8 @@ describe("AccessRequestDialogComponent", () => {
         },
       ],
     })
-      // `DialogModule` provides the real `DialogService` into the component's own standalone
-      // injector, which shadows a module-level override — so the end-lease confirm has to be
-      // stubbed on the component itself.
+      // `DialogModule` provides the real `DialogService` in the component's own injector,
+      // shadowing a module-level override.
       .overrideComponent(AccessRequestDialogComponent, {
         add: { providers: [{ provide: DialogService, useValue: dialogService }] },
       })

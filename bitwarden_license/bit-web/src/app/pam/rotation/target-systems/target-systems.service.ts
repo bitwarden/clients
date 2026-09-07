@@ -9,14 +9,13 @@ import { RotationSdkService } from "../rotation-sdk.service";
 /**
  * Page-scoped data service for the target-systems tab.
  *
- * Provided at the rotation shell route so all rotation tabs share one loaded instance.
- * Owns the list of target systems, exposes derived lookups (`systemById$`,
- * `activeAutomaticSystems$`), and handles the enable/disable toggle with optimistic patching.
+ * Provided at the rotation shell route so all rotation tabs share one loaded instance; owns the
+ * list of target systems, exposes derived lookups, and handles the enable/disable toggle with
+ * optimistic patching.
  *
- * Delete and disable are not interchangeable: `disable` retires a target that is merely
- * unavailable, leaving it and its configs intact, while `delete` is for one that has left the
- * estate. The server refuses a delete while any rotation config still names the target, so it —
- * not this service — is the authority on whether one is allowed.
+ * Delete and disable aren't interchangeable: disable retires a merely unavailable target,
+ * leaving it and its configs intact; delete is for one that has left the estate, and the server
+ * — not this service — refuses it while any config still names the target.
  */
 @Injectable()
 export class TargetSystemsService {
@@ -36,10 +35,7 @@ export class TargetSystemsService {
     map((systems) => new Map(systems.map((s) => [s.id, s]))),
   );
 
-  /**
-   * The subset of systems that are Active and use the Automatic method — these are the valid
-   * choices when selecting a target system for a new rotation config.
-   */
+  /** The subset of systems that are Active and use the Automatic method — the valid choices for a new rotation config. */
   readonly activeAutomaticSystems$: Observable<TargetSystem[]> = combineLatest([
     this._systems$,
   ]).pipe(
@@ -83,9 +79,8 @@ export class TargetSystemsService {
   /**
    * Permanently delete a target system, dropping it from local state once the server confirms.
    *
-   * Not optimistic: the server refuses while a rotation config still names the target, and that
-   * refusal is the common case rather than the exceptional one, so the row stays until it is
-   * genuinely gone. Callers surface the rejection to the operator.
+   * Not optimistic: the server refuses while a rotation config still names the target, and
+   * that's the common case, so the row stays until it's genuinely gone.
    */
   async delete(system: TargetSystem): Promise<void> {
     const orgId = this.requireOrganizationId();

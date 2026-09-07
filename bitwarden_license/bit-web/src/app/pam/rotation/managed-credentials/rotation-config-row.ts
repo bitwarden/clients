@@ -57,9 +57,9 @@ export type RotationConfigRow = {
  * Build a presentation row from a rotation config, its resolved target system, its cipher name,
  * and the SDK's description of it.
  *
- * Pure function — no side effects, no Angular dependencies. Everything that is a *rule* rather than
- * a label (which actions the config offers, which preset its cron matches) is decided by the SDK
- * and arrives in `description`; this only maps that onto i18n keys and sortable columns.
+ * Pure function — no side effects, no Angular dependencies. Which actions the config offers and
+ * which preset its cron matches are decided by the SDK and arrive in `description`; this only
+ * maps that onto i18n keys and sortable columns.
  *
  * @param config - The rotation config.
  * @param targetSystem - The resolved target system, or undefined if not yet loaded.
@@ -80,7 +80,7 @@ export function buildRotationConfigRow(
   return {
     id: config.id,
     config,
-    // Falls back to the raw id when the vault read has not resolved a name yet.
+    // Falls back to the raw id when the vault read hasn't resolved a name yet.
     cipherName: cipherName ?? String(config.cipherId),
     targetSystemName: targetSystem?.name ?? config.targetSystemName,
     methodLabelKey: methodLabel(config.targetSystemMethod),
@@ -133,12 +133,12 @@ function scheduleLabel(preset: QuartzSchedulePreset, cron: string | null): strin
 /** Exposed for template use: the set of non-custom preset label keys. */
 export const PRESET_I18N_KEYS = PRESET_LABEL_KEYS;
 
-/** True when scheduleLabelKeyOrCron is an i18n key (not a raw cron string). */
+/** True when `scheduleLabelKeyOrCron` is an i18n key, not a raw cron string. */
 export function isScheduleI18nKey(row: Pick<RotationConfigRow, "scheduleLabelKeyOrCron">): boolean {
   return Object.values(PRESET_LABEL_KEYS).includes(row.scheduleLabelKeyOrCron);
 }
 
-/** True when the row represents a manual-method config waiting for operator action. */
+/** True when a config's method is manual, waiting for operator action. */
 export function isManualTarget(row: Pick<RotationConfigRow, "canRecordManual">): boolean {
   return row.canRecordManual;
 }

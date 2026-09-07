@@ -28,10 +28,12 @@ export const AccessAuditEventKind = Object.freeze({
 export type AccessAuditEventKind = (typeof AccessAuditEventKind)[keyof typeof AccessAuditEventKind];
 
 /**
- * One row of the PAM access-audit trail, as the governance client renders it. Read from the dedicated audit store,
- * where each event was written self-contained (display names snapshotted at write time). `kind` carries the outcome;
- * `actorId` is who performed the event (null for a system / automatic event, reflected by `automated`). Subject
- * ids/names are populated according to the kind.
+ * One row of the PAM access-audit trail, as the governance client renders it. Read from the
+ * dedicated audit store, where each event was written self-contained (names snapshotted at
+ * write time).
+ *
+ * `kind` carries the outcome; `actorId` is who performed it (null for automated, per
+ * `automated`). Subject ids/names populate according to the kind.
  */
 export class AccessAuditEventResponse extends BaseResponse {
   kind: AccessAuditEventKind;
@@ -46,7 +48,7 @@ export class AccessAuditEventResponse extends BaseResponse {
   requestId: string | null;
   leaseId: string | null;
   ruleId: string | null;
-  /** An approver comment or a revoke reason, if the source carried one. */
+  /** An approver comment or a revoke reason, when the source carried one. */
   detail: string | null;
   leaseNotBefore: string | null;
   leaseNotAfter: string | null;
@@ -60,9 +62,9 @@ export class AccessAuditEventResponse extends BaseResponse {
   collectionName: string | null;
   /** The access rule's name — plaintext org configuration (not vault data), for rule administration events. */
   ruleName: string | null;
-  /** True when there is no human actor — a system / automatic event. */
+  /** True when there's no human actor — a system / automatic event. */
   automated: boolean;
-  /** True when the action's outcome never landed (only the write-ahead attempt was recorded) — an in-doubt entry. */
+  /** True when the action's outcome never landed — only the write-ahead attempt, an in-doubt entry. */
   incomplete: boolean;
 
   constructor(response: unknown) {

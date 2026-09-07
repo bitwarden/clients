@@ -22,17 +22,15 @@ import { AccessConnector, RotationConfig, TargetSystem } from "./rotation";
 import { TargetSystemsService } from "./target-systems/target-systems.service";
 
 /**
- * Rotation feature shell: renders the page header and the three routed tabs
- * (Managed credentials / Target systems / Daemons). The shell stays mounted
- * across tab navigation; the page-scoped services (provided at the shell route)
- * are shared by all tabs.
+ * Rotation feature shell: renders the page header and the three routed tabs (Managed
+ * credentials / Target systems / Daemons); page-scoped services stay shared across tab
+ * navigation since the shell stays mounted.
  *
- * The header hosts the primary create action for the active tab — "New target
- * system" and "New daemon" — so each tab renders only its list, not a second
- * header. Which button shows is driven by the active child route.
+ * The header hosts the active tab's primary create action, driven by the active child route, so
+ * each tab renders only its list.
  *
- * The Managed credentials tab label shows a warning berry when there are
- * configs awaiting a manual rotation confirmation.
+ * The Managed credentials tab label shows a warning berry when configs await a manual rotation
+ * confirmation.
  */
 @Component({
   selector: "app-rotation-shell",
@@ -65,10 +63,7 @@ export class RotationShellComponent {
     { initialValue: this.route.snapshot.firstChild?.routeConfig?.path ?? null },
   );
 
-  /**
-   * Whether any target systems exist. The "New target system" header button is hidden when none
-   * exist, since the tab shows a create/template empty state that owns that action instead.
-   */
+  /** Whether any target systems exist; hides the "New target system" header button, since the empty state owns that action. */
   private readonly targetSystems = toSignal(this.targetSystemsService.systems$, {
     initialValue: [] as TargetSystem[],
   });
@@ -79,28 +74,20 @@ export class RotationShellComponent {
     initialValue: 0,
   });
 
-  /**
-   * Whether any managed credentials exist. The "New managed credential" header button is hidden
-   * when none do, since the tab shows an empty state that owns that action (or directs the user to
-   * set up a target system first).
-   */
+  /** Whether any managed credentials exist; hides the "New managed credential" header button, since the empty state owns that action. */
   private readonly configs = toSignal(this.configsService.configs$, {
     initialValue: [] as RotationConfig[],
   });
   protected readonly hasConfigs = computed(() => this.configs().length > 0);
 
-  /**
-   * Whether any daemons exist. The "New daemon" header button is hidden when none do, since the
-   * tab shows an empty state that owns that action.
-   */
+  /** Whether any daemons exist; hides the "New daemon" header button, since the empty state owns that action. */
   private readonly daemons = toSignal(this.daemonsService.daemons$, {
     initialValue: [] as AccessConnector[],
   });
   protected readonly hasDaemons = computed(() => this.daemons().length > 0);
 
   constructor() {
-    // Load the configs service whenever the org changes. The effect also re-runs
-    // when the user navigates back from a form page (component remounts).
+    // Loads on org change, and again on remount when the user navigates back from a form page.
     effect(() => {
       void this.configsService.load(this.organizationId());
     });

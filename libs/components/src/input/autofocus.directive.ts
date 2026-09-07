@@ -43,10 +43,10 @@ export class AutofocusDirective implements AfterContentChecked {
 
   /**
    * Also select the focused element's contents, for a field whose prefilled value is a
-   * placeholder the user is expected to type over rather than extend. Opt-in, because
-   * selecting a value the user came to append to would be actively hostile.
+   * placeholder to type over, not extend. Opt-in, since selecting a value the user meant to
+   * append to would be actively hostile.
    *
-   * No-op on an element without `select()` (anything but a text input or textarea).
+   * No-op on an element without `select()`.
    */
   readonly appAutofocusSelect = input(false, { transform: booleanAttribute });
 

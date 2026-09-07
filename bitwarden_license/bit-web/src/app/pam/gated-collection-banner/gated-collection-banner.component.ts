@@ -8,17 +8,16 @@ import { VaultGatedCollectionBanner } from "@bitwarden/web-vault/app/vault/indiv
 import { gatedCollection } from "../services/gated-collection";
 
 /**
- * Explains, above the vault's item list, that the collection currently being viewed opens through
- * a request. Without it the list reads as an ordinary collection whose rows happen to be
- * unavailable, with nothing on screen saying why.
+ * Explains, above the vault's item list, that the collection being viewed opens through a
+ * request — without it the list reads as an ordinary collection with nothing on screen saying
+ * why its rows are unavailable.
  *
  * Bound to `VAULT_GATED_COLLECTION_BANNER` in `provide-pam.ts`. The host passes the selected
- * collection only when exactly one is the active filter, so "All items" and the pseudo-collections
- * never reach this component; whether the collection is governed is decided by the shared
- * {@link gatedCollection} check so the vault stays PAM-free.
+ * collection only when exactly one is the active filter; whether it's governed is decided by
+ * the shared {@link gatedCollection} check.
  *
- * The sentence is the sidebar lock's tooltip string verbatim, by the same requirement that keeps
- * the two surfaces describing one restriction the same way.
+ * The sentence is the sidebar lock's tooltip string verbatim, so both surfaces describe one
+ * restriction the same way.
  */
 @Component({
   selector: "app-pam-gated-collection-banner",

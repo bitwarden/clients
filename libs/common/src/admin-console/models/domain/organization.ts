@@ -386,12 +386,12 @@ export class Organization {
     return this.hasProvider && this.providerType === ProviderType.Reseller;
   }
   /**
-   * Whether this member may take out privileged access: the organization is subscribed and they hold a seat
-   * against it. Mirrors the server's own AND in `CurrentContextOrganization.AccessPam`, and the shape of
-   * {@link canAccessSecretsManager} — the other per-seat entitlement.
+   * Whether this member may take out privileged access: the organization is subscribed and
+   * they hold a seat against it. Mirrors the server's own AND in
+   * `CurrentContextOrganization.AccessPam`, shaped like {@link canAccessSecretsManager}.
    *
-   * Distinct from {@link canManageAccessRules}, which is about authoring the rules rather than requesting access
-   * under them: an admin without a seat administers PAM but cannot use it.
+   * Distinct from {@link canManageAccessRules}, which is about authoring rules, not requesting
+   * access under them: an admin without a seat administers PAM but can't use it.
    */
   get canAccessPrivilegedAccess() {
     return this.usePam && this.accessPam;

@@ -29,10 +29,9 @@ describe("canViewApprovalsGuard", () => {
   /**
    * Runs the guard in an injection context and normalises its result to a promise.
    *
-   * The guard is typed `CanActivateFn`, so call sites must pass both `route` and `state` even though
-   * this implementation ignores the second one. Static analysis reads the arrow function's arity
-   * rather than the annotation and flags the argument as superfluous — it is not, and dropping it
-   * fails the build with TS2554.
+   * The guard is typed `CanActivateFn`, so call sites must pass both `route` and `state`; static
+   * analysis reads the arrow function's arity, and dropping the unused argument fails the build
+   * with TS2554.
    */
   async function run(segments = ["pam", "approvals"]): Promise<GuardResult> {
     const result = TestBed.runInInjectionContext(() =>
@@ -42,8 +41,7 @@ describe("canViewApprovalsGuard", () => {
   }
 
   beforeEach(() => {
-    // What the privilege IS lives in `approval-privileges.spec.ts`; this spec only cares that the
-    // guard routes on the answer.
+    // What the privilege IS lives in `approval-privileges.spec.ts`; this only checks routing.
     canApprove$ = new BehaviorSubject<boolean>(true);
     syncService = {
       getLastSync: jest.fn().mockResolvedValue(new Date()),
@@ -68,8 +66,7 @@ describe("canViewApprovalsGuard", () => {
   });
 
   it("syncs before deciding when nothing has synced yet", async () => {
-    // The privilege comes from synced collection state; deciding first would bounce a real approver
-    // on a cold deep link.
+    // The privilege comes from synced collection state; deciding first would bounce a real approver.
     syncService.getLastSync.mockResolvedValue(null);
 
     expect(await run()).toBe(true);

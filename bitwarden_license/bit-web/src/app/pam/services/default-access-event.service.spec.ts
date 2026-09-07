@@ -68,8 +68,8 @@ describe("DefaultAccessEventService", () => {
   });
 
   it("keeps the two pushes on separate streams", () => {
-    // The approver push says a managed collection changed, which is no reason for the
-    // requester-side surfaces to re-read — and vice versa.
+    // The approver push says a managed collection changed; no reason for requester-side
+    // surfaces to re-read, and vice versa.
     const ticks = watch();
     const inboxTicks = watchInbox();
 

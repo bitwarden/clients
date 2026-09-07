@@ -130,8 +130,8 @@ describe("VaultItemsComponent", () => {
     const normal = { id: "normal", partial: false } as unknown as CipherView;
     const partial = { id: "partial", partial: true } as unknown as CipherView;
 
-    // Select a partial directly, bypassing the disabled checkbox / editableItems gating, to prove
-    // the bulk emitters themselves drop it.
+    // Selects a partial directly, bypassing the disabled checkbox, to prove the bulk emitters
+    // themselves drop it.
     const captureNextEvent = () => {
       let event: any;
       component.onEvent.subscribe((e) => (event = e));

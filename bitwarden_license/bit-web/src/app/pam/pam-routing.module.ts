@@ -27,8 +27,8 @@ const routes: Routes = [
         path: "audit",
         canActivate: [organizationPermissionsGuard((org) => org.canAccessEventLogs)],
         component: AccessAuditComponent,
-        // Route-provided (the service is @Injectable, not root): the audit table resolves cipher and
-        // collection names from local vault state the same way the "My access" surfaces do.
+        // Route-provided (not root): resolves cipher/collection names from local vault state,
+        // same as "My access".
         providers: [AccessNameResolverService],
         data: { titleId: "pamAuditLog" },
       },

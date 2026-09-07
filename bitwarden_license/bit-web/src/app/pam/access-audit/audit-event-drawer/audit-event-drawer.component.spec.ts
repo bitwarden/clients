@@ -111,8 +111,7 @@ describe("AuditEventDrawerComponent", () => {
         },
       ],
     })
-      // Stub the dialog shell so these tests exercise the pane's own fields rather than
-      // `bit-dialog`'s chrome, which wants a real DialogRef and a drawer stack to sit in.
+      // Stubs the dialog shell so tests exercise the pane's own fields, not `bit-dialog`'s chrome.
       .overrideComponent(AuditEventDrawerComponent, {
         remove: { imports: [DialogModule] },
         add: { schemas: [NO_ERRORS_SCHEMA] },
@@ -200,7 +199,7 @@ describe("AuditEventDrawerComponent", () => {
       );
     });
 
-    // The trail falls back to the email as the display name, and the same address twice reads as a bug.
+    // The trail falls back to email as the display name; repeating it would read as a bug.
     it("does not repeat an email that is already the display name", async () => {
       await render({ row: row({ actor: "ada@example.com" }), actor: null });
 
@@ -215,7 +214,7 @@ describe("AuditEventDrawerComponent", () => {
       expect(text("item")).toBe("Production access");
     });
 
-    // "System" is a value, not an absence: an automated event has an actor, it just is not a person.
+    // "System" is a value, not an absence — an automated event has an actor, just not a person.
     it("reads System rather than a dash for an automated event", async () => {
       await render({ row: row({ automated: true }), actor: null });
 
@@ -235,11 +234,8 @@ describe("AuditEventDrawerComponent", () => {
       expect(text("duration")).toContain("Extended to");
     });
 
-    // The reason is the pane's one unbounded field, and the drawer column is a fixed 24rem that no
-    // content can widen — so this wrap is the whole of what keeps a reason offering no break
-    // opportunity (a pasted token, a correlation id) inside the column. Unwrapped, the same value
-    // dragged a horizontal scrollbar onto the entire page back when Detail was still a table
-    // column, which is what PM-42588 reported.
+    // The reason is unbounded and the column is a fixed 24rem; an unbroken value like a token or
+    // id must wrap, not widen the column.
     it("wraps a reason that offers no break opportunity", async () => {
       const unbroken = "Xk9Qw2Zr7Lm4Vb8Ns3Ty6Hj1Pd5Gf0Cx".repeat(13);
 
@@ -250,8 +246,7 @@ describe("AuditEventDrawerComponent", () => {
     });
   });
 
-  // A pane that dropped its empty rows would read as a different event each time, and an auditor
-  // could not tell "we hold no value for this" from "this pane failed to draw it".
+  // Dropping empty rows would hide "no value" behind "failed to draw it".
   describe("absent values", () => {
     const EMPTY_ROW = row({
       actor: null,

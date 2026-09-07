@@ -14,8 +14,7 @@ describe("AccessBadgeTickerService", () => {
     setIntervalSpy = jest.spyOn(global, "setInterval");
     clearIntervalSpy = jest.spyOn(global, "clearInterval");
 
-    // Spy on the real NgZone rather than swapping in a full mock: NgZone is wired deeply into
-    // Angular's own change-detection scheduler, and a mock replacement breaks TestBed setup.
+    // Spies on the real NgZone, not a mock, since a mock replacement breaks TestBed setup.
     runOutsideAngularSpy = jest
       .spyOn(NgZone.prototype, "runOutsideAngular")
       .mockImplementation((fn) => fn());
@@ -23,8 +22,8 @@ describe("AccessBadgeTickerService", () => {
     TestBed.configureTestingModule({});
     service = TestBed.inject(AccessBadgeTickerService);
 
-    // Angular's own framework setup also calls runOutsideAngular; only count calls made after
-    // the service exists, which is what the "outside the zone" assertions care about.
+    // Angular's own setup also calls `runOutsideAngular`; only count calls made after the
+    // service exists.
     runOutsideAngularSpy.mockClear();
   });
 

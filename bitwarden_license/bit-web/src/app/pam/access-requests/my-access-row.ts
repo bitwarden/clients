@@ -26,9 +26,9 @@ export type MyAccessRequestRow = {
   /** The gated cipher's raw id, for the favicon lookup and as the item name's fallback. */
   cipherId: string;
   collectionId: string;
-  /** The gated cipher's display name, or null when it isn't in the caller's local vault. */
+  /** The gated cipher's display name; null when absent from the caller's local vault. */
   cipherName: string | null;
-  /** The collection's display name, or null when it isn't in the caller's local vault. */
+  /** The collection's display name; null when absent from the caller's local vault. */
   collectionName: string | null;
   status: AccessRequestStatus;
   /**
@@ -37,21 +37,21 @@ export type MyAccessRequestRow = {
    * from this row alone — {@link statusBadge} carries those. See {@link historyDisplayStatus}.
    */
   badgeState: AccessBadgeState | null;
-  /** Set exactly when {@link badgeState} is null — see {@link historyDisplayStatus}. */
+  /** Non-null exactly when {@link badgeState} is null — see {@link historyDisplayStatus}. */
   statusBadge: TerminalStatusBadge | null;
   submittedAt: string;
   resolvedAt: string | null;
   leaseNotBefore: string;
   leaseNotAfter: string;
-  /** i18n key for a system / access-rule resolver; null when a human resolved (or still pending). */
+  /** i18n key for a system / access-rule resolver; null for a human resolver, or still pending. */
   resolverLabelKey: string | null;
-  /** The human resolver's display name (name, falling back to email, then id); null otherwise. */
+  /** The human resolver's display name (name, falling back to email, then id); null for a non-human resolver. */
   resolverName: string | null;
   approverComment: string | null;
   /**
-   * The raw id of the lease this request minted when activated, or null if it never produced one.
-   * Used to fold an extension onto its original and to exclude the row from History while that
-   * lease is still active (shown in Active access instead).
+   * The raw id of the lease this request minted; null if it never activated one.
+   *
+   * Excludes the row from History while that lease is active (shown in Active access instead).
    */
   producedLeaseId: string | null;
   /**
@@ -60,12 +60,7 @@ export type MyAccessRequestRow = {
    * running?" — see {@link isLiveManagedLease}.
    */
   producedLeaseStatus: AccessLeaseStatus | null;
-  /**
-   * Set when this request minted a lease that was later extended: the total time added across all
-   * applied extensions, and the lease's current end. Both null when the request was never
-   * extended — see {@link buildMyAccessRequestRows}, which folds extension requests into this
-   * original row rather than listing them separately.
-   */
+  /** Present only if the minted lease was later extended — see {@link buildMyAccessRequestRows}. */
   extendedBySeconds: number | null;
   extendedUntil: string | null;
 };
@@ -81,10 +76,7 @@ export type MyAccessLeaseRow = {
   collectionName: string | null;
   notBefore: string;
   notAfter: string;
-  /**
-   * Set when this lease has been extended: the total time added across all applied extensions,
-   * and the lease's current end (already reflected in `notAfter`). Both null when never extended.
-   */
+  /** Present only if extended: total time added and the current end (already in `notAfter`). */
   extendedBySeconds: number | null;
   extendedUntil: string | null;
 };
@@ -93,21 +85,15 @@ export type MyAccessLeaseRow = {
 export type TerminalStatusBadge = { readonly labelKey: string; readonly variant: BadgeVariant };
 
 /**
- * The statuses whose badge is a plain function of the status. `pending` is excluded because it
- * maps onto the shared access-state model, and `approved` because its badge also depends on the
- * lease the request did or did not mint.
+ * The statuses whose badge is a plain function of status. `pending` maps onto the shared
+ * access-state model instead; `approved`'s badge also depends on the minted lease.
  */
 type TerminalRequestStatus = Exclude<AccessRequestStatus, "pending" | "approved">;
 
 /** Time an extension (or sum of extensions) added to a lease, and the resulting end (ms). */
 export type LeaseExtensionSummary = { addedSeconds: number; latestEndMs: number };
 
-/**
- * The one sort key every history list is ordered by: when the request was decided, falling back to
- * when it was raised so a row that was never decided keeps its place rather than being sent to the
- * end. Shared by both sources and by the tab that merges them — a merge can only preserve an order
- * its sources also used, so this has to be a single definition.
- */
+/** The one sort key every history list orders by: when decided, falling back to when raised. */
 export function resolvedOrSubmittedMs(
   row: Pick<MyAccessRequestRow, "resolvedAt" | "submittedAt">,
 ): number {
@@ -115,9 +101,8 @@ export function resolvedOrSubmittedMs(
 }
 
 /**
- * An approved request that can still be turned into access: not activated yet, and its activation
- * window has not closed. The server refuses to activate a request past `leaseNotAfter`, so once
- * that passes the grant can produce nothing and is no longer something the requester acts on.
+ * An approved request that can still become access: not yet activated, and its activation window
+ * has not closed. The server refuses to activate past `leaseNotAfter`.
  */
 export function isRedeemableGrant(
   row: Pick<MyAccessRequestRow, "status" | "producedLeaseId" | "leaseNotAfter">,
@@ -158,28 +143,17 @@ export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStat
 /**
  * Display status + badge for a request.
  *
- * A pending request has an equivalent in the shared access-state model, so it returns an
- * {@link AccessBadgeState} and is rendered by `AccessStateBadgeComponent` — the same recipe the
- * vault row and the cipher-view modal use. Every other outcome keeps its own label.
- *
- * Activation is not a status of its own: an approved request that minted a lease is recognised by
- * `producedLeaseId`, and the lease's `producedLeaseStatus` drives the label from there.
- *
- * `canceled` and `revoked` are distinct lease statuses, so the label reads straight off
- * `producedLeaseStatus`: the requester ending their own lease is "Canceled", an operator ending it
- * out from under them is "Revoked". An `active` produced lease is labelled like a live grant — callers exclude it from History (it
- * belongs in Active access) but the detail page's top status field can still render it correctly.
+ * A pending request maps onto the shared access-state model via `AccessStateBadgeComponent`;
+ * every other outcome keeps its own label. `canceled`/`revoked` read straight off
+ * `producedLeaseStatus` — requester-ended is Canceled, operator-ended is Revoked.
  */
 export function historyDisplayStatus(
   request: Pick<AccessRequestView, "status" | "producedLeaseId" | "producedLeaseStatus">,
 ): Pick<MyAccessRequestRow, "badgeState" | "statusBadge"> {
   if (request.status === "approved") {
     if (request.producedLeaseId == null) {
-      // Deliberately NOT the shared model's "Ready to use". That state is caller-scoped and this
-      // row model also feeds the approver surfaces (ApproverInboxService.historyRows$, and
-      // /pam/requests/:id reached from the approvals inbox), where the viewer holds no lease. It
-      // would also claim availability before `leaseNotBefore` and after `leaseNotAfter`, neither
-      // of which this branch can see. "Approved" is true from either side, at any time.
+      // Deliberately not the shared model's "Ready to use": this row also feeds approver surfaces
+      // where the viewer holds no lease and can't see leaseNotBefore/leaseNotAfter.
       return terminal("pamStatusApproved", "success");
     }
     if (request.producedLeaseStatus === "active") {
@@ -191,8 +165,7 @@ export function historyDisplayStatus(
     if (request.producedLeaseStatus === "revoked") {
       return terminal("pamStatusRevoked", "subtle");
     }
-    // "expired" (or the SDK's "unknown" default) — the server derives a lapsed lease as expired at
-    // read time, and a lease that lapses after load lands here too, so Expired is the right default.
+    // Covers the SDK's "unknown" default too, plus a lease that lapses after load.
     return terminal("pamStatusExpired", "warning");
   }
   if (request.status === "pending") {
@@ -209,29 +182,17 @@ function terminal(
 }
 
 /**
- * Resolve who actioned a request.
+ * Resolve who actioned a request: an i18n key for system decisions, a display name for human
+ * ones (name, falling back to email then raw id).
  *
- * The API surfaces the request's decision log. A system / access-rule decision has an automatic
- * `decider` (no approver identity); a human decision carries the approver under `decider.human`
- * (name/email/id). For a human decision we show the name, falling back to the email, then the raw
- * id if the server could not resolve the user (e.g. a deleted account) — so the column is never
- * blank.
- *
- * Two statuses come with no human decision and must not read as "Access rule": a cancelled request
- * was withdrawn by its requester (the log is scoped to approval-authority verdicts, so the
- * withdrawal never appears in it), and an expired request lapsed precisely because nobody acted —
- * that row renders the empty em dash.
- *
- * Returns an i18n key for system decisions (translated in the template) and a display name for
- * human decisions, keeping localization out of the row model. Exported for tests.
+ * A cancelled request was withdrawn by its requester, never logged as a decision; an expired one
+ * lapsed with nobody acting, rendering an em dash.
  */
 export function resolveResolver(
   status: AccessRequestStatus,
   human: AccessRequestDecisionView | undefined,
 ): Pick<MyAccessRequestRow, "resolverLabelKey" | "resolverName"> {
-  // The terminal transition's actor, not just any human in the log: a cancelled request was ended
-  // by its requester even when the log carries the approval it abandoned, and an expired one was
-  // ended by the clock alone.
+  // The terminal transition's actor, not just any human in the log.
   if (status === "pending" || status === "expired") {
     return { resolverLabelKey: null, resolverName: null };
   }
@@ -266,9 +227,7 @@ export function toRequestRow(request: AccessRequestView, names: ResolvedNames): 
     leaseNotBefore: request.leaseNotBefore,
     leaseNotAfter: request.leaseNotAfter,
     ...resolveResolver(request.status, human),
-    // Falls back to the decision log when no human decided: an automatically denied request has no approver to hang
-    // its explanation on, so the reason it was refused lives on the automatic decision instead — which is the only
-    // thing that tells a requester why their late extension did not apply (PM-42632).
+    // Falls back to the decision log when no human decided, e.g. an automatic denial.
     approverComment:
       human?.comment ?? request.decisions.find((d) => d.comment != null)?.comment ?? null,
     producedLeaseId: request.producedLeaseId == null ? null : uuidAsString(request.producedLeaseId),
@@ -280,11 +239,10 @@ export function toRequestRow(request: AccessRequestView, names: ResolvedNames): 
 }
 
 /**
- * Sum the applied extensions per parent lease id. An applied extension's requested window spans
- * the bump it added ({@link requestedWindowSeconds}) and ends at `leaseNotAfter` (the lease's end
- * after it). The server applies an extension in place on approval and records it `approved`; a
- * still-pending/denied/canceled extension never moved the lease end, so it does not count. Keyed
- * by the parent lease id (`extensionOfLeaseId`), so callers join by lease id.
+ * Sum the applied extensions per parent lease id.
+ *
+ * An applied extension ends at `leaseNotAfter`; a still-pending/denied/canceled one never moved
+ * the lease end, so it does not count. Keyed by `extensionOfLeaseId`.
  */
 export function extensionsByLeaseId(
   requests: AccessRequestView[],
@@ -308,17 +266,9 @@ export function extensionsByLeaseId(
 /**
  * Build the rows the "My access" list renders from the caller's raw requests.
  *
- * An extension is modelled as its own {@link AccessRequestView} pointing at the parent lease
- * (`extensionOfLeaseId`); on approval it extends that lease in place rather than minting a new
- * one. Showing each extension as its own row would make a single logical grant look like several
- * duplicate requests, so extensions are folded into the original (activating) request's row
- * instead: the original is badged with the total time added and the lease's current end, and the
- * extension rows themselves are dropped.
- *
- * A DENIED extension is the exception, and keeps its own row. Folding is only honest for an
- * extension that landed: it is represented on the original by the time it added. One that was
- * refused — the parent lease ended before it could apply — added nothing, so folding it away leaves
- * the requester with no record of what they asked for or why it did not happen (PM-42632).
+ * An extension folds into its original row (`extensionOfLeaseId`), badged with the added time and
+ * the lease's current end. A denied extension keeps its own row, since folding it away would
+ * leave no record of the request.
  */
 export function buildMyAccessRequestRows(
   requests: AccessRequestView[],

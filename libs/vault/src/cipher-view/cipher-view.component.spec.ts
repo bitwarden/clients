@@ -261,8 +261,8 @@ describe("CipherViewComponent", () => {
         ],
         schemas: [NO_ERRORS_SCHEMA],
       })
-        // `schemas` has to ride on the component's own metadata, not on the TestBed module: this is
-        // a standalone component, and a standalone component resolves schemas from its definition.
+        // `schemas` rides on the component's own metadata, not the TestBed module, since a
+        // standalone component resolves schemas from its definition.
         .overrideComponent(CipherViewComponent, {
           set: {
             imports: [CommonModule, JslibModule, TestBannerComponent],

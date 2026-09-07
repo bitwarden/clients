@@ -29,10 +29,9 @@ import { RotationConfigDescription, RotationSdkService } from "./rotation-sdk.se
  * SDK-backed {@link RotationSdkService}. Every call goes through the Rust SDK's
  * `commercial().pam().rotation()` client rather than hand-rolled HTTP and DTOs.
  *
- * Follows the canonical per-call SDK-consumption pattern used by the rest of this module (see
- * `AccessRulesSdkService`): resolve the active user, take a client `Ref` from
- * `SdkService.userClient$`, and dispose it (`using`) once the call settles. Errors surface as-is —
- * the SDK's flat `RotationError` shape — for callers to interpret; this service only logs them.
+ * Follows the same per-call pattern as `AccessRulesSdkService`: resolve the active user, take a
+ * client `Ref`, and dispose it (`using`) once the call settles. Errors surface as-is; this
+ * service only logs them.
  */
 export class DefaultRotationSdkService extends RotationSdkService {
   constructor(
@@ -44,12 +43,10 @@ export class DefaultRotationSdkService extends RotationSdkService {
   }
 
   /**
-   * Runs `operation` against a freshly-taken rotation client.
+   * Runs `operation` against a freshly-taken rotation client, logging and rethrowing on failure.
    *
-   * Every method here is the same five lines around one SDK call, so they share this instead:
-   * resolve the user, take a `Ref`, dispose it when the call settles, and log what failed before
-   * rethrowing. `description` only ever reaches the log — it names the operation, never its
-   * arguments, so no organization or credential detail is written out.
+   * `description` only ever reaches the log — it names the operation, never its arguments, so no
+   * organization or credential detail is written out.
    */
   private async withRotationClient<T>(
     description: string,
@@ -69,8 +66,6 @@ export class DefaultRotationSdkService extends RotationSdkService {
       ),
     );
   }
-
-  // Access connectors ————————————————————————————————————————————————————————
 
   async listConnectors(organizationId: OrganizationId): Promise<AccessConnector[]> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
@@ -143,8 +138,6 @@ export class DefaultRotationSdkService extends RotationSdkService {
       rotation.connectors().unassign_target(orgId, id, targetSystemId),
     );
   }
-
-  // Target systems ———————————————————————————————————————————————————————————
 
   async listTargetSystems(organizationId: OrganizationId): Promise<TargetSystem[]> {
     const orgId = asUuid<SdkOrganizationId>(organizationId);
@@ -276,7 +269,7 @@ export class DefaultRotationSdkService extends RotationSdkService {
     configs: readonly RotationConfig[],
     targetStatusById: ReadonlyMap<TargetSystemId, TargetSystemStatus>,
   ): Promise<Map<RotationConfigId, RotationConfigDescription>> {
-    // One client take for the whole list: both predicates are synchronous once it is in hand.
+    // One client take for the whole list; both predicates are synchronous over it.
     return this.withRotationClient("describe rotation configs", (rotation) => {
       const configsClient = rotation.configs();
       const schedule = rotation.schedule();

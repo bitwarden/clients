@@ -95,7 +95,7 @@ describe("CustomRangeDialogComponent", () => {
     expect(close).toHaveBeenCalledWith({ action: "apply", from: "2026-08-18T09:00", to: "" });
   });
 
-  // An inverted range matches nothing, and a table emptied by it reads as a trail with no events.
+  // An inverted range matches nothing; the emptied table would read as no events.
   it("reports an inverted range on the To field and blocks confirmation", async () => {
     await create();
     component["formGroup"].patchValue({ from: "2026-08-18T18:00", to: "2026-08-18T09:00" });
@@ -125,8 +125,7 @@ describe("CustomRangeDialogComponent", () => {
     expect(confirmButton().getAttribute("aria-disabled")).toBeNull();
   });
 
-  // A Save that would apply nothing is a trap: it reads as confirming a range while leaving the trail
-  // exactly as wide as it was.
+  // A Save that applies nothing would read as confirming a range while changing nothing.
   it("holds Save disabled until at least one end is set", async () => {
     await create();
 
@@ -146,8 +145,7 @@ describe("CustomRangeDialogComponent", () => {
     expect(close).not.toHaveBeenCalled();
   });
 
-  // The way out of a custom range from inside the dialog; without it the auditor has to cancel and clear
-  // the chip from the row behind.
+  // The way out of a custom range from inside the dialog.
   it("closes asking for the range to be dropped when cleared", async () => {
     await create({ from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
 

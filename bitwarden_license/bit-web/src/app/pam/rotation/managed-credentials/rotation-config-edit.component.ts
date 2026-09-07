@@ -50,18 +50,12 @@ const ACCOUNT_IDENTITY_MAX_LENGTH = 500;
 /**
  * Routed page for creating or editing a PAM rotation config.
  *
- * **Create mode** (no `configId` param): loads available target systems, available
- * ciphers, and existing configs (to exclude already-configured cipherIds). Form submits
- * to POST /configs and navigates back.
+ * Create mode (no `configId`) picks target system, cipher and schedule. Edit mode renders
+ * cipher + target as read-only and splits settings from account into two save cards; the
+ * account card disables while `hasActiveJob` is true.
  *
- * **Edit mode** (`configId` param): fetches the full config via getConfig; renders
- * cipher + target as read-only labels. Two separate save cards — settings (schedule + trigger)
- * and account (identity + session termination). The account card is disabled while
- * `hasActiveJob` is true. Below the cards shows the rotation job history.
- *
- * **Providers**: `[OrgCiphersService]` — this page is a sibling of the shell and therefore
- * outside the shell's DI scope; it provides its own OrgCiphersService and
- * TargetSystemsService (page-scoped instances, independent of the shell's).
+ * Provides its own `OrgCiphersService` and `TargetSystemsService`, page-scoped, since this page
+ * is a sibling of the shell rather than a child, outside the shell's DI scope.
  */
 @Component({
   templateUrl: "./rotation-config-edit.component.html",
@@ -121,7 +115,6 @@ export class RotationConfigEditComponent {
     ),
   );
 
-  // --- All target systems (for create mode picker) ---
   private readonly allTargetSystems = toSignal(this.targetSystemsService.systems$, {
     initialValue: [],
   });
@@ -131,7 +124,6 @@ export class RotationConfigEditComponent {
     this.allTargetSystems().filter((s) => s.status === TargetSystemStatus.Active),
   );
 
-  // --- Available ciphers (for create mode picker) ---
   private readonly allCiphers = toSignal(this.orgCiphersService.ciphers$, {
     initialValue: [],
   });
@@ -144,7 +136,6 @@ export class RotationConfigEditComponent {
     this.allCiphers().filter((c) => !this.configuredCipherIds().has(asUuid<CipherId>(c.id))),
   );
 
-  // --- Create form ---
   protected readonly createForm = this.formBuilder.nonNullable.group({
     cipherId: ["", [Validators.required]],
     targetSystemId: ["", [Validators.required]],
@@ -154,25 +145,22 @@ export class RotationConfigEditComponent {
     rotateOnAccessEnd: [false],
   });
 
-  // --- Edit — settings form ---
   protected readonly settingsForm = this.formBuilder.nonNullable.group({
     scheduleCron: [null as string | null],
     rotateOnAccessEnd: [false],
   });
 
-  // --- Edit — account form ---
   protected readonly accountForm = this.formBuilder.nonNullable.group({
     accountIdentity: ["", [Validators.required, Validators.maxLength(ACCOUNT_IDENTITY_MAX_LENGTH)]],
     terminateSessions: [false],
   });
 
   /**
-   * The two edit cards as one form, because the server takes the schedule and the account in a
+   * The two edit cards as one form, since the server takes the schedule and the account in a
    * single write.
    *
-   * They stay separate groups rather than merging into a flat one: the cards are distinct
-   * sections with their own headings, and the account half is disabled on its own while a job is
-   * in flight. A parent group is what lets one `<form>` and one Save span both.
+   * Stay separate groups rather than a flat one, since the account half disables on its own
+   * while a job is in flight; the parent group is what lets one `<form>` and one Save span both.
    */
   protected readonly editForm = this.formBuilder.group({
     settings: this.settingsForm,
@@ -241,11 +229,8 @@ export class RotationConfigEditComponent {
   }
 
   /**
-   * Couple the terminateSessions checkbox to the selected targetSystemId:
-   * disable + reset when the selected target is not Automatic or doesn't support
-   * session termination.
-   *
-   * Mirrors the coupleDurationBounds pattern in access-rule-edit.component.ts.
+   * Disables and resets terminateSessions for a target that isn't Automatic or doesn't support
+   * session termination. Mirrors the coupleDurationBounds pattern in access-rule-edit.component.ts.
    */
   private coupleTerminateSessions(): void {
     const targetControl = this.createForm.controls.targetSystemId;
@@ -294,14 +279,12 @@ export class RotationConfigEditComponent {
   };
 
   /**
-   * Edit mode: one save for the account and the schedule together.
+   * Edit mode: one save for the account and the schedule together, since the server now takes
+   * both in a single write — a caller changing only the schedule still sends the current
+   * account identity.
    *
-   * These were two calls against two routes; the server now takes them in a single write, so a
-   * caller changing only the schedule still sends the current account identity. The page therefore
-   * shows one Save rather than one per card.
-   *
-   * The account identity is locked while a job is in flight — the form is disabled in that state,
-   * and the server rejects the write regardless.
+   * The account identity is locked while a job is in flight; the server rejects the write
+   * regardless.
    */
   protected readonly submitEdit = async (): Promise<void> => {
     this.settingsForm.markAllAsTouched();

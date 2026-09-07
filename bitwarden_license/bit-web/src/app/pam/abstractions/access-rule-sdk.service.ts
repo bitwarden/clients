@@ -26,20 +26,16 @@ export abstract class AccessRuleSdkService {
    * Where `id` fails to gate: the collections letting the ciphers it governs through without a
    * lease.
    *
-   * Gating is a union — a cipher is withheld only when EVERY collection it can be reached through is
-   * governed by an enabled rule — so a credential also sitting in an ordinary collection is not
-   * protected at all. These are those ordinary collections, de-duplicated across the ciphers they
-   * expose.
+   * Gating is a union — a cipher is withheld only when EVERY collection reaching it is governed
+   * by an enabled rule — so these are the ordinary collections exposing an otherwise-protected
+   * credential, de-duplicated across the ciphers they expose.
    *
-   * An empty array is the normal answer and means the rule protects everything it governs; a rule
-   * that is switched off answers empty too, since it gates nothing. A NON-EMPTY array is itself the
-   * warning condition, so there is no separate flag to keep in step.
+   * An empty array means the rule protects everything (or is disabled); a non-empty array is
+   * itself the warning, with no separate flag to keep in step.
    *
-   * The affected ciphers are deliberately not reported. Naming one means decrypting it from the
-   * caller's own vault, and an admin outside the collection — precisely the admin being warned — has
-   * none of its ciphers there, so the names would be blank for the person who needs them. The
-   * collections are both reliably nameable (the admin collection read returns every one of them)
-   * and what remediation actually acts on.
+   * Affected ciphers are deliberately not reported: naming one means decrypting it from the
+   * caller's own vault, which the admin being warned lacks. Collections are reliably nameable
+   * and what remediation acts on.
    */
   abstract listBypassGaps(
     organizationId: OrganizationId,

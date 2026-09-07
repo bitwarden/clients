@@ -9,9 +9,8 @@ const ORGANIZATION_ID = "org-1";
 const USER_ID = "user-1";
 
 /**
- * The wire shape of the trail read. Worth its own tests because the filters only reach the server if the
- * query string is spelled the way the endpoint's binding reads it — and a dimension spelled wrong comes
- * back as an unfiltered trail rather than as an error.
+ * The wire shape of the trail read. Worth its own tests since a misspelled query dimension
+ * comes back as an unfiltered trail, not an error.
  */
 describe("DefaultAuditApiService", () => {
   let apiService: { send: jest.Mock };
@@ -42,8 +41,7 @@ describe("DefaultAuditApiService", () => {
     );
   });
 
-  // An unset dimension is omitted rather than sent empty: an empty list on the wire would mean "match
-  // nothing" where the caller meant "no filter".
+  // An unset dimension is omitted, not sent empty: empty on the wire would mean "match nothing".
   it("sends no query string at all for an empty filter", async () => {
     await service.listAccessAuditTrail(ORGANIZATION_ID, {});
 
@@ -95,8 +93,7 @@ describe("DefaultAuditApiService", () => {
     expect(query().getAll("actorId")).toEqual(["actor-a"]);
   });
 
-  // The Item chip carries both kinds, so the two travel as separate repeated keys and the server unions
-  // them. One list would have to be matched against two columns, which cannot be spelled on the wire.
+  // The Item chip carries both kinds, so they travel as separate repeated keys the server unions.
   it("sends the two halves of an Item selection as separate repeated keys", async () => {
     await service.listAccessAuditTrail(ORGANIZATION_ID, {
       cipherIds: ["cipher-1", "cipher-2"],
@@ -168,7 +165,7 @@ describe("DefaultAuditApiService", () => {
     expect(page.continuationToken).toBe("page-2");
   });
 
-  // The last page carries no token, and null is what tells a caller walking the trail to stop.
+  // The last page carries no token, telling a caller walking the trail to stop.
   it("reports no resume position on the last page", async () => {
     apiService.send.mockResolvedValue({ Data: [] });
 

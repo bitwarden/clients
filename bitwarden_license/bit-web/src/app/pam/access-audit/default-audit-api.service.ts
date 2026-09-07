@@ -57,10 +57,9 @@ export class DefaultAuditApiService implements AuditApiService {
 /**
  * The filter as the endpoint's query parameters, or the empty string when nothing is set.
  *
- * A multi-select dimension is spelled as a repeated key (`?kind=a&kind=b`), which is what the
- * server's array binding reads; an unset one is omitted entirely rather than sent empty, because an
- * empty list there would mean "match nothing" instead of "no filter". Bounds go over as ISO instants
- * so the server reads the same moment the auditor picked, whatever timezone either end sits in.
+ * A multi-select dimension is a repeated key (`?kind=a&kind=b`); an unset one is omitted
+ * entirely, not sent empty, since empty there would mean "match nothing". Bounds go over as
+ * ISO instants, timezone-independent.
  */
 function toQueryString(filter: AuditTrailFilter): string {
   const params = new URLSearchParams();

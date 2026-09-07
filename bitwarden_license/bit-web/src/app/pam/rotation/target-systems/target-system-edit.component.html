@@ -4,11 +4,7 @@
   </bit-breadcrumbs>
 </bit-header>
 
-<!--
-  Shared password-policy card, used by both create and edit modes. The manual hint, the
-  session-termination control, and the withdrawal warning are all self-gating (the warning is only
-  ever true in edit mode), so one template serves both.
--->
+<!-- Shared password-policy card for both create and edit modes; its controls are self-gating. -->
 <ng-template #policyCard>
   <bit-section [formGroup]="policyForm">
     <bit-section-header>
@@ -128,9 +124,6 @@
   <bit-spinner />
 } @else {
   @if (!editing) {
-    <!-- ================================================================
-         CREATE MODE — single form for name + method + (automatic fields)
-         ================================================================ -->
     <form [formGroup]="createForm" [bitSubmit]="submitCreate" class="tw-max-w-4xl">
       <bit-section>
         <bit-section-header>
@@ -215,9 +208,6 @@
       </div>
     </form>
   } @else {
-    <!-- ================================================================
-         EDIT MODE — one Save action persists name + (automatic) policy
-         ================================================================ -->
 
     <div class="tw-max-w-4xl">
       <!-- Setup guidance: how to connect this target system to a daemon + add a credential -->
@@ -289,8 +279,7 @@
         >
           {{ "cancel" | i18n }}
         </button>
-        <!-- Retiring a target system is disable, not delete: configs reference it and its
-             rotation history has to stay attributable. Reversible, hence the paired action. -->
+        <!-- Retiring a target system is disable, not delete, so its rotation history stays attributable. -->
         @if (isActive()) {
           <button
             type="button"

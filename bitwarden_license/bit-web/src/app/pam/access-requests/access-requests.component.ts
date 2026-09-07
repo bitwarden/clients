@@ -15,24 +15,13 @@ import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import { MyAccessService } from "./my-access.service";
 
 /**
- * "Access requests" (`/pam`) — the persistent tabbed shell over the caller's access surface:
- *  - Approvals — other members' requests awaiting the caller's decision. Hidden entirely for a
- *    member with no approval privileges, rather than shown empty: a tab that can never have anything
- *    in it is noise, and `canViewApprovalsGuard` redirects the deep link to match.
- *  - My requests — the caller's own pending/extension requests and active leases.
- *  - History — the caller's terminal requests, plus (for approvers) the ones they decided. No
- *    berry: {@link MyAccessService.historyRows$} only grows (terminal requests never leave
- *    history), so a live count there would read as permanent unattended work rather than
- *    something to act on — unlike the My requests and Approvals berries below.
+ * "Access requests" (`/pam`): a tabbed shell over Approvals, My requests, and History.
+ * Approvals is hidden entirely for a non-approver, rather than shown empty.
  *
- * Each tab is a child route rendered in the shell's `<router-outlet>`; the shell stays mounted
- * across tab navigation. So is `/pam/requests/:id`, which is not a tab — it renders the single
- * request as a dialog over this shell. {@link MyAccessService} is provided at the parent route (see the routing
- * module) so every tab shares one loaded instance — this shell owns the single load and the
- * load-failure toast, and renders the tab nav with live berry counts. {@link ApproverInboxService} is
- * provided the same way and loaded the same way, but only for a caller who can actually approve:
- * hitting the approver endpoints for everyone would mean two guaranteed-empty requests per page open.
- * View concerns (the countdown clock, action gating) live in the individual tabs.
+ * Each tab is a child route in the shell's `<router-outlet>`, which stays mounted across tab
+ * navigation, as does the `/pam/requests/:id` dialog. {@link MyAccessService} and
+ * {@link ApproverInboxService} are provided at the parent route so every tab shares one loaded
+ * instance.
  */
 @Component({
   selector: "pam-access-requests",
@@ -74,10 +63,9 @@ export class AccessRequestsComponent implements OnInit {
   ngOnInit(): void {
     void this.myAccess.load();
 
-    // Only an approver has anything to load here, and the inbox/history endpoints would otherwise be
-    // called on every page open for members who can never see a row. Driven off the stream rather
-    // than `canApprove()`, which is still on its initial `false` at this point: the privilege depends
-    // on an organization lookup that has not resolved yet.
+    // Only an approver has anything to load here; driven off the stream, not `canApprove()`,
+    // which is still its initial `false` here since the privilege depends on an unresolved
+    // organization lookup.
     this.approvalPrivileges$
       .pipe(filter(Boolean), take(1), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => void this.inbox.load());

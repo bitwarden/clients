@@ -35,7 +35,7 @@ export type DecideDialogParams = {
   /** The verdict the inbox button asked for; the approver can still switch it here. */
   verdict: AccessDecisionVerdict;
   row: ApprovalRow;
-  /** The decrypted gated cipher, for the item card's favicon; absent when the approver cannot see it. */
+  /** The decrypted gated cipher, for the item card's favicon; absent when the approver can't see it. */
   cipher?: CipherViewLike;
 };
 
@@ -55,18 +55,15 @@ export type DecideDialogResult = {
 /**
  * Confirms an approve or deny and collects the approver's note.
  *
- * A summary of what is being decided — item, requester, window, reason — is repeated here rather
- * than assumed remembered from the row behind the dialog, because approving the wrong request
- * grants real access to a real secret and the row that was clicked may already have scrolled out of
- * view. It is rendered by the shared {@link RequestSummaryComponent}, the same one
- * `/pam/requests/:id` uses, so the two surfaces cannot describe a request differently.
+ * A summary of what's being decided is repeated here, not assumed remembered from the row
+ * behind the dialog, since approving the wrong request grants real access and the clicked row
+ * may have scrolled out of view; rendered by the shared {@link RequestSummaryComponent} so both
+ * surfaces describe a request identically.
  *
- * The verdict is dialog state, not a fixed parameter: the approve variant offers "Deny request",
- * which switches this dialog to the deny variant instead of closing and reopening, discarding any
- * note typed while approving so it cannot become the recorded denial reason. Denying requires
- * a reason; approving keeps the comment optional and trims a whitespace-only note to `undefined`,
- * so it is not written to the audit log as if it said something. The dialog makes no API call: it
- * returns the decision and the caller records it, which keeps the retry-and-toast logic in one place.
+ * The verdict is dialog state, not a fixed parameter: "Deny request" switches this dialog to the
+ * deny variant in place, discarding any note typed while approving, and denying requires a
+ * reason while approving trims a whitespace-only note to `undefined`. The dialog makes no API
+ * call — it returns the decision, keeping retry-and-toast logic with the caller.
  */
 @Component({
   selector: "pam-decide-dialog",
@@ -91,10 +88,7 @@ export class DecideDialogComponent {
   private readonly commentField = viewChild<ElementRef<HTMLTextAreaElement>>("commentField");
   protected readonly params = inject<DecideDialogParams>(DIALOG_DATA);
 
-  /**
-   * A group for one control, because `[bitSubmit]` only matches a form that has one — and that is
-   * what gives the confirm button its busy state and serialises re-entrant clicks.
-   */
+  /** A group for one control, since `[bitSubmit]` only matches a form with one — that's what gives the confirm button its busy state. */
   protected readonly formGroup = this.formBuilder.nonNullable.group({ comment: [""] });
 
   protected readonly verdict = signal<AccessDecisionVerdict>(this.params.verdict);
@@ -119,14 +113,12 @@ export class DecideDialogComponent {
   }
 
   /**
-   * A note typed while approving is cleared, not carried over: "Approved for the maintenance
-   * window" would arrive at the requester and the audit log as the reason they were denied, and a
-   * non-blank leftover leaves the confirm button already enabled, so the required-reason gate the
-   * deny variant exists to apply never engages.
+   * A note typed while approving is cleared, not carried over — it would arrive at the requester
+   * and audit log as the reason for denial, and a non-blank leftover would leave the
+   * required-reason gate already satisfied.
    *
-   * The button that triggers this lives inside the approve-only branch, so the click destroys the
-   * focused element and focus would otherwise fall to `<body>`. Focus moves after the re-render so
-   * the reason field is announced with the label and required state the switch just gave it.
+   * Focus moves after the re-render, since the triggering button lives in the approve-only
+   * branch and its own removal would otherwise drop focus to `<body>`.
    */
   protected switchToDeny(): void {
     this.verdict.set("deny");

@@ -17,7 +17,7 @@ import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge.component";
 /** The SDK spells the resting states as bare strings and the active one as a tagged variant. */
 type BadgeState = string | { active: { expiresAt: string } };
 
-/** The organization every cipher fixture below belongs to unless a story says otherwise. */
+/** The organization every cipher fixture below belongs to, absent a story saying otherwise. */
 const PAM_ORGANIZATION_ID = "org-1";
 
 /** A cipher the SDK has marked as gated. Only `partial` and `id` decide whether a row fetches. */
@@ -39,14 +39,12 @@ function ungatedCipher(): CipherView {
 }
 
 /**
- * `state` is a factory, not a value, so an active lease's `expiresAt` is relative to when the story
- * renders rather than when this module loaded — a stale one would resolve straight to "Access
- * ended".
+ * `state` is a factory, not a value, so an active lease's `expiresAt` is relative to render
+ * time, not module load — a stale one would resolve straight to "Access ended".
  *
- * `organizations` stands in for the account's PAM-eligible organizations, which the component
- * reads to narrow the em dash placeholder to rows whose organization can actually carry access
- * rules. Defaults to the one organization every cipher fixture belongs to; a story can pass an
- * empty `usePam` to show a row the placeholder must not reach.
+ * `organizations` stands in for the account's PAM-eligible organizations, narrowing the em dash
+ * placeholder to rows whose organization can carry access rules; defaults to the one
+ * organization every fixture belongs to.
  */
 function pam(
   options: {
@@ -160,10 +158,7 @@ export const FeatureFlagOff: Story = {
   decorators: [pam({ enabled: false, state: () => "privileged" })],
 };
 
-/**
- * A failed access-state read resolves to no badge. The badge is decoration on someone else's list,
- * so it fails quiet rather than erroring the row around it.
- */
+/** A failed access-state read resolves to no badge, since it's decoration on someone else's list and should fail quiet. */
 export const ReadFails: Story = {
   args: { cipher: gatedCipher() },
   decorators: [pam({ fails: true })],

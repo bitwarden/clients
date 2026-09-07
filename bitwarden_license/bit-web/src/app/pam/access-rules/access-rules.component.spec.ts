@@ -20,8 +20,8 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 const accessRuleError = (variant: string, message: string) =>
   Object.assign(new Error(message), { name: "AccessRuleError", variant });
 
-// A real rejected mutation: the whole wire response, stack trace and server filesystem paths
-// included, on the error's `message`. None of it may reach a toast.
+// A real rejected mutation, verbatim — stack trace and filesystem paths included, none of which
+// may reach a toast.
 const RAW_SERVER_PAYLOAD =
   'error in response: status code 400 Bad Request: {"object":"error","message":"One or more ' +
   'collections are already governed by another access rule.","validationErrors":null,' +
@@ -61,8 +61,8 @@ type SetupOptions = {
   openSimpleDialog?: jest.Mock;
 };
 
-// The component's own template pulls in the full table/toolbar stack; replace it so these
-// tests exercise the component logic, not the rendering of child widgets.
+// Replaces the component's full table/toolbar stack so these tests exercise its own logic, not
+// child rendering.
 const setup = async (
   rules: AccessRuleView[],
   { overrides = [], openSimpleDialog = jest.fn().mockResolvedValue(true) }: SetupOptions = {},
@@ -86,8 +86,8 @@ const setup = async (
     ],
   });
 
-  // Overridden rather than provided: the component's imported modules bring their own
-  // `DialogService` into the standalone injector, which shadows a TestBed provider.
+  // Overridden, not provided: the component's imported modules bring their own `DialogService`,
+  // which shadows a TestBed provider.
   TestBed.overrideProvider(DialogService, { useValue: { openSimpleDialog } });
 
   const fixture = TestBed.createComponent(AccessRulesComponent);
@@ -120,8 +120,7 @@ const setupMutations = async (
   openSimpleDialog = jest.fn().mockResolvedValue(confirmed);
   updateAccessRule = jest.fn().mockImplementation((_orgId, id) => Promise.resolve(rule(id)));
   deleteAccessRule = jest.fn().mockResolvedValue(undefined);
-  // Echoes back the name it was asked for, so a test can assert on the created rule without
-  // restating it.
+  // Echoes back the name it was asked for.
   createAccessRule = jest
     .fn()
     .mockImplementation((_orgId, request) => Promise.resolve(rule("rule-copy", request.name)));
@@ -296,8 +295,7 @@ describe("AccessRulesComponent — make a copy", () => {
 
   it("refreshes the list and retries once when the chosen name was already taken", async () => {
     const fixture = await setupCopy();
-    // Swapped in after the initial load, so the retry's refresh is the first read that sees the
-    // copy another admin made in the meantime.
+    // Swapped in after the initial load, so the retry sees another admin's copy.
     fixture.componentInstance["accessRules"]["pamApi"].listAccessRules = jest
       .fn()
       .mockResolvedValue([SOURCE, rule("rule-9", "VPN (copy)")]);
@@ -324,7 +322,7 @@ describe("AccessRulesComponent — make a copy", () => {
 
     await expect(fixture.componentInstance["makeCopy"](SOURCE)).rejects.toThrow("guard blew up");
 
-    // The rule exists, so the one thing that must not happen is an error toast claiming otherwise.
+    // The rule exists; no error toast should claim otherwise.
     expect(showToast).not.toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
   });
 
@@ -475,8 +473,8 @@ describe("AccessRulesComponent — bulk deactivate confirmation", () => {
     expect(openSimpleDialog).toHaveBeenCalledWith(accessRuleDeactivateConfirmOptions(2));
   });
 
-  // "1 rules will stop applying" is not a sentence, and the single-rule dialog is the copy
-  // design signed off for deactivating one rule — wherever it is triggered from.
+  // The single-rule dialog copy is the signed-off text for deactivating one rule, wherever it is
+  // triggered from.
   it("asks the single-rule question when only one selected rule will change", async () => {
     const rules = [rule("rule-1", "VPN", true), rule("rule-2", "SSH", false)];
     const fixture = await setupBulk(rules);
@@ -507,8 +505,7 @@ describe("AccessRulesComponent — bulk deactivate confirmation", () => {
     expect(updateAccessRule).not.toHaveBeenCalled();
   });
 
-  // An inactive rule would short-circuit on the count guard and pass even with the activation
-  // branch deleted, so this starts from an active one that the guard would otherwise catch.
+  // Starts active; an inactive rule would short-circuit the count guard and pass trivially.
   it("does not confirm before bulk activating", async () => {
     const fixture = await setupBulk([rule("rule-1", "VPN", true), rule("rule-2", "SSH", false)]);
 

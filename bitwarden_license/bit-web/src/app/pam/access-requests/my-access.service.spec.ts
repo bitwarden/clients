@@ -18,9 +18,8 @@ import {
 } from "./access-name-resolver.service";
 import { MyAccessService } from "./my-access.service";
 
-// Overrides are loosely typed (not `Partial<AccessRequestView>`/`Partial<AccessLeaseView>`): the
-// SDK's id/cipherId/collectionId fields are opaque branded types, so tests stand in plain strings
-// and rely on the final `as unknown as` cast, matching the convention in the sibling SDK specs.
+// Loosely typed, not `Partial<AccessRequestView>`/`Partial<AccessLeaseView>`, since
+// id/cipherId/collectionId are opaque branded types.
 function request(id: string, overrides: Record<string, unknown> = {}): AccessRequestView {
   return {
     id,
@@ -209,8 +208,7 @@ describe("MyAccessService", () => {
             leaseNotBefore: "2024-01-01T01:00:00.000Z",
             leaseNotAfter: "2024-01-01T02:00:00.000Z",
           }),
-          // Denied because the lease ended first: it added nothing, so history is the only place
-          // the requester can see it (PM-42632).
+          // Denied because the lease ended first; history is the only place the requester can see it.
           request("ext-denied", { extensionOfLeaseId: "lease-2", status: "denied" }),
         ]);
         leasesApi.listMyLeases.mockResolvedValue([]);

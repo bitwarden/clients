@@ -39,10 +39,9 @@ import { REQUEST_WINDOW_ERROR_KEY } from "./request-access-window.validators";
  * banner reads and widen through `unknown` — the same convention `my-access.service.spec.ts` uses.
  */
 /**
- * Tomorrow, in the shape `<input type="date">` carries. The window validator rejects a window that
- * has already ended (PM-42592), so a date literal would let the cases below pass on the day they
- * were written and fail every day after; anchoring to the real clock keeps them honest. The time of
- * day is then free — any hour tomorrow is still ahead of now.
+ * Tomorrow, in the shape `<input type="date">` carries.
+ *
+ * Anchored to the real clock, since the window validator rejects an already-ended window and a literal date would eventually start failing.
  */
 const futureDate = toDateInputValue(new Date(Date.now() + 24 * 60 * 60 * 1000));
 
@@ -57,8 +56,7 @@ function leaseView(overrides: Partial<AccessLeaseView> = {}): AccessLeaseView {
 function requestView(overrides: Partial<AccessRequestView> = {}): AccessRequestView {
   return {
     id: "request-1",
-    // The server resolves both bounds at submit, so every real response carries them; a fixture
-    // omitting them would render a window the SDK's own type makes unrepresentable.
+    // The server always resolves both bounds at submit.
     leaseNotBefore: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
     leaseNotAfter: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
     ...overrides,
@@ -78,10 +76,9 @@ function grantedWindow(lengthSeconds: number, startsInSeconds = 0): Partial<Acce
 }
 
 /**
- * The badge the SDK would rank for a state assembled from the parts below. Mirrored here — rather
- * than spelled out at every call site — so a fixture built from `activeLease`/`approvedRequest`/
- * `pendingRequest` stays a faithful stand-in for a real response, which always carries both the
- * parts and the ranked badge. The ranking itself is the SDK's, and tested there.
+ * The badge the SDK would rank for a state built from the parts below.
+ *
+ * Mirrored here so a fixture stays a faithful stand-in for a real response; the ranking itself is tested in the SDK.
  */
 function badgeStateFor(state: CipherAccessStateView): CipherAccessStateView["badgeState"] {
   if (state.activeLease != null) {
@@ -112,9 +109,7 @@ function preCheck(overrides: Partial<AccessPreCheckView> = {}): AccessPreCheckVi
     cipherId: "cipher-1",
     approvalMode: "automatic",
     hasActiveLease: false,
-    // The SDK resolves both bounds for every pre-check (falling back to the global ones), so they
-    // are always present on the wire; a fixture omitting them would leave the duration control
-    // empty and every submit path invalid.
+    // The SDK always resolves both bounds on a pre-check.
     defaultDurationSeconds: 3600,
     maxDurationSeconds: 86_400,
     // The SDK reads an absent canStartLease as true, so the resting fixture is the startable case.
@@ -164,8 +159,8 @@ describe("CipherViewBannerComponent", () => {
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
-    // The resting pre-check is only reachable once the access-state read has settled, so its
-    // resolution lands a cycle after the state it depends on.
+    // The resting pre-check only resolves after the access-state read settles, landing a cycle
+    // later.
     await fixture.whenStable();
     fixture.detectChanges();
   }
@@ -214,13 +209,11 @@ describe("CipherViewBannerComponent", () => {
     ]);
 
     requestsApi.getCipherAccessState.mockResolvedValue(accessState());
-    // The resting banner pre-checks on its own to render the rule's maximum duration, so every
-    // test needs a resolved pre-check even when it never opens the form.
+    // The resting banner pre-checks on its own to render the rule's maximum.
     requestsApi.preCheck.mockResolvedValue(preCheck());
     leasingErrors.isLeasingError.mockReturnValue(false);
 
-    // The real fan-out, not a mock: the notify-then-re-read path is the behaviour under test.
-    // No push here (NEVER) — the banner's own mutations are what should drive the re-read.
+    // Uses the real fan-out, not a mock, since notify-then-re-read is the behavior under test.
     const accessRefresh = new DefaultAccessRefreshService({
       accessChanged$: () => NEVER,
       approverInboxChanged$: () => NEVER,
@@ -239,8 +232,7 @@ describe("CipherViewBannerComponent", () => {
         { provide: AccessRequestSdkService, useValue: requestsApi },
         { provide: AccessLeaseSdkService, useValue: leasesApi },
         { provide: AccessRefreshService, useValue: accessRefresh },
-        // The real shared cancel flow over the same mocks, so the banner's cancel behaviour is
-        // still exercised end to end.
+        // The real shared cancel flow, exercised end to end over the same mocks.
         {
           provide: AccessRequestCancelService,
           useValue: new AccessRequestCancelService(
@@ -262,8 +254,7 @@ describe("CipherViewBannerComponent", () => {
   });
 
   describe("licensing", () => {
-    // The cipher has to name an organization for licensing to apply at all; the shared
-    // `gatedCipher()` deliberately leaves it unset so the rest of the suite is about the rule.
+    // The shared `gatedCipher()` leaves organizationId unset, staying focused on the rule.
     function orgGatedCipher(overrides: Partial<CipherView> = {}): CipherView {
       return gatedCipher({ organizationId: ORGANIZATION_ID, ...overrides });
     }
@@ -304,9 +295,7 @@ describe("CipherViewBannerComponent", () => {
 
       await create(orgGatedCipher());
 
-      // The server stops releasing the credential to an unlicensed holder whatever lease they hold
-      // (CipherLeaseGate.LeaseCanRelease), so a countdown here would narrate access that is no
-      // longer being served.
+      // The server stops releasing the credential to an unlicensed holder regardless of lease.
       expect(query("[data-testid='cipher-view-banner-unlicensed']")).not.toBeNull();
       expect(query("[data-testid='cipher-view-banner-active']")).toBeNull();
       expect(query("#pam-cipher-view-banner_button_extend")).toBeNull();
@@ -320,9 +309,7 @@ describe("CipherViewBannerComponent", () => {
 
       await create(orgGatedCipher());
 
-      // Activation is refused server-side, so offering Start would be the dead end this story is
-      // about. Withdrawing the grant stays reachable from the vault-row menu and the My requests
-      // tab, neither of which is licensing-gated, so nothing is stranded by dropping it here.
+      // Withdrawing stays reachable elsewhere, ungated by licensing.
       expect(query("[data-testid='cipher-view-banner-unlicensed']")).not.toBeNull();
       expect(query("#pam-cipher-view-banner_button_start")).toBeNull();
     });
@@ -340,9 +327,7 @@ describe("CipherViewBannerComponent", () => {
     });
 
     it("offers no request card until licensing is known", async () => {
-      // `organizations$` has not emitted, so the answer is neither true nor false yet. Treating the
-      // gap as "licensed" would flash the request card and fire its pre-check at someone about to
-      // be blocked.
+      // Licensing is unknown before `organizations$` emits; treating that as licensed would flash the card.
       organizations$ = new BehaviorSubject<Organization[]>([]);
       const pending$ = new Subject<Organization[]>();
       TestBed.overrideProvider(OrganizationService, {
@@ -364,8 +349,7 @@ describe("CipherViewBannerComponent", () => {
     });
 
     it("still blocks when the access-state read fails", async () => {
-      // The block is derived from the caller's own membership, so it does not depend on a read that
-      // an unlicensed member has no particular reason to trust.
+      // The block derives from local membership, not the access-state read.
       organizations$.next([organization({ usePam: true, accessPam: false })]);
       requestsApi.getCipherAccessState.mockRejectedValue(new Error("boom"));
 
@@ -456,8 +440,7 @@ describe("CipherViewBannerComponent", () => {
       );
     });
 
-    // The human-approval route resolves the window from the requester's chosen start and end,
-    // which can sit wholly in the future.
+    // The human-approval window may be entirely in the future.
     it("states the granted duration for a window that has not opened yet", async () => {
       requestsApi.getCipherAccessState.mockResolvedValue(
         accessState({ approvedRequest: requestView(grantedWindow(3 * 3600, 24 * 3600)) }),
@@ -520,8 +503,7 @@ describe("CipherViewBannerComponent", () => {
     const NOW = Date.parse("2026-01-01T15:00:00.000Z");
     const ENDS_AT = "2026-01-01T16:15:00.000Z";
 
-    // Pinned rather than faked with timers: the banner's countdown runs on a real `setInterval`,
-    // and replacing the timer implementation would stall `fixture.whenStable()`.
+    // Pinned rather than faked: a fake timer would stall `fixture.whenStable()`.
     beforeEach(() => {
       jest.spyOn(Date, "now").mockReturnValue(NOW);
     });
@@ -530,8 +512,7 @@ describe("CipherViewBannerComponent", () => {
       jest.restoreAllMocks();
     });
 
-    // Both sides go through this: `formatDate` separates the meridiem with a narrow no-break space,
-    // which the template's own whitespace collapse would otherwise leave only on one side.
+    // `formatDate` separates the meridiem with a narrow no-break space.
     function collapseSpace(value: string | null | undefined): string {
       return (value ?? "").replace(/\s+/g, " ").trim();
     }
@@ -540,8 +521,7 @@ describe("CipherViewBannerComponent", () => {
       return `pamWindowUntil ${formatDate(iso, "short", "en-US")}`;
     }
 
-    // Real time, for the same reason the clock above is pinned rather than faked: the banner's
-    // interval is a real one, so a tick can only be observed by outlasting its second.
+    // The countdown runs on a real interval; a tick is only observed by outlasting it.
     function waitForTick(): Promise<void> {
       return new Promise((resolve) => setTimeout(resolve, 1_100));
     }
@@ -785,7 +765,7 @@ describe("CipherViewBannerComponent", () => {
       const focused = document.activeElement as HTMLElement | null;
       expect(focused).not.toBe(document.body);
       expect(focused?.contains(query("#pam-cipher-view-banner_button_request-cancel"))).toBe(true);
-      // The move is only announceable if what it lands on names itself.
+      // Announceable only if the element it lands on has its own name.
       expect(focused?.getAttribute("role")).toBe("group");
       expect(focused?.getAttribute("aria-label")?.trim()).toBe("pamRequestAccessButton");
     });
@@ -819,7 +799,7 @@ describe("CipherViewBannerComponent", () => {
       await refreshTo(accessState({ activeLease: leaseView() }));
       expect(query("#pam-cipher-view-banner_button_request-toggle")).toBeNull();
 
-      // ...and the lapsing lease brings both back, with the requester editing somewhere else.
+      // The lapsing lease brings both back, with the requester editing elsewhere.
       await refreshTo(accessState());
       expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
 
@@ -852,8 +832,7 @@ describe("CipherViewBannerComponent", () => {
       await component["toggleRequestForm"]();
       fixture.detectChanges();
 
-      // Cancel in the fold-out, with an access change landing in the same pass: the whole request
-      // card unmounts, so neither the toggle nor the fold-out is ever on screen to take the focus.
+      // Cancelling while access changes unmounts the whole card; nothing remains to hold focus.
       await component["toggleRequestForm"]();
       await refreshTo(accessState({ activeLease: leaseView() }));
       expect(query('[data-testid="cipher-view-banner-request"]')).toBeNull();
@@ -923,8 +902,7 @@ describe("CipherViewBannerComponent", () => {
       expect(reason?.getAttribute("rows")).toBe("3");
     });
 
-    // PM-39858: the picker offered a hardcoded 15m-24h preset list and pre-selected 1h, whatever the
-    // governing rule allowed. Both now come from the pre-check's bounds.
+    // Presets and default come from the pre-check's bounds, not a hardcoded list.
     it("narrows the duration picker to the rule's maximum", async () => {
       requestsApi.preCheck.mockResolvedValue(
         preCheck({
@@ -968,8 +946,7 @@ describe("CipherViewBannerComponent", () => {
 
       await component["toggleRequestForm"]();
 
-      // Composed rather than stitched onto a fixed date: a fold-out opened in the last quarter
-      // of an hour before midnight seeds an end on the following day.
+      // Composed from the fold-out's open time, not a fixed date.
       const window = composeRequestWindow(component["humanForm"].getRawValue());
       const spanMinutes = (window!.end.getTime() - window!.start.getTime()) / 60_000;
       expect(spanMinutes).toBe(15);
@@ -998,8 +975,6 @@ describe("CipherViewBannerComponent", () => {
       expect(error?.textContent).toContain(maxWindow);
     });
 
-    // PM-42592: a window dated before the request sailed through the form, and the server then
-    // persisted a pending request activation could never start.
     it("rejects a window that has already ended", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
@@ -1020,8 +995,7 @@ describe("CipherViewBannerComponent", () => {
       expect(error?.textContent).toContain("requestAccessModalWindowInPast");
     });
 
-    // PM-42593: the roll-over onto the next day is inferred from an end earlier than the start, so
-    // the form has to say which day it landed on rather than leave it to be assumed.
+    // Inferred from an end earlier than the start.
     it("names the day a midnight-crossing window ends on", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
@@ -1058,8 +1032,7 @@ describe("CipherViewBannerComponent", () => {
     });
 
     it("floors the date picker at the day the fold-out opened", async () => {
-      // Only an affordance — `min` reports through `ValidityState.rangeUnderflow`, which reactive
-      // forms never read, and a typed date skips the picker. The validator above is the guard.
+      // `min` is only an affordance; reactive forms never read ValidityState.rangeUnderflow.
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
       await component["toggleRequestForm"]();
@@ -1129,8 +1102,7 @@ describe("CipherViewBannerComponent", () => {
 
         const text = fixture.nativeElement.textContent as string;
         expect(text).toContain("pamRequestSlotTakenUntil");
-        // The "you'll get immediate access" line is a lie while the slot is taken, so it must be
-        // replaced rather than stacked on top of.
+        // Replaced, not shown alongside the warning, while the slot is taken.
         expect(text).not.toContain("requestAccessModalAutomaticDescription");
       });
 
@@ -1165,8 +1137,8 @@ describe("CipherViewBannerComponent", () => {
       });
 
       it("stays quiet on the human path, whose window is not now", async () => {
-        // canStartLease answers about NOW. A requester picking Thursday learns nothing from "taken
-        // until 10:52 today", and the spec scopes the warning to an otherwise-auto_approve request.
+        // canStartLease answers about now; the warning is scoped to an auto_approve request, not a
+        // future-dated one.
         requestsApi.preCheck.mockResolvedValue(
           preCheck({
             approvalMode: "human",
@@ -1194,7 +1166,7 @@ describe("CipherViewBannerComponent", () => {
         await component["toggleRequestForm"]();
         expect(component["slotContention"]()).not.toBeNull();
 
-        // Collapse, then reopen once the holder is done.
+        // Collapse, then reopen after the holder finishes.
         await component["toggleRequestForm"]();
         requestsApi.preCheck.mockResolvedValue(preCheck({ canStartLease: true }));
         await component["toggleRequestForm"]();
@@ -1259,8 +1231,8 @@ describe("CipherViewBannerComponent", () => {
       });
     });
 
-    // PM-42593: an end earlier than the start was refused as inverted, so no window crossing
-    // midnight could be requested at all.
+    // An end earlier than the start was refused as inverted, blocking any window that crosses
+    // midnight.
     it("sends a window that crosses midnight, ending on the following day", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       requestsApi.submitAccessRequest.mockResolvedValue({
@@ -1278,8 +1250,8 @@ describe("CipherViewBannerComponent", () => {
       });
       await component["submitRequest"]();
 
-      // 01:00 on the day after `futureDate`, built from its calendar parts (Date normalises the
-      // day overflow) so the expectation does not restate the helper's own arithmetic.
+      // 01:00 the day after `futureDate`, computed from its parts rather than restating the
+      // helper's own arithmetic.
       const [year, month, day] = futureDate.split("-").map(Number);
       const endsAt = new Date(year, month - 1, day + 1, 1, 0, 0);
       expect(requestsApi.submitAccessRequest).toHaveBeenCalledWith("cipher-1", {
@@ -1304,8 +1276,7 @@ describe("CipherViewBannerComponent", () => {
       });
       expect(end.errors).toBeNull();
 
-      // Age the form past its own window without touching a control. Nothing re-runs the validator
-      // on its own, so `end` still reads valid — submit is the only thing that can catch this.
+      // Ages the form past its window without touching a control; only submit re-validates.
       jest.useFakeTimers().setSystemTime(new Date(`${futureDate}T10:00`).getTime() + 1000);
       try {
         expect(end.errors).toBeNull();
@@ -1656,8 +1627,7 @@ describe("CipherViewBannerComponent", () => {
       dialogService.open.mockReturnValue({
         closed: of({ durationSeconds: 3600, reason: "still working" }),
       } as never);
-      // The lease ran out while the dialog was open. The server records that as a denied request and
-      // answers with it, so the call resolves rather than throwing (PM-42632).
+      // The server treats a lease that ran out mid-dialog as a denied request, not a throw.
       leasesApi.extendLease.mockResolvedValue(requestView({ status: "denied" }));
       await create(gatedCipher());
 

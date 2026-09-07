@@ -29,9 +29,9 @@ export class Collection extends Domain {
   type: CollectionType = CollectionTypes.SharedCollection;
   defaultUserCollectionEmail: string | undefined;
   /**
-   * True when the collection is governed by an access rule that is currently enabled, meaning its
-   * items are gated behind PAM leasing. Server-derived: the association alone is not enough,
-   * because a disabled rule gates nothing.
+   * True when the collection is governed by a currently enabled access rule, gating its items
+   * behind PAM leasing. Server-derived: association alone isn't enough, since a disabled rule
+   * gates nothing.
    */
   hasEnabledAccessRule: boolean = false;
 
@@ -112,11 +112,10 @@ export class Collection extends Domain {
   /**
    * Maps Collection to SDK format for use with the SDK crypto operations.
    *
-   * WARNING: the SDK's `Collection` is `#[serde(deny_unknown_fields)]`, so this object must contain
-   * exactly the fields the Rust type declares. `hasEnabledAccessRule` is NOT one of them — adding it
-   * here throws at runtime rather than failing to compile. It rides alongside the SDK instead, the
-   * same way `defaultUserCollectionEmail` does on the way back (see
-   * {@link CollectionView.fromSdkCollectionView}).
+   * WARNING: the SDK's `Collection` is `#[serde(deny_unknown_fields)]`, so this object must
+   * contain exactly the fields the Rust type declares. `hasEnabledAccessRule` is NOT one of
+   * them — adding it here throws at runtime. It rides alongside the SDK instead, the same way
+   * `defaultUserCollectionEmail` does on the way back.
    */
   toSdkCollection(): SdkCollection {
     return {

@@ -36,9 +36,9 @@ import { RotationConfigsService } from "./rotation-configs.service";
 /**
  * Managed credentials tab: lists all rotation configs for the organisation.
  *
- * Row menu actions call the service methods directly and show toasts on success,
- * or display an error toast on failure. Confirmations use DialogService.openSimpleDialog.
- * The edit page is a sibling of the shell, so navigation uses ["..", "managed-credentials", id].
+ * Row menu actions call the service methods directly, toasting on success or failure;
+ * confirmations use `DialogService.openSimpleDialog`. The edit page is a shell sibling, so
+ * navigation uses `["..", "managed-credentials", id]`.
  */
 @Component({
   selector: "app-managed-credentials-tab",
@@ -104,8 +104,7 @@ export class ManagedCredentialsTabComponent {
     effect(() => {
       const organizationId = this.organizationId();
       void this.configsService.load(organizationId);
-      // Also load target systems so the empty state can tell whether the user must set one up
-      // first (the shell-scoped instance may be empty if this tab is visited before the others).
+      // Also loads target systems so the empty state can tell if one must be set up first.
       void this.targetSystemsService.load(organizationId);
     });
 
