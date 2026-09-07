@@ -7,11 +7,8 @@ import { BadgeComponent, BadgeVariant } from "@bitwarden/components";
 
 import { formatRemaining } from "../date/format-remaining";
 
-import { AccessBadgeState } from "./access-badge-state";
+import { AccessBadgeState, ENDING_SOON_THRESHOLD_MS } from "./access-badge-state";
 import { AccessBadgeTickerService } from "./access-badge-ticker.service";
-
-/** At or below this remaining time an active lease escalates to the danger "Ending soon" badge. */
-const ENDING_SOON_THRESHOLD_MS = 5 * 60 * 1000;
 
 /** One of the six glyphs the spec pairs with the access-state badges. */
 type BadgeIcon =

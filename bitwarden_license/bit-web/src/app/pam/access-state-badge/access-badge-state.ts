@@ -17,6 +17,15 @@ export type AccessBadgeState =
   | { readonly kind: "active"; readonly expiresAt: Date };
 
 /**
+ * At or below this remaining time an active lease has escalated to "ending soon".
+ *
+ * A fixed cutoff, not a fraction of the lease's total duration (PM-40498), and shared rather than
+ * spelled per surface: the badge and the cipher-view banner's own countdown both escalate here, and
+ * two thresholds drifting apart would have one surface calm while the other warns.
+ */
+export const ENDING_SOON_THRESHOLD_MS = 5 * 60 * 1000;
+
+/**
  * Adapt the SDK's `badgeState` onto the presentation model above.
  *
  * Precedence — active lease → approved → pending → privileged — is applied once in the SDK, so
