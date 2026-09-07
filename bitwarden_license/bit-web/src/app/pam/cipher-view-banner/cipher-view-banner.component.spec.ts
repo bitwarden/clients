@@ -596,6 +596,77 @@ describe("CipherViewBannerComponent", () => {
     });
   });
 
+  describe("the five-minute escalation on the active lease", () => {
+    const NOW = Date.parse("2026-01-01T15:00:00.000Z");
+
+    // Pinned rather than faked, for the reason given on the countdown suite above.
+    beforeEach(() => {
+      jest.spyOn(Date, "now").mockReturnValue(NOW);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    /** An active lease ending `offsetMs` from the pinned now; negative for one already lapsed. */
+    async function activeLeaseEndingIn(offsetMs: number): Promise<void> {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({
+          activeLease: leaseView({ notAfter: new Date(NOW + offsetMs).toISOString() }),
+          extensionsAllowed: true,
+        }),
+      );
+
+      await create(gatedCipher());
+    }
+
+    function glyph(name: string): Element | null | undefined {
+      return query('bit-card[data-testid="cipher-view-banner-active"]')?.querySelector(
+        `bit-icon-tile i.${name}`,
+      );
+    }
+
+    it("warns and offers both actions inside the threshold", async () => {
+      await activeLeaseEndingIn(4 * 60 * 1000);
+
+      expect(query('[data-testid="active-lease-ending-soon"]')?.textContent?.trim()).toBe(
+        "pamActiveLeaseBannerEndingSoonTitle 4m",
+      );
+      expect(query('[data-testid="active-lease-countdown"]')).toBeNull();
+      expect(glyph("bwi-exclamation-triangle")).not.toBeNull();
+      // The warning is only worth showing if it can be acted on from here.
+      expect(query("#pam-cipher-view-banner_button_extend")).not.toBeNull();
+      expect(query("#pam-cipher-view-banner_button_end")).not.toBeNull();
+    });
+
+    it("warns at exactly five minutes remaining", async () => {
+      await activeLeaseEndingIn(5 * 60 * 1000);
+
+      expect(query('[data-testid="active-lease-ending-soon"]')?.textContent?.trim()).toBe(
+        "pamActiveLeaseBannerEndingSoonTitle 5m",
+      );
+    });
+
+    it("rests above the threshold, whatever the lease's total length", async () => {
+      await activeLeaseEndingIn(6 * 60 * 1000);
+
+      expect(query('[data-testid="active-lease-countdown"]')?.textContent?.trim()).toBe(
+        "pamActiveLeaseBannerTitle 6m",
+      );
+      expect(query('[data-testid="active-lease-ending-soon"]')).toBeNull();
+      expect(glyph("bwi-clock")).not.toBeNull();
+    });
+
+    it("keeps warning about a lease that lapsed before the refresh landed", async () => {
+      await activeLeaseEndingIn(-60 * 1000);
+
+      expect(query('[data-testid="active-lease-ending-soon"]')?.textContent?.trim()).toBe(
+        "pamActiveLeaseBannerEndingSoonTitle 0s",
+      );
+      expect(glyph("bwi-clock")).toBeNull();
+    });
+  });
+
   describe("the card container", () => {
     const cases: ReadonlyArray<{
       name: string;
