@@ -52,6 +52,7 @@ export class OrganizationUserNotificationPolicy extends BasePolicyEditDefinition
   category = PolicyCategory.VaultManagement;
   priority = 70;
   prerequisiteKey = "singleOrgPrerequisite";
+  prerequisiteKeyVfo1 = "singleOrgPrerequisiteVfo1";
 }
 
 interface OrganizationUserNotificationPolicyOptions {

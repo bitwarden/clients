@@ -1,4 +1,10 @@
-<div #wrapper class="tw-fixed tw-bottom-0 tw-inset-x-0 tw-z-50 tw-flex tw-justify-center">
+<!-- `pointer-events-none`: the wrapper is an invisible full-width band across the bottom of the
+     viewport. Left hit-testable, it swallows clicks meant for whatever sits under it — a table's
+     own paginator, for one. The bar opts back in while visible, via `barStateClasses`. -->
+<div
+  #wrapper
+  class="tw-pointer-events-none tw-fixed tw-bottom-0 tw-inset-x-0 tw-z-50 tw-flex tw-justify-center"
+>
   <div role="status" aria-live="polite" class="tw-sr-only">
     {{ announcement() }}
   </div>
