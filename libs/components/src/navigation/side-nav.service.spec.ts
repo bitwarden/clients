@@ -175,11 +175,17 @@ describe("SideNavService", () => {
         ],
         ["ArrowLeft while open", () => service.setWidthFromKeys("ArrowLeft"), [SAVED - 1]],
         ["ArrowRight while open", () => service.setWidthFromKeys("ArrowRight"), [SAVED + 1]],
-        ["dragging above the minimum", () => dragTo(24), [24]],
+        ["dragging above the minimum", () => dragTo(24), []],
+        ["releasing above the minimum", () => (dragTo(24), service.onDragEnd()), [24]],
         ["dragging into the tension zone", () => dragTo(10), []],
         ["releasing in the tension zone", () => (dragTo(10), service.onDragEnd()), [15]],
         ["dragging past the snap threshold", () => dragTo(3), []],
         ["releasing after snapping closed", () => (dragTo(3), service.onDragEnd()), []],
+        [
+          "a stepped drag that collapses the nav",
+          () => (dragTo(20), dragTo(17), dragTo(15.5), dragTo(3), service.onDragEnd()),
+          [],
+        ],
         ["previewing out from collapsed", () => (service.open.set(false), dragTo(8)), []],
         [
           "releasing a preview drag",
@@ -187,8 +193,18 @@ describe("SideNavService", () => {
           [],
         ],
         [
+          "releasing a drag out from collapsed",
+          () => (service.open.set(false), dragTo(20), service.onDragEnd()),
+          [20],
+        ],
+        [
           "aborting a preview drag",
           () => (service.open.set(false), dragTo(8), dragTo(2), service.onDragEnd()),
+          [],
+        ],
+        [
+          "dragging out from collapsed and back again",
+          () => (service.open.set(false), dragTo(20), dragTo(2), service.onDragEnd()),
           [],
         ],
       ])("persists %s", (_label, gesture, expected) => {
@@ -278,9 +294,64 @@ describe("SideNavService", () => {
 
         expect(persistedWidths()).toEqual([]);
 
+        service.onDragEnd();
         flushPersist();
 
         expect(persistedWidths()).toEqual([24]);
+      });
+    });
+
+    // The minimum is both a real preference and the value the tension zone springs back to, so
+    // the two must not be able to masquerade as each other.
+    describe("when the saved width is already the minimum", () => {
+      beforeEach(() => {
+        createService(15);
+        service.open.set(true);
+        clearPersisted();
+        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+      });
+
+      it("survives a drag that collapses the nav", () => {
+        dragTo(14);
+        dragTo(10);
+        dragTo(3);
+        service.onDragEnd();
+        flushPersist();
+
+        expect(service.open()).toBe(false);
+        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+        expect(persistedWidths()).toEqual([]);
+
+        service.toggle();
+
+        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+      });
+
+      it("writes nothing when a tension release reaffirms it", () => {
+        dragTo(10);
+        service.onDragEnd();
+        flushPersist();
+
+        expect(service.open()).toBe(true);
+        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+        expect(persistedWidths()).toEqual([]);
+      });
+
+      it("writes nothing when a drag is released without moving off it", () => {
+        service.onDragEnd();
+        flushPersist();
+
+        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+        expect(persistedWidths()).toEqual([]);
+      });
+
+      it("is replaced by a wider width once released", () => {
+        dragTo(20);
+        service.onDragEnd();
+        flushPersist();
+
+        expect(currentWidth()).toBe(20);
+        expect(persistedWidths()).toEqual([20]);
       });
     });
   });
@@ -372,6 +443,7 @@ describe("SideNavService", () => {
         createService();
         service.open.set(true);
         dragTo(CUSTOM_WIDTH);
+        service.onDragEnd();
         expect(currentWidth()).toBe(CUSTOM_WIDTH);
       });
 
@@ -394,6 +466,11 @@ describe("SideNavService", () => {
       });
 
       it("keeps the customized width when a drag collapses the nav", () => {
+        // Step through the widths a real pointer passes on the way down — a 22 -> 10 jump would
+        // skip every frame that could overwrite the saved width.
+        dragTo(20);
+        dragTo(17);
+        dragTo(15.5);
         dragTo(10);
         dragTo(3);
 
@@ -416,6 +493,12 @@ describe("SideNavService", () => {
         expect(service.open()).toBe(true);
         expect(service.dragDisplayWidth()).toBeNull();
         expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+      });
+
+      it("does not paint past MAX_OPEN_WIDTH", () => {
+        dragTo(40);
+
+        expect(currentWidth()).toBe(service.MAX_OPEN_WIDTH);
       });
 
       it("clears a stale tension preview when dragged back above the minimum", () => {

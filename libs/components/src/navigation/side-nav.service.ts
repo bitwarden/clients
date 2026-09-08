@@ -121,7 +121,7 @@ export class SideNavService {
 
     if (!this.open()) {
       // Dragging out from collapsed — drive visual width via dragDisplayWidth without changing
-      // `open`, so push/overlay mode and open-state styling stay put until the drag commits.
+      // `open`, so push/overlay mode and open-state styling stay put until the nav actually opens.
       if (newWidthInRem < this.CLOSED_WIDTH) {
         // Dragged back onto the icon strip — abort the preview and stay collapsed.
         this.dragDisplayWidth.set(null);
@@ -129,11 +129,11 @@ export class SideNavService {
       }
 
       if (newWidthInRem >= this.MIN_OPEN_WIDTH) {
-        // Fully crossed the minimum — commit to genuinely open, hand width to _width$
+        // Fully crossed the minimum — genuinely open, and the width hands off to width$
         this.dragDisplayWidth.set(null);
         this.userCollapsePreference.set("open");
         this.open.set(true);
-        this.widthService.commit(newWidthInRem);
+        this.widthService.display(this.widthService.clamp(newWidthInRem));
       } else {
         this.dragDisplayWidth.set(newWidthInRem);
       }
@@ -145,11 +145,12 @@ export class SideNavService {
       this.dragDisplayWidth.set(null);
       this.userCollapsePreference.set("closed");
       this.open.set(false);
+      // Discard the widths this drag painted on the way down and go back to the user's.
+      this.widthService.display(this.widthService.saved());
       return;
     }
 
-    // Tension zone: preview a 15% shrink to signal the approaching snap threshold. This stays in
-    // dragDisplayWidth so a drag that ends collapsed leaves the user's saved width untouched.
+    // Tension zone: preview a 15% shrink to signal the approaching snap threshold.
     if (newWidthInRem < this.MIN_OPEN_WIDTH) {
       const overflow = this.MIN_OPEN_WIDTH - newWidthInRem;
       this.dragDisplayWidth.set(this.MIN_OPEN_WIDTH - overflow * 0.15);
@@ -157,7 +158,7 @@ export class SideNavService {
     }
 
     this.dragDisplayWidth.set(null);
-    this.widthService.commit(newWidthInRem);
+    this.widthService.display(this.widthService.clamp(newWidthInRem));
   }
 
   /**
@@ -190,26 +191,31 @@ export class SideNavService {
     this.widthService.commit(newWidth);
   }
 
-  /** Release turns a provisional preview into a decision. Only a release in the tension zone
-   *  changes the width — collapsing or aborting says nothing about it. */
+  /** A drag only ever paints. Release is the single place it becomes a preference, so a gesture
+   *  that ends collapsed cannot overwrite the width the user had. */
   onDragEnd() {
     this.isDragging.set(false);
 
     const preview = this.dragDisplayWidth();
     this.dragDisplayWidth.set(null);
 
-    if (preview === null) {
+    if (!this.open()) {
+      // Released in the collapsed preview zone — open at the width the user already had.
+      // Otherwise the drag snapped closed, which says nothing about the width.
+      if (preview !== null) {
+        this._expand();
+      }
       return;
     }
 
-    if (this.open()) {
+    if (preview !== null) {
       // Released in the tension zone — spring back to the minimum.
       this.widthService.commit(this.MIN_OPEN_WIDTH);
       return;
     }
 
-    // Released in the collapsed preview zone — open at the width the user already had.
-    this._expand();
+    // Released while open — the painted width is the width the user chose.
+    this.widthService.commit(this.widthRem());
   }
 
   /** Open at the width the user last chose. Display-only, so restoring it is not a new
