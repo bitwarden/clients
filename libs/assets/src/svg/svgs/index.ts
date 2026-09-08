@@ -46,6 +46,7 @@ export * from "./import-kaspersky.icon";
 export * from "./import-keepass.icon";
 export * from "./import-keeper.icon";
 export * from "./import-lastpass.icon";
+export * from "./import-logmeonce.icon";
 export * from "./import-msecure.icon";
 export * from "./import-myki.icon";
 export * from "./import-netwrix.icon";
