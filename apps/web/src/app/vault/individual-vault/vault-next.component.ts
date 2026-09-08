@@ -5,9 +5,11 @@ import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -15,6 +17,8 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { ButtonModule, DialogService } from "@bitwarden/components";
+import { isGuid } from "@bitwarden/guid";
+import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
   AddItemDialogComponent,
@@ -26,6 +30,7 @@ import {
   NewCipherMenuComponent,
   SharedFolderCardGridComponent,
   VaultCopyButtonsService,
+  VaultCollectionBreadcrumbsComponent,
   VaultItemsTableComponent,
   VaultItemsTableCopyPresentation,
   VaultItemsTableRowAction,
@@ -34,9 +39,17 @@ import {
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
+  hasMultipleVaults,
+  organizationNameForScope,
+  MY_ITEMS_ROUTE,
   organizationInScope,
+  parseVaultScope,
   resolveVaultScope,
+  scopedCollectionSegment,
+  scopedSharedFolderId,
+  sharedFolderNameForScope,
   VaultScopeType,
+  defaultUserCollectionId,
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -69,6 +82,7 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     HeaderModule,
     NewCipherMenuComponent,
     VaultBannersComponent,
+    VaultCollectionBreadcrumbsComponent,
     VaultItemsTableComponent,
     VaultOnboardingComponent,
     VaultOrganizationUserNotificationsComponent,
@@ -93,14 +107,18 @@ export class VaultNextComponent {
   private readonly vaultNavService = inject(VaultNavService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly i18nService = inject(I18nService);
-
+  private readonly policyService = inject(PolicyService);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   private readonly routeParams = toSignal(this.activatedRoute.paramMap);
 
+  private readonly routeData = toSignal(this.activatedRoute.data);
+
   private readonly vaultIdParam = computed(() => this.routeParams()?.get("vaultId"));
 
-  private readonly collectionIdParam = computed(() => this.routeParams()?.get("collectionId"));
+  private readonly collectionSegment = computed(() =>
+    scopedCollectionSegment(this.routeParams(), this.routeData()),
+  );
 
   private readonly vaultNav = toSignal(
     this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
@@ -113,9 +131,26 @@ export class VaultNextComponent {
    */
   protected readonly vaultScope = computed(
     () =>
-      resolveVaultScope(this.vaultIdParam(), this.collectionIdParam(), this.vaultNav()) ??
+      resolveVaultScope(this.vaultIdParam(), this.collectionSegment(), this.vaultNav()) ??
       ALL_ITEMS_SCOPE,
   );
+
+  protected readonly defaultCollectionId = computed(() => {
+    const scope = this.vaultScope();
+    if (scope.type !== VaultScopeType.Organization) {
+      return undefined;
+    }
+    return defaultUserCollectionId(scope.organizationId, this.vaultNav());
+  });
+
+  protected readonly parsedVaultScope = computed(
+    () => parseVaultScope(this.vaultIdParam(), this.collectionSegment()) ?? ALL_ITEMS_SCOPE,
+  );
+
+  protected readonly collectionSelected = computed(() => {
+    const seg = this.collectionSegment();
+    return seg != null && seg !== MY_ITEMS_ROUTE;
+  });
 
   /**
    * Every item the user can see, in every state. Which of trashed, archived, and active items a
@@ -189,8 +224,8 @@ export class VaultNextComponent {
    * Narrowed to the vault only, never to the shared folder in view: an item belongs to as many
    * shared folders as it was assigned to, so a row in the folder being viewed may live in others
    * too — narrowing this would drop those from its Shared folders column and leave the chip unable
-   * to offer them. The grid needs the whole vault for the same reason: the folder it drills into
-   * has to be findable in the tree.
+   * to offer them. The breadcrumb tree needs the whole vault for the same reason: the folder it
+   * drills into has to be findable in the tree.
    *
    * The unscoped {@link collections} still back the row actions, which assign an item to any
    * collection the user can reach — not just the ones this page shows.
@@ -213,6 +248,41 @@ export class VaultNextComponent {
   });
 
   /**
+   * The shared folder the scope has drilled into, prefilled onto a new item — `undefined` unless
+   * it names an actual collection rather than the {@link MY_ITEMS_ROUTE} sentinel, which
+   * `resolveVaultScope` has yet to resolve to an id while the nav is still loading.
+   */
+  protected readonly scopedCollectionId = computed(() => {
+    const collectionId = scopedSharedFolderId(this.vaultScope());
+    return collectionId != null && isGuid(collectionId)
+      ? (collectionId as CollectionId)
+      : undefined;
+  });
+
+  /**
+   * The vault-scope display-name facts {@link EmptyVaultComponent} needs for its copy, relayed
+   * through `vault-items-table` untouched — the table itself has no notion of vault scope.
+   *
+   * Gated by {@link showItemCreation}: Trash and Archive are not vaults an "Add item" message
+   * makes sense for, even for an account these facts would otherwise resolve non-empty for.
+   */
+  protected readonly emptyVaultOrganizationName = computed(() =>
+    this.showItemCreation()
+      ? organizationNameForScope(this.vaultScope(), this.vaultNav())
+      : undefined,
+  );
+
+  protected readonly hasMultipleVaults = computed(
+    () => this.showItemCreation() && hasMultipleVaults(this.vaultNav()),
+  );
+
+  protected readonly emptySharedFolderName = computed(() =>
+    this.showItemCreation()
+      ? sharedFolderNameForScope(this.vaultScope(), this.scopedCollections())
+      : undefined,
+  );
+
+  /**
    * Whether the page offers the toolbar's Import and New item actions. New items cannot be created
    * with a trashed or archived status and would "disappear" after creation on those views.
    */
@@ -221,13 +291,6 @@ export class VaultNextComponent {
     return type !== VaultScopeType.Trash && type !== VaultScopeType.Archive;
   });
 
-  /**
-   * Placeholder header title for the scoped vault. Breadcrumbs replace this — see the page layout
-   * epic — so it reuses the same strings the side nav labels these vaults with.
-   *
-   * `undefined` leaves the route's own `titleId` in place, which covers All items and the moment
-   * before an organization's name has loaded.
-   */
   protected readonly title = computed(() => {
     const scope = this.vaultScope();
     switch (scope.type) {
@@ -266,6 +329,16 @@ export class VaultNextComponent {
     ),
   );
 
+  /** Whether the `OrganizationDataOwnership` policy applies to the active user. */
+  protected readonly orgRequiresDataOwnership = toSignal(
+    this.userId$.pipe(
+      switchMap((userId) =>
+        this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+      ),
+    ),
+    { initialValue: false },
+  );
+
   /**
    * Clicking an item's name opens the read-only view, matching the legacy vault — the dialog offers
    * its own Edit toggle from there, while the `edit` row action goes straight to the form.
@@ -278,7 +351,10 @@ export class VaultNextComponent {
 
   /** Handles `vault-new-cipher-menu`'s `cipherAdded`, emitted by its legacy per-type dropdown. */
   protected async addCipher(cipherType: CipherType): Promise<void> {
-    await this.itemActions.add(cipherType);
+    await this.itemActions.add(cipherType, {
+      organizationId: this.scopedOrganizationId(),
+      collectionId: this.scopedCollectionId(),
+    });
   }
 
   /**
@@ -297,7 +373,10 @@ export class VaultNextComponent {
       return;
     }
 
-    await this.itemActions.add(result.cipherType);
+    await this.itemActions.add(result.cipherType, {
+      organizationId: this.scopedOrganizationId(),
+      collectionId: this.scopedCollectionId(),
+    });
   }
 
   protected openImportDialog(): void {
