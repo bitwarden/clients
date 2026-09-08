@@ -19,8 +19,27 @@
     [loading]="loading()"
     [rowActions]="rowActions()"
     [itemAction]="itemAction"
+    [scope]="scope()"
+    [organizationName]="organizationName()"
+    [sharedFolderName]="sharedFolderName()"
+    [defaultCollectionId]="defaultCollectionId()"
+    [hasMultipleVaults]="hasMultipleVaults()"
     (selectedChange)="handleSelectionChange($event)"
   >
+    @if (showAddCipherBtn()) {
+      <vault-new-cipher-menu
+        slot="empty-add-item"
+        [canCreateCipher]="canCreateCipher()"
+        [canCreateFolder]="false"
+        [canCreateCollection]="false"
+        [canCreateSshKey]="true"
+        [disabled]="!canCreateCipher()"
+        (cipherAdded)="onAddCipher.emit($event)"
+        (onAddItemDialog)="onAddItemDialog.emit()"
+        id="vault-list-table_empty-new-cipher-menu"
+      />
+    }
+
     @if (showAddCipherBtn()) {
       <div slot="toolbar" class="tw-flex tw-items-center tw-gap-3">
         <button

@@ -2,17 +2,36 @@
   "bitwarden": {
     "message": "Bitwarden"
   },
+  "bitwardenBeta": {
+    "message": "Beta de Bitwarden",
+    "description": "Product name for the beta channel; shown in the tray tooltip and About dialog"
+  },
   "filters": {
     "message": "Filtres"
   },
   "allItems": {
     "message": "Tots els elements"
   },
+  "allVaultItems": {
+    "message": "Tots els elements de la caixa forta"
+  },
+  "myItemsV2": {
+    "message": "My items"
+  },
+  "vaults": {
+    "message": "Caixes fortes"
+  },
+  "tools": {
+    "message": "Eines"
+  },
+  "manage": {
+    "message": "Administra"
+  },
   "favorites": {
     "message": "Preferits"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Marca elements com a favorits per filtrar-los ací."
   },
   "unfavorite": {
     "message": "Trau dels preferits"
@@ -51,43 +70,43 @@
     "message": "Informació personal"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Text important"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "Token d'inici de sessió del servidor"
   },
   "typeBankAccountSubtitle": {
-    "message": "Banking details"
+    "message": "Dades bancàries"
   },
   "typePassport": {
     "message": "Passaport"
   },
   "passportDetails": {
-    "message": "Passport details"
+    "message": "Detalls del passaport"
   },
   "passportAdded": {
-    "message": "Passport added"
+    "message": "Passaport afegit"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "Document de viatge"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Organitza els teus elements"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Organitza elements compartits"
   },
   "typeDriversLicense": {
     "message": "Llicència"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "Llicència de conduir o document d'identitat"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Tria l'element a afegir"
   },
   "chooseItemToAddDesc": {
-    "message": "Select the item type you want to add to your vault."
+    "message": "Seleccioneu el tipus d'element que voleu afegir a la vostra caixa forta."
   },
   "folders": {
     "message": "Carpetes"
@@ -108,34 +127,79 @@
     "message": "Compartit"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "Carpeta compartida"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "Carpetes compartides"
+  },
+  "sharedFoldersInParent": {
+    "message": "Carpetes compartides en $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ carpetes compartides",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ carpeta compartida",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ more shared folders shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 more shared folder shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "La meua carpeta"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "Les meues carpetes"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Afegeix carpetes als elements per filtrar-los ací."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
   },
   "addSharedFolder": {
-    "message": "Add shared folder"
+    "message": "Afig carpeta compartida"
   },
   "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "Nova carpeta compartida"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "Cerca carpeta compartida"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "Cerca a les meues carpetes"
   },
   "viewSharedFolderWithName": {
-    "message": "View shared folder - $NAME$",
+    "message": "Veure carpeta compartida - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -144,10 +208,10 @@
     }
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "Suprimeix carpeta compartida"
   },
   "deleteSharedFoldersCount": {
-    "message": "Delete $COUNT$ shared folders",
+    "message": "Suprimeix $COUNT$ carpetes compartides",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -156,19 +220,19 @@
     }
   },
   "deleteSharedFolderKeepItemsDesc": {
-    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+    "message": "Aquesta carpeta compartida s'eliminarà de manera permanent. Els elements de la carpeta no s'eliminaran."
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Aquestes carpetes compartides s'eliminaran de manera permanent. Els elements de les carpetes no s'eliminaran."
   },
   "deleteItemsAndSharedFoldersDesc": {
-    "message": "The selected items and shared folders will be permanently deleted."
+    "message": "Els elements seleccionats i les carpetes compartides s'eliminaran de manera permanent."
   },
   "sharedFolderDeleted": {
-    "message": "Shared folder deleted"
+    "message": "Carpeta compartida eliminada"
   },
   "sharedFoldersDeleted": {
-    "message": "Shared folders deleted"
+    "message": "Carpetes compartides eliminades"
   },
   "share": {
     "message": "Comparteix"
@@ -202,13 +266,13 @@
     "message": "Adjunts"
   },
   "attachmentsNeedFix": {
-    "message": "This item has old file attachments that need to be fixed."
+    "message": "Aquest element té fitxers adjunts antics que cal reparar."
   },
   "viewItem": {
     "message": "Visualitza l'element"
   },
   "viewCollectionWithName": {
-    "message": "View collection - $NAME$",
+    "message": "Veure col·lecció - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -233,7 +297,7 @@
     "description": "Header for view note item type"
   },
   "viewItemHeaderSecureNote": {
-    "message": "View secure note",
+    "message": "Veure nota segura",
     "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
@@ -241,55 +305,55 @@
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "Veure compte bancari",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "Veure llicència",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "Veure passaport",
     "description": "Header for view passport item type"
   },
   "addItemHeaderLogin": {
-    "message": "Add login",
+    "message": "Afig inici de sessió",
     "description": "Header for new login item type"
   },
   "addItemHeaderCard": {
-    "message": "Add card",
+    "message": "Afig una targeta",
     "description": "Header for new card item type"
   },
   "addItemHeaderIdentity": {
-    "message": "Add identity",
+    "message": "Afig identitat",
     "description": "Header for new identity item type"
   },
   "addItemHeaderNote": {
-    "message": "Add note",
+    "message": "Afig una nota",
     "description": "Header for new note item type"
   },
   "addItemHeaderSecureNote": {
-    "message": "Add secure note",
+    "message": "Afig nota segura",
     "description": "Header for new secure note item type"
   },
   "addItemHeaderSshKey": {
-    "message": "Add SSH key",
+    "message": "Afig clau SSH",
     "description": "Header for new SSH key item type"
   },
   "addItemHeaderBankAccount": {
-    "message": "Add bank account",
+    "message": "Afig compte bancari",
     "description": "Header for new bank account item type"
   },
   "addItemHeaderDriversLicense": {
-    "message": "Add license",
+    "message": "Afig llicència",
     "description": "Header for new license item type"
   },
   "addItemHeaderPassport": {
-    "message": "Add passport",
+    "message": "Afig passaport",
     "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Nou inici de sessió",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
@@ -301,27 +365,27 @@
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Nova nota",
     "description": "Header for new note item type"
   },
   "newItemHeaderSecureNote": {
-    "message": "New secure note",
+    "message": "Nova nota segura",
     "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Nova clau SSH",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "Nou compte bancari",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "Nova llicència",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "Nou passaport",
     "description": "Header for new passport item type"
   },
   "editItemHeaderLogin": {
@@ -393,23 +457,23 @@
     }
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "El Send s'eliminarà permanentment en aquesta data.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "fileToShare": {
-    "message": "File to share"
+    "message": "Fitxer per compartir"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Amaga el text per defecte"
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Amaga la teua adreça de correu electrònic als visitants."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Limita visualitzacions"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "$ACCESSCOUNT$ visualitzacions restants",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -419,14 +483,14 @@
     }
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Ningú no podrà veure aquest Send després d'assolir el límit.",
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Nota privada"
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Detalls del Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
@@ -449,31 +513,31 @@
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Esteu segur que voleu suprimir permanentment aquest Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewItemHeaderLoginSentenceCase": {
-    "message": "View login",
+    "message": "Veure inici de sessió",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCardSentenceCase": {
-    "message": "View card",
+    "message": "Veure targeta",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentitySentenceCase": {
-    "message": "View identity",
+    "message": "Veure identitat",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNoteSentenceCase": {
-    "message": "View note",
+    "message": "Veure nota",
     "description": "Header for view note item type"
   },
   "create": {
-    "message": "Create",
+    "message": "Crea",
     "description": "for adding new items"
   },
   "addCollection": {
-    "message": "Add collection"
+    "message": "Afig col·lecció"
   },
   "new": {
     "message": "Nou",
@@ -492,7 +556,7 @@
     "message": "Frase de pas"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "espai",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "editItem": {
@@ -526,17 +590,17 @@
     "message": "Inicia"
   },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Obri el lloc web"
   },
   "copyValue": {
     "message": "Copia el valor",
     "description": "Copy value to clipboard"
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Copia el lloc web"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Copia $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -585,40 +649,40 @@
     "message": "Número de passaport"
   },
   "sex": {
-    "message": "Sex"
+    "message": "Sexe"
   },
   "copySex": {
-    "message": "Copy sex"
+    "message": "Copia el sexe"
   },
   "birthPlace": {
-    "message": "Birth place"
+    "message": "Lloc de naixement"
   },
   "copyBirthPlace": {
-    "message": "Copy birth place"
+    "message": "Copia el lloc de naixement"
   },
   "nationality": {
-    "message": "Nationality"
+    "message": "Nacionalitat"
   },
   "copyNationality": {
-    "message": "Copy nationality"
+    "message": "Copia la nacionalitat"
   },
   "copyIssuingCountry": {
-    "message": "Copy issuing country"
+    "message": "Copia el país d'emissió"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "Tipus de passaport"
   },
   "copyPassportType": {
-    "message": "Copy passport type"
+    "message": "Copia el tipus de passaport"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "Copia el número d'identificació nacional"
   },
   "nationalIdentificationNumber": {
-    "message": "National identification number"
+    "message": "Número d'identificació nacional"
   },
   "copyIssuingAuthority": {
-    "message": "Copy issuing authority / office"
+    "message": "Copia l'autoritat / oficina emissora"
   },
   "licenseNumber": {
     "message": "Número de llicència"
@@ -690,13 +754,13 @@
     "message": "L'agent SSH és un servei dirigit als desenvolupadors que us permet signar sol·licituds SSH directament des de la caixa forta de Bitwarden."
   },
   "sshAgentPromptBehavior": {
-    "message": "Ask for authorization when using SSH agent"
+    "message": "Demana autorització en utilitzar l'agent SSH"
   },
   "sshAgentPromptBehaviorDesc": {
-    "message": "Choose how to handle SSH-agent authorization requests."
+    "message": "Tria com gestionar les sol·licituds d'autorització de l'agent SSH."
   },
   "sshAgentPromptBehaviorHelp": {
-    "message": "Remember SSH authorizations"
+    "message": "Recorda les autoritzacions SSH"
   },
   "sshAgentPromptBehaviorAlways": {
     "message": "Sempre"
@@ -705,7 +769,7 @@
     "message": "Mai"
   },
   "sshAgentPromptBehaviorRememberUntilLock": {
-    "message": "Remember until vault is locked"
+    "message": "Recorda fins que la caixa forta es bloquege"
   },
   "premiumRequired": {
     "message": "Premium requerit"
@@ -714,10 +778,10 @@
     "message": "Cal una subscripció premium per utilitzar aquesta característica."
   },
   "syncWithBrowser": {
-    "message": "Sync with browser"
+    "message": "Sincronitza amb el navegador"
   },
   "acquireCookieSpeedbumpContent": {
-    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "message": "Per connectar-te a $VAULTURL$, has de sincronitzar el teu navegador per defecte amb l'aplicació Bitwarden. Se't redirigirà de nou a aquesta aplicació una vegada el navegador estiga sincronitzat.",
     "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
     "placeholders": {
       "vaultUrl": {
@@ -727,7 +791,7 @@
     }
   },
   "launchBrowser": {
-    "message": "Launch browser"
+    "message": "Inicia el navegador"
   },
   "errorOccurred": {
     "message": "S'ha produït un error."
@@ -823,7 +887,7 @@
     "message": "Tipus"
   },
   "items": {
-    "message": "Items"
+    "message": "Elements"
   },
   "firstName": {
     "message": "Nom"
@@ -886,7 +950,7 @@
     "message": "Lloc web (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "Lloc web (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -896,10 +960,10 @@
     }
   },
   "appUri": {
-    "message": "App (URI)"
+    "message": "Aplicació (URI)"
   },
   "appUriCount": {
-    "message": "App (URI) $COUNT$",
+    "message": "Aplicació (URI) $COUNT$",
     "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -915,16 +979,16 @@
     "message": "Afig un lloc web"
   },
   "addWebsiteOrApp": {
-    "message": "Add website or app"
+    "message": "Afig lloc web o aplicació"
   },
   "app": {
-    "message": "App"
+    "message": "Aplicació"
   },
   "deleteWebsite": {
     "message": "Suprimeix lloc web"
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Suprimeix $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -936,7 +1000,7 @@
     "message": "Propietari"
   },
   "sharedFolderAriaLabel": {
-    "message": "Shared folder $NAME$",
+    "message": "Carpeta compartida $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -945,7 +1009,7 @@
     }
   },
   "collectionAriaLabel": {
-    "message": "Collection $NAME$",
+    "message": "Col·lecció $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -954,7 +1018,7 @@
     }
   },
   "myFolderAriaLabel": {
-    "message": "My folder $NAME$",
+    "message": "La meua carpeta $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -963,7 +1027,7 @@
     }
   },
   "folderAriaLabel": {
-    "message": "Folder $NAME$",
+    "message": "Carpeta $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -972,7 +1036,7 @@
     }
   },
   "ownerAriaLabel": {
-    "message": "Owner $NAME$",
+    "message": "Propietari $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -981,7 +1045,7 @@
     }
   },
   "vaultAriaLabel": {
-    "message": "Vault $NAME$",
+    "message": "Caixa forta $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1017,19 +1081,19 @@
     "message": "Afig"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "Utilitza camps de text per a dades com preguntes de seguretat"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "Utilitza camps ocults per a dades crítiques com una contrasenya"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+    "message": "Utilitza caselles de selecció si vols omplir automàticament una casella d'un formulari, com recordar el correu"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "Utilitza un camp enllaçat quan tingues problemes d'emplenament automàtic en un lloc web concret."
   },
   "linkedFieldLabelHelpText": {
-    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
+    "message": "Introdueix l'id HTML del camp, el nom, l'etiqueta aria o el marcador de posició."
   },
   "folder": {
     "message": "Carpeta"
@@ -1076,16 +1140,16 @@
     "message": "Element guardat"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Element afegit als favorits"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Element suprimit dels preferits"
   },
   "deleteItem": {
     "message": "Suprimeix element"
   },
   "deleteItemsCount": {
-    "message": "Delete $COUNT$ items",
+    "message": "Suprimeix $COUNT$ projectes",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1094,16 +1158,16 @@
     }
   },
   "deleteItemDesc": {
-    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+    "message": "Aquest element s'enviarà a la paperera. Al cap de 30 dies, se suprimirà permanentment."
   },
   "deleteItemsDesc": {
-    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+    "message": "Aquests elements s'enviaran a la paperera. Al cap de 30 dies, se suprimiran permanentment."
   },
   "deleteItemPermanently": {
-    "message": "Delete item permanently"
+    "message": "Suprimeix l'element permanentment"
   },
   "deleteItemsPermanentlyCount": {
-    "message": "Delete $COUNT$ items permanently",
+    "message": "Suprimeix $COUNT$ elements permanentment",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1112,16 +1176,16 @@
     }
   },
   "deleteItemPermanentlyDesc": {
-    "message": "You will not be able to recover this item."
+    "message": "No podràs recuperar aquest element."
   },
   "deleteItemsPermanentlyDesc": {
-    "message": "You will not be able to recover these items."
+    "message": "No podràs recuperar aquests elements."
   },
   "deleteSelection": {
-    "message": "Delete selection"
+    "message": "Suprimeix selecció"
   },
   "deleteItemsAndCollectionsDesc": {
-    "message": "The selected items and collections will be permanently deleted."
+    "message": "Els elements i col·leccions seleccionats se suprimiran permanentment."
   },
   "deleteFolder": {
     "message": "Suprimeix carpeta"
@@ -1130,7 +1194,7 @@
     "message": "Suprimeix adjunt"
   },
   "deleteAttachmentName": {
-    "message": "Delete attachment $NAME$",
+    "message": "Suprimeix el fitxer adjunt $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1139,7 +1203,7 @@
     }
   },
   "downloadAttachmentName": {
-    "message": "Download $NAME$",
+    "message": "Baixa $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1172,6 +1236,24 @@
   "editFolder": {
     "message": "Edita la carpeta"
   },
+  "editFolderNamed": {
+    "message": "Edit $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "Delete $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "regeneratePassword": {
     "message": "Regenera contrasenya"
   },
@@ -1195,13 +1277,13 @@
     "message": "Copia codi de verificació (TOTP)"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Copia la clau privada"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Copia la clau pública"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Copia l'empremta digital"
   },
   "length": {
     "message": "Longitud"
@@ -1320,16 +1402,16 @@
     "message": "Afig adjunt"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Elements transferits"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "Repara el xifrat"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "Aquest fitxer utilitza un mètode de xifrat obsolet."
   },
   "attachmentUpdated": {
-    "message": "Attachment updated"
+    "message": "Fitxer adjunt actualitzat"
   },
   "maxFileSizeSansPunctuation": {
     "message": "La mida màxima del fitxer és de 500 MB"
@@ -1338,7 +1420,7 @@
     "message": "Fitxer"
   },
   "photo": {
-    "message": "Photo"
+    "message": "Foto"
   },
   "selectFile": {
     "message": "Seleccioneu un fitxer."
@@ -1347,7 +1429,7 @@
     "message": "La mida màxima del fitxer és de 500 MB."
   },
   "legacyEncryptionUnsupported": {
-    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+    "message": "El xifrat heretat ja no és compatible. Contacta amb el suport per recuperar el teu compte."
   },
   "editedFolder": {
     "message": "Carpeta guardada"
@@ -1355,11 +1437,41 @@
   "addedFolder": {
     "message": "Carpeta afegida"
   },
+  "folderEdited": {
+    "message": "Folder edited"
+  },
+  "enterAName": {
+    "message": "Enter a name."
+  },
   "deleteFolderConfirmation": {
     "message": "Esteu segur que voleu suprimir aquesta carpeta?"
   },
   "deletedFolder": {
     "message": "Carpeta suprimida"
+  },
+  "foldersDeleted": {
+    "message": "Folders deleted"
+  },
+  "deleteFoldersCount": {
+    "message": "Delete $COUNT$ folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "When you delete the $NAME$ folder, it will be removed from every item it's been applied to. The items themselves won't be deleted.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "When you delete these folders, they will be removed from every item they've been applied to. The items themselves won't be deleted."
   },
   "loginOrCreateNewAccount": {
     "message": "Inicieu sessió o creeu un compte nou per accedir a la caixa forta."
@@ -1380,7 +1492,7 @@
     "message": "Inicia sessió"
   },
   "loginPageEmailEntryScreenTitle": {
-    "message": "Log in to Bitwarden"
+    "message": "Inicia sessió a Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Introduïu el codi que us hem enviat al correu electrònic"
@@ -1389,7 +1501,7 @@
     "message": "Introduïu el codi de la vostra aplicació d'autenticació"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Prem la teua YubiKey per autenticar-te"
   },
   "logInWithPasskey": {
     "message": "Inicieu sessió amb la clau de pas"
@@ -1401,7 +1513,7 @@
     "message": "Usa inici de sessió únic"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "La teua organització requereix inici de sessió únic."
   },
   "submit": {
     "message": "Envia"
@@ -1450,7 +1562,7 @@
     "message": "S'ha guardat la contrasenya mestra"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Puntuació de robustesa de la contrasenya $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -1535,10 +1647,10 @@
     "message": "S'ha produït un error inesperat."
   },
   "unexpectedErrorShort": {
-    "message": "Unexpected error"
+    "message": "Error inesperat"
   },
   "closeThisBitwardenWindow": {
-    "message": "Close this Bitwarden window and try again."
+    "message": "Tanca aquesta finestra de Bitwarden i torna-ho a provar."
   },
   "itemInformation": {
     "message": "Informació de l'element"
@@ -1547,7 +1659,7 @@
     "message": "No hi ha cap element a llistar."
   },
   "noValueEntered": {
-    "message": "No value entered",
+    "message": "No s'ha introduït cap valor",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "sendVerificationCode": {
@@ -1578,7 +1690,7 @@
     "message": "Codi de verificació no vàlid"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Correu electrònic o codi de verificació no vàlid"
   },
   "continue": {
     "message": "Continua"
@@ -1596,7 +1708,7 @@
     "message": "No ho torneu a preguntar en aquest dispositiu durant 30 dies"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Selecciona un altre mètode",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
@@ -1612,7 +1724,7 @@
     "message": "Aplicació autenticadora"
   },
   "authenticatorAppDescV2": {
-    "message": "Enter a code generated by an authenticator app like Bitwarden Authenticator.",
+    "message": "Introdueix un codi generat per una aplicació d'autenticació com Bitwarden Authenticator.",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
@@ -1622,7 +1734,7 @@
     "message": "Utilitzeu una YubiKey per accedir al vostre compte. Funciona amb els dispositius YubiKey 4, 4 Nano, 4C i NEO."
   },
   "duoDescV2": {
-    "message": "Enter a code generated by Duo Security.",
+    "message": "Introdueix un codi generat per Duo Security.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -1669,16 +1781,16 @@
     "message": "Entorn d'allotjament propi"
   },
   "selfHostedBaseUrlHint": {
-    "message": "Specify the base URL of your on-premises hosted Bitwarden installation. Example: https://bitwarden.company.com"
+    "message": "Especifica l'URL base de la teua instal·lació de Bitwarden allotjada localment. Exemple: https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
     "message": "Per a la configuració avançada, podeu especificar l'URL base de cada servei de manera independent."
   },
   "selfHostedEnvFormInvalid": {
-    "message": "You must add either the base Server URL or at least one custom environment."
+    "message": "Has d'afegir l'URL base del servidor o almenys un entorn personalitzat."
   },
   "selfHostedEnvMustUseHttps": {
-    "message": "URLs must use HTTPS."
+    "message": "Les URL han d'utilitzar HTTPS."
   },
   "customEnvironment": {
     "message": "Entorn personalitzat"
@@ -1712,7 +1824,7 @@
     "message": "URL del servidor d'icones"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "URL del servidor Send"
   },
   "environmentSaved": {
     "message": "S'han guardat les URL de l'entorn."
@@ -1736,43 +1848,43 @@
     "message": "Més informació"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "S'ha produït un error en actualitzar la configuració de xifrat."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "Actualitza la teua configuració de xifrat"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "La nova configuració de xifrat recomanada millorarà la seguretat del teu compte. Introdueix la teva contrasenya mestra per actualitzar ara."
   },
   "rotateAccountEncKey": {
-    "message": "Also rotate my account's encryption key"
+    "message": "Rota també la clau de xifrat del meu compte"
   },
   "impactOfRotatingYourEncryptionKey": {
-    "message": "Impact of rotating your encryption key"
+    "message": "Impacte de rotar la teva clau de xifrat"
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+    "message": "Hi ha fitxers adjunts antics al teu cofre que s'han de reparar abans de poder rotar la clau de xifrat del teu compte."
   },
   "rotateEncKeyTitle": {
-    "message": "Rotate encryption key"
+    "message": "Rota la clau de xifrat"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Are you sure you want to rotate your account's encryption key?"
+    "message": "Estàs segur que vols rotar la clau de xifrat del teu compte?"
   },
   "updateEncryptionKeyWarning": {
-    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+    "message": "Després d'actualitzar la teva clau de xifrat, has de tancar sessió i tornar a iniciar sessió a totes les aplicacions Bitwarden que estiguis utilitzant (com l'aplicació mòbil o les extensions del navegador). No fer-ho (per descarregar la nova clau de xifrat) pot provocar corrupció de dades. Intentarem tancar la teva sessió automàticament, però podria trigar."
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "Any account restricted exports you have saved will become invalid."
+    "message": "Qualsevol exportació restringida del compte que hagis desat quedarà invàlida."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "Confirma la teva identitat per continuar"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Introdueix la teva contrasenya mestra"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "Actualitza la configuració"
   },
   "featureUnavailable": {
     "message": "Característica no disponible"
@@ -1916,7 +2028,7 @@
     "message": "Contrasenya mestra no vàlida"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Contrasenya mestra no vàlida. Confirma que el teu correu és correcte i que el teu compte es va crear a $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -2002,19 +2114,19 @@
     "message": "Mostra icones de llocs web i recupera les URL de canvi de contrasenya"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "Mostra accions de còpia ràpida al cofre"
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "No hi ha detalls per copiar"
   },
   "runInBackground": {
-    "message": "Keep Bitwarden running in the background"
+    "message": "Mantén Bitwarden en segon pla"
   },
   "runInBackgroundDesc": {
-    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
+    "message": "Quan tanquis la finestra, Bitwarden serà accessible des de la safata. Recomanat quan s'utilitza l'agent SSH o la integració amb el navegador."
   },
   "runInBackgroundDescMac": {
-    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
+    "message": "Quan tanquis la finestra, Bitwarden serà accessible des de la barra de menús. Recomanat quan s'utilitza l'agent SSH o la integració amb el navegador."
   },
   "openAtLogin": {
     "message": "Comença automàticament en iniciar la sessió"
@@ -2092,31 +2204,31 @@
     "message": "Desconegut"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Copia l'adreça"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Copia el telèfon"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Copia la nota"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Copia el codi de verificació"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Sense nom d'usuari"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Sense contrasenya"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Sense codi de verificació"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Sense número"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Sense codi de seguretat"
   },
   "copyUsername": {
     "message": "Copia el nom d'usuari"
@@ -2126,7 +2238,7 @@
     "description": "Copy credit card number"
   },
   "copyName": {
-    "message": "Copy name",
+    "message": "Copia el nom",
     "description": "Copy cardholder name"
   },
   "copyEmail": {
@@ -2152,22 +2264,22 @@
     "message": "Compra Premium"
   },
   "premiumPurchaseAlertV2": {
-    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
+    "message": "Pots comprar Premium des de la configuració del teu compte a l'aplicació web de Bitwarden."
   },
   "month": {
-    "message": "month"
+    "message": "mes"
   },
   "monthly": {
-    "message": "Monthly"
+    "message": "Mensual"
   },
   "year": {
-    "message": "year"
+    "message": "any"
   },
   "annually": {
-    "message": "Annually"
+    "message": "Anualment"
   },
   "annual": {
-    "message": "Annual"
+    "message": "Anual"
   },
   "refreshComplete": {
     "message": "Actualització completa"
@@ -2182,7 +2294,7 @@
     "message": "Neteja l'historial del generador"
   },
   "clearGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "Si continues, totes les entrades s'eliminaran permanentment de l'historial del generador. Estàs segur que vols continuar?"
   },
   "clear": {
     "message": "Esborra",
@@ -2218,13 +2330,13 @@
     "message": "Selecciona-ho tot"
   },
   "selectAllRows": {
-    "message": "Select all rows"
+    "message": "Selecciona totes les files"
   },
   "selectRow": {
-    "message": "Select row"
+    "message": "Selecciona fila"
   },
   "showingItemRange": {
-    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "message": "Mostrant $START$ - $END$ de $TOTAL$",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -2241,10 +2353,10 @@
     }
   },
   "rowsPerPage": {
-    "message": "Rows per page"
+    "message": "Files per pàgina"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$ rows per page",
+    "message": "$COUNT$ files per pàgina",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2253,7 +2365,7 @@
     }
   },
   "itemCount": {
-    "message": "$COUNT$ items",
+    "message": "$COUNT$ elements",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2262,19 +2374,19 @@
     }
   },
   "all": {
-    "message": "All"
+    "message": "Tots"
   },
   "clearAll": {
-    "message": "Clear all"
+    "message": "Neteja-ho tot"
   },
   "done": {
     "message": "Fet"
   },
   "filter": {
-    "message": "Filter"
+    "message": "Filtra"
   },
   "filtersSelected": {
-    "message": "$COUNT$ selected",
+    "message": "$COUNT$ seleccionats",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2283,16 +2395,16 @@
     }
   },
   "previousPage": {
-    "message": "Previous page"
+    "message": "Pàgina anterior"
   },
   "nextPage": {
-    "message": "Next page"
+    "message": "Pàgina següent"
   },
   "goToPage": {
-    "message": "Go to page"
+    "message": "Vés a la pàgina"
   },
   "ofPageCount": {
-    "message": "of $COUNT$",
+    "message": "de $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2301,20 +2413,32 @@
     }
   },
   "noMatchingItems": {
-    "message": "No matching items"
+    "message": "No hi ha elements coincidents"
+  },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
   },
   "selected": {
-    "message": "Selected"
+    "message": "Seleccionat"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "seleccionats",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
-    "message": "Bulk actions"
+    "message": "Accions massives"
   },
   "bulkActionsBarAnnouncement": {
-    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "message": "$COUNT$ element(s) seleccionats. La barra d'accions massives ja està disponible a la part inferior de la pantalla. Prem $SHORTCUTBINDING$ per canviar el focus a la barra d'accions massives.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2327,10 +2451,10 @@
     }
   },
   "selectionCleared": {
-    "message": "Selection cleared"
+    "message": "Selecció esborrada"
   },
   "additionalActions": {
-    "message": "Additional actions"
+    "message": "Accions addicionals"
   },
   "zoomIn": {
     "message": "Amplia"
@@ -2393,10 +2517,10 @@
     "message": "Còpia correcta"
   },
   "errorRefreshingAccessToken": {
-    "message": "Access Token Refresh Error"
+    "message": "Error en actualitzar el testimoni d'accés"
   },
   "errorRefreshingAccessTokenDesc": {
-    "message": "No refresh token or API keys found. Please try logging out and logging back in."
+    "message": "No s'ha trobat cap testimoni d'actualització ni claus API. Prova de tancar sessió i tornar a iniciar-la."
   },
   "help": {
     "message": "Ajuda"
@@ -2450,10 +2574,10 @@
     "description": "Default URI match detection for auto-fill."
   },
   "showMatchDetectionNoPlaceholder": {
-    "message": "Show match detection"
+    "message": "Mostra la detecció de coincidències"
   },
   "hideMatchDetectionNoPlaceholder": {
-    "message": "Hide match detection"
+    "message": "Amaga la detecció de coincidències"
   },
   "toggleOptions": {
     "message": "Commuta opcions"
@@ -2469,7 +2593,7 @@
     "message": "Tanca"
   },
   "show": {
-    "message": "Show",
+    "message": "Mostra",
     "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
@@ -2538,13 +2662,13 @@
     "message": "Compte restringit"
   },
   "restrictCardTypeImport": {
-    "message": "Cannot import card item types"
+    "message": "No es poden importar tipus d'element de targeta"
   },
   "restrictCardTypeImportDesc": {
-    "message": "A policy set by 1 or more organizations prevents you from importing cards to your vaults."
+    "message": "Una política establerta per una o més organitzacions impedeix la importació de targetes als teus cofres."
   },
   "filePasswordConfirmationMismatch": {
-    "message": "“File password” and “Confirm file password” do not match."
+    "message": "La «Contrasenya del fitxer» i «Confirma la contrasenya del fitxer» no coincideixen."
   },
   "warning": {
     "message": "ADVERTIMENT",
@@ -2554,7 +2678,7 @@
     "message": "Confirma l'exportació de la Caixa forta"
   },
   "exportUnencryptedWarningDesc": {
-    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "Aquesta exportació conté les dades del teu cofre en un format no xifrat. No has d'emmagatzemar ni enviar el fitxer exportat per canals insegurs (com el correu electrònic). Elimina'l immediatament després d'haver-lo utilitzat."
   },
   "encExportKeyWarningDesc": {
     "message": "Aquesta exportació xifra les vostres dades mitjançant la clau de xifratge del vostre compte. Si alguna vegada gireu eixa clau, hauríeu d'exportar de nou, ja que no podreu desxifrar aquest fitxer d'exportació."
@@ -2651,16 +2775,16 @@
     "message": "La supressió del compte és permanent. No es pot desfer."
   },
   "deleteAccountOrganizationOwnerWarning": {
-    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+    "message": "Ets el propietari d'almenys una organització. Eliminar el teu compte també eliminarà qualsevol organització de la qual siguis l'únic propietari."
   },
   "cannotDeleteAccountOrganizationOwnerDesc": {
-    "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
+    "message": "No pots eliminar el teu compte mentre siguis propietari d'una organització. Transfereix la propietat o elimina l'organització primer."
   },
   "cannotDeleteAccount": {
     "message": "No es pot suprimir el compte"
   },
   "cannotDeleteAccountDesc": {
-    "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
+    "message": "Aquesta acció no es pot completar perquè el teu compte pertany a una organització. Contacta amb l'administrador de la teva organització per obtenir més detalls."
   },
   "accountDeleted": {
     "message": "S'ha suprimit el compte"
@@ -2703,13 +2827,13 @@
     "message": "Hi ha canvis sense guardar"
   },
   "unsavedChangesUpdateBody": {
-    "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
+    "message": "Si surts ara, els teus canvis no es desaran. Instal·la l'actualització més tard per poder quedar-te i desar els canvis."
   },
   "installLater": {
-    "message": "Install later"
+    "message": "Instal·la més tard"
   },
   "continueWithInstall": {
-    "message": "Continue with install"
+    "message": "Continua amb la instal·lació"
   },
   "clone": {
     "message": "Clona"
@@ -2753,7 +2877,7 @@
     "message": "Cerca nota segura"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "Cerca clau SSH"
   },
   "permanentlyDeleteItem": {
     "message": "Element suprimit definitivament"
@@ -2786,13 +2910,13 @@
     "message": "Elements enviats a la paperera"
   },
   "deletedCollections": {
-    "message": "Deleted collections"
+    "message": "Col·leccions suprimides"
   },
   "collectionDeleted": {
-    "message": "Collection deleted"
+    "message": "Col·lecció eliminada"
   },
   "collectionsDeleted": {
-    "message": "Collections deleted"
+    "message": "Col·leccions eliminades"
   },
   "movedItem": {
     "message": "Element desplaçat"
@@ -2833,7 +2957,7 @@
     "message": "Dades de la targeta"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$ details",
+    "message": "Detalls de $BRAND$",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -2845,32 +2969,32 @@
     "message": "Més informació sobre els autenticadors"
   },
   "copyTOTP": {
-    "message": "Copy Authenticator key (TOTP)"
+    "message": "Copia la clau d'autenticació (TOTP)"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "Copia les notes"
   },
   "totpHelperTitle": {
-    "message": "Make 2-step verification seamless"
+    "message": "Fes que la verificació en dos passos sigui perfecta"
   },
   "totpHelper": {
     "message": "Bitwarden pot emmagatzemar i omplir codis de verificació en dos passos. Copieu i enganxeu la clau en aquest camp."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden pot emmagatzemar i omplir codis de verificació en dos passos. Selecciona la icona de la càmera per fer una captura del codi QR d'autenticació d'aquest lloc web, o copia i enganxa la clau en aquest camp."
   },
   "premium": {
     "message": "Premium",
     "description": "Premium membership"
   },
   "freeOrgsCannotUseAttachments": {
-    "message": "Free organizations cannot use attachments"
+    "message": "Les organitzacions gratuïtes no poden utilitzar fitxers adjunts"
   },
   "singleFieldNeedsAttention": {
-    "message": "1 field needs your attention."
+    "message": "1 camp necessita la teva atenció."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ fields need your attention.",
+    "message": "$COUNT$ camps necessiten la teva atenció.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2882,7 +3006,7 @@
     "message": "Targeta de crèdit caducada"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "Si l'has renovat, actualitza la informació de la targeta"
   },
   "verificationRequired": {
     "message": "Es requereix verificació",
@@ -2943,7 +3067,7 @@
     "message": "Una o més polítiques d’organització requereixen que la vostra contrasenya principal complisca els requisits següents:"
   },
   "receiveMarketingEmails": {
-    "message": "Receive updates from Bitwarden in your inbox."
+    "message": "Rep actualitzacions de Bitwarden a la teva bústia."
   },
   "unsubscribe": {
     "message": "Anul·la la subscripció"
@@ -3000,19 +3124,19 @@
     "message": "La biometria del navegador primer necessita habilitar la biomètrica d’escriptori a la configuració."
   },
   "biometricsManualSetupTitle": {
-    "message": "Automatic setup not available"
+    "message": "Configuració automàtica no disponible"
   },
   "biometricsManualSetupDesc": {
-    "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"
+    "message": "A causa del mètode d'instal·lació, el suport biomètric no s'ha pogut activar automàticament. Vols obrir la documentació sobre com fer-ho manualment?"
   },
   "personalOwnershipSubmitError": {
     "message": "A causa d'una política empresarial, no podeu guardar elements a la vostra caixa forta personal. Canvieu l'opció Propietat en organització i trieu entre les col·leccions disponibles."
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
-    "message": "Your new password cannot be the same as your current password."
+    "message": "La teva nova contrasenya no pot ser igual a la contrasenya actual."
   },
   "hint": {
-    "message": "Hint"
+    "message": "Pista"
   },
   "hintEqualsPassword": {
     "message": "El vostre suggeriment de contrasenya no pot ser el mateix que la vostra contrasenya."
@@ -3024,10 +3148,10 @@
     "message": "Una política d'organització ha desactivat la importació d'elements a la vostra caixa forta personal."
   },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "Dades personals"
   },
   "identification": {
-    "message": "Identification"
+    "message": "Identificació"
   },
   "contactInfo": {
     "message": "Informació de contacte"
@@ -3055,7 +3179,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Jo"
   },
   "myVault": {
     "message": "Caixa forta"
@@ -3217,7 +3341,7 @@
     "message": "S'està esperant la interacció amb la clau de seguretat..."
   },
   "hideMyEmail": {
-    "message": "Hide my email address from recipients."
+    "message": "Amaga la meva adreça de correu electrònic als destinataris."
   },
   "sendOptionsPolicyInEffect": {
     "message": "Una o més polítiques d'organització afecten les vostres opcions del Send."
@@ -3352,7 +3476,7 @@
     "message": "El temps d'espera de la caixa forta supera les restriccions establertes per la vostra organització."
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "Les polítiques de la teva organització han establert el temps d'espera màxim permès del cofre a $HOURS$ hora(s) i $MINUTES$ minut(s).",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3365,7 +3489,7 @@
     }
   },
   "vaultTimeoutPolicyMaximumError": {
-    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
+    "message": "El temps d'espera supera la restricció establerta per la teva organització: màxim $HOURS$ hora(s) i $MINUTES$ minut(s)",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3378,7 +3502,7 @@
     }
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "Minimum custom timeout is 1 minute."
+    "message": "El temps d'espera personalitzat mínim és d'1 minut."
   },
   "inviteAccepted": {
     "message": "Invitació acceptada"
@@ -3456,10 +3580,10 @@
     "message": "Opcions"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "Més opcions"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Opcions per a $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3468,10 +3592,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Cap carpeta compartida"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Filtra per $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3489,10 +3613,10 @@
     "message": "S'està exportant la caixa forta de l’organització"
   },
   "exportingIndividualVaultScopeDescription": {
-    "message": "Only items in your individual vault will export."
+    "message": "Només s'exportaran els elements del teu cofre individual."
   },
   "exportingOrganizationVaultScopeDescription": {
-    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
+    "message": "Només s'exportaran els elements associats al cofre de $ORGANIZATION$. Els elements dels cofres individuals no s'exportaran.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3501,7 +3625,7 @@
     }
   },
   "exportingOrganizationVaultFromPasswordManagerWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported.",
+    "message": "Només s'exportarà el cofre de l'organització associat a $ORGANIZATION$.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3510,7 +3634,7 @@
     }
   },
   "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. My items collections will not be included.",
+    "message": "Només s'exportarà el cofre de l'organització associat a $ORGANIZATION$. Les col·leccions dels meus elements no s'inclouran.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3693,7 +3817,7 @@
     }
   },
   "forwarderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "Testimoni API de $SERVICENAME$ no vàlid",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3703,7 +3827,7 @@
     }
   },
   "forwarderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "Testimoni API de $SERVICENAME$ no vàlid: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3717,7 +3841,7 @@
     }
   },
   "forwarderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ ha rebutjat la teva sol·licitud. Contacta amb el teu proveïdor de serveis per obtenir ajuda.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3727,7 +3851,7 @@
     }
   },
   "forwarderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ ha rebutjat la teva sol·licitud: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3791,11 +3915,11 @@
     }
   },
   "forwarderWebsitePrefix": {
-    "message": "Add website prefix",
+    "message": "Afegeix prefix del lloc web",
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
   },
   "forwarderWebsitePrefixHint": {
-    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "message": "Quan estigui activat, el domini del lloc web actual s'utilitzarà com a prefix per a l'adreça de correu electrònic generada",
     "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
@@ -3809,7 +3933,7 @@
     "message": "Clau de l'API"
   },
   "premiumSubscriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "Cal subscripció Premium"
   },
   "organizationIsDisabled": {
     "message": "L'organització està inhabilitada."
@@ -3901,7 +4025,7 @@
     }
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "Sol·licitud d'inici de sessió aprovada per a $EMAIL$ a $DEVICE$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3914,7 +4038,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "Has denegat un intent d'inici de sessió des d'un altre dispositiu. Si eres tu, torna a intentar iniciar sessió amb el dispositiu."
   },
   "webApp": {
     "message": "Aplicació web"
@@ -4132,61 +4256,61 @@
     "message": "Dispositiu de confiança"
   },
   "device": {
-    "message": "Device"
+    "message": "Dispositiu"
   },
   "devices": {
     "message": "Dispositius"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "Què és un dispositiu?"
   },
   "aDeviceIs": {
-    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+    "message": "Un dispositiu és una instal·lació única de l'aplicació Bitwarden on has iniciat sessió. Reinstal·lar, esborrar les dades de l'aplicació o esborrar les galetes pot fer que un dispositiu aparegui diverses vegades."
   },
   "deviceListDescriptionTemp": {
-    "message": "Your account was logged in to each of the devices below."
+    "message": "El teu compte ha iniciat sessió en cadascun dels dispositius següents."
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Estat d'inici de sessió"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "Actiu recentment"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Hui"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Últims 7 dies"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Últims 14 dies"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Últims 30 dies"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Fa més de 30 dies"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Primer inici de sessió"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "De confiança"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Sessió actual"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Sol·licitud pendent"
   },
   "deviceIdMissing": {
-    "message": "Device ID is missing"
+    "message": "Falta l'ID del dispositiu"
   },
   "deviceTypeMissing": {
-    "message": "Device type is missing"
+    "message": "Falta el tipus de dispositiu"
   },
   "deviceCreationDateMissing": {
-    "message": "Device creation date is missing"
+    "message": "Falta la data de creació del dispositiu"
   },
   "trustOrganization": {
     "message": "Confia en l'organització"
@@ -4270,7 +4394,7 @@
     "message": "1 o més correus no són vàlids"
   },
   "sendEmailsCharacterLimitReached": {
-    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+    "message": "La llista de destinataris de correu no pot superar els 2.500 caràcters. Elimina un o més destinataris per continuar."
   },
   "inputTrimValidator": {
     "message": "L'entrada no ha de contenir només espais en blanc.",
@@ -4394,7 +4518,7 @@
     "message": "No s'ha importat res."
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "$COUNT$ elements s'ometran",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4403,7 +4527,7 @@
     }
   },
   "importPartialErrorTitleSingular": {
-    "message": "$COUNT$ item will be skipped",
+    "message": "$COUNT$ element s'ometrà",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4412,52 +4536,52 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "No s'han pogut llegir els elements següents i no s'inclouran a la importació:"
   },
   "importSkipReasonSshKeyParse": {
-    "message": "This SSH key could not be imported"
+    "message": "No s'ha pogut importar aquesta clau SSH"
   },
   "importSkipReasonUnsupportedType": {
-    "message": "Unsupported item type"
+    "message": "Tipus d'element no compatible"
   },
   "importSkipReasonGeneric": {
-    "message": "This item could not be imported"
+    "message": "No s'ha pogut importar aquest element"
   },
   "identifier": {
-    "message": "Identifier"
+    "message": "Identificador"
   },
   "contact": {
-    "message": "Contact"
+    "message": "Contacte"
   },
   "membership": {
-    "message": "Membership"
+    "message": "Subscripció"
   },
   "passport": {
-    "message": "Passport"
+    "message": "Passaport"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "Permís de conduir"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "Targeta d'identitat"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "Certificat de naixement"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "Credencials de base de dades"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "Credencials de servidor"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "Llicència de programari"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "Assegurança mèdica"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Credencials Wi-Fi"
   },
   "general": {
     "message": "General"
@@ -4481,10 +4605,10 @@
     "message": "Selecciona una col·lecció"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Selecciona aquesta opció si vols que el contingut del fitxer importat es mogui a una col·lecció"
   },
   "importTargetHintFolder": {
-    "message": "Select this option if you want the imported file contents moved to a folder"
+    "message": "Selecciona aquesta opció si vols que el contingut del fitxer importat es mogui a una carpeta"
   },
   "importUnassignedItemsError": {
     "message": "El fitxer conté elements no assignats."
@@ -4499,16 +4623,16 @@
     "message": "Tria un fitxer"
   },
   "chooseFileSentenceCase": {
-    "message": "Choose file"
+    "message": "Tria fitxer"
   },
   "noFileChosen": {
     "message": "No s'ha triat cap fitxer"
   },
   "noFileSelected": {
-    "message": "No file selected"
+    "message": "No s'ha seleccionat cap fitxer"
   },
   "fileChosen": {
-    "message": "File chosen: $FILE_NAME$",
+    "message": "Fitxer triat: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -4517,7 +4641,7 @@
     }
   },
   "fileAdded": {
-    "message": "File added: $FILE_NAME$",
+    "message": "Fitxer afegit: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -4526,7 +4650,7 @@
     }
   },
   "filesAdded": {
-    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "message": "$COUNT$ fitxers afegits: $FILE_NAMES$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4539,7 +4663,7 @@
     }
   },
   "fileRemoved": {
-    "message": "File removed: $FILE_NAME$",
+    "message": "Fitxer eliminat: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -4548,10 +4672,10 @@
     }
   },
   "oneFileUploaded": {
-    "message": "1 file uploaded"
+    "message": "1 fitxer pujat"
   },
   "filesUploaded": {
-    "message": "$COUNT$ files uploaded",
+    "message": "$COUNT$ fitxers pujats",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4560,16 +4684,16 @@
     }
   },
   "uploadedFiles": {
-    "message": "Uploaded files"
+    "message": "Fitxers pujats"
   },
   "clickToUploadOrDragAndDrop": {
-    "message": "Click to upload or drag and drop"
+    "message": "Fes clic per pujar o arrossega i deixa anar"
   },
   "chooseFiles": {
-    "message": "Choose files"
+    "message": "Tria fitxers"
   },
   "maxFileSizeParam": {
-    "message": "Max. file size: $SIZE$ MB",
+    "message": "Mida màx. del fitxer: $SIZE$ MB",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -4590,6 +4714,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "See detailed $NAME$ instructions in our",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Help Center"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "The process is exactly the same as importing from Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "Using the KeePassX desktop application, navigate to \"Database\" → \"Export to CSV file\" and save the CSV file."
+  },
+  "importAviraInstructions": {
+    "message": "In the Avira web vault, go to \"Settings\" → \"My Data\" → \"Export data\" and save the CSV file."
+  },
+  "importBlurInstructions": {
+    "message": "In the Blur web vault, click your username at the top and go to \"Settings\" → \"Export Data\", then click \"Export CSV\" for your \"Accounts\"."
+  },
+  "importSafeincloudInstructions": {
+    "message": "Using the SafeInCloud desktop application, navigate to \"File\" → \"Export\" → \"As XML\" and save the XML file."
+  },
+  "importPadlockInstructions": {
+    "message": "Using the Padlock desktop application, click the hamburger icon in the top left corner and navigate to \"Settings\" → \"Export\" button and save the file \"As CSV\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "Using the KeePass 2 desktop application, navigate to \"File\" → \"Export\" and select the \"KeePass XML (2.x)\" option."
+  },
+  "importUpmInstructions": {
+    "message": "Using the Universal Password Manager desktop application, navigate to \"Database\" → \"Export\" and save the CSV file."
+  },
+  "importSaferpassInstructions": {
+    "message": "Using the SaferPass browser extension, click the hamburger icon in the top left corner and navigate to \"Settings\". Click the \"Export accounts\" button to save the CSV file."
+  },
+  "importMeldiumInstructions": {
+    "message": "Using the Meldium web vault, navigate to \"Settings\". Locate the \"Export data\" function and click \"Show me my data\" to save the CSV file."
+  },
+  "importPassworddragonInstructions": {
+    "message": "Using the Password Dragon desktop application, navigate to \"File\" → \"Export\" → \"To XML\". In the dialog that pops up select \"All Rows\" and check all fields. Click the \"Export\" button and save the XML file."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "Using the Enpass desktop application, navigate to \"File\" → \"Export\" → \"As CSV\". Select \"OK\" to the warning alert and save the CSV file. Note that the importer only supports files exported while Enpass is set to the English language, so adjust your settings accordingly."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "Using the Enpass 6 desktop application, click the menu button and navigate to \"File\" → \"Export\". Select the \".json\" file format option and save the JSON file."
+  },
+  "importPwsafeInstructions": {
+    "message": "Using the Password Safe desktop application, navigate to \"File\" → \"Export To\" → \"XML format...\" and save the XML file."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Log in to Dashlane, click on \"My Account\" → \"Settings\" → \"Export file\" and select \"Export as a CSV file\". This will download a zip archive containing various CSV files. Unzip the archive and import each CSV file individually."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane no longer supports the JSON format. Only use this if you have an existing JSON for import. Use the CSV importer when creating new exports."
+  },
+  "importMsecureInstructions": {
+    "message": "Using the mSecure desktop application, navigate to \"File\" → \"Export\" → \"CSV File...\" and save the CSV file."
+  },
+  "importStickypasswordInstructions": {
+    "message": "Using the Sticky Password desktop application, navigate to \"Menu\" (top right) → \"Export\" → \"Export all\". Select the unencrypted format XML option and save the XML file."
+  },
+  "importTruekeyInstructions": {
+    "message": "Using the True Key desktop application, click the gear icon (top right) and then navigate to \"App Settings\". Click the \"Export\" button, enter your password and save the CSV file."
+  },
+  "importClipperzInstructions": {
+    "message": "Log into the Clipperz web application (clipperz.is/app). Click the hamburger menu icon in the top right to expand the navigation bar. Navigate to \"Data\" → \"Export\". Click the \"download HTML+JSON\" button to save the HTML file."
+  },
+  "importRoboformInstructions": {
+    "message": "Using the RoboForm Editor desktop application, navigate to \"RoboForm\" (top left) → \"Options\" → \"Account & Data\" and click the \"Export\" button. Select all of your data, change the \"Format\" to \"CSV file\" and then click the \"Export\" button to save the CSV file. Note: RoboForm only allows you to export Logins. Other items will not be exported."
+  },
+  "importPassboltInstructions": {
+    "message": "Log into the Passbolt web vault and navigate to the \"Passwords\" listing. Select all of the passwords you would like to export and click the \"Export\" button at the top of the listing. Choose the \"csv (lastpass)\" export format and click the \"Export\" button."
+  },
+  "importAscendoInstructions": {
+    "message": "Using the Ascendo DataVault desktop application, navigate to \"Tools\" → \"Export\". In the dialog that pops up, select the \"All Items (DVX, CSV)\" option. Click the \"Ok\" button to save the CSV file."
+  },
+  "importPasswordbossInstructions": {
+    "message": "Using the Password Boss desktop application, navigate to \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" and save the JSON file."
+  },
+  "importZohoInstructions": {
+    "message": "Log into the Zoho web vault (vault.zoho.com). Navigate to \"Tools\" → \"Export Secrets\". Select \"All Secrets\" and click the \"Zoho Vault Format CSV\" button. Highlight and copy the data from the textarea. Open a text editor like Notepad and paste the data. Save the data from the text editor as",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "Using the SplashID Safe desktop application, click on the SplashID blue lock logo in the top right corner. Navigate to \"Export\" → \"Export as CSV\" and save the CSV file."
+  },
+  "importPasskeepInstructions": {
+    "message": "Using the PassKeep mobile app, navigate to \"Backup/Restore\". Locate the \"CSV Backup/Restore\" section and click \"Backup to CSV\" to save the CSV file."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Make sure you have python-keyring and python-gnomekeyring installed. Save the",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "GNOME Keyring Import/Export"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "python script to your desktop as",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Open terminal and run",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "and then",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Then upload the resulting",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "file here to Bitwarden.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "Using the Password Agent desktop application navigate to \"File\" → \"Export\", select the \"Fields to export\" button and check all of the fields, change the \"Output format\" to \"CSV\", and then click the \"Start\" button to save the CSV file."
+  },
+  "importPasspackInstructions": {
+    "message": "Log into the Passpack website vault and navigate to \"Settings\" → \"Export\", then click the \"Download\" button to save the CSV file."
+  },
+  "importPassmanInstructions": {
+    "message": "Open your Passman vault and click on \"Settings\" in the bottom left corner. In the \"Settings\" window switch to the \"Export credentials\" tab and choose \"JSON\" as the export type. Enter your vault's passphrase and click the \"Export\" button to save the JSON file."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to CSV file\" option to save the CSV file."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to JSON file\" option to save the JSON file."
+  },
+  "importFsecureInstructions": {
+    "message": "Open the F-Secure KEY desktop application and navigate to \"Settings\" → \"Export Passwords\". Select the \"Export\" button, enter your master password, and save the FSK file."
+  },
+  "importKasperskyInstructions": {
+    "message": "Open the Kaspersky Password Manager desktop application and navigate to \"Settings\" → \"Import/Export\". Locate the \"Export to text file\" section and select the \"Export\" button to save the TXT file."
+  },
+  "importRemembearInstructions": {
+    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+  },
+  "importMykiInstructions": {
+    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+  },
+  "importBlackberryInstructions": {
+    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+  },
+  "importButtercupInstructions": {
+    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+  },
+  "importCodebookInstructions": {
+    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+  },
+  "importEncryptrInstructions": {
+    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+  },
+  "importYotiInstructions": {
+    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+  },
+  "importPsonoInstructions": {
+    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+  },
+  "importPasskyInstructions": {
+    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+  },
+  "importProtonpassInstructions": {
+    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+  },
+  "importNetwrixInstructions": {
+    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+  },
+  "importNordpassInstructions": {
+    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+  },
+  "importDelineaInstructions": {
+    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+  },
   "confirmVaultImport": {
     "message": "Confirma la importació de la Caixa forta"
   },
@@ -4600,40 +4925,40 @@
     "message": "Confirma la contrasenya del fitxer"
   },
   "keePassMasterPassword": {
-    "message": "KeePass master password"
+    "message": "Contrasenya mestra de KeePass"
   },
   "addKeyFile": {
-    "message": "Add key file"
+    "message": "Afegeix fitxer de clau"
   },
   "keyFileUpload": {
-    "message": "Key file upload"
+    "message": "Pujada de fitxer de clau"
   },
   "kdbxFileUpload": {
-    "message": "KDBX file upload"
+    "message": "Pujada de fitxer KDBX"
   },
   "acceptedFormatsKdbx": {
-    "message": "Accepted formats: kdbx"
+    "message": "Formats acceptats: kdbx"
   },
   "kdbxCorruptOrOutdated": {
-    "message": "Data is not formatted correctly. Please check your import file and try again."
+    "message": "Les dades no tenen el format correcte. Comprova el fitxer d'importació i torna-ho a provar."
   },
   "kdbxWrongFileType": {
-    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+    "message": "Aquest fitxer no és una base de dades KeePass vàlida (.kdbx). Selecciona un fitxer .kdbx i torna-ho a provar."
   },
   "kdbxFileTooLarge": {
-    "message": "This KeePass database is too large to import."
+    "message": "Aquesta base de dades KeePass és massa gran per importar."
   },
   "exportSuccess": {
     "message": "S'han exportat les dades de la caixa forta"
   },
   "exportError": {
-    "message": "An error occurred while exporting your vault data"
+    "message": "S'ha produït un error en exportar les dades del teu cofre"
   },
   "exportSuccessSkippedAttachment": {
-    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+    "message": "S'ha omès 1 fitxer adjunt malmès durant l'exportació. La resta de dades del cofre i fitxers adjunts s'han exportat correctament."
   },
   "exportSuccessSkippedAttachments": {
-    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "message": "S'han omès $COUNT$ fitxers adjunts malmesos durant l'exportació. La resta de dades del cofre i fitxers adjunts s'han exportat correctament.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4663,7 +4988,7 @@
     "message": "L'autenticació multifactor ha fallat"
   },
   "keeperConnectionError": {
-    "message": "There was a problem communicating with Keeper. Please try the import again."
+    "message": "Hi ha hagut un problema en comunicar-se amb Keeper. Torna a provar la importació."
   },
   "includeSharedFolders": {
     "message": "Inclou les carpetes compartides"
@@ -4699,14 +5024,10 @@
     "message": "Continueu iniciant la sessió amb les credencials de la vostra empresa."
   },
   "importDirectlyFromBrowser": {
-    "message": "Import directly from browser"
+    "message": "Importa directament des del navegador"
   },
   "browserProfile": {
-    "message": "Browser Profile"
-  },
-  "seeDetailedInstructions": {
-    "message": "Consulteu les instruccions detallades al nostre lloc d'ajuda a",
-    "description": "This is followed a by a hyperlink to the help website."
+    "message": "Perfil del navegador"
   },
   "importDirectlyFromLastPass": {
     "message": "Importa directament des del LastPass"
@@ -4724,121 +5045,121 @@
     "message": "Inseriu la YubiKey associada al compte del LastPass al port USB de l'ordinador i, després, toqueu-ne el botó."
   },
   "keeperEmail": {
-    "message": "Keeper email"
+    "message": "Correu de Keeper"
   },
   "keeperEmailHint": {
-    "message": "Enter the email you use to log in to Keeper"
+    "message": "Introdueix el correu que utilitzes per iniciar sessió a Keeper"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "Ubicació del centre de dades"
   },
   "keeperMasterPassword": {
-    "message": "Keeper master password"
+    "message": "Contrasenya mestra de Keeper"
   },
   "keeperMasterPasswordPrompt": {
-    "message": "Please enter your Keeper master password"
+    "message": "Introdueix la teva contrasenya mestra de Keeper"
   },
   "twoFactorCodePrompt": {
-    "message": "Please enter the code from your two-factor method"
+    "message": "Introdueix el codi del teu mètode de doble factor"
   },
   "totpCodePrompt": {
-    "message": "Please enter the code from your authenticator app"
+    "message": "Introdueix el codi de la teva aplicació d'autenticació"
   },
   "smsCodePrompt": {
-    "message": "Please enter the code sent via text message"
+    "message": "Introdueix el codi enviat per missatge de text"
   },
   "keeperDnaCodePrompt": {
-    "message": "Please enter the code from your Keeper DNA app"
+    "message": "Introdueix el codi de la teva aplicació Keeper DNA"
   },
   "adminApproval": {
-    "message": "Admin approval"
+    "message": "Aprovació de l'administrador"
   },
   "adminDeviceApprovalPushDesc": {
-    "message": "We've sent an admin approval request to your admin"
+    "message": "Hem enviat una sol·licitud d'aprovació a l'administrador"
   },
   "method": {
-    "message": "Method"
+    "message": "Mètode"
   },
   "directImporter": {
-    "message": "Direct importer"
+    "message": "Importador directe"
   },
   "csv": {
     "message": "CSV"
   },
   "json": {
-    "message": "Json"
+    "message": "JSON"
   },
   "ssoAuthRequired": {
-    "message": "SSO authentication required"
+    "message": "Es requereix autenticació SSO"
   },
   "keeperSsoDesc": {
-    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+    "message": "El teu compte de Keeper requereix autenticació SSO. Completa l'inici de sessió a la finestra del navegador que s'ha obert i, a continuació, enganxa el testimoni que es mostra a la pàgina."
   },
   "keeperSsoAutoCaptureDesc": {
-    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+    "message": "Completa l'inici de sessió a la pestanya del navegador que s'ha obert. El testimoni es capturarà automàticament."
   },
   "ssoToken": {
-    "message": "SSO token"
+    "message": "Testimoni SSO"
   },
   "keeperAuthRequired": {
-    "message": "Keeper authentication required"
+    "message": "Es requereix autenticació de Keeper"
   },
   "keeperDeviceApprovalRequired": {
-    "message": "Keeper device approval required"
+    "message": "Es requereix aprovació del dispositiu Keeper"
   },
   "selectApprovalMethod": {
-    "message": "Approval methods"
+    "message": "Mètodes d'aprovació"
   },
   "deviceApprovalNeeded": {
-    "message": "Device approval needed"
+    "message": "Cal aprovació del dispositiu"
   },
   "selectApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below"
+    "message": "Aprova aquest dispositiu seleccionant un mètode a continuació"
   },
   "keeperPush": {
     "message": "Keeper Push"
   },
   "twoFactorMethod": {
-    "message": "Two-factor method"
+    "message": "Mètode de doble factor"
   },
   "emailVerification": {
-    "message": "Email verification"
+    "message": "Verificació per correu electrònic"
   },
   "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below"
+    "message": "Comprova el teu correu electrònic i introdueix el codi de verificació a continuació"
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Keeper Push notification sent to approved device"
+    "message": "Notificació Keeper Push enviada al dispositiu aprovat"
   },
   "keeperPushSent": {
-    "message": "Keeper Push sent"
+    "message": "Keeper Push enviat"
   },
   "approvalRequestWillBeCanceled": {
-    "message": "Approval request will be canceled"
+    "message": "La sol·licitud d'aprovació es cancel·larà"
   },
   "pendingApprovalCancelConfirmation": {
-    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+    "message": "Estàs segur que vols sortir? La teva sol·licitud d'aprovació de l'administrador es cancel·larà."
   },
   "cancelRequest": {
-    "message": "Cancel request"
+    "message": "Cancel·la la sol·licitud"
   },
   "keeperMFARequired": {
-    "message": "Keeper two-factor authentication required"
+    "message": "Es requereix autenticació de doble factor de Keeper"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "Aprova la sol·licitud d'inici de sessió a la teva aplicació d'autenticació. Aquest diàleg es tancarà automàticament."
   },
   "selectTwoFactorMethod": {
-    "message": "Select two-factor method"
+    "message": "Selecciona el mètode de doble factor"
   },
   "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
+    "message": "Tria com vols verificar la teva identitat."
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "Aplicació d'autenticació (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "Missatge de text (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -4847,70 +5168,70 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "Codis de reserva"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "Clau de seguretat (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "Clau de seguretat (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "Verificació Keeper DNA"
   },
   "keeperDnaPushWaiting": {
-    "message": "Approve the Keeper DNA notification on your device"
+    "message": "Aprova la notificació Keeper DNA al teu dispositiu"
   },
   "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
+    "message": "Selecciona el mètode Keeper DNA"
   },
   "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
+    "message": "Tria com vols verificar amb Keeper DNA."
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "Notificació push"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "Introdueix el codi manualment"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "Autenticació de doble factor"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "Mètode desconegut"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "Selecciona el mètode Duo"
   },
   "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
+    "message": "Tria com vols verificar amb Duo Security."
   },
   "duoPush": {
     "message": "Duo Push"
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "Trucada telefònica"
   },
   "duoVerification": {
-    "message": "Duo verification"
+    "message": "Verificació Duo"
   },
   "duoPushWaiting": {
-    "message": "Approve the Duo push notification on your device."
+    "message": "Aprova la notificació push de Duo al teu dispositiu."
   },
   "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+    "message": "S'ha enviat un missatge de text al teu telèfon. Introdueix el codi a l'aplicació Duo per continuar."
   },
   "duoVoiceWaiting": {
-    "message": "Answer the phone call from Duo and follow the instructions."
+    "message": "Respon la trucada de Duo i segueix les instruccions."
   },
   "tryAnotherMethod": {
-    "message": "Try another method"
+    "message": "Prova un altre mètode"
   },
   "keeperUnsupported2faMethod": {
-    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+    "message": "El teu compte de Keeper requereix un mètode d'autenticació de doble factor que actualment no és compatible amb l'importador directe."
   },
   "commonImportFormats": {
     "message": "Formats comuns",
@@ -4947,20 +5268,20 @@
     "message": "Resolució de problemes"
   },
   "downloadDiagnosticReport": {
-    "message": "Download diagnostic report"
+    "message": "Baixa l'informe de diagnòstic"
   },
   "experiencingAnIssue": {
-    "message": "Experiencing an issue?"
+    "message": "Tens algun problema?"
   },
   "downloadDiagnosticReportWith": {
-    "message": "Download then share the diagnostic report with"
+    "message": "Baixa i comparteix l'informe de diagnòstic amb"
   },
   "bitwardenSupport": {
-    "message": "Bitwarden support",
+    "message": "Assistència tècnica de Bitwarden",
     "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "Baixa"
   },
   "disableHardwareAccelerationRestart": {
     "message": "Desactiveu l'acceleració de maquinari i reinicieu"
@@ -4972,10 +5293,10 @@
     "message": "Suprimeix la clau de pas"
   },
   "deletePasskey": {
-    "message": "Delete passkey"
+    "message": "Suprimeix la clau d'accés"
   },
   "deletePasskeyConfirmation": {
-    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
+    "message": "Aquesta clau d'accés s'eliminarà permanentment del teu element d'inici de sessió. Això no es pot desfer."
   },
   "passkeyRemoved": {
     "message": "Clau de pas suprimida"
@@ -5110,49 +5431,49 @@
     "message": "per"
   },
   "sshActionLogin": {
-    "message": "authenticate to a server"
+    "message": "autenticar-te en un servidor"
   },
   "sshActionSign": {
-    "message": "sign a message"
+    "message": "signar un missatge"
   },
   "sshActionGitSign": {
-    "message": "sign a git commit"
+    "message": "signar un commit de Git"
   },
   "unknownApplication": {
     "message": "Una aplicació"
   },
   "invalidSshKey": {
-    "message": "The SSH key is invalid"
+    "message": "La clau SSH no és vàlida"
   },
   "sshKeyTypeUnsupported": {
-    "message": "The SSH key type is not supported"
+    "message": "El tipus de clau SSH no és compatible"
   },
   "importSshKeyFromClipboard": {
-    "message": "Import key from clipboard"
+    "message": "Importa clau des del porta-retalls"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "Clau SSH importada correctament"
   },
   "fileSavedToDevice": {
-    "message": "File saved to device. Manage from your device downloads."
+    "message": "Fitxer desat al dispositiu. Gestiona'l des de les baixades del dispositiu."
   },
   "importantNotice": {
-    "message": "Important notice"
+    "message": "Avís important"
   },
   "setupTwoStepLogin": {
-    "message": "Set up two-step login"
+    "message": "Configura l'inici de sessió en dos passos"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+    "message": "Bitwarden enviarà un codi al correu del teu compte per verificar els inicis de sessió des de nous dispositius a partir del febrer de 2025."
   },
   "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+    "message": "Pots configurar l'inici de sessió en dos passos com a alternativa per protegir el teu compte o canviar el teu correu a un al qual tinguis accés."
   },
   "remindMeLater": {
-    "message": "Remind me later"
+    "message": "Recorda-m'ho més tard"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "message": "Tens accés fiable al teu correu electrònic, $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5161,60 +5482,60 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "No, no en tinc"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
+    "message": "Sí, puc accedir al meu correu de manera fiable"
   },
   "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
+    "message": "Activa l'inici de sessió en dos passos"
   },
   "changeAcctEmail": {
-    "message": "Change account email"
+    "message": "Canvia el correu del compte"
   },
   "passkeyLogin": {
-    "message": "Log in with passkey?",
+    "message": "Iniciar sessió amb clau d'accés?",
     "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
   },
   "passkeyLogin2": {
-    "message": "Log in with passkey"
+    "message": "Inicia sessió amb clau d'accés"
   },
   "savePasskeyQuestion": {
-    "message": "Save passkey?"
+    "message": "Desar la clau d'accés?"
   },
   "savePasskey": {
-    "message": "Save passkey"
+    "message": "Desa la clau d'accés"
   },
   "saveNewPasskey": {
-    "message": "Save as new login"
+    "message": "Desa com a inici de sessió nou"
   },
   "savePasskeyNewLogin": {
-    "message": "Save passkey as new login"
+    "message": "Desa la clau d'accés com a inici de sessió nou"
   },
   "noMatchingLoginsForSite": {
-    "message": "No matching logins for this site"
+    "message": "No hi ha inicis de sessió coincidents per a aquest lloc"
   },
   "overwritePasskey": {
-    "message": "Overwrite passkey?",
+    "message": "Sobrescriure la clau d'accés?",
     "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
   },
   "overwritePasskey2": {
-    "message": "Overwrite passkey"
+    "message": "Sobrescriu la clau d'accés"
   },
   "unableToSavePasskey": {
-    "message": "Unable to save passkey"
+    "message": "No s'ha pogut desar la clau d'accés"
   },
   "alreadyContainsPasskey": {
-    "message": "This item already contains a passkey. Are you sure you want to overwrite the current passkey?"
+    "message": "Aquest element ja conté una clau d'accés. Estàs segur que vols sobreescriure la clau d'accés actual?"
   },
   "passkeyAlreadyExists": {
-    "message": "A passkey already exists for this application."
+    "message": "Ja existeix una clau d'accés per a aquesta aplicació."
   },
   "applicationDoesNotSupportDuplicates": {
-    "message": "This application does not support duplicates."
+    "message": "Aquesta aplicació no admet duplicats."
   },
   "closeThisWindow": {
-    "message": "Close this window"
+    "message": "Tanca aquesta finestra"
   },
   "allowScreenshots": {
     "message": "Permet capturar la pantalla"
@@ -5223,37 +5544,37 @@
     "message": "Permet que l'aplicació d'escriptori Bitwarden siga capturada fent captures de pantalla i es visualitze en sessions d'escriptori remot. Si ho desactivem, impedirà l'accés a algunes pantalles externes."
   },
   "confirmWindowStillVisibleTitle": {
-    "message": "Confirm window still visible"
+    "message": "Confirma que la finestra encara és visible"
   },
   "confirmWindowStillVisibleContent": {
-    "message": "Please confirm that the window is still visible."
+    "message": "Confirma que la finestra encara és visible."
   },
   "updateBrowserOrDisableFingerprintDialogTitle": {
     "message": "Cal actualitzar l'extensió"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
-    "message": "The browser extension you are using is out of date. Please update it or disable browser integration fingerprint validation in the desktop app settings."
+    "message": "L'extensió del navegador que utilitzes està desactualitzada. Actualitza-la o desactiva la validació de l'empremta digital de la integració del navegador a la configuració de l'aplicació d'escriptori."
   },
   "changeAtRiskPassword": {
-    "message": "Change at-risk password"
+    "message": "Canvia la contrasenya en risc"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
+    "message": "Aquest inici de sessió està en risc i li falta un lloc web. Afegeix un lloc web i canvia la contrasenya per a més seguretat."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Contrasenya vulnerable."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Canvia ara"
   },
   "missingWebsite": {
-    "message": "Missing website"
+    "message": "Falta el lloc web"
   },
   "missingPermissions": {
-    "message": "You lack the necessary permissions to perform this action."
+    "message": "No tens els permisos necessaris per realitzar aquesta acció."
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "message": "No pots eliminar col·leccions amb permisos només de visualització: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -5262,7 +5583,7 @@
     }
   },
   "cannotRemoveViewOnlySharedFolders": {
-    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "message": "No pots eliminar carpetes compartides amb permisos només de visualització: $SHAREDFOLDERS$",
     "placeholders": {
       "sharedfolders": {
         "content": "$1",
@@ -5287,34 +5608,34 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsTitleNoSearchResults": {
-    "message": "No search results returned"
+    "message": "No s'han obtingut resultats de cerca"
   },
   "sendsBodyNoItems": {
     "message": "Compartiu fitxers i dades de manera segura amb qualsevol persona, en qualsevol plataforma. La informació romandrà xifrada de principi a fi i alhora limitarà l'exposició.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoSearchResults": {
-    "message": "Clear filters or try another search term"
+    "message": "Neteja els filtres o prova un altre terme de cerca"
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "Crea contrasenyes ràpidament"
   },
   "generatorNudgeBodyOne": {
-    "message": "Easily create strong and unique passwords by clicking on",
+    "message": "Crea fàcilment contrasenyes fortes i úniques fent clic a",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "to help you keep your logins secure.",
+    "message": "per ajudar-te a mantenir els teus inicis de sessió segurs.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "message": "Crea fàcilment contrasenyes fortes i úniques fent clic al botó Genera contrasenya per ajudar-te a mantenir els teus inicis de sessió segurs.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "Estalvia temps amb l'ompliment automàtic"
   },
   "newLoginNudgeBodyOne": {
     "message": "Inclou un",
@@ -5327,27 +5648,27 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "so this login appears as an autofill suggestion.",
+    "message": "perquè aquest inici de sessió aparegui com a suggeriment d'ompliment automàtic.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newCardNudgeTitle": {
-    "message": "Seamless online checkout"
+    "message": "Pagament en línia sense problemes"
   },
   "newCardNudgeBody": {
-    "message": "With cards, easily autofill payment forms securely and accurately."
+    "message": "Amb les targetes, omple fàcilment formularis de pagament de manera segura i precisa."
   },
   "newIdentityNudgeTitle": {
-    "message": "Simplify creating accounts"
+    "message": "Simplifica la creació de comptes"
   },
   "newIdentityNudgeBody": {
-    "message": "With identities, quickly autofill long registration or contact forms."
+    "message": "Amb les identitats, omple ràpidament formularis de registre o contacte llargs."
   },
   "newNoteNudgeTitle": {
-    "message": "Keep your sensitive data safe"
+    "message": "Mantén les teves dades sensibles segures"
   },
   "newNoteNudgeBody": {
-    "message": "With notes, securely store sensitive data like banking or insurance details."
+    "message": "Amb les notes, emmagatzema de manera segura dades sensibles com detalls bancaris o d'assegurances."
   },
   "newSshNudgeTitle": {
     "message": "Accés SSH fàcil per a desenvolupadors"
@@ -5363,43 +5684,43 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Sobre aquesta configuració"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden utilitzarà els URI d'inici de sessió desats per identificar quina icona o URL de canvi de contrasenya s'ha d'utilitzar per millorar la teva experiència. No es recull ni desa cap informació quan utilitzes aquest servei."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "Afegeix 3 botons de còpia ràpida al costat dels elements per copiar el nom d'usuari, la contrasenya o el codi de verificació al porta-retalls."
   },
   "assignToCollections": {
     "message": "Assigna a col·leccions"
   },
   "addToSharedFolder": {
-    "message": "Add to shared folder"
+    "message": "Afegeix a la carpeta compartida"
   },
   "transferAndAdd": {
-    "message": "Transfer and add"
+    "message": "Transfereix i afegeix"
   },
   "itemLower": {
-    "message": "item"
+    "message": "element"
   },
   "itemsLower": {
-    "message": "items"
+    "message": "elements"
   },
   "assignToTheseCollections": {
     "message": "Assigna a aquestes col·leccions"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Only organization members with access to these collections will be able to see the item."
+    "message": "Només els membres de l'organització amb accés a aquestes col·leccions podran veure l'element."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
-    "message": "Only vault members with access to these shared folders will be able to see the item."
+    "message": "Només els membres del cofre amb accés a aquestes carpetes compartides podran veure l'element."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "Només els membres de l'organització amb accés a aquestes col·leccions podran veure els elements."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
-    "message": "Only vault members with access to these shared folders will be able to see the items."
+    "message": "Només els membres del cofre amb accés a aquestes carpetes compartides podran veure els elements."
   },
   "noCollectionsAssigned": {
     "message": "No s'ha assignat cap col·lecció"
@@ -5408,7 +5729,7 @@
     "message": "Assigna"
   },
   "bulkCollectionAssignmentDialogDescription": {
-    "message": "Only organization members with access to these collections will be able to see the items."
+    "message": "Només els membres de l'organització amb accés a aquestes col·leccions podran veure els elements."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Heu seleccionat $TOTAL_COUNT$ elements. No podeu actualitzar-ne $READONLY_COUNT$ dels quals perquè no teniu permisos d'edició.",
@@ -5426,7 +5747,7 @@
     "message": "Seleccioneu les col·leccions per assignar"
   },
   "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ es transferiran permanentment a l'organització seleccionada. Ja no seràs propietari d'aquests elements.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5435,7 +5756,7 @@
     }
   },
   "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ es transferiran permanentment a $ORG$. Ja no seràs propietari d'aquests elements.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5448,7 +5769,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "1 element es transferirà permanentment a $ORG$. Ja no seràs propietari d'aquest element.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -5457,13 +5778,13 @@
     }
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "1 element es transferirà permanentment a l'organització seleccionada. Ja no seràs propietari d'aquest element."
   },
   "personalItemVaultTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+    "message": "1 element es transferirà permanentment al cofre seleccionat. Ja no seràs propietari d'aquest element."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ elements es transferiran permanentment a l'organització seleccionada. Ja no seràs propietari d'aquests elements.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5472,7 +5793,7 @@
     }
   },
   "personalItemsVaultTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ elements es transferiran permanentment al cofre seleccionat. Ja no seràs propietari d'aquests elements.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5481,7 +5802,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ elements es transferiran permanentment a $ORG$. Ja no seràs propietari d'aquests elements.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5494,40 +5815,40 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "Col·leccions assignades correctament"
   },
   "successfullyAddedSharedFolders": {
-    "message": "Successfully added shared folders"
+    "message": "Carpetes compartides afegides correctament"
   },
   "itemMovedToCollection": {
-    "message": "Item moved to collection"
+    "message": "Element mogut a la col·lecció"
   },
   "itemAddedToSharedFolder": {
-    "message": "Item added to shared folder"
+    "message": "Element afegit a la carpeta compartida"
   },
   "itemMovedToCollections": {
-    "message": "Item moved to collections"
+    "message": "Element mogut a les col·leccions"
   },
   "itemAddedToSharedFolders": {
-    "message": "Item added to shared folders"
+    "message": "Element afegit a les carpetes compartides"
   },
   "itemsMovedToCollection": {
-    "message": "Items moved to collection"
+    "message": "Elements moguts a la col·lecció"
   },
   "itemsAddedToSharedFolder": {
-    "message": "Items added to shared folder"
+    "message": "Elements afegits a la carpeta compartida"
   },
   "itemsMovedToCollections": {
-    "message": "Items moved to collections"
+    "message": "Elements moguts a les col·leccions"
   },
   "itemsAddedToSharedFolders": {
-    "message": "Items added to shared folders"
+    "message": "Elements afegits a les carpetes compartides"
   },
   "itemAssignedToCollections": {
-    "message": "Item assigned to collections"
+    "message": "Element assignat a les col·leccions"
   },
   "itemsAssignedToCollections": {
-    "message": "Items assigned to collections"
+    "message": "Elements assignats a les col·leccions"
   },
   "nothingSelected": {
     "message": "No heu seleccionat res."
@@ -5542,7 +5863,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Element mogut a $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -5591,45 +5912,54 @@
     }
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Més informació"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Mostra'n menys"
   },
   "enableAutotypeDescription": {
-    "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
+    "message": "Bitwarden no valida les ubicacions d'entrada, assegura't que estàs a la finestra i al camp correctes abans d'utilitzar la drecera."
   },
   "typeShortcut": {
-    "message": "Type shortcut"
+    "message": "Escriu la drecera"
   },
   "editAutotypeKeyboardModifiersDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
+    "message": "Inclou un o dos dels modificadors següents: Ctrl, Alt, Win i una lletra."
   },
   "invalidShortcut": {
-    "message": "Invalid shortcut"
+    "message": "Drecera no vàlida"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Ruta de navegació",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
-    "message": "More breadcrumbs",
+    "message": "Més elements de la ruta",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {
-    "message": "Next"
+    "message": "Següent"
   },
   "confirmKeyConnectorDomain": {
-    "message": "Confirm Key Connector domain"
+    "message": "Confirma el domini de Key Connector"
   },
   "confirm": {
-    "message": "Confirm"
+    "message": "Confirma"
   },
   "enableAutotypeShortcutPreview": {
-    "message": "Enable autotype shortcut (Feature Preview)"
+    "message": "Activa la drecera d'emplenament automàtic (Visió prèvia de la funció)"
   },
   "enableAutotypeShortcutDescription": {
-    "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
+    "message": "Assegura't que estàs al camp correcte abans d'utilitzar la drecera per evitar emplenar dades al lloc equivocat."
   },
   "editShortcut": {
     "message": "Edita la drecera"
@@ -5655,25 +5985,25 @@
     "message": "No hi ha cap element en l'arxiu"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Els elements arxivats apareixeran aquí i s'exclouran dels resultats de cerca generals i dels suggeriments d'ompliment automàtic."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Element arxivat"
   },
   "itemUnarchivedToast": {
     "message": "Element recuperat de l'arxiu"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Arxiva l'element"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "Un cop arxivat, aquest element s'exclourà dels resultats de cerca i dels suggeriments d'ompliment automàtic."
   },
   "unArchiveAndSave": {
     "message": "Recupera de l'arxiu i guarda"
   },
   "archiveItemsPlural": {
-    "message": "Archive $NUM$ items",
+    "message": "Arxiva $NUM$ elements",
     "description": "Title of the archive items dialog when multiple items are selected",
     "placeholders": {
       "num": {
@@ -5683,20 +6013,20 @@
     }
   },
   "archiveItemTitle": {
-    "message": "Archive item",
+    "message": "Arxiva l'element",
     "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
-    "message": "Once archived, these items will be excluded from search results and autofill suggestions."
+    "message": "Un cop arxivats, aquests elements s'exclouran dels resultats de cerca i dels suggeriments d'ompliment automàtic."
   },
   "bulkArchiveItems": {
-    "message": "Items archived"
+    "message": "Elements arxivats"
   },
   "bulkUnarchiveItems": {
-    "message": "Items unarchived"
+    "message": "Elements desarxivats"
   },
   "moveSelectedItemsDesc": {
-    "message": "Choose a folder that you would like to add the $COUNT$ selected item(s) to.",
+    "message": "Tria una carpeta a la qual vulguis afegir els $COUNT$ elements seleccionats.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5705,109 +6035,109 @@
     }
   },
   "selectFolder": {
-    "message": "Select folder"
+    "message": "Selecciona carpeta"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Reinicia Premium"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "La teva subscripció Premium ha finalitzat"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+    "message": "Per recuperar l'accés al teu arxiu, reinicia la teva subscripció Premium. Si edites detalls d'un element arxivat abans de reiniciar, es mourà de nou al teu cofre."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "L'element s'ha restaurat"
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "Codi postal"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Número de targeta"
   },
   "upgradeNow": {
     "message": "Actualitza ara"
   },
   "builtInAuthenticator": {
-    "message": "Built-in authenticator"
+    "message": "Autenticador integrat"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "Emmagatzematge de fitxers segur"
   },
   "emergencyAccess": {
-    "message": "Emergency access"
+    "message": "Accés d'emergència"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "Monitorització de violacions"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "I molt més!"
   },
   "advancedOnlineSecurity": {
-    "message": "Advanced online security"
+    "message": "Seguretat en línia avançada"
   },
   "upgradeToPremium": {
     "message": "Actualitza a Prèmium"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "La teva organització ja no utilitza contrasenyes mestres per iniciar sessió a Bitwarden. Per continuar, verifica l'organització i el domini."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Continua amb l'inici de sessió"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "No continues"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Domini"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Aquest domini emmagatzemarà les claus de xifrat del teu compte, així que assegura't que és de confiança. Si no n'estàs segur, consulta amb el teu administrador."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Verifica la teva organització per iniciar sessió"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Organització verificada"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Domini verificat"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Si no verifiques la teva organització, se't revocarà l'accés a l'organització."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Eixir ara"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Verifica el teu domini per iniciar sessió"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Per continuar amb l'inici de sessió, verifica aquest domini."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Per continuar amb l'inici de sessió, verifica l'organització i el domini."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Acció després del temps d'espera"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Error: no es pot desxifrar"
   },
   "sessionTimeoutHeader": {
     "message": "Temps de sessió"
   },
   "browserAccessDenied": {
-    "message": "Either an invalid browser directory was selected, or access was denied"
+    "message": "S'ha seleccionat un directori de navegador no vàlid o s'ha denegat l'accés"
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "Redimensiona la navegació lateral"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "This setting is managed by your organization."
+    "message": "Aquesta configuració està gestionada per la teva organització."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
-    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "La teva organització ha establert el temps d'espera màxim de sessió a $HOURS$ hora(s) i $MINUTES$ minut(s).",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -5820,13 +6150,13 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
-    "message": "Your organization has set the default session timeout to On system lock."
+    "message": "La teva organització ha establert el temps d'espera de sessió per defecte a En bloqueig del sistema."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "Your organization has set the default session timeout to On restart."
+    "message": "La teva organització ha establert el temps d'espera de sessió per defecte a En reinici."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
-    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "message": "El temps d'espera màxim no pot superar $HOURS$ hora(s) i $MINUTES$ minut(s)",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -5842,13 +6172,13 @@
     "message": "En reiniciar"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
-    "message": "Set an unlock method to change your timeout action"
+    "message": "Estableix un mètode de desbloqueig per canviar l'acció de temps d'espera"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "Session timeout is controlled by the desktop app"
+    "message": "El temps d'espera de sessió està controlat per l'aplicació d'escriptori"
   },
   "chromiumImporterBrowserNotInstalled": {
-    "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
+    "message": "$BROWSER$ no està instal·lat. Instal·la $BROWSER$ abans d'importar contrasenyes des d'ell.",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -5857,7 +6187,7 @@
     }
   },
   "chromiumImporterPickerMessage": {
-    "message": "Please select your $BROWSER$ data folder",
+    "message": "Selecciona la carpeta de dades de $BROWSER$",
     "placeholders": {
       "browser": {
         "content": "$1",
@@ -5866,25 +6196,25 @@
     }
   },
   "chromiumImporterPickerExpectedLocation": {
-    "message": "Expected location:"
+    "message": "Ubicació esperada:"
   },
   "chromiumImporterPickerPrompt": {
-    "message": "Grant Access"
+    "message": "Concedeix accés"
   },
   "upgrade": {
     "message": "Actualitza"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "Estàs segur que vols marxar?"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "En rebutjar, els teus elements personals romandran al teu compte, però perdràs l'accés als elements compartits i a les funcions de l'organització."
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "Contacta amb el teu administrador per recuperar l'accés."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "Marxar de $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -5893,10 +6223,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "Com gestiono el meu cofre?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Transfereix elements a $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -5905,7 +6235,7 @@
     }
   },
   "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
+    "message": "$ORGANIZATION$ requereix que tots els elements siguin propietat de l'organització per motius de seguretat i compliment.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -5914,25 +6244,25 @@
     }
   },
   "transferItemsToOrganizationAction": {
-    "message": "Click accept to transfer ownership of your items."
+    "message": "Fes clic a Accepta per transferir la propietat dels teus elements."
   },
   "openTransferItemsHelpArticle": {
-    "message": "Open help article on transferring items"
+    "message": "Obre l'article d'ajuda sobre la transferència d'elements"
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Accepta la transferència"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "Rebutja i marxa"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "L'organització està suspesa"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "No es pot accedir als elements d'organitzacions suspeses. Contacta amb el propietari de l'organització per obtenir assistència."
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "$PERCENT$% complet",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -5944,7 +6274,7 @@
     "message": "No hi ha cap element a la paperera"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Els elements que suprimiu apareixeran ací i s'eliminaran permanentment al cap de 30 dies"
   },
   "noItemsInVault": {
     "message": "No hi ha cap element a la caixa forta"
@@ -5959,47 +6289,53 @@
     "message": "Afig els elements que fas servir amb freqüència als preferits per accedir-hi ràpidament."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "No s'han obtingut resultats de cerca"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Neteja els filtres o prova un altre terme de cerca"
+  },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
   },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "Les persones hauran d'introduir la contrasenya per veure aquest Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "Correu protegit"
   },
   "emails": {
-    "message": "Emails"
+    "message": "Correus electrònics"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Qualsevol amb l'enllaç"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Qualsevol amb una contrasenya establerta per tu"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Qui pot veure"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Persones específiques"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Després de compartir aquest enllaç Send, les persones hauran de verificar el seu correu electrònic amb un codi per veure aquest Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Introdueix diversos correus electrònics separats per comes."
   },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "emailPlaceholderMultiple": {
     "message": "user@bitwarden.com, user@acme.com"
   },
   "reorderToggleButton": {
-    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "message": "Reordena $LABEL$. Utilitza la tecla de fletxa per moure l'element amunt o avall.",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -6008,10 +6344,10 @@
     }
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "Ha fallat la verificació de l'usuari."
   },
   "domainNotAllowed": {
-    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "message": "Inclou només els dominis següents: $DOMAINS$. Revisa-ho i torna-ho a provar",
     "placeholders": {
       "domains": {
         "content": "$1"
@@ -6019,159 +6355,159 @@
     }
   },
   "more": {
-    "message": "More"
+    "message": "Més"
   },
   "enterMonth": {
-    "message": "Enter month."
+    "message": "Introdueix el mes."
   },
   "enterDay": {
-    "message": "Enter day."
+    "message": "Introdueix el dia."
   },
   "enterYear": {
-    "message": "Enter year."
+    "message": "Introdueix l'any."
   },
   "sendTypes": {
-    "message": "Send types",
+    "message": "Tipus de Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "any": {
-    "message": "Any"
+    "message": "Qualsevol"
   },
   "invalidDay": {
-    "message": "Enter a valid day."
+    "message": "Introdueix un dia vàlid."
   },
   "invalidYear": {
-    "message": "Enter a valid year."
+    "message": "Introdueix un any vàlid."
   },
   "searchDriversLicense": {
-    "message": "Search licenses"
+    "message": "Cerca llicències"
   },
   "bankAccount": {
-    "message": "Bank account"
+    "message": "Compte bancari"
   },
   "bankAccountDetails": {
-    "message": "Bank account details"
+    "message": "Detalls del compte bancari"
   },
   "bankName": {
-    "message": "Bank name"
+    "message": "Nom del banc"
   },
   "nameOnAccount": {
-    "message": "Name on account"
+    "message": "Nom al compte"
   },
   "bankAccountType": {
-    "message": "Account type"
+    "message": "Tipus de compte"
   },
   "bankAccountTypeCompany": {
-    "message": "Company"
+    "message": "Empresa"
   },
   "bankAccountTypeIndividual": {
-    "message": "Individual"
+    "message": "Particular"
   },
   "accountNumber": {
-    "message": "Account number"
+    "message": "Número de compte"
   },
   "bankRoutingNumber": {
-    "message": "Routing number",
+    "message": "Número de ruta",
     "description": "Used in the bank account cipher type"
   },
   "branchNumber": {
-    "message": "Branch/institution number"
+    "message": "Número de sucursal/institució"
   },
   "swiftCode": {
-    "message": "SWIFT code"
+    "message": "Codi SWIFT"
   },
   "iban": {
     "message": "IBAN"
   },
   "bankContactPhone": {
-    "message": "Bank contact phone"
+    "message": "Telèfon de contacte del banc"
   },
   "searchBankAccount": {
-    "message": "Search bank account"
+    "message": "Cerca compte bancari"
   },
   "searchPassport": {
-    "message": "Search passports"
+    "message": "Cerca passaports"
   },
   "copyAccountNumber": {
-    "message": "Copy account number"
+    "message": "Copia el número de compte"
   },
   "copyRoutingNumber": {
-    "message": "Copy routing number"
+    "message": "Copia el número de ruta"
   },
   "copyPin": {
-    "message": "Copy PIN"
+    "message": "Copia el PIN"
   },
   "copyIban": {
-    "message": "Copy IBAN"
+    "message": "Copia l'IBAN"
   },
   "copyNameOnAccount": {
-    "message": "Copy name on account"
+    "message": "Copia el nom al compte"
   },
   "copyBranchNumber": {
-    "message": "Copy branch number"
+    "message": "Copia el número de sucursal"
   },
   "copySwiftCode": {
-    "message": "Copy SWIFT code"
+    "message": "Copia el codi SWIFT"
   },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "Copia el nom"
   },
   "copyMiddleName": {
-    "message": "Copy middle name"
+    "message": "Copia el segon nom"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "Copia el cognom"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Copia el número de llicència"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Copia el número de passaport"
   },
   "bankAccountTypeChecking": {
-    "message": "Checking"
+    "message": "Compte corrent"
   },
   "bankAccountTypeSavings": {
-    "message": "Savings"
+    "message": "Compte d'estalvis"
   },
   "bankAccountTypeCertificateOfDeposit": {
-    "message": "Certificate of deposit"
+    "message": "Certificat de dipòsit"
   },
   "bankAccountTypeLineOfCredit": {
-    "message": "Line of credit"
+    "message": "Línia de crèdit"
   },
   "bankAccountTypeInvestmentBrokerage": {
-    "message": "Investment/brokerage"
+    "message": "Inversió/intermediació"
   },
   "bankAccountTypeMoneyMarket": {
-    "message": "Money market"
+    "message": "Mercat monetari"
   },
   "bankAccountTypeOther": {
-    "message": "Other"
+    "message": "Altres"
   },
   "newBankAccountNudgeTitle": {
-    "message": "Securely store your bank details"
+    "message": "Emmagatzema les teves dades bancàries de manera segura"
   },
   "newBankAccountNudgeBody": {
-    "message": "Save your bank account information to access it easily and securely across your devices."
+    "message": "Desa la informació del teu compte bancari per accedir-hi fàcilment i de manera segura des de tots els teus dispositius."
   },
   "sendDeletionDate": {
-    "message": "Deletion date"
+    "message": "Data d'eliminació"
   },
   "discardEditsTitle": {
-    "message": "Discard edits"
+    "message": "Descarta els canvis"
   },
   "discardEditsConfirmation": {
-    "message": "If you close this view, your unsaved edits will be discarded."
+    "message": "Si tanques aquesta vista, els teus canvis no desats es descartaran."
   },
   "discardEdits": {
-    "message": "Discard edits"
+    "message": "Descarta els canvis"
   },
   "keepEditing": {
-    "message": "Keep editing"
+    "message": "Continua editant"
   },
   "sendHasUnsavedEdits": {
-    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "message": "El Send té canvis no desats. Estàs segur que vols sortir?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
@@ -6185,101 +6521,101 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "numericInputError": {
-    "message": "Input must be numeric"
+    "message": "L'entrada ha de ser numèrica"
   },
   "integerInputError": {
-    "message": "Input must be a whole number"
+    "message": "L'entrada ha de ser un nombre enter"
   },
   "hideEmailPolicyInEffect": {
-    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+    "message": "La teva organització requereix visibilitat del correu electrònic. Desmarca «Amaga el teu correu als espectadors» per desar."
   },
   "sideNavigation": {
-    "message": "Side navigation"
+    "message": "Navegació lateral"
   },
   "skipLink": {
-    "message": "Skip link"
+    "message": "Enllaç de salt"
   },
   "callout": {
-    "message": "Callout",
+    "message": "Avís",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "Barra de progrés",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
   "sendNotCompliantWithYourOrgsPolicy": {
-    "message": "Not compliant with your organization's Send policy",
+    "message": "No compleix amb la política de Send de la teva organització",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledNonCompliantBannerMessage": {
-    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "message": "Per editar aquest Send, fes una còpia. Si aquest Send pot caducar en la data d'eliminació establerta, no cal cap acció",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "orgDoesNotAllowTextSends": {
-    "message": "Text Sends are not allowed for your organization",
+    "message": "Els Sends de text no estan permesos per a la teva organització",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "orgDoesNotAllowFileSends": {
-    "message": "File Sends are not allowed for your organization",
+    "message": "Els Sends de fitxer no estan permesos per a la teva organització",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendWillAutomaticallyExpire": {
-    "message": "This Send will automatically expire at the set deletion date",
+    "message": "Aquest Send caducarà automàticament en la data d'eliminació establerta",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
-    "message": "Make a copy"
+    "message": "Fes una còpia"
   },
   "errorImportingMyItemsMultiCollection": {
-    "message": "You cannot import items into My Items that are part of multiple collections"
+    "message": "No pots importar elements a Els meus elements que formin part de diverses col·leccions"
   },
   "driversLicenseDetails": {
-    "message": "License details"
+    "message": "Detalls de la llicència"
   },
   "dateOfBirth": {
-    "message": "Date of birth"
+    "message": "Data de naixement"
   },
   "birthMonth": {
-    "message": "Birth month"
+    "message": "Mes de naixement"
   },
   "birthDay": {
-    "message": "Birth day"
+    "message": "Dia de naixement"
   },
   "birthYear": {
-    "message": "Birth year"
+    "message": "Any de naixement"
   },
   "issuingCountry": {
-    "message": "Issuing country"
+    "message": "País d'emissió"
   },
   "issuingState": {
-    "message": "Issuing state / province"
+    "message": "Estat / província d'emissió"
   },
   "issueDate": {
-    "message": "Issue date"
+    "message": "Data d'emissió"
   },
   "issueMonth": {
-    "message": "Issue month"
+    "message": "Mes d'emissió"
   },
   "issueDay": {
-    "message": "Issue day"
+    "message": "Dia d'emissió"
   },
   "issueYear": {
-    "message": "Issue year"
+    "message": "Any d'emissió"
   },
   "expirationDay": {
-    "message": "Expiration day"
+    "message": "Dia de caducitat"
   },
   "issuingAuthority": {
-    "message": "Issuing authority"
+    "message": "Autoritat emissora"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "Classe de llicència"
   },
   "cannotSaveItemNoConfirmedOrgs": {
-    "message": "Unable to save item. You must be confirmed to the organization to save items."
+    "message": "No es pot desar l'element. Has de ser confirmat a l'organització per desar elements."
   },
   "sendDeletionDateSetByOrg": {
-    "message": "$ORGNAME$ has set this deletion date",
+    "message": "$ORGNAME$ ha establert aquesta data d'eliminació",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -6288,13 +6624,13 @@
     }
   },
   "addToFolder": {
-    "message": "Add to folder"
+    "message": "Afegeix a la carpeta"
   },
   "deleteCollection": {
-    "message": "Delete collection"
+    "message": "Elimina col·lecció"
   },
   "deleteCollectionsCount": {
-    "message": "Delete $COUNT$ collections",
+    "message": "Elimina $COUNT$ col·leccions",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6303,16 +6639,16 @@
     }
   },
   "deleteCollectionDesc": {
-    "message": "This collection will be permanently deleted."
+    "message": "Aquesta col·lecció s'eliminarà permanentment."
   },
   "deleteCollectionsDesc": {
-    "message": "These collections will be permanently deleted."
+    "message": "Aquestes col·leccions s'eliminaran permanentment."
   },
   "duplicateAttachmentNameError": {
-    "message": "Items cannot have multiple attachments with the same file name"
+    "message": "Els elements no poden tenir diversos fitxers adjunts amb el mateix nom de fitxer"
   },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$: Notificació nova",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {
@@ -6322,7 +6658,7 @@
     }
   },
   "confirmPasskeyRegistrationMacOS": {
-    "message": "create a new $RPID$ passkey for $USERNAME$",
+    "message": "crear una nova clau d'accés per a $RPID$ per a $USERNAME$",
     "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
     "placeholders": {
       "rpId": {
@@ -6336,7 +6672,7 @@
     }
   },
   "confirmPasskeyOverwriteMacOS": {
-    "message": "overwrite a $RPID$ passkey for $USERNAME$",
+    "message": "sobreescriure una clau d'accés per a $RPID$ per a $USERNAME$",
     "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
     "placeholders": {
       "rpId": {
@@ -6350,7 +6686,7 @@
     }
   },
   "confirmPasskeyAssertionMacOS": {
-    "message": "sign in as $USERNAME$ with your $RPID$ passkey",
+    "message": "iniciar sessió com a $USERNAME$ amb la teva clau d'accés per a $RPID$",
     "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
     "placeholders": {
       "rpId": {
@@ -6364,7 +6700,7 @@
     }
   },
   "confirmPasskeyRegistrationWindows": {
-    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$.",
+    "message": "Verifica que ets tu per crear una nova clau d'accés per a $RPID$ per a $USERNAME$.",
     "description": "Prompt in Windows Hello to register a new passkey.",
     "placeholders": {
       "rpId": {
@@ -6378,7 +6714,7 @@
     }
   },
   "confirmPasskeyOverwriteWindows": {
-    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$.",
+    "message": "Verifica que ets tu per sobreescriure una clau d'accés per a $RPID$ per a $USERNAME$.",
     "description": "Prompt in Windows Hello to overwrite an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6392,7 +6728,7 @@
     }
   },
   "confirmPasskeyAssertionWindows": {
-    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey.",
+    "message": "Verifica que ets tu per iniciar sessió com a $USERNAME$ amb la teva clau d'accés per a $RPID$.",
     "description": "Prompt in Windows Hello to use an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6404,5 +6740,20 @@
         "example": "user@acme.com"
       }
     }
+  },
+  "permissions": {
+    "message": "Permissions"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   }
 }

@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { safeProvider } from "@bitwarden/ui-common";
 import {
   BULK_DELETE_DIALOG,
   BULK_EDIT_COLLECTION_ACCESS_DIALOG,
   COLLECTION_DIALOG,
-  injectVaultOrganization,
+  SharedFoldersBreadcrumbsComponent,
   SharedFoldersComponent as VaultSharedFoldersComponent,
 } from "@bitwarden/vault";
 
@@ -26,7 +26,7 @@ import { CollectionWebDialogAdapter } from "./collection-web-dialog.adapter";
   host: {
     class: "tw-flex tw-flex-col tw-h-full tw-min-h-0",
   },
-  imports: [HeaderModule, VaultSharedFoldersComponent],
+  imports: [HeaderModule, SharedFoldersBreadcrumbsComponent, VaultSharedFoldersComponent],
   providers: [
     safeProvider({
       provide: COLLECTION_DIALOG,
@@ -45,12 +45,4 @@ import { CollectionWebDialogAdapter } from "./collection-web-dialog.adapter";
     }),
   ],
 })
-export class SharedFoldersComponent {
-  private readonly organization = injectVaultOrganization();
-
-  /**
-   * Placeholder header title, matching `VaultNextComponent` — breadcrumbs replace this. `undefined`
-   * leaves the route's own `titleId` in place while the organization list loads.
-   */
-  protected readonly title = computed(() => this.organization()?.name);
-}
+export class SharedFoldersComponent {}

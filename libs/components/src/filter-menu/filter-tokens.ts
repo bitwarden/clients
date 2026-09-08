@@ -84,9 +84,9 @@ export interface FilterPresenter {
 /** Provided by a filter chip / toggle; injected by the responsive filter dialog. */
 export const FILTER_PRESENTER = new InjectionToken<FilterPresenter>("FilterPresenter");
 
-/** A top-level entry projected into a `bit-filter-menu` — an option or a section. */
+/** A top-level entry projected into a `bit-filter-menu` — an option, a section, or a divider. */
 export interface FilterEntry {
-  readonly kind: "option" | "section";
+  readonly kind: "option" | "section" | "divider";
 }
 
 /**
@@ -111,6 +111,12 @@ export type FilterTreeNode = {
   /** Whether the row's children are shown — its own state, or forced open while searching. */
   expanded: boolean;
   level: number;
+  /**
+   * The row's depth for indentation, which can be shallower than {@link level}: a section
+   * is drawn as its group's header rather than a parent row, so its options sit at the
+   * group's base indent even though they are its tree children.
+   */
+  indent: number;
   setsize: number;
   posinset: number;
   /**
@@ -118,6 +124,18 @@ export type FilterTreeNode = {
    * Scoped to the row's own group, so a section with nothing to expand sits at the base indent.
    */
   reserveExpander: boolean;
+  /**
+   * Whether a `bit-filter-option-divider` sits immediately before this row. The popover
+   * draws a line; the dialog hides it and lets the group gap carry the separation.
+   */
+  dividerBefore: boolean;
+  /**
+   * First and last row of a top-level group — a section with its descendants, or a run of
+   * loose top-level rows. A surface that draws a card per group reads these for its edges;
+   * with no sections the whole list is one group.
+   */
+  groupStart: boolean;
+  groupEnd: boolean;
 };
 
 /** The parts of a tree row's behaviour only the chip can answer. */

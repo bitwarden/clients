@@ -41,8 +41,7 @@ export class AcceptProviderComponent extends BaseAcceptComponent {
   }
 
   async authedHandler(qParams: Params) {
-    const request = new ProviderUserAcceptRequest();
-    request.token = qParams.token;
+    const request = new ProviderUserAcceptRequest({ token: qParams.token });
 
     await this.apiService.postProviderUserAccept(
       qParams.providerId,
