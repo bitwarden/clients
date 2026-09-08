@@ -31,8 +31,8 @@
             [title]="title()"
           >
             <div class="tw-flex tw-min-w-0 tw-items-center tw-gap-3">
-              <ng-content select="[slot=title-icon]"></ng-content>
               <div class="tw-truncate">
+                <ng-content select="[slot=prefix]"></ng-content>
                 @if (icon()) {
                   <bit-icon [name]="icon()" />
                 }

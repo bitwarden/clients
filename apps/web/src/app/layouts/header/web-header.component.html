@@ -1,8 +1,8 @@
 @let routeData = routeData$ | async;
 @if (routeData) {
   <bit-header [title]="title() || (routeData.titleId | i18n)" [icon]="icon()">
-    <ng-container slot="title-icon">
-      <ng-content select="[slot=title-icon]"></ng-content>
+    <ng-container slot="prefix">
+      <ng-content select="[slot=prefix]"></ng-content>
     </ng-container>
 
     <ng-container slot="breadcrumbs">

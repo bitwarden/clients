@@ -351,12 +351,12 @@ export const WithTabsVfo1: Story = {
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
 
-export const WithTitleIconVfo1: Story = {
+export const WithPrefixVfo1: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
     <bit-header title="My vault" class="tw-text-main">
-      <bit-icon-tile slot="title-icon" icon="bwi-user" variant="brand" emphasis="bold" size="sm" />
+      <bit-icon-tile slot="prefix" icon="bwi-user" variant="brand" emphasis="bold" size="sm" />
     </bit-header>
   `,
   }),

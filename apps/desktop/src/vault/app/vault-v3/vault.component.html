@@ -9,7 +9,7 @@
         <vault-breadcrumbs slot="breadcrumbs" [scope]="vaultScope()" />
       } @else if (headerTile(); as tile) {
         <bit-icon-tile
-          slot="title-icon"
+          slot="prefix"
           [icon]="tile.icon"
           [variant]="tile.variant ?? 'primary'"
           [color]="tile.color"
