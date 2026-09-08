@@ -1,7 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
-import { Component, ElementRef, Inject, OnDestroy, OnInit, viewChild } from "@angular/core";
+import { CommonModule, NgComponentOutlet } from "@angular/common";
+import {
+  Component,
+  ElementRef,
+  Inject,
+  OnDestroy,
+  OnInit,
+  Type,
+  inject,
+  viewChild,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
@@ -49,7 +58,6 @@ import {
   ItemModule,
   ToastService,
 } from "@bitwarden/components";
-import { ShareItemDrawerComponent, ShareLinkService } from "@bitwarden/tools-share";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { CipherFormComponent, CipherFormConfig, CipherFormModule } from "../cipher-form";
@@ -61,6 +69,7 @@ import {
 } from "../cipher-view/attachments/attachments-v2.component";
 import { CipherViewComponent } from "../cipher-view/cipher-view.component";
 import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
+import { SHARE_ITEM_ENTRY_POINT } from "../tokens/share-item-entry-point.token";
 
 export type VaultItemDialogMode = "view" | "form";
 
@@ -136,6 +145,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     ItemModule,
     PremiumBadgeComponent,
     I18nPipe,
+    NgComponentOutlet,
   ],
   providers: [{ provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService }],
 })
@@ -320,7 +330,16 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     { initialValue: false },
   );
 
-  protected showShareButton$: Observable<boolean>;
+  /**
+   * The client's share entry point, if it has one. See {@link SHARE_ITEM_ENTRY_POINT}.
+   *
+   * The explicit type argument keeps `SafeInjectionToken`'s tagged generic from collapsing to `{}`
+   * when this file is compiled as part of a consuming project, which the template type-checker
+   * then rejects as an `ngComponentOutlet` value.
+   */
+  protected readonly shareItemEntryPoint = inject<Type<unknown>>(SHARE_ITEM_ENTRY_POINT, {
+    optional: true,
+  });
 
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
@@ -340,7 +359,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private eventCollectionService: EventCollectionService,
     private archiveService: CipherArchiveService,
     private configService: ConfigService,
-    private shareLinkService: ShareLinkService,
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$
@@ -390,8 +408,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         this.loadForm = false;
         this.updateTitle();
       }
-
-      this.showShareButton$ = this.shareLinkService.cipherCanBeShared$(this.cipher);
 
       await this.eventCollectionService.collect(
         EventType.Cipher_ClientViewed,
@@ -670,13 +686,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       });
     }
   };
-
-  protected async openSharePanel() {
-    await this.dialogService.openDrawer(ShareItemDrawerComponent, {
-      data: { cipher: this.cipher },
-    });
-    await this.dialogRef.close();
-  }
 
   private async getDecryptedCipherView(config: CipherFormConfig) {
     if (config.originalCipher == null) {

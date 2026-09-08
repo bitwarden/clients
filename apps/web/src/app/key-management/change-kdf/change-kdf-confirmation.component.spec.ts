@@ -1,3 +1,8 @@
+// Polyfill Symbol.dispose for explicit resource management (used by the SDK client `using`)
+if (!(Symbol as any).dispose) {
+  (Symbol as any).dispose = Symbol("Symbol.dispose");
+}
+
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormControl } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";

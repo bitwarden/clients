@@ -78,7 +78,7 @@ describe("VaultCipherRowComponent", () => {
         },
         {
           provide: ShareLinkService,
-          useValue: mock<ShareLinkService>(),
+          useValue: { cipherCanBeShared$: () => of(false) },
         },
       ],
     }).compileComponents();

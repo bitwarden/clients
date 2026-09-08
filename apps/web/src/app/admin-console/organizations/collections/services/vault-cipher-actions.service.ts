@@ -25,7 +25,6 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
-import { ShareItemDrawerComponent } from "@bitwarden/tools-share";
 import {
   AttachmentDialogResult,
   AttachmentsV2Component,
@@ -567,13 +566,6 @@ export class VaultCipherActionsService {
         entity: "cipher",
       },
     });
-  }
-
-  async shareViaLink(cipher: CipherView): Promise<void> {
-    if (!(await this.repromptCipher([cipher]))) {
-      return;
-    }
-    await this.dialogService.openDrawer(ShareItemDrawerComponent, { data: { cipher } });
   }
 
   private async deleteCipherWithServer(

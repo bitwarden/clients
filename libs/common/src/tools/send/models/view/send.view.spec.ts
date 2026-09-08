@@ -149,6 +149,7 @@ describe("SendView.fromSdkSend", () => {
       emails: [],
       expirationDate: null,
       file: null,
+      data: null,
       text: {
         text: "Test Send contents",
         hidden: false,
@@ -176,6 +177,9 @@ describe("SendView to SdkSendView round trip", () => {
     view.key = key;
     view.text = Object.assign(new SendTextView(), { text: "hello", hidden: false });
     view.file = null;
+    // `toSdkSendView` deliberately omits `data` (see PM-41095), so it cannot survive a round
+    // trip. A text Send carries no item payload anyway.
+    view.data = null;
     view.maxAccessCount = 5;
     view.accessCount = 2;
     view.disabled = false;

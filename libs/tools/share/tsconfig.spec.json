@@ -2,9 +2,11 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../../dist/out-tsc",
-    "module": "commonjs",
-    "moduleResolution": "node10",
+    "isolatedModules": true,
+    "emitDecoratorMetadata": false,
     "types": ["jest", "node"]
   },
-  "include": ["jest.config.ts", "src/**/*.test.ts", "src/**/*.spec.ts", "src/**/*.d.ts"]
+  "include": ["src"],
+  "files": ["./test.setup.ts"],
+  "exclude": ["node_modules", "dist"]
 }

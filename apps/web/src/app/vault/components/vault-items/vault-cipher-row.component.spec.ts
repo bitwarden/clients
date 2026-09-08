@@ -21,7 +21,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, MenuModule } from "@bitwarden/components";
-import { ShareLinkService } from "@bitwarden/tools-share";
+import { ShareLinkMenuItemDirective, ShareLinkService } from "@bitwarden/tools-share";
 import {
   CopyCipherFieldDirective,
   CopyCipherFieldService,
@@ -64,6 +64,7 @@ describe("VaultCipherRowComponent", () => {
         CopyCipherFieldDirective,
         OrganizationNameBadgeComponent,
         PremiumBadgeComponent,
+        ShareLinkMenuItemDirective,
       ],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },

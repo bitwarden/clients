@@ -2,8 +2,7 @@
 // @ts-strict-ignore
 import { AsyncPipe, NgClass } from "@angular/common";
 import { Component, HostListener, computed, inject, input, output, viewChild } from "@angular/core";
-import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { switchMap } from "rxjs";
+import { toSignal } from "@angular/core/rxjs-interop";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge/premium-badge.component";
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
@@ -25,7 +24,7 @@ import {
   LinkModule,
   IconModule,
 } from "@bitwarden/components";
-import { ShareLinkService } from "@bitwarden/tools-share";
+import { ShareLinkMenuItemDirective } from "@bitwarden/tools-share";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   GetOrgNameFromIdPipe,
@@ -60,6 +59,7 @@ import { VaultItemEvent } from "./vault-item-event";
     Vfo1I18nPipe,
     Vfo1IconPipe,
     AsyncPipe,
+    ShareLinkMenuItemDirective,
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {
@@ -101,10 +101,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   private i18nService = inject(I18nService);
   private vaultCopyButtonsService = inject(VaultCopyButtonsService);
   private configService = inject(ConfigService);
-  private shareLinkService = inject(ShareLinkService);
-  protected showShareViaLink$ = toObservable(this.cipher).pipe(
-    switchMap((c) => this.shareLinkService.cipherCanBeShared$(c)),
-  );
 
   private readonly quickCopyActionsSetting = toSignal(
     this.vaultCopyButtonsService.showQuickCopyActions$,
@@ -244,10 +240,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
 
   protected assignToCollections() {
     this.onEvent.emit({ type: "assignToCollections", items: [this.cipher()] });
-  }
-
-  protected shareViaLink() {
-    this.onEvent.emit({ type: "shareViaLink", item: this.cipher() });
   }
 
   protected toggleFavorite() {
