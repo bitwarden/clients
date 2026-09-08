@@ -162,7 +162,7 @@ describe("AccessRuleEditComponent — page furniture", () => {
     return fixture;
   };
 
-  it("shows the rule's name as the heading, with the list and edit-page crumbs", async () => {
+  it("shows the rule's name as the heading, with the list crumb leading to it", async () => {
     const fixture = await render(
       { params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } },
       {
@@ -173,9 +173,8 @@ describe("AccessRuleEditComponent — page furniture", () => {
       } as unknown as AccessRuleView,
     );
 
-    const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain("Production database access");
-    expect(text).toContain("pamAccessRules");
+    const heading = fixture.nativeElement.querySelector("h1");
+    expect(heading.textContent).toContain("Production database access");
 
     // `bit-breadcrumbs`' own overflow trigger is a menu button; the crumbs themselves must stay
     // links.
@@ -184,31 +183,22 @@ describe("AccessRuleEditComponent — page furniture", () => {
     );
     expect(crumbs).toHaveLength(0);
 
-    // Every crumb reads as active in a test router; asserted as the slot's direct-child span.
-    const pageTypeCrumb = fixture.nativeElement.querySelector(
-      '[slot="breadcrumbs"] > [aria-current="page"]',
-    );
-    expect(pageTypeCrumb.textContent.trim()).toBe("pamAccessRuleEditTitle");
+    const trail = fixture.nativeElement.querySelector('[slot="breadcrumbs"]');
+    expect(trail.textContent).toContain("pamAccessRules");
+    expect(trail.textContent).not.toContain("pamAccessRuleEditTitle");
   });
 
-  it("shows the create-page crumb and heading in create mode", async () => {
+  it("shows the create title as the heading only, never repeated in the trail", async () => {
     const fixture = await render({});
-
-    // `bit-breadcrumbs`' own overflow trigger is a menu button; the crumbs themselves must stay
-    // links.
-    const crumbs = fixture.nativeElement.querySelectorAll(
-      'bit-breadcrumbs button:not([aria-haspopup="menu"])',
-    );
-    expect(crumbs).toHaveLength(0);
-
-    // Every crumb reads as active in a test router; asserted as the slot's direct-child span.
-    const pageTypeCrumb = fixture.nativeElement.querySelector(
-      '[slot="breadcrumbs"] > [aria-current="page"]',
-    );
-    expect(pageTypeCrumb.textContent.trim()).toBe("pamAccessRuleCreateTitle");
 
     const heading = fixture.nativeElement.querySelector("h1");
     expect(heading.textContent).toContain("pamAccessRuleCreateTitle");
+
+    const header = fixture.nativeElement.querySelector("header");
+    expect(header.textContent.split("pamAccessRuleCreateTitle")).toHaveLength(2);
+
+    const trail = fixture.nativeElement.querySelector('[slot="breadcrumbs"]');
+    expect(trail.textContent).toContain("pamAccessRules");
   });
 
   it("badges the saved rule as on, inside the heading", async () => {
