@@ -105,17 +105,17 @@ export class AddEditMemberDialogComponent {
 
   submit = async (): Promise<void> => {
     if (this.editing) {
-      const request = new ProviderUserUpdateRequest();
-      request.type = this.formGroup.value.type;
+      const request = new ProviderUserUpdateRequest({ type: this.formGroup.value.type });
       await this.apiService.putProviderUser(
         this.dialogParams.providerId,
         this.dialogParams.user.id,
         request,
       );
     } else {
-      const request = new ProviderUserInviteRequest();
-      request.emails = this.formGroup.value.emails.trim().split(/\s*,\s*/);
-      request.type = this.formGroup.value.type;
+      const request = new ProviderUserInviteRequest({
+        emails: this.formGroup.value.emails.trim().split(/\s*,\s*/),
+        type: this.formGroup.value.type,
+      });
       await this.apiService.postProviderUserInvite(this.dialogParams.providerId, request);
     }
 

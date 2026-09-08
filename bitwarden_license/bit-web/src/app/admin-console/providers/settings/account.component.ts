@@ -79,10 +79,11 @@ export class AccountComponent implements OnDestroy, OnInit {
     this.destroy$.complete();
   }
   submit = async () => {
-    const request = new ProviderUpdateRequest();
-    request.name = this.formGroup.value.providerName;
-    request.businessName = this.formGroup.value.providerName;
-    request.billingEmail = this.formGroup.value.providerBillingEmail;
+    const request = new ProviderUpdateRequest({
+      name: this.formGroup.value.providerName,
+      businessName: this.formGroup.value.providerName,
+      billingEmail: this.formGroup.value.providerBillingEmail,
+    });
 
     await this.providerApiService.putProvider(this.providerId, request);
     await this.syncService.fullSync(true);
