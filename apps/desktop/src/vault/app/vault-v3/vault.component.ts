@@ -122,12 +122,17 @@ import {
   cipherInScope,
   collectionInScope,
   FilterFunction,
+  hasMultipleVaults,
+  MY_ITEMS_ROUTE,
   organizationInScope,
+  organizationNameForScope,
   resolveVaultScope,
   scopedCollectionSegment,
   SharedFolderCardGridComponent,
+  sharedFolderNameForScope,
   VaultNavService,
   VaultScopeType,
+  defaultUserCollectionId,
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
@@ -277,6 +282,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     switchMap((id) => this.organizationService.organizations$(id)),
   );
 
+  /** The account's vaults nav view model — {@link vaultScope$} resolves against this. */
+  private readonly vaultNav$ = this.userId$.pipe(
+    switchMap((userId) => this.vaultNavService.viewModel$(userId)),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
   /**
    * The vault the `:vaultId` segment scopes this page to, and the shared folder within it the
    * route's collection segment has drilled into; always All items on the legacy nav.
@@ -284,11 +295,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private readonly vaultScope$ = this.vfo1Foundation$.pipe(
     switchMap((vfo1Foundation) =>
       vfo1Foundation
-        ? combineLatest([
-            this.route.paramMap,
-            this.route.data,
-            this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
-          ]).pipe(
+        ? combineLatest([this.route.paramMap, this.route.data, this.vaultNav$]).pipe(
             map(
               ([params, data, nav]) =>
                 resolveVaultScope(
@@ -306,6 +313,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   /** {@link vaultScope$} for the template — the card grid renders the folder it has drilled into. */
   protected readonly vaultScope = toSignal(this.vaultScope$, { initialValue: ALL_ITEMS_SCOPE });
 
+  /** {@link vaultNav$} as a signal for use in computed properties. */
+  private readonly vaultNav = toSignal(this.vaultNav$);
+
   /** The organization the page is pinned to, whichever nav the user is on. */
   protected readonly selectedOrganization$ = combineLatest([
     this.vfo1Foundation$,
@@ -321,6 +331,46 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return organizations?.find((org) => org.id === organizationId);
     }),
   );
+
+  /**
+   * Whether the scope is a vault an "empty vault" message makes sense for. Trash and Archive are
+   * not — an account with e.g. only one organization vault would otherwise show "No items in
+   * {org}" (and its Add item button) over an empty Trash or Archive, which is not a vault at all.
+   */
+  private readonly isVaultBrowsingScope$ = this.vaultScope$.pipe(
+    map((scope) => scope.type !== VaultScopeType.Trash && scope.type !== VaultScopeType.Archive),
+  );
+
+  /**
+   * The vault-scope display-name facts {@link EmptyVaultComponent} needs for its copy, relayed
+   * through `app-vault-list-table` untouched. Only meaningful once `vfo1Foundation` is on — see
+   * {@link vaultScope$} — the legacy nav renders its own empty states instead.
+   *
+   * Gated by {@link isVaultBrowsingScope$}: Trash and Archive are not vaults an "Add item" message
+   * makes sense for, even for an account these facts would otherwise resolve non-empty for.
+   */
+  protected readonly emptyVaultOrganizationName = toSignal(
+    combineLatest([this.vaultScope$, this.vaultNav$, this.isVaultBrowsingScope$]).pipe(
+      map(([scope, nav, browsing]) =>
+        browsing ? organizationNameForScope(scope, nav) : undefined,
+      ),
+    ),
+  );
+
+  protected readonly hasMultipleVaults = toSignal(
+    combineLatest([this.vaultNav$, this.isVaultBrowsingScope$]).pipe(
+      map(([nav, browsing]) => browsing && hasMultipleVaults(nav)),
+    ),
+    { initialValue: false },
+  );
+
+  protected readonly defaultCollectionId = computed(() => {
+    const scope = this.vaultScope();
+    if (scope.type !== VaultScopeType.Organization) {
+      return undefined;
+    }
+    return defaultUserCollectionId(scope.organizationId, this.vaultNav());
+  });
 
   protected readonly showAddCipherBtn$ = combineLatest([
     this.vfo1Foundation$,
@@ -362,6 +412,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected scopedOrganizations: Organization[] = [];
   protected scopedCollections: CollectionView[] = [];
   protected collectionsToDisplay: CollectionView[] = [];
+
+  /**
+   * The shared folder the current vault scope has drilled into, by name — relayed through
+   * `app-vault-list-table` to {@link EmptyVaultComponent} untouched. `undefined` outside an
+   * organization vault's shared-folder route, or while `vfo1Foundation` is off.
+   */
+  protected emptySharedFolderName?: string;
 
   protected readonly searchPlaceholderText = computed(() =>
     this.i18nService.t(this.calculateSearchBarLocalizationString(this.activeFilter())),
@@ -685,6 +742,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.scopedCollections = vfo1Foundation
             ? allCollections.filter((collection) => collectionInScope(collection, scope))
             : allCollections;
+          this.emptySharedFolderName = vfo1Foundation
+            ? sharedFolderNameForScope(scope, this.scopedCollections)
+            : undefined;
           this.scopedOrganizations = vfo1Foundation
             ? allOrganizations.filter((organization) => organizationInScope(organization, scope))
             : allOrganizations;
@@ -860,7 +920,17 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     let collectionIds: CollectionId[] = [];
     let folderId: string | undefined;
 
-    if (activeFilter.collectionId != null) {
+    if (this.vfo1Foundation()) {
+      // VFO1 routes can scope to an organization and optionally to a collection within it —
+      // see `vaultScope$`.
+      const scope = this.vaultScope();
+      if (scope.type === VaultScopeType.Organization) {
+        organizationId = scope.organizationId;
+        if (scope.collectionId != null && scope.collectionId !== MY_ITEMS_ROUTE) {
+          collectionIds = [scope.collectionId];
+        }
+      }
+    } else if (activeFilter.collectionId != null) {
       const collection = this.allCollections.find((c) => c.id === activeFilter.collectionId);
       if (collection) {
         organizationId = collection.organizationId as OrganizationId;
