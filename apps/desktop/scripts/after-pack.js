@@ -51,7 +51,7 @@ async function doBuild(context) {
   }
 
   // TODO: Update this to isTargetArch, and remove resetAdHocDarwinSignature parameter below.
-  if (context.packager.platform.nodeName !== "darwin" || context.arch === builder.Arch.universal) {
+  if (isTargetArch) {
     await addElectronFuses(context);
   }
 
@@ -200,7 +200,6 @@ async function addElectronFuses(context) {
   await flipFuses(electronBinaryPath, {
     version: FuseVersion.V1,
     strictlyRequireAllFuses: true,
-    resetAdHocDarwinSignature: platform === "darwin" && context.arch === builder.Arch.universal,
 
     // List of fuses and their default values is available at:
     // https://www.electronjs.org/docs/latest/tutorial/fuses
