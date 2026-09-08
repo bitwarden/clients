@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input, signal } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
@@ -131,16 +131,6 @@ export class ByLinkTabComponent {
       }
 
       if (this.showCoachMarks() && inviteLink == null && !this.tourStarted()) {
-        this.tourStarted.set(true);
-        this.tourStep.set(1);
-      }
-    });
-
-    effect(() => {
-      if (!this.showCoachMarks()) {
-        this.tourStep.set(0);
-        this.tourStarted.set(false);
-      } else if (!this.tourStarted()) {
         this.tourStarted.set(true);
         this.tourStep.set(1);
       }
