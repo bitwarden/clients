@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { SendFileView as SdkSendFileView } from "@bitwarden/sdk-internal";
+
 import { View } from "../../../../models/view/view";
 import { DeepJsonify } from "../../../../types/deep-jsonify";
 import { SendFile } from "../domain/send-file";
@@ -37,5 +39,14 @@ export class SendFileView implements View {
     }
 
     return Object.assign(new SendFileView(), json);
+  }
+
+  static fromSdk(obj?: SdkSendFileView): SendFileView {
+    const view = new SendFileView();
+    view.id = obj?.id;
+    view.fileName = obj?.fileName;
+    view.size = obj?.size;
+    view.sizeName = obj?.sizeName;
+    return view;
   }
 }

@@ -2,11 +2,30 @@
   "bitwarden": {
     "message": "Bitwarden"
   },
+  "bitwardenBeta": {
+    "message": "Bitwarden Beta",
+    "description": "Product name for the beta channel; shown in the tray tooltip and About dialog"
+  },
   "filters": {
     "message": "筛选"
   },
   "allItems": {
     "message": "所有项目"
+  },
+  "allVaultItems": {
+    "message": "所有密码库项目"
+  },
+  "myItemsV2": {
+    "message": "My items"
+  },
+  "vaults": {
+    "message": "密码库"
+  },
+  "tools": {
+    "message": "工具"
+  },
+  "manage": {
+    "message": "管理"
   },
   "favorites": {
     "message": "收藏夹"
@@ -113,6 +132,48 @@
   "sharedFolders": {
     "message": "共享文件夹"
   },
+  "sharedFoldersInParent": {
+    "message": "$NAME$ 中的共享文件夹",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ 个共享文件夹",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ 个共享文件夹",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "此按钮上方还显示了 $COUNT$ 个共享文件夹",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "此按钮上方还显示了 1 个共享文件夹",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "我的文件夹"
   },
@@ -121,6 +182,9 @@
   },
   "foldersFilterTooltip": {
     "message": "将文件夹添加到项目以在此处筛选它们。"
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "将项目添加到共享文件夹以在此处筛选它们。"
   },
   "addSharedFolder": {
     "message": "添加共享文件夹"
@@ -1172,6 +1236,24 @@
   "editFolder": {
     "message": "编辑文件夹"
   },
+  "editFolderNamed": {
+    "message": "编辑 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "删除 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "regeneratePassword": {
     "message": "重新生成密码"
   },
@@ -1355,11 +1437,41 @@
   "addedFolder": {
     "message": "文件夹已添加"
   },
+  "folderEdited": {
+    "message": "文件夹已编辑"
+  },
+  "enterAName": {
+    "message": "输入名称。"
+  },
   "deleteFolderConfirmation": {
     "message": "确定要删除此文件夹吗？"
   },
   "deletedFolder": {
     "message": "文件夹已删除"
+  },
+  "foldersDeleted": {
+    "message": "文件夹已删除"
+  },
+  "deleteFoldersCount": {
+    "message": "删除 $COUNT$ 个文件夹",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "当您删除文件夹 $NAME$ 时，它将被从它应用到的每个项目中移除。项目本身不会被删除。",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "当您删除这些文件夹时，它们将被从它们应用到的每个项目中移除。项目本身不会被删除。"
   },
   "loginOrCreateNewAccount": {
     "message": "登录或创建一个新账户以访问您的安全密码库。"
@@ -1669,7 +1781,7 @@
     "message": "自托管环境"
   },
   "selfHostedBaseUrlHint": {
-    "message": "指定您的本地托管 Bitwarden 安装的基础 URL。例如：https://bitwarden.company.com"
+    "message": "指定您的本地托管 Bitwarden 安装的基础 URL。示例：https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
     "message": "对于高级配置，您可以单独指定每个服务的基础 URL。"
@@ -2302,6 +2414,18 @@
   },
   "noMatchingItems": {
     "message": "没有匹配的项目"
+  },
+  "noFiltersMatch": {
+    "message": "没有匹配「$SEARCH$」的筛选",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "清除搜索"
   },
   "selected": {
     "message": "已选择"
@@ -3471,7 +3595,7 @@
     "message": "没有共享文件夹"
   },
   "filterByName": {
-    "message": "筛选为 $NAME$",
+    "message": "按 $NAME$ 筛选",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -4590,6 +4714,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "有关 $NAME$ 的详细说明，请参阅我们的",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "帮助中心"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "此过程与从 Google Chrome 导入完全相同。",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "使用 KeePassX 桌面应用程序，导航到「Database」→「Export to CSV file」，然后保存 CSV 文件。"
+  },
+  "importAviraInstructions": {
+    "message": "在 Avira 网页密码库中，前往「Settings」→「My Data」→「Export data」，然后保存 CSV 文件。"
+  },
+  "importBlurInstructions": {
+    "message": "在 Blur 网页密码库中，点击顶部您的用户名，然后前往「Settings」→「Export Data」，然后点击您的「Accounts」对应的「Export CSV」。"
+  },
+  "importSafeincloudInstructions": {
+    "message": "使用 SafeInCloud 桌面应用程序，导航到「File」→「Export」→「As XML」，然后保存 XML 文件。"
+  },
+  "importPadlockInstructions": {
+    "message": "使用 Padlock 桌面应用程序，点击左上角的汉堡图标并导航到「Settings」→「Export」按钮，然后将文件保存为「As CSV」。"
+  },
+  "importKeepass2Instructions": {
+    "message": "使用 KeePass 2 桌面应用程序，导航到「File」→「Export」，然后选择「KeePass XML (2.x)」选项。"
+  },
+  "importUpmInstructions": {
+    "message": "使用 Universal Password Manager 桌面应用程序，导航到「Database」→「Export」，然后保存 CSV 文件。"
+  },
+  "importSaferpassInstructions": {
+    "message": "使用 SaferPass 浏览器扩展，点击左上角的汉堡图标并导航到「Settings」。点击「Export accounts」按钮以保存 CSV 文件。"
+  },
+  "importMeldiumInstructions": {
+    "message": "使用 Meldium 网页密码库，导航到「Settings」。定位到「Export data」功能，然后点击「Show me my data」以保存 CSV 文件。"
+  },
+  "importPassworddragonInstructions": {
+    "message": "使用 Password Dragon 桌面应用程序，导航到「File」→「Export」→「To XML」。在弹出的对话框中，选择「All Rows」并检查所有字段。点击「Export」按钮，然后保存 XML 文件。"
+  },
+  "importEnpassCsvInstructions": {
+    "message": "使用 Enpasks 桌面应用程序，导航到「File」→「Export」→「As CSV」。在弹出的警告提示中选择「OK」，然后保存 CSV 文件。注意：导入器仅支持在 Enpass 语言设置为英语时导出的文件，因此请相应地调整您的设置。"
+  },
+  "importEnpassJsonInstructions": {
+    "message": "使用 Enpask 6 桌面应用程序，点击菜单按钮，然后导航到「File」→「Export」。选择「.json」文件格式选项，然后保存 JSON 文件。"
+  },
+  "importPwsafeInstructions": {
+    "message": "使用 Password Safe 桌面应用程序，导航到「File」→「Export To」→「XML format...」，然后保存 XML 文件。"
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "登录到 Dashlane，点击「My Account」→「Settings」→「Export file」，然后选择「Export as a CSV file」。这将下载一个包含多个 CSV 文件的 zip 压缩包。解压该压缩包，然后逐一导入每个 CSV 文件。"
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane 不再支持 JSON 格式。仅当您已有可用于导入的 JSON 文件时，才使用此格式。创建新导出时请使用 CSV 导入器。"
+  },
+  "importMsecureInstructions": {
+    "message": "使用 mSecure 桌面应用程序，导航到「File」→「Export」→「CSV File...」，然后保存 CSV 文件。"
+  },
+  "importStickypasswordInstructions": {
+    "message": "使用 Sticky Password 桌面应用程序，导航到「Menu」（右上角）→「Export」→「Export all」。选择未加密格式 XML 选项，然后保存 XML 文件。"
+  },
+  "importTruekeyInstructions": {
+    "message": "使用 True Key 桌面应用程序，点击齿轮图标（右上角），然后导航到「App Settings」。点击「Export」按钮，输入您的密码，然后保存 CSV 文件。"
+  },
+  "importClipperzInstructions": {
+    "message": "登录到 Clipperz 网页应用程序 (clipperz.is/app)。点击右上角的汉堡菜单图标以展开导航栏。导航到「Data」→「Export」。点击「download HTML+JSON」按钮以保存 HTML 文件。"
+  },
+  "importRoboformInstructions": {
+    "message": "使用 RoboForm Editor 桌面应用程序，导航到「RoboForm」（左上角）→「Options」→「Account & Data」，然后点击「Export」按钮。选择您的所有数据，将「Format」更改为「CSV file」，然后点击「Export」按钮以保存 CSV 文件。注意：RoboForm 仅允许您导出登录，其他项目将不会被导出。"
+  },
+  "importPassboltInstructions": {
+    "message": "登录到 Passbolt 网页密码库，然后导航到「Passwords」列表。选择您想要导出的所有密码，然后点击列表顶部的「Export」按钮。选择「csv (lastpass)」导出格式，然后点击「Export」按钮。"
+  },
+  "importAscendoInstructions": {
+    "message": "使用 Ascendo DataVault 桌面应用程序，导航到「Tools」→「Export」。在弹出的对话框中，选择「All Items (DVX, CSV)」选项。单击「Ok」按钮以保存 CSV 文件。"
+  },
+  "importPasswordbossInstructions": {
+    "message": "使用 Password Boss 桌面应用程序，导航到「File」→「Export data」→「Password Boss JSON - not encrypted」，然后保存 JSON 文件。"
+  },
+  "importZohoInstructions": {
+    "message": "登录到 Zoho 网页密码库 (vault.zoho.com)。导航到「Tools」→「Export Secrets」。选择「All Secrets」，然后点击「Zoho Vault Format CSV」按钮。选中并复制文本区域中的数据。打开如 Notepad 之类的文本编辑器并粘贴数据。将文本编辑器中的数据另存为",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "使用 SplashID Safe 桌面应用程序，点击右上角的 SplashID 蓝色锁形标识。导航到「Export」→「Export as CSV」，然后保存 CSV 文件。"
+  },
+  "importPasskeepInstructions": {
+    "message": "使用 PassCond 移动 App，导航到「Backup/Restore」。定位到「CSV Backup/Restore」部分，然后点击「Backup to CSV」以保存 CSV 文件。"
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "请确保您已安装 python-keyring 和 python-gnomekeyring。将",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "GNOME Keyring 导入/导出"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "Python 脚本保存到您的桌面为",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": "。打开终端并运行",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "然后运行",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": "。然后将生成的",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "文件上传到 Bitwarden。",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "使用 Password Agent 桌面应用程序导航到「File」→「Export」，选择「Fields to export」按钮并检查所有字段。将「Output format」更改为「CSV」，然后点击「Start」按钮以保存 CSV 文件。"
+  },
+  "importPasspackInstructions": {
+    "message": "登录到 Passpack 网站密码库，然后导航到「Settings」→「Export」，然后点击「Download」按钮以保存 CSV 文件。"
+  },
+  "importPassmanInstructions": {
+    "message": "打开您的 Passman 密码库，然后点击左下角的「Settings」。在「Settings」窗口中，切换到「Export credentials」选项卡并选择「JSON」作为导出类型。输入您的密码库口令并点击「Export」按钮以保存 JSON 文件。"
+  },
+  "importAvastCsvInstructions": {
+    "message": "打开 Avast Passwords 桌面应用程序，然后导航到「Settings」→「Import/export data」。选择「Export to CSV file」选项对应的「Export」按钮以保存 CSV 文件。"
+  },
+  "importAvastJsonInstructions": {
+    "message": "打开 Avast Passwords 桌面应用程序，然后导航到「Settings」→「Import/export data」。选择「Export to JSON file」选项对应的「Export」按钮以保存 JSON 文件。"
+  },
+  "importFsecureInstructions": {
+    "message": "打开 F-Secure KEY 桌面应用程序，然后导航到「Settings」→「Export Passwords」。选择「Export」按钮，输入您的主密码，然后保存 FSK 文件。"
+  },
+  "importKasperskyInstructions": {
+    "message": "打开 Kaspersky Password Manager 桌面应用程序，然后导航到「Settings」→「Import/Export」。定位到「Export to text file」部分，然后选择「Export」按钮以保存 TXT 文件。"
+  },
+  "importRemembearInstructions": {
+    "message": "打开 RememBear 桌面应用程序，然后导航到「Settings」→「Account」→「Export」。输入您的主密码，然后选择「Export Anyway」按钮以保存 CSV 文件。"
+  },
+  "importPasswordwalletInstructions": {
+    "message": "打开 PasswordWallet 桌面应用程序，然后导航到「File」→「Export」→「Visible entries to text file」。输入您的密码，然后选择「Ok」按钮以保存 TXT 文件。"
+  },
+  "importMykiInstructions": {
+    "message": "打开 Myki 桌面浏览器扩展，然后导航到「Advanced」→「Export Accounts」，然后使用您的移动设备扫描二维码。多个 CSV 文件将被保存到您计算机的下载文件夹。"
+  },
+  "importSecuresafeInstructions": {
+    "message": "将您的 SecureSafe password safe 导出为以逗号分隔的 CSV 文件。"
+  },
+  "importLogmeonceInstructions": {
+    "message": "打开 LogMeOne 浏览器扩展，然后导航到「Open Menu」→「Export To」，然后选择「CSV File」以保存 CSV 文件。"
+  },
+  "importBlackberryInstructions": {
+    "message": "打开 BlackBerry Password Keeper 应用程序，然后导航到「Settings」→「Import/Export」。选择「Export Passwords」并按照屏幕上的说明保存未加密的 CSV 文件。"
+  },
+  "importButtercupInstructions": {
+    "message": "打开 Buttercup 桌面应用程序并解锁您的密码库。右键点击您的密码库图标并选择「Export」以保存 CSV 文件。"
+  },
+  "importCodebookInstructions": {
+    "message": "打开 CodeBook 桌面应用程序并登录。导航到「File」→「Export all」，然后点击对话框上的「Yes」并保存 CSV 文件。"
+  },
+  "importEncryptrInstructions": {
+    "message": "打开最新版本的 Encryptr 桌面应用程序，并允许所有数据同步。数据同步完成后，右上角的下载图标将变成粉色。点击下载图标，然后保存 CSV 文件。"
+  },
+  "importYotiInstructions": {
+    "message": "在 Yoti 浏览器扩展中，点击「Settings」，然后点击「Export Saved Logins」并保存 CSV 文件。"
+  },
+  "importPsonoInstructions": {
+    "message": "登录到 Psono 网页密码库，点击「Signed in as」下拉菜单，选择「Others」。前往「Export」选项卡并选择 json 类型的导出，然后点击「Export」。"
+  },
+  "importPasskyInstructions": {
+    "message": "登录到「https://vault.passky.org」→「Import & Export」→ 选择 Passky 部分中的「Export」（不支持「Backup」，因为它是加密的）。"
+  },
+  "importProtonpassInstructions": {
+    "message": "在 ProtonPass 浏览器扩展中，前往「Settings」→「Export」。选择「Export without PGP encryption」，然后保存 zip 文件。"
+  },
+  "importPasswordxpInstructions": {
+    "message": "选择「Database」→「Export to file...」菜单 → 在导出选项中，确保文件夹名称和列标题被选中 → 按下「Browse...」按钮，然后选择目标文件并将其类型设置为 CSV 文件。"
+  },
+  "importNetwrixInstructions": {
+    "message": "打开 FullClient，前往主菜单然后选择「Export」。启动导出密码向导，然后遵循说明导出 CSV 文件。"
+  },
+  "importNordpassInstructions": {
+    "message": "登录到 NordPass，然后打开「Settings」→ 向下滚动到「Import and Export」部分并选择「Export」→ 输入您的主密码并选择「Continue」→ 保存 CSV 文件到您的设备上。"
+  },
+  "importPassworddepot17Instructions": {
+    "message": "在桌面应用程序中，前往「Tools」→「Export」→ 输入您的主密码 → 选择「XML Format (*.xml)」作为导出格式 → 点击下一步 → 选择要包含在导出文件中的条目 → 点击下一步以导出到之前选择的位置。"
+  },
+  "importDelineaInstructions": {
+    "message": "登录到 Delinea，搜索「Import/Export」→ 选择「Export」→ 选择「XML」作为导出格式 → 选择「QuantumLock」作为验证器类型 → 输入您的密码，然后选择「Export」以保存 XML 文件。"
+  },
+  "importDelineaCsvInstructions": {
+    "message": "登录到 Delinea，搜索「Import/Export」→ 选择「Export」→ 选择「CSV」作为导出格式 → 选择「QuantumLock」作为验证器类型 → 输入您的密码，然后选择「Export」以保存 CSV 文件。"
+  },
   "confirmVaultImport": {
     "message": "确认密码库导入"
   },
@@ -4703,10 +5028,6 @@
   },
   "browserProfile": {
     "message": "浏览器配置文件"
-  },
-  "seeDetailedInstructions": {
-    "message": "请参阅我们的帮助网站上的详细说明：",
-    "description": "This is followed a by a hyperlink to the help website."
   },
   "importDirectlyFromLastPass": {
     "message": "从 LastPass 直接导入"
@@ -5177,13 +5498,13 @@
     "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
   },
   "passkeyLogin2": {
-    "message": "Log in with passkey"
+    "message": "使用通行密钥登录"
   },
   "savePasskeyQuestion": {
     "message": "保存通行密钥吗？"
   },
   "savePasskey": {
-    "message": "Save passkey"
+    "message": "保存通行密钥"
   },
   "saveNewPasskey": {
     "message": "保存为新的登录"
@@ -5199,7 +5520,7 @@
     "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
   },
   "overwritePasskey2": {
-    "message": "Overwrite passkey"
+    "message": "覆盖通行密钥"
   },
   "unableToSavePasskey": {
     "message": "无法保存通行密钥"
@@ -5593,6 +5914,15 @@
   "showMore": {
     "message": "显示更多"
   },
+  "showMoreCount": {
+    "message": "再显示 $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "showLess": {
     "message": "显示更少"
   },
@@ -5963,6 +6293,12 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "清除筛选或尝试其他搜索词"
+  },
+  "noSharedFoldersAdded": {
+    "message": "未添加任何共享文件夹"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "添加共享文件夹以安全地与其他成员共享密码库项目。"
   },
   "sendPasswordHelperText": {
     "message": "个人需要输入密码才能查看此 Send",
@@ -6404,5 +6740,20 @@
         "example": "user@acme.com"
       }
     }
+  },
+  "permissions": {
+    "message": "权限"
+  },
+  "viewItems": {
+    "message": "查看项目"
+  },
+  "viewItemsHidePass": {
+    "message": "查看项目，隐藏密码"
+  },
+  "editItems": {
+    "message": "编辑项目"
+  },
+  "editItemsHidePass": {
+    "message": "编辑项目，隐藏密码"
   }
 }
