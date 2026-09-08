@@ -32,14 +32,10 @@ import { TabsV2Component } from "./tabs-v2.component";
 import "../platform/popup/locales";
 
 /**
- * Root module for the popup.
- *
- * `imports` is deliberately minimal. It used to list a dozen standalone route components
- * (AutofillComponent, AccountSecurityComponent, ExtensionAnonLayoutWrapperComponent, ...) that
- * neither AppComponent nor TabsV2Component reference in their templates. Because an NgModule's
- * imports are eager, those entries pinned the whole routed surface into the startup bundle and
- * made the `loadComponent` routes in AppRoutingModule pointless. Only add a component here if
- * one of the two declared templates actually uses it; routed screens belong in the router.
+ * `imports` is deliberately minimal: an NgModule's imports are eager, so listing a routed
+ * screen here pins it into the startup bundle and defeats the `loadComponent` routes in
+ * AppRoutingModule. Only add a component if AppComponent or TabsV2Component uses it in a
+ * template; routed screens belong in the router.
  */
 @NgModule({
   imports: [

@@ -11,17 +11,13 @@ import { BrowserKeeperSsoTabMonitor } from "./browser-keeper-sso-tab-monitor";
 import { ImportBrowserV2Component } from "./import-browser-v2.component";
 
 /**
- * Routes for the import screen, kept in their own lazily loaded file.
+ * Routes for the import screen, in their own lazily loaded file.
  *
- * `KEEPER_SSO_TAB_MONITOR` used to be provided by `AppModule`, which meant `AppModule` imported
- * `@bitwarden/importer-ui` for the token alone. That barrel re-exports `ImportComponent`, so the
- * entire importer -- every third-party CSV/JSON importer, plus jszip and papaparse -- was pulled
- * into the popup's startup bundle just to register one provider. Route `providers` are evaluated
- * when the route config is built, so declaring it here rather than in `app-routing.module.ts` is
- * what actually keeps the import off the critical path.
- *
- * The token is only injected by `KeeperDirectImportUiService`, which lives inside
- * `ImportComponent`'s provider scope, so a route-level provider is close enough to reach it.
+ * Route `providers` are evaluated when the route config is built, so `KEEPER_SSO_TAB_MONITOR`
+ * has to be declared here rather than in `app-routing.module.ts` -- otherwise registering it
+ * pulls `@bitwarden/importer-ui`, and the `ImportComponent` it re-exports, onto the popup's
+ * startup path. The token is only injected by `KeeperDirectImportUiService`, which lives inside
+ * `ImportComponent`'s provider scope, so a route-level provider reaches it.
  */
 export const importRoutes: Routes = [
   {

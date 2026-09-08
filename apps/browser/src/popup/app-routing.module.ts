@@ -67,11 +67,6 @@ import { debounceNavigationGuard } from "./services/debounce-navigation.service"
 /**
  * Lazily loaded route components.
  *
- * The popup previously pulled every routed screen into its startup bundle, so opening it
- * compiled and evaluated the whole extension -- all 126 third-party importers included --
- * before it could render anything. Each entry below becomes its own webpack chunk, fetched
- * only when the route is actually visited.
- *
  * Components reached through a barrel-only path mapping (`@bitwarden/auth/angular`,
  * `@bitwarden/components`) are deliberately absent: this module also needs guards and types
  * from those same barrels synchronously, so webpack keeps them in the initial chunk regardless

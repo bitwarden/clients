@@ -3,18 +3,15 @@
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 
 /**
- * Caches the resolved theme so the popup's loading state can be painted in the right
- * theme before Angular bootstraps.
+ * Caches the resolved theme so the popup's loading state can be painted in the right theme
+ * before Angular bootstraps.
  *
- * The configured theme lives in `chrome.storage`, which is only readable asynchronously and
- * only after the app bundles have loaded. Until then the popup renders with no theme class,
- * which resolves to the light theme — so dark-theme users get a white flash. `localStorage`
- * is synchronous and available on the first line of script, so a cached copy lets the very
- * first frame use the correct theme. Same approach as the cached popup width in
- * {@link PopupSizeService.initBodyWidthFromLocalStorage}.
+ * The configured theme lives in `chrome.storage`, readable only asynchronously and only once
+ * the app bundles have loaded. Until then the popup has no theme class and resolves to the
+ * light theme, which is a white flash for dark-theme users. Same approach as the cached popup
+ * width in {@link PopupSizeService.initBodyWidthFromLocalStorage}.
  */
 
-/** localStorage key used to cache the last resolved theme. */
 export const POPUP_THEME_STORAGE_KEY = "bw-popup-theme";
 
 /**

@@ -48,8 +48,7 @@ export class InitService {
 
       const htmlEl = window.document.documentElement;
       this.themingService.applyThemeChangesTo(this.document);
-      // Cache the resolved theme so the next popup open can paint its loading state in the
-      // right theme before this service has had a chance to run.
+      // Cache the resolved theme so the next popup open can paint in it before this runs.
       const themeCacheSubscription = this.themingService.theme$.subscribe(cacheTheme);
       this.destroyRef.onDestroy(() => themeCacheSubscription.unsubscribe());
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
