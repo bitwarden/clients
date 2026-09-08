@@ -261,7 +261,9 @@ export class OrganizationWarningsService {
 
   showSubscribeBeforeFreeTrialEndsDialog$ = (organization: Organization): Observable<void> =>
     this.getWarning$(organization, (response) => response.freeTrial).pipe(
-      filter((warning) => warning !== null),
+      // Sales-assisted trials are invoiced through the customer's sales representative,
+      // so the self-serve payment modal does not apply.
+      filter((warning) => warning !== null && !warning.isSalesAssisted),
       switchMap(async () => {
         const account = await firstValueFrom(this.accountService.activeAccount$);
         if (!account) {
