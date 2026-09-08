@@ -41,6 +41,12 @@ describe("BillingConstraintService", () => {
       configurable: true,
     });
 
+    Object.defineProperty(org, "hasBillableProvider", {
+      value: false,
+      writable: true,
+      configurable: true,
+    });
+
     Object.defineProperty(org, "canEditSubscription", {
       value: true,
       writable: true,
@@ -127,7 +133,7 @@ describe("BillingConstraintService", () => {
       expect(result).toEqual({ canAddUsers: true });
     });
 
-    it("should block users with reseller-limit reason when organization has reseller", () => {
+    it("should block users with provider-limit reason when organization has reseller", () => {
       const organization = createMockOrganization({
         seats: 10,
         hasReseller: true,
@@ -138,7 +144,22 @@ describe("BillingConstraintService", () => {
 
       expect(result).toEqual({
         canAddUsers: false,
-        reason: "reseller-limit",
+        reason: "provider-limit",
+      });
+    });
+
+    it("should block users with provider-limit reason when organization has a billable provider", () => {
+      const organization = createMockOrganization({
+        seats: 10,
+        hasBillableProvider: true,
+      });
+      const billingMetadata = createMockBillingMetadata({ organizationOccupiedSeats: 10 });
+
+      const result = service.checkSeatLimit(organization, billingMetadata);
+
+      expect(result).toEqual({
+        canAddUsers: false,
+        reason: "provider-limit",
       });
     });
 
@@ -198,9 +219,9 @@ describe("BillingConstraintService", () => {
       expect(seatLimitReached).toBe(false);
     });
 
-    it("should show toast and return true for reseller-limit", async () => {
-      const result: SeatLimitResult = { canAddUsers: false, reason: "reseller-limit" };
-      const organization = createMockOrganization();
+    it("should show toast and return true for provider-limit", async () => {
+      const result: SeatLimitResult = { canAddUsers: false, reason: "provider-limit" };
+      const organization = createMockOrganization({ seats: 10 });
 
       const seatLimitReached = await service.seatLimitReached(result, organization);
 
@@ -209,12 +230,76 @@ describe("BillingConstraintService", () => {
         title: "translated-text",
         message: "translated-text",
       });
-      expect(i18nService.t).toHaveBeenCalledWith("seatLimitReached");
-      expect(i18nService.t).toHaveBeenCalledWith("contactYourProvider");
+      expect(i18nService.t).toHaveBeenCalledWith("errorOccurred");
+      expect(i18nService.t).toHaveBeenCalledWith("seatLimitReachedContactProvider", 10);
       expect(seatLimitReached).toBe(true);
     });
 
-    it("should return true when upgrade dialog is cancelled", async () => {
+    it("should open the change-plan dialog on invite when the admin can manage billing", async () => {
+      const result: SeatLimitResult = {
+        canAddUsers: false,
+        reason: "fixed-seat-limit",
+        shouldShowUpgradeDialog: true,
+      };
+      const organization = createMockOrganization({
+        canEditSubscription: true,
+        seats: 10,
+      });
+      const mockDialogRef = { closed: of(ChangePlanDialogResultType.Closed) };
+      (openChangePlanDialog as jest.Mock).mockReturnValue(mockDialogRef);
+
+      const seatLimitReached = await service.seatLimitReached(result, organization, "invite");
+
+      expect(openChangePlanDialog).toHaveBeenCalledWith(dialogService, {
+        data: {
+          organizationId: organization.id,
+          productTierType: organization.productTierType,
+        },
+      });
+      expect(toastService.showToast).not.toHaveBeenCalled();
+      expect(seatLimitReached).toBe(true);
+    });
+
+    it("should not block the invite when the change-plan dialog is submitted", async () => {
+      const result: SeatLimitResult = {
+        canAddUsers: false,
+        reason: "fixed-seat-limit",
+        shouldShowUpgradeDialog: true,
+      };
+      const organization = createMockOrganization({ canEditSubscription: true, seats: 10 });
+      const mockDialogRef = { closed: of(ChangePlanDialogResultType.Submitted) };
+      (openChangePlanDialog as jest.Mock).mockReturnValue(mockDialogRef);
+
+      const seatLimitReached = await service.seatLimitReached(result, organization, "invite");
+
+      expect(seatLimitReached).toBe(false);
+    });
+
+    it("should show a contact-owner toast on invite when the admin cannot manage billing", async () => {
+      const result: SeatLimitResult = {
+        canAddUsers: false,
+        reason: "fixed-seat-limit",
+        shouldShowUpgradeDialog: false,
+      };
+      const organization = createMockOrganization({
+        canEditSubscription: false,
+        seats: 10,
+      });
+
+      const seatLimitReached = await service.seatLimitReached(result, organization, "invite");
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "translated-text",
+        message: "translated-text",
+      });
+      expect(i18nService.t).toHaveBeenCalledWith("errorOccurred");
+      expect(i18nService.t).toHaveBeenCalledWith("seatLimitReachedContactOwner", 10);
+      expect(dialogService.openSimpleDialogRef).not.toHaveBeenCalled();
+      expect(seatLimitReached).toBe(true);
+    });
+
+    it("should return true when the restore change-plan dialog is cancelled", async () => {
       const result: SeatLimitResult = {
         canAddUsers: false,
         reason: "fixed-seat-limit",
@@ -224,7 +309,7 @@ describe("BillingConstraintService", () => {
       const mockDialogRef = { closed: of(ChangePlanDialogResultType.Closed) };
       (openChangePlanDialog as jest.Mock).mockReturnValue(mockDialogRef);
 
-      const seatLimitReached = await service.seatLimitReached(result, organization);
+      const seatLimitReached = await service.seatLimitReached(result, organization, "restore");
 
       expect(openChangePlanDialog).toHaveBeenCalledWith(dialogService, {
         data: {
@@ -235,7 +320,7 @@ describe("BillingConstraintService", () => {
       expect(seatLimitReached).toBe(true);
     });
 
-    it("should return false when upgrade dialog is submitted", async () => {
+    it("should return false when the restore change-plan dialog is submitted", async () => {
       const result: SeatLimitResult = {
         canAddUsers: false,
         reason: "fixed-seat-limit",
@@ -245,12 +330,12 @@ describe("BillingConstraintService", () => {
       const mockDialogRef = { closed: of(ChangePlanDialogResultType.Submitted) };
       (openChangePlanDialog as jest.Mock).mockReturnValue(mockDialogRef);
 
-      const seatLimitReached = await service.seatLimitReached(result, organization);
+      const seatLimitReached = await service.seatLimitReached(result, organization, "restore");
 
       expect(seatLimitReached).toBe(false);
     });
 
-    it("should show seat limit dialog when shouldShowUpgradeDialog is false", async () => {
+    it("should show seat limit restore dialog when shouldShowUpgradeDialog is false", async () => {
       const result: SeatLimitResult = {
         canAddUsers: false,
         reason: "fixed-seat-limit",
@@ -261,7 +346,7 @@ describe("BillingConstraintService", () => {
         productTierType: ProductTierType.Free,
       });
 
-      const seatLimitReached = await service.seatLimitReached(result, organization);
+      const seatLimitReached = await service.seatLimitReached(result, organization, "restore");
 
       expect(dialogService.openSimpleDialogRef).toHaveBeenCalled();
       expect(seatLimitReached).toBe(true);
@@ -294,12 +379,12 @@ describe("BillingConstraintService", () => {
       expect(i18nService.t).toHaveBeenCalledWith("freeOrgRestoreLimitReachedNoManageBilling", 5);
       expect(i18nService.t).not.toHaveBeenCalledWith("upgradeOrganization");
       expect(i18nService.t).not.toHaveBeenCalledWith(
-        "freeOrgInvLimitReachedNoManageBilling",
+        "seatLimitReachedContactOwner",
         expect.anything(),
       );
     });
 
-    it("should default to invite-specific content and title when no action is provided", async () => {
+    it("should default to the invite toast behavior when no action is provided", async () => {
       const result: SeatLimitResult = {
         canAddUsers: false,
         reason: "fixed-seat-limit",
@@ -313,8 +398,8 @@ describe("BillingConstraintService", () => {
 
       await service.seatLimitReached(result, organization);
 
-      expect(i18nService.t).toHaveBeenCalledWith("upgradeOrganization");
-      expect(i18nService.t).toHaveBeenCalledWith("freeOrgInvLimitReachedNoManageBilling", 5);
+      expect(i18nService.t).toHaveBeenCalledWith("seatLimitReachedContactOwner", 5);
+      expect(dialogService.openSimpleDialogRef).not.toHaveBeenCalled();
       expect(i18nService.t).not.toHaveBeenCalledWith("cannotRestoreAccessError");
     });
   });
@@ -348,9 +433,9 @@ describe("BillingConstraintService", () => {
           seats: 5,
         });
 
-        await service.seatLimitReached(result, organization);
+        await service.seatLimitReached(result, organization, "restore");
 
-        expect(i18nService.t).toHaveBeenCalledWith("freeOrgInvLimitReachedNoManageBilling", 5);
+        expect(i18nService.t).toHaveBeenCalledWith("freeOrgRestoreLimitReachedNoManageBilling", 5);
       });
 
       it("should get correct dialog content for TeamsStarter organization", async () => {
@@ -365,10 +450,10 @@ describe("BillingConstraintService", () => {
           seats: 3,
         });
 
-        await service.seatLimitReached(result, organization);
+        await service.seatLimitReached(result, organization, "restore");
 
         expect(i18nService.t).toHaveBeenCalledWith(
-          "teamsStarterPlanInvLimitReachedNoManageBilling",
+          "teamsStarterPlanRestoreLimitReachedNoManageBilling",
           3,
         );
       });
@@ -385,9 +470,12 @@ describe("BillingConstraintService", () => {
           seats: 6,
         });
 
-        await service.seatLimitReached(result, organization);
+        await service.seatLimitReached(result, organization, "restore");
 
-        expect(i18nService.t).toHaveBeenCalledWith("familiesPlanInvLimitReachedNoManageBilling", 6);
+        expect(i18nService.t).toHaveBeenCalledWith(
+          "familiesPlanRestoreLimitReachedNoManageBilling",
+          6,
+        );
       });
 
       it("should throw error for unsupported product type in getProductKey", async () => {
@@ -401,7 +489,7 @@ describe("BillingConstraintService", () => {
           canEditSubscription: false,
         });
 
-        await expect(service.seatLimitReached(result, organization)).rejects.toThrow(
+        await expect(service.seatLimitReached(result, organization, "restore")).rejects.toThrow(
           `Unsupported product type: ${ProductTierType.Enterprise}`,
         );
       });
@@ -459,7 +547,7 @@ describe("BillingConstraintService", () => {
           productTierType: ProductTierType.Free,
         });
 
-        await service.seatLimitReached(result, organization);
+        await service.seatLimitReached(result, organization, "restore");
 
         expect(i18nService.t).toHaveBeenCalledWith("ok");
       });
@@ -477,7 +565,7 @@ describe("BillingConstraintService", () => {
         const mockSimpleDialogRef = { closed: of(false) };
         dialogService.openSimpleDialogRef.mockReturnValue(mockSimpleDialogRef);
 
-        await service.seatLimitReached(result, organization);
+        await service.seatLimitReached(result, organization, "restore");
 
         expect(i18nService.t).toHaveBeenCalledWith("upgrade");
       });
@@ -493,7 +581,7 @@ describe("BillingConstraintService", () => {
           productTierType: ProductTierType.Enterprise,
         });
 
-        await expect(service.seatLimitReached(result, organization)).rejects.toThrow(
+        await expect(service.seatLimitReached(result, organization, "restore")).rejects.toThrow(
           `Unsupported product type: ${ProductTierType.Enterprise}`,
         );
       });
@@ -513,7 +601,7 @@ describe("BillingConstraintService", () => {
         const mockSimpleDialogRef = { closed: of(true) };
         dialogService.openSimpleDialogRef.mockReturnValue(mockSimpleDialogRef);
 
-        await service.seatLimitReached(result, organization);
+        await service.seatLimitReached(result, organization, "restore");
 
         expect(router.navigate).toHaveBeenCalledWith(
           ["/organizations", organization.id, "billing", "subscription"],
@@ -534,7 +622,7 @@ describe("BillingConstraintService", () => {
         const mockSimpleDialogRef = { closed: of(true) };
         dialogService.openSimpleDialogRef.mockReturnValue(mockSimpleDialogRef);
 
-        await expect(service.seatLimitReached(result, organization)).rejects.toThrow(
+        await expect(service.seatLimitReached(result, organization, "restore")).rejects.toThrow(
           `Unsupported product type: ${ProductTierType.Enterprise}`,
         );
       });

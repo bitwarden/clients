@@ -9,6 +9,7 @@ import {
   inputEmailLimitValidator,
   isDynamicSeatPlan,
   isFixedSeatPlan,
+  isSeatConstrainedEmailBatch,
 } from "./input-email-limit.validator";
 
 const orgFactory = (props: Partial<Organization> = {}) =>
@@ -204,6 +205,26 @@ describe("getEmailBatchLimit", () => {
       expect(getEmailBatchLimit(organization, 6)).toBe(0);
       expect(getEmailBatchLimit(organization, 8)).toBe(0);
     });
+  });
+});
+
+describe("isSeatConstrainedEmailBatch", () => {
+  it("returns false for dynamic-seat plans, which can autoscale past their current seat count", () => {
+    const organization = orgFactory({ productTierType: ProductTierType.Teams, seats: 10 });
+
+    expect(isSeatConstrainedEmailBatch(organization, 10)).toBe(false);
+  });
+
+  it("returns false for a fixed-seat plan with more remaining seats than the batch limit", () => {
+    const organization = orgFactory({ productTierType: ProductTierType.Free, seats: 100 });
+
+    expect(isSeatConstrainedEmailBatch(organization, 0)).toBe(false);
+  });
+
+  it("returns true for a fixed-seat plan with fewer remaining seats than the batch limit", () => {
+    const organization = orgFactory({ productTierType: ProductTierType.Families, seats: 6 });
+
+    expect(isSeatConstrainedEmailBatch(organization, 3)).toBe(true);
   });
 });
 

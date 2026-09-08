@@ -64,6 +64,7 @@ import { commaSeparatedEmails } from "./validators/comma-separated-emails.valida
 import {
   inputEmailLimitValidator,
   getEmailBatchLimit,
+  isSeatConstrainedEmailBatch,
   isDynamicSeatPlan,
 } from "./validators/input-email-limit.validator";
 import { revokedEmailsValidator } from "./validators/revoked-emails.validator";
@@ -136,6 +137,12 @@ export class MemberDialogComponent implements OnDestroy {
   editParams$: Observable<EditMemberDialogParams>;
 
   protected organization$: Observable<Organization>;
+
+  /** Edit dialogs do not consume a seat, so they never contribute to the occupied seat count. */
+  private get occupiedSeatCount(): number {
+    return this.isEditDialogParams(this.params) ? 0 : this.params.occupiedSeatCount;
+  }
+
   protected collectionAccessItems: AccessItemView[] = [];
   protected groupAccessItems: AccessItemView[] = [];
   protected tabIndex: MemberDialogTab;
@@ -313,12 +320,7 @@ export class MemberDialogComponent implements OnDestroy {
     );
 
     this.emailBatchLimit$ = this.organization$.pipe(
-      map((organization) => {
-        const occupiedSeatCount = this.isEditDialogParams(this.params)
-          ? 0
-          : this.params.occupiedSeatCount;
-        return getEmailBatchLimit(organization, occupiedSeatCount);
-      }),
+      map((organization) => getEmailBatchLimit(organization, this.occupiedSeatCount)),
     );
 
     this.isDynamicSeatPlan$ = this.organization$.pipe(
@@ -371,12 +373,18 @@ export class MemberDialogComponent implements OnDestroy {
       return;
     }
 
+    const seatConstrained = isSeatConstrainedEmailBatch(organization, this.occupiedSeatCount);
+
     const emailsControlValidators = [
       Validators.required,
       commaSeparatedEmails,
       inputEmailLimitValidator(
         emailBatchLimit,
-        (maxEmailsCount: number) => this.i18nService.t("tooManyEmails", maxEmailsCount),
+        (maxEmailsCount: number) =>
+          this.i18nService.t(
+            seatConstrained ? "tooManyEmailsForRemainingSeats" : "tooManyEmails",
+            maxEmailsCount,
+          ),
         this.params.allOrganizationUsers.map((u) => u.email),
       ),
       revokedEmailsValidator(
