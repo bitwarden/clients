@@ -1,12 +1,12 @@
 import {
   BitSvg,
-  BitwardenIcon,
   Import1PasswordIcon,
   Import1PasswordDarkIcon,
   ImportArcIcon,
   ImportAscendoIcon,
   ImportAvastIcon,
   ImportAviraIcon,
+  ImportBitwardenIcon,
   ImportBlackberryIcon,
   ImportBlackberryDarkIcon,
   ImportBlurIcon,
@@ -91,7 +91,7 @@ interface PickerVendorMetadata {
 }
 
 const PICKER_VENDOR_METADATA: Partial<Record<ImportType, PickerVendorMetadata>> = {
-  bitwardenjson: { icon: BitwardenIcon, displayName: "Bitwarden" },
+  bitwardenjson: { icon: ImportBitwardenIcon, displayName: "Bitwarden" },
   chromecsv: { icon: ImportChromeIcon, displayName: "Chrome" },
   dashlanecsv: {
     icon: ImportDashlaneIcon,

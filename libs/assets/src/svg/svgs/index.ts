@@ -26,6 +26,7 @@ export * from "./import-arc.icon";
 export * from "./import-ascendo.icon";
 export * from "./import-avast.icon";
 export * from "./import-avira.icon";
+export * from "./import-bitwarden.icon";
 export * from "./import-blackberry.icon";
 export * from "./import-blur.icon";
 export * from "./import-brave.icon";

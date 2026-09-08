@@ -4,9 +4,8 @@ use std::{
 };
 
 use autofill_provider::{
-    CallbackError, PasskeyAssertionRequest, PasskeyAssertionResponse,
-    PasskeyAssertionWithoutUserInterfaceRequest, Position, TimedCallback, UserVerification,
-    WindowDetails,
+    CallbackError, PasskeyAssertionRequest, PasskeyAssertionResponse, Position, TimedCallback,
+    UserVerification, WindowDetails,
 };
 use desktop_core::autofill::create_context_string;
 use win_webauthn::{plugin::PluginGetAssertionRequest, CborWriter};
@@ -99,26 +98,7 @@ fn send_assertion_request(
     );
 
     let callback = Arc::new(TimedCallback::new());
-    if request.allowed_credentials.len() == 1 {
-        // Copy details into without user interface. On Windows, we don't
-        // require any extra fields, but we use a separate method/type to signal
-        // to the desktop app to try resolving this without the UI.
-        let request = PasskeyAssertionWithoutUserInterfaceRequest {
-            rp_id: request.rp_id,
-            credential_id: request.allowed_credentials[0].clone(),
-            client_data_hash: request.client_data_hash,
-            user_verification: request.user_verification,
-            client_window: request.client_window,
-            context: request.context,
-            // These are currently only used on macOS
-            record_identifier: None,
-            user_name: None,
-            user_handle: None,
-        };
-        ipc_client.prepare_passkey_assertion_without_user_interface(request, callback.clone());
-    } else {
-        ipc_client.prepare_passkey_assertion(request, callback.clone());
-    }
+    ipc_client.prepare_passkey_assertion(request, callback.clone());
     let wait_time = Duration::from_secs(600);
     callback
         .wait_for_response(wait_time, Some(cancellation_token))
