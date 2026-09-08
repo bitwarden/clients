@@ -52,6 +52,25 @@ import { FilterOptionIconTile } from "./filter-option.component";
 class FilterMenuDemoComponent {}
 
 @Component({
+  selector: "filter-menu-divider-demo",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuModule],
+  template: `
+    <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2 tw-p-4">
+      <bit-filter-menu key="folder" placeholderText="My folders" multiple>
+        <bit-filter-option [value]="null" [count]="5">No folders</bit-filter-option>
+        <bit-filter-option-divider></bit-filter-option-divider>
+        <bit-filter-option [value]="'entertainment'" [count]="5">Entertainment</bit-filter-option>
+        <bit-filter-option [value]="'healthcare'" [count]="5">Healthcare</bit-filter-option>
+        <bit-filter-option [value]="'social'" [count]="5">Social media</bit-filter-option>
+        <bit-filter-option [value]="'work'" [count]="5">Work</bit-filter-option>
+      </bit-filter-menu>
+    </div>
+  `,
+})
+class FilterMenuDividerDemoComponent {}
+
+@Component({
   selector: "filter-menu-nested-demo",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FilterMenuModule],
@@ -164,6 +183,7 @@ export default {
     moduleMetadata({
       imports: [
         FilterMenuDemoComponent,
+        FilterMenuDividerDemoComponent,
         FilterMenuNestedDemoComponent,
         FilterMenuNestedTilesDemoComponent,
         FilterMenuEmptyDemoComponent,
@@ -177,8 +197,10 @@ export default {
               all: "All",
               removeItem: (name) => `Remove ${name}`,
               noMatchingItems: "No matching items",
-              noFiltersMatch: (term) => `No filters match "${term}"`,
+              noFiltersMatchTerm: (term) => `No filters match \u201c${term}\u201d`,
               clearSearch: "Clear search",
+              oneFilterResult: "1 result",
+              filterResults: (count) => `${count} results`,
               search: "Search",
               resetSearch: "Reset search",
               clear: "Clear",
@@ -260,5 +282,19 @@ export const NoMatchingItems: Story = {
     // The popover renders into the CDK overlay, outside the story canvas.
     const search = await findByLabelText(document.body, "Search");
     await userEvent.type(search, "zzz");
+  },
+};
+
+/**
+ * `bit-filter-option-divider` separates runs of options. The popover draws a rule; the
+ * responsive dialog starts a new card instead, so the groups read as separate cards.
+ */
+export const OptionDividers: Story = {
+  render: () => ({
+    template: `<filter-menu-divider-demo></filter-menu-divider-demo>`,
+  }),
+  play: async (context) => {
+    const [trigger] = getAllByRole(context.canvasElement, "button");
+    await userEvent.click(trigger);
   },
 };
