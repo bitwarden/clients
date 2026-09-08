@@ -106,6 +106,12 @@
           }
         </bit-item-group>
       </bit-section>
+    } @else if (vfo1Enabled()) {
+      <vault-empty-vault
+        class="tw-flex tw-h-full tw-items-center tw-justify-center"
+        [hasItems]="false"
+        [scope]="archiveScope"
+      ></vault-empty-vault>
     } @else {
       <bit-status-lockup class="tw-flex tw-h-full tw-items-center tw-justify-center">
         <bit-svg slot="graphic" [content]="noItemsIcon"></bit-svg>
