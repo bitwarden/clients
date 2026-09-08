@@ -14,7 +14,7 @@ export class RequireSsoPolicy extends BasePolicyEditDefinition {
   nameVfo1 = "requireSsoVfo1";
   description = "requireSsoPolicyDescV2";
   descriptionVfo1 = "requireSsoPolicyDescListVfo1";
-  drawerDescriptionVfo1 = "requireSsoPolicyDescV2Vfo1";
+  drawerDescriptionVfo1 = "requireSsoPolicyDescV2";
   type = PolicyType.RequireSso;
   category = PolicyCategory.Authentication;
   priority = 30;
