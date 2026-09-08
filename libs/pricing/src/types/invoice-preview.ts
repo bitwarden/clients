@@ -58,9 +58,10 @@ export type InvoicePreviewItem = {
 };
 
 /**
- * A single proration entry. Retained in full for parity with the server contract; the client
- * currently renders only the summed `credit` as one collapsed credit row, so `months`, `charge`,
- * `tax` and `total` are unused client-side.
+ * A single proration entry. Retained in full for parity with the server contract. The cart adapter
+ * renders only the summed `credit` as one collapsed credit row; `months` is additionally read by
+ * the Premium-to-organization upgrade screen to label the prorated seat line. `charge`, `tax` and
+ * `total` are unused client-side.
  */
 export type PurchasableProration = {
   credit: number;

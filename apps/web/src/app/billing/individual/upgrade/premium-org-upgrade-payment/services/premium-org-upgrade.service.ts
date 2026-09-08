@@ -35,6 +35,10 @@ import {
   MaskedPaymentMethod,
   TokenizablePaymentMethods,
 } from "../../../../payment/types";
+import {
+  CartWithProratedMonths,
+  InvoicePreviewService,
+} from "../../../../services/invoice-preview.service";
 
 export const UNVERIFIED_BANK_ACCOUNT_MESSAGE =
   "Unverified bank account payment method is not supported for this upgrade";
@@ -73,6 +77,7 @@ export class PremiumOrgUpgradeService {
     private encryptService: EncryptService,
     private syncService: SyncService,
     private configService: ConfigService,
+    private invoicePreviewService: InvoicePreviewService,
   ) {}
 
   async previewProratedInvoice(
@@ -91,6 +96,17 @@ export class PremiumOrgUpgradeService {
       newPlanProratedMonths: invoicePreviewResponse.newPlanProratedMonths,
       newPlanProratedAmount: invoicePreviewResponse.newPlanProratedAmount,
     };
+  }
+
+  /** Flag-on counterpart of {@link previewProratedInvoice}: returns the server-built cart for the upgrade. */
+  async previewInvoiceCart(
+    planDetails: PremiumOrgUpgradePlanDetails,
+    billingAddress: BillingAddress,
+  ): Promise<CartWithProratedMonths> {
+    return this.invoicePreviewService.previewPremiumOrgUpgradeCart({
+      targetProductTierType: this.ProductTierTypeFromSubscriptionTierId(planDetails.tier),
+      billingAddress: { country: billingAddress.country, postalCode: billingAddress.postalCode },
+    });
   }
 
   async upgradeToOrganization(

@@ -2,7 +2,7 @@ import { Component, input, ChangeDetectionStrategy, signal, output } from "@angu
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { FormControl, FormGroup } from "@angular/forms";
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -14,6 +14,7 @@ import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierId,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
@@ -97,6 +98,9 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
   const mockSubscriberBillingClient = mock<SubscriberBillingClient>();
   const mockApiService = mock<ApiService>();
   const mockAccountService = mock<AccountService>();
+  const mockConfigService = mock<ConfigService>();
+  let previewDrivenCartEnabled = false;
+  let flagSubject: BehaviorSubject<boolean>;
   const mockI18nService = { t: jest.fn((key: string, ...params: any[]) => key) };
 
   const mockAccount = { id: "user-id", email: "test@bitwarden.com" } as Account;
@@ -147,6 +151,11 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       expiration: "12/2025",
     });
     mockOrganizationService.organizations$.mockReturnValue(of([]));
+    // Flag off by default: every existing expectation below describes the legacy cart path.
+    // Read lazily so a nested suite can arm the flag (via beforeAll) before the component is built.
+    // A BehaviorSubject (not `of`) so a test can simulate the config-refresh re-emission.
+    flagSubject = new BehaviorSubject<boolean>(previewDrivenCartEnabled);
+    mockConfigService.getFeatureFlag$.mockImplementation(() => flagSubject.asObservable());
     mockPremiumOrgUpgradeService.previewProratedInvoice.mockResolvedValue({
       tax: 5.0,
       total: 53.0,
@@ -197,6 +206,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
         { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
         { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
         { provide: AccountService, useValue: mockAccountService },
+        { provide: ConfigService, useValue: mockConfigService },
         { provide: ApiService, useValue: mockApiService },
         { provide: OrganizationService, useValue: mockOrganizationService },
         {
@@ -630,6 +640,190 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       expect(cart.passwordManager.seats.quantity).toBe(0);
       expect(cart.estimatedTax).toBe(0);
     });
+  });
+
+  describe("preview-driven cart (flag on)", () => {
+    const serverCart = {
+      passwordManager: {
+        seats: {
+          translationKey: "teamsMembership",
+          cost: 26.67,
+          quantity: 1,
+          hideBreakdown: true,
+        },
+      },
+      cadence: "annually" as const,
+      estimatedTax: 2,
+      total: 22,
+      credit: { translationKey: "premiumSubscriptionCredit", value: 6.67 },
+    };
+
+    const completeTheForm = () =>
+      component["formGroup"].patchValue({
+        organizationName: "Test Org",
+        billingAddress: { country: "US", postalCode: "12345" },
+      });
+
+    /**
+     * Runs before the shared beforeEach that builds the component, so the flag is already on when
+     * the component captures the feature-flag stream at construction.
+     */
+    beforeAll(() => {
+      previewDrivenCartEnabled = true;
+    });
+
+    afterAll(() => {
+      previewDrivenCartEnabled = false;
+    });
+
+    it("should build the cart from the server preview", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue({
+        cart: serverCart,
+        proratedMonths: 0,
+      });
+
+      completeTheForm();
+      tick(1500);
+      fixture.detectChanges();
+
+      const cart = component["cart"]();
+      expect(cart.passwordManager.seats.cost).toBe(26.67);
+      expect(cart.passwordManager.seats.quantity).toBe(1);
+      expect(cart.credit).toEqual({
+        translationKey: "premiumSubscriptionCredit",
+        value: 6.67,
+      });
+      expect(cart.estimatedTax).toBe(2);
+    }));
+
+    it("should hand the selected plan and the form's billing address to the upgrade service", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue({
+        cart: serverCart,
+        proratedMonths: 0,
+      });
+
+      completeTheForm();
+      tick(1500);
+      fixture.detectChanges();
+
+      expect(mockPremiumOrgUpgradeService.previewInvoiceCart).toHaveBeenCalledWith(
+        expect.objectContaining({ tier: "teams" }),
+        expect.objectContaining({ country: "US", postalCode: "12345" }),
+      );
+    }));
+
+    it("should decorate the seat line with the prorated month count", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue({
+        cart: serverCart,
+        proratedMonths: 8,
+      });
+
+      completeTheForm();
+      tick(1500);
+      fixture.detectChanges();
+
+      const seats = component["cart"]().passwordManager.seats;
+      expect(seats.translationKey).toBe("planProratedMembershipInMonths");
+      expect(seats.translationParams).toEqual(["Teams", "8 months"]);
+    }));
+
+    it("should leave the seat label untouched when there are no prorated months", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue({
+        cart: serverCart,
+        proratedMonths: 0,
+      });
+
+      completeTheForm();
+      tick(1500);
+      fixture.detectChanges();
+
+      expect(component["cart"]().passwordManager.seats.translationKey).toBe("teamsMembership");
+    }));
+
+    it("should not call the preview endpoint while the billing address is incomplete", fakeAsync(() => {
+      component["formGroup"].patchValue({
+        organizationName: "Test Org",
+        billingAddress: { country: "US", postalCode: "" },
+      });
+      tick(1500);
+      fixture.detectChanges();
+
+      expect(mockPremiumOrgUpgradeService.previewInvoiceCart).not.toHaveBeenCalled();
+      // Falls back to the locally computed placeholder rather than rendering a blank summary.
+      expect(component["cart"]().passwordManager.seats.cost).toBe(48);
+    }));
+
+    it("should show an error toast and fall back to the legacy cart when the preview fails", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockRejectedValue(new Error("500"));
+
+      completeTheForm();
+      tick(1500);
+      fixture.detectChanges();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "invoicePreviewErrorMessage",
+      });
+      expect(component["cart"]().passwordManager.seats.cost).toBe(48);
+      // A failed preview must not block the upgrade itself.
+      expect(component["isFormValid"]()).toBe(true);
+    }));
+
+    it("should not re-run the preview when the flag re-emits the same value", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue({
+        cart: serverCart,
+        proratedMonths: 0,
+      });
+      completeTheForm();
+      tick(1500);
+      fixture.detectChanges();
+      expect(mockPremiumOrgUpgradeService.previewInvoiceCart).toHaveBeenCalledTimes(1);
+
+      // Simulate a server-config refresh: getFeatureFlag$ emits `true` again without a real flip.
+      flagSubject.next(true);
+      tick(1500);
+      fixture.detectChanges();
+
+      expect(mockPremiumOrgUpgradeService.previewInvoiceCart).toHaveBeenCalledTimes(1);
+    }));
+
+    it("should drop the server cart and revert to the legacy path when the flag flips off", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewInvoiceCart.mockResolvedValue({
+        cart: serverCart,
+        proratedMonths: 0,
+      });
+      completeTheForm();
+      tick(1500);
+      fixture.detectChanges();
+      expect(component["cart"]().passwordManager.seats.cost).toBe(26.67);
+
+      // Kill switch: the flag turns off mid-session without the component being rebuilt.
+      flagSubject.next(false);
+      tick(1500);
+      fixture.detectChanges();
+
+      expect(mockPremiumOrgUpgradeService.previewProratedInvoice).toHaveBeenCalled();
+      const cart = component["cart"]();
+      expect(cart.passwordManager.seats.cost).not.toBe(26.67);
+      expect(cart.credit).toEqual({ translationKey: "premiumSubscriptionCredit", value: 10 });
+    }));
+
+    it("should not call the preview endpoint when the flag is off", fakeAsync(() => {
+      flagSubject.next(false);
+      // Rebuild so the component captures the flag stream with the flag off.
+      fixture = TestBed.createComponent(PremiumOrgUpgradePaymentComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput("selectedPlanId", "teams" as BusinessSubscriptionPricingTierId);
+      fixture.componentRef.setInput("account", mockAccount);
+      fixture.detectChanges();
+
+      completeTheForm();
+      tick(1500);
+      fixture.detectChanges();
+
+      expect(mockPremiumOrgUpgradeService.previewInvoiceCart).not.toHaveBeenCalled();
+      expect(mockPremiumOrgUpgradeService.previewProratedInvoice).toHaveBeenCalled();
+    }));
   });
 
   describe("ngAfterViewInit", () => {
