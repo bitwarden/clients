@@ -37,12 +37,6 @@ export class SideNavService {
   readonly isPushMode = signal(false);
 
   /**
-   * Widest the nav can be (in rem) while still leaving main content its minimum width.
-   * Set by LayoutComponent via ResizeObserver; Infinity until first measured.
-   */
-  readonly maxPushWidthRem = signal(Infinity);
-
-  /**
    * True when the nav is open but not in push mode — it overlays the content.
    */
   readonly isOverlay = computed(() => this.open() && !this.isPushMode());
@@ -139,7 +133,7 @@ export class SideNavService {
         this.dragDisplayWidth.set(null);
         this.userCollapsePreference.set("open");
         this.open.set(true);
-        this._setWidthWithinMinMax(newWidthInRem);
+        this.widthService.commit(newWidthInRem);
       } else {
         this.dragDisplayWidth.set(newWidthInRem);
       }
@@ -163,7 +157,7 @@ export class SideNavService {
     }
 
     this.dragDisplayWidth.set(null);
-    this._setWidthWithinMinMax(newWidthInRem);
+    this.widthService.commit(newWidthInRem);
   }
 
   /**
@@ -193,15 +187,11 @@ export class SideNavService {
     const delta = key === "ArrowLeft" ? -1 : 1;
     const newWidth = currentWidth + delta;
 
-    this._setWidthWithinMinMax(newWidth);
+    this.widthService.commit(newWidth);
   }
 
-  /**
-   * Called when a drag ends. Release is what turns a provisional preview into a decision:
-   * released open in the tension zone commits the minimum, since the user dragged past a bound;
-   * released collapsed or aborted only clears the preview, since collapsing says nothing about
-   * width; released in the collapsed preview zone reopens at the width the user already had.
-   */
+  /** Release turns a provisional preview into a decision. Only a release in the tension zone
+   *  changes the width — collapsing or aborting says nothing about it. */
   onDragEnd() {
     this.isDragging.set(false);
 
@@ -222,33 +212,12 @@ export class SideNavService {
     this._expand();
   }
 
-  /**
-   * Open the nav at the width the user last chose. Display-only: restoring a saved width is not a
-   * new preference, so nothing is persisted and a later collapse still returns to the same width.
-   */
+  /** Open at the width the user last chose. Display-only, so restoring it is not a new
+   *  preference and a later collapse still returns to the same width. */
   private _expand() {
     this.userCollapsePreference.set("open");
     this.open.set(true);
-    this.widthService.display(this._pushClamped(this.widthService.saved()));
-  }
-
-  /** Commit the width. A container limit paints narrower but never lowers the preference. */
-  private _setWidthWithinMinMax(newWidth: number) {
-    // Bound first, so what remains between `requested` and `fitted` is the container alone.
-    const requested = this.widthService.clamp(newWidth);
-    const fitted = this._pushClamped(requested);
-    const preference = fitted < requested ? Math.max(this.widthService.saved(), fitted) : fitted;
-
-    this.widthService.commit(preference, fitted);
-  }
-
-  /** Narrow `width` to what the container can push, so main content is never clipped. */
-  private _pushClamped(width: number) {
-    const max = Math.max(
-      this.MIN_OPEN_WIDTH,
-      Math.min(this.MAX_OPEN_WIDTH, this.maxPushWidthRem()),
-    );
-    return Math.min(width, max);
+    this.widthService.display(this.widthService.saved());
   }
 }
 

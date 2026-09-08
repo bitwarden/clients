@@ -197,7 +197,6 @@ export class LayoutComponent {
         const drawerMinPx = drawerSizeToWidthRem.small * rootFontSizePx;
 
         this.containerWidthPx.set(containerWidth);
-        this.sideNavService.maxPushWidthRem.set((containerWidth - mainMinPx) / rootFontSizePx);
 
         // Use the push width declared by the drawer content (e.g. bit-dialog) via
         // DrawerService.declarePushWidth(). This is more reliable than DOM measurement

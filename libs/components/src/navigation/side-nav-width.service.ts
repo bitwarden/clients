@@ -72,13 +72,13 @@ export class SideNavWidthService {
     this._width$.next(width);
   }
 
-  /** Remember `width`; paint `painted` when the container can only show something narrower. */
-  commit(width: number, painted = width) {
+  /** Paint `width` and remember it as the user's preference. */
+  commit(width: number) {
     const clamped = this.clamp(width);
     const shouldPersist = clamped !== this._savedWidth;
 
     this._savedWidth = clamped;
-    this._width$.next(this.clamp(painted));
+    this._width$.next(clamped);
 
     if (shouldPersist) {
       this._pendingCommit$.next(clamped);

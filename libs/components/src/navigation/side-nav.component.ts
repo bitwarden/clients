@@ -42,9 +42,11 @@ export type SideNavVariant = "primary" | "secondary";
     // Grid placement: always col 1.  In overlay mode the element is also
     // switched to position:fixed so it escapes the grid's stacking context
     // and renders above the scrim (z-40) and the drawer.
+    // The 90% cap is a percentage, not 90vw, so it measures the fixed element's
+    // containing block: the viewport in the app, the wrapper under Storybook's transform.
     class: "tw-block tw-h-full tw-col-start-1 tw-row-start-1",
     "[class]":
-      "sideNavService.isOverlay() ? 'tw-fixed tw-top-0 tw-bottom-0 tw-left-0 tw-z-50' : ''",
+      "sideNavService.isOverlay() ? 'tw-fixed tw-top-0 tw-bottom-0 tw-left-0 tw-z-50 tw-max-w-[90%]' : ''",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

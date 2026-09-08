@@ -119,16 +119,6 @@ describe("SideNavService", () => {
         expect(currentWidth()).toBe(30.5);
         expect(persistedWidths()).toEqual([]);
       });
-
-      it("never narrows the saved width to what the container can push", () => {
-        createService(30.5);
-        clearPersisted();
-
-        service.maxPushWidthRem.set(20);
-        flushPersist();
-
-        expect(persistedWidths()).toEqual([]);
-      });
     });
 
     // The three ways to expand a collapsed nav must agree. Today only toggle() does.
@@ -201,17 +191,6 @@ describe("SideNavService", () => {
           () => (service.open.set(false), dragTo(8), dragTo(2), service.onDragEnd()),
           [],
         ],
-        ["the container shrinking", () => service.maxPushWidthRem.set(20), []],
-        [
-          "ArrowRight once the container is the binding limit",
-          () => (service.maxPushWidthRem.set(26), service.setWidthFromKeys("ArrowRight")),
-          [],
-        ],
-        [
-          "dragging past what the container can push",
-          () => (service.maxPushWidthRem.set(26), dragTo(40)),
-          [],
-        ],
       ])("persists %s", (_label, gesture, expected) => {
         createService(SAVED);
         service.open.set(true);
@@ -242,42 +221,6 @@ describe("SideNavService", () => {
       service.toggle();
 
       expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
-    });
-
-    it("keeps a saved width wider than the container can push", () => {
-      createService(30.5);
-      service.open.set(true);
-      clearPersisted();
-
-      service.maxPushWidthRem.set(26);
-      service.setWidthFromKeys("ArrowRight");
-      flushPersist();
-
-      // Painted at the limit, but the 30.5 preference survives — reopening in a container that
-      // can afford it must not come back narrowed.
-      expect(currentWidth()).toBe(26);
-      expect(persistedWidths()).toEqual([]);
-
-      service.maxPushWidthRem.set(Infinity);
-      service.toggle();
-      service.toggle();
-
-      expect(currentWidth()).toBe(30.5);
-    });
-
-    it("persists a width the container limits when that still widens the nav", () => {
-      createService(20);
-      service.open.set(true);
-      clearPersisted();
-
-      service.maxPushWidthRem.set(26);
-      dragTo(40);
-      flushPersist();
-
-      // The user dragged to the visible edge, so 26 is a genuine choice — unlike a limit that
-      // merely narrows a width the user already picked.
-      expect(currentWidth()).toBe(26);
-      expect(persistedWidths()).toEqual([26]);
     });
 
     describe("drag release", () => {
@@ -411,37 +354,12 @@ describe("SideNavService", () => {
         expect(service.userCollapsePreference()).toBe("closed");
       });
 
-      it("does not widen past the space the container can push", () => {
-        service.maxPushWidthRem.set(20);
-
-        for (let i = 0; i < 30; i++) {
-          service.setWidthFromKeys("ArrowRight");
-        }
-
-        expect(currentWidth()).toBe(20);
-      });
-
-      it("does not widen past MAX_OPEN_WIDTH when the container is unconstrained", () => {
+      it("does not widen past MAX_OPEN_WIDTH", () => {
         for (let i = 0; i < 40; i++) {
           service.setWidthFromKeys("ArrowRight");
         }
 
         expect(currentWidth()).toBe(service.MAX_OPEN_WIDTH);
-      });
-
-      it("never clamps below MIN_OPEN_WIDTH, even in a container too small to push", () => {
-        const widthBefore = currentWidth();
-        service.maxPushWidthRem.set(5);
-
-        service.setWidthFromKeys("ArrowRight");
-
-        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
-
-        // The floor is a paint decision only; the width the user had is still what reopens.
-        service.maxPushWidthRem.set(Infinity);
-        service.toggle();
-        service.toggle();
-        expect(currentWidth()).toBe(widthBefore);
       });
     });
   });
