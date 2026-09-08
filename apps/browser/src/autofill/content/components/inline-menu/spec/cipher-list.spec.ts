@@ -1,3 +1,5 @@
+import { nothing } from "lit";
+
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
 import { litValues } from "../../lit-stories/lit-values";
@@ -8,12 +10,14 @@ import {
   mockPasskeysAndPasswords,
   mockTotpCiphers,
 } from "../../lit-stories/mock-data";
+import { InlineMenuAction } from "../action";
 import { InlineMenuCipherItem } from "../cipher-item";
 import { InlineMenuCipherList } from "../cipher-list";
 
 jest.mock("lit", () => jest.requireActual("../../lit-stories/lit-jest-mocks").litMock);
 jest.mock("../container", () => ({ InlineMenuContainer: jest.fn(({ children }) => children) }));
 jest.mock("../cipher-item", () => ({ InlineMenuCipherItem: jest.fn(() => "cipher-item") }));
+jest.mock("../action", () => ({ InlineMenuAction: jest.fn(() => "action") }));
 
 describe("InlineMenuCipherList", () => {
   const baseProps = {
@@ -91,6 +95,45 @@ describe("InlineMenuCipherList", () => {
 
       expect(baseProps.handleFillCipher).toHaveBeenCalledWith(cipher, event);
       expect(baseProps.handleViewCipher).toHaveBeenCalledWith(cipher, event);
+    });
+  });
+
+  describe("new item action", () => {
+    const newItem = {
+      actionText: mockI18n.newLogin,
+      i18n: { actionAria: mockI18n.addNewLoginItemAria },
+      handleAction: jest.fn(),
+    };
+
+    it("renders the new item action below the cipher list", () => {
+      const values = litValues(
+        InlineMenuCipherList({
+          ...baseProps,
+          ciphers: mockLoginCiphers,
+          newItem,
+        }),
+      );
+
+      expect(values[2]).toBe("action");
+      expect(InlineMenuAction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ...newItem,
+          theme: ThemeTypes.Light,
+          borderedTop: true,
+        }),
+      );
+    });
+
+    it("omits the new item action when newItem is not provided", () => {
+      const values = litValues(
+        InlineMenuCipherList({
+          ...baseProps,
+          ciphers: mockLoginCiphers,
+        }),
+      );
+
+      expect(values[2]).toBe(nothing);
+      expect(InlineMenuAction).not.toHaveBeenCalled();
     });
   });
 });
