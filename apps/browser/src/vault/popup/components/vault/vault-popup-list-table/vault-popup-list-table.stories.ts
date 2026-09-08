@@ -1,4 +1,4 @@
-import { computed, signal } from "@angular/core";
+import { computed, inject, provideEnvironmentInitializer, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { applicationConfig, Meta, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, NEVER, of } from "rxjs";
@@ -43,13 +43,21 @@ import {
   PasswordRepromptService,
   personalIconTile,
   VaultCopyButtonsService,
+  VaultNavItemType,
+  VaultNavService,
+  type VaultScope,
+  VaultScopeType,
+  VaultsNavViewModel,
 } from "@bitwarden/vault";
 
 import { PopupWidthOptions } from "../../../../../platform/browser/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
-import { VaultSection } from "../../../services/vault-popup-list-table.service";
+import {
+  VaultPopupListTableService,
+  VaultSection,
+} from "../../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
@@ -233,6 +241,8 @@ type StoryArgs = {
   };
   /** Sections rendered collapsed. Defaults to all expanded. */
   collapsedSections?: VaultSection[];
+  /** The vault the page is narrowed to. Defaults to All items. */
+  scope?: VaultScope;
 };
 
 // Option sets for the toolbar's filter chips. A chip only renders when its stream has entries, so
@@ -254,6 +264,20 @@ const ORGANIZATION_OPTIONS = [
 const ORGANIZATION_NAMES = new Map(
   ORGANIZATION_OPTIONS.map((option) => [option.value.id, option.label]),
 );
+
+// The account's vaults, which name the scoped vault in the empty state and pluralize its copy.
+const NAV_VIEW_MODEL: VaultsNavViewModel = {
+  vaults: [
+    { id: "story-user", label: "My vault", icon: "bwi-user", type: VaultNavItemType.Personal },
+    {
+      id: "org-engineering",
+      label: "Acme Co",
+      icon: "bwi-business",
+      type: VaultNavItemType.Organization,
+    },
+  ],
+  organizationDataOwnership: false,
+};
 
 const COLLECTION_OPTIONS = [
   { value: { id: "col-eng", name: "Engineering" } as CollectionView, label: "Engineering" },
@@ -389,6 +413,17 @@ const buildProviders = (args: StoryArgs) => {
       provide: CompactModeService,
       useValue: { enabled$: of(false) },
     },
+    {
+      provide: VaultNavService,
+      useValue: { viewModel$: () => of(NAV_VIEW_MODEL) },
+    },
+    // The scoped empty states read the live scope off the real service, so narrow it here rather
+    // than stubbing the service out.
+    provideEnvironmentInitializer(() => {
+      if (args.scope) {
+        inject(VaultPopupListTableService).setScope(args.scope);
+      }
+    }),
     {
       provide: ConfigService,
       useValue: {
@@ -621,6 +656,46 @@ export const EmptyVault: Story = {
         favoriteCiphers: [],
         filteredCiphers: [],
         loading: false,
+      }),
+    }),
+  ],
+  render: () => ({
+    template: `<div class="tw-flex tw-flex-col" style="height: 500px"><app-vault-popup-list-table></app-vault-popup-list-table></div>`,
+  }),
+};
+
+// Scoped to an organization whose vault is empty while the account still holds items elsewhere:
+// the copy names the organization rather than claiming every vault is empty.
+export const EmptyOrganizationVault: Story = {
+  decorators: [
+    applicationConfig({
+      providers: buildProviders({
+        autoFillCiphers: [],
+        favoriteCiphers: [],
+        filteredCiphers: [],
+        loading: false,
+        scope: {
+          type: VaultScopeType.Organization,
+          organizationId: "org-engineering" as OrganizationId,
+        },
+      }),
+    }),
+  ],
+  render: () => ({
+    template: `<div class="tw-flex tw-flex-col" style="height: 500px"><app-vault-popup-list-table></app-vault-popup-list-table></div>`,
+  }),
+};
+
+// Scoped to the personal vault when it is the empty one.
+export const EmptyPersonalVault: Story = {
+  decorators: [
+    applicationConfig({
+      providers: buildProviders({
+        autoFillCiphers: [],
+        favoriteCiphers: [],
+        filteredCiphers: [],
+        loading: false,
+        scope: { type: VaultScopeType.MyVault },
       }),
     }),
   ],

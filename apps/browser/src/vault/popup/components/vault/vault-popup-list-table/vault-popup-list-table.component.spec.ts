@@ -40,7 +40,14 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
-import { PasswordRepromptService, VaultCopyButtonsService, VaultScopeType } from "@bitwarden/vault";
+import {
+  PasswordRepromptService,
+  VaultCopyButtonsService,
+  VaultNavItemType,
+  VaultNavService,
+  VaultScopeType,
+  VaultsNavViewModel,
+} from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
@@ -167,6 +174,24 @@ describe("VaultPopupListTableComponent", () => {
     enabled$: compactModeEnabled$.asObservable(),
   };
 
+  /** A personal vault plus one organization — the account the scoped empty states are read against. */
+  const PERSONAL_AND_ORG_VAULTS: VaultsNavViewModel = {
+    vaults: [
+      { id: "test-user-id", label: "My vault", icon: "bwi-user", type: VaultNavItemType.Personal },
+      { id: "org-1", label: "Acme", icon: "bwi-business", type: VaultNavItemType.Organization },
+    ],
+    organizationDataOwnership: false,
+  };
+
+  /** The account's vaults, which name the scoped vault in the empty state and pluralize its copy. */
+  const nav$ = new BehaviorSubject<VaultsNavViewModel>({
+    vaults: [],
+    organizationDataOwnership: false,
+  });
+  const vaultNavService = {
+    viewModel$: jest.fn().mockReturnValue(nav$.asObservable()),
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
     // `clearAllMocks` resets calls but not implementations, so restore the default open state.
@@ -188,6 +213,8 @@ describe("VaultPopupListTableComponent", () => {
     collections$.next([]);
     folders$.next([]);
     clickItemsToAutofillVaultView$.next(true);
+    nav$.next({ vaults: [], organizationDataOwnership: false });
+    vaultNavService.viewModel$.mockReturnValue(nav$.asObservable());
     liveAnnouncer.announce.mockClear();
 
     await TestBed.configureTestingModule({
@@ -204,6 +231,7 @@ describe("VaultPopupListTableComponent", () => {
           useValue: vaultPopupListTableFiltersService,
         },
         { provide: CompactModeService, useValue: compactModeService },
+        { provide: VaultNavService, useValue: vaultNavService },
         { provide: I18nService, useValue: mock<I18nService>({ t: (k: string) => k }) },
         { provide: LiveAnnouncer, useValue: liveAnnouncer },
         { provide: CipherService, useValue: mock<CipherService>() },
@@ -361,6 +389,7 @@ describe("VaultPopupListTableComponent", () => {
     });
 
     it("shows the multiple-vaults copy with an import CTA when the account is genuinely empty", () => {
+      nav$.next(PERSONAL_AND_ORG_VAULTS);
       emptyVault$.next(true);
       hasSearchText$.next(false);
       filteredCiphers$.next([]);
@@ -371,6 +400,41 @@ describe("VaultPopupListTableComponent", () => {
       expect(text).toContain("emptyVaultsDescription");
       expect(text).toContain("importItems");
       expect(text).not.toContain("noItemsMatchSearchTerm");
+    });
+
+    /**
+     * The scoped-vault empty states read the live scope, not the account-wide one: a member whose
+     * personal vault has items can still scope to an empty organization, and the plural "your
+     * vaults are empty" copy would be wrong there.
+     */
+    it("names the scoped organization when its vault is empty but the account has items", () => {
+      nav$.next(PERSONAL_AND_ORG_VAULTS);
+      // The account has items — they just all live in the personal vault.
+      emptyVault$.next(false);
+      hasSearchText$.next(false);
+      filteredCiphers$.next([]);
+      listTableSvc.setScope({
+        type: VaultScopeType.Organization,
+        organizationId: "org-1" as OrganizationId,
+      });
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent;
+      expect(text).toContain("noItemsInOrganizationVault");
+      expect(text).not.toContain("noItemsInVaults");
+    });
+
+    it("shows the personal-vault copy when the scoped personal vault is empty", () => {
+      nav$.next(PERSONAL_AND_ORG_VAULTS);
+      emptyVault$.next(false);
+      hasSearchText$.next(false);
+      filteredCiphers$.next([]);
+      listTableSvc.setScope({ type: VaultScopeType.MyVault });
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent;
+      expect(text).toContain("noItemsInMyVault");
+      expect(text).not.toContain("noItemsInVaults");
     });
 
     describe("deactivated organization", () => {

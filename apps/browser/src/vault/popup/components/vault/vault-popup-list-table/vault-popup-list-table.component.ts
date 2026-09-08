@@ -16,13 +16,15 @@ import {
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { RouterLink } from "@angular/router";
-import { distinctUntilChanged, filter, map, skip, Subject } from "rxjs";
+import { distinctUntilChanged, filter, map, skip, Subject, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { DeactivatedOrg } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -56,6 +58,7 @@ import {
   cipherInScope,
   collectionInScope,
   EmptyVaultComponent,
+  hasMultipleVaults,
   idString,
   matchesFolder,
   matchesSharedFolder,
@@ -63,9 +66,10 @@ import {
   matchesVault,
   MY_VAULT,
   NO_FOLDER,
+  organizationNameForScope,
   OrgIconDirective,
   type VaultItemsTableFilters,
-  type VaultScope,
+  VaultNavService,
   VaultScopeType,
   Vfo1I18nPipe,
 } from "@bitwarden/vault";
@@ -137,9 +141,11 @@ export class VaultPopupListTableComponent {
   private readonly vaultPopupAutofillService = inject(VaultPopupAutofillService);
   private readonly vaultPopupSectionService = inject(VaultPopupSectionService);
   private readonly compactModeService = inject(CompactModeService);
-  private readonly listTableService = inject(VaultPopupListTableService);
+  protected readonly listTableService = inject(VaultPopupListTableService);
   private readonly vaultPopupItemsService = inject(VaultPopupItemsService);
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
+  private readonly accountService = inject(AccountService);
+  private readonly vaultNavService = inject(VaultNavService);
   /** Whether the page is narrowed to a single vault, which drops the organization chip. */
   protected readonly vaultSelected = computed(
     () => this.listTableService.vaultScope().type !== VaultScopeType.AllItems,
@@ -158,9 +164,6 @@ export class VaultPopupListTableComponent {
 
   protected readonly deactivatedIcon = DeactivatedOrg;
 
-  /** Temporary hard-coded all items scope until scoping is builtin to the browser */
-  protected readonly allItemsScope: VaultScope = { type: VaultScopeType.AllItems };
-
   protected searchText: string = "";
   private readonly searchText$ = new Subject<string>();
 
@@ -177,6 +180,22 @@ export class VaultPopupListTableComponent {
    * genuinely empty vault from a search/filter that matched nothing, for the empty slot below.
    */
   protected readonly hasItems = toSignal(this.listTableService.hasItems$, { initialValue: false });
+
+  /** The account's vaults, which name the scoped vault and say whether there's more than one. */
+  private readonly nav = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.vaultNavService.viewModel$(userId)),
+    ),
+  );
+
+  /** The scoped organization's name, for the empty state's "No items in {org}" copy. */
+  protected readonly scopedOrganizationName = computed(() =>
+    organizationNameForScope(this.listTableService.vaultScope(), this.nav()),
+  );
+
+  /** Whether the account has more than one vault, which pluralizes the empty state's copy. */
+  protected readonly hasMultipleVaults = computed(() => hasMultipleVaults(this.nav()));
 
   /** Whether the vault in view is suspended, by route scope or by chip. */
   protected readonly showDeactivatedOrg = toSignal(this.listTableService.suspendedVault$, {
