@@ -38,6 +38,7 @@ import {
 } from "@bitwarden/components";
 import { ConsoleLogService } from "@bitwarden/logging";
 
+import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 import { PasswordRepromptService } from "../../services/password-reprompt.service";
 import { RoutedVaultFilterBridgeService } from "../../services/routed-vault-filter-bridge.service";
@@ -455,12 +456,20 @@ type StoryProps = {
   initialFilterValues?: Partial<VaultItemsTableFilters>;
   heading?: string;
   itemAction: (item: CipherView) => void;
+  /** Relayed to the empty state untouched — see {@link Empty} and its siblings. */
+  scope?: VaultScope;
+  organizationName?: string;
+  hasMultipleVaults: boolean;
+  sharedFolderName?: string;
 };
 
 /**
  * One template for every story: it binds all of the table's optional inputs unconditionally and
  * leaves the defaults to {@link baseProps}, so a story only ever overrides `args`. The heading is
  * how a host titles the page when its side nav has scoped the vault — see {@link ScopedToMyVault}.
+ *
+ * `empty-add-item` stands in for whatever "Add item" control a real host projects there (`vault-
+ * new-cipher-menu` in the apps) — a plain button is enough to show the slot is filled.
  */
 const template = `
   @if (heading) {
@@ -479,7 +488,14 @@ const template = `
       [copyPresentation]="copyPresentation"
       [initialFilterValues]="initialFilterValues"
       [itemAction]="itemAction"
+      [scope]="scope"
+      [organizationName]="organizationName"
+      [hasMultipleVaults]="hasMultipleVaults"
+      [sharedFolderName]="sharedFolderName"
     >
+      <button slot="empty-add-item" bitButton buttonType="primary" type="button" startIcon="bwi-plus">
+        Add item
+      </button>
       <button slot="toolbar" bitButton buttonType="secondary" type="button" startIcon="bwi-import">
         Import
       </button>
@@ -502,6 +518,7 @@ const baseProps: StoryProps = {
   organizations,
   copyPresentation: DEFAULT_COPY_PRESENTATION,
   itemAction: () => {},
+  hasMultipleVaults: false,
 };
 
 export default {
@@ -587,14 +604,26 @@ export default {
               restore: "Restore",
               delete: "Delete",
               permanentlyDelete: "Permanently delete",
-              // Empty states
+              // Empty states — bit-table-v2's own built-in fallback, unused while the table always
+              // projects vault-empty-vault into the "empty" slot, but harmless to keep around.
               nothingToShow: "Nothing to show",
               noMatchingItems: "No matching items",
-              clearFiltersOrTryAnother: "Clear filters or try another search term",
-              noItemsInVault: "No items in the vault",
-              clear: "Clear",
-              emptyVaultDescription:
-                "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here.",
+              clearSearch: "Clear search",
+              noItemsMatchSearchTerm: (term) => `No items match "${term}"`,
+              noItemsMatchSelectedFilters: "No items match selected filters",
+              noItemsInMyVault: "No items in My vault",
+              noItemsInVaults: "Your vaults are empty",
+              noItemsInOrganizationVault: (name) => `No items in ${name}`,
+              noItemsInSharedFolder: (name) => `No items in ${name}`,
+              emptyVaultsDescription: "Add logins, IDs, cards, and other items to get started.",
+              emptySharedFolderDescription: (name) =>
+                `Add items to this shared folder, then give access to other ${name} members.`,
+              noItemsInTrash: "No items in trash",
+              noItemsInTrashDescription:
+                "Items you delete will appear here and be permanently deleted after 30 days.",
+              noItemsInArchive: "No items in archive",
+              noItemsInArchiveDesc:
+                "Archived items will appear here and will be excluded from general search results and autofill suggestions.",
               // Copy quick actions
               copyUsername: "Copy username",
               copyPassword: "Copy password",
@@ -621,6 +650,12 @@ export default {
               noSecurityCode: "No security code",
               noValuesToCopy: "No values to copy",
               valueCopied: (value) => `${value} copied`,
+              sharedFolderFilterTooltip: "Add items to a shared folder to filter here.",
+              clear: "clear",
+              importItems: "Import items",
+              emptyMyItems: "No items in My items",
+              emptyMyItemsDescription:
+                "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
             }),
         },
         {
@@ -722,15 +757,60 @@ export const Loading: Story = {
 };
 
 /**
- * An empty `ciphers` array. The copy invites the user to add their first item, which is why this
- * state is worth distinguishing from [Filtered To Zero](#filtered-to-zero) — there, the fix is to
- * clear a filter rather than to add anything.
+ * An empty `ciphers` array, scoped to the personal vault via `scope`. The copy invites the
+ * user to add their first item, which is why this state is worth distinguishing from
+ * [Filtered To Zero](#filtered-to-zero) — there, the fix is to clear a filter rather than to add
+ * anything.
  *
- * `organizations` and `collections` are cleared so the Vault and Shared folders chips don't appear
- * when there is nothing in the vault — a new user has no org context yet.
+ * `scope`/`organizationName`/`hasMultipleVaults`/`sharedFolderName`
+ * are what a host relays from its own vault-scope resolution — the table has no notion of scope
+ * itself, so an empty `ciphers` array with none of them set renders no empty state at all. See
+ * [Empty Organization Vault](#empty-organization-vault),
+ * [Empty Multiple Vaults](#empty-multiple-vaults),
+ * [Empty Shared Folder](#empty-shared-folder),
+ * [Empty Trash](#empty-trash), and
+ * [Empty Archive](#empty-archive) for the other variants.
  */
 export const Empty: Story = {
-  args: { ciphers: [], organizations: [], collections: [] },
+  args: { ciphers: [], scope: { type: VaultScopeType.MyVault } },
+};
+
+/** The same empty vault, scoped to a single organization instead of the personal vault. */
+export const EmptyOrganizationVault: Story = {
+  args: {
+    ciphers: [],
+    scope: { type: VaultScopeType.Organization, organizationId: "org-1" as OrganizationId },
+    organizationName: "Acme corporation",
+  },
+};
+
+/** The same empty vault, with none of the account's vaults holding an item. */
+export const EmptyMultipleVaults: Story = {
+  args: { ciphers: [], scope: { type: VaultScopeType.AllItems }, hasMultipleVaults: true },
+};
+
+/**
+ * A shared folder the current organization scope has drilled into, with nothing in it yet. Takes
+ * priority over [Empty Organization Vault](#empty-organization-vault) when both are set, since it
+ * is the more specific destination.
+ */
+export const EmptySharedFolder: Story = {
+  args: {
+    ciphers: [],
+    scope: { type: VaultScopeType.Organization, organizationId: "org-1" as OrganizationId },
+    organizationName: "Acme corporation",
+    sharedFolderName: "Engineering",
+  },
+};
+
+/** The trash, with no deleted items in it. */
+export const EmptyTrash: Story = {
+  args: { ciphers: [], scope: { type: VaultScopeType.Trash } },
+};
+
+/** The archive, with no archived items in it. */
+export const EmptyArchive: Story = {
+  args: { ciphers: [], scope: { type: VaultScopeType.Archive } },
 };
 
 /**
@@ -738,9 +818,9 @@ export const Empty: Story = {
  * `search` key here, the same way the story below seeds a chip — clear the search box to bring the
  * rows back.
  *
- * The empty state offers no Clear all button: clearing the chips wouldn't bring the rows back while
- * the search term still excludes them. Compare
- * [Filtered To Zero By Chip](#filtered-to-zero-by-chip), where it does.
+ * The empty state offers Clear search rather than Clear all: clearing the chips wouldn't bring the
+ * rows back while the search term still excludes them. Compare
+ * [Filtered To Zero By Chip](#filtered-to-zero-by-chip), where Clear all does.
  */
 export const FilteredToZero: Story = {
   args: { initialFilterValues: { search: "no-such-item" } },

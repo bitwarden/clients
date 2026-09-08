@@ -11,6 +11,12 @@
     <navigation-product-switcher [variant]="variant()"></navigation-product-switcher>
   </ng-container>
 
+  <ng-container slot="account">
+    @if (vfo1FoundationEnabled()) {
+      <app-account-menu [expanded]="sideNavService.open()"></app-account-menu>
+    }
+  </ng-container>
+
   <ng-container slot="callout">
     @if (shouldShowPremiumUpgradeButton$ | async) {
       <app-upgrade-callout></app-upgrade-callout>

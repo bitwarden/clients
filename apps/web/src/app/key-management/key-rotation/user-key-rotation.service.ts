@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { firstValueFrom, Observable } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
 
 import { LogoutService } from "@bitwarden/auth/common";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
@@ -110,6 +110,31 @@ export class UserKeyRotationService {
   ) {}
 
   /**
+   * Whether a manual user key rotation goes through the SDK.
+   *
+   * SDK key rotation always rotates to v2 encryption, so a v2 user always uses it.
+   *
+   * A v1 user uses it only when `force-upgrade-v2-encryption` is on. That flag starts the
+   * automated forced v2 upgrade, which rotates the user to v2 anyway. While the flag is off, a
+   * manual key rotation must keep the user on v1. Otherwise an older device that does not fully
+   * support v2 can no longer read the vault data.
+   */
+  shouldUseSdkKeyRotation$(userId: UserId): Observable<boolean> {
+    return combineLatest([
+      this.keyService.userKey$(userId),
+      this.configService.getFeatureFlag$(FeatureFlag.SdkKeyRotation),
+      this.configService.getFeatureFlag$(FeatureFlag.ForceUpgradeV2Encryption),
+    ]).pipe(
+      map(([userKey, sdkKeyRotation, forceUpgradeV2]) => {
+        if (userKey == null) {
+          return false;
+        }
+        return !this.isV1User(userKey) || (sdkKeyRotation && forceUpgradeV2);
+      }),
+    );
+  }
+
+  /**
    * Creates a new user key and re-encrypts all required data with the it.
    * @param currentMasterPassword: The current master password
    * @param newMasterPassword: The new master password
@@ -122,7 +147,7 @@ export class UserKeyRotationService {
     user: Account,
     newMasterPasswordHint?: string,
   ): Promise<void> {
-    const useSdkKeyRotation = await this.configService.getFeatureFlag(FeatureFlag.SdkKeyRotation);
+    const useSdkKeyRotation = await firstValueFrom(this.shouldUseSdkKeyRotation$(user.id));
     if (useSdkKeyRotation) {
       this.logService.info(
         "[UserKey Rotation] Using SDK-based key rotation service from user-crypto-management",
