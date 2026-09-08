@@ -177,7 +177,7 @@ export class AccessRuleEditComponent {
     read: ElementRef<HTMLElement>,
   });
 
-  protected readonly pageTypeKey = this.editing
+  private readonly pageTypeKey = this.editing
     ? "pamAccessRuleEditTitle"
     : "pamAccessRuleCreateTitle";
 
