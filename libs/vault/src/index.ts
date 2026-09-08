@@ -57,6 +57,7 @@ export {
 } from "./services/vault-organization-user-notifications.service";
 export { VaultItemEvent } from "./components/vault-item-event";
 export * from "./components/shared-folders";
+export * from "./components/empty-vault";
 export * from "./components/vault-items-table";
 export * from "./components/organization-name-badge/organization-name-badge.component";
 
