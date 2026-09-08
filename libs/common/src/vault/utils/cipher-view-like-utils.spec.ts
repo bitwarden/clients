@@ -1,7 +1,8 @@
 import { mock } from "jest-mock-extended";
 
-import { CipherListView } from "@bitwarden/sdk-internal";
+import { CipherListView, LoginUriView as LoginListUriView } from "@bitwarden/sdk-internal";
 
+import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { BankAccountType, CipherType } from "../enums";
 import { Attachment } from "../models/domain/attachment";
@@ -1118,6 +1119,67 @@ describe("CipherViewLikeUtils", () => {
         } as CipherListView;
 
         expect(CipherViewLikeUtils.getAttachmentNames(cipherListView)).toBeUndefined();
+      });
+    });
+  });
+
+  describe("getUriHostname", () => {
+    describe("CipherView (LoginUriView)", () => {
+      it("returns the hostname for a valid URI", () => {
+        const uri = new LoginUriView();
+        uri.uri = "https://example.com/path";
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBe("example.com");
+      });
+
+      it("returns undefined, not null, when the URI has no parseable hostname", () => {
+        const uri = new LoginUriView();
+        uri.uri = "data:text/plain,hello";
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
+      });
+
+      it("returns undefined for RegularExpression match strategy", () => {
+        const uri = new LoginUriView();
+        uri.uri = "https://example.com";
+        uri.match = UriMatchStrategy.RegularExpression;
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
+      });
+
+      it("returns undefined when there is no URI", () => {
+        const uri = new LoginUriView();
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
+      });
+    });
+
+    describe("CipherListView (LoginListUriView)", () => {
+      it("returns the hostname for a valid URI", () => {
+        const uri = { uri: "https://example.com/path" } as LoginListUriView;
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBe("example.com");
+      });
+
+      it("returns undefined, not null, when the URI has no parseable hostname", () => {
+        const uri = { uri: "data:text/plain,hello" } as LoginListUriView;
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
+      });
+
+      it("returns undefined for RegularExpression match strategy", () => {
+        const uri = {
+          uri: "https://example.com",
+          match: UriMatchStrategy.RegularExpression,
+        } as LoginListUriView;
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
+      });
+
+      it("returns undefined when the URI is empty", () => {
+        const uri = { uri: "" } as LoginListUriView;
+
+        expect(CipherViewLikeUtils.getUriHostname(uri)).toBeUndefined();
       });
     });
   });

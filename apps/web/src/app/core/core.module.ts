@@ -45,6 +45,7 @@ import {
   LoginEmailService,
   LogoutService,
 } from "@bitwarden/auth/common";
+import { AutomationCapability, ProcessReloadCapability } from "@bitwarden/automation-driver";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -70,13 +71,13 @@ import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email
 import { DefaultChangeEmailService } from "@bitwarden/common/auth/services/change-email/default-change-email.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   DefaultSharedUnlockSettingsService,
@@ -252,6 +253,13 @@ const safeProviders: SafeProvider[] = [
     provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
     useFactory: (initService: InitService) => initService.init(),
     deps: [InitService],
+    multi: true,
+  }),
+  // Web-only automation capability.
+  safeProvider({
+    provide: AutomationCapability,
+    useFactory: (win: Window) => new ProcessReloadCapability(() => win.location.reload()),
+    deps: [WINDOW],
     multi: true,
   }),
   safeProvider({

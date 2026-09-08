@@ -126,6 +126,13 @@ export class NavItemComponent extends NavBaseComponent {
   readonly ariaCurrentWhenActive = input<RouterLinkActive["ariaCurrentWhenActive"]>("page");
 
   /**
+   * Unconditional `aria-current` value applied directly to the interactive element.
+   * Used by composing components (e.g. nav-group in vfo1) when the route is suppressed and
+   * `routerLinkActive` never fires, so active state must be signalled without a router link.
+   */
+  readonly ariaCurrentValue = input<RouterLinkActive["ariaCurrentWhenActive"]>(undefined);
+
+  /**
    * `aria-expanded` for the interactive element. Set by a composing component (e.g. a nav group)
    * when the item's main row toggles expandable content instead of a dedicated button. Left
    * `undefined` for plain nav items so no attribute is rendered.

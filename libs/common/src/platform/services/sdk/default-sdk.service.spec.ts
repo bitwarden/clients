@@ -14,6 +14,7 @@ import {
   FakeStateProvider,
   mockAccountServiceWith,
   mockAccountInfoWith,
+  mockManagedSettingsService,
 } from "../../../../spec";
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
@@ -86,6 +87,7 @@ describe("DefaultSdkService", () => {
         fakeStateProvider,
         configService,
         upgradeTokenStateService,
+        mockManagedSettingsService(),
       );
     });
 

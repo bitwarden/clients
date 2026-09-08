@@ -24,60 +24,64 @@
         <h2 bitTypography="h5">{{ "items" | i18n }}</h2>
         <span slot="end">{{ items().length }}</span>
       </bit-section-header>
-      @for (item of items(); track item.cipherId) {
-        @let cipher = cipherMap().get(item.cipherId);
-        @if (cipher != null) {
-          <bit-item class="tw-flex tw-gap-2 tw-items-center">
-            <button bit-item-content type="button" (click)="onItemClick(cipher)">
-              <div slot="start" class="tw-pr-2 tw-flex tw-items-center">
-                <app-vault-icon [cipher]="cipher"></app-vault-icon>
-              </div>
-              <span bitTypography="body1">
-                {{ cipher.name }}
+
+      <cdk-virtual-scroll-viewport [itemSize]="rowSize()" bitScrollLayout>
+        <bit-item
+          *cdkVirtualFor="let row of rows(); trackBy: trackByCipherId"
+          class="tw-flex tw-gap-2 tw-items-center"
+        >
+          @let health = row.health;
+          @let cipher = row.cipher;
+
+          <button bit-item-content type="button" (click)="onItemClick(cipher)" class="tw-h-[52px]">
+            <div slot="start" class="tw-pr-2 tw-flex tw-items-center">
+              <app-vault-icon [cipher]="cipher"></app-vault-icon>
+            </div>
+            <span bitTypography="body1">
+              {{ cipher.name }}
+            </span>
+            <div slot="secondary" class="tw-flex tw-flex-col">
+              <span bitTypography="body2" class="tw-text-muted">
+                {{ cipher.login.username }}
               </span>
-              <div slot="secondary" class="tw-flex tw-flex-col">
-                <span bitTypography="body2" class="tw-text-muted">
-                  {{ cipher.login.username }}
-                </span>
-              </div>
-            </button>
-            <div slot="end" class="tw-flex tw-gap-2 tw-items-center">
-              @if (cipher.login.uri != null) {
-                <bit-item-action>
-                  <button
-                    type="button"
-                    bitButton
-                    buttonType="primaryOutline"
-                    endIcon="bwi-external-link"
-                    (click)="onChangePassword(cipher)"
-                  >
-                    {{ "changePassword" | i18n }}
-                  </button>
-                </bit-item-action>
-              }
+            </div>
+          </button>
+          <div slot="end" class="tw-flex tw-gap-2 tw-items-center">
+            @if (cipher.login.uri != null) {
               <bit-item-action>
                 <button
                   type="button"
-                  bitIconButton="bwi-more-horizontal"
-                  label="{{ 'options' | i18n }}"
-                  [bitMenuTriggerFor]="itemMenu"
-                ></button>
-                <bit-menu #itemMenu>
-                  <button
-                    bitMenuItem
-                    type="button"
-                    variant="danger"
-                    (click)="onDeleteItem(item, cipher)"
-                  >
-                    <bit-icon name="bwi-delete" slot="start" />
-                    {{ "deleteItem" | i18n }}
-                  </button>
-                </bit-menu>
+                  bitButton
+                  buttonType="primaryOutline"
+                  endIcon="bwi-external-link"
+                  (click)="onChangePassword(cipher)"
+                >
+                  {{ "changePassword" | i18n }}
+                </button>
               </bit-item-action>
-            </div>
-          </bit-item>
-        }
-      }
+            }
+            <bit-item-action>
+              <button
+                type="button"
+                bitIconButton="bwi-more-horizontal"
+                label="{{ 'options' | i18n }}"
+                [bitMenuTriggerFor]="itemMenu"
+              ></button>
+              <bit-menu #itemMenu>
+                <button
+                  bitMenuItem
+                  type="button"
+                  variant="danger"
+                  (click)="onDeleteItem(health, cipher)"
+                >
+                  <bit-icon name="bwi-delete" slot="start" />
+                  {{ "deleteItem" | i18n }}
+                </button>
+              </bit-menu>
+            </bit-item-action>
+          </div>
+        </bit-item>
+      </cdk-virtual-scroll-viewport>
     </bit-section>
   } @else {
     <div class="tw-flex tw-flex-col tw-justify-center tw-h-full tw-items-center">

@@ -246,6 +246,11 @@ const FILTER_ORGANIZATION_OPTIONS = [
   { value: { id: STORY_ORG_ID } as Organization, label: "Acme Co", icon: "bwi-business" as const },
 ];
 
+// The names the collection groups are labeled from, keyed by organization id.
+const FILTER_ORGANIZATION_NAMES = new Map(
+  FILTER_ORGANIZATION_OPTIONS.map((option) => [option.value.id, option.label]),
+);
+
 const FILTER_COLLECTION_OPTIONS = [
   {
     value: { id: "00000000-0000-4000-8000-0000000000fa", name: "Engineering" } as CollectionView,
@@ -457,6 +462,7 @@ const buildProviders = (args: StoryArgs) => {
         selectedOrganizations: signal<Organization[]>([]),
         cipherTypes$: of(FILTER_CIPHER_TYPE_OPTIONS),
         organizations$: of(FILTER_ORGANIZATION_OPTIONS),
+        organizationNames$: of(FILTER_ORGANIZATION_NAMES),
         collections$: of(FILTER_COLLECTION_OPTIONS),
         folders$: of(FILTER_FOLDER_OPTIONS),
       },
@@ -763,14 +769,11 @@ const buildProviders = (args: StoryArgs) => {
           upgrade: "Upgrade",
           upgradeToUseArchive: "Upgrade to use archive",
           delete: "Delete",
-          launchWebsite: "Launch website",
           launchWebsiteForName: "Launch __$1__",
           // New-item dropdown / FAB / header controls. Every `labelKey` in `CIPHER_MENU_ITEMS` has to
           // resolve or the dropdown throws while rendering.
           addItem: "Add item",
           newFolder: "New folder",
-          noDetailsToCopy: "No details to copy",
-          appLogoLabel: "Bitwarden logo",
           new: "New",
           add: "Add",
           typeNote: "Note",
@@ -793,6 +796,28 @@ const buildProviders = (args: StoryArgs) => {
           reviewXAtRiskPassword: "Review __$1__ at-risk password",
           reviewXAtRiskPasswordsPlural: "Review __$1__ at-risk passwords",
           atRiskLoginsSecured: "At-risk logins secured",
+          launchWebsite: "Launch website",
+          noDetailsToCopy: "No details to copy",
+          importItems: "Import items",
+          noItemsMatchSearchTerm: (term) => `No items match "${term}"`,
+          noItemsMatchSelectedFilters: "No items match selected filters",
+          noItemsInMyVault: "No items in My vault",
+          noItemsInVaults: "Your vaults are empty",
+          noItemsInOrganizationVault: (name) => `No items in ${name}`,
+          noItemsInSharedFolder: (name) => `No items in ${name}`,
+          emptyVaultsDescription: "Add logins, IDs, cards, and other items to get started.",
+          emptySharedFolderDescription: (name) =>
+            `Add items to this shared folder, then give access to other ${name} members.`,
+          noItemsInTrash: "No items in trash",
+          noItemsInTrashDescription:
+            "Items you delete will appear here and be permanently deleted after 30 days.",
+          noItemsInArchive: "No items in archive",
+          noItemsInArchiveDesc:
+            "Archived items will appear here and will be excluded from general search results and autofill suggestions.",
+          appLogoLabel: "Bitwarden logo",
+          emptyMyItems: "No items in My items",
+          emptyMyItemsDescription:
+            "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
         }),
     },
   ];
