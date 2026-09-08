@@ -2,9 +2,8 @@ use std::{sync::Arc, time::Duration};
 
 use autofill_provider::{
     AutofillProviderClient, ConnectionStatus, LockStatusResponse, PasskeyAssertionRequest,
-    PasskeyAssertionWithoutUserInterfaceRequest, PasskeyRegistrationRequest,
-    PreparePasskeyAssertionCallback, PreparePasskeyRegistrationCallback, TimedCallback,
-    WindowHandleQueryResponse,
+    PasskeyRegistrationRequest, PreparePasskeyAssertionCallback,
+    PreparePasskeyRegistrationCallback, TimedCallback, WindowHandleQueryResponse,
 };
 
 /// Abstraction over an active IPC connection to the desktop app.
@@ -39,12 +38,6 @@ pub(crate) trait IpcClient: Send + Sync {
     fn prepare_passkey_assertion(
         &self,
         request: PasskeyAssertionRequest,
-        callback: Arc<dyn PreparePasskeyAssertionCallback>,
-    );
-
-    fn prepare_passkey_assertion_without_user_interface(
-        &self,
-        request: PasskeyAssertionWithoutUserInterfaceRequest,
         callback: Arc<dyn PreparePasskeyAssertionCallback>,
     );
 }
@@ -101,15 +94,6 @@ impl IpcClient for RealIpcClient {
         callback: Arc<dyn PreparePasskeyAssertionCallback>,
     ) {
         self.0.prepare_passkey_assertion(request, callback)
-    }
-
-    fn prepare_passkey_assertion_without_user_interface(
-        &self,
-        request: PasskeyAssertionWithoutUserInterfaceRequest,
-        callback: Arc<dyn PreparePasskeyAssertionCallback>,
-    ) {
-        self.0
-            .prepare_passkey_assertion_without_user_interface(request, callback)
     }
 }
 
