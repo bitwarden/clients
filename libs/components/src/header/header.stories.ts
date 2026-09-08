@@ -356,7 +356,7 @@ export const WithPrefixVfo1: Story = {
     props: args,
     template: /*html*/ `
     <bit-header title="My vault" class="tw-text-main">
-      <bit-icon-tile slot="prefix" icon="bwi-user" variant="brand" emphasis="bold" size="sm" />
+      <bit-icon-tile slot="title-prefix" icon="bwi-user" variant="brand" emphasis="bold" size="sm" />
     </bit-header>
   `,
   }),
