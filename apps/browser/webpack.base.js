@@ -153,7 +153,16 @@ module.exports.buildConfig = function buildConfig(params) {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "src/popup/index.ejs"),
       filename: "popup/index.html",
-      chunks: ["popup/polyfills", "popup/vendor-angular", "popup/vendor", "popup/main"],
+      chunks: [
+        "popup/bootstrap",
+        "popup/polyfills",
+        "popup/vendor-angular",
+        "popup/vendor",
+        "popup/main",
+      ],
+      // The template attaches the app bundles itself so `popup/bootstrap` can paint the
+      // loading state before they are evaluated. See `src/popup/bootstrap.ts`.
+      inject: false,
       browser: browser,
     }),
     new HtmlWebpackPlugin({
@@ -244,6 +253,7 @@ module.exports.buildConfig = function buildConfig(params) {
     devtool: false,
 
     entry: {
+      "popup/bootstrap": path.resolve(__dirname, "src/popup/bootstrap.ts"),
       "popup/polyfills": path.resolve(__dirname, "src/popup/polyfills.ts"),
       "popup/main": params.popup.entry,
       "content/trigger-autofill-script-injection": path.resolve(

@@ -3,6 +3,7 @@
   "include": [
     "src/autofill/globals.d.ts",
     "src/platform/globals.d.ts",
+    "src/popup/bootstrap.ts",
     "src/popup/polyfills.ts",
     "src/popup/main.ts",
     "src/autofill/content/trigger-autofill-script-injection.ts",

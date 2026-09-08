@@ -1,14 +1,109 @@
 <!doctype html>
+<%
+  /**
+   * `inject` is disabled for this template so the app bundles can be attached by
+   * `popup/bootstrap.js` after the loading state has painted, rather than blocking the first
+   * frame. See `src/popup/bootstrap.ts`.
+   */
+  const jsFiles = htmlWebpackPlugin.files.js;
+  const bootstrap = jsFiles.find((file) => file.includes("popup/bootstrap"));
+  const appBundles = jsFiles.filter((file) => file !== bootstrap);
+%>
 <html class="browser_<%= htmlWebpackPlugin.options.browser %>">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Bitwarden</title>
     <base href="" />
+    <style>
+      /**
+       * Critical styles for the loading state, inlined so it can paint without the icon font
+       * that main.css's spinner depends on -- fonts are fetched lazily and would not have
+       * arrived in time, leaving the popup blank on the frame we are trying to show.
+       *
+       * The colors are duplicated from the `bg-tertiary` and `text-muted` tokens in
+       * libs/components/src/tw-theme.css (which main.css resolves for `body` and `#loading`)
+       * rather than read from them, because the first frame can land before main.css has been
+       * applied and an unstyled frame is a white flash for dark-theme users. main.css then
+       * overrides these with the same values, so there is no second flash. Keep them in sync
+       * with `--color-bg-tertiary` and `--color-text-muted`.
+       * `popup/bootstrap.ts` sets the theme class before this is painted.
+       */
+      html {
+        --bw-boot-background: #f7f9fa;
+        --bw-boot-foreground: rgb(96 109 145);
+      }
+
+      html.theme_dark {
+        --bw-boot-background: #020618;
+        --bw-boot-foreground: rgb(136 152 181);
+      }
+
+      /* main.css (via Tailwind preflight) sets these too; repeated so the loading state is
+         centered on the first frame rather than jumping once main.css lands. */
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        background-color: var(--bw-boot-background);
+      }
+
+      /* `popup/bootstrap.ts` sets --bw-boot-width from the cached width so the popup window
+         opens at its final size. Falls back to the full width the popout and tab layouts use.
+         Deliberately outranks main.css's `body { width: 100% }`; PopupSizeService overrides it
+         with an inline style once the app boots. */
+      html body {
+        width: var(--bw-boot-width, 100%);
+      }
+
+      app-root {
+        display: block;
+        height: 100%;
+      }
+
+      #loading {
+        color: var(--bw-boot-foreground);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+      }
+
+      #loading .bw-boot-spinner {
+        width: 2.5rem;
+        height: 2.5rem;
+        border: 3px solid currentColor;
+        border-top-color: transparent;
+        border-radius: 50%;
+        opacity: 0.5;
+        animation: bw-boot-spin 0.8s linear infinite;
+      }
+
+      @keyframes bw-boot-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #loading .bw-boot-spinner {
+          animation-duration: 2.4s;
+        }
+      }
+    </style>
+    <% for (const css of htmlWebpackPlugin.files.css) { %>
+    <link href="<%= css %>" rel="stylesheet" />
+    <% } %>
+    <!-- Intentionally parser-blocking and ahead of the loading markup: it applies the cached
+         theme and width, which have to be in place before the first frame is painted. -->
+    <script src="<%= bootstrap %>" data-bundles="<%= appBundles.join(',') %>"></script>
   </head>
   <body>
     <app-root>
-      <div id="loading"><i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i></div>
+      <div id="loading"><div class="bw-boot-spinner" aria-hidden="true"></div></div>
     </app-root>
   </body>
 </html>

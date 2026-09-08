@@ -1,4 +1,4 @@
-import { inject, Inject, Injectable, DOCUMENT } from "@angular/core";
+import { DestroyRef, inject, Inject, Injectable, DOCUMENT } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { AutomationDriver } from "@bitwarden/automation-driver";
@@ -12,12 +12,14 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { ForegroundUnlockService } from "../../key-management/unlock/foreground-unlock.service";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import { PopupSizeService } from "../../platform/popup/layout/popup-size.service";
+import { cacheTheme } from "../../platform/popup/theme/popup-theme-cache";
 import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
 
 @Injectable()
 export class InitService {
   private sizeService = inject(PopupSizeService);
   private automationDriver = inject(AutomationDriver);
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
@@ -46,6 +48,10 @@ export class InitService {
 
       const htmlEl = window.document.documentElement;
       this.themingService.applyThemeChangesTo(this.document);
+      // Cache the resolved theme so the next popup open can paint its loading state in the
+      // right theme before this service has had a chance to run.
+      const themeCacheSubscription = this.themingService.theme$.subscribe(cacheTheme);
+      this.destroyRef.onDestroy(() => themeCacheSubscription.unsubscribe());
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
 
       // Workaround for slow performance on external monitors on Chrome + MacOS
