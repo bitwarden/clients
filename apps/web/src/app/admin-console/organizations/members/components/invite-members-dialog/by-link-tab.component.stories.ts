@@ -9,24 +9,26 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import {
-  OrganizationInviteLink,
   OrganizationInviteLinkService,
+  OrganizationInviteLinkView,
 } from "@bitwarden/organization-invite-link";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 
 import { ByLinkTabComponent } from "./by-link-tab.component";
 
-const mockInviteLink: OrganizationInviteLink = Object.assign(
-  new OrganizationInviteLink({} as any),
+const mockInviteLinkUrl =
+  "https://vault.example.com/#/joinOrganization?organizationId=org-1&orgUserToken=abc123&orgName=Acme+Corp";
+
+const mockInviteLink: OrganizationInviteLinkView = Object.assign(
+  new OrganizationInviteLinkView({} as any),
   {
     id: "link-1",
-    code: "abc123",
     organizationId: "org-1",
     allowedDomains: ["example.com", "acme.org"],
-    invite: "enc-key",
     supportsConfirmation: true,
     creationDate: "2025-01-15T10:30:00Z",
+    url: mockInviteLinkUrl,
   },
 );
 
@@ -46,9 +48,6 @@ const mockEventCollectionService = {
   collect: () => Promise.resolve(),
   collectMany: () => Promise.resolve(),
 };
-
-const mockInviteLinkUrl =
-  "https://vault.example.com/#/joinOrganization?organizationId=org-1&orgUserToken=abc123&orgName=Acme+Corp";
 
 type StoryArgs = {
   /** Comma-separated verified domains to pre-fill when no link exists yet. */
@@ -87,9 +86,9 @@ export default {
 type Story = StoryObj<StoryArgs>;
 
 const makeRender =
-  (initialLink: OrganizationInviteLink | undefined): Story["render"] =>
+  (initialLink: OrganizationInviteLinkView | undefined): Story["render"] =>
   (args) => {
-    const inviteLink$ = new BehaviorSubject<OrganizationInviteLink | undefined>(initialLink);
+    const inviteLink$ = new BehaviorSubject<OrganizationInviteLinkView | undefined>(initialLink);
 
     const verifiedDomainNames = args.verifiedDomains
       ? args.verifiedDomains
@@ -101,7 +100,7 @@ const makeRender =
     const upsertLink = (_userId: unknown, _orgId: unknown, domains: string[]) => {
       const current = inviteLink$.getValue();
       inviteLink$.next(
-        Object.assign(new OrganizationInviteLink({} as any), {
+        Object.assign(new OrganizationInviteLinkView({} as any), {
           ...mockInviteLink,
           allowedDomains: domains,
           creationDate: current?.creationDate ?? new Date().toISOString(),
@@ -130,7 +129,6 @@ const makeRender =
             provide: OrganizationInviteLinkService,
             useValue: {
               inviteLink$: () => inviteLink$.asObservable(),
-              reconstructUrl: () => of(mockInviteLinkUrl),
               createInviteLink: upsertLink,
               updateAllowedDomains: upsertLink,
               refreshInviteLink: () => Promise.resolve(),

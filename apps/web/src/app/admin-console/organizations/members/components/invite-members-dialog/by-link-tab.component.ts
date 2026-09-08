@@ -31,8 +31,8 @@ import {
   TooltipDirective,
 } from "@bitwarden/components";
 import {
-  OrganizationInviteLink,
   OrganizationInviteLinkService,
+  OrganizationInviteLinkView,
 } from "@bitwarden/organization-invite-link";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -70,22 +70,15 @@ export class ByLinkTabComponent {
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
-  protected readonly inviteLink$: Observable<OrganizationInviteLink | undefined> = combineLatest([
-    this.userId$,
-    toObservable(this.organizationId),
-  ]).pipe(
-    switchMap(([userId, orgId]) => this.inviteLinkService.inviteLink$(userId, orgId)),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  protected readonly inviteLink$: Observable<OrganizationInviteLinkView | undefined> =
+    combineLatest([this.userId$, toObservable(this.organizationId)]).pipe(
+      switchMap(([userId, orgId]) => this.inviteLinkService.inviteLink$(userId, orgId)),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
-  protected readonly inviteLinkUrl$: Observable<string> = combineLatest([
-    this.userId$,
-    toObservable(this.organizationId),
-    this.inviteLink$.pipe(filter((link) => link != null)),
-  ]).pipe(
-    switchMap(([userId, orgId, inviteLink]) =>
-      this.inviteLinkService.reconstructUrl(userId, orgId, inviteLink),
-    ),
+  protected readonly inviteLinkUrl$: Observable<string> = this.inviteLink$.pipe(
+    filter((link) => link != null),
+    map((link) => link.url),
   );
 
   readonly hasInviteLinkUrl$: Observable<boolean> = this.inviteLink$.pipe(
