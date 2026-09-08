@@ -84,6 +84,14 @@ describe("PamOrgNavSlotComponent", () => {
     expect(navGroup()).toBeNull();
   });
 
+  it("generates no box of its own, so rendering nothing takes up no space", () => {
+    pamEnabled$.next(false);
+    fixture.detectChanges();
+
+    expect(navGroup()).toBeNull();
+    expect(fixture.debugElement.nativeElement.classList).toContain("tw-contents");
+  });
+
   // The two items mirror their own routes' guards; managing access rules and reading event logs
   // are separate permissions.
   it("shows only Access rules when the org cannot read event logs", () => {
