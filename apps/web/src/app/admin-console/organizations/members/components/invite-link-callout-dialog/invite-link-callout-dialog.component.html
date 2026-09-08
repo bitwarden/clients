@@ -1,33 +1,39 @@
-<div
-  class="tw-max-w-3xl tw-p-9 tw-border tw-border-solid tw-border-border-base tw-rounded-xl tw-bg-background tw-text-center"
->
-  <bit-svg
-    [content]="marketingSvg"
-    [ariaLabel]="'inviteLinkCalloutImageAlt' | i18n"
-    class="tw-mb-7"
-  ></bit-svg>
-  <div class="tw-flex tw-flex-col tw-gap-7">
-    <h2 class="tw-mb-0">{{ "inviteLinkCalloutHeading" | i18n }}</h2>
-    <p class="tw-mb-0">{{ "inviteLinkCalloutBody" | i18n }}</p>
-    <div class="tw-flex tw-gap-4 tw-justify-center">
-      <button
-        id="invite-link-callout-dialog_button_skip"
-        bitButton
-        buttonType="secondary"
-        type="button"
-        (click)="close('skip')"
-      >
-        {{ "skip" | i18n }}
-      </button>
-      <button
-        id="invite-link-callout-dialog_button_show-me-how"
-        bitButton
-        buttonType="primary"
-        type="button"
-        (click)="close('showMeHow')"
-      >
-        {{ "showMeHow" | i18n }}
-      </button>
+<bit-dialog dialogSize="large" class="tw-p-0">
+  <div bitDialogContent class="tw-p-2 tw-pb-0">
+    <bit-svg
+      [content]="marketingSvg"
+      [ariaLabel]="'inviteLinkCalloutImageAlt' | i18n"
+      class="tw-max-w-full"
+    ></bit-svg>
+    <div class="tw-px-12 tw-pt-6 tw-text-center">
+      <div class="tw-px-12">
+        <h2 bitTypography="h2" class="tw-mb-4">
+          {{ "inviteLinkCalloutHeading" | i18n }}
+        </h2>
+        <p bitTypography="body1" class="tw-mb-0 tw-text-muted">
+          {{ "inviteLinkCalloutBody" | i18n }}
+        </p>
+      </div>
     </div>
   </div>
-</div>
+  <div bitDialogFooter class="tw-w-full tw-flex tw-justify-center tw-gap-4 tw-pb-3">
+    <button
+      id="invite-link-callout-dialog_button_skip"
+      bitButton
+      buttonType="secondary"
+      type="button"
+      (click)="close('skip')"
+    >
+      {{ "skip" | i18n }}
+    </button>
+    <button
+      id="invite-link-callout-dialog_button_show-me-how"
+      bitButton
+      buttonType="primary"
+      type="button"
+      (click)="close('showMeHow')"
+    >
+      {{ "showMeHow" | i18n }}
+    </button>
+  </div>
+</bit-dialog>

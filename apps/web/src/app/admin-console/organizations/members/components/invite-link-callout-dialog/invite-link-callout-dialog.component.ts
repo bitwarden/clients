@@ -33,6 +33,8 @@ export class InviteLinkCalloutDialogComponent {
   }
 
   static open(dialogService: DialogService) {
-    return dialogService.open<InviteLinkCalloutDialogResult>(InviteLinkCalloutDialogComponent);
+    return dialogService.open<InviteLinkCalloutDialogResult>(InviteLinkCalloutDialogComponent, {
+      disableClose: true,
+    });
   }
 }
