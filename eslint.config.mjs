@@ -777,6 +777,9 @@ export default tseslint.config(
 
       "scripts/*.js",
       "jest.preset.js",
+
+      // Agent configuration and its tooling, not shipped code.
+      ".claude/",
     ],
   },
 );

@@ -85,11 +85,21 @@ adapt.
 
 ### Breadcrumbs with page header
 
+Breadcrumbs projected into a [Header](?path=/docs/component-library-header--docs) through
+`slot="breadcrumbs"` coordinate with it to determine which component renders the page's heading.
+When one of the breadcrumbs matches the current route, that active breadcrumb renders as the page's
+`<h1>` and the header suppresses its own title, so the page still has exactly one `<h1>`. The
+coordination also relies on the two components sharing a `HeaderContext`, which a wrapper around
+`bit-header` has to provide. See
+[Page heading](?path=/docs/component-library-header--docs#page-heading) for the full behavior.
+
 When breadcrumbs are used within a header that displays the active page outside of the breadcrumbs
 (such as in a separate heading element), use `showTrailingArrow` to display one last arrow at the
 end of the breadcrumbs list. This provides better visual continuity to guide the user's eyes to the
 heading element as a logical continuation of the breadcrumbs. The heading element should be placed
 immediately below the breadcrumbs.
+
+Don't use `showTrailingArrow` when the last breadcrumb is the active breadcrumb.
 
 <Canvas of={stories.WithTrailingArrow} />
 

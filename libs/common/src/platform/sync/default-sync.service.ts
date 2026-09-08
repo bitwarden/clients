@@ -101,8 +101,8 @@ export class DefaultSyncService extends CoreSyncService {
     tokenService: TokenService,
     authService: AuthService,
     stateProvider: StateProvider,
-    private configService: ConfigService,
-    private sdkService: SdkService,
+    configService: ConfigService,
+    sdkService: SdkService,
   ) {
     super(
       tokenService,
@@ -118,6 +118,8 @@ export class DefaultSyncService extends CoreSyncService {
       sendService,
       sendApiService,
       stateProvider,
+      configService,
+      sdkService,
     );
   }
 

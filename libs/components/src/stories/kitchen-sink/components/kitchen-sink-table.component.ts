@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 
+import { BadgeGroupComponent } from "../../../badge-group";
 import { IconTileComponent } from "../../../icon-tile";
 import {
   BitCellComponent,
@@ -21,13 +22,15 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
     BitRowComponent,
     BitHeaderRowComponent,
     IconTileComponent,
+    BadgeGroupComponent,
   ],
   template: `
     <bit-table-v2>
       <bit-header-row>
         <bit-header-cell>Product</bit-header-cell>
         <bit-header-cell>User</bit-header-cell>
-        <bit-header-cell></bit-header-cell>
+        <bit-header-cell>Features</bit-header-cell>
+        <bit-header-cell>Actions</bit-header-cell>
       </bit-header-row>
       <bit-row>
         <bit-cell>
@@ -36,6 +39,9 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
           <span slot="secondary">Vault, autofill, and credential generator</span>
         </bit-cell>
         <bit-cell>Everyone</bit-cell>
+        <bit-cell>
+          <bit-badge-group [badges]="pmBadges" />
+        </bit-cell>
         <bit-cell>
           <button
             type="button"
@@ -59,6 +65,9 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
         </bit-cell>
         <bit-cell>Developers</bit-cell>
         <bit-cell>
+          <bit-badge-group [badges]="smBadges" />
+        </bit-cell>
+        <bit-cell>
           <button
             type="button"
             bitIconButton="bwi-ellipsis-v"
@@ -76,4 +85,16 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
     </bit-table-v2>
   `,
 })
-export class KitchenSinkTableComponent {}
+export class KitchenSinkTableComponent {
+  readonly pmBadges = [
+    { label: "Autofill", variant: "success", startIcon: "bwi-check-circle" },
+    { label: "Secrets", variant: "danger" },
+    { label: "Generator", variant: "subtle" },
+  ];
+
+  readonly smBadges = [
+    { label: "Certificates", variant: "accent-primary" },
+    { label: "Secrets", variant: "danger" },
+    { label: "Infrastructure", variant: "primary" },
+  ];
+}

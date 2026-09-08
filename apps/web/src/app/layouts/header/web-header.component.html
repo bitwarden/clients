@@ -6,11 +6,17 @@
     </ng-container>
 
     <ng-content></ng-content>
-    <product-switcher></product-switcher>
+    @if (!vfo1Enabled()) {
+      <product-switcher></product-switcher>
+    }
     <app-account-menu></app-account-menu>
 
     <ng-container slot="title-suffix">
       <ng-content select="[slot=title-suffix]"></ng-content>
+    </ng-container>
+
+    <ng-container slot="subtitle">
+      <ng-content select="[slot=subtitle]"></ng-content>
     </ng-container>
 
     <ng-container slot="secondary">

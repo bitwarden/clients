@@ -9,6 +9,10 @@
     "message": "Bitwarden Passwortmanager",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
+  "extNameBeta": {
+    "message": "Bitwarden Passwort-Manager Beta",
+    "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
+  },
   "extDesc": {
     "message": "Bitwarden schützt alle deine Passwörter, Passkeys und vertrauliche Informationen - egal, wo du bist.",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
@@ -535,6 +539,9 @@
   "foldersFilterTooltip": {
     "message": "Füge Ordner zu Einträgen hinzu, um sie hier zu filtern."
   },
+  "sharedFolderFilterTooltip": {
+    "message": "Füge Einträge zu einem geteiltem Ordner hinzu, um hier zu filtern."
+  },
   "editItemWithName": {
     "message": "Eintrag bearbeiten - $NAME$",
     "placeholders": {
@@ -750,6 +757,15 @@
   },
   "launchWebsite": {
     "message": "Website öffnen"
+  },
+  "launchWebsiteForName": {
+    "message": "Website aus $ITEMNAME$ öffnen",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Website"
@@ -1089,10 +1105,10 @@
     "message": "Ordner hinzugefügt"
   },
   "folderEdited": {
-    "message": "Folder edited"
+    "message": "Ordner bearbeitet"
   },
   "enterAName": {
-    "message": "Enter a name."
+    "message": "Einen Namen eingeben."
   },
   "twoStepLoginConfirmation": {
     "message": "Mit der Zwei-Faktor-Authentifizierung wird dein Konto zusätzlich abgesichert, da jede Anmeldung mit einem anderen Gerät wie einem Sicherheitsschlüssel, einer Authentifizierungs-App, einer SMS, einem Anruf oder einer E-Mail verifiziert werden muss. Die Zwei-Faktor-Authentifizierung kann im bitwarden.com Web-Tresor aktiviert werden. Möchtest du die Website jetzt öffnen?"
@@ -1406,17 +1422,29 @@
   "additionalOptions": {
     "message": "Weitere Optionen"
   },
-  "fillAssistActiveNotice": {
+  "fillAssistActiveNoticeV2": {
     "message": "Auto-Ausfüllen verwendet auf dieser Seite die Ausfüllhilfe."
   },
-  "activateFillAssist": {
+  "activateFillAssistV2": {
     "message": "Ausfüllhilfe einschalten"
   },
-  "activateFillAssistDescription": {
+  "activateFillAssistDescriptionV2": {
     "message": "Die Ausfüllhilfe verbessert die Genauigkeit von Auto-Ausfüllen auf unterstützten Websites durch die Anwendung Website-spezifischer Regeln. Bei der Nutzung dieser Funktion werden keine Daten erfasst oder gespeichert."
   },
-  "aboutFillAssistLabel": {
+  "aboutFillAssistLabelV2": {
     "message": "Über die Ausfüllhilfe"
+  },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Websites erlauben, Felder zum Auto-Ausfüllen auszuschließen"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Felder überspringen, die eine Website mit dem Attribut \"data-bwignore\" markiert."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Websites erlauben, Felder zum Auto-Ausfüllen hinzuzufügen"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Alle Span-Elemente verwenden, die eine Website mit dem Attribut \"data-bwautofill\" markiert."
   },
   "enableContextMenuItem": {
     "message": "Kontextmenüoptionen anzeigen"
@@ -2737,6 +2765,18 @@
   "noMatchingItems": {
     "message": "Keine passenden Einträge"
   },
+  "noFiltersMatch": {
+    "message": "Keine Filter stimmen mit \"$SEARCH$\" überein",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Suche löschen"
+  },
   "selected": {
     "message": "Ausgewählt"
   },
@@ -3182,12 +3222,6 @@
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "Kein Aktualisierungs-Token oder API-Schlüssel gefunden. Bitte versuche dich ab- und wieder anzumelden."
-  },
-  "desktopSyncVerificationTitle": {
-    "message": "Desktop-Sync-Überprüfung"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Bitte überprüfe, dass die Desktop-Anwendung diesen Fingerabdruck anzeigt: "
   },
   "desktopIntegrationDisabledTitle": {
     "message": "Browser-Integration ist nicht aktiviert"
@@ -5140,7 +5174,7 @@
     }
   },
   "importHelpCenterInstructions": {
-    "message": "See detailed $NAME$ instructions in our",
+    "message": "Ausführliche Anleitungen zu $NAME$ findest du in unserem",
     "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
     "placeholders": {
       "name": {
@@ -5150,7 +5184,7 @@
     }
   },
   "importHelpCenterLinkText": {
-    "message": "Help Center"
+    "message": "Hilfezentrum"
   },
   "importChromiumAliasPreamble": {
     "message": "The process is exactly the same as importing from Google Chrome.",
@@ -5240,7 +5274,7 @@
     "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
   },
   "importGnomeInstructionsLinkText": {
-    "message": "GNOME Keyring Import/Export"
+    "message": "GNOME-Schlüsselbund Import/Export"
   },
   "importGnomeInstructionsScriptLabel": {
     "message": "python script to your desktop as",
@@ -5938,6 +5972,12 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "Entferne die Filter oder versuche einen anderen Suchbegriff"
+  },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
   },
   "moreOptionsLabel": {
     "message": "Weitere Optionen, $ITEMNAME$",
@@ -7020,9 +7060,6 @@
   "compactMode": {
     "message": "Kompaktmodus"
   },
-  "beta": {
-    "message": "Beta"
-  },
   "extensionWidth": {
     "message": "Breite der Erweiterung"
   },
@@ -7079,12 +7116,6 @@
         "example": "Work, Personal"
       }
     }
-  },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Bitte aktualisiere deine Desktop-Anwendung"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "Um biometrisches Entsperren zu verwenden, aktualisiere bitte deine Desktop-Anwendung oder deaktiviere die Entsperrung per Fingerabdruck in den Desktop-Einstellungen."
   },
   "changeAtRiskPassword": {
     "message": "Gefährdetes Passwort ändern"
@@ -7274,6 +7305,15 @@
   },
   "showMore": {
     "message": "Mehr anzeigen"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "Weniger anzeigen"
@@ -7777,7 +7817,7 @@
     "message": "Gesundheit"
   },
   "scanMyVault": {
-    "message": "Meinen Tresor durchsuchen"
+    "message": "Meinen Tresor scannen"
   },
   "introducingHealth": {
     "message": "Einführung für Gesundheit"
@@ -7889,9 +7929,32 @@
     "message": "Risiken erkannt",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
+  "upgradeToViewPasswords": {
+    "message": "Upgraden, um Passwörter anzuzeigen"
+  },
   "categoryHealthy": {
     "message": "Keine Einträge benötigen Aufmerksamkeit",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "scanningYourVault": {
+    "message": "Dein Tresor wird gescannt",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Überprüfung auf kompromittierte, schwache und wiederverwendete Passwörter.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "Wird durchgeführt",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Etwas ist schiefgelaufen",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "Der Scan deines Tresors konnte aufgrund eines unerwarteten Fehlers nicht abgeschlossen werden.",
+    "description": "Explains that the vault health scan did not complete."
   },
   "exposedPasswordsTitle": {
     "message": "Kompromittierte Passwörter"
@@ -7911,8 +7974,8 @@
   "reusedPasswordsDescription": {
     "message": "Bei diesen Zugangsdaten wird dasselbe Passwort verwendet. Lege für jedes Konto ein einzigartiges Passwort fest, um zu verhindern, dass jemand mit einem einzigen Passwort auf mehrere Konten zugreifen kann."
   },
-  "deleteAtRiskItemDescription": {
-    "message": "Durch das Löschen dieser Zugangsdaten werden diese aus deinem Tresor entfernt, das Risiko wird dadurch jedoch nicht beseitigt. Um dein Konto zu schützen, ändere bitte zunächst dein Passwort."
+  "deleteAtRiskItemDesc": {
+    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
   },
   "passwordHasAdditionalRisks": {
     "message": "Dieses Passwort hat zusätzliche Risiken:"
@@ -7942,5 +8005,20 @@
   },
   "youreAllSet": {
     "message": "Du bist bereit!"
+  },
+  "permissions": {
+    "message": "Permissions"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
   }
 }

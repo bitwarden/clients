@@ -8,7 +8,9 @@ import {
   StoryObj,
 } from "@storybook/angular";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { enabledFlags } from "@bitwarden/storybook";
 
 import {
   AvatarModule,
@@ -21,6 +23,7 @@ import {
   NavigationModule,
   TabsModule,
   TypographyModule,
+  IconComponent,
 } from "..";
 import { I18nMockService } from "../utils";
 
@@ -40,6 +43,7 @@ export default {
         BreadcrumbsModule,
         ButtonModule,
         IconButtonModule,
+        IconComponent,
         SvgModule,
         InputModule,
         MenuModule,
@@ -57,6 +61,7 @@ export default {
               moreBreadcrumbs: "More breadcrumbs",
               breadcrumbs: "Breadcrumbs",
               loading: "Loading",
+              more: "More",
             });
           },
         },
@@ -81,27 +86,51 @@ export const KitchenSink: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-          <bit-header title="LongTitleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" icon="bwi-bug">
-            <bit-breadcrumbs slot="breadcrumbs">
-              <bit-breadcrumb>Foo</bit-breadcrumb>
-              <bit-breadcrumb>Bar</bit-breadcrumb>
-            </bit-breadcrumbs>
-            <input
-              bitInput
-              placeholder="Ask Jeeves"
-              type="text"
-            />
-            <button type="button" bitIconButton="bwi-grid" label="Switch products"></button>
-            <bit-avatar text="Will" size="lg"></bit-avatar>
-            <button bitButton buttonType="primary">New</button>
-            <button bitButton slot="secondary">Click Me 🎉</button>
-            <bit-tab-nav-bar slot="tabs">
-              <bit-tab-link [route]="['foo']">Foo</bit-tab-link>
-              <bit-tab-link [route]="['bar']">Bar</bit-tab-link>
-            </bit-tab-nav-bar>
-          </bit-header>
-        `,
+      <bit-header title="LongTitleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" icon="bwi-bug">
+        <bit-breadcrumbs slot="breadcrumbs">
+          <bit-breadcrumb>Foo</bit-breadcrumb>
+          <bit-breadcrumb>Bar</bit-breadcrumb>
+        </bit-breadcrumbs>
+        <button slot="title-suffix" buttonType="subtleGhost" bitIconButton="bwi-info-circle" label="A thing"></button>
+        <input
+          bitInput
+          placeholder="Ask Jeeves"
+          type="text"
+        />
+        <button type="button" bitIconButton="bwi-grid" label="Switch products"></button>
+        <bit-avatar text="Will" size="lg"></bit-avatar>
+        <button bitButton buttonType="primary">New</button>
+        <button bitButton slot="secondary">Click Me 🎉</button>
+        <bit-tab-nav-bar slot="tabs">
+          <bit-tab-link [route]="['foo']">Foo</bit-tab-link>
+          <bit-tab-link [route]="['bar']">Bar</bit-tab-link>
+        </bit-tab-nav-bar>
+      </bit-header>
+    `,
   }),
+};
+
+export const KitchenSinkVfo1: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-header title="LongTitleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" icon="bwi-bug">
+        <bit-breadcrumbs slot="breadcrumbs">
+          <bit-breadcrumb>Foo</bit-breadcrumb>
+          <bit-breadcrumb>Bar</bit-breadcrumb>
+        </bit-breadcrumbs>
+        <button slot="title-suffix" buttonType="subtleGhost" bitIconButton="bwi-info-circle" label="A thing"></button>
+        <div slot="subtitle">Very informative subtitle since the title itself was not enough information to understand the page</div>
+        <button bitButton>Click Me 🎉</button>
+        <button bitButton buttonType="primary">New</button>
+        <bit-tab-nav-bar slot="tabs">
+          <bit-tab-link [route]="['foo']">Foo</bit-tab-link>
+          <bit-tab-link [route]="['bar']">Bar</bit-tab-link>
+        </bit-tab-nav-bar>
+      </bit-header>
+    `,
+  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
 
 export const Basic: Story = {
@@ -124,6 +153,35 @@ export const WithLongTitle: Story = {
   }),
 };
 
+export const TitleWithSubtitleVfo1: Story = {
+  render: (arg: any) => ({
+    props: arg,
+    template: /*html*/ `
+    <bit-header title="LongTitleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" icon="bwi-bug">
+      <ng-container slot="title-suffix"><i class="bwi bwi-key"></i></ng-container>
+      <div slot="subtitle">Very informative subtitle since the title itself was not enough information to understand the page</div>
+    </bit-header>
+  `,
+  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
+export const BreadcrumbsWithSubtitleVfo1: Story = {
+  render: (arg: any) => ({
+    props: arg,
+    template: /*html*/ `
+    <bit-header title="Fallback Title" icon="bwi-bug">
+        <bit-breadcrumbs slot="breadcrumbs">
+        <bit-breadcrumb route="/bar">Bar</bit-breadcrumb>
+        <bit-breadcrumb route="/foo">Foo</bit-breadcrumb>
+      </bit-breadcrumbs>
+      <div slot="subtitle">Very informative subtitle since the title itself was not enough information to understand the page</div>
+    </bit-header>
+  `,
+  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
 export const WithBreadcrumbs: Story = {
   render: (args: any) => ({
     props: args,
@@ -136,6 +194,50 @@ export const WithBreadcrumbs: Story = {
     </bit-header>
   `,
   }),
+};
+
+export const WithBreadcrumbsVfo1: Story = {
+  render: (args: any) => ({
+    props: args,
+    template: /*html*/ `
+    <bit-header title="Foobar" icon="bwi-bug" class="tw-text-main">
+      <bit-breadcrumbs slot="breadcrumbs">
+        <bit-breadcrumb>Foo</bit-breadcrumb>
+        <bit-breadcrumb>Bar</bit-breadcrumb>
+      </bit-breadcrumbs>
+    </bit-header>
+  `,
+  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
+export const WithActiveBreadcrumb: Story = {
+  render: (args: any) => ({
+    props: args,
+    template: /*html*/ `
+    <bit-header title="Foobar" icon="bwi-bug" class="tw-text-main">
+      <bit-breadcrumbs slot="breadcrumbs">
+        <bit-breadcrumb route="/bar">Bar</bit-breadcrumb>
+        <bit-breadcrumb route="/foo">Foo</bit-breadcrumb>
+      </bit-breadcrumbs>
+    </bit-header>
+  `,
+  }),
+};
+
+export const WithActiveBreadcrumbVfo1: Story = {
+  render: (args: any) => ({
+    props: args,
+    template: /*html*/ `
+    <bit-header title="Foobar" icon="bwi-bug" class="tw-text-main">
+      <bit-breadcrumbs slot="breadcrumbs">
+        <bit-breadcrumb route="/bar">Bar</bit-breadcrumb>
+        <bit-breadcrumb route="/foo">Foo</bit-breadcrumb>
+      </bit-breadcrumbs>
+    </bit-header>
+  `,
+  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
 
 export const WithSearch: Story = {
@@ -153,6 +255,29 @@ export const WithSearch: Story = {
   }),
 };
 
+export const TitleWithPrimaryContent: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+    <bit-header title="Foobar" icon="bwi-bug" class="tw-text-main">
+      <button bitButton buttonType="primary">New</button>
+    </bit-header>
+  `,
+  }),
+};
+
+export const TitleWithPrimaryContentVfo1: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+    <bit-header title="Foobar" icon="bwi-bug" class="tw-text-main">
+      <button bitButton buttonType="primary">New</button>
+    </bit-header>
+  `,
+  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
 export const WithSecondaryContent: Story = {
   render: (args) => ({
     props: args,
@@ -162,6 +287,37 @@ export const WithSecondaryContent: Story = {
     </bit-header>
   `,
   }),
+};
+
+export const BreadcrumbsWithPrimaryContent: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+    <bit-header title="Foobar" icon="bwi-bug" class="tw-text-main">
+      <bit-breadcrumbs slot="breadcrumbs">
+        <bit-breadcrumb route="/bar">Bar</bit-breadcrumb>
+        <bit-breadcrumb route="/foo">Foo</bit-breadcrumb>
+      </bit-breadcrumbs>
+      <button bitButton buttonType="primary">New</button>
+    </bit-header>
+  `,
+  }),
+};
+
+export const BreadcrumbsWithPrimaryContentVfo1: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+    <bit-header title="Foobar" icon="bwi-bug" class="tw-text-main">
+      <bit-breadcrumbs slot="breadcrumbs">
+        <bit-breadcrumb route="/bar">Bar</bit-breadcrumb>
+        <bit-breadcrumb route="/foo">Foo</bit-breadcrumb>
+      </bit-breadcrumbs>
+      <button bitButton buttonType="primary">New</button>
+    </bit-header>
+  `,
+  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
 
 export const WithTabs: Story = {
@@ -178,12 +334,27 @@ export const WithTabs: Story = {
   }),
 };
 
+export const WithTabsVfo1: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+    <bit-header title="Foobar" icon="bwi-bug" class="tw-text-main">
+      <bit-tab-nav-bar slot="tabs">
+        <bit-tab-link [route]="['foo']">Foo</bit-tab-link>
+        <bit-tab-link [route]="['bar']">Bar</bit-tab-link>
+      </bit-tab-nav-bar>
+    </bit-header>
+  `,
+  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
 export const WithTitleSuffixComponent: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
     <bit-header title="Foobar" icon="bwi-bug" class="tw-text-main">
-      <ng-container slot="title-suffix"><i class="bwi bwi-spinner bwi-spin"></i></ng-container>
+      <ng-container slot="title-suffix"><bit-icon name="bwi-spinner" class="bwi-spin"></bit-icon></ng-container>
     </bit-header>
   `,
   }),

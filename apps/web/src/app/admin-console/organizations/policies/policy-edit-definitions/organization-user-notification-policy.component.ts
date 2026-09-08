@@ -13,10 +13,7 @@ import { map, startWith, switchMap } from "rxjs";
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   BitFormFieldComponent,
@@ -55,10 +52,6 @@ export class OrganizationUserNotificationPolicy extends BasePolicyEditDefinition
   category = PolicyCategory.VaultManagement;
   priority = 70;
   prerequisiteKey = "singleOrgPrerequisite";
-
-  display$(organization: Organization, configService: ConfigService) {
-    return configService.getFeatureFlag$(FeatureFlag.PM31948_OrgUserNotificationBanner);
-  }
 }
 
 interface OrganizationUserNotificationPolicyOptions {

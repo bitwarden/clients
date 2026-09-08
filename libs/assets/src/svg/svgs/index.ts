@@ -7,6 +7,7 @@ export * from "./background-right-illustration";
 export * from "./biometric-fingerprint";
 export * from "./bitwarden-icon";
 export * from "./bitwarden-logo.icon";
+export * from "./bitwarden-logo-beta.icon";
 export * from "./browser-extension";
 export { default as BusinessUnitPortalLogo } from "./business-unit-portal";
 export * from "./business-welcome.icon";
