@@ -1825,9 +1825,14 @@ export class ApiService implements ApiServiceAbstraction {
   /**
    * Handle an error response from a request to the Bitwarden API.
    * If the request is made with an access token (aka the user is authenticated),
-   * and we receive a 401 or 403 response, we will log the user out, as this indicates
-   * that the access token used on the request is either expired or does not have the appropriate permissions.
-   * It is unlikely that it is expired, as we attempt to refresh the token on initial failure.
+   * and we receive a 401 response, we will log the user out, as this indicates that the
+   * access token used on the request is no longer valid. It is unlikely that it is merely
+   * expired, as we attempt to refresh the token on initial failure.
+   *
+   * Note that a 403 is deliberately *not* treated as a logout. A 403 means the access token
+   * is valid but the user lacks permission for that specific resource - for example, a Custom
+   * role member hitting an endpoint their permissions don't cover. Logging out in that case
+   * ends a perfectly good session and strands the user on the login screen.
    * @param response The response from the API request
    * @param userIsAuthenticated A boolean indicating whether this is an authenticated request.
    * @returns An ErrorResponse with a message based on the response status.
@@ -1836,11 +1841,7 @@ export class ApiService implements ApiServiceAbstraction {
     response: Response,
     userIsAuthenticated: boolean,
   ): Promise<ErrorResponse> {
-    if (
-      userIsAuthenticated &&
-      (response.status === HttpStatusCode.Unauthorized ||
-        response.status === HttpStatusCode.Forbidden)
-    ) {
+    if (userIsAuthenticated && response.status === HttpStatusCode.Unauthorized) {
       await this.logoutCallback("invalidAccessToken");
     }
 

@@ -1028,7 +1028,7 @@ describe("ApiService", () => {
   });
 
   describe("When 403 Forbidden response is received from API request", () => {
-    it("logs out the authenticated user", async () => {
+    it("does not log out the authenticated user", async () => {
       environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
         of({
           getApiUrl: () => "https://example.com",
@@ -1053,11 +1053,14 @@ describe("ApiService", () => {
 
       sut.nativeFetch = nativeFetch;
 
+      // A 403 means the token is valid but the user lacks permission for this resource
+      // (e.g. a Custom role hitting an endpoint their permissions don't cover). The error
+      // surfaces to the caller, but the session is left intact.
       await expect(
         async () => await sut.send("GET", "/something", null, true, true, null, null),
       ).rejects.toMatchObject({ message: "Forbidden" });
 
-      expect(logoutCallback).toHaveBeenCalledWith("invalidAccessToken");
+      expect(logoutCallback).not.toHaveBeenCalled();
     });
 
     it("does not attempt to log out unauthenticated user", async () => {
