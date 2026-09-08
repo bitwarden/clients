@@ -232,15 +232,17 @@ export class SideNavService {
     this.widthService.display(this._pushClamped(this.widthService.saved()));
   }
 
-  /** Commit the width, held within bounds and within what the container can push. */
+  /** Commit the width. A container limit paints narrower but never lowers the preference. */
   private _setWidthWithinMinMax(newWidth: number) {
-    this.widthService.commit(this._pushClamped(newWidth));
+    // Bound first, so what remains between `requested` and `fitted` is the container alone.
+    const requested = this.widthService.clamp(newWidth);
+    const fitted = this._pushClamped(requested);
+    const preference = fitted < requested ? Math.max(this.widthService.saved(), fitted) : fitted;
+
+    this.widthService.commit(preference, fitted);
   }
 
-  /**
-   * Narrow `width` to what the container can push, so main content is never clipped. Display-only:
-   * a container limit is not a preference, so this must not decide what gets persisted.
-   */
+  /** Narrow `width` to what the container can push, so main content is never clipped. */
   private _pushClamped(width: number) {
     const max = Math.max(
       this.MIN_OPEN_WIDTH,

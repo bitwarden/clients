@@ -202,6 +202,16 @@ describe("SideNavService", () => {
           [],
         ],
         ["the container shrinking", () => service.maxPushWidthRem.set(20), []],
+        [
+          "ArrowRight once the container is the binding limit",
+          () => (service.maxPushWidthRem.set(26), service.setWidthFromKeys("ArrowRight")),
+          [],
+        ],
+        [
+          "dragging past what the container can push",
+          () => (service.maxPushWidthRem.set(26), dragTo(40)),
+          [],
+        ],
       ])("persists %s", (_label, gesture, expected) => {
         createService(SAVED);
         service.open.set(true);
@@ -212,6 +222,62 @@ describe("SideNavService", () => {
 
         expect(persistedWidths()).toEqual(expected);
       });
+    });
+
+    it("persists the minimum when ArrowLeft steps past it", () => {
+      // 15.5 puts the requested width below the 15 floor, so the bounds clamp is what binds.
+      createService(15.5);
+      service.open.set(true);
+      clearPersisted();
+
+      service.setWidthFromKeys("ArrowLeft");
+      flushPersist();
+
+      // The bounds floor is the user reaching the end of the range, not a container limit, so it
+      // is a real preference — collapse and expand must come back at the minimum.
+      expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+      expect(persistedWidths()).toEqual([service.MIN_OPEN_WIDTH]);
+
+      service.toggle();
+      service.toggle();
+
+      expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+    });
+
+    it("keeps a saved width wider than the container can push", () => {
+      createService(30.5);
+      service.open.set(true);
+      clearPersisted();
+
+      service.maxPushWidthRem.set(26);
+      service.setWidthFromKeys("ArrowRight");
+      flushPersist();
+
+      // Painted at the limit, but the 30.5 preference survives — reopening in a container that
+      // can afford it must not come back narrowed.
+      expect(currentWidth()).toBe(26);
+      expect(persistedWidths()).toEqual([]);
+
+      service.maxPushWidthRem.set(Infinity);
+      service.toggle();
+      service.toggle();
+
+      expect(currentWidth()).toBe(30.5);
+    });
+
+    it("persists a width the container limits when that still widens the nav", () => {
+      createService(20);
+      service.open.set(true);
+      clearPersisted();
+
+      service.maxPushWidthRem.set(26);
+      dragTo(40);
+      flushPersist();
+
+      // The user dragged to the visible edge, so 26 is a genuine choice — unlike a limit that
+      // merely narrows a width the user already picked.
+      expect(currentWidth()).toBe(26);
+      expect(persistedWidths()).toEqual([26]);
     });
 
     describe("drag release", () => {
@@ -364,11 +430,18 @@ describe("SideNavService", () => {
       });
 
       it("never clamps below MIN_OPEN_WIDTH, even in a container too small to push", () => {
+        const widthBefore = currentWidth();
         service.maxPushWidthRem.set(5);
 
         service.setWidthFromKeys("ArrowRight");
 
         expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+
+        // The floor is a paint decision only; the width the user had is still what reopens.
+        service.maxPushWidthRem.set(Infinity);
+        service.toggle();
+        service.toggle();
+        expect(currentWidth()).toBe(widthBefore);
       });
     });
   });
