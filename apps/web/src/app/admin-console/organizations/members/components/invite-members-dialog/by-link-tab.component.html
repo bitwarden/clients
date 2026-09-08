@@ -92,7 +92,7 @@
         "lastGenerated" | i18n: (inviteLink.creationDate | date: "shortDate")
       }}</bit-hint>
     </bit-form-field>
-    @if (milestone3Enalbed()) {
+    @if (milestone3Enabled()) {
       <bit-form-control>
         <bit-switch
           [formControl]="form.controls.requireAdminConfirmation"
@@ -131,7 +131,7 @@
 </bit-popover>
 
 <bit-popover [title]="'adjustTheLink' | i18n" (closed)="tourStep.set(0)" #tourStep2>
-  @if (milestone3Enalbed()) {
+  @if (milestone3Enabled()) {
     <p bitTypography="body1">{{ "adjustTheLinkCoachMarkBodyIntro" | i18n }}</p>
     <p bitTypography="body1">
       <span [innerHTML]="'adjustTheLinkCoachMarkRegenerate' | i18n"></span>

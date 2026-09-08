@@ -67,7 +67,7 @@ export class ByLinkTabComponent {
 
   readonly showCoachMarks = input<boolean>(false);
 
-  readonly milestone3Enalbed = signal<boolean>(false);
+  readonly milestone3Enabled = signal<boolean>(false);
 
   readonly tourStep = signal<number>(0);
 
