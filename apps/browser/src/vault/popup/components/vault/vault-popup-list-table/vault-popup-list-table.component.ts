@@ -15,11 +15,12 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
+import { RouterLink } from "@angular/router";
 import { distinctUntilChanged, filter, map, skip, Subject } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
-import { DeactivatedOrg, NoResults } from "@bitwarden/assets/svg";
+import { DeactivatedOrg } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -38,6 +39,7 @@ import {
   BitRowGroupComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
+  ButtonModule,
   ChipActionComponent,
   ChipFilterOption,
   CompactModeService,
@@ -53,6 +55,7 @@ import {
 import {
   cipherInScope,
   collectionInScope,
+  EmptyVaultComponent,
   idString,
   matchesFolder,
   matchesSharedFolder,
@@ -61,6 +64,8 @@ import {
   MY_VAULT,
   NO_FOLDER,
   OrgIconDirective,
+  type VaultItemsTableFilters,
+  type VaultScope,
   VaultScopeType,
   Vfo1I18nPipe,
 } from "@bitwarden/vault";
@@ -103,6 +108,7 @@ const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
     CommonModule,
     FormsModule,
     JslibModule,
+    RouterLink,
     BitTableV2Component,
     BitColumnComponent,
     BitHeaderCellComponent,
@@ -118,10 +124,12 @@ const VAULT_SCOPED_FILTER_KEYS = ["organization", "collection", "folder"];
     SvgComponent,
     TypographyModule,
     ChipActionComponent,
+    EmptyVaultComponent,
     ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
     OrgIconDirective,
     Vfo1I18nPipe,
+    ButtonModule,
   ],
 })
 export class VaultPopupListTableComponent {
@@ -148,8 +156,10 @@ export class VaultPopupListTableComponent {
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 
-  protected readonly noResultsIcon = NoResults;
   protected readonly deactivatedIcon = DeactivatedOrg;
+
+  /** Temporary hard-coded all items scope until scoping is builtin to the browser */
+  protected readonly allItemsScope: VaultScope = { type: VaultScopeType.AllItems };
 
   protected searchText: string = "";
   private readonly searchText$ = new Subject<string>();
@@ -161,6 +171,12 @@ export class VaultPopupListTableComponent {
   protected readonly hasSearchText = toSignal(this.listTableService.hasSearchText$, {
     initialValue: false,
   });
+
+  /**
+   * Whether the account has any active items at all, ignoring search/filters — distinguishes a
+   * genuinely empty vault from a search/filter that matched nothing, for the empty slot below.
+   */
+  protected readonly hasItems = toSignal(this.listTableService.hasItems$, { initialValue: false });
 
   /** Whether the vault in view is suspended, by route scope or by chip. */
   protected readonly showDeactivatedOrg = toSignal(this.listTableService.suspendedVault$, {
@@ -191,6 +207,38 @@ export class VaultPopupListTableComponent {
     matchesVault(row.cipher, values.organization) &&
     matchesSharedFolder(row.cipher, values.collection) &&
     matchesFolder(row.cipher, values.folder);
+
+  /**
+   * The table's live chip/search selection, reshaped for `EmptyVaultComponent` — its `vault`/
+   * `sharedFolder`/`type`/`folder` keys line up with the table's own `organization`/`collection`/
+   * `cipherType`/`folder` filter values (see {@link filterPredicate}), so this is a rename, not a
+   * behavioral remap. There's no `favorites` chip on this table, so that key is always unset.
+   *
+   * `search` is gated by {@link hasSearchText}, not read off the table's own raw `filterValues()`
+   * directly: `bit-table-v2` adopts the projected `bit-search`'s value immediately on every
+   * keystroke, while `hasSearchText` reflects the debounced, validated "is this actually searching"
+   * fact `VaultPopupItemsService` uses to filter rows — reading the raw value would flash a
+   * "no items match search term" state one keystroke ahead of the rows actually narrowing.
+   */
+  protected readonly emptyStateFilterValues = computed((): VaultItemsTableFilters => {
+    const values = this.tableEl()?.filterValues() as
+      | {
+          cipherType?: CipherType | null;
+          organization?: string[];
+          collection?: string[];
+          folder?: string[];
+          search?: string;
+        }
+      | undefined;
+
+    return {
+      search: this.hasSearchText() ? values?.search : undefined,
+      type: values?.cipherType ?? undefined,
+      vault: values?.organization,
+      sharedFolder: values?.collection,
+      folder: values?.folder,
+    };
+  });
 
   /**
    * One row per unique cipher, for filter-chip counts. {@link rows} intentionally contains up to
@@ -437,6 +485,21 @@ export class VaultPopupListTableComponent {
 
   onSearchTextChanged() {
     this.searchText$.next(this.searchText);
+  }
+
+  /** Clears the search box, leaving chip filters untouched — the empty slot's "Clear search". */
+  clearSearch() {
+    this.searchText = "";
+    this.onSearchTextChanged();
+  }
+
+  /** Clears every chip filters — the empty slot's "Clear all". */
+  clearFilters() {
+    for (const control of this.tableEl()?.filterControls() ?? []) {
+      if (control.key() !== "search") {
+        control.setValue(undefined);
+      }
+    }
   }
 
   /**

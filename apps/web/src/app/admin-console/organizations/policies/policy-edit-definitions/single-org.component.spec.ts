@@ -10,6 +10,7 @@ describe("SingleOrgPolicy", () => {
     expect(policy.name).toBe("singleOrg");
     expect(policy.description).toBe("singleOrgPolicyDescV2");
     expect(policy.warningKey).toBe("singleOrgPolicyMemberWarning");
+    expect(policy.hideWarningVfo1).toBe(true);
     expect(policy.type).toBe(PolicyType.SingleOrg);
     expect(policy.component).toBe(SimpleTogglePolicyComponent);
   });
