@@ -2,11 +2,13 @@ import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   booleanAttribute,
   computed,
   inject,
   input,
   linkedSignal,
+  viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { of } from "rxjs";
@@ -100,11 +102,16 @@ export class PopupHeaderComponent {
     return this.popupRouterCacheService.back();
   });
 
+  private readonly titleBar = viewChild<ElementRef<HTMLElement>>("titleBar");
+
   /**
    * The popup viewport is short, so the title bar gets out of the way while the user reads down the
    * page. The app bar stays pinned.
    */
-  private readonly scrollDirection = scrollDirection(this.scrollLayout.scrollableRef);
+  private readonly scrollDirection = scrollDirection(this.scrollLayout.scrollableRef, {
+    // Measured live because the height moves with compact mode and with a title that wraps
+    minScrollable: () => this.titleBar()?.nativeElement.offsetHeight ?? 0,
+  });
 
   /**
    * TODO: remove with the VFO1Foundation flag. Grows a border under an `alt` bar once the page

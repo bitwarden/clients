@@ -146,6 +146,65 @@ describe("scrollDirection", () => {
     expect(direction()).toBe("down");
   });
 
+  describe("minScrollable", () => {
+    /**
+     * Redefinable because collapsing chrome hands its height back to the scroll region, which is
+     * the whole reason a floor is needed.
+     */
+    const setClientHeight = (element: HTMLElement, clientHeight: number) =>
+      Object.defineProperty(element, "clientHeight", { value: clientHeight, configurable: true });
+
+    it("holds up when the region cannot outscroll the chrome a consumer would collapse", async () => {
+      // 40px of overflow against a 48px title bar: collapsing it would leave nothing to scroll, so
+      // the browser would clamp the offset back to the top and the bar would expand again.
+      const element = createScrollable(540, 500);
+      const direction = create(signal(element), { minScrollable: 48 });
+
+      await scrollTo(element, 30);
+      expect(direction()).toBe("up");
+    });
+
+    it("flips once the region can outscroll that chrome", async () => {
+      const element = createScrollable(600, 500);
+      const direction = create(signal(element), { minScrollable: 48 });
+
+      await scrollTo(element, 30);
+      expect(direction()).toBe("down");
+    });
+
+    it("holds down after the collapse shrinks maxTop past the floor", async () => {
+      const element = createScrollable(560, 500);
+      const direction = create(signal(element), { minScrollable: 48 });
+
+      // maxTop is 60, which clears the floor, so the consumer collapses its chrome.
+      await scrollTo(element, 55);
+      expect(direction()).toBe("down");
+
+      // That hands 48px back to the scroll region, leaving 12px of overflow and clamping the
+      // offset. Re-testing the floor here would expand the chrome and start the cycle over.
+      setClientHeight(element, 548);
+      await scrollTo(element, 12);
+      expect(direction()).toBe("down");
+    });
+
+    it("reads a callback floor on each flip, for chrome that is measured after the first render", async () => {
+      const element = createScrollable(540, 500);
+      let chromeHeight = 0;
+      const direction = create(signal(element), { minScrollable: () => chromeHeight });
+
+      await scrollTo(element, 30);
+      expect(direction()).toBe("down");
+
+      await scrollTo(element, 0);
+      expect(direction()).toBe("up");
+
+      chromeHeight = 48;
+
+      await scrollTo(element, 30);
+      expect(direction()).toBe("up");
+    });
+  });
+
   it("does not flip on a viewport-sized jump", async () => {
     const element = createScrollable(2000, 500);
     const direction = create(signal(element));
