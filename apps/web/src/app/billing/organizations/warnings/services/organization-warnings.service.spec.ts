@@ -208,6 +208,22 @@ describe("OrganizationWarningsService", () => {
       });
     });
 
+    it("should return warning when the free trial is sales-assisted", (done) => {
+      const warning = { remainingTrialDays: 5, isSalesAssisted: true };
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: warning,
+      } as OrganizationWarningsResponse);
+
+      service.getFreeTrialWarning$(organization).subscribe((result) => {
+        expect(result).toEqual({
+          organization: organization,
+          message: "Your free trial ends in 5 days.",
+        });
+        expect(i18nService.t).toHaveBeenCalledWith("freeTrialEndPromptCount", 5);
+        done();
+      });
+    });
+
     it("should refresh warning when refreshFreeTrialWarning is called", (done) => {
       const initialWarning = { remainingTrialDays: 3 };
       const refreshedWarning = { remainingTrialDays: 2 };
@@ -710,7 +726,7 @@ describe("OrganizationWarningsService", () => {
       });
     });
 
-    it("should open trial payment dialog when free trial warning exists", (done) => {
+    it("should open trial payment dialog when free trial warning exists and isSalesAssisted is missing from the warning", (done) => {
       const warning = { remainingTrialDays: 2 };
       const subscription = { id: "sub-123" } as OrganizationSubscriptionResponse;
 
@@ -876,6 +892,55 @@ describe("OrganizationWarningsService", () => {
       service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
         complete: () => {
           expect(stateProvider.getUser).not.toHaveBeenCalled();
+          done();
+        },
+      });
+    });
+
+    it("should not open dialog when the free trial is sales-assisted", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 5, isSalesAssisted: true },
+      } as OrganizationWarningsResponse);
+
+      const openSpy = jest.spyOn(TrialPaymentDialogComponent, "open").mockReturnValue({
+        closed: of(undefined),
+      } as DialogRef<TrialPaymentDialogResultType>);
+      openSpy.mockClear();
+
+      const emissions: void[] = [];
+      service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
+        next: (value) => emissions.push(value),
+        complete: () => {
+          expect(emissions).toHaveLength(0);
+          expect(openSpy).not.toHaveBeenCalled();
+          expect(organizationApiService.getSubscription).not.toHaveBeenCalled();
+          done();
+        },
+      });
+    });
+
+    it("should open dialog when the free trial is not sales-assisted", (done) => {
+      const subscription = { id: "sub-123" } as OrganizationSubscriptionResponse;
+
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 5, isSalesAssisted: false },
+      } as OrganizationWarningsResponse);
+
+      organizationApiService.getSubscription.mockResolvedValue(subscription);
+
+      const openSpy = jest.spyOn(TrialPaymentDialogComponent, "open").mockReturnValue({
+        closed: of(TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.CLOSED),
+      } as DialogRef<TrialPaymentDialogResultType>);
+
+      service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
+        complete: () => {
+          expect(openSpy).toHaveBeenCalledWith(dialogService, {
+            data: {
+              organizationId: organization.id,
+              subscription: subscription,
+              productTierType: organization.productTierType,
+            },
+          });
           done();
         },
       });
