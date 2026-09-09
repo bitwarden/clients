@@ -56,6 +56,8 @@ describe("SubscriptionCardComponent", () => {
         youHaveAGracePeriod: `You have a grace period of ${params[0]} days ending ${params[1]}`,
         manageInvoices: "Manage invoices",
         toReactivateYourSubscription: "To reactivate your subscription",
+        subscriptionPastDueWillPauseSoon: "Your subscription is past due and will be paused soon.",
+        subscriptionPastDuePaused: "Your subscription is past due and has been paused.",
       };
       return translations[key] || key;
     },
@@ -381,7 +383,7 @@ describe("SubscriptionCardComponent", () => {
       expect(buttons[0].nativeElement.textContent.trim()).toBe("Manage invoices");
     });
 
-    it("renders no callout for past_due without suspension details", () => {
+    it("renders callout without description for past_due without suspension details", () => {
       fixture.componentRef.setInput("title", "Test Plan");
       fixture.componentRef.setInput("subscription", {
         cart: mockCart,
@@ -389,8 +391,19 @@ describe("SubscriptionCardComponent", () => {
       } satisfies SubscriptionPreview);
       fixture.detectChanges();
 
-      expect(component.callout()).toBeNull();
-      expect(fixture.debugElement.query(By.css("bit-callout"))).toBeNull();
+      const calloutData = component.callout();
+      expect(calloutData).toBeTruthy();
+      expect(calloutData!.type).toBe("warning");
+      expect(calloutData!.title).toBe("Past due");
+      expect(calloutData.description).toBeNull();
+      expect(calloutData!.callsToAction?.length).toBe(1);
+
+      const callout = fixture.debugElement.query(By.css("bit-callout"));
+      expect(callout).toBeTruthy();
+
+      const buttons = callout.queryAll(By.css("button"));
+      expect(buttons.length).toBe(1);
+      expect(buttons[0].nativeElement.textContent.trim()).toBe("Manage invoices");
     });
 
     it("should display canceled callout with resubscribe action", () => {
@@ -671,6 +684,30 @@ describe("SubscriptionCardComponent", () => {
 
       const cartSummary = fixture.debugElement.query(By.css("billing-cart-summary"));
       expect(cartSummary).toBeTruthy();
+    });
+
+    it("shows the will-be-paused message in the header for past_due without a suspension date", () => {
+      setupComponent({
+        ...baseSubscription,
+        status: "past_due",
+      } as BitwardenSubscription);
+
+      const header = fixture.nativeElement.querySelector(
+        '[data-test-id="cart-summary-header-custom"]',
+      );
+      expect(header?.textContent).toContain("will be paused soon");
+    });
+
+    it("shows the has-been-paused message in the header for unpaid without a suspension date", () => {
+      setupComponent({
+        ...baseSubscription,
+        status: "unpaid",
+      } as BitwardenSubscription);
+
+      const header = fixture.nativeElement.querySelector(
+        '[data-test-id="cart-summary-header-custom"]',
+      );
+      expect(header?.textContent).toContain("has been paused");
     });
   });
 
