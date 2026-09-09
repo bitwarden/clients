@@ -116,7 +116,7 @@ export function toAuditRow(
   cipherNameById: Map<string, string>,
   collectionNameById: Map<string, string>,
 ): AuditRow {
-  // A lease ended by its own holder is a self-end (Cancelled), not an operator revoke — the
+  // A lease ended by its own holder is a self-end (Canceled), not an operator revoke — the
   // server projects both as LeaseRevoked, distinguished by revoked_by.
   const selfEnded =
     event.kind === AccessAuditEventKind.LeaseRevoked &&
