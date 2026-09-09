@@ -1,4 +1,4 @@
-// The Objective-C sources and the `cc`/`glob` build-dependencies are only available
+// The Objective-C sources and the `cc` build-dependency are only available
 // on a macOS host (see the target-gated `build-dependencies` in Cargo.toml, which are
 // resolved against the host). Guard the compiling `main` with a host `cfg` so this
 // build script still compiles when building natively on other platforms.
@@ -12,16 +12,34 @@ fn main() {
         return;
     }
 
-    use glob::glob;
+    const SOURCES: &[&str] = &[
+        "src/native/app_group.m",
+        "src/native/interop.m",
+        "src/native/run_command.m",
+        "src/native/utils.m",
+        "src/native/autofill/run_autofill_command.m",
+        "src/native/autofill/commands/status.m",
+        "src/native/autofill/commands/sync.m",
+        "src/native/autofill/commands/user_verification.m",
+        "src/native/chromium_importer/browser_access_manager.m",
+        "src/native/chromium_importer/run_chromium_command.m",
+        "src/native/chromium_importer/commands/check_browser_installed.m",
+        "src/native/chromium_importer/commands/has_stored_access.m",
+        "src/native/chromium_importer/commands/request_access.m",
+        "src/native/chromium_importer/commands/start_access.m",
+        "src/native/chromium_importer/commands/stop_access.m",
+    ];
 
     // Compile Objective-C files
     let mut builder = cc::Build::new();
 
-    // Compile all .m files in the src/native directory
-    for entry in glob("src/native/**/*.m").expect("Failed to read glob pattern") {
-        let path = entry.expect("Failed to read glob entry");
-        builder.file(path.clone());
-        println!("cargo::rerun-if-changed={}", path.display());
+    for path in SOURCES {
+        assert!(
+            std::path::Path::new(path).is_file(),
+            "Objective-C source listed in build.rs does not exist: {path}"
+        );
+        builder.file(path);
+        println!("cargo::rerun-if-changed={path}");
     }
 
     builder
