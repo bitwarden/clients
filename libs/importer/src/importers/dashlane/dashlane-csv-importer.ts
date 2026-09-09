@@ -147,7 +147,10 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
     let mappedValues: string[] = [];
     switch (row.type) {
       case "credit_card":
-        cipher.card.cardholderName = row.account_name;
+      case "payment_card":
+        // Dashlane's current CSV export uses `payment_card` (was `credit_card`)
+        // and carries the cardholder name in a separate `name` column.
+        cipher.card.cardholderName = row.name ?? row.account_name;
         cipher.card.number = row.cc_number;
         cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
         cipher.card.code = row.code;
@@ -161,6 +164,7 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
           "code",
           "expiration_month",
           "expiration_year",
+          "name",
         ];
         break;
       case "bank":
