@@ -267,6 +267,7 @@ describe("LayoutComponent push/overlay reconciliation", () => {
 
       expect(sideNav.open()).toBe(true);
       expect(sideNav.isOverlay()).toBe(true);
+      expect(sideNav.widthRem()).toBe(27);
     }));
   });
 

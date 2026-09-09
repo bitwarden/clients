@@ -119,6 +119,68 @@ describe("SideNavService", () => {
         expect(currentWidth()).toBe(30.5);
         expect(persistedWidths()).toEqual([]);
       });
+
+      // _expand() repaints via display(saved()), which is a restore rather than the user choosing
+      // a width — so it must not claim ownership and block the stored width from being adopted.
+      it("still adopts the stored width when the nav expanded before the read resolved", () => {
+        const slowDisk$ = new Subject<number | null>();
+        diskWidth$ = slowDisk$;
+        widthState.state$ = slowDisk$.asObservable();
+
+        createService();
+        service.open.set(false);
+        service.toggle();
+
+        slowDisk$.next(30.5);
+
+        expect(currentWidth()).toBe(30.5);
+      });
+
+      describe("when the user commits before the read resolves", () => {
+        let slowDisk$: Subject<number | null>;
+
+        beforeEach(() => {
+          slowDisk$ = new Subject<number | null>();
+          diskWidth$ = slowDisk$;
+          widthState.state$ = slowDisk$.asObservable();
+
+          createService();
+          dragTo(27);
+          service.onDragEnd();
+        });
+
+        it("keeps the width the user committed", () => {
+          slowDisk$.next(30);
+
+          expect(currentWidth()).toBe(27);
+        });
+
+        it("does not repair a stale width the user has superseded", () => {
+          slowDisk$.next(40);
+          flushPersist();
+
+          // Only the user's own commit reaches disk — no MAX_OPEN_WIDTH repair write.
+          expect(currentWidth()).toBe(27);
+          expect(persistedWidths()).toEqual([27]);
+        });
+
+        it("still reports hydrated, so transitions are not stranded", () => {
+          expect(service.widthHydrated()).toBe(false);
+
+          slowDisk$.next(30);
+
+          expect(service.widthHydrated()).toBe(true);
+        });
+
+        it("restores the user's width on a later expand, not the stale one", () => {
+          slowDisk$.next(30);
+
+          service.toggle();
+          service.toggle();
+
+          expect(currentWidth()).toBe(27);
+        });
+      });
     });
 
     // The three ways to expand a collapsed nav must agree.

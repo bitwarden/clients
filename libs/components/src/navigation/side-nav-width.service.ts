@@ -23,7 +23,8 @@ export const SIDE_NAV_WIDTH_BOUNDS = Object.freeze({
  * The width the user chose and the width currently painted are deliberately different things: a
  * drag preview, or a width narrowed to fit the container, must never become the user's preference.
  * Callers therefore have to pick a verb — `display` paints only, `commit` paints and remembers.
- * Nothing outside this class can reach the stored value or the persisted one.
+ * A commit also outranks a disk read that resolves after it. Nothing outside this class can reach
+ * the stored value or the persisted one.
  */
 @Injectable({ providedIn: "root" })
 export class SideNavWidthService {
@@ -33,6 +34,9 @@ export class SideNavWidthService {
   private readonly _pendingCommit$ = new Subject<number>();
 
   private _savedWidth: number = SIDE_NAV_WIDTH_BOUNDS.default;
+
+  /** Set once the user commits a width, so a late disk read cannot overwrite their choice. */
+  private _userCommitted = false;
 
   /** The committed width to paint, in rem. */
   readonly width$: Observable<number> = this._width$.asObservable();
@@ -55,11 +59,18 @@ export class SideNavWidthService {
         takeUntilDestroyed(),
       )
       .subscribe((diskWidth) => {
+        this.hydrated.set(true);
+
+        // A width the user committed while the read was in flight outranks the stored one, and
+        // repairing a value they have already superseded would write a width nobody asked for.
+        if (this._userCommitted) {
+          return;
+        }
+
         const repaired = this.clamp(diskWidth);
 
         this._savedWidth = repaired;
         this._width$.next(repaired);
-        this.hydrated.set(true);
 
         if (repaired !== diskWidth) {
           this._pendingCommit$.next(repaired);
@@ -77,6 +88,7 @@ export class SideNavWidthService {
     const clamped = this.clamp(width);
     const shouldPersist = clamped !== this._savedWidth;
 
+    this._userCommitted = true;
     this._savedWidth = clamped;
     this._width$.next(clamped);
 
