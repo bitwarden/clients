@@ -268,7 +268,7 @@ export class AccessAuditComponent implements OnInit {
   /** The bounds the table is narrowed to, stamped when chosen so it can't slide under the auditor. */
   private readonly range = signal<AuditRange>(UNBOUNDED_AUDIT_RANGE);
 
-  /** The period whose bounds {@link range} holds. A cancelled dialog rolls the chip back to this. */
+  /** The period whose bounds {@link range} holds. A canceled dialog rolls the chip back to this. */
   private readonly appliedPeriod = signal<AuditTimePeriod | null>(null);
 
   /** The last chip selection {@link applyTimePeriod} was run for, so a rollback does not re-enter it. */
@@ -442,7 +442,7 @@ export class AccessAuditComponent implements OnInit {
 
   constructor() {
     // The chip has no value output, so its own selection signal drives the range; guarded
-    // against the rollback write after a cancelled dialog.
+    // against the rollback write after a canceled dialog.
     effect(() => {
       const period = this.selectedPeriod();
       untracked(() => {
@@ -527,7 +527,7 @@ export class AccessAuditComponent implements OnInit {
   /**
    * Collects custom bounds, applying them only on confirm.
    *
-   * A cancelled dialog rolls the chip back to the period still in force.
+   * A canceled dialog rolls the chip back to the period still in force.
    */
   private async openCustomRange(): Promise<void> {
     const result = await firstValueFrom(

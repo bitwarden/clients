@@ -215,7 +215,7 @@ describe("resolveResolver", () => {
     });
   });
 
-  it("labels a cancelled request as withdrawn by the requester, not an access rule", () => {
+  it("labels a canceled request as withdrawn by the requester, not an access rule", () => {
     // A withdrawal never enters the decision log; even a cancel-after-approval was ended by the
     // requester.
     expect(resolveResolver("canceled", undefined)).toEqual({

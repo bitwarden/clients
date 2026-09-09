@@ -152,7 +152,7 @@ describe("DaemonsTabComponent", () => {
     expect(daemonsService.setEnabled).toHaveBeenCalledWith(row.daemon, false);
   });
 
-  it("does not disable when confirmation is cancelled", async () => {
+  it("does not disable when confirmation is canceled", async () => {
     (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(false);
     const row = makeDaemonRow();
 
@@ -187,7 +187,7 @@ describe("DaemonsTabComponent", () => {
     expect(daemonsService.delete).toHaveBeenCalledWith(row.daemon);
   });
 
-  it("does not delete when confirmation is cancelled", async () => {
+  it("does not delete when confirmation is canceled", async () => {
     (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(false);
     const row = makeDaemonRow();
 

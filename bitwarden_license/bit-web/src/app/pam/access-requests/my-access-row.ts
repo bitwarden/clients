@@ -185,7 +185,7 @@ function terminal(
  * Resolve who actioned a request: an i18n key for system decisions, a display name for human
  * ones (name, falling back to email then raw id).
  *
- * A cancelled request was withdrawn by its requester, never logged as a decision; an expired one
+ * A canceled request was withdrawn by its requester, never logged as a decision; an expired one
  * lapsed with nobody acting, rendering an em dash.
  */
 export function resolveResolver(
