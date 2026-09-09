@@ -5,7 +5,7 @@ import { By } from "@angular/platform-browser";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Cart } from "@bitwarden/pricing";
 
-import { BitwardenSubscription, SubscriptionCardComponent } from "../..";
+import { BitwardenSubscription, SubscriptionCardComponent, SubscriptionPreview } from "../..";
 
 describe("SubscriptionCardComponent", () => {
   let component: SubscriptionCardComponent;
@@ -48,7 +48,7 @@ describe("SubscriptionCardComponent", () => {
         yourSubscriptionIsExpired: "Your subscription is expired",
         yourSubscriptionIsCanceled: "Your subscription is canceled",
         yourSubscriptionIsScheduledToCancel: `Your subscription is scheduled to cancel on ${params[0]}`,
-        reinstateSubscription: "Reinstate subscription",
+        keepSubscription: "Keep subscription",
         resubscribe: "Resubscribe",
         upgradeYourPlan: "Upgrade your plan",
         premiumShareEvenMore: "Premium share even more",
@@ -229,6 +229,20 @@ describe("SubscriptionCardComponent", () => {
   });
 
   describe("Callout rendering", () => {
+    it("suppresses the callout when hideCallout is set, even for a billing-problem status", () => {
+      setupComponent({
+        ...baseSubscription,
+        status: "past_due",
+        suspension: new Date("2025-02-05"),
+        gracePeriod: 14,
+      });
+      fixture.componentRef.setInput("hideCallout", true);
+      fixture.detectChanges();
+
+      expect(component.callout()).toBeNull();
+      expect(fixture.debugElement.query(By.css("bit-callout"))).toBeNull();
+    });
+
     it("should display incomplete callout with update payment and contact support actions", () => {
       setupComponent({
         ...baseSubscription,
@@ -302,7 +316,7 @@ describe("SubscriptionCardComponent", () => {
 
       const buttons = callout.queryAll(By.css("button"));
       expect(buttons.length).toBe(1);
-      expect(buttons[0].nativeElement.textContent.trim()).toBe("Reinstate subscription");
+      expect(buttons[0].nativeElement.textContent.trim()).toBe("Keep subscription");
     });
 
     it("should display upgrade callout for active status when showUpgradeButton is true", () => {
@@ -365,6 +379,18 @@ describe("SubscriptionCardComponent", () => {
       const buttons = callout.queryAll(By.css("button"));
       expect(buttons.length).toBe(1);
       expect(buttons[0].nativeElement.textContent.trim()).toBe("Manage invoices");
+    });
+
+    it("renders no callout for past_due without suspension details", () => {
+      fixture.componentRef.setInput("title", "Test Plan");
+      fixture.componentRef.setInput("subscription", {
+        cart: mockCart,
+        status: "past_due",
+      } satisfies SubscriptionPreview);
+      fixture.detectChanges();
+
+      expect(component.callout()).toBeNull();
+      expect(fixture.debugElement.query(By.css("bit-callout"))).toBeNull();
     });
 
     it("should display canceled callout with resubscribe action", () => {
