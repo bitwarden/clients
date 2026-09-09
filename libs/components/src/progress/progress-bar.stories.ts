@@ -79,6 +79,21 @@ export const AllVariants: Story = {
   }),
 };
 
+export const AllSizes: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-col tw-w-[552px] tw-gap-4">
+        <bit-progress-bar size="sm" [value]="50" [hideStartHint]="true">
+          <bit-label slot="label">sm (8px, default)</bit-label>
+        </bit-progress-bar>
+        <bit-progress-bar size="md" [value]="50" [hideStartHint]="true">
+          <bit-label slot="label">md (16px)</bit-label>
+        </bit-progress-bar>
+      </div>
+    `,
+  }),
+};
+
 export const WithLabelAndHelperHint: Story = {
   render: () => ({
     template: /*html*/ `
