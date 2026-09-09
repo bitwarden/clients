@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
-import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs";
+import { ActivatedRoute, RouterLink } from "@angular/router";
+import { combineLatest, firstValueFrom, map, shareReplay, switchMap, take } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -112,7 +112,6 @@ export class VaultNextComponent {
   private readonly cipherArchiveService = inject(CipherArchiveService);
   private readonly i18nService = inject(I18nService);
   private readonly policyService = inject(PolicyService);
-  private readonly router = inject(Router);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   private readonly routeParams = toSignal(this.activatedRoute.paramMap);
@@ -299,6 +298,7 @@ export class VaultNextComponent {
   private readonly subscriptionEndedMessaging = toSignal(
     this.userId$.pipe(
       switchMap((userId) => this.cipherArchiveService.showSubscriptionEndedMessaging$(userId)),
+      take(1),
     ),
     { initialValue: false },
   );

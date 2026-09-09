@@ -8,7 +8,7 @@ import {
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { switchMap } from "rxjs";
+import { switchMap, take } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -67,6 +67,7 @@ export class VaultListTableComponent<C extends CipherViewLike> {
     this.userId$.pipe(
       filterOutNullish(),
       switchMap((userId) => this.cipherArchiveService.showSubscriptionEndedMessaging$(userId)),
+      take(1),
     ),
     { initialValue: false },
   );

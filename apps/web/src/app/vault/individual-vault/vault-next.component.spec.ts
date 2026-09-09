@@ -67,7 +67,7 @@ describe("VaultNextComponent", () => {
   let collections$: BehaviorSubject<CollectionView[]>;
   let organizations$: BehaviorSubject<Organization[]>;
   let showQuickCopyActions$: BehaviorSubject<boolean>;
-  let showSubscriptionEndedMessaging$: BehaviorSubject<boolean>;
+  let showSubscriptionEndedMessaging$: Subject<boolean>;
   let paramMap$: BehaviorSubject<ParamMap>;
   let routeData$: BehaviorSubject<Data>;
   let vaultNav$: BehaviorSubject<VaultsNavViewModel>;
@@ -157,7 +157,7 @@ describe("VaultNextComponent", () => {
     collections$ = new BehaviorSubject<CollectionView[]>([]);
     organizations$ = new BehaviorSubject<Organization[]>([]);
     showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
-    showSubscriptionEndedMessaging$ = new BehaviorSubject<boolean>(false);
+    showSubscriptionEndedMessaging$ = new Subject<boolean>();
     paramMap$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
     routeData$ = new BehaviorSubject<Data>({});
     // The multi-vault shape, matching the organizations most of this suite sets up.

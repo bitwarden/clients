@@ -2,7 +2,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, EMPTY, of } from "rxjs";
+import { EMPTY, of, Subject } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -32,11 +32,11 @@ describe("VaultListTableComponent", () => {
   let component: VaultListTableComponent<CipherViewLike>;
   let mockGetRowActions: jest.Mock;
   let cipherArchiveService: MockProxy<CipherArchiveService>;
-  let showSubscriptionEndedMessaging$: BehaviorSubject<boolean>;
+  let showSubscriptionEndedMessaging$: Subject<boolean>;
 
   async function setup(extraProviders: unknown[] = []) {
     mockGetRowActions = jest.fn(() => []);
-    showSubscriptionEndedMessaging$ = new BehaviorSubject<boolean>(false);
+    showSubscriptionEndedMessaging$ = new Subject<boolean>();
     cipherArchiveService = mock<CipherArchiveService>();
     cipherArchiveService.showSubscriptionEndedMessaging$.mockReturnValue(
       showSubscriptionEndedMessaging$,
