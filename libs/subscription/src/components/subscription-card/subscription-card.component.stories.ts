@@ -13,6 +13,7 @@ import { CartSummaryComponent, DiscountTypes } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitwardenSubscription } from "../../types/bitwarden-subscription";
+import { SubscriptionPreview } from "../../types/subscription-preview";
 
 import { SubscriptionCardComponent } from "./subscription-card.component";
 
@@ -56,7 +57,7 @@ export default {
                 yourSubscriptionIsCanceled:
                   "Your subscription is canceled. Please resubscribe to continue using premium features.",
                 yourSubscriptionIsScheduledToCancel: `Your subscription is scheduled to cancel on ${args[0]}. You can reinstate it anytime before then.`,
-                reinstateSubscription: "Reinstate subscription",
+                keepSubscription: "Keep subscription",
                 resubscribe: "Resubscribe",
                 upgradeYourPlan: "Upgrade your plan",
                 premiumShareEvenMore:
@@ -286,6 +287,60 @@ export const PastDue: Story = {
   },
 };
 
+export const PastDueWithoutDetails: Story = {
+  name: "Past Due - No Suspension Details",
+  args: {
+    title: "Enterprise Subscription",
+    // SubscriptionPreview may omit suspension/gracePeriod for past_due — the card renders no callout
+    // and no suspension header in that case.
+    subscription: {
+      status: "past_due",
+      cart: {
+        passwordManager: {
+          seats: {
+            quantity: 20,
+            translationKey: "members",
+            cost: 6,
+          },
+        },
+        cadence: "annually",
+        estimatedTax: 0,
+      },
+    } satisfies SubscriptionPreview,
+  },
+};
+
+export const CalloutSuppressed: Story = {
+  name: "Callout Suppressed (hideCallout)",
+  args: {
+    title: "Enterprise Subscription",
+    // hideCallout suppresses the status callout entirely (e.g. reseller orgs exempt from billing
+    // automation) — the badge still renders, but the past-due callout does not.
+    hideCallout: true,
+    subscription: {
+      status: "past_due",
+      suspension: new Date("2025-02-05"),
+      gracePeriod: 14,
+      cart: {
+        passwordManager: {
+          seats: {
+            quantity: 20,
+            translationKey: "members",
+            cost: 6.0,
+          },
+        },
+        cadence: "annually",
+        estimatedTax: 0,
+      },
+      storage: {
+        available: 1000,
+        used: 234,
+        readableUsed: "234 MB",
+      },
+    } satisfies BitwardenSubscription,
+  },
+};
+
 export const PendingCancellation: Story = {
   args: {
     title: "Premium Subscription",
@@ -413,4 +468,44 @@ export const Enterprise: Story = {
       },
     },
   },
+};
+
+export const WithProjectedContent: Story = {
+  name: "Preview-Driven - With Projected Warning",
+  args: {
+    title: "Teams Subscription",
+    subscription: {
+      status: "active",
+      nextCharge: new Date("2025-02-15"),
+      cart: {
+        passwordManager: {
+          seats: {
+            quantity: 5,
+            translationKey: "members",
+            cost: 4,
+          },
+        },
+        cadence: "annually",
+        estimatedTax: 1.5,
+      },
+      storage: {
+        available: 1000,
+        used: 234,
+        readableUsed: "234 MB",
+      },
+    } satisfies SubscriptionPreview,
+  },
+  // Verifies the <ng-content> slot: pages project content (e.g. the scheduled price-increase
+  // warning) into the bottom of the card.
+  render: (args) => ({
+    props: args,
+    template: `
+      <billing-subscription-card [title]="title" [subscription]="subscription">
+        <bit-callout type="warning" title="Pricing details may be outdated">
+          We're having trouble reaching our billing service, so your subscription details may be
+          outdated. You're seeing the last known details.
+        </bit-callout>
+      </billing-subscription-card>
+    `,
+  }),
 };
