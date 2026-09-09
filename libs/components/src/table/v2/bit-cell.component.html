@@ -2,13 +2,29 @@
   <ng-content select="[slot=start]"></ng-content>
 
   <div class="tw-flex tw-flex-col tw-min-w-0 tw-flex-grow">
-    <div [ngClass]="truncate() ? 'tw-truncate' : 'tw-text-wrap tw-break-words'">
+    <!--
+      not using `tw-truncate` here because it applies `overflow-hidden`, but we need `overflow-clip`
+      so the clip region can be pushed out by `overflow-clip-margin`. this allows the focus ring of
+      interactive content to appear properly instead of being clipped off. 4px covers the widest 
+      ring in the CL. text still ellipses: `text-overflow` applies to any non-`visible` overflow.
+    -->
+    <div
+      [ngClass]="
+        truncate()
+          ? 'tw-overflow-clip [overflow-clip-margin:4px] tw-text-ellipsis tw-whitespace-nowrap'
+          : 'tw-text-wrap tw-break-words'
+      "
+    >
       <ng-content></ng-content>
     </div>
     <div
       bitTypography="helper"
       class="tw-text-fg-body-subtle empty:tw-hidden"
-      [ngClass]="truncate() ? 'tw-truncate' : 'tw-text-wrap tw-break-words'"
+      [ngClass]="
+        truncate()
+          ? 'tw-overflow-clip [overflow-clip-margin:4px] tw-text-ellipsis tw-whitespace-nowrap'
+          : 'tw-text-wrap tw-break-words'
+      "
     >
       <ng-content select="[slot=secondary]"></ng-content>
     </div>
