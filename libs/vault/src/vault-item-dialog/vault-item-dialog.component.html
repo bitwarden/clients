@@ -14,19 +14,12 @@
         [collections]="collections"
         [isAdminConsole]="formConfig.isAdminConsole"
       >
-        @if (showShareButton$ | async) {
-          <button
-            type="button"
-            class="tw-mt-4"
-            slot="button"
-            bitButton
-            buttonType="secondary"
-            startIcon="bwi-share-link"
-            block
-            (click)="openSharePanel()"
-          >
-            {{ "shareVerb" | i18n }}
-          </button>
+        @if (shareItemEntryPoint) {
+          <div slot="button">
+            <ng-container
+              *ngComponentOutlet="shareItemEntryPoint; inputs: { cipher: cipher }"
+            ></ng-container>
+          </div>
         }
       </app-cipher-view>
     }

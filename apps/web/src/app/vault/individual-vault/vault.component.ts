@@ -88,7 +88,6 @@ import {
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
-import { ShareItemDrawerComponent } from "@bitwarden/tools-share";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
@@ -730,9 +729,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         case "editCipher":
           await this.editCipher(event.item);
           break;
-        case "shareViaLink":
-          await this.shareViaLink(event.item);
-          break;
       }
     } finally {
       this.processingEvent = false;
@@ -1088,21 +1084,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     };
 
     await this.openVaultItemDialog("form", cipherFormConfig);
-  }
-
-  async shareViaLink(cipher: CipherViewLike) {
-    if (!(await this.repromptCipher([cipher]))) {
-      return;
-    }
-    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const cipherView = await firstValueFrom(
-      this.cipherService.cipherView$(activeUserId, cipher.id as CipherId),
-    );
-    if (!cipherView) {
-      await this.handleUnknownCipher();
-      return;
-    }
-    await this.dialogService.openDrawer(ShareItemDrawerComponent, { data: { cipher: cipherView } });
   }
 
   async editCipher(cipher: CipherView | CipherListView, cloneMode?: boolean) {

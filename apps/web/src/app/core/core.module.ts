@@ -152,11 +152,19 @@ import {
 } from "@bitwarden/legacy-crypto";
 import { OrganizationInviteLinkApiService } from "@bitwarden/organization-invite-link";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
+import {
+  SHARE_ITEM_PRESENTER,
+  SHARE_PASSWORD_REPROMPT,
+  ShareButtonComponent,
+  ShareItemDrawerPresenter,
+} from "@bitwarden/tools-share";
 import { LockService, UnlockService } from "@bitwarden/unlock";
 import {
   CipherFormGenerationService,
   DefaultSshImportPromptService,
   DefaultVaultNavService,
+  PasswordRepromptService,
+  SHARE_ITEM_ENTRY_POINT,
   SshImportPromptService,
   VaultNavService,
 } from "@bitwarden/vault";
@@ -609,6 +617,24 @@ const safeProviders: SafeProvider[] = [
       KeyServiceAbstraction,
       LegacyCompatKeyService,
     ],
+  }),
+  // Sharing and the Vault layer reach each other through tokens rather than imports, because
+  // `@bitwarden/tools-share` already depends on `@bitwarden/vault` through `@bitwarden/send-ui`
+  // and importing it back would close a package cycle. The app sits above both, so it is the one
+  // place the two can be introduced.
+  safeProvider({
+    provide: SHARE_ITEM_ENTRY_POINT,
+    useValue: ShareButtonComponent,
+  }),
+  safeProvider({
+    provide: SHARE_PASSWORD_REPROMPT,
+    useExisting: PasswordRepromptService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: SHARE_ITEM_PRESENTER,
+    useExisting: ShareItemDrawerPresenter,
+    deps: [],
   }),
 ];
 

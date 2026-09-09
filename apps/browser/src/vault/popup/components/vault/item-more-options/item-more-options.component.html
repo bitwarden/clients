@@ -37,11 +37,9 @@
             {{ "assignToCollections" | vfo1I18n: "addToSharedFolder" }}
           </a>
         }
-        @if (showShareViaLink$ | async) {
-          <a bitMenuItem (click)="shareViaLink()">
-            {{ "shareViaLink" | i18n }}
-          </a>
-        }
+        <a bitMenuItem *appShareLinkMenuItem="cipher; let share = share" (click)="share()">
+          {{ "shareViaLink" | i18n }}
+        </a>
       }
       @if (canArchive$ | async) {
         <button type="button" bitMenuItem (click)="archive()">

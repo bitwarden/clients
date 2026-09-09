@@ -129,6 +129,7 @@ export {
   CollectionDialogRef,
   CollectionDialogTab,
 } from "./tokens/collection-dialog.token";
+export { SHARE_ITEM_ENTRY_POINT } from "./tokens/share-item-entry-point.token";
 
 export { VaultBatchBarService, VaultBatchBarConfig } from "./services/vault-batch-bar.service";
 export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-batch-action.component";
