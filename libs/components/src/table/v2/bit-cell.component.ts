@@ -1,5 +1,4 @@
-import { NgClass } from "@angular/common";
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
 import { TypographyModule } from "../../typography";
 
@@ -23,7 +22,7 @@ import { TypographyModule } from "../../typography";
 @Component({
   selector: "bit-cell, [bit-cell]",
   templateUrl: "./bit-cell.component.html",
-  imports: [NgClass, TypographyModule],
+  imports: [TypographyModule],
   host: {
     class: "tw-contents",
   },
@@ -32,4 +31,19 @@ import { TypographyModule } from "../../typography";
 export class BitCellComponent {
   /** Truncate the default and secondary slots on overflow. Default `true`. */
   readonly truncate = input(true);
+
+  /**
+   * Overflow behavior shared by the default and secondary slots.
+   *
+   * Not using `tw-truncate` because it applies `overflow-hidden`, but we need `overflow-clip` so
+   * the clip region can be pushed out by `overflow-clip-margin`. That lets the focus ring of
+   * interactive content paint instead of being clipped off; 4px covers the widest ring in the
+   * library, and matches the clip margin `<bit-row>` uses for the same reason. Text still ellipses:
+   * `text-overflow` applies to any non-`visible` overflow.
+   */
+  protected readonly contentClasses = computed(() =>
+    this.truncate()
+      ? "tw-overflow-clip [overflow-clip-margin:4px] tw-text-ellipsis tw-whitespace-nowrap"
+      : "tw-text-wrap tw-break-words",
+  );
 }
