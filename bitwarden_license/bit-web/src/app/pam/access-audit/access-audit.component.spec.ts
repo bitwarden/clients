@@ -130,6 +130,11 @@ describe("AccessAuditComponent", () => {
             noMatchingItems: "No matching items",
             search: "Search",
             resetSearch: "Reset search",
+            clearSearch: "Clear search",
+            filtersSelected: "__$1__ selected",
+            noFiltersMatchTerm: "No filters match “__$1__”",
+            oneFilterResult: "1 result",
+            filterResults: "__$1__ results",
             timePeriod: "Time period",
             allTime: "All time",
             recentlyActiveToday: "Today",
@@ -300,7 +305,7 @@ describe("AccessAuditComponent", () => {
       .querySelector<HTMLButtonElement>("bit-filter-menu button[aria-haspopup]")!
       .click();
     fixture.detectChanges();
-    return Array.from(document.querySelectorAll<HTMLButtonElement>("[role='menuitemcheckbox']"));
+    return Array.from(document.querySelectorAll<HTMLButtonElement>("[role='treeitem']"));
   };
 
   it("reads the trail for the organization in the route", async () => {
