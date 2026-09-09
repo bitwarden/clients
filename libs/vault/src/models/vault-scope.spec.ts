@@ -21,6 +21,8 @@ import {
   MY_VAULT_ROUTE,
   organizationInScope,
   organizationNameForScope,
+  organizationVaultPage,
+  OrganizationVaultPage,
   parseVaultScope,
   resolveVaultScope,
   scopedSharedFolderId,
@@ -248,6 +250,40 @@ describe("resolveVaultScope", () => {
     it("names no destination for an organization the account has no vault for", () => {
       expect(resolveVaultScope(otherOrganizationId, MY_ITEMS_ROUTE, dataOwnershipNav)).toBeNull();
     });
+  });
+});
+
+describe("organizationVaultPage", () => {
+  const resolvedMyItemsScope: VaultScope = {
+    type: VaultScopeType.Organization,
+    organizationId,
+    collectionId: myItemsCollectionId,
+  };
+
+  it("classifies a non-organization scope as no organization page", () => {
+    expect(organizationVaultPage(myVaultScope, dataOwnershipNav)).toBeUndefined();
+  });
+
+  it("classifies a whole organization vault as All vault items", () => {
+    expect(organizationVaultPage(organizationScope, dataOwnershipNav)).toBe(
+      OrganizationVaultPage.AllVaultItems,
+    );
+  });
+
+  it("classifies the my-items sentinel as My items, before the nav resolves it", () => {
+    expect(organizationVaultPage(myItemsScope, undefined)).toBe(OrganizationVaultPage.MyItems);
+  });
+
+  it("classifies the resolved My items collection as My items", () => {
+    expect(organizationVaultPage(resolvedMyItemsScope, dataOwnershipNav)).toBe(
+      OrganizationVaultPage.MyItems,
+    );
+  });
+
+  it("classifies any other collection as a shared folder", () => {
+    expect(organizationVaultPage(sharedFolderScope, dataOwnershipNav)).toBe(
+      OrganizationVaultPage.SharedFolder,
+    );
   });
 });
 

@@ -28,7 +28,8 @@ the required `title` input, prefixed by `icon` and followed by anything in `slot
 When a `bit-breadcrumbs` projected into the header has an **active** breadcrumb — one whose `route`
 matches the current URL — that breadcrumb becomes the page's `<h1>` instead, marked
 `aria-current="page"`. The header then skips its own heading so the page never has two `<h1>`
-elements, which means `title`, `icon`, and `slot="title-suffix"` don't render in this case.
+elements, which means `title`, `icon`, `slot="title-prefix"`, and `slot="title-suffix"` don't render
+in this case.
 
 <Canvas of={stories.WithActiveBreadcrumbVfo1} />
 
@@ -54,6 +55,7 @@ Without it the breadcrumbs have no context to register with.
 | --------------------- | ---------------------------------------------------------------------- |
 | default               | controls that act on the page, aligned to the end of the title row     |
 | `slot="breadcrumbs"`  | a `bit-breadcrumbs` showing where the page sits in the hierarchy       |
+| `slot="title-prefix"` | leading content shown before the title                                 |
 | `slot="title-suffix"` | content appended inline to the title, typically an icon or icon button |
 | `slot="subtitle"`     | additional page information to complement the page title               |
 | `slot="tabs"`         | a `bit-tab-nav-bar` for navigation within the page                     |
@@ -72,6 +74,14 @@ Breadcrumbs render above the title. An active breadcrumb also changes what the h
 [Page heading](#page-heading).
 
 <Canvas of={stories.BreadcrumbsWithPrimaryContentVfo1} />
+
+### Prefix
+
+Leading content before the title, in place of the monochrome `icon` input — commonly a
+`bit-icon-tile`, as below. Like the title suffix, it drops when a breadcrumb is promoted, and only
+renders while the `VFO1Foundation` feature flag is on.
+
+<Canvas of={stories.WithPrefixVfo1} />
 
 ### Title suffix
 

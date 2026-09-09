@@ -86,6 +86,7 @@ import {
   ToastService,
   SearchModule,
   AutofocusDirective,
+  IconTileComponent,
 } from "@bitwarden/components";
 import {
   AddEditFolderDialogComponent,
@@ -126,11 +127,16 @@ import {
   MY_ITEMS_ROUTE,
   organizationInScope,
   organizationNameForScope,
+  organizationVaultPage,
+  OrganizationVaultPage,
   resolveVaultScope,
   scopedCollectionSegment,
   SharedFolderCardGridComponent,
+  VaultBreadcrumbsComponent,
   sharedFolderNameForScope,
   VaultNavService,
+  vaultScopeHeaderTile,
+  vaultScopeTitle,
   VaultScopeType,
   defaultUserCollectionId,
 } from "@bitwarden/vault";
@@ -174,6 +180,8 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     VaultOrganizationUserNotificationsComponent,
     AutofocusDirective,
     SharedFolderCardGridComponent,
+    VaultBreadcrumbsComponent,
+    IconTileComponent,
   ],
   providers: [
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
@@ -332,6 +340,15 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }),
   );
 
+  /** The scope's page title under VFO1; unset otherwise so the header keeps its route title. */
+  protected readonly title = toSignal(
+    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.vaultNav$]).pipe(
+      map(([vfo1Foundation, scope, nav]) =>
+        vfo1Foundation ? vaultScopeTitle(scope, this.i18nService, nav) : undefined,
+      ),
+    ),
+  );
+
   /**
    * Whether the scope is a vault an "empty vault" message makes sense for. Trash and Archive are
    * not — an account with e.g. only one organization vault would otherwise show "No items in
@@ -355,6 +372,26 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         browsing ? organizationNameForScope(scope, nav) : undefined,
       ),
     ),
+  );
+
+  protected readonly headerTile = toSignal(
+    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.vaultNav$]).pipe(
+      map(([vfo1Foundation, scope, nav]) =>
+        vfo1Foundation ? vaultScopeHeaderTile(scope, nav) : undefined,
+      ),
+    ),
+  );
+
+  /** Only a shared folder trails a breadcrumb; every other page reads as a plain title. */
+  protected readonly showBreadcrumbs = toSignal(
+    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.vaultNav$]).pipe(
+      map(
+        ([vfo1Foundation, scope, nav]) =>
+          vfo1Foundation &&
+          organizationVaultPage(scope, nav) === OrganizationVaultPage.SharedFolder,
+      ),
+    ),
+    { initialValue: false },
   );
 
   protected readonly hasMultipleVaults = toSignal(
