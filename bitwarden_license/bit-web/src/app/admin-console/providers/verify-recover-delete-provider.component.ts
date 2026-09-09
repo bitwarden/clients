@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnInit, SecurityContext } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -18,10 +16,10 @@ import { ToastService } from "@bitwarden/components";
   standalone: false,
 })
 export class VerifyRecoverDeleteProviderComponent implements OnInit {
-  name: string;
+  name?: string;
 
-  private providerId: string;
-  private token: string;
+  private providerId?: string;
+  private token?: string;
 
   constructor(
     private router: Router,
@@ -47,6 +45,9 @@ export class VerifyRecoverDeleteProviderComponent implements OnInit {
   }
 
   submit = async () => {
+    if (this.token == null || this.providerId == null) {
+      return;
+    }
     const request = new ProviderVerifyRecoverDeleteRequest(this.token);
     await this.providerApiService.providerRecoverDeleteToken(this.providerId, request);
     this.toastService.showToast({

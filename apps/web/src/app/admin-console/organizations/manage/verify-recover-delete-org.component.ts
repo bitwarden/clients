@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
@@ -20,10 +18,10 @@ import { SharedModule } from "../../../shared/shared.module";
 })
 export class VerifyRecoverDeleteOrgComponent implements OnInit {
   loading = true;
-  name: string;
+  name?: string;
 
-  private orgId: string;
-  private token: string;
+  private orgId?: string;
+  private token?: string;
 
   constructor(
     private router: Router,
@@ -47,6 +45,9 @@ export class VerifyRecoverDeleteOrgComponent implements OnInit {
   }
 
   submit = async () => {
+    if (this.token == null || this.orgId == null) {
+      return;
+    }
     const request = new OrganizationVerifyDeleteRecoverRequest(this.token);
     await this.apiService.deleteUsingToken(this.orgId, request);
     this.toastService.showToast({
