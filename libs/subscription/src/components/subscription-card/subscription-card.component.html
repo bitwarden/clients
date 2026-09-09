@@ -83,6 +83,8 @@
         @if (suspension(); as suspension) {
           {{ "yourSubscriptionWillBeSuspendedOn" | i18n }}
           <span class="tw-font-bold">{{ suspension | date: dateFormat }}</span>
+        } @else {
+          {{ "subscriptionPastDueWillPauseSoon" | i18n }}
         }
       }
       @case ("canceled") {
@@ -93,6 +95,8 @@
         @if (suspension(); as suspension) {
           {{ "yourSubscriptionWasSuspendedOn" | i18n }}
           <span class="tw-font-bold">{{ suspension | date: dateFormat }}</span>
+        } @else {
+          {{ "subscriptionPastDuePaused" | i18n }}
         }
       }
     }
