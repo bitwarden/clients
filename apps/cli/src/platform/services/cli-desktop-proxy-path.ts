@@ -4,22 +4,6 @@ import * as path from "path";
 
 export const DESKTOP_PROXY_PATH_ENV = "BITWARDEN_DESKTOP_PROXY_PATH";
 
-const LINUX_FLATPAK_NATIVE_MESSAGING_PATHS = [
-  "org.mozilla.firefox/.mozilla/native-messaging-hosts",
-  "com.google.Chrome/config/google-chrome/NativeMessagingHosts",
-  "org.chromium.Chromium/config/chromium/NativeMessagingHosts",
-  "com.microsoft.Edge/config/microsoft-edge/NativeMessagingHosts",
-];
-const LINUX_NATIVE_MESSAGING_PATHS = [
-  ".mozilla/native-messaging-hosts",
-  ".config/google-chrome/NativeMessagingHosts",
-  ".config/chromium/NativeMessagingHosts",
-  ".config/microsoft-edge/NativeMessagingHosts",
-  ".config/vivaldi/NativeMessagingHosts",
-  ".config/BraveSoftware/Brave-Browser/NativeMessagingHosts",
-  ".config/net.imput.helium/NativeMessagingHosts",
-];
-
 /** Returns well-known locations for the desktop native-messaging proxy. */
 export function getDesktopProxyPaths(
   platform = os.platform(),
@@ -44,21 +28,11 @@ export function getDesktopProxyPaths(
     ];
   }
 
-  const nativeMessagingProxy = ".bitwarden_desktop_proxy";
   return [
-    // Prefer stable Desktop installation paths. Desktop also hard-links or copies
-    // its proxy into browser native-messaging directories on Linux; those
-    // host-visible copies are useful fallbacks for sandboxed or portable installs.
     "/opt/Bitwarden/desktop_proxy",
     "/usr/lib/bitwarden/desktop_proxy",
     "/usr/lib/bitwarden-desktop/desktop_proxy",
     "/snap/bitwarden/current/desktop_proxy",
-    ...LINUX_NATIVE_MESSAGING_PATHS.map((nativePath) =>
-      path.posix.join(homeDir, nativePath, nativeMessagingProxy),
-    ),
-    ...LINUX_FLATPAK_NATIVE_MESSAGING_PATHS.map((nativePath) =>
-      path.posix.join(homeDir, ".var/app", nativePath, nativeMessagingProxy),
-    ),
   ];
 }
 
