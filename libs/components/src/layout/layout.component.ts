@@ -28,7 +28,11 @@ import { drawerSizeToWidthRem } from "../dialog/dialog/dialog.component";
 import { DrawerService } from "../dialog/drawer.service";
 import { LinkComponent, LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
-import { getRootFontSizePx, MAIN_MIN_WIDTH_REM, SIDERAIL_WIDTH_REM } from "../shared";
+import {
+  getRootFontSizePx,
+  LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM,
+  SIDERAIL_WIDTH_REM,
+} from "../shared";
 
 import { LayoutFooterService } from "./layout-footer.service";
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
@@ -126,7 +130,7 @@ export class LayoutComponent {
     const rootFontSizePx = getRootFontSizePx();
     const siderailWidthPx = SIDERAIL_WIDTH_REM * rootFontSizePx;
     const drawerMinWidthPx = drawerSizeToWidthRem.small * rootFontSizePx;
-    const mainMinWidthPx = MAIN_MIN_WIDTH_REM * rootFontSizePx;
+    const mainMinWidthPx = LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM * rootFontSizePx;
 
     // Push vs overlay: switch to overlay only when the minimum push width won't fit.
     // The shrink zone between the declared max-width and the minimum is handled
@@ -194,7 +198,7 @@ export class LayoutComponent {
         const rootFontSizePx = getRootFontSizePx();
         const containerWidth = container.clientWidth;
         const siderailPx = SIDERAIL_WIDTH_REM * rootFontSizePx;
-        const mainMinPx = MAIN_MIN_WIDTH_REM * rootFontSizePx;
+        const mainMinPx = LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM * rootFontSizePx;
         const navWidthPx = this.sideNavService.widthRem() * rootFontSizePx;
         const drawerMinPx = drawerSizeToWidthRem.small * rootFontSizePx;
 

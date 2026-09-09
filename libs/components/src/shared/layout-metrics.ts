@@ -6,7 +6,7 @@
  */
 
 /** Minimum width of the main content column. Matches `tw-min-w-96` on `<main>`. */
-export const MAIN_MIN_WIDTH_REM = 24;
+export const LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM = 24;
 
 /** Rendered width of the collapsed nav (siderail / icon strip). */
 export const SIDERAIL_WIDTH_REM = 4;

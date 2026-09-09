@@ -2,7 +2,11 @@ import { computed, inject, Injectable, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Observable, fromEvent, map, startWith } from "rxjs";
 
-import { getRootFontSizePx, MAIN_MIN_WIDTH_REM, SIDERAIL_WIDTH_REM } from "../shared";
+import {
+  getRootFontSizePx,
+  LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM,
+  SIDERAIL_WIDTH_REM,
+} from "../shared";
 
 import { SIDE_NAV_WIDTH_BOUNDS, SideNavWidthService } from "./side-nav-width.service";
 
@@ -91,7 +95,7 @@ export class SideNavService {
     // the correct layout before LayoutComponent's ResizeObserver fires.
     const estimatedPushMode =
       window.innerWidth - this.DEFAULT_OPEN_WIDTH * this.rootFontSizePx >=
-      MAIN_MIN_WIDTH_REM * this.rootFontSizePx;
+      LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM * this.rootFontSizePx;
     if (estimatedPushMode) {
       this.open.set(true);
     }
