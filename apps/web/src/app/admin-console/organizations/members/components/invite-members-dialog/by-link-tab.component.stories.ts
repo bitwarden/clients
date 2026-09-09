@@ -5,7 +5,9 @@ import { BehaviorSubject, of } from "rxjs";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 import {
@@ -48,6 +50,10 @@ const mockEventCollectionService = {
   collectMany: () => Promise.resolve(),
 };
 
+const mockConfigService = {
+  serverSettings$: of(new ServerSettings({ enableEmailVerification: true })),
+};
+
 const mockInviteLinkUrl =
   "https://vault.example.com/#/joinOrganization?organizationId=org-1&orgUserToken=abc123&orgName=Acme+Corp";
 
@@ -77,6 +83,7 @@ export default {
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: ToastService, useValue: mockToastService },
         { provide: EventCollectionService, useValue: mockEventCollectionService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }),
     applicationConfig({

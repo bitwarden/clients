@@ -37,7 +37,7 @@
   </button>
 </bit-form-field>
 
-@if (isSelfHost()) {
+@if (showSelfHostWarning()) {
   <bit-callout type="warning" [title]="null">
     <div class="tw-flex tw-items-center tw-justify-between tw-gap-4">
       <span>{{ "inviteLinkSelfHostEmailVerificationWarning" | i18n }}</span>
