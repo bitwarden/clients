@@ -80,6 +80,8 @@ export class ByLinkTabComponent {
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly eventCollectionService = inject(EventCollectionService);
 
+  protected readonly isSelfHost = signal<boolean>(this.platformUtilsService.isSelfHost());
+
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly inviteLink$: Observable<OrganizationInviteLink | undefined> = combineLatest([

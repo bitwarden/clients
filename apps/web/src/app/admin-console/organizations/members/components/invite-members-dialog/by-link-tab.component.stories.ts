@@ -36,6 +36,7 @@ const mockAccountService = {
 
 const mockPlatformUtilsService = {
   copyToClipboard: () => {},
+  isSelfHost: () => false,
 };
 
 const mockToastService = {

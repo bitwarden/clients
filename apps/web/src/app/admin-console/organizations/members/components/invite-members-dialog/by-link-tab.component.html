@@ -37,6 +37,25 @@
   </button>
 </bit-form-field>
 
+@if (isSelfHost()) {
+  <bit-callout type="warning" [title]="null">
+    <div class="tw-flex tw-items-center tw-justify-between tw-gap-4">
+      <span>{{ "inviteLinkSelfHostEmailVerificationWarning" | i18n }}</span>
+      <a
+        bitLink
+        linkType="warning"
+        href="TODO_LEARN_MORE_URL"
+        target="_blank"
+        rel="noreferrer"
+        endIcon="bwi-arrow-right"
+        class="tw-shrink-0"
+      >
+        {{ "learnMore" | i18n }}
+      </a>
+    </div>
+  </bit-callout>
+}
+
 @let inviteLink = inviteLink$ | async;
 @if (inviteLink == null) {
   <bit-callout
