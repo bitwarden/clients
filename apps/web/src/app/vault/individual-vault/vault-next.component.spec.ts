@@ -13,6 +13,7 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
@@ -56,6 +57,7 @@ describe("VaultNextComponent", () => {
 
   let fixture: ComponentFixture<VaultNextComponent>;
   let itemActions: MockProxy<WebVaultItemActionsService>;
+  let cipherArchiveService: MockProxy<CipherArchiveService>;
   let cipherRowMenuService: MockProxy<CipherRowMenuService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
   let addItemDialogOpen: jest.SpyInstance;
@@ -65,6 +67,7 @@ describe("VaultNextComponent", () => {
   let collections$: BehaviorSubject<CollectionView[]>;
   let organizations$: BehaviorSubject<Organization[]>;
   let showQuickCopyActions$: BehaviorSubject<boolean>;
+  let showSubscriptionEndedMessaging$: BehaviorSubject<boolean>;
   let paramMap$: BehaviorSubject<ParamMap>;
   let routeData$: BehaviorSubject<Data>;
   let vaultNav$: BehaviorSubject<VaultsNavViewModel>;
@@ -154,6 +157,7 @@ describe("VaultNextComponent", () => {
     collections$ = new BehaviorSubject<CollectionView[]>([]);
     organizations$ = new BehaviorSubject<Organization[]>([]);
     showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
+    showSubscriptionEndedMessaging$ = new BehaviorSubject<boolean>(false);
     paramMap$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
     routeData$ = new BehaviorSubject<Data>({});
     // The multi-vault shape, matching the organizations most of this suite sets up.
@@ -167,6 +171,11 @@ describe("VaultNextComponent", () => {
     });
 
     itemActions = mock<WebVaultItemActionsService>();
+
+    cipherArchiveService = mock<CipherArchiveService>();
+    cipherArchiveService.showSubscriptionEndedMessaging$.mockReturnValue(
+      showSubscriptionEndedMessaging$,
+    );
 
     cipherRowMenuService = mock<CipherRowMenuService>();
     cipherRowMenuService.getRowActions.mockReturnValue([]);
@@ -213,6 +222,7 @@ describe("VaultNextComponent", () => {
       providers: [
         { provide: AccountService, useValue: accountService },
         { provide: ActivatedRoute, useValue: { paramMap: paramMap$, data: routeData$ } },
+        { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: CipherRowMenuService, useValue: cipherRowMenuService },
         { provide: CipherService, useValue: cipherService },
         { provide: CollectionService, useValue: collectionService },
@@ -467,6 +477,37 @@ describe("VaultNextComponent", () => {
       it("offers no way to add an item to it", () => {
         expect(component().showItemCreation()).toBe(false);
         expect(creationActions()).toEqual([null, null]);
+      });
+    });
+
+    describe("subscription ended callout", () => {
+      beforeEach(() => {
+        ciphers$.next([]);
+        fixture.detectChanges();
+      });
+
+      it("shows when scope is Archive and subscription has ended", () => {
+        scopeTo(ARCHIVE_ROUTE);
+        showSubscriptionEndedMessaging$.next(true);
+        fixture.detectChanges();
+
+        expect(fixture.nativeElement.querySelector("bit-callout")).not.toBeNull();
+      });
+
+      it("hides when scope is not Archive", () => {
+        scopeTo(TRASH_ROUTE);
+        showSubscriptionEndedMessaging$.next(true);
+        fixture.detectChanges();
+
+        expect(fixture.nativeElement.querySelector("bit-callout")).toBeNull();
+      });
+
+      it("hides when scope is Archive but subscription is active", () => {
+        scopeTo(ARCHIVE_ROUTE);
+        showSubscriptionEndedMessaging$.next(false);
+        fixture.detectChanges();
+
+        expect(fixture.nativeElement.querySelector("bit-callout")).toBeNull();
       });
     });
 

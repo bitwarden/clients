@@ -7,15 +7,20 @@ import {
   output,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { switchMap } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { ButtonModule, CalloutComponent, LinkModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -26,6 +31,7 @@ import {
   VaultItemsTableComponent,
   VaultItemsTableRowAction,
   VaultScope,
+  VaultScopeType,
 } from "@bitwarden/vault";
 
 import { VaultItemEvent } from "../vault-items/vault-item-event";
@@ -47,11 +53,23 @@ import { VaultItemEvent } from "../vault-items/vault-item-event";
   },
 })
 export class VaultListTableComponent<C extends CipherViewLike> {
+  private readonly accountService = inject(AccountService);
+  private readonly cipherArchiveService = inject(CipherArchiveService);
   private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
   private readonly cipherRowMenuService = inject(CipherRowMenuService);
   private readonly batchBarService = inject<VaultBatchBarService<C>>(VaultBatchBarService, {
     optional: true,
   });
+
+  private readonly userId$ = this.accountService.activeAccount$.pipe(getOptionalUserId);
+
+  private readonly subscriptionEndedMessaging = toSignal(
+    this.userId$.pipe(
+      filterOutNullish(),
+      switchMap((userId) => this.cipherArchiveService.showSubscriptionEndedMessaging$(userId)),
+    ),
+    { initialValue: false },
+  );
 
   private readonly vaultItemsTable = viewChild(VaultItemsTableComponent);
 
@@ -70,7 +88,6 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   readonly organizations = input<Organization[]>([]);
   readonly orgRequiresDataOwnership = input<boolean>(false);
   readonly loading = input<boolean>(false);
-  readonly showPremiumCallout = input<boolean>(false);
   readonly canCreateCipher = input<boolean>(true);
   readonly showAddCipherBtn = input<boolean>(true);
 
@@ -94,6 +111,10 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   readonly onAddFolder = output<void>();
   readonly onAddItemDialog = output<void>();
   readonly onImport = output<void>();
+
+  protected readonly showPremiumCallout = computed(
+    () => this.scope()?.type === VaultScopeType.Archive && this.subscriptionEndedMessaging(),
+  );
 
   private readonly cipherRowMenuHandlers = computed<CipherRowMenuHandlers<C>>(() => ({
     edit: (item) => this.onEvent.emit({ type: "editCipher", item }),

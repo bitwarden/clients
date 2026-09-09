@@ -44,7 +44,6 @@
       [loading]="refreshing || performingInitialLoad"
       [canCreateCipher]="(canCreateCipher$ | async) ?? true"
       [showAddCipherBtn]="(showAddCipherBtn$ | async) ?? true"
-      [showPremiumCallout]="(showPremiumCallout$ | async) ?? false"
       [scope]="vaultScope()"
       [organizationName]="emptyVaultOrganizationName()"
       [defaultCollectionId]="defaultCollectionId()"
