@@ -56,7 +56,8 @@ export default {
                   "Your subscription is expired. Please resubscribe to continue using premium features.",
                 yourSubscriptionIsCanceled:
                   "Your subscription is canceled. Please resubscribe to continue using premium features.",
-                yourSubscriptionIsScheduledToCancel: `Your subscription is scheduled to cancel on ${args[0]}. You can reinstate it anytime before then.`,
+                subscriptionPendingCanceled:
+                  "The subscription has been marked for cancellation at the end of the current billing period.",
                 keepSubscription: "Keep subscription",
                 resubscribe: "Resubscribe",
                 upgradeYourPlan: "Upgrade your plan",
