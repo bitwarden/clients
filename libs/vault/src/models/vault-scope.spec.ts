@@ -86,6 +86,7 @@ const buildNavItem = (
   icon: "bwi-user",
   type,
   defaultUserCollectionId: navDefaultUserCollectionId,
+  enabled: true,
 });
 
 const buildNav = (
