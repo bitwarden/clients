@@ -62,7 +62,6 @@ export class SideNavComponent {
 
   private readonly toggleButton = viewChild("toggleButton", { read: ElementRef });
 
-  private readonly scrollContainer = viewChild<ElementRef<HTMLElement>>("scrollContainer");
   private readonly footerWrapper = viewChild<ElementRef<HTMLElement>>("footerWrapper");
 
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -138,9 +137,9 @@ export class SideNavComponent {
   }
 
   protected scrollFocusedIntoView(event: FocusEvent) {
-    const scrollContainer = this.scrollContainer()?.nativeElement;
+    const scrollContainer = event.currentTarget as HTMLElement;
     const footerWrapper = this.footerWrapper()?.nativeElement;
-    if (!scrollContainer || !footerWrapper) {
+    if (!footerWrapper) {
       return;
     }
 
