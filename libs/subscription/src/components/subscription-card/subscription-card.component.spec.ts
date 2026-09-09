@@ -383,7 +383,7 @@ describe("SubscriptionCardComponent", () => {
       expect(buttons[0].nativeElement.textContent.trim()).toBe("Manage invoices");
     });
 
-    it("renders callout without description for past_due without suspension details", () => {
+    it("does not display callout without suspension details", () => {
       fixture.componentRef.setInput("title", "Test Plan");
       fixture.componentRef.setInput("subscription", {
         cart: mockCart,
@@ -392,18 +392,10 @@ describe("SubscriptionCardComponent", () => {
       fixture.detectChanges();
 
       const calloutData = component.callout();
-      expect(calloutData).toBeTruthy();
-      expect(calloutData!.type).toBe("warning");
-      expect(calloutData!.title).toBe("Past due");
-      expect(calloutData.description).toBeNull();
-      expect(calloutData!.callsToAction?.length).toBe(1);
+      expect(calloutData).toBeNull();
 
       const callout = fixture.debugElement.query(By.css("bit-callout"));
-      expect(callout).toBeTruthy();
-
-      const buttons = callout.queryAll(By.css("button"));
-      expect(buttons.length).toBe(1);
-      expect(buttons[0].nativeElement.textContent.trim()).toBe("Manage invoices");
+      expect(callout).toBeNull();
     });
 
     it("should display canceled callout with resubscribe action", () => {
