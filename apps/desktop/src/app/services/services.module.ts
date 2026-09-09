@@ -173,6 +173,7 @@ import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
+import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopFido2MacOsUserVerificationService } from "../../autofill/services/desktop-fido2-macos-user-verification.service";
 import { DesktopFido2UnsupportedUserVerificationService } from "../../autofill/services/desktop-fido2-unsupported-user-verification.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
@@ -634,6 +635,21 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DesktopAutotypeMvpService,
     useClass: DesktopAutotypeMvpService,
+    deps: [
+      AccountService,
+      AuthService,
+      CipherServiceAbstraction,
+      ConfigService,
+      GlobalStateProvider,
+      PlatformUtilsServiceAbstraction,
+      BillingAccountProfileStateService,
+      DesktopAutotypeDefaultSettingPolicy,
+      LogService,
+    ],
+  }),
+  safeProvider({
+    provide: DesktopAutotypeService,
+    useClass: DesktopAutotypeService,
     deps: [
       AccountService,
       AuthService,

@@ -143,13 +143,10 @@ export class DesktopAutotypeService implements OnDestroy {
       )
       .subscribe();
 
-    // listen for changes in keyboard shortcut settings
+    // Listen for changes in keyboard shortcut settings
     this.autotypeKeyboardShortcut$
       .pipe(
         concatMap(async (keyboardShortcut) => {
-          //const config: AutotypeConfig = {
-          //  keyboardShortcut,
-          //};
           // TODO: inform the main process the keyboard shortcut setting changed
           //       (PM-38967)
         }),
@@ -157,6 +154,7 @@ export class DesktopAutotypeService implements OnDestroy {
       )
       .subscribe();
 
+    // Enable or disable Autotype
     this.autotypeFeatureEnabled$
       .pipe(
         concatMap(async (enabled) => {
