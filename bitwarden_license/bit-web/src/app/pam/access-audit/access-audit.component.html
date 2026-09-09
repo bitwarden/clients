@@ -244,11 +244,10 @@
                 >
                   {{ row.kindLabelKey | i18n }}
                   @if (row.inDoubt) {
-                    <span
-                      bitBadge
-                      variant="warning"
-                      [bitTooltip]="'pamAuditIncompleteTooltip' | i18n"
-                      >{{ "pamAuditIncomplete" | i18n }}</span
+                    <span bitBadge variant="warning"
+                      ><span [bitTooltip]="'pamAuditIncompleteTooltip' | i18n">{{
+                        "pamAuditIncomplete" | i18n
+                      }}</span></span
                     >
                   }
                 </td>
