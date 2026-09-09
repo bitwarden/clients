@@ -73,7 +73,12 @@ export class SideNavService {
   readonly width$ = this.widthService.width$;
 
   /** True once the saved width has been read from disk, so callers can tell startup from a resize. */
-  readonly widthHydrated = this.widthService.hydrated;
+  readonly widthHydrated = this.widthService.hydrated.asReadonly();
+
+  private readonly _widthResizedByUser = signal(false);
+
+  /** True once the user has resized the nav themselves, which ends startup on its own. */
+  readonly widthResizedByUser = this._widthResizedByUser.asReadonly();
 
   /** Current nav width as a signal, for use in grid column calculations. */
   readonly widthRem = toSignal(this.width$, { initialValue: SIDE_NAV_WIDTH_BOUNDS.default });
@@ -118,6 +123,7 @@ export class SideNavService {
    */
   setWidthFromDrag(eventXPointer: number, dragElementXCoordinate: number) {
     this.isDragging.set(true);
+    this._widthResizedByUser.set(true);
 
     const newWidthInPixels = eventXPointer - dragElementXCoordinate;
     const newWidthInRem = newWidthInPixels / this.rootFontSizePx;
@@ -171,6 +177,8 @@ export class SideNavService {
    * @param key event key, must be either ArrowRight or ArrowLeft
    */
   setWidthFromKeys(key: "ArrowRight" | "ArrowLeft") {
+    this._widthResizedByUser.set(true);
+
     if (!this.open()) {
       // Already at the low end — only ArrowRight moves off it.
       if (key === "ArrowRight") {

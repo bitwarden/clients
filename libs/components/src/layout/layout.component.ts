@@ -256,8 +256,9 @@ export class LayoutComponent {
 
         const wasInPushMode = this.sideNavService.isPushMode();
 
-        // Startup isn't over until both have happened, and they can land in either order.
-        const settled = hasReconciled && widthHasHydrated;
+        // Startup ends when the persisted width lands — or sooner, if the user takes the width over.
+        const settled =
+          hasReconciled && (widthHasHydrated || this.sideNavService.widthResizedByUser());
 
         // Lost push mode → close, but only because the space around the nav shrank. Widening the
         // nav past what push affords is a request for overlay, not a collapse mid-gesture.

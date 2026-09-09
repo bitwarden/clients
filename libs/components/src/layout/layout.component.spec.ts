@@ -221,6 +221,55 @@ describe("LayoutComponent push/overlay reconciliation", () => {
     }));
   });
 
+  // A resize that lands before the persisted width does must not be mistaken for a bad startup
+  // estimate: estimateWasWrong is not gated on constraintsChanged, so it would collapse the nav
+  // mid-gesture. Reaching this needs boot() without deliver(), i.e. hydration still pending.
+  describe("resizing before the persisted width arrives", () => {
+    it("goes to overlay rather than collapsing when dragged", fakeAsync(() => {
+      boot();
+      ResizeObserverStub.latest!.emit();
+      settle();
+      expect(sideNav.open()).toBe(true);
+
+      sideNav.setWidthFromDrag(27 * ROOT_FONT_SIZE, 0);
+      settle();
+
+      expect(sideNav.open()).toBe(true);
+      expect(sideNav.isOverlay()).toBe(true);
+    }));
+
+    it("goes to overlay rather than collapsing when resized with arrow keys", fakeAsync(() => {
+      boot();
+      ResizeObserverStub.latest!.emit();
+      settle();
+
+      for (let i = 0; i < 8; i++) {
+        sideNav.setWidthFromKeys("ArrowRight");
+        settle();
+        expect(sideNav.open()).toBe(true);
+      }
+
+      expect(sideNav.isOverlay()).toBe(true);
+    }));
+
+    it("does not let a late persisted width collapse the nav the user just resized", fakeAsync(() => {
+      boot();
+      ResizeObserverStub.latest!.emit();
+      settle();
+
+      sideNav.setWidthFromDrag(27 * ROOT_FONT_SIZE, 0);
+      sideNav.onDragEnd();
+      settle();
+
+      // The user has taken the width over, so the stale disk value must not win retroactively.
+      stateProvider.width.deliver(30);
+      settle();
+
+      expect(sideNav.open()).toBe(true);
+      expect(sideNav.isOverlay()).toBe(true);
+    }));
+  });
+
   describe("space around the nav shrinking", () => {
     it("still closes the nav when the container no longer fits it", fakeAsync(() => {
       bootHydrated();
