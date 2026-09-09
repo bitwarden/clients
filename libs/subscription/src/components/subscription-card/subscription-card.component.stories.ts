@@ -70,6 +70,9 @@ export default {
                   "To reactivate your subscription, please resolve the past due invoices.",
                 yourSubscriptionWillBeSuspendedOn: "Your subscription will be suspended on",
                 yourSubscriptionWasSuspendedOn: "Your subscription was suspended on",
+                subscriptionPastDueWillPauseSoon:
+                  "Your subscription is past due and will be paused soon.",
+                subscriptionPastDuePaused: "Your subscription is past due and has been paused.",
                 yourSubscriptionWillBeCanceledOn: "Your subscription will be canceled on",
                 yourNextChargeIsFor: "Your next charge is for",
                 dueOn: "due on",
@@ -289,11 +292,9 @@ export const PastDue: Story = {
 };
 
 export const PastDueWithoutDetails: Story = {
-  name: "Past Due - No Suspension Details",
+  name: "Past Due - No Suspension Date",
   args: {
     title: "Enterprise Subscription",
-    // SubscriptionPreview may omit suspension/gracePeriod for past_due — the card renders no callout
-    // and no suspension header in that case.
     subscription: {
       status: "past_due",
       cart: {
@@ -393,6 +394,32 @@ export const Unpaid: Story = {
         readableUsed: "234 MB",
       },
     } satisfies BitwardenSubscription,
+  },
+};
+
+export const UnpaidNoSuspensionDate: Story = {
+  name: "Unpaid - No Suspension Date",
+  args: {
+    title: "Premium Subscription",
+    subscription: {
+      status: "unpaid",
+      cart: {
+        passwordManager: {
+          seats: {
+            quantity: 1,
+            translationKey: "members",
+            cost: 10.0,
+          },
+        },
+        cadence: "annually",
+        estimatedTax: 2.71,
+      },
+      storage: {
+        available: 1000,
+        used: 234,
+        readableUsed: "234 MB",
+      },
+    } satisfies SubscriptionPreview,
   },
 };
 
