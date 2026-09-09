@@ -74,11 +74,11 @@ export class ProgressBarComponent {
     return this.i18nService.t("percentageCompleted", this.clampedValue().toString());
   });
 
+  protected readonly sizeClass = computed(() => SizeClasses[this.size()]);
+
   protected readonly innerBarStyles = computed(() => {
-    return ["tw-transition-all", SizeClasses[this.size()], "tw-rounded"].concat(
+    return ["tw-transition-all", this.sizeClass(), "tw-rounded"].concat(
       VariantClasses[this.variant()],
     );
   });
-
-  protected readonly trackClasses = computed(() => SizeClasses[this.size()]);
 }

@@ -4,7 +4,7 @@
       <span class="tw-sr-only">{{ accessibleNameComputed() }}</span>
     </ng-content>
   </div>
-  <div class="tw-overflow-hidden tw-rounded tw-bg-secondary-100 tw-my-1" [class]="trackClasses()">
+  <div class="tw-overflow-hidden tw-rounded tw-bg-secondary-100 tw-my-1" [class]="sizeClass()">
     <div
       [id]="progressBarId()"
       [class]="innerBarStyles()"
