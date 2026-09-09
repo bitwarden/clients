@@ -184,14 +184,16 @@ mod tests {
     }
 
     #[test]
-    fn into_app_data_uses_label_and_path() {
-        let data = running(
-            "chrome.exe",
-            Some("Google Chrome"),
-            Some("C:\\c\\chrome.exe"),
-        )
-        .into_app_data();
+    fn into_app_data_uses_label_and_normalizes_path() {
+        // Fixture mapping keeps this deterministic and proves `into_app_data` applies the
+        // normalizer (rather than depending on the machine's real user dirs).
+        let normalizer = PathNormalizer::new(
+            [("C:\\c".to_string(), "%TEST%".to_string())],
+            crate::app_data::path::PlatformPolicy::WINDOWS,
+        );
+        let data = running("chrome.exe", Some("Google Chrome"), Some("C:\\c\\chrome.exe"))
+            .into_app_data(&normalizer);
         assert_eq!(data.display_name, "Google Chrome");
-        assert_eq!(data.path, Some(PathBuf::from("C:\\c\\chrome.exe")));
+        assert_eq!(data.path, Some(PathBuf::from("%TEST%\\chrome.exe")));
     }
 }
