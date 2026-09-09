@@ -188,6 +188,8 @@ export class LayoutComponent {
       const drawerContainer = this.drawerContainer().nativeElement;
 
       let hasReconciled = false;
+      let lastDrawerWidthPx = -1;
+      let widthHasHydrated = false;
       const update = () => {
         const rootFontSizePx = getRootFontSizePx();
         const containerWidth = container.clientWidth;
@@ -196,14 +198,18 @@ export class LayoutComponent {
         const navWidthPx = this.sideNavService.widthRem() * rootFontSizePx;
         const drawerMinPx = drawerSizeToWidthRem.small * rootFontSizePx;
 
-        this.containerWidthPx.set(containerWidth);
-
         // Use the push width declared by the drawer content (e.g. bit-dialog) via
         // DrawerService.declarePushWidth(). This is more reliable than DOM measurement
         // because the drawerContainer's firstElementChild is the outer portal host
         // component (e.g. app-vault-item), which fills the full 1fr column in overlay
         // mode — making its offsetWidth useless for push-vs-overlay decisions.
         const drawerWidthPx = this.drawerService.pushWidthPx();
+
+        // Did the space around the nav change, or only the nav's own width? Read before the set.
+        const constraintsChanged =
+          containerWidth !== this.containerWidthPx() || drawerWidthPx !== lastDrawerWidthPx;
+
+        this.containerWidthPx.set(containerWidth);
 
         // Can the full nav push alongside main (ignoring the drawer)?
         const navAloneCanPush = containerWidth - navWidthPx >= mainMinPx;
@@ -250,16 +256,22 @@ export class LayoutComponent {
 
         const wasInPushMode = this.sideNavService.isPushMode();
 
-        // Transitioning out of push mode → close the nav.
-        // Also close on the first reconciliation if the initial open estimate was wrong
-        // (the estimate uses DEFAULT_OPEN_WIDTH, but the persisted width loads async and
-        // may be wider, making push mode impossible at the current viewport).
+        // Startup isn't over until both have happened, and they can land in either order.
+        const settled = hasReconciled && widthHasHydrated;
+
+        // Lost push mode → close, but only because the space around the nav shrank. Widening the
+        // nav past what push affords is a request for overlay, not a collapse mid-gesture.
+        const lostPushRoom = !navPush && this.sideNavService.open() && wasInPushMode;
+
+        // Until then the open estimate may be wrong: it uses DEFAULT_OPEN_WIDTH, but the persisted
+        // width arrives later and may be too wide for push mode at this viewport.
         const estimateWasWrong =
-          !hasReconciled &&
+          !settled &&
           !navPush &&
           this.sideNavService.open() &&
           this.sideNavService.userCollapsePreference() !== "open";
-        if ((!navPush && this.sideNavService.open() && wasInPushMode) || estimateWasWrong) {
+
+        if ((constraintsChanged && lostPushRoom) || estimateWasWrong) {
           this.sideNavService.open.set(false);
         }
 
@@ -277,6 +289,8 @@ export class LayoutComponent {
         this.drawerService.isPushMode.set(drawerPush);
         this.sideNavService.markLayoutReady();
         hasReconciled = true;
+        lastDrawerWidthPx = drawerWidthPx;
+        widthHasHydrated = this.sideNavService.widthHydrated();
       };
 
       const resizeObserver = new ResizeObserver(update);
@@ -285,11 +299,14 @@ export class LayoutComponent {
       this.destroyRef.onDestroy(() => resizeObserver.disconnect());
 
       // Changing the nav width resizes neither observed element, so push/overlay would
-      // otherwise stay stale after a drag or once the persisted width resolves. untracked()
-      // keeps update()'s own reads and writes out of this effect's dependencies.
+      // otherwise stay stale after a drag or once the persisted width resolves. Hydration is a
+      // dependency in its own right because the persisted width may equal the default, which
+      // leaves widthRem untouched. untracked() keeps update()'s own reads and writes out of
+      // this effect's dependencies.
       effect(
         () => {
           this.sideNavService.widthRem();
+          this.sideNavService.widthHydrated();
           untracked(update);
         },
         { injector: this.injector },

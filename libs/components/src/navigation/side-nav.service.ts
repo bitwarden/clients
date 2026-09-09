@@ -72,6 +72,9 @@ export class SideNavService {
 
   readonly width$ = this.widthService.width$;
 
+  /** True once the saved width has been read from disk, so callers can tell startup from a resize. */
+  readonly widthHydrated = this.widthService.hydrated;
+
   /** Current nav width as a signal, for use in grid column calculations. */
   readonly widthRem = toSignal(this.width$, { initialValue: SIDE_NAV_WIDTH_BOUNDS.default });
 
