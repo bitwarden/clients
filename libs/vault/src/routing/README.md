@@ -1,166 +1,173 @@
 # Vault Routing
 
-The vault's filter state lives in the URL. This folder holds the pieces that depend on that:
-resolving which vault a URL is showing, remembering the filters each vault was last viewed with and
-restoring them on the way back in, and migrating URLs written before the filters moved into a
-namespace.
+This folder holds the vault's route helpers, in two groups:
+
+- **Scope routing** — which vault a URL shows, and which `:vaultId` URLs are valid:
+  [`vault-scope.guard.ts`](./vault-scope.guard.ts),
+  [`organization-vault.guard.ts`](./organization-vault.guard.ts), and
+  [`scoped-collection.ts`](./scoped-collection.ts).
+- **Filter state** — the subject of this document: record the filters each vault was last viewed
+  with, restore them on the next visit, and rewrite URLs written before the filters moved into a
+  namespace.
 
 ## The URL is the filter state
 
-`bit-table-v2` mirrors its own filter state to the query string when given a `[queryParam]`
-namespace, and the vault table passes `VAULT_FILTER_NAMESPACE` (`"vault"`). Every chip selection and
-sort change therefore produces a navigation, and the resulting URL looks like:
+`bit-table-v2` mirrors its filter state to the query string when it receives a `queryParam`
+namespace, and the vault table passes `VAULT_FILTER_NAMESPACE` (`"vault"`). Each chip change and
+each sort change therefore starts a navigation, and the URL looks like this:
 
 ```
 /vault?vault.type=1&vault.folder=f-1&vault.sort=name&vault.direction=asc
 ```
 
-There is no second copy of this state in a service — the URL is the source of truth, which is what
-makes vault filters shareable and deep-linkable. Everything here reads from the URL rather than
-tracking filters independently.
+No service holds a second copy of this state. The URL is the source of truth, which is what makes a
+filtered vault shareable and deep-linkable. Every file here reads the URL.
 
 ## Scopes
 
-A **scope** is one destination the side nav can select, and the key its filters are remembered
-under. The vocabulary lives in [`../models/vault-scope.ts`](../models/vault-scope.ts), shared with
-the side nav and `vaultScopeGuard`: `VaultScope` is a structure naming the vault — All items, the
-individual vault, an organization, Trash, or the Archive — plus the shared folder an organization
-vault has been drilled into.
+A **scope** is one vault a page shows, and the key its filters are stored under.
+[`../models/vault-scope.ts`](../models/vault-scope.ts) defines it, and the side nav and
+`vaultScopeGuard` share it: All items, the individual vault, an organization, Trash, or the Archive
+— and, for an organization, the shared folder the page has narrowed to.
 
-`scopeKey()` lives with the model and flattens a scope to the string its filters are stored under.
-An organization keys by its guid and every other scope by its `VaultScopeType` name, so the two
-cannot collide. A shared folder drill-in keys apart from the organization vault it was reached from,
-because the two show different rows.
+`scopeKey()` flattens a scope to its storage key. An organization keys by its guid and every other
+scope by its `VaultScopeType` name, so the two cannot collide. A shared folder keys apart from the
+organization vault above it, because the two show different rows.
 
-[`vault-filter-scope.ts`](./vault-filter-scope.ts) holds the route wiring on top of that: the `data`
-key a route opts in with, and the resolution from an activated route to a scope.
+[`vault-filter-scope.ts`](./vault-filter-scope.ts) adds the route wiring: the `data` key a route
+opts in with, and `vaultScopeOf()`, which resolves an activated route to a scope.
 
 ### Routes opt in
 
-`vaultScopeOf()` resolves a scope from the **route config**, not from the URL's shape. A route
-declares itself in scope through its `data`, and names the vault it shows with a `:vaultId` param:
+`vaultScopeOf()` reads the **route config**, not the shape of the URL. A route opts in through its
+`data`, and names the vault it shows with a `:vaultId` param:
 
 ```typescript
 {
-  path: "",
-  data: { vaultFilterScope: true } satisfies VaultScopeRouteData,
-},
-{
   path: ":vaultId",
-  canActivate: [vaultScopeGuard, vaultFilterRestoreGuard],
-  data: { vaultFilterScope: true } satisfies VaultScopeRouteData,
-},
+  canActivate: [
+    canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
+    vaultScopeGuard,
+    vaultFilterRestoreGuard,
+  ],
+  data: { titleId: "vaults", vaultFilterScope: true } satisfies RouteDataProperties &
+    VaultScopeRouteData,
+}
 ```
 
-The collection segment comes from `scopedCollectionSegment()`, so a shared folder drill-in and the
-"My items" route resolve the same way they do for `vaultScopeGuard`.
+`scopedCollectionSegment()` supplies the collection segment, so a shared folder route and the "My
+items" route resolve the way they do for `vaultScopeGuard`.
 
-A route with no `:vaultId` resolves to `ALL_ITEMS_SCOPE`. A route that doesn't opt in resolves to
-`null` and is ignored entirely.
+A route without a `:vaultId` resolves to `ALL_ITEMS_SCOPE`. A route that does not opt in resolves to
+`null`, and the memory ignores it.
 
 > [!IMPORTANT]
-> A new vault route that forgets `vaultFilterScope` won't have its filters remembered, and nothing
-> will fail loudly. If filters aren't sticking on a route, check its `data` first.
+> A new vault route that omits `vaultFilterScope` records no filters, and no error appears. If a
+> route does not restore its filters, examine its `data` first.
 
 > [!WARNING]
-> A scope switch relies on `bit-table-v2` clearing its chips as the route changes. If filters leak
-> from one scope into the next, they are also persisted under the wrong one — check the table's URL
-> sync before the memory.
+> A scope change depends on `bit-table-v2` to clear its chips. If filters pass from one scope into
+> the next, the memory also stores them under the wrong key. Examine the table's URL sync before the
+> memory.
 
-## Remembering filters
+## The filter memory
 
 [`vault-filter-memory.service.ts`](./vault-filter-memory.service.ts) records the filters each scope
-was last viewed with, so the side nav can return the user to where they left off.
+was last viewed with, so the side nav can return the user to the same view.
 
-**Recording** happens on `NavigationEnd`. Because the table's URL sync triggers a navigation on every
-chip change, the memory keeps up without the table knowing it exists. The service takes the
-`rememberableParams()` subset of the query string — an allowlist, so a param that turns up under the
-namespace later isn't persisted by accident. `vault.search` is left out (free text the user typed),
-as is pagination.
+**To record** — the service writes on `NavigationEnd`. The table's URL sync starts a navigation on
+each chip change, so the memory stays current and the table does not know it exists. The service
+stores the `rememberableParams()` subset of the query string. That subset is an allowlist, so it
+does not store a param added under the namespace later. It omits `vault.search`, which is free text
+the user typed, and it omits pagination.
 
-Every vault URL the user lands on is recorded, however they got there — back and forward included.
-The entry they land on is the URL they're looking at, so recording it keeps the memory and the
-screen from disagreeing. The cost is that going back to an older entry of the same scope, which
-holds the filters that entry was left with, rewinds the memory to those.
+The service records every vault URL the user reaches, back and forward included. The entry the user
+reaches is the URL on screen, so the memory and the screen agree. The cost: a back navigation to an
+older entry of the same scope stores that entry's filters again.
 
-**Restoring** happens in [`vault-filter-restore.guard.ts`](./vault-filter-restore.guard.ts), on the
-route rather than at each link. A filter-less vault URL is redirected to the same route carrying the
-remembered params:
+**To restore** — [`vault-filter-restore.guard.ts`](./vault-filter-restore.guard.ts) redirects a
+vault URL that carries no filters to the same route with the remembered params:
 
 ```
 /vault    →    /vault?vault.type=1&vault.folder=f-1
 ```
 
-It belongs on the route because most arrivals at the vault aren't a side nav click — the post-login
-and post-unlock landing comes from `redirectGuard`, the product switcher and `orgPermissionsGuard`
-navigate to `/vault` directly, and a bookmark skips the app's chrome entirely. A link that carried
-the params itself would restore for one of those and not the rest.
+A guard does this rather than each link, because most arrivals are not a side nav click.
+`redirectGuard` supplies the post-login and post-unlock landing, the product switcher and
+`orgPermissionsGuard` navigate to `/vault` directly, and a bookmark enters the app at the URL. A
+link that carried the params itself would restore for one of these and not the rest.
 
-Register it after `vaultFilterLegacyRedirectGuard`, whose rewrite produces namespaced params and so
-takes precedence over the memory on its own. Register both only on the VFO1 route — they hang off
-`featureFlaggedRoute`'s `flaggedRouteOptions`, so neither has to re-check the flag from the inside,
-and the pre-VFO1 vault writes nothing.
+Register the guard after `vaultFilterLegacyRedirectGuard`. The legacy rewrite produces namespaced
+params, which take precedence over the memory.
 
-The read is awaited. The memory lives on disk, so on the first vault navigation of a session it
-hasn't been loaded yet — and a bookmark or the post-unlock landing is exactly the arrival this guard
-exists for. Reading it synchronously would no-op on the cases that matter most.
+Register the guard only where the VFO1 vault renders. The web vault's `""` route declares it under
+`featureFlaggedRoute`'s `flaggedRouteOptions`; each `:vaultId` route runs `canAccessFeature` first
+in `canActivate`. Angular runs `canActivate` in order, so the flag is decided before the guard runs
+and the guard does not check the flag itself.
 
-The guard stands down when **the URL states its own filters** — checked with `hasFilterParams()`,
-which is deliberately broader than `rememberableParams()`. A link carrying only `vault.search` states
-a filter the memory doesn't record, and layering a remembered type onto it would show something the
-link didn't ask for.
+The guard awaits the read. The memory is on disk, so the first vault navigation of a session has not
+loaded it yet — and a bookmark or the post-unlock landing is exactly that arrival. A synchronous
+read would return nothing on the cases that matter most.
 
-That is the only precedence rule, and it covers back and forward too: a history entry carrying
-filters keeps them, and a filter-less one is filled in from the memory the same way a bookmark is.
-Angular replaces rather than pushes when a guard redirects a browser-triggered navigation, so
-filling one in doesn't disturb the history stack.
+The guard returns `true` when **the URL states its own filters**. `hasFilterParams()` decides this,
+and it is broader than `rememberableParams()`: a link that carries only `vault.search` states a
+filter the memory does not record, and a remembered type over that link would show rows the link did
+not ask for.
 
-### Clearing
+That is the only precedence rule, and it covers back and forward too. A history entry with filters
+keeps them, and one without filters takes the remembered params the way a bookmark does. Angular
+replaces the entry rather than pushes when a guard redirects a browser navigation, so the history
+stack keeps its shape.
 
-There is no separate gesture. The toolbar's **Clear all** empties every chip, `queryParamStore` drops
-a param whose key is empty, and the bare URL that leaves behind is recorded like any other — so the
-scope's memory becomes `{}` and the guard has nothing to restore. Navigating to a bare `/vault` by
-hand is _not_ a way to clear: a typed URL and a side nav click produce the identical URL, so nothing
-downstream can tell them apart.
+### How a user clears the memory
+
+There is no separate gesture. **Clear all** in the toolbar empties every chip, `queryParamStore`
+drops a param whose value is empty, and the service records the bare URL that remains. The scope's
+memory becomes `{}`, and the guard has nothing to restore.
+
+A bare `/vault` the user types does _not_ clear the memory. A typed URL and a side nav click produce
+the same URL, so no code downstream can separate them.
 
 ### Persistence
 
-Writes are serialized on a single chain, and reads await it. That's what makes a scope switch — which
-reads the memory mid-navigation, right after the outgoing scope was recorded — see the record instead
-of racing it. A failed write is swallowed so it can't poison the chain for everything after it.
+The service serializes writes on one chain, and each read awaits it. A scope change reads the memory
+during the navigation, just after the service records the outgoing scope, so the read sees that
+record rather than races it. The service catches a failed write, so one failure cannot block the
+chain.
 
-Each write names the user it recorded for, resolved when the navigation ended rather than when the
-write lands. Going through the active-user alias would resolve it at write time, which mid-switch is
-the account the filters didn't come from.
+Each write names the user resolved at `NavigationEnd`, not the user active when the write lands. The
+active-user alias resolves at write time, which during an account switch is the wrong account.
 
-State is kept on disk and cleared on **logout only**, not on lock. On web an unlock is the start of
-most sessions, so clearing on lock would leave nothing to restore.
+The state is on disk, and it clears on **logout only**, not on lock. On web an unlock starts most
+sessions, so a clear on lock would leave nothing to restore.
 
 ## Legacy URLs
 
-[`vault-filter-legacy-redirect.guard.ts`](./vault-filter-legacy-redirect.guard.ts) exists because
-vault filters used to live in un-namespaced params (`?type=login&folderId=…&vaultId=…`). Bookmarks,
-emails, and links from other clients still carry that form.
-
-When `FeatureFlag.VFO1Foundation` is on, the guard rewrites them to their namespaced equivalents and
-redirects:
+Vault filters used to live in un-namespaced params (`?type=login&folderId=…&vaultId=…`), and
+bookmarks, emails, and links from other clients still carry that form.
+[`vault-filter-legacy-redirect.guard.ts`](./vault-filter-legacy-redirect.guard.ts) rewrites them and
+redirects when `FeatureFlag.VFO1Foundation` is on:
 
 ```
 ?type=login&folderId=abc     →    ?vault.type=1&vault.folder=abc
 ```
 
-Params it doesn't own (`cipherId`, `action`, …) are carried through untouched. A `type` it can't
-translate — `trash`, `archive` — is deliberately left in place so the legacy filter can still apply
-it.
+The guard passes through params it does not own (`cipherId`, `action`, …). It leaves a `type` it
+cannot translate — `trash`, `archive` — in place, so the legacy filter can still apply it.
 
-It checks the flag itself, unlike `vaultFilterRestoreGuard`, because desktop registers it on a plain
-`/vault` route rather than a `featureFlaggedRoute` — there's no flagged route to hang it off there.
+This guard checks the flag itself, unlike `vaultFilterRestoreGuard`. Desktop registers it on a plain
+`/vault` route rather than a `featureFlaggedRoute`, and the web vault registers it on the unflagged
+route as well as the flagged one, so no route decides the flag for it.
 
 ## Files
 
 | File                                                                               | Responsibility                                               |
 | ---------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| [`vault-filter-scope.ts`](./vault-filter-scope.ts)                                 | Route → scope resolution, route opt-in data, param filtering |
+| [`vault-filter-scope.ts`](./vault-filter-scope.ts)                                 | Route → scope resolution, route opt-in data, param allowlist |
 | [`vault-filter-memory.service.ts`](./vault-filter-memory.service.ts)               | Records and serves each scope's last-seen filters            |
 | [`vault-filter-restore.guard.ts`](./vault-filter-restore.guard.ts)                 | Redirects a filter-less vault URL to the remembered filters  |
 | [`vault-filter-legacy-redirect.guard.ts`](./vault-filter-legacy-redirect.guard.ts) | Rewrites pre-namespace URLs                                  |
+| [`vault-scope.guard.ts`](./vault-scope.guard.ts)                                   | Rejects a `:vaultId` that names no vault the user can reach  |
+| [`organization-vault.guard.ts`](./organization-vault.guard.ts)                     | Narrows the `:vaultId` routes to organization vaults         |
+| [`scoped-collection.ts`](./scoped-collection.ts)                                   | Reads the collection segment a vault route names             |
+| [`exact-path.ts`](./exact-path.ts)                                                 | `IsActiveMatchOptions` for an exact vault nav link match     |
