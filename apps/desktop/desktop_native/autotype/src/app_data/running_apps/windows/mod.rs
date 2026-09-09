@@ -7,7 +7,7 @@
 
 use std::{collections::HashMap, path::PathBuf};
 
-use tracing::{debug, info, warn};
+use tracing::{debug, warn};
 use windows::{
     core::GUID,
     Win32::{
@@ -141,71 +141,6 @@ fn enumerate() -> Vec<AppData> {
         n_kept = kept.len(),
         "Filtered running apps."
     );
-
-    // --- TEMPORARY diagnostic (PM-38973 identity-model experiment) ---------------------------
-    // Classifies each kept app by the source of its name, to measure — on real machines — how
-    // many apps a strict "AppsFolder-AUMID only" rule would keep vs. drop, and how many of the
-    // fallback-named apps sit on a known multiplexing host (the permissive-mode ambiguity risk).
-    // Logging only; return value is unchanged. Enable with `RUST_LOG=autotype::diagnostic=debug`
-    // (per-app) or `=info` (summary only). Remove once the identity model is decided.
-    {
-        const KNOWN_HOSTS: &[&str] = &[
-            "javaw.exe",
-            "java.exe",
-            "pythonw.exe",
-            "python.exe",
-            "wscript.exe",
-            "cscript.exe",
-            "mshta.exe",
-            "rundll32.exe",
-            "dllhost.exe",
-            "mmc.exe",
-            "msedge_proxy.exe",
-            "chrome_proxy.exe",
-        ];
-        let mut n_appsfolder = 0usize;
-        let mut n_version_info = 0usize;
-        let mut n_filename = 0usize;
-        let mut n_host_fallback = 0usize;
-        for a in &kept {
-            let on_host = KNOWN_HOSTS.iter().any(|h| a.filename.eq_ignore_ascii_case(h));
-            let source = if a.registered {
-                n_appsfolder += 1; // strict: KEEP (authoritative AUMID identity)
-                "appsfolder-aumid"
-            } else if a.display_name.is_some() {
-                n_version_info += 1; // strict: DROP
-                if on_host {
-                    n_host_fallback += 1;
-                }
-                "version-info"
-            } else {
-                n_filename += 1; // strict: DROP
-                if on_host {
-                    n_host_fallback += 1;
-                }
-                "filename"
-            };
-            debug!(
-                target: "autotype::diagnostic",
-                app = a.name(),
-                source,
-                exe = a.filename.as_str(),
-                on_known_host = on_host,
-                "app identity source"
-            );
-        }
-        info!(
-            target: "autotype::diagnostic",
-            total = kept.len(),
-            appsfolder_aumid = n_appsfolder,
-            version_info = n_version_info,
-            filename = n_filename,
-            strict_drop = n_version_info + n_filename,
-            host_fallbacks = n_host_fallback,
-            "identity-source summary (strict keeps appsfolder_aumid; strict_drop = version_info + filename; host_fallbacks = permissive ambiguity risk)"
-        );
-    }
-    // --- end diagnostic ----------------------------------------------------------------------
 
     // 4. Convert: the raw type to the public API
     kept.into_iter().map(RunningApp::into_app_data).collect()

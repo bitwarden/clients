@@ -296,6 +296,18 @@ mod tests {
     }
 
     #[test]
+    fn exclude_ambiguous_host_drops_only_unregistered_host_apps() {
+        let step = ExcludeAmbiguousHost;
+        let ctx = FilterCtx { self_pid: 0 };
+        // Unregistered app on a multiplexing host → non-unique identity → drop.
+        assert!(!step.keep(&app(1, "javaw.exe", None, true, false), &ctx));
+        // Registered (AUMID-identified) on the same host, e.g. a PWA → uniquely known → keep.
+        assert!(step.keep(&app(1, "javaw.exe", None, true, true), &ctx));
+        // Unregistered non-host app (unique exe) → permissive keep.
+        assert!(step.keep(&app(1, "slack.exe", None, true, false), &ctx));
+    }
+
+    #[test]
     fn exclude_background_noise_drops_listed_helpers() {
         let step = ExcludeBackgroundNoise;
         let ctx = FilterCtx { self_pid: 0 };
