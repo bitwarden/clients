@@ -10,9 +10,7 @@
   </div>
 
   <!-- Cart Summary -->
-  <div class="tw-mb-4">
-    <billing-cart-summary [cart]="subscription().cart" [header]="cartSummaryHeader" />
-  </div>
+  <billing-cart-summary [cart]="subscription().cart" [header]="cartSummaryHeader" />
 
   <!-- Status-Based Callout -->
   @if (callout(); as callout) {
@@ -25,6 +23,7 @@
               <button
                 bitButton
                 [buttonType]="cta.buttonType"
+                [endIcon]="cta.endIcon"
                 (click)="callToActionClicked.emit(cta.action)"
                 type="button"
               >
@@ -36,11 +35,14 @@
       </div>
     </bit-callout>
   }
+
+  <!-- Projected content slot for warnings (e.g., price-increase warning) -->
+  <ng-content></ng-content>
 </bit-card>
 
 <ng-template #cartSummaryHeader let-total="total">
   <h2
-    bitTypography="h4"
+    bitTypography="h5"
     class="!tw-m-0"
     id="cart-summary-header-custom"
     data-test-id="cart-summary-header-custom"
@@ -78,16 +80,20 @@
         }
       }
       @case ("past_due") {
-        {{ "yourSubscriptionWillBeSuspendedOn" | i18n }}
-        <span class="tw-font-bold">{{ suspension() | date: dateFormat }}</span>
+        @if (suspension(); as suspension) {
+          {{ "yourSubscriptionWillBeSuspendedOn" | i18n }}
+          <span class="tw-font-bold">{{ suspension | date: dateFormat }}</span>
+        }
       }
       @case ("canceled") {
         {{ "yourSubscriptionWasCanceledOn" | i18n }}
         <span class="tw-font-bold">{{ canceled() | date: dateFormat }}</span>
       }
       @case ("unpaid") {
-        {{ "yourSubscriptionWasSuspendedOn" | i18n }}
-        <span class="tw-font-bold">{{ suspension() | date: dateFormat }}</span>
+        @if (suspension(); as suspension) {
+          {{ "yourSubscriptionWasSuspendedOn" | i18n }}
+          <span class="tw-font-bold">{{ suspension | date: dateFormat }}</span>
+        }
       }
     }
   </h2>
