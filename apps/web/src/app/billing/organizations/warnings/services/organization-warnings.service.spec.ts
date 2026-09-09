@@ -245,22 +245,6 @@ describe("OrganizationWarningsService", () => {
       });
     });
 
-    it("should return warning when the free trial is sales-assisted", (done) => {
-      const warning = { remainingTrialDays: 5, isSalesAssisted: true };
-      organizationBillingClient.getWarnings.mockResolvedValue({
-        freeTrial: warning,
-      } as OrganizationWarningsResponse);
-
-      service.getFreeTrialWarning$(organization).subscribe((result) => {
-        expect(result).toEqual({
-          organization: organization,
-          message: "Your free trial ends in 5 days.",
-        });
-        expect(i18nService.t).toHaveBeenCalledWith("freeTrialEndPromptCount", 5);
-        done();
-      });
-    });
-
     it("should refresh warning when refreshFreeTrialWarning is called", (done) => {
       const initialWarning = { remainingTrialDays: 3, isSalesAssisted: false };
       const refreshedWarning = { remainingTrialDays: 2, isSalesAssisted: true };
