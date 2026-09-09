@@ -34,6 +34,7 @@ static PIPELINE: &[&dyn FilterStep] = &[
     &ExcludeSystemPaths,
     &ExcludeShellSurface,
     &ExcludeUnregisteredBackground,
+    &ExcludeAmbiguousHost,
     &ExcludeBackgroundNoise,
 ];
 
@@ -155,6 +156,39 @@ impl FilterStep for ExcludeBackgroundNoise {
             "windowspackagemanagerserver.exe", // WinGet COM server (WingetMessageOnlyWindow)
         ];
         !name_matches(&c.filename, BACKGROUND_NOISE)
+    }
+}
+
+/// Drop apps launched by a known *multiplexing host* (Java/interpreter/script/COM hosts and the
+/// browser PWA proxy stubs) **unless** the window carried a registered AUMID that uniquely
+/// identifies it. Without that AUMID the host's fallback name (version-info/filename) is shared by
+/// every app it launches — e.g. two Java apps both show as "Java" under `javaw.exe` — so the
+/// identity is non-unique and we don't surface it for pairing.
+///
+/// `registered` (AUMID resolved in AppsFolder) is the escape hatch: a PWA runs under a browser
+/// host but is uniquely identified, so it stays. Compartmentalized here as the single place to
+/// tune the host list; an unknown host simply isn't guarded (falls back to permissive naming).
+struct ExcludeAmbiguousHost;
+impl FilterStep for ExcludeAmbiguousHost {
+    fn name(&self) -> &'static str {
+        "exclude-ambiguous-host"
+    }
+    fn keep(&self, c: &RunningApp, _ctx: &FilterCtx) -> bool {
+        const AMBIGUOUS_HOSTS: &[&str] = &[
+            "javaw.exe",
+            "java.exe",
+            "pythonw.exe",
+            "python.exe",
+            "wscript.exe",
+            "cscript.exe",
+            "mshta.exe",
+            "rundll32.exe",
+            "dllhost.exe",
+            "mmc.exe",
+            "msedge_proxy.exe",
+            "chrome_proxy.exe",
+        ];
+        c.registered || !name_matches(&c.filename, AMBIGUOUS_HOSTS)
     }
 }
 
