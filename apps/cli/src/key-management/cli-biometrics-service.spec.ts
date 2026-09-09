@@ -41,16 +41,14 @@ describe("CliBiometricsService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     accountService.activeAccount$ = of({ id: userId } as never);
-    ipcService.verifyDesktopConnection.mockResolvedValue("2026.7.0");
     Object.defineProperty(ipcService, "client", { configurable: true, value: ipcClient });
-    service = new CliBiometricsService(accountService, keyService, logService, ipcService);
+    service = new CliBiometricsService(accountService, () => keyService, logService, ipcService);
   });
 
   it("returns the desktop biometric status for the active account", async () => {
     jest.mocked(ipcRequestGetBiometricsStatus).mockResolvedValue(SdkBiometricsStatus.Available);
 
     await expect(service.getBiometricsStatus()).resolves.toBe(BiometricsStatus.Available);
-    expect(ipcService.verifyDesktopConnection).toHaveBeenCalled();
   });
 
   it("maps desktop NotEnabled to NotEnabledInConnectedDesktopApp", async () => {
@@ -62,7 +60,7 @@ describe("CliBiometricsService", () => {
   });
 
   it("reports DesktopDisconnected when the SDK IPC handshake fails", async () => {
-    ipcService.verifyDesktopConnection.mockRejectedValue(new Error("Desktop is too old"));
+    jest.mocked(ipcRequestGetBiometricsStatus).mockRejectedValue(new Error("Desktop disconnected"));
 
     await expect(service.getBiometricsStatusForUser(userId)).resolves.toBe(
       BiometricsStatus.DesktopDisconnected,
@@ -98,12 +96,5 @@ describe("CliBiometricsService", () => {
     jest.mocked(ipcRequestAuthenticateBiometrics).mockResolvedValue(true);
 
     await expect(service.authenticateWithBiometrics()).resolves.toBe(true);
-    expect(ipcService.verifyDesktopConnection).toHaveBeenCalled();
-  });
-
-  it("disconnects the desktop transport", () => {
-    service.disconnect();
-
-    expect(ipcService.disconnect).toHaveBeenCalled();
   });
 });

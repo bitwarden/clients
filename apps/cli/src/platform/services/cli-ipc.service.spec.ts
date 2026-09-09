@@ -29,21 +29,30 @@ describe("CliIpcService", () => {
   });
 
   it("discovers the connected desktop version", async () => {
-    jest.mocked(ipcRequestDiscover).mockResolvedValue({ version: "2026.7.0" });
+    jest.mocked(ipcRequestDiscover).mockResolvedValue({ version: "2026.9.0" });
 
-    await expect(service.verifyDesktopConnection()).resolves.toBe("2026.7.0");
+    await expect(service.verifyDesktopConnection()).resolves.toBe("2026.9.0");
     expect(ipcRequestDiscover).toHaveBeenCalledWith(
       client,
       "DesktopRenderer",
       expect.any(AbortSignal),
     );
 
-    await expect(service.verifyDesktopConnection()).resolves.toBe("2026.7.0");
+    await expect(service.verifyDesktopConnection()).resolves.toBe("2026.9.0");
     expect(ipcRequestDiscover).toHaveBeenCalledTimes(1);
   });
 
   it("disconnects and reports the minimum version when discovery fails", async () => {
     jest.mocked(ipcRequestDiscover).mockRejectedValue(new Error("request timed out"));
+
+    await expect(service.verifyDesktopConnection()).rejects.toThrow(
+      `Biometric unlock requires Bitwarden Desktop ${MINIMUM_BIOMETRIC_DESKTOP_VERSION} or newer`,
+    );
+    expect(transport.disconnect).toHaveBeenCalled();
+  });
+
+  it("disconnects when the discovered desktop version is too old", async () => {
+    jest.mocked(ipcRequestDiscover).mockResolvedValue({ version: "2026.8.0" });
 
     await expect(service.verifyDesktopConnection()).rejects.toThrow(
       `Biometric unlock requires Bitwarden Desktop ${MINIMUM_BIOMETRIC_DESKTOP_VERSION} or newer`,

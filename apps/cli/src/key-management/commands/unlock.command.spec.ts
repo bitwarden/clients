@@ -163,7 +163,6 @@ describe("UnlockCommand", () => {
       );
       expect(unlockService.unlockWithMasterPassword).not.toHaveBeenCalled();
       expect(encryptedMigrator.runMigrations).not.toHaveBeenCalled();
-      expect(biometricsService.disconnect).toHaveBeenCalled();
     });
 
     it("falls back to the master password prompt when desktop biometrics is unavailable", async () => {
@@ -181,7 +180,6 @@ describe("UnlockCommand", () => {
         mockMasterPassword,
       );
       expect(biometricsService.unlockWithBiometricsForUser).not.toHaveBeenCalled();
-      expect(biometricsService.disconnect).toHaveBeenCalled();
     });
 
     it("falls back when desktop biometric unlock is cancelled", async () => {
@@ -198,7 +196,6 @@ describe("UnlockCommand", () => {
         activeAccount.id,
         mockMasterPassword,
       );
-      expect(biometricsService.disconnect).toHaveBeenCalled();
     });
 
     it("does not attempt biometrics in non-interactive mode", async () => {

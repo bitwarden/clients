@@ -57,7 +57,7 @@ export class UnlockCommand {
       !passwordWasProvided &&
       !conversionRequired &&
       process.env.BW_NOINTERACTION !== "true" &&
-      (await this.tryBiometricUnlock(userId))
+      (await this.tryUnlockWithDesktop(userId))
     ) {
       return this.successResponse();
     }
@@ -98,7 +98,7 @@ export class UnlockCommand {
     return this.successResponse();
   }
 
-  private async tryBiometricUnlock(userId: UserId): Promise<boolean> {
+  private async tryUnlockWithDesktop(userId: UserId): Promise<boolean> {
     try {
       if (
         (await this.biometricsService.getBiometricsStatusForUser(userId)) !==
@@ -122,8 +122,6 @@ export class UnlockCommand {
     } catch (error) {
       this.logService.info("CLI biometric unlock failed; falling back to master password", error);
       return false;
-    } finally {
-      this.biometricsService.disconnect();
     }
   }
 

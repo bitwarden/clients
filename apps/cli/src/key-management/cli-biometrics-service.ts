@@ -32,7 +32,6 @@ export class CliBiometricsService extends BiometricsService {
 
   async authenticateWithBiometrics(): Promise<boolean> {
     try {
-      await this.ipcService.verifyDesktopConnection();
       return await ipcRequestAuthenticateBiometrics(
         this.ipcService.client,
         AbortSignal.timeout(this.interactionTimeout),
@@ -52,7 +51,6 @@ export class CliBiometricsService extends BiometricsService {
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
     try {
-      await this.ipcService.verifyDesktopConnection();
       const response = await ipcRequestUnlockBiometrics(
         this.ipcService.client,
         fromTsUserId(userId),
@@ -78,8 +76,6 @@ export class CliBiometricsService extends BiometricsService {
 
   async getBiometricsStatusForUser(userId: UserId): Promise<BiometricsStatus> {
     try {
-      const desktopVersion = await this.ipcService.verifyDesktopConnection();
-      this.logService.info(`[IPC] Connected to Bitwarden Desktop ${desktopVersion}`);
       const status = await ipcRequestGetBiometricsStatus(
         this.ipcService.client,
         fromTsUserId(userId),
@@ -93,10 +89,6 @@ export class CliBiometricsService extends BiometricsService {
       this.logService.info("Could not query Bitwarden Desktop biometric status", error);
       return BiometricsStatus.DesktopDisconnected;
     }
-  }
-
-  disconnect(): void {
-    this.ipcService.disconnect();
   }
 
   async getShouldAutopromptNow(): Promise<boolean> {
