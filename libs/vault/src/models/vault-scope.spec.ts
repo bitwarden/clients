@@ -24,6 +24,7 @@ import {
   parseVaultScope,
   resolveVaultScope,
   scopedSharedFolderId,
+  scopeKey,
   SHARED_FOLDERS_ROUTE,
   sharedFolderNameForScope,
   TRASH_ROUTE,
@@ -309,6 +310,28 @@ describe("vaultScopeCommands", () => {
       const [, segment, ...rest] = vaultScopeCommands(scope);
       expect(parseVaultScope(segment, rest.at(-1))).toEqual(scope);
     }
+  });
+});
+
+describe("scopeKey", () => {
+  it("keys the aggregate scopes by their type", () => {
+    expect(scopeKey(ALL_ITEMS_SCOPE)).toBe(VaultScopeType.AllItems);
+    expect(scopeKey(myVaultScope)).toBe(VaultScopeType.MyVault);
+    expect(scopeKey(trashScope)).toBe(VaultScopeType.Trash);
+    expect(scopeKey(archiveScope)).toBe(VaultScopeType.Archive);
+  });
+
+  it("keys an organization vault by its id", () => {
+    expect(scopeKey(organizationScope)).toBe(organizationId);
+  });
+
+  it("keys a shared folder drill-in apart from the vault it was reached from", () => {
+    expect(scopeKey(sharedFolderScope)).toBe(`${organizationId}/${collectionId}`);
+    expect(scopeKey(sharedFolderScope)).not.toBe(scopeKey(organizationScope));
+  });
+
+  it("keys the My items collection by its sentinel", () => {
+    expect(scopeKey(myItemsScope)).toBe(`${organizationId}/${MY_ITEMS_ROUTE}`);
   });
 });
 

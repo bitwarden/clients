@@ -11,9 +11,11 @@ import { mock } from "jest-mock-extended";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
+import { ALL_ITEMS_SCOPE, VaultScopeType } from "../models/vault-scope";
+
 import { VaultFilterMemoryService } from "./vault-filter-memory.service";
 import { vaultFilterRestoreGuard } from "./vault-filter-restore.guard";
-import { ALL_ITEMS_SCOPE, VAULT_FILTER_SCOPE, VAULT_SCOPE_PARAM } from "./vault-scope";
+import { VAULT_FILTER_SCOPE, VAULT_SCOPE_PARAM } from "./vault-filter-scope";
 
 jest.mock("@angular/router", () => ({
   ...jest.requireActual("@angular/router"),
@@ -74,7 +76,10 @@ describe("vaultFilterRestoreGuard", () => {
   it("reads the memory under the scope the route resolves to", async () => {
     await runGuard(makeState({}, { vaultId: ORG_ID }));
 
-    expect(paramsFor).toHaveBeenCalledWith(ORG_ID);
+    expect(paramsFor).toHaveBeenCalledWith({
+      type: VaultScopeType.Organization,
+      organizationId: ORG_ID,
+    });
   });
 
   it("resolves a route with no vault param to the all-items scope", async () => {

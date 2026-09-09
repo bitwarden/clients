@@ -12,7 +12,9 @@ import {
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { rememberableParams, VaultScope, vaultScopeOf } from "./vault-scope";
+import { scopeKey, VaultScope } from "../models/vault-scope";
+
+import { rememberableParams, vaultScopeOf } from "./vault-filter-scope";
 
 /**
  * Remembered vault filters, by scope. Kept across locks so that returning to the vault the next
@@ -73,7 +75,7 @@ export class VaultFilterMemoryService {
     const remembered = await firstValueFrom(
       this.stateProvider.getUser(userId, VAULT_FILTER_MEMORY).state$,
     );
-    return remembered?.[scope] ?? {};
+    return remembered?.[scopeKey(scope)] ?? {};
   }
 
   private record(): void {
@@ -98,7 +100,7 @@ export class VaultFilterMemoryService {
         }
         await this.stateProvider
           .getUser(userId, VAULT_FILTER_MEMORY)
-          .update((prev) => ({ ...prev, [scope]: params }));
+          .update((prev) => ({ ...prev, [scopeKey(scope)]: params }));
       })
       // A failed write must not poison the chain for every read and write after it.
       .catch((): void => undefined);

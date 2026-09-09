@@ -21,17 +21,19 @@ tracking filters independently.
 
 ## Scopes
 
-A **scope** is one vault the side nav can select, and the key its filters are remembered under.
-[`vault-scope.ts`](./vault-scope.ts) defines the vocabulary:
+A **scope** is one destination the side nav can select, and the key its filters are remembered
+under. The vocabulary lives in [`../models/vault-scope.ts`](../models/vault-scope.ts), shared with
+the side nav and `vaultScopeGuard`: `VaultScope` is a structure naming the vault — All items, the
+individual vault, an organization, Trash, or the Archive — plus the shared folder an organization
+vault has been drilled into.
 
-| Scope               | Value     | Shows                     |
-| ------------------- | --------- | ------------------------- |
-| `ALL_ITEMS_SCOPE`   | `all`     | Every vault's items       |
-| `MY_VAULT_SCOPE`    | `myVault` | The individual vault only |
-| An `OrganizationId` | a guid    | One organization's vault  |
+`scopeKey()` lives with the model and flattens a scope to the string its filters are stored under.
+An organization keys by its guid and every other scope by its `VaultScopeType` name, so the two
+cannot collide. A shared folder drill-in keys apart from the organization vault it was reached from,
+because the two show different rows.
 
-`VaultScope` is the union of those. Use `toVaultScope()` (or `isVaultScope()`) to narrow untrusted input,
-such as a route param or a key read back from state.
+[`vault-filter-scope.ts`](./vault-filter-scope.ts) holds the route wiring on top of that: the `data`
+key a route opts in with, and the resolution from an activated route to a scope.
 
 ### Routes opt in
 
@@ -40,14 +42,18 @@ declares itself in scope through its `data`, and names the vault it shows with a
 
 ```typescript
 {
-  path: "vault",
+  path: "",
   data: { vaultFilterScope: true } satisfies VaultScopeRouteData,
 },
 {
-  path: "vault/:vaultId",
+  path: ":vaultId",
+  canActivate: [vaultScopeGuard, vaultFilterRestoreGuard],
   data: { vaultFilterScope: true } satisfies VaultScopeRouteData,
 },
 ```
+
+The collection segment comes from `scopedCollectionSegment()`, so a shared folder drill-in and the
+"My items" route resolve the same way they do for `vaultScopeGuard`.
 
 A route with no `:vaultId` resolves to `ALL_ITEMS_SCOPE`. A route that doesn't opt in resolves to
 `null` and is ignored entirely.
@@ -57,9 +63,9 @@ A route with no `:vaultId` resolves to `ALL_ITEMS_SCOPE`. A route that doesn't o
 > will fail loudly. If filters aren't sticking on a route, check its `data` first.
 
 > [!WARNING]
-> Only `/vault` (`ALL_ITEMS_SCOPE`) is registered today. Adding `/vault/myVault` or `/vault/:vaultId`
-> needs a fix in `bit-table-v2` first — without it, filters leak from one scope into the next and are
-> persisted under the wrong one. See [SCOPE-ROUTES-HANDOFF.md](./SCOPE-ROUTES-HANDOFF.md).
+> A scope switch relies on `bit-table-v2` clearing its chips as the route changes. If filters leak
+> from one scope into the next, they are also persisted under the wrong one — check the table's URL
+> sync before the memory.
 
 ## Remembering filters
 
@@ -152,14 +158,9 @@ It checks the flag itself, unlike `vaultFilterRestoreGuard`, because desktop reg
 
 ## Files
 
-| File                                                                               | Responsibility                                              |
-| ---------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| [`vault-scope.ts`](./vault-scope.ts)                                               | Scope vocabulary, route → scope resolution, param filtering |
-| [`vault-filter-memory.service.ts`](./vault-filter-memory.service.ts)               | Records and serves each scope's last-seen filters           |
-| [`vault-filter-restore.guard.ts`](./vault-filter-restore.guard.ts)                 | Redirects a filter-less vault URL to the remembered filters |
-| [`vault-filter-legacy-redirect.guard.ts`](./vault-filter-legacy-redirect.guard.ts) | Rewrites pre-namespace URLs                                 |
-
-## Open work
-
-[SCOPE-ROUTES-HANDOFF.md](./SCOPE-ROUTES-HANDOFF.md) — what has to change before the per-vault scope
-routes can land. Delete it when they do.
+| File                                                                               | Responsibility                                               |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| [`vault-filter-scope.ts`](./vault-filter-scope.ts)                                 | Route → scope resolution, route opt-in data, param filtering |
+| [`vault-filter-memory.service.ts`](./vault-filter-memory.service.ts)               | Records and serves each scope's last-seen filters            |
+| [`vault-filter-restore.guard.ts`](./vault-filter-restore.guard.ts)                 | Redirects a filter-less vault URL to the remembered filters  |
+| [`vault-filter-legacy-redirect.guard.ts`](./vault-filter-legacy-redirect.guard.ts) | Rewrites pre-namespace URLs                                  |

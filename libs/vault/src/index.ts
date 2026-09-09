@@ -141,7 +141,7 @@ export { MY_ITEMS_ROUTE_DATA, scopedCollectionSegment } from "./routing/scoped-c
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
 export { vaultFilterRestoreGuard } from "./routing/vault-filter-restore.guard";
 export { vaultScopeGuard } from "./routing/vault-scope.guard";
-export { type VaultScopeRouteData } from "./routing/vault-scope";
+export { type VaultScopeRouteData } from "./routing/vault-filter-scope";
 export {
   matchesType,
   matchesFavorite,

@@ -64,8 +64,11 @@ const routes: Routes = [
       vaultScopeGuard,
       vaultFilterRestoreGuard,
     ],
-    data: { ...MY_ITEMS_ROUTE_DATA, titleId: "vaults", vaultFilterScope: true } satisfies
-      RouteDataProperties & VaultScopeRouteData,
+    data: {
+      ...MY_ITEMS_ROUTE_DATA,
+      titleId: "vaults",
+      vaultFilterScope: true,
+    } satisfies RouteDataProperties & VaultScopeRouteData,
   },
   // An organization vault's shared folders.
   {

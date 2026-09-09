@@ -1,41 +1,12 @@
 import { ActivatedRouteSnapshot, Params, RouterStateSnapshot } from "@angular/router";
 
-import { OrganizationId } from "@bitwarden/common/types/guid";
-import { isGuid } from "@bitwarden/guid";
-
 import {
-  MY_VAULT,
   VAULT_FILTER_KEYS,
   VAULT_FILTER_NAMESPACE,
 } from "../components/vault-items-table/vault-items-table.component";
+import { parseVaultScope, VaultScope } from "../models/vault-scope";
 
-/** The scope for the top-level vault route, which shows every vault's items. */
-export const ALL_ITEMS_SCOPE = "all";
-
-/**
- * The scope for the individual vault. Shares the Vault chip's sentinel so the individual vault is
- * spelled the same way whether it's selected by route or by filter.
- */
-export const MY_VAULT_SCOPE = MY_VAULT;
-
-/**
- * A vault the side nav can select, and the key its filters are remembered under: the aggregate
- * views, plus one scope per organization.
- *
- * Organizations are identified by id, so the type is open-ended by necessity — but only values that
- * pass {@link isVaultScope} inhabit it, which keeps an arbitrary string out.
- */
-export type VaultScope = typeof ALL_ITEMS_SCOPE | typeof MY_VAULT_SCOPE | OrganizationId;
-
-/** Whether a string names a vault the filter memory can key on. */
-export function isVaultScope(value: string): value is VaultScope {
-  return value === ALL_ITEMS_SCOPE || value === MY_VAULT_SCOPE || isGuid(value);
-}
-
-/** {@link value} as a scope, or `undefined` when it names no vault. */
-export function toVaultScope(value: string): VaultScope | undefined {
-  return isVaultScope(value) ? value : undefined;
-}
+import { scopedCollectionSegment } from "./scoped-collection";
 
 /** The route `data` key a vault route sets to opt its filters into the memory. */
 export const VAULT_FILTER_SCOPE = "vaultFilterScope";
@@ -90,12 +61,10 @@ export function vaultScopeOf(state: RouterStateSnapshot): VaultScope | null {
     return null;
   }
 
-  const vaultId = route.paramMap.get(VAULT_SCOPE_PARAM);
-  if (vaultId == null) {
-    return ALL_ITEMS_SCOPE;
-  }
-
-  return toVaultScope(vaultId) ?? null;
+  return parseVaultScope(
+    route.paramMap.get(VAULT_SCOPE_PARAM),
+    scopedCollectionSegment(route.paramMap, route.data),
+  );
 }
 
 /**

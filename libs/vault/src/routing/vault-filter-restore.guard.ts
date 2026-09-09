@@ -2,7 +2,7 @@ import { inject } from "@angular/core";
 import { CanActivateFn, createUrlTreeFromSnapshot } from "@angular/router";
 
 import { VaultFilterMemoryService } from "./vault-filter-memory.service";
-import { hasFilterParams, vaultScopeOf } from "./vault-scope";
+import { hasFilterParams, vaultScopeOf } from "./vault-filter-scope";
 
 /**
  * Restores the filters a vault was last viewed with by redirecting a filter-less vault URL to the

@@ -15,14 +15,20 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { ALL_ITEMS_SCOPE, MY_VAULT_ROUTE, scopeKey, VaultScopeType } from "../models/vault-scope";
+
 import { VAULT_FILTER_MEMORY, VaultFilterMemoryService } from "./vault-filter-memory.service";
-import { ALL_ITEMS_SCOPE, MY_VAULT_SCOPE, type VaultScopeRouteData } from "./vault-scope";
+import { type VaultScopeRouteData } from "./vault-filter-scope";
 
 /** Stands in as the target of every route the tests navigate between. */
 @Component({ template: "", standalone: true, changeDetection: ChangeDetectionStrategy.OnPush })
 class BlankComponent {}
 
 const inScope = { vaultFilterScope: true } satisfies VaultScopeRouteData;
+
+const myVaultScope = { type: VaultScopeType.MyVault } as const;
+const allItemsKey = scopeKey(ALL_ITEMS_SCOPE);
+const myVaultKey = scopeKey(myVaultScope);
 
 describe("VaultFilterMemoryService", () => {
   const mockUserId = Utils.newGuid() as UserId;
@@ -146,10 +152,10 @@ describe("VaultFilterMemoryService", () => {
     const service = createService();
 
     await router.navigateByUrl("/vault?vault.type=1");
-    await router.navigateByUrl(`/vault/${MY_VAULT_SCOPE}?vault.type=3`);
+    await router.navigateByUrl(`/vault/${MY_VAULT_ROUTE}?vault.type=3`);
 
     await expect(service.paramsFor(ALL_ITEMS_SCOPE)).resolves.toEqual({ "vault.type": "1" });
-    await expect(service.paramsFor(MY_VAULT_SCOPE)).resolves.toEqual({ "vault.type": "3" });
+    await expect(service.paramsFor(myVaultScope)).resolves.toEqual({ "vault.type": "3" });
   });
 
   // Recording doesn't ask how the user got here. The entry the user lands on is the URL they're
@@ -171,7 +177,7 @@ describe("VaultFilterMemoryService", () => {
 
   describe("persistence", () => {
     it("restores what a previous session stored", async () => {
-      seedStored({ [ALL_ITEMS_SCOPE]: { "vault.type": "1" } });
+      seedStored({ [allItemsKey]: { "vault.type": "1" } });
 
       const service = createService();
 
@@ -184,19 +190,19 @@ describe("VaultFilterMemoryService", () => {
       await router.navigateByUrl("/vault?vault.type=1");
       await router.navigateByUrl("/sends");
 
-      expect(storedState()).toEqual({ [ALL_ITEMS_SCOPE]: { "vault.type": "1" } });
+      expect(storedState()).toEqual({ [allItemsKey]: { "vault.type": "1" } });
     });
 
     it("leaves other scopes in state untouched when writing one", async () => {
-      seedStored({ [MY_VAULT_SCOPE]: { "vault.type": "3" } });
+      seedStored({ [myVaultKey]: { "vault.type": "3" } });
 
       const service = createService();
       await router.navigateByUrl("/vault?vault.type=1");
       await service.paramsFor(ALL_ITEMS_SCOPE);
 
       expect(storedState()).toEqual({
-        [MY_VAULT_SCOPE]: { "vault.type": "3" },
-        [ALL_ITEMS_SCOPE]: { "vault.type": "1" },
+        [myVaultKey]: { "vault.type": "3" },
+        [allItemsKey]: { "vault.type": "1" },
       });
     });
 
@@ -217,9 +223,9 @@ describe("VaultFilterMemoryService", () => {
       jest.spyOn(state, "update").mockRejectedValueOnce(new Error("disk full"));
 
       await router.navigateByUrl("/vault?vault.type=1");
-      await router.navigateByUrl(`/vault/${MY_VAULT_SCOPE}?vault.type=3`);
+      await router.navigateByUrl(`/vault/${MY_VAULT_ROUTE}?vault.type=3`);
 
-      await expect(service.paramsFor(MY_VAULT_SCOPE)).resolves.toEqual({ "vault.type": "3" });
+      await expect(service.paramsFor(myVaultScope)).resolves.toEqual({ "vault.type": "3" });
     });
   });
 
@@ -234,7 +240,7 @@ describe("VaultFilterMemoryService", () => {
       await service.paramsFor(ALL_ITEMS_SCOPE);
 
       expect(getUser).toHaveBeenCalledWith(mockUserId, VAULT_FILTER_MEMORY);
-      expect(storedState(mockUserId)).toEqual({ [ALL_ITEMS_SCOPE]: { "vault.type": "1" } });
+      expect(storedState(mockUserId)).toEqual({ [allItemsKey]: { "vault.type": "1" } });
       expect(writeCount(otherUserId)).toBe(0);
     });
 
@@ -242,7 +248,7 @@ describe("VaultFilterMemoryService", () => {
     // rather than inheriting the outgoing account's folder and collection ids.
     it("does not serve one account's filters to another", async () => {
       const service = createService();
-      seedStored({ [ALL_ITEMS_SCOPE]: { "vault.folder": "theirs" } }, otherUserId);
+      seedStored({ [allItemsKey]: { "vault.folder": "theirs" } }, otherUserId);
 
       await router.navigateByUrl("/vault?vault.type=1");
       await expect(service.paramsFor(ALL_ITEMS_SCOPE)).resolves.toEqual({ "vault.type": "1" });
