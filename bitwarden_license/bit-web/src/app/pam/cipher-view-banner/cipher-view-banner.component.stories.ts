@@ -182,7 +182,7 @@ export const Unlicensed: Story = {
   decorators: [pam({ state: () => ({ badgeState: "privileged" }), licensed: false })],
 };
 
-/** A request is with an approver. Request access is not offered again; the request can be cancelled. */
+/** A request is with an approver. Request access is not offered again; the request can be canceled. */
 export const PendingRequest: Story = {
   decorators: [
     pam({

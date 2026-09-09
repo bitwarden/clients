@@ -748,8 +748,8 @@ describe("AccessAuditComponent", () => {
         ).not.toBeNull();
       });
 
-      // A cancelled dialog that left "Custom" showing would claim a range the table is not filtered to.
-      it("rolls the chip back to the period in force when cancelled", async () => {
+      // A canceled dialog that left "Custom" showing would claim a range the table is not filtered to.
+      it("rolls the chip back to the period in force when canceled", async () => {
         const recent = new Date(now().getTime() - HOUR_MS);
         const older = new Date(now().getTime() - 40 * DAY_MS);
         await renderTrail([recent, older]);
@@ -759,7 +759,7 @@ describe("AccessAuditComponent", () => {
         await chooseCustom();
 
         expect(component().selectedPeriod()).toBe("past7Days");
-        // Still the preset's bounds: a cancelled dialog must not have re-read the trail for an unapplied range.
+        // Still the preset's bounds: a canceled dialog must not have re-read the trail for an unapplied range.
         expect(aboutEqual(sentStart(), now().getTime() - 7 * DAY_MS)).toBe(true);
       });
 
@@ -780,7 +780,7 @@ describe("AccessAuditComponent", () => {
         expect(lastFilter().end).toBeUndefined();
       });
 
-      it("leaves the chip unselected when cancelled from no selection at all", async () => {
+      it("leaves the chip unselected when canceled from no selection at all", async () => {
         await renderTrail([new Date(now().getTime() - HOUR_MS)]);
         closesWith(undefined);
 

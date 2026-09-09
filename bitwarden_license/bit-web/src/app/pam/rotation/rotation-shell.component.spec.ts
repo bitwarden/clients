@@ -174,7 +174,7 @@ describe("RotationShellComponent", () => {
     );
   });
 
-  it("does not refresh daemons when registration is cancelled", async () => {
+  it("does not refresh daemons when registration is canceled", async () => {
     await init();
     dialogService.open.mockReturnValue({ closed: of(undefined) } as never);
 

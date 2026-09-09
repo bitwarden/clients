@@ -254,7 +254,7 @@ describe("MyAccessService", () => {
   });
 
   describe("endLease", () => {
-    it("optimistically removes the lease and marks its request cancelled, without a reload", async () => {
+    it("optimistically removes the lease and marks its request canceled, without a reload", async () => {
       requestsApi.listMyAccessRequests.mockResolvedValue([
         request("req-1", {
           status: "approved",
