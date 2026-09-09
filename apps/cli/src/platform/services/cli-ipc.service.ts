@@ -1,3 +1,5 @@
+import { lt } from "semver";
+
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
@@ -12,9 +14,9 @@ import {
 import { CliDesktopIpcTransport } from "./cli-desktop-ipc.transport";
 
 const DESKTOP_DISCOVER_TIMEOUT_MS = 5_000;
-export const MINIMUM_BIOMETRIC_DESKTOP_VERSION = "2026.7.0";
+export const MINIMUM_BIOMETRIC_DESKTOP_VERSION = "2026.9.0";
 
-/** SDK IPC service backed by the desktop app's local socket. */
+/** SDK IPC service backed by the Bitwarden Desktop native-messaging proxy. */
 export class CliIpcService extends IpcService {
   private communicationBackend?: IpcCommunicationBackend;
   private transport?: CliDesktopIpcTransport;
@@ -54,6 +56,9 @@ export class CliIpcService extends IpcService {
         "DesktopRenderer",
         AbortSignal.timeout(DESKTOP_DISCOVER_TIMEOUT_MS),
       );
+      if (lt(response.version, MINIMUM_BIOMETRIC_DESKTOP_VERSION)) {
+        throw new Error(`Bitwarden Desktop ${response.version} is unsupported.`);
+      }
       return response.version;
     } catch (error) {
       this.disconnect();
@@ -71,7 +76,6 @@ export class CliIpcService extends IpcService {
     this.transport = new CliDesktopIpcTransport(
       this.logService,
       receive,
-      undefined,
       () => (this.desktopVerification = undefined),
     );
     this.communicationBackend = new IpcCommunicationBackend({

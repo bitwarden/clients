@@ -66,12 +66,15 @@ bw create --help
 ### Unlock with desktop biometrics
 
 When `bw unlock` is run interactively without a password, the CLI first attempts to unlock through
-the Bitwarden desktop app. This requires Bitwarden Desktop 2026.7.0 or newer to be running, with
+the Bitwarden desktop app. This requires Bitwarden Desktop 2026.9.0 or newer to be running, with
 biometric unlock enabled for the same account. If desktop biometric unlock is unavailable or is
 cancelled, the CLI falls back to the master password prompt.
 
 Passing a password, `--passwordenv`, or `--passwordfile` skips the biometric attempt. Biometric
 unlock is also skipped when `BW_NOINTERACTION=true`.
+
+If the desktop app is installed in a non-standard location, set
+`BITWARDEN_DESKTOP_PROXY_PATH` to the path of its `desktop_proxy` executable.
 
 ### Help Center
 

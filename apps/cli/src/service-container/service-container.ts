@@ -1251,6 +1251,16 @@ export class ServiceContainer {
     }
 
     await this.sdkLoadService.loadAndInit();
+
+    // Desktop IPC is optional. Commands that do not use Desktop integration must
+    // continue to work when Desktop is unavailable or incompatible.
+    try {
+      const desktopVersion = await this.ipcService.verifyDesktopConnection();
+      this.logService.info(`[IPC] Connected to Bitwarden Desktop ${desktopVersion}`);
+    } catch (error) {
+      this.logService.info("[IPC] Could not connect to Bitwarden Desktop", error);
+    }
+
     await this.storageService.init();
 
     await this.migrationRunner.run();
@@ -1276,5 +1286,9 @@ export class ServiceContainer {
     }
 
     this.inited = true;
+  }
+
+  dispose(): void {
+    this.ipcService.disconnect();
   }
 }

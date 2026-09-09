@@ -1,61 +1,29 @@
-import * as crypto from "crypto";
-import * as net from "net";
+import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import * as os from "os";
-import * as path from "path";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { IpcMessage, isForwardedIpcMessage, isIpcMessage } from "@bitwarden/common/platform/ipc";
+import {
+  IpcMessage,
+  isForwardedIpcMessage,
+  isIpcMessage,
+  isProxyConnectedMessage,
+} from "@bitwarden/common/platform/ipc";
 import { IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-internal";
+
+import { resolveDesktopProxyPath } from "./cli-desktop-proxy-path";
 
 const MAX_MESSAGE_SIZE = 1024 * 1024;
 const CONNECTION_TIMEOUT_MS = 5_000;
-const LINUX_FLATPAK_NATIVE_MESSAGING_PATHS = [
-  "org.mozilla.firefox/.mozilla/native-messaging-hosts",
-  "com.google.Chrome/config/google-chrome/NativeMessagingHosts",
-  "org.chromium.Chromium/config/chromium/NativeMessagingHosts",
-  "com.microsoft.Edge/config/microsoft-edge/NativeMessagingHosts",
-];
-const LINUX_NATIVE_MESSAGING_PATHS = [
-  ".config/chromium/NativeMessagingHosts",
-  ".config/google-chrome/NativeMessagingHosts",
-  ".config/microsoft-edge/NativeMessagingHosts",
-  ".mozilla/native-messaging-hosts",
-];
 
-/**
- * Returns the desktop IPC endpoints used by desktop_native/core/src/ipc/mod.rs.
- *
- * macOS has separate endpoints for the sandboxed App Store build and the
- * unsandboxed build, so both are attempted.
- */
-export function getDesktopSocketPaths(
-  platform = os.platform(),
-  homeDir = os.homedir(),
-  xdgCacheHome = process.env.XDG_CACHE_HOME,
-): string[] {
-  if (platform === "win32") {
-    const hash = crypto.createHash("sha256").update(homeDir).digest("base64url");
-    return [`\\\\.\\pipe\\${hash}.s.bw`];
-  }
+type SpawnProxy = (proxyPath: string) => ChildProcessWithoutNullStreams;
 
-  if (platform === "darwin") {
-    return [
-      path.join(homeDir, "Library", "Group Containers", "LTZ2PFU5D6.com.bitwarden.desktop", "s.bw"),
-      path.join(homeDir, "Library", "Caches", "com.bitwarden.desktop", "s.bw"),
-    ];
-  }
+const spawnProxy: SpawnProxy = (proxyPath) =>
+  spawn(proxyPath, [], {
+    stdio: "pipe",
+    shell: false,
+  });
 
-  const socketName = ".app.bw.socket";
-  return [
-    path.join(xdgCacheHome ?? path.join(homeDir, ".cache"), "com.bitwarden.desktop", "s.bw"),
-    ...LINUX_FLATPAK_NATIVE_MESSAGING_PATHS.map((nativePath) =>
-      path.join(homeDir, ".var", "app", nativePath, socketName),
-    ),
-    ...LINUX_NATIVE_MESSAGING_PATHS.map((nativePath) => path.join(homeDir, nativePath, socketName)),
-  ];
-}
-
-export function encodeDesktopIpcFrame(message: IpcMessage): Buffer {
+export function encodeNativeMessagingFrame(message: IpcMessage | object): Buffer {
   const payload = Buffer.from(JSON.stringify(message), "utf8");
   if (payload.length > MAX_MESSAGE_SIZE) {
     throw new Error(`Desktop IPC message exceeds ${MAX_MESSAGE_SIZE} bytes`);
@@ -71,21 +39,30 @@ export function encodeDesktopIpcFrame(message: IpcMessage): Buffer {
   return frame;
 }
 
-/** Direct socket transport for the SDK IPC client used by the CLI. */
+/** SDK IPC transport backed by the Bitwarden Desktop native-messaging proxy. */
 export class CliDesktopIpcTransport {
-  private socket?: net.Socket;
-  private connection?: Promise<net.Socket>;
+  private proxy?: ChildProcessWithoutNullStreams;
+  private connection?: Promise<void>;
+  private connected = false;
   private messageBuffer = Buffer.alloc(0);
 
   constructor(
     private logService: LogService,
     private receive: (message: IncomingMessage) => void,
-    private socketPaths = getDesktopSocketPaths(),
     private onDisconnect?: () => void,
+    private proxyPathResolver = resolveDesktopProxyPath,
+    private proxySpawner: SpawnProxy = spawnProxy,
   ) {}
 
   async send(message: OutgoingMessage): Promise<void> {
-    const frame = encodeDesktopIpcFrame({
+    await this.connect();
+
+    const proxy = this.proxy;
+    if (proxy == null || !this.connected) {
+      throw new Error("Bitwarden Desktop proxy disconnected before the message could be sent");
+    }
+
+    const frame = encodeNativeMessagingFrame({
       type: "bitwarden-ipc-message",
       message: {
         destination: message.destination,
@@ -93,96 +70,103 @@ export class CliDesktopIpcTransport {
         topic: message.topic,
       },
     });
-    const socket = await this.connect();
 
     await new Promise<void>((resolve, reject) => {
-      socket.write(frame, (error) => (error ? reject(error) : resolve()));
+      proxy.stdin.write(frame, (error) => (error ? reject(error) : resolve()));
     });
   }
 
   disconnect(): void {
-    this.socket?.destroy();
-    this.socket = undefined;
+    const proxy = this.proxy;
+    const wasConnected = proxy != null || this.connection != null;
+
+    this.proxy = undefined;
     this.connection = undefined;
+    this.connected = false;
     this.messageBuffer = Buffer.alloc(0);
-    this.onDisconnect?.();
+    proxy?.kill();
+
+    if (wasConnected) {
+      this.onDisconnect?.();
+    }
   }
 
-  private async connect(): Promise<net.Socket> {
-    if (this.socket != null && !this.socket.destroyed) {
-      return this.socket;
+  private async connect(): Promise<void> {
+    if (this.connected) {
+      return;
     }
 
-    this.connection ??= this.connectToFirstAvailablePath();
+    this.connection ??= this.startProxy();
     try {
-      return await this.connection;
+      await this.connection;
     } catch (error) {
       this.connection = undefined;
       throw error;
     }
   }
 
-  private async connectToFirstAvailablePath(): Promise<net.Socket> {
-    let lastError: Error | undefined;
+  private startProxy(): Promise<void> {
+    const proxyPath = this.proxyPathResolver();
+    const proxy = this.proxySpawner(proxyPath);
+    this.proxy = proxy;
 
-    for (const socketPath of this.socketPaths) {
-      try {
-        const socket = await this.connectToPath(socketPath);
-        this.socket = socket;
-        this.logService.info(`[IPC] Connected to Bitwarden Desktop at ${socketPath}`);
-        return socket;
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-      }
-    }
-
-    throw new Error(
-      `Could not connect to the Bitwarden Desktop app${lastError ? `: ${lastError.message}` : ""}`,
-    );
-  }
-
-  private connectToPath(socketPath: string): Promise<net.Socket> {
-    return new Promise((resolve, reject) => {
-      const socket = net.createConnection(socketPath);
+    return new Promise<void>((resolve, reject) => {
       let settled = false;
-
       const timeout = setTimeout(() => {
-        settled = true;
-        socket.destroy();
-        reject(new Error(`Connection to ${socketPath} timed out`));
+        fail(new Error(`Connection to Bitwarden Desktop via ${proxyPath} timed out`));
+        proxy.kill();
       }, CONNECTION_TIMEOUT_MS);
 
-      socket.once("connect", () => {
+      const succeed = () => {
+        if (settled || this.proxy !== proxy) {
+          return;
+        }
         settled = true;
         clearTimeout(timeout);
-        socket.on("data", (data) => this.processIncomingData(data));
-        socket.on("close", () => this.handleDisconnect(socket));
-        socket.on("error", (error) =>
-          this.logService.info("[IPC] Bitwarden Desktop socket error", error),
-        );
-        resolve(socket);
-      });
+        this.connected = true;
+        this.logService.info(`[IPC] Connected to Bitwarden Desktop via ${proxyPath}`);
+        resolve();
+      };
 
-      socket.once("error", (error) => {
+      const fail = (error: Error) => {
         if (!settled) {
+          settled = true;
           clearTimeout(timeout);
-          socket.destroy();
           reject(error);
         }
-      });
+        this.handleProxyDisconnect(proxy);
+      };
+
+      proxy.stdout.on("data", (data: Buffer) => this.processIncomingData(data, succeed));
+      proxy.stderr.on("data", (data: Buffer) =>
+        this.logService.debug(`[IPC] Desktop proxy: ${data.toString("utf8").trimEnd()}`),
+      );
+      proxy.once("error", (error) => fail(error));
+      proxy.once("exit", (code, signal) =>
+        fail(
+          new Error(
+            `Bitwarden Desktop proxy exited${code != null ? ` with code ${code}` : ""}${
+              signal != null ? ` from signal ${signal}` : ""
+            }`,
+          ),
+        ),
+      );
     });
   }
 
-  private handleDisconnect(socket: net.Socket): void {
-    if (this.socket === socket) {
-      this.socket = undefined;
-      this.connection = undefined;
-      this.messageBuffer = Buffer.alloc(0);
-      this.onDisconnect?.();
+  private handleProxyDisconnect(proxy: ChildProcessWithoutNullStreams): void {
+    if (this.proxy !== proxy) {
+      return;
     }
+
+    this.proxy = undefined;
+    this.connection = undefined;
+    this.connected = false;
+    this.messageBuffer = Buffer.alloc(0);
+    this.onDisconnect?.();
   }
 
-  private processIncomingData(data: Buffer): void {
+  private processIncomingData(data: Buffer, onConnected: () => void = () => {}): void {
     this.messageBuffer = Buffer.concat([this.messageBuffer, data]);
 
     while (this.messageBuffer.length >= 4) {
@@ -202,6 +186,10 @@ export class CliDesktopIpcTransport {
 
       try {
         const message: unknown = JSON.parse(payload.toString("utf8"));
+        if (isProxyConnectedMessage(message)) {
+          onConnected();
+          continue;
+        }
         if (!isIpcMessage(message) && !isForwardedIpcMessage(message)) {
           continue;
         }
