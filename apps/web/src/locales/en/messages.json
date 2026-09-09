@@ -7504,6 +7504,57 @@
   "deactivateLink": {
     "message": "Deactivate link"
   },
+  "requireAdminConfirmation": {
+    "message": "Require admin confirmation"
+  },
+  "requireAdminConfirmationHint": {
+    "message": "An admin must manually approve new members before they’re added to the organization vault."
+  },
+  "setYourAllowedDomains": {
+    "message": "Set your allowed domains"
+  },
+  "setYourAllowedDomainsCoachMarkBody": {
+    "message": "Add allowed email domains (e.g. acme.com) so only users with matching emails can use this invite link. You can update this anytime."
+  },
+  "adjustTheLink": {
+    "message": "Adjust the link"
+  },
+  "adjustTheLinkCoachMarkBody": {
+    "message": "Your needs change, and the link can change with you. <strong>Regenerate</strong> the link to invalidate the old link and create a new one."
+  },
+  "adjustTheLinkCoachMarkBodyIntro": {
+    "message": "Your needs change, and the link can change with you."
+  },
+  "adjustTheLinkCoachMarkRegenerate": {
+    "message": "<strong>Regenerate</strong> the link to invalidate the old link and create a new one."
+  },
+  "adjustTheLinkCoachMarkAdminConfirmation": {
+    "message": "<strong>Require admin confirmation</strong> to approve new members before they can join the organization."
+  },
+  "shareTheLinkAnywhere": {
+    "message": "Share the link anywhere"
+  },
+  "shareTheLinkAnywhereCoachMarkBody": {
+    "message": "Copy and paste the link where your team will find it: your onboarding checklist, a Slack #new-joiners channel, Notion docs, or an email template."
+  },
+  "viewBitwardenOnboardingGuide": {
+    "message": "View Bitwarden onboarding guide"
+  },
+  "coachMarkStepOfTotal": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "description": "Progress indicator for a coach mark tour step, e.g. '1 of 3'",
+    "placeholders": {
+      "current": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "finish": {
+    "message": "Finish"
+  },
   "inviteByLinkDesc": {
     "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
   },
