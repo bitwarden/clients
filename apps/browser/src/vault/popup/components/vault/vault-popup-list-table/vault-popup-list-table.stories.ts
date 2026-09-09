@@ -239,12 +239,13 @@ type StoryArgs = {
 // these also control which chips appear.
 const ORGANIZATION_OPTIONS = [
   {
-    value: { id: MY_VAULT } as Organization,
+    value: { id: MY_VAULT, enabled: true } as Organization,
     label: "My vault",
     iconTile: personalIconTile("brand"),
+    enabled: true,
   },
   {
-    value: { id: "org-engineering" } as Organization,
+    value: { id: "org-engineering", enabled: true } as Organization,
     label: "Acme Co",
     iconTile: orgIconTile(ProductTierType.Enterprise),
   },

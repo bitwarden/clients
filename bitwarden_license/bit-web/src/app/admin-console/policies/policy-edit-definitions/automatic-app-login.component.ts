@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule } from "@angular/forms";
 
@@ -33,6 +31,6 @@ export class AutomaticAppLoginPolicyComponent extends BasePolicyEditComponent {
   private readonly formBuilder = inject(FormBuilder);
 
   readonly data = this.formBuilder.group({
-    idpHost: new FormControl<string>(null),
+    idpHost: new FormControl<string | null>(null),
   });
 }

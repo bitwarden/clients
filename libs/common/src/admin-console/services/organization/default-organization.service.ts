@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { map, Observable } from "rxjs";
 
 import { StateProvider } from "../../../platform/state";
@@ -109,8 +107,8 @@ export class DefaultOrganizationService implements InternalOrganizationServiceAb
    * stored state to an exposed object easily consumable by others.
    */
   private mapOrganizationRecordToArray() {
-    return map<Record<string, OrganizationData>, Organization[]>((orgs) =>
-      Object.values(orgs ?? {})?.map((o) => new Organization(o)),
+    return map<Record<string, OrganizationData> | null, Organization[]>((orgs) =>
+      Object.values(orgs ?? {}).map((o) => new Organization(o)),
     );
   }
 }
