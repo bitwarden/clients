@@ -346,6 +346,10 @@ export class SendService implements InternalSendServiceAbstraction {
       return this.toRotatedKeyRequestMapSdk(sends, rotateUserKey, userId);
     }
 
+    if (sends.some((s) => s.type === SendType.Item)) {
+      throw new Error("Item type Sends require the SDK to rotate");
+    }
+
     const requests = await Promise.all(
       sends.map(async (send) => {
         // Send key is not a key but a 16 byte seed used to derive the key
