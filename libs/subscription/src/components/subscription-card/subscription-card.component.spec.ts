@@ -47,7 +47,7 @@ describe("SubscriptionCardComponent", () => {
         contactSupportShort: "Contact support",
         yourSubscriptionIsExpired: "Your subscription is expired",
         yourSubscriptionIsCanceled: "Your subscription is canceled",
-        yourSubscriptionIsScheduledToCancel: `Your subscription is scheduled to cancel on ${params[0]}`,
+        subscriptionPendingCanceled: "The subscription has been marked for cancellation",
         keepSubscription: "Keep subscription",
         resubscribe: "Resubscribe",
         upgradeYourPlan: "Upgrade your plan",
