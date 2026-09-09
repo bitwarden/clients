@@ -5,12 +5,11 @@ import { ReplaySubject, Observable } from "rxjs";
 
 // FIXME: Update this file to be type safe and remove this and next line
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig } from "@bitwarden/key-management";
+import { EncString, KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
-import { EncString } from "../../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
 import {
   MasterPasswordAuthenticationData,

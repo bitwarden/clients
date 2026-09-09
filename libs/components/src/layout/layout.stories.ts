@@ -2,11 +2,15 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { userEvent } from "storybook/test";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
+import { enabledFlags, formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
+import { BannerModule } from "../banner";
+import { ButtonModule } from "../button";
 import { CalloutModule } from "../callout";
+import { HeaderComponent } from "../header";
 import { NavigationModule } from "../navigation";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService } from "../utils/i18n-mock.service";
@@ -21,7 +25,14 @@ export default {
   decorators: [
     positionFixedWrapperDecorator(),
     moduleMetadata({
-      imports: [NavigationModule, RouterTestingModule, CalloutModule],
+      imports: [
+        NavigationModule,
+        RouterTestingModule,
+        BannerModule,
+        ButtonModule,
+        CalloutModule,
+        HeaderComponent,
+      ],
       providers: [
         {
           provide: I18nService,
@@ -83,6 +94,11 @@ export const WithContent: Story = {
   }),
 };
 
+export const WithContentVfo1: Story = {
+  ...WithContent,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
 export const SkipLinks: Story = {
   ...WithContent,
   play: async () => {
@@ -118,4 +134,30 @@ export const Rounded: Story = {
   args: {
     rounded: true,
   },
+};
+
+export const BannerAndHeader: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <bit-layout>
+        <bit-side-nav>
+          <bit-nav-item text="Members" icon="bwi-user" [route]="['members']"></bit-nav-item>
+          <bit-nav-item text="Groups" icon="bwi-collection" [route]="['groups']"></bit-nav-item>
+        </bit-side-nav>
+        <bit-banner> This organization is being accessed by a provider. </bit-banner>
+        <div>
+          <!-- <bit-header title="Members" icon="bwi-user">
+            <button type="button" bitButton buttonType="primary">Invite member</button>
+          </bit-header> -->
+          <bit-callout title="Foobar"> Hello world! </bit-callout>
+        </div>
+      </bit-layout>
+    `,
+  }),
+};
+
+export const BannerAndHeaderVfo1: Story = {
+  ...BannerAndHeader,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };

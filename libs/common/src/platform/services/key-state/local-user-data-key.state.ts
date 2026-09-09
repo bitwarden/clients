@@ -1,4 +1,6 @@
-import { LocalUserDataKey } from "../../../key-management/types";
+// eslint-disable-next-line no-restricted-imports
+import { LocalUserDataKey } from "@bitwarden/legacy-crypto";
+
 import { CRYPTO_DISK, UserKeyDefinition } from "../../state";
 
 export const LOCAL_USER_DATA_KEY = UserKeyDefinition.record<LocalUserDataKey>(

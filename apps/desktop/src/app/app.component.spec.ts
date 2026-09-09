@@ -1,17 +1,15 @@
-import { DestroyRef, NgZone, ViewContainerRef } from "@angular/core";
+import { DestroyRef, NgZone } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { EMPTY, of, Subject } from "rxjs";
+import { EMPTY, of } from "rxjs";
 
 import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
-import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
   AuthRequestServiceAbstraction,
-  LockService,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -24,8 +22,8 @@ import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -47,6 +45,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { LockService } from "@bitwarden/unlock";
 
 import { AppComponent } from "./app.component";
 
@@ -60,7 +59,6 @@ describe("AppComponent (desktop)", () => {
   let ngZone: MockProxy<NgZone>;
   let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let logService: MockProxy<LogService>;
-  let modalService: MockProxy<ModalService>;
 
   let broadcasterCallback: (message: any) => Promise<void>;
 
@@ -74,7 +72,6 @@ describe("AppComponent (desktop)", () => {
     ngZone = mock<NgZone>();
     authRequestAnsweringService = mock<AuthRequestAnsweringService>();
     logService = mock<LogService>();
-    modalService = mock<ModalService>();
 
     accountService.activeAccount$ = of({ id: userId } as any);
     (accountService as any).showHeader$ = EMPTY;
@@ -84,6 +81,9 @@ describe("AppComponent (desktop)", () => {
     broadcasterService.subscribe.mockImplementation((_id: string, cb: (message: any) => void) => {
       broadcasterCallback = cb as (message: any) => Promise<void>;
     });
+
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     const deviceTrustToastService = mock<DeviceTrustToastService>();
     deviceTrustToastService.setupListeners$ = EMPTY;
@@ -114,9 +114,9 @@ describe("AppComponent (desktop)", () => {
           mock<ProcessReloadServiceAbstraction>(),
           mock<StateService>(),
           mock<EventUploadService>(),
-          modalService,
+          mock<ModalService>(),
           mock<UserVerificationService>(),
-          mock<ConfigService>(),
+          configService,
           mock<DialogService>(),
           mock<BiometricStateService>(),
           mock<StateEventRunnerService>(),
@@ -205,68 +205,5 @@ describe("AppComponent (desktop)", () => {
     await dispatchMessage({ command: "windowIsFocused", windowIsFocused: true });
 
     expect(syncService.fullSync).toHaveBeenCalledTimes(1);
-  });
-
-  it("handles modal close events before destruction and ignores them after destruction", async () => {
-    const firstOnClosed = new Subject<void>();
-    const firstModalRef = { onClosed: firstOnClosed } as ModalRef;
-    modalService.openViewRef.mockResolvedValueOnce([firstModalRef, null]);
-
-    await (component as any).openModal(class FirstModal {}, mock<ViewContainerRef>());
-    firstOnClosed.next();
-    expect((component as any).modal).toBeNull();
-
-    const secondOnClosed = new Subject<void>();
-    const secondModalRef = { onClosed: secondOnClosed } as ModalRef;
-    modalService.openViewRef.mockResolvedValueOnce([secondModalRef, null]);
-
-    await (component as any).openModal(class SecondModal {}, mock<ViewContainerRef>());
-    component.ngOnDestroy();
-    secondOnClosed.next();
-
-    expect((component as any).modal).toBe(secondModalRef);
-  });
-
-  it("does not retain a modal that finishes opening after destruction", async () => {
-    const onClosed = new Subject<void>();
-    const close = jest.fn();
-    const modalRef = { close, onClosed } as unknown as ModalRef;
-    let resolveOpen: (value: [ModalRef, unknown]) => void = () => {
-      throw new Error("openViewRef resolver was not initialized");
-    };
-    modalService.openViewRef.mockReturnValue(
-      new Promise((resolve) => {
-        resolveOpen = resolve;
-      }),
-    );
-
-    const opening = (component as any).openModal(class DelayedModal {}, mock<ViewContainerRef>());
-    component.ngOnDestroy();
-    resolveOpen([modalRef, null]);
-    await opening;
-
-    onClosed.next();
-
-    expect(close).toHaveBeenCalledTimes(1);
-    expect((component as any).modal).toBeNull();
-  });
-
-  it("does not let an older modal clear a newer modal", async () => {
-    const firstOnClosed = new Subject<void>();
-    const firstModalRef = { onClosed: firstOnClosed } as ModalRef;
-    const secondOnClosed = new Subject<void>();
-    const secondModalRef = { onClosed: secondOnClosed } as ModalRef;
-    modalService.openViewRef
-      .mockResolvedValueOnce([firstModalRef, null])
-      .mockResolvedValueOnce([secondModalRef, null]);
-
-    await (component as any).openModal(class FirstModal {}, mock<ViewContainerRef>());
-    await (component as any).openModal(class SecondModal {}, mock<ViewContainerRef>());
-    firstOnClosed.next();
-
-    expect((component as any).modal).toBe(secondModalRef);
-
-    secondOnClosed.next();
-    expect((component as any).modal).toBeNull();
   });
 });

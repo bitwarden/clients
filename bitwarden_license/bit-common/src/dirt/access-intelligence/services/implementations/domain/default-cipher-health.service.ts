@@ -59,6 +59,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
           );
           const reusedCipherIds = password ? reuseMap.get(password) : undefined;
           health.hasReusedPassword = reusedCipherIds ? reusedCipherIds.length > 1 : false;
+          health.reuseCount = reusedCipherIds ? reusedCipherIds.length : 0;
 
           healthMap.set(health.cipherId, health);
         });
@@ -77,6 +78,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
           hasReusedPassword: false,
           hasExposedPassword: false,
           exposedCount: 0,
+          reuseCount: 0,
         }),
       );
     }
@@ -124,6 +126,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
           hasReusedPassword: false,
           hasExposedPassword: false,
           exposedCount: 0,
+          reuseCount: 0,
         }),
       );
     }
@@ -139,6 +142,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
           cipherId: cipher.id,
           hasWeakPassword,
           hasReusedPassword: false, // Will be set by caller if checking multiple ciphers
+          reuseCount: 0, // Will be set by caller if checking multiple ciphers
           hasExposedPassword: exposedCount > 0,
           exposedCount,
           weakPasswordScore,

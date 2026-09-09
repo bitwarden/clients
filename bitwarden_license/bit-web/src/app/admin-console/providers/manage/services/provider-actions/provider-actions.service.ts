@@ -6,9 +6,10 @@ import { ProviderUserConfirmRequest } from "@bitwarden/common/admin-console/mode
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ProviderId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 import { MemberActionResult } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.types";
 

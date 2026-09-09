@@ -23,6 +23,7 @@ import {
 } from "../../components/account-recovery";
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";
+import { BulkEnablePrivilegedControlsDialogComponent } from "../../components/bulk/bulk-enable-privileged-controls-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "../../components/bulk/bulk-enable-sm-dialog.component";
 import { BulkProgressDialogComponent } from "../../components/bulk/bulk-progress-dialog.component";
 import { BulkReinviteFailureDialogComponent } from "../../components/bulk/bulk-reinvite-failure-dialog.component";
@@ -91,16 +92,8 @@ export class MemberDialogManagerService {
     user: OrganizationUserView,
     organization: Organization,
     billingMetadata: OrganizationBillingMetadataResponse,
-    initialTab: MemberDialogTab = MemberDialogTab.Role,
+    initialTab: MemberDialogTab = MemberDialogTab.Details,
   ): Promise<MemberDialogResult> {
-    const detailsTabEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM28365_ChangeMemberEmail,
-    );
-    const resolvedTab =
-      detailsTabEnabled && initialTab === MemberDialogTab.Role
-        ? MemberDialogTab.Details
-        : initialTab;
-
     const dialog = EditMemberDialogComponent.open(this.dialogService, {
       data: {
         kind: "Edit",
@@ -111,7 +104,7 @@ export class MemberDialogManagerService {
         organizationUserId: user.id,
         usesKeyConnector: user.usesKeyConnector,
         isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
-        initialTab: resolvedTab,
+        initialTab: initialTab,
         claimedByOrganization: user.claimedByOrganization,
         hasMasterPassword: user.hasMasterPassword,
       },
@@ -227,6 +220,29 @@ export class MemberDialogManagerService {
     }
 
     const dialogRef = BulkEnableSecretsManagerDialogComponent.open(this.dialogService, {
+      orgId: organization.id,
+      users: eligibleUsers,
+    });
+
+    await lastValueFrom(dialogRef.closed);
+  }
+
+  async openBulkActivatePrivilegedControlsDialog(
+    organization: Organization,
+    users: OrganizationUserView[],
+  ): Promise<void> {
+    const eligibleUsers = users.filter((ou) => !ou.accessPam);
+
+    if (eligibleUsers.length === 0) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("noSelectedUsersApplicable"),
+      });
+      return;
+    }
+
+    const dialogRef = BulkEnablePrivilegedControlsDialogComponent.open(this.dialogService, {
       orgId: organization.id,
       users: eligibleUsers,
     });

@@ -1,5 +1,7 @@
+// eslint-disable-next-line no-restricted-imports
+import { SignedPublicKey, UnsignedPublicKey, WrappedPrivateKey } from "@bitwarden/legacy-crypto";
+
 import { Utils } from "../../../platform/misc/utils";
-import { SignedPublicKey, UnsignedPublicKey, WrappedPrivateKey } from "../../types";
 
 export class PublicKeyEncryptionKeyPairResponse {
   readonly wrappedPrivateKey: WrappedPrivateKey;

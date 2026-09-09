@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { concatMap, takeUntil, map, lastValueFrom, firstValueFrom } from "rxjs";
@@ -75,7 +73,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
         ),
         tap(async (mapResponse) => {
           this.organizationId = mapResponse.params.organizationId;
-          this.organization = mapResponse.organization;
+          this.organization = mapResponse.organization!;
         }),
         concatMap(async () => await super.ngOnInit()),
         takeUntil(this.destroy$),
@@ -92,8 +90,9 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
         const twoFactorVerifyDialogRef = TwoFactorVerifyComponent.open(this.dialogService, {
           data: { type: type, organizationId: this.organizationId },
         });
-        const result: TwoFactorSetupDialogData<TwoFactorOrganizationDuoResponse> =
-          await lastValueFrom(twoFactorVerifyDialogRef.closed);
+        const result = (await lastValueFrom(
+          twoFactorVerifyDialogRef.closed,
+        )) as TwoFactorSetupDialogData<TwoFactorOrganizationDuoResponse>;
         if (!result) {
           return;
         }

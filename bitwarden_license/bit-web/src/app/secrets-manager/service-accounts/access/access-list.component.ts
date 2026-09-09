@@ -3,6 +3,7 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
+import { NoResults } from "@bitwarden/assets/svg";
 import { TableDataSource } from "@bitwarden/components";
 
 import { AccessTokenView } from "../models/view/access-token.view";
@@ -39,6 +40,7 @@ export class AccessListComponent {
   protected dataSource = new TableDataSource<AccessTokenView>();
 
   private readonly EXPIRING_SOON_DAYS = 7;
+  readonly noItemsIcon = NoResults;
 
   protected getTokenStatus(token: AccessTokenView): "expired" | "expiringSoon" | "active" {
     if (token.expireAt == null) {

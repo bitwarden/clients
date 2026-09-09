@@ -4,7 +4,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterKeyWrappedUserKey,
@@ -18,7 +17,8 @@ import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.serv
 import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
-import { KdfType, PBKDF2KdfConfig, Argon2KdfConfig } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { Argon2KdfConfig, EncString, KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { SharedModule } from "../../shared";
 

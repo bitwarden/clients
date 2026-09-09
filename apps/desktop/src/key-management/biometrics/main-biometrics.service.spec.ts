@@ -2,8 +2,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { newGuid } from "@bitwarden/guid";
 import {
@@ -11,6 +9,8 @@ import {
   BiometricsStatus,
   BiometricStateService,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptionType, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { WindowMain } from "../../main/window.main";
 

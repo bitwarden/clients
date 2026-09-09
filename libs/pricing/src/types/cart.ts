@@ -1,13 +1,12 @@
-import { Discount } from "..";
-
 import { Credit } from "./credit";
+import { CartDiscount } from "./discount";
 
 export type CartItem = {
   translationKey: string;
   translationParams?: Array<string | number>;
   quantity: number;
   cost: number;
-  discount?: Discount;
+  discounts?: CartDiscount[];
   hideBreakdown?: boolean;
 };
 
@@ -17,11 +16,16 @@ export type Cart = {
     additionalStorage?: CartItem;
   };
   secretsManager?: {
-    seats: CartItem;
+    seats?: CartItem;
     additionalServiceAccounts?: CartItem;
   };
   cadence: "annually" | "monthly";
-  discounts?: Discount[];
+  discounts?: CartDiscount[];
   credit?: Credit;
   estimatedTax: number;
+  /**
+   * The authoritative invoice total, set by the preview adapter. Absent on legacy carts, in
+   * which case the renderer falls back to computing the total from the cart's line items.
+   */
+  total?: number;
 };

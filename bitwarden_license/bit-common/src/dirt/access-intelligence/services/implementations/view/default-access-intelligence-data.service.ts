@@ -439,7 +439,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
   }
 
   private loadCiphersOnly$(orgId: OrganizationId): Observable<CipherView[]> {
-    return from(this.cipherService.getAllFromApiForOrganization(orgId)).pipe(
+    return from(this.cipherService.getAllFromApiForOrganization(orgId, true)).pipe(
       catchError((err: unknown) => {
         this.logService.error("[DefaultAccessIntelligenceDataService] Cipher load failed", err);
         return of([] as CipherView[]);
@@ -455,7 +455,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     collections: ListResponse<CollectionAccessDetailsResponse>;
   }> {
     return forkJoin({
-      ciphers: from(this.cipherService.getAllFromApiForOrganization(orgId)),
+      ciphers: from(this.cipherService.getAllFromApiForOrganization(orgId, true)),
       apiUsers: from(
         this.organizationUserApiService.getAllUsers(orgId, {
           includeGroups: true,

@@ -17,13 +17,9 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DialogService } from "@bitwarden/components";
-import {
-  KdfConfigService,
-  Argon2KdfConfig,
-  KdfConfig,
-  PBKDF2KdfConfig,
-  KdfType,
-} from "@bitwarden/key-management";
+import { KdfConfigService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { ChangeKdfConfirmationComponent } from "./change-kdf-confirmation.component";
 

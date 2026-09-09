@@ -2,10 +2,11 @@ import { mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
 import { EncryptedDataWithKey } from "../../models";
 import {

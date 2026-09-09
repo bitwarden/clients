@@ -2,7 +2,15 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KdfConfig, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import {
+  Argon2KdfConfig,
+  CryptoFunctionService,
+  EncString,
+  KdfConfig,
+  KeyGenerationService,
+  PBKDF2KdfConfig,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import {
@@ -18,13 +26,9 @@ import { ServerConfig } from "../../../platform/abstractions/config/server-confi
 import { LogService } from "../../../platform/abstractions/log.service";
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
-import { KeyGenerationService } from "../../crypto";
-import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
-import { EncString } from "../../crypto/models/enc-string";
 import { MASTER_PASSWORD_UNLOCK_DATA } from "../../state-definitions";
 import {
   MasterKeyWrappedUserKey,

@@ -1,13 +1,14 @@
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { UserKey } from "@bitwarden/common/types/key";
+// eslint-disable-next-line no-restricted-imports
 import {
   SignedSecurityState,
+  SymmetricCryptoKey,
   UnsignedPublicKey,
   VerifyingKey,
   WrappedPrivateKey,
   WrappedSigningKey,
-} from "@bitwarden/common/key-management/types";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { UserKey } from "@bitwarden/common/types/key";
+} from "@bitwarden/legacy-crypto";
 import { SignedPublicKey, UserCryptoV2KeysResponse } from "@bitwarden/sdk-internal";
 
 export type V2UserCryptographicState = {

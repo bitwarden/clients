@@ -5,6 +5,7 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SecurityTask, SecurityTaskType } from "@bitwarden/common/vault/tasks";
@@ -34,6 +35,7 @@ describe("AtRiskPasswordCalloutComponent", () => {
       providers: [
         { provide: AccountService, useValue: mockAccountService },
         { provide: I18nService, useValue: mock<I18nService>() },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
     })
       .overrideComponent(AtRiskPasswordCalloutComponent, {

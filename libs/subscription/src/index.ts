@@ -6,3 +6,4 @@ export * from "./components/storage-card/storage-card.component";
 // Types
 export * from "./types/bitwarden-subscription";
 export * from "./types/storage";
+export * from "./types/subscription-preview";

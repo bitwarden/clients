@@ -17,7 +17,7 @@ import {
   RestrictedCipherType,
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { ButtonModule, DialogService, MenuModule, NoItemsModule } from "@bitwarden/components";
+import { ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { FakeGlobalStateProvider } from "@bitwarden/state-test-utils";
 
@@ -71,7 +71,6 @@ describe("NewItemDropdownComponent", () => {
         RouterLink,
         ButtonModule,
         MenuModule,
-        NoItemsModule,
         NewItemDropdownComponent,
       ],
       providers: [

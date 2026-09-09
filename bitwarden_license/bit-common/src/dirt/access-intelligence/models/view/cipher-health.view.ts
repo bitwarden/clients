@@ -14,6 +14,7 @@ export class CipherHealthView implements View {
   hasReusedPassword: boolean = false;
   hasExposedPassword: boolean = false;
   exposedCount: number = 0;
+  reuseCount: number = 0;
   weakPasswordScore?: number;
 
   constructor(init?: {
@@ -22,6 +23,7 @@ export class CipherHealthView implements View {
     hasReusedPassword: boolean;
     hasExposedPassword: boolean;
     exposedCount: number;
+    reuseCount: number;
     weakPasswordScore?: number;
   }) {
     if (init == null) {
@@ -33,6 +35,7 @@ export class CipherHealthView implements View {
     this.hasReusedPassword = init.hasReusedPassword;
     this.hasExposedPassword = init.hasExposedPassword;
     this.exposedCount = init.exposedCount;
+    this.reuseCount = init.reuseCount;
     this.weakPasswordScore = init.weakPasswordScore;
   }
 
@@ -43,6 +46,7 @@ export class CipherHealthView implements View {
       hasReusedPassword: this.hasReusedPassword,
       hasExposedPassword: this.hasExposedPassword,
       exposedCount: this.exposedCount,
+      reuseCount: this.reuseCount,
       weakPasswordScore: this.weakPasswordScore,
     };
   }
@@ -58,6 +62,7 @@ export class CipherHealthView implements View {
     view.hasReusedPassword = obj.hasReusedPassword ?? false;
     view.hasExposedPassword = obj.hasExposedPassword ?? false;
     view.exposedCount = obj.exposedCount ?? 0;
+    view.reuseCount = obj.reuseCount ?? 0;
     view.weakPasswordScore = obj.weakPasswordScore;
 
     return view;

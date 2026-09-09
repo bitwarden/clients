@@ -1,36 +1,21 @@
-import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { any, mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { OrganizationUserResetPasswordWithIdRequest } from "@bitwarden/admin-console/common";
 import { LogoutService } from "@bitwarden/auth/common";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { WebauthnRotateCredentialRequest } from "@bitwarden/common/auth/models/request/webauthn-rotate-credential.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
-import {
-  SignedPublicKey,
-  SignedSecurityState,
-  UnsignedPublicKey,
-  VerifyingKey,
-  WrappedPrivateKey,
-  WrappedSigningKey,
-} from "@bitwarden/common/key-management/types";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { SendWithIdRequest } from "@bitwarden/common/tools/send/models/request/send-with-id.request";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -43,20 +28,31 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherWithIdRequest } from "@bitwarden/common/vault/models/request/cipher-with-id.request";
 import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
 import { DialogService, ToastService } from "@bitwarden/components";
-import {
-  KeyService,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-  KdfConfig,
-  KdfType,
-} from "@bitwarden/key-management";
+import { newGuid } from "@bitwarden/guid";
+import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 import {
   AccountRecoveryTrustComponent,
   EmergencyAccessTrustComponent,
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  CryptoFunctionService,
+  EncryptedString,
+  EncryptService,
+  EncString,
+  KdfConfig,
+  KdfType,
+  LegacyCompatKeyService,
+  PBKDF2KdfConfig,
+  SignedPublicKey,
+  SignedSecurityState,
+  SymmetricCryptoKey,
+  UnsignedPublicKey,
+  VerifyingKey,
+  WrappedPrivateKey,
+  WrappedSigningKey,
+} from "@bitwarden/legacy-crypto";
 import { BitwardenClient, PureCrypto } from "@bitwarden/sdk-internal";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
@@ -293,7 +289,7 @@ describe("KeyRotationService", () => {
   let mockSdkUserKeyRotationService: MockProxy<UserKeyRotationServiceAbstraction>;
 
   const mockUser = {
-    id: "mockUserId" as UserId,
+    id: newGuid() as UserId,
     ...mockAccountInfoWith({
       email: "mockEmail",
       name: "mockName",
@@ -408,10 +404,75 @@ describe("KeyRotationService", () => {
       configurable: true,
     });
     mockMasterPasswordService.saltForUser$.mockReturnValue(of(mockUserSalt as MasterPasswordSalt));
+    // Register the default through `calledWith` so that a test can override a single flag.
+    // A plain `mockReturnValue` here would stop jest-mock-extended from matching on arguments.
+    mockConfigService.getFeatureFlag$.calledWith(any()).mockReturnValue(of(false));
+  });
+
+  describe("shouldUseSdkKeyRotation$", () => {
+    function arrangeFlags(sdkKeyRotation: boolean, forceUpgradeV2Encryption: boolean) {
+      mockConfigService.getFeatureFlag$
+        .calledWith(FeatureFlag.SdkKeyRotation)
+        .mockReturnValue(of(sdkKeyRotation));
+      mockConfigService.getFeatureFlag$
+        .calledWith(FeatureFlag.ForceUpgradeV2Encryption)
+        .mockReturnValue(of(forceUpgradeV2Encryption));
+    }
+
+    it.each([
+      [false, false],
+      [true, false],
+      [false, true],
+    ])(
+      "returns false for a v1 user when SdkKeyRotation is %s and ForceUpgradeV2Encryption is %s",
+      async (sdkKeyRotation, forceUpgradeV2Encryption) => {
+        mockKeyService.userKey$.mockReturnValue(new BehaviorSubject(TEST_VECTOR_USER_KEY_V1));
+        arrangeFlags(sdkKeyRotation, forceUpgradeV2Encryption);
+
+        await expect(
+          firstValueFrom(keyRotationService.shouldUseSdkKeyRotation$(mockUser.id)),
+        ).resolves.toBe(false);
+      },
+    );
+
+    it("returns true for a v1 user when both feature flags are enabled", async () => {
+      mockKeyService.userKey$.mockReturnValue(new BehaviorSubject(TEST_VECTOR_USER_KEY_V1));
+      arrangeFlags(true, true);
+
+      await expect(
+        firstValueFrom(keyRotationService.shouldUseSdkKeyRotation$(mockUser.id)),
+      ).resolves.toBe(true);
+    });
+
+    it.each([
+      [false, false],
+      [true, false],
+      [false, true],
+      [true, true],
+    ])(
+      "returns true for a v2 user when SdkKeyRotation is %s and ForceUpgradeV2Encryption is %s",
+      async (sdkKeyRotation, forceUpgradeV2Encryption) => {
+        mockKeyService.userKey$.mockReturnValue(new BehaviorSubject(TEST_VECTOR_USER_KEY_V2));
+        arrangeFlags(sdkKeyRotation, forceUpgradeV2Encryption);
+
+        await expect(
+          firstValueFrom(keyRotationService.shouldUseSdkKeyRotation$(mockUser.id)),
+        ).resolves.toBe(true);
+      },
+    );
+
+    it("returns false when the user key is null", async () => {
+      mockKeyService.userKey$.mockReturnValue(new BehaviorSubject(null));
+      arrangeFlags(true, true);
+
+      await expect(
+        firstValueFrom(keyRotationService.shouldUseSdkKeyRotation$(mockUser.id)),
+      ).resolves.toBe(false);
+    });
   });
 
   describe("rotateUserKeyMasterPasswordAndEncryptedData", () => {
-    let keyPair: BehaviorSubject<{ privateKey: UserPrivateKey; publicKey: UserPublicKey }>;
+    let keyPair: BehaviorSubject<{ privateKey: UserPrivateKey; publicKey: UserPublicKey } | null>;
 
     beforeEach(() => {
       mockSyncService.getLastSync.mockResolvedValue(new Date());
@@ -432,7 +493,7 @@ describe("KeyRotationService", () => {
       } as any);
 
       // Mock user key
-      mockKeyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
+      mockKeyService.userKey$.mockReturnValue(new BehaviorSubject(TEST_VECTOR_USER_KEY_V1));
 
       mockLegacyCompatKeyService.getFingerprint.mockResolvedValue(["a", "b"]);
 
@@ -564,6 +625,60 @@ describe("KeyRotationService", () => {
         expect.objectContaining({ version: 1 }),
         true,
       );
+    });
+
+    describe("SDK and TypeScript path selection", () => {
+      beforeEach(() => {
+        mockKdfConfigService.getKdfConfig$.mockReturnValue(
+          new BehaviorSubject(new PBKDF2KdfConfig(100000)),
+        );
+        mockKeyService.userEncryptedPrivateKey$.mockReturnValue(
+          new BehaviorSubject(TEST_VECTOR_PRIVATE_KEY_V1 as string as EncryptedString),
+        );
+        mockKeyService.userSigningKey$.mockReturnValue(new BehaviorSubject(null));
+        mockSecurityStateService.accountSecurityState$.mockReturnValue(new BehaviorSubject(null));
+        mockSdkUserKeyRotationService.changePasswordAndRotateUserKey.mockResolvedValue(true);
+        jest.spyOn(keyRotationService, "getRotatedAccountKeysFlagged").mockResolvedValue({
+          userKey: TEST_VECTOR_USER_KEY_V1,
+          accountKeysRequest: {
+            userKeyEncryptedAccountPrivateKey: TEST_VECTOR_PRIVATE_KEY_V1_ROTATED,
+            accountPublicKey: TEST_VECTOR_PUBLIC_KEY_V1,
+          } as AccountKeysRequest,
+        });
+      });
+
+      it("uses the SDK when the user uses SDK key rotation", async () => {
+        jest.spyOn(keyRotationService, "shouldUseSdkKeyRotation$").mockReturnValue(of(true));
+
+        await keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
+          "mockMasterPassword",
+          "mockMasterPassword1",
+          mockUser,
+          "masterPasswordHint",
+        );
+
+        expect(mockSdkUserKeyRotationService.changePasswordAndRotateUserKey).toHaveBeenCalledWith(
+          "mockMasterPassword",
+          "mockMasterPassword1",
+          "masterPasswordHint",
+          mockUser.id,
+        );
+        expect(mockApiService.postUserKeyUpdate).not.toHaveBeenCalled();
+      });
+
+      it("uses TypeScript when the user does not use SDK key rotation", async () => {
+        jest.spyOn(keyRotationService, "shouldUseSdkKeyRotation$").mockReturnValue(of(false));
+
+        await keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
+          "mockMasterPassword",
+          "mockMasterPassword1",
+          mockUser,
+          "masterPasswordHint",
+        );
+
+        expect(mockSdkUserKeyRotationService.changePasswordAndRotateUserKey).not.toHaveBeenCalled();
+        expect(mockApiService.postUserKeyUpdate).toHaveBeenCalled();
+      });
     });
 
     it("throws if kdf config is null", async () => {
@@ -1024,7 +1139,7 @@ describe("KeyRotationService", () => {
       const newKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
       const userAccount = mockUser;
 
-      mockCipherService.getRotatedData.mockResolvedValue(null);
+      mockCipherService.getRotatedData.mockResolvedValue(null as unknown as CipherWithIdRequest[]);
       mockFolderService.getRotatedData.mockResolvedValue(mockFolders);
       mockSendService.getRotatedData.mockResolvedValue(mockSends);
 
@@ -1039,7 +1154,7 @@ describe("KeyRotationService", () => {
       const userAccount = mockUser;
 
       mockCipherService.getRotatedData.mockResolvedValue(mockCiphers);
-      mockFolderService.getRotatedData.mockResolvedValue(null);
+      mockFolderService.getRotatedData.mockResolvedValue(null as unknown as FolderWithIdRequest[]);
       mockSendService.getRotatedData.mockResolvedValue(mockSends);
 
       await expect(
@@ -1054,7 +1169,7 @@ describe("KeyRotationService", () => {
 
       mockCipherService.getRotatedData.mockResolvedValue(mockCiphers);
       mockFolderService.getRotatedData.mockResolvedValue(mockFolders);
-      mockSendService.getRotatedData.mockResolvedValue(null);
+      mockSendService.getRotatedData.mockResolvedValue(null as unknown as SendWithIdRequest[]);
 
       await expect(
         keyRotationService.getAccountDataRequest(initialKey, newKey, userAccount),

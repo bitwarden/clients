@@ -1,23 +1,6 @@
-import { NO_ERRORS_SCHEMA } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { By } from "@angular/platform-browser";
-import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
-
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { mockAccountServiceWith } from "@bitwarden/common/spec";
-import { OrgKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
 
-import {
-  RemoveUnlockWithPinPolicy,
-  RemoveUnlockWithPinPolicyComponent,
-} from "./remove-unlock-with-pin.component";
+import { RemoveUnlockWithPinPolicy } from "./remove-unlock-with-pin.component";
 import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 
 describe("RemoveUnlockWithPinPolicy", () => {
@@ -25,129 +8,8 @@ describe("RemoveUnlockWithPinPolicy", () => {
 
   it("should have correct attributes", () => {
     expect(policy.name).toEqual("removeUnlockWithPinPolicyTitle");
-    expect(policy.description).toEqual("removeUnlockWithPinPolicyDesc");
-    expect(policy.v2?.description).toEqual("removeUnlockWithPinPolicyDescV2");
+    expect(policy.description).toEqual("removeUnlockWithPinPolicyDescV2");
     expect(policy.type).toEqual(PolicyType.RemoveUnlockWithPin);
-    expect(policy.component).toEqual(RemoveUnlockWithPinPolicyComponent);
-  });
-
-  describe("v2", () => {
-    it("should point to SimpleTogglePolicyComponent", () => {
-      expect(policy.v2?.component).toBe(SimpleTogglePolicyComponent);
-    });
-  });
-});
-
-describe("RemoveUnlockWithPinPolicyComponent", () => {
-  let component: RemoveUnlockWithPinPolicyComponent;
-  let fixture: ComponentFixture<RemoveUnlockWithPinPolicyComponent>;
-  const i18nService = mock<I18nService>();
-
-  beforeEach(async () => {
-    const mockOrganizationService = mock<OrganizationService>();
-    mockOrganizationService.organizations$.mockReturnValue(of([]));
-
-    await TestBed.configureTestingModule({
-      providers: [
-        { provide: I18nService, useValue: mock<I18nService>() },
-        { provide: I18nService, useValue: i18nService },
-        { provide: AccountService, useValue: mockAccountServiceWith("user1" as any) },
-        { provide: OrganizationService, useValue: mockOrganizationService },
-        { provide: KeyService, useValue: mock<KeyService>() },
-        { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(RemoveUnlockWithPinPolicyComponent);
-    component = fixture.componentInstance;
-  });
-
-  it("input selected on load when policy enabled", async () => {
-    fixture.componentRef.setInput(
-      "policyResponse",
-      new PolicyStatusResponse({
-        organizationId: "org1",
-        type: PolicyType.RemoveUnlockWithPin,
-        enabled: true,
-      }),
-    );
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    expect(component.enabled.value).toBe(true);
-    const inputElement = fixture.debugElement.query(By.css("input"));
-    expect(inputElement).not.toBeNull();
-    expect(inputElement.properties).toMatchObject({
-      id: "enabled",
-      type: "checkbox",
-      checked: true,
-    });
-  });
-
-  it("input not selected on load when policy disabled", async () => {
-    fixture.componentRef.setInput(
-      "policyResponse",
-      new PolicyStatusResponse({
-        organizationId: "org1",
-        type: PolicyType.RemoveUnlockWithPin,
-        enabled: false,
-      }),
-    );
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    expect(component.enabled.value).toBe(false);
-    const inputElement = fixture.debugElement.query(By.css("input"));
-    expect(inputElement).not.toBeNull();
-    expect(inputElement.properties).toMatchObject({
-      id: "enabled",
-      type: "checkbox",
-      checked: false,
-    });
-  });
-
-  it("turn on message label", async () => {
-    fixture.componentRef.setInput(
-      "policyResponse",
-      new PolicyStatusResponse({
-        organizationId: "org1",
-        type: PolicyType.RemoveUnlockWithPin,
-        enabled: false,
-      }),
-    );
-    i18nService.t.mockReturnValue("Turn on");
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    const bitLabelElement = fixture.debugElement.query(By.css("bit-label"));
-    expect(bitLabelElement).not.toBeNull();
-    expect(bitLabelElement.nativeElement.textContent.trim()).toBe("Turn on");
-  });
-
-  it("buildRequest should return the policy wrapped with null metadata", async () => {
-    fixture.componentRef.setInput("policy", new RemoveUnlockWithPinPolicy());
-    fixture.componentRef.setInput(
-      "policyResponse",
-      new PolicyStatusResponse({
-        organizationId: "org1",
-        type: PolicyType.RemoveUnlockWithPin,
-        enabled: true,
-      }),
-    );
-    component.ngOnInit();
-
-    const result = await component.buildRequest(mock<OrgKey>());
-
-    expect(result).toEqual({
-      policy: {
-        enabled: true,
-        data: null,
-      },
-      metadata: null,
-    });
+    expect(policy.component).toEqual(SimpleTogglePolicyComponent);
   });
 });

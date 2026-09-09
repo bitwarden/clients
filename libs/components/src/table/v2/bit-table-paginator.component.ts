@@ -35,7 +35,7 @@ const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
   imports: [SelectModule, IconButtonModule, InputModule, FormFieldModule, FormsModule, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: "tw-block tw-border-0 tw-border-t tw-border-solid tw-border-border-base",
+    class: "tw-block",
   },
 })
 export class BitTablePaginatorComponent {

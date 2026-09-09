@@ -55,5 +55,4 @@ export abstract class LockComponentService {
 
   // Multi client
   abstract getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions | null>;
-  abstract getExternalUnlock$(userId: UserId): Observable<void>;
 }

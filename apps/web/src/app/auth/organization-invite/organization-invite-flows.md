@@ -142,8 +142,7 @@ silently exit (paste-URL MP-policy detour fired — see
 1. Click email link → new tab → `/accept-organization`
 2. `unauthedHandler` stashes invite → `/finish-signup?email=...`
 3. User completes registration form
-   - `WebRegistrationFinishService.getOrgNameFromOrgInvite` displays the org name
-   - `WebRegistrationFinishService.getMasterPasswordPolicyOptsFromOrgInvite` reads the stashed invite, fetches policies via `getOrgPoliciesForInvite(invite)`, and applies them to the password validator on the registration form
+   - `RegistrationFinishComponent.initOrgInviteFlowIfPresent` reads the stashed invite via `OrganizationInviteService.getOrganizationInvite()`, displays `invite.organizationName`, and applies the org's MP policy options to the password validator via `getMasterPasswordPolicyOptionsForInvite(invite)`
    - `buildRegisterRequest` attaches the invite token + `organizationUserId` to the server registration request for token validation
 4. Server creates the user; client auto-logs them in
 5. `deepLinkGuard` replays the persisted `/accept-organization` URL once auth status is `Unlocked` (see [Deep-link replay mechanism](#deep-link-replay-mechanism))

@@ -13,7 +13,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
  */
 const BACKGROUND_LIGHT = "/images/health-tab/health_intro_bg_light.png";
 const BACKGROUND_DARK = "/images/health-tab/health_intro_bg_dark.png";
-const INTRO_IMAGE = "/images/health-tab/health_intro.png";
+const INTRO_IMAGE_LIGHT = "/images/health-tab/health_intro.png";
+const INTRO_IMAGE_DARK = "/images/health-tab/health_intro_dark.png";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,7 +34,9 @@ export class HealthIntroComponent {
   protected readonly backgroundImage = computed(
     () => `url("${this.darkTheme() ? BACKGROUND_DARK : BACKGROUND_LIGHT}")`,
   );
-  protected readonly introImage = INTRO_IMAGE;
+  protected readonly introImage = computed(() =>
+    this.darkTheme() ? INTRO_IMAGE_DARK : INTRO_IMAGE_LIGHT,
+  );
 
   readonly onTriggerHealthScan = output<void>();
 

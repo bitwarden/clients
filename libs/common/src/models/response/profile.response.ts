@@ -1,7 +1,9 @@
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+
 import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "../../admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "../../admin-console/models/response/profile-provider.response";
-import { EncString } from "../../key-management/crypto/models/enc-string";
 import { PrivateKeysResponseModel } from "../../key-management/keys/response/private-keys.response";
 import { UserId } from "../../types/guid";
 

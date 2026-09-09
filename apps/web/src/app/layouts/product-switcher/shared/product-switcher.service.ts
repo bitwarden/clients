@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, NavigationStart, ParamMap, Router } from "@angular/router";
 import {
   combineLatest,
@@ -26,6 +26,8 @@ import { Provider } from "@bitwarden/common/admin-console/models/domain/provider
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -79,6 +81,8 @@ export type ProductSwitcherItem = {
   providedIn: "root",
 })
 export class ProductSwitcherService {
+  private configService = inject(ConfigService);
+
   /**
    * Emits when the sync service has completed a sync
    *
@@ -131,6 +135,10 @@ export class ProductSwitcherService {
     switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
   );
 
+  private vfo1Enabled$: Observable<boolean> = this.configService.getFeatureFlag$(
+    FeatureFlag.VFO1Foundation,
+  );
+
   shouldShowPremiumUpgradeButton$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     switchMap((account) => {
       if (!account) {
@@ -149,13 +157,15 @@ export class ProductSwitcherService {
     this.organizations$,
     this.providers$,
     this.userHasSingleOrgPolicy$,
+    this.vfo1Enabled$,
     this.route.paramMap,
     this.triggerProductUpdate$,
   ]).pipe(
     map(
-      ([orgs, providers, userHasSingleOrgPolicy, paramMap]: [
+      ([orgs, providers, userHasSingleOrgPolicy, vfo1Enabled, paramMap]: [
         Organization[],
         Provider[],
+        boolean,
         boolean,
         ParamMap,
         void,
@@ -235,12 +245,13 @@ export class ProductSwitcherService {
             },
             isActive: this.router.url.includes("/sm/"),
             otherProductOverrides: {
+              name: vfo1Enabled ? this.i18nService.t("getSecretsManager") : undefined,
               supportingText: this.i18nService.t("secureYourInfrastructure"),
             },
           },
           ac: {
             name: "Admin Console",
-            icon: "bwi-business",
+            icon: vfo1Enabled ? "bwi-admin-console" : "bwi-business",
             appRoute: ["/organizations", acOrg?.id],
             marketingRoute: {
               route: "https://bitwarden.com/products/business/",
@@ -277,10 +288,10 @@ export class ProductSwitcherService {
 
         if (acOrg) {
           bento.push(products.ac);
-        } else {
-          if (!userHasSingleOrgPolicy) {
-            other.push(products.orgs);
-          }
+        } else if (!userHasSingleOrgPolicy && !vfo1Enabled) {
+          // Offered only while VFO1 is off — flag-on, "Add plan" in Settings
+          // replaces the Organizations entry point.
+          other.push(products.orgs);
         }
 
         if (providers.length > 0) {

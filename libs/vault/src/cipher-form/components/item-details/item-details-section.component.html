@@ -30,7 +30,7 @@
           @if (showPersonalOwnershipOption) {
             @if (vfo1Enabled()) {
               <bit-option
-                icon="bwi-user"
+                [iconTile]="personalVaultTile()"
                 [value]="null"
                 [label]="'myVault' | i18n"
                 [description]="userEmail$ | async"
@@ -43,7 +43,7 @@
             <bit-option
               [value]="org.id"
               [label]="org.name"
-              [icon]="vfo1Enabled() ? getOrgIcon(org) : undefined"
+              [iconTile]="vfo1Enabled() ? orgIconTiles.get(org.id) : undefined"
             ></bit-option>
           }
         </bit-select>

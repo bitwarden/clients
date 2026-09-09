@@ -67,12 +67,12 @@
         }
         <th
           bitCell
+          class="tw-text-right"
           [ngClass]="
-            ((showCopyAndLaunchActions$ | async)
-              ? 'tw-w-28'
-              : batchBarService?.enabled()
-                ? 'tw-w-24'
-                : 'tw-w-12') + ' tw-text-right'
+            optionsColumnWidthClass(
+              (showCopyAndLaunchActions$ | async) ?? false,
+              (showQuickCopyActions$ | async) ?? false
+            )
           "
         >
           @if (!batchBarService?.enabled()) {

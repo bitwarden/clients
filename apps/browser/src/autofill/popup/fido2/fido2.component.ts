@@ -37,10 +37,11 @@ import {
   ButtonModule,
   DialogService,
   ItemModule,
-  NoItemsModule,
+  StatusLockupComponent,
   SearchModule,
   SectionComponent,
   SectionHeaderComponent,
+  SvgComponent,
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -82,12 +83,13 @@ interface ViewData {
     FormsModule,
     ItemModule,
     JslibModule,
-    NoItemsModule,
+    StatusLockupComponent,
     PopupHeaderComponent,
     PopupPageComponent,
     SearchModule,
     SectionComponent,
     SectionHeaderComponent,
+    SvgComponent,
   ],
 })
 export class Fido2Component implements OnInit, OnDestroy {

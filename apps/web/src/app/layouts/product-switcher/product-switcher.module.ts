@@ -20,12 +20,9 @@ import { ProductSwitcherComponent } from "./product-switcher.component";
     NavigationModule,
     I18nPipe,
     UpgradeNavButtonComponent,
-  ],
-  declarations: [
-    ProductSwitcherComponent,
-    ProductSwitcherContentComponent,
     NavigationProductSwitcherComponent,
   ],
+  declarations: [ProductSwitcherComponent, ProductSwitcherContentComponent],
   exports: [ProductSwitcherComponent, NavigationProductSwitcherComponent],
 })
 export class ProductSwitcherModule {}

@@ -7,12 +7,17 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   UserDecryptionOptions,
 } from "@bitwarden/auth/common";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KdfType, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  Argon2KdfConfig,
+  EncString,
+  KdfType,
+  LegacyCompatKeyService,
+  PBKDF2KdfConfig,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { BitwardenClient, PureCrypto } from "@bitwarden/sdk-internal";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { ApiService } from "../../../abstractions/api.service";
@@ -31,11 +36,9 @@ import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.serv
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Rc } from "../../../platform/misc/reference-counting/rc";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
 import { AccountCryptographicStateService } from "../../account-cryptography/account-cryptographic-state.service";
-import { EncString } from "../../crypto/models/enc-string";
 import { FakeMasterPasswordService } from "../../master-password/services/fake-master-password.service";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
 import { NewSsoUserKeyConnectorConversion } from "../models/new-sso-user-key-connector-conversion";
@@ -50,7 +53,6 @@ import {
 describe("KeyConnectorService", () => {
   let keyConnectorService: KeyConnectorService;
 
-  const keyService = mock<KeyService>();
   const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   const apiService = mock<ApiService>();
   const tokenService = mock<TokenService>();
@@ -62,6 +64,7 @@ describe("KeyConnectorService", () => {
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
   const userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
   const sdkService = mock<SdkService>();
+  const unlockService = mock<UnlockService>();
 
   let stateProvider: FakeStateProvider;
 
@@ -94,7 +97,6 @@ describe("KeyConnectorService", () => {
     keyConnectorService = new KeyConnectorService(
       accountService,
       masterPasswordService,
-      keyService,
       legacyCompatKeyService,
       apiService,
       tokenService,
@@ -107,6 +109,7 @@ describe("KeyConnectorService", () => {
       accountCryptographicStateService,
       sdkService,
       userDecryptionOptionsService,
+      unlockService,
     );
   });
 
@@ -541,10 +544,6 @@ describe("KeyConnectorService", () => {
           expect.any(SymmetricCryptoKey),
           mockUserId,
         );
-        expect(keyService.setUserKey).toHaveBeenCalledWith(
-          expect.any(SymmetricCryptoKey),
-          mockUserId,
-        );
         expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
           expect.any(EncString),
           mockUserId,
@@ -559,6 +558,10 @@ describe("KeyConnectorService", () => {
             },
           },
           mockUserId,
+        );
+        expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
+          mockUserId,
+          expect.any(SymmetricCryptoKey),
         );
         expect(await firstValueFrom(conversionState.state$)).toBeNull();
       });
@@ -580,7 +583,7 @@ describe("KeyConnectorService", () => {
 
         expect(await firstValueFrom(conversionState.state$)).toEqual(conversion);
         expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
-        expect(keyService.setUserKey).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
         expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).not.toHaveBeenCalled();
         expect(
           accountCryptographicStateService.setAccountCryptographicState,
@@ -614,7 +617,7 @@ describe("KeyConnectorService", () => {
 
         expect(await firstValueFrom(conversionState.state$)).toEqual(conversion);
         expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
-        expect(keyService.setUserKey).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
         expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).not.toHaveBeenCalled();
         expect(
           accountCryptographicStateService.setAccountCryptographicState,
@@ -640,7 +643,7 @@ describe("KeyConnectorService", () => {
 
         expect(await firstValueFrom(conversionState.state$)).toEqual(conversion);
         expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
-        expect(keyService.setUserKey).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
         expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).not.toHaveBeenCalled();
         expect(
           accountCryptographicStateService.setAccountCryptographicState,
@@ -712,7 +715,16 @@ describe("KeyConnectorService", () => {
             mockUserId,
           );
           expect(legacyCompatKeyService.makeUserKey).toHaveBeenCalledWith(mockMasterKey);
-          expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, mockUserId);
+          expect(
+            accountCryptographicStateService.setAccountCryptographicState,
+          ).toHaveBeenCalledWith(
+            { V1: { private_key: mockKeyPair[1].encryptedString } },
+            mockUserId,
+          );
+          expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
+            mockUserId,
+            mockUserKey,
+          );
           expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
             mockMakeUserKeyResult[1],
             mockUserId,
@@ -762,11 +774,15 @@ describe("KeyConnectorService", () => {
           mockUserId,
         );
         expect(legacyCompatKeyService.makeUserKey).toHaveBeenCalledWith(mockMasterKey);
-        expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, mockUserId);
         expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
           mockMakeUserKeyResult[1],
           mockUserId,
         );
+        // The conversion failed, so the user is left locked with no local key pair.
+        expect(
+          accountCryptographicStateService.setAccountCryptographicState,
+        ).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
         expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(mockMakeUserKeyResult[0]);
         expect(apiService.postUserKeyToKeyConnector).toHaveBeenCalledWith(
           keyConnectorUrl,

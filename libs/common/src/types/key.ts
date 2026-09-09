@@ -1,7 +1,7 @@
 import { Opaque } from "type-fest";
 
-import { UnsignedPublicKey } from "../key-management/types";
-import { SymmetricCryptoKey } from "../platform/models/domain/symmetric-crypto-key";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey, UnsignedPublicKey } from "@bitwarden/legacy-crypto";
 
 // symmetric keys
 export type DeviceKey = Opaque<SymmetricCryptoKey, "DeviceKey">;

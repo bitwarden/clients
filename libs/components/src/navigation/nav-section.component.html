@@ -1,0 +1,19 @@
+@let open = sideNavService.open();
+
+<div role="group" [attr.aria-labelledby]="labelId">
+  <div
+    [id]="labelId"
+    class="tw-flex tw-items-center tw-gap-1 tw-pe-3 tw-pt-1 tw-mb-0.5 tw-text-xs tw-font-semibold tw-uppercase tw-tracking-[1px] tw-text-fg-nav-heading"
+    [class.tw-ps-2]="!isInNavGroup"
+    [class.tw-ps-3]="isInNavGroup"
+    [class.tw-sr-only]="!open"
+  >
+    @if (icon()) {
+      <bit-icon [name]="icon()"></bit-icon>
+    }
+    <span>{{ label() }}</span>
+  </div>
+  <div class="tw-flex tw-flex-col tw-gap-0.5">
+    <ng-content></ng-content>
+  </div>
+</div>

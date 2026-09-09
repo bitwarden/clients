@@ -31,7 +31,9 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { parseYearMonthExpiry } from "@bitwarden/common/autofill/utils";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
   Fido2ActiveRequestEvents,
@@ -272,9 +274,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private accountService: AccountService,
     private generatorHistoryService: GeneratorHistoryService,
     private generatorService: CredentialGeneratorService,
+    private configService: ConfigService,
   ) {
     this.initOverlayEventObservables();
   }
+
+  useLitInlineMenuComponents$ = this.configService.getFeatureFlag$(
+    FeatureFlag.LitInlineMenuComponents,
+  );
 
   /**
    * Sets up the extension message listeners and gets the settings for the
@@ -375,7 +382,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       .pipe(switchMap((cancelSignal) => this.triggerInlineMenuFadeIn(!!cancelSignal)))
       .subscribe();
 
-    // Dump targeting rules' cached page details when Fill Assist becomes
+    // Dump targeting rules' cached page details when fill assist becomes
     // disabled, and signal content scripts to drop their own targeting-rules
     // caches so the next page-details collection re-evaluates which strategy
     // to use (targeted vs heuristic). Only act on a `true` -> `false`
@@ -1495,13 +1502,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
     });
 
-    // A no-fill leaves nothing to copy and no use to record; the prior throw aborted here.
-    if (!result.didAutofill) {
-      return;
+    // A no-fill (or a fill with no TOTP target) doesn't imply no TOTP: some sites hide the TOTP
+    // input so the fill script can't target it. Still resolve + copy when the user explicitly
+    // chose a TOTP-bearing cipher.
+    const totpCode =
+      result.didAutofill && result.totp
+        ? result.totp
+        : await this.autofillService.getTotpCopyCode(cipher);
+    if (totpCode) {
+      this.platformUtilsService.copyToClipboard(totpCode);
     }
 
-    if (result.totp) {
-      this.platformUtilsService.copyToClipboard(result.totp);
+    if (!result.didAutofill) {
+      return;
     }
 
     this.updateLastUsedInlineMenuCipher(inlineMenuCipherId, cipher);
@@ -3519,6 +3532,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       showInlineMenuAccountCreation,
       authStatus,
       extensionOrigin,
+      useLitComponents: isInlineMenuListPort
+        ? await firstValueFrom(this.useLitInlineMenuComponents$)
+        : undefined,
     });
     if (port.sender) {
       this.updateInlineMenuPosition(

@@ -6,11 +6,11 @@ import {
   CollectionTypes,
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 
 describe("Collection", () => {
   let data: CollectionData;

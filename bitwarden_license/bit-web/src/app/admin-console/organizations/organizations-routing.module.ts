@@ -10,10 +10,16 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { safeProvider } from "@bitwarden/ui-common";
 import { isEnterpriseOrgGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/is-enterprise-org.guard";
 import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 import { OrganizationLayoutComponent } from "@bitwarden/web-vault/app/admin-console/organizations/layouts/organization-layout.component";
+import {
+  MemberActionsService,
+  MemberDialogManagerService,
+} from "@bitwarden/web-vault/app/admin-console/organizations/members/services";
 import { deepLinkGuard } from "@bitwarden/web-vault/app/auth/guards/deep-link/deep-link.guard";
+import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import { SsoManageComponent } from "../../auth/sso/sso-manage.component";
 
@@ -88,6 +94,22 @@ const routes: Routes = [
               import("../../dirt/reports/member-access-report/member-access-report.component").then(
                 (mod) => mod.MemberAccessReportComponent,
               ),
+            // MemberAccessReportComponent opens EditMemberDialogComponent, which injects
+            // MemberActionsService and BillingConstraintService. Both are plain `@Injectable()`
+            // (no `providedIn`), and MembersModule is the only NgModule that provides them — this
+            // route does not load MembersModule, so without these the dialog fails with NG0201.
+            // MemberDialogManagerService is listed only because MemberActionsService injects it.
+            //
+            // These have to live on the route rather than in the component's `providers`:
+            // DialogService parents the dialog's injector to the environment injector DialogService
+            // itself was created in, so a component-decorator (node injector) provider is never in
+            // the dialog's resolution chain. Route `providers` land in an environment injector,
+            // which is. The report component itself uses none of these three services.
+            providers: [
+              safeProvider(MemberActionsService),
+              safeProvider(MemberDialogManagerService),
+              safeProvider(BillingConstraintService),
+            ],
             data: {
               titleId: "memberAccessReport",
             },

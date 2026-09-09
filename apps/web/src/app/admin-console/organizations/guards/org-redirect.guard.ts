@@ -22,7 +22,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
  * the user does not have permission to access `organizations/{id}`.
  */
 export function organizationRedirectGuard(
-  customRedirect?: (org: Organization) => string | string[],
+  customRedirect?: (org: Organization) => string | string[] | undefined,
 ): CanActivateFn {
   return async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
     const router = inject(Router);
@@ -49,10 +49,12 @@ export function organizationRedirectGuard(
 
     if (customRedirect != null) {
       let redirectPath = customRedirect(org);
-      if (typeof redirectPath === "string") {
-        redirectPath = [redirectPath];
+      if (redirectPath != null) {
+        if (typeof redirectPath === "string") {
+          redirectPath = [redirectPath];
+        }
+        return router.createUrlTree([state.url, ...redirectPath]);
       }
-      return router.createUrlTree([state.url, ...redirectPath]);
     }
 
     if (org != null && canAccessOrgAdmin(org)) {

@@ -1,8 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
-import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
-  makeEncString,
   trackEmissions,
   FakeStateProvider,
   FakeGlobalState,
@@ -14,8 +12,6 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricStateService, DefaultBiometricStateService } from "./biometric-state.service";
 import {
   BIOMETRIC_UNLOCK_ENABLED,
-  ENCRYPTED_CLIENT_KEY_HALF,
-  FINGERPRINT_VALIDATED,
   PROMPT_AUTOMATICALLY,
   PROMPT_CANCELLED,
 } from "./biometric.state";
@@ -23,8 +19,6 @@ import {
 describe("BiometricStateService", () => {
   let sut: BiometricStateService;
   const userId = "userId" as UserId;
-  const encClientKeyHalf = makeEncString();
-  const encryptedClientKeyHalf = encClientKeyHalf.encryptedString;
   let accountService: FakeAccountService;
   let stateProvider: FakeStateProvider;
 
@@ -37,45 +31,6 @@ describe("BiometricStateService", () => {
 
   afterEach(() => {
     jest.resetAllMocks();
-  });
-
-  describe("encryptedClientKeyHalf$", () => {
-    it("emits when the encryptedClientKeyHalf state changes", async () => {
-      stateProvider.singleUser
-        .getFake(userId, ENCRYPTED_CLIENT_KEY_HALF)
-        .nextState(encryptedClientKeyHalf as unknown as EncryptedString);
-
-      expect(await firstValueFrom(sut.encryptedClientKeyHalf$(userId))).toEqual(encClientKeyHalf);
-    });
-
-    it("emits null when the encryptedClientKeyHalf state is undefined", async () => {
-      stateProvider.singleUser
-        .getFake(userId, ENCRYPTED_CLIENT_KEY_HALF)
-        .nextState(undefined as unknown as EncryptedString);
-
-      expect(await firstValueFrom(sut.encryptedClientKeyHalf$(userId))).toBe(null);
-    });
-  });
-
-  describe("fingerprintValidated$", () => {
-    it("emits when the fingerprint validated state changes", async () => {
-      const state = stateProvider.global.getFake(FINGERPRINT_VALIDATED);
-      state.stateSubject.next(undefined as unknown as boolean);
-
-      expect(await firstValueFrom(sut.fingerprintValidated$)).toBe(false);
-
-      state.stateSubject.next(true);
-
-      expect(await firstValueFrom(sut.fingerprintValidated$)).toEqual(true);
-    });
-  });
-
-  describe("setEncryptedClientKeyHalf", () => {
-    it("updates encryptedClientKeyHalf$", async () => {
-      await sut.setEncryptedClientKeyHalf(encClientKeyHalf, userId);
-
-      expect(await firstValueFrom(sut.encryptedClientKeyHalf$(userId))).toEqual(encClientKeyHalf);
-    });
   });
 
   describe("setPromptCancelled", () => {
@@ -199,22 +154,6 @@ describe("BiometricStateService", () => {
       expect(
         stateProvider.singleUser.getFake(userId, BIOMETRIC_UNLOCK_ENABLED).nextMock,
       ).toHaveBeenCalledWith(true);
-    });
-  });
-
-  describe("setFingerprintValidated", () => {
-    it("updates fingerprintValidated$", async () => {
-      await sut.setFingerprintValidated(true);
-
-      expect(await firstValueFrom(sut.fingerprintValidated$)).toBe(true);
-    });
-
-    it("updates state", async () => {
-      await sut.setFingerprintValidated(true);
-
-      expect(stateProvider.global.getFake(FINGERPRINT_VALIDATED).nextMock).toHaveBeenCalledWith(
-        true,
-      );
     });
   });
 });

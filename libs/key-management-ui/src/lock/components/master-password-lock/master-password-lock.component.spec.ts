@@ -10,7 +10,6 @@ import { ClientType } from "@bitwarden/client-type";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
@@ -22,6 +21,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { BiometricsStatus, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 import { UnlockService } from "@bitwarden/unlock";

@@ -1,5 +1,7 @@
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 import {
   CiphersClient,
   CipherView as SdkCipherView,
@@ -13,7 +15,6 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { mockFromJson, mockFromSdk } from "../../../../spec";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { asUuid } from "../../../platform/abstractions/sdk/sdk.service";
 import { CipherRepromptType } from "../../enums";
 import { CipherType } from "../../enums/cipher-type";

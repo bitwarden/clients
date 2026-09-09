@@ -8,13 +8,11 @@ import {
 } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptService, EncString, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { OrganizationAuthRequestApiService } from "./organization-auth-request-api.service";
 import { OrganizationAuthRequestUpdateRequest } from "./organization-auth-request-update.request";

@@ -2,11 +2,10 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { EncString, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { makeEncString } from "../../../../spec";
 import { UserId } from "../../../types/guid";
-import { EncString } from "../../crypto/models/enc-string";
 import {
   MasterKeyWrappedUserKey,
   MasterPasswordSalt,

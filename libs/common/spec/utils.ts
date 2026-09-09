@@ -2,15 +2,17 @@
 // @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { KeyService } from "@bitwarden/key-management";
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  EncryptionType,
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
-import { EncryptionType } from "../src/platform/enums";
 import { Utils } from "../src/platform/misc/utils";
-import { SymmetricCryptoKey } from "../src/platform/models/domain/symmetric-crypto-key";
 
 function newGuid() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {

@@ -1,5 +1,6 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RiskInsightsReportApi } from "../api/risk-insights-report.api";
