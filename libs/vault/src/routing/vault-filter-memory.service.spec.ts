@@ -20,7 +20,6 @@ import { ALL_ITEMS_SCOPE, MY_VAULT_ROUTE, scopeKey, VaultScopeType } from "../mo
 import { VAULT_FILTER_MEMORY, VaultFilterMemoryService } from "./vault-filter-memory.service";
 import { type VaultScopeRouteData } from "./vault-filter-scope";
 
-/** Stands in as the target of every route the tests navigate between. */
 @Component({ template: "", standalone: true, changeDetection: ChangeDetectionStrategy.OnPush })
 class BlankComponent {}
 
@@ -61,12 +60,11 @@ describe("VaultFilterMemoryService", () => {
     router.setUpLocationChangeListener();
   });
 
-  /** Constructs the service, so it's listening before the test navigates. */
+  /** Constructs the service before the test navigates, so it's listening. */
   function createService(): VaultFilterMemoryService {
     return TestBed.inject(VaultFilterMemoryService);
   }
 
-  /** Seeds state as if a previous session had already written it, for a given user. */
   function seedStored(
     remembered: Record<string, Record<string, string>>,
     userId: UserId = mockUserId,
@@ -120,8 +118,6 @@ describe("VaultFilterMemoryService", () => {
     await expect(service.paramsFor(ALL_ITEMS_SCOPE)).resolves.toEqual({ "vault.type": "1" });
   });
 
-  // The allowlist fails closed: a param that turns up under the namespace later isn't persisted to
-  // disk just because it shares the prefix.
   it("does not remember a param it doesn't recognize", async () => {
     const service = createService();
 
@@ -158,8 +154,7 @@ describe("VaultFilterMemoryService", () => {
     await expect(service.paramsFor(myVaultScope)).resolves.toEqual({ "vault.type": "3" });
   });
 
-  // Recording doesn't ask how the user got here. The entry the user lands on is the URL they're
-  // looking at, so recording it keeps the memory and the screen from disagreeing.
+  // The URL the user lands on is the one they're looking at, whatever navigation brought them there.
   it("records a navigation the user reached with back", async () => {
     const service = createService();
 

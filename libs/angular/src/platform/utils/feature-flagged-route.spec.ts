@@ -37,8 +37,6 @@ describe("featureFlaggedRoute", () => {
   });
 
   describe("flaggedRouteOptions", () => {
-    // Guards and resolvers that only make sense with the flag on belong here rather than being
-    // registered on both routes and re-checking the flag from the inside.
     it("replaces the shared options on the flagged route only", () => {
       const { flagged, fallback } = split(
         featureFlaggedRoute({

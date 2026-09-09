@@ -32,8 +32,7 @@ const routes: Routes = [
       data: { titleId: "vaults" } satisfies RouteDataProperties,
     },
     // Filter memory only means anything to the VFO1 vault, so it hangs off the flagged route. That
-    // keeps the pre-VFO1 vault from recording filters it can't read back, and saves
-    // `vaultFilterRestoreGuard` from re-checking the flag itself.
+    // keeps the pre-VFO1 vault from recording filters it can't read back.
     flaggedRouteOptions: {
       path: "",
       data: { titleId: "vaults", vaultFilterScope: true } satisfies RouteDataProperties &

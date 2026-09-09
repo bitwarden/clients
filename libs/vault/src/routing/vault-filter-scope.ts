@@ -17,7 +17,6 @@ export const VAULT_FILTER_SCOPE = "vaultFilterScope";
  */
 export const VAULT_SCOPE_PARAM = "vaultId";
 
-/** The `data` a route declares to opt into filter memory. */
 export type VaultScopeRouteData = { [VAULT_FILTER_SCOPE]: true };
 
 /**
@@ -33,8 +32,7 @@ const SORT_KEYS = ["sort", "direction"] as const;
  * Left out deliberately:
  *
  * - `search` is free text the user typed, not a filter they'd expect to come back.
- * - pagination (`page`, `pageSize`) — returning someone to page 7 of a list they last saw
- *   yesterday isn't where they left off.
+ * - pagination (`page`, `pageSize`) is a position in a list, not a filter.
  */
 const REMEMBERED_KEYS: ReadonlySet<string> = new Set(
   [
@@ -81,10 +79,7 @@ function scopedRoute(root: ActivatedRouteSnapshot): ActivatedRouteSnapshot | nul
   return null;
 }
 
-/**
- * The subset of a vault URL's query params worth carrying forward to the next visit — see
- * {@link REMEMBERED_KEYS}.
- */
+/** The subset of a vault URL's query params worth keeping — see {@link REMEMBERED_KEYS}. */
 export function rememberableParams(params: Params): Params {
   return Object.fromEntries(Object.entries(params).filter(([key]) => REMEMBERED_KEYS.has(key)));
 }

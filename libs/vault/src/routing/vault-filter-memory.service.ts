@@ -36,9 +36,8 @@ export const VAULT_FILTER_MEMORY = UserKeyDefinition.record<Params>(
  *
  * The vault table already mirrors its chips and sort to the URL, so this stores the URL's own
  * query params rather than a second representation of the same state — see
- * {@link rememberableParams} for which ones, and {@link vaultScopeOf} for how a route resolves to a
- * scope. Recording happens on navigation, which the table's URL sync triggers on every chip
- * change, so the memory keeps up without the table knowing it exists.
+ * {@link rememberableParams} for which ones, and {@link vaultScopeOf} for how a route resolves to
+ * a scope.
  *
  * Restoring is the caller's job: await {@link paramsFor} and build the URL with them.
  */

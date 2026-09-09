@@ -241,7 +241,6 @@ export function vaultScopeCommands(scope: VaultScope): string[] {
 /**
  * The key a scope's state is stored under — the vault filter memory keys its records by it.
  *
- * A scope is a structure rather than a string, so it needs flattening before it can index a record.
  * An organization's id is a guid and every other scope is a {@link VaultScopeType} name, so the two
  * can't collide; a shared folder drill-in keys apart from the organization vault it was reached
  * from, since the two show different rows.

@@ -10,9 +10,7 @@ import { hasFilterParams, vaultScopeOf } from "./vault-filter-scope";
  *
  * Restoring happens here rather than at each link so that every way into the vault behaves the
  * same. Most arrivals aren't a side nav click: the post-login and post-unlock landing comes from
- * `redirectGuard`, the product switcher and the org permissions guard navigate to `/vault`
- * directly, and a bookmark skips the app's chrome entirely. A link that carried the params itself
- * would restore for one of those and not the rest.
+ * `redirectGuard`, and a bookmark skips the app's chrome entirely.
  *
  * Register it after `vaultFilterLegacyRedirectGuard`, whose rewrite produces namespaced params and
  * so takes precedence over the memory on its own. Register it only on routes that render the VFO1

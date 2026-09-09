@@ -107,8 +107,6 @@ describe("vaultFilterRestoreGuard", () => {
     expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
   });
 
-  // `vault.search` isn't remembered, so a link carrying only a search term reads as filter-less to
-  // the memory. Layering a remembered type onto it would show something the link didn't ask for.
   it("passes through when the URL carries only a search term", async () => {
     paramsFor.mockResolvedValue({ "vault.type": "1" });
 
@@ -121,8 +119,6 @@ describe("vaultFilterRestoreGuard", () => {
     expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
   });
 
-  // The memory lives on disk. A synchronous read would miss it on the first vault navigation of a
-  // session — the bookmark and post-unlock arrivals this guard exists for.
   it("waits for a memory that hasn't been read from disk yet", async () => {
     let resolveRead: (params: Params) => void;
     paramsFor.mockReturnValue(

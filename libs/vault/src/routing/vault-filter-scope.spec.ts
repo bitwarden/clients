@@ -20,7 +20,6 @@ import {
   type VaultScopeRouteData,
 } from "./vault-filter-scope";
 
-/** Stands in as the target of every route the tests navigate to. */
 @Component({ template: "", standalone: true, changeDetection: ChangeDetectionStrategy.OnPush })
 class BlankComponent {}
 
@@ -151,7 +150,6 @@ describe("rememberableParams", () => {
     });
   });
 
-  // An allowlist, so a param that turns up under the namespace later isn't persisted by accident.
   it("drops a namespaced param it doesn't recognize", () => {
     expect(rememberableParams({ "vault.type": "1", "vault.selectedRow": "c-1" })).toEqual({
       "vault.type": "1",
@@ -168,8 +166,6 @@ describe("hasFilterParams", () => {
     expect(hasFilterParams({ "vault.type": "1" })).toBe(true);
   });
 
-  // Unlike `rememberableParams`, which drops it: a link carrying only a search term still states a
-  // filter, and remembered ones shouldn't be layered over it.
   it("is true for a search term alone", () => {
     expect(hasFilterParams({ "vault.search": "chase" })).toBe(true);
   });
