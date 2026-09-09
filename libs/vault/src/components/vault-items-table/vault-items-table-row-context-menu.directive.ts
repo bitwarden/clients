@@ -23,7 +23,7 @@ export class VaultItemsTableRowContextMenuDirective implements AfterViewInit, On
   private row: HTMLElement | null = null;
 
   private readonly onContextMenu = (event: MouseEvent) => {
-    // Shift+Ctrl is the escape hatch to the native browser/Electron menu, matching the pre-VFO1 rows.
+    // Shift+Ctrl is the escape hatch to the native browser/Electron menu.
     if (event.shiftKey && event.ctrlKey) {
       return;
     }
