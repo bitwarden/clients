@@ -121,7 +121,7 @@ describe("SideNavService", () => {
       });
     });
 
-    // The three ways to expand a collapsed nav must agree. Today only toggle() does.
+    // The three ways to expand a collapsed nav must agree.
     describe("expanding a collapsed nav", () => {
       const SAVED = 30.5;
 
