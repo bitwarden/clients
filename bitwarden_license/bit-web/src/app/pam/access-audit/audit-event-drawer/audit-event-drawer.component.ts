@@ -12,7 +12,6 @@ import {
   DialogService,
   IconButtonModule,
   LinkModule,
-  TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
@@ -70,7 +69,6 @@ export type AuditEventDrawerParams = {
     DialogModule,
     IconButtonModule,
     LinkModule,
-    TooltipDirective,
     I18nPipe,
   ],
 })
