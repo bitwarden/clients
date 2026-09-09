@@ -29,6 +29,12 @@ process.env.NODE_ENV = "development";
 
 const INSPECT_FLAG = "--inspect=5858";
 
+// `npm run electron` in this checkout runs the very same Electron binary (electron/cli.js just
+// spawns `require("electron")`) with the same debug ports, so neither the binary path nor a port
+// can tell the two sessions apart. This marker is what killStrayClients matches on. The main
+// process only ever scans argv for known flags, so an extra one is inert.
+const DEBUG_MARKER = "--bitwarden-debug-run";
+
 const WEBPACK = path.resolve(__dirname, "../../../node_modules/.bin/webpack");
 
 // `exec` replaces the shell with the child, so kill signals reach the child itself instead of a
@@ -42,9 +48,9 @@ function watchCommand(configName) {
 
 function killStrayClients() {
   try {
-    // Match this checkout's Electron binary, so a plain `npm run electron` session running
-    // against the real app data dir is left alone.
-    execFileSync("pkill", ["-9", "-f", `${electronBinary}.*${INSPECT_FLAG}`]);
+    // Match on the marker, not just the binary: a plain `npm run electron` session runs the
+    // same binary against the real app data dir and must be left alone.
+    execFileSync("pkill", ["-9", "-f", `${electronBinary}.*${DEBUG_MARKER}`]);
   } catch {
     // pkill exits non-zero when nothing matched, and does not exist on Windows.
   }
@@ -74,7 +80,7 @@ const { commands } = concurrently(
     },
     {
       name: "Elec",
-      command: `npx wait-on ./build/main.js ./build/index.html ./build/app/main.js && ${EXEC}"${electronBinary}" --no-sandbox ${INSPECT_FLAG} --remote-debugging-port=9222 ${args.join(
+      command: `npx wait-on ./build/main.js ./build/index.html ./build/app/main.js && ${EXEC}"${electronBinary}" --no-sandbox ${INSPECT_FLAG} --remote-debugging-port=9222 ${DEBUG_MARKER} ${args.join(
         " ",
       )} ./build`,
       prefixColor: "green",
