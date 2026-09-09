@@ -72,4 +72,15 @@
       }}</bit-hint>
     </bit-form-field>
   }
+
+  @if (autoConfirmEnabled()) {
+    <bit-form-control>
+      <bit-switch
+        id="by-link-tab_switch_require-admin-confirmation"
+        [formControl]="requireAdminConfirmation"
+      ></bit-switch>
+      <bit-label>{{ "requireAdminConfirmation" | i18n }}</bit-label>
+      <bit-hint>{{ "requireAdminConfirmationDesc" | i18n }}</bit-hint>
+    </bit-form-control>
+  }
 }

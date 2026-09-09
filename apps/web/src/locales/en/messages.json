@@ -7483,6 +7483,15 @@
   "inviteLinkRegenerated": {
     "message": "Invite link regenerated"
   },
+  "requireAdminConfirmation": {
+    "message": "Require admin confirmation"
+  },
+  "requireAdminConfirmationDesc": {
+    "message": "An admin must manually approve new members before they're added to the organization vault."
+  },
+  "inviteLinkConfirmationUpdated": {
+    "message": "Invite link updated"
+  },
   "regenerateInviteLink": {
     "message": "Regenerate invite link"
   },
