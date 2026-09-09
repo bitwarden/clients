@@ -170,7 +170,7 @@ describe("CustomRangeDialogComponent", () => {
   });
 
   // Cancel closes without a result, so the caller keeps whatever range it already had in force.
-  it("closes without a result when cancelled, even over an edited range", async () => {
+  it("closes without a result when canceled, even over an edited range", async () => {
     await create({ from: "2026-08-18T09:00", to: "2026-08-18T17:00" });
     component["formGroup"].patchValue({ from: "2026-01-01T00:00" });
     fixture.detectChanges();
