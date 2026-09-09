@@ -208,6 +208,9 @@ export class SendService implements InternalSendServiceAbstraction {
             case "file":
               //Files are never updated so never will be changed.
               return true;
+            case "data":
+              // Item data is never updated so never will be changed.
+              return true;
             case "revisionDate":
             case "expirationDate":
             case "deletionDate":
