@@ -26,11 +26,9 @@ export class SendItem extends Domain {
       cipher = undefined;
     }
 
-    if (!cipher) {
-      throw new Error("Unable to parse Send Item data");
+    if (cipher) {
+      this.data = cipher;
     }
-
-    this.data = cipher;
   }
 
   static fromJSON(json: Jsonify<SendItem>) {
