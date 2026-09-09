@@ -16,6 +16,7 @@ use windows::{
     },
 };
 
+use crate::app_data::path::{build_normalizer, PathNormalizer};
 use crate::app_data::AppData;
 
 mod appsfolder;
@@ -69,11 +70,15 @@ impl RunningApp {
         self.display_name.as_deref().unwrap_or(&self.filename)
     }
 
-    fn into_app_data(self) -> AppData {
-        AppData {
-            display_name: self.name().to_owned(),
-            path: self.exe_path,
-        }
+    /// Reduce to the public [`AppData`], normalizing the executable path (user-specific dirs →
+    /// tokens like `%LOCALAPPDATA%`) so a stored pairing is stable across users and sessions.
+    fn into_app_data(self, normalizer: &PathNormalizer) -> AppData {
+        // Bind the name before moving `exe_path` (`name()` borrows `self`).
+        let display_name = self.name().to_owned();
+        let path = self
+            .exe_path
+            .map(|p| PathBuf::from(normalizer.normalize(&p.to_string_lossy())));
+        AppData { display_name, path }
     }
 }
 
@@ -142,8 +147,12 @@ fn enumerate() -> Vec<AppData> {
         "Filtered running apps."
     );
 
-    // 4. Convert: the raw type to the public API
-    kept.into_iter().map(RunningApp::into_app_data).collect()
+    // 4. Convert: the raw type to the public API, normalizing user-specific paths so a stored
+    //    pairing is stable across users/sessions.
+    let normalizer = build_normalizer();
+    kept.into_iter()
+        .map(|app| app.into_app_data(&normalizer))
+        .collect()
 }
 
 #[cfg(test)]
