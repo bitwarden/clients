@@ -9,6 +9,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SshKeyApi } from "@bitwarden/common/vault/models/api/ssh-key.api";
 import { SshKeyData } from "@bitwarden/common/vault/models/data/ssh-key.data";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { SshKeyPasswordPromptComponent } from "@bitwarden/importer-ui";
 import { import_ssh_key, SshKeyImportError, SshKeyView } from "@bitwarden/sdk-internal";
 
 import { SshImportPromptService } from "./ssh-import-prompt.service";
@@ -132,14 +133,6 @@ export class DefaultSshImportPromptService implements SshImportPromptService {
   }
 
   private async getSshKeyPassword(): Promise<string | undefined> {
-    // Imported here rather than at the top of the file on purpose. This service is provided
-    // eagerly by every client, and `@bitwarden/importer-ui` is a barrel that re-exports
-    // `ImportComponent` — so a static import dragged all 126 third-party importers (plus jszip
-    // and papaparse) into each client's startup bundle to support a dialog that only opens when
-    // someone pastes a password-protected SSH key. It also softens the `@bitwarden/vault` ->
-    // `@bitwarden/importer` cycle noted in import.component.ts.
-    const { SshKeyPasswordPromptComponent } = await import("@bitwarden/importer-ui");
-
     const dialog = this.dialogService.open<string>(SshKeyPasswordPromptComponent, {
       ariaModal: true,
     });
