@@ -12,6 +12,9 @@ import { componentRouteSwap } from "../../utils/component-route-swap";
  * @param flaggedComponent The component to be used when the feature flag is on.
  * @param featureFlag The feature flag to evaluate
  * @param routeOptions The shared route options to apply to both components.
+ * @param flaggedRouteOptions Optional route options that replace `routeOptions` on the flagged
+ * route only. Use this for guards, resolvers, or `data` that only make sense when the flag is on —
+ * it saves the flagged behaviour from having to re-check the flag from inside a guard.
  * @param flaggedRouteProviders Optional providers scoped only to the flagged route. Use this to
  * register services that should only be instantiated when the feature flag is on.
  * @param defaultRouteProviders Optional providers scoped only to the default route. Use this to
@@ -22,6 +25,7 @@ type FeatureFlaggedRouteConfig = {
   flaggedComponent: Type<any>;
   featureFlag: FeatureFlag;
   routeOptions: Omit<Route, "component">;
+  flaggedRouteOptions?: Omit<Route, "component">;
   flaggedRouteProviders?: NonNullable<Route["providers"]>;
   defaultRouteProviders?: NonNullable<Route["providers"]>;
 };
@@ -77,14 +81,16 @@ export function featureFlaggedRoute(config: FeatureFlaggedRouteConfig): Routes {
     ? { ...config.routeOptions, providers: config.defaultRouteProviders }
     : config.routeOptions;
 
+  const flaggedBase = config.flaggedRouteOptions ?? config.routeOptions;
+
   // When defaultRouteProviders is set, defaultRouteOptions carries those providers as part of
   // `options` passed to componentRouteSwap. Without an explicit flaggedRouteOptions, componentRouteSwap
   // would fall back to `options` for the flagged route, unintentionally inheriting the default
-  // route's providers. Passing config.routeOptions directly avoids that.
+  // route's providers. Passing the flagged base directly avoids that.
   const flaggedRouteOptions: Route | undefined = config.flaggedRouteProviders
-    ? { ...config.routeOptions, providers: config.flaggedRouteProviders }
-    : config.defaultRouteProviders
-      ? config.routeOptions
+    ? { ...flaggedBase, providers: config.flaggedRouteProviders }
+    : config.defaultRouteProviders != null || config.flaggedRouteOptions != null
+      ? flaggedBase
       : undefined;
 
   return componentRouteSwap(
