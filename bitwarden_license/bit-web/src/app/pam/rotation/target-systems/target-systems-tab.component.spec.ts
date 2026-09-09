@@ -149,7 +149,7 @@ describe("TargetSystemsTabComponent", () => {
       expect(targetSystemsService.setEnabled).toHaveBeenCalledWith(sys, false);
     }));
 
-    it("does not call setEnabled when confirmation is cancelled", fakeAsync(() => {
+    it("does not call setEnabled when confirmation is canceled", fakeAsync(() => {
       const sys = makeSystem({ id: sysId("sys-1"), status: TargetSystemStatus.Active });
       dialogService.openSimpleDialog.mockResolvedValue(false);
 
@@ -235,7 +235,7 @@ describe("TargetSystemsTabComponent", () => {
       );
     }));
 
-    it("does not delete when confirmation is cancelled", fakeAsync(() => {
+    it("does not delete when confirmation is canceled", fakeAsync(() => {
       const sys = makeSystem({ id: sysId("sys-1") });
       dialogService.openSimpleDialog.mockResolvedValue(false);
 
