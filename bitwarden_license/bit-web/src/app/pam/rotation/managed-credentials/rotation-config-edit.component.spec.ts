@@ -293,7 +293,7 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
     expect(rotationSdk.deleteConfig).toHaveBeenCalledWith(ORG_ID, configId("cfg-1"));
   });
 
-  it("does not remove the rotation config when confirmation is cancelled", async () => {
+  it("does not remove the rotation config when confirmation is canceled", async () => {
     const { component, fixture, rotationSdk, dialogService } = setup({
       configId: configId("cfg-1"),
     });
