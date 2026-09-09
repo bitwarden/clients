@@ -281,10 +281,9 @@ mod tests {
         }
     }
 
-    fn packaged(aumid: &str, display: &str, pids: Vec<u32>) -> RunningPackagedApp {
+    fn packaged(aumid: &str, pids: Vec<u32>) -> RunningPackagedApp {
         RunningPackagedApp {
             aumid: aumid.to_string(),
-            display_name: (!display.is_empty()).then(|| display.to_string()),
             pids,
         }
     }
@@ -411,13 +410,14 @@ mod tests {
         by_key.insert("aumid:teams.app".to_string(), window_entry(500));
 
         merge_packaged(
-            vec![packaged("Teams.App", "Microsoft Teams", vec![500])],
-            &registry(&[("teams.app", "")]),
+            vec![packaged("Teams.App", vec![500])],
+            &registry(&[("teams.app", "Microsoft Teams")]),
             &mut by_key,
         );
 
         assert_eq!(by_key.len(), 1);
         let c = by_key.get("aumid:teams.app").expect("entry");
+        // Name is enriched from the AppsFolder registry, not the packaged app.
         assert_eq!(c.display_name.as_deref(), Some("Microsoft Teams"));
         assert!(c.registered);
     }
@@ -427,8 +427,8 @@ mod tests {
         let mut by_key = HashMap::new();
 
         merge_packaged(
-            vec![packaged("Copilot.App", "Copilot", vec![777])],
-            &registry(&[("copilot.app", "")]),
+            vec![packaged("Copilot.App", vec![777])],
+            &registry(&[("copilot.app", "Copilot")]),
             &mut by_key,
         );
 
@@ -436,6 +436,7 @@ mod tests {
         let c = by_key.get("aumid:copilot.app").expect("entry");
         assert!(!c.has_window);
         assert!(c.registered);
+        // Windowless entry is named from the AppsFolder registry.
         assert_eq!(c.display_name.as_deref(), Some("Copilot"));
         // `exe_path` resolves via the real `process_image_path` for this pid; not asserted since
         // an arbitrary pid's path is nondeterministic (the merge policy is what matters here).
@@ -445,11 +446,14 @@ mod tests {
     fn merge_tags_unregistered_when_absent_from_registry() {
         let mut by_key = HashMap::new();
         merge_packaged(
-            vec![packaged("Unknown.App", "Unknown", vec![888])],
+            vec![packaged("Unknown.App", vec![888])],
             &registry(&[]),
             &mut by_key,
         );
 
-        assert!(!by_key.get("aumid:unknown.app").expect("entry").registered);
+        let c = by_key.get("aumid:unknown.app").expect("entry");
+        assert!(!c.registered);
+        // No registry entry → no authoritative name.
+        assert_eq!(c.display_name, None);
     }
 }
