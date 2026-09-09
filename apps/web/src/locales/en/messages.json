@@ -4691,6 +4691,9 @@
   "reinstateSubscription": {
     "message": "Reinstate subscription"
   },
+  "keepSubscription": {
+    "message": "Keep subscription"
+  },
   "reinstateConfirmation": {
     "message": "Are you sure you want to remove the pending cancellation request and reinstate your subscription?"
   },
