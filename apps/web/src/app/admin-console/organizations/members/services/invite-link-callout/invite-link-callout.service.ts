@@ -75,6 +75,10 @@ export class InviteLinkCalloutService {
       return;
     }
 
+    if (!organization.useInviteLinks) {
+      return;
+    }
+
     if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
       return;
     }
