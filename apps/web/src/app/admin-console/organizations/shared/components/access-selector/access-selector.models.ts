@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { OrganizationUserUserDetailsResponse } from "@bitwarden/admin-console/common";
 import {
   OrganizationUserStatusType,
@@ -151,10 +149,11 @@ export const convertToSelectionView = (value: AccessItemValue) => {
   });
 };
 
-const readOnly = (perm: CollectionPermission) =>
-  [CollectionPermission.View, CollectionPermission.ViewExceptPass].includes(perm);
+const readOnly = (perm: CollectionPermission | undefined) =>
+  perm != null && [CollectionPermission.View, CollectionPermission.ViewExceptPass].includes(perm);
 
-const hidePassword = (perm: CollectionPermission) =>
+const hidePassword = (perm: CollectionPermission | undefined) =>
+  perm != null &&
   [CollectionPermission.ViewExceptPass, CollectionPermission.EditExceptPass].includes(perm);
 
 export function mapGroupToAccessItemView(group: GroupView): AccessItemView {
@@ -173,7 +172,8 @@ export function mapUserToAccessItemView(user: OrganizationUserUserDetailsRespons
     type: AccessItemType.Member,
     email: user.email,
     role: user.type,
-    listName: user.name?.length > 0 ? `${user.name} (${user.email})` : user.email,
+    listName:
+      user.name != null && user.name.length > 0 ? `${user.name} (${user.email})` : user.email,
     labelName: user.name ?? user.email,
     status: user.status,
   };
