@@ -48,12 +48,12 @@ pub(super) struct RawWindow {
     visible: bool,
 }
 
-/// One running packaged app from [`packaged_source`]: identity (AUMID), friendly name, and the
-/// PIDs of its processes (used to merge with window-derived entries). `display_name` is `None`
-/// when the shell reports no (or an empty) name.
+/// One running packaged app from [`packaged_source`]: identity (AUMID) and the PIDs of its
+/// processes (used to merge with window-derived entries). The display name is resolved from the
+/// AppsFolder registry in [`merge_packaged`] — the same source Source A uses — so a packaged app
+/// gets the same name whether it appears windowless (here) or windowed (Source A).
 pub(super) struct RunningPackagedApp {
     aumid: String,
-    display_name: Option<String>,
     pids: Vec<u32>,
 }
 
@@ -127,7 +127,11 @@ fn merge_packaged(
 ) {
     for app in packaged {
         let aumid_key = app.aumid.to_ascii_lowercase();
-        let registered = registry.contains_key(&aumid_key);
+        // Name from the AppsFolder registry — the same source Source A resolves against — so the
+        // same packaged app is named identically whether it's windowless (here) or windowed.
+        let reg = registry.get(&aumid_key);
+        let registered = reg.is_some();
+        let registry_name = reg.and_then(|r| r.display_name.clone());
 
         // Merge by PID into an existing window-derived entry, if any.
         let matched = by_key
@@ -138,7 +142,7 @@ fn merge_packaged(
         if let Some(k) = matched {
             if let Some(c) = by_key.get_mut(&k) {
                 if c.display_name.is_none() {
-                    c.display_name = app.display_name.clone();
+                    c.display_name = registry_name;
                 }
                 c.registered |= registered;
             }
@@ -164,7 +168,7 @@ fn merge_packaged(
                 pid,
                 filename,
                 exe_path,
-                display_name: app.display_name,
+                display_name: registry_name,
                 has_window: false,
                 registered,
             },
