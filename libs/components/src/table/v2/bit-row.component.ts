@@ -57,10 +57,8 @@ export class BitRowComponent {
       "tw-grid",
       "tw-grid-flow-col",
       "tw-auto-cols-fr",
-      // A fixed height can't absorb a tall cell, so clip it rather than let it overlap the next
-      // row. `grid-rows-1` pins the single row track to the row's own height instead of letting
-      // it stretch to the tallest cell's content, which would push that content out the bottom of
-      // the row and into the next one.
+      // If the row is fixed height, tall cell overflow should be clipped and the row should not
+      // expand its height to fit the tall cell's content
       ...(this.fixedHeight() != null ? ["tw-grid-rows-1", "tw-overflow-clip"] : []),
       ...(this.table?.presentation() === "list"
         ? // `list` rows size to content off a `bit-item`-style minimum height.

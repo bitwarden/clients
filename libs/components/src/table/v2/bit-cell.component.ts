@@ -35,10 +35,9 @@ export class BitCellComponent {
   /**
    * Overflow behavior shared by the default and secondary slots.
    *
-   * Not using `tw-truncate` because it applies `overflow-hidden`, but we need `overflow-clip` so
-   * the clip region can be pushed out by `overflow-clip-margin`. This wrapper hugs its content, so
-   * without the margin the focus ring of an interactive child gets sliced off; 4px covers the
-   * widest ring in the library. Text still ellipses: `text-overflow` applies to any non-`visible`
+   * We are not using `tw-truncate` because it applies `overflow-hidden`; instead we need
+   * `overflow-clip` so we can use `overflow-clip-margin` and prevent focus rings of child elements
+   * from getting cut off. Text still ellipses: `text-overflow` applies to any non-`visible`
    * overflow.
    */
   protected readonly contentClasses = computed(() =>
