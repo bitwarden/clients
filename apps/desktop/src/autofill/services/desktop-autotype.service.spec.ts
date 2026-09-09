@@ -44,7 +44,7 @@ describe("DesktopAutotypeService", () => {
   let mockGlobalStateProvider: jest.Mocked<GlobalStateProvider>;
   let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
   let mockBillingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
-  let mockDesktopAutotypePolicy: MockProxy<DesktopAutotypeDefaultSettingPolicy>;
+  let mockDesktopAutotypePolicy: jest.Mocked<DesktopAutotypeDefaultSettingPolicy>;
   let mockLogService: MockProxy<LogService>;
 
   // Mock GlobalState objects
@@ -145,9 +145,14 @@ describe("DesktopAutotypeService", () => {
       hasPremiumSubject.asObservable(),
     );
 
-    mockDesktopAutotypePolicy = mock<DesktopAutotypeDefaultSettingPolicy>({
+    /*
+      autotypeDefaultSetting$ is readonly, so it can't be assigned post-construction like
+      activeAccount$/activeAccountStatus$ above; passing it into mock<T>()'s partial hits the same
+      proxied-observable hazard described above, so the whole mock is a plain object cast instead.
+    */
+    mockDesktopAutotypePolicy = {
       autotypeDefaultSetting$: autotypeDefaultPolicySubject.asObservable(),
-    });
+    } as unknown as jest.Mocked<DesktopAutotypeDefaultSettingPolicy>;
 
     mockLogService = mock<LogService>();
 

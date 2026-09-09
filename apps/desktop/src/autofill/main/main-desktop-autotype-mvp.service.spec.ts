@@ -13,7 +13,7 @@ import { AutotypeConfig } from "../models/autotype-config";
 import { AutotypeMatchError } from "../models/autotype-errors";
 import { AutotypeVaultData } from "../models/autotype-vault-data";
 import { AUTOTYPE_MVP_IPC_CHANNELS } from "../models/ipc-channels";
-import { AutotypeKeyboardShortcut } from "../models/main-autotype-keyboard-shortcut";
+import { AutotypeMvpKeyboardShortcut } from "../models/main-autotype-mvp-keyboard-shortcut";
 
 import { MainDesktopAutotypeMvpService } from "./main-desktop-autotype-mvp.service";
 
@@ -41,9 +41,9 @@ jest.mock("@bitwarden/desktop-napi", () => ({
   },
 }));
 
-// Mock AutotypeKeyboardShortcut
-jest.mock("../models/main-autotype-keyboard-shortcut", () => ({
-  AutotypeKeyboardShortcut: jest.fn().mockImplementation(() => ({
+// Mock AutotypeMvpKeyboardShortcut
+jest.mock("../models/main-autotype-mvp-keyboard-shortcut", () => ({
+  AutotypeMvpKeyboardShortcut: jest.fn().mockImplementation(() => ({
     set: jest.fn().mockReturnValue(true),
     getElectronFormat: jest.fn().mockReturnValue("Control+Alt+B"),
     getArrayFormat: jest.fn().mockReturnValue(["Control", "Alt", "B"]),
@@ -163,7 +163,7 @@ describe("MainDesktopAutotypeMvpService", () => {
         getElectronFormat: jest.fn().mockReturnValue("Control+Alt+A"),
         getArrayFormat: jest.fn().mockReturnValue(["Control", "Alt", "A"]),
       };
-      (AutotypeKeyboardShortcut as jest.Mock).mockReturnValue(mockNewShortcut);
+      (AutotypeMvpKeyboardShortcut as jest.Mock).mockReturnValue(mockNewShortcut);
 
       const configureHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE);
       configureHandler({}, config);
@@ -181,7 +181,7 @@ describe("MainDesktopAutotypeMvpService", () => {
         getElectronFormat: jest.fn(),
         getArrayFormat: jest.fn(),
       };
-      (AutotypeKeyboardShortcut as jest.Mock).mockReturnValue(mockNewShortcut);
+      (AutotypeMvpKeyboardShortcut as jest.Mock).mockReturnValue(mockNewShortcut);
 
       const configureHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE);
       configureHandler({}, config);
@@ -206,7 +206,7 @@ describe("MainDesktopAutotypeMvpService", () => {
         getElectronFormat: jest.fn().mockReturnValue("Control+Alt+B"),
         getArrayFormat: jest.fn().mockReturnValue(["Control", "Alt", "B"]),
       };
-      (AutotypeKeyboardShortcut as jest.Mock).mockReturnValue(mockNewShortcut);
+      (AutotypeMvpKeyboardShortcut as jest.Mock).mockReturnValue(mockNewShortcut);
 
       const configureHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE);
       configureHandler({}, config);
@@ -287,7 +287,7 @@ describe("MainDesktopAutotypeMvpService", () => {
         getArrayFormat: jest.fn().mockReturnValue(["Control", "Alt", "B"]),
       };
 
-      (AutotypeKeyboardShortcut as jest.Mock).mockReturnValue(mockNewShortcut);
+      (AutotypeMvpKeyboardShortcut as jest.Mock).mockReturnValue(mockNewShortcut);
 
       const vaultData: AutotypeVaultData = {
         username: "user",
