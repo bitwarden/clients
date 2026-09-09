@@ -114,8 +114,12 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly accountService = inject(AccountService);
-  private readonly routedVaultFilterBridgeService = inject(RoutedVaultFilterBridgeService);
-  private readonly routedVaultFilterService = inject(RoutedVaultFilterService);
+  // Legacy vault only — VFO1 hosts drive scope through setConfig() and provide neither.
+  // TODO: remove with the VFO1Foundation flag, along with every `?.` fallback they force.
+  private readonly routedVaultFilterBridgeService = inject(RoutedVaultFilterBridgeService, {
+    optional: true,
+  });
+  private readonly routedVaultFilterService = inject(RoutedVaultFilterService, { optional: true });
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
   private readonly configService = inject(ConfigService);
@@ -137,7 +141,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
   /** The route filter's own view of the trash, for hosts that express it as `?type=trash`. */
   private readonly filterInTrash = toSignal(
-    this.routedVaultFilterService.filter$.pipe(map((f) => f.type === "trash")),
+    this.routedVaultFilterService?.filter$.pipe(map((f) => f.type === "trash")) ?? of(false),
     { initialValue: false },
   );
 
@@ -170,6 +174,9 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   /**
    * The Angular CDK selection model, and the default selection source. A host whose list has its own
    * selection state should call {@link registerSelection} instead, so the two can't disagree.
+   *
+   * TODO: remove with the VFO1Foundation flag, along with {@link selectionChanged} and
+   * {@link defaultSelection} — VFO1 hosts all register their own source.
    */
   readonly selection = new SelectionModel<VaultItem<C>>(true, [], true, compareVaultItems);
 
@@ -188,6 +195,9 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   /**
    * The active selection source; `undefined` means {@link defaultSelection}. Holding the source
    * rather than a copy is the point — the bar can't report a selection the host's UI doesn't show.
+   *
+   * TODO: once VFO1 ships, every host registers a source — drop the `undefined` case and make this
+   * required, which collapses {@link selected} and {@link clearSelection} to single expressions.
    */
   private readonly source = signal<VaultSelectionSource<C> | undefined>(undefined);
 
@@ -427,7 +437,8 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   });
 
   constructor() {
-    this.routedVaultFilterService.filter$
+    // Without the route filter, the host owns scope changes and clears the selection itself.
+    this.routedVaultFilterService?.filter$
       .pipe(
         distinctUntilChanged(
           (prev, curr) =>
@@ -738,16 +749,18 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     }
 
     const config = this.config();
-    const filter = await firstValueFrom(this.routedVaultFilterBridgeService.activeFilter$);
+    const filter = this.routedVaultFilterBridgeService
+      ? await firstValueFrom(this.routedVaultFilterBridgeService.activeFilter$)
+      : undefined;
 
     // The host's scope wins — a page that drills in by route segment leaves the filter empty.
-    const collectionId = config.activeCollectionId ?? filter.collectionId;
+    const collectionId = config.activeCollectionId ?? filter?.collectionId;
     const activeCollection =
       collectionId && collectionId !== All && collectionId !== Unassigned
         ? config.allCollections.find((c) => c.id === collectionId)
         : undefined;
 
-    const orgId = filter.organizationId ?? ciphers.find((c) => !!c.organizationId)?.organizationId;
+    const orgId = filter?.organizationId ?? ciphers.find((c) => !!c.organizationId)?.organizationId;
 
     let availableCollections: CollectionView[] = [];
     if (orgId && orgId !== "MyVault") {

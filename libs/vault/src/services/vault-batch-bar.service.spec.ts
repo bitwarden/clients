@@ -178,6 +178,70 @@ describe("VaultBatchBarService", () => {
     service = TestBed.inject(VaultBatchBarService) as VaultBatchBarService<CipherView>;
   });
 
+  describe("without the routed filter services", () => {
+    // VFO1 hosts provide neither service; the bar must fall back to the config alone.
+    beforeEach(() => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          VaultBatchBarService,
+          { provide: CipherService, useValue: mockCipherService },
+          { provide: CipherArchiveService, useValue: mockCipherArchiveService },
+          { provide: CipherAuthorizationService, useValue: mockCipherAuthorizationService },
+          { provide: OrganizationService, useValue: mockOrganizationService },
+          { provide: PasswordRepromptService, useValue: mockPasswordRepromptService },
+          { provide: DialogService, useValue: mockDialogService },
+          { provide: ToastService, useValue: mockToastService },
+          { provide: AccountService, useValue: mockAccountService },
+          {
+            provide: ConfigService,
+            useValue: {
+              getFeatureFlag$: jest
+                .fn()
+                .mockImplementation((flag: FeatureFlag) =>
+                  flag === FeatureFlag.PM37785_VaultBatchBar ? featureFlagSubject : of(false),
+                ),
+            },
+          },
+          { provide: I18nService, useValue: { t: (key: string) => key } },
+          { provide: LogService, useValue: mock<LogService>() },
+          {
+            provide: ASSIGN_COLLECTIONS_DIALOG,
+            useValue: { open: mockAssignCollectionsDialogOpen },
+          },
+          { provide: BULK_DELETE_DIALOG, useValue: { open: mockBulkDeleteDialogOpen } },
+        ],
+      });
+
+      service = TestBed.inject(VaultBatchBarService) as VaultBatchBarService<CipherView>;
+    });
+
+    it("constructs without them", () => {
+      expect(service).toBeTruthy();
+    });
+
+    it("takes trash state from the config, since there is no filter to read", () => {
+      expect(service.inTrash()).toBe(false);
+
+      service.setConfig(makeConfig({ inTrash: true }));
+
+      expect(service.inTrash()).toBe(true);
+    });
+
+    it("assigns to collections using the config's scope and the ciphers' organization", async () => {
+      const cipher = makeCipher({ organizationId: orgId });
+      service.setConfig(makeConfig({ hasCiphers: true }));
+      service.selection.select({ cipher } as VaultItem<CipherView>);
+      mockAssignCollectionsDialogOpen.mockResolvedValue(AssignCollectionsResult.Saved);
+
+      await service.bulkAssignToCollections();
+
+      expect(mockAssignCollectionsDialogOpen).toHaveBeenCalledWith(
+        expect.objectContaining({ organizationId: orgId }),
+      );
+    });
+  });
+
   describe("setConfig()", () => {
     it("updates config and is reflected in canAssignToCollections", () => {
       service.setConfig(makeConfig({ hasCiphers: false }));
