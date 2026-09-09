@@ -164,10 +164,10 @@ describe("ManagedCredentialsTabComponent", () => {
     });
   });
 
-  describe("confirmDelete (cancelled)", () => {
+  describe("confirmDelete (canceled)", () => {
     beforeEach(() => setupTestBed(false));
 
-    it("does not delete when the dialog is cancelled", async () => {
+    it("does not delete when the dialog is canceled", async () => {
       const row = makeRow();
       await component.confirmDelete(row);
       expect(configsService.delete).not.toHaveBeenCalled();
@@ -185,10 +185,10 @@ describe("ManagedCredentialsTabComponent", () => {
     });
   });
 
-  describe("confirmRecordManual (cancelled)", () => {
+  describe("confirmRecordManual (canceled)", () => {
     beforeEach(() => setupTestBed(false));
 
-    it("does not call recordManual when the dialog is cancelled", async () => {
+    it("does not call recordManual when the dialog is canceled", async () => {
       const row = makeRow();
       await component.confirmRecordManual(row);
       expect(configsService.recordManual).not.toHaveBeenCalled();
