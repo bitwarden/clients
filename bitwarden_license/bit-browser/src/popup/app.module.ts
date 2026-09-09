@@ -47,6 +47,8 @@ import { HealthAccessService } from "./dirt/health/services/health-access.servic
   declarations: [AppComponent],
   bootstrap: [AppComponent],
   providers: [
+    // Module wiring, only exercised by bootstrapping the app, not unit tests
+    /* istanbul ignore next */
     safeProvider({
       provide: VaultHealthReportService,
       useClass: DefaultVaultHealthReportService,
