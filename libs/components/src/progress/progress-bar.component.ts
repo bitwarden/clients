@@ -7,6 +7,7 @@ import { FormFieldModule } from "../form-field";
 import { TypographyModule } from "../typography";
 
 export type ProgressBarVariant = "primary" | "subtle" | "success" | "warning" | "danger";
+export type ProgressBarSize = "sm" | "md";
 
 const VariantClasses: Record<ProgressBarVariant, string[]> = {
   primary: ["tw-bg-primary-600"],
@@ -14,6 +15,12 @@ const VariantClasses: Record<ProgressBarVariant, string[]> = {
   success: ["tw-bg-success-600"],
   warning: ["tw-bg-warning-600"],
   danger: ["tw-bg-danger-600"],
+};
+
+/** 8px (existing default) and 16px (the Health scan progress view's Figma spec). */
+const SizeClasses: Record<ProgressBarSize, string> = {
+  sm: "tw-h-2",
+  md: "tw-h-4",
 };
 
 // Increments for each instance of this component
@@ -39,6 +46,8 @@ export class ProgressBarComponent {
   readonly hideStartHint = input<boolean>(false);
   /** Determines the color of the progress bar */
   readonly variant = input<ProgressBarVariant>("primary");
+  /** Determines the height of the progress bar. Defaults to "sm" (8px) to match existing usage. */
+  readonly size = input<ProgressBarSize>("sm");
   /** The progress amount, represented as a percentage of the progress bar that is filled. Clamped between 0 and 100. */
   readonly value = input<number>(0);
   /** The ARIA value text for the progress bar. Overrides default accessible text. */
@@ -66,6 +75,10 @@ export class ProgressBarComponent {
   });
 
   protected readonly innerBarStyles = computed(() => {
-    return ["tw-transition-all", "tw-h-2", "tw-rounded"].concat(VariantClasses[this.variant()]);
+    return ["tw-transition-all", SizeClasses[this.size()], "tw-rounded"].concat(
+      VariantClasses[this.variant()],
+    );
   });
+
+  protected readonly trackClasses = computed(() => SizeClasses[this.size()]);
 }
