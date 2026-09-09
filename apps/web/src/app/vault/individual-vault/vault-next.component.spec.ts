@@ -1,6 +1,6 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute, convertToParamMap, ParamMap } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, Data, ParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
@@ -10,6 +10,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -26,6 +27,8 @@ import {
   CipherRowMenuHandlers,
   CipherRowMenuService,
   ARCHIVE_ROUTE,
+  MY_ITEMS_ROUTE,
+  MY_ITEMS_ROUTE_DATA,
   MY_VAULT_ROUTE,
   TRASH_ROUTE,
   VaultCopyButtonsService,
@@ -33,6 +36,7 @@ import {
   VaultNavItemViewModel,
   VaultNavService,
   VaultsNavViewModel,
+  Vfo1I18nPipe,
 } from "@bitwarden/vault";
 
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
@@ -62,6 +66,7 @@ describe("VaultNextComponent", () => {
   let organizations$: BehaviorSubject<Organization[]>;
   let showQuickCopyActions$: BehaviorSubject<boolean>;
   let paramMap$: BehaviorSubject<ParamMap>;
+  let routeData$: BehaviorSubject<Data>;
   let vaultNav$: BehaviorSubject<VaultsNavViewModel>;
 
   const buildCipher = (overrides: Partial<CipherView> = {}) => {
@@ -106,16 +111,20 @@ describe("VaultNextComponent", () => {
   });
 
   /**
-   * Navigates the page to a vault scope, as the `:vaultId` and `:collectionId` route segments
-   * would.
+   * Navigates the page to a vault scope, as its route would — with the collection segment wherever
+   * that route carries it: "My items" declares it in its data, a shared folder drill-in takes it as
+   * a param. See `scopedCollectionSegment`.
    */
   const scopeTo = (vaultId?: string, collectionId?: string) => {
+    const inData = collectionId === MY_ITEMS_ROUTE;
+
     paramMap$.next(
       convertToParamMap({
         ...(vaultId == null ? {} : { vaultId }),
-        ...(collectionId == null ? {} : { collectionId }),
+        ...(collectionId == null || inData ? {} : { collectionId }),
       }),
     );
+    routeData$.next(inData ? MY_ITEMS_ROUTE_DATA : {});
     fixture.detectChanges();
   };
 
@@ -146,6 +155,7 @@ describe("VaultNextComponent", () => {
     organizations$ = new BehaviorSubject<Organization[]>([]);
     showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
     paramMap$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
+    routeData$ = new BehaviorSubject<Data>({});
     // The multi-vault shape, matching the organizations most of this suite sets up.
     vaultNav$ = new BehaviorSubject<VaultsNavViewModel>({
       vaults: [
@@ -202,7 +212,7 @@ describe("VaultNextComponent", () => {
       imports: [VaultNextComponent],
       providers: [
         { provide: AccountService, useValue: accountService },
-        { provide: ActivatedRoute, useValue: { paramMap: paramMap$ } },
+        { provide: ActivatedRoute, useValue: { paramMap: paramMap$, data: routeData$ } },
         { provide: CipherRowMenuService, useValue: cipherRowMenuService },
         { provide: CipherService, useValue: cipherService },
         { provide: CollectionService, useValue: collectionService },
@@ -214,6 +224,13 @@ describe("VaultNextComponent", () => {
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
         { provide: VaultCopyButtonsService, useValue: copyButtonsService },
         { provide: VaultNavService, useValue: { viewModel$: () => vaultNav$ } },
+        {
+          provide: ConfigService,
+          useValue: {
+            ...mock<ConfigService>(),
+            getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+          },
+        },
       ],
     })
       .overrideComponent(VaultNextComponent, {
@@ -223,7 +240,7 @@ describe("VaultNextComponent", () => {
           // be declared here rather than on the TestBed module — a standalone component resolves
           // schemas from its own metadata. The i18n pipe stays, since a schema does not cover an
           // unresolved pipe.
-          imports: [I18nPipe],
+          imports: [I18nPipe, Vfo1I18nPipe],
           schemas: [NO_ERRORS_SCHEMA],
           providers: [{ provide: WebVaultItemActionsService, useValue: itemActions }],
         },
@@ -514,6 +531,39 @@ describe("VaultNextComponent", () => {
     });
   });
 
+  describe("defaultCollectionId", () => {
+    const myItemsId = "aaaa1111-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
+
+    it("returns undefined when the scope is not an organization vault", () => {
+      scopeTo(MY_VAULT_ROUTE);
+
+      expect(component().defaultCollectionId()).toBeUndefined();
+    });
+
+    it("returns undefined when the org has no default user collection", () => {
+      // The default nav entries built by buildOrgNavItem carry no defaultUserCollectionId.
+      scopeTo(organizationId);
+
+      expect(component().defaultCollectionId()).toBeUndefined();
+    });
+
+    it("returns the org's default user collection ID when the nav carries one", () => {
+      vaultNav$.next({
+        vaults: [
+          personalNavItem,
+          {
+            ...buildOrgNavItem(organizationId, "Acme corporation"),
+            defaultUserCollectionId: myItemsId,
+          },
+        ],
+        organizationDataOwnership: true,
+      });
+      scopeTo(organizationId);
+
+      expect(component().defaultCollectionId()).toBe(myItemsId);
+    });
+  });
+
   describe("filter option inputs", () => {
     it("drops the empty-id pseudo-folder that folderViews$ appends", () => {
       folders$.next([buildFolder("folder-1", "Work"), buildFolder("", "No folder")]);
@@ -646,7 +696,10 @@ describe("VaultNextComponent", () => {
     it("adds a cipher of the type chosen from vault-new-cipher-menu's legacy dropdown", async () => {
       await component().addCipher(CipherType.Card);
 
-      expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card);
+      expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card, {
+        organizationId: undefined,
+        collectionId: undefined,
+      });
     });
 
     it("opens the add-item form for the type chosen from the picker dialog", async () => {
@@ -656,13 +709,54 @@ describe("VaultNextComponent", () => {
 
       await component().openAddItemDialog();
 
-      expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card);
+      expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card, {
+        organizationId: undefined,
+        collectionId: undefined,
+      });
     });
 
     it("does nothing if the picker dialog is dismissed without a selection", async () => {
       await component().openAddItemDialog();
 
       expect(itemActions.add).not.toHaveBeenCalled();
+    });
+
+    it("prefills the organization and shared folder in scope when adding a cipher", async () => {
+      scopeTo(organizationId, engineeringId);
+
+      await component().addCipher(CipherType.Card);
+
+      expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card, {
+        organizationId,
+        collectionId: engineeringId,
+      });
+    });
+
+    it("prefills the organization and shared folder in scope when opening the add-item form", async () => {
+      scopeTo(organizationId, engineeringId);
+      addItemDialogOpen.mockReturnValue({
+        closed: of({ result: AddItemDialogResult.Cipher, cipherType: CipherType.Card }),
+      } as unknown as DialogRef<never>);
+
+      await component().openAddItemDialog();
+
+      expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card, {
+        organizationId,
+        collectionId: engineeringId,
+      });
+    });
+
+    it("prefills nothing for the my-items sentinel when the organization has no such collection", async () => {
+      // None of this suite's nav entries carry a `defaultUserCollectionId`, so `resolveVaultScope`
+      // cannot resolve the sentinel and the scope falls back to every active item.
+      scopeTo(organizationId, "my-items");
+
+      await component().addCipher(CipherType.Card);
+
+      expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card, {
+        organizationId: undefined,
+        collectionId: undefined,
+      });
     });
   });
 });

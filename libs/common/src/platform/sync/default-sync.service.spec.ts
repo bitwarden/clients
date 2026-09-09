@@ -35,8 +35,11 @@ import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
+import { SyncSendNotification } from "../../models/response/notification.response";
+import { SendData } from "../../tools/send/models/data/send.data";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
+import { SendType } from "../../tools/send/types/send-type";
 import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
@@ -45,6 +48,7 @@ import { ConfigService } from "../abstractions/config/config.service";
 import { LogService } from "../abstractions/log.service";
 import { SdkService } from "../abstractions/sdk/sdk.service";
 import { MessageSender } from "../messaging";
+import { Utils } from "../misc/utils";
 import { StateProvider } from "../state";
 
 import { DefaultSyncService } from "./default-sync.service";
@@ -79,6 +83,7 @@ describe("DefaultSyncService", () => {
   let configService: MockProxy<ConfigService>;
   let sdkService: MockProxy<SdkService>;
   let cryptoSyncHandler: { on_sync: jest.Mock<Promise<void>, [CryptoSyncData]> };
+  let sendsClient: { fetch: jest.Mock };
 
   let sut: DefaultSyncService;
 
@@ -112,10 +117,14 @@ describe("DefaultSyncService", () => {
     configService = mock();
     sdkService = mock();
     cryptoSyncHandler = { on_sync: jest.fn().mockResolvedValue(undefined) };
+    sendsClient = { fetch: jest.fn() };
     sdkService.userClient$.mockReturnValue(
       of({
         take: () => ({
-          value: { crypto_sync_handler: () => cryptoSyncHandler },
+          value: {
+            crypto_sync_handler: () => cryptoSyncHandler,
+            sends: () => sendsClient,
+          },
           [Symbol.dispose]: jest.fn(),
         }),
       }) as unknown as ReturnType<typeof sdkService.userClient$>,
@@ -856,6 +865,61 @@ describe("DefaultSyncService", () => {
           user1,
         );
       });
+    });
+  });
+
+  describe("syncUpsertSend", () => {
+    const sendGuid = Utils.newGuid();
+
+    const notification = new SyncSendNotification({
+      Id: sendGuid,
+      UserId: user1,
+      RevisionDate: "2025-01-02T00:00:00.000Z",
+    });
+
+    beforeEach(() => {
+      accountService.activeAccount$ = of({ id: user1 } as Account);
+      Matrix.autoMockMethod(authService.authStatusFor$, () => of(AuthenticationStatus.Unlocked));
+      // Treat this as a new send (create): no local copy exists yet.
+      sendService.get$.mockReturnValue(of(undefined));
+      tokenService.hasAccessToken$.mockReturnValue(of(true));
+    });
+
+    it("fetches the send through the SDK when the flag is on", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+      const sdkSend = {
+        id: sendGuid,
+        type: SendType.Text,
+        accessCount: 0,
+        disabled: false,
+        hideEmail: false,
+        authType: 2,
+        revisionDate: "2025-01-02T00:00:00.000Z",
+        deletionDate: "2025-01-09T00:00:00.000Z",
+        text: { text: "2.enc", hidden: false },
+      };
+      sendsClient.fetch.mockResolvedValue(sdkSend);
+
+      const result = await sut.syncUpsertSend(notification, false);
+
+      expect(result).toBe(true);
+      expect(sendsClient.fetch).toHaveBeenCalledWith(sendGuid);
+      expect(sendApiService.getSend).not.toHaveBeenCalled();
+      expect(messageSender.send).toHaveBeenCalledWith("syncedUpsertedSend", { sendId: sendGuid });
+    });
+
+    it("fetches the send through the legacy API and upserts it when the flag is off", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+      const remoteSend = { id: sendGuid } as any;
+      sendApiService.getSend.mockResolvedValue(remoteSend);
+
+      const result = await sut.syncUpsertSend(notification, false);
+
+      expect(result).toBe(true);
+      expect(sendApiService.getSend).toHaveBeenCalledWith(sendGuid);
+      expect(sendsClient.fetch).not.toHaveBeenCalled();
+      expect(sendService.upsert).toHaveBeenCalledWith(new SendData(remoteSend));
+      expect(messageSender.send).toHaveBeenCalledWith("syncedUpsertedSend", { sendId: sendGuid });
     });
   });
 

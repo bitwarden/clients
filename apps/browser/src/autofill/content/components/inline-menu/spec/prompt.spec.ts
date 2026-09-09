@@ -2,13 +2,14 @@ import { nothing } from "lit";
 
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 
-import { EventSecurity } from "../../../../utils/event-security";
-import { litHandler, litValues } from "../../lit-stories/lit-values";
+import { litValues } from "../../lit-stories/lit-values";
 import { mockI18n } from "../../lit-stories/mock-data";
+import { InlineMenuAction } from "../action";
 import { InlineMenuPrompt } from "../prompt";
 
 jest.mock("lit", () => jest.requireActual("../../lit-stories/lit-jest-mocks").litMock);
 jest.mock("../container", () => ({ InlineMenuContainer: jest.fn(({ children }) => children) }));
+jest.mock("../action", () => ({ InlineMenuAction: jest.fn(() => "action") }));
 
 describe("InlineMenuPrompt", () => {
   const baseProps = {
@@ -20,7 +21,6 @@ describe("InlineMenuPrompt", () => {
   };
 
   const MESSAGE_SLOT = 0;
-  const CLICK_HANDLER_SLOT = 5;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -40,27 +40,27 @@ describe("InlineMenuPrompt", () => {
     });
   });
 
-  describe("action click", () => {
-    it("calls handleAction when the event is trusted", () => {
-      jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(true);
+  describe("action", () => {
+    it("renders the action with a top border when a message is provided", () => {
+      InlineMenuPrompt(baseProps);
 
-      litHandler(
-        litValues(InlineMenuPrompt(baseProps)),
-        CLICK_HANDLER_SLOT,
-      )(new MouseEvent("click"));
-
-      expect(baseProps.handleAction).toHaveBeenCalled();
+      expect(InlineMenuAction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          actionText: mockI18n.newLogin,
+          borderedTop: true,
+          handleAction: baseProps.handleAction,
+        }),
+      );
     });
 
-    it("does not call handleAction when the event is untrusted", () => {
-      jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(false);
+    it("renders the action without a top border when the message is omitted", () => {
+      InlineMenuPrompt({ ...baseProps, message: undefined });
 
-      litHandler(
-        litValues(InlineMenuPrompt(baseProps)),
-        CLICK_HANDLER_SLOT,
-      )(new MouseEvent("click"));
-
-      expect(baseProps.handleAction).not.toHaveBeenCalled();
+      expect(InlineMenuAction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          borderedTop: false,
+        }),
+      );
     });
   });
 });

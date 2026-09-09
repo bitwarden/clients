@@ -25,6 +25,7 @@ import {
 import { ARCHIVE_ROUTE, MY_ITEMS_ROUTE, MY_VAULT_ROUTE, TRASH_ROUTE } from "../models/vault-scope";
 import { VaultNavService } from "../services/vault-nav.service";
 
+import { MY_ITEMS_ROUTE_DATA } from "./scoped-collection";
 import { vaultScopeGuard } from "./vault-scope.guard";
 
 describe("vaultScopeGuard", () => {
@@ -85,13 +86,25 @@ describe("vaultScopeGuard", () => {
       name: new EncString("2.abc123|def456==|ghi789=="),
     });
 
-  const makeRoute = (vaultId?: string, collectionId?: string): ActivatedRouteSnapshot =>
-    mock<ActivatedRouteSnapshot>({
+  /**
+   * A vault route's snapshot, carrying the collection segment wherever the real route carries it:
+   * the "My items" route declares it in its data, a shared folder drill-in takes it as a param —
+   * see `scopedCollectionSegment`.
+   *
+   * A plain object rather than a `mock`, whose proxy answers a read of an absent key with an
+   * auto-stubbed function — so a route with no data would look like one naming a collection.
+   */
+  const makeRoute = (vaultId?: string, collectionId?: string): ActivatedRouteSnapshot => {
+    const inData = collectionId === MY_ITEMS_ROUTE;
+
+    return {
       paramMap: convertToParamMap({
         ...(vaultId == null ? {} : { vaultId }),
-        ...(collectionId == null ? {} : { collectionId }),
+        ...(collectionId == null || inData ? {} : { collectionId }),
       }),
-    });
+      data: inData ? MY_ITEMS_ROUTE_DATA : {},
+    } as ActivatedRouteSnapshot;
+  };
 
   const runGuard = (vaultId?: string, collectionId?: string) =>
     TestBed.runInInjectionContext(() => vaultScopeGuard(makeRoute(vaultId, collectionId), state));

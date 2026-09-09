@@ -1,0 +1,106 @@
+import { Meta, Primary, Controls, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./chip-group.stories";
+
+<Meta of={stories} />
+
+```ts
+import { ChipGroupComponent, ChipGroupItem } from "@bitwarden/components";
+```
+
+<Title />
+
+## Overview
+
+<Description />
+
+<Canvas of={stories.Default} />
+
+For general information about chips, their types, and usage guidelines, see the
+[Chip overview](?path=/docs/component-library-chips--docs).
+
+## Basic Usage
+
+Chips are supplied as data through the `chips` input rather than authored as markup, so the group
+can render the same item twice — once in the row, once in the overflow popover — from a single
+description.
+
+```html
+<bit-chip-group
+  [chips]="sharedFolders"
+  accessibleName="Shared folders"
+  (chipSelect)="filterBy($event.id)"
+></bit-chip-group>
+```
+
+```ts
+readonly sharedFolders: ChipGroupItem[] = [
+  { id: "1a2b", label: "Engineering", variant: "subtle", startIcon: "bwi-collection-shared" },
+  { id: "3c4d", label: "Design", variant: "subtle", startIcon: "bwi-collection-shared" },
+];
+```
+
+Every `ChipGroupItem` requires an `id` and a `label`; `variant` and `startIcon` are optional and
+default to the action chip's own defaults.
+
+## Selection
+
+Activating a chip — in the row or in the overflow popover — emits that item through `chipSelect`.
+The whole item is emitted rather than just its `id`, so consumers that filter by id and consumers
+that need the label are both served without a second lookup.
+
+The group holds no selection state of its own. It reports the activation and leaves the consequence
+— filtering a table, navigating, opening a dialog — to the consumer. If the result of a selection
+should change which chips are shown, feed a new `chips` array back in.
+
+Selecting a chip from inside the overflow popover closes the popover first, so focus isn't stranded
+in a list the consumer is about to change.
+
+## Overflow
+
+The group lays chips out in a single row that never wraps. Chips that don't fit the container are
+hidden and collected behind a trailing `+N` action chip, which opens a popover listing them.
+
+Sizing is measurement-driven — there is no `maxItems` input. Resize the container and more or fewer
+chips become visible.
+
+<Canvas of={stories.Narrow} />
+
+The first chip is pinned, so at least one chip is always visible regardless of available width. At
+very small widths that chip truncates rather than disappearing.
+
+<Canvas of={stories.Truncation} />
+
+With no chips, the group renders an empty container — no `+N` chip is shown. Consumers that need an
+empty state (an em dash, "None") should render it themselves in place of the group.
+
+<Canvas of={stories.Empty} />
+
+## Sizes
+
+`size` is set on the group, not per chip, and applies to the `+N` chip as well. A row of mismatched
+chip heights is not a supported design.
+
+<Canvas of={stories.Small} />
+
+## Icons
+
+Each chip can carry its own `startIcon`. Use the same icon across chips that mean the same kind of
+thing — a set of shared folders, say — so the icon reads as a category marker rather than as a
+per-chip distinction.
+
+<Canvas of={stories.WithIcons} />
+
+## Accessibility
+
+- Each chip is a `<button>` named by its visible label, and the row is a `role="group"`.
+- Pass `accessibleName` to name that group (e.g. "Shared folders") when nothing nearby already
+  supplies the context. Chip labels alone say what each chip is, not what the collection of them is.
+  Omit it when a column header or heading already does that job.
+- The `+N` chip is labelled "Show N more" for screen readers; its visible text is only the count.
+- Chip labels truncate rather than wrapping, and every chip carries a tooltip with its full label so
+  a truncated chip stays readable.
+- Every chip is focusable, so resizing the container can hide the chip the user is on. When that
+  happens focus moves to the `+N` chip, which opens the popover the chip was packed into; when the
+  `+N` chip is the one going away, focus moves to the last chip left in the row. Focus is never
+  dropped on the document body.

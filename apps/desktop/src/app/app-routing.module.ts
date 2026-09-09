@@ -47,7 +47,14 @@ import {
   ConfirmKeyConnectorDomainComponent,
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
-import { vaultFilterLegacyRedirectGuard, vaultScopeGuard } from "@bitwarden/vault";
+import {
+  MY_ITEMS_ROUTE,
+  MY_ITEMS_ROUTE_DATA,
+  organizationVaultGuard,
+  SHARED_FOLDERS_ROUTE,
+  vaultFilterLegacyRedirectGuard,
+  vaultScopeGuard,
+} from "@bitwarden/vault";
 
 import { AccountSwitcherV2Component } from "../auth/components/account-switcher/account-switcher-v2.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
@@ -56,6 +63,7 @@ import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
 import { MyFoldersComponent } from "../vault/app/my-folders/my-folders.component";
+import { SharedFoldersComponent } from "../vault/app/shared-folders/shared-folders.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
@@ -466,11 +474,33 @@ const routes: Routes = [
               vaultScopeGuard,
             ],
           },
-          // The shared folder a vault has been drilled into. Drilling deeper replaces the segment
-          // rather than nesting under it: a folder's route names the vault it lives in, not the
-          // path taken to it.
+          // An organization's "My items" collection. A page of the vault rather than one of its
+          // shared folders, so it sits alongside the list rather than under it — see
+          // `MY_ITEMS_ROUTE`.
           {
-            path: ":vaultId/:collectionId",
+            path: `:vaultId/${MY_ITEMS_ROUTE}`,
+            component: VaultComponent,
+            canActivate: [
+              canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
+              vaultScopeGuard,
+            ],
+            data: MY_ITEMS_ROUTE_DATA,
+          },
+          // An organization vault's shared folders.
+          {
+            path: `:vaultId/${SHARED_FOLDERS_ROUTE}`,
+            component: SharedFoldersComponent,
+            canActivate: [
+              canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
+              organizationVaultGuard,
+              vaultScopeGuard,
+            ],
+            data: { pageTitle: { key: "sharedFolders" } } satisfies RouteDataProperties,
+          },
+          // The shared folder a vault has been drilled into. Drilling deeper replaces the
+          // `:collectionId` segment rather than adding to it — see `vaultScopeCommands`.
+          {
+            path: `:vaultId/${SHARED_FOLDERS_ROUTE}/:collectionId`,
             component: VaultComponent,
             canActivate: [
               canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
