@@ -1,5 +1,3 @@
-import * as path from "path";
-
 import {
   DESKTOP_PROXY_PATH_ENV,
   getDesktopProxyPaths,
@@ -28,24 +26,13 @@ describe("getDesktopProxyPaths", () => {
     ]);
   });
 
-  it("returns installed and native-messaging proxy paths on Linux", () => {
-    const paths = getDesktopProxyPaths("linux", "/home/alice", {});
-
-    expect(paths).toContain("/opt/Bitwarden/desktop_proxy");
-    expect(paths).toContain("/usr/lib/bitwarden/desktop_proxy");
-    expect(paths).toContain("/snap/bitwarden/current/desktop_proxy");
-    expect(paths).toContain(
-      path.posix.join(
-        "/home/alice",
-        ".config/chromium/NativeMessagingHosts/.bitwarden_desktop_proxy",
-      ),
-    );
-    expect(paths).toContain(
-      path.posix.join(
-        "/home/alice",
-        ".var/app/com.google.Chrome/config/google-chrome/NativeMessagingHosts/.bitwarden_desktop_proxy",
-      ),
-    );
+  it("returns standard desktop installation paths on Linux", () => {
+    expect(getDesktopProxyPaths("linux", "/home/alice", {})).toEqual([
+      "/opt/Bitwarden/desktop_proxy",
+      "/usr/lib/bitwarden/desktop_proxy",
+      "/usr/lib/bitwarden-desktop/desktop_proxy",
+      "/snap/bitwarden/current/desktop_proxy",
+    ]);
   });
 });
 
