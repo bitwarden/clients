@@ -26,7 +26,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CenterPositionStrategy, DialogService } from "@bitwarden/components";
+import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/components";
 
 import { OrganizationCounts } from "../models/view/counts.view";
 import { ProjectListView } from "../models/view/project-list.view";
@@ -118,6 +118,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private smOnboardingTasksService: SMOnboardingTasksService,
     private logService: LogService,
     private router: Router,
+    private toastService: ToastService,
   ) {}
 
   ngOnInit() {
@@ -378,17 +379,26 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   async openVersionHistory(secretId: string) {
-    const secret = await this.secretService.getBySecretId(secretId);
-    void openSecretVersionDialog(this.dialogService, {
-      data: {
-        organizationId: this.organizationId,
-        secretId: secretId,
-        name: secret?.name,
-        currentValue: secret?.value,
-        revisionDate: secret?.revisionDate,
-        canWrite: secret?.write,
-      },
-    });
+    try {
+      const secret = await this.secretService.getBySecretId(secretId);
+      void openSecretVersionDialog(this.dialogService, {
+        data: {
+          organizationId: this.organizationId,
+          secretId: secretId,
+          name: secret.name,
+          currentValue: secret.value,
+          revisionDate: secret.revisionDate,
+          canWrite: secret.write,
+        },
+      });
+    } catch (e) {
+      this.logService.error("Retrieving secret failed", e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
   }
 
   protected async hideOnboarding() {

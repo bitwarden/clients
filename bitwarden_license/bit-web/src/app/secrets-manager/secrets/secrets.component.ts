@@ -187,17 +187,26 @@ export class SecretsComponent implements OnInit, OnDestroy {
   }
 
   async openVersionHistory(secretId: string) {
-    const secret = await this.secretService.getBySecretId(secretId);
-    void openSecretVersionDialog(this.dialogService, {
-      data: {
-        organizationId: this.organizationId,
-        secretId: secretId,
-        name: secret?.name,
-        currentValue: secret?.value,
-        revisionDate: secret?.revisionDate,
-        canWrite: secret?.write,
-      },
-    });
+    try {
+      const secret = await this.secretService.getBySecretId(secretId);
+      void openSecretVersionDialog(this.dialogService, {
+        data: {
+          organizationId: this.organizationId,
+          secretId: secretId,
+          name: secret.name,
+          currentValue: secret.value,
+          revisionDate: secret.revisionDate,
+          canWrite: secret.write,
+        },
+      });
+    } catch (e) {
+      this.logService.error("Retrieving secret failed", e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
   }
 
   openDeleteSecret(event: SecretListView[]) {

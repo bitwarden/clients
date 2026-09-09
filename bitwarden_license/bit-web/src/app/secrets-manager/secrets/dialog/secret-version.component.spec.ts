@@ -26,8 +26,8 @@ import {
 interface VersionRow {
   id: string;
   value: string;
-  date: Date | null;
-  author: string | null;
+  date?: Date;
+  author?: string;
   copy: () => Promise<void>;
   toggleVisibility: () => Promise<void>;
   restore: () => Promise<void>;
@@ -39,9 +39,9 @@ interface DialogInternals {
   visibleVersionIds: WritableSignal<Set<string>>;
   expandedVersionIds: WritableSignal<Set<string>>;
   currentValueVisible: WritableSignal<boolean>;
-  currentValue: WritableSignal<string | null>;
-  revisionDate: WritableSignal<Date | null>;
-  currentValueAuthor: WritableSignal<string | null>;
+  currentValue: WritableSignal<string | undefined>;
+  revisionDate: WritableSignal<Date | undefined>;
+  currentValueAuthor: WritableSignal<string | undefined>;
   hasCurrentValue: Signal<boolean>;
   hasVersions: Signal<boolean>;
   isEmpty: Signal<boolean>;
@@ -57,13 +57,13 @@ const internals = (component: SecretVersionDialogComponent) =>
   component as unknown as DialogInternals;
 
 function makeVersion(overrides: Partial<SecretVersionView> = {}): SecretVersionView {
-  const version = new SecretVersionView();
-  version.id = overrides.id ?? "version-1";
-  version.secretId = overrides.secretId ?? "secret-1";
-  version.value = overrides.value ?? "old-value";
-  version.versionDate = overrides.versionDate ?? "2026-01-27T14:15:32.000Z";
-  version.authorName = overrides.authorName;
-  return version;
+  return new SecretVersionView(
+    overrides.id ?? "version-1",
+    overrides.secretId ?? "secret-1",
+    overrides.value ?? "old-value",
+    overrides.versionDate ?? "2026-01-27T14:15:32.000Z",
+    overrides.authorName,
+  );
 }
 
 function makeSecret(value: string, revisionDate: string): SecretView {
@@ -192,10 +192,10 @@ describe("SecretVersionDialogComponent", () => {
       expect(state.currentValueAuthor()).toBe("Ada");
     });
 
-    it("falls back to a null author when history omits one", async () => {
+    it("leaves the author unset when history omits one", async () => {
       const state = await setup(PARAMS, { versions: [] });
 
-      expect(state.currentValueAuthor()).toBeNull();
+      expect(state.currentValueAuthor()).toBeUndefined();
       expect(state.rows()).toEqual([]);
     });
 

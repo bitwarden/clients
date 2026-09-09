@@ -73,11 +73,7 @@ export class SecretVersionService {
       : undefined;
 
     const versions = await Promise.all(
-      previousValues.map(async (response) => {
-        const view = await this.createSecretVersionView(response, orgKey);
-        view.authorName = await this.resolveEditorName(response, orgKey);
-        return view;
-      }),
+      previousValues.map((response) => this.createSecretVersionView(response, orgKey)),
     );
 
     return { currentValueAuthorName, versions };
@@ -102,15 +98,16 @@ export class SecretVersionService {
     response: SecretVersionResponse,
     orgKey: SymmetricCryptoKey,
   ): Promise<SecretVersionView> {
-    const view = new SecretVersionView();
-    view.id = response.id;
-    view.secretId = response.secretId;
-    view.versionDate = response.versionDate;
+    const value = await this.decryptField(new EncString(response.value), orgKey);
+    const authorName = await this.resolveEditorName(response, orgKey);
 
-    // Decrypt the value
-    view.value = await this.decryptField(new EncString(response.value), orgKey);
-
-    return view;
+    return new SecretVersionView(
+      response.id,
+      response.secretId,
+      value,
+      response.versionDate,
+      authorName,
+    );
   }
 
   /**

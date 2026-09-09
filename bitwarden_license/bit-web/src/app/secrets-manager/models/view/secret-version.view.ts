@@ -1,7 +1,9 @@
 export class SecretVersionView {
-  id!: string;
-  secretId!: string;
-  value!: string;
-  versionDate!: string;
-  authorName?: string;
+  constructor(
+    readonly id: string,
+    readonly secretId: string,
+    readonly value: string,
+    readonly versionDate: string,
+    readonly authorName?: string,
+  ) {}
 }

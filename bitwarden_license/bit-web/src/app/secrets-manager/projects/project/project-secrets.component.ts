@@ -22,7 +22,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CenterPositionStrategy, DialogService } from "@bitwarden/components";
+import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/components";
 
 import { ProjectView } from "../../models/view/project.view";
 import { SecretListView } from "../../models/view/secret-list.view";
@@ -68,6 +68,7 @@ export class ProjectSecretsComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private logService: LogService,
+    private toastService: ToastService,
   ) {}
 
   readonly noItemsIcon = NoResults;
@@ -170,16 +171,25 @@ export class ProjectSecretsComponent implements OnInit, OnDestroy {
   }
 
   async openVersionHistory(secretId: string) {
-    const secret = await this.secretService.getBySecretId(secretId);
-    void openSecretVersionDialog(this.dialogService, {
-      data: {
-        organizationId: this.organizationId,
-        secretId: secretId,
-        name: secret?.name,
-        currentValue: secret?.value,
-        revisionDate: secret?.revisionDate,
-        canWrite: secret?.write,
-      },
-    });
+    try {
+      const secret = await this.secretService.getBySecretId(secretId);
+      void openSecretVersionDialog(this.dialogService, {
+        data: {
+          organizationId: this.organizationId,
+          secretId: secretId,
+          name: secret.name,
+          currentValue: secret.value,
+          revisionDate: secret.revisionDate,
+          canWrite: secret.write,
+        },
+      });
+    } catch (e) {
+      this.logService.error("Retrieving secret failed", e);
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
   }
 }

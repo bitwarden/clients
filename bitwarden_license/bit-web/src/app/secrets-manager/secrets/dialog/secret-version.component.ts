@@ -49,8 +49,8 @@ export interface SecretVersionDialogParams {
 interface SecretVersionRow {
   id: string;
   value: string;
-  date: Date | null;
-  author: string | null;
+  date: Date | undefined;
+  author: string | undefined;
   copy: () => Promise<void>;
   toggleVisibility: () => Promise<void>;
   restore: () => Promise<void>;
@@ -87,12 +87,12 @@ export class SecretVersionDialogComponent implements OnInit {
   protected readonly visibleVersionIds = signal(new Set<string>());
   protected readonly expandedVersionIds = signal(new Set<string>());
   protected readonly currentValueVisible = signal(false);
-  protected readonly currentValue = signal<string | null>(null);
-  protected readonly revisionDate = signal<Date | null>(null);
-  protected readonly currentValueAuthor = signal<string | null>(null);
+  protected readonly currentValue = signal<string | undefined>(undefined);
+  protected readonly revisionDate = signal<Date | undefined>(undefined);
+  protected readonly currentValueAuthor = signal<string | undefined>(undefined);
 
-  /** Uses a null check so a secret whose value is an empty string still renders. */
-  protected readonly hasCurrentValue = computed(() => this.currentValue() != null);
+  /** Uses a undefined check so a secret whose value is an empty string still renders. */
+  protected readonly hasCurrentValue = computed(() => this.currentValue() != undefined);
   protected readonly hasVersions = computed(() => this.rows().length > 0);
   protected readonly isEmpty = computed(() => !this.hasCurrentValue() && !this.hasVersions());
 
@@ -143,8 +143,10 @@ export class SecretVersionDialogComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.currentValue.set(this.params.currentValue ?? null);
-    this.revisionDate.set(this.params.revisionDate ? new Date(this.params.revisionDate) : null);
+    this.currentValue.set(this.params.currentValue ?? undefined);
+    this.revisionDate.set(
+      this.params.revisionDate ? new Date(this.params.revisionDate) : undefined,
+    );
     await this.load();
   }
 
@@ -152,8 +154,8 @@ export class SecretVersionDialogComponent implements OnInit {
     return {
       id: version.id,
       value: version.value,
-      date: version.versionDate ? new Date(version.versionDate) : null,
-      author: version.authorName ?? null,
+      date: version.versionDate ? new Date(version.versionDate) : undefined,
+      author: version.authorName ?? undefined,
       copy: () => this.copyValue(version.value),
       toggleVisibility: async () => {
         this.visibleVersionIds.update((s) => {
@@ -176,24 +178,24 @@ export class SecretVersionDialogComponent implements OnInit {
     this.currentValueVisible.set(false);
 
     try {
-      const [secretOrNull, history] = await Promise.all([
+      const [secretOrUndefined, history] = await Promise.all([
         refreshCurrentSecret
           ? this.secretService.getBySecretId(this.params.secretId)
-          : Promise.resolve(null),
+          : Promise.resolve(undefined),
         this.secretVersionService.getSecretVersions(
           this.params.organizationId,
           this.params.secretId,
         ),
       ]);
 
-      if (secretOrNull != null) {
-        this.currentValue.set(secretOrNull.value);
+      if (secretOrUndefined != undefined) {
+        this.currentValue.set(secretOrUndefined.value);
         this.revisionDate.set(
-          secretOrNull.revisionDate ? new Date(secretOrNull.revisionDate) : null,
+          secretOrUndefined.revisionDate ? new Date(secretOrUndefined.revisionDate) : undefined,
         );
       }
 
-      this.currentValueAuthor.set(history.currentValueAuthorName ?? null);
+      this.currentValueAuthor.set(history.currentValueAuthorName ?? undefined);
       this.rows.set(history.versions.map((version) => this.createRow(version)));
     } catch (e) {
       this.logService.error("Retrieving secret versions failed", e);
@@ -207,7 +209,6 @@ export class SecretVersionDialogComponent implements OnInit {
     this.platformUtilsService.copyToClipboard(value);
     this.toastService.showToast({
       variant: "success",
-      title: undefined,
       message: this.i18nService.t("secretValueCopied"),
     });
   }
