@@ -413,7 +413,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
           continue;
         }
         let value: unknown;
-        if (key in fromUrl) {
+        if (fromUrl[key] != null) {
           value = fromUrl[key];
         } else if (initial && key in initial) {
           value = initial[key];
