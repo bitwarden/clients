@@ -42,7 +42,8 @@ import {
   hasMultipleVaults,
   organizationNameForScope,
   organizationInScope,
-  parseVaultScope,
+  organizationVaultPage,
+  OrganizationVaultPage,
   resolveVaultScope,
   scopedCollectionSegment,
   vaultScopeHeaderTile,
@@ -145,12 +146,11 @@ export class VaultNextComponent {
     return defaultUserCollectionId(scope.organizationId, this.vaultNav());
   });
 
-  protected readonly parsedVaultScope = computed(
-    () => parseVaultScope(this.vaultIdParam(), this.collectionSegment()) ?? ALL_ITEMS_SCOPE,
-  );
-
-  protected readonly organizationScoped = computed(
-    () => this.parsedVaultScope().type === VaultScopeType.Organization,
+  /** Only a shared folder trails a breadcrumb; every other page reads as a plain title. */
+  protected readonly showBreadcrumbs = computed(
+    () =>
+      organizationVaultPage(this.vaultScope(), this.vaultNav()) ===
+      OrganizationVaultPage.SharedFolder,
   );
 
   protected readonly headerTile = computed(() =>
@@ -297,7 +297,7 @@ export class VaultNextComponent {
   });
 
   protected readonly title = computed(() =>
-    vaultScopeTitle(this.vaultScope(), this.i18nService, this.scopedOrganizations()[0]?.name),
+    vaultScopeTitle(this.vaultScope(), this.i18nService, this.vaultNav()),
   );
 
   protected readonly copyPresentation = toSignal(

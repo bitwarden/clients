@@ -86,11 +86,56 @@ export type VaultScope =
 
 export const ALL_ITEMS_SCOPE: VaultScope = { type: VaultScopeType.AllItems };
 
+/** The page an organization vault scope names: its whole vault, "My items", or a shared folder. */
+export const OrganizationVaultPage = Object.freeze({
+  AllVaultItems: "allVaultItems",
+  MyItems: "myItems",
+  SharedFolder: "sharedFolder",
+} as const);
+export type OrganizationVaultPage =
+  (typeof OrganizationVaultPage)[keyof typeof OrganizationVaultPage];
+
 /**
- * The i18n key titling a scope's page. `null` for an organization vault, whose title is the
- * organization's own name rather than a fixed string.
+ * Classifies an organization vault scope by the page it names — `undefined` for any other scope.
+ *
+ * A "My items" scope arrives either as the {@link MY_ITEMS_ROUTE} sentinel or, once
+ * {@link resolveVaultScope} has traded it, as the collection's id, so both forms are matched.
  */
-function vaultScopeTitleKey(scope: VaultScope): string | null {
+export function organizationVaultPage(
+  scope: VaultScope,
+  nav: VaultsNavViewModel | undefined,
+): OrganizationVaultPage | undefined {
+  if (scope.type !== VaultScopeType.Organization) {
+    return undefined;
+  }
+
+  const { collectionId, organizationId } = scope;
+  if (collectionId == null) {
+    return OrganizationVaultPage.AllVaultItems;
+  }
+
+  if (
+    collectionId === MY_ITEMS_ROUTE ||
+    collectionId === defaultUserCollectionId(organizationId, nav)
+  ) {
+    return OrganizationVaultPage.MyItems;
+  }
+
+  return OrganizationVaultPage.SharedFolder;
+}
+
+/** The title key for each organization page — `null` for a shared folder, which the breadcrumb titles. */
+const ORGANIZATION_PAGE_TITLE_KEYS: Record<OrganizationVaultPage, string | null> = {
+  [OrganizationVaultPage.AllVaultItems]: "allVaultItems",
+  [OrganizationVaultPage.MyItems]: "myItemsV2",
+  [OrganizationVaultPage.SharedFolder]: null,
+};
+
+/**
+ * The i18n key titling a scope's page. `null` for a shared folder, whose title is the folder name
+ * the breadcrumb trail promotes to the heading rather than a fixed string.
+ */
+function vaultScopeTitleKey(scope: VaultScope, nav: VaultsNavViewModel | undefined): string | null {
   switch (scope.type) {
     case VaultScopeType.MyVault:
       return "myVault";
@@ -98,23 +143,26 @@ function vaultScopeTitleKey(scope: VaultScope): string | null {
       return "trash";
     case VaultScopeType.Archive:
       return "archiveNoun";
-    case VaultScopeType.Organization:
-      return null;
+    case VaultScopeType.Organization: {
+      const page = organizationVaultPage(scope, nav);
+      return page == null ? null : ORGANIZATION_PAGE_TITLE_KEYS[page];
+    }
     default:
       return "allItems";
   }
 }
 
 /**
- * The page title for a scope: an organization vault's own name, or a localized string for the rest.
+ * The page title for a scope: a localized string, or `undefined` for a shared folder whose title
+ * the breadcrumb trail supplies.
  */
 export function vaultScopeTitle(
   scope: VaultScope,
   i18nService: I18nService,
-  organizationName?: string,
+  nav: VaultsNavViewModel | undefined,
 ): string | undefined {
-  const key = vaultScopeTitleKey(scope);
-  return key == null ? organizationName : i18nService.t(key);
+  const key = vaultScopeTitleKey(scope, nav);
+  return key == null ? undefined : i18nService.t(key);
 }
 
 /** The scopes named by a fixed route segment rather than an organization id. */

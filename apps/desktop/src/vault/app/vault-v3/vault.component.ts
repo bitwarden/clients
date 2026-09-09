@@ -127,6 +127,8 @@ import {
   MY_ITEMS_ROUTE,
   organizationInScope,
   organizationNameForScope,
+  organizationVaultPage,
+  OrganizationVaultPage,
   resolveVaultScope,
   scopedCollectionSegment,
   SharedFolderCardGridComponent,
@@ -340,9 +342,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   /** The scope's page title under VFO1; unset otherwise so the header keeps its route title. */
   protected readonly title = toSignal(
-    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.selectedOrganization$]).pipe(
-      map(([vfo1Foundation, scope, organization]) =>
-        vfo1Foundation ? vaultScopeTitle(scope, this.i18nService, organization?.name) : undefined,
+    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.vaultNav$]).pipe(
+      map(([vfo1Foundation, scope, nav]) =>
+        vfo1Foundation ? vaultScopeTitle(scope, this.i18nService, nav) : undefined,
       ),
     ),
   );
@@ -380,10 +382,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     ),
   );
 
-  protected readonly organizationScoped = toSignal(
-    combineLatest([this.vfo1Foundation$, this.vaultScope$]).pipe(
+  /** Only a shared folder trails a breadcrumb; every other page reads as a plain title. */
+  protected readonly showBreadcrumbs = toSignal(
+    combineLatest([this.vfo1Foundation$, this.vaultScope$, this.vaultNav$]).pipe(
       map(
-        ([vfo1Foundation, scope]) => vfo1Foundation && scope.type === VaultScopeType.Organization,
+        ([vfo1Foundation, scope, nav]) =>
+          vfo1Foundation &&
+          organizationVaultPage(scope, nav) === OrganizationVaultPage.SharedFolder,
       ),
     ),
     { initialValue: false },

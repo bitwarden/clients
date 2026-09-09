@@ -11,7 +11,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
 import { VaultNavItemType, VaultsNavViewModel } from "../../models/vault-nav-view-model";
-import { MY_ITEMS_ROUTE, VaultScope, VaultScopeType } from "../../models/vault-scope";
+import { VaultScope, VaultScopeType } from "../../models/vault-scope";
 import { VaultNavService } from "../../services/vault-nav.service";
 
 import { VaultBreadcrumbsComponent } from "./vault-breadcrumbs.component";
@@ -78,57 +78,17 @@ describe("VaultBreadcrumbsComponent", () => {
     fixture = TestBed.createComponent(VaultBreadcrumbsComponent);
   });
 
-  it("trails the whole organization vault with an All vault items crumb", () => {
-    scopeTo({ type: VaultScopeType.Organization, organizationId });
+  it("links the organization root crumb back to the organization vault", () => {
+    collections$.next([buildCollection(engineeringId, "Engineering")]);
+    scopeTo({ type: VaultScopeType.Organization, organizationId, collectionId: engineeringId });
 
-    expect(component().trailCrumbs()).toEqual([
-      {
-        key: "all-vault-items",
-        icon: "bwi-list-alt",
-        label: "allVaultItems",
-        route: [],
-        queryParamsHandling: "preserve",
-      },
-    ]);
-  });
-
-  it("does not link the organization root crumb on the All vault items page", () => {
-    scopeTo({ type: VaultScopeType.Organization, organizationId });
-
-    expect(component().orgRootCrumbRoute()).toBeUndefined();
-  });
-
-  it("trails My items when the URL names it by sentinel", () => {
-    scopeTo({ type: VaultScopeType.Organization, organizationId, collectionId: MY_ITEMS_ROUTE });
-
-    expect(component().trailCrumbs()).toEqual([
-      {
-        key: "my-items",
-        icon: "bwi-user",
-        label: "myItemsV2",
-        route: [],
-        queryParamsHandling: "preserve",
-      },
-    ]);
     expect(component().orgRootCrumbRoute()).toEqual(["/vault", organizationId]);
   });
 
-  it("trails My items when the scope carries the resolved collection id", () => {
-    scopeTo({
-      type: VaultScopeType.Organization,
-      organizationId,
-      collectionId: myItemsCollectionId,
-    });
+  it("trails nothing for a scope that names no shared folder", () => {
+    scopeTo({ type: VaultScopeType.Organization, organizationId });
 
-    expect(component().trailCrumbs()).toEqual([
-      {
-        key: "my-items",
-        icon: "bwi-user",
-        label: "myItemsV2",
-        route: [],
-        queryParamsHandling: "preserve",
-      },
-    ]);
+    expect(component().trailCrumbs()).toEqual([]);
   });
 
   it("trails a shared folder through its ancestors to the folder in view", () => {

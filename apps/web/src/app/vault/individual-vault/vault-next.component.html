@@ -1,6 +1,6 @@
 <app-header [title]="title()">
-  @if (organizationScoped()) {
-    <vault-breadcrumbs slot="breadcrumbs" [scope]="parsedVaultScope()"></vault-breadcrumbs>
+  @if (showBreadcrumbs()) {
+    <vault-breadcrumbs slot="breadcrumbs" [scope]="vaultScope()"></vault-breadcrumbs>
   } @else if (headerTile(); as tile) {
     <bit-icon-tile
       slot="title-prefix"

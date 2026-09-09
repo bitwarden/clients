@@ -1,5 +1,5 @@
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { BitwardenIcon } from "@bitwarden/components";
 
 import {
@@ -92,6 +92,10 @@ describe("personalIconTile", () => {
 });
 
 describe("vaultScopeHeaderTile", () => {
+  const orgId = "1b2c3d4e-5f60-4a1b-8c2d-3e4f5a6b7c8d" as OrganizationId;
+  const myItemsId = "5e6f7a8b-9c1d-4e2f-8a3b-4c5d6e7f8a9b" as CollectionId;
+  const sharedFolderId = "3c4d5e6f-7a8b-4c9d-8e1f-2a3b4c5d6e7f" as CollectionId;
+
   const personalNav: VaultsNavViewModel = {
     vaults: [
       {
@@ -104,6 +108,21 @@ describe("vaultScopeHeaderTile", () => {
     ],
     organizationDataOwnership: false,
   };
+
+  const orgNav: VaultsNavViewModel = {
+    vaults: [
+      {
+        id: orgId,
+        label: "Acme corporation",
+        type: VaultNavItemType.Organization,
+        icon: "bwi-business",
+        defaultUserCollectionId: myItemsId,
+      },
+    ],
+    organizationDataOwnership: true,
+  };
+
+  const orgTile = { icon: "bwi-business", variant: "purple", emphasis: "bold" };
 
   it("gives All items the brand list tile", () => {
     expect(vaultScopeHeaderTile({ type: VaultScopeType.AllItems }, personalNav)).toEqual(
@@ -122,16 +141,30 @@ describe("vaultScopeHeaderTile", () => {
     expect(vaultScopeHeaderTile({ type: VaultScopeType.MyVault }, undefined)).toBeUndefined();
   });
 
-  // Organization vaults carry their tile on the breadcrumb trail's root crumb instead.
-  it("has no tile for an organization vault, trash, or archive", () => {
-    const orgId = "1b2c3d4e-5f60-4a1b-8c2d-3e4f5a6b7c8d" as OrganizationId;
+  it("gives an organization's All vault items the organization's tile", () => {
+    expect(
+      vaultScopeHeaderTile({ type: VaultScopeType.Organization, organizationId: orgId }, orgNav),
+    ).toEqual(orgTile);
+  });
+
+  it("gives an organization's My items the organization's tile", () => {
     expect(
       vaultScopeHeaderTile(
-        { type: VaultScopeType.Organization, organizationId: orgId },
-        personalNav,
+        { type: VaultScopeType.Organization, organizationId: orgId, collectionId: myItemsId },
+        orgNav,
+      ),
+    ).toEqual(orgTile);
+  });
+
+  // A shared folder carries its tile on the breadcrumb trail instead.
+  it("has no tile for a shared folder, trash, or archive", () => {
+    expect(
+      vaultScopeHeaderTile(
+        { type: VaultScopeType.Organization, organizationId: orgId, collectionId: sharedFolderId },
+        orgNav,
       ),
     ).toBeUndefined();
-    expect(vaultScopeHeaderTile({ type: VaultScopeType.Trash }, personalNav)).toBeUndefined();
-    expect(vaultScopeHeaderTile({ type: VaultScopeType.Archive }, personalNav)).toBeUndefined();
+    expect(vaultScopeHeaderTile({ type: VaultScopeType.Trash }, orgNav)).toBeUndefined();
+    expect(vaultScopeHeaderTile({ type: VaultScopeType.Archive }, orgNav)).toBeUndefined();
   });
 });

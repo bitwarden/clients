@@ -20,8 +20,6 @@ import {
 
 import { navIconTile } from "../../models/vault-icon-tile";
 import {
-  defaultUserCollectionId,
-  MY_ITEMS_ROUTE,
   sharedFoldersCommands,
   vaultScopeCommands,
   VaultScope,
@@ -71,16 +69,6 @@ export class VaultBreadcrumbsComponent {
     this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
   );
 
-  /** True for the org's "My items", by URL sentinel or resolved id, so either scope form matches. */
-  private readonly myItems = computed(() => {
-    const collectionId = this.collectionId();
-    if (collectionId === MY_ITEMS_ROUTE) {
-      return true;
-    }
-    const orgId = this.organizationId();
-    return orgId != null && collectionId === defaultUserCollectionId(orgId, this.vaultNav());
-  });
-
   protected readonly orgNavItem = computed(() => {
     const orgId = this.organizationId();
     if (orgId == null) {
@@ -99,18 +87,13 @@ export class VaultBreadcrumbsComponent {
     return orgId == null ? [] : sharedFoldersCommands(orgId);
   });
 
-  private readonly orgRootRoute = computed((): string[] => {
+  protected readonly orgRootCrumbRoute = computed((): string[] => {
     const orgId = this.organizationId();
     if (orgId == null) {
       return [];
     }
     return vaultScopeCommands({ type: VaultScopeType.Organization, organizationId: orgId });
   });
-
-  /** Unset on the all-vault-items page, where a link to the org root would point at the current URL. */
-  protected readonly orgRootCrumbRoute = computed((): string[] | undefined =>
-    this.collectionId() == null ? undefined : this.orgRootRoute(),
-  );
 
   private readonly collections = toSignal(
     this.userId$.pipe(switchMap((userId) => this.collectionService.decryptedCollections$(userId))),
@@ -157,14 +140,8 @@ export class VaultBreadcrumbsComponent {
   });
 
   protected readonly trailCrumbs = computed((): TrailCrumb[] => {
-    if (this.collectionId() == null) {
-      return [
-        this.currentCrumb("all-vault-items", "bwi-list-alt", this.i18nService.t("allVaultItems")),
-      ];
-    }
-
-    if (this.myItems()) {
-      return [this.currentCrumb("my-items", "bwi-user", this.i18nService.t("myItemsV2"))];
+    if (this.sharedFolderNode() == null) {
+      return [];
     }
 
     return [

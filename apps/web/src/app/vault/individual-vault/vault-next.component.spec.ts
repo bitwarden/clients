@@ -486,21 +486,52 @@ describe("VaultNextComponent", () => {
         expect(component().scopedOrganizationId()).toBe(organizationId);
       });
 
-      it("titles the header with the organization name", () => {
-        expect(component().title()).toBe("Acme corporation");
+      it("titles the header All vault items", () => {
+        expect(component().title()).toBe("allVaultItems");
       });
 
-      it("shows breadcrumbs rather than a header tile", () => {
-        expect(component().organizationScoped()).toBe(true);
-        expect(component().headerTile()).toBeUndefined();
+      it("shows a header tile rather than breadcrumbs", () => {
+        expect(component().showBreadcrumbs()).toBe(false);
+        expect(component().headerTile()).toBeDefined();
       });
     });
 
     describe("scoped to an organization's My items", () => {
-      beforeEach(() => scopeTo(organizationId, MY_ITEMS_ROUTE));
+      const myItemsId = "aaaa1111-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
 
-      it("counts as an organization scope, so it shows breadcrumbs", () => {
-        expect(component().organizationScoped()).toBe(true);
+      beforeEach(() => {
+        vaultNav$.next({
+          vaults: [
+            personalNavItem,
+            {
+              ...buildOrgNavItem(organizationId, "Acme corporation"),
+              defaultUserCollectionId: myItemsId,
+            },
+          ],
+          organizationDataOwnership: true,
+        });
+        scopeTo(organizationId, MY_ITEMS_ROUTE);
+      });
+
+      it("titles the header My items", () => {
+        expect(component().title()).toBe("myItemsV2");
+      });
+
+      it("shows a header tile rather than breadcrumbs", () => {
+        expect(component().showBreadcrumbs()).toBe(false);
+        expect(component().headerTile()).toBeDefined();
+      });
+    });
+
+    describe("scoped to a shared folder", () => {
+      beforeEach(() => {
+        collections$.next([buildCollection(engineeringId, organizationId)]);
+        scopeTo(organizationId, engineeringId);
+      });
+
+      it("shows breadcrumbs rather than a header tile", () => {
+        expect(component().showBreadcrumbs()).toBe(true);
+        expect(component().headerTile()).toBeUndefined();
       });
     });
 
