@@ -84,7 +84,12 @@ export class CliDesktopIpcTransport {
     this.connection = undefined;
     this.connected = false;
     this.messageBuffer = Buffer.alloc(0);
-    proxy?.kill();
+    if (proxy != null) {
+      // Close the native-messaging stream so the proxy tears the Desktop
+      // connection down itself, then terminate it as a fallback.
+      proxy.stdin.end();
+      proxy.kill();
+    }
 
     if (wasConnected) {
       this.onDisconnect?.();

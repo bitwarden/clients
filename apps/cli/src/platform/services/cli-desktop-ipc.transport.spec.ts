@@ -113,6 +113,7 @@ describe("CliDesktopIpcTransport", () => {
 
     transport.disconnect();
 
+    expect(proxy.stdin.writableEnded).toBe(true);
     expect(proxy.process.kill).toHaveBeenCalledTimes(1);
     expect(onDisconnect).toHaveBeenCalledTimes(1);
   });
