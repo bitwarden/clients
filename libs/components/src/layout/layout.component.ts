@@ -272,7 +272,7 @@ export class LayoutComponent {
         // nav past what push affords is a request for overlay, not a collapse mid-gesture.
         const lostPushRoom = !navPush && this.sideNavService.open() && wasInPushMode;
 
-        // Until then the open estimate may be wrong: it uses DEFAULT_OPEN_WIDTH, but the persisted
+        // Until then the open estimate may be wrong: it uses the default width, but the persisted
         // width arrives later and may be too wide for push mode at this viewport.
         const estimateWasWrong =
           !settled &&
@@ -296,7 +296,7 @@ export class LayoutComponent {
         this.sideNavService.isPushMode.set(navPush);
         this.siderailIsPushMode.set(siderailCanPush);
         this.drawerService.isPushMode.set(drawerPush);
-        this.sideNavService.markLayoutReady();
+        this.sideNavService.armTransitionsAfterFirstPaint();
         hasReconciled = true;
         lastDrawerWidthPx = drawerWidthPx;
         widthHasHydrated = this.sideNavService.widthHydrated();

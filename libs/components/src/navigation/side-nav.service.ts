@@ -50,8 +50,8 @@ export class SideNavService {
   readonly isDragging = signal(false);
 
   /**
-   * True one tick after the layout's first ResizeObserver callback, so the initial open/width
-   * state is painted before transitions turn on and the nav does not animate in on page load.
+   * True once the browser has painted the layout's first measurement, so the initial open/width
+   * state is on screen before transitions turn on and the nav does not animate in on page load.
    */
   private readonly layoutReady = signal(false);
 
@@ -94,8 +94,13 @@ export class SideNavService {
     }
   }
 
-  /** Called by LayoutComponent after its first ResizeObserver callback, to enable transitions once painted. */
-  markLayoutReady() {
+  /**
+   * Called by LayoutComponent from its first ResizeObserver callback. That callback runs before the
+   * browser paints the frame, and so do `afterNextRender` and `requestAnimationFrame` — arming the
+   * width transition in any of them means arming it in the same frame that first paints the width,
+   * and the nav animates in on page load. `setTimeout` is the next macrotask, i.e. after the paint.
+   */
+  armTransitionsAfterFirstPaint() {
     if (!this.layoutReady()) {
       setTimeout(() => this.layoutReady.set(true));
     }

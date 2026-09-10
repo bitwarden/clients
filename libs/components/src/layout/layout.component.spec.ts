@@ -133,6 +133,12 @@ describe("LayoutComponent push/overlay reconciliation", () => {
   };
 
   const boot = () => {
+    configure();
+    settle();
+  };
+
+  /** Builds the fixture without flushing anything, so first-paint behavior stays observable. */
+  const configure = () => {
     stateProvider = new DeferredStateProvider();
 
     TestBed.configureTestingModule({
@@ -158,7 +164,6 @@ describe("LayoutComponent push/overlay reconciliation", () => {
 
     fixture = TestBed.createComponent(HostComponent);
     sideNav = TestBed.inject(SideNavService);
-    settle();
   };
 
   /** Flush change detection, the afterNextRender hook, the width effect, and pending timers. */
@@ -282,6 +287,32 @@ describe("LayoutComponent push/overlay reconciliation", () => {
       settle();
 
       expect(sideNav.open()).toBe(false);
+    }));
+  });
+
+  describe("first paint", () => {
+    const navTransition = () =>
+      (fixture.nativeElement.querySelector("#bit-side-nav") as HTMLElement).style.transition;
+
+    it("keeps the width transition off until the browser has painted the initial state", fakeAsync(() => {
+      configure();
+      stateProvider.width.deliver(20);
+
+      // Two rounds of change detection with no timers flushed: enough for the layout's
+      // afterNextRender hook and its first reconciliation, which is where transitions are armed.
+      fixture.detectChanges();
+      fixture.detectChanges();
+
+      // The deferral has been scheduled but has not run, i.e. the frame that first paints the
+      // width has not been handed to the browser yet. Arming here animates the nav in on load.
+      expect(sideNav.transitionsEnabled()).toBe(false);
+      expect(navTransition()).toBe("none");
+
+      tick();
+      fixture.detectChanges();
+
+      expect(sideNav.transitionsEnabled()).toBe(true);
+      expect(navTransition()).toBe("width 150ms ease-out");
     }));
   });
 
