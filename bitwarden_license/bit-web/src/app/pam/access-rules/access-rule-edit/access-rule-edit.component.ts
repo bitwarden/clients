@@ -251,20 +251,16 @@ export class AccessRuleEditComponent {
   private readonly allCollectionsLoading = signal(true);
 
   /**
-   * Ids of collections a DIFFERENT access rule already claims, so the picker never offers a
-   * choice the server would reject with `CollectionsGoverned`
-   * (`helpers/access-rule-error.ts`). Mirrors the server's own check —
-   * `AccessRuleWriteValidator.ValidateCollectionsAsync` in the server repo rejects on
-   * `Collection.AccessRuleId` regardless of the owning rule's `enabled` flag, so a disabled
-   * rule's collections are excluded here too. This is a different question from
-   * `rulesGoverningCollection`'s enabled-only filter for the collection callout, which answers
-   * what is enforced today rather than what the server will reject. This rule's own collections
-   * are never excluded, matching the server's `existingRuleId` exemption.
+   * Ids of collections a DIFFERENT access rule already claims, so the picker never offers a choice
+   * the server would reject with `CollectionsGoverned` (`helpers/access-rule-error.ts`). Mirrors
+   * `AccessRuleWriteValidator.ValidateCollectionsAsync`, which rejects on `Collection.AccessRuleId`
+   * regardless of the owning rule's `enabled` flag — so a disabled rule's collections are excluded
+   * here too, unlike `rulesGoverningCollection`'s enabled-only filter for the collection callout,
+   * which answers what is enforced today rather than what the server will reject. This rule's own
+   * collections are never excluded, matching the server's `existingRuleId` exemption.
    *
-   * `undefined` until the read settles, which is what {@link collectionsLoading} gates on.
-   * `GovernedCollectionsService.rules$` resolves to `[]` on a failed read, so this falls back to
-   * excluding nothing: the picker degrades to its pre-milestone behaviour and the server's
-   * `CollectionsGoverned` rejection remains the backstop.
+   * `undefined` until the read settles. `rules$` resolves to `[]` on a failed read, so this then
+   * excludes nothing and the server's `CollectionsGoverned` rejection remains the backstop.
    */
   private readonly governedCollectionIds = toSignal(
     this.governedCollections
@@ -281,16 +277,14 @@ export class AccessRuleEditComponent {
       ),
   );
 
-  /** Gates the collections control while either the org's collections or the governed-ids read is still in flight. */
   protected readonly collectionsLoading = computed(
     () => this.allCollectionsLoading() || this.governedCollectionIds() === undefined,
   );
 
   /**
-   * Tracked as a signal (rather than reading `formGroup.controls.collections.value` directly
-   * inside `collectionOptions`) because a plain `FormControl` getter isn't itself a signal:
-   * `computed()` wouldn't re-run when the admin changes the selection, so a deselected-but-still-
-   * governed collection would stay visible in the picker.
+   * A signal rather than a direct `formGroup.controls.collections.value` read inside
+   * `collectionOptions`: a `FormControl` getter isn't a signal, so `computed()` wouldn't re-run on
+   * a selection change and a deselected-but-governed collection would stay in the picker.
    */
   private readonly selectedCollectionIds = toSignal(
     this.formGroup.controls.collections.valueChanges.pipe(
@@ -419,11 +413,10 @@ export class AccessRuleEditComponent {
       );
       this.allCollections.set(collections.map((c) => ({ id: c.id, name: c.name })));
 
-      // Sourced from the unfiltered allCollections(): the form's collections control is still
-      // empty at this point, so the governed-collections filter has no "already selected"
-      // exemption yet for this rule's own ids. Using the filtered options here could drop one of
-      // this rule's collections that another rule record also lists (stale data, a lost race on
-      // the server's exclusivity check), silently losing it from the rule on the next save.
+      // Unfiltered: the collections control is still empty here, so `collectionOptions`' "already
+      // selected" exemption doesn't cover this rule's own ids yet. Filtering would drop a
+      // collection another rule record also lists (stale data, a lost race on the server's
+      // exclusivity check), silently losing it from the rule on the next save.
       const optionsById = new Map(
         this.allCollections().map((c): [string, SelectItemView] => [
           c.id,
@@ -544,9 +537,8 @@ export class AccessRuleEditComponent {
           message: this.i18nService.t("pamAccessRuleCreated"),
         });
       }
-      // The write just changed which collections are governed (and by which rule); drop the
-      // cached read so the next consumer — this page, the callout, the gated banner — sees it
-      // rather than serving up to CACHE_TTL_MS of stale state.
+      // The write changed which collections are governed; drop the cached read so the next
+      // consumer doesn't serve up to CACHE_TTL_MS of stale state.
       this.governedCollections.invalidate(this.organizationId);
       await this.navigateToList();
     } catch (e) {

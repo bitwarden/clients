@@ -75,9 +75,8 @@ export class AccessRulesService {
    *
    * The copy is persisted immediately — the admin never gets a chance to abandon it — so the
    * name must already be free of collisions; {@link copyRuleName} is what makes it so. The copy
-   * governs no collections; see {@link accessRuleToCopyRequest} for why. Because of that, this
-   * cannot change which collections are governed, so it doesn't need to invalidate
-   * {@link GovernedCollectionsService}'s cache — see {@link delete} for the writes that do.
+   * governs no collections; see {@link accessRuleToCopyRequest} for why — so it can't change
+   * governance, and needn't invalidate {@link GovernedCollectionsService}'s cache.
    */
   async copy(rule: AccessRuleView, name: string): Promise<AccessRuleView> {
     const created = await this.pamApi.createAccessRule(
@@ -91,10 +90,9 @@ export class AccessRulesService {
   /**
    * Toggle a single rule's enabled flag, patching local state with the result.
    *
-   * Doesn't invalidate {@link GovernedCollectionsService}'s cache: `enabled` can't change which
-   * collections a rule governs — the server keys governance off `Collection.AccessRuleId`
-   * regardless of the owning rule's `enabled` flag, the same asymmetry documented on
-   * `governedCollectionIds` in `access-rule-edit.component.ts`.
+   * Doesn't invalidate {@link GovernedCollectionsService}'s cache: the server keys governance off
+   * `Collection.AccessRuleId` regardless of the rule's `enabled` flag, so toggling it can't change
+   * which collections are governed.
    */
   async setEnabled(rule: AccessRuleView, enabled: boolean): Promise<void> {
     const updated = await this.pamApi.updateAccessRule(
@@ -109,7 +107,7 @@ export class AccessRulesService {
    * Enable/disable many rules at once, skipping rules already in the target state.
    * Returns the number of rules actually changed (0 when none needed updating).
    *
-   * Same non-invalidating reasoning as {@link setEnabled}: `enabled` doesn't affect governance.
+   * Same non-invalidating reasoning as {@link setEnabled}.
    */
   async setManyEnabled(rules: AccessRuleView[], enabled: boolean): Promise<number> {
     const targets = rulesChangingEnabled(rules, enabled);
@@ -135,9 +133,8 @@ export class AccessRulesService {
   /**
    * Delete a single rule, dropping it from local state.
    *
-   * Invalidates {@link GovernedCollectionsService}'s cache once the delete has actually
-   * succeeded, so a rule deleted from this list's row menu frees its collections in the picker
-   * just as reliably as a delete from the edit page does — see that service's `invalidate` doc.
+   * Invalidates {@link GovernedCollectionsService}'s cache so the freed collections reappear in
+   * the picker; see that service's `invalidate` doc.
    */
   async delete(rule: AccessRuleView): Promise<void> {
     const organizationId = this.requireOrganizationId();

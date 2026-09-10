@@ -149,9 +149,9 @@ export const CreateFromTemplate: Story = {
 };
 
 /**
- * Create mode with two collections already governed by other rules: `col-1` (a disabled
- * rule still counts, per `AccessRuleWriteValidator`) and `col-3` (an enabled rule) are missing
- * from the picker; `col-2` is ungoverned and stays selectable.
+ * Create mode with `col-1` and `col-3` governed by other rules, so both are missing from the
+ * picker and only `col-2` stays selectable. `col-1`'s rule is disabled and still counts, per
+ * `AccessRuleWriteValidator`.
  */
 export const CreateWithGovernedCollections: Story = {
   decorators: [
@@ -165,9 +165,8 @@ export const CreateWithGovernedCollections: Story = {
 
 /**
  * Edit mode: the form is populated from an existing rule (conditions + extensions enabled).
- * `GovernedCollectionsService` reports the rule under edit as the sole governor of its own
- * collections, so this also shows self-exclusion: `col-1` and `col-3` remain selectable despite
- * `rule-1` itself "governing" them.
+ * `rule-1` governs its own collections, so this also shows self-exclusion — `col-1` and `col-3`
+ * stay selectable.
  */
 export const Edit: Story = {
   decorators: [atUrl("/organizations/org-1/access-rules/rule-1"), governedBy([SAMPLE_RULE])],

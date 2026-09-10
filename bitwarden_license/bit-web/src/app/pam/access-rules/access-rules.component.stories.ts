@@ -118,8 +118,8 @@ export default {
         { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: AccessRuleSdkService, useValue: pamApi(() => Promise.resolve(RULES)) },
-        // `AccessRulesService` is provided by the component and injected in a field
-        // initializer, so it is constructed on creation; `invalidate` is all this page reaches.
+        // `AccessRulesService` is constructed with the component and injects this; `invalidate`
+        // is all the page ever reaches.
         { provide: GovernedCollectionsService, useValue: { invalidate: () => {} } },
       ],
     }),

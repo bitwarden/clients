@@ -174,7 +174,6 @@ describe("AccessRulesService", () => {
       await expect(service.delete(rule("rule-1"))).rejects.toThrow();
 
       expect(governedCollections.invalidate).not.toHaveBeenCalled();
-      // Local state is untouched by the failed write.
       expect(await currentRuleIds()).toEqual(["rule-1"]);
     });
   });
