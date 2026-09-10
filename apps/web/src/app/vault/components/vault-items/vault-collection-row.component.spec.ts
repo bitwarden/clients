@@ -8,6 +8,7 @@ import {
   CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -57,7 +58,12 @@ describe("VaultCollectionRowComponent", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
         {
           provide: ConfigService,
-          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+          useValue: {
+            // Only the failure treatment is enabled here; every other flag stays off.
+            getFeatureFlag$: jest.fn((flag: FeatureFlag) =>
+              of(flag === FeatureFlag.CollectionBulkDecryptWithFailures),
+            ),
+          },
         },
       ],
     }).compileComponents();
@@ -81,6 +87,28 @@ describe("VaultCollectionRowComponent", () => {
 
     it("does not render a decryption failure warning", () => {
       expect(decryptionFailureBadge()).toBeNull();
+    });
+  });
+
+  // The failure treatment ships with the SDK path that produces the failures, so an unflagged
+  // client keeps rendering the placeholder name as an ordinary link.
+  describe("when the collection name failed to decrypt but the flag is off", () => {
+    beforeEach(() => {
+      const configService = TestBed.inject(ConfigService);
+      (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(false));
+
+      fixture = TestBed.createComponent(VaultCollectionRowComponent);
+      component = fixture.componentInstance;
+      component.organizations = [{ id: orgId } as Organization];
+      component.disabled = false;
+      component.canEditCollection = true;
+      component.collection = makeCollection({ decryptionFailure: true, name: "[error]" });
+      fixture.detectChanges();
+    });
+
+    it("renders the name as a link with no warning", () => {
+      expect(decryptionFailureBadge()).toBeNull();
+      expect(navigationLink()?.textContent).toContain("[error]");
     });
   });
 

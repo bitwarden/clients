@@ -288,6 +288,18 @@ export class CollectionDialogComponent implements OnInit {
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
   );
 
+  /**
+   * Gates the decryption-failure treatment - the repair callout and the blank name - behind the
+   * same flag as the SDK path that produces the failures, so the feature rolls out as one unit.
+   */
+  private readonly decryptionFailureUi$ = this.configService.getFeatureFlag$(
+    FeatureFlag.CollectionBulkDecryptWithFailures,
+  );
+
+  protected readonly decryptionFailureUi = toSignal(this.decryptionFailureUi$, {
+    initialValue: false,
+  });
+
   private readonly orgExceedingCollectionLimit$ = this.organizationSelected.statusChanges.pipe(
     filter(() => !!this.organizationSelected.errors?.cannotCreateCollections),
     switchMap(() =>
@@ -364,11 +376,12 @@ export class CollectionDialogComponent implements OnInit {
             collection: this.collection$,
             allCollections: this.allCollections$,
             users: this.users$,
+            decryptionFailureUi: this.decryptionFailureUi$,
           }).pipe(take(1)),
         ),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(({ organization, collection, allCollections, users }) => {
+      .subscribe(({ organization, collection, allCollections, users, decryptionFailureUi }) => {
         if (!organization) {
           return;
         }
@@ -376,7 +389,10 @@ export class CollectionDialogComponent implements OnInit {
         if (collection) {
           const { name, parent: parentName } = parseName(collection);
           this.formGroup.patchValue({
-            name,
+            // A collection whose name failed to decrypt only has a placeholder for a name, so
+            // there is nothing to carry over. Leave it empty so the user supplies a real one
+            // instead of unknowingly saving the placeholder as the collection's name.
+            name: decryptionFailureUi && collection.decryptionFailure ? "" : name,
             externalId: collection.externalId,
             parent: parentName,
             access: mapToAccessSelections(collection),
@@ -613,13 +629,6 @@ export class CollectionDialogComponent implements OnInit {
 }
 
 function parseName(collection: CollectionView) {
-  // A collection whose name failed to decrypt only has a placeholder for a name, so there is
-  // nothing to parse. Return an empty name so the user supplies a real one instead of unknowingly
-  // saving the placeholder as the collection's name.
-  if (collection.decryptionFailure) {
-    return { name: "", parent: undefined };
-  }
-
   const nameParts = collection.name.split("/");
   const name = nameParts[nameParts.length - 1];
   const parent = nameParts.length > 1 ? nameParts.slice(0, -1).join("/") : undefined;
