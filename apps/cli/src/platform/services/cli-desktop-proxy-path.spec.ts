@@ -29,6 +29,7 @@ describe("getDesktopProxyPaths", () => {
   it("returns standard desktop installation paths on Linux", () => {
     expect(getDesktopProxyPaths("linux", "/home/alice", {})).toEqual([
       "/opt/Bitwarden/desktop_proxy",
+      "/app/Bitwarden/desktop_proxy",
       "/usr/lib/bitwarden/desktop_proxy",
       "/usr/lib/bitwarden-desktop/desktop_proxy",
       "/snap/bitwarden/current/desktop_proxy",

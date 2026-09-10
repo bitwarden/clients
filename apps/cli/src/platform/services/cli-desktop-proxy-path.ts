@@ -30,6 +30,7 @@ export function getDesktopProxyPaths(
 
   return [
     "/opt/Bitwarden/desktop_proxy",
+    "/app/Bitwarden/desktop_proxy",
     "/usr/lib/bitwarden/desktop_proxy",
     "/usr/lib/bitwarden-desktop/desktop_proxy",
     "/snap/bitwarden/current/desktop_proxy",
