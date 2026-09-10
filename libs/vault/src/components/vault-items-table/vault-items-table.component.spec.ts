@@ -37,6 +37,7 @@ import {
 } from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
+import { VaultScopeType } from "../../models/vault-scope";
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 import { MY_VAULT, NO_FOLDER } from "../../utils/vault-filter-predicates";
 
@@ -382,6 +383,23 @@ describe("VaultItemsTableComponent", () => {
       expect(applyFilter(cipherView({ favorite: true }), { favorites: true })).toBe(true);
       // Off, the toggle must not exclude non-favorites.
       expect(applyFilter(cipherView({ favorite: false }), { favorites: false })).toBe(true);
+    });
+
+    it("filters to the My items collection only when the toggle is on", () => {
+      fixture.componentRef.setInput("defaultCollectionId", "col-1");
+      const mine = cipherView({
+        organizationId: "org-1" as never,
+        collectionIds: ["col-1"] as never,
+      });
+      const notMine = cipherView({
+        organizationId: "org-1" as never,
+        collectionIds: ["col-2"] as never,
+      });
+
+      expect(applyFilter(mine, { myItems: true })).toBe(true);
+      expect(applyFilter(notMine, { myItems: true })).toBe(false);
+      // Off, the toggle must not exclude anything.
+      expect(applyFilter(notMine, { myItems: false })).toBe(true);
     });
 
     describe("vault (multi-select)", () => {
@@ -738,6 +756,28 @@ describe("VaultItemsTableComponent", () => {
       });
     });
 
+    describe("My items", () => {
+      it("is disabled with a tooltip when no cipher belongs to the My items collection", () => {
+        fixture.componentRef.setInput("defaultCollectionId", "col-1");
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ organizationId: "org-1" as never, collectionIds: ["col-2"] as never }),
+        ]);
+
+        expect(component["noMyItems"]()).toBe(true);
+        expect(component["myItemsDisabledTooltip"]()).toBe("myItemsFilterTooltip");
+      });
+
+      it("is enabled with an empty tooltip when a cipher belongs to the My items collection", () => {
+        fixture.componentRef.setInput("defaultCollectionId", "col-1");
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ organizationId: "org-1" as never, collectionIds: ["col-1"] as never }),
+        ]);
+
+        expect(component["noMyItems"]()).toBe(false);
+        expect(component["myItemsDisabledTooltip"]()).toBe("");
+      });
+    });
+
     describe("Shared folders", () => {
       it("is disabled with a tooltip when no cipher belongs to an organization", () => {
         fixture.componentRef.setInput("ciphers", [cipherView({ organizationId: undefined })]);
@@ -768,6 +808,38 @@ describe("VaultItemsTableComponent", () => {
         // Empty, not just falsy — bitTooltip only renders nothing for an empty string.
         expect(component["sharedFolderDisabledTooltip"]()).toBe("");
       });
+    });
+  });
+
+  describe("showMyItems", () => {
+    it("shows only on an organization's All vault items page, under the data ownership policy", () => {
+      fixture.componentRef.setInput("orgRequiresDataOwnership", true);
+      fixture.componentRef.setInput("defaultCollectionId", "col-1");
+
+      fixture.componentRef.setInput("scope", {
+        type: VaultScopeType.Organization,
+        organizationId: "org-1",
+      });
+      expect(component["showMyItems"]()).toBe(true);
+
+      fixture.componentRef.setInput("scope", {
+        type: VaultScopeType.Organization,
+        organizationId: "org-1",
+        collectionId: "col-1",
+      });
+      expect(component["showMyItems"]()).toBe(false);
+
+      // Outside an organization scope.
+      fixture.componentRef.setInput("scope", { type: VaultScopeType.MyVault });
+      expect(component["showMyItems"]()).toBe(false);
+
+      // Policy doesn't apply.
+      fixture.componentRef.setInput("scope", {
+        type: VaultScopeType.Organization,
+        organizationId: "org-1",
+      });
+      fixture.componentRef.setInput("orgRequiresDataOwnership", false);
+      expect(component["showMyItems"]()).toBe(false);
     });
   });
 
