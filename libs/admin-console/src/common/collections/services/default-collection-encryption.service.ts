@@ -7,7 +7,6 @@ import {
   of,
   switchMap,
   tap,
-  throwError,
 } from "rxjs";
 
 import { Collection } from "@bitwarden/common/admin-console/models/collections/collection";
@@ -82,7 +81,7 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
       }),
       catchError((error: unknown) => {
         this.logService.error(`Failed to decrypt collections in batch: ${error}`);
-        return throwError(() => (error instanceof Error ? error : new Error(String(error))));
+        throw error;
       }),
       tap((result) => {
         this.logService.measure(
@@ -149,7 +148,7 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
       }),
       catchError((error: unknown) => {
         this.logService.error(`Failed to decrypt collections in batch: ${error}`);
-        return throwError(() => (error instanceof Error ? error : new Error(String(error))));
+        throw error;
       }),
       tap((result) => {
         this.logService.measure(

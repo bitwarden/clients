@@ -550,7 +550,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
               if (action == "showFailedToDecrypt") {
                 DecryptionFailureDialogComponent.open(this.dialogService, {
-                  ids: [cipherId as CipherId],
+                  cipherIds: [cipherId as CipherId],
                 });
                 await this.router.navigate([], {
                   queryParams: { itemId: null, cipherId: null, action: null },
@@ -584,14 +584,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         takeUntil(this.destroy$),
       )
       .subscribe((ciphers) => {
+        // Note: collections that fail to decrypt intentionally do not raise this dialog. Unlike a
+        // cipher, a collection's only encrypted field is its name, so there is no data loss to warn
+        // about — the row surfaces the failure in place and offers a re-name to repair it.
         DecryptionFailureDialogComponent.open(this.dialogService, {
-          ids: ciphers.map((c) => c.id as CipherId),
+          cipherIds: ciphers.map((c) => c.id as CipherId),
         });
       });
-
-    // Note: collections that fail to decrypt intentionally do not raise this dialog. Unlike a
-    // cipher, a collection's only encrypted field is its name, so there is no data loss to warn
-    // about — the row surfaces the failure in place and offers a re-name to repair it.
 
     this.organizations$
       .pipe(

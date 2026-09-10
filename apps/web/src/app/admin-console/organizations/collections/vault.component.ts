@@ -481,7 +481,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
             if (action == "showFailedToDecrypt") {
               DecryptionFailureDialogComponent.open(this.dialogService, {
-                ids: [cipherId as CipherId],
+                cipherIds: [cipherId as CipherId],
               });
               await this.router.navigate([], {
                 queryParams: { itemId: null, cipherId: null, action: null },

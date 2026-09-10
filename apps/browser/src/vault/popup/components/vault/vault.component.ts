@@ -326,7 +326,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       )
       .subscribe((ciphers) => {
         DecryptionFailureDialogComponent.open(this.dialogService, {
-          ids: ciphers.map((c) => c.id as CipherId),
+          cipherIds: ciphers.map((c) => c.id as CipherId),
         });
       });
 

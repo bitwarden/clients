@@ -656,7 +656,7 @@ describe("VaultComponent", () => {
     expect(introSvc.setIntroCarouselDismissed).toHaveBeenCalled();
 
     expect(DecryptionFailureDialogComponent.open).toHaveBeenCalledWith(expect.any(Object), {
-      ids: ["a", "c"],
+      cipherIds: ["a", "c"],
     });
 
     flush();

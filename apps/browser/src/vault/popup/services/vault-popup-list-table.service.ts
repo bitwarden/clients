@@ -295,7 +295,7 @@ export class VaultPopupListTableService {
         try {
           if (CipherViewLikeUtils.decryptionFailure(cipher)) {
             DecryptionFailureDialogComponent.open(this.dialogService, {
-              ids: [cipher.id as CipherId],
+              cipherIds: [cipher.id as CipherId],
             });
             return;
           }
