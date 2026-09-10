@@ -300,6 +300,20 @@ export class CollectionDialogComponent implements OnInit {
     initialValue: false,
   });
 
+  protected readonly canRepairDecryptionFailure = toSignal(
+    combineLatest([this.collection$, this.organization$, this.decryptionFailureUi$]).pipe(
+      map(([collection, organization, decryptionFailureUi]) =>
+        canRepairDecryptionFailure(
+          collection,
+          organization,
+          decryptionFailureUi,
+          this.dialogReadonly,
+        ),
+      ),
+    ),
+    { initialValue: false },
+  );
+
   private readonly orgExceedingCollectionLimit$ = this.organizationSelected.statusChanges.pipe(
     filter(() => !!this.organizationSelected.errors?.cannotCreateCollections),
     switchMap(() =>
@@ -392,7 +406,14 @@ export class CollectionDialogComponent implements OnInit {
             // A collection whose name failed to decrypt only has a placeholder for a name, so
             // there is nothing to carry over. Leave it empty so the user supplies a real one
             // instead of unknowingly saving the placeholder as the collection's name.
-            name: decryptionFailureUi && collection.decryptionFailure ? "" : name,
+            name: canRepairDecryptionFailure(
+              collection,
+              organization,
+              decryptionFailureUi,
+              this.dialogReadonly,
+            )
+              ? ""
+              : name,
             externalId: collection.externalId,
             parent: parentName,
             access: mapToAccessSelections(collection),
@@ -626,6 +647,26 @@ export class CollectionDialogComponent implements OnInit {
   private close(action: CollectionDialogAction, collection?: CollectionResponse | CollectionView) {
     void this.dialogRef.close({ action, collection } as CollectionDialogResult);
   }
+}
+
+/**
+ * The repair path - a blank name plus the callout asking for a new one - is only offered when the
+ * user can actually edit the name. Otherwise the name control stays disabled, so blanking it would
+ * leave an empty, greyed-out field and the callout would suggest a remedy that cannot be taken.
+ */
+function canRepairDecryptionFailure(
+  collection: CollectionAdminView | undefined,
+  organization: Organization | undefined,
+  decryptionFailureUi: boolean,
+  dialogReadonly: boolean,
+): boolean {
+  return (
+    decryptionFailureUi &&
+    !dialogReadonly &&
+    !!collection?.decryptionFailure &&
+    organization != undefined &&
+    collection.canEditName(organization)
+  );
 }
 
 function parseName(collection: CollectionView) {

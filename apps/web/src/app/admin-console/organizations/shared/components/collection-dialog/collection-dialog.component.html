@@ -25,7 +25,7 @@
     @if (!loading()) {
       <bit-tab-group [selectedIndex]="tabIndex()" (selectedIndexChange)="tabIndex.set($event)">
         <bit-tab label="{{ 'collectionInfo' | vfo1I18n: 'sharedFolderInfo' }}">
-          @if (decryptionFailureUi() && collection()?.decryptionFailure) {
+          @if (canRepairDecryptionFailure()) {
             <bit-callout
               title="{{ 'decryptionError' | i18n }}"
               type="warning"
