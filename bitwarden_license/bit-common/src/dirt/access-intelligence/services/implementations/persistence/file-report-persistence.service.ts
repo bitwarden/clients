@@ -121,7 +121,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
                 measureFlowStep(this.logService, "Save: report file uploaded", () => [
                   ["byteSize", encryptedData.encryptedReportData.buffer.byteLength],
                 ]),
-                tap(() => this.logService.mark("AccessReportFlow: report saved")),
+                tap(() => this.logService.mark("[AccessReportFlow]: report saved")),
                 map(() => ({
                   id: reportId,
                   contentEncryptionKey: encryptedData.contentEncryptionKey,

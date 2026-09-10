@@ -85,7 +85,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._currentOrgId.next(orgId);
     this._loading.next(true);
     this._error.next(null);
-    this.logService.mark("AccessReportFlow: page open");
+    this.logService.mark("[AccessReportFlow]: page open");
 
     return forkJoin({
       reportResult: this.reportPersistenceService.loadLastReport$(orgId),

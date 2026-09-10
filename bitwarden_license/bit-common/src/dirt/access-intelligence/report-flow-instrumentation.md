@@ -62,7 +62,9 @@ cannot start until it finishes.
 
 Every save measurement also carries `memberCount` and `applicationCount`.
 
-Two marks anchor the flow: `AccessReportFlow: page open` and `AccessReportFlow: report saved`.
+Two marks anchor the flow: `[AccessReportFlow]: page open` and `[AccessReportFlow]: report saved`.
+They carry the same bracketed prefix as the measurements, so one console filter of
+`[AccessReportFlow]` captures the whole flow.
 
 ## Conventions
 
