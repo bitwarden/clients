@@ -73,6 +73,28 @@ const routes: Routes = [
   },
 ];
 
+/** A minimal rule whose only interesting property is the collections it claims. */
+const governingRule = (name: string, enabled: boolean, collections: string[]) =>
+  ({
+    id: `rule-${name}`,
+    name,
+    enabled,
+    collections,
+    conditions: [],
+    singleActiveLease: false,
+  }) as unknown as AccessRuleView;
+
+/** Reports `rules` as the org's access rules, driving the picker's governed-collection filter. */
+const governedBy = (rules: AccessRuleView[]): Decorator =>
+  moduleMetadata({
+    providers: [
+      {
+        provide: GovernedCollectionsService,
+        useValue: { rules$: () => of(rules), invalidate: () => {} },
+      },
+    ],
+  });
+
 /** Renders the story at `url`; hash routing keeps Storybook's own query string intact. */
 const atUrl =
   (url: string): Decorator =>
@@ -134,35 +156,10 @@ export const CreateFromTemplate: Story = {
 export const CreateWithGovernedCollections: Story = {
   decorators: [
     atUrl("/organizations/org-1/access-rules/new"),
-    moduleMetadata({
-      providers: [
-        {
-          provide: GovernedCollectionsService,
-          useValue: {
-            rules$: () =>
-              of([
-                {
-                  id: "rule-disabled",
-                  name: "Disabled rule",
-                  enabled: false,
-                  collections: ["col-1"],
-                  conditions: [],
-                  singleActiveLease: false,
-                } as unknown as AccessRuleView,
-                {
-                  id: "rule-enabled",
-                  name: "Enabled rule",
-                  enabled: true,
-                  collections: ["col-3"],
-                  conditions: [],
-                  singleActiveLease: false,
-                } as unknown as AccessRuleView,
-              ]),
-            invalidate: () => {},
-          },
-        },
-      ],
-    }),
+    governedBy([
+      governingRule("Disabled rule", false, ["col-1"]),
+      governingRule("Enabled rule", true, ["col-3"]),
+    ]),
   ],
 };
 
@@ -173,17 +170,7 @@ export const CreateWithGovernedCollections: Story = {
  * `rule-1` itself "governing" them.
  */
 export const Edit: Story = {
-  decorators: [
-    atUrl("/organizations/org-1/access-rules/rule-1"),
-    moduleMetadata({
-      providers: [
-        {
-          provide: GovernedCollectionsService,
-          useValue: { rules$: () => of([SAMPLE_RULE]), invalidate: () => {} },
-        },
-      ],
-    }),
-  ],
+  decorators: [atUrl("/organizations/org-1/access-rules/rule-1"), governedBy([SAMPLE_RULE])],
 };
 
 /** Edit mode on a deactivated rule: the header badge reads "Off" and the Status checkbox is clear. */

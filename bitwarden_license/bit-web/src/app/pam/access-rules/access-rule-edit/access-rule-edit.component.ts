@@ -12,7 +12,7 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, CanDeactivateFn, Router, RouterLink } from "@angular/router";
-import { firstValueFrom, map, switchMap, tap } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -249,12 +249,6 @@ export class AccessRuleEditComponent {
 
   private readonly allCollections = signal<{ id: string; name: string }[]>([]);
   private readonly allCollectionsLoading = signal(true);
-  private readonly governedCollectionsLoading = signal(true);
-
-  /** Gates the collections control while either the org's collections or the governed-ids read is still in flight. */
-  protected readonly collectionsLoading = computed(
-    () => this.allCollectionsLoading() || this.governedCollectionsLoading(),
-  );
 
   /**
    * Ids of collections a DIFFERENT access rule already claims, so the picker never offers a
@@ -267,23 +261,29 @@ export class AccessRuleEditComponent {
    * what is enforced today rather than what the server will reject. This rule's own collections
    * are never excluded, matching the server's `existingRuleId` exemption.
    *
+   * `undefined` until the read settles, which is what {@link collectionsLoading} gates on.
    * `GovernedCollectionsService.rules$` resolves to `[]` on a failed read, so this falls back to
    * excluding nothing: the picker degrades to its pre-milestone behaviour and the server's
    * `CollectionsGoverned` rejection remains the backstop.
    */
   private readonly governedCollectionIds = toSignal(
-    this.governedCollections.rules$(this.organizationId).pipe(
-      map(
-        (rules) =>
-          new Set(
-            rules
-              .filter((rule) => rule.id !== this.accessRuleId)
-              .flatMap((rule) => rule.collections.map(uuidAsString)),
-          ),
+    this.governedCollections
+      .rules$(this.organizationId)
+      .pipe(
+        map(
+          (rules) =>
+            new Set(
+              rules
+                .filter((rule) => rule.id !== this.accessRuleId)
+                .flatMap((rule) => rule.collections.map(uuidAsString)),
+            ),
+        ),
       ),
-      tap(() => this.governedCollectionsLoading.set(false)),
-    ),
-    { initialValue: new Set<string>() },
+  );
+
+  /** Gates the collections control while either the org's collections or the governed-ids read is still in flight. */
+  protected readonly collectionsLoading = computed(
+    () => this.allCollectionsLoading() || this.governedCollectionIds() === undefined,
   );
 
   /**
@@ -308,7 +308,7 @@ export class AccessRuleEditComponent {
     const governed = this.governedCollectionIds();
     const selectedIds = this.selectedCollectionIds();
     return this.allCollections()
-      .filter((c) => selectedIds.has(c.id) || !governed.has(c.id))
+      .filter((c) => selectedIds.has(c.id) || !governed?.has(c.id))
       .map((c) => this.toCollectionOption(c));
   });
 

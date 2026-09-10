@@ -735,7 +735,7 @@ describe("AccessRuleEditComponent — governed collections filter", () => {
   const setup = async (
     state: RouteState,
     existing: AccessRuleView | undefined,
-    rules: AccessRuleView[] | Subject<AccessRuleView[]>,
+    rules$: Observable<AccessRuleView[]>,
   ) => {
     TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
     TestBed.configureTestingModule({
@@ -755,7 +755,7 @@ describe("AccessRuleEditComponent — governed collections filter", () => {
         },
         {
           provide: GovernedCollectionsService,
-          useValue: { rules$: () => (rules instanceof Subject ? rules : of(rules)) },
+          useValue: { rules$: () => rules$ },
         },
       ),
     });
@@ -769,7 +769,7 @@ describe("AccessRuleEditComponent — governed collections filter", () => {
   const controls = () => component["formGroup"].controls;
 
   it("excludes a collection governed by a different rule", async () => {
-    await setup({}, undefined, [otherRule(["col-1"])]);
+    await setup({}, undefined, of([otherRule(["col-1"])]));
 
     expect(options()).toEqual(["col-2", "col-3"]);
   });
@@ -777,7 +777,7 @@ describe("AccessRuleEditComponent — governed collections filter", () => {
   it("excludes a collection governed by a disabled different rule too", async () => {
     // AccessRuleWriteValidator.ValidateCollectionsAsync keys off Collection.AccessRuleId, not
     // the owning rule's `enabled` flag — a disabled rule still blocks the collection server-side.
-    await setup({}, undefined, [otherRule(["col-1"], { enabled: false })]);
+    await setup({}, undefined, of([otherRule(["col-1"], { enabled: false })]));
 
     expect(options()).toEqual(["col-2", "col-3"]);
   });
@@ -791,10 +791,11 @@ describe("AccessRuleEditComponent — governed collections filter", () => {
       conditions: [],
     } as unknown as AccessRuleView;
 
-    await setup({ params: { accessRuleId: ruleId } }, existingRule, [
+    await setup(
+      { params: { accessRuleId: ruleId } },
       existingRule,
-      otherRule(["col-2"]),
-    ]);
+      of([existingRule, otherRule(["col-2"])]),
+    );
 
     expect(options()).toEqual(["col-1", "col-3"]);
     expect(controls().collections.value.map((c: SelectItemView) => c.id)).toEqual([
@@ -814,10 +815,11 @@ describe("AccessRuleEditComponent — governed collections filter", () => {
 
     // Legacy data (or a lost race on the server's exclusivity validator): a different rule
     // record also lists col-2.
-    await setup({ params: { accessRuleId: ruleId } }, existingRule, [
+    await setup(
+      { params: { accessRuleId: ruleId } },
       existingRule,
-      otherRule(["col-2"]),
-    ]);
+      of([existingRule, otherRule(["col-2"])]),
+    );
 
     expect(controls().collections.value.map((c: SelectItemView) => c.id)).toEqual([
       "col-1",
@@ -839,11 +841,11 @@ describe("AccessRuleEditComponent — governed collections filter", () => {
     ] satisfies SelectItemView[]);
     rules$.next([otherRule(["col-1"])]);
 
-    expect(options()).toEqual(expect.arrayContaining(["col-1"]));
+    expect(options()).toContain("col-1");
 
     controls().collections.setValue([]);
 
-    expect(options()).not.toEqual(expect.arrayContaining(["col-1"]));
+    expect(options()).not.toContain("col-1");
   });
 
   it("keeps a collection in the options once selected, even if a later refresh reports it governed elsewhere", async () => {
@@ -862,7 +864,7 @@ describe("AccessRuleEditComponent — governed collections filter", () => {
     // Another admin claims col-1 for a new rule between this read and this rule's save.
     rules$.next([otherRule(["col-1"])]);
 
-    expect(options()).toEqual(expect.arrayContaining(["col-1"]));
+    expect(options()).toContain("col-1");
   });
 
   it("keeps collectionsLoading true until the governed-rules read settles, even after collections have loaded", async () => {

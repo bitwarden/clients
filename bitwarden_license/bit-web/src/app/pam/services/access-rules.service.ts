@@ -140,17 +140,17 @@ export class AccessRulesService {
    * just as reliably as a delete from the edit page does — see that service's `invalidate` doc.
    */
   async delete(rule: AccessRuleView): Promise<void> {
-    await this.pamApi.deleteAccessRule(this.requireOrganizationId(), rule.id);
-    this.governedCollections.invalidate(this.requireOrganizationId());
+    const organizationId = this.requireOrganizationId();
+    await this.pamApi.deleteAccessRule(organizationId, rule.id);
+    this.governedCollections.invalidate(organizationId);
     this._rules$.next(this._rules$.value.filter((r) => r.id !== rule.id));
   }
 
   /** Delete many rules at once, dropping them all from local state. Invalidates once, see {@link delete}. */
   async deleteMany(rules: AccessRuleView[]): Promise<void> {
-    await Promise.all(
-      rules.map((rule) => this.pamApi.deleteAccessRule(this.requireOrganizationId(), rule.id)),
-    );
-    this.governedCollections.invalidate(this.requireOrganizationId());
+    const organizationId = this.requireOrganizationId();
+    await Promise.all(rules.map((rule) => this.pamApi.deleteAccessRule(organizationId, rule.id)));
+    this.governedCollections.invalidate(organizationId);
     const removed = new Set(rules.map((r) => r.id));
     this._rules$.next(this._rules$.value.filter((r) => !removed.has(r.id)));
   }
