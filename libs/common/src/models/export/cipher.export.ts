@@ -48,13 +48,8 @@ export class CipherExport {
     // Only overwrite an existing view.key when the export JSON explicitly carries one.
     // Leaving it absent (e.g. after CLI redaction) preserves the already-decrypted key
     // that the bw-edit path fetches before calling toView(), preventing silent key loss.
-    if (req.key != null) {
-      if (EncString.isSerializedEncString(req.key)) {
-        // Old exports stored the wrapped EncString key; it cannot be used without the vault key
-        view.key = undefined;
-      } else {
-        view.key = SymmetricCryptoKey.fromString(req.key);
-      }
+    if (req.key != null && !EncString.isSerializedEncString(req.key)) {
+      view.key = SymmetricCryptoKey.fromString(req.key);
     }
 
     if (req.fields != null) {
