@@ -25,12 +25,7 @@ import { UserDialogModule } from "./components/member-dialog";
 import { MembersRoutingModule } from "./members-routing.module";
 import { MembersComponent } from "./members.component";
 import { AvatarIdPipe, UserStatusPipe } from "./pipes";
-import {
-  OrganizationMembersService,
-  MemberActionsService,
-  MemberDialogManagerService,
-  MemberExportService,
-} from "./services";
+import { MemberActionsService, MemberExportService } from "./services";
 
 @NgModule({
   imports: [
@@ -63,13 +58,6 @@ import {
     MembersComponent,
     UserStatusPipe,
   ],
-  providers: [
-    OrganizationMembersService,
-    MemberActionsService,
-    BillingConstraintService,
-    MemberDialogManagerService,
-    MemberExportService,
-    UserStatusPipe,
-  ],
+  providers: [MemberActionsService, BillingConstraintService, MemberExportService, UserStatusPipe],
 })
 export class MembersModule {}
