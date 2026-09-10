@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { RouterModule } from "@angular/router";
+import { By } from "@angular/platform-browser";
+import { RouterLink, RouterModule } from "@angular/router";
 import { of } from "rxjs";
 
 import {
@@ -39,7 +40,14 @@ describe("VaultCollectionRowComponent", () => {
   }
 
   function navigationLink(): HTMLElement | null {
-    return fixture.nativeElement.querySelector("button[bitLink]");
+    return fixture.nativeElement.querySelector("a[bitLink], button[bitLink]");
+  }
+
+  /** The "Edit info" entry of the row's options menu, which opens the rename dialog. */
+  function editMenuItem(): HTMLElement | null {
+    fixture.nativeElement.querySelector("button[bitIconButton]")?.click();
+    fixture.detectChanges();
+    return document.querySelector("button[bitMenuItem]");
   }
 
   beforeEach(async () => {
@@ -82,57 +90,36 @@ describe("VaultCollectionRowComponent", () => {
       fixture.detectChanges();
     });
 
-    it("replaces the navigation link with a warning, since there is no name to show", () => {
-      expect(navigationLink()).toBeNull();
+    it("labels the row with a warning in place of the name", () => {
       expect(decryptionFailureBadge()?.textContent).toContain("errorCannotDecrypt");
     });
 
-    it("offers the rename remedy when the user may edit the name", () => {
-      const badge = decryptionFailureBadge();
+    // Only the name is encrypted, so the collection's items still decrypt and must stay reachable.
+    it("keeps the link to the collection's items", () => {
+      const link = fixture.debugElement.query(By.directive(RouterLink));
 
-      expect(badge?.getAttribute("role")).toBe("button");
-      expect(badge?.getAttribute("title")).toBe("cannotDecryptCollectionNameClickToRename");
+      expect(link.injector.get(RouterLink).queryParams).toEqual({ collectionId });
+      expect(navigationLink()?.getAttribute("title")).toBe("cannotDecryptCollectionName");
     });
 
-    it("emits editCollection so the user can save a new name and re-encrypt it", () => {
+    it("renders the warning as the link's label rather than a second click target", () => {
+      expect(navigationLink()!.contains(decryptionFailureBadge())).toBe(true);
+      expect(decryptionFailureBadge()?.getAttribute("role")).toBeNull();
+    });
+
+    // The rename remedy lives in the row's options menu, which is already gated on edit
+    // permission; the dialog itself enforces who may change the name.
+    it("keeps the edit option available so the user can rename and re-encrypt it", () => {
       const emitted = jest.fn();
       component.onEvent.subscribe(emitted);
 
-      decryptionFailureBadge()!.click();
+      editMenuItem()!.click();
 
       expect(emitted).toHaveBeenCalledWith({
         type: "editCollection",
         item: component.collection,
         readonly: false,
       });
-    });
-  });
-
-  describe("when a failed collection cannot be renamed", () => {
-    it("shows the warning without the rename affordance when the user lacks edit permission", () => {
-      component.canEditCollection = false;
-      component.collection = makeCollection({ decryptionFailure: true, manage: false });
-      fixture.detectChanges();
-
-      const badge = decryptionFailureBadge();
-
-      expect(badge?.textContent).toContain("errorCannotDecrypt");
-      expect(badge?.getAttribute("role")).toBeNull();
-      expect(badge?.getAttribute("title")).toBe("cannotDecryptCollectionName");
-    });
-
-    // canEditName keeps offboarded default-user collections un-renamable so the server cannot
-    // ask the client to encrypt arbitrary data. That restriction has to survive a decryption
-    // failure too.
-    it("does not offer a rename for an offboarded default user collection", () => {
-      component.collection = makeCollection({
-        decryptionFailure: true,
-        type: CollectionTypes.DefaultUserCollection,
-        defaultUserCollectionEmail: "offboarded@example.com",
-      });
-      fixture.detectChanges();
-
-      expect(decryptionFailureBadge()?.getAttribute("role")).toBeNull();
     });
   });
 });

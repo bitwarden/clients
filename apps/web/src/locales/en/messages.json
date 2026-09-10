@@ -1310,11 +1310,7 @@
   },
   "cannotDecryptSharedFolderName": {
     "message": "Cannot decrypt shared folder name",
-    "description": "Tooltip text for a shared folder whose name failed to decrypt and that the user cannot rename."
-  },
-  "cannotDecryptSharedFolderNameClickToRename": {
-    "message": "Cannot decrypt shared folder name - click to rename and repair it",
-    "description": "Tooltip text for a shared folder whose name failed to decrypt. Clicking opens the edit dialog so the user can save a new name, which re-encrypts the shared folder."
+    "description": "Tooltip text on the row link for a shared folder whose name failed to decrypt. The link still opens the shared folder's items, which are unaffected."
   },
   "cannotDecryptSharedFolderNameRepairHint": {
     "message": "This shared folder's name could not be decrypted. Enter a new name and save to re-encrypt it. Items in the shared folder are not affected.",
@@ -5845,11 +5841,7 @@
   },
   "cannotDecryptCollectionName": {
     "message": "Cannot decrypt collection name",
-    "description": "Tooltip text for a collection whose name failed to decrypt and that the user cannot rename."
-  },
-  "cannotDecryptCollectionNameClickToRename": {
-    "message": "Cannot decrypt collection name - click to rename and repair it",
-    "description": "Tooltip text for a collection whose name failed to decrypt. Clicking opens the edit dialog so the user can save a new name, which re-encrypts the collection."
+    "description": "Tooltip text on the row link for a collection whose name failed to decrypt. The link still opens the collection's items, which are unaffected."
   },
   "cannotDecryptCollectionNameRepairHint": {
     "message": "This collection's name could not be decrypted. Enter a new name and save to re-encrypt it. Items in the collection are not affected.",

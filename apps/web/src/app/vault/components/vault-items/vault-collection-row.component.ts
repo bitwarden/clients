@@ -129,23 +129,15 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
     return false;
   }
 
-  /** True when the collection's name could not be decrypted, so it has no usable label. */
+  /**
+   * True when the collection's name could not be decrypted, so it has no usable label. The
+   * collection's items are encrypted independently and are unaffected, so the row stays
+   * navigable; the remedy is to re-name the collection, which re-encrypts it with the current
+   * organization key. That is offered through the row's options menu, and the edit dialog both
+   * explains the repair and enforces who may change the name.
+   */
   protected get decryptionFailure() {
     return this.collection.decryptionFailure;
-  }
-
-  /**
-   * A collection's name is its only encrypted field, so re-naming and saving re-encrypts it with
-   * the current organization key and repairs the collection. Only offer that remedy when the user
-   * is actually allowed to change the name — `canEditName` also enforces the security restriction
-   * that offboarded default-user collections keep the email as their name.
-   */
-  protected get canRepairDecryptionFailure() {
-    return (
-      this.decryptionFailure &&
-      this.canEditCollection &&
-      this.collection.canEditName(this.organization)
-    );
   }
 
   get permissionText() {

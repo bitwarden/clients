@@ -1,13 +1,4 @@
-import {
-  Observable,
-  catchError,
-  concatMap,
-  distinctUntilChanged,
-  map,
-  of,
-  switchMap,
-  tap,
-} from "rxjs";
+import { Observable, catchError, concatMap, distinctUntilChanged, map, of, switchMap } from "rxjs";
 
 import { Collection } from "@bitwarden/common/admin-console/models/collections/collection";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections/collection.view";
@@ -61,10 +52,12 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
    * of the batch.
    */
   private decryptManyV1(collections: Collection[], userId: UserId): Observable<CollectionView[]> {
-    const startTime = performance.now();
-
     return this.sdkService.userClient$(userId).pipe(
+      // `userClient$` re-emits whenever the client is replaced (unlock, key re-emission), so the
+      // clock has to start per emission — a single start time would fold the idle time between
+      // emissions into every measurement after the first.
       concatMap(async (sdk) => {
+        const startTime = performance.now();
         using ref = sdk.take();
 
         const success: CollectionView[] = [];
@@ -77,13 +70,6 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
           }
         }
 
-        return success;
-      }),
-      catchError((error: unknown) => {
-        this.logService.error(`Failed to decrypt collections in batch: ${error}`);
-        throw error;
-      }),
-      tap((result) => {
         this.logService.measure(
           startTime,
           "Admin Console",
@@ -91,9 +77,15 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
           "decryptMany (v1, one at a time)",
           [
             ["Items", collections.length],
-            ["Successes", result.length],
+            ["Successes", success.length],
           ],
         );
+
+        return success;
+      }),
+      catchError((error: unknown) => {
+        this.logService.error(`Failed to decrypt collections in batch: ${error}`);
+        throw error;
       }),
     );
   }
@@ -101,17 +93,17 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
   /**
    * V2 implementation using the SDK's `decrypt_list_with_failures` for batch performance with
    * per-item failure tolerance. The SDK natively separates successes from failures. Collections
-   * that fail to decrypt are still returned to the caller as a placeholder view (empty `name`,
-   * `decryptionFailure` set) rather than being dropped, so the item remains visible instead of
-   * silently disappearing from the vault. Gated behind
+   * that fail to decrypt are still returned to the caller as a placeholder view (`name` replaced
+   * by the decrypt-error placeholder, `decryptionFailure` set) rather than being dropped, so the
+   * item remains visible instead of silently disappearing from the vault. Gated behind
    * {@link FeatureFlag.CollectionBulkDecryptWithFailures} until the SDK bindings have rolled out
    * everywhere this service is used.
    */
   private decryptManyV2(collections: Collection[], userId: UserId): Observable<CollectionView[]> {
-    const startTime = performance.now();
-
     return this.sdkService.userClient$(userId).pipe(
+      // See `decryptManyV1` — the client observable re-emits, so time each emission separately.
       concatMap(async (sdk) => {
+        const startTime = performance.now();
         using ref = sdk.take();
 
         const collectionsById = new Map<CollectionId, Collection>(
@@ -144,13 +136,6 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
           }
         }
 
-        return views;
-      }),
-      catchError((error: unknown) => {
-        this.logService.error(`Failed to decrypt collections in batch: ${error}`);
-        throw error;
-      }),
-      tap((result) => {
         this.logService.measure(
           startTime,
           "Admin Console",
@@ -158,10 +143,16 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
           "decryptMany (v2, decrypt_list_with_failures)",
           [
             ["Items", collections.length],
-            ["Successes", result.filter((v) => !v.decryptionFailure).length],
-            ["Failures", result.filter((v) => v.decryptionFailure).length],
+            ["Successes", views.filter((v) => !v.decryptionFailure).length],
+            ["Failures", views.filter((v) => v.decryptionFailure).length],
           ],
         );
+
+        return views;
+      }),
+      catchError((error: unknown) => {
+        this.logService.error(`Failed to decrypt collections in batch: ${error}`);
+        throw error;
       }),
     );
   }
