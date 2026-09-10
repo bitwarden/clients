@@ -73,6 +73,8 @@
         [canCreateCollection]="canCreateCollections()"
         (cipherAdded)="addCipher($event)"
         (onAddItemDialog)="openAddItemDialog('toolbar')"
+        (folderAdded)="addFolder()"
+        (collectionAdded)="addCollection()"
       />
     }
   </div>

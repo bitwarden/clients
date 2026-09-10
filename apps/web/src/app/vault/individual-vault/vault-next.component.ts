@@ -6,9 +6,14 @@ import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import {
+  CollectionData,
+  CollectionDetailsResponse,
+} from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -21,6 +26,7 @@ import { isGuid } from "@bitwarden/guid";
 import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
+  AddEditFolderDialogComponent,
   AddItemDialogComponent,
   AddItemDialogResult,
   CipherRowMenuHandlers,
@@ -54,6 +60,10 @@ import {
   defaultUserCollectionId,
 } from "@bitwarden/vault";
 
+import {
+  CollectionDialogAction,
+  openCollectionDialog,
+} from "../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../layouts/header/header.module";
 import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
@@ -378,14 +388,60 @@ export class VaultNextComponent {
       ...toolbarOptions,
     });
     const result = await firstValueFrom(dialogRef.closed);
-    if (result?.result !== AddItemDialogResult.Cipher) {
+    if (result == null) {
       return;
     }
 
-    await this.itemActions.add(result.cipherType, {
-      organizationId: this.scopedOrganizationId(),
-      collectionId: this.scopedCollectionId(),
+    if (result.result === AddItemDialogResult.Cipher) {
+      await this.itemActions.add(result.cipherType, {
+        organizationId: this.scopedOrganizationId(),
+        collectionId: this.scopedCollectionId(),
+      });
+    } else if (result.result === AddItemDialogResult.Folder) {
+      this.addFolder();
+    } else if (result.result === AddItemDialogResult.Collection) {
+      await this.addCollection();
+    }
+  }
+
+  /** Handles `vault-new-cipher-menu`'s `folderAdded`, emitted by its legacy dropdown. */
+  protected addFolder(): void {
+    AddEditFolderDialogComponent.open(this.dialogService);
+  }
+
+  /** Handles `vault-new-cipher-menu`'s `collectionAdded`, emitted by its legacy dropdown. */
+  protected async addCollection(): Promise<void> {
+    const eligibleOrganizations = this.organizations()
+      .filter((o) => o.canCreateNewCollections && !o.isProviderUser)
+      .sort(Utils.getSortFunction(this.i18nService, "name"));
+    if (eligibleOrganizations.length === 0) {
+      return;
+    }
+
+    const defaultOrganizationId =
+      eligibleOrganizations.find((o) => o.id === this.scopedOrganizationId())?.id ??
+      eligibleOrganizations[0].id;
+
+    const dialogRef = openCollectionDialog(this.dialogService, {
+      data: {
+        organizationId: defaultOrganizationId,
+        parentCollectionId: this.scopedCollectionId(),
+        showOrgSelector: true,
+        limitNestedCollections: true,
+      },
     });
+    const result = await firstValueFrom(dialogRef.closed);
+    if (result?.action !== CollectionDialogAction.Saved) {
+      return;
+    }
+
+    if (result.collection) {
+      const userId = await firstValueFrom(this.userId$);
+      await this.collectionService.upsert(
+        new CollectionData(result.collection as CollectionDetailsResponse),
+        userId,
+      );
+    }
   }
 
   protected openImportDialog(): void {
