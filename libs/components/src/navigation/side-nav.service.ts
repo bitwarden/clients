@@ -7,6 +7,7 @@ import {
   SIDERAIL_WIDTH_REM,
 } from "../shared";
 
+import { resolveArrowStep, resolveDragFromClosed, resolveDragFromOpen } from "./side-nav-resize";
 import { SIDE_NAV_WIDTH_BOUNDS, SideNavWidthService } from "./side-nav-width.service";
 
 export type SideNavVersion = "default" | "vfo1";
@@ -19,7 +20,6 @@ export class SideNavService {
   readonly DEFAULT_OPEN_WIDTH = SIDE_NAV_WIDTH_BOUNDS.default;
   readonly MIN_OPEN_WIDTH = SIDE_NAV_WIDTH_BOUNDS.min;
   readonly MAX_OPEN_WIDTH = SIDE_NAV_WIDTH_BOUNDS.max;
-  readonly SNAP_TO_CLOSED_THRESHOLD = 4; // 64px — 176px of tension past the 240px minimum
 
   /** Width of the collapsed nav (icon strip / side rail), in rem. */
   readonly CLOSED_WIDTH = SIDERAIL_WIDTH_REM;
@@ -130,29 +130,36 @@ export class SideNavService {
     const newWidthInRem = newWidthInPixels / this.rootFontSizePx;
 
     if (!this.open()) {
-      // Dragging out from collapsed — drive visual width via dragDisplayWidth without changing
-      // `open`, so push/overlay mode and open-state styling stay put until the nav actually opens.
-      if (newWidthInRem < this.CLOSED_WIDTH) {
-        // Dragged back onto the icon strip — abort the preview and stay collapsed.
-        this.dragDisplayWidth.set(null);
+      // Dragging out from collapsed — a preview drives the visual width without changing `open`,
+      // so push/overlay mode and open-state styling stay put until the nav actually opens.
+      const step = resolveDragFromClosed(newWidthInRem);
+
+      if (step.action === "preview") {
+        this.dragDisplayWidth.set(step.width);
         return;
       }
 
-      if (newWidthInRem >= this.MIN_OPEN_WIDTH) {
-        // Fully crossed the minimum — genuinely open, and the width hands off to the width service
-        this.dragDisplayWidth.set(null);
+      this.dragDisplayWidth.set(null);
+
+      if (step.action === "open") {
+        // The width hands off to the width service now that the nav is genuinely open.
         this.userCollapsePreference.set("open");
         this.open.set(true);
-        this.widthService.display(this.widthService.clamp(newWidthInRem));
-      } else {
-        this.dragDisplayWidth.set(newWidthInRem);
+        this.widthService.display(this.widthService.clamp(step.width));
       }
       return;
     }
 
-    // Snap to collapsed only after dragging far enough past the minimum (tension zone)
-    if (newWidthInRem < this.SNAP_TO_CLOSED_THRESHOLD) {
-      this.dragDisplayWidth.set(null);
+    const step = resolveDragFromOpen(newWidthInRem);
+
+    if (step.action === "tension") {
+      this.dragDisplayWidth.set(step.width);
+      return;
+    }
+
+    this.dragDisplayWidth.set(null);
+
+    if (step.action === "collapse") {
       this.userCollapsePreference.set("closed");
       this.open.set(false);
       // Discard the widths this drag painted on the way down and go back to the user's.
@@ -160,47 +167,33 @@ export class SideNavService {
       return;
     }
 
-    // Tension zone: preview a 15% shrink to signal the approaching snap threshold.
-    if (newWidthInRem < this.MIN_OPEN_WIDTH) {
-      const overflow = this.MIN_OPEN_WIDTH - newWidthInRem;
-      this.dragDisplayWidth.set(this.MIN_OPEN_WIDTH - overflow * 0.15);
-      return;
-    }
-
-    this.dragDisplayWidth.set(null);
-    this.widthService.display(this.widthService.clamp(newWidthInRem));
+    this.widthService.display(this.widthService.clamp(step.width));
   }
 
   /**
-   * Set new side nav width from arrow key events. The collapsed state is the low end of the
-   * range, so the arrows cross the collapse boundary in both directions.
+   * Set new side nav width from arrow key events.
    *
    * @param key event key, must be either ArrowRight or ArrowLeft
    */
   setWidthFromKeys(key: "ArrowRight" | "ArrowLeft") {
     this._widthResizedByUser.set(true);
 
-    if (!this.open()) {
-      // Already at the low end — only ArrowRight moves off it.
-      if (key === "ArrowRight") {
+    const step = resolveArrowStep(key, this.widthRem(), this.open());
+
+    switch (step.action) {
+      case "expand":
         this._expand();
-      }
-      return;
+        return;
+      case "collapse":
+        this.userCollapsePreference.set("closed");
+        this.open.set(false);
+        return;
+      case "commit":
+        this.widthService.commit(step.width);
+        return;
+      case "noop":
+        return;
     }
-
-    const currentWidth = this.widthRem();
-
-    // Stepping left off the minimum collapses, mirroring the drag snap.
-    if (key === "ArrowLeft" && currentWidth <= this.MIN_OPEN_WIDTH) {
-      this.userCollapsePreference.set("closed");
-      this.open.set(false);
-      return;
-    }
-
-    const delta = key === "ArrowLeft" ? -1 : 1;
-    const newWidth = currentWidth + delta;
-
-    this.widthService.commit(newWidth);
   }
 
   /** A drag only ever paints. Release is the single place it becomes a preference, so a gesture
