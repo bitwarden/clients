@@ -289,6 +289,7 @@ const routes: Routes = [
   },
   {
     path: "import-source-select",
+    // Lazy load vendor icon set
     loadComponent: () =>
       import("../tools/popup/settings/import/import-source-select-browser.component").then(
         (m) => m.ImportSourceSelectBrowserComponent,

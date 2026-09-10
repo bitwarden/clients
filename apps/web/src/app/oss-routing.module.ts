@@ -823,6 +823,7 @@ const routes: Routes = [
                   .getFeatureFlag$(FeatureFlag.ImportUpgrade)
                   .pipe(map((flagValue) => flagValue === true)),
             ],
+            // Lazy load vendor icon set
             loadComponent: () =>
               import("./tools/import/import-source-select-web.component").then(
                 (mod) => mod.ImportSourceSelectWebComponent,
