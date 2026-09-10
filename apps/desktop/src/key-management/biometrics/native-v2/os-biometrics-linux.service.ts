@@ -28,11 +28,6 @@ const polkitPolicy = `<?xml version="1.0" encoding="UTF-8"?>
 const policyFileName = "com.bitwarden.Bitwarden.policy";
 const policyPath = "/usr/share/polkit-1/actions/";
 
-const SERVICE = "Bitwarden_biometric";
-function getLookupKeyForUser(userId: UserId): string {
-  return `${userId}_user_biometric`;
-}
-
 export default class OsBiometricsServiceLinux implements OsBiometricService {
   private biometricsSystem: biometrics.BiometricLockSystem;
 
@@ -42,43 +37,15 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
 
   async setBiometricKey(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
     await biometrics.provideKey(this.biometricsSystem, userId, Buffer.from(key.toEncoded().buffer));
-    try {
-      await passwords.setPassword(SERVICE, getLookupKeyForUser(userId), key.toBase64());
-    } catch {
-      // libsecret may not be available on all minimal Linux setups
-    }
   }
 
   async deleteBiometricKey(userId: UserId): Promise<void> {
     await biometrics.unenroll(this.biometricsSystem, userId);
-    try {
-      await passwords.deletePassword(SERVICE, getLookupKeyForUser(userId));
-    } catch {
-      // Ignore if key does not exist
-    }
   }
 
   async getBiometricKey(userId: UserId): Promise<SymmetricCryptoKey | null> {
-    const authSuccess = await this.authenticateBiometric();
-    if (!authSuccess) {
-      return null;
-    }
-
-    try {
-      const keyB64 = await passwords.getPassword(SERVICE, getLookupKeyForUser(userId));
-      if (keyB64 != null) {
-        return SymmetricCryptoKey.fromString(keyB64);
-      }
-    } catch {
-      // Fallback to in-memory/polkit slot if password not in OS secret store
-    }
-
-    try {
-      const result = await biometrics.unlock(this.biometricsSystem, userId, Buffer.from(""));
-      return result ? new SymmetricCryptoKey(Uint8Array.from(result)) : null;
-    } catch {
-      return null;
-    }
+    const result = await biometrics.unlock(this.biometricsSystem, userId, Buffer.from(""));
+    return result ? new SymmetricCryptoKey(Uint8Array.from(result)) : null;
   }
 
   async authenticateBiometric(): Promise<boolean> {
@@ -135,27 +102,20 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
   }
 
   async getBiometricsFirstUnlockStatusForUser(userId: UserId): Promise<BiometricsStatus> {
-    if (await this.hasPersistentKey(userId)) {
-      return BiometricsStatus.Available;
-    }
     return (await biometrics.unlockAvailable(this.biometricsSystem, userId))
       ? BiometricsStatus.Available
       : BiometricsStatus.UnlockNeeded;
   }
 
   async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
-    try {
-      await passwords.setPassword(SERVICE, getLookupKeyForUser(userId), key.toBase64());
-    } catch {
-      // libsecret might not be available
-    }
+    await biometrics.enrollPersistent(
+      this.biometricsSystem,
+      userId,
+      Buffer.from(key.toEncoded().buffer),
+    );
   }
 
   async hasPersistentKey(userId: UserId): Promise<boolean> {
-    try {
-      return (await passwords.getPassword(SERVICE, getLookupKeyForUser(userId))) != null;
-    } catch {
-      return false;
-    }
+    return await biometrics.hasPersistent(this.biometricsSystem, userId);
   }
 }

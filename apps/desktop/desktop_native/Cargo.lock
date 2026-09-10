@@ -489,6 +489,7 @@ version = "0.0.0"
 dependencies = [
  "aes 0.8.4",
  "anyhow",
+ "base64",
  "bitwarden-crypto",
  "bitwarden-random",
  "bitwarden-sensitive-value",
