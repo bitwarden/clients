@@ -25,7 +25,6 @@ import {
   CheckboxModule,
   DialogService,
   FILTER_CONTROL,
-  FilterControl,
   FilterMenuComponent,
   FilterOptionComponent,
   IconButtonModule,
@@ -55,6 +54,7 @@ import {
   copyRuleName,
   resolveCollectionNames,
   rulesChangingEnabled,
+  selectedFilterStrings,
 } from "..";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { RelativeTimePipe } from "../date/relative-time.pipe";
@@ -141,18 +141,12 @@ export class AccessRulesComponent {
   private readonly statusFilter = viewChild("statusFilter", { read: FILTER_CONTROL });
   private readonly collectionFilter = viewChild("collectionFilter", { read: FILTER_CONTROL });
 
-  /** A multi-select chip's selection, filtered down to the strings it's actually made of. */
-  private selectedValues(chip: FilterControl | undefined): string[] {
-    const value = chip?.value();
-    return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
-  }
-
   private readonly filterInputs = computed(() => {
     const status = this.statusFilter()?.value();
     return {
       text: this.searchTerm().trim().toLowerCase(),
       status: (typeof status === "string" ? status : null) as AccessRuleStatusFilter | null,
-      collectionIds: this.selectedValues(this.collectionFilter()),
+      collectionIds: selectedFilterStrings(this.collectionFilter()?.value()),
     };
   });
 

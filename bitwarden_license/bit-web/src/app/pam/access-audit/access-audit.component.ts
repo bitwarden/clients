@@ -50,6 +50,7 @@ import {
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { AccessNameResolverService } from "../access-requests/access-name-resolver.service";
+import { selectedFilterStrings } from "../helpers/selected-filter-strings";
 
 import {
   AUDIT_TIME_PERIOD_LABEL_KEYS,
@@ -392,11 +393,7 @@ export class AccessAuditComponent implements OnInit {
 
   /** A multi-select chip's selection, or null for no selection, which matches every row. */
   private selectedValues(chip: FilterControl | undefined): string[] | null {
-    const value = chip?.value();
-    if (!Array.isArray(value)) {
-      return null;
-    }
-    const selected = value.filter((entry): entry is string => typeof entry === "string");
+    const selected = selectedFilterStrings(chip?.value());
     return selected.length > 0 ? selected : null;
   }
 
