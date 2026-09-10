@@ -1,11 +1,14 @@
+import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, provideRouter, Router } from "@angular/router";
 import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogService, FilterControl, ToastService } from "@bitwarden/components";
+import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { accessRuleDeactivateConfirmOptions, AccessRuleSdkService, AccessRuleView } from "..";
 
@@ -513,5 +516,160 @@ describe("AccessRulesComponent — bulk deactivate confirmation", () => {
 
     expect(openSimpleDialog).not.toHaveBeenCalled();
     expect(updateAccessRule).toHaveBeenCalled();
+  });
+});
+
+/**
+ * The toolbar chips own their own selection rather than a form control, so these render the real
+ * template — the blanked template every other block here uses would leave the `viewChild`s unset.
+ */
+describe("AccessRulesComponent — toolbar filters", () => {
+  let fixture: ComponentFixture<AccessRulesComponent>;
+
+  const collection = (id: string, name: string) => ({ id, name }) as unknown as CollectionAdminView;
+
+  /**
+   * {@link rule} with collections on it, which the base helper leaves empty. Cast through
+   * `unknown` for the same reason `rule` is: the SDK brands `collections` as `CollectionId[]`.
+   */
+  const ruleIn = (id: string, name: string, collections: string[], enabled = true) =>
+    ({ ...rule(id, name, enabled), collections }) as unknown as AccessRuleView;
+
+  const setupToolbar = async (rules: AccessRuleView[], collections: CollectionAdminView[] = []) => {
+    TestBed.configureTestingModule({
+      imports: [AccessRulesComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
+        {
+          provide: AccessRuleSdkService,
+          useValue: { listAccessRules: jest.fn().mockResolvedValue(rules) },
+        },
+        { provide: ToastService, useValue: { showToast: jest.fn() } },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        {
+          provide: CollectionAdminService,
+          useValue: { collectionAdminViews$: () => of(collections) },
+        },
+      ],
+    });
+
+    // The header pulls in the whole org/account shell; the chips under test don't need it.
+    TestBed.overrideComponent(AccessRulesComponent, {
+      remove: { imports: [HeaderModule] },
+      add: { schemas: [NO_ERRORS_SCHEMA] },
+    });
+    TestBed.overrideProvider(DialogService, { useValue: { openSimpleDialog: jest.fn() } });
+
+    fixture = TestBed.createComponent(AccessRulesComponent);
+    for (let i = 0; i < 3; i++) {
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
+  };
+
+  /** A chip reached through the `FilterControl` contract, the way the component reads it. */
+  const chip = (name: "statusFilter" | "collectionFilter"): FilterControl => {
+    const chips = fixture.componentInstance as unknown as Record<
+      string,
+      () => FilterControl | undefined
+    >;
+    const control = chips[name]();
+    if (control == null) {
+      throw new Error(`the ${name} chip did not render`);
+    }
+    return control;
+  };
+
+  const select = (name: "statusFilter" | "collectionFilter", value: unknown) => {
+    chip(name).setValue(value);
+    fixture.detectChanges();
+  };
+
+  /** The rule names left in the table, in data-source order. */
+  const visible = () =>
+    (fixture.componentInstance["dataSource"].filteredData ?? []).map((r) => r.name);
+
+  it("declares an option per collection, sorted by name", async () => {
+    await setupToolbar(
+      [ruleIn("rule-1", "VPN", ["col-2"])],
+      [collection("col-1", "Servers"), collection("col-2", "Databases")],
+    );
+
+    expect(fixture.componentInstance["collectionOptions"]()).toEqual([
+      { label: "Databases", value: "col-2" },
+      { label: "Servers", value: "col-1" },
+    ]);
+  });
+
+  it("narrows the table to the status selected on the chip", async () => {
+    await setupToolbar([rule("rule-1", "VPN", true), rule("rule-2", "SSH", false)]);
+
+    select("statusFilter", "enabled");
+    expect(visible()).toEqual(["VPN"]);
+
+    select("statusFilter", "disabled");
+    expect(visible()).toEqual(["SSH"]);
+  });
+
+  it("widens within the collections chip — a rule matches any of the selected collections", async () => {
+    await setupToolbar(
+      [
+        ruleIn("rule-1", "VPN", ["col-1"]),
+        ruleIn("rule-2", "SSH", ["col-2"]),
+        ruleIn("rule-3", "RDP", ["col-3"]),
+      ],
+      [collection("col-1", "Servers"), collection("col-2", "Databases")],
+    );
+
+    select("collectionFilter", ["col-1"]);
+    expect(visible()).toEqual(["VPN"]);
+
+    select("collectionFilter", ["col-1", "col-2"]);
+    expect(visible()).toEqual(["VPN", "SSH"]);
+  });
+
+  it("stops narrowing when the last collection is cleared from the chip", async () => {
+    await setupToolbar(
+      [ruleIn("rule-1", "VPN", ["col-1"]), ruleIn("rule-2", "SSH", ["col-2"])],
+      [collection("col-1", "Servers")],
+    );
+
+    select("collectionFilter", ["col-1"]);
+    expect(visible()).toEqual(["VPN"]);
+
+    select("collectionFilter", []);
+    expect(visible()).toEqual(["VPN", "SSH"]);
+  });
+
+  it("narrows across the two chips at once", async () => {
+    await setupToolbar(
+      [
+        ruleIn("rule-1", "VPN", ["col-1"], true),
+        ruleIn("rule-2", "SSH", ["col-1"], false),
+        ruleIn("rule-3", "RDP", ["col-2"], true),
+      ],
+      [collection("col-1", "Servers"), collection("col-2", "Databases")],
+    );
+
+    select("statusFilter", "enabled");
+    select("collectionFilter", ["col-1"]);
+
+    expect(visible()).toEqual(["VPN"]);
+  });
+
+  it("narrows on the search box alongside the chips", async () => {
+    await setupToolbar(
+      [ruleIn("rule-1", "VPN access", ["col-1"]), ruleIn("rule-2", "VPN backup", ["col-2"])],
+      [collection("col-1", "Servers"), collection("col-2", "Databases")],
+    );
+
+    fixture.componentInstance["filterForm"].controls.search.setValue("backup");
+    fixture.detectChanges();
+    expect(visible()).toEqual(["VPN backup"]);
+
+    select("collectionFilter", ["col-1"]);
+    expect(visible()).toEqual([]);
   });
 });
