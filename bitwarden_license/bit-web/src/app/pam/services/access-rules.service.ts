@@ -90,16 +90,20 @@ export class AccessRulesService {
   /**
    * Toggle a single rule's enabled flag, patching local state with the result.
    *
-   * Doesn't invalidate {@link GovernedCollectionsService}'s cache: the server keys governance off
-   * `Collection.AccessRuleId` regardless of the rule's `enabled` flag, so toggling it can't change
-   * which collections are governed.
+   * Invalidates {@link GovernedCollectionsService}'s cache. The governed set itself doesn't move —
+   * the server keys governance off `Collection.AccessRuleId`, not `enabled` — but the cache holds
+   * the rule objects, and `rulesGoverningCollection` filters those on `enabled`. Without this, the
+   * collection dialog's callout and the vault's gated banner keep naming a rule the admin has just
+   * deactivated.
    */
   async setEnabled(rule: AccessRuleView, enabled: boolean): Promise<void> {
+    const organizationId = this.requireOrganizationId();
     const updated = await this.pamApi.updateAccessRule(
-      this.requireOrganizationId(),
+      organizationId,
       rule.id,
       accessRuleToRequest(rule, enabled),
     );
+    this.governedCollections.invalidate(organizationId);
     this._rules$.next(this._rules$.value.map((r) => (r.id === rule.id ? updated : r)));
   }
 
@@ -107,22 +111,21 @@ export class AccessRulesService {
    * Enable/disable many rules at once, skipping rules already in the target state.
    * Returns the number of rules actually changed (0 when none needed updating).
    *
-   * Same non-invalidating reasoning as {@link setEnabled}.
+   * Same invalidation reasoning as {@link setEnabled}; the early return keeps a no-op toggle from
+   * dropping a still-valid cached read.
    */
   async setManyEnabled(rules: AccessRuleView[], enabled: boolean): Promise<number> {
     const targets = rulesChangingEnabled(rules, enabled);
     if (targets.length === 0) {
       return 0;
     }
+    const organizationId = this.requireOrganizationId();
     const updated = await Promise.all(
       targets.map((rule) =>
-        this.pamApi.updateAccessRule(
-          this.requireOrganizationId(),
-          rule.id,
-          accessRuleToRequest(rule, enabled),
-        ),
+        this.pamApi.updateAccessRule(organizationId, rule.id, accessRuleToRequest(rule, enabled)),
       ),
     );
+    this.governedCollections.invalidate(organizationId);
     const byId = new Map(
       updated.map((r: AccessRuleView): [string, AccessRuleView] => [uuidAsString(r.id), r]),
     );
