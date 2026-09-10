@@ -520,8 +520,8 @@ describe("AccessRulesComponent — bulk deactivate confirmation", () => {
 });
 
 /**
- * The toolbar chips own their own selection rather than a form control, so these render the real
- * template — the blanked template every other block here uses would leave the `viewChild`s unset.
+ * These render the real template: the chips own their selection, and the blanked template the
+ * other blocks use would leave the `viewChild`s unset.
  */
 describe("AccessRulesComponent — toolbar filters", () => {
   let fixture: ComponentFixture<AccessRulesComponent>;
@@ -529,8 +529,8 @@ describe("AccessRulesComponent — toolbar filters", () => {
   const collection = (id: string, name: string) => ({ id, name }) as unknown as CollectionAdminView;
 
   /**
-   * {@link rule} with collections on it, which the base helper leaves empty. Cast through
-   * `unknown` for the same reason `rule` is: the SDK brands `collections` as `CollectionId[]`.
+   * {@link rule} with collections on it. Cast through `unknown` for the same reason `rule` is:
+   * the SDK brands `collections` as `CollectionId[]`.
    */
   const ruleIn = (id: string, name: string, collections: string[], enabled = true) =>
     ({ ...rule(id, name, enabled), collections }) as unknown as AccessRuleView;

@@ -126,9 +126,8 @@ export class AccessRulesComponent {
   });
 
   // --- Toolbar filters ---
-  // Only `search` is a reactive-form control: `bit-filter-menu` isn't a
-  // `ControlValueAccessor`, so the status/collection chips below own their own
-  // selection and are read through the `FilterControl` contract in `filterInputs`.
+  // `bit-filter-menu` isn't a `ControlValueAccessor`, so only `search` is a form control; the
+  // status/collection chips own their selection and are read through the `FilterControl` contract.
   protected readonly filterForm = new FormGroup({
     search: new FormControl("", { nonNullable: true }),
   });

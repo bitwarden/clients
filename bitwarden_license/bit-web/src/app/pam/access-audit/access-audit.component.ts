@@ -391,7 +391,6 @@ export class AccessAuditComponent implements OnInit {
     return candidates;
   }
 
-  /** A multi-select chip's selection; empty when the chip narrows nothing. */
   private selectedValues(chip: FilterControl | undefined): string[] {
     return selectedFilterStrings(chip?.value());
   }
