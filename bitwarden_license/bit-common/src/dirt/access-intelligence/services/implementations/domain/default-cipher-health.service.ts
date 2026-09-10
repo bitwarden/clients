@@ -38,7 +38,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
     const reuseMap$ = this.detectPasswordReuse(validCiphers);
 
     // Check each cipher's health (weak password + HIBP exposure)
-    // Measured as a batch: one entry per cipher would swamp the performance panel.
+    // Measured as a batch; per-cipher entries would swamp the performance panel.
     const healthChecks$ = from(validCiphers).pipe(
       // Limit concurrent HIBP calls to avoid rate limiting
       mergeMap(
@@ -125,8 +125,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
       }
     });
 
-    // distinctPasswordCount is the ceiling on how far deduplicating the exposure lookups could
-    // reduce them; the lookups themselves run once per cipher.
+    // The exposure lookups run once per cipher, not once per distinct password.
     measureStep("Generate: password reuse detected", [
       ["itemCount", ciphers.length],
       ["distinctPasswordCount", passwordMap.size],

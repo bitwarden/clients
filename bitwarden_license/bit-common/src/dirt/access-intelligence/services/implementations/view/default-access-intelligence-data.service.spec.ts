@@ -5,6 +5,7 @@ import {
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 // eslint-disable-next-line no-restricted-imports
@@ -30,6 +31,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
   let reportGenerationService: jest.Mocked<ReportGenerationService>;
   let reportPersistenceService: jest.Mocked<ReportPersistenceService>;
   let logService: jest.Mocked<LogService>;
+  let configService: jest.Mocked<ConfigService>;
 
   const orgId = "org-123" as OrganizationId;
   const testReport = createRiskInsights({
@@ -69,6 +71,10 @@ describe("DefaultAccessIntelligenceDataService", () => {
       mark: jest.fn(),
     } as any;
 
+    configService = {
+      getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+    } as any;
+
     service = new DefaultAccessIntelligenceDataService(
       apiService,
       cipherService,
@@ -76,6 +82,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       reportGenerationService,
       reportPersistenceService,
       logService,
+      configService,
     );
   });
 

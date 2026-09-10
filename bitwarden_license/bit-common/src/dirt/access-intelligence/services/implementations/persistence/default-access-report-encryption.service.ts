@@ -286,8 +286,7 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
             ];
             const measureStep = flowTimer(this.logService);
 
-            // The report's byte size is reported at the encode step, which encodes this exact
-            // string. Sizing it here would allocate a second copy of the largest artifact.
+            // Sized at the encode step below; measuring bytes here would allocate a second copy.
             const serializedReport = this.reportVersioningService.serialize(reportData);
             measureStep("Save: report serialized", [
               ...counts,
@@ -330,8 +329,7 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
                 this.encryptService.wrapSymmetricKey(contentEncryptionKey, orgKey),
               ),
             }).pipe(
-              // The five encryptions run in parallel, so one measurement across the whole
-              // forkJoin is the only honest boundary.
+              // Per-branch timings would overlap, so the whole forkJoin is one measurement.
               tap((encrypted) =>
                 measureStep("Save: artifacts encrypted", [
                   ...counts,

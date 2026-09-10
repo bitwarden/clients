@@ -563,17 +563,10 @@ export class CipherService implements CipherServiceAbstraction {
       return this.getAllFromApiForOrganizationUsingSdk(organizationId, includeMemberItems ?? false);
     }
 
-    // TODO: Confirm to keep or remove based on measurements
-    const fetchStart = performance.now();
     const response = await this.apiService.getCiphersOrganization(
       organizationId,
       includeMemberItems,
     );
-    // TODO: Confirm to keep or remove based on measurements
-    this.logService.measure(fetchStart, "Vault", "AccessReportFlow", "Load: org ciphers fetched", [
-      ["itemCount", response?.data?.length ?? 0],
-    ]);
-
     return await this.decryptOrganizationCiphersResponse(response, organizationId);
   }
 
@@ -587,42 +580,16 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     try {
-      // TODO: Confirm to keep or remove based on measurements
-      const fetchStart = performance.now();
       const [ciphers] = await this.cipherSdkService.getAllFromApiForOrganization(
         organizationId,
         userId,
         includeMemberItems,
       );
-      // TODO: Confirm to keep or remove based on measurements
-      this.logService.measure(
-        fetchStart,
-        "Vault",
-        "AccessReportFlow",
-        "Load: org ciphers fetched",
-        [["itemCount", ciphers.length]],
-      );
 
-      // TODO: Confirm to keep or remove based on measurements
-      const decryptStart = performance.now();
       const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
-      // TODO: Confirm to keep or remove based on measurements
-      this.logService.measure(
-        decryptStart,
-        "Vault",
-        "AccessReportFlow",
-        "Load: org ciphers decrypted",
-        [["itemCount", cipherViews.length]],
-      );
 
       // Sort by locale (matching existing behavior)
-      // TODO: Confirm to keep or remove based on measurements
-      const sortStart = performance.now();
       cipherViews.sort(this.getLocaleSortingFunction());
-      // TODO: Confirm to keep or remove based on measurements
-      this.logService.measure(sortStart, "Vault", "AccessReportFlow", "Load: org ciphers sorted", [
-        ["itemCount", cipherViews.length],
-      ]);
 
       return cipherViews;
     } catch {
@@ -686,32 +653,14 @@ export class CipherService implements CipherServiceAbstraction {
     }
     const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
     const key = orgKeys?.[organizationId as OrganizationId] ?? null;
-
-    // TODO: Confirm to keep or remove based on measurements
-    const decryptStart = performance.now();
     const ciphers = response.data.map((cr) => new Cipher(new CipherData(cr)));
     const decCiphers: CipherView[] = await Promise.all(
       ciphers.map(async (cipher) => {
         return await cipher.decrypt(key);
       }),
     );
-    // TODO: Confirm to keep or remove based on measurements
-    this.logService.measure(
-      decryptStart,
-      "Vault",
-      "AccessReportFlow",
-      "Load: org ciphers decrypted",
-      [["itemCount", decCiphers.length]],
-    );
 
-    // TODO: Confirm to keep or remove based on measurements
-    const sortStart = performance.now();
     decCiphers.sort(this.getLocaleSortingFunction());
-    // TODO: Confirm to keep or remove based on measurements
-    this.logService.measure(sortStart, "Vault", "AccessReportFlow", "Load: org ciphers sorted", [
-      ["itemCount", decCiphers.length],
-    ]);
-
     return decCiphers;
   }
 

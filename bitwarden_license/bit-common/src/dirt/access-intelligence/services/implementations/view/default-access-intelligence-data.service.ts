@@ -1,6 +1,7 @@
 import {
   BehaviorSubject,
   catchError,
+  first,
   forkJoin,
   from,
   map,
@@ -18,7 +19,9 @@ import {
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { CollectionAccessDetailsResponse } from "@bitwarden/common/admin-console/models/collections";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import type { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -62,6 +65,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     private reportGenerationService: ReportGenerationService,
     private reportPersistenceService: ReportPersistenceService,
     private logService: LogService,
+    private configService: ConfigService,
   ) {
     super();
   }
@@ -449,11 +453,29 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
   }
 
   private loadCiphersOnly$(orgId: OrganizationId): Observable<CipherView[]> {
-    return from(this.cipherService.getAllFromApiForOrganization(orgId, true)).pipe(
+    return this.fetchOrgCiphers$(orgId, "page open").pipe(
       catchError((err: unknown) => {
         this.logService.error("[DefaultAccessIntelligenceDataService] Cipher load failed", err);
         return of([] as CipherView[]);
       }),
+    );
+  }
+
+  private fetchOrgCiphers$(
+    orgId: OrganizationId,
+    trigger: "page open" | "generate",
+  ): Observable<CipherView[]> {
+    return this.configService.getFeatureFlag$(FeatureFlag.PM27632_SdkCipherCrudOperations).pipe(
+      first(),
+      switchMap((useSdk) =>
+        from(this.cipherService.getAllFromApiForOrganization(orgId, true)).pipe(
+          measureFlowStep(
+            this.logService,
+            `Load: org ciphers fetched (${trigger}, ${useSdk ? "sdk" : "legacy"})`,
+            (ciphers) => [["itemCount", ciphers.length]],
+          ),
+        ),
+      ),
     );
   }
   /**
@@ -464,13 +486,8 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     apiUsers: ListResponse<OrganizationUserUserDetailsResponse>;
     collections: ListResponse<CollectionAccessDetailsResponse>;
   }> {
-    // Measured per leg rather than as one forkJoin envelope, so a slow fetch is attributable.
     return forkJoin({
-      ciphers: from(this.cipherService.getAllFromApiForOrganization(orgId, true)).pipe(
-        measureFlowStep(this.logService, "Load: org ciphers for generation", (ciphers) => [
-          ["itemCount", ciphers.length],
-        ]),
-      ),
+      ciphers: this.fetchOrgCiphers$(orgId, "generate"),
       apiUsers: from(
         this.organizationUserApiService.getAllUsers(orgId, {
           includeGroups: true,

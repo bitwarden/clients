@@ -196,6 +196,7 @@ const v2Providers = [
       ReportGenerationService,
       ReportPersistenceService,
       LogService,
+      ConfigService,
     ],
   }),
   safeProvider({
