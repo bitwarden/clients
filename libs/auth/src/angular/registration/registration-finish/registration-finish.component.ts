@@ -9,7 +9,7 @@ import { AuthRoute } from "@bitwarden/angular/auth/constants";
 import { getOpenOrgInviteStatusErrorUi } from "@bitwarden/angular/auth/organization-invite";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { TwoFactorTimeoutIcon } from "@bitwarden/assets/svg";
+import { ExpiredIcon } from "@bitwarden/assets/svg";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { DeepLinkRedirectService } from "@bitwarden/common/auth/deep-link-redirect";
@@ -332,7 +332,7 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
   private showSealedOpenOrgInviteDecryptionFailed(): void {
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
       pageTitle: { key: "registrationSealedOpenOrgInviteDecryptionFailedTitle" },
-      pageIcon: TwoFactorTimeoutIcon, // TODO: discuss clarity of this icon + consider renaming it
+      pageIcon: ExpiredIcon, // TODO: discuss clarity of this icon + consider renaming it
     });
     this.errorMessageI18nKey.set("registrationSealedOpenOrgInviteDecryptionFailedMessage");
     this.errorButton.set({

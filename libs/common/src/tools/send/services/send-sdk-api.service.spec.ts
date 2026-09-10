@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
@@ -364,6 +364,52 @@ describe("SendSdkApiService", () => {
 
         expect(legacySendApiService.getSend).toHaveBeenCalledWith("server-id");
       });
+
+      it("does not abandon an in-flight upload when userClient$ emits again mid-upload", async () => {
+        const userClient$ = new Subject<{ take: jest.Mock }>();
+        (sdkService.userClient$ as jest.Mock).mockReturnValue(userClient$);
+
+        let resolveUpload: () => void;
+        sendsClient.upload_send_file.mockReturnValue(
+          new Promise<void>((resolve) => {
+            resolveUpload = resolve;
+          }),
+        );
+
+        const makeClient = () => ({
+          take: jest.fn().mockReturnValue({
+            value: { sends: () => sendsClient },
+            [Symbol.dispose]: jest.fn(),
+          }),
+        });
+
+        // A macrotask boundary flushes all currently-queued microtasks in one step, so
+        // execution below is synchronized with the async callback without counting ticks.
+        const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+        const result = service.saveView(fileView(), plaintextBytes.buffer);
+
+        // Let execution reach the point of subscribing to userClient$ before emitting.
+        await flushMicrotasks();
+        expect(sdkService.userClient$).toHaveBeenCalled();
+        userClient$.next(makeClient());
+
+        // Let the concatMap callback run through create_file_send and start awaiting
+        // upload_send_file.
+        await flushMicrotasks();
+        expect(sendsClient.upload_send_file).toHaveBeenCalledTimes(1);
+
+        // Simulate an unrelated re-emission of userClient$ while the upload is still pending.
+        userClient$.next(makeClient());
+
+        resolveUpload();
+
+        await expect(result).resolves.toBeDefined();
+        // The original in-flight execution completed — it was not restarted for the second
+        // client.
+        expect(sendsClient.create_file_send).toHaveBeenCalledTimes(1);
+        expect(sendsClient.upload_send_file).toHaveBeenCalledTimes(1);
+      }, 2000);
 
       it("rejects a file create with no file data, which the create step cannot size", async () => {
         await expect(service.saveView(fileView(), null)).rejects.toThrow(
