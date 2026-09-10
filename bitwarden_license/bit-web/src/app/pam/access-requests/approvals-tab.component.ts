@@ -25,6 +25,8 @@ import {
   BadgeComponent,
   ButtonModule,
   DialogService,
+  FILTER_CONTROL,
+  FilterControl,
   FilterMenuComponent,
   FilterOptionComponent,
   StatusLockupComponent,
@@ -140,17 +142,21 @@ export class ApprovalsTabComponent {
 
   /**
    * `bit-filter-menu` isn't a `ControlValueAccessor`, so the Collection and Requester chips own
-   * their own selection and are read directly off their view-child refs rather than through a
-   * `FormControl`.
+   * their own selection and are read directly through the {@link FilterControl} contract rather
+   * than through a `FormControl`.
    */
-  private readonly collectionFilterMenu = viewChild<FilterMenuComponent>("collectionFilter");
-  private readonly requesterFilterMenu = viewChild<FilterMenuComponent>("requesterFilter");
-  private readonly collectionFilter = computed(
-    () => this.collectionFilterMenu()?.value() as string | undefined,
+  private readonly collectionFilterMenu = viewChild("collectionFilter", { read: FILTER_CONTROL });
+  private readonly requesterFilterMenu = viewChild("requesterFilter", { read: FILTER_CONTROL });
+  private readonly collectionFilter = computed(() =>
+    this.selectedValue(this.collectionFilterMenu()),
   );
-  private readonly requesterFilter = computed(
-    () => this.requesterFilterMenu()?.value() as string | undefined,
-  );
+  private readonly requesterFilter = computed(() => this.selectedValue(this.requesterFilterMenu()));
+
+  /** A single-select chip's selection, or undefined for no selection. */
+  private selectedValue(chip: FilterControl | undefined): string | undefined {
+    const value = chip?.value();
+    return typeof value === "string" ? value : undefined;
+  }
 
   private readonly allRows = toSignal(this.inbox.inboxRows$, { initialValue: [] as ApprovalRow[] });
 
