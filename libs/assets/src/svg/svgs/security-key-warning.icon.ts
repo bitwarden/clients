@@ -1,6 +1,6 @@
 import { svg } from "../svg";
 
-export const TwoFactorAuthSecurityKeyFailedIcon = svg`
+export const SecurityKeyWarningIcon = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="4.72 12.85 92 80">
     <path class="tw-fill-illustration-bg-primary" d="M16.722 18.846a6 6 0 0 1 6-6h68a6 6 0 0 1 6 6v48a6 6 0 0 1-6 6h-68a6 6 0 0 1-6-6v-48Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M90.722 14.846h-68a4 4 0 0 0-4 4v48a4 4 0 0 0 4 4h68a4 4 0 0 0 4-4v-48a4 4 0 0 0-4-4Zm-68-2a6 6 0 0 0-6 6v48a6 6 0 0 0 6 6h68a6 6 0 0 0 6-6v-48a6 6 0 0 0-6-6h-68Z" clip-rule="evenodd"/>
