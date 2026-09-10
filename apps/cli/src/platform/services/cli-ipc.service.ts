@@ -38,6 +38,15 @@ export class CliIpcService extends IpcService {
   }
 
   /**
+   * Disconnects, but lets anything already sent reach the desktop app first. Prefer this wherever
+   * the caller can still await; {@link disconnect} is the synchronous last resort.
+   */
+  async drainAndDisconnect(): Promise<void> {
+    this.desktopVerification = undefined;
+    await this.transport?.drain();
+  }
+
+  /**
    * Verifies that the connected desktop understands the SDK IPC protocol before
    * sending a biometric request. Older desktop versions expose the same socket,
    * but do not respond to SDK IPC messages.

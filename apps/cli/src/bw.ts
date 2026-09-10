@@ -35,7 +35,13 @@ async function main() {
     await program.parseAsync(process.argv);
   } finally {
     process.removeListener("exit", dispose);
-    dispose();
+    try {
+      // Awaited on this path so a lock or unlock this command just shared reaches the desktop
+      // app. `dispose` still runs afterwards, and is what the process.exit() paths rely on.
+      await serviceContainer.disposeAndFlush();
+    } finally {
+      dispose();
+    }
   }
 }
 

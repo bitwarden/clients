@@ -435,7 +435,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SharedUnlockSettingsService,
     useClass: DefaultSharedUnlockSettingsService,
-    deps: [StateProvider],
+    deps: [StateProvider, CLIENT_TYPE],
   }),
   safeProvider({
     provide: SharedUnlockPeerService,

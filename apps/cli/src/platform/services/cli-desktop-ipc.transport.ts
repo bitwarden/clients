@@ -14,6 +14,7 @@ import { resolveDesktopProxyPath } from "./cli-desktop-proxy-path";
 
 const MAX_MESSAGE_SIZE = 1024 * 1024;
 const CONNECTION_TIMEOUT_MS = 5_000;
+const DRAIN_TIMEOUT_MS = 500;
 
 type SpawnProxy = (proxyPath: string) => ChildProcessWithoutNullStreams;
 
@@ -74,6 +75,31 @@ export class CliDesktopIpcTransport {
     await new Promise<void>((resolve, reject) => {
       proxy.stdin.write(frame, (error) => (error ? reject(error) : resolve()));
     });
+  }
+
+  /**
+   * Closes the proxy's input and gives it a moment to relay what is already in the pipe before
+   * {@link disconnect} kills it.
+   *
+   * `send` only awaits the write into the proxy's stdin, so killing the child straight afterwards
+   * can discard the frame before it reaches the desktop app's socket. That is the whole payload
+   * of a `bw lock`.
+   */
+  async drain(timeoutMs: number = DRAIN_TIMEOUT_MS): Promise<void> {
+    const proxy = this.proxy;
+    if (proxy == null) {
+      this.disconnect();
+      return;
+    }
+
+    proxy.stdin.end();
+    await Promise.race([
+      new Promise<void>((resolve) => proxy.once("exit", () => resolve())),
+      // Unreferenced so the wait itself can never be what holds the process open.
+      new Promise<void>((resolve) => setTimeout(resolve, timeoutMs).unref()),
+    ]);
+
+    this.disconnect();
   }
 
   disconnect(): void {

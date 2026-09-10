@@ -40,6 +40,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import {
   DefaultPasswordPreloginService,
   PasswordPreloginApiService,
@@ -100,6 +101,12 @@ import { SecurityStateService } from "@bitwarden/common/key-management/security-
 import { DefaultSecurityStateService } from "@bitwarden/common/key-management/security-state/services/security-state.service";
 import { SendPasswordService } from "@bitwarden/common/key-management/sends/abstractions/send-password.service";
 import { DefaultSendPasswordService } from "@bitwarden/common/key-management/sends/services/default-send-password.service";
+import {
+  DefaultSharedUnlockPeerService,
+  DefaultSharedUnlockSettingsService,
+  SharedUnlockPeerService,
+  SharedUnlockSettingsService,
+} from "@bitwarden/common/key-management/shared-unlock";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { DefaultV2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/services/default-v2-upgrade-token-state.service";
 import {
@@ -235,7 +242,6 @@ import {
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
   AutoUnlockService,
-  DefaultAutoUnlockService,
   DefaultLockService,
   LockService,
   DefaultUnlockService,
@@ -252,14 +258,17 @@ import {
   DefaultVaultExportApiService,
 } from "@bitwarden/vault-export-core";
 
+import { CliAutoUnlockService } from "../key-management/cli-auto-unlock.service";
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
+import { CliSharedUnlockService } from "../key-management/cli-shared-unlock.service";
 import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
 import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
 import { devFlagEnabled, devFlagValue, flagEnabled } from "../platform/flags";
 import { CliIpcService } from "../platform/services/cli-ipc.service";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
 import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
+import { CliSessionKeyService } from "../platform/services/cli-session-key.service";
 import { CliSystemService } from "../platform/services/cli-system.service";
 import { ConsoleLogService } from "../platform/services/console-log.service";
 import { I18nService } from "../platform/services/i18n.service";
@@ -392,6 +401,10 @@ export class ServiceContainer {
   autoUnlockService: AutoUnlockService;
   biometricsService: CliBiometricsService;
   ipcService: CliIpcService;
+  sessionKeyService: CliSessionKeyService;
+  sharedUnlockSettingsService: SharedUnlockSettingsService;
+  sharedUnlockPeerService: SharedUnlockPeerService;
+  sharedUnlockService: CliSharedUnlockService;
   private accountCryptographicStateService: DefaultAccountCryptographicStateService;
   private v2UpgradeTokenStateService: V2UpgradeTokenStateService;
 
@@ -544,6 +557,7 @@ export class ServiceContainer {
       this.accountService,
     );
 
+    this.sessionKeyService = new CliSessionKeyService();
     this.ipcService = new CliIpcService(this.logService);
     this.biometricsService = new CliBiometricsService(
       this.accountService,
@@ -563,12 +577,13 @@ export class ServiceContainer {
       this.biometricsService,
     );
 
-    this.autoUnlockService = new DefaultAutoUnlockService(
+    this.autoUnlockService = new CliAutoUnlockService(
       this.keyService,
       this.stateService,
       this.stateProvider,
       this.platformUtilsService,
       this.logService,
+      this.sessionKeyService,
     );
 
     this.legacyCompatKeyService = new LegacyCompatKeyService(
@@ -1060,6 +1075,33 @@ export class ServiceContainer {
       this.keyService,
     );
 
+    this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(
+      this.stateProvider,
+      ClientType.Cli,
+    );
+    this.sharedUnlockPeerService = new DefaultSharedUnlockPeerService(
+      this.ipcService,
+      this.accountService,
+      this.lockService,
+      this.platformUtilsService,
+      this.vaultTimeoutSettingsService,
+      this.environmentService,
+      this.sharedUnlockSettingsService,
+      this.unlockService,
+      this.configService,
+    );
+    this.sharedUnlockService = new CliSharedUnlockService(
+      this.configService,
+      this.ipcService,
+      this.sharedUnlockPeerService,
+      this.unlockService,
+      this.logService,
+    );
+
+    // Any unlock freezes the session key: state has now been written under it, so rotating it
+    // would leave that state undecryptable.
+    this.unlockService.registerOnUnlockAction(async () => this.sessionKeyService.markInUse());
+
     this.vaultTimeoutService = new DefaultVaultTimeoutService(
       this.accountService,
       this.platformUtilsService,
@@ -1254,9 +1296,11 @@ export class ServiceContainer {
 
     // Desktop IPC is optional. Commands that do not use Desktop integration must
     // continue to work when Desktop is unavailable or incompatible.
+    let desktopConnected = false;
     try {
       const desktopVersion = await this.ipcService.verifyDesktopConnection();
       this.logService.info(`[IPC] Connected to Bitwarden Desktop ${desktopVersion}`);
+      desktopConnected = true;
     } catch (error) {
       this.logService.info("[IPC] Could not connect to Bitwarden Desktop", error);
     }
@@ -1283,12 +1327,58 @@ export class ServiceContainer {
       } catch (e) {
         this.logService.error("[ServiceContainer] Failed to auto-unlock user on init", e);
       }
+
+      if (desktopConnected) {
+        await this.startSharedUnlock(activeAccount.id);
+      }
     }
 
     this.inited = true;
   }
 
+  /**
+   * Joins the shared unlock protocol, and borrows the desktop app's unlock state if this process
+   * still needs one.
+   *
+   * Runs on every command rather than only on `unlock`, so that a lock or unlock performed here
+   * reaches the desktop app — and through it every other client — whichever command caused it.
+   *
+   * Only called once the desktop connection is known to be up, so that a machine with no desktop
+   * app pays nothing for this beyond the connection attempt it already makes.
+   */
+  private async startSharedUnlock(userId: UserId): Promise<void> {
+    // A shared unlock lands inside an SDK driver callback, so the session key it will be stored
+    // under has to exist before the peer can hand us anything.
+    await this.sessionKeyService.ensure();
+
+    // Started after the auto-unlock attempt above, so that a session the user already holds does
+    // not announce itself and unlock a locked desktop app. A peer that starts already unlocked
+    // advertises a state that loses every comparison, leaving it passive until the user acts.
+    if (!(await this.sharedUnlockService.start())) {
+      return;
+    }
+
+    const locked =
+      (await firstValueFrom(this.authService.authStatusFor$(userId))) ===
+      AuthenticationStatus.Locked;
+    if (!locked) {
+      return;
+    }
+
+    await this.sharedUnlockService.waitForRemoteUnlock(userId);
+  }
+
   dispose(): void {
+    // Releases the peer's sync timer, without which the process would never exit.
+    this.sharedUnlockService.abort();
     this.ipcService.disconnect();
+  }
+
+  /**
+   * Disposes, giving anything the shared unlock peer just sent a moment to reach the desktop app.
+   * Prefer this wherever the caller can await; {@link dispose} is for exit handlers.
+   */
+  async disposeAndFlush(): Promise<void> {
+    await this.sharedUnlockService.stop();
   }
 }
