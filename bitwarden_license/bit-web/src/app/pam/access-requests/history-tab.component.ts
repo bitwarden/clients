@@ -234,8 +234,8 @@ export class HistoryTabComponent {
   protected readonly canSwitchScope = computed(() => this.canApprove() || this.hasManagedHistory());
 
   /**
-   * Derived from the chip's own value rather than mirrored into a signal, so the scope has one
-   * source of truth — the shape the sibling access-audit page uses for its chips.
+   * One source of truth for the scope — the shape the sibling access-audit page uses for its
+   * chips.
    *
    * Falls back to All, synchronously, if the chip disappears while filtered. The template's `@if`
    * destroys the chip whenever {@link canSwitchScope} goes false, so a chip that returns starts
