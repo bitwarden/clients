@@ -163,6 +163,20 @@ export class BitTableToolbarComponent {
       : []),
   ]);
 
+  /**
+   * Below `md` the chip row collapses and these dismissible chips take its place, so the
+   * row owns the same rhythm the chip row does: the search row's bottom padding is the
+   * 12px gap, and 8px closes out the toolbar.
+   */
+  protected readonly activeFilterRowClasses = computed(() => [
+    "tw-flex",
+    "tw-flex-wrap",
+    "tw-items-center",
+    "tw-gap-2",
+    this.insetX(),
+    ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3"]),
+  ]);
+
   protected readonly searchRowClasses = computed(() => [
     "tw-flex",
     "tw-flex-wrap",
