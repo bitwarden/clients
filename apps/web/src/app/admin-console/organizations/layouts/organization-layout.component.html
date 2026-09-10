@@ -11,13 +11,14 @@
       ></bit-nav-item>
     }
 
-    <bit-nav-item
-      [icon]="'bwi-collection-shared' | vfo1Icon"
-      [text]="'collections' | vfo1I18n: 'sharedFolders'"
-      route="vault"
-      *ngIf="canShowVaultTab(organization)"
-    >
-    </bit-nav-item>
+    @if (canShowVaultTab(organization)) {
+      <bit-nav-item
+        [icon]="'bwi-collection-shared' | vfo1Icon"
+        [text]="'collections' | vfo1I18n: 'sharedFolders'"
+        route="vault"
+      >
+      </bit-nav-item>
+    }
 
     <ng-container *ngIf="canShowMembersTab(organization)">
       <ng-container *ngIf="showSponsoredFamiliesDropdown$ | async; else regularMembersItem">

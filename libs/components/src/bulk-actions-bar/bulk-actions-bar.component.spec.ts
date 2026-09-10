@@ -75,6 +75,7 @@ describe("BulkActionsBarComponent", () => {
 
   const innerBar = () =>
     fixture.debugElement.query(By.css('[role="toolbar"]')).nativeElement as HTMLElement;
+  const wrapper = () => innerBar().parentElement as HTMLElement;
   const outside = () => fixture.nativeElement.querySelector("#outside") as HTMLButtonElement;
   const primaryButtons = (): HTMLButtonElement[] =>
     Array.from(
@@ -152,6 +153,17 @@ describe("BulkActionsBarComponent", () => {
     expect(liveRegion().textContent?.trim()).toBe(
       "3 items selected. The bulk actions bar is now available at the bottom of the screen. Press Ctrl+B to toggle focus to the bulk action bar.",
     );
+  });
+
+  it("keeps hit-testing off the wrapper and on the bar only while visible", () => {
+    expect(wrapper().classList).toContain("tw-pointer-events-none");
+    expect(innerBar().classList).not.toContain("tw-pointer-events-auto");
+
+    host.count.set(1);
+    fixture.detectChanges();
+
+    expect(wrapper().classList).toContain("tw-pointer-events-none");
+    expect(innerBar().classList).toContain("tw-pointer-events-auto");
   });
 
   it("renders one toolbar button per projected <bit-bulk-action>", () => {

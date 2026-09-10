@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, lastValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
 import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
@@ -6,7 +7,9 @@ import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common"
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { DialogService } from "@bitwarden/components";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { BreadcrumbsModule, DialogService } from "@bitwarden/components";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
@@ -25,6 +28,7 @@ import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-dev
   imports: [
     SharedModule,
     HeaderModule,
+    BreadcrumbsModule,
     ProfileComponent,
     ChangeEmailComponent,
     DangerZoneComponent,
@@ -32,6 +36,11 @@ import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-dev
 })
 export class AccountComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+
+  protected readonly showBreadcrumbs = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   showChangeEmail$: Observable<boolean> = new Observable();
   showPurgeVault$: Observable<boolean> = new Observable();
@@ -44,6 +53,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private organizationService: OrganizationService,
     private accountDeletionService: AccountDeletionService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
