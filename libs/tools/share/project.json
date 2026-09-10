@@ -3,17 +3,25 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/tools/share/src",
   "projectType": "library",
-  "tags": [],
+  "tags": ["scope:tools-share", "type:lib"],
   "targets": {
     "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "executor": "nx:run-script",
+      "dependsOn": [],
       "options": {
-        "outputPath": "dist/libs/tools/share",
-        "main": "libs/tools/share/src/index.ts",
-        "tsConfig": "libs/tools/share/tsconfig.lib.json",
-        "assets": ["libs/tools/share/*.md"],
-        "rootDir": "libs/tools/share/src"
+        "script": "build"
+      }
+    },
+    "build:watch": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "build:watch"
+      }
+    },
+    "clean": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "clean"
       }
     },
     "lint": {
@@ -24,10 +32,9 @@
       }
     },
     "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "executor": "nx:run-script",
       "options": {
-        "jestConfig": "libs/tools/share/jest.config.js"
+        "script": "test"
       }
     }
   }
