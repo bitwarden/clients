@@ -222,8 +222,13 @@ export class BrowserApi {
     const device = BrowserPlatformUtilsService.getDevice(clientWindow);
 
     switch (device) {
+      // DuckDuckGoExtension implies the Windows (WebView2) build, since detection relies on
+      // userAgentData, which only Chromium exposes. That build uses the Chrome Web Store and
+      // Chromium's settings URIs. DuckDuckGoBrowser is deliberately absent: it spans both the
+      // Windows Chromium build and the WebKit-based macOS build, so it cannot be mapped here.
       case DeviceType.ChromeExtension:
       case DeviceType.ChromeBrowser:
+      case DeviceType.DuckDuckGoExtension:
         return BrowserClientVendors.Chrome;
       case DeviceType.OperaExtension:
       case DeviceType.OperaBrowser:
