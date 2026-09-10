@@ -30,6 +30,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { CheckboxModule } from "../../checkbox";
 import { FILTER_HOST, FilterControl, FilterHost } from "../../filter-menu/filter-tokens";
 import { IconComponent } from "../../icon/icon.component";
+import { ItemComponent } from "../../item/item.component";
 import { SearchComponent } from "../../search/search.component";
 import { SkeletonTextComponent } from "../../skeleton";
 import { StatusLockupComponent } from "../../status-lockup/status-lockup.component";
@@ -48,6 +49,7 @@ import { ColumnName } from "./column";
 import { SortState, cycleSort } from "./sort-model";
 import { SyncScrollLeftDirective } from "./sync-scroll-left.directive";
 import { TableDef } from "./table-def";
+import { TABLE_PRESENTATION, TablePresentation } from "./table-presentation";
 import { TableSelectionConfig, TableSelectionModel } from "./table-selection-model";
 import { TableVirtualScrollStrategy } from "./table-virtual-scroll.strategy";
 
@@ -181,6 +183,7 @@ type RenderItem<T> =
     BitRowComponent,
     CheckboxModule,
     IconComponent,
+    ItemComponent,
     StatusLockupComponent,
     SkeletonTextComponent,
     SvgComponent,
@@ -193,6 +196,12 @@ type RenderItem<T> =
     // Filter chips projected into the table resolve this host by DI and
     // self-register; the table folds their values into `filtered`.
     { provide: FILTER_HOST, useExisting: forwardRef(() => BitTableV2Component) },
+    // Cells read the presentation from here rather than injecting the table directly.
+    {
+      provide: TABLE_PRESENTATION,
+      useFactory: (table: BitTableV2Component) => table.presentation,
+      deps: [forwardRef(() => BitTableV2Component)],
+    },
     // The virtual-scroll viewport in the template picks up the table's own strategy.
     {
       provide: VIRTUAL_SCROLL_STRATEGY,
@@ -229,7 +238,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * Render style. `"table"` draws the bordered column grid; `"list"` renders each row
    * as a standalone card.
    */
-  readonly presentation = input<"table" | "list">("table");
+  readonly presentation = input<TablePresentation>("table");
 
   /** Active sort (`{ column, direction }`). Two-way — header clicks cycle it; bind `[(sort)]` to persist. */
   readonly sort = model<SortState<ColumnName<T, S>>>({ direction: "asc" });
@@ -649,6 +658,9 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   /** True when {@link height} is `"fill"`. */
   protected readonly isFill = computed(() => this.height() === "fill");
+
+  /** True when {@link presentation} is `"list"`. */
+  protected readonly isList = computed(() => this.presentation() === "list");
 
   /** Row-count cap from {@link height} (clamped to a minimum of 4), or undefined when it isn't a number. */
   protected readonly maxRows = computed(() => {

@@ -1201,7 +1201,7 @@ export const GroupedVirtualized: Story = {
         <bit-table-v2
           [tableDef]="table"
           presentation="list"
-          [virtualRowHeight]="44"
+          [virtualRowHeight]="48"
           [trackBy]="trackBy"
           [height]="8"
         >
@@ -1238,7 +1238,7 @@ export const GroupedInitiallyCollapsed: Story = {
         <bit-table-v2
           [tableDef]="table"
           presentation="list"
-          [virtualRowHeight]="44"
+          [virtualRowHeight]="48"
           [trackBy]="trackBy"
           [height]="8"
         >
@@ -1285,7 +1285,7 @@ export const GroupedDescription: Story = {
         <bit-table-v2
           [tableDef]="table"
           presentation="list"
-          [virtualRowHeight]="44"
+          [virtualRowHeight]="48"
           [height]="8"
         >
           <bit-column>

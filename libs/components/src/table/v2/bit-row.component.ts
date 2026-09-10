@@ -17,6 +17,11 @@ import { BitTableV2Component } from "./table-v2.component";
  * - In manual mode (no `<bit-column>`), `grid-template-columns` is unset and
  *   the row falls back to `grid-auto-flow: column; grid-auto-columns: 1fr`
  *   so projected `<bit-cell>` children each get an equal share.
+ *
+ * In `list` presentation the row carries no chrome of its own: `<bit-table-v2>`
+ * wraps it in a `<bit-item>`, which owns the card treatment (background, border,
+ * radius, hover, focus ring, compact-mode segmentation). The row stays the grid
+ * container so the column tracks still apply.
  */
 @Component({
   selector: "bit-row",
@@ -37,16 +42,18 @@ export class BitRowComponent {
 
   protected readonly gridTemplateColumns = computed(() => this.table?.gridTemplateColumns());
 
+  private readonly isList = computed(() => this.table?.presentation() === "list");
+
   /** Virtualized rows are positioned by offset, so they must render at exactly the height the scroll strategy assumed. */
   protected readonly fixedHeight = computed(() =>
-    this.table?.presentation() === "list" ? undefined : this.table?.virtualRowHeight(),
+    this.isList() ? undefined : this.table?.virtualRowHeight(),
   );
 
   /**
    * Row chrome. The grid classes lay the cells out in both presentations; the
-   * rest is presentation-specific: `table` connects rows with a bottom divider,
-   * `list` renders each row as a standalone `bit-item`-style card (background,
-   * rounded corners, spacing, hover).
+   * rest is `table`-only — rows connected by a bottom divider, with hover, focus
+   * and selected fills. In `list` the wrapping `bit-item` owns all of that, so
+   * the row only has to fill the item's main slot.
    */
   protected readonly hostClasses = computed(() =>
     [
@@ -59,19 +66,8 @@ export class BitRowComponent {
       "tw-auto-cols-fr",
       // A fixed height can't absorb a tall cell, so clip it rather than let it overlap the next row.
       ...(this.fixedHeight() != null ? ["tw-overflow-clip"] : []),
-      ...(this.table?.presentation() === "list"
-        ? // `list` rows size to content off a `bit-item`-style minimum height.
-          [
-            "tw-min-h-9",
-            "tw-mb-1.5",
-            "tw-rounded-lg",
-            "tw-bg-background",
-            "tw-border-0",
-            "tw-border-b",
-            "tw-border-solid",
-            "tw-border-b-shadow",
-            "hover:tw-bg-hover-default",
-          ]
+      ...(this.isList()
+        ? ["tw-w-full", "tw-min-w-0"]
         : [
             // Omitted when virtualized: a min-height would clamp a `virtualRowHeight`
             // below it, breaking the offsets the scroll strategy positions rows at.

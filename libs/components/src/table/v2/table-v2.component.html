@@ -60,6 +60,27 @@
 </ng-template>
 
 <!--
+  A data row, in either presentation. In `list` the row is wrapped in a `<bit-item>`,
+  which owns the whole card treatment (background, border, radius, hover, focus ring,
+  compact-mode segmentation) so `list` rows and standalone `bit-item`s can't drift
+  apart. The row stays the column grid, sitting inside the item's main slot. `cells`
+  is the cell template to stamp — real cells for a data row, skeletons while loading.
+-->
+<ng-template #dataRowTpl let-row let-cells="cells">
+  @if (isList()) {
+    <bit-item>
+      <bit-row>
+        <ng-container *ngTemplateOutlet="cells; context: { $implicit: row }"></ng-container>
+      </bit-row>
+    </bit-item>
+  } @else {
+    <bit-row>
+      <ng-container *ngTemplateOutlet="cells; context: { $implicit: row }"></ng-container>
+    </bit-row>
+  }
+</ng-template>
+
+<!--
   One render item — a group header or a data row — shared by the virtualized and
   non-virtualized bodies so grouped rendering is identical in both. `forceHeight`
   pins headers to the fixed heights the virtual-scroll strategy assumes; the
@@ -128,9 +149,9 @@
       </div>
     </div>
   } @else {
-    <bit-row>
-      <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: item.row }"></ng-container>
-    </bit-row>
+    <ng-container
+      *ngTemplateOutlet="dataRowTpl; context: { $implicit: item.row, cells: bodyCells }"
+    ></ng-container>
   }
 </ng-template>
 
@@ -179,7 +200,7 @@
       <bit-header-row
         data-hide-scrollbar
         class="tw-overflow-x-auto tw-overscroll-x-none"
-        [class.tw-sr-only]="presentation() === 'list'"
+        [class.tw-sr-only]="isList()"
         [(bitSyncScrollLeft)]="horizontalScroll"
       >
         <ng-container *ngTemplateOutlet="headerCells"></ng-container>
@@ -187,9 +208,9 @@
 
       @if (loading()) {
         @for (i of skeletonRows(); track i) {
-          <bit-row>
-            <ng-container *ngTemplateOutlet="loadingCells"></ng-container>
-          </bit-row>
+          <ng-container
+            *ngTemplateOutlet="dataRowTpl; context: { cells: loadingCells }"
+          ></ng-container>
         }
       } @else if (isEmpty()) {
         <!--
