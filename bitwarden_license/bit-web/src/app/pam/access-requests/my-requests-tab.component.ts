@@ -44,7 +44,6 @@ import { AccessStateBadgeComponent } from "../access-state-badge/access-state-ba
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { RemainingTimePipe } from "../date/remaining-time.pipe";
 
-import type { FilterOption } from "./approvals-tab.component";
 import {
   MyAccessLeaseRow,
   MyAccessRequestRow,
@@ -53,6 +52,9 @@ import {
   lapsedGrantBadge,
 } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
+
+/** An option offered by a `bit-filter-menu` chip. */
+type FilterOption = { label: string; value: string };
 
 /** A row carrying the id + collection fields the toolbar filters against. */
 type FilterableRow = {
