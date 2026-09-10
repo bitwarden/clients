@@ -1,4 +1,8 @@
 <bit-header [title]="resolvedTitle()" [icon]="icon()">
+  <ng-container slot="title-prefix">
+    <ng-content select="[slot=title-prefix]" />
+  </ng-container>
+
   <ng-container slot="breadcrumbs">
     <ng-content select="[slot=breadcrumbs]" />
   </ng-container>

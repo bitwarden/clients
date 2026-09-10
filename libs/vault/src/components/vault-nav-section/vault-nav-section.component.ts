@@ -17,7 +17,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { navIconTile } from "../../models/vault-icon-tile";
+import { ALL_ITEMS_ICON_TILE, navIconTile } from "../../models/vault-icon-tile";
 import { VaultNavItemType, VaultNavItemViewModel } from "../../models/vault-nav-view-model";
 import {
   ALL_ITEMS_SCOPE,
@@ -68,6 +68,8 @@ export class VaultNavSectionComponent {
   );
 
   protected readonly allItemsRoute = vaultScopeCommands(ALL_ITEMS_SCOPE);
+
+  protected readonly allItemsTile = ALL_ITEMS_ICON_TILE;
 
   /**
    * The match for the two entries naming a whole vault — All items and an organization's All vault
