@@ -121,9 +121,6 @@ export class HistoryTabComponent {
     initialValue: false,
   });
 
-  /** The filter the viewer picked from the chip. */
-  private readonly selectedScope = signal<HistoryScope>(HistoryScope.All);
-
   /**
    * `bit-filter-menu` is not a `ControlValueAccessor`, so its selection is read off the chip's own
    * `value` signal rather than bound through a form control. There is exactly one chip and no table
@@ -237,12 +234,21 @@ export class HistoryTabComponent {
   protected readonly canSwitchScope = computed(() => this.canApprove() || this.hasManagedHistory());
 
   /**
+   * Derived straight from the chip's own value rather than mirrored into a signal, so there is
+   * exactly one source of truth for the scope — the same shape the sibling access-audit page uses
+   * for its chips.
+   *
    * Falls back to All, synchronously, if the chip disappears while filtered; the choice is
-   * forgotten, so a returning chip can't silently re-narrow the table.
+   * forgotten, so a returning chip can't silently re-narrow the table. The `@if` in the template
+   * destroys the chip whenever {@link canSwitchScope} goes false, so a chip that returns starts
+   * unset — this needs no extra bookkeeping to forget a stale pick.
    */
-  protected readonly scope = computed<HistoryScope>(() =>
-    this.canSwitchScope() ? this.selectedScope() : HistoryScope.All,
-  );
+  protected readonly scope = computed<HistoryScope>(() => {
+    const value = this.scopeChip()?.value();
+    return this.canSwitchScope() && (value === HistoryScope.Mine || value === HistoryScope.Managed)
+      ? value
+      : HistoryScope.All;
+  });
 
   /**
    * Both sources in one list, de-duplicated by request id and re-sorted on the shared key. A row
@@ -327,21 +333,6 @@ export class HistoryTabComponent {
       const handle = setTimeout(() => this.skeletonShown.set(false), announcementHoldMs);
       onCleanup(() => clearTimeout(handle));
     });
-    effect(() => {
-      if (!this.canSwitchScope()) {
-        this.selectedScope.set(HistoryScope.All);
-      }
-    });
-    effect(() => {
-      const value = this.scopeChip()?.value();
-      this.selectScope(
-        value === HistoryScope.Mine || value === HistoryScope.Managed ? value : HistoryScope.All,
-      );
-    });
-  }
-
-  protected selectScope(scope: HistoryScope): void {
-    this.selectedScope.set(scope);
   }
 
   /** The decrypted cipher for a row, undefined when absent from the caller's vault. */
