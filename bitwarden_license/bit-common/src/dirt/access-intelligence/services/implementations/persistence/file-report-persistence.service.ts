@@ -63,7 +63,12 @@ export class FileReportPersistenceService extends ReportPersistenceService {
 
     return from(firstValueFrom(getUserId(this.accountService.activeAccount$))).pipe(
       switchMap((userId) => {
+        const measureStep = flowTimer(this.logService);
         const payload = view.toEncryptionPayload();
+        measureStep("Save: encryption payload built", [
+          ["memberCount", Object.keys(view.memberRegistry).length],
+          ["applicationCount", view.reports.length],
+        ]);
 
         return this.riskInsightsEncryptionService
           .encryptReportFile$({ organizationId, userId }, payload, view.contentEncryptionKey)
@@ -80,6 +85,12 @@ export class FileReportPersistenceService extends ReportPersistenceService {
               };
 
               return this.accessIntelligenceApiService.createReport$(organizationId, request).pipe(
+                measureFlowStep(this.logService, "Save: report row created", () => [
+                  ["itemCount", metrics.totalPasswordCount],
+                  ["memberCount", metrics.totalMemberCount],
+                  ["applicationCount", metrics.totalApplicationCount],
+                  ["byteSize", request.fileSize],
+                ]),
                 tap((createReportResponse) => {
                   const reportFileId = createReportResponse.reportResponse.reportFile?.id;
                   if (!reportFileId) {
@@ -107,6 +118,10 @@ export class FileReportPersistenceService extends ReportPersistenceService {
               );
 
               return upload$.pipe(
+                measureFlowStep(this.logService, "Save: report file uploaded", () => [
+                  ["byteSize", encryptedData.encryptedReportData.buffer.byteLength],
+                ]),
+                tap(() => this.logService.mark("AccessReportFlow: report saved")),
                 map(() => ({
                   id: reportId,
                   contentEncryptionKey: encryptedData.contentEncryptionKey,
