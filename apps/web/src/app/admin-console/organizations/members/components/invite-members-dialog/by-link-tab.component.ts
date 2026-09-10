@@ -17,9 +17,9 @@ import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -80,12 +80,12 @@ export class ByLinkTabComponent {
   private readonly fb = inject(FormBuilder);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly eventCollectionService = inject(EventCollectionService);
-  private readonly configService = inject(ConfigService);
+  private readonly serverSettingsService = inject(DefaultServerSettingsService);
 
   private readonly isSelfHost = signal<boolean>(this.platformUtilsService.isSelfHost());
   private readonly emailVerificationEnabled = toSignal(
-    this.configService.serverSettings$.pipe(map((s) => s?.enableEmailVerification ?? false)),
-    { initialValue: false },
+    this.serverSettingsService.isEmailVerificationEnabled$,
+    { initialValue: true },
   );
   protected readonly showSelfHostWarning = computed(
     () => this.isSelfHost() && !this.emailVerificationEnabled(),
