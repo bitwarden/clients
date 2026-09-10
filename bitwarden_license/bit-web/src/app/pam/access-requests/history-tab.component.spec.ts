@@ -189,12 +189,10 @@ describe("HistoryTabComponent", () => {
       managedRows$.next([historyRow({ id: "managed-1" })]);
       create();
 
-      component["scopeChip"]()?.setValue("mine");
-      fixture.detectChanges();
+      selectScope("mine");
       expect(component["scope"]()).toBe("mine");
 
-      component["scopeChip"]()?.setValue("managed");
-      fixture.detectChanges();
+      selectScope("managed");
       expect(component["scope"]()).toBe("managed");
     });
 
