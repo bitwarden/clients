@@ -8,8 +8,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { GlobalState, GlobalStateProvider, KeyDefinition } from "@bitwarden/state";
 
 import { NavigationModule } from "../navigation/navigation.module";
+import { ARROW_STEP_REM } from "../navigation/side-nav-resize";
 import { SIDE_NAV_WIDTH_BOUNDS } from "../navigation/side-nav-width.service";
 import { SideNavService } from "../navigation/side-nav.service";
+import { LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM } from "../shared";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { LayoutComponent } from "./layout.component";
@@ -78,9 +80,18 @@ class DeferredStateProvider implements GlobalStateProvider {
 class HostComponent {}
 
 describe("LayoutComponent push/overlay reconciliation", () => {
-  // 800px container: fits the nav in push mode up to 26rem (800 - 416 >= 384), overlay past that.
   const ROOT_FONT_SIZE = 16;
   const CONTAINER_WIDTH = 800;
+
+  // What this container affords: the nav can push alongside main up to the ceiling, and goes
+  // overlay past it. Derived rather than written out so the numbers track the constants.
+  const CONTAINER_REM = CONTAINER_WIDTH / ROOT_FONT_SIZE;
+  const PUSH_CEILING_REM = CONTAINER_REM - LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM;
+  const OVER_CEILING_REM = PUSH_CEILING_REM + ARROW_STEP_REM;
+  /** Arrow presses from the default width to the first width past the ceiling. */
+  const STEPS_PAST_CEILING = Math.ceil(
+    (PUSH_CEILING_REM - SIDE_NAV_WIDTH_BOUNDS.default) / ARROW_STEP_REM,
+  );
 
   let stubbedClientWidth = CONTAINER_WIDTH;
   let originalClientWidth: PropertyDescriptor | undefined;
@@ -184,8 +195,8 @@ describe("LayoutComponent push/overlay reconciliation", () => {
       expect(sideNav.open()).toBe(true);
       expect(sideNav.isPushMode()).toBe(true);
 
-      // Drag the handle to 27rem (432px) — past the 26rem push ceiling for this container.
-      sideNav.setWidthFromDrag(27 * ROOT_FONT_SIZE, 0);
+      // Drag the handle past the push ceiling for this container.
+      sideNav.setWidthFromDrag(OVER_CEILING_REM * ROOT_FONT_SIZE, 0);
       settle();
 
       expect(sideNav.open()).toBe(true);
@@ -195,10 +206,10 @@ describe("LayoutComponent push/overlay reconciliation", () => {
     it("goes to overlay rather than collapsing when resized with arrow keys", fakeAsync(() => {
       bootHydrated();
 
-      // 1rem steps from 18.5rem: the 8th lands on 26.5rem, the first width past the ceiling.
-      // Asserting every step matters — a collapse here is otherwise masked by the next
-      // ArrowRight, which re-expands through _expand() and lands on overlay anyway.
-      for (let i = 0; i < 8; i++) {
+      // The last step lands on the first width past the push ceiling. Asserting every step
+      // matters — a collapse here is otherwise masked by the next ArrowRight, which re-expands
+      // through _expand() and lands on overlay anyway.
+      for (let i = 0; i < STEPS_PAST_CEILING; i++) {
         sideNav.setWidthFromKeys("ArrowRight");
         settle();
         expect(sideNav.open()).toBe(true);
@@ -215,8 +226,8 @@ describe("LayoutComponent push/overlay reconciliation", () => {
       settle();
       expect(sideNav.open()).toBe(false);
 
-      // A fast flick jumps straight past MIN_OPEN_WIDTH to 27rem in a single pointermove.
-      sideNav.setWidthFromDrag(27 * ROOT_FONT_SIZE, 0);
+      // A fast flick jumps straight past the minimum open width in a single pointermove.
+      sideNav.setWidthFromDrag(OVER_CEILING_REM * ROOT_FONT_SIZE, 0);
       settle();
       sideNav.onDragEnd();
       settle();
@@ -236,7 +247,7 @@ describe("LayoutComponent push/overlay reconciliation", () => {
       settle();
       expect(sideNav.open()).toBe(true);
 
-      sideNav.setWidthFromDrag(27 * ROOT_FONT_SIZE, 0);
+      sideNav.setWidthFromDrag(OVER_CEILING_REM * ROOT_FONT_SIZE, 0);
       settle();
 
       expect(sideNav.open()).toBe(true);
@@ -248,7 +259,7 @@ describe("LayoutComponent push/overlay reconciliation", () => {
       ResizeObserverStub.latest!.emit();
       settle();
 
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < STEPS_PAST_CEILING; i++) {
         sideNav.setWidthFromKeys("ArrowRight");
         settle();
         expect(sideNav.open()).toBe(true);
@@ -262,7 +273,7 @@ describe("LayoutComponent push/overlay reconciliation", () => {
       ResizeObserverStub.latest!.emit();
       settle();
 
-      sideNav.setWidthFromDrag(27 * ROOT_FONT_SIZE, 0);
+      sideNav.setWidthFromDrag(OVER_CEILING_REM * ROOT_FONT_SIZE, 0);
       sideNav.onDragEnd();
       settle();
 
@@ -272,7 +283,7 @@ describe("LayoutComponent push/overlay reconciliation", () => {
 
       expect(sideNav.open()).toBe(true);
       expect(sideNav.isOverlay()).toBe(true);
-      expect(sideNav.widthRem()).toBe(27);
+      expect(sideNav.widthRem()).toBe(OVER_CEILING_REM);
     }));
   });
 
