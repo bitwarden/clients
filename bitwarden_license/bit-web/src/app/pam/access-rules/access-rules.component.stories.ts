@@ -9,6 +9,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { ACCESS_RULE_DESCRIPTION_MAX_LENGTH, AccessRuleSdkService, AccessRuleView } from "..";
+import { GovernedCollectionsService } from "../services/governed-collections.service";
 
 import { AccessRulesComponent } from "./access-rules.component";
 
@@ -117,6 +118,9 @@ export default {
         { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: AccessRuleSdkService, useValue: pamApi(() => Promise.resolve(RULES)) },
+        // `AccessRulesService` is provided by the component and injected in a field
+        // initializer, so it is constructed on creation; `invalidate` is all this page reaches.
+        { provide: GovernedCollectionsService, useValue: { invalidate: () => {} } },
       ],
     }),
   ],
