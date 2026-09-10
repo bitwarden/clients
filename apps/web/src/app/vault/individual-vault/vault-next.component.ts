@@ -287,6 +287,10 @@ export class VaultNextComponent {
       : undefined,
   );
 
+  protected readonly canCreateCollections = computed(() => {
+    return this.organizations()?.some((o) => o.canCreateNewCollections && !o.isProviderUser);
+  });
+
   /**
    * Whether the page offers the toolbar's Import and New item actions. New items cannot be created
    * with a trashed or archived status and would "disappear" after creation on those views.
@@ -354,12 +358,24 @@ export class VaultNextComponent {
    * Handles `vault-new-cipher-menu`'s `onAddItemDialog`, which it only emits once
    * `PM32009NewItemTypes` is on.
    */
-  protected async openAddItemDialog(): Promise<void> {
+  protected async openAddItemDialog(eventOrigin: "empty" | "toolbar"): Promise<void> {
+    let toolbarOptions = {};
+    // The empty state should only give the user options that allow them to populate that
+    // empty state. Therefore folders and shared folders should only be included when the dialog
+    // is opened from the toolbar.
+    if (eventOrigin === "toolbar") {
+      toolbarOptions = {
+        canCreateFolder: true,
+        canCreateCollection: this.canCreateCollections(),
+      };
+    }
+
     const dialogRef = AddItemDialogComponent.open(this.dialogService, {
       canCreateCipher: true,
+      canCreateSshKey: true,
       canCreateFolder: false,
       canCreateCollection: false,
-      canCreateSshKey: true,
+      ...toolbarOptions,
     });
     const result = await firstValueFrom(dialogRef.closed);
     if (result?.result !== AddItemDialogResult.Cipher) {

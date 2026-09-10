@@ -49,7 +49,7 @@
       [canCreateFolder]="false"
       [canCreateCollection]="false"
       (cipherAdded)="addCipher($event)"
-      (onAddItemDialog)="openAddItemDialog()"
+      (onAddItemDialog)="openAddItemDialog('empty')"
       id="vault-next_empty-new-cipher-menu"
     />
   }
@@ -69,8 +69,10 @@
       <vault-new-cipher-menu
         [canCreateCipher]="true"
         [canCreateSshKey]="true"
+        [canCreateFolder]="true"
+        [canCreateCollection]="canCreateCollections()"
         (cipherAdded)="addCipher($event)"
-        (onAddItemDialog)="openAddItemDialog()"
+        (onAddItemDialog)="openAddItemDialog('toolbar')"
       />
     }
   </div>
