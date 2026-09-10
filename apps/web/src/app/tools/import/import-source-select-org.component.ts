@@ -22,7 +22,7 @@ export class ImportSourceSelectOrgComponent implements OnInit {
 
   ngOnInit(): void {
     const orgIdParam = this.route.snapshot.paramMap.get("organizationId");
-    if (orgIdParam === undefined) {
+    if (orgIdParam == null) {
       throw new Error("`organizationId` is a required route parameter");
     }
 
