@@ -187,16 +187,20 @@ describe("AccessRulesService", () => {
       expect(governedCollections.invalidate).not.toHaveBeenCalled();
     });
 
-    it("does not invalidate the governed-collections cache when any toggle fails", async () => {
+    it("still invalidates when only some toggles land, since the successes are committed", async () => {
       setup();
       const rules = [rule("rule-1", { enabled: false }), rule("rule-2", { enabled: false })];
       pamApi.listAccessRules.mockResolvedValue(rules);
       await service.load("org-1" as never);
-      pamApi.updateAccessRule.mockRejectedValue(new Error("nope"));
+      pamApi.updateAccessRule.mockImplementation((_org, id) =>
+        String(id) === "rule-1"
+          ? Promise.resolve(rule("rule-1", { enabled: true }))
+          : Promise.reject(new Error("nope")),
+      );
 
       await expect(service.setManyEnabled(rules, true)).rejects.toThrow();
 
-      expect(governedCollections.invalidate).not.toHaveBeenCalled();
+      expect(governedCollections.invalidate).toHaveBeenCalledWith("org-1");
     });
   });
 
@@ -259,17 +263,20 @@ describe("AccessRulesService", () => {
       expect(governedCollections.invalidate).toHaveBeenCalledWith("org-1");
     });
 
-    it("does not invalidate the governed-collections cache when any delete fails", async () => {
+    it("still invalidates when only some deletes land, since the successes are committed", async () => {
       setup();
       pamApi.listAccessRules.mockResolvedValue([rule("rule-1"), rule("rule-2")]);
       await service.load("org-1" as never);
-      pamApi.deleteAccessRule.mockRejectedValue(
-        new Error("The access rule service is unavailable."),
+      pamApi.deleteAccessRule.mockImplementation((_org, id) =>
+        String(id) === "rule-1"
+          ? Promise.resolve(undefined)
+          : Promise.reject(new Error("The access rule service is unavailable.")),
       );
 
       await expect(service.deleteMany([rule("rule-1"), rule("rule-2")])).rejects.toThrow();
 
-      expect(governedCollections.invalidate).not.toHaveBeenCalled();
+      expect(governedCollections.invalidate).toHaveBeenCalledWith("org-1");
+      // Local state is left to the caller's error path; the cache is what must not go stale.
       expect(await currentRuleIds()).toEqual(["rule-1", "rule-2"]);
     });
   });

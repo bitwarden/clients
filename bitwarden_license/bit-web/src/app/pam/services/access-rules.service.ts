@@ -120,12 +120,17 @@ export class AccessRulesService {
       return 0;
     }
     const organizationId = this.requireOrganizationId();
-    const updated = await Promise.all(
-      targets.map((rule) =>
-        this.pamApi.updateAccessRule(organizationId, rule.id, accessRuleToRequest(rule, enabled)),
-      ),
-    );
-    this.governedCollections.invalidate(organizationId);
+    let updated;
+    try {
+      updated = await Promise.all(
+        targets.map((rule) =>
+          this.pamApi.updateAccessRule(organizationId, rule.id, accessRuleToRequest(rule, enabled)),
+        ),
+      );
+    } finally {
+      // A partial toggle still changed what `rulesGoverningCollection` reports; see {@link deleteMany}.
+      this.governedCollections.invalidate(organizationId);
+    }
     const byId = new Map(
       updated.map((r: AccessRuleView): [string, AccessRuleView] => [uuidAsString(r.id), r]),
     );
@@ -146,11 +151,22 @@ export class AccessRulesService {
     this._rules$.next(this._rules$.value.filter((r) => r.id !== rule.id));
   }
 
-  /** Delete many rules at once, dropping them all from local state. Invalidates once, see {@link delete}. */
+  /**
+   * Delete many rules at once, dropping them all from local state. Invalidates once, see
+   * {@link delete}.
+   *
+   * Invalidates whatever the outcome: `Promise.all` rejects on the first failure but its siblings
+   * still land server-side, so a partial delete has freed collections even though this throws.
+   * An unnecessary invalidation costs one extra read; a missed one costs the whole
+   * {@link CACHE_TTL_MS} window with no in-app remedy.
+   */
   async deleteMany(rules: AccessRuleView[]): Promise<void> {
     const organizationId = this.requireOrganizationId();
-    await Promise.all(rules.map((rule) => this.pamApi.deleteAccessRule(organizationId, rule.id)));
-    this.governedCollections.invalidate(organizationId);
+    try {
+      await Promise.all(rules.map((rule) => this.pamApi.deleteAccessRule(organizationId, rule.id)));
+    } finally {
+      this.governedCollections.invalidate(organizationId);
+    }
     const removed = new Set(rules.map((r) => r.id));
     this._rules$.next(this._rules$.value.filter((r) => !removed.has(r.id)));
   }
