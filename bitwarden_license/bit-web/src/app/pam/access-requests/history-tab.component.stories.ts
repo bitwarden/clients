@@ -37,9 +37,8 @@ async function selectHistoryScope(canvasElement: HTMLElement, option: string): P
     'bit-filter-menu button[title^="History scope"]',
   )!;
   await userEvent.click(trigger);
-  // Scope to the popover: the chip also instantiates every option in a hidden slot, so an
-  // unscoped text query is ambiguous once the menu renders, and resolves to the hidden copy
-  // before it does.
+  // Scoped to the popover: the chip also stamps every option into a hidden slot, so an unscoped
+  // text query is ambiguous and resolves to the hidden copy.
   const menu = await within(document.body).findByRole("dialog", { name: "History scope" });
   await userEvent.click(await within(menu).findByText(option));
   // Option rows are not `bitMenuItem`, so selecting one leaves the menu open over the table.

@@ -92,9 +92,8 @@ describe("HistoryTabComponent", () => {
   }
 
   /**
-   * Drives the scope chip the way a click on one of its options would — through the chip's own
-   * `setValue`, not a component-internal setter — and re-renders. `"all"` clears the chip, which
-   * is the chip's own reset row rather than a third option.
+   * Drives the scope chip through its own `setValue`, as a click on an option would, and
+   * re-renders. `"all"` clears the chip: All is its reset row, not a third option.
    */
   function selectScope(scope: "mine" | "managed" | "all"): void {
     component["scopeChip"]()?.setValue(scope === "all" ? null : scope);
@@ -181,8 +180,7 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
     });
 
-    // `scope` reads the chip's own `value()` directly rather than a mirrored signal, so driving
-    // the real chip is what proves the wiring, not a component-internal setter.
+    // `scope` reads the chip's `value()` directly, so only driving the real chip proves the wiring.
     it("derives Mine and Managed straight from the chip's own value", () => {
       canApprove$.next(true);
       myRows$.next([historyRow({ id: "mine-1" })]);
@@ -196,8 +194,6 @@ describe("HistoryTabComponent", () => {
       expect(component["scope"]()).toBe("managed");
     });
 
-    // The ternary's other branch: a chip value outside the known scopes reads as All rather than
-    // being passed through.
     it("falls back to All when the chip holds a value outside the known scopes", () => {
       canApprove$.next(true);
       myRows$.next([historyRow({ id: "mine-1" })]);
@@ -360,7 +356,7 @@ describe("HistoryTabComponent", () => {
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1", "mine-1"]);
     });
 
-    // A non-approver whose managed rows go away loses the filter, so their pinned filter stops
+    // A non-approver whose managed rows go away loses the chip, so their pinned scope stops
     // applying.
     it("falls back to All if the filter goes away while a filter is applied", () => {
       managedRows$.next([historyRow({ id: "managed-1" })]);
