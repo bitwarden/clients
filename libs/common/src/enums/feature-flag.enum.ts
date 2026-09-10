@@ -77,6 +77,7 @@ export enum FeatureFlag {
   /* Tools */
   SendControls = "pm-31885-send-controls",
   Pm30110SdkSendsApi = "pm-30110-sdk-sends-api",
+  PM34203TemporaryItemSharing = "pm-34203-temporary-item-sharing",
 
   /* DIRT */
   EventManagementForBlumira = "event-management-for-blumira",
@@ -166,6 +167,7 @@ export const DefaultFeatureFlagValue = {
   /* Tools */
   [FeatureFlag.SendControls]: FALSE,
   [FeatureFlag.Pm30110SdkSendsApi]: FALSE,
+  [FeatureFlag.PM34203TemporaryItemSharing]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventManagementForBlumira]: FALSE,

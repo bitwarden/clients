@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { map, Observable, switchMap, tap } from "rxjs";
 
@@ -18,9 +16,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
   standalone: false,
 })
 export class ProvidersComponent implements OnInit {
-  providers$: Observable<Provider[]>;
+  providers$?: Observable<Provider[]>;
   loaded = false;
-  actionPromise: Promise<any>;
 
   constructor(
     private providerService: ProviderService,

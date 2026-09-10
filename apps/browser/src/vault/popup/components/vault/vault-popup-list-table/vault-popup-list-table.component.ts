@@ -15,11 +15,12 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
+import { RouterLink } from "@angular/router";
 import { distinctUntilChanged, filter, map, skip, Subject } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
-import { DeactivatedOrg, NoResults } from "@bitwarden/assets/svg";
+import { DeactivatedOrg } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -38,6 +39,7 @@ import {
   BitRowGroupComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
+  ButtonModule,
   ChipActionComponent,
   ChipFilterOption,
   CompactModeService,
@@ -51,6 +53,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import {
+  EmptyVaultComponent,
   matchesFolder,
   matchesSharedFolder,
   matchesType,
@@ -58,6 +61,9 @@ import {
   MY_VAULT,
   NO_FOLDER,
   OrgIconDirective,
+  type VaultItemsTableFilters,
+  type VaultScope,
+  VaultScopeType,
   Vfo1I18nPipe,
 } from "@bitwarden/vault";
 
@@ -99,6 +105,7 @@ function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[
     CommonModule,
     FormsModule,
     JslibModule,
+    RouterLink,
     BitTableV2Component,
     BitColumnComponent,
     BitHeaderCellComponent,
@@ -114,10 +121,12 @@ function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[
     SvgComponent,
     TypographyModule,
     ChipActionComponent,
+    EmptyVaultComponent,
     ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
     OrgIconDirective,
     Vfo1I18nPipe,
+    ButtonModule,
   ],
 })
 export class VaultPopupListTableComponent {
@@ -139,8 +148,10 @@ export class VaultPopupListTableComponent {
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 
-  protected readonly noResultsIcon = NoResults;
   protected readonly deactivatedIcon = DeactivatedOrg;
+
+  /** Temporary hard-coded all items scope until scoping is builtin to the browser */
+  protected readonly allItemsScope: VaultScope = { type: VaultScopeType.AllItems };
 
   protected searchText: string = "";
   private readonly searchText$ = new Subject<string>();
@@ -152,6 +163,12 @@ export class VaultPopupListTableComponent {
   protected readonly hasSearchText = toSignal(this.listTableService.hasSearchText$, {
     initialValue: false,
   });
+
+  /**
+   * Whether the account has any active items at all, ignoring search/filters — distinguishes a
+   * genuinely empty vault from a search/filter that matched nothing, for the empty slot below.
+   */
+  protected readonly hasItems = toSignal(this.listTableService.hasItems$, { initialValue: false });
 
   /** The selected organizations, kept in sync with the org chip selection. */
   private readonly selectedOrgs = signal<Organization[]>([]);
@@ -200,6 +217,38 @@ export class VaultPopupListTableComponent {
     matchesFolder(row.cipher, values.folder);
 
   /**
+   * The table's live chip/search selection, reshaped for `EmptyVaultComponent` — its `vault`/
+   * `sharedFolder`/`type`/`folder` keys line up with the table's own `organization`/`collection`/
+   * `cipherType`/`folder` filter values (see {@link filterPredicate}), so this is a rename, not a
+   * behavioral remap. There's no `favorites` chip on this table, so that key is always unset.
+   *
+   * `search` is gated by {@link hasSearchText}, not read off the table's own raw `filterValues()`
+   * directly: `bit-table-v2` adopts the projected `bit-search`'s value immediately on every
+   * keystroke, while `hasSearchText` reflects the debounced, validated "is this actually searching"
+   * fact `VaultPopupItemsService` uses to filter rows — reading the raw value would flash a
+   * "no items match search term" state one keystroke ahead of the rows actually narrowing.
+   */
+  protected readonly emptyStateFilterValues = computed((): VaultItemsTableFilters => {
+    const values = this.tableEl()?.filterValues() as
+      | {
+          cipherType?: CipherType | null;
+          organization?: string[];
+          collection?: string[];
+          folder?: string[];
+          search?: string;
+        }
+      | undefined;
+
+    return {
+      search: this.hasSearchText() ? values?.search : undefined,
+      type: values?.cipherType ?? undefined,
+      vault: values?.organization,
+      sharedFolder: values?.collection,
+      folder: values?.folder,
+    };
+  });
+
+  /**
    * One row per unique cipher, for filter-chip counts. {@link rows} intentionally contains up to
    * three entries per cipher (autofill/favorites/allItems sections) so each section renders its
    * own copy — counting off it directly would triple-count a cipher that's both a favorite and an
@@ -237,8 +286,21 @@ export class VaultPopupListTableComponent {
     initialValue: [] as ChipFilterOption<CipherType>[],
   });
 
+  /**
+   * Cached filter state to seed the table's chips on load.
+   */
+  protected readonly filtersToRestore = toSignal(this.listFiltersService.restoreFilters$());
+
   protected readonly organizationOptions = toSignal(this.listFiltersService.organizations$, {
     initialValue: [] as ChipFilterOption<Organization>[],
+  });
+
+  /**
+   * Organization names by id, including suspended organizations. {@link organizationOptions} omits
+   * those, so it can't label their collections — see {@link collectionsByOrg}.
+   */
+  private readonly organizationNames = toSignal(this.listFiltersService.organizationNames$, {
+    initialValue: new Map<string, string>(),
   });
 
   private readonly collectionTree = toSignal(this.listFiltersService.collections$, {
@@ -272,7 +334,8 @@ export class VaultPopupListTableComponent {
 
   /**
    * Collections grouped by owning org, each group sorted alphabetically (the service pre-sorts),
-   * with groups themselves sorted by organization name.
+   * with groups themselves sorted by organization name. A collection whose organization isn't in
+   * {@link organizationNames} falls back to the localized "organization" label.
    */
   protected readonly collectionsByOrg = computed(() => {
     const groups = new Map<
@@ -287,9 +350,7 @@ export class VaultPopupListTableComponent {
       }
 
       if (!groups.has(orgId)) {
-        const orgName =
-          this.organizationOptions().find((o) => o.value?.id === option.value?.organizationId)
-            ?.label ?? orgId;
+        const orgName = this.organizationNames().get(orgId) ?? this.i18nService.t("organization");
         groups.set(orgId, { id: orgId, name: orgName, collections: [] });
       }
       groups.get(orgId)!.collections.push(option);
@@ -379,25 +440,12 @@ export class VaultPopupListTableComponent {
     // Resolve the keyboard-shortcut tooltip for the legacy (flag-off) autofill chip.
     void this.setAutofillShortcutTooltip();
 
-    // Set up chip lifecycle after the first render (chips are registered by then).
+    // Wire up persistence after the first render so we can access the table reference.
     afterNextRender(() => {
       const table = this.tableEl();
       if (!table) {
         return;
       }
-
-      // Seed chips from the persisted cache once the required data resolves.
-      this.listFiltersService
-        .restoreFilters$()
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((filters) => {
-          for (const control of table.filterControls()) {
-            const value = (filters as Record<string, unknown>)[control.key()];
-            if (value !== undefined) {
-              control.setValue(value);
-            }
-          }
-        });
 
       // Persist cache and update service state whenever chip selections change.
       toObservable(table.filterValues, { injector: this.injector })
@@ -423,6 +471,21 @@ export class VaultPopupListTableComponent {
 
   onSearchTextChanged() {
     this.searchText$.next(this.searchText);
+  }
+
+  /** Clears the search box, leaving chip filters untouched — the empty slot's "Clear search". */
+  clearSearch() {
+    this.searchText = "";
+    this.onSearchTextChanged();
+  }
+
+  /** Clears every chip filters — the empty slot's "Clear all". */
+  clearFilters() {
+    for (const control of this.tableEl()?.filterControls() ?? []) {
+      if (control.key() !== "search") {
+        control.setValue(undefined);
+      }
+    }
   }
 
   /**
