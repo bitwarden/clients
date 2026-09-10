@@ -662,6 +662,15 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   /** True when {@link presentation} is `"list"`. */
   protected readonly isList = computed(() => this.presentation() === "list");
 
+  /**
+   * Horizontal inset for `list` presentation, which has no container chrome of its own
+   * to hold its content off the edge. 12px per the CX Foundations spec, which puts the
+   * list content and the search field on the same edge. Applied as a margin so each
+   * item keeps whatever internal padding it already has — a group header's own `px-1`
+   * lands its label at the 16px the spec asks for.
+   */
+  protected readonly listInset = computed(() => (this.isList() ? "tw-mx-3" : ""));
+
   /** Row-count cap from {@link height} (clamped to a minimum of 4), or undefined when it isn't a number. */
   protected readonly maxRows = computed(() => {
     const h = this.height();

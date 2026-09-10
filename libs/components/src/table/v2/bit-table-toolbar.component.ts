@@ -115,6 +115,15 @@ export class BitTableToolbarComponent {
   );
 
   /**
+   * Horizontal inset for every toolbar row. `list` presentation puts the search on the
+   * same 12px edge as the cards below it; `table` keeps its own wider 20px edge, which
+   * the spec deliberately does not align to the column tracks.
+   */
+  protected readonly insetX = computed(() =>
+    this.table?.presentation() === "list" ? "tw-px-3" : "tw-px-5",
+  );
+
+  /**
    * The chip row. Collapsed, it stays laid out but invisible so `bitOverflowList` can
    * keep measuring it — `display: none` would zero every width and bounce it back open.
    */
@@ -123,7 +132,7 @@ export class BitTableToolbarComponent {
     "tw-flex-wrap",
     "tw-items-center",
     "tw-gap-2",
-    "tw-px-5",
+    this.insetX(),
     "tw-py-3.5",
     "empty:tw-hidden",
     ...(this.collapsed()
@@ -138,7 +147,8 @@ export class BitTableToolbarComponent {
     "tw-gap-3",
     // Row gap for when the `slot=end` controls wrap to their own line below `md`.
     "tw-gap-y-4",
-    "tw-p-5",
+    "tw-py-5",
+    this.insetX(),
     ...(this.hasFilterRow()
       ? ["tw-border-0", "tw-border-b", "tw-border-solid", "tw-border-border-base"]
       : []),

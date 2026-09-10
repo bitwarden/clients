@@ -1,5 +1,4 @@
 <bit-table-v2
-  class="[&_[role=row]]:tw-mx-3 [&_bit-item]:tw-mx-3 [&_bit-item_[role=row]]:tw-mx-0"
   [tableDef]="table"
   [filter]="filterPredicate"
   [filters]="filtersToRestore()"
@@ -105,7 +104,7 @@
     the filter that caused it stays clearable.
   -->
   @if (showDeactivatedOrg()) {
-    <bit-status-lockup slot="empty" class="tw-mx-3 tw-my-auto" size="small">
+    <bit-status-lockup slot="empty" class="tw-my-auto" size="small">
       <bit-svg slot="graphic" [content]="deactivatedIcon"></bit-svg>
       <span slot="title">{{ "organizationIsDeactivated" | i18n }}</span>
       <span slot="description">{{ "contactYourOrgAdmin" | i18n }}</span>
@@ -113,7 +112,7 @@
   } @else {
     <vault-empty-vault
       slot="empty"
-      class="tw-mx-3 tw-my-auto"
+      class="tw-my-auto"
       [hasItems]="hasItems()"
       [filterValues]="emptyStateFilterValues()"
       [scope]="allItemsScope"
