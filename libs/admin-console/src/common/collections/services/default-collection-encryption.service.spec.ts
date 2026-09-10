@@ -253,6 +253,24 @@ describe("DefaultCollectionEncryptionService", () => {
         expect(view2?.defaultUserCollectionEmail).toBeUndefined();
       });
 
+      // Pairing is by ID, so a view whose ID does not round-trip cannot be mapped back to its
+      // source and drops out of the list - the one disappearance this path cannot represent.
+      it("logs a decrypted view whose ID matches no source collection", async () => {
+        const collection = makeCollection();
+        jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
+        mockDecryptListWithFailures.mockReturnValue({
+          successes: [makeSdkCollectionView({ id: collectionId2 as any })],
+          failures: [],
+        });
+
+        const results = await firstValueFrom(service.decryptMany([collection], userId));
+
+        expect(results).toEqual([]);
+        expect(logService.error).toHaveBeenCalledWith(
+          expect.stringContaining(`Decrypted collection ${collectionId2} did not match`),
+        );
+      });
+
       it("logs the error and rejects when the SDK client is unavailable", async () => {
         (sdkService.userClient$ as jest.Mock).mockReturnValue(of(null));
         const collection = makeCollection();

@@ -117,12 +117,18 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
 
         const views: CollectionView[] = [];
         for (const sdkView of result.successes) {
-          const collection = sdkView.id
-            ? collectionsById.get(uuidAsString(sdkView.id) as CollectionId)
-            : undefined;
-          if (collection) {
-            views.push(CollectionView.fromSdkCollectionView(sdkView, collection));
+          const id = sdkView.id ? uuidAsString(sdkView.id) : undefined;
+          const collection = id ? collectionsById.get(id as CollectionId) : undefined;
+          if (!collection) {
+            // Views are paired to their source by ID, so an ID that does not round-trip drops the
+            // collection from the list entirely. Log it rather than let it disappear unremarked -
+            // that silent disappearance is what this method exists to prevent.
+            this.logService.error(
+              `Decrypted collection ${id ?? "(unknown id)"} did not match a source collection`,
+            );
+            continue;
           }
+          views.push(CollectionView.fromSdkCollectionView(sdkView, collection));
         }
 
         for (const failed of result.failures) {
