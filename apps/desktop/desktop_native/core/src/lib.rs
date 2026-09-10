@@ -19,8 +19,6 @@ pub mod password;
 #[allow(missing_docs)]
 pub mod powermonitor;
 pub mod process_isolation;
-#[allow(missing_docs)] // staged to be removed
-pub mod ssh_agent;
 
 #[cfg(not(target_os = "windows"))]
 use zeroizing_alloc::ZeroAlloc;
