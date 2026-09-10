@@ -16,6 +16,8 @@ import {
   rulesChangingEnabled,
 } from "..";
 
+import { GovernedCollectionsService } from "./governed-collections.service";
+
 /**
  * Page-level data service for the access rules table: owns the org's rule list and
  * collections, loads them, and performs the CRUD mutations (enable/disable, delete,
@@ -31,6 +33,7 @@ export class AccessRulesService {
   private readonly pamApi = inject(AccessRuleSdkService);
   private readonly accountService = inject(AccountService);
   private readonly collectionAdminService = inject(CollectionAdminService);
+  private readonly governedCollections = inject(GovernedCollectionsService);
 
   /** Set by {@link load}; the org all subsequent mutations target. */
   private organizationId: OrganizationId | null = null;
@@ -72,7 +75,9 @@ export class AccessRulesService {
    *
    * The copy is persisted immediately — the admin never gets a chance to abandon it — so the
    * name must already be free of collisions; {@link copyRuleName} is what makes it so. The copy
-   * governs no collections; see {@link accessRuleToCopyRequest} for why.
+   * governs no collections; see {@link accessRuleToCopyRequest} for why. Because of that, this
+   * cannot change which collections are governed, so it doesn't need to invalidate
+   * {@link GovernedCollectionsService}'s cache — see {@link delete} for the writes that do.
    */
   async copy(rule: AccessRuleView, name: string): Promise<AccessRuleView> {
     const created = await this.pamApi.createAccessRule(
@@ -83,7 +88,14 @@ export class AccessRulesService {
     return created;
   }
 
-  /** Toggle a single rule's enabled flag, patching local state with the result. */
+  /**
+   * Toggle a single rule's enabled flag, patching local state with the result.
+   *
+   * Doesn't invalidate {@link GovernedCollectionsService}'s cache: `enabled` can't change which
+   * collections a rule governs — the server keys governance off `Collection.AccessRuleId`
+   * regardless of the owning rule's `enabled` flag, the same asymmetry documented on
+   * `governedCollectionIds` in `access-rule-edit.component.ts`.
+   */
   async setEnabled(rule: AccessRuleView, enabled: boolean): Promise<void> {
     const updated = await this.pamApi.updateAccessRule(
       this.requireOrganizationId(),
@@ -96,6 +108,8 @@ export class AccessRulesService {
   /**
    * Enable/disable many rules at once, skipping rules already in the target state.
    * Returns the number of rules actually changed (0 when none needed updating).
+   *
+   * Same non-invalidating reasoning as {@link setEnabled}: `enabled` doesn't affect governance.
    */
   async setManyEnabled(rules: AccessRuleView[], enabled: boolean): Promise<number> {
     const targets = rulesChangingEnabled(rules, enabled);
@@ -118,17 +132,25 @@ export class AccessRulesService {
     return updated.length;
   }
 
-  /** Delete a single rule, dropping it from local state. */
+  /**
+   * Delete a single rule, dropping it from local state.
+   *
+   * Invalidates {@link GovernedCollectionsService}'s cache once the delete has actually
+   * succeeded, so a rule deleted from this list's row menu frees its collections in the picker
+   * just as reliably as a delete from the edit page does — see that service's `invalidate` doc.
+   */
   async delete(rule: AccessRuleView): Promise<void> {
     await this.pamApi.deleteAccessRule(this.requireOrganizationId(), rule.id);
+    this.governedCollections.invalidate(this.requireOrganizationId());
     this._rules$.next(this._rules$.value.filter((r) => r.id !== rule.id));
   }
 
-  /** Delete many rules at once, dropping them all from local state. */
+  /** Delete many rules at once, dropping them all from local state. Invalidates once, see {@link delete}. */
   async deleteMany(rules: AccessRuleView[]): Promise<void> {
     await Promise.all(
       rules.map((rule) => this.pamApi.deleteAccessRule(this.requireOrganizationId(), rule.id)),
     );
+    this.governedCollections.invalidate(this.requireOrganizationId());
     const removed = new Set(rules.map((r) => r.id));
     this._rules$.next(this._rules$.value.filter((r) => !removed.has(r.id)));
   }

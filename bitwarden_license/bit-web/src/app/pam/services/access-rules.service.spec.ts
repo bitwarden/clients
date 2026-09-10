@@ -8,6 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { AccessRuleSdkService, AccessRuleView } from "..";
 
 import { AccessRulesService } from "./access-rules.service";
+import { GovernedCollectionsService } from "./governed-collections.service";
 
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
   t: (id: string) => id,
@@ -43,6 +44,7 @@ describe("AccessRulesService", () => {
     updateAccessRule: jest.Mock;
     deleteAccessRule: jest.Mock;
   };
+  let governedCollections: { invalidate: jest.Mock };
 
   const setup = (cols: { id: string; name: string }[] = []) => {
     pamApi = {
@@ -50,6 +52,7 @@ describe("AccessRulesService", () => {
       updateAccessRule: jest.fn(),
       deleteAccessRule: jest.fn().mockResolvedValue(undefined),
     };
+    governedCollections = { invalidate: jest.fn() };
 
     TestBed.configureTestingModule({
       providers: [
@@ -58,6 +61,7 @@ describe("AccessRulesService", () => {
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of(cols) } },
         { provide: I18nService, useValue: i18nFake },
+        { provide: GovernedCollectionsService, useValue: governedCollections },
       ],
     });
 
@@ -147,6 +151,32 @@ describe("AccessRulesService", () => {
 
       expect(await currentRuleIds()).toEqual(["rule-2"]);
     });
+
+    it("invalidates the governed-collections cache once the delete succeeds", async () => {
+      setup();
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1")]);
+      await service.load("org-1" as never);
+
+      await service.delete(rule("rule-1"));
+
+      expect(governedCollections.invalidate).toHaveBeenCalledTimes(1);
+      expect(governedCollections.invalidate).toHaveBeenCalledWith("org-1");
+    });
+
+    it("does not invalidate the governed-collections cache when the delete fails", async () => {
+      setup();
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1")]);
+      await service.load("org-1" as never);
+      pamApi.deleteAccessRule.mockRejectedValue(
+        new Error("The access rule service is unavailable."),
+      );
+
+      await expect(service.delete(rule("rule-1"))).rejects.toThrow();
+
+      expect(governedCollections.invalidate).not.toHaveBeenCalled();
+      // Local state is untouched by the failed write.
+      expect(await currentRuleIds()).toEqual(["rule-1"]);
+    });
   });
 
   describe("deleteMany", () => {
@@ -158,6 +188,31 @@ describe("AccessRulesService", () => {
       await service.deleteMany([rule("rule-1"), rule("rule-3")]);
 
       expect(await currentRuleIds()).toEqual(["rule-2"]);
+    });
+
+    it("invalidates the governed-collections cache once, after all deletes succeed", async () => {
+      setup();
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1"), rule("rule-2"), rule("rule-3")]);
+      await service.load("org-1" as never);
+
+      await service.deleteMany([rule("rule-1"), rule("rule-3")]);
+
+      expect(governedCollections.invalidate).toHaveBeenCalledTimes(1);
+      expect(governedCollections.invalidate).toHaveBeenCalledWith("org-1");
+    });
+
+    it("does not invalidate the governed-collections cache when any delete fails", async () => {
+      setup();
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1"), rule("rule-2")]);
+      await service.load("org-1" as never);
+      pamApi.deleteAccessRule.mockRejectedValue(
+        new Error("The access rule service is unavailable."),
+      );
+
+      await expect(service.deleteMany([rule("rule-1"), rule("rule-2")])).rejects.toThrow();
+
+      expect(governedCollections.invalidate).not.toHaveBeenCalled();
+      expect(await currentRuleIds()).toEqual(["rule-1", "rule-2"]);
     });
   });
 });
