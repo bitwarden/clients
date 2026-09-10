@@ -391,10 +391,9 @@ export class AccessAuditComponent implements OnInit {
     return candidates;
   }
 
-  /** A multi-select chip's selection, or null for no selection, which matches every row. */
-  private selectedValues(chip: FilterControl | undefined): string[] | null {
-    const selected = selectedFilterStrings(chip?.value());
-    return selected.length > 0 ? selected : null;
+  /** A multi-select chip's selection; empty when the chip narrows nothing. */
+  private selectedValues(chip: FilterControl | undefined): string[] {
+    return selectedFilterStrings(chip?.value());
   }
 
   /** The single-select time-period chip's selection, whose value is a scalar rather than a list. */
@@ -412,16 +411,16 @@ export class AccessAuditComponent implements OnInit {
    */
   private readonly filter = computed<AuditTrailFilter>(() => {
     const { from, to } = this.range();
-    const actors = this.selectedValues(this.actorChip()) ?? [];
-    const items = this.selectedValues(this.itemChip()) ?? [];
+    const actors = this.selectedValues(this.actorChip());
+    const items = this.selectedValues(this.itemChip());
     const rules = this.ruleItemIds();
     return {
       start: from ?? undefined,
       end: to ?? undefined,
-      kinds: (this.selectedValues(this.kindChip()) ?? []) as AccessAuditEventKind[],
+      kinds: this.selectedValues(this.kindChip()) as AccessAuditEventKind[],
       actorIds: actors.filter((value) => value !== AUTOMATED_ACTOR),
       includeAutomatedActor: actors.includes(AUTOMATED_ACTOR),
-      requesterIds: this.selectedValues(this.requesterChip()) ?? [],
+      requesterIds: this.selectedValues(this.requesterChip()),
       cipherIds: items.filter((value) => !rules.has(value)),
       ruleIds: items.filter((value) => rules.has(value)),
     };

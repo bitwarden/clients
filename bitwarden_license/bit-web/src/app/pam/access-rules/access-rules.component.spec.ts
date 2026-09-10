@@ -571,11 +571,7 @@ describe("AccessRulesComponent — toolbar filters", () => {
 
   /** A chip reached through the `FilterControl` contract, the way the component reads it. */
   const chip = (name: "statusFilter" | "collectionFilter"): FilterControl => {
-    const chips = fixture.componentInstance as unknown as Record<
-      string,
-      () => FilterControl | undefined
-    >;
-    const control = chips[name]();
+    const control = fixture.componentInstance[name]();
     if (control == null) {
       throw new Error(`the ${name} chip did not render`);
     }

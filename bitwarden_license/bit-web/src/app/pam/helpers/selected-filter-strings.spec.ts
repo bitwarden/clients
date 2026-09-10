@@ -13,15 +13,10 @@ describe("selectedFilterStrings", () => {
     expect(selectedFilterStrings([])).toEqual([]);
   });
 
-  it("returns an empty array for a single string, since a chip's value is never a bare scalar", () => {
+  it("returns an empty array for anything that isn't an array", () => {
+    // A chip's value is never a bare scalar, so there is nothing to unwrap.
     expect(selectedFilterStrings("a")).toEqual([]);
-  });
-
-  it("returns an empty array for undefined", () => {
     expect(selectedFilterStrings(undefined)).toEqual([]);
-  });
-
-  it("returns an empty array for null", () => {
     expect(selectedFilterStrings(null)).toEqual([]);
   });
 });
