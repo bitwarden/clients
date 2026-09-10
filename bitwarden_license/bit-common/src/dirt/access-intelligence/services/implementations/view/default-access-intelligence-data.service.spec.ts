@@ -65,6 +65,8 @@ describe("DefaultAccessIntelligenceDataService", () => {
       debug: jest.fn(),
       error: jest.fn(),
       info: jest.fn(),
+      measure: jest.fn(),
+      mark: jest.fn(),
     } as any;
 
     service = new DefaultAccessIntelligenceDataService(

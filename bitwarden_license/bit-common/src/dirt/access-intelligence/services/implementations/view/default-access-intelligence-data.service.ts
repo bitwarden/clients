@@ -26,6 +26,7 @@ import { LogService } from "@bitwarden/logging";
 
 import { ReportProgress } from "../../../../reports/risk-insights/models/report-models";
 import { AccessReportView } from "../../../models";
+import { measureFlowStep } from "../../../utils/measure-flow-step.operator";
 import { AccessIntelligenceDataService } from "../../abstractions/access-intelligence-data.service";
 import {
   CollectionAccessDetails,
@@ -80,6 +81,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._currentOrgId.next(orgId);
     this._loading.next(true);
     this._error.next(null);
+    this.logService.mark("AccessReportFlow: page open");
 
     return forkJoin({
       reportResult: this.reportPersistenceService.loadLastReport$(orgId),
@@ -121,6 +123,14 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
         this._report.next(report);
         this._loading.next(false);
         return of(undefined as void);
+      }),
+      measureFlowStep(this.logService, "Load: page initialized", () => {
+        const report = this._report.value;
+        return [
+          ["itemCount", this._ciphers.value.length],
+          ["memberCount", report ? Object.keys(report.memberRegistry).length : 0],
+          ["applicationCount", report?.reports.length ?? 0],
+        ];
       }),
       catchError((error: unknown) => {
         this.logService.error(
@@ -454,14 +464,27 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     apiUsers: ListResponse<OrganizationUserUserDetailsResponse>;
     collections: ListResponse<CollectionAccessDetailsResponse>;
   }> {
+    // Measured per leg rather than as one forkJoin envelope, so a slow fetch is attributable.
     return forkJoin({
-      ciphers: from(this.cipherService.getAllFromApiForOrganization(orgId, true)),
+      ciphers: from(this.cipherService.getAllFromApiForOrganization(orgId, true)).pipe(
+        measureFlowStep(this.logService, "Load: org ciphers for generation", (ciphers) => [
+          ["itemCount", ciphers.length],
+        ]),
+      ),
       apiUsers: from(
         this.organizationUserApiService.getAllUsers(orgId, {
           includeGroups: true,
         }),
+      ).pipe(
+        measureFlowStep(this.logService, "Load: org members", (apiUsers) => [
+          ["memberCount", apiUsers.data.length],
+        ]),
       ),
-      collections: from(this.apiService.getManyCollectionsWithAccessDetails(orgId)),
+      collections: from(this.apiService.getManyCollectionsWithAccessDetails(orgId)).pipe(
+        measureFlowStep(this.logService, "Load: org collections", (collections) => [
+          ["collectionCount", collections.data.length],
+        ]),
+      ),
     });
   }
 
