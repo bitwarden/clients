@@ -116,10 +116,9 @@ export class BitTableToolbarComponent {
   );
 
   /**
-   * `table` closes the toolbar off from the header row beneath it, always. `list` has no
-   * header row to divide from, so the line only earns its place once the body scrolls
-   * under the toolbar — the same reveal `popup-page` does. The border stays in the box
-   * model and only changes color, so the reveal costs no layout shift.
+   * `table` always closes the toolbar off from the header row beneath it. `list` has no
+   * header row, so the border only shows once the body scrolls under the toolbar, as
+   * `popup-page` does. Only the color changes, so revealing it shifts no layout.
    */
   protected readonly hostClasses = computed(() =>
     [
@@ -134,13 +133,12 @@ export class BitTableToolbarComponent {
     ].join(" "),
   );
 
-  /** True when the enclosing table is in `list` presentation. */
   private readonly isList = computed(() => this.table?.presentation() === "list");
 
   /**
-   * Horizontal inset for every toolbar row. `list` presentation puts the search on the
-   * same 12px edge as the cards below it; `table` keeps its own wider 20px edge, which
-   * the spec deliberately does not align to the column tracks.
+   * Horizontal inset for every toolbar row. `list` puts the search on the same 12px edge
+   * as the cards below it; `table` keeps a wider 20px edge, which per the spec is
+   * deliberately not aligned to the column tracks.
    */
   protected readonly insetX = computed(() => (this.isList() ? "tw-px-3" : "tw-px-5"));
 

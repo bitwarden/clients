@@ -579,11 +579,10 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (this.presentation() !== "list") {
       return "tw-flex tw-items-center tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-bg-bg-secondary tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-fg-body";
     }
-    // Match the extension's section/subsection headers box-for-box, not just in type:
-    // top = `h6` (text-sm, main, medium) at a 4px indent with the label sitting ~4px
-    // off its first card; subgroup = the muted subheader (text-xs, muted, medium) at
-    // the same indent. Neither pads above the label — in the extension the space
-    // between sections comes from `bit-section`, not the header.
+    // Matches the extension's section headers: top = `h6` (text-sm, main, medium),
+    // subgroup = the muted subheader (text-xs, muted, medium), both at a 4px indent with
+    // the label ~4px off its first card. Neither pads above the label; in the extension
+    // that space comes from `bit-section`.
     const type =
       level === 0
         ? "tw-text-sm tw-text-main tw-font-medium tw-px-1 tw-pb-1"
@@ -650,8 +649,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   private readonly scrolled = signal(false);
 
   /**
-   * Whether the body has been scrolled away from the top. Read by `bit-table-toolbar`,
-   * which reveals its bottom border only once there's content hidden behind it.
+   * Whether the body has been scrolled away from the top. Read by `bit-table-toolbar`
+   * to reveal its bottom border.
    */
   readonly isScrolled = this.scrolled.asReadonly();
 
@@ -680,20 +679,19 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   /**
    * Horizontal inset for `list` presentation, which has no container chrome of its own
-   * to hold its content off the edge. 12px per the CX Foundations spec, which puts the
-   * list content and the search field on the same edge. Applied as a margin so each
-   * item keeps whatever internal padding it already has — a group header's own `px-1`
-   * lands its label at the 16px the spec asks for.
+   * to hold its content off the edge. 12px per spec, which puts the list content and the
+   * search field on the same edge. Applied as a margin so each item keeps its own
+   * internal padding.
    */
   protected readonly listInset = computed(() => (this.isList() ? "tw-mx-3" : ""));
 
   /**
-   * A `list` card's height, so rows are uniform whether or not their cells fill every
-   * slot — an empty secondary slot is a block with no line box, which would otherwise
-   * collapse the card by a line. {@link virtualRowHeight} is the row's full advance, and
-   * the card's own bottom margin is part of that, so the margin comes back out via
-   * `--bit-card-gap` (the card sets it alongside the margin, and clears both in compact).
-   * Unset without a `virtualRowHeight`, where rows are documented to grow to content.
+   * A `list` card's height, which keeps rows uniform when a cell leaves a slot empty —
+   * an empty slot is a block with no line box, so it would collapse the card by a line.
+   * {@link virtualRowHeight} is the full advance and includes the card's bottom margin,
+   * so that margin is subtracted back out via `--bit-card-gap`, which the card sets
+   * alongside the margin and clears with it in compact. Unset without a
+   * `virtualRowHeight`, where rows grow to content.
    */
   protected readonly listCardHeight = computed(() => {
     const advance = this.virtualRowHeight();

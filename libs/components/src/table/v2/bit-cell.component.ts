@@ -35,10 +35,9 @@ export class BitCellComponent {
   private readonly presentation = inject(TABLE_PRESENTATION, { optional: true });
 
   /**
-   * In `list` presentation the row is wrapped in a `bit-item`, whose global stylesheet
-   * spaces end-slot children by content type (text, button, icon button). The cell opts
-   * into those tiers by tagging its own end slot, so a list cell's trailing controls are
-   * spaced exactly like a `bit-item`'s. Table presentation keeps the uniform gap.
+   * `bit-item`'s global stylesheet spaces end-slot children by content type (text,
+   * button, icon button). In `list` the cell opts into those tiers by tagging its own end
+   * slot; `table` keeps the uniform gap.
    */
   protected readonly isItemEndSlot = computed(() => this.presentation?.() === "list");
 
