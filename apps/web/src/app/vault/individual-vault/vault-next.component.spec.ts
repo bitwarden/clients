@@ -93,7 +93,18 @@ describe("VaultNextComponent", () => {
       name: id,
     });
 
-  const buildOrganization = (id: OrganizationId, name: string) => ({ id, name }) as Organization;
+  const buildOrganization = (
+    id: OrganizationId,
+    name: string,
+    overrides: Partial<Organization> = {},
+  ) =>
+    ({
+      id,
+      name,
+      canCreateNewCollections: false,
+      isProviderUser: false,
+      ...overrides,
+    }) as Organization;
 
   const personalNavItem: VaultNavItemViewModel = {
     id: userId,
@@ -751,7 +762,7 @@ describe("VaultNextComponent", () => {
         closed: of({ result: AddItemDialogResult.Cipher, cipherType: CipherType.Card }),
       } as unknown as DialogRef<never>);
 
-      await component().openAddItemDialog();
+      await component().openAddItemDialog("toolbar");
 
       expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card, {
         organizationId: undefined,
@@ -760,7 +771,7 @@ describe("VaultNextComponent", () => {
     });
 
     it("does nothing if the picker dialog is dismissed without a selection", async () => {
-      await component().openAddItemDialog();
+      await component().openAddItemDialog("toolbar");
 
       expect(itemActions.add).not.toHaveBeenCalled();
     });
@@ -782,7 +793,7 @@ describe("VaultNextComponent", () => {
         closed: of({ result: AddItemDialogResult.Cipher, cipherType: CipherType.Card }),
       } as unknown as DialogRef<never>);
 
-      await component().openAddItemDialog();
+      await component().openAddItemDialog("toolbar");
 
       expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card, {
         organizationId,
@@ -801,6 +812,69 @@ describe("VaultNextComponent", () => {
         organizationId: undefined,
         collectionId: undefined,
       });
+    });
+
+    it("only offers cipher creation when the picker opens from the empty state", async () => {
+      await component().openAddItemDialog("empty");
+
+      expect(addItemDialogOpen.mock.calls.at(-1)![1]).toEqual({
+        canCreateCipher: true,
+        canCreateSshKey: true,
+        canCreateFolder: false,
+        canCreateCollection: false,
+      });
+    });
+
+    it("also offers folder and shared folder creation when the picker opens from the toolbar", async () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+      ]);
+      fixture.detectChanges();
+
+      await component().openAddItemDialog("toolbar");
+
+      expect(addItemDialogOpen.mock.calls.at(-1)![1]).toEqual({
+        canCreateCipher: true,
+        canCreateSshKey: true,
+        canCreateFolder: true,
+        canCreateCollection: true,
+      });
+    });
+  });
+
+  describe("canCreateCollections", () => {
+    it("is false when there are no organizations", () => {
+      expect(component().canCreateCollections()).toBeFalsy();
+    });
+
+    it("is false when no organization allows creating collections", () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: false }),
+      ]);
+      fixture.detectChanges();
+
+      expect(component().canCreateCollections()).toBe(false);
+    });
+
+    it("is true when an organization allows creating collections", () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+      ]);
+      fixture.detectChanges();
+
+      expect(component().canCreateCollections()).toBe(true);
+    });
+
+    it("is false when the only organization allowing collection creation is a provider user", () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", {
+          canCreateNewCollections: true,
+          isProviderUser: true,
+        }),
+      ]);
+      fixture.detectChanges();
+
+      expect(component().canCreateCollections()).toBe(false);
     });
   });
 });
