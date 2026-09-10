@@ -427,7 +427,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     return (
       scope?.type === VaultScopeType.Organization &&
       scope.collectionId == null &&
-      this.orgRequiresDataOwnership() &&
       this.defaultCollectionId() != null
     );
   });

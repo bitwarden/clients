@@ -812,8 +812,7 @@ describe("VaultItemsTableComponent", () => {
   });
 
   describe("showMyItems", () => {
-    it("shows only on an organization's All vault items page, under the data ownership policy", () => {
-      fixture.componentRef.setInput("orgRequiresDataOwnership", true);
+    it("shows only on an organization's All vault items page, when it has a My items collection", () => {
       fixture.componentRef.setInput("defaultCollectionId", "col-1");
 
       fixture.componentRef.setInput("scope", {
@@ -822,6 +821,7 @@ describe("VaultItemsTableComponent", () => {
       });
       expect(component["showMyItems"]()).toBe(true);
 
+      // Drilled into a collection — the My items page itself, or a shared folder.
       fixture.componentRef.setInput("scope", {
         type: VaultScopeType.Organization,
         organizationId: "org-1",
@@ -833,13 +833,25 @@ describe("VaultItemsTableComponent", () => {
       fixture.componentRef.setInput("scope", { type: VaultScopeType.MyVault });
       expect(component["showMyItems"]()).toBe(false);
 
-      // Policy doesn't apply.
+      // No My items collection for this organization — e.g. the policy is off, or the viewer is
+      // an owner/admin exempt from it but still confirmed before it applied to their membership.
       fixture.componentRef.setInput("scope", {
         type: VaultScopeType.Organization,
         organizationId: "org-1",
       });
-      fixture.componentRef.setInput("orgRequiresDataOwnership", false);
+      fixture.componentRef.setInput("defaultCollectionId", undefined);
       expect(component["showMyItems"]()).toBe(false);
+    });
+
+    it("shows for an owner or admin exempt from the policy, as long as their org has a My items collection", () => {
+      fixture.componentRef.setInput("orgRequiresDataOwnership", false);
+      fixture.componentRef.setInput("defaultCollectionId", "col-1");
+      fixture.componentRef.setInput("scope", {
+        type: VaultScopeType.Organization,
+        organizationId: "org-1",
+      });
+
+      expect(component["showMyItems"]()).toBe(true);
     });
   });
 
