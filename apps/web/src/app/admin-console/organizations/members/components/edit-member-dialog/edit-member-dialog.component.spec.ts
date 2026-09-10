@@ -30,6 +30,7 @@ import { ProblemDetailsErrorResponse } from "@bitwarden/common/models/response/p
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
@@ -73,6 +74,8 @@ function buildOrg(overrides: Partial<Organization> = {}): Organization {
 function buildUserDetails(
   overrides: Partial<{
     userId: any;
+    externalId: string;
+    ssoExternalId: string;
   }> = {},
 ): OrganizationUserAdminView {
   return new OrganizationUserAdminView({
@@ -83,8 +86,8 @@ function buildUserDetails(
     groups: [],
     type: OrganizationUserType.User,
     status: OrganizationUserStatusType.Confirmed,
-    externalId: "",
-    ssoExternalId: "",
+    externalId: overrides.externalId ?? "",
+    ssoExternalId: overrides.ssoExternalId ?? "",
     permissions: new PermissionsApi(),
     accessSecretsManager: false,
     accessPam: false,
@@ -135,6 +138,7 @@ async function createComponent(
     configService: MockProxy<ConfigService>;
     validationService: MockProxy<ValidationService>;
     logService: MockProxy<LogService>;
+    platformUtilsService: MockProxy<PlatformUtilsService>;
   };
 }> {
   const accountService = mock<AccountService>();
@@ -153,6 +157,7 @@ async function createComponent(
   const configService = mock<ConfigService>();
   const validationService = mock<ValidationService>();
   const logService = mock<LogService>();
+  const platformUtilsService = mock<PlatformUtilsService>();
 
   accountService.activeAccount$ = of({ id: ACCOUNT_ID } as any);
   organizationService.organizations$ = jest
@@ -188,6 +193,7 @@ async function createComponent(
       { provide: ConfigService, useValue: configService },
       { provide: ValidationService, useValue: validationService },
       { provide: LogService, useValue: logService },
+      { provide: PlatformUtilsService, useValue: platformUtilsService },
       {
         provide: Vfo1TerminologyService,
         useValue: buildVfo1TerminologyService(overrides.vfo1FoundationEnabled),
@@ -225,6 +231,7 @@ async function createComponent(
       configService,
       validationService,
       logService,
+      platformUtilsService,
     },
   };
 }
@@ -731,6 +738,68 @@ describe("EditMemberDialogComponent", () => {
 
       await expect(component.submit()).rejects.toThrow("Unexpected server error");
       expect(mocks.dialogRef.close).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("external ID fields", () => {
+    it("renders the external ID and SSO external ID values when the member has them", async () => {
+      const { fixture } = await createComponent(defaultParams(), {
+        userDetails: buildUserDetails({
+          externalId: "1308a41a-5c5b-46d3-9573-abad9b0608dc",
+          ssoExternalId: "member@example.com",
+        }),
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent as string;
+      expect(text).toContain("1308a41a-5c5b-46d3-9573-abad9b0608dc");
+      expect(text).toContain("member@example.com");
+    });
+
+    it("hides both fields when the member has neither ID", async () => {
+      const { fixture } = await createComponent(defaultParams(), {
+        userDetails: buildUserDetails(),
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      fixture.detectChanges();
+
+      expect(
+        fixture.nativeElement.querySelector("#edit-member_button_copy-external-id"),
+      ).toBeNull();
+      expect(
+        fixture.nativeElement.querySelector("#edit-member_button_copy-sso-external-id"),
+      ).toBeNull();
+    });
+
+    it("copies the external ID to the clipboard when the copy button is clicked", async () => {
+      const { fixture, mocks } = await createComponent(defaultParams(), {
+        userDetails: buildUserDetails({ externalId: "external-id-value" }),
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      fixture.detectChanges();
+
+      fixture.nativeElement.querySelector("#edit-member_button_copy-external-id").click();
+
+      expect(mocks.platformUtilsService.copyToClipboard).toHaveBeenCalledWith("external-id-value");
+    });
+
+    it("copies the SSO external ID to the clipboard when the copy button is clicked", async () => {
+      const { fixture, mocks } = await createComponent(defaultParams(), {
+        userDetails: buildUserDetails({ ssoExternalId: "sso-external-id-value" }),
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      fixture.detectChanges();
+
+      fixture.nativeElement.querySelector("#edit-member_button_copy-sso-external-id").click();
+
+      expect(mocks.platformUtilsService.copyToClipboard).toHaveBeenCalledWith(
+        "sso-external-id-value",
+      );
     });
   });
 });

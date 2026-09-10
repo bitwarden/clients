@@ -165,6 +165,50 @@
               </div>
             </div>
           }
+          @if (externalId(); as externalIdValue) {
+            <div class="tw-mt-4 tw-border-b tw-border-solid tw-border-secondary-300 tw-pb-2">
+              <div class="tw-flex tw-items-center tw-justify-between tw-gap-2">
+                <div>
+                  <p class="tw-mb-0 tw-text-sm tw-text-muted">{{ "externalId" | i18n }}</p>
+                  <p class="tw-mb-0 tw-mt-1">{{ externalIdValue }}</p>
+                </div>
+                <button
+                  id="edit-member_button_copy-external-id"
+                  type="button"
+                  bitIconButton="bwi-clone"
+                  size="small"
+                  showToast
+                  [appCopyClick]="externalIdValue"
+                  [valueLabel]="'externalId' | i18n"
+                  [label]="'copyValue' | i18n"
+                ></button>
+              </div>
+              <p class="tw-mb-0 tw-mt-1 tw-text-sm tw-text-muted">{{ "externalIdDesc" | i18n }}</p>
+            </div>
+          }
+          @if (ssoExternalId(); as ssoExternalIdValue) {
+            <div class="tw-mt-4 tw-border-b tw-border-solid tw-border-secondary-300 tw-pb-2">
+              <div class="tw-flex tw-items-center tw-justify-between tw-gap-2">
+                <div>
+                  <p class="tw-mb-0 tw-text-sm tw-text-muted">{{ "ssoExternalId" | i18n }}</p>
+                  <p class="tw-mb-0 tw-mt-1">{{ ssoExternalIdValue }}</p>
+                </div>
+                <button
+                  id="edit-member_button_copy-sso-external-id"
+                  type="button"
+                  bitIconButton="bwi-clone"
+                  size="small"
+                  showToast
+                  [appCopyClick]="ssoExternalIdValue"
+                  [valueLabel]="'ssoExternalId' | i18n"
+                  [label]="'copyValue' | i18n"
+                ></button>
+              </div>
+              <p class="tw-mb-0 tw-mt-1 tw-text-sm tw-text-muted">
+                {{ "ssoExternalIdDesc" | i18n }}
+              </p>
+            </div>
+          }
           @if (params.createdDate) {
             <div class="tw-mt-4 tw-border-b tw-border-solid tw-border-secondary-300 tw-pb-2">
               <p class="tw-mb-0 tw-text-sm tw-text-muted">{{ "createdDate" | i18n }}</p>

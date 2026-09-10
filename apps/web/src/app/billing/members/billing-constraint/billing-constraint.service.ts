@@ -22,7 +22,10 @@ export interface SeatLimitResult {
 
 export type SeatLimitAction = "invite" | "restore";
 
-@Injectable()
+// Provided in root for the same reason as MemberActionsService: EditMemberDialogComponent injects
+// it, and dialogs resolve against the root environment injector. This service is stateless, so a
+// single instance is safe.
+@Injectable({ providedIn: "root" })
 export class BillingConstraintService {
   constructor(
     private i18nService: I18nService,
