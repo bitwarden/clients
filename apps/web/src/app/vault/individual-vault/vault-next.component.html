@@ -2,11 +2,18 @@
 <app-vault-banners [organizations]="organizations()"></app-vault-banners>
 
 <app-header [title]="title()">
-  @if (collectionSelected()) {
-    <vault-collection-breadcrumbs
-      slot="breadcrumbs"
-      [scope]="parsedVaultScope()"
-    ></vault-collection-breadcrumbs>
+  @if (showBreadcrumbs()) {
+    <vault-breadcrumbs slot="breadcrumbs" [scope]="vaultScope()"></vault-breadcrumbs>
+  } @else if (headerTile(); as tile) {
+    <bit-icon-tile
+      slot="title-prefix"
+      [icon]="tile.icon"
+      [variant]="tile.variant ?? 'primary'"
+      [color]="tile.color"
+      [emphasis]="tile.emphasis ?? 'subtle'"
+      size="sm"
+      aria-hidden="true"
+    />
   }
 </app-header>
 

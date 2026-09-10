@@ -53,7 +53,12 @@
     </div>
   }
 
-  <div data-testid="title-bar" [attr.data-state]="titleBarState()" [class]="titleBarClasses()">
+  <div
+    #titleBar
+    data-testid="title-bar"
+    [attr.data-state]="titleBarState()"
+    [class]="titleBarClasses()"
+  >
     <!-- `tw-min-h-0` lets the grid row shrink past this row's content height as the bar collapses. -->
     <div class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-justify-between tw-w-full tw-min-h-0">
       <!--
