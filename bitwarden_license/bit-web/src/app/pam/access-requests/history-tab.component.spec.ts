@@ -180,7 +180,6 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
     });
 
-    // `scope` reads the chip's `value()` directly, so only driving the real chip proves the wiring.
     it("derives Mine and Managed straight from the chip's own value", () => {
       canApprove$.next(true);
       myRows$.next([historyRow({ id: "mine-1" })]);
