@@ -29,9 +29,13 @@ subscription status (active, trialing, incomplete, past due, canceled, unpaid, e
   - [Incomplete Expired](#incomplete-expired)
   - [Past Due](#past-due)
   - [Pending Cancellation](#pending-cancellation)
+  - [Past Due Without Details](#past-due-without-details)
   - [Unpaid](#unpaid)
+  - [Unpaid Without Suspension Date](#unpaid-without-suspension-date)
   - [Canceled](#canceled)
   - [Enterprise](#enterprise)
+  - [Callout Suppressed](#callout-suppressed)
+  - [Preview-Driven With Projected Warning](#preview-driven-with-projected-warning)
 - [Features](#features)
 - [Do's and Don'ts](#dos-and-donts)
 - [Accessibility](#accessibility)
@@ -42,7 +46,11 @@ The subscription card component is designed to display comprehensive subscriptio
 billing pages, account management interfaces, and subscription dashboards.
 
 ```ts
-import { SubscriptionCardComponent, BitwardenSubscription } from "@bitwarden/subscription";
+import {
+  SubscriptionCardComponent,
+  BitwardenSubscription,
+  SubscriptionPreview,
+} from "@bitwarden/subscription";
 ```
 
 ```html
@@ -59,11 +67,12 @@ import { SubscriptionCardComponent, BitwardenSubscription } from "@bitwarden/sub
 
 ### Inputs
 
-| Input               | Type                    | Description                                                             |
-| ------------------- | ----------------------- | ----------------------------------------------------------------------- |
-| `title`             | `string`                | **Required.** The title displayed at the top of the card                |
-| `subscription`      | `BitwardenSubscription` | **Required.** The subscription data including status, cart, and storage |
-| `showUpgradeButton` | `boolean`               | **Optional.** Whether to show the upgrade callout (default: `false`)    |
+| Input               | Type                                           | Description                                                                                  |
+| ------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `title`             | `string`                                       | **Required.** The title displayed at the top of the card                                     |
+| `subscription`      | `BitwardenSubscription \| SubscriptionPreview` | **Required.** The subscription data including status, cart, and storage (see Data Structure) |
+| `showUpgradeButton` | `boolean`                                      | **Optional.** Whether to show the upgrade callout (default: `false`)                         |
+| `hideCallout`       | `boolean`                                      | **Optional.** Hides the status callout entirely while the badge stays (default: `false`)     |
 
 ### Outputs
 
@@ -119,6 +128,20 @@ type Canceled = {
   canceled: Date;
 };
 ```
+
+The component also accepts `SubscriptionPreview` — the preview-driven counterpart projected from a
+Stripe invoice preview. It differs from `BitwardenSubscription` in two ways:
+
+- `storage` is optional (the server returns none for subscribers without a storage allowance).
+- `suspension` and `gracePeriod` are optional for `past_due`/`unpaid` — the server omits them when
+  no open overdue invoice qualifies, and the card renders the past-due/paused fallback header
+  instead of a suspension date.
+
+## Content Projection
+
+The card projects arbitrary content between its callout and the card edge via `<ng-content>`. Host
+pages use this to place contextual warnings (e.g. the scheduled price-increase warning) inside the
+card without the card knowing about them. See the "Preview-Driven - With Projected Warning" story.
 
 ## Subscription States
 
@@ -326,7 +349,14 @@ Active subscription scheduled to be canceled:
 </billing-subscription-card>
 ```
 
-**Actions available:** Reinstate Subscription
+**Actions available:** Keep Subscription
+
+### Past Due Without Details
+
+Preview-driven `past_due` subscription with no suspension date — the header falls back to the "will
+pause soon" copy:
+
+<Canvas of={SubscriptionCardStories.PastDueWithoutDetails} />
 
 ### Unpaid
 
@@ -350,6 +380,13 @@ Subscription suspended due to unpaid invoices:
 ```
 
 **Actions available:** Manage Invoices
+
+### Unpaid Without Suspension Date
+
+Preview-driven `unpaid` subscription with no suspension date — the header falls back to the "paused"
+copy:
+
+<Canvas of={SubscriptionCardStories.UnpaidNoSuspensionDate} />
 
 ### Canceled
 
@@ -409,6 +446,37 @@ Enterprise subscription with multiple products and discount:
 </billing-subscription-card>
 ```
 
+### Callout Suppressed
+
+`hideCallout` removes the status callout entirely (e.g. reseller orgs exempt from billing
+automation) while the badge and header stay:
+
+<Canvas of={SubscriptionCardStories.CalloutSuppressed} />
+
+```html
+<billing-subscription-card
+  [title]="'Enterprise Subscription'"
+  [subscription]="previewSubscription"
+  [hideCallout]="true"
+  (callToActionClicked)="handleAction($event)"
+>
+</billing-subscription-card>
+```
+
+### Preview-Driven With Projected Warning
+
+Preview-driven subscription with contextual content projected into the card via `<ng-content>` (e.g.
+the scheduled price-increase warning):
+
+<Canvas of={SubscriptionCardStories.WithProjectedContent} />
+
+```html
+<billing-subscription-card [title]="'Teams Subscription'" [subscription]="previewSubscription">
+  <app-organization-scheduled-price-increase-warning [organization]="organization">
+  </app-organization-scheduled-price-increase-warning>
+</billing-subscription-card>
+```
+
 ## Features
 
 - **Dynamic Badge**: Status badge changes color and text based on subscription state
@@ -417,7 +485,7 @@ Enterprise subscription with multiple products and discount:
   etc.)
 - **Cart Summary Integration**: Embedded cart summary with pricing breakdown
 - **Custom Header Support**: Cart summary can display custom headers based on subscription status
-- **Date Formatting**: Consistent date formatting throughout (MMM. d, y format)
+- **Date Formatting**: Consistent date formatting throughout (MMMM d, y format)
 - **Computed Signals**: Efficient reactive computations using Angular signals
 - **Type Safety**: Discriminated union types ensure type-safe subscription data
 - **Internationalization**: All text uses i18n service for translation support
@@ -428,7 +496,7 @@ Enterprise subscription with multiple products and discount:
 ### ✅ Do
 
 - Handle all `callToActionClicked` events appropriately in parent components
-- Provide complete `BitwardenSubscription` objects with all required fields
+- Provide complete `BitwardenSubscription` / `SubscriptionPreview` objects with all required fields
 - Use the correct subscription status from the defined status types
 - Include accurate date information for nextCharge, suspension, and cancelAt fields
 - Set `showUpgradeButton` to `true` only when upgrade paths are available
