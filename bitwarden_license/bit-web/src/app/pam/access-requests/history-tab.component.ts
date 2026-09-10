@@ -33,7 +33,7 @@ import {
   BadgeComponent,
   ButtonModule,
   DialogService,
-  FilterMenuComponent,
+  FILTER_CONTROL,
   FilterMenuModule,
   StatusLockupComponent,
   SvgComponent,
@@ -126,7 +126,7 @@ export class HistoryTabComponent {
    * `value` signal rather than bound through a form control. There is exactly one chip and no table
    * host for it to register with, so a `viewChild` read is the whole of the plumbing this needs.
    */
-  private readonly scopeChip = viewChild<FilterMenuComponent>("historyScopeFilter");
+  private readonly scopeChip = viewChild("historyScopeFilter", { read: FILTER_CONTROL });
 
   /** Request ids currently being acted on, so a second click on the same row is a no-op. */
   private readonly acting = signal<Set<string>>(new Set());
