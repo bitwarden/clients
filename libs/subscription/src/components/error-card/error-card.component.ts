@@ -4,7 +4,8 @@ import {
   BitwardenIcon,
   ButtonModule,
   CardComponent,
-  IconComponent,
+  IconTileComponent,
+  IconTileVariant,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -17,7 +18,7 @@ import {
   selector: "billing-error-card",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./error-card.component.html",
-  imports: [ButtonModule, CardComponent, IconComponent, TypographyModule],
+  imports: [ButtonModule, CardComponent, IconTileComponent, TypographyModule],
 })
 export class ErrorCardComponent {
   /** Heading text, already localized. */
@@ -35,8 +36,8 @@ export class ErrorCardComponent {
   /** Icon shown in the header badge. */
   readonly icon = input<BitwardenIcon>("bwi-error");
 
-  /** Utility classes applied to the icon, e.g. to change its color for a danger vs. warning error. */
-  readonly iconClass = input<string>("tw-text-2xl tw-text-fg-warning");
+  /** Badge color theme. Moves the fill, border, and icon color together (e.g. `warning`, `danger`). */
+  readonly variant = input<IconTileVariant>("warning");
 
   /** Emitted when the action button is clicked. */
   readonly actionClicked = output<void>();
