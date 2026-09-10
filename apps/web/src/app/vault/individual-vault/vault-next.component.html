@@ -55,16 +55,26 @@
         bitButton
         startIcon="bwi-download"
         buttonType="secondary"
+        [bitPopoverAnchorFor]="importCoachmark.popover()"
+        [popoverOpen]="importCoachmarkOpen()"
+        [position]="coachmarkService.getStepPosition('importData')"
+        [closeOnBackdropClick]="false"
+        [spotlight]="true"
         (click)="openImportDialog()"
       >
         {{ "importNoun" | i18n }}
       </button>
+      <app-coachmark #importCoachmark stepId="importData" />
       <vault-new-cipher-menu
         [canCreateCipher]="true"
         [canCreateSshKey]="true"
+        [coachmarkPopover]="addItemCoachmark.popover()"
+        [coachmarkPopoverOpen]="addItemCoachmarkOpen()"
+        [coachmarkPosition]="coachmarkService.getStepPosition('addItem')"
         (cipherAdded)="addCipher($event)"
         (onAddItemDialog)="openAddItemDialog()"
       />
+      <app-coachmark #addItemCoachmark stepId="addItem" />
     }
   </div>
 </vault-items-table>

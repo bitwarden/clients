@@ -1,4 +1,4 @@
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { NO_ERRORS_SCHEMA, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, convertToParamMap, Data, ParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -19,7 +19,7 @@ import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogRef, DialogService, PopoverModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   AddItemDialogComponent,
@@ -39,7 +39,9 @@ import {
   Vfo1I18nPipe,
 } from "@bitwarden/vault";
 
+import { CoachmarkComponent, CoachmarkService } from "../components/coachmark";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
+import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 
 import { VaultNextComponent } from "./vault-next.component";
 
@@ -58,6 +60,8 @@ describe("VaultNextComponent", () => {
   let itemActions: MockProxy<WebVaultItemActionsService>;
   let cipherRowMenuService: MockProxy<CipherRowMenuService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
+  let webVaultPromptService: MockProxy<WebVaultPromptService>;
+  let coachmarkService: MockProxy<CoachmarkService>;
   let addItemDialogOpen: jest.SpyInstance;
 
   let ciphers$: Subject<CipherView[] | null>;
@@ -204,6 +208,12 @@ describe("VaultNextComponent", () => {
       value: showQuickCopyActions$,
     });
 
+    webVaultPromptService = mock<WebVaultPromptService>();
+    webVaultPromptService.conditionallyPromptUser.mockResolvedValue(undefined);
+
+    coachmarkService = mock<CoachmarkService>();
+    Object.defineProperty(coachmarkService, "activeStepId", { value: signal(null) });
+
     addItemDialogOpen = jest
       .spyOn(AddItemDialogComponent, "open")
       .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<never>);
@@ -214,6 +224,7 @@ describe("VaultNextComponent", () => {
         { provide: AccountService, useValue: accountService },
         { provide: ActivatedRoute, useValue: { paramMap: paramMap$, data: routeData$ } },
         { provide: CipherRowMenuService, useValue: cipherRowMenuService },
+        { provide: CoachmarkService, useValue: coachmarkService },
         { provide: CipherService, useValue: cipherService },
         { provide: CollectionService, useValue: collectionService },
         { provide: DialogService, useValue: mock<DialogService>() },
@@ -240,15 +251,26 @@ describe("VaultNextComponent", () => {
           // be declared here rather than on the TestBed module — a standalone component resolves
           // schemas from its own metadata. The i18n pipe stays, since a schema does not cover an
           // unresolved pipe.
-          imports: [I18nPipe, Vfo1I18nPipe],
+          // `CoachmarkComponent` stays for the same reason the pipes do: the toolbar reads
+          // `#importCoachmark.popover()`, which a schema-stubbed element cannot answer.
+          imports: [I18nPipe, Vfo1I18nPipe, CoachmarkComponent, PopoverModule],
           schemas: [NO_ERRORS_SCHEMA],
-          providers: [{ provide: WebVaultItemActionsService, useValue: itemActions }],
+          providers: [
+            { provide: WebVaultItemActionsService, useValue: itemActions },
+            { provide: WebVaultPromptService, useValue: webVaultPromptService },
+          ],
         },
       })
       .compileComponents();
 
     fixture = TestBed.createComponent(VaultNextComponent);
     fixture.detectChanges();
+  });
+
+  describe("onboarding prompts", () => {
+    it("starts them once the page loads", () => {
+      expect(webVaultPromptService.conditionallyPromptUser).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("ciphers", () => {

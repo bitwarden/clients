@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
@@ -14,14 +14,18 @@ import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { NavigationModule, SideNavService } from "@bitwarden/components";
+import { NavigationModule, PopoverAnchorForDirective, SideNavService } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
 
 import { PremiumSubscriptionRoutingService } from "../billing/individual/services/premium-subscription-routing.service";
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
-import { CoachmarkComponent, CoachmarkService } from "../vault/components/coachmark";
+import {
+  CoachmarkComponent,
+  CoachmarkService,
+  CoachmarkStepId,
+} from "../vault/components/coachmark";
 
 import { UserLayoutComponent } from "./user-layout.component";
 import { WebLayoutModule } from "./web-layout.module";
@@ -100,6 +104,9 @@ describe("UserLayoutComponent", () => {
   const policyService = mock<PolicyService>();
   const cipherArchiveService = mock<CipherArchiveService>();
   const premiumUpgradePromptService = mock<PremiumUpgradePromptService>();
+  const coachmarkService = mock<CoachmarkService>();
+  const activeStepId = signal<CoachmarkStepId | null>(null);
+  Object.defineProperty(coachmarkService, "activeStepId", { value: activeStepId });
 
   /** Trimmed text of every rendered nav item and group, in document order. */
   const navText = () =>
@@ -129,7 +136,22 @@ describe("UserLayoutComponent", () => {
       (el as HTMLElement).textContent?.trim().split("\n")[0].trim(),
     );
 
+  /**
+   * The coachmark step each anchored nav entry is wired to, by entry label. Read from the anchor's
+   * `position` so the pairing is observable without opening a popover.
+   */
+  const coachmarkAnchors = () =>
+    Object.fromEntries(
+      fixture.debugElement
+        .queryAll(By.directive(PopoverAnchorForDirective))
+        .map((el) => [
+          el.componentInstance?.text?.() ?? el.name,
+          el.injector.get(PopoverAnchorForDirective).position(),
+        ]),
+    );
+
   beforeEach(async () => {
+    activeStepId.set(null);
     flag$.next(false);
     viewModel$.next(emptyViewModel);
 
@@ -139,6 +161,10 @@ describe("UserLayoutComponent", () => {
     archivedCiphers$.next([]);
 
     i18nService.t.mockImplementation((key: string) => key);
+    coachmarkService.getStepPosition.mockImplementation(
+      (stepId) => `position-for-${stepId}` as never,
+    );
+    coachmarkService.isStepActive.mockImplementation((stepId) => activeStepId() === stepId);
     configService.getFeatureFlag$.mockReturnValue(flag$);
     policyService.policyAppliesToUser$.mockReturnValue(of(false));
     cipherArchiveService.userCanArchive$.mockReturnValue(canArchive$);
@@ -160,7 +186,7 @@ describe("UserLayoutComponent", () => {
           provide: PremiumSubscriptionRoutingService,
           useValue: { getSubscriptionRoute$: () => of(null) },
         },
-        { provide: CoachmarkService, useValue: mock<CoachmarkService>() },
+        { provide: CoachmarkService, useValue: coachmarkService },
         { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
       ],
@@ -226,6 +252,26 @@ describe("UserLayoutComponent", () => {
       const children = childText(expandGroup("settings"));
 
       expect(children[children.length - 1]).toBe("exportNoun");
+    });
+
+    it("anchors the security step on Reports", () => {
+      expect(coachmarkAnchors()).toEqual({ reports: "position-for-monitorSecurity" });
+    });
+
+    it("anchors the shared folders step on the vaults nav section", () => {
+      viewModel$.next({
+        vaults: [
+          { id: "org-a", label: "Acme corporation", icon: "bwi-business", type: "organization" },
+        ] as VaultsNavViewModel["vaults"],
+        organizationDataOwnership: true,
+      });
+      fixture.detectChanges();
+      expandGroup("Acme corporation");
+
+      expect(coachmarkAnchors()).toEqual({
+        reports: "position-for-monitorSecurity",
+        sharedFolders: "position-for-shareWithCollections",
+      });
     });
 
     it("renders Add plan after Emergency access and before Export", () => {
