@@ -756,6 +756,27 @@
   "enableSshAgentHelp": {
     "message": "The SSH agent is a service targeted at developers that allows you to sign SSH requests directly from your Bitwarden vault."
   },
+  "sshAgentSetupTitle": {
+    "message": "Set up the SSH agent"
+  },
+  "sshAgentSetupUnixDesc": {
+    "message": "To let SSH clients use your Bitwarden vault, add the following line to your shell profile, for example ~/.zshrc or ~/.bashrc:"
+  },
+  "sshAgentSetupUnixRestart": {
+    "message": "Restart your terminal for the change to take effect."
+  },
+  "sshAgentSetupWindowsDesc": {
+    "message": "Your SSH clients will use your Bitwarden vault automatically. There is nothing to configure."
+  },
+  "sshAgentSetupWindowsService": {
+    "message": "The built-in Windows OpenSSH Authentication Agent service must be disabled."
+  },
+  "sshAgentSocketPath": {
+    "message": "SSH agent socket path"
+  },
+  "sshAgentShowSetupInstructions": {
+    "message": "Show setup instructions"
+  },
   "sshAgentPromptBehavior": {
     "message": "Ask for authorization when using SSH agent"
   },

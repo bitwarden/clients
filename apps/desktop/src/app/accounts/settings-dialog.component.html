@@ -188,6 +188,16 @@
             />
             <bit-hint>{{ "sshAgentPromptBehaviorDesc" | i18n }}</bit-hint>
           </bit-form-field>
+
+          <button
+            bitLink
+            linkType="primary"
+            type="button"
+            class="tw-mb-4 tw-block"
+            (click)="openSshAgentSetupDialog()"
+          >
+            {{ "sshAgentShowSetupInstructions" | i18n }}
+          </button>
         }
 
         @if (!isLinux) {

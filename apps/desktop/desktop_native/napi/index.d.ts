@@ -453,6 +453,8 @@ export declare namespace sshagent_v2 {
     replace(newKeys: Array<SshKeyData>): void
   }
   export type SSHAgentState = SshAgentState
+  /** The address SSH clients connect to in order to reach the agent. */
+  export function getSocketAddress(): string
   /** SSH public key data */
   export interface PublicKey {
     alg: string

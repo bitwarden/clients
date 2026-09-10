@@ -71,6 +71,7 @@ import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autot
 import { DesktopPremiumUpgradePromptService } from "../../billing/services/desktop-premium-upgrade-prompt.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { SshAgentSetupDialogComponent } from "../components/ssh-agent-setup-dialog.component";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -622,6 +623,15 @@ export class SettingsDialogComponent implements OnInit {
 
   protected async saveSshAgent() {
     await this.desktopSettingsService.setSshAgentEnabled(this.form.value.enableSshAgent);
+
+    if (this.form.value.enableSshAgent) {
+      await this.openSshAgentSetupDialog();
+    }
+  }
+
+  protected async openSshAgentSetupDialog() {
+    const socketAddress = await ipc.autofill.sshAgent.getSocketAddress();
+    SshAgentSetupDialogComponent.open(this.dialogService, { socketAddress });
   }
 
   private async saveSshAgentPromptBehavior(newValue: SshAgentPromptType) {

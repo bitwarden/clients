@@ -26,6 +26,9 @@ const sshAgent = {
   clearKeys: async () => {
     return await ipcRenderer.invoke("sshagent.clearkeys");
   },
+  // The address (unix socket path or Windows named pipe) SSH clients must connect to.
+  getSocketAddress: (): Promise<string> =>
+    ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.GET_SOCKET_ADDRESS),
   isLoaded(): Promise<boolean> {
     return ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.IS_LOADED);
   },
