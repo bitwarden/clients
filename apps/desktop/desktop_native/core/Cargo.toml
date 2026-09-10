@@ -27,7 +27,7 @@ cbc = { workspace = true, features = ["alloc"] }
 dirs = { workspace = true }
 futures = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
-rsa = "=0.9.6"
+rsa = "=0.9.10"
 sha2 = "=0.10.9"
 ssh-key = { version = "=0.6.7", features = [
     "encryption",
