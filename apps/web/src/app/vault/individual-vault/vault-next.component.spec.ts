@@ -934,6 +934,42 @@ describe("VaultNextComponent", () => {
 
       expect(component().canCreateCollections()).toBe(false);
     });
+
+    it("is true for an organization vault scoped to an eligible organization", () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+      ]);
+      scopeTo(organizationId);
+
+      expect(component().canCreateCollections()).toBe(true);
+    });
+
+    it("is false for the personal vault even when an organization is eligible", () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+      ]);
+      scopeTo(MY_VAULT_ROUTE);
+
+      expect(component().canCreateCollections()).toBe(false);
+    });
+
+    it("is false for trash even when an organization is eligible", () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+      ]);
+      scopeTo(TRASH_ROUTE);
+
+      expect(component().canCreateCollections()).toBe(false);
+    });
+
+    it("is false for the archive even when an organization is eligible", () => {
+      organizations$.next([
+        buildOrganization(organizationId, "Acme corporation", { canCreateNewCollections: true }),
+      ]);
+      scopeTo(ARCHIVE_ROUTE);
+
+      expect(component().canCreateCollections()).toBe(false);
+    });
   });
 
   describe("addFolder", () => {

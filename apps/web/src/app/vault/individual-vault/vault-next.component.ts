@@ -298,6 +298,13 @@ export class VaultNextComponent {
   );
 
   protected readonly canCreateCollections = computed(() => {
+    const scope = this.vaultScope();
+
+    // The "Add item" menu offers a "New collection" action only for organization vaults or when viewing all their items
+    if (scope.type !== VaultScopeType.Organization && scope.type !== VaultScopeType.AllItems) {
+      return false;
+    }
+
     return this.organizations()?.some((o) => o.canCreateNewCollections && !o.isProviderUser);
   });
 
