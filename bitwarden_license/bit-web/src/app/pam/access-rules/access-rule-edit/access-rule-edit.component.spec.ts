@@ -2,7 +2,7 @@ import { EnvironmentProviders, Provider } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, provideRouter, Router } from "@angular/router";
-import { of, Subject, throwError } from "rxjs";
+import { Observable, of, Subject, throwError } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -75,7 +75,10 @@ const providersWith = (...overrides: Provider[]): (Provider | EnvironmentProvide
   { provide: I18nService, useValue: i18nFake },
   { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
   { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
-  { provide: GovernedCollectionsService, useValue: { rules$: () => of([]) } },
+  {
+    provide: GovernedCollectionsService,
+    useValue: { rules$: () => of([]), invalidate: jest.fn() },
+  },
   { provide: CidrValidationService, useValue: cidrValidationStub },
   { provide: OrganizationService, useValue: organizationServiceStub() },
   { provide: DialogService, useValue: declinedDialogStub },
@@ -320,6 +323,10 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
   };
   let showToast: jest.Mock;
   let dialog: { openSimpleDialog: jest.Mock };
+  let governedCollections: {
+    rules$: () => Observable<AccessRuleView[]>;
+    invalidate: jest.Mock;
+  };
 
   // The org's collections, as returned by the admin-console service.
   const ORG_COLLECTIONS = [
@@ -343,6 +350,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     };
     showToast = jest.fn();
     dialog = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
+    governedCollections = { rules$: () => of([]), invalidate: jest.fn() };
 
     TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
     TestBed.configureTestingModule({
@@ -356,6 +364,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
         { provide: DialogService, useValue: dialog },
+        { provide: GovernedCollectionsService, useValue: governedCollections },
       ),
     });
 
@@ -398,6 +407,48 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     expect(orgId).toBe("org-1");
     expect(request.collections).toEqual(["col-2"]);
     expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
+  });
+
+  it("invalidates the governed-collections cache after a successful create", async () => {
+    await setup({});
+
+    controls().name.setValue("Production access");
+    controls().collections.setValue([
+      { id: "col-2", listName: "Design", labelName: "Design", icon: "bwi-collection-shared" },
+    ] satisfies SelectItemView[]);
+
+    await component["submit"]();
+
+    expect(governedCollections.invalidate).toHaveBeenCalledWith("org-1");
+  });
+
+  it("invalidates the governed-collections cache after a successful update", async () => {
+    await setup({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } }, {
+      id: "11111111-1111-1111-1111-111111111111",
+      name: "Existing rule",
+      collections: ["col-1"],
+      conditions: [],
+    } as unknown as AccessRuleView);
+
+    controls().description.setValue("updated description");
+    await component["submit"]();
+
+    expect(pamApi.updateAccessRule).toHaveBeenCalledTimes(1);
+    expect(governedCollections.invalidate).toHaveBeenCalledWith("org-1");
+  });
+
+  it("does not invalidate the governed-collections cache when the create fails", async () => {
+    await setup({});
+    pamApi.createAccessRule.mockRejectedValue(new Error("boom"));
+
+    controls().name.setValue("Production access");
+    controls().collections.setValue([
+      { id: "col-2", listName: "Design", labelName: "Design", icon: "bwi-collection-shared" },
+    ] satisfies SelectItemView[]);
+
+    await component["submit"]();
+
+    expect(governedCollections.invalidate).not.toHaveBeenCalled();
   });
 
   it("serialises the ipAllowlistCidrs control into an ip_allowlist condition, dropping empties", async () => {
@@ -521,6 +572,33 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
       expect.objectContaining({ variant: "success", message: "pamAccessRuleDeleted" }),
     );
     expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
+  });
+
+  it("invalidates the governed-collections cache after a successful delete", async () => {
+    await setup({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } }, {
+      id: "11111111-1111-1111-1111-111111111111",
+      name: "Existing rule",
+      collections: [],
+      conditions: [],
+    } as unknown as AccessRuleView);
+
+    await component["remove"]();
+
+    expect(governedCollections.invalidate).toHaveBeenCalledWith("org-1");
+  });
+
+  it("does not invalidate the governed-collections cache when the delete fails", async () => {
+    await setup({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } }, {
+      id: "11111111-1111-1111-1111-111111111111",
+      name: "Existing rule",
+      collections: [],
+      conditions: [],
+    } as unknown as AccessRuleView);
+    pamApi.deleteAccessRule.mockRejectedValue(new Error("boom"));
+
+    await component["remove"]();
+
+    expect(governedCollections.invalidate).not.toHaveBeenCalled();
   });
 
   it("leaves the rule alone when the confirm dialog is declined", async () => {
@@ -842,7 +920,10 @@ describe("AccessRuleEditComponent — form states", () => {
           provide: CollectionAdminService,
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
-        { provide: GovernedCollectionsService, useValue: { rules$: () => of([]) } },
+        {
+          provide: GovernedCollectionsService,
+          useValue: { rules$: () => of([]), invalidate: jest.fn() },
+        },
         { provide: CidrValidationService, useValue: cidrValidationStub },
         { provide: OrganizationService, useValue: organizationServiceStub() },
         { provide: DialogService, useValue: dialog },

@@ -544,6 +544,10 @@ export class AccessRuleEditComponent {
           message: this.i18nService.t("pamAccessRuleCreated"),
         });
       }
+      // The write just changed which collections are governed (and by which rule); drop the
+      // cached read so the next consumer — this page, the callout, the gated banner — sees it
+      // rather than serving up to CACHE_TTL_MS of stale state.
+      this.governedCollections.invalidate(this.organizationId);
       await this.navigateToList();
     } catch (e) {
       const outcome = classifyAccessRuleError(e);
@@ -614,6 +618,8 @@ export class AccessRuleEditComponent {
         variant: "success",
         message: this.i18nService.t("pamAccessRuleDeleted"),
       });
+      // Freed this rule's collections; see the matching comment in submit().
+      this.governedCollections.invalidate(this.organizationId);
       await this.navigateToList();
     } catch (e) {
       this.toastService.showToast({
