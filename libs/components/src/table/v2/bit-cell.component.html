@@ -2,13 +2,13 @@
   <ng-content select="[slot=start]"></ng-content>
 
   <div class="tw-flex tw-flex-col tw-min-w-0 tw-flex-grow">
-    <div [ngClass]="truncate() ? 'tw-truncate' : 'tw-text-wrap tw-break-words'">
+    <div [class]="contentClasses()">
       <ng-content></ng-content>
     </div>
     <div
       bitTypography="helper"
       class="tw-text-fg-body-subtle empty:tw-hidden"
-      [ngClass]="truncate() ? 'tw-truncate' : 'tw-text-wrap tw-break-words'"
+      [class]="contentClasses()"
     >
       <ng-content select="[slot=secondary]"></ng-content>
     </div>

@@ -8,7 +8,18 @@ import {
 
 import { getOrgIconForTier } from "../components/org-icon.directive";
 
-import { VaultNavColor, VaultNavItemType, VaultNavItemViewModel } from "./vault-nav-view-model";
+import {
+  VaultNavColor,
+  VaultNavItemType,
+  VaultNavItemViewModel,
+  VaultsNavViewModel,
+} from "./vault-nav-view-model";
+import {
+  organizationVaultPage,
+  OrganizationVaultPage,
+  VaultScope,
+  VaultScopeType,
+} from "./vault-scope";
 
 /** The tile variant for an organization, keyed off its plan */
 function orgTileVariant(tier: ProductTierType): IconTileVariant {
@@ -35,6 +46,12 @@ export function orgIconTile(tier: ProductTierType): IconTileOptions {
   };
 }
 
+export const ALL_ITEMS_ICON_TILE: IconTileOptions = Object.freeze({
+  icon: "bwi-list",
+  variant: "brand",
+  emphasis: "bold",
+});
+
 /** The icon tile for the user's own vault, tinted to match their avatar so the two read as the same identity */
 export function personalIconTile(avatarColor: VaultNavColor): IconTileOptions {
   return {
@@ -56,4 +73,32 @@ export function navIconTile(vault: VaultNavItemViewModel): IconTileOptions {
     variant: familyTileVariant(vault.type === VaultNavItemType.Family),
     emphasis: "bold",
   };
+}
+
+/**
+ * The tile shown before a scoped vault's page title. An organization's whole vault and "My items"
+ * pages carry the organization's own tile; a shared folder carries its tile in the breadcrumb trail
+ * instead, and Trash and Archive have none, so those yield `undefined`.
+ */
+export function vaultScopeHeaderTile(
+  scope: VaultScope,
+  nav: VaultsNavViewModel | undefined,
+): IconTileOptions | undefined {
+  switch (scope.type) {
+    case VaultScopeType.AllItems:
+      return ALL_ITEMS_ICON_TILE;
+    case VaultScopeType.MyVault: {
+      const personal = nav?.vaults.find((vault) => vault.type === VaultNavItemType.Personal);
+      return personal == null ? undefined : navIconTile(personal);
+    }
+    case VaultScopeType.Organization: {
+      if (organizationVaultPage(scope, nav) === OrganizationVaultPage.SharedFolder) {
+        return undefined;
+      }
+      const org = nav?.vaults.find((vault) => vault.id === scope.organizationId);
+      return org == null ? undefined : navIconTile(org);
+    }
+    default:
+      return undefined;
+  }
 }
