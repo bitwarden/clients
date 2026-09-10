@@ -99,7 +99,10 @@ export default {
           provide: CollectionAdminService,
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
-        { provide: GovernedCollectionsService, useValue: { rules$: () => of([]) } },
+        {
+          provide: GovernedCollectionsService,
+          useValue: { rules$: () => of([]), invalidate: () => {} },
+        },
         { provide: CidrValidationService, useValue: { isValid: () => true } },
         {
           provide: OrganizationService,
@@ -155,6 +158,7 @@ export const CreateWithGovernedCollections: Story = {
                   singleActiveLease: false,
                 } as unknown as AccessRuleView,
               ]),
+            invalidate: () => {},
           },
         },
       ],
@@ -173,7 +177,10 @@ export const Edit: Story = {
     atUrl("/organizations/org-1/access-rules/rule-1"),
     moduleMetadata({
       providers: [
-        { provide: GovernedCollectionsService, useValue: { rules$: () => of([SAMPLE_RULE]) } },
+        {
+          provide: GovernedCollectionsService,
+          useValue: { rules$: () => of([SAMPLE_RULE]), invalidate: () => {} },
+        },
       ],
     }),
   ],
