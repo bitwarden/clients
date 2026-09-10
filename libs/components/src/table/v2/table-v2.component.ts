@@ -60,8 +60,8 @@ const SELECTION_COLUMN_WIDTH = "56px";
  * Fixed heights (px) of group headers when virtualized. Must match the header chrome
  * in {@link BitTableV2Component.groupHeaderClass}.
  */
-const GROUP_HEADER_HEIGHT = 40;
-const SUBGROUP_HEADER_HEIGHT = 28;
+const GROUP_HEADER_HEIGHT = 28;
+const SUBGROUP_HEADER_HEIGHT = 22;
 
 /**
  * Fixed height (px) of a group description when virtualized: two `text-sm` lines (20px
@@ -579,12 +579,15 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (this.presentation() !== "list") {
       return "tw-flex tw-items-center tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-bg-bg-secondary tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-fg-body";
     }
-    // Match the extension's section/subsection type: top = `h6` (text-sm, main,
-    // medium); subgroup = the muted subheader (text-xs, muted, medium), indented.
+    // Match the extension's section/subsection headers box-for-box, not just in type:
+    // top = `h6` (text-sm, main, medium) at a 4px indent with the label sitting ~4px
+    // off its first card; subgroup = the muted subheader (text-xs, muted, medium) at
+    // the same indent. Neither pads above the label — in the extension the space
+    // between sections comes from `bit-section`, not the header.
     const type =
       level === 0
-        ? "tw-text-sm tw-text-main tw-font-medium tw-px-1 tw-pb-1 tw-pt-3"
-        : "tw-text-xs tw-text-muted tw-font-medium tw-ps-4 tw-pe-1 tw-py-1";
+        ? "tw-text-sm tw-text-main tw-font-medium tw-px-1 tw-pb-1"
+        : "tw-text-xs tw-text-muted tw-font-medium tw-ps-1 tw-pe-1 tw-pb-1";
     return `tw-flex tw-items-center ${type}`;
   }
 
@@ -643,6 +646,19 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * {@link SyncScrollLeftDirective} two-way binds each to this signal.
    */
   protected readonly horizontalScroll = signal(0);
+
+  private readonly scrolled = signal(false);
+
+  /**
+   * Whether the body has been scrolled away from the top. Read by `bit-table-toolbar`,
+   * which reveals its bottom border only once there's content hidden behind it.
+   */
+  readonly isScrolled = this.scrolled.asReadonly();
+
+  /** Bound to whichever body container owns the scroll — the virtual viewport or the plain div. */
+  protected onBodyScroll(event: Event): void {
+    this.scrolled.set((event.target as HTMLElement).scrollTop > 0);
+  }
 
   /** Registers a column. Called by {@link BitColumnComponent} via DI. */
   register(col: BitColumnComponent): void {

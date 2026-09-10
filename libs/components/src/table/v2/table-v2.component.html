@@ -237,6 +237,7 @@
         -->
         <cdk-virtual-scroll-viewport
           class="tw-overscroll-x-none"
+          (scroll)="onBodyScroll($event)"
           [style.height]="isFill() ? null : viewportHeight()"
           [class.tw-flex-1]="isFill()"
           [class.tw-min-h-0]="isFill()"
@@ -264,6 +265,7 @@
         -->
         <div
           class="tw-overflow-auto tw-overscroll-x-none"
+          (scroll)="onBodyScroll($event)"
           [class.tw-flex-1]="isFill()"
           [class.tw-min-h-0]="isFill()"
           [(bitSyncScrollLeft)]="horizontalScroll"

@@ -116,15 +116,21 @@ export class BitTableToolbarComponent {
   );
 
   /**
-   * `table` closes the toolbar off from the header row beneath it. `list` has no
-   * container chrome and no header row to divide from, and the spec draws no line
-   * there, so the border is dropped.
+   * `table` closes the toolbar off from the header row beneath it, always. `list` has no
+   * header row to divide from, so the line only earns its place once the body scrolls
+   * under the toolbar — the same reveal `popup-page` does. The border stays in the box
+   * model and only changes color, so the reveal costs no layout shift.
    */
   protected readonly hostClasses = computed(() =>
     [
-      ...(this.isList()
-        ? []
-        : ["tw-border-0", "tw-border-b", "tw-border-solid", "tw-border-border-base"]),
+      "tw-border-0",
+      "tw-border-b",
+      "tw-border-solid",
+      "tw-transition-colors",
+      "tw-duration-200",
+      this.isList() && !this.table?.isScrolled()
+        ? "tw-border-transparent"
+        : "tw-border-border-base",
     ].join(" "),
   );
 
