@@ -821,7 +821,6 @@ describe("VaultItemsTableComponent", () => {
       });
       expect(component["showMyItems"]()).toBe(true);
 
-      // Drilled into a collection — the My items page itself, or a shared folder.
       fixture.componentRef.setInput("scope", {
         type: VaultScopeType.Organization,
         organizationId: "org-1",
@@ -833,8 +832,6 @@ describe("VaultItemsTableComponent", () => {
       fixture.componentRef.setInput("scope", { type: VaultScopeType.MyVault });
       expect(component["showMyItems"]()).toBe(false);
 
-      // No My items collection for this organization — e.g. the policy is off, or the viewer is
-      // an owner/admin exempt from it but still confirmed before it applied to their membership.
       fixture.componentRef.setInput("scope", {
         type: VaultScopeType.Organization,
         organizationId: "org-1",
