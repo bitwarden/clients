@@ -3906,6 +3906,9 @@
     "message": "Do not allow members to create and store credit card items. When this policy is turned on, existing cards will be automatically hidden.",
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
+  "restrictedItemTypePolicyDescListVfo1": {
+    "message": "Do not allow members to create and store card items. Existing cards will be hidden."
+  },
   "restrictCardTypeImport": {
     "message": "Cannot import card item types"
   },
@@ -7483,12 +7486,6 @@
   "inviteLinkRegenerated": {
     "message": "Invite link regenerated"
   },
-  "requireAdminConfirmation": {
-    "message": "Require admin confirmation"
-  },
-  "requireAdminConfirmationDesc": {
-    "message": "An admin must manually approve new members before they're added to the organization vault."
-  },
   "inviteLinkConfirmationUpdated": {
     "message": "Invite link updated"
   },
@@ -7512,6 +7509,57 @@
   },
   "deactivateLink": {
     "message": "Deactivate link"
+  },
+  "requireAdminConfirmation": {
+    "message": "Require admin confirmation"
+  },
+  "requireAdminConfirmationHint": {
+    "message": "An admin must manually approve new members before they’re added to the organization vault."
+  },
+  "setYourAllowedDomains": {
+    "message": "Set your allowed domains"
+  },
+  "setYourAllowedDomainsCoachMarkBody": {
+    "message": "Add allowed email domains (e.g. acme.com) so only users with matching emails can use this invite link. You can update this anytime."
+  },
+  "adjustTheLink": {
+    "message": "Adjust the link"
+  },
+  "adjustTheLinkCoachMarkBody": {
+    "message": "Your needs change, and the link can change with you. <strong>Regenerate</strong> the link to invalidate the old link and create a new one."
+  },
+  "adjustTheLinkCoachMarkBodyIntro": {
+    "message": "Your needs change, and the link can change with you."
+  },
+  "adjustTheLinkCoachMarkRegenerate": {
+    "message": "<strong>Regenerate</strong> the link to invalidate the old link and create a new one."
+  },
+  "adjustTheLinkCoachMarkAdminConfirmation": {
+    "message": "<strong>Require admin confirmation</strong> to approve new members before they can join the organization."
+  },
+  "shareTheLinkAnywhere": {
+    "message": "Share the link anywhere"
+  },
+  "shareTheLinkAnywhereCoachMarkBody": {
+    "message": "Copy and paste the link where your team will find it: your onboarding checklist, a Slack #new-joiners channel, Notion docs, or an email template."
+  },
+  "viewBitwardenOnboardingGuide": {
+    "message": "View Bitwarden onboarding guide"
+  },
+  "coachMarkStepOfTotal": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "description": "Progress indicator for a coach mark tour step, e.g. '1 of 3'",
+    "placeholders": {
+      "current": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "finish": {
+    "message": "Finish"
   },
   "inviteByLinkDesc": {
     "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
@@ -7827,9 +7875,8 @@
   "passwordGeneratorPolicyDescV2": {
     "message": "Select a set of minimum requirements for any member-generated passwords."
   },
-  "passwordGeneratorPolicyDescVfo1": {
-    "message": "Set requirements for password generator.",
-    "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
+  "passwordGeneratorPolicyDescListVfo1": {
+    "message": "Set minimum requirements for any member-generated passwords."
   },
   "generatedPassword": {
     "message": "Generated password"
@@ -7882,8 +7929,8 @@
   "minimumNumberOfWords": {
     "message": "Minimum number of words"
   },
-  "overridePasswordTypePolicy": {
-    "message": "Password Type",
+  "overridePasswordTypePolicyV2": {
+    "message": "Password type",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -8086,9 +8133,8 @@
   "singleOrgDesc": {
     "message": "Restrict members from joining other organizations."
   },
-  "singleOrgPolicyDescVfo1": {
-    "message": "Restrict members from joining other shared or organization vaults.",
-    "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
+  "singleOrgPolicyDescListVfo1": {
+    "message": "Members cannot join other organization vaults."
   },
   "singleOrgPolicyDescV2": {
     "message": "Members of this organization cannot join other organizations. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins."
@@ -8110,9 +8156,9 @@
     "message": "Require SSO",
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
-  "requireSsoPolicyDescListVfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method.",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
+  "requireSsoPolicyDescListV2Vfo1": {
+    "message": "Require members to log in using SSO.",
+    "description": "'SSO' is an abbreviation of 'single sign-on'."
   },
   "requireSsoPolicyTitle": {
     "message": "Require single sign-on (SSO)"
@@ -8530,9 +8576,8 @@
   "centralizeDataOwnershipDesc": {
     "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
   },
-  "centralizeDataOwnershipDescVfo1": {
-    "message": "Require members to save items to the organization by removing their personally owned My vault.",
-    "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
+  "centralizeDataOwnershipDescListVfo1": {
+    "message": "All member items will be owned and managed by the organization."
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Learn more about centralized ownership",
@@ -8770,6 +8815,9 @@
   "desktopAutotypePolicyDescV2": {
     "message": "Enable desktop autotype for members. Members will be able to turn autotype off manually in the desktop client."
   },
+  "desktopAutotypePolicyDescVfo1": {
+    "message": "Enable desktop autotype for members."
+  },
   "disableSend": {
     "message": "Remove Send"
   },
@@ -8818,10 +8866,6 @@
     "message": "Manage Send",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "manageSendAndShareVfo1": {
-    "message": "Manage Send and share",
-    "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
-  },
   "sendControlsPolicyDesc": {
     "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
@@ -8830,9 +8874,9 @@
     "message": "Manage how members use Send. This policy will apply to Sends created after you turn on this policy. Admins and owners are exempt.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescVfo1": {
-    "message": "Set Send configuration options.",
-    "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
+  "sendControlsPolicyDescListVfo1": {
+    "message": "Manage how members use Send.",
+    "description": "'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
     "message": "Send options",
@@ -9289,9 +9333,8 @@
   "accountRecoveryPolicy": {
     "message": "Account recovery administration"
   },
-  "accountRecoveryPolicyDescVfo1": {
-    "message": "Allow admins to reset master passwords for members.",
-    "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
+  "accountRecoveryPolicyDescListVfo1": {
+    "message": "Allow admins to help members regain access to their accounts."
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "The single organization Enterprise policy must be turned on before activating this policy."
@@ -9690,9 +9733,8 @@
   "sessionTimeoutPolicyDescription": {
     "message": "Set a maximum session timeout for all members except owners."
   },
-  "sessionTimeoutPolicyDescriptionVfo1": {
-    "message": "Set a maximum vault timeout for members.",
-    "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
+  "sessionTimeoutPolicyDescriptionListVfo1": {
+    "message": "Set a maximum session timeout for members."
   },
   "maximumAllowedTimeout": {
     "message": "Maximum allowed timeout"
@@ -9820,18 +9862,14 @@
   "personalVaultExportPolicyInEffect": {
     "message": "One or more organization policies prevents you from exporting your individual vault."
   },
-  "activateAutofillPolicy": {
-    "message": "Activate autofill"
-  },
   "enableAutofillOnPageLoad": {
     "message": "Enable autofill on page load"
   },
   "activateAutofillPolicyDescription": {
     "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
   },
-  "activateAutofillPolicyDescriptionVfo1": {
-    "message": "Automatically fill logins on websites and apps.",
-    "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
+  "activateAutofillPolicyDescriptionListVfo1": {
+    "message": "Enable autofill on page load setting in the browser extension for all members."
   },
   "activateAutofillPolicyDescV2": {
     "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Be aware that compromised or untrustworthy websites can"
@@ -14995,6 +15033,9 @@
     "message": "Remove the option for members to redeem a free Families plan.",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
   },
+  "freeFamiliesSponsorshipDescV2Vfo1": {
+    "message": "Do not allow members to redeem a Families plan sponsored by your organization."
+  },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the organization's billing page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
   },
@@ -15444,6 +15485,9 @@
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
+  },
+  "removeUnlockWithPinPolicyTitleVfo1": {
+    "message": "Remove unlock with PIN"
   },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Members will not be allowed to unlock their account with a PIN."

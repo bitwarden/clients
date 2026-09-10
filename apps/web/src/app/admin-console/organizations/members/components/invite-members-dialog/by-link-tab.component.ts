@@ -32,6 +32,7 @@ import {
   FormFieldModule,
   IconButtonModule,
   LinkComponent,
+  PopoverModule,
   SwitchComponent,
   ToastService,
   TooltipDirective,
@@ -56,6 +57,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
     FormFieldModule,
     I18nPipe,
     IconButtonModule,
+    PopoverModule,
     ReactiveFormsModule,
     LinkComponent,
     SwitchComponent,
@@ -66,6 +68,10 @@ export class ByLinkTabComponent {
   readonly organizationId = input.required<OrganizationId, string>({
     transform: (value: string) => value as OrganizationId,
   });
+
+  readonly showCoachMarks = input<boolean>(false);
+
+  readonly tourStep = signal<number>(0);
 
   private readonly accountService = inject(AccountService);
   private readonly inviteLinkService = inject(OrganizationInviteLinkService);
@@ -134,6 +140,7 @@ export class ByLinkTabComponent {
   );
 
   private readonly prefillAttempted = signal(false);
+  private readonly tourStarted = signal(false);
 
   constructor() {
     this.inviteLink$.pipe(takeUntilDestroyed()).subscribe((inviteLink) => {
@@ -151,6 +158,11 @@ export class ByLinkTabComponent {
         this.requireAdminConfirmation.setValue(!inviteLink.supportsConfirmation, {
           emitEvent: false,
         });
+      }
+
+      if (this.showCoachMarks() && inviteLink == null && !this.tourStarted()) {
+        this.tourStarted.set(true);
+        this.tourStep.set(1);
       }
     });
 
@@ -242,6 +254,16 @@ export class ByLinkTabComponent {
       variant: "success",
       message: this.i18nService.t("domainsEdited"),
     });
+  };
+
+  readonly saveAndAdvanceToStep2 = async () => {
+    if (this.form.dirty || (await firstValueFrom(this.inviteLink$)) == null) {
+      await this.save();
+      if (this.form.invalid) {
+        return;
+      }
+    }
+    this.tourStep.set(2);
   };
 
   readonly copyLink = async () => {
