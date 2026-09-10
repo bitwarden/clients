@@ -1,6 +1,5 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
-import { UntypedFormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
@@ -9,6 +8,8 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationConnectionType } from "@bitwarden/common/admin-console/enums";
 import { ScimConfigApi } from "@bitwarden/common/admin-console/models/api/scim-config.api";
 import { OrganizationConnectionResponse } from "@bitwarden/common/admin-console/models/response/organization-connection.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   EnvironmentService,
@@ -16,14 +17,13 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ScimApiKeyDialogComponent } from "./scim-api-key-dialog.component";
 import { ScimBannerService } from "./scim-banner.service";
 import { ScimComponent } from "./scim.component";
 
 describe("ScimComponent", () => {
-  const testAccess = (comp: ScimComponent) => comp as any;
+  const ta = (comp: ScimComponent) => comp as any;
 
   let component: ScimComponent;
   let fixture: ComponentFixture<ScimComponent>;
@@ -34,9 +34,12 @@ describe("ScimComponent", () => {
   let environmentService: MockProxy<EnvironmentService>;
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
+  let configService: MockProxy<ConfigService>;
   let scimBannerService: MockProxy<ScimBannerService>;
   let mockEnv: MockProxy<Environment>;
   let environment$: BehaviorSubject<Environment>;
+
+  let openSpy: jest.SpyInstance;
 
   const orgId = "org-id-123";
   const scimUrl = "https://scim.example.com";
@@ -44,13 +47,14 @@ describe("ScimComponent", () => {
   function mockConnection(
     enabled: boolean,
     id: string | null = "connection-id",
+    inviteUsersAfterProvisioning: boolean | null = null,
   ): OrganizationConnectionResponse<ScimConfigApi> {
     if (!enabled && id === null) {
       return null as unknown as OrganizationConnectionResponse<ScimConfigApi>;
     }
     return {
       id,
-      config: { enabled },
+      config: { enabled, inviteUsersAfterProvisioning },
     } as OrganizationConnectionResponse<ScimConfigApi>;
   }
 
@@ -61,6 +65,7 @@ describe("ScimComponent", () => {
     environmentService = mock<EnvironmentService>();
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
+    configService = mock<ConfigService>();
     scimBannerService = mock<ScimBannerService>();
 
     mockEnv = mock<Environment>();
@@ -68,16 +73,23 @@ describe("ScimComponent", () => {
     environment$ = new BehaviorSubject<Environment>(mockEnv);
     environmentService.environment$ = environment$;
 
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+    scimBannerService.bannerSeen$.mockReturnValue(of(false));
+    scimBannerService.markBannerSeen.mockResolvedValue();
+
     i18nService.t.mockImplementation((key: string) => key);
 
+    openSpy = jest.spyOn(ScimApiKeyDialogComponent, "open");
+
     await TestBed.configureTestingModule({
-      declarations: [ScimComponent],
-      imports: [I18nPipe],
+      imports: [ScimComponent],
       providers: [
-        UntypedFormBuilder,
         {
           provide: ActivatedRoute,
-          useValue: { parent: { parent: { params: of({ organizationId: orgId }) } } },
+          useValue: {
+            data: of({}),
+            params: of({ organizationId: orgId }),
+          },
         },
         { provide: ApiService, useValue: apiService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
@@ -85,6 +97,7 @@ describe("ScimComponent", () => {
         { provide: EnvironmentService, useValue: environmentService },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
+        { provide: ConfigService, useValue: configService },
         { provide: ScimBannerService, useValue: scimBannerService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -97,7 +110,6 @@ describe("ScimComponent", () => {
     apiService.getOrganizationConnection.mockResolvedValue(connection);
     fixture = TestBed.createComponent(ScimComponent);
     component = fixture.componentInstance;
-    component.organizationId = orgId;
   }
 
   describe("load", () => {
@@ -107,10 +119,10 @@ describe("ScimComponent", () => {
       void component.load();
       tick();
 
-      expect(component.showScimSettings).toBe(true);
-      expect(component.enabled.value).toBe(true);
-      expect(component.formData.get("clientSecret")!.value).toBe("••••••••••••••••");
-      expect(component.loading).toBe(false);
+      expect(ta(component).showScimSettings()).toBe(true);
+      expect(ta(component).enabled.value).toBe(true);
+      expect(ta(component).formData.get("clientSecret").value).toBe("••••••••••••••••");
+      expect(ta(component).loading()).toBe(false);
     }));
 
     it("hides SCIM settings when connection is disabled", fakeAsync(() => {
@@ -119,9 +131,52 @@ describe("ScimComponent", () => {
       void component.load();
       tick();
 
-      expect(component.showScimSettings).toBe(false);
-      expect(component.enabled.value).toBe(false);
-      expect(component.loading).toBe(false);
+      expect(ta(component).showScimSettings()).toBe(false);
+      expect(ta(component).enabled.value).toBe(false);
+      expect(ta(component).loading()).toBe(false);
+    }));
+
+    it("sets inviteUsersAfterProvisioning to false when the connection config disables it", fakeAsync(() => {
+      initComponent(mockConnection(true, "connection-id", false));
+
+      void component.load();
+      tick();
+
+      expect(ta(component).inviteUsersAfterProvisioning.value).toBe(false);
+    }));
+
+    it("defaults inviteUsersAfterProvisioning to true when an existing connection omits it", fakeAsync(() => {
+      initComponent(mockConnection(true));
+
+      void component.load();
+      tick();
+
+      expect(ta(component).inviteUsersAfterProvisioning.value).toBe(true);
+    }));
+
+    it("defaults inviteUsersAfterProvisioning to true for a new connection when the staged status flag is off", fakeAsync(() => {
+      initComponent({
+        id: null,
+        config: null,
+      } as unknown as OrganizationConnectionResponse<ScimConfigApi>);
+
+      void component.load();
+      tick();
+
+      expect(ta(component).inviteUsersAfterProvisioning.value).toBe(true);
+    }));
+
+    it("defaults inviteUsersAfterProvisioning to false for a new connection when the staged status flag is on", fakeAsync(() => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      initComponent({
+        id: null,
+        config: null,
+      } as unknown as OrganizationConnectionResponse<ScimConfigApi>);
+
+      void component.load();
+      tick();
+
+      expect(ta(component).inviteUsersAfterProvisioning.value).toBe(false);
     }));
 
     it("does not open dialog on load", fakeAsync(() => {
@@ -130,8 +185,25 @@ describe("ScimComponent", () => {
       void component.load();
       tick();
 
-      expect(dialogService.open).not.toHaveBeenCalled();
+      expect(openSpy).not.toHaveBeenCalled();
     }));
+  });
+
+  describe("staged status feature flag", () => {
+    it("disables the invite toggle when the flag is off", () => {
+      initComponent();
+
+      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.StagedStatus);
+      expect(ta(component).stagedStatusEnabled()).toBe(false);
+    });
+
+    it("enables the invite toggle when the flag is on", () => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+
+      initComponent();
+
+      expect(ta(component).stagedStatusEnabled()).toBe(true);
+    });
   });
 
   describe("loadApiKey", () => {
@@ -142,43 +214,39 @@ describe("ScimComponent", () => {
     }));
 
     it("hides the key and sets masked value when showScimKey is already true", fakeAsync(() => {
-      component.showScimKey = true;
+      ta(component).showScimKey.set(true);
 
-      void component.loadApiKey();
+      void ta(component).loadApiKey();
       tick();
 
-      expect(component.showScimKey).toBe(false);
-      expect(component.formData.get("clientSecret")!.value).toBe("••••••••••••••••");
-      expect(dialogService.open).not.toHaveBeenCalled();
+      expect(ta(component).showScimKey()).toBe(false);
+      expect(ta(component).formData.get("clientSecret").value).toBe("••••••••••••••••");
+      expect(openSpy).not.toHaveBeenCalled();
     }));
 
     it("opens the dialog when showScimKey is false", fakeAsync(() => {
-      const mockDialogRef = {
-        closed: of({ apiKey: "revealed-key" }),
-      } as unknown as ReturnType<typeof dialogService.open>;
-      dialogService.open.mockReturnValue(mockDialogRef);
+      openSpy.mockReturnValue({ closed: of({ apiKey: "revealed-key" }) });
 
-      void component.loadApiKey();
+      void ta(component).loadApiKey();
       tick();
 
-      expect(dialogService.open).toHaveBeenCalledWith(ScimApiKeyDialogComponent, {
-        data: { organizationId: orgId, titleKey: "viewScimApiKey", isRotation: false },
+      expect(openSpy).toHaveBeenCalledWith(expect.anything(), {
+        organizationId: orgId,
+        titleKey: "viewScimApiKey",
+        isRotation: false,
       });
-      expect(component.formData.get("clientSecret")!.value).toBe("revealed-key");
-      expect(component.showScimKey).toBe(true);
+      expect(ta(component).formData.get("clientSecret").value).toBe("revealed-key");
+      expect(ta(component).showScimKey()).toBe(true);
     }));
 
     it("does not update form when dialog is dismissed", fakeAsync(() => {
-      const mockDialogRef = {
-        closed: of(undefined),
-      } as unknown as ReturnType<typeof dialogService.open>;
-      dialogService.open.mockReturnValue(mockDialogRef);
+      openSpy.mockReturnValue({ closed: of(undefined) });
 
-      void component.loadApiKey();
+      void ta(component).loadApiKey();
       tick();
 
-      expect(component.showScimKey).toBe(false);
-      expect(component.formData.get("clientSecret")!.value).toBe("••••••••••••••••");
+      expect(ta(component).showScimKey()).toBe(false);
+      expect(ta(component).formData.get("clientSecret").value).toBe("••••••••••••••••");
     }));
   });
 
@@ -190,32 +258,27 @@ describe("ScimComponent", () => {
     }));
 
     it("opens the dialog with isRotation true and updates form on success", fakeAsync(() => {
-      const mockDialogRef = {
-        closed: of({ apiKey: "rotated-key" }),
-      } as ReturnType<typeof dialogService.open>;
-      dialogService.open.mockReturnValue(mockDialogRef);
+      openSpy.mockReturnValue({ closed: of({ apiKey: "rotated-key" }) });
 
-      void component.rotateScimKey();
+      void ta(component).rotateScimKey();
       tick();
 
-      expect(dialogService.open).toHaveBeenCalledWith(ScimApiKeyDialogComponent, {
-        data: { organizationId: orgId, titleKey: "rotateScimKey", isRotation: true },
+      expect(openSpy).toHaveBeenCalledWith(expect.anything(), {
+        organizationId: orgId,
+        titleKey: "rotateScimKey",
+        isRotation: true,
       });
-      expect(component.formData.get("clientSecret")!.value).toBe("rotated-key");
+      expect(ta(component).formData.get("clientSecret").value).toBe("rotated-key");
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        title: null,
         message: "scimApiKeyRotated",
       });
     }));
 
     it("does not update form or show toast when dialog is dismissed", fakeAsync(() => {
-      const mockDialogRef = {
-        closed: of(undefined),
-      } as ReturnType<typeof dialogService.open>;
-      dialogService.open.mockReturnValue(mockDialogRef);
+      openSpy.mockReturnValue({ closed: of(undefined) });
 
-      void component.rotateScimKey();
+      void ta(component).rotateScimKey();
       tick();
 
       expect(toastService.showToast).not.toHaveBeenCalled();
@@ -230,56 +293,45 @@ describe("ScimComponent", () => {
     }));
 
     it("opens dialog and copies key to clipboard when no cached key", fakeAsync(() => {
-      const mockDialogRef = {
-        closed: of({ apiKey: "revealed-key" }),
-      } as unknown as ReturnType<typeof dialogService.open>;
-      dialogService.open.mockReturnValue(mockDialogRef);
+      openSpy.mockReturnValue({ closed: of({ apiKey: "revealed-key" }) });
 
-      void component.copyScimKey();
+      void ta(component).copyScimKey();
       tick();
 
-      expect(dialogService.open).toHaveBeenCalledWith(ScimApiKeyDialogComponent, {
-        data: { organizationId: orgId, titleKey: "copyScimKey", isRotation: false },
+      expect(openSpy).toHaveBeenCalledWith(expect.anything(), {
+        organizationId: orgId,
+        titleKey: "copyScimKey",
+        isRotation: false,
       });
       expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("revealed-key");
       expect(toastService.showToast).toHaveBeenCalledWith({
         message: "valueCopied",
         variant: "success",
-        title: null,
       });
     }));
 
     it("uses cached key without opening dialog", fakeAsync(() => {
-      // First call to cache the key via loadApiKey
-      const mockDialogRef = {
-        closed: of({ apiKey: "cached-key" }),
-      } as unknown as ReturnType<typeof dialogService.open>;
-      dialogService.open.mockReturnValue(mockDialogRef);
+      openSpy.mockReturnValue({ closed: of({ apiKey: "cached-key" }) });
 
-      void component.loadApiKey();
+      void ta(component).loadApiKey();
       tick();
-      dialogService.open.mockClear();
+      openSpy.mockClear();
 
-      // Second call should use cached key
-      void component.copyScimKey();
+      void ta(component).copyScimKey();
       tick();
 
-      expect(dialogService.open).not.toHaveBeenCalled();
+      expect(openSpy).not.toHaveBeenCalled();
       expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("cached-key");
       expect(toastService.showToast).toHaveBeenCalledWith({
         message: "valueCopied",
         variant: "success",
-        title: null,
       });
     }));
 
     it("does not copy or show toast when dialog is dismissed", fakeAsync(() => {
-      const mockDialogRef = {
-        closed: of(undefined),
-      } as unknown as ReturnType<typeof dialogService.open>;
-      dialogService.open.mockReturnValue(mockDialogRef);
+      openSpy.mockReturnValue({ closed: of(undefined) });
 
-      void component.copyScimKey();
+      void ta(component).copyScimKey();
       tick();
 
       expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
@@ -295,14 +347,13 @@ describe("ScimComponent", () => {
     }));
 
     it("copies the SCIM endpoint URL to clipboard and shows toast", fakeAsync(() => {
-      void component.copyScimUrl();
+      void ta(component).copyScimUrl();
       tick();
 
       expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(scimUrl + "/" + orgId);
       expect(toastService.showToast).toHaveBeenCalledWith({
         message: "valueCopied",
         variant: "success",
-        title: null,
       });
     }));
   });
@@ -315,11 +366,11 @@ describe("ScimComponent", () => {
     }));
 
     it("creates a new connection when no existing connection id", fakeAsync(() => {
-      testAccess(component).existingConnectionId = null;
-      component.enabled.setValue(true);
+      ta(component).existingConnectionId.set(undefined);
+      ta(component).enabled.setValue(true);
       apiService.createOrganizationConnection.mockResolvedValue(mockConnection(true));
 
-      void component.submit();
+      void ta(component).submit();
       tick();
 
       expect(apiService.createOrganizationConnection).toHaveBeenCalledWith(
@@ -332,17 +383,16 @@ describe("ScimComponent", () => {
       );
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        title: null,
         message: "scimSettingsSaved",
       });
     }));
 
     it("updates an existing connection when connection id exists", fakeAsync(() => {
-      component.existingConnectionId = "connection-id";
-      component.enabled.setValue(false);
+      ta(component).existingConnectionId.set("connection-id");
+      ta(component).enabled.setValue(false);
       apiService.updateOrganizationConnection.mockResolvedValue(mockConnection(false));
 
-      void component.submit();
+      void ta(component).submit();
       tick();
 
       expect(apiService.updateOrganizationConnection).toHaveBeenCalledWith(
@@ -357,9 +407,63 @@ describe("ScimComponent", () => {
       expect(apiService.createOrganizationConnection).not.toHaveBeenCalled();
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        title: null,
         message: "scimSettingsSaved",
       });
+    }));
+
+    it("submits inviteUsersAfterProvisioning false when creating a new connection", fakeAsync(() => {
+      ta(component).existingConnectionId.set(undefined);
+      ta(component).inviteUsersAfterProvisioning.setValue(false);
+      ta(component).enabled.setValue(true);
+      apiService.createOrganizationConnection.mockResolvedValue(
+        mockConnection(true, "connection-id", false),
+      );
+
+      void ta(component).submit();
+      tick();
+
+      expect(apiService.createOrganizationConnection).toHaveBeenCalledWith(
+        expect.objectContaining({
+          config: expect.objectContaining({ inviteUsersAfterProvisioning: false }),
+        }),
+        ScimConfigApi,
+      );
+    }));
+
+    it("submits inviteUsersAfterProvisioning true by default", fakeAsync(() => {
+      ta(component).existingConnectionId.set("connection-id");
+      apiService.updateOrganizationConnection.mockResolvedValue(mockConnection(true));
+
+      void ta(component).submit();
+      tick();
+
+      expect(apiService.updateOrganizationConnection).toHaveBeenCalledWith(
+        expect.objectContaining({
+          config: expect.objectContaining({ inviteUsersAfterProvisioning: true }),
+        }),
+        ScimConfigApi,
+        "connection-id",
+      );
+    }));
+
+    it("submits the toggled inviteUsersAfterProvisioning value", fakeAsync(() => {
+      ta(component).existingConnectionId.set("connection-id");
+      ta(component).inviteUsersAfterProvisioning.setValue(false);
+      apiService.updateOrganizationConnection.mockResolvedValue(
+        mockConnection(true, "connection-id", false),
+      );
+
+      void ta(component).submit();
+      tick();
+
+      expect(apiService.updateOrganizationConnection).toHaveBeenCalledWith(
+        expect.objectContaining({
+          config: expect.objectContaining({ inviteUsersAfterProvisioning: false }),
+        }),
+        ScimConfigApi,
+        "connection-id",
+      );
+      expect(ta(component).inviteUsersAfterProvisioning.value).toBe(false);
     }));
   });
 });
