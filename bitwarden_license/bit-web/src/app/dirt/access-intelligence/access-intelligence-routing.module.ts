@@ -145,12 +145,12 @@ const v2Providers = [
   safeProvider({
     provide: CipherHealthService,
     useClass: DefaultCipherHealthService,
-    deps: [AuditService, PasswordStrengthServiceAbstraction],
+    deps: [AuditService, PasswordStrengthServiceAbstraction, LogService],
   }),
   safeProvider({
     provide: MemberCipherMappingService,
     useClass: DefaultMemberCipherMappingService,
-    deps: [],
+    deps: [LogService],
   }),
   safeProvider({
     provide: ReportGenerationService,

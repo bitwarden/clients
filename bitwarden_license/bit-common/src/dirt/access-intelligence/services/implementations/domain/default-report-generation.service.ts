@@ -11,6 +11,7 @@ import {
   AccessReportView,
   MemberRegistry,
 } from "../../../models";
+import { flowTimer } from "../../../utils/measure-flow-step.operator";
 import { CipherHealthService } from "../../abstractions/cipher-health.service";
 import {
   CollectionAccessDetails,
@@ -56,7 +57,14 @@ export class DefaultReportGenerationService extends ReportGenerationService {
       groupMemberships,
     ).pipe(
       map(({ ciphers: processedCiphers, healthMap, memberMapping, registry }) => {
+        const measureStep = flowTimer(this.logService);
+
         const reports = this.aggregateIntoReports(processedCiphers, healthMap, memberMapping);
+        measureStep("Generate: applications grouped", [
+          ["itemCount", processedCiphers.length],
+          ["memberCount", Object.keys(registry).length],
+          ["applicationCount", reports.length],
+        ]);
 
         // Build view and populate with generated data
         const view = new AccessReportView();
@@ -70,6 +78,11 @@ export class DefaultReportGenerationService extends ReportGenerationService {
 
         // Compute summary (delegates to smart model method)
         view.recomputeSummary();
+        measureStep("Generate: summary recomputed", [
+          ["itemCount", view.summary.totalPasswordCount],
+          ["memberCount", view.summary.totalMemberCount],
+          ["applicationCount", view.summary.totalApplicationCount],
+        ]);
 
         return view;
       }),

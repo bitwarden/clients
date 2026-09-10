@@ -1,8 +1,10 @@
 import { Observable, of } from "rxjs";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LogService } from "@bitwarden/logging";
 
 import { MemberRegistryEntryView, MemberRegistry } from "../../../models";
+import { flowTimer } from "../../../utils/measure-flow-step.operator";
 import {
   CollectionAccessDetails,
   GroupMembershipDetails,
@@ -18,6 +20,10 @@ import {
  * This is a pure transformation service with no external dependencies.
  */
 export class DefaultMemberCipherMappingService extends MemberCipherMappingService {
+  constructor(private logService: LogService) {
+    super();
+  }
+
   /**
    * Maps ciphers to organization members via collection and group resolution.
    *
@@ -30,6 +36,8 @@ export class DefaultMemberCipherMappingService extends MemberCipherMappingServic
     collectionAccess: CollectionAccessDetails[],
     groupMemberships: GroupMembershipDetails[],
   ): Observable<MemberCipherMappingResult> {
+    const measureStep = flowTimer(this.logService);
+
     // Build lookup maps for O(1) access
     const collectionAccessMap = this.buildCollectionAccessMap(collectionAccess);
     const groupMembershipMap = this.buildGroupMembershipMap(groupMemberships);
@@ -69,6 +77,14 @@ export class DefaultMemberCipherMappingService extends MemberCipherMappingServic
     cipherToMembersMap.forEach((memberIds, cipherId) => {
       mapping.set(cipherId, Array.from(memberIds));
     });
+
+    measureStep("Generate: ciphers mapped to members", [
+      ["itemCount", ciphers.length],
+      ["memberCount", members.length],
+      ["collectionCount", collectionAccess.length],
+      ["groupCount", groupMemberships.length],
+      ["mappedMemberCount", allMemberIds.size],
+    ]);
 
     return of({ mapping, registry });
   }
