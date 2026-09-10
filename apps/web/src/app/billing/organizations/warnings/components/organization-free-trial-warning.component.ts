@@ -1,15 +1,13 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { Observable } from "rxjs";
+import { ChangeDetectionStrategy, Component, inject, input, output } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
+import { combineLatest, switchMap } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { BannerModule } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { OrganizationWarningsService } from "../services";
-import { OrganizationFreeTrialWarning } from "../types";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-organization-free-trial-warning",
   template: `
@@ -35,26 +33,27 @@ import { OrganizationFreeTrialWarning } from "../types";
     }
   `,
   imports: [BannerModule, SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OrganizationFreeTrialWarningComponent implements OnInit {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ required: true }) organization!: Organization;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() includeOrganizationNameInMessaging = false;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() clicked = new EventEmitter<void>();
+export class OrganizationFreeTrialWarningComponent {
+  readonly organization = input.required<Organization>();
+  readonly includeOrganizationNameInMessaging = input(false);
+  readonly clicked = output<void>();
 
-  warning$!: Observable<OrganizationFreeTrialWarning | null>;
+  private readonly organizationWarningsService = inject(OrganizationWarningsService);
 
-  constructor(private organizationWarningsService: OrganizationWarningsService) {}
-
-  ngOnInit() {
-    this.warning$ = this.organizationWarningsService.getFreeTrialWarning$(
-      this.organization,
-      this.includeOrganizationNameInMessaging,
-    );
-  }
+  // Re-resolve the warning whenever the bound organization changes. The Admin Console reuses
+  // the page component when switching organizations, so a one-time lookup in ngOnInit would
+  // keep showing the first-loaded organization's warning.
+  protected readonly warning$ = combineLatest([
+    toObservable(this.organization),
+    toObservable(this.includeOrganizationNameInMessaging),
+  ]).pipe(
+    switchMap(([organization, includeOrganizationNameInMessaging]) =>
+      this.organizationWarningsService.getFreeTrialWarning$(
+        organization,
+        includeOrganizationNameInMessaging,
+      ),
+    ),
+  );
 }

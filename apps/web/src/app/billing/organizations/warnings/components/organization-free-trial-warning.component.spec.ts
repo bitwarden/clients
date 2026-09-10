@@ -57,7 +57,7 @@ describe("OrganizationFreeTrialWarningComponent", () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(OrganizationFreeTrialWarningComponent);
-    fixture.componentInstance.organization = organization;
+    fixture.componentRef.setInput("organization", organization);
   });
 
   it("does not render a banner when there is no warning", () => {
@@ -124,11 +124,53 @@ describe("OrganizationFreeTrialWarningComponent", () => {
   });
 
   it("requests the warning with the organization-name flag when enabled", () => {
-    fixture.componentInstance.includeOrganizationNameInMessaging = true;
+    fixture.componentRef.setInput("includeOrganizationNameInMessaging", true);
     setWarning(warningFor(true));
 
     fixture.detectChanges();
 
     expect(warningsService.getFreeTrialWarning$).toHaveBeenCalledWith(organization, true);
+  });
+
+  describe("when the organization input changes", () => {
+    const otherOrganization = { id: "org-id-456", name: "Other Organization" } as Organization;
+
+    beforeEach(() => {
+      warningsService.getFreeTrialWarning$.mockImplementation((org) =>
+        of(
+          org.id === organization.id
+            ? { organization, message: "Your free trial ends in 30 days.", isSalesAssisted: true }
+            : {
+                organization: otherOrganization,
+                message: "Your free trial ends in 7 days.",
+                isSalesAssisted: false,
+              },
+        ),
+      );
+      fixture.detectChanges();
+    });
+
+    it("requests the warning for the newly selected organization", () => {
+      fixture.componentRef.setInput("organization", otherOrganization);
+      fixture.detectChanges();
+
+      expect(warningsService.getFreeTrialWarning$).toHaveBeenLastCalledWith(
+        otherOrganization,
+        false,
+      );
+    });
+
+    it("re-renders the countdown and call to action for the newly selected organization", () => {
+      expect(fixture.nativeElement.textContent).toContain("Your free trial ends in 30 days.");
+      expect(fixture.nativeElement.textContent).toContain(salesAssistedText);
+
+      fixture.componentRef.setInput("organization", otherOrganization);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("Your free trial ends in 7 days.");
+      expect(fixture.nativeElement.textContent).toContain(addPaymentMethodText);
+      expect(fixture.nativeElement.textContent).not.toContain(salesAssistedText);
+      expect(fixture.debugElement.query(By.css("a[bitLink]"))).not.toBeNull();
+    });
   });
 });
