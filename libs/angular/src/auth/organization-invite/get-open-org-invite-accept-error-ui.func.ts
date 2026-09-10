@@ -1,4 +1,4 @@
-import { AccountWarning, ReportBreach, TwoFactorTimeoutIcon } from "@bitwarden/assets/svg";
+import { AccountWarning, ReportBreach, ExpiredIcon } from "@bitwarden/assets/svg";
 
 import { OpenOrgInviteAcceptRenderableErrorKind } from "./open-org-invite-accept-renderable-error-kind.type";
 import { OpenOrgInviteErrorButton } from "./open-org-invite-error-button.type";
@@ -29,7 +29,7 @@ export function getOpenOrgInviteAcceptErrorUi(
   switch (kind) {
     case "link-not-found":
       return {
-        anonLayoutData: { pageTitle, pageIcon: TwoFactorTimeoutIcon },
+        anonLayoutData: { pageTitle, pageIcon: ExpiredIcon },
         bodyMessageI18nKey: "openOrgInviteLinkNoLongerValid",
         button,
       };
