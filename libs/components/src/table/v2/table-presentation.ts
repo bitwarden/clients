@@ -9,10 +9,9 @@ export type TablePresentation = "table" | "list";
 /**
  * The enclosing table's {@link TablePresentation}, provided by `<bit-table-v2>`.
  *
- * Lives in its own file so descendants can read the presentation without importing the
- * table component, which would close an import cycle and break the standalone `imports`
- * metadata. Cell templates are declared in the table's own view, so a descendant's node
- * injector reaches the table but not the `bit-row` or `bit-item` it's stamped into.
+ * Its own file so descendants don't import the table component, which would close an
+ * import cycle and break the standalone `imports` metadata. Cells are declared in the
+ * table's view, so their injector reaches the table but not the `bit-item` around them.
  */
 export const TABLE_PRESENTATION = new InjectionToken<Signal<TablePresentation>>(
   "TABLE_PRESENTATION",

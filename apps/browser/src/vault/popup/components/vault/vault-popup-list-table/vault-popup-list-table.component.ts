@@ -358,16 +358,6 @@ export class VaultPopupListTableComponent {
     return [...groups.values()].sort((a, b) => a.name.localeCompare(b.name));
   });
 
-  /**
-   * A row's full vertical advance in pixels, for the virtual scroll strategy. In `list`
-   * presentation the row is wrapped in a `bit-item`, so this is the item's height plus
-   * its border and bottom margin — matching the v1 list container's arithmetic.
-   *
-   * Default: 52px + 2px border + 6px bottom margin = 60px
-   *
-   * Compact mode: 52px + 1px border = 53px (the item drops its margin and collapses
-   * the border it shares with the row above).
-   */
   protected readonly itemHeight = toSignal(
     this.compactModeService.enabled$.pipe(map((enabled) => (enabled ? 53 : 60))),
     { initialValue: 60 },

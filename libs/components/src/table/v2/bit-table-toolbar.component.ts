@@ -115,11 +115,7 @@ export class BitTableToolbarComponent {
     this.collapsed() ? this.activeFilters().length > 0 : this.hasFilters(),
   );
 
-  /**
-   * `table` always closes the toolbar off from the header row beneath it. `list` has no
-   * header row, so the border only shows once the body scrolls under the toolbar, as
-   * `popup-page` does. Only the color changes, so revealing it shifts no layout.
-   */
+  /** Always bordered, so revealing it on scroll in `list` shifts no layout. */
   protected readonly hostClasses = computed(() =>
     [
       "tw-border-0",
@@ -135,11 +131,7 @@ export class BitTableToolbarComponent {
 
   private readonly isList = computed(() => this.table?.presentation() === "list");
 
-  /**
-   * Horizontal inset for every toolbar row. `list` puts the search on the same 12px edge
-   * as the cards below it; `table` keeps a wider 20px edge, which per the spec is
-   * deliberately not aligned to the column tracks.
-   */
+  /** `list` shares the cards' 12px edge; `table`'s 20px is per spec, not the column tracks. */
   protected readonly insetX = computed(() => (this.isList() ? "tw-px-3" : "tw-px-5"));
 
   /**
@@ -152,8 +144,7 @@ export class BitTableToolbarComponent {
     "tw-items-center",
     "tw-gap-2",
     this.insetX(),
-    // `list` hangs the chips off the search row's own bottom padding, so the gap above
-    // them is 12px rather than the sum of two paddings, and 8px closes out the toolbar.
+    // No top padding in `list`: the search row's bottom padding is the 12px gap.
     ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3.5"]),
     "empty:tw-hidden",
     ...(this.collapsed()
@@ -161,11 +152,7 @@ export class BitTableToolbarComponent {
       : []),
   ]);
 
-  /**
-   * Below `md` the chip row collapses and these dismissible chips take its place, so the
-   * row owns the same rhythm the chip row does: the search row's bottom padding is the
-   * 12px gap, and 8px closes out the toolbar.
-   */
+  /** Stands in for the chip row below `md`, so it carries the same padding. */
   protected readonly activeFilterRowClasses = computed(() => [
     "tw-flex",
     "tw-flex-wrap",

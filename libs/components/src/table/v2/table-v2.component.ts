@@ -579,10 +579,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (this.presentation() !== "list") {
       return "tw-flex tw-items-center tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-bg-bg-secondary tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-fg-body";
     }
-    // Matches the extension's section headers: top = `h6` (text-sm, main, medium),
-    // subgroup = the muted subheader (text-xs, muted, medium), both at a 4px indent with
-    // the label ~4px off its first card. Neither pads above the label; in the extension
-    // that space comes from `bit-section`.
+    // Matches the extension's section headers. Neither pads above the label; there that
+    // space comes from `bit-section`.
     const type =
       level === 0
         ? "tw-text-sm tw-text-main tw-font-medium tw-px-1 tw-pb-1"
@@ -648,13 +646,9 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   private readonly scrolled = signal(false);
 
-  /**
-   * Whether the body has been scrolled away from the top. Read by `bit-table-toolbar`
-   * to reveal its bottom border.
-   */
+  /** Whether the body has scrolled away from the top. Read by `bit-table-toolbar`. */
   readonly isScrolled = this.scrolled.asReadonly();
 
-  /** Bound to whichever body container owns the scroll — the virtual viewport or the plain div. */
   protected onBodyScroll(event: Event): void {
     this.scrolled.set((event.target as HTMLElement).scrollTop > 0);
   }
@@ -677,21 +671,13 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   /** True when {@link presentation} is `"list"`. */
   protected readonly isList = computed(() => this.presentation() === "list");
 
-  /**
-   * Horizontal inset for `list` presentation, which has no container chrome of its own
-   * to hold its content off the edge. 12px per spec, which puts the list content and the
-   * search field on the same edge. Applied as a margin so each item keeps its own
-   * internal padding.
-   */
+  /** `list` has no container chrome, so each item holds itself off the edge. */
   protected readonly listInset = computed(() => (this.isList() ? "tw-mx-3" : ""));
 
   /**
-   * A `list` card's height, which keeps rows uniform when a cell leaves a slot empty —
-   * an empty slot is a block with no line box, so it would collapse the card by a line.
-   * {@link virtualRowHeight} is the full advance and includes the card's bottom margin,
-   * so that margin is subtracted back out via `--bit-card-gap`, which the card sets
-   * alongside the margin and clears with it in compact. Unset without a
-   * `virtualRowHeight`, where rows grow to content.
+   * Keeps rows uniform when a cell leaves a slot empty — an empty slot has no line box,
+   * so it would collapse the card by a line. {@link virtualRowHeight} is the full
+   * advance, so the card's own margin comes back out via `--bit-card-gap`.
    */
   protected readonly listCardHeight = computed(() => {
     const advance = this.virtualRowHeight();

@@ -18,10 +18,8 @@ import { BitTableV2Component } from "./table-v2.component";
  *   the row falls back to `grid-auto-flow: column; grid-auto-columns: 1fr`
  *   so projected `<bit-cell>` children each get an equal share.
  *
- * In `list` presentation the row carries no chrome of its own: `<bit-table-v2>`
- * wraps it in a `<bit-item>`, which owns the card treatment (background, border,
- * radius, hover, focus ring, compact-mode segmentation). The row stays the grid
- * container so the column tracks still apply.
+ * In `list` presentation the row carries no chrome: `<bit-table-v2>` wraps it in a
+ * `<bit-item>` that owns the card treatment. The row stays the grid container.
  */
 @Component({
   selector: "bit-row",
@@ -51,9 +49,8 @@ export class BitRowComponent {
 
   /**
    * Row chrome. The grid classes lay the cells out in both presentations; the
-   * rest is `table`-only — rows connected by a bottom divider, with hover, focus
-   * and selected fills. In `list` the wrapping `bit-item` owns all of that, so
-   * the row only has to fill the item's main slot.
+   * rest is `table`-only — bottom divider, hover, focus and selected fills. In `list`
+   * the wrapping `bit-item` owns those.
    */
   protected readonly hostClasses = computed(() =>
     [

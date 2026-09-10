@@ -60,11 +60,8 @@
 </ng-template>
 
 <!--
-  A data row, in either presentation. In `list` the row is wrapped in a `<bit-item>`,
-  which owns the card treatment (background, border, radius, hover, focus ring,
-  compact-mode segmentation); the row stays the column grid inside the item's main slot.
-  `cells` is the cell template to stamp — real cells for a data row, skeletons while
-  loading.
+  A data row. `cells` is the template to stamp — real cells for a data row, skeletons
+  while loading.
 -->
 <ng-template #dataRowTpl let-row let-cells="cells">
   @if (isList()) {
