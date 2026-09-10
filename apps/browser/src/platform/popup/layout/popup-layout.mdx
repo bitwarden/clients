@@ -44,6 +44,8 @@ page looks nice when the extension is popped out.
 - `full-width-notice`
   - Similar to `above-scroll-area`, this content will display before `above-scroll-area` without
     container margin or padding.
+- `floating-action`
+  - A single action pinned to the bottom of the page. See [Floating action](#floating-action) below.
 - default
   - Whatever content you want in `main`.
 
@@ -77,15 +79,27 @@ Basic usage example:
 - `showBackButton`: optional, defaults to `false`
   - Toggles the back button to appear. The back button uses `Location.back()` to navigate back one
     page in history.
-- `background`: optional
-  - `"default"` uses a white background
-  - `"alt"` uses a transparent background
+- `hideTitleBar`: optional, defaults to `false`
+  - Hides the page title bar, leaving only the app bar. For a page that titles itself in its own
+    content — an anon layout page, say — where the title bar would otherwise be empty. The back
+    button moves to the leading edge of the app bar, so `showBackButton` keeps working. Has no
+    effect without the `vfo1-foundation` flag: the one-bar header has no second bar to fall back to,
+    and hiding it would take the logo and `end` slot with it.
+- `background`: optional, defaults to `"default"`
+  - `"default"` sits on an opaque background with a bottom border.
+  - `"alt"` is transparent and borderless, for a page that paints its own background — an
+    illustration, say. This arg is not flag-gated: a page that owns its background owns it in the
+    two-bar header too, where it applies to the page title bar and leaves the app bar alone.
 
 **Slots**
 
 - `end`
-  - Use to insert one or more interactive elements.
+  - Use to insert one or more interactive elements on the trailing edge of the topmost bar.
   - The header handles the spacing between elements passed to the `end` slot.
+- `title-suffix`
+  - A control belonging to the title itself — a vault switcher, say — rendered inline right after
+    the `h1`, closer to it than the rest of the row. Keep using `pageTitle` for the title; this slot
+    is only for what sits beside it, and renders only when `pageTitle` is set.
 
 Usage example:
 
@@ -98,6 +112,75 @@ Usage example:
 </popup-header>
 ```
 
+### Two-bar header (`vfo1-foundation`)
+
+Behind the `vfo1-foundation` feature flag, `popup-header` renders two stacked bars inside its banner
+landmark instead of one:
+
+- an **app bar** — dark, branded, carrying the Bitwarden logo plus the chrome that belongs to the
+  extension rather than the page (pop out button, account switcher)
+- a **page title bar** — the familiar header, carrying the back button, a leading icon tile, the
+  title, and an item count
+
+The app bar is extension chrome rather than page content, so it renders on every screen that uses
+`popup-header` — dialogs and onboarding pages included. Because it owns the branding, the legacy
+default slot is dropped while the flag is on: a page that used it to project its own logo would
+otherwise render the logo twice. Content that still belongs in the title bar goes in `title-start`,
+`title-end`, or `title-suffix`.
+
+Toggle the flag in the **Feature Flags** addon panel to compare the two.
+
+<Canvas of={stories.HeaderV2} />
+
+**Where `end` renders**
+
+`end` is always the trailing edge of the topmost bar, so the flag moves it: with the flag on it
+renders in the app bar, where it stays pinned while the title bar collapses on scroll; with the flag
+off it renders in the title bar. Nothing changes on the calling side — the pop out button and
+account switcher belong to the extension rather than the page, so the app bar is where they were
+headed.
+
+Because the app bar is dark, buttons projected into `end` need `buttonType="side-nav"` to be legible
+against it once the flag is on.
+
+**Additional slots, both title bar only**
+
+- `title-start`
+  - A leading element before the title, typically a `bit-icon-tile`. Named for the bar it lands in
+    rather than `start`, so it reads as the counterpart of `title-end` — `end` belongs to the
+    topmost bar, which is a different row once the app bar exists.
+- `title-end`
+  - One or more elements on the trailing edge of the title bar — content belonging to the page
+    rather than the extension, such as an item count, an "Add" button, or a status chip.
+
+These two slots render only while the flag is on; with the flag off, content passed to them is
+dropped.
+
+#### Scrolling
+
+The popup viewport is short, so the page title bar collapses while the user scrolls the page content
+down and returns as soon as they scroll back up. The app bar stays pinned throughout.
+
+The title bar is always visible at the top of the page, and while it contains focus — so tabbing
+back into the back button or the `title-end` slot brings it into view rather than leaving the focus
+ring clipped. It is only ever visually clipped, never removed from the accessibility tree. Under
+`prefers-reduced-motion: reduce` the collapse is instant rather than animated.
+
+The behavior comes from the `scrollDirection` util reading `ScrollLayoutService`, so a page whose
+content sits outside a `bitScrollLayoutHost` region simply never collapses its title bar.
+
+<Canvas of={stories.HeaderV2ScrollingTitleBar} />
+
+#### Controls alongside the title
+
+A page that needs a control next to its title keeps `pageTitle` and projects the control into
+`title-suffix`, so every page renders the same `h1`. The suffix sits in its own group with a tighter
+gap than the rest of the row, so it reads as part of the title rather than as another item beside
+it. Unlike `title-start` and `title-end`, this slot is not flag-gated — it renders in the one-bar
+header too.
+
+<Canvas of={stories.HeaderV2TitleSuffix} />
+
 ### Transparent header
 
 <Canvas of={stories.TransparentHeader} />
@@ -106,8 +189,10 @@ Common interactive elements to insert into the `end` slot are:
 
 - `app-current-account`: shows current account and switcher
 - `app-pop-out`: shows popout button when the extension is not already popped out
-- "Add" button: this can be accomplished with the Button component and any custom functionality for
-  that particular page
+
+An "Add" button belongs to the page rather than the extension, so it goes in `end` today and moves
+to `title-end` once the two-bar header ships. Either can be accomplished with the Button component
+and any custom functionality for that particular page.
 
 ### Notice
 
@@ -145,6 +230,46 @@ Usage example:
   <button bitButton buttonType="secondary">Cancel</button>
 </popup-footer>
 ```
+
+## Floating action
+
+The `floating-action` slot pins a single action to the bottom-trailing corner of the page content —
+typically a page's primary "create" action. It is anchored to the scroll viewport rather than the
+scrolled content, so it stays in place while the page scrolls, and the scroll region gains extra
+bottom padding so the last row is never permanently occluded.
+
+Because it is anchored to the page content area, it automatically sits above `popup-footer` and the
+bottom tab navigation. Pages configure nothing.
+
+<Canvas of={stories.WithFloatingAction} />
+
+<Canvas of={stories.WithFloatingActionAndFooter} />
+
+Usage example:
+
+```html
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'vault' | i18n"></popup-header>
+  <app-vault-list></app-vault-list>
+  <button slot="floating-action" bitButton buttonType="primary" type="button" startIcon="bwi-plus">
+    {{ "new" | i18n }}
+  </button>
+</popup-page>
+```
+
+### Accessibility
+
+- **The slot renders before the scroll region in DOM and tab order.** Keyboard and screen reader
+  users reach the action right after the `above-scroll-area` controls (search, filters) rather than
+  after every row in the list. The mismatch between visual position and DOM order is intentional and
+  remains meaningful under
+  [WCAG 2.4.3 Focus Order](https://www.w3.org/WAI/WCAG22/Understanding/focus-order.html), since a
+  "create" action logically follows the filter controls.
+- **The projected element must supply its own accessible name.** Use `bitButton` with visible text,
+  or `bitIconButton` with `[label]`. `popup-page` adds no labeling of its own.
+- The slot is a positioning wrapper, not a landmark or focus scope — project exactly one interactive
+  element into it.
+- The floating action is hidden while `loading` is `true`.
 
 # Page types
 

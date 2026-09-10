@@ -1,15 +1,27 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { BankAccountView } from "@bitwarden/common/vault/models/view/bank-account.view";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { DriversLicenseView } from "@bitwarden/common/vault/models/view/drivers-license.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { PassportView } from "@bitwarden/common/vault/models/view/passport.view";
 import { PasswordHistoryView } from "@bitwarden/common/vault/models/view/password-history.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
-import { import_ssh_key, isSshKeyImportError } from "@bitwarden/sdk-internal";
+import {
+  import_ssh_key,
+  BankAccountView as SdkBankAccountView,
+  PassportView as SdkPassportView,
+  DriversLicenseView as SdkDriversLicenseView,
+  IdentityView as SdkIdentityView,
+  isSshKeyImportError,
+} from "@bitwarden/sdk-internal";
 
 import { ImportRecordError, ImportRecordErrorReason } from "../../models/import-record-error";
 import { ImportResult } from "../../models/import-result";
@@ -32,9 +44,16 @@ import {
 } from "./types/onepassword-1pux-importer-types";
 
 export class OnePassword1PuxImporter extends BaseImporter implements Importer {
+  constructor(private configService: ConfigService) {
+    super();
+  }
+
   result = new ImportResult();
 
-  parse(data: string): Promise<ImportResult> {
+  async parse(data: string): Promise<ImportResult> {
+    const useNewDedicatedTypes = await this.configService.getFeatureFlag(
+      FeatureFlag.PM32009NewItemTypes,
+    );
     const exportData: ExportData = JSON.parse(data);
 
     const account = exportData.accounts[0];
@@ -61,8 +80,16 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
               cipher.type = CipherType.Login;
               cipher.login = new LoginView();
               break;
-            case Category.CreditCard:
             case Category.BankAccount:
+              if (useNewDedicatedTypes) {
+                cipher.type = CipherType.BankAccount;
+                cipher.bankAccount = new BankAccountView();
+              } else {
+                cipher.type = CipherType.Card;
+                cipher.card = new CardView();
+              }
+              break;
+            case Category.CreditCard:
               cipher.type = CipherType.Card;
               cipher.card = new CardView();
               break;
@@ -75,11 +102,27 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
               cipher.secureNote = new SecureNoteView();
               cipher.secureNote.type = SecureNoteType.Generic;
               break;
-            case Category.Identity:
             case Category.DriversLicense:
+              if (useNewDedicatedTypes) {
+                cipher.type = CipherType.DriversLicense;
+                cipher.driversLicense = new DriversLicenseView();
+              } else {
+                cipher.type = CipherType.Identity;
+                cipher.identity = new IdentityView();
+              }
+              break;
+            case Category.Passport:
+              if (useNewDedicatedTypes) {
+                cipher.type = CipherType.Passport;
+                cipher.passport = new PassportView();
+              } else {
+                cipher.type = CipherType.Identity;
+                cipher.identity = new IdentityView();
+              }
+              break;
+            case Category.Identity:
             case Category.OutdoorLicense:
             case Category.Membership:
-            case Category.Passport:
             case Category.RewardsProgram:
             case Category.SocialSecurityNumber:
               cipher.type = CipherType.Identity;
@@ -103,7 +146,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
 
           this.parsePasswordHistory(item.details.passwordHistory, cipher);
 
-          this.processSections(category, item.details.sections, cipher);
+          this.processSections(category, item.details.sections, cipher, useNewDedicatedTypes);
 
           if (!this.isNullOrWhitespace(item.details.notesPlain)) {
             cipher.notes = item.details.notesPlain.split(this.newLineRegex).join("\n").trimEnd();
@@ -227,7 +270,12 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     cipher.login.password = details.password;
   }
 
-  private processSections(category: Category, sections: SectionsEntity[], cipher: CipherView) {
+  private processSections(
+    category: Category,
+    sections: SectionsEntity[],
+    cipher: CipherView,
+    useNewDedicatedTypes: boolean,
+  ) {
     if (sections == null || sections.length === 0) {
       return;
     }
@@ -237,7 +285,13 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
         return;
       }
 
-      this.parseSectionFields(category, section.fields, cipher, section.title);
+      this.parseSectionFields(
+        category,
+        section.fields,
+        cipher,
+        section.title,
+        useNewDedicatedTypes,
+      );
     });
   }
 
@@ -246,6 +300,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     fields: FieldsEntity[],
     cipher: CipherView,
     sectionTitle: string,
+    useNewDedicatedTypes: boolean,
   ) {
     fields.forEach((field: FieldsEntity) => {
       const valueKey = Object.keys(field.value)[0];
@@ -295,7 +350,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
         }
 
         if (category === Category.BankAccount) {
-          if (this.fillBankAccount(field, fieldValue, cipher)) {
+          if (this.fillBankAccount(field, fieldValue, cipher, useNewDedicatedTypes)) {
             return;
           }
         }
@@ -320,7 +375,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
           case Category.Identity:
             break;
           case Category.DriversLicense:
-            if (this.fillDriversLicense(field, fieldValue, cipher)) {
+            if (this.fillDriversLicense(field, fieldValue, cipher, useNewDedicatedTypes)) {
               return;
             }
             break;
@@ -335,7 +390,7 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
             }
             break;
           case Category.Passport:
-            if (this.fillPassport(field, fieldValue, cipher)) {
+            if (this.fillPassport(field, fieldValue, cipher, useNewDedicatedTypes)) {
               return;
             }
             break;
@@ -364,6 +419,18 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
           cipher.sshKey.privateKey = parsedKey.privateKey;
           cipher.sshKey.publicKey = parsedKey.publicKey;
           cipher.sshKey.keyFingerprint = parsedKey.fingerprint;
+          return;
+        }
+      } else if (cipher.type === CipherType.BankAccount) {
+        if (this.fillBankAccount(field, fieldValue, cipher, useNewDedicatedTypes)) {
+          return;
+        }
+      } else if (cipher.type === CipherType.Passport) {
+        if (this.fillPassport(field, fieldValue, cipher, useNewDedicatedTypes)) {
+          return;
+        }
+      } else if (cipher.type === CipherType.DriversLicense) {
+        if (this.fillDriversLicense(field, fieldValue, cipher, useNewDedicatedTypes)) {
           return;
         }
       }
@@ -497,13 +564,45 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     return false;
   }
 
-  private fillBankAccount(field: FieldsEntity, fieldValue: string, cipher: CipherView): boolean {
-    if (this.isNullOrWhitespace(cipher.card.cardholderName) && field.id === "owner") {
-      cipher.card.cardholderName = fieldValue;
-      return true;
-    }
+  /** Map between 1Password field IDs (the keys) and bank account cipher fields (the values) */
+  private bankAccountFieldMap = new Map<string, keyof SdkBankAccountView>([
+    ["bankName", "bankName"],
+    ["owner", "nameOnAccount"],
+    ["accountType", "accountType"],
+    ["routingNo", "routingNumber"],
+    ["accountNo", "accountNumber"],
+    ["swift", "swiftCode"],
+    ["iban", "iban"],
+    ["telephonePin", "pin"],
+    ["branchPhone", "bankContactPhone"],
+  ]);
 
-    return false;
+  private fillBankAccount(
+    field: FieldsEntity,
+    fieldValue: string,
+    cipher: CipherView,
+    useNewDedicatedTypes: boolean,
+  ): boolean {
+    // If using the new item type then more fields are available to set
+    if (useNewDedicatedTypes) {
+      const fieldName = this.bankAccountFieldMap.get(field.id);
+      if (fieldName) {
+        if (fieldName === "accountType") {
+          cipher.bankAccount[fieldName] = this.processBankAccountType(fieldValue);
+        } else {
+          cipher.bankAccount[fieldName] = fieldValue;
+        }
+        return true;
+      }
+      return false;
+      // Otherwise we only set the cardowner field if applicable
+    } else {
+      if (this.isNullOrWhitespace(cipher.card.cardholderName) && field.id === "owner") {
+        cipher.card.cardholderName = fieldValue;
+        return true;
+      }
+      return false;
+    }
   }
 
   private fillIdentity(
@@ -558,34 +657,80 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     return false;
   }
 
-  private fillDriversLicense(field: FieldsEntity, fieldValue: string, cipher: CipherView): boolean {
-    if (this.isNullOrWhitespace(cipher.identity.firstName) && field.id === "fullname") {
-      this.processFullName(cipher, fieldValue);
-      return true;
-    }
-
-    if (this.isNullOrWhitespace(cipher.identity.address1) && field.id === "address") {
-      cipher.identity.address1 = fieldValue;
-      return true;
-    }
-
+  /** Map between 1Password field IDs (the keys) and IdentityView view keys */
+  private driversLicenseIdentityFieldMap = new Map<string, keyof SdkIdentityView>([
+    ["address", "address1"],
     // TODO ISO code
-    if (this.isNullOrWhitespace(cipher.identity.country) && field.id === "country") {
-      cipher.identity.country = fieldValue;
+    ["country", "country"],
+    ["state", "state"],
+    ["number", "licenseNumber"],
+  ]);
+  /** Map between 1Password field IDs (the keys) and DriversLicense view keys */
+  private driversLicenseDedicatedFieldMap = new Map<string, keyof SdkDriversLicenseView>([
+    // TODO ISO code
+    ["country", "issuingCountry"],
+    ["state", "issuingState"],
+    ["number", "licenseNumber"],
+    ["birthdate", "dateOfBirth"],
+    ["class", "licenseClass"],
+  ]);
+  private fillDriversLicense(
+    field: FieldsEntity,
+    fieldValue: string,
+    cipher: CipherView,
+    useNewDedicatedTypes: boolean,
+  ): boolean {
+    const existingFirstNameValue = useNewDedicatedTypes
+      ? cipher.driversLicense?.firstName
+      : cipher.identity.firstName;
+    if (this.isNullOrWhitespace(existingFirstNameValue) && field.id === "fullname") {
+      if (useNewDedicatedTypes) {
+        const [firstName, middleName, lastName] = this.getFullName(fieldValue);
+        cipher.driversLicense.firstName = firstName;
+        cipher.driversLicense.middleName = middleName;
+        cipher.driversLicense.lastName = lastName;
+      } else {
+        this.processFullName(cipher, fieldValue);
+      }
       return true;
     }
 
-    if (this.isNullOrWhitespace(cipher.identity.state) && field.id === "state") {
-      cipher.identity.state = fieldValue;
+    // This field is a single number that expresses a month and year in the format YYYYMM and requires parsing
+    if (
+      useNewDedicatedTypes &&
+      field.id === "expiry_date" &&
+      this.isNullOrWhitespace(cipher.driversLicense.expirationDate)
+    ) {
+      const yearPart = fieldValue.slice(0, 4);
+      const monthPart = fieldValue.slice(4);
+      // We set the expiration date to the last of the specified year and month by getting
+      // the first of the month afterwards and subtracting a day's worth of milliseconds
+      const expirationDate = new Date(
+        Date.UTC(Number(yearPart), Number(monthPart), 1) - 24 * 60 * 60 * 1000,
+      );
+      cipher.driversLicense.expirationDate = this.formatDateString(expirationDate);
       return true;
     }
 
-    if (this.isNullOrWhitespace(cipher.identity.licenseNumber) && field.id === "number") {
-      cipher.identity.licenseNumber = fieldValue;
-      return true;
+    if (useNewDedicatedTypes) {
+      const fieldMapValue = this.driversLicenseDedicatedFieldMap.get(field.id);
+      if (fieldMapValue && this.isNullOrWhitespace(cipher.driversLicense[fieldMapValue])) {
+        if (field.id === "birthdate") {
+          cipher.driversLicense[fieldMapValue] = this.parseDateString(fieldValue);
+        } else {
+          cipher.driversLicense[fieldMapValue] = fieldValue;
+        }
+        return true;
+      }
+      return false;
+    } else {
+      const fieldMapValue = this.driversLicenseIdentityFieldMap.get(field.id);
+      if (fieldMapValue && this.isNullOrWhitespace(cipher.identity[fieldMapValue])) {
+        cipher.identity[fieldMapValue] = fieldValue;
+        return true;
+      }
+      return false;
     }
-
-    return false;
   }
 
   private fillOutdoorLicense(field: FieldsEntity, fieldValue: string, cipher: CipherView): boolean {
@@ -627,21 +772,75 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     return false;
   }
 
-  private fillPassport(field: FieldsEntity, fieldValue: string, cipher: CipherView): boolean {
-    if (this.isNullOrWhitespace(cipher.identity.firstName) && field.id === "fullname") {
-      this.processFullName(cipher, fieldValue);
+  /** Map between 1Password field IDs (the keys) and passport cipher fields (the values) */
+  private passportDedicatedItemFieldMap = new Map<string, keyof SdkPassportView>([
+    ["nationality", "nationality"],
+    ["issuing_authority", "issuingAuthority"],
+    ["birthdate", "dateOfBirth"],
+    ["birthplace", "birthPlace"],
+    ["issue_date", "issueDate"],
+    ["expiry_date", "expirationDate"],
+    ["type", "passportType"],
+  ]);
+
+  private fillPassport(
+    field: FieldsEntity,
+    fieldValue: string,
+    cipher: CipherView,
+    useNewDedicatedTypes: boolean,
+  ): boolean {
+    const existingFirstNameValue = useNewDedicatedTypes
+      ? cipher.passport?.givenName
+      : cipher.identity.firstName;
+    if (this.isNullOrWhitespace(existingFirstNameValue) && field.id === "fullname") {
+      if (useNewDedicatedTypes) {
+        const [firstName, middleName, lastName] = this.getFullName(fieldValue);
+        cipher.passport.givenName = firstName;
+        if (!this.isNullOrWhitespace(middleName)) {
+          cipher.passport.givenName += ` ${middleName}`;
+        }
+        cipher.passport.surname = lastName;
+      } else {
+        this.processFullName(cipher, fieldValue);
+      }
       return true;
     }
 
     // TODO Iso
-    if (this.isNullOrWhitespace(cipher.identity.country) && field.id === "issuing_country") {
-      cipher.identity.country = fieldValue;
+    const existingCountryValue = useNewDedicatedTypes
+      ? cipher.passport.issuingCountry
+      : cipher.identity.country;
+    if (this.isNullOrWhitespace(existingCountryValue) && field.id === "issuing_country") {
+      if (useNewDedicatedTypes) {
+        cipher.passport.issuingCountry = fieldValue;
+      } else {
+        cipher.identity.country = fieldValue;
+      }
       return true;
     }
 
-    if (this.isNullOrWhitespace(cipher.identity.passportNumber) && field.id === "number") {
-      cipher.identity.passportNumber = fieldValue;
+    const existingPassportNumberValue = useNewDedicatedTypes
+      ? cipher.passport.passportNumber
+      : cipher.identity.passportNumber;
+    if (this.isNullOrWhitespace(existingPassportNumberValue) && field.id === "number") {
+      if (useNewDedicatedTypes) {
+        cipher.passport.passportNumber = fieldValue;
+      } else {
+        cipher.identity.passportNumber = fieldValue;
+      }
       return true;
+    }
+
+    if (useNewDedicatedTypes) {
+      const fieldMapValue = this.passportDedicatedItemFieldMap.get(field.id);
+      if (fieldMapValue && this.isNullOrWhitespace(cipher.passport[fieldMapValue])) {
+        if (field.id === "birthdate" || field.id === "issue_date" || field.id === "expiry_date") {
+          cipher.passport[fieldMapValue] = this.parseDateString(fieldValue);
+        } else {
+          cipher.passport[fieldMapValue] = fieldValue;
+        }
+        return true;
+      }
     }
 
     return false;

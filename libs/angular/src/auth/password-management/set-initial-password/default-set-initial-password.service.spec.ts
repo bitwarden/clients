@@ -795,7 +795,7 @@ describe("DefaultSetInitialPasswordService", () => {
         masterKeyWrappedUserKey: "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
       } as MasterPasswordUnlockData;
 
-      request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
+      request = new UpdateTdeOffboardingPasswordRequest(
         authenticationData,
         unlockData,
         credentials.newPasswordHint,

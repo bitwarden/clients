@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -24,6 +25,7 @@ import {
   VaultBatchBarService,
   VaultItemsTableComponent,
   VaultItemsTableRowAction,
+  VaultScope,
 } from "@bitwarden/vault";
 
 import { VaultItemEvent } from "../vault-items/vault-item-event";
@@ -63,11 +65,29 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   readonly folders = input<FolderView[]>([]);
   readonly collections = input<CollectionView[]>([]);
   readonly allCollections = input<CollectionView[]>([]);
+  readonly scopedOrganizationId = input<OrganizationId | undefined>();
+  readonly defaultCollectionId = input<string | undefined>();
   readonly organizations = input<Organization[]>([]);
+  readonly orgRequiresDataOwnership = input<boolean>(false);
   readonly loading = input<boolean>(false);
   readonly showPremiumCallout = input<boolean>(false);
   readonly canCreateCipher = input<boolean>(true);
   readonly showAddCipherBtn = input<boolean>(true);
+
+  /** The vault scope — relayed to `vault-items-table` untouched. */
+  readonly scope = input<VaultScope>();
+
+  /** The organization the current vault scope names — relayed to `vault-items-table` untouched. */
+  readonly organizationName = input<string>();
+
+  /**
+   * The shared folder the current vault scope has drilled into — relayed to `vault-items-table`
+   * untouched.
+   */
+  readonly sharedFolderName = input<string>();
+
+  /** Whether the account has more than one vault — relayed to `vault-items-table` untouched. */
+  readonly hasMultipleVaults = input(false);
 
   readonly onEvent = output<VaultItemEvent<C>>();
   readonly onAddCipher = output<CipherType>();

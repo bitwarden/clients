@@ -7,5 +7,9 @@
   "main": "index.js",
   "types": "index.d.ts",
   "license": "GPL-3.0",
-  "author": "automation-driver"
+  "author": "automation-driver",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "tsc --noEmit -p tsconfig.lib.json"
+  }
 }

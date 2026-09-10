@@ -14,6 +14,7 @@ import {
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -51,6 +52,7 @@ describe("ImportService", () => {
   let keyGenerationService: MockProxy<KeyGenerationService>;
   let accountService: MockProxy<AccountService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
+  let configService: MockProxy<ConfigService>;
   let sdkService: MockProxy<SdkService>;
 
   beforeEach(() => {
@@ -64,6 +66,7 @@ describe("ImportService", () => {
     keyGenerationService = mock<KeyGenerationService>();
     accountService = mock<AccountService>();
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
+    configService = mock<ConfigService>();
     sdkService = mock<SdkService>();
 
     importService = new ImportService(
@@ -77,8 +80,13 @@ describe("ImportService", () => {
       keyGenerationService,
       accountService,
       restrictedItemTypesService,
+      configService,
       sdkService,
     );
+
+    // Feature flags are only used by certain specific importers, not the base
+    // import service, so we can disable them all for the purpose of these tests.
+    configService.getFeatureFlag.mockResolvedValue(false);
   });
 
   describe("importOptions data integrity", () => {

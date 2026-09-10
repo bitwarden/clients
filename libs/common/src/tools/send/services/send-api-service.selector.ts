@@ -90,14 +90,6 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
     return (await this.getService()).delete(id);
   }
 
-  /**
-   * Removes the auth from a send and updates local state.
-   *
-   * Under the SDK flag this calls the V2 endpoint, which removes **all auth** on the
-   * send (password and any other auth type), not just the password. The legacy path
-   * uses V1, which removes only the password. Callers that need the V1 semantics
-   * specifically should keep the flag off until V2 ships everywhere.
-   */
   async removePassword(id: string): Promise<any> {
     return (await this.getService()).removePassword(id);
   }
@@ -134,10 +126,6 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
    * Always routed to legacy. The selector's `removePassword` is the higher-level flow that
    * also refreshes local state; this lower-level method returns a wire-encrypted
    * `SendResponse` the SDK cannot produce.
-   *
-   * Note that the legacy `PUT /sends/{id}/remove-password` endpoint is V1 — it removes
-   * only the password, not all auth types. See {@link removePassword} for the V2
-   * (all-auth) behavior under the SDK flag.
    */
   async putSendRemovePassword(id: string): Promise<SendResponse> {
     return this.sendApiService.putSendRemovePassword(id);

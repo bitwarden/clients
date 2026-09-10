@@ -1224,6 +1224,48 @@
   "sharedFolders": {
     "message": "پوشه‌های مشترک"
   },
+  "sharedFoldersInParent": {
+    "message": "Shared folders in $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ shared folder",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "moreSharedFoldersShownAbove": {
+    "message": "$COUNT$ more shared folders shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 more shared folder shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
+  },
   "myFolder": {
     "message": "پوشه من"
   },
@@ -1232,6 +1274,9 @@
   },
   "foldersFilterTooltip": {
     "message": "Add folders to items to filter them here."
+  },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
   },
   "addSharedFolder": {
     "message": "افزودن پوشه‌ی مشترک"
@@ -1755,6 +1800,9 @@
   "myItems": {
     "message": "موارد من"
   },
+  "myItemsV2": {
+    "message": "My items"
+  },
   "myVault": {
     "message": "گاوصندوق من"
   },
@@ -1858,6 +1906,18 @@
   },
   "noMatchingItems": {
     "message": "No matching items"
+  },
+  "noFiltersMatch": {
+    "message": "No filters match \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    }
+  },
+  "clearSearch": {
+    "message": "Clear search"
   },
   "deselectAll": {
     "message": "لغو انتخاب همه"
@@ -2533,6 +2593,9 @@
   },
   "addPlan": {
     "message": "Add plan"
+  },
+  "addPlanDesc": {
+    "message": "You can create a new shared vault with 1 other person for free. If you'd like to store, manage, and share items with more people, you will need to add a new plan first. Just know that some options may require a billing change."
   },
   "noOrganizationsList": {
     "message": "شما به هیچ سازمانی تعلق ندارید. سازمان‌ها به شما اجازه می‌دهند تا داده‌های خود را با کاربران دیگر به صورت امن به اشتراک بگذارید."
@@ -3737,9 +3800,6 @@
   "restrictedItemTypePolicy": {
     "message": "حذف نوع مورد کارت"
   },
-  "restrictedItemTypePolicyDesc": {
-    "message": "اجازه ندهید اعضا انواع مورد کارت ایجاد کنند. کارت‌های موجود به‌صورت خودکار حذف خواهند شد."
-  },
   "restrictedItemTypePolicyDescV2": {
     "message": "به اعضا اجازه ندهید موارد کارت اعتباری را در گاوصندوق خود ایجاد و ذخیره کنند. وقتی این سیاست‌ها روشن است، کارت‌های موجود به‌طور خودکار پنهان می‌شوند."
   },
@@ -4135,12 +4195,6 @@
   },
   "instructions": {
     "message": "دستور العمل‌ها"
-  },
-  "passwordlessLogin": {
-    "message": "Passwordless login"
-  },
-  "multifactorAuthentication": {
-    "message": "Multifactor authentication"
   },
   "exposedPasswordsReport": {
     "message": "کلمه‌های عبور افشا شده"
@@ -4912,6 +4966,9 @@
   },
   "chooseYourPlan": {
     "message": "طرح خود را انتخاب کنید"
+  },
+  "choosePlan": {
+    "message": "Choose plan"
   },
   "users": {
     "message": "کاربران"
@@ -6793,7 +6850,7 @@
   "openOrgInviteAcceptFailed": {
     "message": "Unable to accept invitation. Ask an organization admin to send a new invitation link."
   },
-  "openOrgInviteAcceptFailedTitle": {
+  "cannotAcceptInvitation": {
     "message": "Cannot accept invitation"
   },
   "openOrgInviteAcceptAlreadyMember": {
@@ -7369,6 +7426,21 @@
       }
     }
   },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "Check your email to finish joining $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
+  },
+  "inviteSentToEmail": {
+    "message": "Invite sent to email"
+  },
   "acceptPolicies": {
     "message": "با علامت زدن این کادر با موارد زیر موافقت می‌کنید:"
   },
@@ -7638,17 +7710,11 @@
   "twoStepLoginPolicyDescV2": {
     "message": "از اعضا بخواهید ورود دو مرحله‌ای را تنظیم کنند. این سیاست برای مالکان و مدیران اعمال نخواهد شد."
   },
-  "twoStepLoginPolicyWarning": {
-    "message": "اعضای سازمانی که مالک یا سرپرست نیستند و ورود دو مرحله ای برای حساب خود راه اندازی نکرده اند، از سازمان حذف می‌شوند و ایمیلی دریافت می‌کنند که به آن‌ها در مورد تغییر اطلاع می‌دهد."
-  },
   "twoStepLoginPolicyWarningV2": {
     "message": "فعال کردن این سیاست‌ها، دسترسی هر کاربری را که ورود دو مرحله‌ای را در حساب‌های کاربری خود فعال نکرده باشد، لغو می‌کند. به کاربران آسیب دیده از طریق ایمیل اطلاع‌رسانی خواهد شد."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "شما عضو سازمانی هستید که برای راه اندازی حساب کاربری شما نیاز به ورود دو مرحله ای دارد. اگر همه ارائه دهندگان ورود به سیستم دو مرحله ای را خاموش کنید، به طور خودکار از این سازمان ها حذف خواهید شد."
-  },
-  "passwordGeneratorPolicyDesc": {
-    "message": "الزامات را برای تولید کننده کلمه عبور تنظیم کنید."
   },
   "passwordGeneratorPolicyDescV2": {
     "message": "مجموعه‌ای از حداقل الزامات را برای هر کلمه عبور تولید شده توسط اعضا انتخاب کنید."
@@ -7912,9 +7978,6 @@
   "singleOrgDesc": {
     "message": "اعضا را از پیوستن به سازمان‌های دیگر محدود کنید."
   },
-  "singleOrgPolicyDesc": {
-    "message": "محدود کردن اعضا از پیوستن به سازمان‌های دیگر. این سیاست برای سازمان‌هایی که اعتبارسنجی دامنه را فعال کرده‌اند، الزامی است."
-  },
   "singleOrgPolicyDescVfo1": {
     "message": "Restrict members from joining other shared or organization vaults.",
     "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
@@ -7947,9 +8010,6 @@
     "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
   },
-  "requireSsoPolicyDesc": {
-    "message": "از اعضا بخواهید که با روش پرمیوم یکبار ورود وارد شوند."
-  },
   "requireSsoPolicyTitle": {
     "message": "درخواست ورود یکپارچه به سیستم (SSO)"
   },
@@ -7959,15 +8019,19 @@
   "prerequisite": {
     "message": "پیش‌نیاز"
   },
-  "requireSsoPolicyReq": {
-    "message": "قبل از فعال کردن این سیاست، سیاست سازمانی واحد باید روشن باشد."
-  },
   "requireSsoPolicyReqV2": {
     "message": "قبل از فعال کردن این مورد، باید سیاست تک سازمانی را فعال کنید."
   },
   "requireSsoPolicyReqV2Vfo1": {
     "message": "You must enable the single organization membership policy before enabling this one.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
+  },
+  "requireSingleOrganizationPolicy": {
+    "message": "You must enable the single organization policy before enabling this one."
+  },
+  "requireSingleOrganizationPolicyVfo1": {
+    "message": "You must enable the single organization membership policy before enabling this one.",
+    "description": "VFO1 terminology variant of 'requireSingleOrganizationPolicy'"
   },
   "requireSsoPolicyReqError": {
     "message": "سیاست سازمان واحد تنظیم نشده است."
@@ -8379,9 +8443,6 @@
   "centralizeDataOwnershipBenefit2": {
     "message": "موارد را هنگام خروج اعضا یا انتقال مسئولیت، به‌راحتی منتقل کنید تا هیچ خللی در دسترسی ایجاد نشود."
   },
-  "centralizeDataOwnershipBenefit3": {
-    "message": "به همه کاربران یک فضای اختصاصی \"موارد من\" برای مدیریت ورود به سیستم خودشان اختصاص دهید."
-  },
   "centralizeDataOwnershipWarningTitle": {
     "message": "اعضا را به انتقال موارد خود ترغیب کنید"
   },
@@ -8390,9 +8451,6 @@
   },
   "centralizeDataOwnershipWarningLink": {
     "message": "درباره انتقال بیشتر بدانید"
-  },
-  "promptUsersToMoveItems": {
-    "message": "به کاربران اطلاع دهید که موارد گاوصندوق خود را به سازمان منتقل کنند"
   },
   "promptUsersToMoveItemsCallout": {
     "message": "از اعضا خواسته می‌شود که یا موارد خود را به سازمان منتقل کنند یا سازمان را ترک کنند. در صورت ترک سازمان، دسترسی آن‌ها لغو می‌شود اما می‌توانند در هر زمان دوباره به آن دسترسی پیدا کنند."
@@ -8605,10 +8663,6 @@
   "desktopAutotypePolicyTitleV2": {
     "message": "تنظیمات پیش‌فرض تایپ خودکار دسکتاپ"
   },
-  "desktopAutotypePolicyDesc": {
-    "message": "قابلیت تایپ خودکار دسکتاپ را به طور پیش‌فرض برای اعضا فعال کنید. اعضا می‌توانند به صورت دستی در کلاینت دسکتاپ، قابلیت تایپ خودکار را غیرفعال کنند.",
-    "description": "This policy will enable Desktop Autotype by default for members on Unlock."
-  },
   "desktopAutotypePolicyDescV2": {
     "message": "فعال کردن تایپ خودکار دسکتاپ برای اعضا. اعضا می‌توانند تایپ خودکار را به صورت دستی در کلاینت دسکتاپ غیرفعال کنند."
   },
@@ -8694,9 +8748,6 @@
   "uriMatchDetectionPolicy": {
     "message": "بررسی مطابقت نشانی اینترنتی پیش‌فرض"
   },
-  "uriMatchDetectionPolicyDesc": {
-    "message": "تعیین کنید چه زمانی برای پر کردن خودکار فرم‌ها، اطلاعات ورود به سیستم پیشنهاد شود. مدیران و مالکان از این سیاست معاف هستند."
-  },
   "uriMatchDetectionPolicyDescVfo1": {
     "message": "Set the default URI match detection for all items created by members.",
     "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
@@ -8710,6 +8761,23 @@
   "invalidUriMatchDefaultPolicySetting": {
     "message": "لطفاً یک گزینه تشخیص تطابق نشانی اینترنتی معتبر انتخاب کنید.",
     "description": "Error message displayed when a user attempts to save URI match detection policy settings with an invalid selection."
+  },
+  "fillAssistPolicy": {
+    "message": "Activate fill assist",
+    "description": "'Fill assist' is a Bitwarden feature name; do not translate."
+  },
+  "fillAssistPolicyDesc": {
+    "message": "Turn on fill assist by default for all members. This feature uses reviewed, site-specific instructions to improve autofill accuracy on websites known to be difficult to autofill."
+  },
+  "fillAssistRulesUrl": {
+    "message": "Custom autofill rule set"
+  },
+  "fillAssistRulesUrlHint": {
+    "message": "By default, fill assist uses Bitwarden's curated rule set. Enter a URL here to override it with your own."
+  },
+  "invalidFillAssistRulesUrl": {
+    "message": "Enter a valid URL",
+    "description": "Error message displayed when a user attempts to save the fill assist policy with an invalid or missing rules URL."
   },
   "modifiedPolicyId": {
     "message": "سیاست تغییر یافته $ID$.",
@@ -8725,6 +8793,9 @@
   },
   "estimatedTax": {
     "message": "مالیات برآورد شده"
+  },
+  "subtotal": {
+    "message": "Subtotal"
   },
   "custom": {
     "message": "سفارشی"
@@ -9493,9 +9564,6 @@
   "automaticAppLoginWithSSO": {
     "message": "ورود خودکار با SSO"
   },
-  "automaticAppLoginWithSSODesc": {
-    "message": "امنیت و سهولت ورود یکپارچه (SSO) را به برنامه‌های مدیریت‌نشده نیز گسترش دهید. هنگامی که کاربران یک برنامه را از طریق ارائه‌دهنده هویت اجرا می‌کنند، اطلاعات ورود آن‌ها به‌طور خودکار تکمیل و ارسال می‌شود و یک فرایند امن و یک‌کلیکی از ارائه‌دهنده هویت تا برنامه ایجاد می‌شود."
-  },
   "automaticAppLoginWithSSODescV2": {
     "message": "When users launch an app from your identity provider, their login details will be automatically filled and submitted, creating a one-click, secure login."
   },
@@ -9630,9 +9698,6 @@
   },
   "disableExport": {
     "message": "حذف برون ریزی"
-  },
-  "disablePersonalVaultExportDescription": {
-    "message": "به اعضا اجازه ندهید که داده‌های گاوصندوق شخصی خود را برون ریزی کنند."
   },
   "disablePersonalVaultExportDescriptionV2": {
     "message": "به اعضا اجازه ندهید که داده‌ها را از گاوصندوق شخصی خود برون ریزی کنند. این سیاست برای مالکان و مدیران اجرا نخواهد شد."
@@ -11514,6 +11579,9 @@
   },
   "noSharedFoldersAdded": {
     "message": "No shared folders added"
+  },
+  "noSharedFoldersAddedDescription": {
+    "message": "Add a shared folder to securely share vault items with other members."
   },
   "noMembersAdded": {
     "message": "عضوی اضافه نشد"
@@ -14134,6 +14202,9 @@
       }
     }
   },
+  "getSecretsManager": {
+    "message": "Get Secrets Manager"
+  },
   "secureYourInfrastructure": {
     "message": "زیرساخت خود را ایمن کنید"
   },
@@ -14848,9 +14919,6 @@
     "message": "Remove Sponsored Families Plan",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
   },
-  "freeFamiliesSponsorshipPolicyDesc": {
-    "message": "اجازه ندهید اعضا از طریق این سازمان طرح خانواده‌ها را دریافت کنند."
-  },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "به اعضا اجازه ندهید که از طرح خانواده‌ای که توسط سازمان شما حمایت مالی می‌شود، استفاده کنند."
   },
@@ -15308,9 +15376,6 @@
   "removeUnlockWithPinPolicyTitle": {
     "message": "حذف گزینه‌ی بازکردن با کد پین"
   },
-  "removeUnlockWithPinPolicyDesc": {
-    "message": "به اعضا اجازه ندهید با کد پین حساب کاربری خود را باز کنند."
-  },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "اعضا مجاز به باز کردن قفل حساب کاربری خود با پین نخواهند بود."
   },
@@ -15698,8 +15763,20 @@
   "providersubCanceledmessage": {
     "message": "برای اشتراک مجدد، با پشتیبانی مشتریان Bitwarden تماس بگیرید."
   },
+  "showAll": {
+    "message": "Show all"
+  },
   "showMore": {
     "message": "نمایش بیشتر"
+  },
+  "showMoreCount": {
+    "message": "Show $COUNT$ more",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
   },
   "showLess": {
     "message": "نمایش کمتر"
@@ -15745,16 +15822,21 @@
   "checkInputFormat": {
     "message": "قالب ورودی را از نظر غلط املایی بررسی کنید."
   },
-  "exampleTaxIdFormat": {
-    "message": "مثال فرمت $CODE$: $EXAMPLE$",
+  "taxIdFormatExample": {
+    "message": "Example tax ID format: $EXAMPLE$",
     "placeholders": {
-      "code": {
-        "content": "$1",
-        "example": "ABN"
-      },
       "example": {
-        "content": "$2",
-        "example": "92873837267"
+        "content": "$1",
+        "example": "123456789"
+      }
+    }
+  },
+  "recognizedTaxIdFormat": {
+    "message": "Recognized format: $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Canadian Business Number"
       }
     }
   },
@@ -15959,6 +16041,9 @@
   "upgradeNow": {
     "message": "حالا ارتقا دهید"
   },
+  "getAdvancedOnlineSecurityWithBitwardenPremium": {
+    "message": "Get advanced online security with Bitwarden premium."
+  },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "تکمیل این فرم، یک سازمان جدید برای خانواده‌ها ایجاد می‌کند. می‌توانید سازمان رایگان خود را از طریق کنسول مدیریت ارتقا دهید."
   },
@@ -16010,9 +16095,6 @@
   "blockClaimedDomainAccountCreation": {
     "message": "ایجاد حساب کاربری برای دامنه‌های ادعا شده را مسدود کنید"
   },
-  "blockClaimedDomainAccountCreationDesc": {
-    "message": "از ایجاد حساب‌های کاربری خارج از سازمان شما توسط کاربران با استفاده از نشانی‌های ایمیل از دامنه‌های ادعا شده جلوگیری کنید."
-  },
   "blockClaimedDomainAccountCreationDescVfo1": {
     "message": "Prevent account creation from claimed domains.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
@@ -16023,9 +16105,6 @@
   "blockClaimedDomainAccountCreationDescV2Vfo1": {
     "message": "Block members from using your claimed domain to create Bitwarden accounts outside of your organization vault.",
     "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
-  },
-  "blockClaimedDomainAccountCreationPrerequisite": {
-    "message": "قبل از فعال کردن این سیاست، باید یک دامنه ثبت شود."
   },
   "blockClaimedDomainAccountCreationPrerequisiteV2": {
     "message": "قبل از فعال کردن این سیاست، باید یک دامنه را ثبت کنید."
@@ -16147,6 +16226,18 @@
   },
   "recoveryStepFoldersTitle": {
     "message": "تأیید صحت پوشه"
+  },
+  "recoveryStepAttachmentTitle": {
+    "message": "Verifying attachment integrity"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ item(s) have file attachments with old encryption. Open an item below and go to Attachments to fix it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "dataRecoveryTitle": {
     "message": "بازیابی اطلاعات و تشخیص"
@@ -16483,6 +16574,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "اعتبار اشتراک پرمیوم"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Applied subscription credits"
   },
   "enterpriseMembership": {
     "message": "عضویت سازمانی"
@@ -17471,6 +17565,18 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "login": {
+    "message": "Login"
+  },
+  "orgNameVault": {
+    "message": "$ORGNAME$ vault",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
       }
     }
   }

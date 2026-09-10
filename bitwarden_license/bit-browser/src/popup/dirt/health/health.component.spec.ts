@@ -186,6 +186,16 @@ describe("HealthComponent", () => {
     fixture.detectChanges();
   }
 
+  /**
+   * Settles, having first waited out the vault-change debounce inside
+   * HealthScanService. Real timers rather than fake ones, so the scan progress
+   * view's own interval and Angular's stability tracking are left alone.
+   */
+  async function settleRefresh() {
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    await settle();
+  }
+
   beforeEach(async () => {
     activeAccount$ = new ReplaySubject<Account | null>(1);
     activeAccount$.next({ id: userId } as Account);
@@ -221,6 +231,8 @@ describe("HealthComponent", () => {
       ),
     );
     publishesOnBuild(new VaultHealthReportView());
+    // The auto-mock returns undefined, which the refresh pipeline cannot consume.
+    reportService.refreshVaultHealthReport.mockResolvedValue(undefined);
 
     logService = mock<LogService>();
 
@@ -465,38 +477,47 @@ describe("HealthComponent", () => {
       expect(overview()).toBeNull();
     });
 
-    it("rescans on every load, even when the service already has a report for this user", async () => {
-      // PM-39223: the scan runs on every Health Tab load with no caching. The
-      // popup rebuilds this component on each navigation to Health (including
-      // returning from a category detail, a sibling /health/:category route), so
-      // a fresh build runs even when a prior report is already published.
+    it("reuses a report the service already holds for this user, with no second scan", async () => {
+      // The popup rebuilds this component on each navigation to Health, including
+      // returning from a category detail (a sibling /health/:category route) that
+      // ran its own scan. Scanning again repeats every breach lookup and replaces
+      // results the user was reading a moment ago with the progress view.
       hasRunScan$.next(true);
       published.next({
         userId,
         status: VaultHealthReportStatus.Success,
         report: new VaultHealthReportView({ totalCount: 10, atRiskCount: 2 }),
       });
-      publishesOnBuild(new VaultHealthReportView({ totalCount: 10, atRiskCount: 3 }));
 
       await initComponent();
-      await settle();
+      await settleRefresh();
 
-      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
-      expect(overview()?.report().atRiskCount).toBe(3);
+      expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
+      expect(overview()?.report().atRiskCount).toBe(2);
+      expect(scanning()).toBeNull();
+      // Reusing the scan is not a reason to stop following the vault.
+      expect(reportService.refreshVaultHealthReport).toHaveBeenCalled();
     });
 
-    it("starts a fresh scan on load even if one was already in flight", async () => {
-      // There is no in-flight reuse guard anymore: every load runs its own scan.
-      // A prior build left mid-flight (the component was destroyed on nav-away)
-      // does not stop the new load from starting its own.
+    it("follows a scan already in flight rather than starting a second", async () => {
+      // Leaving a category detail while its scan is still running lands here
+      // mid-flight. That scan publishes on its own, so a second one would only
+      // duplicate the breach lookups and discard the progress already made.
       hasRunScan$.next(true);
       published.next({ userId, status: VaultHealthReportStatus.Loading, report: null });
-      publishesOnBuild(new VaultHealthReportView({ totalCount: 8, atRiskCount: 1 }));
 
       await initComponent();
+      await settleRefresh();
+      expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
+      expect(scanning()).not.toBeNull();
+
+      published.next({
+        userId,
+        status: VaultHealthReportStatus.Success,
+        report: new VaultHealthReportView({ totalCount: 8, atRiskCount: 1 }),
+      });
       await settle();
 
-      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
       expect(overview()?.report().atRiskCount).toBe(1);
     });
 
@@ -515,20 +536,69 @@ describe("HealthComponent", () => {
       expect(overview()?.report().atRiskCount).toBe(1);
     });
 
-    it("scans once and does not rescan when the vault changes", async () => {
+    it("refreshes when the vault changes, without a second full scan", async () => {
       hasRunScan$.next(true);
       const ciphers$ = new BehaviorSubject<CipherView[]>([]);
       cipherService.cipherViews$.mockReturnValue(ciphers$);
+      await initComponent();
+      await settleRefresh();
+      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
+      reportService.refreshVaultHealthReport.mockClear();
+
+      const changed = [{} as CipherView];
+      ciphers$.next(changed);
+      await settleRefresh();
+
+      // The changed vault is what gets rechecked, and the breach lookups of a full
+      // scan are not repeated.
+      expect(reportService.refreshVaultHealthReport).toHaveBeenCalledWith(changed, userId);
+      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows no progress view while a vault change is applied", async () => {
+      // An update the user did not ask for stays in the background: the report they
+      // are reading stays on screen.
+      hasRunScan$.next(true);
+      const ciphers$ = new BehaviorSubject<CipherView[]>([]);
+      cipherService.cipherViews$.mockReturnValue(ciphers$);
+      publishesOnBuild(new VaultHealthReportView({ totalCount: 40, atRiskCount: 12 }));
+      await initComponent();
+      await settleRefresh();
+
+      ciphers$.next([{} as CipherView]);
+      await settleRefresh();
+
+      expect(scanning()).toBeNull();
+      expect(overview()).not.toBeNull();
+    });
+
+    it("does not refresh before the initial scan has completed", async () => {
+      // The refresh has no baseline to compare against until the scan publishes.
+      hasRunScan$.next(true);
+      const ciphers$ = new BehaviorSubject<CipherView[]>([]);
+      cipherService.cipherViews$.mockReturnValue(ciphers$);
+      buildNeverSettles();
 
       await initComponent();
-      await settle();
-      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
-
-      // A vault edit must not re-run the breach lookup.
       ciphers$.next([{} as CipherView]);
-      await settle();
+      await settleRefresh();
 
-      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
+      expect(reportService.refreshVaultHealthReport).not.toHaveBeenCalled();
+    });
+
+    it("stops watching the vault once the tab is destroyed", async () => {
+      hasRunScan$.next(true);
+      const ciphers$ = new BehaviorSubject<CipherView[]>([]);
+      cipherService.cipherViews$.mockReturnValue(ciphers$);
+      await initComponent();
+      await settleRefresh();
+      reportService.refreshVaultHealthReport.mockClear();
+
+      fixture.destroy();
+      ciphers$.next([{} as CipherView]);
+      await settleRefresh();
+
+      expect(reportService.refreshVaultHealthReport).not.toHaveBeenCalled();
     });
 
     it("does not carry a ciphers failure from one account to the next after a switch", async () => {
@@ -592,26 +662,6 @@ describe("HealthComponent", () => {
 
       expect(scanError()).toBeNull();
       expect(overview()).not.toBeNull();
-    });
-
-    it("shows the progress view on load while the rescan runs, not the report the service still holds", async () => {
-      // PM-39223 rescans on every load. The component asks the service to show
-      // progress immediately (markScanning), so while the rescan runs the tab
-      // shows the progress view rather than the report the service still holds
-      // from the last scan.
-      hasRunScan$.next(true);
-      published.next({
-        userId,
-        status: VaultHealthReportStatus.Success,
-        report: new VaultHealthReportView({ totalCount: 10, atRiskCount: 4 }),
-      });
-      buildNeverSettles();
-
-      await initComponent();
-      await settle();
-
-      expect(scanning()).not.toBeNull();
-      expect(overview()).toBeNull();
     });
   });
 
