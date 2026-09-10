@@ -70,6 +70,10 @@ export class LayoutComponent {
     { initialValue: false },
   );
 
+  /** Bound in the template, so the constants remain the single source of truth for these widths. */
+  protected readonly siderailWidthRem = SIDERAIL_WIDTH_REM;
+  protected readonly mainContentMinWidthRem = LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM;
+
   /** Rendered only when nothing is projected into the side-nav slot (ng-content fallback). */
   private readonly sideNavSlotFallback = viewChild<ElementRef>("sideNavSlotFallback");
   protected readonly hasSideNav = computed(() => this.sideNavSlotFallback() == null);
