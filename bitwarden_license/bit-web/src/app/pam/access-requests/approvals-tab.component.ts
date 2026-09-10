@@ -141,9 +141,8 @@ export class ApprovalsTabComponent {
   private readonly searchTerm = toSignal(this.searchControl.valueChanges, { initialValue: "" });
 
   /**
-   * `bit-filter-menu` isn't a `ControlValueAccessor`, so the Collection and Requester chips own
-   * their own selection and are read directly through the {@link FilterControl} contract rather
-   * than through a `FormControl`.
+   * `bit-filter-menu` isn't a `ControlValueAccessor`, so the chips own their selection and are
+   * read through the {@link FilterControl} contract rather than a `FormControl`.
    */
   private readonly collectionFilterMenu = viewChild("collectionFilter", { read: FILTER_CONTROL });
   private readonly requesterFilterMenu = viewChild("requesterFilter", { read: FILTER_CONTROL });
