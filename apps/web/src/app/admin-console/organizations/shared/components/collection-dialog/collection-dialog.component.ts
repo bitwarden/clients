@@ -296,10 +296,6 @@ export class CollectionDialogComponent implements OnInit {
     FeatureFlag.CollectionBulkDecryptWithFailures,
   );
 
-  protected readonly decryptionFailureUi = toSignal(this.decryptionFailureUi$, {
-    initialValue: false,
-  });
-
   protected readonly canRepairDecryptionFailure = toSignal(
     combineLatest([this.collection$, this.organization$, this.decryptionFailureUi$]).pipe(
       map(([collection, organization, decryptionFailureUi]) =>
