@@ -110,7 +110,7 @@ describe("ConsoleLogService", () => {
     service.measure(0, "group", "track", "name");
 
     expect(recorder.record).toHaveBeenCalledWith(
-      LogLevel.Info,
+      LogLevel.Debug,
       expect.stringContaining("[track]: name took"),
       undefined,
     );
