@@ -14,7 +14,7 @@ import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { NavGroupComponent } from "./nav-group.component";
 import { NavigationModule } from "./navigation.module";
-import { SideNavWidthService } from "./side-nav-width.service";
+import { SIDE_NAV_WIDTH_BOUNDS, SideNavWidthService } from "./side-nav-width.service";
 import { SideNavService } from "./side-nav.service";
 
 @Component({
@@ -499,7 +499,7 @@ describe.each([
 
   it("reports the ceiling of the range at the maximum width", () => {
     sideNavService.open.set(true);
-    widthService.commit(sideNavService.MAX_OPEN_WIDTH);
+    widthService.commit(SIDE_NAV_WIDTH_BOUNDS.max);
     fixture.detectChanges();
 
     expect(handle().getAttribute("aria-valuenow")).toBe("100");

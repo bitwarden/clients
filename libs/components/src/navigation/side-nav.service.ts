@@ -1,29 +1,25 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
 import { Observable, fromEvent, map, startWith } from "rxjs";
 
-import {
-  getRootFontSizePx,
-  LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM,
-  SIDERAIL_WIDTH_REM,
-} from "../shared";
+import { getRootFontSizePx, LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM } from "../shared";
 
 import { resolveArrowStep, resolveDragFromClosed, resolveDragFromOpen } from "./side-nav-resize";
 import { SIDE_NAV_WIDTH_BOUNDS, SideNavWidthService } from "./side-nav-width.service";
 
 export type SideNavVersion = "default" | "vfo1";
 
+/**
+ * The side nav state machine: open/closed, push/overlay, transition gating, and what a resize
+ * gesture means.
+ *
+ * Width itself lives in `SideNavWidthService` and the gesture arithmetic in `side-nav-resize.ts`.
+ * This class never touches disk — it only picks a verb: `display` to paint a width, `commit` to
+ * make it the user's preference.
+ */
 @Injectable({
   providedIn: "root",
 })
 export class SideNavService {
-  // Units in rem. Bounds live in side-nav-width.service.ts, which enforces them.
-  readonly DEFAULT_OPEN_WIDTH = SIDE_NAV_WIDTH_BOUNDS.default;
-  readonly MIN_OPEN_WIDTH = SIDE_NAV_WIDTH_BOUNDS.min;
-  readonly MAX_OPEN_WIDTH = SIDE_NAV_WIDTH_BOUNDS.max;
-
-  /** Width of the collapsed nav (icon strip / side rail), in rem. */
-  readonly CLOSED_WIDTH = SIDERAIL_WIDTH_REM;
-
   private rootFontSizePx: number;
 
   readonly version = signal<SideNavVersion>("default");
@@ -64,8 +60,8 @@ export class SideNavService {
 
   /**
    * Visual width override (in rem) applied during a drag via a direct style binding: the preview
-   * below MIN_OPEN_WIDTH when dragging out from collapsed, and the tension shrink when an open nav
-   * is dragged toward the snap threshold. Drives width alone — the nav keeps its closed styling
+   * below the minimum width when dragging out from collapsed, and the tension shrink when an open
+   * nav is dragged toward the snap threshold. Drives width alone — the nav keeps its closed styling
    * until it actually opens. Never persisted. Null when no drag is in progress.
    */
   readonly dragDisplayWidth = signal<number | null>(null);
@@ -91,7 +87,7 @@ export class SideNavService {
     // Estimate the initial open state from window.innerWidth so the first render shows
     // the correct layout before LayoutComponent's ResizeObserver fires.
     const estimatedPushMode =
-      window.innerWidth - this.DEFAULT_OPEN_WIDTH * this.rootFontSizePx >=
+      window.innerWidth - SIDE_NAV_WIDTH_BOUNDS.default * this.rootFontSizePx >=
       LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM * this.rootFontSizePx;
     if (estimatedPushMode) {
       this.open.set(true);
@@ -215,7 +211,7 @@ export class SideNavService {
 
     if (preview !== null) {
       // Released in the tension zone — spring back to the minimum.
-      this.widthService.commit(this.MIN_OPEN_WIDTH);
+      this.widthService.commit(SIDE_NAV_WIDTH_BOUNDS.min);
       return;
     }
 

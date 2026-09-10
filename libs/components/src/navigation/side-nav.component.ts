@@ -18,8 +18,10 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
+import { SIDERAIL_WIDTH_REM } from "../shared";
 
 import { NavDividerComponent } from "./nav-divider.component";
+import { SIDE_NAV_WIDTH_BOUNDS } from "./side-nav-width.service";
 import { media, SideNavService } from "./side-nav.service";
 
 export type SideNavVariant = "primary" | "secondary";
@@ -76,6 +78,9 @@ export class SideNavComponent {
     { initialValue: false },
   );
 
+  /** Width of the collapsed nav (icon strip / side rail), bound in the template. */
+  protected readonly closedWidthRem = SIDERAIL_WIDTH_REM;
+
   protected readonly isTouchDevice = toSignal(media("(pointer: coarse)"), { initialValue: false });
 
   private readonly reducedMotion = toSignal(media("(prefers-reduced-motion: reduce)"), {
@@ -88,9 +93,9 @@ export class SideNavComponent {
    * announcing the float it commits.
    */
   protected readonly widthPercent = computed(() => {
-    const { CLOSED_WIDTH, MAX_OPEN_WIDTH } = this.sideNavService;
-    const width = this.sideNavService.open() ? this.sideNavService.widthRem() : CLOSED_WIDTH;
-    return Math.round(((width - CLOSED_WIDTH) / (MAX_OPEN_WIDTH - CLOSED_WIDTH)) * 100);
+    const width = this.sideNavService.open() ? this.sideNavService.widthRem() : SIDERAIL_WIDTH_REM;
+    const travel = SIDE_NAV_WIDTH_BOUNDS.max - SIDERAIL_WIDTH_REM;
+    return Math.round(((width - SIDERAIL_WIDTH_REM) / travel) * 100);
   });
 
   /** True when it is safe to animate the nav's width. */

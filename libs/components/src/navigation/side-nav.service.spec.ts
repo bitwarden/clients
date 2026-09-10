@@ -6,6 +6,7 @@ import { GlobalState, GlobalStateProvider } from "@bitwarden/state";
 
 import { getRootFontSizePx } from "../shared";
 
+import { SIDE_NAV_WIDTH_BOUNDS } from "./side-nav-width.service";
 import { SideNavService } from "./side-nav.service";
 
 describe("SideNavService", () => {
@@ -82,23 +83,23 @@ describe("SideNavService", () => {
         createService(14.25);
         flushPersist();
 
-        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
-        expect(persistedWidths()).toEqual([service.MIN_OPEN_WIDTH]);
+        expect(currentWidth()).toBe(SIDE_NAV_WIDTH_BOUNDS.min);
+        expect(persistedWidths()).toEqual([SIDE_NAV_WIDTH_BOUNDS.min]);
       });
 
       it("repairs a saved width above the maximum, once", () => {
         createService(40);
         flushPersist();
 
-        expect(currentWidth()).toBe(service.MAX_OPEN_WIDTH);
-        expect(persistedWidths()).toEqual([service.MAX_OPEN_WIDTH]);
+        expect(currentWidth()).toBe(SIDE_NAV_WIDTH_BOUNDS.max);
+        expect(persistedWidths()).toEqual([SIDE_NAV_WIDTH_BOUNDS.max]);
       });
 
       it("writes nothing when no width has ever been saved", () => {
         createService();
         flushPersist();
 
-        expect(currentWidth()).toBe(service.DEFAULT_OPEN_WIDTH);
+        expect(currentWidth()).toBe(SIDE_NAV_WIDTH_BOUNDS.default);
         expect(persistedWidths()).toEqual([]);
       });
 
@@ -159,7 +160,7 @@ describe("SideNavService", () => {
           slowDisk$.next(40);
           flushPersist();
 
-          // Only the user's own commit reaches disk — no MAX_OPEN_WIDTH repair write.
+          // Only the user's own commit reaches disk — no repair write for the out-of-bounds value.
           expect(currentWidth()).toBe(27);
           expect(persistedWidths()).toEqual([27]);
         });
@@ -292,13 +293,13 @@ describe("SideNavService", () => {
 
       // The bounds floor is the user reaching the end of the range, not a container limit, so it
       // is a real preference — collapse and expand must come back at the minimum.
-      expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
-      expect(persistedWidths()).toEqual([service.MIN_OPEN_WIDTH]);
+      expect(currentWidth()).toBe(SIDE_NAV_WIDTH_BOUNDS.min);
+      expect(persistedWidths()).toEqual([SIDE_NAV_WIDTH_BOUNDS.min]);
 
       service.toggle();
       service.toggle();
 
-      expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+      expect(currentWidth()).toBe(SIDE_NAV_WIDTH_BOUNDS.min);
     });
 
     describe("drag release", () => {
@@ -312,8 +313,8 @@ describe("SideNavService", () => {
         flushPersist();
 
         expect(service.open()).toBe(true);
-        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
-        expect(persistedWidths()).toEqual([service.MIN_OPEN_WIDTH]);
+        expect(currentWidth()).toBe(SIDE_NAV_WIDTH_BOUNDS.min);
+        expect(persistedWidths()).toEqual([SIDE_NAV_WIDTH_BOUNDS.min]);
       });
 
       it("persists nothing when a drag collapses the nav", () => {
@@ -370,7 +371,7 @@ describe("SideNavService", () => {
         createService(15);
         service.open.set(true);
         clearPersisted();
-        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+        expect(currentWidth()).toBe(SIDE_NAV_WIDTH_BOUNDS.min);
       });
 
       it("survives a drag that collapses the nav", () => {
@@ -381,12 +382,12 @@ describe("SideNavService", () => {
         flushPersist();
 
         expect(service.open()).toBe(false);
-        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+        expect(currentWidth()).toBe(SIDE_NAV_WIDTH_BOUNDS.min);
         expect(persistedWidths()).toEqual([]);
 
         service.toggle();
 
-        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+        expect(currentWidth()).toBe(SIDE_NAV_WIDTH_BOUNDS.min);
       });
 
       it("writes nothing when a tension release reaffirms it", () => {
@@ -395,7 +396,7 @@ describe("SideNavService", () => {
         flushPersist();
 
         expect(service.open()).toBe(true);
-        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+        expect(currentWidth()).toBe(SIDE_NAV_WIDTH_BOUNDS.min);
         expect(persistedWidths()).toEqual([]);
       });
 
@@ -403,7 +404,7 @@ describe("SideNavService", () => {
         service.onDragEnd();
         flushPersist();
 
-        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+        expect(currentWidth()).toBe(SIDE_NAV_WIDTH_BOUNDS.min);
         expect(persistedWidths()).toEqual([]);
       });
 
@@ -430,7 +431,7 @@ describe("SideNavService", () => {
 
         expect(service.open()).toBe(true);
         expect(service.userCollapsePreference()).toBe("open");
-        expect(currentWidth()).toBe(service.DEFAULT_OPEN_WIDTH);
+        expect(currentWidth()).toBe(SIDE_NAV_WIDTH_BOUNDS.default);
       });
 
       it("does nothing on ArrowLeft", () => {
@@ -476,7 +477,7 @@ describe("SideNavService", () => {
       });
 
       it("collapses when ArrowLeft steps off the minimum width", () => {
-        while (currentWidth() > service.MIN_OPEN_WIDTH) {
+        while (currentWidth() > SIDE_NAV_WIDTH_BOUNDS.min) {
           service.setWidthFromKeys("ArrowLeft");
         }
         expect(service.open()).toBe(true);
@@ -487,12 +488,12 @@ describe("SideNavService", () => {
         expect(service.userCollapsePreference()).toBe("closed");
       });
 
-      it("does not widen past MAX_OPEN_WIDTH", () => {
+      it("does not widen past the maximum", () => {
         for (let i = 0; i < 40; i++) {
           service.setWidthFromKeys("ArrowRight");
         }
 
-        expect(currentWidth()).toBe(service.MAX_OPEN_WIDTH);
+        expect(currentWidth()).toBe(SIDE_NAV_WIDTH_BOUNDS.max);
       });
     });
   });
@@ -554,13 +555,13 @@ describe("SideNavService", () => {
 
         expect(service.open()).toBe(true);
         expect(service.dragDisplayWidth()).toBeNull();
-        expect(currentWidth()).toBe(service.MIN_OPEN_WIDTH);
+        expect(currentWidth()).toBe(SIDE_NAV_WIDTH_BOUNDS.min);
       });
 
-      it("does not paint past MAX_OPEN_WIDTH", () => {
+      it("does not paint past the maximum", () => {
         dragTo(40);
 
-        expect(currentWidth()).toBe(service.MAX_OPEN_WIDTH);
+        expect(currentWidth()).toBe(SIDE_NAV_WIDTH_BOUNDS.max);
       });
 
       it("clears a stale tension preview when dragged back above the minimum", () => {
@@ -611,7 +612,7 @@ describe("SideNavService", () => {
 
         expect(service.open()).toBe(true);
         expect(service.dragDisplayWidth()).toBeNull();
-        expect(currentWidth()).toBe(service.DEFAULT_OPEN_WIDTH);
+        expect(currentWidth()).toBe(SIDE_NAV_WIDTH_BOUNDS.default);
       });
     });
   });

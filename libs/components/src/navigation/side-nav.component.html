@@ -22,8 +22,7 @@
       [attr.data-nav-version]="version"
       class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-nav tw-text-fg-nav tw-outline-none"
       [style.width.rem]="
-        sideNavService.dragDisplayWidth() ??
-        (open ? sideNavService.widthRem() : sideNavService.CLOSED_WIDTH)
+        sideNavService.dragDisplayWidth() ?? (open ? sideNavService.widthRem() : closedWidthRem)
       "
       [style.transition]="animateWidth() ? 'width 150ms ease-out' : 'none'"
       [class.tw-max-w-full]="isOverlay"
