@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BehaviorSubject, Observable, Subject, debounceTime, first, map } from "rxjs";
+import { Subject, debounceTime, first, map } from "rxjs";
 
 import { BIT_SIDE_NAV_DISK, GlobalStateProvider, KeyDefinition } from "@bitwarden/state";
 
@@ -18,19 +18,24 @@ export const SIDE_NAV_WIDTH_BOUNDS = Object.freeze({
 });
 
 /**
- * Owns the side nav width and its persistence.
+ * The side nav width store: the current painted width, the width the user chose, the bounds both
+ * are held within, and persistence.
  *
  * The width the user chose and the width currently painted are deliberately different things: a
  * drag preview, or a width narrowed to fit the container, must never become the user's preference.
  * Callers therefore have to pick a verb — `display` paints only, `commit` paints and remembers.
  * A commit also outranks a disk read that resolves after it. Nothing outside this class can reach
  * the stored value or the persisted one.
+ *
+ * This class knows nothing about gestures, open/closed state, or push/overlay mode — those belong
+ * to `SideNavService`, which decides which verb to call.
  */
 @Injectable({ providedIn: "root" })
 export class SideNavWidthService {
   private readonly _widthState = inject(GlobalStateProvider).get(BIT_SIDE_NAV_WIDTH_KEY_DEF);
 
-  private readonly _width$ = new BehaviorSubject<number>(SIDE_NAV_WIDTH_BOUNDS.default);
+  private readonly _width = signal<number>(SIDE_NAV_WIDTH_BOUNDS.default);
+  private readonly _hydrated = signal(false);
   private readonly _pendingCommit$ = new Subject<number>();
 
   private _savedWidth: number = SIDE_NAV_WIDTH_BOUNDS.default;
@@ -39,13 +44,15 @@ export class SideNavWidthService {
   private _userCommitted = false;
 
   /** The committed width to paint, in rem. */
-  readonly width$: Observable<number> = this._width$.asObservable();
+  readonly width = this._width.asReadonly();
 
   /** True once the saved width has been read, so callers can gate first-paint behavior. */
-  readonly hydrated = signal(false);
+  readonly hydrated = this._hydrated.asReadonly();
 
   constructor() {
-    // Only explicit commits reach disk, debounced so a drag writes once rather than per frame.
+    // Drags already persist only on release (SideNavService.onDragEnd). The debounce is for the
+    // keyboard path: arrow-key autorepeat fires keydown ~30x/sec and every step is a commit.
+    // It also coalesces the one-time out-of-bounds repair write below.
     this._pendingCommit$.pipe(debounceTime(200), takeUntilDestroyed()).subscribe((width) => {
       void this._widthState.update(() => width);
     });
@@ -59,7 +66,7 @@ export class SideNavWidthService {
         takeUntilDestroyed(),
       )
       .subscribe((diskWidth) => {
-        this.hydrated.set(true);
+        this._hydrated.set(true);
 
         // A width the user committed while the read was in flight outranks the stored one, and
         // repairing a value they have already superseded would write a width nobody asked for.
@@ -70,7 +77,7 @@ export class SideNavWidthService {
         const repaired = this.clamp(diskWidth);
 
         this._savedWidth = repaired;
-        this._width$.next(repaired);
+        this._width.set(repaired);
 
         if (repaired !== diskWidth) {
           this._pendingCommit$.next(repaired);
@@ -80,7 +87,7 @@ export class SideNavWidthService {
 
   /** Paint `width` without changing what the user gets next time. */
   display(width: number) {
-    this._width$.next(width);
+    this._width.set(width);
   }
 
   /** Paint `width` and remember it as the user's preference. */
@@ -90,7 +97,7 @@ export class SideNavWidthService {
 
     this._userCommitted = true;
     this._savedWidth = clamped;
-    this._width$.next(clamped);
+    this._width.set(clamped);
 
     if (shouldPersist) {
       this._pendingCommit$.next(clamped);

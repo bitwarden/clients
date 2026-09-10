@@ -1,5 +1,4 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 import { Observable, fromEvent, map, startWith } from "rxjs";
 
 import {
@@ -74,18 +73,16 @@ export class SideNavService {
   /** Owns the width and decides what is persisted. This service never writes to disk itself. */
   private readonly widthService = inject(SideNavWidthService);
 
-  readonly width$ = this.widthService.width$;
-
   /** True once the saved width has been read from disk, so callers can tell startup from a resize. */
-  readonly widthHydrated = this.widthService.hydrated.asReadonly();
+  readonly widthHydrated = this.widthService.hydrated;
 
   private readonly _widthResizedByUser = signal(false);
 
   /** True once the user has resized the nav themselves, which ends startup on its own. */
   readonly widthResizedByUser = this._widthResizedByUser.asReadonly();
 
-  /** Current nav width as a signal, for use in grid column calculations. */
-  readonly widthRem = toSignal(this.width$, { initialValue: SIDE_NAV_WIDTH_BOUNDS.default });
+  /** Current nav width, in rem. */
+  readonly widthRem = this.widthService.width;
 
   constructor() {
     // Get computed root font size to support user-defined a11y font increases
@@ -142,7 +139,7 @@ export class SideNavService {
       }
 
       if (newWidthInRem >= this.MIN_OPEN_WIDTH) {
-        // Fully crossed the minimum — genuinely open, and the width hands off to width$
+        // Fully crossed the minimum — genuinely open, and the width hands off to the width service
         this.dragDisplayWidth.set(null);
         this.userCollapsePreference.set("open");
         this.open.set(true);
