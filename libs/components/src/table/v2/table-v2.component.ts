@@ -687,6 +687,19 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    */
   protected readonly listInset = computed(() => (this.isList() ? "tw-mx-3" : ""));
 
+  /**
+   * A `list` card's height, so rows are uniform whether or not their cells fill every
+   * slot — an empty secondary slot is a block with no line box, which would otherwise
+   * collapse the card by a line. {@link virtualRowHeight} is the row's full advance, and
+   * the card's own bottom margin is part of that, so the margin comes back out via
+   * `--bit-card-gap` (the card sets it alongside the margin, and clears both in compact).
+   * Unset without a `virtualRowHeight`, where rows are documented to grow to content.
+   */
+  protected readonly listCardHeight = computed(() => {
+    const advance = this.virtualRowHeight();
+    return this.isList() && advance != null ? `calc(${advance}px - var(--bit-card-gap))` : null;
+  });
+
   /** Row-count cap from {@link height} (clamped to a minimum of 4), or undefined when it isn't a number. */
   protected readonly maxRows = computed(() => {
     const h = this.height();

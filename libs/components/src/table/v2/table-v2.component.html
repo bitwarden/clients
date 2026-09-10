@@ -68,7 +68,11 @@
 -->
 <ng-template #dataRowTpl let-row let-cells="cells">
   @if (isList()) {
-    <bit-item [class]="listInset()">
+    <bit-item
+      class="[--bit-card-gap:0.375rem] bit-compact:[--bit-card-gap:0px]"
+      [class]="listInset()"
+      [style.height]="listCardHeight()"
+    >
       <bit-row>
         <ng-container *ngTemplateOutlet="cells; context: { $implicit: row }"></ng-container>
       </bit-row>
