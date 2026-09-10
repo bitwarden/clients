@@ -122,7 +122,7 @@ export class ShareLinkService {
       userId,
       null as any,
     );
-    await this.sendSdkApiService.refreshSendFromServer(createdSdkSendView.id as any);
+    await this.sendSdkApiService.refreshAfterMutation(createdSdkSendView.id as any);
     const env = await firstValueFrom(this.environmentService.environment$);
     if (!createdSdkSendView.key) {
       return;
@@ -189,7 +189,7 @@ export class ShareLinkService {
   async deleteLink(sendId: string): Promise<void> {
     const link = this.links.getValue().find((l) => l.sendId === sendId);
     if (link) {
-      await this.sendSdkApiService.deleteSend(link.sendId);
+      await this.sendSdkApiService.delete(link.sendId);
     }
   }
 

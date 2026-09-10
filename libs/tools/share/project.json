@@ -28,7 +28,7 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/vault/**/*.ts"]
+        "lintFilePatterns": ["libs/tools/share/**/*.ts"]
       }
     },
     "test": {

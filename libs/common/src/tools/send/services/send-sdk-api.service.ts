@@ -404,7 +404,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * to local state (the send repository registered in `initializeClientManagedState`), and only
    * rethrow if neither source can produce it.
    */
-  private async refreshAfterMutation(sendId: string): Promise<Send> {
+  async refreshAfterMutation(sendId: string): Promise<Send> {
     try {
       return await this.refreshSendFromServer(sendId);
     } catch (error) {
@@ -420,7 +420,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   // After the SDK executes a mutation server-side, refetch the wire-encrypted form via
   // the legacy API so InternalSendService stores EncString-shaped data and consumers
   // that decrypt the returned Send work correctly.
-  async refreshSendFromServer(id: string): Promise<Send> {
+  private async refreshSendFromServer(id: string): Promise<Send> {
     const response = await this.legacySendApiService.getSend(id);
     const data = new SendData(response);
     await this.sendService.upsert(data);
