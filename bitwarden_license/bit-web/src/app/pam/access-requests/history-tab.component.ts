@@ -73,7 +73,7 @@ const announcementHoldMs = 2000;
  * Managed (decided requests for collections the caller manages, the only ones they can undo a
  * decision on).
  *
- * Opens on All so the reader is never shown an empty table behind an unpressed chip;
+ * Opens on All so the reader is never shown an empty table behind an unset chip;
  * `managedIds` is the per-row authority, so a row the caller both raised and manages appears
  * once, keeping the richer copy.
  *
@@ -122,9 +122,9 @@ export class HistoryTabComponent {
   });
 
   /**
-   * `bit-filter-menu` is not a `ControlValueAccessor`, so its selection is read off the chip's own
-   * `value` signal rather than bound through a form control. There is exactly one chip and no table
-   * host for it to register with, so a `viewChild` read is the whole of the plumbing this needs.
+   * `bit-filter-menu` isn't a `ControlValueAccessor`, so the chip owns its selection and is read
+   * through its `FILTER_CONTROL` contract rather than a form control. There is no filter host for
+   * it to register with, so this `viewChild` is the whole of the plumbing.
    */
   private readonly scopeChip = viewChild("historyScopeFilter", { read: FILTER_CONTROL });
 
@@ -234,14 +234,12 @@ export class HistoryTabComponent {
   protected readonly canSwitchScope = computed(() => this.canApprove() || this.hasManagedHistory());
 
   /**
-   * Derived straight from the chip's own value rather than mirrored into a signal, so there is
-   * exactly one source of truth for the scope — the same shape the sibling access-audit page uses
-   * for its chips.
+   * Derived from the chip's own value rather than mirrored into a signal, so the scope has one
+   * source of truth — the shape the sibling access-audit page uses for its chips.
    *
-   * Falls back to All, synchronously, if the chip disappears while filtered; the choice is
-   * forgotten, so a returning chip can't silently re-narrow the table. The `@if` in the template
+   * Falls back to All, synchronously, if the chip disappears while filtered. The template's `@if`
    * destroys the chip whenever {@link canSwitchScope} goes false, so a chip that returns starts
-   * unset — this needs no extra bookkeeping to forget a stale pick.
+   * unset: a stale pick can't silently re-narrow the table, and nothing has to forget it.
    */
   protected readonly scope = computed<HistoryScope>(() => {
     const value = this.scopeChip()?.value();
