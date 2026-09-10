@@ -16,14 +16,14 @@ import { OrganizationSubscriptionUpdateRequest } from "@bitwarden/common/billing
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
 
-import { BillingSharedModule } from "../shared";
+import { SharedModule } from "../../shared";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-adjust-subscription",
   templateUrl: "adjust-subscription.component.html",
-  imports: [BillingSharedModule],
+  imports: [SharedModule],
 })
 // FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
 // eslint-disable-next-line @angular-eslint/component-class-suffix
