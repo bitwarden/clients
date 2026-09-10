@@ -493,12 +493,12 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
           includeGroups: true,
         }),
       ).pipe(
-        measureFlowStep(this.logService, "Load: org members", (apiUsers) => [
+        measureFlowStep(this.logService, "Load: org members fetched", (apiUsers) => [
           ["memberCount", apiUsers.data.length],
         ]),
       ),
       collections: from(this.apiService.getManyCollectionsWithAccessDetails(orgId)).pipe(
-        measureFlowStep(this.logService, "Load: org collections", (collections) => [
+        measureFlowStep(this.logService, "Load: org collections fetched", (collections) => [
           ["collectionCount", collections.data.length],
         ]),
       ),

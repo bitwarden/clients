@@ -1,3 +1,6 @@
+// Measurement helpers for the Access Intelligence report flow.
+// See ../report-flow-instrumentation.md for the step list, conventions and privacy notes.
+
 import { defer, Observable, tap } from "rxjs";
 
 import { LogService } from "@bitwarden/logging";

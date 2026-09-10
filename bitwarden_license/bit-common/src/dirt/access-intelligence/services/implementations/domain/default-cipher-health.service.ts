@@ -125,12 +125,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
       }
     });
 
-    // The exposure lookups run once per cipher, not once per distinct password.
-    measureStep("Generate: password reuse detected", [
-      ["itemCount", ciphers.length],
-      ["distinctPasswordCount", passwordMap.size],
-      ["reusedPasswordCount", reuseMap.size],
-    ]);
+    measureStep("Generate: password reuse detected", [["itemCount", ciphers.length]]);
 
     return of(reuseMap);
   }
