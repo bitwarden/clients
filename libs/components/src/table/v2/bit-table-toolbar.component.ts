@@ -53,7 +53,8 @@ import { BitTableV2Component } from "./table-v2.component";
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: "tw-block tw-border-0 tw-border-b tw-border-solid tw-border-border-base",
+    class: "tw-block",
+    "[class]": "hostClasses()",
   },
 })
 export class BitTableToolbarComponent {
@@ -115,13 +116,27 @@ export class BitTableToolbarComponent {
   );
 
   /**
+   * `table` closes the toolbar off from the header row beneath it. `list` has no
+   * container chrome and no header row to divide from, and the spec draws no line
+   * there, so the border is dropped.
+   */
+  protected readonly hostClasses = computed(() =>
+    [
+      ...(this.isList()
+        ? []
+        : ["tw-border-0", "tw-border-b", "tw-border-solid", "tw-border-border-base"]),
+    ].join(" "),
+  );
+
+  /** True when the enclosing table is in `list` presentation. */
+  private readonly isList = computed(() => this.table?.presentation() === "list");
+
+  /**
    * Horizontal inset for every toolbar row. `list` presentation puts the search on the
    * same 12px edge as the cards below it; `table` keeps its own wider 20px edge, which
    * the spec deliberately does not align to the column tracks.
    */
-  protected readonly insetX = computed(() =>
-    this.table?.presentation() === "list" ? "tw-px-3" : "tw-px-5",
-  );
+  protected readonly insetX = computed(() => (this.isList() ? "tw-px-3" : "tw-px-5"));
 
   /**
    * The chip row. Collapsed, it stays laid out but invisible so `bitOverflowList` can
@@ -133,7 +148,9 @@ export class BitTableToolbarComponent {
     "tw-items-center",
     "tw-gap-2",
     this.insetX(),
-    "tw-py-3.5",
+    // `list` hangs the chips off the search row's own bottom padding, so the gap above
+    // them is 12px rather than the sum of two paddings, and 8px closes out the toolbar.
+    ...(this.isList() ? ["tw-pt-0", "tw-pb-2"] : ["tw-py-3.5"]),
     "empty:tw-hidden",
     ...(this.collapsed()
       ? ["tw-invisible", "tw-pointer-events-none", "tw-absolute", "tw-inset-x-0", "tw-top-0"]
@@ -147,9 +164,9 @@ export class BitTableToolbarComponent {
     "tw-gap-3",
     // Row gap for when the `slot=end` controls wrap to their own line below `md`.
     "tw-gap-y-4",
-    "tw-py-5",
+    ...(this.isList() ? ["tw-py-3"] : ["tw-py-5"]),
     this.insetX(),
-    ...(this.hasFilterRow()
+    ...(this.hasFilterRow() && !this.isList()
       ? ["tw-border-0", "tw-border-b", "tw-border-solid", "tw-border-border-base"]
       : []),
   ]);
