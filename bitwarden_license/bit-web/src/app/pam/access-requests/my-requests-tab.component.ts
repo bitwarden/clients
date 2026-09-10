@@ -23,6 +23,8 @@ import {
   BadgeComponent,
   ButtonModule,
   DialogService,
+  FILTER_CONTROL,
+  FilterControl,
   FilterMenuComponent,
   FilterOptionComponent,
   SearchModule,
@@ -131,12 +133,17 @@ export class MyRequestsTabComponent {
 
   /**
    * `bit-filter-menu` isn't a `ControlValueAccessor`, so the Collection chip owns its own
-   * selection and is read directly off its view-child ref rather than through a `FormControl`.
+   * selection and is read directly through the {@link FilterControl} contract rather than
+   * through a `FormControl`.
    */
-  private readonly collectionFilter = viewChild<FilterMenuComponent>("collectionFilter");
-  private readonly selectedCollection = computed(
-    () => this.collectionFilter()?.value() as string | undefined,
-  );
+  private readonly collectionFilter = viewChild("collectionFilter", { read: FILTER_CONTROL });
+  private readonly selectedCollection = computed(() => this.selectedValue(this.collectionFilter()));
+
+  /** A single-select chip's selection, or undefined for no selection. */
+  private selectedValue(chip: FilterControl | undefined): string | undefined {
+    const value = chip?.value();
+    return typeof value === "string" ? value : undefined;
+  }
 
   private readonly allPending = toSignal(this.myAccess.pendingRows$, {
     initialValue: [] as MyAccessRequestRow[],
