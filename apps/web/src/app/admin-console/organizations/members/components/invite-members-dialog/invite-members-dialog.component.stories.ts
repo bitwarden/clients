@@ -10,9 +10,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
+import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
@@ -67,8 +66,8 @@ const mockEventCollectionService = {
   collectMany: () => Promise.resolve(),
 };
 
-const mockConfigService = {
-  serverSettings$: of(new ServerSettings({ enableEmailVerification: true })),
+const mockServerSettingsService = {
+  isEmailVerificationEnabled$: of(true),
 };
 
 const mockDialogRef = {
@@ -228,7 +227,7 @@ export default {
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: MemberActionsService, useValue: mockMemberActionsService },
         { provide: EventCollectionService, useValue: mockEventCollectionService },
-        { provide: ConfigService, useValue: mockConfigService },
+        { provide: DefaultServerSettingsService, useValue: mockServerSettingsService },
         {
           provide: OrgDomainApiServiceAbstraction,
           useValue: { getAllByOrgId: () => Promise.resolve([]) },

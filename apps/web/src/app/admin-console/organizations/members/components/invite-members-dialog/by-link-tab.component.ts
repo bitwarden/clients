@@ -82,13 +82,13 @@ export class ByLinkTabComponent {
   private readonly eventCollectionService = inject(EventCollectionService);
   private readonly serverSettingsService = inject(DefaultServerSettingsService);
 
-  private readonly isSelfHost = signal<boolean>(this.platformUtilsService.isSelfHost());
+  private readonly isSelfHost = this.platformUtilsService.isSelfHost();
   private readonly emailVerificationEnabled = toSignal(
     this.serverSettingsService.isEmailVerificationEnabled$,
-    { initialValue: true },
+    { initialValue: false },
   );
   protected readonly showSelfHostWarning = computed(
-    () => this.isSelfHost() && !this.emailVerificationEnabled(),
+    () => this.isSelfHost && !this.emailVerificationEnabled(),
   );
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
