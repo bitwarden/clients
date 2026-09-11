@@ -503,8 +503,9 @@ URL sync needs a router in context; without one (e.g. in a dialog) it's a no-op.
 
 `[presentation]` switches how rows are drawn — the data engine (sorting, filtering, selection,
 pagination) is identical either way. It defaults to `"table"` (the bordered column grid); set it to
-`"list"` to drop the table chrome and render each row as a standalone `bit-item`-style card. The
-column header row is kept for assistive tech but visually hidden.
+`"list"` to drop the table chrome and wrap each row in a
+[`bit-item`](?path=/docs/component-library-item--docs) card. The column header row is kept for
+assistive tech but visually hidden.
 
 ```html
 <bit-table-v2 [tableDef]="table" presentation="list">…columns…</bit-table-v2>
@@ -515,6 +516,18 @@ column header row is kept for assistive tech but visually hidden.
 Reach for `list` where an item-style list fits better than a dense grid (e.g. a vault list). The
 cell slots ([Cell content layout](#cell-content-layout)) give you the same leading-icon / title /
 subtitle / trailing layout `bit-item` provides.
+
+Because the card is a real `bit-item`, it owns the row's background, border, radius, hover fill and
+focus ring — the row inside it only lays out the column grid. That means the focus ring covers the
+whole card rather than just the focused control, but `bit-item` needs to be told which element to
+key off: put `data-fvw-target` on the focusable element in your cell and drop any `focus-visible:`
+ring of its own.
+
+```html
+<bit-cell *bitCellDef="table.columns.name; let row">
+  <button type="button" data-fvw-target (click)="select(row)">{{ row.name }}</button>
+</bit-cell>
+```
 
 ### Grouping
 

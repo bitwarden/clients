@@ -359,8 +359,8 @@ export class VaultPopupListTableComponent {
   });
 
   protected readonly itemHeight = toSignal(
-    this.compactModeService.enabled$.pipe(map((enabled) => (enabled ? 53 : 59))),
-    { initialValue: 59 },
+    this.compactModeService.enabled$.pipe(map((enabled) => (enabled ? 53 : 60))),
+    { initialValue: 60 },
   );
 
   protected readonly currentUriIsBlocked = toSignal(
