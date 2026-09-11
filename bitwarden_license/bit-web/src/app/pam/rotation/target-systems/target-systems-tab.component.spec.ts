@@ -1363,6 +1363,6 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
     setup([entraActive]);
     chip("status").toggle("pamTargetSystemStatusInactive");
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain("pamTargetSystemNoResults");
+    expect(fixture.nativeElement.textContent).toContain("pamTargetSystemNoFilterResults");
   });
 });
