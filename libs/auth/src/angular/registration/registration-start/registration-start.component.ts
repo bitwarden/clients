@@ -246,8 +246,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
    * and wraps the result in a {@link RegisterStartOpenOrgInviteRequest} so the sealed blob
    * can ride the verification-email URL fragment through the tab-boundary and the server
    * can identify the invite link and apply any invite-link–gated behaviors. Returns
-   * `undefined` when no open org invite is stashed or when sealing fails. The caller is
-   * responsible for feature-flag gating.
+   * `undefined` when no open org invite is stashed or when sealing fails.
    */
   private async buildOpenOrgInviteRequestIfPresent(
     email: string,
@@ -275,7 +274,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
    * Pre-auth UX check for open-org-invite domain restrictions. When an `OpenOrganizationInvite`
    * is in state, validates the entered email's domain against the link's `AllowedDomains`
    * via the server. Handles four classified outcomes:
-   *   - `allowed` / no open org invite stashed / feature off → returns true.
+   *   - `allowed` / no open org invite stashed → returns true.
    *   - `not-allowed` → sets a form-control error on the email field and returns false.
    *   - `link-invalid` (server 404) → clears open-org-invite state and navigates to
    *     `/organization-invite-link-invalid` (with the org name + `returnTo=registration`)

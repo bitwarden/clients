@@ -647,7 +647,7 @@ export class LoginComponent implements OnInit, OnDestroy {
    * Pre-auth UX check for open-org-invite domain restrictions. Layered UX only — the
    * accept endpoint enforces the policy server-side, so this fails open on transient
    * errors (returns true) rather than blocking login. Also returns true when no
-   * open-org invite is stashed or the feature is off.
+   * open-org invite is stashed.
    */
   private async openOrgInviteDomainAllowed(email: string): Promise<boolean> {
     const invite = await this.organizationInviteService.getOpenOrgInvite();
