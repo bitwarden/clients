@@ -13,8 +13,10 @@ import { ButtonModule, StatusLockupComponent, SvgComponent } from "@bitwarden/co
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
- * Shown by a rotation tab when its list could not be fetched, in place of the tab's empty state.
- * Emits {@link retry}; the parent owns re-running whichever loads that tab needs.
+ * Shown by a rotation surface when what it needs could not be fetched: in place of a tab's empty
+ * state, or in place of a detail page's content.
+ *
+ * Emits {@link retry}; the parent owns re-running whichever loads that surface needs.
  */
 @Component({
   selector: "pam-rotation-load-error",

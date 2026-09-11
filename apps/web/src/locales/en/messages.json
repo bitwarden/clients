@@ -19211,7 +19211,7 @@
     "message": "Add a managed credential to start rotating it automatically."
   },
   "pamRotationListLoadErrorTitle": {
-    "message": "Unable to load this list"
+    "message": "Unable to load"
   },
   "pamRotationListLoadErrorDescription": {
     "message": "Check your connection and try again. If the problem continues, refresh the page."
