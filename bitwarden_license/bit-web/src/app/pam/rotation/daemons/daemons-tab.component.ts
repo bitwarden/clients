@@ -2,16 +2,17 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   effect,
   inject,
   signal,
   viewChild,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { map } from "rxjs";
+import { filter, firstValueFrom, map } from "rxjs";
 
 import { NoResults } from "@bitwarden/assets/svg";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -104,6 +105,7 @@ export type DaemonTabRow = DaemonRow & {
 export class DaemonsTabComponent {
   protected readonly noItemsIcon = NoResults;
 
+  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly daemonsService = inject(DaemonsService);
@@ -143,6 +145,13 @@ export class DaemonsTabComponent {
    */
   private readonly targetSystemsKnown = computed(
     () => !this.targetSystemsLoading() && this.targetSystemsLoadError() == null,
+  );
+
+  /**
+   * Whether the target-system read has landed and failed, so there is no list to offer.
+   */
+  private readonly targetSystemsUnavailable = computed(
+    () => !this.targetSystemsLoading() && this.targetSystemsLoadError() != null,
   );
 
   private readonly rows = computed<DaemonTabRow[]>(() => {
@@ -279,8 +288,35 @@ export class DaemonsTabComponent {
     }
   };
 
+  /**
+   * Open the dialog that picks an active automatic target system for this connector.
+   *
+   * The menu item is live while the target-system read is still in flight, so a click can arrive
+   * before there is a list to offer. The read settles first: opening on an empty list would state
+   * an emptiness the org may not have, and a read that failed says so instead of opening at all.
+   * The wait is gated on the component, so leaving the tab mid-wait opens nothing.
+   */
   protected readonly openAssignDialog = (row: DaemonRow): Promise<void> =>
     this.busyRows.run(row.id, async () => {
+      const stillMounted = await firstValueFrom(
+        this.targetSystemsService.loading$.pipe(
+          filter((inFlight) => !inFlight),
+          map(() => true),
+          takeUntilDestroyed(this.destroyRef),
+        ),
+        { defaultValue: false },
+      );
+      if (!stillMounted) {
+        return;
+      }
+      if (this.targetSystemsUnavailable()) {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("pamAccessConnectorTargetSystemsLoadError"),
+        });
+        return;
+      }
+
       const activeSystems = this.automaticSystems();
       const options = assignableTargetSystems(row.daemon.assignedTargetSystemIds, activeSystems);
 
