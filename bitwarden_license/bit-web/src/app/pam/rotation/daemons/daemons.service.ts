@@ -51,6 +51,9 @@ export class DaemonsService {
   /** Set by {@link load}; the org all subsequent mutations target. */
   private organizationId: OrganizationId | null = null;
 
+  /** Incremented per {@link load} call so a superseded call can drop its outcome. */
+  private loadGeneration = 0;
+
   private readonly _daemons$ = new BehaviorSubject<AccessConnector[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
@@ -70,18 +73,37 @@ export class DaemonsService {
     this.targetSystemsService.systemById$,
   ]).pipe(map(([daemons, systemById]) => this.buildRows(daemons, systemById)));
 
-  /** Fetch the org's daemons, replacing local state. */
+  /**
+   * Fetch the org's daemons, replacing local state.
+   *
+   * Records a failure on {@link loadError$} rather than rejecting: every caller invokes this as
+   * `void load(...)`, so a rejection would leave the tab rendering its empty state.
+   *
+   * Two tabs load this shared instance, so two calls can be in flight at once. Each call holds a
+   * generation token and records nothing once a later call has superseded it, so neither ordering
+   * lets the losing call latch its outcome over the winning call's.
+   */
   async load(organizationId: OrganizationId): Promise<void> {
     this.organizationId = organizationId;
+    const generation = ++this.loadGeneration;
     this._loading$.next(true);
     this._loadError$.next(null);
     try {
-      this._daemons$.next(await this.rotationSdk.listConnectors(organizationId));
+      const connectors = await this.rotationSdk.listConnectors(organizationId);
+      if (generation !== this.loadGeneration) {
+        return;
+      }
+      this._daemons$.next(connectors);
       this._loadError$.next(null);
     } catch (e) {
+      if (generation !== this.loadGeneration) {
+        return;
+      }
       this._loadError$.next(e);
     } finally {
-      this._loading$.next(false);
+      if (generation === this.loadGeneration) {
+        this._loading$.next(false);
+      }
     }
   }
 
