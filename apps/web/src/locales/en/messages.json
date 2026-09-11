@@ -18781,6 +18781,9 @@
   "pamRotationTabAccessConnectors": {
     "message": "Access connectors"
   },
+  "pamManagedCredentialsLoaded": {
+    "message": "Managed credentials loaded"
+  },
   "pamAccessConnectorsLoaded": {
     "message": "Access connectors loaded"
   },
@@ -19418,11 +19421,14 @@
   "pamRotationConfigSetUpTargetSystem": {
     "message": "Set up a target system"
   },
-  "pamRotationConfigNoResults": {
-    "message": "No results match your search."
+  "pamRotationConfigNoResultsFiltered": {
+    "message": "No managed credentials match your filters."
   },
   "pamRotationConfigColumnCredential": {
     "message": "Credential"
+  },
+  "pamRotationConfigColumnItem": {
+    "message": "Item"
   },
   "pamRotationConfigColumnTargetSystem": {
     "message": "Target system"
@@ -19435,6 +19441,9 @@
   },
   "pamRotationConfigColumnLastRotation": {
     "message": "Last rotation"
+  },
+  "pamRotationConfigColumnLastRotated": {
+    "message": "Last rotated"
   },
   "pamRotationConfigColumnNextRotation": {
     "message": "Next rotation"
@@ -19461,16 +19470,19 @@
     "message": "Rotate now"
   },
   "pamRotationConfigRotateNowDisabledTitle": {
-    "message": "Cannot rotate now — the rotation is disabled, paused, or already in progress."
+    "message": "Cannot rotate now. The target system is inactive, or the rotation is paused or already in progress."
   },
   "pamRotationConfigRotateNowSuccess": {
     "message": "Rotation dispatched."
   },
   "pamRotationConfigRecordManual": {
-    "message": "Record manual rotation"
+    "message": "Mark as rotated"
+  },
+  "pamRotationConfigRecordManualDisabledTitle": {
+    "message": "Nothing to mark yet. This becomes available when the next manual rotation is due."
   },
   "pamRotationConfigRecordManualTitle": {
-    "message": "Record manual rotation"
+    "message": "Mark as rotated"
   },
   "pamRotationConfigRecordManualContent": {
     "message": "This records that the credential was rotated outside Bitwarden and resets the schedule. The audit log will reflect the manual rotation."
@@ -19481,14 +19493,20 @@
   "pamRotationConfigRecordManualSuccess": {
     "message": "Manual rotation recorded."
   },
+  "pamRotationConfigEditCredential": {
+    "message": "Edit credential"
+  },
+  "pamRotationConfigRemoveFromRotation": {
+    "message": "Remove from rotation"
+  },
   "pamRotationConfigPause": {
-    "message": "Pause"
+    "message": "Pause rotation"
   },
   "pamRotationConfigPauseSuccess": {
     "message": "Rotation paused."
   },
   "pamRotationConfigResume": {
-    "message": "Resume"
+    "message": "Resume rotation"
   },
   "pamRotationConfigResumeSuccess": {
     "message": "Rotation resumed."
