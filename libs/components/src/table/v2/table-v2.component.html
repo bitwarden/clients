@@ -59,10 +59,6 @@
   }
 </ng-template>
 
-<!--
-  A data row. `cells` is the template to stamp — real cells for a data row, skeletons
-  while loading.
--->
 <ng-template #dataRowTpl let-row let-cells="cells">
   @if (isList()) {
     <bit-item

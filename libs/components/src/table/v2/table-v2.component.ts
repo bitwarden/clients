@@ -196,7 +196,6 @@ type RenderItem<T> =
     // Filter chips projected into the table resolve this host by DI and
     // self-register; the table folds their values into `filtered`.
     { provide: FILTER_HOST, useExisting: forwardRef(() => BitTableV2Component) },
-    // Cells read the presentation from here rather than injecting the table directly.
     {
       provide: TABLE_PRESENTATION,
       useFactory: (table: BitTableV2Component) => table.presentation,
@@ -579,8 +578,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (this.presentation() !== "list") {
       return "tw-flex tw-items-center tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-bg-bg-secondary tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-fg-body";
     }
-    // Matches the extension's section headers. Neither pads above the label; there that
-    // space comes from `bit-section`.
+    // Matches the extension's section headers.
     const type =
       level === 0
         ? "tw-text-sm tw-text-main tw-font-medium tw-px-1 tw-pb-1"
@@ -646,7 +644,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   private readonly scrolled = signal(false);
 
-  /** Whether the body has scrolled away from the top. Read by `bit-table-toolbar`. */
+  /** Whether the body has scrolled away from the top. */
   readonly isScrolled = this.scrolled.asReadonly();
 
   protected onBodyScroll(event: Event): void {
@@ -668,17 +666,11 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   /** True when {@link height} is `"fill"`. */
   protected readonly isFill = computed(() => this.height() === "fill");
 
-  /** True when {@link presentation} is `"list"`. */
   protected readonly isList = computed(() => this.presentation() === "list");
 
-  /** `list` has no container chrome, so each item holds itself off the edge. */
   protected readonly listInset = computed(() => (this.isList() ? "tw-mx-3" : ""));
 
-  /**
-   * Keeps rows uniform when a cell leaves a slot empty — an empty slot has no line box,
-   * so it would collapse the card by a line. {@link virtualRowHeight} is the full
-   * advance, so the card's own margin comes back out via `--bit-card-gap`.
-   */
+  /** Uniform height; `--bit-card-gap` removes the card's own margin. */
   protected readonly listCardHeight = computed(() => {
     const advance = this.virtualRowHeight();
     return this.isList() && advance != null ? `calc(${advance}px - var(--bit-card-gap))` : null;

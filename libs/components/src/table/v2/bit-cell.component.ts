@@ -34,7 +34,6 @@ import { TABLE_PRESENTATION } from "./table-presentation";
 export class BitCellComponent {
   private readonly presentation = inject(TABLE_PRESENTATION, { optional: true });
 
-  /** Opts the end slot into `bit-item`'s global per-content-type gutters. */
   protected readonly isItemEndSlot = computed(() => this.presentation?.() === "list");
 
   /** Truncate the default and secondary slots on overflow. Default `true`. */
