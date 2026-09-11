@@ -104,22 +104,34 @@
     The suspended-organization state renders here rather than replacing the table, so
     the filter that caused it stays clearable.
   -->
-  <bit-status-lockup slot="empty" class="tw-mx-3 tw-my-auto" size="small">
-    <bit-svg
-      slot="graphic"
-      [content]="showDeactivatedOrg() ? deactivatedIcon : noResultsIcon"
-    ></bit-svg>
-    <span slot="title">{{
-      showDeactivatedOrg()
-        ? ("organizationIsDeactivated" | i18n)
-        : ((hasSearchText() ? "noItemsMatchSearch" : "nothingToShow") | i18n)
-    }}</span>
-    @if (showDeactivatedOrg()) {
+  @if (showDeactivatedOrg()) {
+    <bit-status-lockup slot="empty" class="tw-mx-3 tw-my-auto" size="small">
+      <bit-svg slot="graphic" [content]="deactivatedIcon"></bit-svg>
+      <span slot="title">{{ "organizationIsDeactivated" | i18n }}</span>
       <span slot="description">{{ "contactYourOrgAdmin" | i18n }}</span>
-    } @else if (hasSearchText()) {
-      <span slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</span>
-    }
-  </bit-status-lockup>
+    </bit-status-lockup>
+  } @else {
+    <vault-empty-vault
+      slot="empty"
+      class="tw-mx-3 tw-my-auto"
+      [hasItems]="hasItems()"
+      [filterValues]="emptyStateFilterValues()"
+      [scope]="allItemsScope"
+      [hasMultipleVaults]="true"
+      (clearSearch)="clearSearch()"
+      (clearFilters)="clearFilters()"
+    >
+      <a
+        slot="empty-add-item"
+        bitButton
+        routerLink="/import"
+        buttonType="secondary"
+        startIcon="bwi-external-link"
+      >
+        {{ "importItems" | i18n }}
+      </a>
+    </vault-empty-vault>
+  }
 
   <bit-column>
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>

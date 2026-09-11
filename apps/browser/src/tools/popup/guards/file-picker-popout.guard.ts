@@ -58,6 +58,8 @@ export function filePickerPopoutGuard(): CanActivateFn {
     // Chromium on Linux/Mac: needs sidebar OR popout for file picker access
     // All Chromium-based browsers (Chrome, Edge, Opera, Vivaldi)
     // Brave intentionally reports itself as Chrome for compatibility
+    // DuckDuckGo is deliberately absent: it is only Chromium (WebView2) on Windows, where
+    // no popout is required, and its macOS build is WebKit rather than Chromium.
     const isChromiumBased = [
       DeviceType.ChromeExtension,
       DeviceType.EdgeExtension,

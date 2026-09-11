@@ -4,7 +4,7 @@
 # This should only be done after reviewing the PR to ensure that no malicious code has been introduced,
 # as it could allow the code on the forked branch to have access to workflow secrets.
 
-name: Build CLI on PR Target
+name: Build CLI (Fork PR)
 
 on:
   pull_request_target:
