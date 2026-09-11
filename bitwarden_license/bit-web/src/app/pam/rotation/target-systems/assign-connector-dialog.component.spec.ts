@@ -29,8 +29,8 @@ describe("AssignConnectorDialogComponent", () => {
 
   const system = targetSystem({ name: "Prod Entra" });
 
-  function createComponent(options: AccessConnector[]): Promise<void> {
-    const params: AssignConnectorDialogParams = { targetSystem: system, options };
+  function createComponent(options: AccessConnector[], noneEligible = false): Promise<void> {
+    const params: AssignConnectorDialogParams = { targetSystem: system, options, noneEligible };
     dialogRef = {
       close: jest.fn().mockReturnValue(Promise.resolve()),
     } as unknown as jest.Mocked<DialogRef<string | undefined>>;
@@ -62,10 +62,18 @@ describe("AssignConnectorDialogComponent", () => {
     expect(select).toBeTruthy();
   });
 
-  it("shows an empty-options message when there are no options", async () => {
+  it("says every connector is already assigned when the options are exhausted", async () => {
     await createComponent([]);
     const html = fixture.nativeElement.textContent as string;
     expect(html).toContain("pamTargetSystemAssignConnectorNoOptions");
+    expect(html).not.toContain("pamTargetSystemAssignConnectorNone");
+  });
+
+  it("says there is nothing to assign when no connector is eligible", async () => {
+    await createComponent([], true);
+    const html = fixture.nativeElement.textContent as string;
+    expect(html).toContain("pamTargetSystemAssignConnectorNone");
+    expect(html).not.toContain("pamTargetSystemAssignConnectorNoOptions");
   });
 
   it("closes with undefined on cancel", async () => {
