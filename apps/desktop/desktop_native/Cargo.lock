@@ -426,6 +426,7 @@ dependencies = [
  "mockall 0.15.0",
  "serial_test",
  "tracing",
+ "tracing-subscriber",
  "windows 0.62.2",
  "windows-core 0.62.2",
 ]
