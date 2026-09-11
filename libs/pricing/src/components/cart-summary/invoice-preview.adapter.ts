@@ -86,7 +86,7 @@ const hasProrations = (prorations: PurchasableProration[] | undefined): boolean 
  *
  * Sums in integer cents and converts once at the end so a run of fractional credits cannot
  * accumulate floating-point drift. The row is emitted only when the total is positive AND the
- * flow context actually renders credit — only two surfaces do.
+ * flow context actually renders credit.
  */
 const buildCreditRow = (
   preview: InvoicePreview,

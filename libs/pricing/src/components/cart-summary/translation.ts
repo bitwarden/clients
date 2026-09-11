@@ -38,11 +38,13 @@ export const getCartItemTranslationKey = (
     case "pm-seat":
       return getPasswordManagerSeatTranslationKey(planTier, flowContext, logService);
     case "pm-storage":
-      return "additionalStorageGb";
+      return "additionalStorageGbLower";
     case "sm-seat":
-      return "secretsManagerPlanPrice";
+      return flowContext === InvoicePreviewFlowContext.OrganizationSubscriptionPage
+        ? "membersLower"
+        : "secretsManagerPlanPrice";
     case "sm-service-account":
-      return "additionalServiceAccounts";
+      return "additionalServiceAccountsLower";
     default: {
       // `reference` is a closed union, so this arm is unreachable through the type system. It
       // still guards against a server value outside the union reaching us at runtime.
@@ -77,13 +79,20 @@ const getPasswordManagerSeatTranslationKey = (
         return membershipKeysByTier[planTier];
       }
       break;
-    // Plan-change previews always describe an existing organization moving between org tiers,
-    // so they render the same per-seat plan-price copy as the other org-scoped surfaces. A
-    // premium tier can't be plan-changed into, hence the tier guard below leaves it unmapped.
-    case InvoicePreviewFlowContext.OrganizationCheckout:
-    case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
+    // Org purchase surfaces (checkout and plan-change) show per-seat plan-price copy; premium is
+    // not an org tier, so the tier guard leaves it unmapped. The subscription page diverges below.
     case InvoicePreviewFlowContext.OrganizationPlanChange:
+    case InvoicePreviewFlowContext.OrganizationCheckout:
       if (planTier === "families" || planTier === "teams" || planTier === "enterprise") {
+        return "passwordManagerPlanPrice";
+      }
+      break;
+    case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
+      // Teams/Enterprise bill per seat, so "members"; Families is one flat plan (plan price).
+      if (planTier === "teams" || planTier === "enterprise") {
+        return "membersLower";
+      }
+      if (planTier === "families") {
         return "passwordManagerPlanPrice";
       }
       break;
@@ -98,8 +107,8 @@ const getPasswordManagerSeatTranslationKey = (
 /**
  * Resolves the translation key for the collapsed proration credit row.
  *
- * Only two surfaces render a credit row. Every other flow context returns `undefined`, and the
- * adapter emits no credit row at all.
+ * Surfaces that do not render a credit row return `undefined`, and the adapter emits no credit
+ * row at all.
  */
 export const getCreditTranslationKey = (
   flowContext: InvoicePreviewFlowContext,
@@ -108,6 +117,7 @@ export const getCreditTranslationKey = (
     case InvoicePreviewFlowContext.PremiumOrgUpgrade:
       return "premiumSubscriptionCredit";
     case InvoicePreviewFlowContext.OrganizationPlanChange:
+    case InvoicePreviewFlowContext.OrganizationSubscriptionPage:
       return "appliedSubscriptionCredits";
     default:
       return undefined;

@@ -86,7 +86,7 @@ describe("SubscriptionPreviewService", () => {
 
       const result = await sut.getOrganizationSubscriptionPreview("org-id-123");
 
-      expect(result.cart.passwordManager.seats.translationKey).toBe("passwordManagerPlanPrice");
+      expect(result.cart.passwordManager.seats.translationKey).toBe("membersLower");
     });
 
     it("should pass the organization id through to the client", async () => {
