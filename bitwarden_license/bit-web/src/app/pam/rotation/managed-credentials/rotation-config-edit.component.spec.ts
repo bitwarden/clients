@@ -92,6 +92,8 @@ type SetupOptions = {
   template?: "real";
   /** Fails the org-wide read the create form's pickers are built from. */
   listConfigsRejects?: boolean;
+  /** Fails the target-system read, which reports on `loadError$` instead of rejecting. */
+  targetSystemsLoadFails?: boolean;
   /** Fails the read of the config the edit page's URL names. */
   getConfigRejects?: boolean;
 };
@@ -105,6 +107,7 @@ function setup(options: SetupOptions = {}) {
     tab = "configuration",
     template,
     listConfigsRejects = false,
+    targetSystemsLoadFails = false,
     getConfigRejects = false,
   } = options;
 
@@ -143,9 +146,13 @@ function setup(options: SetupOptions = {}) {
 
   const dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
 
+  const targetSystemsLoadError = new BehaviorSubject<unknown | null>(null);
   const targetSystemsService = {
     systems$: new BehaviorSubject(targetSystems ?? [target]),
-    load: jest.fn().mockResolvedValue(undefined),
+    loadError$: targetSystemsLoadError,
+    load: jest.fn(async () => {
+      targetSystemsLoadError.next(targetSystemsLoadFails ? new Error("boom") : null);
+    }),
   };
 
   const orgCiphersService = {
@@ -440,6 +447,16 @@ describe("RotationConfigEditComponent — target-system handoff", () => {
       expect(el.querySelector('[data-testid="rotation-config-edit-loading"]')).toBeNull();
     });
 
+    it("reports a failed target-system read rather than an empty picker", async () => {
+      const api = setup({ template: "real", targetSystemsLoadFails: true, targetSystems: [] });
+      await api.fixture.whenStable();
+      api.fixture.detectChanges();
+
+      const el = api.fixture.nativeElement as HTMLElement;
+      expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
+      expect(el.textContent).not.toContain("pamRotationConfigNoActiveTargetSystems");
+    });
+
     it("does not announce a failed load as loaded", async () => {
       const { fixture } = await renderFailedCreate();
 
@@ -571,14 +588,14 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
     /** An edit page rendered from its own template, settled, whose config read failed. */
     async function renderFailedEdit() {
       const api = setup({ configId: configId("cfg-1"), template: "real", getConfigRejects: true });
+      const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
       await api.fixture.whenStable();
       api.fixture.detectChanges();
-      return api;
+      return { ...api, nav };
     }
 
     it("stays on the page and reports the failure rather than bouncing to the list", async () => {
-      const { fixture, toastService } = await renderFailedEdit();
-      const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+      const { fixture, toastService, nav } = await renderFailedEdit();
 
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
