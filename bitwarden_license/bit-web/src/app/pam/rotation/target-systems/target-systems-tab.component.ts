@@ -442,7 +442,7 @@ export class TargetSystemsTabComponent {
   private buildRows(systems: TargetSystem[], connectors: AccessConnector[]): TargetSystemRow[] {
     const connectorsKnown = this.connectorsKnown();
     const connectorsUnavailable = this.connectorsUnavailable();
-    const hasAnyConnector = eligibleConnectors(connectors).length > 0;
+    const hasActiveConnector = eligibleConnectors(connectors).length > 0;
     return systems.map((system) => {
       const methodLabelKey = targetSystemMethodLabelKey(system.method);
       const active = system.status === TargetSystemStatus.Active;
@@ -465,7 +465,7 @@ export class TargetSystemsTabComponent {
           ? "pamTargetSystemConnectorAssignmentsLoadError"
           : !connectorsKnown || assignableConnectors(system.id, connectors).length > 0
             ? null
-            : hasAnyConnector
+            : hasActiveConnector
               ? "pamTargetSystemAssignConnectorNoOptions"
               : "pamTargetSystemAssignConnectorNone",
       };
