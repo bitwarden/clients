@@ -9,54 +9,40 @@ import {
 } from "@storybook/angular";
 import { of } from "rxjs";
 
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import { AccessConnectorsService } from "../access-connectors/access-connectors.service";
-import { AccessConnector, TargetSystemView } from "../rotation";
-import {
-  ORGANIZATION_ID,
-  pendingTargetSystem,
-  sysId,
-  targetSystem,
-  targetSystemSealedFields,
-  unverifiableTargetSystem,
-} from "../testing/rotation-builders";
+import { DaemonsService } from "../daemons/daemons.service";
+import { AccessConnector, TargetSystem } from "../rotation";
+import { ORGANIZATION_ID, sysId, targetSystem } from "../testing/rotation-builders";
 import { atUrl } from "../testing/story-helpers";
 
 import { TargetSystemsTabComponent } from "./target-systems-tab.component";
 import { TargetSystemsService } from "./target-systems.service";
 
-/** Every method, kind, status and seal state the chips and columns can offer. */
-const SYSTEMS: TargetSystemView[] = [
-  targetSystem({
-    id: sysId("1"),
-    name: "Prod Entra",
-    sealed: targetSystemSealedFields({ kind: "entra" }),
-  }),
-  targetSystem({
-    id: sysId("3"),
-    name: "Billing rotation script",
-    sealed: targetSystemSealedFields({ kind: "custom_script" }),
-  }),
+/**
+ * Every method, kind and status the chips can offer.
+ */
+const SYSTEMS: TargetSystem[] = [
+  targetSystem({ id: sysId("1"), name: "Prod Entra", kind: "entra" }),
+  targetSystem({ id: sysId("2"), name: "Reporting SQL", kind: "mssql" }),
+  targetSystem({ id: sysId("3"), name: "Billing rotation script", kind: "custom_script" }),
   targetSystem({
     id: sysId("4"),
     name: "Retired Entra sandbox",
-    sealed: targetSystemSealedFields({ kind: "entra" }),
+    kind: "entra",
     status: "disabled",
   }),
   targetSystem({
     id: sysId("5"),
     name: "Legacy mainframe",
     method: "manual",
-    sealed: undefined,
+    kind: null,
+    supportsSessionTermination: false,
   }),
-  pendingTargetSystem({ id: sysId("6"), name: "Staging Entra (setup incomplete)" }),
-  unverifiableTargetSystem({ id: sysId("7"), name: "Finance SQL (integrity check failed)" }),
 ];
 
-function rotationServices(systems: TargetSystemView[]) {
+function rotationServices(systems: TargetSystem[]) {
   return moduleMetadata({
     imports: [RouterOutlet],
     providers: [
@@ -64,22 +50,18 @@ function rotationServices(systems: TargetSystemView[]) {
         provide: TargetSystemsService,
         useValue: {
           loading$: of(false),
-          loadError$: of(null),
           systems$: of(systems),
           systemById$: of(new Map(systems.map((s) => [s.id, s] as const))),
-          automaticSystems$: of(systems.filter((s) => s.status === "active")),
+          activeAutomaticSystems$: of(systems.filter((s) => s.status === "active")),
           load: () => Promise.resolve(),
           setEnabled: () => Promise.resolve(),
           delete: () => Promise.resolve(),
         },
       },
       {
-        provide: AccessConnectorsService,
+        provide: DaemonsService,
         useValue: {
-          accessConnectors$: of([] as AccessConnector[]),
-          loading$: of(false),
-          loadError$: of(null),
-          load: () => Promise.resolve(),
+          daemons$: of([] as AccessConnector[]),
           forgetTargetSystem: () => {},
           assign: () => Promise.resolve(),
         },
@@ -88,7 +70,9 @@ function rotationServices(systems: TargetSystemView[]) {
   });
 }
 
-/** Mirrors `rotation.routes.ts`, minus its guards, since the component declares no selector. */
+/**
+ * Mirrors `rotation.routes.ts` (minus its guards). The component declares no selector.
+ */
 const routes: Routes = [
   {
     path: "organizations/:organizationId/pam/rotation",
@@ -106,10 +90,6 @@ export default {
     applicationConfig({
       providers: [
         importProvidersFrom(PreloadedEnglishI18nModule),
-        {
-          provide: PlatformUtilsService,
-          useValue: { copyToClipboard: (): void => undefined },
-        },
         provideRouter(routes, withHashLocation()),
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
@@ -120,18 +100,23 @@ export default {
 
 type Story = StoryObj<TargetSystemsTabComponent>;
 
-/** The full toolbar, with search and the Method, Type and Status chips, each with options. */
+/**
+ * The full toolbar: search plus the Method, Type and Status chips, each with options to pick.
+ */
 export const Default: Story = {
   decorators: [rotationServices(SYSTEMS)],
 };
 
-/** No row offers "Add managed credential". */
+/**
+ * Every target retired. No row offers "Add managed credential".
+ */
 export const AllDisabled: Story = {
   decorators: [
     rotationServices(SYSTEMS.map((system) => targetSystem({ ...system, status: "disabled" }))),
   ],
 };
 
+/** No target systems configured yet. */
 export const Empty: Story = {
   decorators: [rotationServices([])],
 };
