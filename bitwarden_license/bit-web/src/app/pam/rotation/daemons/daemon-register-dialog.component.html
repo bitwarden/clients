@@ -1,6 +1,6 @@
 <form [formGroup]="form" [bitSubmit]="submit" bit-dialog dialogSize="default">
   <ng-container bitDialogTitle>
-    {{ "pamDaemonRegisterTitle" | i18n }}
+    {{ "pamAccessConnectorRegisterTitle" | i18n }}
   </ng-container>
 
   <div bitDialogContent>
@@ -10,9 +10,9 @@
         bitInput
         formControlName="name"
         id="daemon-register-dialog_input_name"
-        [placeholder]="'pamDaemonNamePlaceholder' | i18n"
+        [placeholder]="'pamAccessConnectorNamePlaceholder' | i18n"
       />
-      <bit-hint>{{ "pamDaemonNameHint" | i18n }}</bit-hint>
+      <bit-hint>{{ "pamAccessConnectorNameHint" | i18n }}</bit-hint>
     </bit-form-field>
   </div>
 
@@ -24,7 +24,7 @@
       bitFormButton
       id="daemon-register-dialog_button_submit"
     >
-      {{ "pamDaemonRegister" | i18n }}
+      {{ "pamAccessConnectorRegister" | i18n }}
     </button>
     <button
       type="button"
