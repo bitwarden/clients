@@ -23,6 +23,16 @@ export type AssignConnectorDialogParams = {
    * target system.
    */
   options: AccessConnector[];
+  /**
+   * Whether the organization has no enabled access connector at all, as opposed to having them
+   * all assigned to this target system already.
+   *
+   * Both states reach the dialog as an empty `options`, and they read very differently: one asks
+   * the operator to register or activate a connector, the other tells them there is nothing left
+   * to add. Optional, and false when omitted, so a caller that cannot yet tell the two apart keeps
+   * the all-assigned reading rather than asserting the stronger claim.
+   */
+  noneEligible?: boolean;
 };
 
 /**
