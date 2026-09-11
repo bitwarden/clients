@@ -40,6 +40,12 @@ export interface JobView {
   statusLabelKey: string;
   statusVariant: BadgeVariant;
   failed: boolean;
+  /**
+   * Whether a connector has claimed the job and is executing it.
+   *
+   * A job the queue still holds is not running: nothing has claimed it, it has no start and no
+   * span, and it may never be claimed at all.
+   */
   running: boolean;
   /**
    * When the job's first attempt began, or `null` when no attempt has been recorded.
