@@ -206,6 +206,24 @@ describe("InvoicePreviewResponse", () => {
       expect(response.discounts![0].amount).toBe(0);
     });
 
+    it("should parse a discount's DurationInMonths when present", () => {
+      const response = new InvoicePreviewResponse({
+        ...base(),
+        Discounts: [{ Type: "percent-off", Value: 20, Amount: 10, DurationInMonths: 12 }],
+      });
+
+      expect(response.discounts![0].durationInMonths).toBe(12);
+    });
+
+    it("should leave durationInMonths undefined when the discount has no duration", () => {
+      const response = new InvoicePreviewResponse({
+        ...base(),
+        Discounts: [{ Type: "percent-off", Value: 20, Amount: 10 }],
+      });
+
+      expect(response.discounts![0].durationInMonths).toBeUndefined();
+    });
+
     it("should NOT throw on an unrecognized purchasable reference", () => {
       // Forward compatibility: the translation layer logs and renders an empty label instead.
       const response = new InvoicePreviewResponse({
