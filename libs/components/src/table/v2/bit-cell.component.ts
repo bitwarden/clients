@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 
 import { TypographyModule } from "../../typography";
+
+import { TABLE_PRESENTATION } from "./table-presentation";
 
 /**
  * A body cell. Renders a `<div role="cell">` internally with cell sizing
@@ -29,6 +31,10 @@ import { TypographyModule } from "../../typography";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BitCellComponent {
+  private readonly presentation = inject(TABLE_PRESENTATION, { optional: true });
+
+  protected readonly isItemEndSlot = computed(() => this.presentation?.() === "list");
+
   /** Truncate the default and secondary slots on overflow. Default `true`. */
   readonly truncate = input(true);
 

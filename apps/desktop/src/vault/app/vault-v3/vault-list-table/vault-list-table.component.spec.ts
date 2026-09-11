@@ -11,7 +11,7 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { CipherRowMenuService } from "@bitwarden/vault";
+import { CipherRowMenuService, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { VaultListTableComponent } from "./vault-list-table.component";
 
@@ -43,6 +43,10 @@ describe("VaultListTableComponent", () => {
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: CipherRowMenuService, useValue: { getRowActions: mockGetRowActions } },
         { provide: ConfigService, useValue: configService },
+        {
+          provide: VaultCopyButtonsService,
+          useValue: { showQuickCopyActions$: of(false) },
+        },
         ...extraProviders,
       ],
     })
@@ -69,6 +73,32 @@ describe("VaultListTableComponent", () => {
       component.onEvent.subscribe((e) => emitted.push(e));
       component["itemAction"](cipher);
       expect(emitted).toEqual([{ type: "viewCipher", item: cipher }]);
+    });
+  });
+
+  describe("copyPresentation", () => {
+    // The outer `beforeEach` already stood a component up, so these cases have to tear the module
+    // down before re-configuring it with their own setting value.
+    const setupWith = async (settingEnabled: boolean) => {
+      TestBed.resetTestingModule();
+      await setup([
+        {
+          provide: VaultCopyButtonsService,
+          useValue: { showQuickCopyActions$: of(settingEnabled) },
+        },
+      ]);
+    };
+
+    it("expands the copy actions when the setting is on", async () => {
+      await setupWith(true);
+
+      expect(component["copyPresentation"]()).toBe("expanded");
+    });
+
+    it("stays collapsed when the setting is off", async () => {
+      await setupWith(false);
+
+      expect(component["copyPresentation"]()).toBe("collapsed");
     });
   });
 

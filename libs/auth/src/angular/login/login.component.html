@@ -22,6 +22,7 @@
         formControlName="rememberEmail"
         data-testid="login-remember-email"
         (input)="onRememberEmailInput($event)"
+        (keyup.enter)="ssoRequired ? handleSsoClick() : continuePressed()"
         bitCheckbox
       />
       <bit-label>{{ "rememberEmail" | i18n }}</bit-label>
