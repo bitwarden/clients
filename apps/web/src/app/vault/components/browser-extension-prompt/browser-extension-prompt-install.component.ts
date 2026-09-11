@@ -23,6 +23,8 @@ const WebStoreUrls: Partial<Record<DeviceType, string>> = {
     "https://addons.opera.com/extensions/details/bitwarden-free-password-manager/",
   [DeviceType.EdgeBrowser]:
     "https://microsoftedge.microsoft.com/addons/detail/jbkfoedolllekgbhcbcoahefnbanhhlh",
+  // DuckDuckGoBrowser is intentionally absent: only its Windows (Chromium) build can install
+  // Chrome Web Store extensions, and this map carries no platform information.
 };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

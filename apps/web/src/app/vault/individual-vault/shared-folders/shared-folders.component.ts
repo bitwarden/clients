@@ -7,6 +7,7 @@ import {
   COLLECTION_DIALOG,
   SharedFoldersBreadcrumbsComponent,
   SharedFoldersComponent as VaultSharedFoldersComponent,
+  VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
 
 import { BulkEditCollectionAccessWebDialogAdapter } from "../../../admin-console/organizations/collections/bulk-collections-dialog/bulk-edit-collection-access-web-dialog.adapter";
@@ -26,7 +27,12 @@ import { CollectionWebDialogAdapter } from "./collection-web-dialog.adapter";
   host: {
     class: "tw-flex tw-flex-col tw-h-full tw-min-h-0",
   },
-  imports: [HeaderModule, SharedFoldersBreadcrumbsComponent, VaultSharedFoldersComponent],
+  imports: [
+    HeaderModule,
+    SharedFoldersBreadcrumbsComponent,
+    VaultSharedFoldersComponent,
+    VaultOrganizationUserNotificationsComponent,
+  ],
   providers: [
     safeProvider({
       provide: COLLECTION_DIALOG,

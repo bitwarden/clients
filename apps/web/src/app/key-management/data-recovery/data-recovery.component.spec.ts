@@ -1,9 +1,11 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -81,6 +83,7 @@ describe("DataRecoveryComponent", () => {
         { provide: CryptoFunctionService, useValue: mockCryptoFunctionService },
         { provide: FileDownloadService, useValue: mockFileDownloadService },
         { provide: EncryptService, useValue: mockEncryptService },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => new BehaviorSubject(false) } },
       ],
     }).compileComponents();
 

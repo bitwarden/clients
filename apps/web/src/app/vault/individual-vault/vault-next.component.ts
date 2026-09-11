@@ -16,7 +16,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
-import { ButtonModule, DialogService } from "@bitwarden/components";
+import { ButtonModule, DialogService, IconTileComponent } from "@bitwarden/components";
 import { isGuid } from "@bitwarden/guid";
 import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
@@ -25,14 +25,13 @@ import {
   AddItemDialogResult,
   CipherRowMenuHandlers,
   CipherRowMenuService,
+  copyPresentation$,
   DEFAULT_COPY_PRESENTATION,
   DefaultCipherFormConfigService,
   NewCipherMenuComponent,
   SharedFolderCardGridComponent,
-  VaultCopyButtonsService,
-  VaultCollectionBreadcrumbsComponent,
+  VaultBreadcrumbsComponent,
   VaultItemsTableComponent,
-  VaultItemsTableCopyPresentation,
   VaultItemsTableRowAction,
   VaultNavService,
   VaultOrganizationUserNotificationsComponent,
@@ -41,11 +40,13 @@ import {
   collectionInScope,
   hasMultipleVaults,
   organizationNameForScope,
-  MY_ITEMS_ROUTE,
   organizationInScope,
-  parseVaultScope,
+  organizationVaultPage,
+  OrganizationVaultPage,
   resolveVaultScope,
   scopedCollectionSegment,
+  vaultScopeHeaderTile,
+  vaultScopeTitle,
   scopedSharedFolderId,
   sharedFolderNameForScope,
   VaultScopeType,
@@ -82,7 +83,8 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     HeaderModule,
     NewCipherMenuComponent,
     VaultBannersComponent,
-    VaultCollectionBreadcrumbsComponent,
+    VaultBreadcrumbsComponent,
+    IconTileComponent,
     VaultItemsTableComponent,
     VaultOnboardingComponent,
     VaultOrganizationUserNotificationsComponent,
@@ -98,7 +100,6 @@ export class VaultNextComponent {
   private readonly cipherRowMenuService = inject(CipherRowMenuService);
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
-  private readonly copyButtonsService = inject(VaultCopyButtonsService);
   private readonly dialogService = inject(DialogService);
   private readonly folderService = inject(FolderService);
   private readonly itemActions = inject(WebVaultItemActionsService);
@@ -143,14 +144,16 @@ export class VaultNextComponent {
     return defaultUserCollectionId(scope.organizationId, this.vaultNav());
   });
 
-  protected readonly parsedVaultScope = computed(
-    () => parseVaultScope(this.vaultIdParam(), this.collectionSegment()) ?? ALL_ITEMS_SCOPE,
+  /** Only a shared folder trails a breadcrumb; every other page reads as a plain title. */
+  protected readonly showBreadcrumbs = computed(
+    () =>
+      organizationVaultPage(this.vaultScope(), this.vaultNav()) ===
+      OrganizationVaultPage.SharedFolder,
   );
 
-  protected readonly collectionSelected = computed(() => {
-    const seg = this.collectionSegment();
-    return seg != null && seg !== MY_ITEMS_ROUTE;
-  });
+  protected readonly headerTile = computed(() =>
+    vaultScopeHeaderTile(this.vaultScope(), this.vaultNav()),
+  );
 
   /**
    * Every item the user can see, in every state. Which of trashed, archived, and active items a
@@ -291,30 +294,13 @@ export class VaultNextComponent {
     return type !== VaultScopeType.Trash && type !== VaultScopeType.Archive;
   });
 
-  protected readonly title = computed(() => {
-    const scope = this.vaultScope();
-    switch (scope.type) {
-      case VaultScopeType.MyVault:
-        return this.i18nService.t("myVault");
-      case VaultScopeType.Organization:
-        return this.scopedOrganizations()[0]?.name;
-      case VaultScopeType.Trash:
-        return this.i18nService.t("trash");
-      case VaultScopeType.Archive:
-        return this.i18nService.t("archiveNoun");
-      default:
-        return undefined;
-    }
-  });
-
-  protected readonly copyPresentation = toSignal(
-    this.copyButtonsService.showQuickCopyActions$.pipe(
-      map((showQuickCopyActions): VaultItemsTableCopyPresentation =>
-        showQuickCopyActions ? "expanded" : "collapsed",
-      ),
-    ),
-    { initialValue: DEFAULT_COPY_PRESENTATION },
+  protected readonly title = computed(() =>
+    vaultScopeTitle(this.vaultScope(), this.i18nService, this.vaultNav()),
   );
+
+  protected readonly copyPresentation = toSignal(copyPresentation$(), {
+    initialValue: DEFAULT_COPY_PRESENTATION,
+  });
 
   private readonly rowMenuHandlers = computed<CipherRowMenuHandlers<CipherViewLike>>(() => ({
     edit: (item) => this.itemActions.edit(item),
