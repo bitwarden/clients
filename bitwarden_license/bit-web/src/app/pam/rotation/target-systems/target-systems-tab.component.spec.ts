@@ -1345,8 +1345,8 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
   it("leaves a manual target out of the kind options, since it has no kind", () => {
     setup([entraActive, mssqlDisabled, manualActive]);
     expect(component.kindOptions()).toEqual([
-      { value: TargetSystemKind.Entra, label: "pamTargetSystemKindEntra" },
-      { value: TargetSystemKind.Mssql, label: "pamTargetSystemKindMssql" },
+      { value: TargetSystemKind.Entra, label: "pamTargetSystemTypeEntra" },
+      { value: TargetSystemKind.Mssql, label: "pamTargetSystemTypeMssql" },
     ]);
   });
 
@@ -1363,7 +1363,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
     ]);
 
     expect(component.kindOptions()).toEqual([
-      { value: TargetSystemKind.Entra, label: "pamTargetSystemKindEntra" },
+      { value: TargetSystemKind.Entra, label: "pamTargetSystemTypeEntra" },
     ]);
   });
 
