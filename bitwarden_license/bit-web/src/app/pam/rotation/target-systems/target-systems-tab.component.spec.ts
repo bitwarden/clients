@@ -213,16 +213,26 @@ describe("TargetSystemsTabComponent", () => {
       return (component as unknown as { dataSource: { data: TargetSystemRow[] } }).dataSource.data;
     }
 
+    it("labels an Active Directory target as Active Directory, not as a custom script", () => {
+      const [row] = rowsFor([
+        makeSystem({ id: sysId("sys-ad"), kind: TargetSystemKind.ActiveDirectory }),
+      ]);
+
+      expect(row!.kindLabel).toBe("pamTargetSystemKindActiveDirectory");
+    });
+
     it("gives every modelled kind its own label", () => {
       const rows = rowsFor([
         makeSystem({ id: sysId("1"), kind: TargetSystemKind.Entra }),
         makeSystem({ id: sysId("2"), kind: TargetSystemKind.Mssql }),
-        makeSystem({ id: sysId("3"), kind: TargetSystemKind.CustomScript }),
+        makeSystem({ id: sysId("3"), kind: TargetSystemKind.ActiveDirectory }),
+        makeSystem({ id: sysId("4"), kind: TargetSystemKind.CustomScript }),
       ]);
 
       expect(rows.map((row) => row.kindLabel)).toEqual([
         "pamTargetSystemKindEntra",
         "pamTargetSystemKindMssql",
+        "pamTargetSystemKindActiveDirectory",
         "pamTargetSystemKindCustomScript",
       ]);
     });
