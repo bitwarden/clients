@@ -203,6 +203,7 @@ export default {
               filterResults: (count) => `${count} results`,
               search: "Search",
               resetSearch: "Reset search",
+              clearSearchTooltip: "Clear by clicking here or pressing Esc.",
               clear: "Clear",
               filtersSelected: (count) => `${count} selected`,
             }),

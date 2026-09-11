@@ -1,0 +1,64 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./kbd.stories";
+
+<Meta of={stories} />
+
+```ts
+import { BitKbdComponent } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+Renders a keyboard shortcut as one `<kbd>` element per key, joined by `+`. Use it to surface a
+shortcut hint next to the control it triggers — for example the `⌘ F` hint inside
+[Search](?path=/docs/component-library-form-search--docs).
+
+<Primary />
+<Controls />
+
+## Keys
+
+The `keys` input takes the shortcut in press order. Each entry is rendered verbatim, so pass the
+label you want displayed (`"F"`, `"Esc"`, `"Shift"`).
+
+<Canvas of={stories.SingleKey} />
+
+### The `modifier` token
+
+Pass the literal string `"modifier"` to render the platform's primary modifier key — `⌘` on macOS,
+`Ctrl` elsewhere. The platform is first guessed from `navigator`, then upgraded to `⌘` the first
+time a Cmd chord is observed — Cmd is Apple-exclusive, so the correction is one-way and a Ctrl chord
+never flips the glyph back.
+
+Key labels are not localized. `⌘` is a locale-independent glyph, but `Ctrl` and `Esc` render as
+English abbreviations everywhere — German keyboards, for instance, print `Strg` rather than `Ctrl`.
+Translating legends needs i18n plumbed through this component and is out of scope for now.
+
+## Accessibility
+
+The component is presentational and is not focusable. A shortcut hint duplicates information already
+conveyed by the control, so hide it from assistive technology (`aria-hidden="true"` on a wrapper)
+and announce the shortcut on the control itself with `aria-keyshortcuts`.
+
+[Search](?path=/docs/component-library-form-search--docs) already does this — set `useKeyShortcuts`
+and it renders the hint and sets `aria-keyshortcuts` on its own input. When pairing `bit-kbd` with a
+control of your own, follow the same shape:
+
+```html
+<input type="search" aria-keyshortcuts="Control+f Meta+f" />
+<span aria-hidden="true">
+  <bit-kbd [keys]="['modifier', 'F']" />
+</span>
+```
+
+`aria-keyshortcuts` takes [UI Events](https://www.w3.org/TR/uievents-key/) key names rather than the
+labels shown in the badge, and the tokens name physical keys rather than the characters they
+generate — so a shortcut on the `f` key is `Control+f`, and `Control+F` would mean Ctrl+Shift+F.
+Modifiers are always spelled `Alt`, `Control`, `Shift`, `Meta`, or `AltGraph`, so those tokens are
+never translated.
+
+Nothing localizes the rest of the value for you, though — adapting it is the author's job. A
+shortcut whose non-modifier key sits on a different physical key, or needs a different modifier,
+under another keyboard layout has to be adjusted in both the attribute and the handler.
