@@ -30,6 +30,9 @@ interface DrawerLevel {
   template: `
     <bit-layout>
       <button class="tw-mr-2" bitButton type="button" (click)="openDialog()">Open Dialog</button>
+      <button class="tw-mr-2" bitButton size="small" type="button" (click)="openSmallDialog()">
+        Open Small Dialog
+      </button>
       <button class="tw-mr-2" bitButton type="button" (click)="openDialogNonDismissable()">
         Open Non-Dismissable Dialog
       </button>
@@ -51,6 +54,14 @@ class StoryDialogComponent {
 
   openDialog() {
     this.dialogService.open(StoryDialogContentComponent, {
+      data: {
+        animal: "panda",
+      },
+    });
+  }
+
+  openSmallDialog() {
+    this.dialogService.open(StorySmallDialogContentComponent, {
       data: {
         animal: "panda",
       },
@@ -125,6 +136,34 @@ class StoryDialogComponent {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class StoryDialogContentComponent {
+  dialogRef = inject(DialogRef);
+  private data = inject<Animal>(DIALOG_DATA);
+
+  get animal() {
+    return this.data?.animal;
+  }
+}
+
+@Component({
+  template: `
+    <bit-dialog title="Dialog Title" dialogSize="small">
+      <span bitDialogContent>
+        Dialog body text goes here.
+        <br />
+        Animal: {{ animal }}
+      </span>
+      <ng-container bitDialogFooter>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
+          Save
+        </button>
+        <button type="button" bitButton buttonType="secondary" bitDialogClose>Cancel</button>
+      </ng-container>
+    </bit-dialog>
+  `,
+  imports: [DialogModule, ButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class StorySmallDialogContentComponent {
   dialogRef = inject(DialogRef);
   private data = inject<Animal>(DIALOG_DATA);
 

@@ -5,7 +5,7 @@ import {
 } from "@angular/cdk/dialog";
 import { ComponentType, GlobalPositionStrategy, ScrollStrategy } from "@angular/cdk/overlay";
 import { ComponentPortal } from "@angular/cdk/portal";
-import { Injectable, Injector, TemplateRef, inject } from "@angular/core";
+import { Injectable, Injector, Signal, TemplateRef, inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
 import { filter, firstValueFrom, map, switchMap, take } from "rxjs";
@@ -16,6 +16,7 @@ import { LogService } from "@bitwarden/logging";
 
 import { isAtOrLargerThanBreakpoint } from "../utils/responsive-utils";
 
+import { DIALOG_POSITION, DialogPosition, DialogPositionStrategy } from "./dialog-position";
 import { CdkDialogRef, DialogConfig, DialogRef, DrawerRef } from "./dialog-ref";
 import { DrawerService } from "./drawer.service";
 import { SimpleConfigurableDialogComponent } from "./simple-dialog/simple-configurable-dialog/simple-configurable-dialog.component";
@@ -45,8 +46,13 @@ class CustomBlockScrollStrategy implements ScrollStrategy {
 /**
  * A responsive position strategy that adjusts the dialog position based on the screen size.
  */
-class ResponsivePositionStrategy extends GlobalPositionStrategy {
+class ResponsivePositionStrategy extends GlobalPositionStrategy implements DialogPositionStrategy {
   private abortController: AbortController | null = null;
+
+  private readonly _position = signal<DialogPosition>("center");
+
+  /** Where this strategy has currently placed the dialog. */
+  readonly position = this._position.asReadonly();
 
   /**
    * The previous breakpoint to avoid unnecessary updates.
@@ -83,6 +89,7 @@ class ResponsivePositionStrategy extends GlobalPositionStrategy {
     } else {
       this.centerVertically().centerHorizontally();
     }
+    this._position.set(isSmallScreen ? "bottom" : "center");
     this.apply();
   }
 }
@@ -150,19 +157,22 @@ export class DialogService {
      * This allows us to create the class instance and provide the base instance later, almost like "deferred inheritance".
      **/
     const ref = new CdkDialogRef<R, C>(this.logService, closePredicate);
+    const positionStrategy: DialogPositionStrategy =
+      config?.positionStrategy ?? new ResponsivePositionStrategy();
     const injector = this.createInjector({
       data: config?.data,
       dialogRef: ref,
+      position: positionStrategy.position,
     });
 
     // Merge the custom config with the default config
     const _config = {
       backdropClass: this.backDropClasses,
       scrollStrategy: this.defaultScrollStrategy,
-      positionStrategy: config?.positionStrategy ?? new ResponsivePositionStrategy(),
       closeOnNavigation: config?.closeOnNavigation,
       injector,
       ...otherConfig,
+      positionStrategy,
     };
 
     ref.cdkDialogRefBase = this.dialog.open<R, D, C>(componentOrTemplateRef, _config);
@@ -304,6 +314,8 @@ export class DialogService {
     data: unknown;
     dialogRef: DialogRef<any, any>;
     drawerRef?: DrawerRef<any, any>;
+    /** Absent when the dialog's position strategy doesn't report a position. */
+    position?: Signal<DialogPosition>;
   }): Injector {
     return Injector.create({
       providers: [
@@ -320,6 +332,7 @@ export class DialogService {
           useValue: opts.dialogRef,
         },
         ...(opts.drawerRef ? [{ provide: DrawerRef, useValue: opts.drawerRef }] : []),
+        ...(opts.position ? [{ provide: DIALOG_POSITION, useValue: opts.position }] : []),
       ],
       parent: this.injector,
     });

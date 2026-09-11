@@ -26,6 +26,7 @@ import { SpinnerComponent } from "../../spinner";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { hasScrollableContent$ } from "../../utils/";
 import { hasScrolledFrom } from "../../utils/has-scrolled-from";
+import { DIALOG_POSITION } from "../dialog-position";
 import { DialogRef } from "../dialog-ref";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
@@ -97,6 +98,13 @@ export class DialogComponent implements AfterViewInit {
   private readonly scrollBottom = viewChild.required<ElementRef<HTMLDivElement>>("scrollBottom");
 
   protected dialogRef = inject(DialogRef, { optional: true });
+
+  /**
+   * Where the dialog is placed in the viewport, per the position strategy it was opened with.
+   * Absent for a dialog that is centered or rendered outside of `DialogService`.
+   */
+  private readonly position = inject(DIALOG_POSITION, { optional: true });
+
   protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
   private scrollableBody$ = toObservable(this.scrollableBody);
   private scrollBottom$ = toObservable(this.scrollBottom);
@@ -164,13 +172,12 @@ export class DialogComponent implements AfterViewInit {
           "tw-max-h-[90vh]", // needed to prevent dialogs from overlapping the desktop header
         ];
 
-    const size = this.dialogSize();
     const animationClasses =
-      this.disableAnimations() || this.animationCompleted() || this.dialogRef?.isDrawer
+      this.disableAnimations() || this.animationCompleted() || isDrawer
         ? []
-        : size === "small"
-          ? ["tw-animate-slide-down"]
-          : ["tw-animate-slide-up", "md:tw-animate-slide-down"];
+        : this.position?.() === "bottom"
+          ? ["tw-animate-slide-up"]
+          : ["tw-animate-slide-down"];
 
     return [...baseClasses, this.width(), ...sizeClasses, ...animationClasses];
   });
