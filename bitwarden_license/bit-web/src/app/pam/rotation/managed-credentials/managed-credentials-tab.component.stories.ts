@@ -1,5 +1,5 @@
 import { importProvidersFrom } from "@angular/core";
-import { ActivatedRoute, RouterModule } from "@angular/router";
+import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
@@ -17,10 +17,12 @@ import { TargetSystemsService } from "../target-systems/target-systems.service";
 import {
   id,
   sysId,
+  ORGANIZATION_ID,
   rotationConfig,
   rotationConfigActions,
   rotationConfigDescription,
 } from "../testing/rotation-builders";
+import { atUrl } from "../testing/story-helpers";
 
 import { ManagedCredentialsTabComponent } from "./managed-credentials-tab.component";
 import { buildRotationConfigRow, RotationConfigRow } from "./rotation-config-row";
@@ -113,6 +115,7 @@ const ROWS: RotationConfigRow[] = [
 
 function rotationServices(rows: RotationConfigRow[]) {
   return moduleMetadata({
+    imports: [RouterOutlet],
     providers: [
       {
         provide: RotationConfigsService,
@@ -147,18 +150,33 @@ function rotationServices(rows: RotationConfigRow[]) {
   });
 }
 
+/**
+ * Mirrors `rotation.routes.ts` (minus its guards) so the tab reads `organizationId` from a real
+ * route param and its `[".."]` navigations resolve. The create and edit pages are stubbed as
+ * childless routes: the stories only need them to exist as navigation targets.
+ */
+const routes: Routes = [
+  {
+    path: "organizations/:organizationId/pam/rotation",
+    children: [
+      { path: "managed-credentials", component: ManagedCredentialsTabComponent },
+      { path: "managed-credentials/new", children: [] },
+      { path: "managed-credentials/:configId", children: [] },
+      { path: "target-systems/new", children: [] },
+    ],
+  },
+];
+
 export default {
   title: "Web/PAM/Rotation/Managed Credentials Tab",
   component: ManagedCredentialsTabComponent,
+  render: () => ({ template: `<router-outlet></router-outlet>` }),
   decorators: [
+    atUrl(`/organizations/${ORGANIZATION_ID}/pam/rotation/managed-credentials`),
     applicationConfig({
       providers: [
         importProvidersFrom(PreloadedEnglishI18nModule),
-        importProvidersFrom(RouterModule.forRoot([])),
-        {
-          provide: ActivatedRoute,
-          useValue: { params: of({ organizationId: "org-1" }) },
-        },
+        provideRouter(routes, withHashLocation()),
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         {
           provide: CollectionAdminService,
