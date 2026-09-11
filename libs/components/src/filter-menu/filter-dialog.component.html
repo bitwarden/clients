@@ -1,4 +1,4 @@
-<bit-dialog [title]="activeFilter()?.label() ?? ('filter' | i18n)" dialogSize="small">
+<bit-dialog [title]="activeFilter()?.label() ?? ('filter' | i18n)" dialogSize="default">
   @if (activeFilter()) {
     <button
       bitDialogHeaderStart
@@ -77,16 +77,6 @@
           {{ "clear" | i18n }}
         </button>
       }
-      <button
-        bitButton
-        buttonType="primary"
-        type="button"
-        [class.tw-ms-auto]="!activeSelectedCount()"
-        (click)="back()"
-        #doneButton
-      >
-        {{ "done" | i18n }}
-      </button>
     } @else {
       @if (selectedCount()) {
         <span class="tw-text-sm tw-text-muted">{{
@@ -103,16 +93,16 @@
           {{ "clearAll" | i18n }}
         </button>
       }
-      <button
-        bitButton
-        buttonType="primary"
-        type="button"
-        [class.tw-ms-auto]="!selectedCount()"
-        (click)="close()"
-        #doneButton
-      >
-        {{ "done" | i18n }}
-      </button>
     }
+    <button
+      bitButton
+      buttonType="primary"
+      type="button"
+      [class.tw-ms-auto]="!footerSelectedCount()"
+      bitDialogClose
+      #doneButton
+    >
+      {{ "done" | i18n }}
+    </button>
   </ng-container>
 </bit-dialog>
