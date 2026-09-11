@@ -19503,11 +19503,38 @@
   "pamRotationSessionTerminationUnknown": {
     "message": "Unknown"
   },
+  "pamRotationFailureCauseTargetUnreachable": {
+    "message": "The access connector could not reach the target system. Check the target system's address and that the connector can reach it on the network, then rotate again."
+  },
+  "pamRotationFailureReportedDetail": {
+    "message": "Reported by the access connector: $REASON$",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "target_rejected: LDAP result code 50"
+      }
+    }
+  },
   "pamRotationHistoryDurationLabel": {
     "message": "Duration"
   },
+  "pamRotationHistoryColumnAttempt": {
+    "message": "Attempt"
+  },
   "pamRotationHistoryColumnResult": {
     "message": "Result"
+  },
+  "pamRotationHistoryAttemptsCaption": {
+    "message": "Attempts, oldest first"
+  },
+  "pamRotationHistoryAttemptsAllAlike": {
+    "message": "Every attempt ended the same way."
+  },
+  "pamRotationJobDrawerTitle": {
+    "message": "Rotation job"
+  },
+  "pamRotationHistoryFailureHeading": {
+    "message": "Why it failed"
   },
   "pamRotationDurationSeconds": {
     "message": "$SECONDS$s",
