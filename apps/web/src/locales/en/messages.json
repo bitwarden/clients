@@ -18939,8 +18939,8 @@
   "pamTargetSystemMethodColumn": {
     "message": "Method"
   },
-  "pamTargetSystemKindColumn": {
-    "message": "Kind"
+  "pamTargetSystemTypeColumn": {
+    "message": "Type"
   },
   "pamTargetSystemSessionTerminationColumn": {
     "message": "Session termination"
@@ -19062,13 +19062,13 @@
   "pamTargetSystemMethodManualHint": {
     "message": "No rotation job is created. You rotate the credential by hand, then mark it as rotated."
   },
-  "pamTargetSystemKindEntra": {
+  "pamTargetSystemTypeEntra": {
     "message": "Entra"
   },
-  "pamTargetSystemKindMssql": {
+  "pamTargetSystemTypeMssql": {
     "message": "MSSQL"
   },
-  "pamTargetSystemKindCustomScript": {
+  "pamTargetSystemTypeCustomScript": {
     "message": "Custom script"
   },
   "pamTargetSystemNameWithDetail": {
@@ -19100,11 +19100,11 @@
   "pamTargetSystemMethodLabel": {
     "message": "Rotation method"
   },
-  "pamTargetSystemKindHeading": {
-    "message": "Integration"
+  "pamTargetSystemTypeHeading": {
+    "message": "Type"
   },
-  "pamTargetSystemKindLabel": {
-    "message": "Integration type"
+  "pamTargetSystemTypeLabel": {
+    "message": "Type"
   },
   "pamTargetSystemPolicyManualHint": {
     "message": "These are the rules to follow when you rotate this credential by hand."
