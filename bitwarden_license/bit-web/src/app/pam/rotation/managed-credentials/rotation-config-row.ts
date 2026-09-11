@@ -52,6 +52,9 @@ const STATUS_BADGES: Readonly<Record<RotationRowStatus, Readonly<RotationStatusB
     },
   } as const);
 
+/** Every status a managed credential row can be in, in the order the status filter offers them. */
+export const ROTATION_STATUS_BADGES = Object.freeze(Object.values(STATUS_BADGES));
+
 /** Resolve the one status a config is in. */
 export function resolveRotationStatus(
   config: Pick<RotationConfig, "enabled" | "hasActiveJob" | "awaitingManualRotation">,
