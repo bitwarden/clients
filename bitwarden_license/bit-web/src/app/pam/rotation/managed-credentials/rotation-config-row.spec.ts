@@ -115,6 +115,40 @@ describe("buildRotationConfigRow", () => {
     });
   });
 
+  /**
+   * Only removal is gated on an in-flight job, so a config can be paused and mid-rotation at once.
+   * The status badge shows the rotation; this flag is what keeps the pause visible.
+   */
+  describe("paused while rotating", () => {
+    it("flags a paused config whose claimed job is still running", () => {
+      const built = row({ config: { enabled: false, hasActiveJob: true } });
+      expect(built.status).toBe(RotationRowStatus.Rotating);
+      expect(built.pausedWhileRotating).toBe(true);
+    });
+
+    it("leaves the status column's sort and filter value on the resolved status", () => {
+      const built = row({ config: { enabled: false, hasActiveJob: true } });
+      expect(built.statusLabelKey).toBe("pamRotationConfigInProgress");
+      expect(built.statusBadge.labelKey).toBe("pamRotationConfigInProgress");
+    });
+
+    it("does not flag a paused config with no job in flight, whose badge already says paused", () => {
+      const built = row({ config: { enabled: false, hasActiveJob: false } });
+      expect(built.status).toBe(RotationRowStatus.Paused);
+      expect(built.pausedWhileRotating).toBe(false);
+    });
+
+    it("does not flag an enabled config that is mid-rotation", () => {
+      expect(row({ config: { enabled: true, hasActiveJob: true } }).pausedWhileRotating).toBe(false);
+    });
+
+    it("does not flag a steady-state active config", () => {
+      expect(row({ config: { enabled: true, hasActiveJob: false } }).pausedWhileRotating).toBe(
+        false,
+      );
+    });
+  });
+
   describe("schedule label", () => {
     it("maps a named preset to its i18n key", () => {
       const built = row({ description: rotationConfigDescription({ schedulePreset: "daily" }) });
