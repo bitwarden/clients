@@ -526,7 +526,7 @@ describe("ManagedCredentialsTabComponent", () => {
     it("shows only the rotating badge while a job is in flight", () => {
       expectOnlyBadge(
         statusCell(makeRow({ hasActiveJob: true })),
-        "pamRotationConfigInProgress",
+        "pamRotationConfigRotatingBadge",
         "bwi-refresh",
       );
     });
@@ -534,7 +534,7 @@ describe("ManagedCredentialsTabComponent", () => {
     it("shows only the manual-rotation badge while awaiting a confirmation", () => {
       expectOnlyBadge(
         statusCell(makeRow({ awaitingManualRotation: true })),
-        "pamRotationConfigManualDue",
+        "pamRotationConfigRotationDueBadge",
         "bwi-clock",
       );
     });
@@ -543,10 +543,10 @@ describe("ManagedCredentialsTabComponent", () => {
       const rendered = badges(
         statusCell(makeRow({ enabled: false, hasActiveJob: true, awaitingManualRotation: true })),
       );
-      expect(rendered[0].textContent!.trim()).toBe("pamRotationConfigInProgress");
+      expect(rendered[0].textContent!.trim()).toBe("pamRotationConfigRotatingBadge");
       expect(rendered[0].querySelector(".bwi-refresh")).not.toBeNull();
       expect(rendered.map((el) => el.textContent!.trim())).not.toContain(
-        "pamRotationConfigManualDue",
+        "pamRotationConfigRotationDueBadge",
       );
     });
 
@@ -557,7 +557,7 @@ describe("ManagedCredentialsTabComponent", () => {
     it("keeps the pause visible alongside the rotating badge", () => {
       const rendered = badges(statusCell(makeRow({ enabled: false, hasActiveJob: true })));
       expect(rendered.map((el) => el.textContent!.trim())).toEqual([
-        "pamRotationConfigInProgress",
+        "pamRotationConfigRotatingBadge",
         "pamRotationConfigStatusPaused",
       ]);
       expect(rendered[1].querySelector(".bwi-minus-circle")).not.toBeNull();
@@ -610,9 +610,9 @@ describe("ManagedCredentialsTabComponent", () => {
       sortByStatus();
 
       expect(renderedStatuses()).toEqual([
-        "pamRotationConfigInProgress",
+        "pamRotationConfigRotatingBadge",
         "pamRotationConfigStatusPaused",
-        "pamRotationConfigManualDue",
+        "pamRotationConfigRotationDueBadge",
         "pamRotationConfigStatusActive",
       ]);
     });
@@ -624,9 +624,9 @@ describe("ManagedCredentialsTabComponent", () => {
 
       expect(renderedStatuses()).toEqual([
         "pamRotationConfigStatusActive",
-        "pamRotationConfigManualDue",
+        "pamRotationConfigRotationDueBadge",
         "pamRotationConfigStatusPaused",
-        "pamRotationConfigInProgress",
+        "pamRotationConfigRotatingBadge",
       ]);
     });
   });
@@ -668,7 +668,7 @@ describe("ManagedCredentialsTabComponent", () => {
       expect(itemLabels()).toEqual([
         "pamRotationConfigEditCredential",
         "pamRotationConfigRotateNow",
-        "pamRotationConfigPause",
+        "pamRotationConfigPauseRotation",
         "pamRotationConfigRemoveFromRotation",
       ]);
     });
@@ -690,7 +690,7 @@ describe("ManagedCredentialsTabComponent", () => {
       expect(itemLabels()).toEqual([
         "pamRotationConfigEditCredential",
         "pamRotationConfigRotateNow",
-        "pamRotationConfigResume",
+        "pamRotationConfigResumeRotation",
         "pamRotationConfigRemoveFromRotation",
       ]);
     });
@@ -707,8 +707,8 @@ describe("ManagedCredentialsTabComponent", () => {
 
       expect(itemLabels()).toEqual([
         "pamRotationConfigEditCredential",
-        "pamRotationConfigRecordManual",
-        "pamRotationConfigPause",
+        "pamRotationConfigMarkRotated",
+        "pamRotationConfigPauseRotation",
         "pamRotationConfigRemoveFromRotation",
       ]);
     });
@@ -726,7 +726,7 @@ describe("ManagedCredentialsTabComponent", () => {
       expect(itemLabels()).toEqual([
         "pamRotationConfigEditCredential",
         "pamRotationConfigRotateNow",
-        "pamRotationConfigPause",
+        "pamRotationConfigPauseRotation",
         "pamRotationConfigRemoveFromRotation",
       ]);
       expectExplained(item("managed-credentials-tab_button_rotate-now-locked_"));

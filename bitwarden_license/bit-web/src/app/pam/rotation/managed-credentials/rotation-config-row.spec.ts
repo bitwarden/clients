@@ -117,7 +117,7 @@ describe("buildRotationConfigRow", () => {
 
   /**
    * The column used to sort on `statusLabelKey`, which ordered rows by the spelling of an i18n
-   * identifier: "pamRotationConfigInProgress" ahead of "pamRotationConfigStatusActive" for no
+   * identifier: "pamRotationConfigRotatingBadge" ahead of "pamRotationConfigStatusActive" for no
    * reason a reader of the rendered labels could see.
    */
   describe("status sort order", () => {
@@ -178,8 +178,8 @@ describe("buildRotationConfigRow", () => {
 
     it("leaves the status column's sort and filter value on the resolved status", () => {
       const built = row({ config: { enabled: false, hasActiveJob: true } });
-      expect(built.statusLabelKey).toBe("pamRotationConfigInProgress");
-      expect(built.statusBadge.labelKey).toBe("pamRotationConfigInProgress");
+      expect(built.statusLabelKey).toBe("pamRotationConfigRotatingBadge");
+      expect(built.statusBadge.labelKey).toBe("pamRotationConfigRotatingBadge");
     });
 
     it("does not flag a paused config with no job in flight, whose badge already says paused", () => {
@@ -189,7 +189,9 @@ describe("buildRotationConfigRow", () => {
     });
 
     it("does not flag an enabled config that is mid-rotation", () => {
-      expect(row({ config: { enabled: true, hasActiveJob: true } }).pausedWhileRotating).toBe(false);
+      expect(row({ config: { enabled: true, hasActiveJob: true } }).pausedWhileRotating).toBe(
+        false,
+      );
     });
 
     it("does not flag a steady-state active config", () => {

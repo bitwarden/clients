@@ -337,7 +337,7 @@ export class ManagedCredentialsTabComponent {
   protected readonly confirmRecordManual = (row: RotationConfigRow): Promise<void> =>
     this.busyRows.run(row.id, async () => {
       const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "pamRotationConfigRecordManualTitle" },
+        title: { key: "pamRotationConfigMarkRotatedTitle" },
         content: { key: "pamRotationConfigRecordManualContent" },
         acceptButtonText: { key: "pamRotationConfigRecordManualConfirm" },
         cancelButtonText: { key: "cancel" },

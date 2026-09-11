@@ -19470,18 +19470,27 @@
     "message": "Rotate now"
   },
   "pamRotationConfigRotateNowDisabledTitle": {
+    "message": "Cannot rotate now — the rotation is disabled, paused, or already in progress."
+  },
+  "pamRotationConfigRotateNowUnavailableTitle": {
     "message": "Cannot rotate now. The target system is inactive, or the rotation is paused or already in progress."
   },
   "pamRotationConfigRotateNowSuccess": {
     "message": "Rotation dispatched."
   },
   "pamRotationConfigRecordManual": {
+    "message": "Record manual rotation"
+  },
+  "pamRotationConfigMarkRotated": {
     "message": "Mark as rotated"
   },
   "pamRotationConfigRecordManualDisabledTitle": {
     "message": "Nothing to mark yet. This becomes available when the next manual rotation is due."
   },
   "pamRotationConfigRecordManualTitle": {
+    "message": "Record manual rotation"
+  },
+  "pamRotationConfigMarkRotatedTitle": {
     "message": "Mark as rotated"
   },
   "pamRotationConfigRecordManualContent": {
@@ -19500,12 +19509,18 @@
     "message": "Remove from rotation"
   },
   "pamRotationConfigPause": {
+    "message": "Pause"
+  },
+  "pamRotationConfigPauseRotation": {
     "message": "Pause rotation"
   },
   "pamRotationConfigPauseSuccess": {
     "message": "Rotation paused."
   },
   "pamRotationConfigResume": {
+    "message": "Resume"
+  },
+  "pamRotationConfigResumeRotation": {
     "message": "Resume rotation"
   },
   "pamRotationConfigResumeSuccess": {
