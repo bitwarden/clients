@@ -345,13 +345,23 @@ export class TargetSystemEditComponent {
   private readonly stagedAssigns = signal<readonly AccessConnectorId[]>([]);
   private readonly stagedUnassigns = signal<readonly AccessConnectorId[]>([]);
 
-  /** What the server holds, before the staged diff. */
+  /**
+   * What the server holds, before the staged diff.
+   *
+   * The ids are normalized before they are compared, as {@link loadSystem} normalizes: this one
+   * came off the route as text, and the connectors' came off a different read. A case-sensitive
+   * match here would read as "none assigned", which is the answer {@link connectorsUnavailable}
+   * exists to avoid giving.
+   */
   private readonly assignedConnectors = computed(() => {
     const targetSystemId = this.targetSystemId;
     if (targetSystemId == null) {
       return [] as AccessConnector[];
     }
-    return this.connectors().filter((c) => c.assignedTargetSystemIds.includes(targetSystemId));
+    const routeId = uuidAsString(targetSystemId).toLowerCase();
+    return this.connectors().filter((c) =>
+      c.assignedTargetSystemIds.some((id) => uuidAsString(id).toLowerCase() === routeId),
+    );
   });
 
   /** What the target would hold once the staged diff is applied. */
