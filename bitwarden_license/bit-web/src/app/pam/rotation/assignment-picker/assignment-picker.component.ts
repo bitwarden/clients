@@ -127,9 +127,12 @@ export class AssignmentPickerComponent<TRow extends AssignmentPickerRow> {
   readonly hints = input.required<AssignmentPickerHints>();
 
   /**
-   * Assigns the picked options and resolves with the ids it actually assigned. Resolving with
-   * nothing empties the picker. Rejecting leaves the whole selection in place; `bitAction`
-   * surfaces it.
+   * Assigns the picked options and resolves with the ids it actually assigned, so a partial
+   * success keeps the rest in the picker for a retry without reselecting. Resolving with nothing
+   * clears what was sent. Rejecting leaves the whole selection in place; `bitAction` surfaces it.
+   *
+   * Only what was sent is ever cleared: the multi-select stays live while the call is out, and an
+   * option picked in that window has not been offered to anyone yet.
    */
   readonly assign =
     input.required<(selected: SelectItemView[]) => Promise<readonly string[] | void>>();
@@ -137,6 +140,11 @@ export class AssignmentPickerComponent<TRow extends AssignmentPickerRow> {
   /**
    * Removes one assignment. Resolve with `false` when nothing was removed after all — a declined
    * confirmation.
+   *
+   * Remove is a plain control rather than a `bitAction` one, so nothing here catches or reports a
+   * rejection: the caller owns the toast, as it does for every other write this card triggers. A
+   * failed removal must be caught and resolved as `false`, or the row stays in the table with
+   * focus handed to Assign as though it had gone.
    */
   readonly unassign = input.required<(row: TRow) => Promise<boolean | void>>();
 
@@ -225,12 +233,10 @@ export class AssignmentPickerComponent<TRow extends AssignmentPickerRow> {
     }
 
     const assigned = (await this.assign()(selected)) as readonly string[] | undefined;
-    if (assigned == null) {
-      this.pendingSelection.set([]);
-      return;
-    }
-    const done = new Set(assigned.map((id) => String(id)));
-    this.pendingSelection.set(selected.filter((item) => !done.has(item.id)));
+    const done = new Set<string>(
+      assigned == null ? selected.map((item) => item.id) : assigned.map((id) => String(id)),
+    );
+    this.pendingSelection.update((current) => current.filter((item) => !done.has(item.id)));
   };
 
   protected readonly removeAssignment = async (row: TRow): Promise<void> => {
