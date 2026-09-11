@@ -554,6 +554,45 @@
   "noItemsInVault": {
     "message": "保管庫にアイテムがありません"
   },
+  "noItemsInMyVault": {
+    "message": "保管庫にアイテムがありません"
+  },
+  "emptyMyItems": {
+    "message": "マイアイテムにアイテムがありません"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "$VAULT_NAME$ にアイテムがありません",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "$VAULT_NAME$ にアイテムがありません",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "保管庫は空です"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "選択されたフィルターに一致するアイテムはありません"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "\"$SEARCH_TERM$\" に一致するアイテムはありません",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "length": {
     "message": "長さ"
   },
@@ -1497,6 +1536,9 @@
   "importVerb": {
     "message": "インポート",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "アイテムのインポート"
   },
   "fileFormat": {
     "message": "ファイル形式"
@@ -2773,6 +2815,30 @@
         "example": "eng"
       }
     }
+  },
+  "oneFilterResult": {
+    "message": "1件の結果",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$件の結果",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "\"$SEARCH$\" に一致するフィルターはありません",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
     "message": "検索をクリア"
@@ -6853,6 +6919,9 @@
   "noItemsInTrashDesc": {
     "message": "削除したアイテムはここに表示され、30日後に完全に削除されます"
   },
+  "noItemsInTrashDescription": {
+    "message": "削除したアイテムはここに表示され、30 日後に完全に削除されます。"
+  },
   "trashWarning": {
     "message": "30日以上ゴミ箱にあったアイテムは自動的に削除されます"
   },
@@ -7137,6 +7206,33 @@
   },
   "emptyVaultDescription": {
     "message": "保管庫はパスワードだけではなく、ログイン情報、ID、カード、メモを安全に保管できます。"
+  },
+  "emptyVaultsDescription": {
+    "message": "ログイン、ID、カード、その他のアイテムを追加して開始します。"
+  },
+  "emptySharedFolderDescription": {
+    "message": "この共有フォルダーにアイテムを追加し、他の $VAULT_NAME$ メンバーにアクセスを許可してください。",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "マイアイテムは、 $VAULT_NAME$ が所有しているものの他のメンバーには表示させないアイテムを保存するためのプライベートスペースです。",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "フォルダーがありません。"
+  },
+  "emptyFoldersDescription": {
+    "message": "保管庫のアイテムを整理するためにフォルダーを使用してください。あなただけのもので、他の誰にも見られたり使用されたりすることはありません。"
   },
   "introCarouselLabel": {
     "message": "Bitwarden へようこそ"

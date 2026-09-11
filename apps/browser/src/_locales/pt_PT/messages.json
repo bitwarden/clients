@@ -554,6 +554,45 @@
   "noItemsInVault": {
     "message": "Nenhum item no cofre"
   },
+  "noItemsInMyVault": {
+    "message": "Não existem itens no meu cofre"
+  },
+  "emptyMyItems": {
+    "message": "Não existem itens em Os meus itens"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Não existem itens no cofre $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Não existem itens no cofre $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Os seus cofres estão vazios"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Nenhum item corresponde aos filtros selecionados"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Nenhum item corresponde a \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "length": {
     "message": "Comprimento"
   },
@@ -1497,6 +1536,9 @@
   "importVerb": {
     "message": "Importação",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "Importar itens"
   },
   "fileFormat": {
     "message": "Formato do ficheiro"
@@ -2773,6 +2815,30 @@
         "example": "eng"
       }
     }
+  },
+  "oneFilterResult": {
+    "message": "1 resultado",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ resultados",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Nenhum filtro corresponde a “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
     "message": "Limpar pesquisa"
@@ -6853,6 +6919,9 @@
   "noItemsInTrashDesc": {
     "message": "Os itens que eliminar aparecerão aqui e serão permanentemente eliminados após 30 dias"
   },
+  "noItemsInTrashDescription": {
+    "message": "Os itens que eliminar aparecerão aqui e serão permanentemente eliminados após 30 dias."
+  },
   "trashWarning": {
     "message": "Os itens que estiverem no lixo há mais de 30 dias serão automaticamente eliminados"
   },
@@ -7137,6 +7206,33 @@
   },
   "emptyVaultDescription": {
     "message": "O cofre protege mais do que apenas as suas palavras-passe. Guarde aqui credenciais, IDs, cartões e notas de forma segura."
+  },
+  "emptyVaultsDescription": {
+    "message": "Adicione credenciais, identificações, cartões e outros itens para começar."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Adicione itens a esta pasta partilhada e, em seguida, dê acesso a outros membros de $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "Os meus itens são o seu espaço privado para guardar itens que permanecem propriedade de $VAULT_NAME$, mas não são visíveis para os outros membros.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Não tem pastas."
+  },
+  "emptyFoldersDescription": {
+    "message": "Utilize pastas para organizar os itens do cofre. São apenas para si — mais ninguém as verá ou utilizará."
   },
   "introCarouselLabel": {
     "message": "Bem-vindo ao Bitwarden"

@@ -10,7 +10,7 @@
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extNameBeta": {
-    "message": "Bitwarden Password Manager Beta",
+    "message": "Gestionnaire de Mots de Passe Bitwarden Beta",
     "description": "Extension name for the beta channel, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
@@ -540,7 +540,7 @@
     "message": "Ajouter des dossiers aux éléments pour les filtrer ici."
   },
   "sharedFolderFilterTooltip": {
-    "message": "Add items to a shared folder to filter here."
+    "message": "Ajouter des éléments à un dossier partagé pour filtrer ici."
   },
   "editItemWithName": {
     "message": "Modifier l'élément - $NAME$",
@@ -553,6 +553,45 @@
   },
   "noItemsInVault": {
     "message": "Aucun élément dans le coffre"
+  },
+  "noItemsInMyVault": {
+    "message": "Aucun élément dans Mon coffre"
+  },
+  "emptyMyItems": {
+    "message": "Aucun élément dans Mes éléments"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Aucun élément dans $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Aucun élément dans $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Vos coffres sont vides"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Aucun élément ne correspond aux filtres sélectionnés"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Aucun élément ne correspond à « $SEARCH_TERM$ »",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
   },
   "length": {
     "message": "Longueur"
@@ -759,7 +798,7 @@
     "message": "Ouvrir le site web"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "Lancer le site web de $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1497,6 +1536,9 @@
   "importVerb": {
     "message": "Importer",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "Importer des éléments"
   },
   "fileFormat": {
     "message": "Format de fichier"
@@ -2766,7 +2808,7 @@
     "message": "Aucun élément correspondant"
   },
   "noFiltersMatch": {
-    "message": "No filters match \"$SEARCH$\"",
+    "message": "Aucun filtre ne correspond à « $SEARCH$ »",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -2774,8 +2816,32 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 result",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ results",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "No filters match “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
-    "message": "Clear search"
+    "message": "Effacer la recherche"
   },
   "selected": {
     "message": "Sélectionné(s)"
@@ -5974,10 +6040,10 @@
     "message": "Effacer les filtres ou essayer un autre terme de recherche"
   },
   "noSharedFoldersAdded": {
-    "message": "No shared folders added"
+    "message": "Aucun dossier partagé ajouté"
   },
   "noSharedFoldersAddedDescription": {
-    "message": "Add a shared folder to securely share vault items with other members."
+    "message": "Ajouter un dossier partagé pour partager de façon sécuritaire les éléments du coffre avec d'autres membres."
   },
   "moreOptionsLabel": {
     "message": "Plus d'options, $ITEMNAME$",
@@ -6853,6 +6919,9 @@
   "noItemsInTrashDesc": {
     "message": "Les éléments que vous supprimez apparaîtront ici et seront définitivement supprimés au bout de 30 jours"
   },
+  "noItemsInTrashDescription": {
+    "message": "Les éléments que vous supprimez apparaîtront ici et seront définitivement supprimés au bout de 30 jours."
+  },
   "trashWarning": {
     "message": "Les éléments qui se trouvent dans la corbeille depuis plus de 30 jours sont automatiquement supprimés"
   },
@@ -7138,6 +7207,33 @@
   "emptyVaultDescription": {
     "message": "Le coffre-fort protège bien plus que vos mots de passe. Stockez ici en toute sécurité des identifiants, des cartes d'identité, des cartes et des notes sécurisés."
   },
+  "emptyVaultsDescription": {
+    "message": "Ajoutez des identifiants, des ID, des cartes de paiement et d'autres éléments pour commencer."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Ajouter des éléments à ce dossier partagé, puis donner accès aux autres membres de $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "Mes éléments est votre espace privé pour sauvegarder des éléments qui restent détenus par $VAULT_NAME$ mais qui ne sont pas visibles par les autres membres.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Vous n'avez pas de dossier."
+  },
+  "emptyFoldersDescription": {
+    "message": "Utilisez des dossiers pour organiser les éléments du coffre. Ils sont juste pour vous, personne d'autre ne les verra ou ne les utilisera."
+  },
   "introCarouselLabel": {
     "message": "Bienvenue sur Bitwarden"
   },
@@ -7307,7 +7403,7 @@
     "message": "Afficher plus"
   },
   "showMoreCount": {
-    "message": "Show $COUNT$ more",
+    "message": "Afficher $COUNT$ de plus",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7975,7 +8071,7 @@
     "message": "Ces identifiants ont un mot de passe réutilisé. Créez un mot de passe unique pour chaque compte pour empêcher quelqu'un d'accéder à plusieurs comptes avec un seul mot de passe."
   },
   "deleteAtRiskItemDesc": {
-    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
+    "message": "Assurez-vous de changer votre mot de passe d'abord. La suppression supprime uniquement l'élément de votre coffre, cela ne résout pas le risque."
   },
   "passwordHasAdditionalRisks": {
     "message": "Ce mot de passe comporte des risques supplémentaires :"
@@ -8007,18 +8103,18 @@
     "message": "Vous êtes prêt !"
   },
   "permissions": {
-    "message": "Permissions"
+    "message": "Autorisations"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "Afficher les éléments"
   },
   "viewItemsHidePass": {
-    "message": "View items, hidden passwords"
+    "message": "Afficher les éléments, mots de passe cachés"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Modifier les éléments"
   },
   "editItemsHidePass": {
-    "message": "Edit items, hidden passwords"
+    "message": "Modifier les éléments, mots de passe cachés"
   }
 }

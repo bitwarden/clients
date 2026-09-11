@@ -554,6 +554,45 @@
   "noItemsInVault": {
     "message": "Няма елементи в трезора"
   },
+  "noItemsInMyVault": {
+    "message": "Няма елементи в Моя трезор"
+  },
+  "emptyMyItems": {
+    "message": "Няма елементи в Моите елементи"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Няма елементи в $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Няма елементи в $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Трезорите Ви са празни"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Няма елементи отговарящи на избраните филтри"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Няма елементи отговарящи на „$SEARCH_TERM$“",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "length": {
     "message": "Дължина"
   },
@@ -1497,6 +1536,9 @@
   "importVerb": {
     "message": "Внасяне",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "Внасяне на елементи"
   },
   "fileFormat": {
     "message": "Формат на файла"
@@ -2766,7 +2808,7 @@
     "message": "Няма съвпадащи елементи"
   },
   "noFiltersMatch": {
-    "message": "No filters match \"$SEARCH$\"",
+    "message": "Няма филтри, които да отговарят на „$SEARCH$“",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -2774,8 +2816,32 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 резултат",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ резултата",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Няма филтри, които да отговарят на „$SEARCH$“",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
-    "message": "Clear search"
+    "message": "Изчистване на търсенето"
   },
   "selected": {
     "message": "Избрано"
@@ -5974,10 +6040,10 @@
     "message": "Изчистете филтрите или опитайте да търсите нещо друго"
   },
   "noSharedFoldersAdded": {
-    "message": "No shared folders added"
+    "message": "Няма добавени споделени папки"
   },
   "noSharedFoldersAddedDescription": {
-    "message": "Add a shared folder to securely share vault items with other members."
+    "message": "Добавете споделена папка, за да споделяте сигурно записи от трезора си с други членове."
   },
   "moreOptionsLabel": {
     "message": "Още опции, $ITEMNAME$",
@@ -6853,6 +6919,9 @@
   "noItemsInTrashDesc": {
     "message": "Елементите, които изтривате, ще бъдат премествани тук и изтривани окончателно след 30 дни"
   },
+  "noItemsInTrashDescription": {
+    "message": "Елементите, които изтривате, ще бъдат премествани тук и изтривани окончателно след 30 дни."
+  },
   "trashWarning": {
     "message": "Елементите, които са били в кошчето за повече от 30 дни, ще бъдат изтривани автоматично"
   },
@@ -7138,6 +7207,33 @@
   "emptyVaultDescription": {
     "message": "Трезорът може да пази не само паролите Ви. Съхранявайте защитени данни за вход, идентификационни данни, карти и бележки."
   },
+  "emptyVaultsDescription": {
+    "message": "За да започнете, добавете данни за вписване, идентичности, карти и други елементи."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Добавете елементи в тази споделена папка, а след това дайте достъп на други членове на $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "„Моите елементи“ е Вашето лично място за съхраняване на записи, които въпреки че остават притежание на „$VAULT_NAME$“, не са видими за други хора.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Нямате никакви папки."
+  },
+  "emptyFoldersDescription": {
+    "message": "Използвайте папки, за да внесете ред в трезора си. Те са само за Вас — никой друг няма да ги вижда или използва."
+  },
   "introCarouselLabel": {
     "message": "Добре дошли в Битуорден"
   },
@@ -7307,7 +7403,7 @@
     "message": "Показване на повече"
   },
   "showMoreCount": {
-    "message": "Show $COUNT$ more",
+    "message": "Показване на още $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7975,7 +8071,7 @@
     "message": "Тези записи имате преизползвани пароли. Създайте уникална парола за всеки акаунт, за да не може някой да получи достъп до няколко Ваши акаунта с една разкрита парола."
   },
   "deleteAtRiskItemDesc": {
-    "message": "Ensure you change your password first. Deleting only removes the item from your vault, it doesn't fix the risk."
+    "message": "Първо се уверете, че сте сменили паролата си. Изтриването само премахва записа от трезора, но не отстранява риска."
   },
   "passwordHasAdditionalRisks": {
     "message": "Тази парола има допълнителни рискове:"
@@ -8007,18 +8103,18 @@
     "message": "Всичко е готово!"
   },
   "permissions": {
-    "message": "Permissions"
+    "message": "Права"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "Преглед на елементите"
   },
   "viewItemsHidePass": {
-    "message": "View items, hidden passwords"
+    "message": "Преглед на елементите, със скрити пароли"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Редактиране на елементите"
   },
   "editItemsHidePass": {
-    "message": "Edit items, hidden passwords"
+    "message": "Редактиране на елементите, със скрити пароли"
   }
 }

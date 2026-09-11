@@ -554,6 +554,45 @@
   "noItemsInVault": {
     "message": "No items in the vault"
   },
+  "noItemsInMyVault": {
+    "message": "Geen items in Mijn kluis"
+  },
+  "emptyMyItems": {
+    "message": "Geen items in Mijn items"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Geen items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Geen items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Je kluizen zijn leeg"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Geen items gevonden met de geselecteerde filters"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Geen items komen overeen met \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "length": {
     "message": "Lengte"
   },
@@ -1497,6 +1536,9 @@
   "importVerb": {
     "message": "Importeren",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "Items importeren"
   },
   "fileFormat": {
     "message": "Bestandsindeling"
@@ -2773,6 +2815,30 @@
         "example": "eng"
       }
     }
+  },
+  "oneFilterResult": {
+    "message": "1 resultaat",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ resultaten",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Geen filters komen overeen met \"$SEARCH$\"",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
     "message": "Zoekopdracht wissen"
@@ -6853,6 +6919,9 @@
   "noItemsInTrashDesc": {
     "message": "Items die je verwijdert verschijnen hier en worden na 30 dagen definitief verwijderd"
   },
+  "noItemsInTrashDescription": {
+    "message": "Items die je verwijdert verschijnen hier en worden na 30 dagen definitief verwijderd."
+  },
   "trashWarning": {
     "message": "Items die meer dan 30 dagen in de prullenbak zitten worden automatisch verwijderd"
   },
@@ -7137,6 +7206,33 @@
   },
   "emptyVaultDescription": {
     "message": "De kluis beschermt meer dan alleen je wachtwoorden. Sla hier beveiligde inloggegevens, ID's, kaarten en notities op."
+  },
+  "emptyVaultsDescription": {
+    "message": "Voeg logins, IDs, kaarten en andere items toe om aan de slag te gaan."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Voeg items toe aan deze gedeelde map en geef vervolgens toegang tot andere $VAULT_NAME$-leden.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "Mijn items is jouw persoonlijke ruimte voor het opslaan van items die eigendom blijven van $VAULT_NAME$ maar niet zichtbaar zijn voor andere leden.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Je hebt geen mappen."
+  },
+  "emptyFoldersDescription": {
+    "message": "Gebruik mappen om kluis-items te organiseren. Ze zijn alleen voor jou - niemand anders zal ze zien of gebruiken."
   },
   "introCarouselLabel": {
     "message": "Welkom bij Bitwarden"
