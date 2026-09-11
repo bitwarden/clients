@@ -7,7 +7,7 @@
 
 use std::{collections::HashMap, path::PathBuf};
 
-use tracing::{debug, warn};
+use tracing::{debug, error, warn};
 use windows::{
     core::GUID,
     Win32::{
@@ -72,9 +72,22 @@ impl RunningApp {
         self.display_name.as_deref().unwrap_or(&self.filename)
     }
 
+    // Attemps to convert to `AppData`
     fn into_app_data(self, normalizer: &PathNormalizer) -> Option<AppData> {
-        let display_name = self.display_name?;
-        let exe_path = self.exe_path?;
+        let Some(display_name) = self.display_name else {
+            error!(
+                filename = %self.filename,
+                "display_name is required field of AppData, not able to convert."
+            );
+            return None;
+        };
+        let Some(exe_path) = self.exe_path else {
+            error!(
+                display_name = %display_name,
+                "path is a required field of AppData, not able to convert."
+            );
+            return None;
+        };
         let path = PathBuf::from(normalizer.normalize(&exe_path.to_string_lossy()));
 
         Some(AppData { display_name, path })
