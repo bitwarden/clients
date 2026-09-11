@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, provideRouter, Router } from "@angular/router";
-import { BehaviorSubject, of, throwError } from "rxjs";
+import { BehaviorSubject, combineLatest, map, of, throwError } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
@@ -55,10 +55,31 @@ function makeCipher(cipherId: CipherId, collectionIds: string[] = []): CipherVie
   return cipher;
 }
 
-function makeConfigsServiceStub(rows: RotationConfigRow[] = [makeRow()]) {
+function makeTargetSystemsServiceStub(systems: unknown[] = [{ id: "ts-1" }]) {
   return {
+    systems$: new BehaviorSubject<unknown[]>(systems),
     loading$: new BehaviorSubject(false),
     loadError$: new BehaviorSubject<unknown | null>(null),
+    load: jest.fn().mockResolvedValue(undefined),
+  };
+}
+
+/**
+ * `loadError$` is composed the way the service composes it: its own failure, or failing that the
+ * target-system read's, so a failed target-system read reaches the component on both streams.
+ * Push a configs-side failure through {@link ownLoadError$}.
+ */
+function makeConfigsServiceStub(
+  targetSystems: ReturnType<typeof makeTargetSystemsServiceStub>,
+  rows: RotationConfigRow[] = [makeRow()],
+) {
+  const ownLoadError$ = new BehaviorSubject<unknown | null>(null);
+  return {
+    loading$: new BehaviorSubject(false),
+    ownLoadError$,
+    loadError$: combineLatest([ownLoadError$, targetSystems.loadError$]).pipe(
+      map(([own, targetSystemsError]) => own ?? targetSystemsError),
+    ),
     rows$: new BehaviorSubject(rows),
     configs$: new BehaviorSubject(rows.map((r) => r.config)),
     awaitingManualCount$: new BehaviorSubject(0),
@@ -102,12 +123,7 @@ describe("ManagedCredentialsTabComponent", () => {
   let fixture: ComponentFixture<ManagedCredentialsTabComponent>;
   let component: any;
   let configsService: ReturnType<typeof makeConfigsServiceStub>;
-  let targetSystemsService: {
-    systems$: BehaviorSubject<unknown[]>;
-    loading$: BehaviorSubject<boolean>;
-    loadError$: BehaviorSubject<unknown | null>;
-    load: jest.Mock;
-  };
+  let targetSystemsService: ReturnType<typeof makeTargetSystemsServiceStub>;
   let toastService: { showToast: jest.Mock };
   let dialogService: { openSimpleDialog: jest.Mock };
 
@@ -116,13 +132,8 @@ describe("ManagedCredentialsTabComponent", () => {
     targetSystems: unknown[] = [{ id: "ts-1" }],
     renderTemplate = false,
   ) {
-    configsService = makeConfigsServiceStub();
-    targetSystemsService = {
-      systems$: new BehaviorSubject<unknown[]>(targetSystems),
-      loading$: new BehaviorSubject(false),
-      loadError$: new BehaviorSubject<unknown | null>(null),
-      load: jest.fn().mockResolvedValue(undefined),
-    };
+    targetSystemsService = makeTargetSystemsServiceStub(targetSystems);
+    configsService = makeConfigsServiceStub(targetSystemsService);
     toastService = { showToast: jest.fn() };
     dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(dialogResult) };
 
@@ -159,14 +170,20 @@ describe("ManagedCredentialsTabComponent", () => {
   });
 
   describe("first-run lockup", () => {
-    it("keeps the table when the target-system read failed", () => {
+    /**
+     * The target-system read records its own failure rather than rejecting, so an empty list is
+     * either an org with no targets or a read that never landed. Only the first is grounds for
+     * the set-up-a-target invitation; the failure is folded into the configs load error, so it
+     * reaches the operator as the load-error state instead.
+     */
+    it("shows the load error rather than the invitation when the target-system read failed", () => {
       setupTestBed(true, [], true);
       targetSystemsService.loadError$.next(new Error("boom"));
       fixture.detectChanges();
 
       const el = fixture.nativeElement as HTMLElement;
+      expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
       expect(el.textContent).not.toContain("pamNoTargetSystemsYetTitle");
-      expect(el.querySelector("bit-table")).not.toBeNull();
     });
 
     it("keeps the table while the target-system read is still in flight", () => {
@@ -191,7 +208,7 @@ describe("ManagedCredentialsTabComponent", () => {
   describe("load error state", () => {
     it("renders the load-error state instead of the empty state", () => {
       setupTestBed(true, [], true);
-      configsService.loadError$.next(new Error("boom"));
+      configsService.ownLoadError$.next(new Error("boom"));
       fixture.detectChanges();
 
       const el = fixture.nativeElement as HTMLElement;
@@ -203,7 +220,7 @@ describe("ManagedCredentialsTabComponent", () => {
 
     it("renders the load-error state while the load is still in flight", () => {
       setupTestBed(true, [], true);
-      configsService.loadError$.next(new Error("boom"));
+      configsService.ownLoadError$.next(new Error("boom"));
       configsService.loading$.next(true);
       fixture.detectChanges();
 
@@ -214,7 +231,7 @@ describe("ManagedCredentialsTabComponent", () => {
 
     it("retries the load from the error state", async () => {
       setupTestBed(true, [], true);
-      configsService.loadError$.next(new Error("boom"));
+      configsService.ownLoadError$.next(new Error("boom"));
       fixture.detectChanges();
 
       (fixture.nativeElement as HTMLElement)
@@ -712,13 +729,8 @@ describe("ManagedCredentialsTabComponent", () => {
       ciphers: CipherView[],
       collections: CollectionAdminView[] = [],
     ) {
-      configsService = makeConfigsServiceStub(rows);
-      targetSystemsService = {
-        systems$: new BehaviorSubject<unknown[]>([{ id: "ts-1" }]),
-        loading$: new BehaviorSubject(false),
-        loadError$: new BehaviorSubject<unknown | null>(null),
-        load: jest.fn().mockResolvedValue(undefined),
-      };
+      targetSystemsService = makeTargetSystemsServiceStub();
+      configsService = makeConfigsServiceStub(targetSystemsService, rows);
       toastService = { showToast: jest.fn() };
       dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
 
@@ -788,13 +800,8 @@ describe("ManagedCredentialsTabComponent", () => {
     });
 
     it("withholds the collection chip when the collection read failed", async () => {
-      configsService = makeConfigsServiceStub([rowA]);
-      targetSystemsService = {
-        systems$: new BehaviorSubject<unknown[]>([{ id: "ts-1" }]),
-        loading$: new BehaviorSubject(false),
-        loadError$: new BehaviorSubject<unknown | null>(null),
-        load: jest.fn().mockResolvedValue(undefined),
-      };
+      targetSystemsService = makeTargetSystemsServiceStub();
+      configsService = makeConfigsServiceStub(targetSystemsService, [rowA]);
       toastService = { showToast: jest.fn() };
       dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
 
