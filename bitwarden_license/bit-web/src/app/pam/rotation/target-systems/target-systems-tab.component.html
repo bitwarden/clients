@@ -114,7 +114,11 @@
           </button>
         </td>
         <td bitCell>
-          <span bitBadge variant="subtle">{{ r.methodLabel }}</span>
+          @if (r.methodLabel) {
+            <span bitBadge variant="subtle">{{ r.methodLabel }}</span>
+          } @else {
+            <span class="tw-text-muted">&mdash;</span>
+          }
         </td>
         <td bitCell>
           @if (r.kindLabel) {
