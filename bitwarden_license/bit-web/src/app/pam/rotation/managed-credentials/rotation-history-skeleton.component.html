@@ -1,0 +1,68 @@
+<div class="tw-overflow-x-auto">
+  <table class="tw-w-full tw-table-auto tw-border-collapse tw-text-start tw-text-main">
+    <thead
+      class="tw-border-0 tw-border-b-2 tw-border-solid tw-border-border-base tw-text-sm tw-font-medium tw-text-muted"
+    >
+      <tr>
+        <th bitCell scope="col" class="tw-whitespace-nowrap tw-text-start">
+          {{ "pamRotationAttemptStarted" | i18n }}
+        </th>
+        @if (showCredential()) {
+          <th bitCell scope="col" class="tw-text-start">
+            {{ "pamRotationConfigColumnCredential" | i18n }}
+          </th>
+        }
+        <th bitCell scope="col" class="tw-text-start">
+          {{ "pamRotationHistoryColumnSource" | i18n }}
+        </th>
+        <th bitCell scope="col" class="tw-text-start">
+          {{ "pamRotationHistoryColumnResult" | i18n }}
+        </th>
+        <th bitCell scope="col" class="tw-whitespace-nowrap tw-text-start">
+          {{ "pamRotationHistoryDurationLabel" | i18n }}
+        </th>
+        <th bitCell scope="col" class="tw-whitespace-nowrap tw-text-start">
+          {{ "pamRotationHistoryColumnAttempts" | i18n }}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (startedWidth of rows; track $index) {
+        <tr class="tw-border-0 tw-border-b tw-border-solid tw-border-border-base">
+          <td bitCell>
+            <div class="tw-flex tw-h-8 tw-items-center">
+              <bit-skeleton-text [ngClass]="startedWidth"></bit-skeleton-text>
+            </div>
+          </td>
+          @if (showCredential()) {
+            <td bitCell>
+              <div class="tw-flex tw-h-8 tw-items-center">
+                <bit-skeleton-text class="tw-w-28"></bit-skeleton-text>
+              </div>
+            </td>
+          }
+          <td bitCell>
+            <div class="tw-flex tw-h-8 tw-items-center">
+              <bit-skeleton-text class="tw-w-20"></bit-skeleton-text>
+            </div>
+          </td>
+          <td bitCell>
+            <div class="tw-flex tw-h-8 tw-items-center">
+              <bit-skeleton class="tw-h-6 tw-w-20" edgeShape="circle"></bit-skeleton>
+            </div>
+          </td>
+          <td bitCell>
+            <div class="tw-flex tw-h-8 tw-items-center">
+              <bit-skeleton-text class="tw-w-16"></bit-skeleton-text>
+            </div>
+          </td>
+          <td bitCell>
+            <div class="tw-flex tw-h-8 tw-items-center">
+              <bit-skeleton-text class="tw-w-16"></bit-skeleton-text>
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
