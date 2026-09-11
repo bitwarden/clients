@@ -2,6 +2,7 @@ import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { combineLatest, firstValueFrom, Subject, takeUntil } from "rxjs";
 
+import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import {
   getOrganizationById,
@@ -26,7 +27,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
-import { UserVerificationModule } from "../../../../auth/shared/components/user-verification";
 import { SharedModule } from "../../../../shared/shared.module";
 
 class CountBasedLocalizationKey {
@@ -80,7 +80,7 @@ export enum DeleteOrganizationDialogResult {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-delete-organization",
-  imports: [SharedModule, UserVerificationModule],
+  imports: [SharedModule, UserVerificationFormInputComponent],
   templateUrl: "delete-organization-dialog.component.html",
 })
 export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
