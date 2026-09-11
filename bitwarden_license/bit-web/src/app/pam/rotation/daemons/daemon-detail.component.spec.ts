@@ -18,6 +18,7 @@ import { AccessConnectorStatus, TargetSystemKind } from "../rotation";
 import type {
   AccessConnector,
   AccessConnectorDetail,
+  RotationConfig,
   TargetSystem,
   TargetSystemId,
 } from "../rotation";
@@ -404,6 +405,25 @@ describe("DaemonDetailComponent", () => {
       expect(comp.assignments()).toHaveLength(1);
     });
 
+    it("drops a staged assignment when the connector is staged inactive after it", async () => {
+      const comp = await mount();
+      await comp.assignTargets([pick(makeOtherSystem())]);
+
+      stageActive(comp, false);
+
+      expect(pendingOf(comp, makeOtherSystem())).toBeUndefined();
+      expect(comp.formGroup.controls.assignedTargetSystemIds.value).toEqual([sysId("ts-1")]);
+    });
+
+    it("keeps a staged removal when the connector is staged inactive after it", async () => {
+      const comp = await mount();
+      await comp.unassignTarget(comp.assignments()[0]);
+
+      stageActive(comp, false);
+
+      expect(pendingOf(comp, makeSystem())).toBe("remove");
+    });
+
     it("stages a status change without writing it", async () => {
       const comp = await mount();
 
@@ -521,15 +541,15 @@ describe("DaemonDetailComponent", () => {
     it("leaves everything staged when the deactivation is declined", async () => {
       const comp = await mount();
       dialog.openSimpleDialog.mockResolvedValue(false);
-      await comp.assignTargets([pick(makeOtherSystem())]);
+      await comp.unassignTarget(comp.assignments()[0]);
       stageActive(comp, false);
 
       await comp.submit();
 
       expect(rotationSdk.disableConnector).not.toHaveBeenCalled();
-      expect(rotationSdk.assignTarget).not.toHaveBeenCalled();
+      expect(rotationSdk.unassignTarget).not.toHaveBeenCalled();
       expect(comp.formGroup.dirty).toBe(true);
-      expect(pendingOf(comp, makeOtherSystem())).toBe("add");
+      expect(pendingOf(comp, makeSystem())).toBe("remove");
     });
 
     it("does not confirm an activation", async () => {
@@ -890,6 +910,27 @@ describe("DaemonDetailComponent", () => {
       expect(query('[data-testid="connector-last-seen"]')).toBeTruthy();
       expect(query("pam-assignment-picker")).toBeTruthy();
       expect(query("app-rotation-history")).toBeNull();
+    });
+
+    it("renders the Configuration tab while the credential-name reads are still in flight", async () => {
+      let settleConfigs!: (configs: RotationConfig[]) => void;
+      rotationSdk.getConnector.mockResolvedValue(
+        accessConnectorDetail({
+          connector: accessConnector({ id: connectorId("daemon-1") }),
+          jobs: [rotationJob()],
+        }),
+      );
+      rotationSdk.listConfigs.mockReturnValue(
+        new Promise<RotationConfig[]>((resolve) => (settleConfigs = resolve)),
+      );
+      await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
+        renderTemplate: true,
+        cipherNames: new Map(),
+      });
+      await createComponent();
+
+      expect(query("pam-assignment-picker")).toBeTruthy();
+      settleConfigs([]);
     });
 
     it("puts the history table on the History tab, naming each job's managed credential", async () => {
