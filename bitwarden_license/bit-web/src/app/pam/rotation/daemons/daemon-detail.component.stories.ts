@@ -209,8 +209,9 @@ export const NeverSeen: Story = {
 };
 
 /**
- * Inactive connector: both status badges read "Inactive", the bottom row shows Enable, and the
- * target picker and its Assign button stay visible but disabled, with a tooltip saying why.
+ * Inactive connector: the header's status badge reads "Inactive" and the Active checkbox is
+ * cleared, while the target picker and its Assign button stay visible but disabled, with a
+ * tooltip saying why.
  */
 export const Disabled: Story = {
   decorators: [
