@@ -1864,8 +1864,8 @@ export default class MainBackground {
     // injection, so the onConnect listener is registered before any frame
     // connects.
     this.autofillLifecycleService.init();
-    this.autofillOrchestrator.init();
     await this.runtimeBackground.init();
+    this.autofillOrchestrator.init();
     await this.notificationBackground.init();
     this.overlayNotificationsBackground.init();
     this.commandsBackground.init();
