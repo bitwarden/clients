@@ -130,6 +130,11 @@ import {
 } from "@bitwarden/common/platform/theming/theme-state.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  DEFAULT_FEATURE_FLAG_OVERRIDE_MENU_ENABLED,
+  DEV_TOOLS_RELOAD_APP,
+  FeatureFlagOverrideProviders,
+} from "@bitwarden/dev-tools";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
@@ -609,6 +614,15 @@ const safeProviders: SafeProvider[] = [
       KeyServiceAbstraction,
       LegacyCompatKeyService,
     ],
+  }),
+  ...FeatureFlagOverrideProviders,
+  safeProvider({
+    provide: DEFAULT_FEATURE_FLAG_OVERRIDE_MENU_ENABLED,
+    useValue: process.env.ENV === "development",
+  }),
+  safeProvider({
+    provide: DEV_TOOLS_RELOAD_APP,
+    useValue: () => window.location.reload(),
   }),
 ];
 

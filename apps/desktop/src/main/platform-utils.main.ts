@@ -7,6 +7,14 @@ export function allowBrowserintegrationOverride() {
   return process.env.ALLOW_BROWSER_INTEGRATION_OVERRIDE === "true";
 }
 
+/**
+ * Offers the developer-only feature flag override menu in a build where it would otherwise be
+ * hidden, so a flag can be flipped locally against a production build.
+ */
+export function featureFlagOverrideMenuEnvEnabled() {
+  return process.env.ENABLE_FEATURE_FLAG_OVERRIDE_MENU === "true";
+}
+
 export function isLinux() {
   return process.platform === "linux";
 }

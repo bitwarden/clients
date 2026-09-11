@@ -17,6 +17,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService } from "@bitwarden/components";
+import { FeatureFlagOverrideMenuService } from "@bitwarden/dev-tools";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { FakeGlobalStateProvider } from "@bitwarden/state-test-utils";
 
@@ -97,6 +98,10 @@ describe("SettingsV2Component", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: AvatarService, useValue: mock<AvatarService>() },
         { provide: AuthService, useValue: mock<AuthService>() },
+        {
+          provide: FeatureFlagOverrideMenuService,
+          useValue: { enabled$: of(false) } as Partial<FeatureFlagOverrideMenuService>,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     });

@@ -71,6 +71,7 @@ module.exports = {
     "<rootDir>/libs/organization-invite-link/jest.config.js",
     "<rootDir>/libs/pam/jest.config.js",
     "<rootDir>/libs/storybook/jest.config.js",
+    "<rootDir>/libs/dev-tools/jest.config.js",
     "<rootDir>/libs/legacy-crypto/jest.config.js",
     "<rootDir>/libs/managed-settings/jest.config.js",
   ],

@@ -125,6 +125,11 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { COPY_CLICK_LISTENER, DialogService, ToastService } from "@bitwarden/components";
+import {
+  DEFAULT_FEATURE_FLAG_OVERRIDE_MENU_ENABLED,
+  DEV_TOOLS_RELOAD_APP,
+  FeatureFlagOverrideProviders,
+} from "@bitwarden/dev-tools";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
@@ -276,6 +281,15 @@ const safeProviders: SafeProvider[] = [
     useFactory: (initService: InitService) => initService.init(),
     deps: [InitService],
     multi: true,
+  }),
+  ...FeatureFlagOverrideProviders,
+  safeProvider({
+    provide: DEFAULT_FEATURE_FLAG_OVERRIDE_MENU_ENABLED,
+    useValue: ipc.platform.isDev || ipc.platform.featureFlagOverrideMenuEnvEnabled,
+  }),
+  safeProvider({
+    provide: DEV_TOOLS_RELOAD_APP,
+    useValue: () => ipc.platform.reloadProcess(),
   }),
   safeProvider({
     provide: LogServiceAbstraction,

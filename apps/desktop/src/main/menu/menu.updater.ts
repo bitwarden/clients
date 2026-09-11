@@ -5,6 +5,8 @@ export class MenuUpdateRequest {
   activeUserId: string | null;
   accounts: { [userId: string]: MenuAccount } | null;
   restrictedCipherTypes: CipherType[] | null;
+  /** Whether the developer-only feature flag override menu should be offered. */
+  featureFlagOverrideMenuEnabled: boolean;
 }
 
 export class MenuAccount {

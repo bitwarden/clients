@@ -8,6 +8,7 @@ import { EncString } from "@bitwarden/legacy-crypto";
 
 import {
   allowBrowserintegrationOverride,
+  featureFlagOverrideMenuEnvEnabled,
   isAppImage,
   isFlatpak,
   isMacAppStore,
@@ -136,6 +137,7 @@ export default {
   isSnapStore: isSnapStore(),
   isAppImage: isAppImage(),
   allowBrowserintegrationOverride: allowBrowserintegrationOverride(),
+  featureFlagOverrideMenuEnvEnabled: featureFlagOverrideMenuEnvEnabled(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
   registerUpdateRestartHandler: (provide: (resolve: (canRestart: boolean) => void) => void) => {
     const resolve = (canRestart: boolean) => ipcRenderer.send("confirmUpdateRestart", canRestart);

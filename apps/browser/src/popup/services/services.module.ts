@@ -158,6 +158,11 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import {
+  DEFAULT_FEATURE_FLAG_OVERRIDE_MENU_ENABLED,
+  DEV_TOOLS_RELOAD_APP,
+  FeatureFlagOverrideProviders,
+} from "@bitwarden/dev-tools";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
@@ -899,6 +904,15 @@ const safeProviders: SafeProvider[] = [
     provide: AUTO_CONFIRM_NUDGE_SERVICE as SafeInjectionToken<AutoConfirmNudgeService>,
     useClass: AutoConfirmNudgeService,
     deps: [StateProvider, AutomaticUserConfirmationService],
+  }),
+  ...FeatureFlagOverrideProviders,
+  safeProvider({
+    provide: DEFAULT_FEATURE_FLAG_OVERRIDE_MENU_ENABLED,
+    useValue: process.env.ENV === "development",
+  }),
+  safeProvider({
+    provide: DEV_TOOLS_RELOAD_APP,
+    useValue: () => BrowserApi.reloadExtension(),
   }),
 ];
 
