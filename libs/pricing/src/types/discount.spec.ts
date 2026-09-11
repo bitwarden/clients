@@ -176,4 +176,15 @@ describe("getLabel", () => {
       expect(getLabel(i18nService, discount)).toBe("Launch promotion discountForOneYear");
     });
   });
+
+  describe("without a repeating duration", () => {
+    it("should return the label unchanged when durationInMonths is absent", () => {
+      const discount: CartDiscount = {
+        type: DiscountTypes.PercentOff,
+        value: 25,
+        label: "Launch promotion",
+      };
+      expect(getLabel(i18nService, discount)).toBe("Launch promotion");
+    });
+  });
 });
