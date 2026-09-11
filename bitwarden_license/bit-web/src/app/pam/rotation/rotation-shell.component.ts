@@ -54,7 +54,7 @@ export class RotationShellComponent {
     { requireSync: true },
   );
 
-  /** The path of the active child route ("target-systems" / "daemons" / ...), driving the header button. */
+  /** The path of the active child route ("target-systems" / "access-connectors" / ...), driving the header button. */
   protected readonly activeTab = toSignal(
     this.router.events.pipe(
       filter((e) => e instanceof NavigationEnd),
