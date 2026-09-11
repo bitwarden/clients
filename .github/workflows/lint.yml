@@ -152,7 +152,7 @@ jobs:
       # per check so each one caches only the tools it builds.
       - name: Cache cargo-run-bin tools
         if: matrix.check.cargo_bin
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/desktop/desktop_native/.bin
           key: cargo-bin-${{ runner.os }}-${{ matrix.check.name }}-${{ hashFiles('apps/desktop/desktop_native/Cargo.toml', 'apps/desktop/desktop_native/rust-toolchain.toml') }}
