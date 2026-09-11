@@ -11,18 +11,23 @@ import { I18nMockService, NavigationModule } from "@bitwarden/components";
 
 import { PamOrgNavSlotComponent } from "./pam-org-nav-slot.component";
 
-function org(canManageAccessRules: boolean): Organization {
-  return { canManageAccessRules } as Organization;
+function org(canManageAccessRules: boolean, canAccessEventLogs = false): Organization {
+  return { canManageAccessRules, canAccessEventLogs } as Organization;
 }
 
 describe("PamOrgNavSlotComponent", () => {
   let fixture: ComponentFixture<PamOrgNavSlotComponent>;
   let pamEnabled$: BehaviorSubject<boolean>;
+  let rotationEnabled$: BehaviorSubject<boolean>;
   let getFeatureFlag$: jest.Mock;
 
   beforeEach(async () => {
     pamEnabled$ = new BehaviorSubject<boolean>(true);
-    getFeatureFlag$ = jest.fn().mockReturnValue(pamEnabled$);
+    // Off by default, matching the flag's shipped default.
+    rotationEnabled$ = new BehaviorSubject<boolean>(false);
+    getFeatureFlag$ = jest.fn((flag: FeatureFlag) =>
+      flag === FeatureFlag.PamRotation ? rotationEnabled$ : pamEnabled$,
+    );
 
     await TestBed.configureTestingModule({
       imports: [PamOrgNavSlotComponent],
@@ -33,6 +38,8 @@ describe("PamOrgNavSlotComponent", () => {
           useValue: new I18nMockService({
             pam: "Privileged access",
             pamAccessRules: "Access rules",
+            pamAuditLog: "Audit log",
+            pamRotationNav: "Rotation",
           }),
         },
       ],
@@ -50,6 +57,10 @@ describe("PamOrgNavSlotComponent", () => {
   });
 
   const navGroup = () => fixture.debugElement.query(By.css("bit-nav-group"));
+  const navItemRoutes = () =>
+    fixture.debugElement
+      .queryAll(By.css("bit-nav-item"))
+      .map((item) => item.attributes["route"] ?? item.properties["route"]);
 
   it("gates on the PAM feature flag", () => {
     fixture.detectChanges();
@@ -67,9 +78,75 @@ describe("PamOrgNavSlotComponent", () => {
     expect(navGroup()).toBeNull();
   });
 
-  it("renders nothing when the org cannot manage access rules", () => {
+  it("renders nothing when the org has neither PAM permission", () => {
     fixture.componentRef.setInput("organization", org(false));
     fixture.detectChanges();
     expect(navGroup()).toBeNull();
+  });
+
+  it("generates no box of its own, so rendering nothing takes up no space", () => {
+    pamEnabled$.next(false);
+    fixture.detectChanges();
+
+    expect(navGroup()).toBeNull();
+    expect(fixture.debugElement.nativeElement.classList).toContain("tw-contents");
+  });
+
+  // The two items mirror their own routes' guards; managing access rules and reading event logs
+  // are separate permissions.
+  it("shows only Access rules when the org cannot read event logs", () => {
+    fixture.componentRef.setInput("organization", org(true, false));
+    fixture.detectChanges();
+    expect(navItemRoutes()).toEqual(["pam/access-rules"]);
+  });
+
+  it("shows only Audit log when the org cannot manage access rules", () => {
+    fixture.componentRef.setInput("organization", org(false, true));
+    fixture.detectChanges();
+    expect(navGroup()).not.toBeNull();
+    expect(navItemRoutes()).toEqual(["pam/audit"]);
+  });
+
+  it("shows both items when the org has both permissions", () => {
+    fixture.componentRef.setInput("organization", org(true, true));
+    fixture.detectChanges();
+    expect(navItemRoutes()).toEqual(["pam/access-rules", "pam/audit"]);
+  });
+
+  // Rotation nests under the PAM flag, its own flag, and the access-rule permission its route
+  // guards on.
+  describe("rotation", () => {
+    it("gates on the rotation feature flag", () => {
+      fixture.detectChanges();
+      expect(getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.PamRotation);
+    });
+
+    it("shows Rotation when its flag is on and the org can manage access rules", () => {
+      rotationEnabled$.next(true);
+      fixture.componentRef.setInput("organization", org(true, true));
+      fixture.detectChanges();
+      expect(navItemRoutes()).toEqual(["pam/access-rules", "pam/audit", "pam/rotation"]);
+    });
+
+    it("hides Rotation when its flag is off", () => {
+      rotationEnabled$.next(false);
+      fixture.componentRef.setInput("organization", org(true, true));
+      fixture.detectChanges();
+      expect(navItemRoutes()).not.toContain("pam/rotation");
+    });
+
+    it("hides Rotation when the org cannot manage access rules", () => {
+      rotationEnabled$.next(true);
+      fixture.componentRef.setInput("organization", org(false, true));
+      fixture.detectChanges();
+      expect(navItemRoutes()).toEqual(["pam/audit"]);
+    });
+
+    it("hides Rotation when the PAM flag is off, even with its own flag on", () => {
+      pamEnabled$.next(false);
+      rotationEnabled$.next(true);
+      fixture.detectChanges();
+      expect(navGroup()).toBeNull();
+    });
   });
 });

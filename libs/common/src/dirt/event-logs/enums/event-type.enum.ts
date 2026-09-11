@@ -169,4 +169,21 @@ export enum EventType {
   Send_Deleted_File = 2509,
   Send_Accessed_Text = 2510,
   Send_Accessed_File = 2511,
+
+  // PAM: only a subset of the audit trail is reported organization-wide; the full trail lives
+  // in PAM's own view. Keep in sync with the server's EventType.
+  Pam_AccessRequest_Submitted = 2600,
+  Pam_AccessRequest_Approved = 2601,
+  Pam_AccessRequest_Denied = 2602,
+  Pam_AccessLease_Activated = 2603,
+  Pam_AccessLease_Revoked = 2604,
+  Pam_AccessRequest_Cancelled = 2605,
+  Pam_AccessLease_Extended = 2606,
+  Pam_AccessLease_Expired = 2607,
+  Pam_AccessLease_ActivationRejected = 2608,
+  // Rule administration carries no subject id: a rule governs many collections, and the server has no
+  // column for the rule itself. These rows report the actor and the time only.
+  Pam_AccessRule_Created = 2609,
+  Pam_AccessRule_Updated = 2610,
+  Pam_AccessRule_Deleted = 2611,
 }

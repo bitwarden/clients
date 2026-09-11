@@ -17,6 +17,17 @@
     }
   </span>
   <div bitDialogContent>
+    @if (editMode && accessRuleCallout) {
+      <ng-container
+        *ngComponentOutlet="
+          accessRuleCallout;
+          inputs: {
+            organizationId: organizationSelected.value,
+            collectionId: collectionId,
+          }
+        "
+      />
+    }
     @if (loading()) {
       <ng-container #spinner>
         <i class="bwi bwi-spinner bwi-lg bwi-spin" aria-hidden="true"></i>

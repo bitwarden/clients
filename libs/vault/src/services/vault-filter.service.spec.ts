@@ -293,6 +293,24 @@ describe("vault filter service", () => {
         expect(result.children[0].children.map((c) => c.node.id)).toEqual(["id-2", "id-3"]);
       });
 
+      it("carries hasEnabledAccessRule onto the tree node", async () => {
+        // `buildCollectionTree`'s `new CollectionView(...)` resets the flag to `false`; losing
+        // the carry-over unmarks every governed collection silently.
+        const governed = createCollectionView("id-1", "Collection 1", "org test id");
+        governed.hasEnabledAccessRule = true;
+        const ungoverned = createCollectionView("id-2", "Collection 2", "org test id");
+        const storedCollections = [governed, ungoverned];
+        collectionViews.next(storedCollections);
+        collectionService.groupByOrganization.mockReturnValue(
+          new Map([["org test id" as OrganizationId, storedCollections]]),
+        );
+
+        const result = await firstValueFrom(vaultFilterService.collectionTree$);
+
+        expect(result.children[0].node.hasEnabledAccessRule).toBe(true);
+        expect(result.children[1].node.hasEnabledAccessRule).toBe(false);
+      });
+
       it("returns tree where non-existing collections are excluded from children", async () => {
         const storedCollections = [
           createCollectionView("id-1", "Collection 1", "org test id"),

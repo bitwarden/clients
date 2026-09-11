@@ -1,0 +1,40 @@
+<form [formGroup]="form" [bitSubmit]="submit" bit-dialog dialogSize="default">
+  <ng-container bitDialogTitle>
+    {{ "pamDaemonRegisterTitle" | i18n }}
+  </ng-container>
+
+  <div bitDialogContent>
+    <bit-form-field>
+      <bit-label>{{ "name" | i18n }}</bit-label>
+      <input
+        bitInput
+        formControlName="name"
+        id="daemon-register-dialog_input_name"
+        [placeholder]="'pamDaemonNamePlaceholder' | i18n"
+      />
+      <bit-hint>{{ "pamDaemonNameHint" | i18n }}</bit-hint>
+    </bit-form-field>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button
+      type="submit"
+      bitButton
+      buttonType="primary"
+      bitFormButton
+      id="daemon-register-dialog_button_submit"
+    >
+      {{ "pamDaemonRegister" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      bitFormButton
+      (click)="cancel()"
+      id="daemon-register-dialog_button_cancel"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</form>

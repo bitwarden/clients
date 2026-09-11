@@ -1,5 +1,3 @@
-import type { AccessRuleView } from "../abstractions/access-rule";
-
 /** Toolbar status filter for the access rules table. */
 export type AccessRuleStatusFilter = "enabled" | "disabled";
 
@@ -10,32 +8,6 @@ export type AccessRuleFilter = {
   status: AccessRuleStatusFilter | null;
   collectionId: string | null;
 };
-
-/**
- * A rule's lease window in seconds: `defaultSeconds` alone, or paired with a
- * distinct `maxSeconds` cap for a `default–max` range. Rendered via
- * {@link DurationShortPipe} in the `access-rules` view — kept as raw seconds
- * here rather than a formatted string so that view controls locale/units.
- */
-export type AccessRuleWindow = {
-  defaultSeconds: number;
-  maxSeconds: number | null;
-};
-
-/** A rule's lease window, or null when it has no default duration. */
-export function accessRuleWindow(
-  rule: Pick<AccessRuleView, "defaultLeaseDurationSeconds" | "maxLeaseDurationSeconds">,
-): AccessRuleWindow | null {
-  const def = rule.defaultLeaseDurationSeconds;
-  if (def == null) {
-    return null;
-  }
-  const max = rule.maxLeaseDurationSeconds;
-  return {
-    defaultSeconds: def,
-    maxSeconds: max != null && max !== def ? max : null,
-  };
-}
 
 /**
  * Whether a rule passes the table's combined toolbar filter. `collectionNames`

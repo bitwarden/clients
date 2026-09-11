@@ -34,6 +34,20 @@ import { PasswordHistoryView } from "./password-history.view";
 import { SecureNoteView } from "./secure-note.view";
 import { SshKeyView } from "./ssh-key.view";
 
+/**
+ * `SdkCipherView` plus the PAM gating marker. `sdk-internal` doesn't declare `partial` on
+ * `CipherView` yet, so it's bridged here for {@link CipherView.fromSdkCipherView} to read;
+ * optional, so a plain `SdkCipherView` stays assignable.
+ *
+ * The Rust side shipped this as `partial?: boolean` in sdk-internal commit b19f4d40, on both
+ * `CipherView` and `CipherListView` (the latter is what lets `CipherViewLikeUtils.isPartial`
+ * report gating for list rows) — but unpublished, so no `main` build carries it yet. Collapse
+ * into `SdkCipherView` once it ships.
+ *
+ * See the sibling bridge in `domain/cipher.ts` for the same migration.
+ */
+type SdkCipherViewWithPartial = SdkCipherView & { partial?: boolean };
+
 export class CipherView implements View, InitializerMetadata {
   readonly initializerKey = InitializerKey.CipherView;
 
@@ -71,18 +85,16 @@ export class CipherView implements View, InitializerMetadata {
   key?: EncString;
 
   /**
-   * True when this view was decrypted from a server-restricted (PAM-gated) cipher: only the
-   * name and (for logins) URIs are populated, every secret field is absent. Sourced from the
-   * SDK's `partial` flag (see {@link CipherView.fromSdkCipherView}). UI gating surfaces — the
-   * row badge, the cipher-view banner, and edit-blocking — key off this.
+   * True when this view was decrypted from a server-restricted (PAM-gated) cipher: only name and
+   * (for logins) URIs are populated, every secret field absent. Sourced from the SDK's `partial`
+   * flag — see {@link CipherView.fromSdkCipherView}.
    */
   partial = false;
 
   /**
    * Client-only, transient companion to {@link partial}: set on a full cipher served under an
-   * active PAM lease (full data, so `partial` is false). Never sent by the server, persisted,
-   * or serialized — its producer (the leased-cipher fetcher) stamps it directly on the view.
-   * Lets gating surfaces keep rendering lease state once a lease lands.
+   * active PAM lease. Never sent by the server or persisted — the vault-item dialog stamps it
+   * directly when swapping in the cipher from `GATED_CIPHER_RELOADER`.
    */
   leaseGated?: boolean;
 
@@ -115,9 +127,8 @@ export class CipherView implements View, InitializerMetadata {
     // Old locally stored ciphers might have reprompt == null. If so set it to None.
     this.reprompt = c.reprompt ?? CipherRepromptType.None;
     this.key = c.key;
-    // Derive the gating flag from the persisted envelope. The SDK decrypt path sets it from
-    // the SDK view instead (see fromSdkCipherView); `leaseGated` has no domain source — its
-    // producer stamps it on the view directly.
+    // Derives the gating flag from the persisted envelope; the SDK decrypt path sets it from
+    // the SDK view instead (see `fromSdkCipherView`).
     this.partial = c.partialData != null;
   }
 
@@ -322,7 +333,10 @@ export class CipherView implements View, InitializerMetadata {
   /**
    * Creates a CipherView from the SDK CipherView.
    */
-  static fromSdkCipherView(obj: SdkCipherView, sdk?: CiphersClient): CipherView | undefined {
+  static fromSdkCipherView(
+    obj: SdkCipherViewWithPartial,
+    sdk?: CiphersClient,
+  ): CipherView | undefined {
     if (obj == null) {
       return undefined;
     }

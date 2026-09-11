@@ -35,7 +35,9 @@ function makeCipher(
     favorite: boolean;
     isDeleted: boolean;
     isArchived: boolean;
+    collectionIds: string[];
     organizationId: string;
+    partial: boolean;
     reprompt: CipherRepromptType;
     type: CipherType;
   }> = {},
@@ -476,6 +478,59 @@ describe("CipherActionService", () => {
 
       expect(logService.error).toHaveBeenCalled();
       await expect(successPromise).resolves.toBeUndefined();
+    });
+
+    // PM-42916: the failure used to be logged and nothing else.
+    it("shows an error toast when delete throws", async () => {
+      cipherService.softDeleteWithServer.mockRejectedValue(new Error("server error"));
+
+      await service.delete(makeCipher());
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "deleteItemError" }),
+      );
+      expect(toastService.showToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ message: "deletedItem" }),
+      );
+    });
+
+    it("names the reason when a PAM-gated cipher's delete is refused", async () => {
+      cipherService.softDeleteWithServer.mockRejectedValue(new Error("not found"));
+
+      await service.delete(makeCipher({ partial: true }));
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "pamDeleteRequiresAccess" }),
+      );
+    });
+
+    // The reachable shape: the lease lapsed after the last sync, so the cipher is still full and
+    // only its collections say it is gated.
+    it("names the reason for a full cipher whose every collection gates", async () => {
+      cipherService.softDeleteWithServer.mockRejectedValue(new Error("not found"));
+      const cipher = makeCipher({ collectionIds: ["c1"] });
+      const collections = [{ id: "c1", hasEnabledAccessRule: true }] as any;
+
+      await service.delete(cipher, collections);
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "pamDeleteRequiresAccess" }),
+      );
+    });
+
+    it("keeps the plain error when one collection is an ungated escape", async () => {
+      cipherService.softDeleteWithServer.mockRejectedValue(new Error("network error"));
+      const cipher = makeCipher({ collectionIds: ["c1", "c2"] });
+      const collections = [
+        { id: "c1", hasEnabledAccessRule: true },
+        { id: "c2", hasEnabledAccessRule: false },
+      ] as any;
+
+      await service.delete(cipher, collections);
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "deleteItemError" }),
+      );
     });
 
     it("emits cipherModified$ after deleting", async () => {

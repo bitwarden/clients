@@ -3,6 +3,7 @@ import { FormArray, FormControl } from "@angular/forms";
 import {
   atLeastOneNonEmptyCidrValidator,
   cidrValidator,
+  duplicateCidrValues,
   noDuplicateCidrsValidator,
 } from "./cidr.validator";
 
@@ -38,6 +39,22 @@ describe("cidrValidator", () => {
 
   it("returns null for a whitespace-only string (treated as empty)", () => {
     expect(validate("   ")).toBeNull();
+  });
+});
+
+describe("duplicateCidrValues", () => {
+  it("returns an empty set when all values are distinct", () => {
+    expect(duplicateCidrValues(["10.0.0.0/8", "192.168.0.0/16"])).toEqual(new Set());
+  });
+
+  it("returns the repeated value, trimmed, once per distinct range", () => {
+    expect(duplicateCidrValues(["10.0.0.0/8", " 10.0.0.0/8 ", "10.0.0.0/8"])).toEqual(
+      new Set(["10.0.0.0/8"]),
+    );
+  });
+
+  it("ignores empty and whitespace-only rows", () => {
+    expect(duplicateCidrValues(["", "   ", "10.0.0.0/8"])).toEqual(new Set());
   });
 });
 

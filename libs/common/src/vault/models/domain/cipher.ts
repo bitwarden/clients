@@ -35,6 +35,20 @@ import { Password } from "./password";
 import { SecureNote } from "./secure-note";
 import { SshKey } from "./ssh-key";
 
+/**
+ * `SdkCipher` plus the PAM partial-cipher envelope. `sdk-internal` doesn't declare
+ * `partialData` on `Cipher` yet, so it's bridged here to keep the SDK mappers round-tripping
+ * it; optional, so a plain `SdkCipher` stays assignable.
+ *
+ * The Rust side shipped this as `partialData?: string` in sdk-internal commit b19f4d40, on
+ * `pam/uat`, not yet on `main`. Collapse into `SdkCipher` once it ships.
+ *
+ * That bump also needs migrating `libs/common/src/key-management` off `UserKeyState` and
+ * `EphemeralPinEnvelopeState`, dropped by SDK commit 99ffb6ef; the `partial` bridge in
+ * `cipher.view.ts` releases with the same bump.
+ */
+type SdkCipherWithPartialData = SdkCipher & { partialData?: string };
+
 export class Cipher extends Domain implements Decryptable<CipherView> {
   readonly initializerKey = InitializerKey.Cipher;
 
@@ -460,10 +474,10 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   /**
    * Maps Cipher to SDK format.
    *
-   * @returns {SdkCipher} The SDK cipher object.
+   * @returns {SdkCipherWithPartialData} The SDK cipher object.
    */
-  toSdkCipher(): SdkCipher {
-    const sdkCipher: SdkCipher = {
+  toSdkCipher(): SdkCipherWithPartialData {
+    const sdkCipher: SdkCipherWithPartialData = {
       id: this.id ? asUuid(this.id) : undefined,
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
@@ -556,7 +570,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
    * Maps an SDK Cipher object to a Cipher
    * @param sdkCipher - The SDK Cipher object
    */
-  static fromSdkCipher(sdkCipher?: SdkCipher): Cipher | undefined {
+  static fromSdkCipher(sdkCipher?: SdkCipherWithPartialData): Cipher | undefined {
     if (sdkCipher == null) {
       return undefined;
     }

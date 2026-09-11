@@ -303,10 +303,8 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   /**
-   * Whether to render the "Controlled access" column. Shown only when the PAM feature flag is
-   * enabled, the viewer actually has PAM enabled — i.e. at least one organization in view has the
-   * Privileged Access capability (`usePam`) — and a host provides the badge seam. Otherwise the
-   * column is absent and the table is unchanged.
+   * Whether to render the "Controlled access" column: the PAM feature flag is enabled, at least
+   * one organization in view has `usePam`, and a host provides the badge seam.
    */
   get showControlledAccess() {
     return (
@@ -471,9 +469,8 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   /**
    * Selected ciphers eligible for a bulk action, with partial (PAM-gated) rows removed. Partials
-   * are read-only and already unselectable (see {@link editableItems} and the row checkbox); this
-   * is a defense-in-depth net so a gated cipher can never be re-encrypted or otherwise modified by
-   * a bulk action even if it reaches the selection some other way.
+   * are already unselectable (see {@link editableItems}); this is defense-in-depth so a gated
+   * cipher can never be modified even if it reaches the selection some other way.
    */
   private selectedCiphersForBulkAction(): C[] {
     return this.selection.selected
@@ -597,9 +594,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       .map((cipher) => ({ cipher }));
     const items: VaultItem<C>[] = [].concat(collections).concat(ciphers);
 
-    // Ciphers are selectable only if the user can edit them; collections only if they can be edited or deleted.
-    // PAM-gated ("partial") ciphers are never selectable — they are read-only, so keeping them out of
-    // the selection prevents any bulk action (move/share/delete/archive) from modifying them.
+    // PAM-gated ("partial") ciphers are never selectable; they're read-only.
     this.editableItems = items.filter(
       (item) =>
         (item.cipher !== undefined &&

@@ -1,5 +1,12 @@
 import { SelectionModel } from "@angular/cdk/collections";
-import { ElementRef, NO_ERRORS_SCHEMA, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  input,
+  NO_ERRORS_SCHEMA,
+  signal,
+} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, Params, provideRouter, Router } from "@angular/router";
@@ -36,7 +43,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -82,8 +89,24 @@ import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 import { WelcomeDialogService } from "../services/welcome-dialog.service";
 
 import { VaultBannersService } from "./vault-banners/services/vault-banners.service";
+import {
+  VaultGatedCollectionBanner,
+  VAULT_GATED_COLLECTION_BANNER,
+} from "./vault-gated-collection-banner.token";
 import { VaultOnboardingService } from "./vault-onboarding/services/abstraction/vault-onboarding.service";
 import { VaultComponent } from "./vault.component";
+
+@Component({
+  selector: "app-test-gated-collection-banner",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<span data-testid="gated-collection-banner"
+    >{{ organizationId() }}/{{ collectionId() }}</span
+  >`,
+})
+class TestGatedCollectionBannerComponent implements VaultGatedCollectionBanner {
+  readonly organizationId = input<OrganizationId | undefined>(undefined);
+  readonly collectionId = input<CollectionId | undefined>(undefined);
+}
 
 const TEST_CIPHER_ID = "test-cipher-id";
 const TEST_USER_ID = "test-user-id" as UserId;
@@ -113,8 +136,7 @@ describe("VaultComponent", () => {
 
     const cipherServiceMock = mock<CipherService>();
     cipherServiceMock.get.mockResolvedValue(mockCipher);
-    // The vault list opts into the partials-inclusive stream; the vault filter and other
-    // consumers use the partials-excluded stream.
+    // The vault list opts into the partials-inclusive stream; other consumers use the excluded one.
     cipherServiceMock.cipherListViewsWithPartials$.mockReturnValue(of([]));
     cipherServiceMock.cipherListViews$.mockReturnValue(of([]));
     cipherServiceMock.failedToDecryptCiphers$.mockReturnValue(of([]));
@@ -146,6 +168,10 @@ describe("VaultComponent", () => {
       imports: [VaultComponent],
       providers: [
         provideRouter([]),
+        {
+          provide: VAULT_GATED_COLLECTION_BANNER,
+          useValue: TestGatedCollectionBannerComponent,
+        },
         { provide: MessagingService, useValue: mock<MessagingService>() },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: BroadcasterService, useValue: mock<BroadcasterService>() },
@@ -456,9 +482,91 @@ describe("VaultComponent", () => {
     });
   });
 
+  describe("gated collection banner", () => {
+    function banner(): HTMLElement | null {
+      return fixture.nativeElement.querySelector("[data-testid='gated-collection-banner']");
+    }
+
+    function selectCollection(node: TreeNode<any> | undefined): void {
+      (component as any).selectedCollection = node;
+      fixture.detectChanges();
+    }
+
+    it("mounts the host's banner with the selected collection's organization and id", () => {
+      // `canEdit`/`canDelete` are here only because the same node feeds `app-vault-header` too.
+      selectCollection(
+        new TreeNode(
+          {
+            id: "collection-1",
+            organizationId: "org-1",
+            canEdit: () => false,
+            canDelete: () => false,
+          } as any,
+          null,
+        ),
+      );
+
+      expect(banner()?.textContent).toBe("org-1/collection-1");
+    });
+
+    it("mounts nothing while no single collection is the active filter", () => {
+      selectCollection(undefined);
+
+      expect(banner()).toBeNull();
+    });
+  });
+
+  describe("deleteCipher", () => {
+    // PM-42916: a refused delete used to be logged and nothing more.
+    let toastSpy: jest.SpyInstance;
+    let translateSpy: jest.SpyInstance;
+
+    function cipher(overrides: Record<string, unknown> = {}): any {
+      return { id: TEST_CIPHER_ID, edit: true, reprompt: 0, ...overrides };
+    }
+
+    beforeEach(() => {
+      // The component resolves its own DialogService, so patch the field as other suites here do.
+      (component as any).dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
+      toastSpy = jest.spyOn((component as any).toastService, "showToast");
+      translateSpy = jest.spyOn((component as any).i18nService, "t");
+    });
+
+    it("shows an error toast when the delete is refused", async () => {
+      const cipherService = TestBed.inject(CipherService);
+      (cipherService.softDeleteWithServer as jest.Mock).mockRejectedValue(new Error("not found"));
+
+      await component.deleteCipher(cipher());
+
+      expect(translateSpy).toHaveBeenCalledWith("deleteItemError");
+      expect(toastSpy).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+      expect(toastSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: "success" }));
+    });
+
+    it("names the reason when a PAM-gated cipher's delete is refused", async () => {
+      const cipherService = TestBed.inject(CipherService);
+      (cipherService.softDeleteWithServer as jest.Mock).mockRejectedValue(new Error("not found"));
+
+      await component.deleteCipher(cipher({ partial: true }));
+
+      expect(translateSpy).toHaveBeenCalledWith("pamDeleteRequiresAccess");
+      expect(toastSpy).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+    });
+
+    it("reports success when the delete lands", async () => {
+      const cipherService = TestBed.inject(CipherService);
+      (cipherService.softDeleteWithServer as jest.Mock).mockResolvedValue(undefined);
+
+      await component.deleteCipher(cipher());
+
+      expect(translateSpy).toHaveBeenCalledWith("deletedItem");
+      expect(toastSpy).toHaveBeenCalledWith(expect.objectContaining({ variant: "success" }));
+      expect(toastSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+    });
+  });
+
   describe("viewCipherById", () => {
-    // viewCipherById awaits the dialog's `closed` stream, which the mock never completes,
-    // so kick it off and drain the pending microtasks instead of awaiting it.
+    // The mock's `closed` stream never completes, so this drains microtasks instead of awaiting it.
     async function openAndFlush(): Promise<void> {
       void component.viewCipherById(TEST_CIPHER_ID);
       await new Promise((resolve) => setTimeout(resolve, 0));

@@ -1,10 +1,13 @@
+import { DebugElement } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormArray, FormControl } from "@angular/forms";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { CidrValidationService } from "./cidr-validation.service";
+import { noDuplicateCidrsValidator } from "./cidr.validator";
 import {
   cidrRowControl,
   IpAllowlistCidrsArray,
@@ -24,7 +27,13 @@ describe("IpAllowlistEditorComponent", () => {
   function hostArray(...cidrs: string[]): IpAllowlistCidrsArray {
     return new FormArray<FormControl<string>>(
       cidrs.map((c) => cidrRowControl(c, "invalid", isValidCidr)),
+      { validators: [noDuplicateCidrsValidator()] },
     );
+  }
+
+  /** The per-row remove buttons currently rendered, in row order. */
+  function removeButtons(): HTMLButtonElement[] {
+    return Array.from(fixture.nativeElement.querySelectorAll("bit-form-field button"));
   }
 
   /** Creates the component bound to `array` and runs ngOnInit. */
@@ -101,6 +110,47 @@ describe("IpAllowlistEditorComponent", () => {
       expect(cidrArray.length).toBe(1);
       expect(cidrArray.at(0).value).toBe("");
     });
+
+    it("clears the removed row's error rather than showing it against the row that replaces it", () => {
+      create(hostArray("not-a-cidr", "10.0.0.0/8"));
+      cidrArray.at(0).markAsTouched();
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector("bit-error")).not.toBeNull();
+
+      removeButtons()[0].click();
+      fixture.detectChanges();
+
+      expect(cidrArray.at(0).value).toBe("10.0.0.0/8");
+      expect(fixture.nativeElement.querySelector("bit-error")).toBeNull();
+    });
+  });
+
+  describe("remove button", () => {
+    it("is hidden while a single row is all there is to remove", () => {
+      create(hostArray("10.0.0.0/8"));
+      expect(removeButtons().length).toBe(0);
+    });
+
+    it("is offered on every row once more than one exists", () => {
+      create(hostArray("10.0.0.0/8", "192.168.0.0/16"));
+      expect(removeButtons().length).toBe(2);
+    });
+
+    it("sits outside the input rather than inside it as a suffix", () => {
+      create(hostArray("10.0.0.0/8", "192.168.0.0/16"));
+      expect(removeButtons()[0].closest("[bitFieldContainer]")).toBeNull();
+    });
+
+    it("is withheld when the editor is read-only", () => {
+      cidrArray = hostArray("10.0.0.0/8", "192.168.0.0/16");
+      fixture = TestBed.createComponent(IpAllowlistEditorComponent);
+      fixture.componentRef.setInput("cidrArray", cidrArray);
+      fixture.componentRef.setInput("readonly", true);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      expect(removeButtons().length).toBe(0);
+    });
   });
 
   describe("markTouched()", () => {
@@ -111,6 +161,120 @@ describe("IpAllowlistEditorComponent", () => {
       component["markTouched"]();
 
       expect(cidrArray.touched).toBe(true);
+    });
+  });
+
+  describe("duplicate rows", () => {
+    function inputAt(index: number): HTMLInputElement {
+      return fixture.debugElement.queryAll(By.css("input[bitInput]"))[index].nativeElement;
+    }
+
+    function type(index: number, value: string): void {
+      const input = inputAt(index);
+      input.value = value;
+      input.dispatchEvent(new Event("input"));
+    }
+
+    function rows(): DebugElement[] {
+      return fixture.debugElement.queryAll(By.css("bit-form-field"));
+    }
+
+    /**
+     * The `bit-error` text rendered inside each row's own `bit-form-field`, in row order. Scoped
+     * per row rather than counted across the component, so a mark landing under the wrong input
+     * fails instead of passing on a matching total.
+     */
+    function errorsByRow(): string[][] {
+      fixture.detectChanges();
+      return rows().map((row) =>
+        row
+          .queryAll(By.css("bit-error"))
+          .map((e) => (e.nativeElement as HTMLElement).textContent!.trim()),
+      );
+    }
+
+    /**
+     * Indices of the rows carrying the row-level `duplicateCidr` mark. Asserted alongside
+     * {@link errorsByRow}, which reads the DOM and can still show a stale `bit-error` when the
+     * host mutates the array without emitting.
+     */
+    function markedRows(): number[] {
+      return cidrArray.controls.flatMap((c, i) => (c.hasError("duplicateCidr") ? [i] : []));
+    }
+
+    function clickRemove(index: number): void {
+      rows()[index].query(By.css("button[bitIconButton]")).nativeElement.click();
+    }
+
+    const DUPLICATE = "accessRuleIpAllowlistDuplicateCidr";
+
+    it("renders a bit-error on both duplicate rows when an already-duplicated rule mounts untouched", () => {
+      create(hostArray("10.0.0.0/8", "192.168.0.0/16", "10.0.0.0/8"));
+
+      expect(errorsByRow()).toEqual([[DUPLICATE], [], [DUPLICATE]]);
+      expect(cidrArray.at(1).hasError("duplicateCidr")).toBe(false);
+      expect(cidrArray.hasError("duplicateCidrs")).toBe(true);
+    });
+
+    it("marks both rows of a duplicate pair when only one of them is blurred", () => {
+      create(hostArray("10.0.0.0/8", "192.168.0.0/16"));
+
+      type(1, "10.0.0.0/8");
+      inputAt(1).dispatchEvent(new Event("blur"));
+
+      expect(errorsByRow()).toEqual([[DUPLICATE], [DUPLICATE]]);
+      expect(cidrArray.hasError("duplicateCidrs")).toBe(true);
+    });
+
+    it("keeps the duplicate marks on the surviving rows when a row between them is removed", () => {
+      create(hostArray("10.0.0.0/8", "192.168.0.0/16", "10.0.0.0/8"));
+
+      clickRemove(1);
+
+      expect(errorsByRow()).toEqual([[DUPLICATE], [DUPLICATE]]);
+      expect(cidrArray.hasError("duplicateCidrs")).toBe(true);
+    });
+
+    it("shows the format error rather than the duplicate one on a row that is both", () => {
+      create(hostArray("not-a-cidr", "not-a-cidr"));
+
+      expect(errorsByRow()).toEqual([["invalid"], ["invalid"]]);
+      expect(cidrArray.hasError("duplicateCidrs")).toBe(true);
+    });
+
+    it("clears the duplicate mark from both rows once the values differ", () => {
+      create(hostArray("10.0.0.0/8", "10.0.0.0/8"));
+
+      type(1, "192.168.0.0/16");
+
+      expect(errorsByRow()).toEqual([[], []]);
+      expect(cidrArray.hasError("duplicateCidrs")).toBe(false);
+    });
+
+    it("marks the rows when the host replaces the array without emitting", () => {
+      create(hostArray("10.0.0.0/8"));
+
+      cidrArray.clear({ emitEvent: false });
+      for (const cidr of ["10.0.0.0/8", "192.168.0.0/16", "10.0.0.0/8"]) {
+        cidrArray.push(cidrRowControl(cidr, "invalid", isValidCidr), { emitEvent: false });
+      }
+      cidrArray.updateValueAndValidity({ emitEvent: false });
+      fixture.detectChanges();
+
+      expect(cidrArray.hasError("duplicateCidrs")).toBe(true);
+      expect(markedRows()).toEqual([0, 2]);
+    });
+
+    it("marks the rows when the host re-enables the array without emitting", () => {
+      create(hostArray("10.0.0.0/8", "10.0.0.0/8"));
+
+      cidrArray.disable({ emitEvent: false });
+      cidrArray.enable({ emitEvent: false });
+      fixture.detectChanges();
+
+      expect(cidrArray.hasError("duplicateCidrs")).toBe(true);
+      expect(markedRows()).toEqual([0, 1]);
+      expect(errorsByRow()).toEqual([[DUPLICATE], [DUPLICATE]]);
     });
   });
 });

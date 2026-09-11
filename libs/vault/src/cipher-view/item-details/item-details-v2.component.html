@@ -12,11 +12,21 @@
       </div>
       <h2
         bitTypography="h4"
-        class="tw-ml-2 tw-mt-2 tw-select-auto tw-flex-1 tw-break-all tw-line-clamp-2"
+        class="tw-ml-2 tw-mt-2 tw-select-auto tw-flex-1 tw-min-w-0 tw-break-all tw-line-clamp-2"
         data-testid="item-name"
       >
         {{ cipher().name }}
       </h2>
+      @if (stateBadgeComponent) {
+        <ng-container
+          *ngComponentOutlet="
+            stateBadgeComponent;
+            inputs: {
+              cipher: cipher(),
+            }
+          "
+        />
+      }
     </div>
     <ng-container>
       <div class="tw-flex tw-flex-col tw-mt-2 md:tw-flex-row md:tw-flex-wrap">

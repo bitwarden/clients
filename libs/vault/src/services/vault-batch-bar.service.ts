@@ -175,10 +175,9 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   readonly barVisible = computed(() => this.batchBarFlag() && this.selectedCount() > 0);
 
   /**
-   * Selected items that are ciphers, excluding partial (PAM-gated) rows. Partials are read-only
-   * and already unselectable in the list; filtering them here is a defense-in-depth net so a
-   * gated cipher can never be the target of a bulk action (move/archive/delete/assign) even if it
-   * reaches the selection some other way.
+   * Selected items that are ciphers, excluding partial (PAM-gated) rows. Partials are already
+   * unselectable in the list; filtering here is defense-in-depth so a gated cipher can never be
+   * the target of a bulk action even if it reaches the selection some other way.
    */
   readonly selectedCiphers = computed(() =>
     this.selected()

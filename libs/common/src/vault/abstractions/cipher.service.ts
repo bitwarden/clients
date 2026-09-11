@@ -49,10 +49,9 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
    * Like {@link cipherListViews$}, but INCLUDES PAM-gated ("partial") rows — ciphers whose
    * sensitive fields the server suppressed, decrypted into a `partial` view.
    *
-   * This is an opt-in stream: only surfaces that must render gated rows (the vault list and its
-   * "Controlled access" badge) should consume it. Every other consumer must use
-   * {@link cipherListViews$}, which excludes partials so gated ciphers never reach autofill,
-   * export, key rotation, and similar flows.
+   * Opt-in: only surfaces that must render gated rows (the vault list and its "Controlled
+   * access" badge) should consume it. Every other consumer must use {@link cipherListViews$},
+   * which excludes partials.
    */
   abstract cipherListViewsWithPartials$(
     userId: UserId,
@@ -101,6 +100,19 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     overrideNeverMatchStrategy?: true,
   ): Promise<CipherView[]>;
   abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
+  /**
+   * Like {@link getAllDecryptedForIds}, but RETAINS PAM-gated ("partial") rows — ciphers whose
+   * sensitive fields the server suppressed, decrypted into a `partial` view carrying only the
+   * title and, for logins, the URIs.
+   *
+   * Opt-in, for the same reason {@link cipherListViewsWithPartials$} is: a surface naming a
+   * gated cipher would otherwise resolve nothing. Every other caller must use
+   * {@link getAllDecryptedForIds}, which excludes partials.
+   */
+  abstract getAllDecryptedForIdsIncludingPartials(
+    userId: UserId,
+    ids: string[],
+  ): Promise<CipherView[]>;
   abstract filterCiphersForUrl<C extends CipherViewLike = CipherView>(
     ciphers: C[],
     url: string,
@@ -160,6 +172,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
+    leaseGated?: boolean,
   ): Promise<CipherView>;
 
   /**

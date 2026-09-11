@@ -1,0 +1,217 @@
+<bit-dialog dialogSize="small">
+  <ng-container bitDialogTitle>
+    <span>{{ row.kindLabelKey | i18n }}</span>
+    @if (row.inDoubt) {
+      <span
+        bitBadge
+        variant="warning"
+        class="tw-ms-2"
+        [bitTooltip]="'pamAuditIncompleteTooltip' | i18n"
+        >{{ "pamAuditIncomplete" | i18n }}</span
+      >
+    }
+  </ng-container>
+
+  <ng-container bitDialogContent>
+    <dl class="tw-m-0 tw-flex tw-flex-col tw-gap-4">
+      <div>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "timestamp" | i18n }}</dt>
+        <dd class="tw-m-0" data-testid="drawer-timestamp">{{ row.occurredAt | date: "long" }}</dd>
+      </div>
+
+      <div>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "pamAuditColumnActor" | i18n }}</dt>
+        <dd class="tw-m-0 tw-break-words" data-testid="drawer-actor">
+          @if (row.automated) {
+            <span class="tw-text-muted">{{ "pamAuditSystem" | i18n }}</span>
+          } @else if (row.actor) {
+            @if (params.actor; as member) {
+              <a
+                bitLink
+                href="#"
+                id="pam-audit-event-drawer_link_actor"
+                (click)="openMemberEvents($event, member)"
+                >{{ row.actor }}</a
+              >
+            } @else {
+              {{ row.actor }}
+            }
+            @if (row.actorEmail && row.actorEmail !== row.actor) {
+              <div class="tw-text-sm tw-text-muted">{{ row.actorEmail }}</div>
+            }
+          } @else {
+            <span class="tw-text-muted">—</span>
+          }
+        </dd>
+      </div>
+
+      <div>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">
+          {{ "pamAuditColumnRequester" | i18n }}
+        </dt>
+        <dd class="tw-m-0 tw-break-words" data-testid="drawer-requester">
+          @if (row.requester) {
+            @if (params.requester; as member) {
+              <a
+                bitLink
+                href="#"
+                id="pam-audit-event-drawer_link_requester"
+                (click)="openMemberEvents($event, member)"
+                >{{ row.requester }}</a
+              >
+            } @else {
+              {{ row.requester }}
+            }
+            @if (row.requesterEmail && row.requesterEmail !== row.requester) {
+              <div class="tw-text-sm tw-text-muted">{{ row.requesterEmail }}</div>
+            }
+          } @else {
+            <span class="tw-text-muted">—</span>
+          }
+        </dd>
+      </div>
+
+      <div>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "pamAuditColumnItem" | i18n }}</dt>
+        <dd class="tw-m-0 tw-break-words" data-testid="drawer-item">
+          @if (row.cipherName && row.cipherId) {
+            <a
+              bitLink
+              href="#"
+              id="pam-audit-event-drawer_link_item"
+              (click)="openCipherEvents($event)"
+              >{{ row.cipherName }}</a
+            >
+          } @else if (row.cipherName) {
+            {{ row.cipherName }}
+          } @else if (row.ruleName) {
+            {{ row.ruleName }}
+          } @else {
+            <span class="tw-text-muted">—</span>
+          }
+        </dd>
+      </div>
+
+      <div>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "collection" | i18n }}</dt>
+        <dd class="tw-m-0 tw-break-words" data-testid="drawer-collection">
+          @if (collectionRoute; as route) {
+            <a
+              bitLink
+              id="pam-audit-event-drawer_link_collection"
+              [routerLink]="route"
+              [queryParams]="{ collectionId: row.collectionId }"
+              (click)="closeDrawer()"
+              >{{ row.collectionName }}</a
+            >
+          } @else if (row.collectionName) {
+            {{ row.collectionName }}
+          } @else {
+            <span class="tw-text-muted">—</span>
+          }
+        </dd>
+      </div>
+
+      <div>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "pamAuditColumnDuration" | i18n }}</dt>
+        <dd class="tw-m-0" data-testid="drawer-duration">
+          @if (row.duration; as duration) {
+            {{ duration.key | i18n: duration.value }}
+          } @else if (row.extendedUntil) {
+            {{ "pamAuditDurationExtendedTo" | i18n: (row.extendedUntil | date: "medium") }}
+          } @else {
+            <span class="tw-text-muted">—</span>
+          }
+        </dd>
+      </div>
+
+      <div>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "pamColumnWindow" | i18n }}</dt>
+        <dd class="tw-m-0" data-testid="drawer-window">
+          @if (row.exactWindow) {
+            {{ row.exactWindow }}
+          } @else {
+            <span class="tw-text-muted">—</span>
+          }
+        </dd>
+      </div>
+
+      <div>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "pamAuditColumnDetail" | i18n }}</dt>
+        <dd class="tw-m-0 tw-break-words" data-testid="drawer-detail">
+          @if (row.detail) {
+            {{ row.detail }}
+          } @else {
+            <span class="tw-text-muted">—</span>
+          }
+        </dd>
+      </div>
+
+      <div
+        class="tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-pt-4"
+        data-testid="drawer-trace"
+      >
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "pamAccessRequestTitle" | i18n }}</dt>
+        <dd class="tw-m-0 tw-flex tw-items-center tw-gap-1" data-testid="drawer-request-id">
+          @if (row.requestId; as requestId) {
+            <span class="tw-font-mono tw-text-sm">{{ shortId(requestId) }}</span>
+            <button
+              type="button"
+              bitIconButton="bwi-clone"
+              buttonType="subtleGhost"
+              size="small"
+              id="pam-audit-event-drawer_button_copy-request-id"
+              [appCopyClick]="requestId"
+              showToast
+              [label]="'copyValue' | i18n"
+            ></button>
+          } @else {
+            <span class="tw-text-muted">—</span>
+          }
+        </dd>
+      </div>
+
+      <div>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">
+          {{ "pamAccessRequestLeaseTitle" | i18n }}
+        </dt>
+        <dd class="tw-m-0 tw-flex tw-items-center tw-gap-1" data-testid="drawer-lease-id">
+          @if (row.leaseId; as leaseId) {
+            <span class="tw-font-mono tw-text-sm">{{ shortId(leaseId) }}</span>
+            <button
+              type="button"
+              bitIconButton="bwi-clone"
+              buttonType="subtleGhost"
+              size="small"
+              id="pam-audit-event-drawer_button_copy-lease-id"
+              [appCopyClick]="leaseId"
+              showToast
+              [label]="'copyValue' | i18n"
+            ></button>
+          } @else {
+            <span class="tw-text-muted">—</span>
+          }
+        </dd>
+      </div>
+
+      <div>
+        <dt class="tw-text-sm tw-font-bold tw-text-muted">{{ "pamResolverAccessRule" | i18n }}</dt>
+        <dd class="tw-m-0 tw-break-words" data-testid="drawer-rule">
+          @if (ruleRoute; as route) {
+            <a
+              bitLink
+              id="pam-audit-event-drawer_link_rule"
+              [routerLink]="route"
+              (click)="closeDrawer()"
+              >{{ row.ruleName }}</a
+            >
+          } @else if (row.ruleName) {
+            {{ row.ruleName }}
+          } @else {
+            <span class="tw-text-muted">—</span>
+          }
+        </dd>
+      </div>
+    </dl>
+  </ng-container>
+</bit-dialog>

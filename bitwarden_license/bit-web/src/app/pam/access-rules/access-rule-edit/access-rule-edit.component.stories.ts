@@ -1,4 +1,5 @@
 import { importProvidersFrom } from "@angular/core";
+import { provideAnimations } from "@angular/platform-browser/animations";
 import { provideRouter, RouterOutlet, Routes, withHashLocation } from "@angular/router";
 import {
   applicationConfig,
@@ -9,10 +10,12 @@ import {
   StoryObj,
 } from "@storybook/angular";
 import { of } from "rxjs";
+import { getByText, userEvent } from "storybook/test";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ToastService } from "@bitwarden/components";
+import { DialogModule, DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessRuleSdkService, AccessRuleView } from "../..";
@@ -96,6 +99,11 @@ export default {
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
         { provide: CidrValidationService, useValue: { isValid: () => true } },
+        {
+          provide: OrganizationService,
+          useValue: { organizations$: () => of([{ id: "org-1", canAccessEventLogs: true }]) },
+        },
+        { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
       ],
     }),
   ],
@@ -116,4 +124,107 @@ export const CreateFromTemplate: Story = {
 /** Edit mode: the form is populated from an existing rule (conditions + extensions enabled). */
 export const Edit: Story = {
   decorators: [atUrl("/organizations/org-1/access-rules/rule-1")],
+};
+
+/** Edit mode on a deactivated rule: the header badge reads "Off" and the Status checkbox is clear. */
+export const EditInactive: Story = {
+  decorators: [
+    atUrl("/organizations/org-1/access-rules/rule-1"),
+    moduleMetadata({
+      providers: [
+        {
+          provide: AccessRuleSdkService,
+          useValue: {
+            ...pamApi,
+            getAccessRule: () => Promise.resolve({ ...SAMPLE_RULE, enabled: false }),
+          } satisfies Partial<AccessRuleSdkService>,
+        },
+      ],
+    }),
+  ],
+};
+
+/**
+ * The save-failure callout. Edit mode, with the update rejected: the form arrives valid and
+ * populated, so pressing Save goes straight to the failure rather than to validation.
+ */
+export const SaveError: Story = {
+  decorators: [
+    atUrl("/organizations/org-1/access-rules/rule-1"),
+    moduleMetadata({
+      providers: [
+        {
+          provide: AccessRuleSdkService,
+          useValue: {
+            ...pamApi,
+            updateAccessRule: () =>
+              Promise.reject(new Error("The access rule service is unavailable.")),
+          } satisfies Partial<AccessRuleSdkService>,
+        },
+      ],
+    }),
+  ],
+  play: async (context) => {
+    await userEvent.click(getByText(context.canvasElement, "Save"));
+  },
+};
+
+/**
+ * A rejected save the admin can act on: the server reports the chosen collections are already
+ * governed. Recognised messages are reported on the field they name instead of in the callout,
+ * and without a retry — resending the same collections would fail identically.
+ */
+export const SaveErrorOnField: Story = {
+  decorators: [
+    atUrl("/organizations/org-1/access-rules/rule-1"),
+    moduleMetadata({
+      providers: [
+        {
+          provide: AccessRuleSdkService,
+          useValue: {
+            ...pamApi,
+            updateAccessRule: () =>
+              Promise.reject(
+                Object.assign(
+                  new Error("One or more collections are already governed by another access rule."),
+                  { name: "AccessRuleError", variant: "Api" },
+                ),
+              ),
+          } satisfies Partial<AccessRuleSdkService>,
+        },
+      ],
+    }),
+  ],
+  play: async (context) => {
+    await userEvent.click(getByText(context.canvasElement, "Save"));
+  },
+};
+
+/**
+ * The validation summary above the action row: submitting the empty create form, where
+ * name and collections are both required.
+ */
+export const ValidationSummary: Story = {
+  play: async (context) => {
+    await userEvent.click(getByText(context.canvasElement, "Save"));
+  },
+};
+
+/**
+ * The discard confirmation. Typing into the name dirties the form, so Cancel asks before
+ * leaving. `DialogModule` supplies the real {@link DialogService} in place of the default
+ * stub, so the dialog itself renders — it is what this story is for.
+ */
+export const DiscardConfirmation: Story = {
+  decorators: [
+    applicationConfig({ providers: [provideAnimations()] }),
+    moduleMetadata({ imports: [DialogModule] }),
+  ],
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const name = canvas.querySelector("#access-rule-edit_input_name") as HTMLInputElement;
+
+    await userEvent.type(name, "Half-finished rule");
+    await userEvent.click(getByText(canvas, "Cancel"));
+  },
 };

@@ -27,6 +27,12 @@ export class CollectionDetailsResponse extends CollectionResponse {
   readOnly: boolean;
   manage: boolean;
   hidePasswords: boolean;
+  /**
+   * True when the collection is governed by a currently enabled access rule, gating its items
+   * behind PAM leasing. Server-derived: association alone isn't enough, since a disabled rule
+   * gates nothing.
+   */
+  hasEnabledAccessRule: boolean;
 
   /**
    * Flag indicating the user has been explicitly assigned to this Collection
@@ -38,6 +44,7 @@ export class CollectionDetailsResponse extends CollectionResponse {
     this.readOnly = this.getResponseProperty("ReadOnly") || false;
     this.manage = this.getResponseProperty("Manage") || false;
     this.hidePasswords = this.getResponseProperty("HidePasswords") || false;
+    this.hasEnabledAccessRule = this.getResponseProperty("HasEnabledAccessRule") || false;
 
     // Temporary until the API is updated to return this property in AC-2084
     // For now, we can assume that if the object is 'collectionDetails' then the user is assigned

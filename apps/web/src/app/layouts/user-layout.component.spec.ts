@@ -5,6 +5,7 @@ import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -155,6 +156,9 @@ describe("UserLayoutComponent", () => {
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
         { provide: SyncService, useValue: mock<SyncService>() },
         { provide: AccountService, useValue: { activeAccount$: of({ id: userId }) } },
+        // This layout renders PamUserNavSlotComponent, which reads the user's organizations to
+        // decide whether to show the PAM link.
+        { provide: OrganizationService, useValue: { organizations$: () => of([]) } },
         { provide: SendPolicyService, useValue: { disableSend$: of(false) } },
         {
           provide: PremiumSubscriptionRoutingService,
