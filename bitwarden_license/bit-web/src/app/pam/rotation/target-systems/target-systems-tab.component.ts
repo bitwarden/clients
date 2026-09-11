@@ -68,8 +68,18 @@ export type TargetSystemRow = {
   id: TargetSystemId;
   system: TargetSystem;
   name: string;
-  methodLabel: string;
+  /**
+   * The i18n key naming how this target rotates, or null for a method this version cannot model.
+   *
+   * The Method chip keys its options on this rather than on `system.method`, so a value with no
+   * label of its own cannot arrive in the menu wearing another method's label.
+   */
+  methodLabelKey: string | null;
+  /** {@link methodLabelKey} rendered, or null when there is no method to name. */
+  methodLabel: string | null;
   kindLabel: string | null;
+  /** Status is stated as two states, so an unmodellable one reads as inactive rather than as its own option. */
+  statusLabelKey: "pamTargetSystemStatusActive" | "pamTargetSystemStatusInactive";
   statusLabel: string;
   active: boolean;
   /** Only an active, automatic-method target can claim a connector assignment. */
@@ -178,8 +188,15 @@ export class TargetSystemsTabComponent {
   private readonly kindFilterChip = viewChild("kindFilter", { read: FILTER_CONTROL });
   private readonly statusFilterChip = viewChild("statusFilter", { read: FILTER_CONTROL });
 
+  /** A method this version cannot name contributes no option, so this chip can be empty. */
   protected readonly methodOptions = computed(() =>
-    filterOptions(this.rows().map((row) => [row.system.method, row.methodLabel] as const)),
+    filterOptions(
+      this.rows().flatMap((row) =>
+        row.methodLabelKey != null && row.methodLabel != null
+          ? [[row.methodLabelKey, row.methodLabel] as const]
+          : [],
+      ),
+    ),
   );
 
   protected readonly kindOptions = computed(() =>
@@ -193,7 +210,7 @@ export class TargetSystemsTabComponent {
   );
 
   protected readonly statusOptions = computed(() =>
-    filterOptions(this.rows().map((row) => [row.system.status, row.statusLabel] as const)),
+    filterOptions(this.rows().map((row) => [row.statusLabelKey, row.statusLabel] as const)),
   );
 
   private readonly busyRows = new RowBusyTracker<TargetSystemId>();
@@ -211,9 +228,9 @@ export class TargetSystemsTabComponent {
 
     effect(() => {
       const text = this.searchText().trim().toLowerCase();
-      const method = this.methodFilterChip()?.value() as TargetSystemMethod | null | undefined;
+      const method = this.methodFilterChip()?.value() as string | null | undefined;
       const kind = this.kindFilterChip()?.value() as TargetSystemKind | null | undefined;
-      const status = this.statusFilterChip()?.value() as TargetSystemStatus | null | undefined;
+      const status = this.statusFilterChip()?.value() as string | null | undefined;
 
       this.dataSource.filter = (row) => {
         if (
@@ -223,13 +240,13 @@ export class TargetSystemsTabComponent {
         ) {
           return false;
         }
-        if (method != null && row.system.method !== method) {
+        if (method != null && row.methodLabelKey !== method) {
           return false;
         }
         if (kind != null && row.system.kind !== kind) {
           return false;
         }
-        if (status != null && row.system.status !== status) {
+        if (status != null && row.statusLabelKey !== status) {
           return false;
         }
         return true;
@@ -389,34 +406,35 @@ export class TargetSystemsTabComponent {
     const hasActiveConnector = connectors.some(
       (connector) => connector.status === AccessConnectorStatus.Enabled,
     );
-    return systems.map((system) => ({
-      id: system.id,
-      system,
-      name: system.name,
-      methodLabel: this.methodLabel(system.method),
-      kindLabel: system.kind != null ? this.kindLabel(system.kind) : null,
-      statusLabel: this.i18nService.t(
-        system.status === TargetSystemStatus.Active
-          ? "pamTargetSystemStatusActive"
-          : "pamTargetSystemStatusInactive",
-      ),
-      active: system.status === TargetSystemStatus.Active,
-      canAssignConnectors:
-        system.status === TargetSystemStatus.Active &&
-        system.method === TargetSystemMethod.Automatic,
-      canAddManagedCredential: system.status === TargetSystemStatus.Active,
-      assignConnectorsBlockedKey: connectorsUnavailable
-        ? "pamTargetSystemConnectorAssignmentsLoadError"
-        : !connectorsKnown || assignableConnectors(system.id, connectors).length > 0
-          ? null
-          : hasActiveConnector
-            ? "pamTargetSystemAssignConnectorNoOptions"
-            : "pamTargetSystemAssignConnectorNone",
-    }));
-  }
-
-  private methodLabel(method: TargetSystemMethod): string {
-    return this.i18nService.t(targetSystemMethodLabelKey(method) ?? "pamTargetSystemMethodManual");
+    return systems.map((system) => {
+      const methodLabelKey = targetSystemMethodLabelKey(system.method);
+      const active = system.status === TargetSystemStatus.Active;
+      const statusLabelKey = active
+        ? ("pamTargetSystemStatusActive" as const)
+        : ("pamTargetSystemStatusInactive" as const);
+      return {
+        id: system.id,
+        system,
+        name: system.name,
+        methodLabelKey,
+        methodLabel: methodLabelKey == null ? null : this.i18nService.t(methodLabelKey),
+        kindLabel: system.kind != null ? this.kindLabel(system.kind) : null,
+        statusLabelKey,
+        statusLabel: this.i18nService.t(statusLabelKey),
+        active,
+        canAssignConnectors:
+          system.status === TargetSystemStatus.Active &&
+          system.method === TargetSystemMethod.Automatic,
+        canAddManagedCredential: system.status === TargetSystemStatus.Active,
+        assignConnectorsBlockedKey: connectorsUnavailable
+          ? "pamTargetSystemConnectorAssignmentsLoadError"
+          : !connectorsKnown || assignableConnectors(system.id, connectors).length > 0
+            ? null
+            : hasActiveConnector
+              ? "pamTargetSystemAssignConnectorNoOptions"
+              : "pamTargetSystemAssignConnectorNone",
+      };
+    });
   }
 
   /** Null for a kind a newer server named that this SDK version cannot model. */
