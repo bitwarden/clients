@@ -19676,8 +19676,14 @@
   "pamRotationConfigInProgress": {
     "message": "Rotation in progress"
   },
+  "pamRotationConfigRotatingBadge": {
+    "message": "Rotating"
+  },
   "pamRotationConfigManualDue": {
     "message": "Manual rotation due"
+  },
+  "pamRotationConfigRotationDueBadge": {
+    "message": "Rotation due"
   },
   "pamRotationConfigRotateNow": {
     "message": "Rotate now"
