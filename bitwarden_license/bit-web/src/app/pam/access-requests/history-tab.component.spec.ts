@@ -91,10 +91,18 @@ describe("HistoryTabComponent", () => {
     );
   }
 
+  /**
+   * Drives the scope chip through its own `setValue`, as a click on an option would, and
+   * re-renders. `"all"` clears the chip: All is its reset row, not a third option.
+   */
+  function selectScope(scope: "mine" | "managed" | "all"): void {
+    component["scopeChip"]()?.setValue(scope === "all" ? null : scope);
+    fixture.detectChanges();
+  }
+
   /** Switch to the approver-side scope and re-render. */
   function showManaged(): void {
-    component["selectScope"]("managed");
-    fixture.detectChanges();
+    selectScope("managed");
   }
 
   /** Run past the skeleton's show delay and re-render. */
@@ -160,7 +168,7 @@ describe("HistoryTabComponent", () => {
     jest.useRealTimers();
   });
 
-  describe("scope toggle", () => {
+  describe("scope filter", () => {
     it("lands on All", () => {
       canApprove$.next(true);
       myRows$.next([historyRow({ id: "mine-1" })]);
@@ -169,7 +177,32 @@ describe("HistoryTabComponent", () => {
       create();
 
       expect(component["scope"]()).toBe("all");
-      expect(query('[data-testid="history-scope-all"]')).not.toBeNull();
+      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
+    });
+
+    it("derives Mine and Managed straight from the chip's own value", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      create();
+
+      selectScope("mine");
+      expect(component["scope"]()).toBe("mine");
+
+      selectScope("managed");
+      expect(component["scope"]()).toBe("managed");
+    });
+
+    it("falls back to All when the chip holds a value outside the known scopes", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      create();
+
+      component["scopeChip"]()?.setValue("something-else");
+      fixture.detectChanges();
+
+      expect(component["scope"]()).toBe("all");
     });
 
     it("is hidden from a viewer who can neither approve nor has managed rows", () => {
@@ -177,8 +210,7 @@ describe("HistoryTabComponent", () => {
 
       create();
 
-      expect(query('[data-testid="history-scope-all"]')).toBeNull();
-      expect(query('[data-testid="history-scope-managed"]')).toBeNull();
+      expect(query('[data-testid="history-scope-filter"]')).toBeNull();
     });
 
     it("appears once the caller has managed history", () => {
@@ -186,16 +218,16 @@ describe("HistoryTabComponent", () => {
 
       create();
 
-      expect(query('[data-testid="history-scope-managed"]')).not.toBeNull();
+      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
     });
 
-    it("offers the toggle to an approver with no managed history yet", () => {
+    it("offers the filter to an approver with no managed history yet", () => {
       canApprove$.next(true);
       myRows$.next([historyRow({ id: "mine-1" })]);
 
       create();
 
-      expect(query('[data-testid="history-scope-managed"]')).not.toBeNull();
+      expect(query('[data-testid="history-scope-filter"]')).not.toBeNull();
     });
 
     it("shows both sources merged under All, newest first", () => {
@@ -278,12 +310,10 @@ describe("HistoryTabComponent", () => {
       managedRows$.next([historyRow({ id: "managed-1", resolvedAt: "2026-08-17T12:00:00.000Z" })]);
       create();
 
-      component["selectScope"]("mine");
-      fixture.detectChanges();
+      selectScope("mine");
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
 
-      component["selectScope"]("all");
-      fixture.detectChanges();
+      selectScope("all");
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1", "mine-1"]);
     });
 
@@ -296,8 +326,7 @@ describe("HistoryTabComponent", () => {
       showManaged();
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1"]);
 
-      component["selectScope"]("all");
-      fixture.detectChanges();
+      selectScope("all");
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1", "mine-1"]);
     });
 
@@ -306,7 +335,7 @@ describe("HistoryTabComponent", () => {
       myRows$.next([historyRow({ id: "mine-1" })]);
       create();
 
-      component["selectScope"]("mine");
+      selectScope("mine");
       managedRows$.next([historyRow({ id: "managed-1" })]);
       fixture.detectChanges();
 
@@ -326,9 +355,9 @@ describe("HistoryTabComponent", () => {
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1", "mine-1"]);
     });
 
-    // A non-approver whose managed rows go away loses the toggle, so their pinned filter stops
+    // A non-approver whose managed rows go away loses the chip, so their pinned scope stops
     // applying.
-    it("falls back to All if the toggle goes away while a filter is applied", () => {
+    it("falls back to All if the filter goes away while a filter is applied", () => {
       managedRows$.next([historyRow({ id: "managed-1" })]);
       myRows$.next([historyRow({ id: "mine-1" })]);
       create();
@@ -342,7 +371,7 @@ describe("HistoryTabComponent", () => {
     });
 
     // The fallback must forget the pick, not just stop applying it.
-    it("does not restore the filter it fell back from when the toggle returns", () => {
+    it("does not restore the filter it fell back from when the filter returns", () => {
       managedRows$.next([historyRow({ id: "managed-1" })]);
       myRows$.next([historyRow({ id: "mine-1" })]);
       create();
@@ -675,8 +704,7 @@ describe("HistoryTabComponent", () => {
       canApprove$.next(true);
       myRows$.next([historyRow({ id: "managed-1", status: "denied" })]);
       create();
-      component["selectScope"]("mine");
-      fixture.detectChanges();
+      selectScope("mine");
 
       expect(renderedRowIds()).toEqual(["managed-1"]);
       expect(renderedHeaders()).not.toContain("pamColumnActions");
@@ -880,8 +908,7 @@ describe("HistoryTabComponent", () => {
 
     expect(fixture.nativeElement.textContent).toContain("pamHistoryEmpty");
 
-    component["selectScope"]("mine");
-    fixture.detectChanges();
+    selectScope("mine");
 
     expect(fixture.nativeElement.textContent).toContain("pamMyRequestsHistoryEmpty");
 
