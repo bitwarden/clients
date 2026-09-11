@@ -76,8 +76,7 @@ interface SecretVersionRow {
   ],
 })
 export class SecretVersionDialogComponent implements OnInit {
-  /** Angular `DatePipe` format shared by the current version and every history row. */
-  protected readonly dateFormat = "MMM d, y, h:mm:ss a";
+  protected readonly dateFormat = "medium";
   /** Stand-in rendered instead of the real value while a version is hidden. */
   protected readonly maskedValue = "•".repeat(16);
 
@@ -93,7 +92,6 @@ export class SecretVersionDialogComponent implements OnInit {
   /** Uses a undefined check so a secret whose value is an empty string still renders. */
   protected readonly hasCurrentValue = computed(() => this.currentValue() != undefined);
   protected readonly hasVersions = computed(() => this.rows().length > 0);
-  protected readonly isEmpty = computed(() => !this.hasCurrentValue() && !this.hasVersions());
 
   private readonly params = inject<SecretVersionDialogParams>(DIALOG_DATA);
   private readonly i18nService = inject(I18nService);
@@ -185,6 +183,9 @@ export class SecretVersionDialogComponent implements OnInit {
       }
 
       this.currentValueAuthor.set(history.currentValueAuthorName ?? undefined);
+      if (history.currentValueDate != undefined) {
+        this.revisionDate.set(new Date(history.currentValueDate));
+      }
       this.rows.set(history.versions.map((version) => this.createRow(version)));
     } catch (e) {
       this.logService.error("Retrieving secret versions failed", e);

@@ -22,6 +22,7 @@ import { SecretVersionResponse } from "./responses/secret-version.response";
 
 export interface SecretVersionHistory {
   currentValueAuthorName?: string;
+  currentValueDate?: string;
   versions: SecretVersionView[];
 }
 
@@ -76,7 +77,7 @@ export class SecretVersionService {
       previousValues.map((response) => this.createSecretVersionView(response, orgKey)),
     );
 
-    return { currentValueAuthorName, versions };
+    return { currentValueAuthorName, currentValueDate: currentValue?.versionDate, versions };
   }
 
   private async resolveEditorName(

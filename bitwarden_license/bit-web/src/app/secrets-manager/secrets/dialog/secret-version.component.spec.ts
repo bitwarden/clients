@@ -44,7 +44,6 @@ interface DialogInternals {
   currentValueAuthor: WritableSignal<string | undefined>;
   hasCurrentValue: Signal<boolean>;
   hasVersions: Signal<boolean>;
-  isEmpty: Signal<boolean>;
   maskedValue: string;
   name?: string;
   canWrite: boolean;
@@ -203,15 +202,29 @@ describe("SecretVersionDialogComponent", () => {
       const state = await setup({ ...PARAMS, currentValue: "" });
 
       expect(state.hasCurrentValue()).toBe(true);
-      expect(state.isEmpty()).toBe(false);
     });
 
-    it("reports empty when there is neither a current value nor any history", async () => {
-      const state = await setup({ ...PARAMS, currentValue: undefined });
+    it("reports no previous versions when history holds only the current value", async () => {
+      const state = await setup(PARAMS, { currentValueAuthorName: "Ada", versions: [] });
 
-      expect(state.hasCurrentValue()).toBe(false);
+      expect(state.hasCurrentValue()).toBe(true);
       expect(state.hasVersions()).toBe(false);
-      expect(state.isEmpty()).toBe(true);
+    });
+
+    it("dates the current value from its own version rather than the secret revision", async () => {
+      const state = await setup(PARAMS, {
+        currentValueAuthorName: "Ada",
+        currentValueDate: "2026-01-20T08:00:00.000Z",
+        versions: [],
+      });
+
+      expect(state.revisionDate()).toEqual(new Date("2026-01-20T08:00:00.000Z"));
+    });
+
+    it("falls back to the secret revision date when history has no version rows", async () => {
+      const state = await setup(PARAMS, { versions: [] });
+
+      expect(state.revisionDate()).toEqual(new Date("2026-01-27T15:30:45.000Z"));
     });
 
     it("surfaces a load failure without leaving the dialog spinning", async () => {
