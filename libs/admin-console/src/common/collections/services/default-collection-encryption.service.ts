@@ -53,9 +53,6 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
    */
   private decryptManyV1(collections: Collection[], userId: UserId): Observable<CollectionView[]> {
     return this.sdkService.userClient$(userId).pipe(
-      // `userClient$` re-emits whenever the client is replaced (unlock, key re-emission), so the
-      // clock has to start per emission — a single start time would fold the idle time between
-      // emissions into every measurement after the first.
       concatMap(async (sdk) => {
         const startTime = performance.now();
         using ref = sdk.take();
@@ -101,7 +98,6 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
    */
   private decryptManyV2(collections: Collection[], userId: UserId): Observable<CollectionView[]> {
     return this.sdkService.userClient$(userId).pipe(
-      // See `decryptManyV1` — the client observable re-emits, so time each emission separately.
       concatMap(async (sdk) => {
         const startTime = performance.now();
         using ref = sdk.take();
@@ -120,9 +116,8 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
           const id = sdkView.id ? uuidAsString(sdkView.id) : undefined;
           const collection = id ? collectionsById.get(id as CollectionId) : undefined;
           if (!collection) {
-            // Views are paired to their source by ID, so an ID that does not round-trip drops the
-            // collection from the list entirely. Log it rather than let it disappear unremarked -
-            // that silent disappearance is what this method exists to prevent.
+            // This means the decrypted collection doesn't have an ID, or wasn't present in the
+            // source collections. This should never happen, but handle and log it just in case.
             this.logService.error(
               `Decrypted collection ${id ?? "(unknown id)"} did not match a source collection`,
             );

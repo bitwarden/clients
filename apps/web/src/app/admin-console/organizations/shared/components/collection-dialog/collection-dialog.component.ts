@@ -295,19 +295,31 @@ export class CollectionDialogComponent implements OnInit {
     FeatureFlag.CollectionBulkDecryptWithFailures,
   );
 
-  protected readonly canRepairDecryptionFailure = toSignal(
-    combineLatest([this.collection$, this.organization$, this.decryptionFailureUi$]).pipe(
-      map(([collection, organization, decryptionFailureUi]) =>
-        canRepairDecryptionFailure(
-          collection,
-          organization,
-          decryptionFailureUi,
-          this.dialogReadonly,
-        ),
-      ),
+  /**
+   * The repair path - a blank name plus the callout asking for a new one - is only offered when
+   * the user can actually edit the name. Otherwise the name control stays disabled, so blanking it
+   * would leave an empty, greyed-out field and the callout would suggest a remedy that cannot be
+   * taken.
+   */
+  private readonly canRepairDecryptionFailure$ = combineLatest([
+    this.collection$,
+    this.organization$,
+    this.decryptionFailureUi$,
+  ]).pipe(
+    map(
+      ([collection, organization, decryptionFailureUi]) =>
+        decryptionFailureUi &&
+        !this.dialogReadonly &&
+        !!collection?.decryptionFailure &&
+        organization != undefined &&
+        collection.canEditName(organization),
     ),
-    { initialValue: false },
+    shareReplay({ refCount: true, bufferSize: 1 }),
   );
+
+  protected readonly canRepairDecryptionFailure = toSignal(this.canRepairDecryptionFailure$, {
+    initialValue: false,
+  });
 
   private readonly orgExceedingCollectionLimit$ = this.organizationSelected.statusChanges.pipe(
     filter(() => !!this.organizationSelected.errors?.cannotCreateCollections),
@@ -385,30 +397,20 @@ export class CollectionDialogComponent implements OnInit {
             collection: this.collection$,
             allCollections: this.allCollections$,
             users: this.users$,
-            decryptionFailureUi: this.decryptionFailureUi$,
+            canRepair: this.canRepairDecryptionFailure$,
           }).pipe(take(1)),
         ),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(({ organization, collection, allCollections, users, decryptionFailureUi }) => {
+      .subscribe(({ organization, collection, allCollections, users, canRepair }) => {
         if (!organization) {
           return;
         }
 
         if (collection) {
-          const { name, parent: parentName } = parseName(collection);
+          const { name, parent: parentName } = parseName(collection, canRepair);
           this.formGroup.patchValue({
-            // A collection whose name failed to decrypt only has a placeholder for a name, so
-            // there is nothing to carry over. Leave it empty so the user supplies a real one
-            // instead of unknowingly saving the placeholder as the collection's name.
-            name: canRepairDecryptionFailure(
-              collection,
-              organization,
-              decryptionFailureUi,
-              this.dialogReadonly,
-            )
-              ? ""
-              : name,
+            name,
             externalId: collection.externalId,
             parent: parentName,
             access: mapToAccessSelections(collection),
@@ -645,26 +647,20 @@ export class CollectionDialogComponent implements OnInit {
 }
 
 /**
- * The repair path - a blank name plus the callout asking for a new one - is only offered when the
- * user can actually edit the name. Otherwise the name control stays disabled, so blanking it would
- * leave an empty, greyed-out field and the callout would suggest a remedy that cannot be taken.
+ * Splits a collection's name into its own name and the parent path it is nested under.
+ *
+ * A collection whose name failed to decrypt only has a placeholder for a name, so there is nothing
+ * to parse or carry over. Both are returned empty so the user supplies a real name instead of
+ * unknowingly saving the placeholder as the collection's name.
  */
-function canRepairDecryptionFailure(
-  collection: CollectionAdminView | undefined,
-  organization: Organization | undefined,
-  decryptionFailureUi: boolean,
-  dialogReadonly: boolean,
-): boolean {
-  return (
-    decryptionFailureUi &&
-    !dialogReadonly &&
-    !!collection?.decryptionFailure &&
-    organization != undefined &&
-    collection.canEditName(organization)
-  );
-}
+function parseName(
+  collection: CollectionView,
+  nameDecryptionFailure = false,
+): { name: string; parent: string | undefined } {
+  if (nameDecryptionFailure) {
+    return { name: "", parent: undefined };
+  }
 
-function parseName(collection: CollectionView) {
   const nameParts = collection.name.split("/");
   const name = nameParts[nameParts.length - 1];
   const parent = nameParts.length > 1 ? nameParts.slice(0, -1).join("/") : undefined;
