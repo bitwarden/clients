@@ -195,11 +195,14 @@ export class LayoutComponent {
   constructor() {
     // navAloneCanPush asked early: the first render needs a layout before the ResizeObserver
     // fires, so estimate from the viewport and let update() correct it once it can measure.
+    // The layout is rendered per route area, so this also runs when the user navigates between
+    // them — by which point they may have collapsed the nav. Deferring to that choice is the same
+    // rule the reopen branch in update() applies.
     const rootFontSizePx = getRootFontSizePx();
     const estimatedPushMode =
       window.innerWidth - remToPx(SIDE_NAV_WIDTH_BOUNDS.default, rootFontSizePx) >=
       remToPx(LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM, rootFontSizePx);
-    if (estimatedPushMode) {
+    if (estimatedPushMode && this.sideNavService.userCollapsePreference() !== "closed") {
       this.sideNavService.open.set(true);
     }
 

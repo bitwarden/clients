@@ -355,5 +355,21 @@ describe("LayoutComponent push/overlay reconciliation", () => {
       expect(sideNav.open()).toBe(true);
       expect(sideNav.isPushMode()).toBe(true);
     }));
+
+    // `bit-layout` is rendered per route area, so navigating between them destroys and recreates
+    // it. Creating a second fixture without resetting the TestBed reproduces that: a new layout
+    // against the same root-scoped SideNavService.
+    it("does not reopen a nav the user collapsed when a new layout is created", fakeAsync(() => {
+      bootHydrated();
+      sideNav.toggle();
+      expect(sideNav.open()).toBe(false);
+
+      fixture = TestBed.createComponent(HostComponent);
+      settle();
+      ResizeObserverStub.latest!.emit();
+      settle();
+
+      expect(sideNav.open()).toBe(false);
+    }));
   });
 });
