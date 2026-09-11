@@ -10,7 +10,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -101,6 +100,7 @@ describe("VaultNextComponent", () => {
     color: "purple",
     icon: "bwi-user",
     type: VaultNavItemType.Personal,
+    enabled: true,
   };
 
   const buildOrgNavItem = (id: OrganizationId, label: string): VaultNavItemViewModel => ({
@@ -108,6 +108,7 @@ describe("VaultNextComponent", () => {
     label,
     icon: "bwi-business",
     type: VaultNavItemType.Organization,
+    enabled: true,
   });
 
   /**
@@ -224,13 +225,6 @@ describe("VaultNextComponent", () => {
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
         { provide: VaultCopyButtonsService, useValue: copyButtonsService },
         { provide: VaultNavService, useValue: { viewModel$: () => vaultNav$ } },
-        {
-          provide: ConfigService,
-          useValue: {
-            ...mock<ConfigService>(),
-            getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
-          },
-        },
       ],
     })
       .overrideComponent(VaultNextComponent, {

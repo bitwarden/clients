@@ -292,6 +292,12 @@ export class VaultPopupItemsService {
   cipherCount$: Observable<number> = this._activeCipherList$.pipe(map((ciphers) => ciphers.length));
 
   /**
+   * Every active cipher, before the search and chips narrow it — the chip options describe what
+   * the vault holds, not what the search matches.
+   */
+  activeCiphers$: Observable<PopupCipherViewLike[]> = this._activeCipherList$;
+
+  /**
    * Observable that indicates whether there are no ciphers to show with the current filter.
    */
   noFilteredResults$: Observable<boolean> = this._filteredCipherList$.pipe(

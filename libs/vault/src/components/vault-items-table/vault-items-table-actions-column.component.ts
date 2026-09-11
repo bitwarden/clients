@@ -32,6 +32,7 @@ import {
   VaultItemsTableCopyPresentation,
 } from "./vault-items-table-copy-presentation";
 import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
+import { VaultItemsTableRowContextMenuDirective } from "./vault-items-table-row-context-menu.directive";
 import type { VaultItemsTableColumn } from "./vault-items-table.component";
 
 /**
@@ -63,6 +64,7 @@ import type { VaultItemsTableColumn } from "./vault-items-table.component";
     MenuModule,
     PremiumBadgeComponent,
     VaultItemCopyActionsComponent,
+    VaultItemsTableRowContextMenuDirective,
     SkeletonTextComponent,
   ],
 })

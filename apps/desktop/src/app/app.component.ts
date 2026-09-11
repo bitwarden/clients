@@ -83,6 +83,9 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
 @Component({
   selector: "app-root",
   styles: [],
+  host: {
+    "[class.vfo1]": "vfo1Enabled()",
+  },
   template: `
     @if (showHeader$ | async) {
       <div class="header" [class.vfo1]="vfo1Enabled()"></div>
