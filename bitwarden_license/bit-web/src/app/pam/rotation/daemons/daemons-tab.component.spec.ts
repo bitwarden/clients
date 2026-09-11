@@ -420,6 +420,70 @@ describe("DaemonsTabComponent", () => {
       return (dialogService.open as jest.Mock).mock.calls[0][1].data;
     }
 
+    async function componentWith(
+      targetSystemsLoading$: BehaviorSubject<boolean>,
+      systems: TargetSystem[] = [],
+    ): Promise<{ openAssignDialog: (row: DaemonRow) => Promise<void> }> {
+      TestBed.resetTestingModule();
+      targetSystemsService = {
+        activeAutomaticSystems$: of(systems),
+        loading$: targetSystemsLoading$.asObservable(),
+        loadError$: targetSystemsLoadError$.asObservable(),
+        load: jest.fn().mockResolvedValue(undefined),
+      } as unknown as jest.Mocked<TargetSystemsService>;
+      await createComponent();
+      return fixture.componentInstance as unknown as {
+        openAssignDialog: (row: DaemonRow) => Promise<void>;
+      };
+    }
+
+    it("waits for the target-system read to settle before opening", async () => {
+      const targetSystemsLoading$ = new BehaviorSubject(true);
+      const component = await componentWith(targetSystemsLoading$, [activeSystem]);
+      (dialogService.open as jest.Mock).mockReturnValue({ closed: of(undefined) });
+
+      const opening = component.openAssignDialog(daemonWithAssignments());
+      await Promise.resolve();
+      expect(dialogService.open).not.toHaveBeenCalled();
+
+      targetSystemsLoading$.next(false);
+      await opening;
+
+      expect(dialogData().options).toEqual([activeSystem]);
+      expect(dialogData().noActiveAutomaticSystems).toBe(false);
+    });
+
+    it("reports a failed target-system read instead of opening", async () => {
+      const targetSystemsLoading$ = new BehaviorSubject(true);
+      const component = await componentWith(targetSystemsLoading$);
+
+      const opening = component.openAssignDialog(daemonWithAssignments());
+      targetSystemsLoadError$.next(new Error("boom"));
+      targetSystemsLoading$.next(false);
+      await opening;
+
+      expect(dialogService.open).not.toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variant: "error",
+          message: "pamAccessConnectorTargetSystemsLoadError",
+        }),
+      );
+    });
+
+    it("opens nothing when the tab is left while the target-system read is in flight", async () => {
+      const targetSystemsLoading$ = new BehaviorSubject(true);
+      const component = await componentWith(targetSystemsLoading$, [activeSystem]);
+      (dialogService.open as jest.Mock).mockReturnValue({ closed: of(undefined) });
+
+      const opening = component.openAssignDialog(daemonWithAssignments());
+      fixture.destroy();
+      targetSystemsLoading$.next(false);
+      await opening;
+
+      expect(dialogService.open).not.toHaveBeenCalled();
+    });
+
     it("flags that the org has no active automatic target system", async () => {
       await openWith([], daemonWithAssignments());
 
