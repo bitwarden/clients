@@ -17692,5 +17692,17 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "inviteLinkCalloutHeading": {
+    "message": "Invite your whole team with a single link"
+  },
+  "inviteLinkCalloutBody": {
+    "message": "Anyone with a company email can use the invite link to join your organization. Drop it in onboarding resources so new hires can join when they're ready."
+  },
+  "inviteLinkCalloutImageAlt": {
+    "message": "Invite members dialog preview showing the new by-link tab"
+  },
+  "showMeHow": {
+    "message": "Show me how"
   }
 }
