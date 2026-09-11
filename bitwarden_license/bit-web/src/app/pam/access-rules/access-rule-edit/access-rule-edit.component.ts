@@ -71,8 +71,8 @@ import {
   NO_DURATION_CAP,
   snapToNearestAccessRuleDuration,
 } from "../..";
-import { GovernedCollectionsService } from "../../services/governed-collections.service";
 import { discardConfirmOptions } from "../../helpers/discard-confirm";
+import { GovernedCollectionsService } from "../../services/governed-collections.service";
 import { ACCESS_RULE_TEMPLATES } from "../access-rule-templates";
 
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
