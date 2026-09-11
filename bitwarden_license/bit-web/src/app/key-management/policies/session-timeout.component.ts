@@ -25,7 +25,6 @@ import {
 import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
-  CalloutComponent,
   DialogService,
   FormControlModule,
   FormFieldModule,
@@ -44,12 +43,14 @@ import { SessionTimeoutConfirmationNeverComponent } from "./session-timeout-conf
 export class SessionTimeoutPolicy extends BasePolicyEditDefinition {
   name = "sessionTimeoutPolicyTitle";
   description = "sessionTimeoutPolicyDescription";
-  descriptionVfo1 = "sessionTimeoutPolicyDescriptionVfo1";
+  descriptionVfo1 = "sessionTimeoutPolicyDescriptionListVfo1";
   type = PolicyType.MaximumVaultTimeout;
   category = PolicyCategory.Authentication;
   priority = 70;
   component = SessionTimeoutPolicyComponent;
   showDescription = false;
+  prerequisiteKey = "requireSsoPolicyReqV2";
+  prerequisiteKeyVfo1 = "requireSsoPolicyReqV2Vfo1";
 }
 
 const DEFAULT_HOURS = 8;
@@ -59,7 +60,6 @@ const DEFAULT_MINUTES = 0;
   selector: "session-timeout-policy-edit",
   templateUrl: "session-timeout.component.html",
   imports: [
-    CalloutComponent,
     FormControlModule,
     FormFieldModule,
     ReactiveFormsModule,

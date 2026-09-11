@@ -5,7 +5,6 @@ import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-s
 import { PasswordCalloutComponent } from "@bitwarden/auth/angular";
 import { BerryComponent, IconModule, ScrollLayoutDirective } from "@bitwarden/components";
 import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
-import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -25,12 +24,7 @@ import { UserDialogModule } from "./components/member-dialog";
 import { MembersRoutingModule } from "./members-routing.module";
 import { MembersComponent } from "./members.component";
 import { AvatarIdPipe, UserStatusPipe } from "./pipes";
-import {
-  OrganizationMembersService,
-  MemberActionsService,
-  MemberDialogManagerService,
-  MemberExportService,
-} from "./services";
+import { MemberExportService } from "./services";
 
 @NgModule({
   imports: [
@@ -63,13 +57,6 @@ import {
     MembersComponent,
     UserStatusPipe,
   ],
-  providers: [
-    OrganizationMembersService,
-    MemberActionsService,
-    BillingConstraintService,
-    MemberDialogManagerService,
-    MemberExportService,
-    UserStatusPipe,
-  ],
+  providers: [MemberExportService, UserStatusPipe],
 })
 export class MembersModule {}

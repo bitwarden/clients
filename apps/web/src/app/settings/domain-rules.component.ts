@@ -11,6 +11,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { BreadcrumbsModule } from "@bitwarden/components";
 
 import { HeaderModule } from "../layouts/header/header.module";
 import { SharedModule } from "../shared";
@@ -20,10 +21,14 @@ import { SharedModule } from "../shared";
 @Component({
   selector: "app-domain-rules",
   templateUrl: "domain-rules.component.html",
-  imports: [SharedModule, HeaderModule],
+  imports: [SharedModule, HeaderModule, BreadcrumbsModule],
 })
 export class DomainRulesComponent implements OnInit {
   private readonly configService = inject(ConfigService);
+  protected readonly showBreadcrumbs = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
   );
