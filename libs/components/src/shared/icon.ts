@@ -131,6 +131,7 @@ export const BITWARDEN_ICONS = [
   "bwi-receipt",
   "bwi-redo",
   "bwi-refresh",
+  "bwi-resume",
   "bwi-search",
   "bwi-send",
   "bwi-settings",
