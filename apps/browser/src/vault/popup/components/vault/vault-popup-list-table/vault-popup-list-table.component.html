@@ -95,6 +95,10 @@
             [count]="optionCount('folder', [option.value.id ?? NO_FOLDER])"
             >{{ option.label }}</bit-filter-option
           >
+          <!-- "No folders" leads the list and stands apart from the real folders. -->
+          @if (!option.value.id) {
+            <bit-filter-option-divider></bit-filter-option-divider>
+          }
         }
       </bit-filter-menu>
     }
