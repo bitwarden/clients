@@ -147,11 +147,30 @@ export class DialogComponent implements AfterViewInit {
     if (this.dialogRef?.isDrawer) {
       return this.drawerService.isPushMode() ? drawerSizeToWidth[size] : "";
     }
+    // Bottom sheets span the full viewport width at every breakpoint.
+    if (this.dialogRef?.isBottomSheet) {
+      return "";
+    }
     return dialogSizeToWidth[size];
+  });
+
+  /** Classes for the dialog's inner container. */
+  protected readonly containerClasses = computed(() => {
+    const shapeClasses = this.dialogRef?.isDrawer
+      ? ["tw-h-full", "tw-border-t-0"]
+      : [
+          "tw-rounded-t-xl",
+          ...(this.dialogRef?.isBottomSheet ? [] : ["md:tw-rounded-xl"]),
+          "tw-shadow-lg",
+        ];
+
+    /** Storybook/Angular bugs out without this nullcheck. See the Access Selector Dialog story when removed. */
+    return [this.width() ?? "", ...shapeClasses];
   });
 
   protected readonly classes = computed(() => {
     const isDrawer = this.dialogRef?.isDrawer;
+    const isBottomSheet = this.dialogRef?.isBottomSheet;
     // Drawers use tw-w-full (100% of column) so the element fills its grid track
     // without overflowing — the column itself is capped by the grid template.
     // Regular dialogs use tw-w-screen for full-width mobile presentation.
@@ -160,17 +179,20 @@ export class DialogComponent implements AfterViewInit {
     const sizeClasses = isDrawer
       ? ["tw-h-full"]
       : [
-          "md:tw-p-4",
+          // Bottom sheets sit flush against the viewport edges, so they get no surrounding gutter.
+          ...(isBottomSheet ? [] : ["md:tw-p-4"]),
           "tw-max-h-[90vh]", // needed to prevent dialogs from overlapping the desktop header
         ];
 
     const size = this.dialogSize();
     const animationClasses =
-      this.disableAnimations() || this.animationCompleted() || this.dialogRef?.isDrawer
+      this.disableAnimations() || this.animationCompleted() || isDrawer
         ? []
-        : size === "small"
-          ? ["tw-animate-slide-down"]
-          : ["tw-animate-slide-up", "md:tw-animate-slide-down"];
+        : isBottomSheet
+          ? ["tw-animate-slide-up"]
+          : size === "small"
+            ? ["tw-animate-slide-down"]
+            : ["tw-animate-slide-up", "md:tw-animate-slide-down"];
 
     return [...baseClasses, this.width(), ...sizeClasses, ...animationClasses];
   });
