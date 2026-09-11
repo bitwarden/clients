@@ -78,8 +78,10 @@ export class DefaultReportGenerationService extends ReportGenerationService {
 
         // Compute summary (delegates to smart model method)
         view.recomputeSummary();
+        // passwordCount sums cipher refs per application, so a cipher on several URIs counts once each.
         measureStep("Generate: summary recomputed", [
-          ["itemCount", view.summary.totalPasswordCount],
+          ["itemCount", processedCiphers.length],
+          ["passwordCount", view.summary.totalPasswordCount],
           ["memberCount", view.summary.totalMemberCount],
           ["applicationCount", view.summary.totalApplicationCount],
         ]);

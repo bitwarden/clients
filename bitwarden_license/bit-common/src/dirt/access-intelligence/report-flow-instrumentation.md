@@ -41,7 +41,7 @@ panel both read in flow order.
 | `Generate: health and reuse combined` | Merging per cipher health results with the reuse map                                                         | `itemCount`                                                                      |
 | `Generate: ciphers mapped to members` | Resolving which members can see each cipher through collections and groups, and building the member registry | `itemCount`, `memberCount`, `collectionCount`, `groupCount`, `mappedMemberCount` |
 | `Generate: applications grouped`      | Grouping ciphers by URI into per application records, with their member and cipher references                | `itemCount`, `memberCount`, `applicationCount`                                   |
-| `Generate: summary recomputed`        | Recomputing every summary aggregate from the finished report                                                 | `itemCount`, `memberCount`, `applicationCount`                                   |
+| `Generate: summary recomputed`        | Recomputing every summary aggregate from the finished report                                                 | `itemCount`, `passwordCount`, `memberCount`, `applicationCount`                  |
 
 Reuse detection is measured despite producing no network traffic because it is a full pass over
 every cipher that allocates a map keyed by password, and because the combine step downstream
@@ -49,16 +49,16 @@ cannot start until it finishes.
 
 ### Save
 
-| Measurement                      | What it covers                                                             | Properties                                                  |
-| -------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `Save: encryption payload built` | Converting the report view into the encryption payload, cloning references | `memberCount`, `applicationCount`                           |
-| `Save: report serialized`        | Serializing the report payload to JSON with its version envelope           | `charCount`                                                 |
-| `Save: report encoded`           | Encoding the serialized report to bytes                                    | `byteSize`                                                  |
-| `Save: summary serialized`       | Serializing the summary with its version envelope                          | `byteSize`                                                  |
-| `Save: applications serialized`  | Serializing the application settings with their version envelope           | `byteSize`                                                  |
-| `Save: artifacts encrypted`      | All five concurrent encryption operations                                  | `reportByteSize`, `summaryByteSize`, `applicationsByteSize` |
-| `Save: report row created`       | The request that creates the report record and returns an upload URL       | `itemCount`, `memberCount`, `applicationCount`, `byteSize`  |
-| `Save: report file uploaded`     | Uploading the encrypted report file                                        | `byteSize`                                                  |
+| Measurement                      | What it covers                                                             | Properties                                                     |
+| -------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `Save: encryption payload built` | Converting the report view into the encryption payload, cloning references | `memberCount`, `applicationCount`                              |
+| `Save: report serialized`        | Serializing the report payload to JSON with its version envelope           | `charCount`                                                    |
+| `Save: report encoded`           | Encoding the serialized report to bytes                                    | `byteSize`                                                     |
+| `Save: summary serialized`       | Serializing the summary with its version envelope                          | `byteSize`                                                     |
+| `Save: applications serialized`  | Serializing the application settings with their version envelope           | `byteSize`                                                     |
+| `Save: artifacts encrypted`      | All five concurrent encryption operations                                  | `reportByteSize`, `summaryByteSize`, `applicationsByteSize`    |
+| `Save: report row created`       | The request that creates the report record and returns an upload URL       | `passwordCount`, `memberCount`, `applicationCount`, `byteSize` |
+| `Save: report file uploaded`     | Uploading the encrypted report file                                        | `byteSize`                                                     |
 
 Every save measurement also carries `memberCount` and `applicationCount`.
 
@@ -111,6 +111,20 @@ whatever level the log line uses and whether or not the line is written at all.
 The console line is not equally durable. Whether it appears depends on the level `measure` writes
 at, and a debug level line is dropped outside a development build. Where a hosted run has to be
 captured, record a performance trace rather than relying on console output.
+
+#### `itemCount` and `passwordCount` are different quantities
+
+`itemCount` is always a cipher count, and it means the same thing at every step that carries it, so
+the column can be read straight down the track.
+
+`passwordCount` is the summary aggregate, built by summing `cipherRefs` per application. Ciphers are
+grouped into applications by URI, so a cipher with three URIs contributes three and a cipher with no
+URI contributes none. It is normally the larger of the two and is not a cipher count.
+
+`Generate: summary recomputed` carries both, because that step is where the second quantity comes
+from and the pair is what makes the relationship legible. `Save: report row created` carries only
+`passwordCount`: it reports the aggregate the request actually sends, and no cipher count is in scope
+there.
 
 #### The report is sized at encode, not at serialize
 

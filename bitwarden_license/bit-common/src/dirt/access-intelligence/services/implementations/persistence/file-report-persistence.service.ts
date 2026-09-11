@@ -86,7 +86,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
 
               return this.accessIntelligenceApiService.createReport$(organizationId, request).pipe(
                 measureFlowStep(this.logService, "Save: report row created", () => [
-                  ["itemCount", metrics.totalPasswordCount],
+                  ["passwordCount", metrics.totalPasswordCount],
                   ["memberCount", metrics.totalMemberCount],
                   ["applicationCount", metrics.totalApplicationCount],
                   ["byteSize", request.fileSize],
