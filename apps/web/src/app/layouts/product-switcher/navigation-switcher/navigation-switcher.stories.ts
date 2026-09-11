@@ -12,6 +12,7 @@ import { ProviderService } from "@bitwarden/common/admin-console/abstractions/pr
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
@@ -127,6 +128,10 @@ class MockLockService implements Partial<LockService> {
   async lock() {}
 }
 
+class MockAvatarService implements Partial<AvatarService> {
+  avatarColor$ = of("#175ddc");
+}
+
 class MockBillingAccountProfileStateService implements Partial<BillingAccountProfileStateService> {
   hasPremiumFromAnySource$(userId: UserId): Observable<boolean> {
     return of(false);
@@ -161,6 +166,12 @@ const translations: Record<string, string> = {
   upgradeNow: "Upgrade now",
   getAdvancedOnlineSecurityWithBitwardenPremium:
     "Get advanced online security with Bitwarden premium.",
+  loggedInAs: "Logged in as",
+  accountSettings: "Account settings",
+  getHelp: "Get help",
+  getApps: "Get the apps",
+  lockNow: "Lock now",
+  logOut: "Log out",
 };
 
 export default {
@@ -190,6 +201,7 @@ export default {
         { provide: VaultTimeoutSettingsService, useClass: MockVaultTimeoutSettingsService },
         { provide: LogoutService, useClass: MockLogoutService },
         { provide: LockService, useClass: MockLockService },
+        { provide: AvatarService, useClass: MockAvatarService },
         {
           provide: BillingAccountProfileStateService,
           useClass: MockBillingAccountProfileStateService,
