@@ -777,8 +777,8 @@ export class TargetSystemEditComponent {
   }
 
   /**
-   * Whether the loaded system is currently in service. Picks which of the paired retirement
-   * actions the edit footer offers. Only read from the edit branch, which renders after
+   * Whether the loaded system is currently in service. Gates the connector picker and the
+   * outstanding-setup hint. Only read from the edit branch, which renders after
    * {@link loadSystem} has resolved, so the unloaded case never reaches the template.
    */
   protected readonly isActive = computed(
