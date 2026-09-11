@@ -120,6 +120,8 @@ export default {
               all: "All",
               options: "Options",
               removeItem: "Remove __$1__",
+              search: "Search",
+              resetSearch: "Reset search",
               pamAccessConnectorSearch: "Search access connectors",
               pamAccessConnectorEmptyStateTitle: "No access connectors registered",
               pamAccessConnectorEmptyStateDescription:
