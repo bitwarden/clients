@@ -64,7 +64,10 @@
       </p>
     }
 
-    @if (job.failed) {
+    @if (
+      job.failed &&
+      (job.causeLabelKey || job.reportedReason || job.syncStateLabelKey || job.attemptsUniform)
+    ) {
       <section
         class="tw-mt-4 tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-pt-4"
         data-testid="drawer-cause"
