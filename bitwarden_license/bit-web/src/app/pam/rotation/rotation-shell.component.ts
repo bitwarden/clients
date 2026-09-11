@@ -22,8 +22,8 @@ import { AccessConnector, RotationConfig, TargetSystem } from "./rotation";
 import { TargetSystemsService } from "./target-systems/target-systems.service";
 
 /**
- * Rotation feature shell: renders the page header and the three routed tabs (Managed
- * credentials / Target systems / Daemons); page-scoped services stay shared across tab
+ * Rotation feature shell: renders the page header and the three routed tabs (Access connectors /
+ * Target systems / Managed credentials); page-scoped services stay shared across tab
  * navigation since the shell stays mounted.
  *
  * The header hosts the active tab's primary create action, driven by the active child route, so
@@ -112,7 +112,7 @@ export class RotationShellComponent {
       await this.daemonsService.registerCompleted(orgId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamDaemonRegistered"),
+        message: this.i18nService.t("pamAccessConnectorRegistered"),
       });
     }
   };
