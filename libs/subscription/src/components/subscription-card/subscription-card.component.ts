@@ -72,11 +72,6 @@ export class SubscriptionCardComponent {
 
   readonly showUpgradeButton = input<boolean>(false);
 
-  /**
-   * Hides the status callout when set to true.
-   */
-  readonly hideCallout = input<boolean>(false);
-
   readonly callToActionClicked = output<SubscriptionCardAction>();
 
   readonly badge = computed<Badge>(() => {
@@ -138,9 +133,6 @@ export class SubscriptionCardComponent {
   });
 
   readonly callout = computed<Callout>(() => {
-    if (this.hideCallout()) {
-      return null;
-    }
     const subscription = this.subscription();
     switch (subscription.status) {
       case SubscriptionStatuses.Incomplete: {
