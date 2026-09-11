@@ -939,6 +939,10 @@ describe("ManagedCredentialsTabComponent", () => {
       expect(component.processedRows()[0].config.cipherId).toBe(cipherB);
     });
 
+    it("gives each fixture cipher its own id", () => {
+      expect(new Set([cipherA, cipherB, cipherC]).size).toBe(3);
+    });
+
     it("narrows rows to the selected collection", () => {
       setupWithData(
         [rowA, rowB, rowC],
@@ -956,6 +960,26 @@ describe("ManagedCredentialsTabComponent", () => {
       fixture.detectChanges();
       expect(component.processedRows()).toHaveLength(1);
       expect(component.processedRows()[0].config.cipherId).toBe(cipherA);
+    });
+
+    it("resolves each row's collections from its own cipher", () => {
+      setupWithData(
+        [rowA, rowB, rowC],
+        [
+          makeCipher(cipherA, ["col-1"]),
+          makeCipher(cipherB, ["col-2"]),
+          makeCipher(cipherC, ["col-3"]),
+        ],
+        [
+          { id: "col-1", name: "Engineering" } as CollectionAdminView,
+          { id: "col-2", name: "Finance" } as CollectionAdminView,
+          { id: "col-3", name: "Support" } as CollectionAdminView,
+        ],
+      );
+      chip("collection").toggle("col-2");
+      fixture.detectChanges();
+      expect(component.processedRows()).toHaveLength(1);
+      expect(component.processedRows()[0].config.cipherId).toBe(cipherB);
     });
 
     it("does not exclude a row from the collection filter when its cipher never loaded", () => {
