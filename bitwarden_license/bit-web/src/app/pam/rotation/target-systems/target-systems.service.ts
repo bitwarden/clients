@@ -35,15 +35,16 @@ export class TargetSystemsService {
     map((systems) => new Map(systems.map((s) => [s.id, s]))),
   );
 
-  /** The subset of systems that are Active and use the Automatic method — the valid choices for a new rotation config. */
-  readonly activeAutomaticSystems$: Observable<TargetSystem[]> = combineLatest([
-    this._systems$,
-  ]).pipe(
-    map(([systems]) =>
-      systems.filter(
-        (s) => s.status === TargetSystemStatus.Active && s.method === TargetSystemMethod.Automatic,
-      ),
-    ),
+  /**
+   * The subset of systems that use the Automatic method: the ones an access connector can be
+   * assigned to. Status is deliberately not considered, matching
+   * `AssignAccessConnectorToTargetCommand`, which checks the method alone.
+   *
+   * Not the choices for a new rotation config: `CreateRotationConfigCommand` additionally rejects
+   * an inactive target, and the config create page filters `systems$` on Active itself.
+   */
+  readonly automaticSystems$: Observable<TargetSystem[]> = combineLatest([this._systems$]).pipe(
+    map(([systems]) => systems.filter((s) => s.method === TargetSystemMethod.Automatic)),
   );
 
   /** Fetch the org's target systems, replacing local state. */

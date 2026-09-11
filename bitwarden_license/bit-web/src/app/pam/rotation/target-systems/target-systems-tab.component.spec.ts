@@ -42,7 +42,7 @@ describe("TargetSystemsTabComponent", () => {
     loading$: BehaviorSubject<boolean>;
     systems$: BehaviorSubject<TargetSystem[]>;
     systemById$: BehaviorSubject<Map<string, TargetSystem>>;
-    activeAutomaticSystems$: BehaviorSubject<TargetSystem[]>;
+    automaticSystems$: BehaviorSubject<TargetSystem[]>;
     load: jest.Mock;
     setEnabled: jest.Mock;
     delete: jest.Mock;
@@ -57,7 +57,7 @@ describe("TargetSystemsTabComponent", () => {
       loading$: new BehaviorSubject<boolean>(false),
       systems$: new BehaviorSubject<TargetSystem[]>([]),
       systemById$: new BehaviorSubject(new Map()),
-      activeAutomaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
+      automaticSystems$: new BehaviorSubject<TargetSystem[]>([]),
       load: jest.fn().mockResolvedValue(undefined),
       setEnabled: jest.fn().mockResolvedValue(undefined),
       delete: jest.fn().mockResolvedValue(undefined),
