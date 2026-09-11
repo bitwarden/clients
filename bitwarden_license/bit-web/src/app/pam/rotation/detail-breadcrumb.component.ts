@@ -6,6 +6,24 @@ import { I18nPipe } from "@bitwarden/ui-common";
 /**
  * The breadcrumb row shared by the rotation feature's three detail pages: the list this record
  * came from, then the record itself as the current page.
+ *
+ * Project it into `bit-header`'s `breadcrumbs` slot and leave the page's `<h1>` to the header's
+ * `title` input:
+ *
+ * ```html
+ * <bit-header [title]="titleText()" icon="bwi-desktop">
+ *   <pam-detail-breadcrumb
+ *     slot="breadcrumbs"
+ *     [route]="['..']"
+ *     parentLabelKey="pamRotationTabTargetSystems"
+ *     [current]="titleText()"
+ *   />
+ * </bit-header>
+ * ```
+ *
+ * The row is the trail, not the heading. `bit-breadcrumbs` only promotes a crumb to the `<h1>`
+ * when one of its crumbs is the active route, and the parent crumb here never is, so the header
+ * keeps rendering the heading and `current` restates the record name at the end of the trail.
  */
 @Component({
   selector: "pam-detail-breadcrumb",
