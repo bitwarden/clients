@@ -36,14 +36,13 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { assignableConnectors } from "../assignable";
+import { assignableConnectors, eligibleConnectors } from "../assignable";
 import { TARGET_SYSTEM_QUERY_PARAM } from "../create-flow";
 import { DaemonsService } from "../daemons/daemons.service";
 import { filterOptions } from "../filter-options";
 import {
   AccessConnector,
   AccessConnectorId,
-  AccessConnectorStatus,
   TargetSystemId,
   TargetSystemKind,
   TargetSystemMethod,
@@ -297,10 +296,11 @@ export class TargetSystemsTabComponent {
    *
    * The menu item is live while the connector read is still in flight, so a click can arrive
    * before there is a list to offer. The read settles first: opening on an empty list would leave
-   * the dialog stating that every active connector is already assigned, and a read that failed
-   * says so instead of opening at all. The row is busy throughout, which is what its own
-   * {@link isRowBusy} binding reflects and what keeps a delete from racing the assignment's
-   * optimistic patch.
+   * the dialog stating an emptiness the org may not have, and a read that failed says so instead
+   * of opening at all. Which emptiness it is once the read has landed is `noneEligible`, taken
+   * from the same active-connector set the options come from. The row is busy throughout, which
+   * is what its own {@link isRowBusy} binding reflects and what keeps a delete from racing the
+   * assignment's optimistic patch.
    */
   protected readonly openAssignConnectorDialog = (system: TargetSystem): Promise<void> =>
     this.busyRows.run(system.id, async () => {
@@ -313,10 +313,12 @@ export class TargetSystemsTabComponent {
         return;
       }
 
-      const options = assignableConnectors(system.id, this.daemons());
+      const connectors = this.daemons();
+      const options = assignableConnectors(system.id, connectors);
+      const noneEligible = eligibleConnectors(connectors).length === 0;
 
       const ref = AssignConnectorDialogComponent.open(this.dialogService, {
-        data: { targetSystem: system, options },
+        data: { targetSystem: system, options, noneEligible },
       });
       const selectedId = await ref.closed.toPromise();
       if (!selectedId) {
@@ -420,7 +422,7 @@ export class TargetSystemsTabComponent {
   private buildRows(systems: TargetSystem[], connectors: AccessConnector[]): TargetSystemRow[] {
     const connectorsKnown = this.connectorsKnown();
     const connectorsUnavailable = this.connectorsUnavailable();
-    const hasAnyConnector = connectors.length > 0;
+    const hasAnyConnector = eligibleConnectors(connectors).length > 0;
     return systems.map((system) => {
       const methodLabelKey = targetSystemMethodLabelKey(system.method);
       const active = system.status === TargetSystemStatus.Active;
