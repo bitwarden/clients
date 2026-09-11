@@ -73,8 +73,8 @@ describe("TargetSystemsService", () => {
     });
   });
 
-  describe("activeAutomaticSystems$", () => {
-    it("returns only Active + Automatic systems", async () => {
+  describe("automaticSystems$", () => {
+    it("returns every Automatic system, whatever its status", async () => {
       const active = makeSystem({
         id: sysId("active"),
         status: TargetSystemStatus.Active,
@@ -94,9 +94,8 @@ describe("TargetSystemsService", () => {
       rotationSdk.listTargetSystems.mockResolvedValue([active, disabled, manual]);
       await service.load(ORG_ID);
 
-      const result = await firstValueFrom(service.activeAutomaticSystems$);
-      expect(result).toHaveLength(1);
-      expect(result[0].id).toBe(sysId("active"));
+      const result = await firstValueFrom(service.automaticSystems$);
+      expect(result.map((s) => s.id)).toEqual([sysId("active"), sysId("disabled")]);
     });
   });
 
