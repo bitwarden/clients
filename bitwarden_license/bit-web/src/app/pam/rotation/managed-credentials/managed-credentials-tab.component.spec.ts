@@ -572,6 +572,65 @@ describe("ManagedCredentialsTabComponent", () => {
     });
   });
 
+  /**
+   * The column sorted on `statusLabelKey` until now, which compared raw i18n identifiers and so
+   * ordered the four statuses by the spelling of their keys.
+   */
+  describe("status column sort", () => {
+    function renderedStatuses(): string[] {
+      return Array.from(
+        (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(
+          '[id^="managed-credentials-tab_status_"]',
+        ),
+      ).map((cell) => cell.querySelector("span[bitbadge]")!.textContent!.trim());
+    }
+
+    function sortByStatus(): void {
+      const header = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+        'th[bitsortable="statusSortOrder"]',
+      );
+      expect(header).not.toBeNull();
+      header!.querySelector("button")!.click();
+      fixture.detectChanges();
+    }
+
+    function renderRows(): void {
+      setupTestBed(true, [{ id: "ts-1" }], true);
+      configsService.rows$.next([
+        makeRow({ id: configId("1"), enabled: true }),
+        makeRow({ id: configId("2"), awaitingManualRotation: true }),
+        makeRow({ id: configId("3"), hasActiveJob: true }),
+        makeRow({ id: configId("4"), enabled: false }),
+      ]);
+      fixture.detectChanges();
+    }
+
+    it("orders ascending by the resolved status, not by the status label's i18n key", () => {
+      renderRows();
+      sortByStatus();
+
+      expect(renderedStatuses()).toEqual([
+        "pamRotationConfigInProgress",
+        "pamRotationConfigStatusPaused",
+        "pamRotationConfigManualDue",
+        "pamRotationConfigStatusActive",
+      ]);
+    });
+
+    it("reverses on a second click", () => {
+      renderRows();
+      sortByStatus();
+      sortByStatus();
+
+      expect(renderedStatuses()).toEqual([
+        "pamRotationConfigStatusActive",
+        "pamRotationConfigManualDue",
+        "pamRotationConfigStatusPaused",
+        "pamRotationConfigInProgress",
+      ]);
+    });
+  });
+
   describe("row menu", () => {
     function openRowMenu(row: RotationConfigRow): void {
       setupTestBed(true, [{ id: "ts-1" }], true);
