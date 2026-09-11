@@ -1035,6 +1035,45 @@ describe("Cipher DTO", () => {
       });
     });
 
+    it("should serialize a legacy object `data` field to a JSON string", () => {
+      const legacyData = { name: "EncryptedString", notes: null };
+      const cipherData: CipherData = {
+        id: "2afb03fd-0d8e-4c08-a316-18b2f0efa618",
+        edit: true,
+        viewPassword: true,
+        organizationUseTotp: false,
+        favorite: false,
+        revisionDate: "2022-01-31T12:00:00.000Z",
+        type: CipherType.Login,
+        name: "EncryptedString",
+        creationDate: "2022-01-01T12:00:00.000Z",
+        data: legacyData as any,
+      };
+
+      const sdkCipher = new Cipher(cipherData).toSdkCipher();
+
+      expect(sdkCipher.data).toBe(JSON.stringify(legacyData));
+    });
+
+    it("should pass through a string `data` field unchanged", () => {
+      const cipherData: CipherData = {
+        id: "2afb03fd-0d8e-4c08-a316-18b2f0efa618",
+        edit: true,
+        viewPassword: true,
+        organizationUseTotp: false,
+        favorite: false,
+        revisionDate: "2022-01-31T12:00:00.000Z",
+        type: CipherType.Login,
+        name: "EncryptedString",
+        creationDate: "2022-01-01T12:00:00.000Z",
+        data: '{"name":"EncryptedString"}',
+      };
+
+      const sdkCipher = new Cipher(cipherData).toSdkCipher();
+
+      expect(sdkCipher.data).toBe('{"name":"EncryptedString"}');
+    });
+
     it("should map from SDK Cipher", () => {
       jest.restoreAllMocks();
       const sdkCipher: SdkCipher = {
