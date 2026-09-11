@@ -82,6 +82,30 @@ describe("RotationLoadingAnnouncerComponent", () => {
     expect(region().textContent).toContain("pamTargetSystemsLoaded");
   });
 
+  it("says nothing when a retry clears the error before its placeholder arrives", () => {
+    create({ loading: true });
+    set({ loading: false, failed: true });
+
+    set({ failed: false });
+    expect(region().textContent.trim()).toBe("");
+
+    set({ loading: true });
+    expect(region().textContent).toContain("loading");
+
+    set({ loading: false });
+    expect(region().textContent).toContain("pamTargetSystemsLoaded");
+  });
+
+  it("says nothing when a retry fails again without a placeholder", () => {
+    create({ loading: true });
+    set({ loading: false, failed: true });
+
+    set({ failed: false });
+    set({ failed: true });
+
+    expect(region().textContent.trim()).toBe("");
+  });
+
   it("announces every later load, not just the first", () => {
     create({ loading: true });
     set({ loading: false });
