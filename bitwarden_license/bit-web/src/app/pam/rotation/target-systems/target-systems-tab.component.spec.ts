@@ -1061,16 +1061,16 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
   it("derives the method options from the loaded rows, sorted by label", () => {
     setup([entraActive, mssqlDisabled, manualActive]);
     expect(component.methodOptions()).toEqual([
-      { value: TargetSystemMethod.Automatic, label: "pamTargetSystemMethodAutomatic" },
-      { value: TargetSystemMethod.Manual, label: "pamTargetSystemMethodManual" },
+      { value: "pamTargetSystemMethodAutomatic", label: "pamTargetSystemMethodAutomatic" },
+      { value: "pamTargetSystemMethodManual", label: "pamTargetSystemMethodManual" },
     ]);
   });
 
   it("derives the status options from the loaded rows, sorted by label", () => {
     setup([entraActive, mssqlDisabled, manualActive]);
     expect(component.statusOptions()).toEqual([
-      { value: TargetSystemStatus.Active, label: "pamTargetSystemStatusActive" },
-      { value: TargetSystemStatus.Disabled, label: "pamTargetSystemStatusInactive" },
+      { value: "pamTargetSystemStatusActive", label: "pamTargetSystemStatusActive" },
+      { value: "pamTargetSystemStatusInactive", label: "pamTargetSystemStatusInactive" },
     ]);
   });
 
@@ -1099,6 +1099,40 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
     ]);
   });
 
+  it("leaves a method it cannot name out of the method options", () => {
+    setup([
+      entraActive,
+      makeSystem({
+        id: sysId("5"),
+        name: "Newer server rotation",
+        method: TargetSystemMethod.Unknown,
+        kind: TargetSystemKind.Entra,
+        status: TargetSystemStatus.Active,
+      }),
+    ]);
+
+    expect(component.methodOptions()).toEqual([
+      { value: "pamTargetSystemMethodAutomatic", label: "pamTargetSystemMethodAutomatic" },
+    ]);
+  });
+
+  it("offers one Inactive status option for a status it cannot name and a disabled one", () => {
+    setup([
+      mssqlDisabled,
+      makeSystem({
+        id: sysId("6"),
+        name: "Newer server status",
+        method: TargetSystemMethod.Automatic,
+        kind: TargetSystemKind.Entra,
+        status: TargetSystemStatus.Unknown,
+      }),
+    ]);
+
+    expect(component.statusOptions()).toEqual([
+      { value: "pamTargetSystemStatusInactive", label: "pamTargetSystemStatusInactive" },
+    ]);
+  });
+
   it("does not render the kind chip when no loaded target carries a kind", () => {
     setup([manualActive]);
     expect(fixture.debugElement.query(By.css('bit-filter-menu[key="kind"]'))).toBeNull();
@@ -1106,7 +1140,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
 
   it("narrows rows to the selected method", () => {
     setup([entraActive, mssqlDisabled, manualActive]);
-    chip("method").toggle(TargetSystemMethod.Manual);
+    chip("method").toggle("pamTargetSystemMethodManual");
     fixture.detectChanges();
     expect(visibleIds()).toEqual([sysId("3") as string]);
   });
@@ -1120,7 +1154,7 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
 
   it("narrows rows to the selected status", () => {
     setup([entraActive, mssqlDisabled, manualActive]);
-    chip("status").toggle(TargetSystemStatus.Disabled);
+    chip("status").toggle("pamTargetSystemStatusInactive");
     fixture.detectChanges();
     expect(visibleIds()).toEqual([sysId("2") as string]);
   });
@@ -1128,14 +1162,14 @@ describe("TargetSystemsTabComponent toolbar filters", () => {
   it("ANDs the chips with each other and with the search text", () => {
     setup([entraActive, mssqlDisabled, manualActive]);
     component.searchControl.setValue("prod");
-    chip("status").toggle(TargetSystemStatus.Active);
+    chip("status").toggle("pamTargetSystemStatusActive");
     fixture.detectChanges();
     expect(visibleIds()).toEqual([sysId("1") as string]);
   });
 
   it("shows the no-results row when the chips alone empty the table", () => {
     setup([entraActive]);
-    chip("status").toggle(TargetSystemStatus.Disabled);
+    chip("status").toggle("pamTargetSystemStatusInactive");
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain("pamTargetSystemNoFilterResults");
   });
