@@ -47,7 +47,7 @@
         <dd class="tw-m-0" data-testid="drawer-duration">
           @if (job.duration) {
             <pam-rotation-duration [parts]="job.duration" />
-          } @else {
+          } @else if (job.running) {
             <span class="tw-text-muted">{{ "pamRotationAttemptInProgress" | i18n }}</span>
           }
         </dd>
@@ -157,7 +157,7 @@
                   <td class="tw-whitespace-nowrap tw-py-1.5 tw-pe-3 tw-text-muted">
                     @if (attempt.duration) {
                       <pam-rotation-duration [parts]="attempt.duration" />
-                    } @else {
+                    } @else if (attempt.running) {
                       {{ "pamRotationAttemptInProgress" | i18n }}
                     }
                   </td>

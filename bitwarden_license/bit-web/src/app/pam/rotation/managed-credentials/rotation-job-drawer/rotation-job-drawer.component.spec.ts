@@ -27,6 +27,7 @@ function attempt(ordinal: number, overrides: Partial<AttemptView> = {}): Attempt
     ordinal,
     startedAt: `2026-01-01T00:0${ordinal}:00Z`,
     duration: { hours: 0, minutes: 0, seconds: 16 },
+    running: false,
     statusLabelKey: "pamRotationAttemptStatusErrored",
     divergentFailureReason: null,
     ...overrides,
@@ -234,11 +235,29 @@ describe("RotationJobDrawerComponent", () => {
     it("shows in progress for an attempt that has not ended", async () => {
       await render(
         retriedFailure({
-          attempts: [attempt(1, { duration: null })],
+          attempts: [attempt(1, { duration: null, running: true })],
         }),
       );
 
       expect(attemptRows()[0].nativeElement.textContent).toContain("pamRotationAttemptInProgress");
+    });
+
+    it("leaves the duration blank for a finished attempt with no measurable span", async () => {
+      await render(
+        retriedFailure({
+          attempts: [
+            attempt(1, {
+              duration: null,
+              running: false,
+              statusLabelKey: "pamRotationAttemptStatusAbandoned",
+            }),
+          ],
+        }),
+      );
+
+      expect(attemptRows()[0].nativeElement.textContent).not.toContain(
+        "pamRotationAttemptInProgress",
+      );
     });
 
     it("carries a divergent reason only on the attempt that differs", async () => {
@@ -367,6 +386,21 @@ describe("RotationJobDrawerComponent", () => {
 
     await render(retriedFailure({ duration: null, running: true }));
     expect(query("drawer-duration").nativeElement.textContent).toContain(
+      "pamRotationAttemptInProgress",
+    );
+  });
+
+  it("does not call a terminal job in progress when its span was not measurable", async () => {
+    await render(
+      retriedFailure({
+        statusLabelKey: "pamRotationJobStatusTimedOut",
+        duration: null,
+        running: false,
+        attempts: [],
+      }),
+    );
+
+    expect(query("drawer-duration").nativeElement.textContent).not.toContain(
       "pamRotationAttemptInProgress",
     );
   });

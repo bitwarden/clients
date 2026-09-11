@@ -17,6 +17,13 @@ export interface AttemptView {
   ordinal: number;
   startedAt: string;
   duration: DurationParts | null;
+  /**
+   * Whether the attempt is still executing.
+   *
+   * A `null` {@link duration} does not imply it: an attempt abandoned without an end recorded,
+   * or one whose timestamps cannot be measured, has no duration either.
+   */
+  running: boolean;
   statusLabelKey: string;
   /** The attempt's own failure reason, set only when it differs from the job-level cause. */
   divergentFailureReason: string | null;
@@ -45,6 +52,13 @@ export interface JobView {
   startedAt: string | null;
   /** When the job was queued, which is not when it started. See {@link startedAt}. */
   createdAt: string;
+  /**
+   * The job's total span, or `null` when it cannot be measured.
+   *
+   * Unmeasurable is not the same as unfinished: a job that timed out before it was ever claimed,
+   * or one holding an attempt with no end recorded, is terminal and still has no span. Read
+   * {@link running} to tell the two apart.
+   */
   duration: DurationParts | null;
   attempts: AttemptView[];
   /** True when every attempt shares the outcome and reason of the final one. */
