@@ -1,2 +1,1 @@
-export * from "./member-dialog.component";
-export * from "./member-dialog.module";
+export * from "./member-dialog.types";

@@ -176,7 +176,7 @@ describe("MemberDialogManagerService", () => {
             organizationUserId: mockUser.id,
             usesKeyConnector: false,
             isOnSecretsManagerStandalone: false,
-            initialTab: MemberDialogTab.Role,
+            initialTab: MemberDialogTab.Details,
             claimedByOrganization: false,
             hasMasterPassword: true,
           },
