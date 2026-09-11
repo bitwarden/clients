@@ -2,20 +2,24 @@
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
-import { ButtonModule, DialogService } from "@bitwarden/components";
+import { BreadcrumbsModule, ButtonModule, DialogService } from "@bitwarden/components";
 import { KeyService, UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
+import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
 import { DownloadEventLogsComponent } from "./download-event-logs.component";
@@ -50,11 +54,24 @@ interface StepState {
   selector: "app-data-recovery",
   templateUrl: "data-recovery.component.html",
   standalone: true,
-  imports: [JslibModule, ButtonModule, CommonModule, SharedModule, DownloadEventLogsComponent],
+  imports: [
+    JslibModule,
+    ButtonModule,
+    CommonModule,
+    SharedModule,
+    DownloadEventLogsComponent,
+    HeaderModule,
+    BreadcrumbsModule,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DataRecoveryComponent {
   protected readonly StepStatus = StepStatus;
+
+  protected readonly showBreadcrumbs = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   private i18nService = inject(I18nService);
   private apiService = inject(ApiService);

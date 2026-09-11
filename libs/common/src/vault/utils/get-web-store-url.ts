@@ -6,6 +6,9 @@ import { DeviceType } from "../../enums";
  */
 export const getWebStoreUrl = (deviceType: DeviceType): string => {
   switch (deviceType) {
+    // DuckDuckGoBrowser is intentionally not mapped: only its Windows (Chromium) build can
+    // install Chrome Web Store extensions, and this signature carries no platform
+    // information, so it falls through to the generic download page.
     case DeviceType.ChromeBrowser:
       return "https://chromewebstore.google.com/detail/bitwarden-password-manage/nngceckbapebfimnlniiiahkandclblb";
     case DeviceType.FirefoxBrowser:
