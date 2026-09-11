@@ -27,6 +27,8 @@ jest.mock("../../../platform/flags", () => ({
 
 describe("ExtensionLoginComponentService", () => {
   const baseUrl = "https://webvault.bitwarden.com";
+  // Keep the login-screen server distinct so this test catches environment mix-ups.
+  const globalBaseUrl = "https://self-hosted.example.com";
   let service: ExtensionLoginComponentService;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let environmentService: MockProxy<EnvironmentService>;
@@ -45,6 +47,10 @@ describe("ExtensionLoginComponentService", () => {
     extensionAnonLayoutWrapperDataService = mock<ExtensionAnonLayoutWrapperDataService>();
     environmentService.environment$ = new BehaviorSubject<Environment>({
       getWebVaultUrl: () => baseUrl,
+    } as Environment);
+    // Model the global server selected on the login screen before authentication.
+    environmentService.globalEnvironment$ = new BehaviorSubject<Environment>({
+      getWebVaultUrl: () => globalBaseUrl,
     } as Environment);
     platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
 
@@ -123,9 +129,9 @@ describe("ExtensionLoginComponentService", () => {
       await service.redirectToSsoLoginWithOrganizationSsoIdentifier(email, orgSsoIdentifier);
 
       expect(ssoUrlService.buildSsoUrl).toHaveBeenCalledWith(
+        globalBaseUrl,
         expect.any(String),
-        expect.any(String),
-        expect.any(String),
+        globalBaseUrl + "/sso-connector.html",
         expect.any(String),
         expect.any(String),
         email,
