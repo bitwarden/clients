@@ -24,11 +24,18 @@ export class TargetSystemsService {
   /** Set by {@link load}; the org all subsequent mutations target. */
   private organizationId: OrganizationId | null = null;
 
+  /** Incremented per {@link load} call so a superseded call can drop its outcome. */
+  private loadGeneration = 0;
+
   private readonly _systems$ = new BehaviorSubject<TargetSystem[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
+  private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
 
   readonly systems$: Observable<TargetSystem[]> = this._systems$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
+
+  /** The error from the last {@link load}, or null when it succeeded. */
+  readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
 
   /** A map from targetSystemId → TargetSystem for O(1) lookups in derived services. */
   readonly systemById$: Observable<Map<TargetSystemId, TargetSystem>> = this._systems$.pipe(
@@ -46,14 +53,40 @@ export class TargetSystemsService {
     ),
   );
 
-  /** Fetch the org's target systems, replacing local state. */
+  /**
+   * Fetch the org's target systems, replacing local state.
+   *
+   * Records a failure on {@link loadError$} rather than rejecting, so the tabs that call this as
+   * `void load(...)` can render an error state instead of an empty list. The callers that await it
+   * — `RotationConfigsService.load`, the rotation config edit page and the connector detail page
+   * — don't see a rejection either, and must read {@link loadError$} to tell a failed load
+   * from an empty one.
+   *
+   * Several tabs load this shared instance, so two calls can be in flight at once. Each call holds
+   * a generation token and records nothing once a later call has superseded it, so neither
+   * ordering lets the losing call latch its outcome over the winning call's.
+   */
   async load(organizationId: OrganizationId): Promise<void> {
     this.organizationId = organizationId;
+    const generation = ++this.loadGeneration;
     this._loading$.next(true);
+    this._loadError$.next(null);
     try {
-      this._systems$.next(await this.rotationSdk.listTargetSystems(organizationId));
+      const systems = await this.rotationSdk.listTargetSystems(organizationId);
+      if (generation !== this.loadGeneration) {
+        return;
+      }
+      this._systems$.next(systems);
+      this._loadError$.next(null);
+    } catch (e) {
+      if (generation !== this.loadGeneration) {
+        return;
+      }
+      this._loadError$.next(e);
     } finally {
-      this._loading$.next(false);
+      if (generation === this.loadGeneration) {
+        this._loading$.next(false);
+      }
     }
   }
 

@@ -1,0 +1,88 @@
+<bit-section>
+  <bit-section-header>
+    <h2 bitTypography="h5">{{ headingKey() | i18n }}</h2>
+  </bit-section-header>
+  <bit-card>
+    <bit-form-field disableMargin>
+      <bit-label>{{ selectLabelKey() | i18n }}</bit-label>
+      <bit-multi-select
+        class="tw-w-full"
+        [baseItems]="options()"
+        [removeSelectedItems]="false"
+        [disabled]="!canSelect()"
+        [placeholder]="placeholder()"
+        [ngModel]="pendingSelection()"
+        (ngModelChange)="pendingSelection.set($event)"
+        [ngModelOptions]="{ standalone: true }"
+        [id]="idPrefix() + '_multi-select_options'"
+      />
+      <div class="tw-shrink-0" slot="inline-end">
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          [bitAction]="assignSelected"
+          [disabled]="!canAssign()"
+          [bitTooltip]="assignTooltip()"
+          [addTooltipToDescribedby]="assignTooltip() !== ''"
+          [id]="idPrefix() + '_button_assign'"
+          #assignButton
+        >
+          {{ assignLabelKey() | i18n }}
+        </button>
+      </div>
+      <bit-hint>{{ hintKey() | i18n }}</bit-hint>
+    </bit-form-field>
+
+    @if (showGoToLink()) {
+      <a
+        bitLink
+        linkType="primary"
+        class="tw-mt-1 tw-inline-block"
+        [routerLink]="goToRoute()"
+        [id]="idPrefix() + '_anchor_go-to'"
+        >{{ goToLabelKey()! | i18n }}</a
+      >
+    }
+
+    <bit-table class="tw-mt-6 tw-block">
+      <ng-container header>
+        <tr>
+          @for (column of columns(); track $index) {
+            <th bitCell [class]="column.headerClass ?? ''">{{ column.headerKey | i18n }}</th>
+          }
+          <th bitCell class="tw-w-20">
+            <span class="tw-sr-only">{{ "options" | i18n }}</span>
+          </th>
+        </tr>
+      </ng-container>
+      <ng-template body>
+        @for (row of assignments(); track row.id) {
+          <tr bitRow>
+            <ng-container
+              [ngTemplateOutlet]="rowTemplate()"
+              [ngTemplateOutletContext]="{ $implicit: row }"
+            ></ng-container>
+            <td bitCell class="tw-text-right">
+              <button
+                type="button"
+                bitIconButton="bwi-close"
+                buttonType="primaryGhost"
+                [disabled]="unassigning()"
+                label="{{ unassignLabelKey() | i18n: row.label }}"
+                (click)="removeAssignment(row)"
+                [id]="idPrefix() + '_button_unassign-' + row.id"
+              ></button>
+            </td>
+          </tr>
+        } @empty {
+          <tr bitRow>
+            <td bitCell [attr.colspan]="columnCount()" class="tw-text-muted">
+              {{ emptyKey() | i18n }}
+            </td>
+          </tr>
+        }
+      </ng-template>
+    </bit-table>
+  </bit-card>
+</bit-section>

@@ -26,11 +26,21 @@ export class RotationConfigsService {
   /** Set by {@link load}; the org all subsequent mutations target. */
   private organizationId: OrganizationId | null = null;
 
+  /** Incremented per {@link load} call so a superseded call can drop its outcome. */
+  private loadGeneration = 0;
+
   private readonly _configs$ = new BehaviorSubject<RotationConfig[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
+  private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
 
   readonly configs$: Observable<RotationConfig[]> = this._configs$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
+
+  /** The error from the last {@link load}, or null when it succeeded. */
+  readonly loadError$: Observable<unknown | null> = combineLatest([
+    this._loadError$,
+    this.targetSystems.loadError$,
+  ]).pipe(map(([own, targetSystemsError]) => own ?? targetSystemsError));
 
   /** Count of configs currently awaiting a manual rotation from the operator. */
   readonly awaitingManualCount$: Observable<number> = this._configs$.pipe(
@@ -69,21 +79,41 @@ export class RotationConfigsService {
 
   /**
    * Load the org's rotation configs and kick off sibling loads for target systems and
-   * org ciphers in parallel. All three fetches must complete before the loading spinner
+   * org ciphers in parallel. All three fetches must complete before the loading state
    * clears — the rows depend on all three.
+   *
+   * Records a failure on {@link loadError$} rather than rejecting: every caller invokes this as
+   * `void load(...)`, so a rejection would leave the tab rendering its empty state.
+   *
+   * The shell and the tab both load this shared instance, so two calls can be in flight at once.
+   * Each call holds a generation token and records nothing once a later call has superseded it,
+   * so neither ordering lets the losing call latch its outcome over the winning call's.
    */
   async load(organizationId: OrganizationId): Promise<void> {
     this.organizationId = organizationId;
+    const generation = ++this.loadGeneration;
     this._loading$.next(true);
+    this._loadError$.next(null);
     try {
       const [configs] = await Promise.all([
         this.rotationSdk.listConfigs(organizationId),
         this.targetSystems.load(organizationId),
         this.orgCiphers.load(organizationId),
       ]);
+      if (generation !== this.loadGeneration) {
+        return;
+      }
       this._configs$.next(configs);
+      this._loadError$.next(null);
+    } catch (e) {
+      if (generation !== this.loadGeneration) {
+        return;
+      }
+      this._loadError$.next(e);
     } finally {
-      this._loading$.next(false);
+      if (generation === this.loadGeneration) {
+        this._loading$.next(false);
+      }
     }
   }
 
