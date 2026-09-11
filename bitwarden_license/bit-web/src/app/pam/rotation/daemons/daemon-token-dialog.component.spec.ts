@@ -3,7 +3,7 @@ import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
 import {
   DaemonTokenDialogComponent,
@@ -78,5 +78,35 @@ describe("DaemonTokenDialogComponent", () => {
   it("closes the dialog on close()", () => {
     (component as any).close();
     expect(dialogRef.close).toHaveBeenCalled();
+  });
+
+  describe("open", () => {
+    let dialogService: jest.Mocked<DialogService>;
+    let openedRef: jest.Mocked<DialogRef>;
+
+    beforeEach(() => {
+      dialogService = mock<DialogService>();
+      openedRef = mock<DialogRef>();
+      dialogService.open.mockReturnValue(openedRef);
+    });
+
+    it("requests a dialog that cannot be dismissed by Escape, backdrop or the header X", () => {
+      const result = DaemonTokenDialogComponent.open(dialogService, { data: params });
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        DaemonTokenDialogComponent,
+        expect.objectContaining({ data: params, disableClose: true }),
+      );
+      expect(result).toBe(openedRef);
+    });
+
+    it("ignores a caller that asks for a dismissable dialog", () => {
+      DaemonTokenDialogComponent.open(dialogService, { data: params, disableClose: false });
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        DaemonTokenDialogComponent,
+        expect.objectContaining({ disableClose: true }),
+      );
+    });
   });
 });
