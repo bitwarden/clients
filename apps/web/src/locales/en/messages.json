@@ -18883,6 +18883,9 @@
   "pamRotationTabDaemons": {
     "message": "Daemons"
   },
+  "pamTargetSystemsLoaded": {
+    "message": "Target systems loaded"
+  },
   "pamRotationConfigCreateTitle": {
     "message": "Add managed credential"
   },
