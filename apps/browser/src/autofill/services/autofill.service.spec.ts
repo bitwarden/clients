@@ -2256,6 +2256,45 @@ describe("AutofillService", () => {
 
       expect(result).toBeNull();
     });
+
+    describe("cross-origin iframe (VULN-752)", () => {
+      it("flags the fill script when the frame is untrusted", async () => {
+        const usernameField = buildTargetedField({
+          opid: "targeted_field_0_username",
+          fieldQualifier: AutofillTargetingRuleTypes.username,
+          formCategory: FormPurposeCategories.AccountLogin,
+        });
+        const options = createGenerateFillScriptOptionsMock();
+        options.cipher.type = CipherType.Login;
+        options.cipher.login = mock<LoginView>({ username: "victim", uris: [] });
+        jest.spyOn(autofillService as any, "inUntrustedIframe").mockResolvedValueOnce(true);
+
+        const result = await autofillService["generateTargetedFillScript"](
+          buildTargetedPageDetails([usernameField]),
+          options,
+        );
+
+        expect(result?.untrustedIframe).toBe(true);
+      });
+
+      it("skips the iframe check for non-Login ciphers", async () => {
+        const cardholderField = buildTargetedField({
+          opid: "targeted_field_0_cardholderName",
+          fieldQualifier: AutofillTargetingRuleTypes.cardholderName,
+        });
+        const options = createGenerateFillScriptOptionsMock();
+        options.cipher.type = CipherType.Card;
+        options.cipher.card = mock<CardView>({ cardholderName: "M. Moss" });
+        jest.spyOn(autofillService as any, "inUntrustedIframe");
+
+        await autofillService["generateTargetedFillScript"](
+          buildTargetedPageDetails([cardholderField]),
+          options,
+        );
+
+        expect(autofillService["inUntrustedIframe"]).not.toHaveBeenCalled();
+      });
+    });
   });
 
   describe("generateLoginFillScript", () => {

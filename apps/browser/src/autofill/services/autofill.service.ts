@@ -944,12 +944,17 @@ export default class AutofillService implements AutofillServiceInterface {
         ?.filter((u) => u.match != UriMatchStrategy.Never && u.uri != null)
         .map((u) => u.uri!) ?? [];
 
-    // Note, targeted fields intentionally skip the untrusted iframe check. The
-    // presence of targeting rules represents explicit expectations of the target
+    const isLoginCipher = cipher.type === CipherType.Login;
+
+    // Targeting rules match on the frame's hostname alone and say nothing about
+    // whether this cipher belongs there. Run the same origin check the heuristic
+    // path uses so the confirm prompt still fires on cross-origin frames.
+    if (isLoginCipher) {
+      fillScript.untrustedIframe = await this.inUntrustedIframe(pageDetails.url, options);
+    }
 
     // For a Login cipher, `login.username` fills only the single highest-priority
     // identifier field present in an `account-login` form (see the priority list).
-    const isLoginCipher = cipher.type === CipherType.Login;
     const loginIdentifierQualifier = isLoginCipher
       ? this.resolveLoginIdentifierQualifier(pageDetails)
       : null;
