@@ -74,10 +74,9 @@ export class DaemonsTabComponent {
 
   protected readonly loading = toSignal(this.daemonsService.loading$, { initialValue: true });
   private readonly rows = toSignal(this.daemonsService.rows$, { initialValue: [] as DaemonRow[] });
-  private readonly activeAutomaticSystems = toSignal(
-    this.targetSystemsService.activeAutomaticSystems$,
-    { initialValue: [] as TargetSystem[] },
-  );
+  private readonly automaticSystems = toSignal(this.targetSystemsService.automaticSystems$, {
+    initialValue: [] as TargetSystem[],
+  });
 
   protected readonly dataSource = new TableDataSource<DaemonRow>();
   protected readonly searchControl = new FormControl("", { nonNullable: true });
@@ -134,7 +133,7 @@ export class DaemonsTabComponent {
 
   protected readonly openAssignDialog = async (row: DaemonRow): Promise<void> => {
     const assigned = new Set(row.daemon.assignedTargetSystemIds);
-    const options = this.activeAutomaticSystems().filter((s) => !assigned.has(s.id));
+    const options = this.automaticSystems().filter((s) => !assigned.has(s.id));
 
     const ref = AssignTargetDialogComponent.open(this.dialogService, {
       data: { daemon: row.daemon, options },
