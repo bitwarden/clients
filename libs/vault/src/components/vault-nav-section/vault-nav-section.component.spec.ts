@@ -29,6 +29,7 @@ const personalItem: VaultNavItemViewModel = {
   color: "coral",
   icon: "bwi-user",
   type: VaultNavItemType.Personal,
+  enabled: true,
 };
 
 const orgA: VaultNavItemViewModel = {
@@ -36,6 +37,7 @@ const orgA: VaultNavItemViewModel = {
   label: "Acme corporation",
   icon: "bwi-business",
   type: VaultNavItemType.Organization,
+  enabled: true,
 };
 
 const family: VaultNavItemViewModel = {
@@ -43,6 +45,7 @@ const family: VaultNavItemViewModel = {
   label: "Smith family",
   icon: "bwi-family",
   type: VaultNavItemType.Family,
+  enabled: true,
 };
 
 const personalOnly: VaultsNavViewModel = {
@@ -336,6 +339,40 @@ describe("VaultNavSectionComponent", () => {
       const group = expandGroup("Acme corporation");
 
       expect(navItem(group, "myItemsV2")).toBeUndefined();
+    });
+  });
+
+  describe("a suspended organization", () => {
+    /** The suspended-org warning icons rendered in the nav, by the group each sits in. */
+    const suspendedIconGroups = () =>
+      fixture.debugElement
+        .queryAll(By.css("bit-nav-group"))
+        .filter(
+          (group) => group.nativeElement.querySelector("bit-icon.bwi-exclamation-triangle") != null,
+        )
+        .map((group) => group.componentInstance.text());
+
+    it("marks the suspended organization and leaves the enabled ones unmarked", () => {
+      viewModel$.next({ ...withOrgs, vaults: [personalItem, { ...orgA, enabled: false }, family] });
+      fixture.detectChanges();
+
+      expect(suspendedIconGroups()).toEqual(["Acme corporation"]);
+    });
+
+    it("labels the icon so it is not announced as decoration", () => {
+      viewModel$.next({ ...withOrgs, vaults: [personalItem, { ...orgA, enabled: false }, family] });
+      fixture.detectChanges();
+
+      const icon = fixture.nativeElement.querySelector("bit-icon.bwi-exclamation-triangle");
+
+      expect(icon.getAttribute("aria-label")).toBe("organizationIsDisabled");
+    });
+
+    it("marks no organization when every vault is enabled", () => {
+      viewModel$.next(withOrgs);
+      fixture.detectChanges();
+
+      expect(suspendedIconGroups()).toEqual([]);
     });
   });
 

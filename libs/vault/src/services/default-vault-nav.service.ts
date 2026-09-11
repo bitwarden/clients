@@ -94,6 +94,7 @@ export class DefaultVaultNavService extends VaultNavService {
       color: personalColor,
       icon: "bwi-user",
       type: VaultNavItemType.Personal,
+      enabled: true,
     };
 
     const sortedOrgItems: VaultNavItemViewModel[] = [...orgs]
@@ -104,6 +105,7 @@ export class DefaultVaultNavService extends VaultNavService {
         icon: getOrgIconForTier(org.productTierType),
         type: this.orgType(org),
         defaultUserCollectionId: defaultUserCollectionIds.get(org.id),
+        enabled: org.enabled,
       }));
 
     const ownershipApplies = dataOwnership && sortedOrgItems.length > 0;

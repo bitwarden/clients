@@ -51,6 +51,7 @@ describe("vaultScopeGuard", () => {
     color: "coral",
     icon: "bwi-user",
     type: VaultNavItemType.Personal,
+    enabled: true,
   };
 
   const organizationVault: VaultNavItemViewModel = {
@@ -58,6 +59,7 @@ describe("vaultScopeGuard", () => {
     label: "Acme corporation",
     icon: "bwi-business",
     type: VaultNavItemType.Organization,
+    enabled: true,
   };
 
   /** The same organization under data ownership, which gives each member a "My items" collection. */
