@@ -3,7 +3,6 @@
 @let bulkActions = bulkMenuOptions$ | async;
 @let showConfirmBanner = showConfirmBanner$ | async;
 @let isProcessing = this.isProcessing();
-@let isSingleInvite = isSingleInvite$ | async;
 
 @if (organization && dataSource) {
   <app-organization-free-trial-warning
@@ -155,14 +154,14 @@
                     </button>
                     <bit-menu-divider />
                   }
-                  @if (bulkActions.showBulkReinviteUsers) {
+                  @if (bulkActions.showBulkSendInvite) {
                     <button
                       type="button"
                       bitMenuItem
-                      (click)="isProcessing ? null : bulkReinvite(organization)"
+                      (click)="isProcessing ? null : bulkSendInvite(organization)"
                     >
-                      <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
-                      {{ (isSingleInvite ? "resendInvitation" : "reinviteSelected") | i18n }}
+                      <bit-icon fixedWidth name="bwi-envelope" slot="start" />
+                      {{ bulkActions.bulkSendInviteLabel | i18n }}
                     </button>
                   }
                   @if (bulkActions.showBulkConfirmUsers) {
@@ -428,6 +427,16 @@
 
                 <bit-menu #rowMenu>
                   @if (showUserManagementControls()) {
+                    @if (u.canSendInvite) {
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : sendInvite(u, organization)"
+                      >
+                        <bit-icon name="bwi-envelope" slot="start" />
+                        {{ "sendInvite" | i18n }}
+                      </button>
+                    }
                     @if (u.canReinvite) {
                       <button
                         type="button"
@@ -449,7 +458,7 @@
                         </span>
                       </button>
                     }
-                    @if (u.canConfirm || u.canReinvite) {
+                    @if (u.canConfirm || u.canReinvite || u.canSendInvite) {
                       <bit-menu-divider></bit-menu-divider>
                     }
                     @if (u.canManageMember) {
