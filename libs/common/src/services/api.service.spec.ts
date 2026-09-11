@@ -1307,4 +1307,48 @@ describe("ApiService", () => {
       );
     });
   });
+
+  describe("getManyCollectionsWithAccessDetails", () => {
+    let nativeFetch: jest.Mock<Promise<Response>, [request: Request]>;
+
+    beforeEach(() => {
+      environmentService.getEnvironment$.mockReturnValue(
+        of({
+          getApiUrl: () => "https://example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      tokenService.getAccessToken.mockResolvedValue("access_token");
+      tokenService.tokenNeedsRefresh.mockResolvedValue(false);
+
+      nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+      nativeFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ Data: [] }),
+        headers: new Headers({
+          "content-type": "application/json",
+        }),
+      } satisfies Partial<Response> as Response);
+
+      sut.nativeFetch = nativeFetch;
+    });
+
+    it("omits the query string when includeDefaultCollections is not passed", async () => {
+      // Callers outside Access Intelligence rely on this URL being unchanged.
+      await sut.getManyCollectionsWithAccessDetails("org-1");
+
+      const request = nativeFetch.mock.calls[0][0];
+      expect(request.url).toBe("https://example.com/organizations/org-1/collections/details");
+    });
+
+    it("asks for default collections when includeDefaultCollections is true", async () => {
+      await sut.getManyCollectionsWithAccessDetails("org-1", true);
+
+      const request = nativeFetch.mock.calls[0][0];
+      expect(request.url).toBe(
+        "https://example.com/organizations/org-1/collections/details?includeDefaultCollections=true",
+      );
+    });
+  });
 });

@@ -266,6 +266,7 @@ export abstract class ApiService {
   ): Promise<CollectionAccessDetailsResponse>;
   abstract getManyCollectionsWithAccessDetails(
     orgId: string,
+    includeDefaultCollections?: boolean,
   ): Promise<ListResponse<CollectionAccessDetailsResponse>>;
   abstract postCollection(
     organizationId: string,
