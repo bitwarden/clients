@@ -1145,10 +1145,14 @@ describe("AccessConnectorDetailComponent", () => {
   });
 
   describe("action row (rendered)", () => {
-    async function render(accessConnector: AccessConnectorDetail): Promise<HTMLElement> {
+    async function render(
+      accessConnector: AccessConnectorDetail,
+      tab = "configuration",
+    ): Promise<HTMLElement> {
       rotationSdk.getConnector.mockResolvedValue(accessConnector);
       await setup(rotationSdk, connectorId("access-connector-1"), mock<DialogService>(), {
         renderTemplate: true,
+        tab,
       });
       await createComponent();
       return fixture.nativeElement as HTMLElement;
@@ -1208,6 +1212,22 @@ describe("AccessConnectorDetailComponent", () => {
       expect(checkbox).toBeTruthy();
       expect(checkbox.closest("bit-card")).toBeTruthy();
       expect(el.textContent).toContain("pamAccessConnectorActiveHint");
+    });
+
+    it("offers both Save and Delete on the Configuration tab", async () => {
+      const el = await render(makeAccessConnector(), "configuration");
+
+      expect(el.querySelector("form")).not.toBeNull();
+      expect(el.querySelector("#access-connector-detail_button_save")).not.toBeNull();
+      expect(el.querySelector("#access-connector-detail_button_delete")).not.toBeNull();
+    });
+
+    it("offers neither Save nor Delete on the History tab", async () => {
+      const el = await render(makeAccessConnector(), "history");
+
+      expect(el.querySelector("form")).toBeNull();
+      expect(el.querySelector("#access-connector-detail_button_save")).toBeNull();
+      expect(el.querySelector("#access-connector-detail_button_delete")).toBeNull();
     });
   });
 
