@@ -18895,6 +18895,12 @@
   "pamTargetSystemAssignConnectors": {
     "message": "Assign access connectors"
   },
+  "pamTargetSystemAssignConnectorTitle": {
+    "message": "Assign access connector"
+  },
+  "pamTargetSystemAssignConnectorLabel": {
+    "message": "Access connector"
+  },
   "pamTargetSystemAssignConnectorNoOptions": {
     "message": "All active access connectors are already assigned to this target system."
   },
