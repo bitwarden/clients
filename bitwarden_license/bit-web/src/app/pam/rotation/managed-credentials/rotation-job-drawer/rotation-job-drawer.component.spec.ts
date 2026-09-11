@@ -1,3 +1,4 @@
+import { DatePipe } from "@angular/common";
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
@@ -43,8 +44,9 @@ function retriedFailure(overrides: Partial<JobView> = {}): JobView {
     statusVariant: "danger",
     failed: true,
     running: false,
+    startedAt: "2026-01-01T00:01:00Z",
     createdAt: "2026-01-01T00:00:00Z",
-    duration: { hours: 0, minutes: 5, seconds: 16 },
+    duration: { hours: 0, minutes: 4, seconds: 16 },
     attempts: [1, 2, 3, 4, 5].map((n) => attempt(n)),
     attemptsUniform: true,
     causeLabelKey: "pamRotationFailureCauseTargetUnreachable",
@@ -244,6 +246,45 @@ describe("RotationJobDrawerComponent", () => {
     });
   });
 
+  describe("the job's start", () => {
+    const rendered = (iso: string, format: string) => new DatePipe("en-US").transform(iso, format)!;
+
+    it("states the first attempt's start rather than when the job was queued", async () => {
+      await render(retriedFailure());
+
+      const shown = query("drawer-started").nativeElement.textContent.trim();
+      expect(shown).toBe(rendered("2026-01-01T00:01:00Z", "long"));
+      expect(shown).not.toBe(rendered("2026-01-01T00:00:00Z", "long"));
+    });
+
+    it("names the same instant the first attempt row does, under the same header", async () => {
+      await render(retriedFailure());
+
+      expect(query("drawer-started").nativeElement.textContent.trim()).toBe(
+        rendered("2026-01-01T00:01:00Z", "long"),
+      );
+      expect(attemptRows()[0].nativeElement.textContent).toContain(
+        rendered("2026-01-01T00:01:00Z", "mediumTime"),
+      );
+    });
+
+    it("states nothing for a job with no attempt to read a start from", async () => {
+      await render(
+        succeeded({
+          statusLabelKey: "pamRotationJobStatusPending",
+          statusVariant: "secondary",
+          running: true,
+          startedAt: null,
+          duration: null,
+          attempts: [],
+        }),
+      );
+
+      expect(query("drawer-started")).toBeNull();
+      expect(text()).not.toContain("pamRotationAttemptStarted");
+    });
+  });
+
   describe("the credential", () => {
     it("is named when the table that opened the pane names it", async () => {
       await render(retriedFailure(), true);
@@ -303,7 +344,7 @@ describe("RotationJobDrawerComponent", () => {
   it("shows the job's own duration, or that it is still running", async () => {
     await render(retriedFailure());
     expect(query("drawer-duration").nativeElement.textContent).toContain(
-      "pamRotationDurationMinutes 5 16",
+      "pamRotationDurationMinutes 4 16",
     );
 
     await render(retriedFailure({ duration: null, running: true }));
