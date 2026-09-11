@@ -16,7 +16,7 @@
     "message": "Alle Tresor-Einträge"
   },
   "myItemsV2": {
-    "message": "My items"
+    "message": "Meine Einträge"
   },
   "vaults": {
     "message": "Tresore"
@@ -2416,7 +2416,7 @@
     "message": "Keine passenden Einträge"
   },
   "noFiltersMatch": {
-    "message": "No filters match \"$SEARCH$\"",
+    "message": "Keine Filter stimmen mit \"$SEARCH$\" überein",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -2424,8 +2424,32 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 Ergebnis",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ Ergebnisse",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Keine Filter stimmen mit \"$SEARCH$\" überein",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
-    "message": "Clear search"
+    "message": "Suche löschen"
   },
   "selected": {
     "message": "Ausgewählt"
@@ -4728,192 +4752,192 @@
     "message": "Hilfezentrum"
   },
   "importChromiumAliasPreamble": {
-    "message": "The process is exactly the same as importing from Google Chrome.",
+    "message": "Der Vorgang ist genau derselbe wie beim Import aus Google Chrome.",
     "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
   },
   "importKeepassxInstructions": {
-    "message": "Using the KeePassX desktop application, navigate to \"Database\" → \"Export to CSV file\" and save the CSV file."
+    "message": "Geh in der KeePassX-Desktop-Anwendung zu \"Datenbank\" → \"Als CSV-Datei exportieren\" und speicher die CSV-Datei."
   },
   "importAviraInstructions": {
-    "message": "In the Avira web vault, go to \"Settings\" → \"My Data\" → \"Export data\" and save the CSV file."
+    "message": "Geh im Avira Webtresor zu \"Einstellungen\" → \"Meine Daten\" → \"Daten exportieren\" und speicher die CSV-Datei."
   },
   "importBlurInstructions": {
-    "message": "In the Blur web vault, click your username at the top and go to \"Settings\" → \"Export Data\", then click \"Export CSV\" for your \"Accounts\"."
+    "message": "Klick im Blur-Webtrresor oben auf deinen Benutzernamen und gehe zu \"Einstellungen\" → \"Daten exportieren\". Klick anschließend unter \"Konten\" auf \"Als CSV exportieren\"."
   },
   "importSafeincloudInstructions": {
-    "message": "Using the SafeInCloud desktop application, navigate to \"File\" → \"Export\" → \"As XML\" and save the XML file."
+    "message": "Geh in der SafeInCloud-Desktopanwendung zu \"Datei\" → \"Exportieren\" → \"Als XML\" und speicher die XML-Datei."
   },
   "importPadlockInstructions": {
-    "message": "Using the Padlock desktop application, click the hamburger icon in the top left corner and navigate to \"Settings\" → \"Export\" button and save the file \"As CSV\"."
+    "message": "Klick in der Padlock-Desktop-Anwendung auf das Hamburger-Symbol in der oberen linken Ecke, gehe zu \"Einstellungen\" → \"Exportieren\" und speicher die Datei \"als CSV\"."
   },
   "importKeepass2Instructions": {
-    "message": "Using the KeePass 2 desktop application, navigate to \"File\" → \"Export\" and select the \"KeePass XML (2.x)\" option."
+    "message": "Geh in der KeePass 2-Desktopanwendung zu \"Datei\" → \"Exportieren\" und wähle die Option \"KeePass XML (2.x)\" aus."
   },
   "importUpmInstructions": {
-    "message": "Using the Universal Password Manager desktop application, navigate to \"Database\" → \"Export\" and save the CSV file."
+    "message": "Geh in der Universal Password Manager-Desktop-Anwendung zu \"Datenbank\" → \"Exportieren\" und speicher die CSV-Datei."
   },
   "importSaferpassInstructions": {
-    "message": "Using the SaferPass browser extension, click the hamburger icon in the top left corner and navigate to \"Settings\". Click the \"Export accounts\" button to save the CSV file."
+    "message": "Klick in der SaferPass-Browsererweiterung auf das Hamburger-Symbol in der oberen linken Ecke und gehe zu \"Einstellungen\". Klick auf \"Konten exportieren\", um die CSV-Datei zu speichern."
   },
   "importMeldiumInstructions": {
-    "message": "Using the Meldium web vault, navigate to \"Settings\". Locate the \"Export data\" function and click \"Show me my data\" to save the CSV file."
+    "message": "Geh im Meldium-Webtresor zu \"Einstellungen\". Suche die Funktion \"Daten exportieren\" und klick auf \"Meine Daten anzeigen\", um die CSV-Datei zu speichern."
   },
   "importPassworddragonInstructions": {
-    "message": "Using the Password Dragon desktop application, navigate to \"File\" → \"Export\" → \"To XML\". In the dialog that pops up select \"All Rows\" and check all fields. Click the \"Export\" button and save the XML file."
+    "message": "Geh in der Password Dragon-Desktopanwendung zu \"Datei\" → \"Exportieren\" → \"Als XML\". Wähle im daraufhin angezeigten Dialogfeld \"Alle Zeilen\" aus und aktiviere alle Felder. Klick auf \"Exportieren\" und speicher die XML-Datei."
   },
   "importEnpassCsvInstructions": {
-    "message": "Using the Enpass desktop application, navigate to \"File\" → \"Export\" → \"As CSV\". Select \"OK\" to the warning alert and save the CSV file. Note that the importer only supports files exported while Enpass is set to the English language, so adjust your settings accordingly."
+    "message": "Geh in der Enpass-Desktop-Anwendung zu \"Datei\" → \"Exportieren\" → \"Als CSV\". Klick auf \"OK\", um die Warnmeldung zu bestätigen, und speicher die CSV-Datei. Beachte, dass der Importer nur Dateien unterstützt, die exportiert wurden, während Enpass auf Englisch eingestellt war. Passe deine Einstellungen daher entsprechend an."
   },
   "importEnpassJsonInstructions": {
-    "message": "Using the Enpass 6 desktop application, click the menu button and navigate to \"File\" → \"Export\". Select the \".json\" file format option and save the JSON file."
+    "message": "Klick in der Enpass 6-Desktop-Anwendung auf den Menü-Button und geh zu \"Datei\" → \"Exportieren\". Wähle das Dateiformat „.json“ aus und speicher die JSON-Datei."
   },
   "importPwsafeInstructions": {
-    "message": "Using the Password Safe desktop application, navigate to \"File\" → \"Export To\" → \"XML format...\" and save the XML file."
+    "message": "Geh in der Password Safe-Desktopanwendung zu \"Datei\" → \"Exportieren als\" → \"XML-Format...\" und speicher die XML-Datei."
   },
   "importDashlaneCsvInstructions": {
-    "message": "Log in to Dashlane, click on \"My Account\" → \"Settings\" → \"Export file\" and select \"Export as a CSV file\". This will download a zip archive containing various CSV files. Unzip the archive and import each CSV file individually."
+    "message": "Melde dich bei Dashlane an, klick auf \"Mein Konto\" → \"Einstellungen\" → \"Datei exportieren\" und wähle „Als CSV-Datei exportieren“. Daraufhin wird ein ZIP-Archiv mit verschiedenen CSV-Dateien heruntergeladen. Entpacke das Archiv und importiere jede CSV-Datei einzeln."
   },
   "importDashlaneJsonInstructions": {
-    "message": "Dashlane no longer supports the JSON format. Only use this if you have an existing JSON for import. Use the CSV importer when creating new exports."
+    "message": "Dashlane unterstützt das JSON-Format nicht mehr. Verwende dieses Format nur, wenn du bereits eine JSON-Datei zum Importieren hast. Verwende den CSV-Importer, wenn du neue Exporte erstellst."
   },
   "importMsecureInstructions": {
-    "message": "Using the mSecure desktop application, navigate to \"File\" → \"Export\" → \"CSV File...\" and save the CSV file."
+    "message": "Geh in der mSecure-Desktop-Anwendung zu \"Datei\" → \"Exportieren\" → \"CSV-Datei…\" und speicher die CSV-Datei."
   },
   "importStickypasswordInstructions": {
-    "message": "Using the Sticky Password desktop application, navigate to \"Menu\" (top right) → \"Export\" → \"Export all\". Select the unencrypted format XML option and save the XML file."
+    "message": "Öffne die Sticky Password-Desktop-Anwendung und geh zu \"Menü\" (oben rechts) → \"Exportieren\" → \"Alles exportieren\". Wähle das unverschlüsselte XML-Format aus und speicher die XML-Datei."
   },
   "importTruekeyInstructions": {
-    "message": "Using the True Key desktop application, click the gear icon (top right) and then navigate to \"App Settings\". Click the \"Export\" button, enter your password and save the CSV file."
+    "message": "Klick in der True Key-Desktop-Anwendung auf das Zahnrad-Symbol (oben rechts) und geh dann zu \"App-Einstellungen\". Klick auf \"Exportieren\", gib dein Passwort ein und speicher die CSV-Datei."
   },
   "importClipperzInstructions": {
-    "message": "Log into the Clipperz web application (clipperz.is/app). Click the hamburger menu icon in the top right to expand the navigation bar. Navigate to \"Data\" → \"Export\". Click the \"download HTML+JSON\" button to save the HTML file."
+    "message": "Melde dich bei der Clipperz-Webanwendung (clipperz.is/app) an. Klick oben rechts auf das Hamburger-Menü-Symbol, um die Navigationsleiste zu erweitern. Geh zu \"Daten\" → \"Exportieren\". Klick auf \"HTML+JSON herunterladen\", um die HTML-Datei zu speichern."
   },
   "importRoboformInstructions": {
-    "message": "Using the RoboForm Editor desktop application, navigate to \"RoboForm\" (top left) → \"Options\" → \"Account & Data\" and click the \"Export\" button. Select all of your data, change the \"Format\" to \"CSV file\" and then click the \"Export\" button to save the CSV file. Note: RoboForm only allows you to export Logins. Other items will not be exported."
+    "message": "Geh in der RoboForm-Editor-Desktop-Anwendung zu \"RoboForm\" (oben links) → \"Optionen\" → \"Konto & Daten\" und klick auf \"Exportieren\". Wähle alle deine Daten aus, ändere \"Format\" zu \"CSV-Datei\" und klicke anschließend auf \"Exportieren\", um die CSV-Datei zu speichern. Hinweis: Mit RoboForm kannst du nur Zugangsdaten exportieren. Andere Einträge werden nicht exportiert."
   },
   "importPassboltInstructions": {
-    "message": "Log into the Passbolt web vault and navigate to the \"Passwords\" listing. Select all of the passwords you would like to export and click the \"Export\" button at the top of the listing. Choose the \"csv (lastpass)\" export format and click the \"Export\" button."
+    "message": "Melde dich beim Passbolt-Webtresor an und geh zur Liste \"Passwörter\". Wähle alle Passwörter aus, die du exportieren möchtest, und klick oben in der Liste auf \"Exportieren\". Wähle das Exportformat \"csv (lastpass)\" aus und klick auf \"Exportieren\"."
   },
   "importAscendoInstructions": {
-    "message": "Using the Ascendo DataVault desktop application, navigate to \"Tools\" → \"Export\". In the dialog that pops up, select the \"All Items (DVX, CSV)\" option. Click the \"Ok\" button to save the CSV file."
+    "message": "Geh in der Ascendo DataVault-Desktopanwendung zu „Werkzeuge“ → „Exportieren“. Wähle im daraufhin angezeigten Dialogfeld die Option „Alle Einträge (DVX, CSV)“ aus. Klick auf „OK“, um die CSV-Datei zu speichern."
   },
   "importPasswordbossInstructions": {
-    "message": "Using the Password Boss desktop application, navigate to \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" and save the JSON file."
+    "message": "Geh in der Password Boss-Desktopanwendung zu \"Datei\" → \"Daten exportieren\" → \"Password Boss JSON – unverschlüsselt\" und speicher die JSON-Datei."
   },
   "importZohoInstructions": {
-    "message": "Log into the Zoho web vault (vault.zoho.com). Navigate to \"Tools\" → \"Export Secrets\". Select \"All Secrets\" and click the \"Zoho Vault Format CSV\" button. Highlight and copy the data from the textarea. Open a text editor like Notepad and paste the data. Save the data from the text editor as",
+    "message": "Melde dich beim Zoho Webtresor (vault.zoho.com) an. Gehe zu „Werkzeuge“ → „Geheimnisse exportieren“. Wähle „Alle Geheimnisse“ aus und klick auf „Zoho Tresorformat CSV“. Markiere und kopiere die Daten im Textfeld. Öffne einen Texteditor wie Notepad und füge die Daten ein. Speicher die Daten aus dem Texteditor als",
     "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
   },
   "importSplashidInstructions": {
-    "message": "Using the SplashID Safe desktop application, click on the SplashID blue lock logo in the top right corner. Navigate to \"Export\" → \"Export as CSV\" and save the CSV file."
+    "message": "Klick in der SplashID Safe-Desktop-Anwendung auf das blaue SplashID-Schloss-Logo in der oberen rechten Ecke. Geh dann zu \"Exportieren\" → \"Als CSV exportieren\" und speicher die CSV-Datei."
   },
   "importPasskeepInstructions": {
-    "message": "Using the PassKeep mobile app, navigate to \"Backup/Restore\". Locate the \"CSV Backup/Restore\" section and click \"Backup to CSV\" to save the CSV file."
+    "message": "Geh in der PassKeep-App zu „Sichern/Wiederherstellen“. Suche den Abschnitt „CSV-Sicherung/Wiederherstellung“ und klicke auf „Als CSV sichern“, um die CSV-Datei zu speichern."
   },
   "importGnomeInstructionsIntro": {
-    "message": "Make sure you have python-keyring and python-gnomekeyring installed. Save the",
+    "message": "Stelle sicher, dass „python-keyring“ und „python-gnomekeyring“ installiert sind. Speicher das",
     "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
   },
   "importGnomeInstructionsLinkText": {
-    "message": "GNOME Keyring Import/Export"
+    "message": "GNOME-Schlüsselbund Import/Export"
   },
   "importGnomeInstructionsScriptLabel": {
-    "message": "python script to your desktop as",
+    "message": "-Python-Skript auf deinem Desktop unter dem Namen",
     "description": "Followed by a literal filename (pw_helper.py) rendered as code."
   },
   "importGnomeInstructionsRunTerminal": {
-    "message": ". Open terminal and run",
+    "message": ". Öffne das Terminal und führe zuerst den Befehl",
     "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
   },
   "importGnomeInstructionsAndThen": {
-    "message": "and then",
+    "message": "aus und anschließend",
     "description": "Between two terminal commands rendered as code."
   },
   "importGnomeInstructionsUploadResult": {
-    "message": ". Then upload the resulting",
+    "message": "Lade anschließend die dabei erstellte",
     "description": "Followed by a literal filename (my_passwords.json) rendered as code."
   },
   "importGnomeInstructionsFileHere": {
-    "message": "file here to Bitwarden.",
+    "message": "-Datei hier bei Bitwarden hoch.",
     "description": "Follows the my_passwords.json filename."
   },
   "importPasswordagentInstructions": {
-    "message": "Using the Password Agent desktop application navigate to \"File\" → \"Export\", select the \"Fields to export\" button and check all of the fields, change the \"Output format\" to \"CSV\", and then click the \"Start\" button to save the CSV file."
+    "message": "Klick in den Password Agent Desktop-Anwendung auf \"Datei\" → \"Exportieren\", wähle den \"Zu exportierende Felder\" Buttons aus, aktiviere alle Felder, ändere \"Ausgabeformat\" in \"CSV\" und klicke anschließend auf \"Start\", um die CSV-Datei zu speichern."
   },
   "importPasspackInstructions": {
-    "message": "Log into the Passpack website vault and navigate to \"Settings\" → \"Export\", then click the \"Download\" button to save the CSV file."
+    "message": "Melde dich beim Passpack-Website-Tresor an, gehe zu \"Einstellungen\" → \"Exportieren\" und klick anschließend auf „Herunterladen“, um die CSV-Datei zu speichern."
   },
   "importPassmanInstructions": {
-    "message": "Open your Passman vault and click on \"Settings\" in the bottom left corner. In the \"Settings\" window switch to the \"Export credentials\" tab and choose \"JSON\" as the export type. Enter your vault's passphrase and click the \"Export\" button to save the JSON file."
+    "message": "Öffne deinen Passman-Tresor und klick unten links auf \"Einstellungen\". Wechsel im Fenster \"Einstellungen\" zum Tab \"Zugangsdaten exportieren\" und wähle \"JSON\" als Exportformat aus. Gib die Passphrase deines Tresors ein und klick auf \"Exportieren\", um die JSON-Datei zu speichern."
   },
   "importAvastCsvInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to CSV file\" option to save the CSV file."
+    "message": "Öffne die Avast Passwords-Desktop-Anwendung und gehe zu „Einstellungen“ → „Daten importieren/exportieren“. Klicke auf den \"Export\"-Button bei der Option „Als CSV-Datei exportieren“, um die CSV-Datei zu speichern."
   },
   "importAvastJsonInstructions": {
-    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to JSON file\" option to save the JSON file."
+    "message": "Öffne die Avast Passwords-Desktop-Anwendung und gehe zu „Einstellungen“ → „Daten importieren/exportieren“. Klicke auf den \"Export\"-Button bei der Option „Als JSON-Datei exportieren“, um die JSON-Datei zu speichern."
   },
   "importFsecureInstructions": {
-    "message": "Open the F-Secure KEY desktop application and navigate to \"Settings\" → \"Export Passwords\". Select the \"Export\" button, enter your master password, and save the FSK file."
+    "message": "Öffne die F-Secure KEY-Desktop-Anwendung und gehe zu \"Einstellungen\" → \"Passwörter exportieren\". Klick auf \"Exportieren\", gib dein Master-Passwort ein und speicher die FSK-Datei."
   },
   "importKasperskyInstructions": {
-    "message": "Open the Kaspersky Password Manager desktop application and navigate to \"Settings\" → \"Import/Export\". Locate the \"Export to text file\" section and select the \"Export\" button to save the TXT file."
+    "message": "Öffne die Kaspersky Password Manager-Desktopanwendung und gehe zu \"Einstellungen\" → \"Importieren/Exportieren\". Suche den Abschnitt \"Als Textdatei exportieren\" und klicke auf den \"Exportieren\"-Button, um die TXT-Datei zu speichern."
   },
   "importRemembearInstructions": {
-    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+    "message": "Öffne die RememBear-Desktop-Anwendung und gehe zu „Einstellungen“ → „Konto“ → „Export“. Gib deine Master-Passwort ein und klicke auf „Trotzdem exportieren“, um die CSV-Datei zu speichern."
   },
   "importPasswordwalletInstructions": {
-    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+    "message": "Öffne die PasswordWallet-Desktop-Anwendung und gehe zu \"Datei\" → \"Exportieren\" → \"Sichtbare Einträge als Textdatei\". Gib dein Passwort ein und klick auf \"OK\", um die TXT-Datei zu speichern."
   },
   "importMykiInstructions": {
-    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+    "message": "Öffne die Myki Browsererweiterung auf dem Desktop, geh zu \"Erweitert\" → \"Konten exportieren\" und scanne anschließend den QR-Code mit deinem Mobilgerät. Daraufhin werden verschiedene CSV-Dateien im Download-Ordner deines Computers gespeichert."
   },
   "importSecuresafeInstructions": {
-    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+    "message": "Exportiere deinen SecureSafe-Passwort-Tresor als CSV-Datei mit Komma-Trennzeichen."
   },
   "importLogmeonceInstructions": {
-    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+    "message": "Öffne die LogMeOnce-Browsererweiterung, gehe dann zu „Menü öffnen“ → „Exportieren als“ und wähle „CSV-Datei“ aus, um die CSV-Datei zu speichern."
   },
   "importBlackberryInstructions": {
-    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+    "message": "Öffne die BlackBerry Password Keeper App und gehe zu \"Einstellungen\" → \"Importieren/Exportieren\". Wähle \"Passwörter exportieren\" aus und folge den Anweisungen auf dem Bildschirm, um die unverschlüsselte CSV-Datei zu speichern."
   },
   "importButtercupInstructions": {
-    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+    "message": "Öffne die Buttercup-Desktop-Anwendung und entsperre deinen Tresor. Klick mit der rechten Maustaste auf das Symbol deines Tresors und wähle \"Exportieren\" aus, um die CSV-Datei zu speichern."
   },
   "importCodebookInstructions": {
-    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+    "message": "Öffne die Codebook-Desktop-Anwendung und melde dich an. Klicke auf \"Datei\" → \"Alles exportieren\", bestätige danach das Dialogfenster mit \"Ja\" und speicher die CSV-Datei."
   },
   "importEncryptrInstructions": {
-    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+    "message": "Öffne die neueste Version der Encryptr-Desktop-Anwendung und synchronisiere alle deine Daten. Sobald die Synchronisierung deiner Daten abgeschlossen ist, färbt sich das Download-Symbol in der oberen rechten Ecke rosa. Klick auf das Download-Symbol und speicher die CSV-Datei."
   },
   "importYotiInstructions": {
-    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+    "message": "Klick in der Yoti-Browsererweiterung auf \"Einstellungen\", dann auf \"Gespeicherte Zugangsdaten exportieren\" und speicher die CSV-Datei."
   },
   "importPsonoInstructions": {
-    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+    "message": "Melde dich beim Psono-Webtresor an, klick auf das Dropdown-Menü \"Angemeldet als\" und wähle \"Andere\" aus. Wechsel zum \"Exportieren\"-Tab, wähle \"JSON-Export\" aus und klick anschließend auf \"Exportieren\"."
   },
   "importPasskyInstructions": {
-    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+    "message": "Melde dich bei \"https://vault.passky.org\" an → Klick auf \"Import & Export\" und \"Export\" im Passky-Bereich. (\"Backup\" wird nicht unterstützt, da dieses verschlüsselt ist.)."
   },
   "importProtonpassInstructions": {
-    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+    "message": "Gehe in der ProtonPass-Browsererweiterung zu \"Einstellungen\" > \"Exportieren\". Exportiere die Daten ohne PGP-Verschlüsselung und speicher die ZIP-Datei."
   },
   "importPasswordxpInstructions": {
-    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+    "message": "Klicke auf „Datenbank“ → \"Als Datei exportieren...\"→ Stelle sicher, dass in den Exportoptionen das Kontrollkästchen „Ordnernamen und Spaltenüberschriften“ aktiviert ist. Klicke auf \"Durchsuchen...\", wähle die Zieldatei aus und den Dateityp \"CSV-Datei\"."
   },
   "importNetwrixInstructions": {
-    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+    "message": "Öffne den Full-Client, gehe zum Hauptmenü und wähle \"Exportieren\". Starte den Passwort-Export-Assistenten und folge den Anweisungen, um eine CSV-Datei zu exportieren."
   },
   "importNordpassInstructions": {
-    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+    "message": "Melde dich bei NordPass an und öffne \"Einstellungen\" → Scrolle nach unten zum Abschnitt \"Importieren und Exportieren\" und wähle \"Einträge exportieren\" aus → Gib dein Master-Passwort ein und klick auf \"Weiter\" → Speicher die CSV-Datei auf deinem Gerät."
   },
   "importPassworddepot17Instructions": {
-    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+    "message": "Gehe in der Desktop-Anwendung zu \"Werkzeuge\" → \"Exportieren\" → Gib dein Master-Passwort ein → Wähle \"XML-Format (*.xml)\" als Exportformat aus → Klick auf \"Weiter\" → Wähle aus, welche Einträge in den Export eingeschlossen werden sollen → Klick auf \"Weiter\", um den Export zum zuvor ausgewählten Ort zu starten."
   },
   "importDelineaInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+    "message": "Melde dich bei Delinea an, suche nach \"Import/Export\" -> wähle \"Export\" -> wähle \"XML\" als Exportformat -> wähle \"QuantumLock\" als Authenticator-Typ -> gib dein Passwort ein und wähle \"Export\", um die XML-Datei zu speichern."
   },
   "importDelineaCsvInstructions": {
-    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+    "message": "Melde dich bei Delinea an, suche nach \"Import/Export\" -> wähle \"Export\" -> wähle \"CSV\" als Exportformat -> wähle \"QuantumLock\" als Authenticator-Typ -> gib dein Passwort ein und wähle \"Export\", um die CSV-Datei zu speichern."
   },
   "confirmVaultImport": {
     "message": "Tresor-Import bestätigen"
@@ -5915,7 +5939,7 @@
     "message": "Mehr anzeigen"
   },
   "showMoreCount": {
-    "message": "Show $COUNT$ more",
+    "message": "$COUNT$ mehr anzeigen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6276,11 +6300,80 @@
   "noItemsInTrashDesc": {
     "message": "Einträge, die du löschst, erscheinen hier und werden nach 30 Tagen dauerhaft gelöscht"
   },
+  "noItemsInTrashDescription": {
+    "message": "Einträge, die du löschst, erscheinen hier und werden nach 30 Tagen dauerhaft gelöscht."
+  },
   "noItemsInVault": {
     "message": "Keine Einträge im Tresor"
   },
+  "noItemsInMyVault": {
+    "message": "Keine Einträge in \"Mein Tresor\""
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Keine Einträge in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Keine Einträge in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "Keine Einträge in \"Meine Einträge\""
+  },
+  "noItemsInVaults": {
+    "message": "Deine Tresore sind leer"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Es wurden keine Einträge gefunden, die den ausgewählten Filtern entsprechen"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Es wurden keine Einträge gefunden, die mit „$SEARCH_TERM$“ übereinstimmen",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "Der Tresor schützt mehr als nur deine Passwörter. Speicher hier sichere Zugangsdaten, Identitäten, Karten und Notizen."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Füge Einträge zu diesem geteilten Ordner hinzu und gewähre anschließend anderen Mitgliedern von $VAULT_NAME$ Zugriff darauf.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "„Meine Einträge“ ist dein privater Bereich zum Speichern von Einträgen, die weiterhin Eigentum von $VAULT_NAME$ sind, aber für andere Mitglieder nicht sichtbar sind.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Du hast keine Ordner."
+  },
+  "emptyFoldersDescription": {
+    "message": "Verwende Ordner, um Tresor-Einträge zu organisieren. Diese sind nur für dich bestimmt – niemand sonst kann sie sehen oder nutzen."
+  },
+  "emptyVaultsDescription": {
+    "message": "Füge Zugangsdaten, Identitäten, Karten und andere Einträge hinzu, um loszulegen."
   },
   "emptyFavorites": {
     "message": "Du hast keine Einträge zu den Favoriten hinzugefügt"
@@ -6295,10 +6388,10 @@
     "message": "Filter löschen oder es mit einem anderen Suchbegriff versuchen"
   },
   "noSharedFoldersAdded": {
-    "message": "No shared folders added"
+    "message": "Keine geteilten Ordner hinzugefügt"
   },
   "noSharedFoldersAddedDescription": {
-    "message": "Add a shared folder to securely share vault items with other members."
+    "message": "Füge einen geteilten Ordner hinzu, um Tresor-Einträge sicher mit anderen Mitgliedern zu teilen."
   },
   "sendPasswordHelperText": {
     "message": "Personen müssen das Passwort eingeben, um dieses Send anzusehen",
@@ -6742,18 +6835,18 @@
     }
   },
   "permissions": {
-    "message": "Permissions"
+    "message": "Berechtigungen"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "Einträge anzeigen"
   },
   "viewItemsHidePass": {
-    "message": "View items, hidden passwords"
+    "message": "Einträge anzeigen, versteckte Passwörter"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Einträge bearbeiten"
   },
   "editItemsHidePass": {
-    "message": "Edit items, hidden passwords"
+    "message": "Einträge bearbeiten, versteckte Passwörter"
   }
 }

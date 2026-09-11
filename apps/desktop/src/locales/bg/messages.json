@@ -16,7 +16,7 @@
     "message": "Всички елементи в трезора"
   },
   "myItemsV2": {
-    "message": "My items"
+    "message": "Моите елементи"
   },
   "vaults": {
     "message": "Трезори"
@@ -2416,7 +2416,7 @@
     "message": "Няма съвпадащи елементи"
   },
   "noFiltersMatch": {
-    "message": "No filters match \"$SEARCH$\"",
+    "message": "Няма филтри, които да отговарят на „$SEARCH$“",
     "placeholders": {
       "search": {
         "content": "$1",
@@ -2424,8 +2424,32 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 резултат",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ резултата",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Няма филтри, които да отговарят на „$SEARCH$“",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
-    "message": "Clear search"
+    "message": "Изчистване на търсенето"
   },
   "selected": {
     "message": "Избрано"
@@ -5915,7 +5939,7 @@
     "message": "Показване на повече"
   },
   "showMoreCount": {
-    "message": "Show $COUNT$ more",
+    "message": "Показване на още $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6276,11 +6300,80 @@
   "noItemsInTrashDesc": {
     "message": "Елементите, които изтривате, ще бъдат премествани тук и изтривани окончателно след 30 дни"
   },
+  "noItemsInTrashDescription": {
+    "message": "Елементите, които изтривате, ще бъдат премествани тук и изтривани окончателно след 30 дни."
+  },
   "noItemsInVault": {
     "message": "Няма елементи в трезора"
   },
+  "noItemsInMyVault": {
+    "message": "Няма елементи в Моя трезор"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Няма елементи в $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Няма елементи в $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "Няма елементи в Моите елементи"
+  },
+  "noItemsInVaults": {
+    "message": "Трезорите Ви са празни"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Няма елементи отговарящи на избраните филтри"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Няма елементи отговарящи на „$SEARCH_TERM$“",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "Трезорът може да пази не само паролите Ви. Тум можете да съхранявате сигурно данни за вписване, идентификационни данни, карти и бележки."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Добавете елементи в тази споделена папка, а след това дайте достъп на други членове на $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "„Моите елементи“ е Вашето лично място за съхраняване на записи, които въпреки че остават притежание на „$VAULT_NAME$“, не са видими за други хора.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Нямате никакви папки."
+  },
+  "emptyFoldersDescription": {
+    "message": "Използвайте папки, за да внесете ред в трезора си. Те са само за Вас — никой друг няма да ги вижда или използва."
+  },
+  "emptyVaultsDescription": {
+    "message": "За да започнете, добавете данни за вписване, идентичности, карти и други елементи."
   },
   "emptyFavorites": {
     "message": "Все още нямате любими неща"
@@ -6295,10 +6388,10 @@
     "message": "Изчистете филтрите или опитайте да търсите нещо друго"
   },
   "noSharedFoldersAdded": {
-    "message": "No shared folders added"
+    "message": "Няма добавени споделени папки"
   },
   "noSharedFoldersAddedDescription": {
-    "message": "Add a shared folder to securely share vault items with other members."
+    "message": "Добавете споделена папка, за да споделяте сигурно записи от трезора си с други членове."
   },
   "sendPasswordHelperText": {
     "message": "Хората ще трябва да въведат паролата, за да видят това Изпращане",
@@ -6742,18 +6835,18 @@
     }
   },
   "permissions": {
-    "message": "Permissions"
+    "message": "Права"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "Преглед на елементите"
   },
   "viewItemsHidePass": {
-    "message": "View items, hidden passwords"
+    "message": "Преглед на елементите, със скрити пароли"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Редактиране на елементите"
   },
   "editItemsHidePass": {
-    "message": "Edit items, hidden passwords"
+    "message": "Редактиране на елементите, със скрити пароли"
   }
 }
