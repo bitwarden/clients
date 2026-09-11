@@ -16,9 +16,11 @@ import { BulkActionComponent } from "../../bulk-actions-bar/bulk-action.componen
 import { BulkActionsBarComponent } from "../../bulk-actions-bar/bulk-actions-bar.component";
 import { BulkAdditionalActionComponent } from "../../bulk-actions-bar/bulk-additional-action.component";
 import { ButtonModule } from "../../button";
+import { ChipActionComponent } from "../../chips/chip-action";
 import { DialogModule } from "../../dialog";
 import { FilterMenuModule, type FilterOptionIconTile } from "../../filter-menu";
 import { FormFieldModule } from "../../form-field";
+import { IconButtonModule } from "../../icon-button";
 import { IconTileComponent, type IconTileVariant } from "../../icon-tile/icon-tile.component";
 import { InputModule } from "../../input/input.module";
 import { LayoutComponent, PageComponent } from "../../layout";
@@ -836,6 +838,8 @@ export default {
         BulkActionComponent,
         BulkAdditionalActionComponent,
         IconTileComponent,
+        ChipActionComponent,
+        IconButtonModule,
         LayoutComponent,
         PageComponent,
         TypographyModule,
@@ -1054,6 +1058,40 @@ export const RichCells: Story = {
           <bit-cell *bitCellDef="table.columns.email; let row">
             {{ row.email }}
             <span slot="secondary">User #{{ row.id }}</span>
+          </bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    `,
+  }),
+};
+
+export const CellFocusRings: Story = {
+  render: () => ({
+    props: { table: userTable },
+    template: /*html*/ `
+      <bit-table-v2 [tableDef]="table" [virtualRowHeight]="48" [height]="5">
+        <bit-column>
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">
+            <button
+              type="button"
+              bit-chip-action
+              size="small"
+              [label]="row.name + ' with a name long enough to truncate'"
+              class="tw-test-focus-visible"
+            ></button>
+          </bit-cell>
+        </bit-column>
+        <bit-column>
+          <bit-header-cell>Actions</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.email; let row">
+            <button
+              type="button"
+              bitIconButton="bwi-ellipsis-v"
+              size="small"
+              label="Options"
+              class="tw-test-focus-visible"
+            ></button>
           </bit-cell>
         </bit-column>
       </bit-table-v2>

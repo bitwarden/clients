@@ -1,4 +1,3 @@
-import { NgClass } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 
 import { TypographyModule } from "../../typography";
@@ -25,7 +24,7 @@ import { TABLE_PRESENTATION } from "./table-presentation";
 @Component({
   selector: "bit-cell, [bit-cell]",
   templateUrl: "./bit-cell.component.html",
-  imports: [NgClass, TypographyModule],
+  imports: [TypographyModule],
   host: {
     class: "tw-contents",
   },
@@ -38,4 +37,18 @@ export class BitCellComponent {
 
   /** Truncate the default and secondary slots on overflow. Default `true`. */
   readonly truncate = input(true);
+
+  /**
+   * Overflow behavior shared by the default and secondary slots.
+   *
+   * We are not using `tw-truncate` because it applies `overflow-hidden`; instead we need
+   * `overflow-clip` so we can use `overflow-clip-margin` and prevent focus rings of child elements
+   * from getting cut off. Text still ellipses: `text-overflow` applies to any non-`visible`
+   * overflow.
+   */
+  protected readonly contentClasses = computed(() =>
+    this.truncate()
+      ? "tw-overflow-clip [overflow-clip-margin:4px] tw-text-ellipsis tw-whitespace-nowrap"
+      : "tw-text-wrap tw-break-words",
+  );
 }
