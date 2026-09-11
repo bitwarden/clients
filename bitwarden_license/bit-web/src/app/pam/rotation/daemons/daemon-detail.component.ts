@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, CanDeactivateFn, Router } from "@angular/router";
 import { map } from "rxjs";
@@ -301,6 +301,13 @@ export class DaemonDetailComponent {
   };
 
   constructor() {
+    this.formGroup.controls.active.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((active) => {
+        if (!active) {
+          this.dropStagedAssignmentAdditions();
+        }
+      });
     void this.initialize();
   }
 
@@ -405,6 +412,22 @@ export class DaemonDetailComponent {
     return this.dialogService.openSimpleDialog(accessConnectorDeactivateConfirmOptions(name));
   }
 
+  /**
+   * Drop the assignments staged on top of the saved list.
+   *
+   * The server takes `assignTarget` only while the connector is enabled, so a staged addition
+   * cannot outlive the Active checkbox that {@link assignTargets} required to stage it. Staged
+   * removals survive: taking an assignment away from a connector that is on its way to inactive
+   * is a request the server still honours.
+   */
+  private dropStagedAssignmentAdditions(): void {
+    const saved = new Set<string>(this.savedAssignmentIds().map(String));
+    if (this.stagedAssignmentIds().every((id) => saved.has(String(id)))) {
+      return;
+    }
+    this.stageAssignments((ids) => ids.filter((id) => saved.has(String(id))));
+  }
+
   private stageAssignments(update: (ids: TargetSystemId[]) => TargetSystemId[]): void {
     const control = this.formGroup.controls.assignedTargetSystemIds;
     control.setValue(update(control.value));
@@ -458,7 +481,7 @@ export class DaemonDetailComponent {
         this.daemon.set(daemon);
         this.resetForm();
         if (daemon.jobs.length > 0) {
-          await this.loadCredentialNames();
+          void this.loadCredentialNames();
         }
       }
     } finally {
@@ -475,7 +498,17 @@ export class DaemonDetailComponent {
     this.formGroup.markAsPristine();
   }
 
-  /** Resolve the names of the managed credentials this connector's jobs rotated. */
+  /**
+   * Resolve the names of the managed credentials this connector's jobs rotated.
+   *
+   * Only worth the org-wide config and cipher reads when there is history to label, and a failure
+   * costs the History tab its Credential names rather than the page: the table falls back to the
+   * rotation config id, which still tells an operator which credential to look up.
+   *
+   * Left to settle on its own rather than awaited, for the same reason: the names land in a signal
+   * the Credential column reads, and the column already renders without them, so the Configuration
+   * tab does not spend its first paint waiting on a decrypt of every cipher in the organization.
+   */
   private async loadCredentialNames(): Promise<void> {
     try {
       const [configs] = await Promise.all([
