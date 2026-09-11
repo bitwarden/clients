@@ -30,9 +30,9 @@
       }
     },
     {
-      // Backing task for the "Browser: Start and debug" compound: builds the extension in
-      // watch mode and launches an isolated Chrome with it loaded, so the attach
-      // configuration has something to attach to.
+      // Backing task for the "Browser: Start and debug" compound: builds the extension and
+      // launches an isolated Chrome with it loaded, so the attach configuration has
+      // something to attach to.
       "label": "browser: debug start",
       "type": "npm",
       "script": "debug:browser",
@@ -50,7 +50,7 @@
         "pattern": [{ "regexp": "^$", "file": 1, "location": 2, "message": 3 }],
         "background": {
           "activeOnStart": true,
-          "beginsPattern": ".*Ext.*|.*Chrome.*",
+          "beginsPattern": ".*Building extension.*",
           // dev-chrome.mjs prints this once Chrome's remote debugging port is listening,
           // which is exactly when the debugger can attach.
           "endsPattern": ".*DevTools:\\s+http://localhost.*"

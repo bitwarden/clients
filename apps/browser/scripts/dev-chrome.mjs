@@ -13,7 +13,8 @@
 // --popup  open the extension popup once loaded
 ////
 
-import { access, readFile } from "node:fs/promises";
+import { spawnSync } from "node:child_process";
+import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -41,6 +42,9 @@ const CHANNEL = "stable";
 const SERVICE_WORKER = "service_worker";
 const EXTENSION_SCHEME = "chrome-extension://";
 
+const BUILD_SCRIPT = "build:chrome";
+const NPM = process.platform === "win32" ? "npm.cmd" : "npm";
+
 const require = createRequire(import.meta.url);
 
 function parseArgs(argv) {
@@ -65,11 +69,17 @@ function loadDeps() {
   }
 }
 
-async function assertBuilt() {
-  try {
-    await access(join(BUILD_DIR, "manifest.json"));
-  } catch {
-    throw new Error(`No build found at ${BUILD_DIR}. Run: npm run build:chrome`);
+// Always rebuild so the launched browser loads the current working tree.
+function build() {
+  console.log("Building extension...");
+
+  const result = spawnSync(NPM, ["run", BUILD_SCRIPT], {
+    cwd: BROWSER_DIR,
+    stdio: "inherit",
+  });
+
+  if (result.status !== 0) {
+    throw new Error(`npm run ${BUILD_SCRIPT} failed.`);
   }
 }
 
@@ -140,7 +150,7 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const { puppeteer, browsers } = loadDeps();
 
-  await assertBuilt();
+  build();
 
   const executablePath = await resolveChrome(browsers);
   console.log(`Chrome: ${executablePath}`);
