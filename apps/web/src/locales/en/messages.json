@@ -19017,6 +19017,9 @@
   "pamTargetSystemAssignConnectorInactive": {
     "message": "Access connectors can only be assigned while the target system is active."
   },
+  "pamTargetSystemAssignGoToConnectors": {
+    "message": "Go to Access connectors"
+  },
   "pamTargetSystemDeactivateTitle": {
     "message": "Deactivate target system?"
   },
@@ -19061,6 +19064,12 @@
   },
   "pamTargetSystemMethodManual": {
     "message": "Manual"
+  },
+  "pamTargetSystemMethodAutomaticHint": {
+    "message": "Rotations run on the schedule you set, once you finish the setup steps shown after saving."
+  },
+  "pamTargetSystemMethodManualHint": {
+    "message": "No rotation job is created. You rotate the credential by hand, then mark it as rotated."
   },
   "pamTargetSystemKindEntra": {
     "message": "Entra"
@@ -19121,6 +19130,9 @@
   "pamTargetSystemPolicyMinExceedsMax": {
     "message": "Minimum length must be less than or equal to maximum length."
   },
+  "pamTargetSystemPolicyNoCharacterClass": {
+    "message": "Include at least one character type."
+  },
   "pamTargetSystemPolicyUppercase": {
     "message": "Include uppercase letters"
   },
@@ -19136,8 +19148,8 @@
   "pamTargetSystemSupportsSessionTermination": {
     "message": "Supports session termination"
   },
-  "pamTargetSystemSupportsSessionTerminationHint": {
-    "message": "When enabled, the daemon will terminate active sessions after a credential is rotated."
+  "pamTargetSystemSupportsSessionTerminationHintConnector": {
+    "message": "When enabled, the access connector will terminate active sessions after a credential is rotated."
   },
   "pamTargetSystemSessionTerminationSupported": {
     "message": "Supported"
@@ -19146,7 +19158,7 @@
     "message": "Native integrations always terminate active sessions after a credential is rotated."
   },
   "pamTargetSystemTerminationWithdrawalWarning": {
-    "message": "Warning: the server will reject removing session termination support while any rotation config on this target still relies on it. Update those configs first."
+    "message": "Removing session termination support is rejected while any managed credential on this target system still relies on it. Update those credentials first."
   },
   "pamTargetSystemCreated": {
     "message": "Target system created."
@@ -19154,17 +19166,17 @@
   "pamTargetSystemSaved": {
     "message": "Target system saved."
   },
+  "pamTargetSystemSavedNotReread": {
+    "message": "Target system saved. The saved values could not be read back, so this page may be out of date."
+  },
   "pamTargetSystemSetupGuidanceTitle": {
     "message": "Finish setting up rotation"
   },
-  "pamTargetSystemSetupGuidanceAutomaticDaemon": {
-    "message": "On the Daemons tab, register a rotation daemon (or reuse an existing one) and assign this target system to it — the daemon performs the rotations."
+  "pamTargetSystemSetupGuidanceAutomaticConnector": {
+    "message": "Assign an access connector in the Assigned access connectors section below."
   },
-  "pamTargetSystemSetupGuidanceAutomaticCredential": {
-    "message": "On the Managed credentials tab, add a credential for this target system, then set the account to rotate and a schedule."
-  },
-  "pamTargetSystemSetupGuidanceManual": {
-    "message": "On the Managed credentials tab, add a credential for this target system. There is no daemon to connect — you rotate the credential by hand and record each rotation there."
+  "pamTargetSystemSetupGuidanceCredential": {
+    "message": "Add a managed credential on the Managed credentials tab."
   },
   "pamTargetSystemNotFound": {
     "message": "Target system not found."
