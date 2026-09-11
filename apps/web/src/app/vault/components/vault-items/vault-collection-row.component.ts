@@ -9,6 +9,7 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 
 import {
   CollectionAdminView,
@@ -17,6 +18,8 @@ import {
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuTriggerForDirective } from "@bitwarden/components";
@@ -42,6 +45,17 @@ import { RowHeightClass } from "./vault-items.component";
 })
 export class VaultCollectionRowComponent<C extends CipherViewLike> {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+  private readonly configService = inject(ConfigService);
+
+  /**
+   * The failure treatment rolls out with the SDK path that produces the failures, so both are
+   * gated on the same flag. While it is off the row keeps its previous behavior: the placeholder
+   * name renders as an ordinary link.
+   */
+  private readonly decryptionFailureUi = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.CollectionsDecryptListFailures),
+    { initialValue: false },
+  );
 
   protected RowHeightClass = RowHeightClass;
   protected Unassigned = "unassigned";
@@ -127,6 +141,17 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
     }
 
     return false;
+  }
+
+  /**
+   * True when the collection's name could not be decrypted and the failure treatment is enabled.
+   * The collection's items are encrypted independently and are unaffected, so the row stays
+   * navigable; the remedy is to re-name the collection, which re-encrypts it with the current
+   * organization key. That is offered through the row's options menu, and the edit dialog both
+   * explains the repair and enforces who may change the name.
+   */
+  protected get decryptionFailure() {
+    return this.decryptionFailureUi() && this.collection.decryptionFailure;
   }
 
   get permissionText() {

@@ -32,14 +32,25 @@
       class="tw-flex tw-text-start tw-leading-snug tw-max-w-56 tw-overflow-hidden"
       linkType="secondary"
       title="{{
-        'viewCollectionWithName' | vfo1I18n: 'viewSharedFolderWithName' : collection.name
+        decryptionFailure
+          ? ('cannotDecryptCollectionName' | vfo1I18n: 'cannotDecryptSharedFolderName')
+          : ('viewCollectionWithName' | vfo1I18n: 'viewSharedFolderWithName' : collection.name)
       }}"
       [routerLink]="[]"
       [queryParams]="{ collectionId: collection.id }"
       queryParamsHandling="merge"
       appStopProp
     >
-      <div class="tw-truncate tw-mr-1 tw-max-w-56">{{ collection.name }}</div>
+      @if (decryptionFailure) {
+        <!--
+          A collection's name is its only encrypted field, so the items it holds are unaffected and
+          stay reachable. Label the link with a warning in place of the name; renaming
+          it — which re-encrypts the collection — remains available from the row's options menu.
+        -->
+        <span bitBadge variant="warning">{{ "errorCannotDecrypt" | i18n }}</span>
+      } @else {
+        <div class="tw-truncate tw-mr-1 tw-max-w-56">{{ collection.name }}</div>
+      }
     </button>
     @if (showAddAccess) {
       <span
