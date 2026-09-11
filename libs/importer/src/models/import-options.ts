@@ -852,3 +852,11 @@ export type ImportType = keyof typeof importOptionsById;
 export const importOptions: readonly ImportOption[] = Object.entries(importOptionsById).map(
   ([id, option]) => ({ id, ...option }),
 );
+
+/** The unified `keeper` entry covers csv/json via its own Method selector, so these standalone
+ *  variants are hidden from every format-picking UI. They remain valid ids for non-UI consumers
+ *  (CLI) and for backward compatibility — do not remove them from `importOptionsById`. */
+export const HIDDEN_IMPORT_TYPE_IDS: ReadonlySet<string> = new Set<ImportType>([
+  "keepercsv",
+  "keeperjson",
+]);
