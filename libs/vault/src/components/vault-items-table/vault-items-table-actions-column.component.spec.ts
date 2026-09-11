@@ -21,7 +21,10 @@ import { BitTableV2Component, defineTable, TableDef } from "@bitwarden/component
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
 
 import { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
-import { VaultItemsTableCopyPresentation } from "./vault-items-table-copy-presentation";
+import {
+  DEFAULT_COPY_PRESENTATION,
+  VaultItemsTableCopyPresentation,
+} from "./vault-items-table-copy-presentation";
 import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
 import { VaultItemsTableColumn } from "./vault-items-table.component";
 
@@ -49,7 +52,7 @@ class HostComponent {
     VaultItemsTableColumn
   >(this.ciphers);
   readonly rowActions = signal<VaultItemsTableRowAction<CipherView>[]>([]);
-  readonly copyPresentation = signal<VaultItemsTableCopyPresentation>("collapsed");
+  readonly copyPresentation = signal<VaultItemsTableCopyPresentation>(DEFAULT_COPY_PRESENTATION);
 
   /**
    * The column's host element matches none of `bit-table-v2`'s `ng-content` selectors, so it is
