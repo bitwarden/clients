@@ -14,9 +14,9 @@ export type TargetSystemLabel = {
 };
 
 const KIND_LABEL_KEYS: Record<TargetSystemKind, string | null> = {
-  [TargetSystemKind.Entra]: "pamTargetSystemKindEntra",
-  [TargetSystemKind.Mssql]: "pamTargetSystemKindMssql",
-  [TargetSystemKind.CustomScript]: "pamTargetSystemKindCustomScript",
+  [TargetSystemKind.Entra]: "pamTargetSystemTypeEntra",
+  [TargetSystemKind.Mssql]: "pamTargetSystemTypeMssql",
+  [TargetSystemKind.CustomScript]: "pamTargetSystemTypeCustomScript",
   [TargetSystemKind.Unknown]: null,
 };
 
