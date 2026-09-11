@@ -1,8 +1,9 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { ActivatedRoute, CanDeactivateFn, Router } from "@angular/router";
+import { map } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -10,7 +11,6 @@ import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service"
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
-  BreadcrumbsModule,
   ButtonModule,
   CalloutModule,
   CardComponent,
@@ -18,17 +18,26 @@ import {
   DialogService,
   FormFieldModule,
   HeaderComponent,
-  IconModule,
+  LinkModule,
   SectionComponent,
   SectionHeaderComponent,
-  SelectModule,
-  SpinnerComponent,
+  SkeletonComponent,
+  SkeletonTextComponent,
+  TabsModule,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { discardConfirmOptions } from "../../helpers/discard-confirm";
+import {
+  TARGET_SYSTEM_QUERY_PARAM,
+  THEN_MANAGED_CREDENTIAL,
+  THEN_QUERY_PARAM,
+} from "../create-flow";
+import { DetailBreadcrumbComponent } from "../detail-breadcrumb.component";
+import { tabFromSegment } from "../detail-tab";
 import { OrgCiphersService } from "../org-ciphers.service";
 import {
   RotationConfigCreateRequest,
@@ -39,13 +48,23 @@ import {
   TargetSystemMethod,
   TargetSystemStatus,
 } from "../rotation";
+import { ROTATION_TABS, rotationLink } from "../rotation-links";
+import { RotationLoadErrorComponent } from "../rotation-load-error.component";
+import { RotationLoadingAnnouncerComponent } from "../rotation-loading-announcer.component";
 import { RotationScheduleInputComponent } from "../rotation-schedule-input.component";
 import { RotationSdkService } from "../rotation-sdk.service";
+import { showSkeletonWhile } from "../skeleton-delay";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
+import { RotationHistorySkeletonComponent } from "./rotation-history-skeleton.component";
 import { RotationHistoryComponent } from "./rotation-history.component";
 
 const ACCOUNT_IDENTITY_MAX_LENGTH = 500;
+
+/** The edit page's two tabs, each with a URL of its own. Configuration, the first, is the default. */
+const ROTATION_CONFIG_EDIT_TABS = ["configuration", "history"] as const;
+
+export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
 
 /**
  * Routed page for creating or editing a PAM rotation config.
@@ -65,21 +84,24 @@ const ACCOUNT_IDENTITY_MAX_LENGTH = 500;
     CommonModule,
     ReactiveFormsModule,
     AsyncActionsModule,
-    BreadcrumbsModule,
+    DetailBreadcrumbComponent,
     FormFieldModule,
     ButtonModule,
     CalloutModule,
     CardComponent,
     CheckboxModule,
-    FormFieldModule,
     HeaderComponent,
-    IconModule,
+    LinkModule,
     RotationHistoryComponent,
+    RotationHistorySkeletonComponent,
+    RotationLoadErrorComponent,
+    RotationLoadingAnnouncerComponent,
     RotationScheduleInputComponent,
     SectionComponent,
     SectionHeaderComponent,
-    SelectModule,
-    SpinnerComponent,
+    SkeletonComponent,
+    SkeletonTextComponent,
+    TabsModule,
     TypographyModule,
     I18nPipe,
   ],
@@ -101,9 +123,55 @@ export class RotationConfigEditComponent {
       ? undefined
       : asUuid<RotationConfigId>(this.route.snapshot.params.configId);
 
+  /**
+   * A target chosen before this page opened (`?targetSystemId=`), from the target-systems tab's
+   * "Add managed credential" action or from the round trip through target-system creation.
+   */
+  private readonly preselectedTargetSystemId: string | undefined =
+    this.route.snapshot.queryParams?.[TARGET_SYSTEM_QUERY_PARAM];
+
   protected readonly editing = this.configId != null;
 
+  /** Route to the Managed credentials list, behind the breadcrumb, Cancel, and every exit. */
+  protected readonly credentialsListRoute = rotationLink(
+    this.organizationId,
+    ROTATION_TABS.managedCredentials,
+  );
+
+  protected readonly configurationTabRoute = [
+    ...this.credentialsListRoute,
+    this.configId,
+    "configuration",
+  ];
+  protected readonly historyTabRoute = [...this.credentialsListRoute, this.configId, "history"];
+
+  /** The tab the URL names, as {@link tabFromSegment} reads it. */
+  protected readonly activeTab = toSignal(
+    this.route.paramMap.pipe(
+      map((params) => tabFromSegment(params.get("tab"), ROTATION_CONFIG_EDIT_TABS)),
+    ),
+    {
+      initialValue: tabFromSegment(
+        this.route.snapshot.params.tab as string | undefined,
+        ROTATION_CONFIG_EDIT_TABS,
+      ),
+    },
+  );
+
   protected readonly loading = signal(true);
+
+  /** Whether the placeholder is drawn, which trails {@link loading} by the skeleton delay. */
+  protected readonly showSkeleton = showSkeletonWhile(this.loading);
+
+  /** Whether the loading branch is on screen. */
+  protected readonly loadingVisible = computed(() => this.loading() || this.showSkeleton());
+
+  /** The error that stopped this page being filled in, or null. */
+  protected readonly loadError = signal<unknown | null>(null);
+
+  /** Four blocks, the rough depth of the card each of these pages opens with. */
+  protected readonly skeletonFields = [0, 1, 2, 3];
+
   protected readonly existingConfig = signal<RotationConfigDetail | null>(null);
 
   /** The config itself; the detail's other half is its job history. */
@@ -123,6 +191,9 @@ export class RotationConfigEditComponent {
   protected readonly activeTargetSystems = computed(() =>
     this.allTargetSystems().filter((s) => s.status === TargetSystemStatus.Active),
   );
+
+  /** Whether the picker has anything to offer. */
+  protected readonly hasActiveTargetSystems = computed(() => this.activeTargetSystems().length > 0);
 
   private readonly allCiphers = toSignal(this.orgCiphersService.ciphers$, {
     initialValue: [],
@@ -175,15 +246,28 @@ export class RotationConfigEditComponent {
     void this.initialize();
   }
 
+  /** Whether the operator has asked for a retry, which decides where focus lands on a re-render. */
+  protected readonly retried = signal(false);
+
+  protected readonly retryLoad = (): Promise<void> => {
+    this.retried.set(true);
+    return this.initialize();
+  };
+
   private async initialize(): Promise<void> {
+    this.loading.set(true);
+    this.loadError.set(null);
     try {
       if (this.editing) {
         await this.initializeEditMode();
       } else {
         await this.initializeCreateMode();
       }
+    } catch (e) {
+      this.loadError.set(e);
     } finally {
       this.loading.set(false);
+      this.markSaved();
     }
   }
 
@@ -194,16 +278,26 @@ export class RotationConfigEditComponent {
       this.orgCiphersService.load(this.organizationId),
     ]);
     this.configuredCipherIds.set(new Set(configs.map((c) => c.cipherId)));
+    this.applyPreselectedTargetSystem();
+  }
+
+  /** Select {@link preselectedTargetSystemId} if it names a target the picker actually offers. */
+  private applyPreselectedTargetSystem(): void {
+    const preselected = this.preselectedTargetSystemId;
+    if (
+      preselected == null ||
+      !this.activeTargetSystems().some((system) => String(system.id) === preselected)
+    ) {
+      return;
+    }
+    this.createForm.patchValue({ targetSystemId: preselected });
   }
 
   private async initializeEditMode(): Promise<void> {
     const [detail] = await Promise.all([
-      this.loadConfig(),
+      this.rotationSdk.getConfig(this.organizationId, this.configId!),
       this.targetSystemsService.load(this.organizationId),
     ]);
-    if (detail == null) {
-      return; // loadConfig already toasted + navigated away
-    }
     this.existingConfig.set(detail);
     this.settingsForm.patchValue({
       scheduleCron: detail.config.scheduleCron,
@@ -213,19 +307,6 @@ export class RotationConfigEditComponent {
       accountIdentity: detail.config.accountIdentity,
       terminateSessions: detail.config.terminateSessions,
     });
-  }
-
-  private async loadConfig(): Promise<RotationConfigDetail | null> {
-    try {
-      return await this.rotationSdk.getConfig(this.organizationId, this.configId!);
-    } catch {
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("pamRotationConfigNotFound"),
-      });
-      await this.navigateBack();
-      return null;
-    }
   }
 
   /**
@@ -279,7 +360,7 @@ export class RotationConfigEditComponent {
   };
 
   /**
-   * Edit mode: one save for the account and the schedule together, since the server now takes
+   * Edit mode: one save for the account and the schedule together, since the server takes
    * both in a single write — a caller changing only the schedule still sends the current
    * account identity.
    *
@@ -307,6 +388,7 @@ export class RotationConfigEditComponent {
         request,
       );
       this.existingConfig.set(updated);
+      this.markSaved();
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamRotationConfigSaved"),
@@ -348,11 +430,53 @@ export class RotationConfigEditComponent {
     }
   };
 
-  protected readonly cancel = (): Promise<boolean> => this.navigateBack();
+  /**
+   * Leave for the target-system create page, marked so that page returns here with the target it
+   * creates already selected instead of landing on the target-systems list.
+   */
+  protected readonly createTargetSystem = (): Promise<boolean> =>
+    this.router.navigate(["target-systems", "new"], {
+      relativeTo: this.route.parent,
+      queryParams: { [THEN_QUERY_PARAM]: THEN_MANAGED_CREDENTIAL },
+    });
+
+  private liveForm(): AbstractControl {
+    return this.editing ? this.editForm : this.createForm;
+  }
+
+  /** The live form's value as the admin was last shown it, serialized. */
+  private readonly savedValue = signal("");
+
+  private markSaved(): void {
+    this.savedValue.set(JSON.stringify(this.liveForm().getRawValue()));
+  }
+
+  /** Confirm before unsaved input is thrown away. */
+  async confirmDiscard(): Promise<boolean> {
+    if (JSON.stringify(this.liveForm().getRawValue()) === this.savedValue()) {
+      return true;
+    }
+
+    return await this.dialogService.openSimpleDialog(
+      discardConfirmOptions({
+        editing: this.editing,
+        createTitleKey: "pamRotationConfigDiscardTitle",
+      }),
+    );
+  }
+
+  protected readonly cancel = async (): Promise<void> => {
+    if (!(await this.confirmDiscard())) {
+      return;
+    }
+
+    await this.navigateBack();
+  };
 
   /** Return to the managed-credentials tab. */
   private navigateBack(): Promise<boolean> {
-    return this.router.navigate([".."], { relativeTo: this.route });
+    this.markSaved();
+    return this.router.navigate(this.credentialsListRoute);
   }
 
   private showError(e: unknown): void {
@@ -363,3 +487,7 @@ export class RotationConfigEditComponent {
     this.toastService.showToast({ variant: "error", message });
   }
 }
+
+export const rotationConfigEditDiscardGuard: CanDeactivateFn<RotationConfigEditComponent> = (
+  component,
+) => component.confirmDiscard();
