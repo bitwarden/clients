@@ -17710,5 +17710,39 @@
   },
   "membersLower": {
     "message": "members"
+  },
+  "annualLower": {
+    "message": "annual"
+  },
+  "monthlyLower": {
+    "message": "monthly"
+  },
+  "organizationSubscriptionCardTitle": {
+    "message": "$PLAN$ $CADENCE$ subscription",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      },
+      "cadence": {
+        "content": "$2",
+        "example": "annual"
+      }
+    }
+  },
+  "keepAndReactivate": {
+    "message": "Keep and reactivate"
+  },
+  "subscriptionIsNowActive": {
+    "message": "Subscription is now active"
+  },
+  "undoCancellationRequestConfirmation": {
+    "message": "This will undo your cancellation request and reactivate your subscription."
+  },
+  "subscriptionDetailsNotLoading": {
+    "message": "Subscription details not loading"
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "Our billing service is unavailable, so we can't show your subscription and pricing right now. Your subscription itself hasn't been affected."
   }
 }
