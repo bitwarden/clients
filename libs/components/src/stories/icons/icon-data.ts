@@ -198,6 +198,11 @@ const actions = [
       "Remove, subtract, or delete action. This outlined version should primarily be placed in a component with a transparent background, such as a link or tertiary button. If using in a filled or outline button or FAB, prefer the standard subtract button.",
   },
   {
+    id: "bwi-pause-circle",
+    usage:
+      "Pause or suspend action. Use to temporarily halt an in-progress activity such as an active session or rotation, where the operation can be resumed later.",
+  },
+  {
     id: "bwi-pencil-square",
     usage: "Edit action.",
   },
