@@ -19059,6 +19059,15 @@
   "pamTargetSystemDeleteTitle": {
     "message": "Delete target system?"
   },
+  "pamTargetSystemDeleteContent": {
+    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
   "pamTargetSystemDeleteContentDeactivateInstead": {
     "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first. To stop rotations without losing the target system, deactivate it instead. Deactivating holds pending jobs and can be undone.",
     "placeholders": {
