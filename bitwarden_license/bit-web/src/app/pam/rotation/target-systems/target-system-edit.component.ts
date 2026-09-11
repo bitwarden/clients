@@ -243,9 +243,9 @@ export class TargetSystemEditComponent {
 
   /** Kind options for the bit-select in Automatic mode. */
   protected readonly kindOptions = [
-    { value: TargetSystemKind.Entra, label: "pamTargetSystemKindEntra" },
-    { value: TargetSystemKind.Mssql, label: "pamTargetSystemKindMssql" },
-    { value: TargetSystemKind.CustomScript, label: "pamTargetSystemKindCustomScript" },
+    { value: TargetSystemKind.Entra, label: "pamTargetSystemTypeEntra" },
+    { value: TargetSystemKind.Mssql, label: "pamTargetSystemTypeMssql" },
+    { value: TargetSystemKind.CustomScript, label: "pamTargetSystemTypeCustomScript" },
   ] as const;
 
   protected readonly createForm = this.formBuilder.nonNullable.group({
