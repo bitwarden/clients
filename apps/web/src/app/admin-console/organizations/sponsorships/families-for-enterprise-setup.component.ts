@@ -167,9 +167,10 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
     );
 
     try {
-      const request = new OrganizationSponsorshipRedeemRequest();
-      request.planSponsorshipType = PlanSponsorshipType.FamiliesForEnterprise;
-      request.sponsoredOrganizationId = organizationId;
+      const request = new OrganizationSponsorshipRedeemRequest({
+        planSponsorshipType: PlanSponsorshipType.FamiliesForEnterprise,
+        sponsoredOrganizationId: organizationId,
+      });
 
       await this.apiService.postRedeemSponsorship(this.token, request);
 

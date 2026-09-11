@@ -786,6 +786,28 @@ const buildProviders = (args: StoryArgs) => {
           reviewXAtRiskPassword: "Review __$1__ at-risk password",
           reviewXAtRiskPasswordsPlural: "Review __$1__ at-risk passwords",
           atRiskLoginsSecured: "At-risk logins secured",
+          launchWebsite: "Launch website",
+          noDetailsToCopy: "No details to copy",
+          importItems: "Import items",
+          noItemsMatchSearchTerm: (term) => `No items match "${term}"`,
+          noItemsMatchSelectedFilters: "No items match selected filters",
+          noItemsInMyVault: "No items in My vault",
+          noItemsInVaults: "Your vaults are empty",
+          noItemsInOrganizationVault: (name) => `No items in ${name}`,
+          noItemsInSharedFolder: (name) => `No items in ${name}`,
+          emptyVaultsDescription: "Add logins, IDs, cards, and other items to get started.",
+          emptySharedFolderDescription: (name) =>
+            `Add items to this shared folder, then give access to other ${name} members.`,
+          noItemsInTrash: "No items in trash",
+          noItemsInTrashDescription:
+            "Items you delete will appear here and be permanently deleted after 30 days.",
+          noItemsInArchive: "No items in archive",
+          noItemsInArchiveDesc:
+            "Archived items will appear here and will be excluded from general search results and autofill suggestions.",
+          appLogoLabel: "Bitwarden logo",
+          emptyMyItems: "No items in My items",
+          emptyMyItemsDescription:
+            "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
         }),
     },
   ];

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { QueryParamsHandling } from "@angular/router";
 import { switchMap } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
@@ -8,9 +9,14 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { getNestedCollectionTree } from "@bitwarden/common/admin-console/utils/collection-utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import { BreadcrumbsModule, IconTileComponent, IconTileOptions } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
+import {
+  BitwardenIcon,
+  BreadcrumbsModule,
+  IconTileComponent,
+  IconTileOptions,
+} from "@bitwarden/components";
 
 import { navIconTile } from "../../models/vault-icon-tile";
 import {
@@ -21,20 +27,29 @@ import {
 } from "../../models/vault-scope";
 import { VaultNavService } from "../../services/vault-nav.service";
 
+type TrailCrumb = {
+  key: string;
+  icon: BitwardenIcon;
+  label: string;
+  route: string[];
+  queryParamsHandling?: QueryParamsHandling;
+};
+
 @Component({
-  selector: "vault-collection-breadcrumbs",
-  templateUrl: "./vault-collection-breadcrumbs.component.html",
+  selector: "vault-breadcrumbs",
+  templateUrl: "./vault-breadcrumbs.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BreadcrumbsModule, IconTileComponent, I18nPipe],
+  imports: [BreadcrumbsModule, IconTileComponent],
   host: {
     // `bit-breadcrumbs` sizes itself to its container, so this wrapper has to be one.
     class: "tw-flex tw-w-full tw-min-w-0",
   },
 })
-export class VaultCollectionBreadcrumbsComponent {
+export class VaultBreadcrumbsComponent {
   private readonly accountService = inject(AccountService);
   private readonly collectionService = inject(CollectionService);
   private readonly vaultNavService = inject(VaultNavService);
+  private readonly i18nService = inject(I18nService);
 
   readonly scope = input.required<VaultScope>();
 
@@ -67,12 +82,12 @@ export class VaultCollectionBreadcrumbsComponent {
     return item == null ? undefined : navIconTile(item);
   });
 
-  protected readonly sharedFoldersRoute = computed((): string[] => {
+  private readonly sharedFoldersRoute = computed((): string[] => {
     const orgId = this.organizationId();
     return orgId == null ? [] : sharedFoldersCommands(orgId);
   });
 
-  protected readonly orgRootRoute = computed((): string[] => {
+  protected readonly orgRootCrumbRoute = computed((): string[] => {
     const orgId = this.organizationId();
     if (orgId == null) {
       return [];
@@ -106,10 +121,10 @@ export class VaultCollectionBreadcrumbsComponent {
     return ServiceUtils.getTreeNodeObjectFromList(this.collectionTree(), collectionId) ?? undefined;
   });
 
-  protected readonly sharedFolderName = computed(() => this.sharedFolderNode()?.node.name ?? "");
+  private readonly sharedFolderName = computed(() => this.sharedFolderNode()?.node.name ?? "");
 
   /** Ancestors of the selected folder, from org root to immediate parent. Current folder excluded. */
-  protected readonly collectionBreadcrumbs = computed((): CollectionView[] => {
+  private readonly collectionBreadcrumbs = computed((): CollectionView[] => {
     const node = this.sharedFolderNode();
     if (node == null) {
       return [];
@@ -124,7 +139,33 @@ export class VaultCollectionBreadcrumbsComponent {
       .map((n) => n.node);
   });
 
-  protected sharedFolderRoute(folder: CollectionView): string[] {
+  protected readonly trailCrumbs = computed((): TrailCrumb[] => {
+    if (this.sharedFolderNode() == null) {
+      return [];
+    }
+
+    return [
+      {
+        key: "shared-folders",
+        icon: "bwi-shared-folder",
+        label: this.i18nService.t("sharedFolders"),
+        route: this.sharedFoldersRoute(),
+      },
+      ...this.collectionBreadcrumbs().map((folder): TrailCrumb => ({
+        key: folder.id,
+        icon: "bwi-shared-folder",
+        label: folder.name,
+        route: this.sharedFolderRoute(folder),
+      })),
+      this.currentCrumb("shared-folder", "bwi-shared-folder", this.sharedFolderName()),
+    ];
+  });
+
+  private currentCrumb(key: string, icon: BitwardenIcon, label: string): TrailCrumb {
+    return { key, icon, label, route: [], queryParamsHandling: "preserve" };
+  }
+
+  private sharedFolderRoute(folder: CollectionView): string[] {
     const orgId = this.organizationId();
     if (orgId == null) {
       return [];

@@ -127,7 +127,16 @@ impl<C: IpcConnector> PluginAuthenticator for BitwardenPluginAuthenticator<C> {
 
         self.wait_for_connected_client(&client)?;
 
-        present_window(client.as_ref())?;
+        // Present the window if necessary.
+        // The desktop app still may need to show UI based on information in the vault;
+        // this preempts the presentation in order to work around focusing issues.
+        let is_unlocked = client
+            .get_lock_status(Duration::from_secs(3))
+            .is_ok_and(|response| response.is_unlocked);
+        let needs_ui = needs_ui_for_registration(is_unlocked);
+        if needs_ui {
+            present_window(client.as_ref())?;
+        }
 
         let (cancel_tx, cancel_rx) = mpsc::channel();
         let transaction_id = request.transaction_id;
@@ -157,6 +166,8 @@ impl<C: IpcConnector> PluginAuthenticator for BitwardenPluginAuthenticator<C> {
         self.wait_for_connected_client(&client)?;
 
         // Present the window if necessary
+        // The desktop app still may need to show UI based on information in the vault;
+        // this preempts the presentation in order to work around focusing issues.
         let is_unlocked = client
             .get_lock_status(Duration::from_secs(3))
             .is_ok_and(|response| response.is_unlocked);
@@ -231,6 +242,13 @@ impl<C: IpcConnector> PluginAuthenticator for BitwardenPluginAuthenticator<C> {
     }
 }
 
+/// Returns true when UI will be required for this registration request.
+///
+/// Split out for testing purposes.
+fn needs_ui_for_registration(is_unlocked: bool) -> bool {
+    !is_unlocked
+}
+
 /// Returns true when the authenticator needs to show UI for a get-assertion
 /// request: either because the vault is locked or because the caller hasn't
 /// pre-selected a single credential (which requires a picker dialog).
@@ -292,8 +310,7 @@ mod tests {
     use std::sync::atomic::{AtomicUsize, Ordering};
 
     use autofill_provider::{
-        ConnectionStatus, LockStatusResponse, PasskeyAssertionRequest,
-        PasskeyAssertionWithoutUserInterfaceRequest, PasskeyRegistrationRequest,
+        ConnectionStatus, LockStatusResponse, PasskeyAssertionRequest, PasskeyRegistrationRequest,
         PreparePasskeyAssertionCallback, PreparePasskeyRegistrationCallback,
         WindowHandleQueryResponse,
     };
@@ -389,14 +406,6 @@ mod tests {
         fn prepare_passkey_assertion(
             &self,
             _req: PasskeyAssertionRequest,
-            _cb: Arc<dyn PreparePasskeyAssertionCallback>,
-        ) {
-            unimplemented!("not needed in these tests")
-        }
-
-        fn prepare_passkey_assertion_without_user_interface(
-            &self,
-            _req: PasskeyAssertionWithoutUserInterfaceRequest,
             _cb: Arc<dyn PreparePasskeyAssertionCallback>,
         ) {
             unimplemented!("not needed in these tests")
@@ -680,7 +689,7 @@ mod tests {
     }
 
     // -----------------------------------------------------------------------
-    // needs_ui_for_assertion tests
+    // needs_ui tests
     // -----------------------------------------------------------------------
 
     #[test]
@@ -693,6 +702,7 @@ mod tests {
         assert!(needs_ui_for_assertion(false, 1));
         assert!(needs_ui_for_assertion(false, 0));
         assert!(needs_ui_for_assertion(false, 2));
+        assert!(needs_ui_for_registration(false));
     }
 
     #[test]
