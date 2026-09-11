@@ -1,15 +1,4 @@
-/**
- * The rotation domain, re-exported from the Rust SDK.
- *
- * Every type here is the SDK's; this file exists so the module keeps one import path and so the
- * enum *values* stay ergonomic — the SDK models each as a string union, so each gets a frozen
- * const object alongside its type (`TargetSystemMethod.Automatic` reads the same, though the
- * wire value is now `"automatic"`, not a tinyint).
- *
- * Note the vocabulary shift: what this module called a *rotation daemon* the server calls an
- * *access connector*; the standalone agent consuming a registration token is still the rotation
- * daemon.
- */
+/** The rotation domain, re-exported from the Rust SDK. */
 import type {
   AccessConnectorStatus as SdkAccessConnectorStatus,
   QuartzSchedulePreset as SdkQuartzSchedulePreset,
@@ -157,13 +146,3 @@ export const QuartzSchedulePreset = Object.freeze({
   Custom: "custom",
 } as const satisfies Record<string, SdkQuartzSchedulePreset>);
 export type QuartzSchedulePreset = SdkQuartzSchedulePreset;
-
-/**
- * The UI's name for {@link AccessConnectorStatus}.
- *
- * The server and the SDK say *access connector*; this admin surface says *daemon*, as does every
- * `pamDaemon*` i18n key and the standalone agent that consumes a registration token. Aliasing
- * rather than renaming keeps that user-facing vocabulary intact without introducing a second type.
- */
-export const DaemonStatus = AccessConnectorStatus;
-export type DaemonStatus = AccessConnectorStatus;
