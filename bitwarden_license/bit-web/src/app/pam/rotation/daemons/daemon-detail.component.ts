@@ -288,7 +288,7 @@ export class DaemonDetailComponent {
 
   protected readonly assignmentColumns: readonly AssignmentPickerColumn[] = [
     { headerKey: "pamAccessConnectorAssignTargetLabel" },
-    { headerKey: "pamTargetSystemKindColumn" },
+    { headerKey: "pamTargetSystemTypeColumn" },
   ];
 
   protected readonly assignmentHints: AssignmentPickerHints = {
