@@ -24,6 +24,9 @@
   ],
   "electronVersion": "43.2.0",
   "generateUpdatesFilesForAllChannels": true,
+  "toolsets": {
+    "appimage": "1.0.2"
+  },
   "publish": {
     "provider": "generic",
     "url": "https://artifacts.bitwarden.com/desktop"
