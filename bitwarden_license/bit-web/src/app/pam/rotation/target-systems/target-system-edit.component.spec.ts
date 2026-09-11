@@ -2167,14 +2167,14 @@ describe("TargetSystemEditComponent — session termination withdrawal (rendered
 
   it("warns once the operator unchecks a capability the target already has", async () => {
     await render();
-    expect(el().textContent).not.toContain("pamTargetSystemTerminationWithdrawalWarning");
+    expect(el().textContent).not.toContain("pamTargetSystemTerminationWithdrawalCredentialWarning");
 
     const checkbox = terminationCheckbox();
     checkbox.click();
     fixture.detectChanges();
 
     expect(checkbox.checked).toBe(false);
-    expect(el().textContent).toContain("pamTargetSystemTerminationWithdrawalWarning");
+    expect(el().textContent).toContain("pamTargetSystemTerminationWithdrawalCredentialWarning");
   });
 
   it("withdraws the warning again when the box is re-checked", async () => {
@@ -2186,7 +2186,7 @@ describe("TargetSystemEditComponent — session termination withdrawal (rendered
     checkbox.click();
     fixture.detectChanges();
 
-    expect(el().textContent).not.toContain("pamTargetSystemTerminationWithdrawalWarning");
+    expect(el().textContent).not.toContain("pamTargetSystemTerminationWithdrawalCredentialWarning");
   });
 
   it("says nothing for a target that never supported termination", async () => {
@@ -2195,7 +2195,7 @@ describe("TargetSystemEditComponent — session termination withdrawal (rendered
     terminationCheckbox().click();
     fixture.detectChanges();
 
-    expect(el().textContent).not.toContain("pamTargetSystemTerminationWithdrawalWarning");
+    expect(el().textContent).not.toContain("pamTargetSystemTerminationWithdrawalCredentialWarning");
   });
 
   /**

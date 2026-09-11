@@ -19152,6 +19152,9 @@
     "message": "Native integrations always terminate active sessions after a credential is rotated."
   },
   "pamTargetSystemTerminationWithdrawalWarning": {
+    "message": "Warning: the server will reject removing session termination support while any rotation config on this target still relies on it. Update those configs first."
+  },
+  "pamTargetSystemTerminationWithdrawalCredentialWarning": {
     "message": "Removing session termination support is rejected while any managed credential on this target system still relies on it. Update those credentials first."
   },
   "pamTargetSystemCreated": {
