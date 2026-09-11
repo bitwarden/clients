@@ -1,4 +1,5 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, computed, inject, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
@@ -9,7 +10,10 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { isId, OrganizationId } from "@bitwarden/common/types/guid";
+import { BreadcrumbsModule } from "@bitwarden/components";
 import {
   DefaultImportMetadataService,
   ImportCollectionServiceAbstraction,
@@ -31,7 +35,7 @@ import { ImportCollectionAdminService } from "./import-collection-admin.service"
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "org-import.component.html",
-  imports: [SharedModule, ImportComponent, HeaderModule],
+  imports: [BreadcrumbsModule, SharedModule, ImportComponent, HeaderModule],
   providers: [
     ...ImporterProviders,
     safeProvider({
@@ -47,6 +51,22 @@ import { ImportCollectionAdminService } from "./import-collection-admin.service"
   ],
 })
 export class OrgImportComponent implements OnInit {
+  protected readonly showBreadcrumbs = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+
+  private readonly _orgIdFromRoute = toSignal(
+    this.route.params.pipe(map((p) => p["organizationId"] as OrganizationId)),
+    { initialValue: "" as OrganizationId },
+  );
+
+  protected readonly orgSettingsRoute = computed(() => [
+    "/organizations",
+    this._orgIdFromRoute(),
+    "settings",
+  ]);
+
   protected routeOrgId: OrganizationId | undefined = undefined;
   protected loading = false;
   protected disabled = false;
