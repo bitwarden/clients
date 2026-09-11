@@ -34,6 +34,16 @@ export interface JobView {
   statusVariant: BadgeVariant;
   failed: boolean;
   running: boolean;
+  /**
+   * When the job's first attempt began, or `null` when no attempt has been recorded.
+   *
+   * A job waits in the queue before a connector claims it, so {@link createdAt} is when the
+   * rotation was asked for rather than when any of it ran. The history states a job's start from
+   * here and measures {@link duration} from here, and states neither for a job that has nothing
+   * to read a start from.
+   */
+  startedAt: string | null;
+  /** When the job was queued, which is not when it started. See {@link startedAt}. */
   createdAt: string;
   duration: DurationParts | null;
   attempts: AttemptView[];
