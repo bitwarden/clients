@@ -397,18 +397,25 @@ export class TargetSystemsTabComponent {
    * The server, not this component, decides whether the delete is allowed: it refuses while
    * any rotation config still names the target, surfaced as an ordinary error for
    * {@link showError}. Offering the action unconditionally keeps one authority on the rule.
+   *
+   * Delete is offered on every row, so the confirmation names what this particular delete
+   * costs: the connector assignments it drops, the reversible alternative for a target still
+   * rotating, or neither for one already stopped.
    */
   protected readonly confirmDelete = (system: TargetSystem): Promise<void> =>
     this.busyRows.run(system.id, async () => {
       const dropsAssignments =
         this.connectorsKnown() &&
         this.daemons().some((connector) => connector.assignedTargetSystemIds.includes(system.id));
+      const active = system.status === TargetSystemStatus.Active;
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "pamTargetSystemDeleteTitle" },
         content: {
           key: dropsAssignments
             ? "pamTargetSystemDeleteAssignedConnectorsContent"
-            : "pamTargetSystemDeleteContentDeactivateInstead",
+            : active
+              ? "pamTargetSystemDeleteContentDeactivateInstead"
+              : "pamTargetSystemDeleteContent",
           placeholders: [system.name],
         },
         acceptButtonText: { key: "delete" },
