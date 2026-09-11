@@ -146,6 +146,9 @@ export class RotationHistoryComponent {
       );
 
     const credentialName = this.credentialNames().get(job.rotationConfigId);
+    const startedAt = this.firstStartedAt(attempts);
+    const duration =
+      startedAt == null ? null : this.durationParts(startedAt, this.lastEndedAt(attempts));
 
     return {
       id: job.id,
@@ -156,8 +159,9 @@ export class RotationHistoryComponent {
       statusVariant: this.jobStatusVariant(job.status),
       failed,
       running,
+      startedAt,
       createdAt: job.createdAt,
-      duration: this.durationParts(job.createdAt, this.lastEndedAt(attempts)),
+      duration,
       attempts: attempts.map((attempt, index) =>
         this.toAttemptView(attempt, index + 1, reportedReason),
       ),
@@ -194,6 +198,24 @@ export class RotationHistoryComponent {
       statusLabelKey: this.attemptStatusLabelKey(attempt.status),
       divergentFailureReason: reason !== null && reason !== jobLevelReason ? reason : null,
     };
+  }
+
+  /**
+   * The earliest start recorded across a job's attempts, or `null` when it has none.
+   *
+   * A job is queued before a connector claims it, so its own `createdAt` is when the rotation was
+   * asked for. What the history states and measures is the work, which begins here.
+   *
+   * The server returns attempts oldest-first, but the earliest is taken by comparison rather than
+   * by position so a reordered page cannot shift a job's start.
+   */
+  private firstStartedAt(attempts: RotationAttempt[]): string | null {
+    if (attempts.length === 0) {
+      return null;
+    }
+    return attempts.reduce((earliest, attempt) =>
+      Date.parse(attempt.startedAt) < Date.parse(earliest.startedAt) ? attempt : earliest,
+    ).startedAt;
   }
 
   /** The latest end recorded across a job's attempts, or `null` while any of it is unfinished. */
