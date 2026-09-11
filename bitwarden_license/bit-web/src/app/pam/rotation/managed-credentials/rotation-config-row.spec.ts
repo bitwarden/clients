@@ -109,9 +109,59 @@ describe("buildRotationConfigRow", () => {
       );
     });
 
-    it("carries the badge's label key as the column's sort and filter value", () => {
+    it("carries the badge's label key as the status filter's value", () => {
       const built = row({ config: { hasActiveJob: true } });
       expect(built.statusLabelKey).toBe(built.statusBadge.labelKey);
+    });
+  });
+
+  /**
+   * The column used to sort on `statusLabelKey`, which ordered rows by the spelling of an i18n
+   * identifier: "pamRotationConfigInProgress" ahead of "pamRotationConfigStatusActive" for no
+   * reason a reader of the rendered labels could see.
+   */
+  describe("status sort order", () => {
+    const orderOf = (config: Partial<RotationConfig>) => row({ config }).statusSortOrder;
+
+    it("ranks the statuses by resolveRotationStatus's precedence", () => {
+      expect(orderOf({ hasActiveJob: true })).toBe(1);
+      expect(orderOf({ enabled: false })).toBe(2);
+      expect(orderOf({ awaitingManualRotation: true })).toBe(3);
+      expect(orderOf({ enabled: true })).toBe(4);
+    });
+
+    it("sorts ascending from the most attention-worthy status to the steady state", () => {
+      const rows = [
+        row({ config: { enabled: true } }),
+        row({ config: { awaitingManualRotation: true } }),
+        row({ config: { hasActiveJob: true } }),
+        row({ config: { enabled: false } }),
+      ];
+
+      const sorted = [...rows].sort((a, b) => a.statusSortOrder - b.statusSortOrder);
+
+      expect(sorted.map((r) => r.status)).toEqual([
+        RotationRowStatus.Rotating,
+        RotationRowStatus.Paused,
+        RotationRowStatus.ManualRotation,
+        RotationRowStatus.Active,
+      ]);
+    });
+
+    it("gives each status a distinct rank, so no two collapse together", () => {
+      const orders = [
+        orderOf({ hasActiveJob: true }),
+        orderOf({ enabled: false }),
+        orderOf({ awaitingManualRotation: true }),
+        orderOf({ enabled: true }),
+      ];
+      expect(new Set(orders).size).toBe(4);
+    });
+
+    it("takes the rank from the resolved status, not from the pause a rotating row also carries", () => {
+      const built = row({ config: { enabled: false, hasActiveJob: true } });
+      expect(built.pausedWhileRotating).toBe(true);
+      expect(built.statusSortOrder).toBe(orderOf({ hasActiveJob: true }));
     });
   });
 
