@@ -19,6 +19,7 @@ import { DialogModule, DialogService, ToastService } from "@bitwarden/components
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessRuleSdkService, AccessRuleView } from "../..";
+import { GovernedCollectionsService } from "../../services/governed-collections.service";
 
 import { AccessRuleEditComponent } from "./access-rule-edit.component";
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
@@ -72,6 +73,28 @@ const routes: Routes = [
   },
 ];
 
+/** A minimal rule whose only interesting property is the collections it claims. */
+const governingRule = (name: string, enabled: boolean, collections: string[]) =>
+  ({
+    id: `rule-${name}`,
+    name,
+    enabled,
+    collections,
+    conditions: [],
+    singleActiveLease: false,
+  }) as unknown as AccessRuleView;
+
+/** Reports `rules` as the org's access rules, driving the picker's governed-collection filter. */
+const governedBy = (rules: AccessRuleView[]): Decorator =>
+  moduleMetadata({
+    providers: [
+      {
+        provide: GovernedCollectionsService,
+        useValue: { rules$: () => of(rules), invalidate: () => {} },
+      },
+    ],
+  });
+
 /** Renders the story at `url`; hash routing keeps Storybook's own query string intact. */
 const atUrl =
   (url: string): Decorator =>
@@ -98,6 +121,10 @@ export default {
           provide: CollectionAdminService,
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
+        {
+          provide: GovernedCollectionsService,
+          useValue: { rules$: () => of([]), invalidate: () => {} },
+        },
         { provide: CidrValidationService, useValue: { isValid: () => true } },
         {
           provide: OrganizationService,
@@ -121,9 +148,28 @@ export const CreateFromTemplate: Story = {
   decorators: [atUrl("/organizations/org-1/access-rules/new?template=approval-required")],
 };
 
-/** Edit mode: the form is populated from an existing rule (conditions + extensions enabled). */
+/**
+ * Create mode with `col-1` and `col-3` governed by other rules, so both are missing from the
+ * picker and only `col-2` stays selectable. `col-1`'s rule is disabled and still counts, per
+ * `AccessRuleWriteValidator`.
+ */
+export const CreateWithGovernedCollections: Story = {
+  decorators: [
+    atUrl("/organizations/org-1/access-rules/new"),
+    governedBy([
+      governingRule("Disabled rule", false, ["col-1"]),
+      governingRule("Enabled rule", true, ["col-3"]),
+    ]),
+  ],
+};
+
+/**
+ * Edit mode: the form is populated from an existing rule (conditions + extensions enabled).
+ * `rule-1` governs its own collections, so this also shows self-exclusion — `col-1` and `col-3`
+ * stay selectable.
+ */
 export const Edit: Story = {
-  decorators: [atUrl("/organizations/org-1/access-rules/rule-1")],
+  decorators: [atUrl("/organizations/org-1/access-rules/rule-1"), governedBy([SAMPLE_RULE])],
 };
 
 /** Edit mode on a deactivated rule: the header badge reads "Off" and the Status checkbox is clear. */
