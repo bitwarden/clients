@@ -637,6 +637,87 @@ describe("MemberActionsService", () => {
       );
       expect(result.failed.length).toBeGreaterThan(0);
     });
+
+    it("should count a resent invite as sent once it succeeds, so the toast reports every invite that went out", async () => {
+      const [firstId, secondId, thirdId] = Array.from({ length: 3 }, () => newGuid() as UserId);
+      const users = [firstId, secondId, thirdId].map((id) => ({ id }) as OrganizationUserView);
+
+      const initialResponse = new ListResponse(
+        {
+          data: [
+            { id: firstId, error: null },
+            { id: secondId, error: "Rate limit exceeded" },
+            { id: thirdId, error: "Rate limit exceeded" },
+          ],
+          continuationToken: null,
+        },
+        OrganizationUserBulkResponse,
+      );
+
+      const retryResponse = new ListResponse(
+        {
+          data: [
+            { id: secondId, error: null },
+            { id: thirdId, error: null },
+          ],
+          continuationToken: null,
+        },
+        OrganizationUserBulkResponse,
+      );
+
+      organizationUserApiService.postManyOrganizationUserReinvite
+        .mockResolvedValueOnce(initialResponse)
+        .mockResolvedValueOnce(retryResponse);
+
+      const resendUsers = users.filter((u) => u.id === secondId || u.id === thirdId);
+      memberDialogManager.openBulkReinviteFailureDialog.mockReturnValueOnce(of(resendUsers));
+
+      const result = await service.bulkReinvite(mockOrganization, users);
+
+      expect(result.successful.map((u) => u.id)).toEqual([firstId, secondId, thirdId]);
+      expect(result.failed).toHaveLength(0);
+      expect(organizationUserApiService.postManyOrganizationUserReinvite).toHaveBeenNthCalledWith(
+        2,
+        organizationId,
+        [secondId, thirdId],
+      );
+    });
+
+    it("should not count a resent invite as sent if it fails again, so the toast does not overstate how many invites went out", async () => {
+      const [firstId, secondId] = Array.from({ length: 2 }, () => newGuid() as UserId);
+      const users = [firstId, secondId].map((id) => ({ id }) as OrganizationUserView);
+
+      const initialResponse = new ListResponse(
+        {
+          data: [
+            { id: firstId, error: null },
+            { id: secondId, error: "Rate limit exceeded" },
+          ],
+          continuationToken: null,
+        },
+        OrganizationUserBulkResponse,
+      );
+
+      const retryResponse = new ListResponse(
+        {
+          data: [{ id: secondId, error: "Invalid email" }],
+          continuationToken: null,
+        },
+        OrganizationUserBulkResponse,
+      );
+
+      organizationUserApiService.postManyOrganizationUserReinvite
+        .mockResolvedValueOnce(initialResponse)
+        .mockResolvedValueOnce(retryResponse);
+
+      const resendUsers = users.filter((u) => u.id === secondId);
+      memberDialogManager.openBulkReinviteFailureDialog.mockReturnValueOnce(of(resendUsers));
+
+      const result = await service.bulkReinvite(mockOrganization, users);
+
+      expect(result.successful.map((u) => u.id)).toEqual([firstId]);
+      expect(result.failed).toEqual([{ id: secondId, error: "Invalid email" }]);
+    });
   });
 
   describe("allowResetPassword", () => {
