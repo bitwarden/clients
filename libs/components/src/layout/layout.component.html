@@ -38,7 +38,8 @@
   @if (sideNavService.isOverlay() && siderailIsPushMode()) {
     <div
       aria-hidden="true"
-      class="tw-pointer-events-none tw-w-[3.75rem] tw-mx-0.5 tw-col-start-1 tw-row-start-1"
+      [style.width.rem]="siderailWidthRem"
+      class="tw-pointer-events-none tw-col-start-1 tw-row-start-1"
     ></div>
   }
 
@@ -48,7 +49,8 @@
     [id]="mainContentId"
     tabindex="-1"
     bitScrollLayoutHost
-    class="tw-col-start-2 tw-row-start-1 tw-overflow-auto tw-max-h-full tw-min-w-96 tw-bg-background tw-pt-6 tw-@container has-[bit-page]:tw-p-0"
+    class="tw-col-start-2 tw-row-start-1 tw-overflow-auto tw-max-h-full tw-bg-background tw-pt-6 tw-@container has-[bit-page]:tw-p-0"
+    [style.min-width.rem]="mainContentMinWidthRem"
     [class.tw-rounded-tl-2xl]="rounded()"
     [class]="vfo1Enabled() ? ['tw-p-10', 'has-[bit-header]:tw-pt-0'] : ['tw-p-8']"
   >
