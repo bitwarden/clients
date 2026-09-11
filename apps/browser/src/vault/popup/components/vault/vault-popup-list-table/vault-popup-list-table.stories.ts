@@ -269,12 +269,19 @@ const ORGANIZATION_NAMES = new Map(
 // The account's vaults, which name the scoped vault in the empty state and pluralize its copy.
 const NAV_VIEW_MODEL: VaultsNavViewModel = {
   vaults: [
-    { id: "story-user", label: "My vault", icon: "bwi-user", type: VaultNavItemType.Personal },
+    {
+      id: "story-user",
+      label: "My vault",
+      icon: "bwi-user",
+      type: VaultNavItemType.Personal,
+      enabled: true,
+    },
     {
       id: "org-engineering",
       label: "Acme Co",
       icon: "bwi-business",
       type: VaultNavItemType.Organization,
+      enabled: true,
     },
   ],
   organizationDataOwnership: false,
