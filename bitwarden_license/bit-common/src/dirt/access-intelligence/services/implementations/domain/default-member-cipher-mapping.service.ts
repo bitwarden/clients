@@ -17,7 +17,7 @@ import {
  * Default implementation of MemberCipherMappingService
  *
  * Computes cipher-to-member mappings client-side via collection and group resolution.
- * This is a pure transformation service with no external dependencies.
+ * This is a pure transformation service that makes no API calls.
  */
 export class DefaultMemberCipherMappingService extends MemberCipherMappingService {
   constructor(private logService: LogService) {
