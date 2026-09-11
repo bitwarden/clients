@@ -1,17 +1,29 @@
-import { Routes } from "@angular/router";
+import { RunGuardsAndResolvers, Routes } from "@angular/router";
 
-import { DaemonDetailComponent } from "./daemons/daemon-detail.component";
+import { DaemonDetailComponent, daemonDetailDiscardGuard } from "./daemons/daemon-detail.component";
 import { DaemonsTabComponent } from "./daemons/daemons-tab.component";
 import { DaemonsService } from "./daemons/daemons.service";
 import { ManagedCredentialsTabComponent } from "./managed-credentials/managed-credentials-tab.component";
-import { RotationConfigEditComponent } from "./managed-credentials/rotation-config-edit.component";
+import {
+  RotationConfigEditComponent,
+  rotationConfigEditDiscardGuard,
+} from "./managed-credentials/rotation-config-edit.component";
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
 import { OrgCiphersService } from "./org-ciphers.service";
 import { ROTATION_TABS } from "./rotation-links";
 import { RotationShellComponent } from "./rotation-shell.component";
-import { TargetSystemEditComponent } from "./target-systems/target-system-edit.component";
+import {
+  TargetSystemEditComponent,
+  targetSystemEditDiscardGuard,
+} from "./target-systems/target-system-edit.component";
 import { TargetSystemsTabComponent } from "./target-systems/target-systems-tab.component";
 import { TargetSystemsService } from "./target-systems/target-systems.service";
+
+/** Whether a navigation off a detail page leaves the record it was editing behind. */
+const recordChanged =
+  (param: string): RunGuardsAndResolvers =>
+  (from, to) =>
+    from.params[param] !== to.params[param];
 
 /**
  * Rotation feature routes, lazy-loaded by {@link PamRoutingModule} under `rotation/`.
@@ -26,6 +38,7 @@ export const rotationRoutes: Routes = [
   {
     path: `${ROTATION_TABS.managedCredentials}/new`,
     component: RotationConfigEditComponent,
+    canDeactivate: [rotationConfigEditDiscardGuard],
     data: { titleId: "pamRotationConfigCreateTitle" },
   },
   // The edit page's two tabs are routed, so each is deep-linkable and survives a refresh. Both
@@ -39,33 +52,44 @@ export const rotationRoutes: Routes = [
   {
     path: `${ROTATION_TABS.managedCredentials}/:configId/:tab`,
     component: RotationConfigEditComponent,
+    canDeactivate: [rotationConfigEditDiscardGuard],
+    runGuardsAndResolvers: recordChanged("configId"),
     data: { titleId: "pamRotationConfigEditTitle" },
   },
   {
     path: `${ROTATION_TABS.targetSystems}/new`,
     component: TargetSystemEditComponent,
+    canDeactivate: [targetSystemEditDiscardGuard],
     data: { titleId: "pamTargetSystemCreateTitle" },
   },
   {
     path: `${ROTATION_TABS.targetSystems}/:targetSystemId`,
     component: TargetSystemEditComponent,
+    canDeactivate: [targetSystemEditDiscardGuard],
     data: { titleId: "pamTargetSystemEditTitle" },
   },
   {
     path: `${ROTATION_TABS.accessConnectors}/:daemonId`,
+    pathMatch: "full",
+    redirectTo: `${ROTATION_TABS.accessConnectors}/:daemonId/configuration`,
+  },
+  {
+    path: `${ROTATION_TABS.accessConnectors}/:daemonId/:tab`,
     component: DaemonDetailComponent,
-    data: { titleId: "pamDaemonDetailTitle" },
+    canDeactivate: [daemonDetailDiscardGuard],
+    runGuardsAndResolvers: recordChanged("daemonId"),
+    data: { titleId: "pamAccessConnectorDetailTitle" },
   },
   {
     path: "",
     component: RotationShellComponent,
     providers: [RotationConfigsService, TargetSystemsService, DaemonsService, OrgCiphersService],
     children: [
-      { path: "", pathMatch: "full", redirectTo: ROTATION_TABS.managedCredentials },
+      { path: "", pathMatch: "full", redirectTo: ROTATION_TABS.accessConnectors },
       {
-        path: ROTATION_TABS.managedCredentials,
-        component: ManagedCredentialsTabComponent,
-        data: { titleId: "pamRotationTabManagedCredentials" },
+        path: ROTATION_TABS.accessConnectors,
+        component: DaemonsTabComponent,
+        data: { titleId: "pamRotationTabAccessConnectors" },
       },
       {
         path: ROTATION_TABS.targetSystems,
@@ -73,9 +97,9 @@ export const rotationRoutes: Routes = [
         data: { titleId: "pamRotationTabTargetSystems" },
       },
       {
-        path: ROTATION_TABS.accessConnectors,
-        component: DaemonsTabComponent,
-        data: { titleId: "pamRotationTabDaemons" },
+        path: ROTATION_TABS.managedCredentials,
+        component: ManagedCredentialsTabComponent,
+        data: { titleId: "pamRotationTabManagedCredentials" },
       },
     ],
   },
