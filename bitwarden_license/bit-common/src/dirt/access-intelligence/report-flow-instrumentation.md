@@ -26,7 +26,7 @@ panel both read in flow order.
 | `Load: report blob downloaded`                  | Downloading the encrypted report file and buffering it into an `EncArrayBuffer`                          | `byteSize`                                     |
 | `Load: report decrypted`                        | Decrypting the report file and building the view models from it                                          | `memberCount`, `applicationCount`              |
 | `Load: org ciphers fetched (<trigger>, <impl>)` | The entire `CipherService` call: request, decrypt and locale sort together                               | `itemCount`                                    |
-| `Load: org members fetched`                     | The organization users request, groups included                                                          | `memberCount`                                  |
+| `Load: org members fetched`                     | The organization users request, groups included                                                          | `orgMemberCount`                               |
 | `Load: org collections fetched`                 | The collections with access details request                                                              | `collectionCount`                              |
 
 `<trigger>` is `page open` or `generate`; `<impl>` is `sdk` or `legacy`. See
@@ -34,14 +34,14 @@ panel both read in flow order.
 
 ### Generate
 
-| Measurement                           | What it covers                                                                                               | Properties                                                                       |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| `Generate: password reuse detected`   | One pass over every cipher building a password to ciphers map, then reducing it to the reused entries        | `itemCount`                                                                      |
-| `Generate: exposure lookups complete` | The whole breach lookup fan out, one lookup per cipher, bounded by the concurrency limit                     | `itemCount`, `concurrencyLimit`                                                  |
-| `Generate: health and reuse combined` | Merging per cipher health results with the reuse map                                                         | `itemCount`                                                                      |
-| `Generate: ciphers mapped to members` | Resolving which members can see each cipher through collections and groups, and building the member registry | `itemCount`, `memberCount`, `collectionCount`, `groupCount`, `mappedMemberCount` |
-| `Generate: applications grouped`      | Grouping ciphers by URI into per application records, with their member and cipher references                | `itemCount`, `memberCount`, `applicationCount`                                   |
-| `Generate: summary recomputed`        | Recomputing every summary aggregate from the finished report                                                 | `itemCount`, `passwordCount`, `memberCount`, `applicationCount`                  |
+| Measurement                           | What it covers                                                                                               | Properties                                                                          |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| `Generate: password reuse detected`   | One pass over every cipher building a password to ciphers map, then reducing it to the reused entries        | `itemCount`                                                                         |
+| `Generate: exposure lookups complete` | The whole breach lookup fan out, one lookup per cipher, bounded by the concurrency limit                     | `itemCount`, `concurrencyLimit`                                                     |
+| `Generate: health and reuse combined` | Merging per cipher health results with the reuse map                                                         | `itemCount`                                                                         |
+| `Generate: ciphers mapped to members` | Resolving which members can see each cipher through collections and groups, and building the member registry | `itemCount`, `orgMemberCount`, `collectionCount`, `groupCount`, `mappedMemberCount` |
+| `Generate: applications grouped`      | Grouping ciphers by URI into per application records, with their member and cipher references                | `itemCount`, `memberCount`, `applicationCount`                                      |
+| `Generate: summary recomputed`        | Recomputing every summary aggregate from the finished report                                                 | `itemCount`, `passwordCount`, `memberCount`, `applicationCount`                     |
 
 Reuse detection is measured despite producing no network traffic because it is a full pass over
 every cipher that allocates a map keyed by password, and because the combine step downstream

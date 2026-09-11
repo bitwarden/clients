@@ -80,7 +80,7 @@ export class DefaultMemberCipherMappingService extends MemberCipherMappingServic
 
     measureStep("Generate: ciphers mapped to members", [
       ["itemCount", ciphers.length],
-      ["memberCount", members.length],
+      ["orgMemberCount", members.length],
       ["collectionCount", collectionAccess.length],
       ["groupCount", groupMemberships.length],
       ["mappedMemberCount", allMemberIds.size],
