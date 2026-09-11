@@ -427,7 +427,7 @@ describe("RotationConfigEditComponent — target-system handoff", () => {
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector("pam-rotation-load-error")).not.toBeNull();
       expect(el.textContent).toContain("pamRotationListLoadErrorTitle");
-      expect(el.textContent).not.toContain("pamRotationConfigNoTargetSystems");
+      expect(el.textContent).not.toContain("pamRotationConfigNoActiveTargetSystems");
       expect(el.querySelector('[data-testid="rotation-config-edit-loading"]')).toBeNull();
     });
 
