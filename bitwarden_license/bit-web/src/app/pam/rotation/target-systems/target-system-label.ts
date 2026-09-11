@@ -13,15 +13,17 @@ export type TargetSystemLabel = {
   qualified: string;
 };
 
-const KIND_LABEL_KEYS: Partial<Record<TargetSystemKind, string>> = {
+const KIND_LABEL_KEYS: Record<TargetSystemKind, string | null> = {
   [TargetSystemKind.Entra]: "pamTargetSystemKindEntra",
   [TargetSystemKind.Mssql]: "pamTargetSystemKindMssql",
   [TargetSystemKind.CustomScript]: "pamTargetSystemKindCustomScript",
+  [TargetSystemKind.Unknown]: null,
 };
 
-const METHOD_LABEL_KEYS: Partial<Record<TargetSystemMethod, string>> = {
+const METHOD_LABEL_KEYS: Record<TargetSystemMethod, string | null> = {
   [TargetSystemMethod.Automatic]: "pamTargetSystemMethodAutomatic",
   [TargetSystemMethod.Manual]: "pamTargetSystemMethodManual",
+  [TargetSystemMethod.Unknown]: null,
 };
 
 /**
