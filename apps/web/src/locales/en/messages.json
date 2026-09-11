@@ -17333,6 +17333,12 @@
   "pam": {
     "message": "PAM"
   },
+  "pamDiscardContent": {
+    "message": "The details you entered won't be saved."
+  },
+  "pamDiscardConfirm": {
+    "message": "Discard"
+  },
   "pamAccessRules": {
     "message": "Access rules"
   },
