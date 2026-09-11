@@ -15,7 +15,6 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { BannerModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { VerifyEmailComponent } from "../../../auth/settings/verify-email.component";
 import { SharedModule } from "../../../shared";
 
 import { VaultBannersService, VisibleVaultBanner } from "./services/vault-banners.service";
@@ -31,7 +30,6 @@ describe("VaultBannersComponent", () => {
 
   const bannerService = mock<VaultBannersService>({
     shouldShowUpdateBrowserBanner: jest.fn(),
-    shouldShowVerifyEmailBanner: jest.fn(),
     shouldShowPendingAuthRequestBanner: jest.fn((userId: UserId) =>
       Promise.resolve(pendingAuthRequest$.value),
     ),
@@ -43,19 +41,11 @@ describe("VaultBannersComponent", () => {
   beforeEach(async () => {
     messageSubject = new Subject<{ command: string }>();
     bannerService.shouldShowUpdateBrowserBanner.mockResolvedValue(false);
-    bannerService.shouldShowVerifyEmailBanner.mockResolvedValue(false);
     pendingAuthRequest$.next(false);
     premiumBanner$.next(false);
 
     await TestBed.configureTestingModule({
-      imports: [
-        BannerModule,
-        SharedModule,
-        VerifyEmailComponent,
-        VaultBannersComponent,
-        RouterTestingModule,
-        I18nPipe,
-      ],
+      imports: [BannerModule, SharedModule, VaultBannersComponent, RouterTestingModule, I18nPipe],
       providers: [
         {
           provide: I18nService,
@@ -102,11 +92,6 @@ describe("VaultBannersComponent", () => {
         name: "OutdatedBrowser",
         method: bannerService.shouldShowUpdateBrowserBanner,
         banner: VisibleVaultBanner.OutdatedBrowser,
-      },
-      {
-        name: "VerifyEmail",
-        method: bannerService.shouldShowVerifyEmailBanner,
-        banner: VisibleVaultBanner.VerifyEmail,
       },
     ].forEach(({ name, method, banner }) => {
       describe(name, () => {
