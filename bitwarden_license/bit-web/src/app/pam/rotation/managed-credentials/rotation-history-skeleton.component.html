@@ -28,12 +28,12 @@
     </thead>
     <tbody>
       @for (startedWidth of rows; track $index) {
-        <tr class="tw-border-0 tw-border-b tw-border-solid tw-border-border-base">
-          <td bitCell>
+        <tr bitRow alignContent="top">
+          <th bitCell scope="row">
             <div class="tw-flex tw-h-8 tw-items-center">
               <bit-skeleton-text [ngClass]="startedWidth"></bit-skeleton-text>
             </div>
-          </td>
+          </th>
           @if (showCredential()) {
             <td bitCell>
               <div class="tw-flex tw-h-8 tw-items-center">
