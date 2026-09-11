@@ -399,6 +399,23 @@ even when selecting programmatically:
 >
 ```
 
+### Capping the selection
+
+Add a `max` when acting on a selection costs something per item — a bulk action that turns each row
+into a permission check and a request payload, say, or a server that caps a batch. Select-all stops
+at the cap, and further row checkboxes disable so a click can never leave a row looking selected
+that nothing will act on.
+
+```html
+<bit-table-v2 [tableDef]="table" [selection]="{ multiple: true, max: 500 }">…</bit-table-v2>
+```
+
+The cap binds the selection itself rather than a downstream view of it, so what the checkboxes show
+is always what a consumer will act on. The header reads as partial while rows remain unselected, and
+clicking it at the cap clears — so it stays actionable rather than stranding the user.
+
+<Canvas of={stories.SelectableCapped} />
+
 ### Bulk actions
 
 Project a `<bit-bulk-actions-bar>` inside the table and it reads the selected count from the
