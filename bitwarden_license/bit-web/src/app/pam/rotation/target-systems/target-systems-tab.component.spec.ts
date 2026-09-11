@@ -991,6 +991,25 @@ describe("TargetSystemsTabComponent", () => {
         }),
       );
     });
+
+    it("opens nothing when the tab is left while the connector read is in flight", async () => {
+      const sys = makeSystem({ id: sysId("sys-1") });
+      daemonsService.loading$.next(true);
+      dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
+
+      const call = (component as unknown as AssignComp).openAssignConnectorDialog(sys);
+      await Promise.resolve();
+
+      fixture.destroy();
+      daemonsService.daemons$.next([
+        accessConnector({ id: connectorId("c-late"), status: AccessConnectorStatus.Enabled }),
+      ]);
+      daemonsService.loading$.next(false);
+      await call;
+
+      expect(dialogService.open).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
+    });
   });
 
   describe("loading skeleton", () => {
