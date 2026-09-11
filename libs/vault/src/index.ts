@@ -57,6 +57,7 @@ export {
 } from "./services/vault-organization-user-notifications.service";
 export { VaultItemEvent } from "./components/vault-item-event";
 export * from "./components/shared-folders";
+export * from "./components/empty-vault";
 export * from "./components/vault-items-table";
 export * from "./components/organization-name-badge/organization-name-badge.component";
 
@@ -147,4 +148,4 @@ export {
   matchesFolder,
   idString,
 } from "./utils/vault-filter-predicates";
-export { VaultCollectionBreadcrumbsComponent } from "./components/vault-collection-breadcrumbs/vault-collection-breadcrumbs.component";
+export { VaultBreadcrumbsComponent } from "./components/vault-breadcrumbs/vault-breadcrumbs.component";

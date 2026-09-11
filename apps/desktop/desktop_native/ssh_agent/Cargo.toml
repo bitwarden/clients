@@ -26,7 +26,7 @@ ssh-key = { version = "=0.6.7", features = [
 ] }
 sysinfo = { workspace = true }
 thiserror = { workspace = true }
-tokio = { workspace = true }
+tokio = { workspace = true, features = ["io-util", "macros", "net", "rt", "sync"] }
 tokio-util = { workspace = true }
 tracing = { workspace = true }
 

@@ -1,5 +1,6 @@
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   CipherViewLike,
@@ -84,6 +85,85 @@ export type VaultScope =
   | { type: typeof VaultScopeType.Archive };
 
 export const ALL_ITEMS_SCOPE: VaultScope = { type: VaultScopeType.AllItems };
+
+/** The page an organization vault scope names: its whole vault, "My items", or a shared folder. */
+export const OrganizationVaultPage = Object.freeze({
+  AllVaultItems: "allVaultItems",
+  MyItems: "myItems",
+  SharedFolder: "sharedFolder",
+} as const);
+export type OrganizationVaultPage =
+  (typeof OrganizationVaultPage)[keyof typeof OrganizationVaultPage];
+
+/**
+ * Classifies an organization vault scope by the page it names — `undefined` for any other scope.
+ *
+ * A "My items" scope arrives either as the {@link MY_ITEMS_ROUTE} sentinel or, once
+ * {@link resolveVaultScope} has traded it, as the collection's id, so both forms are matched.
+ */
+export function organizationVaultPage(
+  scope: VaultScope,
+  nav: VaultsNavViewModel | undefined,
+): OrganizationVaultPage | undefined {
+  if (scope.type !== VaultScopeType.Organization) {
+    return undefined;
+  }
+
+  const { collectionId, organizationId } = scope;
+  if (collectionId == null) {
+    return OrganizationVaultPage.AllVaultItems;
+  }
+
+  if (
+    collectionId === MY_ITEMS_ROUTE ||
+    collectionId === defaultUserCollectionId(organizationId, nav)
+  ) {
+    return OrganizationVaultPage.MyItems;
+  }
+
+  return OrganizationVaultPage.SharedFolder;
+}
+
+/** The title key for each organization page — `null` for a shared folder, which the breadcrumb titles. */
+const ORGANIZATION_PAGE_TITLE_KEYS: Record<OrganizationVaultPage, string | null> = {
+  [OrganizationVaultPage.AllVaultItems]: "allVaultItems",
+  [OrganizationVaultPage.MyItems]: "myItemsV2",
+  [OrganizationVaultPage.SharedFolder]: null,
+};
+
+/**
+ * The i18n key titling a scope's page. `null` for a shared folder, whose title is the folder name
+ * the breadcrumb trail promotes to the heading rather than a fixed string.
+ */
+function vaultScopeTitleKey(scope: VaultScope, nav: VaultsNavViewModel | undefined): string | null {
+  switch (scope.type) {
+    case VaultScopeType.MyVault:
+      return "myVault";
+    case VaultScopeType.Trash:
+      return "trash";
+    case VaultScopeType.Archive:
+      return "archiveNoun";
+    case VaultScopeType.Organization: {
+      const page = organizationVaultPage(scope, nav);
+      return page == null ? null : ORGANIZATION_PAGE_TITLE_KEYS[page];
+    }
+    default:
+      return "allItems";
+  }
+}
+
+/**
+ * The page title for a scope: a localized string, or `undefined` for a shared folder whose title
+ * the breadcrumb trail supplies.
+ */
+export function vaultScopeTitle(
+  scope: VaultScope,
+  i18nService: I18nService,
+  nav: VaultsNavViewModel | undefined,
+): string | undefined {
+  const key = vaultScopeTitleKey(scope, nav);
+  return key == null ? undefined : i18nService.t(key);
+}
 
 /** The scopes named by a fixed route segment rather than an organization id. */
 const NAMED_SCOPES = new Map<string, VaultScope>([
@@ -268,6 +348,60 @@ const idString = (id: unknown): string | undefined => (id == null ? undefined : 
  */
 export function scopedSharedFolderId(scope: VaultScope): ScopedCollectionId | undefined {
   return scope.type === VaultScopeType.Organization ? scope.collectionId : undefined;
+}
+
+/** Whether the scope is the personal vault — drives the empty vault's "My vault" copy. */
+export function isMyVaultScope(scope: VaultScope): boolean {
+  return scope.type === VaultScopeType.MyVault;
+}
+
+/**
+ * Whether the account has more than one vault (personal + at least one org) — drives the empty
+ * vault's plural "Your vaults are empty" copy.
+ */
+export function hasMultipleVaults(nav: VaultsNavViewModel | undefined): boolean {
+  return (nav?.vaults.length ?? 0) > 1;
+}
+
+/**
+ * The organization the scope names, for the empty vault's "No items in {org}" copy: the nav's
+ * label for `scope.organizationId`, or — for an organization-only account landing on the unscoped
+ * route, which {@link resolveVaultScope} never turns into an {@link VaultScopeType.Organization}
+ * scope — the nav's one organization, when it has no personal vault to be ambiguous with.
+ */
+export function organizationNameForScope(
+  scope: VaultScope,
+  nav: VaultsNavViewModel | undefined,
+): string | undefined {
+  if (!nav) {
+    return undefined;
+  }
+
+  if (scope.type === VaultScopeType.Organization) {
+    const named = nav.vaults.find((vault) => vault.id === scope.organizationId)?.label;
+    if (named) {
+      return named;
+    }
+  }
+
+  const hasOnlyOneOrgVault =
+    nav.vaults.length === 1 && nav.vaults[0].type !== VaultNavItemType.Personal;
+
+  return hasOnlyOneOrgVault ? nav.vaults[0].label : undefined;
+}
+
+/**
+ * The shared folder the scope has drilled into, by name — `undefined` unless the scope names a
+ * collection {@link collections} can resolve. See {@link scopedSharedFolderId}.
+ */
+export function sharedFolderNameForScope(
+  scope: VaultScope,
+  collections: readonly CollectionView[],
+): string | undefined {
+  const collectionId = scopedSharedFolderId(scope);
+  return collectionId
+    ? collections.find((collection) => collection.id === collectionId)?.name
+    : undefined;
 }
 
 /**

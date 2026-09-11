@@ -1,4 +1,4 @@
-import { AccountWarning, ReportBreach, TwoFactorTimeoutIcon } from "@bitwarden/assets/svg";
+import { AccountWarning, ReportBreach, ExpiredIcon } from "@bitwarden/assets/svg";
 import { OpenOrgInviteStatusError } from "@bitwarden/common/auth/organization-invite";
 
 import { AuthRoute } from "../constants";
@@ -30,7 +30,7 @@ export function getOpenOrgInviteStatusErrorUi(
       return {
         anonLayoutData: {
           pageTitle: { key: "cannotAcceptInvitation" },
-          pageIcon: TwoFactorTimeoutIcon,
+          pageIcon: ExpiredIcon,
         },
         bodyMessageI18nKey: "openOrgInviteLinkNoLongerValid",
         button,
@@ -38,7 +38,7 @@ export function getOpenOrgInviteStatusErrorUi(
     case "plan-not-supported":
       // link-not-found and plan-not-supported share the same body-copy key: the user
       // cannot tell them apart and there's no distinct remediation. Icon still uses the
-      // default here (rather than TwoFactorTimeoutIcon) because plan-not-supported is a
+      // default here (rather than ExpiredIcon) because plan-not-supported is a
       // distinct semantic condition even if the copy overlaps.
       return {
         anonLayoutData: {

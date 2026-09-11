@@ -13,7 +13,7 @@ import { map, ReplaySubject, skip, Subject, takeUntil, withLatestFrom } from "rx
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
-import { FormFieldModule } from "@bitwarden/components";
+import { FormControlModule, FormFieldModule, RadioInputComponent } from "@bitwarden/components";
 import {
   CatchallGenerationOptions,
   CredentialGeneratorService,
@@ -27,7 +27,14 @@ import { I18nPipe } from "@bitwarden/ui-common";
 @Component({
   selector: "tools-catchall-settings",
   templateUrl: "catchall-settings.component.html",
-  imports: [ReactiveFormsModule, FormFieldModule, JslibModule, I18nPipe],
+  imports: [
+    ReactiveFormsModule,
+    FormControlModule,
+    FormFieldModule,
+    RadioInputComponent,
+    JslibModule,
+    I18nPipe,
+  ],
 })
 export class CatchallSettingsComponent implements OnInit, OnDestroy, OnChanges {
   /** Instantiates the component
@@ -62,6 +69,7 @@ export class CatchallSettingsComponent implements OnInit, OnDestroy, OnChanges {
 
   /** The template's control bindings */
   protected settings = this.formBuilder.group({
+    catchallType: ["random"],
     catchallDomain: [""],
   });
 
