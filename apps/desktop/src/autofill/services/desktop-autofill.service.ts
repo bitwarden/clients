@@ -10,7 +10,7 @@ import {
   mergeMap,
   switchMap,
   takeUntil,
-  tap,
+  // tap,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -84,7 +84,8 @@ export class DesktopAutofillService implements OnDestroy {
     if (!this.featureFlag) {
       return;
     }
-    this.isEnabled = (await this.configService.getFeatureFlag(this.featureFlag)) === true;
+    // this.isEnabled = (await this.configService.getFeatureFlag(this.featureFlag)) === true;
+    this.isEnabled = true;
     if (!this.isEnabled) {
       return;
     }
@@ -105,8 +106,9 @@ export class DesktopAutofillService implements OnDestroy {
       .getFeatureFlag$(this.featureFlag)
       .pipe(
         distinctUntilChanged(),
-        tap((enabled) => (this.isEnabled = enabled === true)),
-        filter((enabled) => enabled === true), // Only proceed if feature is enabled
+        // TODO: temporarily force enabled
+        // tap((enabled) => (this.isEnabled = enabled === true)),
+        // filter((enabled) => enabled === true),
         switchMap(() => {
           return combineLatest([
             this.accountService.activeAccount$.pipe(
