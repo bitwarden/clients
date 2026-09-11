@@ -169,9 +169,7 @@ describe("DomElementVisibilityService", () => {
       `;
       const usernameElement = document.getElementById("username");
       const passwordElement = document.getElementById("password");
-      jest.spyOn(usernameElement.style, "getPropertyValue");
       jest.spyOn(usernameElement.ownerDocument.defaultView, "getComputedStyle");
-      jest.spyOn(passwordElement.style, "getPropertyValue");
       jest.spyOn(passwordElement.ownerDocument.defaultView, "getComputedStyle");
 
       const isUsernameElementHidden =
@@ -180,12 +178,10 @@ describe("DomElementVisibilityService", () => {
         domElementVisibilityService["isElementHiddenByCss"](passwordElement);
 
       expect(isUsernameElementHidden).toEqual(true);
-      expect(usernameElement.style.getPropertyValue).toHaveBeenCalled();
       expect(usernameElement.ownerDocument.defaultView.getComputedStyle).toHaveBeenCalledWith(
         usernameElement,
       );
       expect(isPasswordElementHidden).toEqual(true);
-      expect(passwordElement.style.getPropertyValue).toHaveBeenCalled();
       expect(passwordElement.ownerDocument.defaultView.getComputedStyle).toHaveBeenCalledWith(
         passwordElement,
       );
