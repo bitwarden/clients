@@ -93,12 +93,19 @@ export class RotationHistoryComponent {
   /** Managed-credential display names by rotation config id, for {@link showCredential}. */
   readonly credentialNames = input<ReadonlyMap<RotationConfigId, string>>(new Map());
 
-  /** Jobs sorted newest-first by createdAt. */
-  protected readonly sortedJobs = computed(() =>
-    [...this.jobs()].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)),
+  /**
+   * Jobs newest-first by the start the Started column shows.
+   *
+   * A job that never started has none, so it takes its place from `createdAt`, the instant every
+   * job has.
+   */
+  protected readonly jobViews = computed(() =>
+    this.jobs()
+      .map((job) => this.toJobView(job))
+      .sort(
+        (a, b) => Date.parse(b.startedAt ?? b.createdAt) - Date.parse(a.startedAt ?? a.createdAt),
+      ),
   );
-
-  protected readonly jobViews = computed(() => this.sortedJobs().map((job) => this.toJobView(job)));
 
   /** The open details drawer, or null when none is open. */
   private readonly detailsDrawer = signal<DrawerRef<unknown, RotationJobDrawerComponent> | null>(
