@@ -2424,6 +2424,30 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 result",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ results",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "No filters match “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
     "message": "Keresés törlése"
   },
@@ -6276,11 +6300,80 @@
   "noItemsInTrashDesc": {
     "message": "A törölt elemek itt jelennek meg és 30 nap elteltével véglegesen törlődnek."
   },
+  "noItemsInTrashDescription": {
+    "message": "A törölt elemek itt jelennek meg és 30 nap elteltével véglegesen törlődnek."
+  },
   "noItemsInVault": {
     "message": "Nincsenek elemek a széfben."
   },
+  "noItemsInMyVault": {
+    "message": "Nincsenek elemek a saját széfben."
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Nincsenek elemek $VAULT_NAME$ széfben.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Nincsenek elemek $VAULT_NAME$ széfben.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "Nincsenek elemek a saját széfben."
+  },
+  "noItemsInVaults": {
+    "message": "A széf üres."
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Nincs a kiválasztott szűrőkkel egyező elem."
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Nincsenek \"$SEARCH_TERM$\" kereséssel egyező elemek.",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "A széf nemcsak a jelszavakat védi. Itt biztonságosan tárolhatjuk a bejelentkezési adatokat, egyéb azonosítókat, kártyákat és jegyzeteket."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Adjunk hozzá elemeket ehhez a megosztott mappához, majd adjunk hozzáférést a többi $VAULT_NAME$ tagnak.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "A Saját elemek egy személyes terület olyan elemek tárolására, amelyek $VAULT_NAME$ széfhez tartoznak, de nem láthatók a többi tag számára.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Nincsenek mappák."
+  },
+  "emptyFoldersDescription": {
+    "message": "Használjunk mappákat a széf elemek rendszerezéséhez. Ezek sajátok — senki más nem látja vagy használhatja aezeket."
+  },
+  "emptyVaultsDescription": {
+    "message": "A kezdéshez adjunk hozzá bejelentkezéseket, azonosítókat, kártyákat és egyéb elemeket."
   },
   "emptyFavorites": {
     "message": "Nem lett kedvencnek minősítve egyetlen elem sem."
