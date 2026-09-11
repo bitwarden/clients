@@ -4691,6 +4691,15 @@
   "reinstateSubscription": {
     "message": "Reinstate subscription"
   },
+  "keepSubscription": {
+    "message": "Keep subscription"
+  },
+  "subscriptionPastDueWillPauseSoon": {
+    "message": "Your subscription is past due and will be paused soon."
+  },
+  "subscriptionPastDuePaused": {
+    "message": "Your subscription is past due and has been paused."
+  },
   "reinstateConfirmation": {
     "message": "Are you sure you want to remove the pending cancellation request and reinstate your subscription?"
   },
