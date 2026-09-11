@@ -122,6 +122,9 @@ export enum FeatureFlag {
   /* Innovation */
   ElectronStorageCache = "pm-32783-electron-storage-cache",
 
+  /* Secrets Manager */
+  SecretVersioning = "sm-1587-secrets-versioning",
+
   /* PAM */
   Pam = "pm-37044-pam-v-0",
 
@@ -248,6 +251,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Innovation */
   [FeatureFlag.ElectronStorageCache]: FALSE,
+
+  /* Secrets Manager */
+  [FeatureFlag.SecretVersioning]: FALSE,
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,
