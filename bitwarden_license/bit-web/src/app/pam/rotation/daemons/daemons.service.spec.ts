@@ -7,6 +7,7 @@ import type { AccessConnector, TargetSystemId, TargetSystem } from "../rotation"
 import { AccessConnectorStatus } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
+import { deferred } from "../testing/deferred";
 import { ORGANIZATION_ID, connectorId, sysId } from "../testing/rotation-builders";
 
 import { DaemonsService } from "./daemons.service";
@@ -113,6 +114,25 @@ describe("DaemonsService", () => {
 
       expect(await firstValue(service.rows$)).toHaveLength(1);
       expect(await firstValue(service.loadError$)).toBeNull();
+    });
+
+    it("does not let a superseded load's failure land over the current load's success", async () => {
+      const gate = deferred();
+      rotationSdk.listConnectors
+        .mockImplementationOnce(async () => {
+          await gate.promise;
+          throw new Error("network fail");
+        })
+        .mockResolvedValueOnce([makeDaemon()]);
+
+      const superseded = service.load(orgId);
+      await service.load(orgId);
+      gate.settle();
+      await superseded;
+
+      expect(await firstValue(service.rows$)).toHaveLength(1);
+      expect(await firstValue(service.loadError$)).toBeNull();
+      expect(await firstValue(service.loading$)).toBe(false);
     });
 
     it("reports a target-systems failure even when the daemon list loads", async () => {
