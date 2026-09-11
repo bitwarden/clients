@@ -28,10 +28,15 @@ import { ManagedCredentialsTabComponent } from "./managed-credentials-tab.compon
 import { buildRotationConfigRow, RotationConfigRow } from "./rotation-config-row";
 import { RotationConfigsService } from "./rotation-configs.service";
 
-const CIPHER_PROD = asUuid<CipherId>(id("cipher-prod-db"));
-const CIPHER_STAGING = asUuid<CipherId>(id("cipher-staging-admin"));
-const CIPHER_CI = asUuid<CipherId>(id("cipher-ci-token"));
-const CIPHER_MAINFRAME = asUuid<CipherId>(id("cipher-mainframe"));
+/**
+ * Single hex digits, not descriptive labels: `id()` folds a multi-character label onto one digit,
+ * so two labels can share a UUID. These ids key the collection lookup and must stay distinct.
+ * `1` and `2` are the story's target systems and `a` its organization.
+ */
+const CIPHER_PROD = asUuid<CipherId>(id("4"));
+const CIPHER_STAGING = asUuid<CipherId>(id("5"));
+const CIPHER_CI = asUuid<CipherId>(id("6"));
+const CIPHER_MAINFRAME = asUuid<CipherId>(id("7"));
 
 function cipher(cipherId: CipherId, name: string, collectionIds: string[]): CipherView {
   const c = new CipherView();
