@@ -70,7 +70,7 @@ describe("adaptInvoicePreviewToCart", () => {
 
       expect(cart.passwordManager.seats.translationKey).toBe("passwordManagerPlanPrice");
       expect(cart.passwordManager.additionalStorage).toEqual({
-        translationKey: "additionalStorageGb",
+        translationKey: "additionalStorageGbLower",
         quantity: 2,
         cost: 10,
       });
@@ -80,7 +80,7 @@ describe("adaptInvoicePreviewToCart", () => {
         cost: 30,
       });
       expect(cart.secretsManager!.additionalServiceAccounts).toEqual({
-        translationKey: "additionalServiceAccounts",
+        translationKey: "additionalServiceAccountsLower",
         quantity: 4,
         cost: 3,
       });
@@ -101,7 +101,7 @@ describe("adaptInvoicePreviewToCart", () => {
 
       expect(cart.secretsManager!.seats).toBeUndefined();
       expect(cart.secretsManager!.additionalServiceAccounts).toEqual({
-        translationKey: "additionalServiceAccounts",
+        translationKey: "additionalServiceAccountsLower",
         quantity: 4,
         cost: 3,
       });
@@ -234,6 +234,7 @@ describe("adaptInvoicePreviewToCart", () => {
     it.each([
       [InvoicePreviewFlowContext.PremiumOrgUpgrade, "premiumSubscriptionCredit"],
       [InvoicePreviewFlowContext.OrganizationPlanChange, "appliedSubscriptionCredits"],
+      [InvoicePreviewFlowContext.OrganizationSubscriptionPage, "appliedSubscriptionCredits"],
     ])("should emit a credit row for %s", (flowContext, expectedKey) => {
       const preview = basePreview({
         passwordManager: {
@@ -252,7 +253,6 @@ describe("adaptInvoicePreviewToCart", () => {
       InvoicePreviewFlowContext.PremiumSubscriptionPage,
       InvoicePreviewFlowContext.PersonalCheckout,
       InvoicePreviewFlowContext.OrganizationCheckout,
-      InvoicePreviewFlowContext.OrganizationSubscriptionPage,
     ])("should emit no credit row for %s even when prorations exist", (flowContext) => {
       const preview = basePreview({
         passwordManager: {

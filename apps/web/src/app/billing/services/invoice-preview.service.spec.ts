@@ -87,7 +87,7 @@ describe("InvoicePreviewService", () => {
       const cart = await sut.previewOrganizationCheckoutCart(organizationPurchase);
 
       // Same route and same tier as previewFamiliesPurchaseCart, but a different flow context,
-      // which is exactly what distinguishes the two methods.
+      // which is exactly what distinguishes the two methods (familiesMembership vs plan price).
       expect(cart.passwordManager.seats.translationKey).toBe("passwordManagerPlanPrice");
     });
   });
