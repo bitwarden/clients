@@ -19162,6 +19162,36 @@
   "pamDaemonTokenCopied": {
     "message": "Daemon token copied."
   },
+  "pamTargetSystemDiscardTitle": {
+    "message": "Discard target system"
+  },
+  "pamAccessConnectorDeactivate": {
+    "message": "Deactivate"
+  },
+  "pamAccessConnectorDeactivateConfirmTitle": {
+    "message": "Deactivate access connector?"
+  },
+  "pamAccessConnectorDeactivateConfirmContent": {
+    "message": "Deactivate $NAME$? It stops claiming new rotation jobs and any jobs it is currently running are released. You can activate it again later.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "On-prem production server"
+      }
+    }
+  },
+  "pamAccessConnectorDeleteConfirmTitle": {
+    "message": "Delete access connector?"
+  },
+  "pamAccessConnectorDeleteConfirmContent": {
+    "message": "Deleting $NAME$ is permanent and invalidates its credentials. This access connector held the organization key in memory. If you suspect a compromise, rotate the organization key as a remediation. Running rotation jobs are released. Register a new access connector to resume rotation.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "On-prem production server"
+      }
+    }
+  },
   "pamRotationConfigNew": {
     "message": "New managed credential"
   },
