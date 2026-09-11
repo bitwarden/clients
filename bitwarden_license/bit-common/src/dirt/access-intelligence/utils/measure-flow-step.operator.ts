@@ -17,10 +17,13 @@ const TRACK = "AccessReportFlow";
 /**
  * Times a self-contained async step and records it against the report flow track.
  *
- * The timer starts when the returned observable is subscribed to and stops on the first emission,
- * so this measures the whole chain above it. Use it on a standalone leg, such as a `from(promise)`
- * or the last operator of a pipe. For consecutive steps within one pipe use {@link flowTimer},
- * which measures each step rather than the running total.
+ * The timer starts when the returned observable is subscribed to, so this measures the whole chain
+ * above it. Use it on a standalone leg, such as a `from(promise)` or the last operator of a pipe.
+ * For consecutive steps within one pipe use {@link flowTimer}, which measures each step rather than
+ * the running total.
+ *
+ * Every emission is recorded, each timed from that same subscribe, so a multi-emission source
+ * produces one entry per value with a growing duration. Intended for single-emission sources.
  *
  * Nothing is recorded if the source errors. Each subscription is timed separately.
  *

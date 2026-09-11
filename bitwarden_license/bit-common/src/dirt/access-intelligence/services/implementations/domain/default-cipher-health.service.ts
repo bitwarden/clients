@@ -46,7 +46,7 @@ export class DefaultCipherHealthService extends CipherHealthService {
         this.MAX_CONCURRENT_HIBP_CALLS,
       ),
       toArray(),
-      measureFlowStep(this.logService, "Generate: exposure lookups complete", (results) => [
+      measureFlowStep(this.logService, "Generate: health checks complete", (results) => [
         ["itemCount", results.length],
         ["concurrencyLimit", this.MAX_CONCURRENT_HIBP_CALLS],
       ]),

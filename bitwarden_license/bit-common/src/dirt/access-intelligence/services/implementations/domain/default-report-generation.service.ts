@@ -75,6 +75,11 @@ export class DefaultReportGenerationService extends ReportGenerationService {
 
         // Carry over application metadata from previous report
         this.carryOverApplicationMetadata(view, previousApplications ?? []);
+        // Measured separately: this is the only step whose cost scales with the previous report.
+        measureStep("Generate: previous metadata carried over", [
+          ["applicationCount", reports.length],
+          ["previousApplicationCount", previousApplications?.length ?? 0],
+        ]);
 
         // Compute summary (delegates to smart model method)
         view.recomputeSummary();

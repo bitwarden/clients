@@ -63,12 +63,15 @@ export class FileReportPersistenceService extends ReportPersistenceService {
 
     return from(firstValueFrom(getUserId(this.accountService.activeAccount$))).pipe(
       switchMap((userId) => {
-        const measureStep = flowTimer(this.logService);
-        const payload = view.toEncryptionPayload();
-        measureStep("Save: encryption payload built", [
+        // Read before the stopwatch starts so the key allocation is not timed as part of the step.
+        const counts: [string, number][] = [
           ["memberCount", Object.keys(view.memberRegistry).length],
           ["applicationCount", view.reports.length],
-        ]);
+        ];
+
+        const measureStep = flowTimer(this.logService);
+        const payload = view.toEncryptionPayload();
+        measureStep("Save: encryption payload built", counts);
 
         return this.riskInsightsEncryptionService
           .encryptReportFile$({ organizationId, userId }, payload, view.contentEncryptionKey)
@@ -86,9 +89,8 @@ export class FileReportPersistenceService extends ReportPersistenceService {
 
               return this.accessIntelligenceApiService.createReport$(organizationId, request).pipe(
                 measureFlowStep(this.logService, "Save: report row created", () => [
+                  ...counts,
                   ["passwordCount", metrics.totalPasswordCount],
-                  ["memberCount", metrics.totalMemberCount],
-                  ["applicationCount", metrics.totalApplicationCount],
                   ["byteSize", request.fileSize],
                 ]),
                 tap((createReportResponse) => {
@@ -119,6 +121,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
 
               return upload$.pipe(
                 measureFlowStep(this.logService, "Save: report file uploaded", () => [
+                  ...counts,
                   ["byteSize", encryptedData.encryptedReportData.buffer.byteLength],
                 ]),
                 tap(() => this.logService.mark("[AccessReportFlow]: report saved")),
