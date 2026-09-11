@@ -42,7 +42,8 @@
     "icons:reverse-migrate": "ts-node scripts/material-icons/reverse-migrate-icon-names.ts",
     "dev:reverse-proxy": "node --experimental-strip-types scripts/reverse-proxy-emulator/index.ts",
     "debug:desktop": "npm run debug:electron --workspace @bitwarden/desktop",
-    "debug:desktop:automation": "cross-env USE_AUTOMATION_BIOMETRICS=true npm run debug:desktop"
+    "debug:desktop:automation": "cross-env USE_AUTOMATION_BIOMETRICS=true npm run debug:desktop",
+    "debug:browser": "node apps/browser/scripts/dev-chrome.mjs --popup"
   },
   "workspaces": [
     "apps/*",
