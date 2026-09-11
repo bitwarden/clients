@@ -13,7 +13,7 @@ import { DialogService, FilterMenuComponent, ToastService } from "@bitwarden/com
 import type { CipherId } from "@bitwarden/sdk-internal";
 
 import { OrgCiphersService } from "../org-ciphers.service";
-import { TargetSystemMethod } from "../rotation";
+import { QuartzSchedulePreset, TargetSystemMethod } from "../rotation";
 import type { RotationConfig } from "../rotation";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 import { deferred } from "../testing/deferred";
@@ -31,8 +31,10 @@ import { ManagedCredentialsTabComponent } from "./managed-credentials-tab.compon
 import { RotationConfigRow, buildRotationConfigRow } from "./rotation-config-row";
 import { RotationConfigsService } from "./rotation-configs.service";
 
+/** Joins the key with whatever the message's placeholders resolved to, so both are assertable. */
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
-  t: (id: string) => id,
+  t: (id: string, ...params: (string | number | undefined)[]) =>
+    [id, ...params.filter((param) => param != null)].join(":"),
   translate: (id: string) => id,
 };
 
@@ -569,6 +571,63 @@ describe("ManagedCredentialsTabComponent", () => {
         "pamRotationConfigStatusPaused",
         "bwi-minus-circle",
       );
+    });
+  });
+
+  /**
+   * The column printed raw Quartz whenever the SDK called a schedule Custom, so an expression the
+   * schedule input's own interval builder composed came back to the operator as a cron string.
+   */
+  describe("schedule cell", () => {
+    function scheduleCell(row: RotationConfigRow): HTMLElement {
+      setupTestBed(true, [{ id: "ts-1" }], true);
+      configsService.rows$.next([row]);
+      fixture.detectChanges();
+
+      return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+        '[id^="managed-credentials-tab_schedule_"]',
+      )!;
+    }
+
+    function cellFor(cron: string | undefined, preset: QuartzSchedulePreset): HTMLElement {
+      return scheduleCell(
+        makeRow({ scheduleCron: cron }, rotationConfigDescription({ schedulePreset: preset })),
+      );
+    }
+
+    it("names the preset the SDK matched the expression to", () => {
+      const cell = cellFor("0 0 0 * * ?", QuartzSchedulePreset.Daily);
+      expect(cell.textContent!.trim()).toBe("pamRotationScheduleDaily");
+      expect(cell.getAttribute("title")).toBeNull();
+    });
+
+    it("spells out an interval with its time of day instead of its expression", () => {
+      const cell = cellFor("0 0 3 * * ?", QuartzSchedulePreset.Custom);
+      expect(cell.textContent!.trim()).toBe("pamRotationScheduleColumnEveryDay:03:00");
+      expect(cell.textContent).not.toContain("0 0 3 * * ?");
+    });
+
+    it("spells out a multi-day interval with its count and time of day", () => {
+      const cell = cellFor("0 0 2 1/7 * ?", QuartzSchedulePreset.Custom);
+      expect(cell.textContent!.trim()).toBe("pamRotationScheduleColumnEveryNDays:7:02:00");
+    });
+
+    it("labels a hand-written expression Custom and keeps it in the cell's tooltip", () => {
+      const cell = cellFor("0 0 9 ? * MON-FRI", QuartzSchedulePreset.Custom);
+      expect(cell.textContent!.trim()).toBe("pamRotationScheduleCustom");
+      expect(cell.getAttribute("title")).toBe("0 0 9 ? * MON-FRI");
+    });
+
+    /** The cell rendered an empty `<code>` here, and reached `I18nService.t("")`. */
+    it("says there is no schedule rather than leaving the cell empty", () => {
+      const cell = cellFor(undefined, QuartzSchedulePreset.Custom);
+      expect(cell.textContent!.trim()).toBe("pamRotationScheduleNone");
+    });
+
+    it("spells the absence out rather than rendering a dash", () => {
+      const cell = cellFor(undefined, QuartzSchedulePreset.None);
+      expect(cell.textContent!.trim()).toBe("pamRotationScheduleNone");
+      expect(cell.textContent).not.toContain("\u2014");
     });
   });
 

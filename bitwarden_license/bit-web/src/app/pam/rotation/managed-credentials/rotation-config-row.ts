@@ -1,7 +1,8 @@
 import type { BadgeVariant, BitwardenIcon } from "@bitwarden/components";
 
-import { QuartzSchedulePreset, RotationConfigId, RotationConfig, TargetSystem } from "../rotation";
+import { RotationConfigId, RotationConfig, TargetSystem } from "../rotation";
 import { RotationConfigDescription } from "../rotation-sdk.service";
+import { ScheduleLabel, resolveScheduleLabel } from "../schedule-label";
 import { targetSystemMethodLabelKey } from "../target-systems/target-system-label";
 
 /**
@@ -130,11 +131,10 @@ export type RotationConfigRow = {
    */
   pausedWhileRotating: boolean;
   /**
-   * For preset crons: the i18n key for the preset label (e.g. `"pamRotationScheduleDaily"`).
-   * For a custom cron: the raw cron string itself (displayed verbatim).
-   * For null/none: `"pamRotationScheduleNone"` — the template renders an em-dash.
+   * How the Schedule column describes this config: a message key and its substitutions, plus the
+   * expression behind it when the label cannot spell that out. See {@link resolveScheduleLabel}.
    */
-  scheduleLabelKeyOrCron: string;
+  scheduleLabel: ScheduleLabel;
   rotateOnAccessEnd: boolean;
   /** Epoch milliseconds of lastRotationAt, or null — used for column sorting. */
   lastRotationAtMs: number | null;
@@ -173,7 +173,7 @@ export function buildRotationConfigRow(
   cipherName: string | undefined,
   description: RotationConfigDescription,
 ): RotationConfigRow {
-  const scheduleLabelKeyOrCron = scheduleLabel(description.schedulePreset, config.scheduleCron);
+  const scheduleLabel = resolveScheduleLabel(description.schedulePreset, config.scheduleCron);
 
   const status = resolveRotationStatus(config);
   const statusBadge = rotationStatusBadge(status);
@@ -194,7 +194,7 @@ export function buildRotationConfigRow(
     statusLabelKey: statusBadge.labelKey,
     statusSortOrder: statusBadge.sortOrder,
     pausedWhileRotating: !config.enabled && status === RotationRowStatus.Rotating,
-    scheduleLabelKeyOrCron,
+    scheduleLabel,
     rotateOnAccessEnd: config.rotateOnAccessEnd,
     lastRotationAtMs: Number.isNaN(lastRotationAtMs) ? null : lastRotationAtMs,
     lastRotationAt: config.lastRotationAt,
@@ -208,25 +208,4 @@ export function buildRotationConfigRow(
     canPause: description.actions.canPause,
     canResume: description.actions.canResume,
   };
-}
-
-const PRESET_LABEL_KEYS: Record<QuartzSchedulePreset, string> = {
-  [QuartzSchedulePreset.None]: "pamRotationScheduleNone",
-  [QuartzSchedulePreset.Hourly]: "pamRotationScheduleHourly",
-  [QuartzSchedulePreset.Every6Hours]: "pamRotationScheduleEvery6Hours",
-  [QuartzSchedulePreset.Daily]: "pamRotationScheduleDaily",
-  [QuartzSchedulePreset.Weekly]: "pamRotationScheduleWeekly",
-  [QuartzSchedulePreset.Monthly]: "pamRotationScheduleMonthly",
-  [QuartzSchedulePreset.Custom]: "pamRotationScheduleCustom",
-};
-
-function scheduleLabel(preset: QuartzSchedulePreset, cron: string | null): string {
-  if (preset === QuartzSchedulePreset.None) {
-    return PRESET_LABEL_KEYS[QuartzSchedulePreset.None];
-  }
-  if (preset === QuartzSchedulePreset.Custom) {
-    // Return the raw cron string for verbatim display in the template.
-    return cron ?? "";
-  }
-  return PRESET_LABEL_KEYS[preset];
 }
