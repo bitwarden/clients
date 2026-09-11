@@ -452,9 +452,20 @@ export abstract class BaseImporter {
   }
 
   private validateNoExternalEntities(data: string): boolean {
-    const regex = new RegExp("<!ENTITY", "i");
-    const hasExternalEntities = regex.test(data);
-    return !hasExternalEntities;
+    // Block inline and external entity declarations (e.g. <!ENTITY foo "bar"> or
+    // <!ENTITY foo SYSTEM "http://evil.com">).
+    if (/<!ENTITY/i.test(data)) {
+      return false;
+    }
+    // Block DOCTYPE declarations that reference an external DTD subset via SYSTEM
+    // (e.g. <!DOCTYPE foo SYSTEM "http://evil.com/evil.dtd">). An internal-only subset
+    // (<!DOCTYPE foo [...]>) is safe and is not blocked: [^>[]* stops at '['.
+    // PUBLIC is intentionally not blocked: XHTML exports (e.g. Clipperz) carry a
+    // PUBLIC identifier, and modern DOMParsers never fetch external DTDs from PUBLIC IDs.
+    if (/<!DOCTYPE[^>[]*\bSYSTEM\b/i.test(data)) {
+      return false;
+    }
+    return true;
   }
 
   /** Parses a date from a string and returns its representation in
