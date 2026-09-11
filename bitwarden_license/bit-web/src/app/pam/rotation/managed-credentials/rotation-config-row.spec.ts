@@ -189,7 +189,9 @@ describe("buildRotationConfigRow", () => {
     });
 
     it("does not flag an enabled config that is mid-rotation", () => {
-      expect(row({ config: { enabled: true, hasActiveJob: true } }).pausedWhileRotating).toBe(false);
+      expect(row({ config: { enabled: true, hasActiveJob: true } }).pausedWhileRotating).toBe(
+        false,
+      );
     });
 
     it("does not flag a steady-state active config", () => {
