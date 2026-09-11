@@ -140,8 +140,7 @@ export class RotationHistoryComponent {
     const finalAttempt = attempts.length > 0 ? attempts[attempts.length - 1] : null;
     const failed =
       job.status === RotationJobStatus.Failed || job.status === RotationJobStatus.TimedOut;
-    const running =
-      job.status === RotationJobStatus.Pending || job.status === RotationJobStatus.Claimed;
+    const running = job.status === RotationJobStatus.Claimed;
 
     const reportedReason = finalAttempt?.failureReason ?? null;
     const attemptsUniform =
