@@ -30,7 +30,7 @@ import { MemberDialogManagerService } from "../member-dialog-manager/member-dial
 
 import { BulkActionResult, MemberActionResult, REQUESTS_PER_BATCH } from "./member-actions.types";
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class MemberActionsService {
   private organizationUserApiService = inject(OrganizationUserApiService);
   private organizationUserService = inject(OrganizationUserService);
