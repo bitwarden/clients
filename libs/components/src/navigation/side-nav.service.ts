@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
 import { Observable, fromEvent, map, startWith } from "rxjs";
 
-import { getRootFontSizePx, LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM } from "../shared";
+import { getRootFontSizePx, pxToRem } from "../shared";
 
 import { resolveArrowStep, resolveDragFromClosed, resolveDragFromOpen } from "./side-nav-resize";
 import { SIDE_NAV_WIDTH_BOUNDS, SideNavWidthService } from "./side-nav-width.service";
@@ -83,15 +83,6 @@ export class SideNavService {
   constructor() {
     // Get computed root font size to support user-defined a11y font increases
     this.rootFontSizePx = getRootFontSizePx();
-
-    // Estimate the initial open state from window.innerWidth so the first render shows
-    // the correct layout before LayoutComponent's ResizeObserver fires.
-    const estimatedPushMode =
-      window.innerWidth - SIDE_NAV_WIDTH_BOUNDS.default * this.rootFontSizePx >=
-      LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM * this.rootFontSizePx;
-    if (estimatedPushMode) {
-      this.open.set(true);
-    }
   }
 
   /**
@@ -127,8 +118,7 @@ export class SideNavService {
     this.isDragging.set(true);
     this._widthResizedByUser.set(true);
 
-    const newWidthInPixels = eventXPointer - dragElementXCoordinate;
-    const newWidthInRem = newWidthInPixels / this.rootFontSizePx;
+    const newWidthInRem = pxToRem(eventXPointer - dragElementXCoordinate, this.rootFontSizePx);
 
     if (!this.open()) {
       // Dragging out from collapsed — a preview drives the visual width without changing `open`,

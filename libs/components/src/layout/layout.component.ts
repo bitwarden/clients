@@ -27,10 +27,12 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { drawerSizeToWidthRem } from "../dialog/dialog/dialog.component";
 import { DrawerService } from "../dialog/drawer.service";
 import { LinkComponent, LinkModule } from "../link";
+import { SIDE_NAV_WIDTH_BOUNDS } from "../navigation/side-nav-width.service";
 import { SideNavService } from "../navigation/side-nav.service";
 import {
   getRootFontSizePx,
   LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM,
+  remToPx,
   SIDERAIL_WIDTH_REM,
 } from "../shared";
 
@@ -132,9 +134,9 @@ export class LayoutComponent {
     const declaredDrawerWidth = this.drawerService.pushWidthPx();
     const containerWidth = this.containerWidthPx();
     const rootFontSizePx = getRootFontSizePx();
-    const siderailWidthPx = SIDERAIL_WIDTH_REM * rootFontSizePx;
-    const drawerMinWidthPx = drawerSizeToWidthRem.small * rootFontSizePx;
-    const mainMinWidthPx = LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM * rootFontSizePx;
+    const siderailWidthPx = remToPx(SIDERAIL_WIDTH_REM, rootFontSizePx);
+    const drawerMinWidthPx = remToPx(drawerSizeToWidthRem.small, rootFontSizePx);
+    const mainMinWidthPx = remToPx(LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM, rootFontSizePx);
 
     // Push vs overlay: switch to overlay only when the minimum push width won't fit.
     // The shrink zone between the declared max-width and the minimum is handled
@@ -191,6 +193,16 @@ export class LayoutComponent {
   });
 
   constructor() {
+    // navAloneCanPush asked early: the first render needs a layout before the ResizeObserver
+    // fires, so estimate from the viewport and let update() correct it once it can measure.
+    const rootFontSizePx = getRootFontSizePx();
+    const estimatedPushMode =
+      window.innerWidth - remToPx(SIDE_NAV_WIDTH_BOUNDS.default, rootFontSizePx) >=
+      remToPx(LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM, rootFontSizePx);
+    if (estimatedPushMode) {
+      this.sideNavService.open.set(true);
+    }
+
     afterNextRender(() => {
       const container = this.container().nativeElement;
       const drawerContainer = this.drawerContainer().nativeElement;
@@ -201,10 +213,10 @@ export class LayoutComponent {
       const update = () => {
         const rootFontSizePx = getRootFontSizePx();
         const containerWidth = container.clientWidth;
-        const siderailPx = SIDERAIL_WIDTH_REM * rootFontSizePx;
-        const mainMinPx = LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM * rootFontSizePx;
-        const navWidthPx = this.sideNavService.widthRem() * rootFontSizePx;
-        const drawerMinPx = drawerSizeToWidthRem.small * rootFontSizePx;
+        const siderailPx = remToPx(SIDERAIL_WIDTH_REM, rootFontSizePx);
+        const mainMinPx = remToPx(LAYOUT_MAIN_CONTENT_MIN_WIDTH_REM, rootFontSizePx);
+        const navWidthPx = remToPx(this.sideNavService.widthRem(), rootFontSizePx);
+        const drawerMinPx = remToPx(drawerSizeToWidthRem.small, rootFontSizePx);
 
         // Use the push width declared by the drawer content (e.g. bit-dialog) via
         // DrawerService.declarePushWidth(). This is more reliable than DOM measurement
