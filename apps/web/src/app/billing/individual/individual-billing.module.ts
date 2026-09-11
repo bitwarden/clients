@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 
-import { BaseCardComponent } from "@bitwarden/components";
+import { BaseCardComponent, BreadcrumbsModule } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 import {
   EnterBillingAddressComponent,
@@ -18,6 +18,7 @@ import { SubscriptionComponent } from "./subscription.component";
   imports: [
     IndividualBillingRoutingModule,
     BillingSharedModule,
+    BreadcrumbsModule,
     HeaderModule,
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
