@@ -46,7 +46,7 @@ describe("SshAgentSetupDialogComponent", () => {
     const fixture = await createComponent(DeviceType.MacOsDesktop);
 
     expect(fixture.componentInstance["isWindows"]).toBe(false);
-    expect(fixture.nativeElement.textContent).toContain(`export SSH_AUTH_SOCK=${SOCKET_ADDRESS}`);
+    expect(fixture.nativeElement.textContent).toContain(`export SSH_AUTH_SOCK="${SOCKET_ADDRESS}"`);
   });
 
   it("shows no export line and no socket address on windows", async () => {
@@ -64,7 +64,7 @@ describe("SshAgentSetupDialogComponent", () => {
     fixture.componentInstance["copyEnvVarLine"]();
 
     expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(
-      `export SSH_AUTH_SOCK=${SOCKET_ADDRESS}`,
+      `export SSH_AUTH_SOCK="${SOCKET_ADDRESS}"`,
     );
     expect(toastService.showToast).toHaveBeenCalled();
   });

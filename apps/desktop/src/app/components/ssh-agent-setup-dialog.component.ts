@@ -39,7 +39,7 @@ export class SshAgentSetupDialogComponent {
   protected readonly isWindows =
     this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
 
-  protected readonly envVarLine = `export SSH_AUTH_SOCK=${this.data.socketAddress}`;
+  protected readonly envVarLine = `export SSH_AUTH_SOCK="${this.data.socketAddress}"`;
 
   static open(dialogService: DialogService, data: SshAgentSetupDialogData) {
     return dialogService.open<void>(SshAgentSetupDialogComponent, {
