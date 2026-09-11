@@ -8,22 +8,18 @@ import {
   StoryObj,
 } from "@storybook/angular";
 
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import type { TargetSystemId } from "../rotation";
 import { AccessConnectorStatus, TargetSystemMethod } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import {
   accessConnector,
   connectorId,
   ORGANIZATION_ID,
-  pendingTargetSystem,
   rotationConfig,
   sysId,
   targetSystem,
-  unverifiableTargetSystem,
 } from "../testing/rotation-builders";
 import { atUrl } from "../testing/story-helpers";
 
@@ -37,30 +33,15 @@ const ASSIGNED_SYSTEM = targetSystem({ id: sysId("assigned"), name: "Prod SQL" }
 /** An automatic target every enabled connector is already assigned to. */
 const SATURATED_SYSTEM = targetSystem({ id: sysId("saturated"), name: "Staging SQL" });
 
+/** A manual target: rotated by hand. */
 const MANUAL_SYSTEM = targetSystem({
   id: sysId("manual"),
   name: "Legacy mainframe",
   method: TargetSystemMethod.Manual,
-  sealed: undefined,
+  kind: undefined,
 });
 
-/** A target `TargetSystemsClient.create` registered but never finished sealing. */
-const PENDING_SYSTEM = pendingTargetSystem({ id: sysId("pending"), name: "Staging Entra" });
-
-/** A target whose blob exists but failed to verify. */
-const UNVERIFIABLE_SYSTEM = unverifiableTargetSystem({
-  id: sysId("unverifiable"),
-  name: "Finance SQL",
-});
-
-const SYSTEMS = [
-  SAMPLE_SYSTEM,
-  ASSIGNED_SYSTEM,
-  SATURATED_SYSTEM,
-  MANUAL_SYSTEM,
-  PENDING_SYSTEM,
-  UNVERIFIABLE_SYSTEM,
-];
+const SYSTEMS = [SAMPLE_SYSTEM, ASSIGNED_SYSTEM, SATURATED_SYSTEM, MANUAL_SYSTEM];
 
 const CONNECTORS = [
   accessConnector({
@@ -72,7 +53,7 @@ const CONNECTORS = [
     id: connectorId("c-2"),
     name: "Disconnected connector",
     isConnected: false,
-    assignedTargetSystemIds: [ASSIGNED_SYSTEM.id, SATURATED_SYSTEM.id],
+    assignedTargetSystemIds: [ASSIGNED_SYSTEM.id],
   }),
   accessConnector({
     id: connectorId("c-3"),
@@ -81,14 +62,12 @@ const CONNECTORS = [
     isConnected: false,
     assignedTargetSystemIds: [SATURATED_SYSTEM.id],
   }),
-  accessConnector({
-    id: connectorId("c-4"),
-    name: "Spare connector",
-    assignedTargetSystemIds: [SATURATED_SYSTEM.id],
-  }),
+  accessConnector({ id: connectorId("c-4"), name: "Spare connector" }),
 ];
 
-/** Only `ASSIGNED_SYSTEM` has a managed credential. */
+/**
+ * The org's managed credentials.
+ */
 const CONFIGS = [
   rotationConfig({ targetSystemId: ASSIGNED_SYSTEM.id, targetSystemName: ASSIGNED_SYSTEM.name }),
 ];
@@ -105,7 +84,9 @@ const rotationSdk: Partial<RotationSdkService> = {
   unassignTarget: () => Promise.resolve(),
 };
 
-/** Mirrors `rotation.routes.ts`, minus its guards. */
+/**
+ * Mirrors `rotation.routes.ts` (minus its guards).
+ */
 const routes: Routes = [
   {
     path: "organizations/:organizationId/pam/rotation",
@@ -127,10 +108,6 @@ export default {
     applicationConfig({
       providers: [
         importProvidersFrom(PreloadedEnglishI18nModule),
-        {
-          provide: PlatformUtilsService,
-          useValue: { copyToClipboard: (): void => undefined },
-        },
         provideRouter(routes, withHashLocation()),
         { provide: RotationSdkService, useValue: rotationSdk },
         { provide: ToastService, useValue: { showToast: () => {} } },
@@ -142,35 +119,38 @@ export default {
 
 type Story = StoryObj<TargetSystemEditComponent>;
 
-const at = (targetSystemId: TargetSystemId): ReturnType<typeof atUrl> =>
+const at = (targetSystemId: string): ReturnType<typeof atUrl> =>
   atUrl(`/organizations/${ORGANIZATION_ID}/pam/rotation/target-systems/${targetSystemId}`);
 
-/** The connectors card is empty and neither setup step is done. */
+/**
+ * Edit mode: the breadcrumb trail reads "Target systems > Edit target system", and the
+ * assigned-access-connectors card sits in its empty state. The footer's only right-hand action is
+ * Delete. Neither setup step is done.
+ */
 export const Edit: Story = {
   decorators: [at(SAMPLE_SYSTEM.id)],
 };
 
-/** One connected and one disconnected connector, a spare to assign, and rotation set up. */
+/**
+ * Two assigned connectors, one connected and one not, with a spare left to assign: the card's
+ * table renders both status and connection badges and a remove control per row. Rotation is fully
+ * set up here.
+ */
 export const AssignedConnectors: Story = {
   decorators: [at(ASSIGNED_SYSTEM.id)],
 };
 
-/** The disabled connector still shows as assigned, and only the credential step is left. */
+/**
+ * Every enabled connector is already assigned here. The disabled connector still shows as an
+ * assigned row. Only the credential is outstanding.
+ */
 export const AllConnectorsAssigned: Story = {
   decorators: [at(SATURATED_SYSTEM.id)],
 };
 
-/** No integration or connector card, and no connector setup step. */
+/**
+ * A manual target: no integration, no connector. The connector step does not apply to it.
+ */
 export const ManualTarget: Story = {
   decorators: [at(MANUAL_SYSTEM.id)],
-};
-
-/** "Setup incomplete" callout, a kind picker in place of the read-only integration text. */
-export const PendingSeal: Story = {
-  decorators: [at(PENDING_SYSTEM.id)],
-};
-
-/** "Integrity check failed" callout; re-saving (with a chosen kind) re-secures the target. */
-export const Unverifiable: Story = {
-  decorators: [at(UNVERIFIABLE_SYSTEM.id)],
 };
