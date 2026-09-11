@@ -411,11 +411,8 @@ export class OrganizationSubscriptionCloudVNextComponent {
    * @returns The billing interval, either "month" or "year".
    */
   readonly billingInterval = computed(() => {
-    const organizationSubscription = this.organizationSubscription();
-    const pendingAnnualUpgrade = this.pendingAnnualUpgrade();
-    const plan = pendingAnnualUpgrade ? pendingAnnualUpgrade.plan : organizationSubscription?.plan;
-    const interval = plan?.isAnnual ? "year" : "month";
-    return interval;
+    const plan = this.organizationSubscription()?.plan;
+    return plan?.isAnnual ? "year" : "month";
   });
 
   /**
@@ -431,10 +428,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
    * @returns The price per seat, or 0 if not applicable.
    */
   readonly seatPrice = computed(() => {
-    const organizationSubscription = this.organizationSubscription();
-    const pendingAnnualUpgrade = this.pendingAnnualUpgrade();
-    const plan = pendingAnnualUpgrade ? pendingAnnualUpgrade.plan : organizationSubscription?.plan;
-    const price = plan?.PasswordManager.seatPrice;
+    const price = this.organizationSubscription()?.plan.PasswordManager.seatPrice;
     return price == null ? 0 : this.discountPrice(price);
   });
 
@@ -454,7 +448,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
    * Retrieves the maximum storage in GB for the subscription.
    * @returns The maximum storage in GB, or undefined if not applicable.
    */
-  readonly maxStorageGb = computed(() => this.organizationSubscription()?.maxStorageGb);
+  readonly maxStorageGb = computed(() => this.organizationSubscription()?.maxStorageGb ?? 0);
 
   /**
    * Retrieves the name of the storage for the subscription.
