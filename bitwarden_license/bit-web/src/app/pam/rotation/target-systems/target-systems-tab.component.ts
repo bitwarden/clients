@@ -2,13 +2,14 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   effect,
   inject,
   signal,
   viewChild,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { filter, firstValueFrom, map } from "rxjs";
@@ -124,6 +125,7 @@ export type TargetSystemRow = {
   ],
 })
 export class TargetSystemsTabComponent {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly targetSystemsService = inject(TargetSystemsService);
@@ -298,13 +300,24 @@ export class TargetSystemsTabComponent {
    * before there is a list to offer. The read settles first: opening on an empty list would leave
    * the dialog stating an emptiness the org may not have, and a read that failed says so instead
    * of opening at all. Which emptiness it is once the read has landed is `noneEligible`, taken
-   * from the same active-connector set the options come from. The row is busy throughout, which
-   * is what its own {@link isRowBusy} binding reflects and what keeps a delete from racing the
-   * assignment's optimistic patch.
+   * from the same active-connector set the options come from. The wait is gated on the component,
+   * so leaving the tab mid-wait opens nothing over whichever tab the admin landed on. The row is
+   * busy throughout, which is what its own {@link isRowBusy} binding reflects and what keeps a
+   * delete from racing the assignment's optimistic patch.
    */
   protected readonly openAssignConnectorDialog = (system: TargetSystem): Promise<void> =>
     this.busyRows.run(system.id, async () => {
-      await firstValueFrom(this.daemonsService.loading$.pipe(filter((inFlight) => !inFlight)));
+      const stillMounted = await firstValueFrom(
+        this.daemonsService.loading$.pipe(
+          filter((inFlight) => !inFlight),
+          map(() => true),
+          takeUntilDestroyed(this.destroyRef),
+        ),
+        { defaultValue: false },
+      );
+      if (!stillMounted) {
+        return;
+      }
       if (this.connectorsUnavailable()) {
         this.toastService.showToast({
           variant: "error",
