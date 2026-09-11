@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@a
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, CanDeactivateFn, Router } from "@angular/router";
-import { map } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -277,8 +277,22 @@ export class RotationConfigEditComponent {
       this.targetSystemsService.load(this.organizationId),
       this.orgCiphersService.load(this.organizationId),
     ]);
+    await this.throwIfTargetSystemsFailed();
     this.configuredCipherIds.set(new Set(configs.map((c) => c.cipherId)));
     this.applyPreselectedTargetSystem();
+  }
+
+  /**
+   * Surface a failed target-systems read as this page's own load error.
+   *
+   * `TargetSystemsService.load` records failures on `loadError$` and resolves, so awaiting it
+   * alone cannot tell a failed read from an org with no target systems.
+   */
+  private async throwIfTargetSystemsFailed(): Promise<void> {
+    const error = await firstValueFrom(this.targetSystemsService.loadError$);
+    if (error != null) {
+      throw error;
+    }
   }
 
   /** Select {@link preselectedTargetSystemId} if it names a target the picker actually offers. */
