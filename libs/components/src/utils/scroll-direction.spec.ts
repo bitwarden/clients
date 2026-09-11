@@ -188,8 +188,7 @@ describe("scrollDirection", () => {
     });
 
     it("holds up when the region can scroll exactly as far as the chrome is tall", async () => {
-      // The boundary the gate's `<=` is written for: handing back exactly `maxTop` leaves nothing
-      // to scroll, so this has to fail closed.
+      // The boundary the gate's `<=` is written for: exactly `maxTop` leaves nothing to scroll.
       const element = createScrollable(548, 500);
       const direction = create(signal(element), { minScrollable: 48 });
 
@@ -199,9 +198,8 @@ describe("scrollDirection", () => {
     });
 
     it("does not flap when a collapse clamps the offset back to the top", async () => {
-      // The CL-1318 loop, driven end to end: a page with less overflow than the chrome it would
-      // collapse. `clientHeight` and the floor move together, the way they do when the chrome
-      // actually animates — the collapse hands its height to the scroller.
+      // The CL-1318 loop end to end: less overflow than the chrome it would collapse, with
+      // `clientHeight` and the floor moving together as they do when the chrome animates.
       const chrome = 48;
       const element = createScrollable(530, 500);
       let collapsed = false;
@@ -232,8 +230,7 @@ describe("scrollDirection", () => {
     });
 
     it("stays down through the clamp once the region could afford the collapse", async () => {
-      // The other side of the same loop: enough overflow to clear the floor, so collapsing is
-      // legitimate and must not be undone by the clamp it causes.
+      // The other side: enough overflow to clear the floor, so the clamp must not undo it.
       const chrome = 48;
       const element = createScrollable(560, 500);
       const direction = create(signal(element), { minScrollable: () => chrome });

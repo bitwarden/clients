@@ -170,30 +170,27 @@ ring clipped. It is only ever visually clipped, never removed from the accessibi
 **Which element is scrolling**
 
 The direction comes from `ScrollCollapseService`, which watches the element reported by
-`bitScrollCollapseSource`, falling back to the `bitScrollLayoutHost` region when nothing reports
-one. A page whose content scrolls its own `popup-page` region needs no opt-in; a page whose content
+`bitScrollCollapseSource` and falls back to the `bitScrollLayoutHost` region when nothing reports
+one. A page whose content scrolls its own `popup-page` region needs no opt-in. A page whose content
 owns its own scroller — a `bit-table-v2` with `height="fill"`, say — leaves that region with nothing
-to report, so put `bitScrollCollapseSource` on the container that holds the real scroller. It
-listens for scroll events in the capture phase, so the scrolling descendant identifies itself and
-there is nothing to keep in sync when the DOM changes.
+to report, so put `bitScrollCollapseSource` on the container holding the real scroller; it listens
+in the capture phase, so the scrolling descendant identifies itself as the DOM changes.
 
 **Collapsing more than the title bar**
 
-Any element can collapse alongside it with `bitCollapseOnScroll`; `popup-page` wires it to the
-`above-scroll-area` region behind the `collapseAboveScrollArea` input. Every region collapsing on a
-page shares one direction signal, because each collapse gives its height back to the scroller and
+Any element can collapse alongside it with `bitCollapseOnScroll`, and `popup-page` wires it to the
+`above-scroll-area` region behind the `collapseAboveScrollArea` input. Every collapsing region on a
+page shares one direction signal, since each collapse gives its height back to the scroller and
 per-region signals would fight each other.
 
-The collapsing element must have exactly one element child, which becomes the collapsing row. Put
-block padding on that child rather than on the element itself, so it collapses with the row instead
-of holding the region open.
+The element must have exactly one element child, which becomes the collapsing row. Put block padding
+on that child rather than on the element itself, so it collapses with the row.
 
-A collapsing region is only ever visually clipped, never removed from the accessibility tree, so
-tabbing into it brings it into view. If it holds focus when the collapse comes due — the vault's
-search is autofocused on open and keeps focus through a wheel scroll — focus moves out to the
-nearest focusable ancestor, which is `popup-page`'s scroll region, rather than being hidden along
-with the element it sits on. Keyboard users tabbing onward move focus out themselves, so that
-hand-off only happens for pointer scrolling.
+Collapsing regions are only ever visually clipped, never removed from the accessibility tree, so
+tabbing into one brings it into view. If a region holds focus when the collapse comes due — the
+vault's search is autofocused and keeps focus through a wheel scroll — focus moves out to
+`popup-page`'s scroll region rather than being hidden. Keyboard users tabbing onward move focus
+themselves, so that hand-off only happens for pointer scrolling.
 
 <Canvas of={stories.HeaderV2ScrollingTitleBar} />
 

@@ -58,10 +58,7 @@
     </ng-container>
   }
 
-  <!--
-    Sits outside the scroll area of the page. With vfo1 enabled this region collapses as the
-    user scrolls down, alongside the title bar and the table's own search/filter toolbar.
-  -->
+  <!-- Outside the page's scroll area; with vfo1 it collapses alongside the title bar. -->
   <ng-container slot="above-scroll-area">
     @if (showPremiumSpotlight$ | async) {
       <bit-callout

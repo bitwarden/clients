@@ -42,8 +42,8 @@ export class PopupPageComponent {
   readonly hideOverflow = input(false, { transform: booleanAttribute });
 
   /**
-   * Collapse the `above-scroll-area` region while the user scrolls down, giving its height
-   * back to the page content. Requires a `bitScrollCollapseSource` on whatever scrolls.
+   * Collapse the `above-scroll-area` region while the user scrolls down. Requires a
+   * `bitScrollCollapseSource` on whatever scrolls.
    */
   readonly collapseAboveScrollArea = input(false, { transform: booleanAttribute });
 

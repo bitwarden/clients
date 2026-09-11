@@ -6,10 +6,7 @@ import { ScrollCollapseSourceDirective } from "./scroll-collapse-source.directiv
 import { ScrollCollapseService } from "./scroll-collapse.service";
 import { ScrollLayoutService } from "./scroll-layout.directive";
 
-/**
- * jsdom reports `0` for every layout measurement and never actually scrolls, so the scroll
- * geometry has to be stubbed and the events dispatched by hand.
- */
+/** jsdom reports `0` for every layout measurement, so the geometry is stubbed and events faked. */
 const stubGeometry = (element: HTMLElement, scrollHeight: number, clientHeight: number) => {
   Object.defineProperty(element, "scrollHeight", { value: scrollHeight, configurable: true });
   Object.defineProperty(element, "clientHeight", { value: clientHeight, configurable: true });
@@ -65,8 +62,7 @@ describe("scroll collapse", () => {
     host = fixture.componentInstance;
     fixture.detectChanges();
 
-    // The region stands in for collapsing chrome; give it a height so `minScrollable` is
-    // satisfied and scrolling down is actually reported.
+    // Stands in for collapsing chrome, so `minScrollable` is satisfied and "down" is reported.
     Object.defineProperty(region(), "offsetHeight", { value: 40, configurable: true });
     stubGeometry(el("scroller"), 1000, 500);
   });
@@ -108,8 +104,7 @@ describe("scroll collapse", () => {
     const search = (): HTMLInputElement => el("search") as HTMLInputElement;
 
     it("hands focus to the nearest focusable ancestor rather than hiding it", async () => {
-      // The vault's search is autofocused on open and keeps focus through a wheel scroll, so
-      // without this the region could never collapse.
+      // The vault's search is autofocused, so without this the region could never collapse.
       search().focus();
       fixture.detectChanges();
       expect(region().contains(document.activeElement)).toBe(true);
@@ -138,8 +133,7 @@ describe("scroll collapse", () => {
   });
 
   it("zeroes the child's block padding so the row can reach zero height", async () => {
-    // Padding sits outside the content box, so `min-height: 0` never reaches it and the
-    // track would otherwise stop at the child's padding.
+    // Padding sits outside the content box, so `min-height: 0` never reaches it.
     await scrollTo(200);
 
     expect(region().className).toContain("[&>*]:!tw-py-0");
@@ -151,8 +145,8 @@ describe("scroll collapse", () => {
 
   describe("choosing the scroll source", () => {
     it("ignores a scroller with nothing to scroll vertically", async () => {
-      // A table's header row scrolls sideways in step with its body. Adopting it would swap in a
-      // vertical range that isn't the one being read, popping the chrome back open.
+      // A table's header scrolls sideways in step with its body; adopting it would swap in a
+      // vertical range that isn't the one being read.
       const sideways = el("sideways");
       // Taller content than it shows, but clipped vertically — it only scrolls sideways.
       sideways.style.overflowY = "hidden";
@@ -176,10 +170,8 @@ describe("scroll collapse", () => {
       Object.defineProperty(element, "clientHeight", { value: clientHeight, configurable: true });
 
     it("leaves a list that scrolls by less than the chrome alone", async () => {
-      // The geometry of the `VaultPageShortScroll` story, and of the CL-1318 report: a 520px popup
-      // showing one section header plus seven 59px rows, whose 104px of overflow is less than the
-      // 130px of title bar and toolbar that collapsing would hand back. Collapsing would clamp the
-      // offset to the top, read as scrolling up, and reopen the chrome.
+      // The `VaultPageShortScroll` geometry from the CL-1318 report: 104px of overflow is less
+      // than the 130px of chrome collapsing would hand back, so it would clamp and reopen.
       Object.defineProperty(region(), "offsetHeight", { value: 130, configurable: true });
       stubGeometry(el("scroller"), 453, 349);
 
@@ -204,9 +196,8 @@ describe("scroll collapse", () => {
     });
 
     it("keeps counting a collapsed region at its expanded height", async () => {
-      // The region's own height animates to nothing, so measuring it live would under-report the
-      // floor for the length of that animation and let a collapse through that should be blocked.
-      // `settledHeight` holds the expanded value instead.
+      // Measured live, the region's animating height would under-report the floor and let a
+      // blocked collapse through; `settledHeight` holds the expanded value instead.
       const scroller = el("scroller");
       // 30px of overflow can never afford to give back the region's 40px.
       stubGeometry(scroller, 530, 500);
@@ -228,8 +219,7 @@ describe("scroll collapse", () => {
 
   describe("the shared direction signal", () => {
     it("reads the source reported by the capture listener over the layout scroll host", async () => {
-      // A page whose content owns its own scroller leaves the layout host with nothing to
-      // report, so the reported source has to win.
+      // Content owning its own scroller leaves the host with nothing, so the report has to win.
       const unscrollableHost = stubGeometry(document.createElement("div"), 100, 100);
       TestBed.inject(ScrollLayoutService).scrollableRef.set(new ElementRef(unscrollableHost));
 

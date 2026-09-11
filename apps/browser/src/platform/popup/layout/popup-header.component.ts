@@ -106,10 +106,8 @@ export class PopupHeaderComponent {
   private readonly titleBar = viewChild<ElementRef<HTMLElement>>("titleBar");
 
   /**
-   * The bar's height as chrome, which gates every region's collapse on this page. Never less than
-   * its expanded height, since the bar animates for 200ms and collapses to just its border.
-   * Re-measured after each transition, because the height moves with compact mode and with a title
-   * that wraps.
+   * The bar's height as chrome, which gates every region's collapse on this page. Settled rather
+   * than live, since the height moves with compact mode and with a title that wraps.
    */
   private readonly height = settledHeight(
     this.titleBar,
@@ -117,8 +115,8 @@ export class PopupHeaderComponent {
   );
 
   constructor() {
-    // Counted only while the bar can actually collapse — otherwise it would inflate the chrome
-    // height for the regions that can.
+    // Counted only while the bar can actually collapse, so it doesn't inflate the chrome height
+    // for the regions that can.
     effect((onCleanup) => {
       if (!this.vfo1Enabled() || this.hideTitleBar()) {
         return;
@@ -133,9 +131,8 @@ export class PopupHeaderComponent {
    * The popup viewport is short, so the title bar gets out of the way while the user reads down the
    * page. The app bar stays pinned.
    *
-   * The direction comes from `ScrollCollapseService` rather than a local `scrollDirection`, so every
-   * region collapsing on this page shares one decision. Each collapse gives its height back to the
-   * scroller, so per-region signals would fight each other.
+   * Shared via `ScrollCollapseService` so every region collapsing on this page makes one decision;
+   * each collapse gives its height back to the scroller, so per-region signals would fight.
    */
   private readonly scrollDirection = this.scrollCollapse.direction;
 

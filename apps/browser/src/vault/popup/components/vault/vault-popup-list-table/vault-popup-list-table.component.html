@@ -11,14 +11,9 @@
   [virtualRowHeight]="itemHeight()"
 >
   <!--
-    Collapses while the user scrolls down, so the search and filters give their height back
-    to the list. The toolbar's rows carry their own padding, so it collapses to nothing.
-
-    It has to stay *outside* the virtual scroll viewport for the collapse to be gated correctly:
-    the floor that decides whether the list can afford a collapse compares the chrome's height
-    against how far that viewport can scroll, which only lines up while the chrome hands its
-    height to the viewport rather than to the scrolled content. `bit-table-v2` renders the
-    toolbar above the viewport, which is what makes this hold.
+    Collapses while the user scrolls down, so the search and filters give their height back to the
+    list. Has to stay outside the virtual scroll viewport: `bit-table-v2` renders the toolbar above
+    it, so the height it gives up goes to that viewport rather than to the scrolled content.
   -->
   <bit-table-toolbar bitCollapseOnScroll>
     <bit-search

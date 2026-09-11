@@ -5,40 +5,34 @@ import { scrollDirection } from "../utils/scroll-direction";
 import { ScrollLayoutService } from "./scroll-layout.directive";
 
 /**
- * Tracks which element the page is scrolling and which regions collapse with it.
- *
- * A service is needed because the scroller and the collapsing regions live in unrelated
- * component trees — the same reason {@link ScrollLayoutService} exists.
+ * Tracks which element the page is scrolling and which regions collapse with it. A service because
+ * the scroller and the collapsing regions live in unrelated component trees.
  */
 @Injectable({ providedIn: "root" })
 export class ScrollCollapseService {
   private readonly scrollLayout = inject(ScrollLayoutService);
 
-  /** The element last reported as scrolling by `ScrollCollapseSourceDirective`. */
+  /** The element last reported by `ScrollCollapseSourceDirective`. */
   private readonly reportedSource = signal<HTMLElement | null>(null);
 
   /** The registered regions' chrome heights, whose total gates the collapse. */
   private readonly collapsibles = signal<readonly (() => number)[]>([]);
 
   /**
-   * The element to watch. A reported source wins over the layout's scroll host: a page
-   * whose content owns its own scroller (a `fill` table, say) leaves the host with
-   * nothing to report, and pages without one keep working untouched.
+   * A reported source wins over the layout's scroll host, since a page whose content owns its own
+   * scroller leaves the host with nothing to report.
    */
   private readonly source = computed<HTMLElement | ElementRef<HTMLElement> | null>(
     () => this.reportedSource() ?? this.scrollLayout.scrollableRef(),
   );
 
   /**
-   * Which way the page is being scrolled. One signal for the whole page: every region's collapse
-   * gives its height back to the scroller, so per-region signals would fight each other.
+   * Which way the page is being scrolled. One signal for the whole page: every collapse gives its
+   * height back to the scroller, so per-region signals would fight each other.
    *
-   * `minScrollable` is the regions' combined height, which stops a collapse the scroller cannot
-   * afford — see {@link scrollDirection}. Summing is only correct while **every registered region
-   * sits outside the scrolled element and hands its height to it 1:1**, which is what makes the
-   * total comparable to that element's `maxTop`. A region registered *inside* the scroller would
-   * instead shrink its `scrollHeight`, moving `maxTop` the opposite way, and the gate would read
-   * the difference as twice the error rather than none.
+   * Summing heights into `minScrollable` only stays comparable to the scroller's `maxTop` while
+   * every registered region sits outside the scrolled element. One registered inside would shrink
+   * its `scrollHeight` instead, moving `maxTop` the opposite way.
    */
   readonly direction: Signal<"up" | "down"> = scrollDirection(this.source, {
     minScrollable: () => this.collapsibles().reduce((total, height) => total + height(), 0),
@@ -58,11 +52,8 @@ export class ScrollCollapseService {
   }
 
   /**
-   * Count a region's height towards the chrome total that gates the collapse.
-   *
-   * Pass a height that never under-reports while the region is collapsed or animating — see
-   * `settledHeight`. A plain `offsetHeight` read reports ~0 once collapsed, which would drop the
-   * floor to nothing exactly when it is needed.
+   * Count a region's height towards the chrome total that gates the collapse. Pass a height that
+   * never under-reports while collapsed or animating — see `settledHeight`.
    */
   register(height: () => number): void {
     this.collapsibles.update((current) =>

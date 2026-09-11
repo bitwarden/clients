@@ -70,8 +70,8 @@ describe("settledHeight", () => {
     endTransition(element);
     TestBed.tick();
 
-    // Re-expanding: `expanded` flips first and the height catches up over the animation. Reading it
-    // here is what would under-report the floor and let a collapse through that should be blocked.
+    // Re-expanding, `expanded` flips first and the height catches up, so a live read here is what
+    // would under-report the floor.
     expanded.set(true);
     setHeight(element, 12);
     TestBed.tick();

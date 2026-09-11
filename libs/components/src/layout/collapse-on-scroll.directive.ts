@@ -1,7 +1,6 @@
 import {
   Directive,
   ElementRef,
-  OnDestroy,
   booleanAttribute,
   computed,
   effect,
@@ -18,22 +17,33 @@ import { ScrollCollapseService } from "./scroll-collapse.service";
 export type CollapseOnScrollState = "collapsed" | "expanded";
 
 /**
+ * The collapse is a single-row grid animating `grid-template-rows` between `1fr` and `0fr`, so
+ * there is no height ceiling to guess. `tw-min-h-0` lets the child shrink past its content height,
+ * which a grid item's automatic minimum size would otherwise prevent.
+ *
+ * `tw-grid` is emitted after `block`, `flex`, and `table`, so it wins over whatever display utility
+ * the host already carries, while `tw-hidden` comes later still and keeps hiding outright.
+ */
+const COLLAPSE_CLASSES = [
+  "tw-grid",
+  "tw-overflow-hidden",
+  "[&>*]:tw-min-h-0",
+  "motion-safe:tw-transition-[grid-template-rows]",
+  "tw-duration-200",
+  "tw-ease-out",
+].join(" ");
+
+/**
  * Collapses this element while the user scrolls down the region marked with
- * `bitScrollCollapseSource`, and restores it as soon as they scroll back up.
+ * `bitScrollCollapseSource`, and restores it as soon as they scroll back up. For short viewports —
+ * the extension popup especially — where chrome is worth more as content space.
  *
- * For short viewports — the extension popup especially — where page chrome is worth more
- * as content space once the user is reading down a list.
+ * The element must have exactly one element child, which becomes the collapsing row; further
+ * children would land in implicit rows and wouldn't collapse. Put block padding on that child
+ * rather than here, so it collapses with the row instead of holding the region open.
  *
- * The element must have exactly one element child, which becomes the collapsing row.
- * Further children would land in implicit grid rows and wouldn't collapse. Put any block
- * padding on that child rather than here, so it collapses with the row instead of holding
- * the region open.
- *
- * The region is only ever visually clipped, never removed from the accessibility tree, so
- * tabbing into it brings it into view rather than leaving a focus ring clipped. If it holds
- * focus when the collapse comes due, focus moves out to the nearest focusable ancestor —
- * usually the scrollable region the user is already reading — rather than being hidden along
- * with the element it sits on. Under `prefers-reduced-motion: reduce` the collapse is instant.
+ * The region is only ever visually clipped, never removed from the accessibility tree, so tabbing
+ * into it brings it into view. Under `prefers-reduced-motion: reduce` the collapse is instant.
  */
 @Directive({
   selector: "[bitCollapseOnScroll]",
@@ -44,7 +54,7 @@ export type CollapseOnScrollState = "collapsed" | "expanded";
     "(focusout)": "hasFocus.set(false)",
   },
 })
-export class CollapseOnScrollDirective implements OnDestroy {
+export class CollapseOnScrollDirective {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly service = inject(ScrollCollapseService);
 
@@ -52,9 +62,8 @@ export class CollapseOnScrollDirective implements OnDestroy {
   readonly bitCollapseOnScroll = input(true, { transform: booleanAttribute });
 
   /**
-   * Whether the region contains focus. Tracked here rather than left to CSS `:focus-within` so the
-   * collapse is a single piece of state — the collapsed styles override the child's padding, and CSS
-   * offers no way to take an override back out again under `:focus-within`.
+   * Whether the region contains focus. Tracked here rather than left to CSS `:focus-within`, since
+   * the collapsed styles override the child's padding and CSS can't take that override back out.
    */
   protected readonly hasFocus = signal(false);
 
@@ -64,11 +73,43 @@ export class CollapseOnScrollDirective implements OnDestroy {
       : "expanded",
   );
 
+  protected readonly collapseClasses = computed(() =>
+    this.state() === "collapsed"
+      ? // The child's padding still sizes the track, since padding sits outside the content box
+        // where `min-height` never reaches it. Needs `!` to beat the consumer's own padding class.
+        `${COLLAPSE_CLASSES} tw-grid-rows-[0fr] [&>*]:!tw-py-0`
+      : `${COLLAPSE_CLASSES} tw-grid-rows-[1fr]`,
+  );
+
+  /** This region's height as chrome, which is what gates every region's collapse. */
+  private readonly height = settledHeight(
+    signal(this.host),
+    computed(() => this.state() === "expanded"),
+  );
+
+  constructor() {
+    // Registered only while it can actually collapse, so a disabled region doesn't inflate the
+    // chrome height gating every other region.
+    effect((onCleanup) => {
+      if (!this.bitCollapseOnScroll()) {
+        return;
+      }
+
+      this.service.register(this.height);
+      onCleanup(() => this.service.unregister(this.height));
+    });
+
+    effect(() => {
+      if (this.bitCollapseOnScroll() && this.service.direction() === "down" && this.hasFocus()) {
+        this.releaseFocus();
+      }
+    });
+  }
+
   /**
    * Hands focus to the nearest focusable ancestor when the collapse comes due while this region
-   * holds it, so the collapse isn't blocked by a control the user is no longer using — the vault's
-   * search is autofocused on open and keeps focus through a wheel scroll. Keyboard users tabbing
-   * onward move focus out themselves, so this only ever fires for pointer scrolling.
+   * holds it — the vault's search is autofocused and keeps focus through a wheel scroll. Keyboard
+   * users tabbing onward move focus out themselves, so this only fires for pointer scrolling.
    */
   private releaseFocus(): void {
     const host = this.host.nativeElement;
@@ -87,67 +128,5 @@ export class CollapseOnScrollDirective implements OnDestroy {
     }
 
     this.hasFocus.set(false);
-  }
-
-  /**
-   * The collapse is a single-row grid animating `grid-template-rows` between `1fr` and
-   * `0fr`. There is no height ceiling to guess: the expanded region is whatever height its
-   * content needs.
-   *
-   * Two things keep the row from stopping short of zero. `tw-min-h-0` lets the child shrink
-   * past its content height, which a grid item's automatic minimum size would otherwise
-   * prevent. And the child's own block padding still sizes the track — padding sits outside
-   * the content box, so `min-height` never reaches it — hence zeroing it here. That one
-   * needs `!`, since the consumer's own padding class carries equal specificity.
-   */
-  protected readonly collapseClasses = computed(() =>
-    [
-      // Tailwind emits `grid` after `block`, `flex`, and `table`, so this wins over whatever
-      // display utility the host already carries — while `tw-hidden`, which comes later
-      // still, keeps hiding the element outright.
-      "tw-grid",
-      "tw-overflow-hidden",
-      "[&>*]:tw-min-h-0",
-      "motion-safe:tw-transition-[grid-template-rows]",
-      "tw-duration-200",
-      "tw-ease-out",
-      ...(this.state() === "collapsed"
-        ? ["tw-grid-rows-[0fr]", "[&>*]:!tw-py-0"]
-        : ["tw-grid-rows-[1fr]"]),
-    ].join(" "),
-  );
-
-  /**
-   * This region's height as chrome, which is what gates every region's collapse. Never less than
-   * its expanded height: the row animates for `tw-duration-200` and measures ~0 once collapsed, and
-   * a floor that drops away as the region closes would stop blocking the collapse it exists to
-   * block.
-   */
-  private readonly height = settledHeight(
-    computed(() => this.host),
-    computed(() => this.state() === "expanded"),
-  );
-
-  constructor() {
-    // Registered only while it can actually collapse, so a disabled region doesn't
-    // inflate the chrome height that gates every other region's collapse.
-    effect((onCleanup) => {
-      if (!this.bitCollapseOnScroll()) {
-        return;
-      }
-
-      this.service.register(this.height);
-      onCleanup(() => this.service.unregister(this.height));
-    });
-
-    effect(() => {
-      if (this.bitCollapseOnScroll() && this.service.direction() === "down" && this.hasFocus()) {
-        this.releaseFocus();
-      }
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.service.unregister(this.height);
   }
 }

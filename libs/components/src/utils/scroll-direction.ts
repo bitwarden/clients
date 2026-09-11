@@ -34,11 +34,9 @@ export type ScrollDirectionOptions = {
    * Pass the height of the chrome being collapsed. A callback is re-read on each attempt to flip
    * `"down"`, so the height can be measured after the first render.
    *
-   * Note that it is read while the chrome is expanded *or expanding*: the gate below tests the
-   * previous frame's direction, so the first frame after a flip back to `"up"` lands while the
-   * chrome is still animating open. A collapsing consumer should therefore pass a settled height
-   * (see `settledHeight`) rather than a live measurement, which reports an intermediate value for
-   * the length of its own animation.
+   * It is read while the chrome is expanded *or expanding*, since the gate tests the previous
+   * frame's direction. Collapsing consumers should pass a settled height (see `settledHeight`)
+   * rather than a live measurement, which reads an intermediate value while animating.
    */
   minScrollable?: number | (() => number);
 };

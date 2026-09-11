@@ -8,9 +8,8 @@
   -->
   @let hideNonScrollable = loading() || aboveScrollArea.childElementCount === 0;
   <!--
-    Three elements, one job each, so nothing fights over the same classes: this one owns
-    the border, the next is handed wholly to `bitCollapseOnScroll`, and the innermost owns
-    the padding — which has to sit inside the collapsing row to collapse with it.
+    One job each, so nothing fights over the same classes: border here, the collapse next, and the
+    padding innermost — it has to sit inside the collapsing row to collapse with it.
   -->
   <div
     class="tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid tw-border-transparent"

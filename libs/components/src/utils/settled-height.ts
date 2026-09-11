@@ -11,23 +11,15 @@ const nativeElement = (
 };
 
 /**
- * An element's height as collapsing chrome, which never reports less than the height the element
- * would occupy expanded.
+ * An element's height as collapsing chrome, which never reports less than its expanded height.
  *
- * `scrollDirection`'s `minScrollable` uses this to gate a collapse on the scroller being able to
- * afford it, so under-reporting is the dangerous direction: too small a floor lets through the very
- * collapse the floor exists to block. Two things would under-report a plain `offsetHeight`:
+ * `scrollDirection`'s `minScrollable` gates a collapse on the scroller being able to afford it, so
+ * under-reporting is the dangerous direction — a plain `offsetHeight` measures ~0 once collapsed and
+ * something in between while animating open. The last settled height stands in for both.
  *
- * - While collapsed the element measures ~0, so the last settled height stands in.
- * - While animating back open it measures somewhere in between, so the settled height floors it.
- *
- * Measuring on each call rather than caching keeps content that appears later — a callout resolving
- * into the region, compact mode, a title that starts wrapping — reflected immediately. The settled
- * height is re-taken whenever a transition finishes while expanded, which is what lets it correct
- * back down again once the content shrinks.
- *
- * Returns a plain function rather than a `computed`, which would memoize a DOM read that has no
- * signal to invalidate it.
+ * Measured on each call rather than cached, so content that appears later is reflected immediately;
+ * the settled height is re-taken after any transition that finishes while expanded, which lets it
+ * correct back down once the content shrinks.
  *
  * @param element The element to measure. Reports `0` while it is nullish.
  * @param expanded Whether the element is currently expanded.
@@ -38,7 +30,7 @@ export const settledHeight = (
 ): (() => number) => {
   const target = computed(() => nativeElement(element()));
 
-  /** The last height measured with the element expanded and its transition finished. */
+  /** The last height measured expanded and with its transition finished. */
   let settled = 0;
 
   effect((onCleanup) => {
@@ -47,8 +39,7 @@ export const settledHeight = (
       return;
     }
 
-    // An element never transitions on its first style resolution, so its first measurement is
-    // already settled. `untracked` because this reads a signal the effect should not subscribe to.
+    // An element never transitions on its first style resolution, so it starts out settled.
     if (untracked(expanded)) {
       settled = host.offsetHeight;
     }
@@ -63,6 +54,8 @@ export const settledHeight = (
     onCleanup(() => host.removeEventListener("transitionend", onTransitionEnd));
   });
 
+  // A plain function rather than a `computed`, which would memoize a DOM read with no signal to
+  // invalidate it.
   return () => {
     const host = target();
     if (!host) {
