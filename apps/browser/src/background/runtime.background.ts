@@ -143,7 +143,7 @@ export default class RuntimeBackground {
   async processMessageWithSender(msg: any, sender: chrome.runtime.MessageSender) {
     switch (msg.command) {
       case "triggerAutofillScriptInjection":
-        await this.autofillService.injectAutofillScripts(sender.tab, sender.frameId);
+        await this.autofillService.handleAutofillScriptInjection(sender.tab, sender.frameId);
         break;
       case "bgCollectPageDetails":
         await this.main.collectPageDetailsForContentScript(sender.tab, msg.sender, sender.frameId);
@@ -369,6 +369,7 @@ export default class RuntimeBackground {
         break;
       case "logout":
         await this.main.logout(msg.expired, msg.userId);
+        await this.autofillService.reloadAutofillScripts();
         break;
       case "syncCompleted":
         if (msg.successfully) {

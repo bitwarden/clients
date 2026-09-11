@@ -116,6 +116,8 @@ export abstract class AutofillService {
     triggeringOnPageLoad?: boolean,
   ) => Promise<void>;
   /** Non-null asserted. */
+  handleAutofillScriptInjection!: (tab: chrome.tabs.Tab, frameId?: number) => Promise<void>;
+  /** Non-null asserted. */
   getFormsWithPasswordFields!: (pageDetails: AutofillPageDetails) => FormData[];
   /** Non-null asserted. */
   doAutoFill!: (options: AutoFillOptions) => Promise<AutoFillResult>;
