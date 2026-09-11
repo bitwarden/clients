@@ -118,6 +118,7 @@ function rotationServices(rows: RotationConfigRow[]) {
         provide: RotationConfigsService,
         useValue: {
           loading$: of(false),
+          loadError$: of(null),
           rows$: of(rows),
           configs$: of(rows.map((r) => r.config)),
           awaitingManualCount$: of(rows.filter((r) => r.awaitingManualRotation).length),
@@ -137,6 +138,8 @@ function rotationServices(rows: RotationConfigRow[]) {
         provide: TargetSystemsService,
         useValue: {
           systems$: of([{ id: sysId("1") }, { id: sysId("2") }]),
+          loading$: of(false),
+          loadError$: of(null),
           load: () => Promise.resolve(),
         },
       },
