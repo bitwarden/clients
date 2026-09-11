@@ -19,7 +19,7 @@ function system(overrides: Partial<TargetSystem> = {}): TargetSystem {
 describe("targetSystemQualifierKey", () => {
   it("uses the integration when there is one", () => {
     expect(targetSystemQualifierKey(system({ kind: TargetSystemKind.Mssql }))).toBe(
-      "pamTargetSystemKindMssql",
+      "pamTargetSystemTypeMssql",
     );
   });
 
@@ -55,8 +55,8 @@ describe("targetSystemLabel", () => {
 
     expect(entra.name).toBe(script.name);
     expect(entra.qualified).not.toBe(script.qualified);
-    expect(entra.qualified).toBe("dc01 AD domain accounts (pamTargetSystemKindEntra)");
-    expect(script.qualified).toBe("dc01 AD domain accounts (pamTargetSystemKindCustomScript)");
+    expect(entra.qualified).toBe("dc01 AD domain accounts (pamTargetSystemTypeEntra)");
+    expect(script.qualified).toBe("dc01 AD domain accounts (pamTargetSystemTypeCustomScript)");
   });
 
   it("leaves the name alone when there is no detail to add", () => {
