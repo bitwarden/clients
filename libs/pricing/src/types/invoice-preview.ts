@@ -48,6 +48,8 @@ export type InvoicePreviewDiscount = {
   amount: number;
   /** The coupon name. */
   label?: string;
+  /** Number of months the coupon repeats for; absent for perpetual or once-only coupons. */
+  durationInMonths?: number;
 };
 
 export type InvoicePreviewItem = {
