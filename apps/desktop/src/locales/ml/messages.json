@@ -2424,6 +2424,30 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 result",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ results",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "No filters match “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
     "message": "Clear search"
   },
@@ -6276,11 +6300,80 @@
   "noItemsInTrashDesc": {
     "message": "നിങ്ങൾ ഇല്ലാതാക്കുന്ന ഇനങ്ങൾ ഇവിടെ ദൃശ്യമാകും, 30 ദിവസത്തിന് ശേഷം സ്ഥിരമായി ഇല്ലാതാക്കപ്പെടും"
   },
+  "noItemsInTrashDescription": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days."
+  },
   "noItemsInVault": {
     "message": "വോൾട്ടിൽ ഇനങ്ങളൊന്നുമില്ല"
   },
+  "noItemsInMyVault": {
+    "message": "No items in My vault"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "No items in My items"
+  },
+  "noItemsInVaults": {
+    "message": "Your vaults are empty"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "No items match selected filters"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "No items match \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "വോൾട്ട് നിങ്ങളുടെ പാസ്വേഡുകളെ മാത്രമല്ല സംരക്ഷിക്കുന്നത്. സുരക്ഷിത ലോഗിനുകൾ, ഐഡികൾ, കാർഡുകൾ, കുറിപ്പുകൾ എന്നിവ ഇവിടെ സുരക്ഷിതമായി സംഭരിക്കുക."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "You have no folders."
+  },
+  "emptyFoldersDescription": {
+    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  },
+  "emptyVaultsDescription": {
+    "message": "Add logins, IDs, cards, and other items to get started."
   },
   "emptyFavorites": {
     "message": "നിങ്ങൾ ഒരു ഇനവും പ്രിയങ്കരമാക്കിയിട്ടില്ല"
