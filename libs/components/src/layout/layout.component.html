@@ -1,9 +1,15 @@
 @let mainContentId = "main-content";
+<!-- data-nav-version mirrors the attribute bit-side-nav puts on its own <nav>.  The
+     `[data-nav-version="default"]` block in tw-theme.css remaps the shared nav tokens back to
+     the pre-vfo1 palette, and it is scoped to the element carrying the attribute — so without
+     this the tw-bg-bg-nav wedge behind main's rounded corner would resolve to the vfo1 brand
+     color while the nav beside it renders the default palette. -->
 <div
   #container
   class="tw-grid tw-relative tw-size-full tw-overflow-hidden tw-grid-rows-[minmax(0,1fr)]"
   [style.grid-template-columns]="gridTemplateColumns()"
-  [class.tw-bg-background-alt3]="rounded()"
+  [class.tw-bg-bg-nav]="rounded()"
+  [attr.data-nav-version]="rounded() ? sideNavService.version() : null"
   cdkTrapFocus
 >
   <!-- Skip-to-content link -->
@@ -49,7 +55,7 @@
     tabindex="-1"
     bitScrollLayoutHost
     class="tw-col-start-2 tw-row-start-1 tw-overflow-auto tw-max-h-full tw-min-w-96 tw-bg-background tw-pt-6 tw-@container has-[bit-page]:tw-p-0"
-    [class.tw-rounded-tl-2xl]="rounded()"
+    [class.tw-rounded-tl-xl]="showRoundedCorner()"
     [class]="vfo1Enabled() ? ['tw-p-10', 'has-[bit-header]:tw-pt-0'] : ['tw-p-8']"
   >
     <!-- ^ If updating this padding, also update the padding correction in bit-banner! ^ -->
