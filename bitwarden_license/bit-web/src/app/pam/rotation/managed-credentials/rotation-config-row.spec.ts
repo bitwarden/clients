@@ -83,7 +83,7 @@ describe("buildRotationConfigRow", () => {
     it("reads rotating while a job is in flight", () => {
       const built = row({ config: { hasActiveJob: true } });
       expect(built.status).toBe(RotationRowStatus.Rotating);
-      expect(built.statusBadge.labelKey).toBe("pamRotationConfigInProgress");
+      expect(built.statusBadge.labelKey).toBe("pamRotationConfigRotatingBadge");
       expect(built.statusBadge.variant).toBe("primary");
       expect(built.statusBadge.icon).toBe("bwi-refresh");
     });
@@ -91,7 +91,7 @@ describe("buildRotationConfigRow", () => {
     it("reads manual rotation while awaiting an operator's confirmation", () => {
       const built = row({ config: { awaitingManualRotation: true } });
       expect(built.status).toBe(RotationRowStatus.ManualRotation);
-      expect(built.statusBadge.labelKey).toBe("pamRotationConfigManualDue");
+      expect(built.statusBadge.labelKey).toBe("pamRotationConfigRotationDueBadge");
       expect(built.statusBadge.variant).toBe("warning");
       expect(built.statusBadge.icon).toBe("bwi-clock");
     });

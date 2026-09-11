@@ -40,13 +40,13 @@ const STATUS_BADGES: Readonly<Record<RotationRowStatus, Readonly<RotationStatusB
     },
     [RotationRowStatus.Rotating]: {
       status: RotationRowStatus.Rotating,
-      labelKey: "pamRotationConfigInProgress",
+      labelKey: "pamRotationConfigRotatingBadge",
       variant: "primary",
       icon: "bwi-refresh",
     },
     [RotationRowStatus.ManualRotation]: {
       status: RotationRowStatus.ManualRotation,
-      labelKey: "pamRotationConfigManualDue",
+      labelKey: "pamRotationConfigRotationDueBadge",
       variant: "warning",
       icon: "bwi-clock",
     },
