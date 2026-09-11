@@ -1,0 +1,13 @@
+<bit-breadcrumbs>
+  @if (reportsRoute(); as route) {
+    <bit-breadcrumb icon="bwi-sliders" [route]="route">{{ "reports" | i18n }}</bit-breadcrumb>
+  }
+
+  <!--
+    `[route]="[]"` plus `merge` resolves to the current URL, query params and all, which is what
+    keeps this crumb active once the table writes its filter state there.
+  -->
+  <bit-breadcrumb [route]="[]" queryParamsHandling="merge">
+    {{ "memberAdoptionReport" | i18n }}
+  </bit-breadcrumb>
+</bit-breadcrumbs>
