@@ -8,12 +8,14 @@
 
   <ng-container bitDialogContent>
     <dl class="tw-m-0 tw-flex tw-flex-col tw-gap-4">
-      <div>
-        <dt class="tw-text-sm tw-font-bold tw-text-muted">
-          {{ "pamRotationAttemptStarted" | i18n }}
-        </dt>
-        <dd class="tw-m-0" data-testid="drawer-started">{{ job.createdAt | date: "long" }}</dd>
-      </div>
+      @if (job.startedAt) {
+        <div>
+          <dt class="tw-text-sm tw-font-bold tw-text-muted">
+            {{ "pamRotationAttemptStarted" | i18n }}
+          </dt>
+          <dd class="tw-m-0" data-testid="drawer-started">{{ job.startedAt | date: "long" }}</dd>
+        </div>
+      }
 
       @if (params.showCredential) {
         <div>
