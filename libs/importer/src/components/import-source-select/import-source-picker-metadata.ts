@@ -29,7 +29,6 @@ import {
   ImportKeepassIcon,
   ImportKeeperIcon,
   ImportLastpassIcon,
-  ImportLogmeonceIcon,
   ImportMsecureIcon,
   ImportMykiIcon,
   ImportNetwrixIcon,
@@ -143,7 +142,6 @@ const PICKER_VENDOR_METADATA: Partial<Record<ImportType, PickerVendorMetadata>> 
   fsecurefsk: { icon: ImportFSecureIcon, displayName: "F-Secure" },
   kasperskytxt: { icon: ImportKasperskyIcon, displayName: "Kaspersky" },
   securesafecsv: { icon: ImportSecuresafeIcon, displayName: "SecureSafe" },
-  logmeoncecsv: { icon: ImportLogmeonceIcon, displayName: "LogMeOnce" },
   blackberrycsv: {
     icon: ImportBlackberryIcon,
     darkIcon: ImportBlackberryDarkIcon,
@@ -170,6 +168,7 @@ const PICKER_VENDOR_METADATA: Partial<Record<ImportType, PickerVendorMetadata>> 
   upmcsv: { displayName: "Universal Password Manager" },
   meldiumcsv: { displayName: "Meldium" },
   passwordwallettxt: { displayName: "PasswordWallet" },
+  logmeoncecsv: { displayName: "LogMeOnce" },
 };
 
 export function pickerIconFor(id: string, isDark: boolean): BitSvg | undefined {
