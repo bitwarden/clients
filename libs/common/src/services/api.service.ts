@@ -671,14 +671,13 @@ export class ApiService implements ApiServiceAbstraction {
 
   async getManyCollectionsWithAccessDetails(
     organizationId: string,
+    includeDefaultCollections?: boolean,
   ): Promise<ListResponse<CollectionAccessDetailsResponse>> {
-    const r = await this.send(
-      "GET",
-      "/organizations/" + organizationId + "/collections/details",
-      null,
-      true,
-      true,
-    );
+    let url = "/organizations/" + organizationId + "/collections/details";
+    if (includeDefaultCollections) {
+      url += `?includeDefaultCollections=${includeDefaultCollections}`;
+    }
+    const r = await this.send("GET", url, null, true, true);
     return new ListResponse(r, CollectionAccessDetailsResponse);
   }
 
