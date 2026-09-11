@@ -42,6 +42,7 @@
           size="small"
           [label]="'optionsForItem' | i18n: row.name"
           [bitMenuTriggerFor]="rowMenu"
+          vaultItemsTableRowContextMenu
         ></button>
         <bit-menu #rowMenu>
           @for (rowAction of actions; track rowAction.id) {
