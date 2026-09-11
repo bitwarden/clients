@@ -22,7 +22,7 @@
         <tr>
           <th bitCell>{{ "name" | i18n }}</th>
           <th bitCell>{{ "pamTargetSystemMethodColumn" | i18n }}</th>
-          <th bitCell>{{ "pamTargetSystemKindColumn" | i18n }}</th>
+          <th bitCell>{{ "pamTargetSystemTypeColumn" | i18n }}</th>
           <th bitCell>{{ "status" | i18n }}</th>
           <th bitCell>{{ "pamTargetSystemSessionTerminationColumn" | i18n }}</th>
           <th bitCell class="tw-w-0"></th>
@@ -73,7 +73,7 @@
       <bit-filter-menu
         #kindFilter
         key="kind"
-        [placeholderText]="'pamTargetSystemKindColumn' | i18n"
+        [placeholderText]="'pamTargetSystemTypeColumn' | i18n"
         [unsetLabel]="'all' | i18n"
       >
         @for (option of kindOptions(); track option.value) {
@@ -100,7 +100,7 @@
       <tr>
         <th bitCell bitSortable="name">{{ "name" | i18n }}</th>
         <th bitCell>{{ "pamTargetSystemMethodColumn" | i18n }}</th>
-        <th bitCell>{{ "pamTargetSystemKindColumn" | i18n }}</th>
+        <th bitCell>{{ "pamTargetSystemTypeColumn" | i18n }}</th>
         <th bitCell>{{ "status" | i18n }}</th>
         <th bitCell>{{ "pamTargetSystemSessionTerminationColumn" | i18n }}</th>
         <th bitCell class="tw-w-0"></th>

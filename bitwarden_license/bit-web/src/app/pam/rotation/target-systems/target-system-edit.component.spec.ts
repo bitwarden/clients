@@ -2205,15 +2205,15 @@ describe("TargetSystemEditComponent — session termination withdrawal (rendered
     it("names a kind it can model", async () => {
       await render({ kind: TargetSystemKind.Mssql, supportsSessionTermination: false });
 
-      expect(el().textContent).toContain("pamTargetSystemKindMssql");
+      expect(el().textContent).toContain("pamTargetSystemTypeMssql");
     });
 
     it("leaves a kind it cannot model unnamed", async () => {
       await render({ kind: TargetSystemKind.Unknown, supportsSessionTermination: false });
 
       expect(el().textContent).toContain("pamTargetSystemMethodAutomatic");
-      expect(el().textContent).not.toContain("pamTargetSystemKindCustomScript");
-      expect(el().textContent).not.toContain("pamTargetSystemKindEntra");
+      expect(el().textContent).not.toContain("pamTargetSystemTypeCustomScript");
+      expect(el().textContent).not.toContain("pamTargetSystemTypeEntra");
     });
   });
 });

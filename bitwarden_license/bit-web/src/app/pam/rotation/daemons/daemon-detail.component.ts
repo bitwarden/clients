@@ -289,7 +289,7 @@ export class DaemonDetailComponent {
 
   protected readonly assignmentColumns: readonly AssignmentPickerColumn[] = [
     { headerKey: "pamAccessConnectorAssignTargetLabel" },
-    { headerKey: "pamTargetSystemKindColumn" },
+    { headerKey: "pamTargetSystemTypeColumn" },
   ];
 
   protected readonly assignmentHints: AssignmentPickerHints = {
@@ -301,13 +301,11 @@ export class DaemonDetailComponent {
   };
 
   constructor() {
-    this.formGroup.controls.active.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe((active) => {
-        if (!active) {
-          this.dropStagedAssignmentAdditions();
-        }
-      });
+    this.formGroup.controls.active.valueChanges.pipe(takeUntilDestroyed()).subscribe((active) => {
+      if (!active) {
+        this.dropStagedAssignmentAdditions();
+      }
+    });
     void this.initialize();
   }
 
