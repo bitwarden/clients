@@ -6,8 +6,11 @@ import { OssServeConfigurator } from "./oss-serve-configurator";
 import { registerOssPrograms } from "./register-oss-programs";
 import { ServeProgram } from "./serve.program";
 import { ServiceContainer } from "./service-container/service-container";
+import { applyEarlyProcessEnvFlags } from "./utils";
 
 async function main() {
+  applyEarlyProcessEnvFlags(process.argv.slice(2));
+
   const serviceContainer = new ServiceContainer();
   await serviceContainer.init();
 
