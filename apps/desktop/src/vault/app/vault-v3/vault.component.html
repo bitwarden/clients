@@ -2,9 +2,24 @@
   class="vault tw-flex tw-flex-col tw-h-full tw-overflow-x-hidden"
   attr.aria-hidden="{{ showingModal }}"
 >
-  <div [ngClass]="vfo1Foundation() ? 'tw-pt-6 tw-px-8' : 'tw-pt-6 tw-px-6'">
-    <vault-organization-user-notifications></vault-organization-user-notifications>
-    <app-header>
+  <vault-organization-user-notifications
+    class="tw-shrink-0"
+  ></vault-organization-user-notifications>
+  <div [ngClass]="vfo1Foundation() ? 'tw-px-8' : 'tw-pt-6 tw-px-6'">
+    <app-header [title]="title()">
+      @if (showBreadcrumbs()) {
+        <vault-breadcrumbs slot="breadcrumbs" [scope]="vaultScope()" />
+      } @else if (headerTile(); as tile) {
+        <bit-icon-tile
+          slot="title-prefix"
+          [icon]="tile.icon"
+          [variant]="tile.variant ?? 'primary'"
+          [color]="tile.color"
+          [emphasis]="tile.emphasis ?? 'subtle'"
+          size="sm"
+          aria-hidden="true"
+        />
+      }
       @if (!vfo1Foundation()) {
         <vault-new-cipher-menu
           [canCreateCipher]="(canCreateCipher$ | async) ?? true"
@@ -45,6 +60,11 @@
       [canCreateCipher]="(canCreateCipher$ | async) ?? true"
       [showAddCipherBtn]="(showAddCipherBtn$ | async) ?? true"
       [showPremiumCallout]="(showPremiumCallout$ | async) ?? false"
+      [scope]="vaultScope()"
+      [organizationName]="emptyVaultOrganizationName()"
+      [defaultCollectionId]="defaultCollectionId()"
+      [sharedFolderName]="emptySharedFolderName"
+      [hasMultipleVaults]="hasMultipleVaults()"
       (onEvent)="onVaultItemsEvent($event)"
       (onAddCipher)="addCipher($event)"
       (onAddFolder)="addFolder()"

@@ -36,6 +36,7 @@
               data-fvw
               [routerLink]="route()"
               [relativeTo]="relativeTo()"
+              [queryParamsHandling]="queryParamsHandling()"
               [attr.aria-label]="ariaLabel() || text()"
               [attr.aria-expanded]="ariaExpanded()"
               [attr.aria-controls]="ariaControls()"
@@ -127,6 +128,7 @@
               data-fvw
               [routerLink]="route()"
               [relativeTo]="relativeTo()"
+              [queryParamsHandling]="queryParamsHandling()"
               [attr.aria-label]="ariaLabel() || text()"
               [attr.aria-expanded]="ariaExpanded()"
               [attr.aria-controls]="ariaControls()"
@@ -160,7 +162,7 @@
 
           @if (open) {
             <div
-              class="tw-flex tw-items-center tw-pe-2 tw-gap-1 empty:tw-hidden"
+              class="tw-flex tw-items-center tw-pe-2 tw-gap-1 empty:tw-hidden tw-self-stretch"
               (click)="onEndSlotClick($event)"
             >
               <ng-container *ngTemplateOutlet="endSlot"></ng-container>

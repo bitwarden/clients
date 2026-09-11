@@ -1,7 +1,10 @@
-<div class="tw-flex tw-gap-2 tw-items-center tw-w-full tw-min-w-0">
+<div class="tw-flex tw-gap-3 tw-items-center tw-w-full tw-min-w-0">
   <ng-content select="[slot=start]"></ng-content>
 
-  <div class="tw-flex tw-flex-col tw-items-start tw-text-start tw-w-full tw-truncate [&_p]:tw-mb-0">
+  <div
+    class="tw-flex tw-flex-col tw-items-start tw-text-start tw-w-full tw-truncate [&_p]:tw-mb-0"
+    [class]="mainContentPaddingClass()"
+  >
     <div
       bitTypography="body2"
       class="tw-text-main tw-truncate tw-inline-flex tw-items-center tw-gap-1.5 tw-w-full"
@@ -31,6 +34,12 @@
   </div>
 </div>
 
-<div class="tw-flex tw-gap-2 tw-items-center" #endSlot [hidden]="!endSlotHasChildren()">
+<div
+  class="tw-flex tw-items-center"
+  [class]="endSlotPaddingClass()"
+  #endSlot
+  data-bit-item-end-slot
+  [hidden]="!endSlotHasChildren()"
+>
   <ng-content select="[slot=end]"></ng-content>
 </div>

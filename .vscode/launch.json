@@ -38,7 +38,7 @@
       "request": "attach",
       "name": "Desktop: Main (attach)",
       "port": 5858,
-      "restart": true,
+      "restart": false,
       "continueOnAttach": true,
       "sourceMaps": true,
       "outFiles": ["${workspaceFolder}/apps/desktop/build/**/*.js"],
@@ -73,6 +73,16 @@
         "Desktop: Renderer (attach)",
         "Desktop: Main desktop-native rust debugger (attach)"
       ]
+    },
+    {
+      "name": "Desktop: Start and debug",
+      "preLaunchTask": "desktop: debug start",
+      "configurations": [
+        "Desktop: Main (attach)",
+        "Desktop: Renderer (attach)",
+        "Desktop: Main desktop-native rust debugger (attach)"
+      ],
+      "stopAll": true
     }
   ]
 }

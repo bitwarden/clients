@@ -30,10 +30,12 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { CheckboxModule } from "../../checkbox";
 import { FILTER_HOST, FilterControl, FilterHost } from "../../filter-menu/filter-tokens";
 import { IconComponent } from "../../icon/icon.component";
+import { ItemComponent } from "../../item/item.component";
 import { SearchComponent } from "../../search/search.component";
 import { SkeletonTextComponent } from "../../skeleton";
 import { StatusLockupComponent } from "../../status-lockup/status-lockup.component";
 import { SvgComponent } from "../../svg";
+import { TooltipDirective } from "../../tooltip";
 import { ParamState, ParamValue, queryParamStore } from "../../utils";
 import { SortDirection, SortFn } from "../table-data-source";
 
@@ -47,6 +49,7 @@ import { ColumnName } from "./column";
 import { SortState, cycleSort } from "./sort-model";
 import { SyncScrollLeftDirective } from "./sync-scroll-left.directive";
 import { TableDef } from "./table-def";
+import { TABLE_PRESENTATION, TablePresentation } from "./table-presentation";
 import { TableSelectionConfig, TableSelectionModel } from "./table-selection-model";
 import { TableVirtualScrollStrategy } from "./table-virtual-scroll.strategy";
 
@@ -57,8 +60,17 @@ const SELECTION_COLUMN_WIDTH = "56px";
  * Fixed heights (px) of group headers when virtualized. Must match the header chrome
  * in {@link BitTableV2Component.groupHeaderClass}.
  */
-const GROUP_HEADER_HEIGHT = 40;
-const SUBGROUP_HEADER_HEIGHT = 28;
+const GROUP_HEADER_HEIGHT = 28;
+const SUBGROUP_HEADER_HEIGHT = 22;
+
+/**
+ * Fixed height (px) of a group description when virtualized: two `text-sm` lines (20px
+ * each) plus the cell's `tw-pb-2`. Descriptions are consumer-supplied localized strings,
+ * so they wrap in narrow tables even where English doesn't — two lines is the allowance,
+ * and the cell clamps past it. The strategy never measures, so every description gets
+ * this height whether or not it wraps.
+ */
+const GROUP_DESCRIPTION_HEIGHT = 48;
 
 /** The `filterValues` key a projected `bit-search`'s term is adopted under. */
 const SEARCH_FILTER_KEY = "search";
@@ -136,10 +148,11 @@ function sortRows<T>(
   });
 }
 
-/** A flattened body item: a data row, or a group header with its row-group and count. */
+/** A flattened body item: a data row, a group header with its row-group and count, or a group description. */
 type RenderItem<T> =
   | { kind: "row"; row: T }
-  | { kind: "group"; group: BitRowGroupComponent<T>; count: number; level: number };
+  | { kind: "group"; group: BitRowGroupComponent<T>; count: number; level: number }
+  | { kind: "groupDescription"; group: BitRowGroupComponent<T>; level: number };
 
 /**
  * **Beta.** `bit-table-v2` is still stabilizing. Do not adopt it in production
@@ -170,10 +183,12 @@ type RenderItem<T> =
     BitRowComponent,
     CheckboxModule,
     IconComponent,
+    ItemComponent,
     StatusLockupComponent,
     SkeletonTextComponent,
     SvgComponent,
     SyncScrollLeftDirective,
+    TooltipDirective,
     I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -181,6 +196,11 @@ type RenderItem<T> =
     // Filter chips projected into the table resolve this host by DI and
     // self-register; the table folds their values into `filtered`.
     { provide: FILTER_HOST, useExisting: forwardRef(() => BitTableV2Component) },
+    {
+      provide: TABLE_PRESENTATION,
+      useFactory: (table: BitTableV2Component) => table.presentation,
+      deps: [forwardRef(() => BitTableV2Component)],
+    },
     // The virtual-scroll viewport in the template picks up the table's own strategy.
     {
       provide: VIRTUAL_SCROLL_STRATEGY,
@@ -217,7 +237,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * Render style. `"table"` draws the bordered column grid; `"list"` renders each row
    * as a standalone card.
    */
-  readonly presentation = input<"table" | "list">("table");
+  readonly presentation = input<TablePresentation>("table");
 
   /** Active sort (`{ column, direction }`). Two-way — header clicks cycle it; bind `[(sort)]` to persist. */
   readonly sort = model<SortState<ColumnName<T, S>>>({ direction: "asc" });
@@ -401,7 +421,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
           continue;
         }
         let value: unknown;
-        if (key in fromUrl) {
+        if (fromUrl[key] != null) {
           value = fromUrl[key];
         } else if (initial && key in initial) {
           value = initial[key];
@@ -558,12 +578,11 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (this.presentation() !== "list") {
       return "tw-flex tw-items-center tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-bg-bg-secondary tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-fg-body";
     }
-    // Match the extension's section/subsection type: top = `h6` (text-sm, main,
-    // medium); subgroup = the muted subheader (text-xs, muted, medium), indented.
+    // Matches the extension's section headers.
     const type =
       level === 0
-        ? "tw-text-sm tw-text-main tw-font-medium tw-px-1 tw-pb-1 tw-pt-3"
-        : "tw-text-xs tw-text-muted tw-font-medium tw-ps-4 tw-pe-1 tw-py-1";
+        ? "tw-text-sm tw-text-main tw-font-medium tw-px-1 tw-pb-1"
+        : "tw-text-xs tw-text-muted tw-font-medium tw-ps-1 tw-pe-1 tw-pb-1";
     return `tw-flex tw-items-center ${type}`;
   }
 
@@ -623,6 +642,15 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    */
   protected readonly horizontalScroll = signal(0);
 
+  private readonly scrolled = signal(false);
+
+  /** Whether the body has scrolled away from the top. */
+  readonly isScrolled = this.scrolled.asReadonly();
+
+  protected onBodyScroll(event: Event): void {
+    this.scrolled.set((event.target as HTMLElement).scrollTop > 0);
+  }
+
   /** Registers a column. Called by {@link BitColumnComponent} via DI. */
   register(col: BitColumnComponent): void {
     this._columns.update((cols) => [...cols, col]);
@@ -637,6 +665,16 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   /** True when {@link height} is `"fill"`. */
   protected readonly isFill = computed(() => this.height() === "fill");
+
+  protected readonly isList = computed(() => this.presentation() === "list");
+
+  protected readonly listInset = computed(() => (this.isList() ? "tw-mx-3" : ""));
+
+  /** Uniform height; `--bit-card-gap` removes the card's own margin. */
+  protected readonly listCardHeight = computed(() => {
+    const advance = this.virtualRowHeight();
+    return this.isList() && advance != null ? `calc(${advance}px - var(--bit-card-gap))` : null;
+  });
 
   /** Row-count cap from {@link height} (clamped to a minimum of 4), or undefined when it isn't a number. */
   protected readonly maxRows = computed(() => {
@@ -683,7 +721,8 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   /**
    * The non-virtualized body's render list: {@link rows} as-is when ungrouped, else
    * interleaved headers and rows. A row joins the first group whose `match` claims it;
-   * empty groups are skipped, and unclaimed rows trail in a headerless block.
+   * empty groups are skipped unless they clear `hideOnEmpty`, and unclaimed rows trail in
+   * a headerless block.
    */
   protected readonly renderItems = computed<RenderItem<T>[]>(() => {
     const rows = this.rows();
@@ -716,14 +755,19 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     const items: RenderItem<T>[] = [];
     const top = partition(this._groups(), rows);
     for (const group of this._groups()) {
-      const groupRows = top.buckets.get(group);
-      if (!groupRows?.length) {
+      const groupRows = top.buckets.get(group) ?? [];
+      if (!groupRows.length && group.hideOnEmpty()) {
         continue;
       }
       // A collapsed group still shows its header (with the full count) but hides its body.
       items.push({ kind: "group", group, count: groupRows.length, level: 0 });
       if (group.collapsible() && group.collapsed()) {
         continue;
+      }
+      // A grid row, so it hides when collapsed — `aria-expanded="false"` has to mean
+      // nothing of the group is rendered.
+      if (group.description()) {
+        items.push({ kind: "groupDescription", group, level: 0 });
       }
       const children = group.children();
       if (children.length === 0) {
@@ -760,10 +804,18 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (rowHeight === undefined) {
       return [];
     }
-    return this.renderItems().map((item) =>
-      item.kind === "row" ? rowHeight : this.headerHeight(item.level),
-    );
+    return this.renderItems().map((item) => {
+      if (item.kind === "row") {
+        return rowHeight;
+      }
+      return item.kind === "groupDescription"
+        ? this.groupDescriptionHeight
+        : this.headerHeight(item.level);
+    });
   });
+
+  /** @see {@link GROUP_DESCRIPTION_HEIGHT} */
+  protected readonly groupDescriptionHeight = GROUP_DESCRIPTION_HEIGHT;
 
   /** Fixed virtualized height for a group header at `level` (0 = top, 1 = subgroup). */
   protected headerHeight(level: number): number {
@@ -780,8 +832,12 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * {@link trackBy}, falling back to row identity.
    */
   protected readonly trackRenderItem: TrackByFunction<RenderItem<T>> = (index, item) => {
-    if (item.kind !== "row") {
+    if (item.kind === "group") {
       return item.group;
+    }
+    if (item.kind === "groupDescription") {
+      // Stable and per-group, but not `item.group` — that already keys the header.
+      return item.group.headerTemplate();
     }
     const trackBy = this.trackBy();
     return trackBy ? trackBy(index, item.row) : item.row;
