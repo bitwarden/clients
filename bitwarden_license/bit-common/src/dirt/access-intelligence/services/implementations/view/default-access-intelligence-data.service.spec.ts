@@ -5,6 +5,7 @@ import {
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { CollectionTypes } from "@bitwarden/common/admin-console/models/collections";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 // eslint-disable-next-line no-restricted-imports
@@ -19,6 +20,7 @@ import {
 } from "../../../../reports/risk-insights/testing/test-helpers";
 import { ReportGenerationService } from "../../abstractions/report-generation.service";
 import { ReportPersistenceService } from "../../abstractions/report-persistence.service";
+import { DefaultMemberCipherMappingService } from "../domain/default-member-cipher-mapping.service";
 
 import { DefaultAccessIntelligenceDataService } from "./default-access-intelligence-data.service";
 
@@ -603,6 +605,78 @@ describe("DefaultAccessIntelligenceDataService", () => {
           { groupId: "group-2", users: new Set(["user-2"]) },
         ]),
         expect.anything(),
+      );
+    });
+  });
+
+  describe("Default Collection Member Attribution", () => {
+    it("resolves a cipher whose only collection is a default collection to its owner", async () => {
+      // Guards the whole attribution chain end to end — the collections request, the
+      // transform, and the mapping service. A break anywhere along it shows up in the UI as
+      // an application with a member count of zero.
+      const myItemsCollectionId = "my-items-alice";
+      const cipher = createCipher("cipher-1", ["alice-app.com"], [myItemsCollectionId]);
+
+      // Mirrors the server: default collections are withheld unless they are asked for, so
+      // dropping the opt-in fails this test rather than silently returning them anyway.
+      apiService.getManyCollectionsWithAccessDetails.mockImplementation(
+        (_orgId: string, includeDefaultCollections?: boolean) =>
+          Promise.resolve({
+            data: includeDefaultCollections
+              ? [
+                  {
+                    id: myItemsCollectionId,
+                    name: "My Items",
+                    organizationId: orgId,
+                    type: CollectionTypes.DefaultUserCollection,
+                    users: [{ id: "user-1" }],
+                    groups: [],
+                  },
+                ]
+              : [],
+          } as any),
+      );
+      cipherService.getAllFromApiForOrganization.mockResolvedValue([cipher]);
+      organizationUserApiService.getAllUsers.mockResolvedValue({
+        data: [
+          {
+            id: "user-1",
+            name: "Alice",
+            email: "alice@example.com",
+            collections: [
+              { id: myItemsCollectionId, readOnly: false, hidePasswords: false, manage: true },
+            ],
+            groups: [] as string[],
+          } as OrganizationUserUserDetailsResponse,
+        ],
+      } as any);
+      reportGenerationService.generateReport$.mockReturnValue(of(testReport));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
+      reportPersistenceService.saveReport$.mockReturnValue(
+        of({ id: "report-id" as OrganizationReportId, contentEncryptionKey: new EncString("") }),
+      );
+
+      await firstValueFrom(service.generateNewReport$(orgId));
+
+      // Feed the real mapping service exactly what the data service produced.
+      const [ciphers, members, collectionAccess, groupMemberships] =
+        reportGenerationService.generateReport$.mock.calls[0];
+      const { mapping, registry } = await firstValueFrom(
+        new DefaultMemberCipherMappingService().mapCiphersToMembers$(
+          ciphers,
+          members,
+          collectionAccess,
+          groupMemberships,
+        ),
+      );
+
+      expect(mapping.get(cipher.id!)).toEqual(["user-1"]);
+      expect(registry["user-1"]).toEqual(
+        expect.objectContaining({
+          id: "user-1",
+          userName: "Alice",
+          email: "alice@example.com",
+        }),
       );
     });
   });
