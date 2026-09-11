@@ -92,8 +92,8 @@
       >
         @for (option of folderOptions(); track option.value.id) {
           <bit-filter-option
-            [value]="option.value.id ?? NO_FOLDER"
-            [count]="optionCount('folder', [option.value.id ?? NO_FOLDER])"
+            [value]="option.value.id || NO_FOLDER"
+            [count]="optionCount('folder', [option.value.id || NO_FOLDER])"
             >{{ option.label }}</bit-filter-option
           >
         }

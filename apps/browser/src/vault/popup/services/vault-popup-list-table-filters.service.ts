@@ -247,7 +247,7 @@ export class VaultPopupListTableFiltersService {
         }
 
         if (state.folderIds?.length) {
-          const validIds = new Set(folderViews.map((f) => f.id ?? NO_FOLDER));
+          const validIds = new Set(folderViews.map((f) => f.id || NO_FOLDER));
           const folder = state.folderIds.filter((id) => validIds.has(id));
           if (folder.length) {
             result.folder = folder;
