@@ -554,6 +554,45 @@
   "noItemsInVault": {
     "message": "Brak elementów w sejfie"
   },
+  "noItemsInMyVault": {
+    "message": "No items in My vault"
+  },
+  "emptyMyItems": {
+    "message": "No items in My items"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Your vaults are empty"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "No items match selected filters"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "No items match \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "length": {
     "message": "Liczba znaków"
   },
@@ -1497,6 +1536,9 @@
   "importVerb": {
     "message": "Importuj",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "Import items"
   },
   "fileFormat": {
     "message": "Format pliku"
@@ -2773,6 +2815,30 @@
         "example": "eng"
       }
     }
+  },
+  "oneFilterResult": {
+    "message": "1 result",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ results",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "No filters match “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
     "message": "Clear search"
@@ -6853,6 +6919,9 @@
   "noItemsInTrashDesc": {
     "message": "Usunięte elementy pojawią się tutaj i zostaną trwale usunięte po 30 dniach"
   },
+  "noItemsInTrashDescription": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days."
+  },
   "trashWarning": {
     "message": "Elementy znajdujące się w koszu ponad 30 dni zostaną automatycznie usunięte"
   },
@@ -7137,6 +7206,33 @@
   },
   "emptyVaultDescription": {
     "message": "Sejf chroni nie tylko hasła. Przechowuj bezpiecznie dane logowania, identyfikatory, karty i notatki."
+  },
+  "emptyVaultsDescription": {
+    "message": "Add logins, IDs, cards, and other items to get started."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "You have no folders."
+  },
+  "emptyFoldersDescription": {
+    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Witaj w Bitwarden"
@@ -8007,18 +8103,18 @@
     "message": "You're all set!"
   },
   "permissions": {
-    "message": "Permissions"
+    "message": "Uprawnienia"
   },
   "viewItems": {
-    "message": "View items"
+    "message": "Pokaż elementy"
   },
   "viewItemsHidePass": {
-    "message": "View items, hidden passwords"
+    "message": "Pokaż elementy, ukryte hasła"
   },
   "editItems": {
-    "message": "Edit items"
+    "message": "Edytuj elementy"
   },
   "editItemsHidePass": {
-    "message": "Edit items, hidden passwords"
+    "message": "Edytuj elementy, ukryte hasła"
   }
 }

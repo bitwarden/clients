@@ -554,6 +554,45 @@
   "noItemsInVault": {
     "message": "В хранилище нет элементов"
   },
+  "noItemsInMyVault": {
+    "message": "В моем хранилище нет элементов"
+  },
+  "emptyMyItems": {
+    "message": "В моих элементах нет элементов"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Нет элементов в $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Нет элементов в $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Ваши хранилища пусты"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Нет элементов, соответствующих выбранным фильтрам"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Нет элементов совпадающих с \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "length": {
     "message": "Длина"
   },
@@ -1497,6 +1536,9 @@
   "importVerb": {
     "message": "Импортировать",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "Импорт элементов"
   },
   "fileFormat": {
     "message": "Формат файла"
@@ -2773,6 +2815,30 @@
         "example": "eng"
       }
     }
+  },
+  "oneFilterResult": {
+    "message": "1 результат",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ результатов",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Нет фильтров, соответствующих “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
     "message": "Очистить поиск"
@@ -6853,6 +6919,9 @@
   "noItemsInTrashDesc": {
     "message": "Элементы, которые вы удаляете, появятся здесь и будут удалены навсегда через 30 дней"
   },
+  "noItemsInTrashDescription": {
+    "message": "Элементы, которые вы удаляете, появятся здесь и будут удалены навсегда через 30 дней."
+  },
   "trashWarning": {
     "message": "Элементы, которые были в корзине более 30 дней, будут автоматически удалены"
   },
@@ -7137,6 +7206,33 @@
   },
   "emptyVaultDescription": {
     "message": "Хранилище защищает не только ваши пароли. Логины, идентификаторы, карты и заметки в нем надежно защищены."
+  },
+  "emptyVaultsDescription": {
+    "message": "Чтобы начать, добавьте логины, ID, карты и другие элементы."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Добавьте элементы в эту общую папку, а затем предоставьте доступ другим пользователям $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "Мои элементы - это ваше личное хранилище для элементов, которые остаются в $VAULT_NAME$, но не видны другим пользователям.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "У вас нет папок."
+  },
+  "emptyFoldersDescription": {
+    "message": "Используйте папки для организации хранилищ. Они только для вас: никто больше не увидит и не будет их использовать."
   },
   "introCarouselLabel": {
     "message": "Добро пожаловать в Bitwarden"
