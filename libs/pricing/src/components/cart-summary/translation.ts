@@ -107,8 +107,8 @@ const getPasswordManagerSeatTranslationKey = (
 /**
  * Resolves the translation key for the collapsed proration credit row.
  *
- * Only two surfaces render a credit row. Every other flow context returns `undefined`, and the
- * adapter emits no credit row at all.
+ * Surfaces that do not render a credit row return `undefined`, and the adapter emits no credit
+ * row at all.
  */
 export const getCreditTranslationKey = (
   flowContext: InvoicePreviewFlowContext,
