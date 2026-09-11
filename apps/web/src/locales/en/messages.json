@@ -18778,6 +18778,9 @@
   "pamRotationTabDaemons": {
     "message": "Daemons"
   },
+  "pamAccessConnectorsLoaded": {
+    "message": "Access connectors loaded"
+  },
   "pamTargetSystemsLoaded": {
     "message": "Target systems loaded"
   },
@@ -19142,17 +19145,8 @@
   "pamTargetSystemNotFound": {
     "message": "Target system not found."
   },
-  "pamDaemonSearch": {
-    "message": "Search daemons"
-  },
   "pamDaemonNew": {
     "message": "New daemon"
-  },
-  "pamDaemonEmptyStateTitle": {
-    "message": "No daemons registered"
-  },
-  "pamDaemonEmptyStateDescription": {
-    "message": "Register a daemon to start rotating credentials."
   },
   "pamDaemonConnection": {
     "message": "Connection"
@@ -19165,48 +19159,6 @@
   },
   "pamDaemonOffline": {
     "message": "Offline"
-  },
-  "pamDaemonAssignTarget": {
-    "message": "Assign to target"
-  },
-  "pamDaemonAssignTargetTitle": {
-    "message": "Assign target system"
-  },
-  "pamDaemonAssignTargetLabel": {
-    "message": "Target system"
-  },
-  "pamDaemonAssignNoOptions": {
-    "message": "All active automatic target systems are already assigned to this daemon."
-  },
-  "pamDaemonAssignConfirm": {
-    "message": "Assign"
-  },
-  "pamDaemonAssigned": {
-    "message": "Target system assigned."
-  },
-  "pamDaemonUnassign": {
-    "message": "Remove $NAME$",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
-  },
-  "pamDaemonUnassignConfirmTitle": {
-    "message": "Remove assignment?"
-  },
-  "pamDaemonUnassignConfirmContent": {
-    "message": "Remove $NAME$ from this daemon? Active rotation jobs claimed by this daemon will continue to completion.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Production database"
-      }
-    }
-  },
-  "pamDaemonUnassigned": {
-    "message": "Target system removed."
   },
   "pamDaemonDisable": {
     "message": "Disable"
@@ -19250,9 +19202,6 @@
   "pamDaemonRegistered": {
     "message": "Daemon registered."
   },
-  "pamDaemonNoResults": {
-    "message": "No daemons match your search."
-  },
   "pamDaemonDetailTitle": {
     "message": "Daemon"
   },
@@ -19277,8 +19226,20 @@
   "pamTargetSystemDiscardTitle": {
     "message": "Discard target system"
   },
+  "pamAccessConnectorSearch": {
+    "message": "Search access connectors"
+  },
+  "pamAccessConnectorNew": {
+    "message": "New access connector"
+  },
   "pamAccessConnectorRegister": {
     "message": "Register access connector"
+  },
+  "pamAccessConnectorEmptyStateTitle": {
+    "message": "No access connectors registered"
+  },
+  "pamAccessConnectorEmptyStateDescription": {
+    "message": "Register an access connector to start rotating credentials."
   },
   "pamAccessConnectorConnection": {
     "message": "Connection"
@@ -19294,6 +19255,18 @@
   },
   "pamAccessConnectorAssignTargetDisabled": {
     "message": "Target systems can only be assigned while the access connector is active."
+  },
+  "pamAccessConnectorViewDetails": {
+    "message": "View details"
+  },
+  "pamAccessConnectorAssignTargets": {
+    "message": "Assign targets"
+  },
+  "pamAccessConnectorDeleteAccessConnector": {
+    "message": "Delete access connector"
+  },
+  "pamAccessConnectorAssignTargetTitle": {
+    "message": "Assign target system"
   },
   "pamAccessConnectorAssignTargetLabel": {
     "message": "Target system"
@@ -19319,6 +19292,9 @@
   "pamAccessConnectorAssignConfirm": {
     "message": "Assign"
   },
+  "pamAccessConnectorAssigned": {
+    "message": "Target system assigned."
+  },
   "pamAccessConnectorAssignmentsEmpty": {
     "message": "No target systems assigned."
   },
@@ -19331,8 +19307,26 @@
       }
     }
   },
+  "pamAccessConnectorUnassignConfirmTitle": {
+    "message": "Remove assignment?"
+  },
+  "pamAccessConnectorUnassignConfirmContent": {
+    "message": "Remove $NAME$ from this access connector? Active rotation jobs claimed by this access connector will continue to completion.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
+  },
+  "pamAccessConnectorUnassigned": {
+    "message": "Target system removed."
+  },
   "pamAccessConnectorDeactivate": {
     "message": "Deactivate"
+  },
+  "pamAccessConnectorActivate": {
+    "message": "Activate"
   },
   "pamAccessConnectorDeactivateConfirmTitle": {
     "message": "Deactivate access connector?"
@@ -19346,6 +19340,12 @@
       }
     }
   },
+  "pamAccessConnectorDeactivated": {
+    "message": "Access connector deactivated."
+  },
+  "pamAccessConnectorActivated": {
+    "message": "Access connector activated."
+  },
   "pamAccessConnectorDeleteConfirmTitle": {
     "message": "Delete access connector?"
   },
@@ -19358,6 +19358,9 @@
       }
     }
   },
+  "pamAccessConnectorDeleted": {
+    "message": "Access connector deleted."
+  },
   "pamAccessConnectorRegisterTitle": {
     "message": "Register access connector"
   },
@@ -19366,6 +19369,12 @@
   },
   "pamAccessConnectorNameHint": {
     "message": "A descriptive name to identify this access connector. Max 200 characters."
+  },
+  "pamAccessConnectorRegistered": {
+    "message": "Access connector registered."
+  },
+  "pamAccessConnectorNoResults": {
+    "message": "No access connectors match your filters."
   },
   "pamAccessConnectorStatusActive": {
     "message": "Active"
@@ -19845,6 +19854,30 @@
   },
   "pamAuditKindTargetPolicyUpdated": {
     "message": "Target password policy updated"
+  },
+  "pamAccessConnectorAssignmentCountSingular": {
+    "message": "$COUNT$ target",
+    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamAccessConnectorAssignmentCount": {
+    "message": "$COUNT$ targets",
+    "description": "Count of target systems assigned to an access connector. Activating the count reveals their names.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamAccessConnectorAssignmentsNone": {
+    "message": "None",
+    "description": "Shown in the assigned targets column when an access connector has no target systems assigned."
   },
   "pamTargetSystemConnectorAssignments": {
     "message": "Assigned access connectors"
