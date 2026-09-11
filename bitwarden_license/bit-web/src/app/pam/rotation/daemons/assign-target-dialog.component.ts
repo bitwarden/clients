@@ -21,7 +21,7 @@ export type AssignTargetDialogParams = {
   /**
    * The set of active+automatic target systems that are NOT already assigned to
    * this daemon. Callers (the tab component) compute this from
-   * `activeAutomaticSystems$` filtered against `daemon.assignedTargetSystemIds`.
+   * `automaticSystems$` filtered against `daemon.assignedTargetSystemIds`.
    */
   options: TargetSystem[];
 };
