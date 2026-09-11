@@ -17,7 +17,7 @@
     ></label>
 
     <div
-      class="tw-flex tw-items-center tw-gap-4 tw-relative tw-pointer-events-none [&_a]:tw-pointer-events-auto [&_button]:tw-pointer-events-auto"
+      class="tw-flex tw-items-center tw-gap-4 tw-relative tw-pointer-events-none tw-min-w-0 [&_a]:tw-pointer-events-auto [&_button]:tw-pointer-events-auto"
     >
       @if (icon(); as icon) {
         <!-- this positioning style to account for tile staying top aligned when text wraps -->
@@ -34,7 +34,7 @@
       }
 
       <span
-        class="tw-inline-flex tw-flex-col"
+        class="tw-inline-flex tw-flex-col tw-min-w-0"
         [class.tw-text-fg-inactive]="control.disabled"
         [class]="control.disabled ? '[&_bit-hint]:!tw-text-fg-inactive' : ''"
         [class.tw-text-fg-heading]="!control.disabled"
@@ -42,7 +42,7 @@
         <span
           [id]="labelId"
           bitTypography="body2"
-          class="tw-flex tw-gap-0.5 tw-items-center tw-leading-5 tw-font-medium"
+          class="tw-flex tw-gap-0.5 tw-items-center tw-leading-5 tw-font-medium tw-min-w-0"
         >
           <ng-content select="bit-label"></ng-content>
           @if (control.required) {

@@ -1,8 +1,11 @@
-import { NgModule } from "@angular/core";
+import { inject, NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { map } from "rxjs";
 
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { organizationPermissionsGuard } from "../../organizations/guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../../organizations/guards/org-redirect.guard";
@@ -50,6 +53,23 @@ const routes: Routes = [
       {
         path: "tools",
         children: [
+          {
+            path: "import",
+            canMatch: [
+              () =>
+                inject(ConfigService)
+                  .getFeatureFlag$(FeatureFlag.ImportUpgrade)
+                  .pipe(map((flagValue) => flagValue === true)),
+            ],
+            loadComponent: () =>
+              import("../../../tools/import/import-source-select-org.component").then(
+                (mod) => mod.ImportSourceSelectOrgComponent,
+              ),
+            canActivate: [organizationPermissionsGuard((org) => org.canAccessImport)],
+            data: {
+              titleId: "importNoun",
+            },
+          },
           {
             path: "import",
             loadComponent: () =>

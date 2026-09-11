@@ -76,6 +76,8 @@ import { RouteCacheOptions } from "../platform/services/popup-view-cache-backgro
 import { CredentialGeneratorHistoryComponent } from "../tools/popup/generator/credential-generator-history.component";
 import { CredentialGeneratorComponent } from "../tools/popup/generator/credential-generator.component";
 import { filePickerPopoutGuard } from "../tools/popup/guards/file-picker-popout.guard";
+import { importUpgradeRedirectGuard } from "../tools/popup/guards/import-upgrade-redirect.guard";
+import { importUpgradeRequiredGuard } from "../tools/popup/guards/import-upgrade-required.guard";
 import { SendAddEditComponent as SendAddEditV2Component } from "../tools/popup/send-v2/add-edit/send-add-edit.component";
 import { SendCreatedComponent } from "../tools/popup/send-v2/send-created/send-created.component";
 import { SendV2Component } from "../tools/popup/send-v2/send-v2.component";
@@ -282,7 +284,16 @@ const routes: Routes = [
   {
     path: "import",
     component: ImportBrowserV2Component,
-    canActivate: [authGuard, filePickerPopoutGuard()],
+    canActivate: [authGuard, importUpgradeRedirectGuard, filePickerPopoutGuard()],
+    data: { elevation: 1 } satisfies RouteDataProperties,
+  },
+  {
+    path: "import-source-select",
+    loadComponent: () =>
+      import("../tools/popup/settings/import/import-source-select-browser.component").then(
+        (m) => m.ImportSourceSelectBrowserComponent,
+      ),
+    canActivate: [authGuard, importUpgradeRequiredGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {

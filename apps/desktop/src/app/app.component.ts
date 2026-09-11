@@ -414,7 +414,11 @@ export class AppComponent implements OnInit, OnDestroy {
             break;
           }
           case "importVault":
-            await this.dialogService.open(ImportDesktopComponent);
+            if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+              await this.router.navigate(["/import"]);
+            } else {
+              await this.dialogService.open(ImportDesktopComponent);
+            }
             break;
           case "exportVault":
             await this.dialogService.open(ExportDesktopComponent);
