@@ -19185,27 +19185,6 @@
   "pamDaemonStatusDisabled": {
     "message": "Disabled"
   },
-  "pamDaemonTokenTitle": {
-    "message": "Daemon token"
-  },
-  "pamDaemonTokenWarningTitle": {
-    "message": "Save this token now"
-  },
-  "pamDaemonTokenWarningBody": {
-    "message": "This token is shown only once and cannot be retrieved later. Copy it and deliver it to the daemon operator out of band — paste it into the daemon configuration file. If the token is lost, delete this daemon and register a new one."
-  },
-  "pamDaemonTokenLabel": {
-    "message": "Daemon token"
-  },
-  "pamDaemonTokenHint": {
-    "message": "This token will not be shown again."
-  },
-  "pamDaemonTokenCopy": {
-    "message": "Copy token"
-  },
-  "pamDaemonTokenCopied": {
-    "message": "Daemon token copied."
-  },
   "pamTargetSystemDiscardTitle": {
     "message": "Discard target system"
   },
@@ -19292,6 +19271,27 @@
   },
   "pamAccessConnectorStatusInactive": {
     "message": "Inactive"
+  },
+  "pamAccessConnectorTokenTitle": {
+    "message": "Access connector token"
+  },
+  "pamAccessConnectorTokenWarningTitle": {
+    "message": "Save this token now"
+  },
+  "pamAccessConnectorTokenWarningBody": {
+    "message": "This token is shown only once and cannot be retrieved later. Copy it and deliver it out of band to the operator who will run this access connector, then paste it into the connector's configuration file. If the token is lost, delete this access connector and register a new one."
+  },
+  "pamAccessConnectorTokenLabel": {
+    "message": "Access connector token"
+  },
+  "pamAccessConnectorTokenHint": {
+    "message": "This token will not be shown again."
+  },
+  "pamAccessConnectorTokenCopy": {
+    "message": "Copy token"
+  },
+  "pamAccessConnectorTokenCopied": {
+    "message": "Access connector token copied."
   },
   "pamRotationConfigNew": {
     "message": "New managed credential"
