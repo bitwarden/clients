@@ -6,12 +6,14 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AccessConnectorId,
   AccessConnector,
-  DaemonStatus,
+  AccessConnectorStatus,
   TargetSystemId,
   TargetSystem,
 } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
+
+import { accessConnectorStatusLabelKey } from "./access-connector-label";
 
 /**
  * Presentation-ready view of a single {@link AccessConnector}.
@@ -22,12 +24,11 @@ import { TargetSystemsService } from "../target-systems/target-systems.service";
 export type DaemonRow = {
   id: AccessConnectorId;
   name: string;
-  /** i18n key for the status badge label: pamDaemonStatusEnabled | pamDaemonStatusDisabled. */
-  statusLabelKey: string;
+  statusLabelKey: "pamAccessConnectorStatusActive" | "pamAccessConnectorStatusInactive";
   isConnected: boolean;
   /** Target system names for the assignment badges, falling back to the raw ID when unresolved. */
   assignmentNames: string[];
-  /** True when the daemon is enabled; drives the Disable/Enable action and assignment availability. */
+  /** True when the daemon is enabled; drives the Deactivate/Activate action and assignment availability. */
   enabled: boolean;
   /** True only when the daemon is enabled; required for it to be assigned a target. */
   canAssign: boolean;
@@ -52,9 +53,16 @@ export class DaemonsService {
 
   private readonly _daemons$ = new BehaviorSubject<AccessConnector[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
+  private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
 
   readonly daemons$: Observable<AccessConnector[]> = this._daemons$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
+
+  /** The error from the last {@link load}, or null when it succeeded. */
+  readonly loadError$: Observable<unknown | null> = combineLatest([
+    this._loadError$,
+    this.targetSystemsService.loadError$,
+  ]).pipe(map(([own, targetSystemsError]) => own ?? targetSystemsError));
 
   /** Daemons projected into presentation rows, joined with target-system names; updates with either source. */
   readonly rows$: Observable<DaemonRow[]> = combineLatest([
@@ -66,8 +74,12 @@ export class DaemonsService {
   async load(organizationId: OrganizationId): Promise<void> {
     this.organizationId = organizationId;
     this._loading$.next(true);
+    this._loadError$.next(null);
     try {
       this._daemons$.next(await this.rotationSdk.listConnectors(organizationId));
+      this._loadError$.next(null);
+    } catch (e) {
+      this._loadError$.next(e);
     } finally {
       this._loading$.next(false);
     }
@@ -81,7 +93,7 @@ export class DaemonsService {
   async setEnabled(daemon: AccessConnector, enabled: boolean): Promise<void> {
     const orgId = this.requireOrganizationId();
     const prevDaemons = this._daemons$.value;
-    const nextStatus = enabled ? DaemonStatus.Enabled : DaemonStatus.Disabled;
+    const nextStatus = enabled ? AccessConnectorStatus.Enabled : AccessConnectorStatus.Disabled;
 
     // Optimistic update
     this._daemons$.next(
@@ -218,16 +230,13 @@ export class DaemonsService {
     return daemons.map((daemon) => ({
       id: daemon.id,
       name: daemon.name,
-      statusLabelKey:
-        daemon.status === DaemonStatus.Enabled
-          ? "pamDaemonStatusEnabled"
-          : "pamDaemonStatusDisabled",
+      statusLabelKey: accessConnectorStatusLabelKey(daemon.status),
       isConnected: daemon.isConnected,
       assignmentNames: daemon.assignedTargetSystemIds.map(
         (id) => systemById.get(id)?.name ?? String(id),
       ),
-      enabled: daemon.status === DaemonStatus.Enabled,
-      canAssign: daemon.status === DaemonStatus.Enabled,
+      enabled: daemon.status === AccessConnectorStatus.Enabled,
+      canAssign: daemon.status === AccessConnectorStatus.Enabled,
       daemon,
     }));
   }
