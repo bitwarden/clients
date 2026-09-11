@@ -1916,6 +1916,30 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 result",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ results",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "No filters match “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
     "message": "Clear search"
   },
@@ -2539,11 +2563,80 @@
   "noItemsInTrashDesc": {
     "message": "Items you delete will appear here and be permanently deleted after 30 days"
   },
+  "noItemsInTrashDescription": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days."
+  },
   "noItemsInVault": {
     "message": "No items in the vault"
   },
+  "noItemsInMyVault": {
+    "message": "No items in My vault"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "No items in $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "No items in My items"
+  },
+  "noItemsInVaults": {
+    "message": "Your vaults are empty"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "No items match selected filters"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "No items match \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "You have no folders."
+  },
+  "emptyFoldersDescription": {
+    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
+  },
+  "emptyVaultsDescription": {
+    "message": "Add logins, IDs, cards, and other items to get started."
   },
   "emptyFavorites": {
     "message": "You haven't favorited any items"
@@ -3807,6 +3900,9 @@
     "message": "Do not allow members to create and store credit card items. When this policy is turned on, existing cards will be automatically hidden.",
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
+  "restrictedItemTypePolicyDescListVfo1": {
+    "message": "Do not allow members to create and store card items. Existing cards will be hidden."
+  },
   "restrictCardTypeImport": {
     "message": "Cannot import card item types"
   },
@@ -4172,8 +4268,11 @@
   "passkeyLoginFound": {
     "message": "Logins that support passkeys"
   },
-  "passkeyLoginFoundReportDesc": {
-    "message": "We found $COUNT$ login(s) in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+  "passkeyLoginFoundInfoPrefix": {
+    "message": "Great news! We found "
+  },
+  "loginsCount": {
+    "message": "$COUNT$ login(s)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4181,14 +4280,11 @@
       }
     }
   },
-  "passkeyLoginFoundReportDescPlural": {
-    "message": "We found $COUNT$ login(s) in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "8"
-      }
-    }
+  "passkeyLoginFoundInfoSuffixSingular": {
+    "message": " in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory"
+  },
+  "passkeyLoginFoundInfoSuffixPlural": {
+    "message": " in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory"
   },
   "noPasskeyLogin": {
     "message": "No accounts were found in your vault that support passkeys without one configured."
@@ -7405,6 +7501,57 @@
   "deactivateLink": {
     "message": "Deactivate link"
   },
+  "requireAdminConfirmation": {
+    "message": "Require admin confirmation"
+  },
+  "requireAdminConfirmationHint": {
+    "message": "An admin must manually approve new members before they’re added to the organization vault."
+  },
+  "setYourAllowedDomains": {
+    "message": "Set your allowed domains"
+  },
+  "setYourAllowedDomainsCoachMarkBody": {
+    "message": "Add allowed email domains (e.g. acme.com) so only users with matching emails can use this invite link. You can update this anytime."
+  },
+  "adjustTheLink": {
+    "message": "Adjust the link"
+  },
+  "adjustTheLinkCoachMarkBody": {
+    "message": "Your needs change, and the link can change with you. <strong>Regenerate</strong> the link to invalidate the old link and create a new one."
+  },
+  "adjustTheLinkCoachMarkBodyIntro": {
+    "message": "Your needs change, and the link can change with you."
+  },
+  "adjustTheLinkCoachMarkRegenerate": {
+    "message": "<strong>Regenerate</strong> the link to invalidate the old link and create a new one."
+  },
+  "adjustTheLinkCoachMarkAdminConfirmation": {
+    "message": "<strong>Require admin confirmation</strong> to approve new members before they can join the organization."
+  },
+  "shareTheLinkAnywhere": {
+    "message": "Share the link anywhere"
+  },
+  "shareTheLinkAnywhereCoachMarkBody": {
+    "message": "Copy and paste the link where your team will find it: your onboarding checklist, a Slack #new-joiners channel, Notion docs, or an email template."
+  },
+  "viewBitwardenOnboardingGuide": {
+    "message": "View Bitwarden onboarding guide"
+  },
+  "coachMarkStepOfTotal": {
+    "message": "$CURRENT$ of $TOTAL$",
+    "description": "Progress indicator for a coach mark tour step, e.g. '1 of 3'",
+    "placeholders": {
+      "current": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "finish": {
+    "message": "Finish"
+  },
   "inviteByLinkDesc": {
     "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
   },
@@ -7719,9 +7866,8 @@
   "passwordGeneratorPolicyDescV2": {
     "message": "Select a set of minimum requirements for any member-generated passwords."
   },
-  "passwordGeneratorPolicyDescVfo1": {
-    "message": "Set requirements for password generator.",
-    "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
+  "passwordGeneratorPolicyDescListVfo1": {
+    "message": "Set minimum requirements for any member-generated passwords."
   },
   "generatedPassword": {
     "message": "Generated password"
@@ -7774,8 +7920,8 @@
   "minimumNumberOfWords": {
     "message": "Minimum na bilang ng mga salita"
   },
-  "overridePasswordTypePolicy": {
-    "message": "Password Type",
+  "overridePasswordTypePolicyV2": {
+    "message": "Password type",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -7978,9 +8124,8 @@
   "singleOrgDesc": {
     "message": "Paghigpitan ang mga miyembro mula sa pagsali sa iba pang mga organisasyon."
   },
-  "singleOrgPolicyDescVfo1": {
-    "message": "Restrict members from joining other shared or organization vaults.",
-    "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
+  "singleOrgPolicyDescListVfo1": {
+    "message": "Members cannot join other organization vaults."
   },
   "singleOrgPolicyDescV2": {
     "message": "Members of this organization cannot join other organizations. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins."
@@ -8002,13 +8147,9 @@
     "message": "Require SSO",
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
-  "requireSsoPolicyDescListVfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method.",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
-  },
-  "requireSsoPolicyDescV2Vfo1": {
-    "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
+  "requireSsoPolicyDescListV2Vfo1": {
+    "message": "Require members to log in using SSO.",
+    "description": "'SSO' is an abbreviation of 'single sign-on'."
   },
   "requireSsoPolicyTitle": {
     "message": "Require single sign-on (SSO)"
@@ -8426,9 +8567,8 @@
   "centralizeDataOwnershipDesc": {
     "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
   },
-  "centralizeDataOwnershipDescVfo1": {
-    "message": "Require members to save items to the organization by removing their personally owned My vault.",
-    "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
+  "centralizeDataOwnershipDescListVfo1": {
+    "message": "All member items will be owned and managed by the organization."
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Learn more about centralized ownership",
@@ -8666,6 +8806,9 @@
   "desktopAutotypePolicyDescV2": {
     "message": "Enable desktop autotype for members. Members will be able to turn autotype off manually in the desktop client."
   },
+  "desktopAutotypePolicyDescVfo1": {
+    "message": "Enable desktop autotype for members."
+  },
   "disableSend": {
     "message": "Alisin ang Ipadala"
   },
@@ -8714,10 +8857,6 @@
     "message": "Manage Send",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "manageSendAndShareVfo1": {
-    "message": "Manage Send and share",
-    "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
-  },
   "sendControlsPolicyDesc": {
     "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
@@ -8726,9 +8865,9 @@
     "message": "Manage how members use Send. This policy will apply to Sends created after you turn on this policy. Admins and owners are exempt.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescVfo1": {
-    "message": "Set Send configuration options.",
-    "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
+  "sendControlsPolicyDescListVfo1": {
+    "message": "Manage how members use Send.",
+    "description": "'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
     "message": "Magpadala ng mga pagpipilian",
@@ -9185,9 +9324,8 @@
   "accountRecoveryPolicy": {
     "message": "Account recovery administration"
   },
-  "accountRecoveryPolicyDescVfo1": {
-    "message": "Allow admins to reset master passwords for members.",
-    "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
+  "accountRecoveryPolicyDescListVfo1": {
+    "message": "Allow admins to help members regain access to their accounts."
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "The single organization Enterprise policy must be turned on before activating this policy."
@@ -9586,9 +9724,8 @@
   "sessionTimeoutPolicyDescription": {
     "message": "Set a maximum session timeout for all members except owners."
   },
-  "sessionTimeoutPolicyDescriptionVfo1": {
-    "message": "Set a maximum vault timeout for members.",
-    "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
+  "sessionTimeoutPolicyDescriptionListVfo1": {
+    "message": "Set a maximum session timeout for members."
   },
   "maximumAllowedTimeout": {
     "message": "Maximum allowed timeout"
@@ -9716,18 +9853,14 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Ang isa o higit pang mga patakaran ng organisasyon ay nagpipigil sa iyo mula sa pag-export ng iyong indibidwal na vault."
   },
-  "activateAutofillPolicy": {
-    "message": "Activate autofill"
-  },
   "enableAutofillOnPageLoad": {
     "message": "Enable autofill on page load"
   },
   "activateAutofillPolicyDescription": {
     "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
   },
-  "activateAutofillPolicyDescriptionVfo1": {
-    "message": "Automatically fill logins on websites and apps.",
-    "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
+  "activateAutofillPolicyDescriptionListVfo1": {
+    "message": "Enable autofill on page load setting in the browser extension for all members."
   },
   "activateAutofillPolicyDescV2": {
     "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Be aware that compromised or untrustworthy websites can"
@@ -10396,9 +10529,6 @@
   "billingHistory": {
     "message": "Kasaysayan ng pagsingil"
   },
-  "backToReports": {
-    "message": "Bumalik sa mga ulat"
-  },
   "organizationPicker": {
     "message": "Tagapili ng organisasyon"
   },
@@ -10499,6 +10629,10 @@
   "random": {
     "message": "Random",
     "description": "Generates domain-based username using random letters"
+  },
+  "websiteName": {
+    "message": "Website name",
+    "description": "Username generator option that uses the current website hostname in the catch-all email address"
   },
   "randomWord": {
     "message": "Random na salita"
@@ -10957,6 +11091,15 @@
       "count": {
         "content": "$1",
         "example": "20"
+      }
+    }
+  },
+  "tooManyEmailsForRemainingSeats": {
+    "message": "Only $COUNT$ seats remain. Remove an email address, or upgrade your plan.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
       }
     }
   },
@@ -11790,35 +11933,8 @@
   "switchProducts": {
     "message": "Lumipat ng mga produkto"
   },
-  "freeOrgInvLimitReachedManageBilling": {
-    "message": "Ang mga libreng organisasyon ay maaaring magkaroon ng hanggang $SEATCOUNT$ na miyembro. Mag upgrade sa isang bayad na plano upang mag imbita ng higit pang mga miyembro.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "freeOrgInvLimitReachedNoManageBilling": {
-    "message": "Ang mga libreng organisasyon ay maaaring magkaroon ng hanggang $SEATCOUNT$ na miyembro. Makipag-ugnayan sa may-ari ng iyong organisasyon para mag-upgrade.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "10"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and invite more members.",
+  "seatLimitReachedContactOwner": {
+    "message": "Seat limit of $SEATCOUNT$ has been reached. Contact your organization owner to upgrade the plan.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -13154,14 +13270,14 @@
   "unexpectedErrorSend": {
     "message": "An unexpected error has occurred while loading this Send. Try again later."
   },
-  "seatLimitReached": {
-    "message": "Seat limit has been reached"
-  },
-  "contactYourProvider": {
-    "message": "Contact your provider to purchase additional seats."
-  },
-  "seatLimitReachedContactYourProvider": {
-    "message": "Seat limit has been reached. Contact your provider to purchase additional seats."
+  "seatLimitReachedContactProvider": {
+    "message": "Seat limit of $SEATCOUNT$ has been reached. Contact your provider to purchase additional seats.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "collectionAccessRestricted": {
     "message": "Collection access is restricted"
@@ -14550,24 +14666,6 @@
   "includeSsoAuthenticationMessage": {
     "message": "SSO Authentication"
   },
-  "familiesPlanInvLimitReachedManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to invite more members.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
-  "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
   "familiesPlanRestoreLimitReachedManageBilling": {
     "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
     "placeholders": {
@@ -14925,6 +15023,9 @@
   "freeFamiliesSponsorshipDescVfo1": {
     "message": "Remove the option for members to redeem a free Families plan.",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipDescV2Vfo1": {
+    "message": "Do not allow members to redeem a Families plan sponsored by your organization."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the organization's billing page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
@@ -15375,6 +15476,9 @@
   },
   "removeUnlockWithPinPolicyTitle": {
     "message": "Remove Unlock with PIN"
+  },
+  "removeUnlockWithPinPolicyTitleVfo1": {
+    "message": "Remove unlock with PIN"
   },
   "removeUnlockWithPinPolicyDescV2": {
     "message": "Members will not be allowed to unlock their account with a PIN."
@@ -17046,6 +17150,9 @@
   },
   "singleOrgPrerequisite": {
     "message": "The single organization policy must be turned on before activating this policy."
+  },
+  "singleOrgPrerequisiteVfo1": {
+    "message": "The single organization membership policy must be turned on before activating this policy."
   },
   "enableBanner": {
     "message": "Enable banner"

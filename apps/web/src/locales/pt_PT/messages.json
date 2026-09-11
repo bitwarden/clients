@@ -1916,6 +1916,30 @@
       }
     }
   },
+  "oneFilterResult": {
+    "message": "1 resultado",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ resultados",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "Nenhum filtro corresponde a “$SEARCH$”",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
+  },
   "clearSearch": {
     "message": "Limpar pesquisa"
   },
@@ -2539,11 +2563,80 @@
   "noItemsInTrashDesc": {
     "message": "Os itens que eliminar aparecerão aqui e serão permanentemente eliminados após 30 dias"
   },
+  "noItemsInTrashDescription": {
+    "message": "Os itens que eliminar aparecerão aqui e serão permanentemente eliminados após 30 dias."
+  },
   "noItemsInVault": {
     "message": "Nenhum item no cofre"
   },
+  "noItemsInMyVault": {
+    "message": "Não existem itens no meu cofre"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "Não existem itens no cofre $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "Não existem itens no cofre $VAULT_NAME$",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "emptyMyItems": {
+    "message": "Não existem itens em Os meus itens"
+  },
+  "noItemsInVaults": {
+    "message": "Os seus cofres estão vazios"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Nenhum item corresponde aos filtros selecionados"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "Nenhum item corresponde a \"$SEARCH_TERM$\"",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "emptyVaultDescription": {
     "message": "O cofre protege mais do que apenas as suas palavras-passe. Guarde aqui credenciais, IDs, cartões e notas de forma segura."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Adicione itens a esta pasta partilhada e, em seguida, dê acesso a outros membros de $VAULT_NAME$.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "Os meus itens são o seu espaço privado para guardar itens que permanecem propriedade de $VAULT_NAME$, mas não são visíveis para os outros membros.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Não tem pastas."
+  },
+  "emptyFoldersDescription": {
+    "message": "Utilize pastas para organizar os itens do cofre. São apenas para si — mais ninguém as verá ou utilizará."
+  },
+  "emptyVaultsDescription": {
+    "message": "Adicione credenciais, identificações, cartões e outros itens para começar."
   },
   "emptyFavorites": {
     "message": "Não adicionou nenhum item aos favoritos"
@@ -3807,6 +3900,9 @@
     "message": "Não permitir que os membros criem e armazenem itens do tipo Cartão. Quando esta política estiver ativada, os cartões existentes serão automaticamente ocultados.",
     "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
+  "restrictedItemTypePolicyDescListVfo1": {
+    "message": "Não permitir que os membros criem e guardem itens de cartão. Os cartões existentes serão ocultados."
+  },
   "restrictCardTypeImport": {
     "message": "Não é possível importar tipos de itens de cartão"
   },
@@ -4172,8 +4268,11 @@
   "passkeyLoginFound": {
     "message": "Credenciais que suportam chaves de acesso"
   },
-  "passkeyLoginFoundReportDesc": {
-    "message": "Encontrámos $COUNT$ credencial(is) no seu cofre que suporta(m) chaves de acesso. Para proteger ainda mais estas contas, considere configurar uma chave de acesso sempre que estiver disponível. Dados obtidos através de passkeys.2fa.directory",
+  "passkeyLoginFoundInfoPrefix": {
+    "message": "Boas notícias! Encontrámos "
+  },
+  "loginsCount": {
+    "message": "$COUNT$ credencial(is)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4181,14 +4280,11 @@
       }
     }
   },
-  "passkeyLoginFoundReportDescPlural": {
-    "message": "Encontrámos $COUNT$ credencial(is) nos seus cofres que suporta(m) chaves de acesso. Para proteger ainda mais estas contas, considere configurar uma chave de acesso sempre que estiver disponível. Dados obtidos através de passkeys.2fa.directory",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "8"
-      }
-    }
+  "passkeyLoginFoundInfoSuffixSingular": {
+    "message": " no seu cofre que são compatíveis com chaves de acesso. Para reforçar a segurança destas contas, considere configurar uma chave de acesso sempre que esta opção estiver disponível. Fonte: passkeys.2fa.directory"
+  },
+  "passkeyLoginFoundInfoSuffixPlural": {
+    "message": " nos seus cofres que são compatíveis com chaves de acesso. Para reforçar a segurança destas contas, considere configurar uma chave de acesso sempre que esta opção estiver disponível. Fonte: passkeys.2fa.directory"
   },
   "noPasskeyLogin": {
     "message": "Não foram encontradas credenciais no seu cofre que suportem chaves de acesso e que ainda não tenham uma configurada."
@@ -7405,6 +7501,57 @@
   "deactivateLink": {
     "message": "Desativar link"
   },
+  "requireAdminConfirmation": {
+    "message": "Exija a confirmação de um administrador"
+  },
+  "requireAdminConfirmationHint": {
+    "message": "Um administrador tem de aprovar manualmente os novos membros antes de serem adicionados ao cofre da organização."
+  },
+  "setYourAllowedDomains": {
+    "message": "Defina os seus domínios permitidos"
+  },
+  "setYourAllowedDomainsCoachMarkBody": {
+    "message": "Adicione domínios de e-mail permitidos (ex.: acme.com) para que apenas utilizadores com endereços de e-mail correspondentes possam utilizar este link de convite. Pode atualizar esta definição a qualquer momento."
+  },
+  "adjustTheLink": {
+    "message": "Ajustar o link"
+  },
+  "adjustTheLinkCoachMarkBody": {
+    "message": "As suas necessidades mudam, e o link pode mudar consigo. <strong>Gere novamente</strong> o link para invalidar o antigo e criar um novo."
+  },
+  "adjustTheLinkCoachMarkBodyIntro": {
+    "message": "As suas necessidades mudam, e o link pode mudar consigo."
+  },
+  "adjustTheLinkCoachMarkRegenerate": {
+    "message": "<strong>Gere novamente</strong> o link para invalidar o antigo e criar um novo."
+  },
+  "adjustTheLinkCoachMarkAdminConfirmation": {
+    "message": "<strong>Exija a confirmação de um administrador</strong> para aprovar novos membros antes de poderem aderir à organização."
+  },
+  "shareTheLinkAnywhere": {
+    "message": "Partilhe o link em qualquer lugar"
+  },
+  "shareTheLinkAnywhereCoachMarkBody": {
+    "message": "Copie e cole o link onde a sua equipa o possa encontrar: na sua checklist de onboarding, num canal do Slack como o #new-joiners, em documentos do Notion ou num template de e-mail."
+  },
+  "viewBitwardenOnboardingGuide": {
+    "message": "Ver o guia de onboarding do Bitwarden"
+  },
+  "coachMarkStepOfTotal": {
+    "message": "$CURRENT$ de $TOTAL$",
+    "description": "Progress indicator for a coach mark tour step, e.g. '1 of 3'",
+    "placeholders": {
+      "current": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "finish": {
+    "message": "Concluir"
+  },
   "inviteByLinkDesc": {
     "message": "Convide membros para a sua organização com um link. Se ainda não tiver sido especificado nenhum papel, serão adicionados como utilizadores predefinidos."
   },
@@ -7717,11 +7864,10 @@
     "message": "É membro de uma organização que exige que a verificação de dois passos seja configurada na sua conta de utilizador. Se desativar todos os fornecedores de verificação de dois passos, será automaticamente removido destas organizações."
   },
   "passwordGeneratorPolicyDescV2": {
-    "message": "Selecione um conjunto de requisitos mínimos para todas as palavras-passe geradas pelos membros."
+    "message": "Selecionar um conjunto de requisitos mínimos para todas as palavras-passe geradas pelos membros."
   },
-  "passwordGeneratorPolicyDescVfo1": {
-    "message": "Definir os requisitos para o gerador de palavras-passe.",
-    "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
+  "passwordGeneratorPolicyDescListVfo1": {
+    "message": "Definir requisitos mínimos para todas as palavras-passe geradas pelos membros."
   },
   "generatedPassword": {
     "message": "Palavra-passe gerada"
@@ -7774,7 +7920,7 @@
   "minimumNumberOfWords": {
     "message": "Número mínimo de palavras"
   },
-  "overridePasswordTypePolicy": {
+  "overridePasswordTypePolicyV2": {
     "message": "Tipo de palavra-passe",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -7978,9 +8124,8 @@
   "singleOrgDesc": {
     "message": "Impedir que os membros adiram a outras organizações."
   },
-  "singleOrgPolicyDescVfo1": {
-    "message": "Impedir que os membros adiram a outros cofres partilhados ou de organizações.",
-    "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
+  "singleOrgPolicyDescListVfo1": {
+    "message": "Os membros não podem aderir a cofres de outras organizações."
   },
   "singleOrgPolicyDescV2": {
     "message": "Os membros desta organização não podem aderir a outras organizações. Os membros existentes que pertençam a outras organizações terão o respetivo acesso revogado quando esta política for ativada. Esta política não será aplicada aos proprietários nem aos administradores."
@@ -8002,13 +8147,9 @@
     "message": "Exigir SSO",
     "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
   },
-  "requireSsoPolicyDescListVfo1": {
-    "message": "Exigir que os membros iniciem sessão com o método de início de sessão único empresarial.",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
-  },
-  "requireSsoPolicyDescV2Vfo1": {
-    "message": "Exigir que os membros iniciem sessão com o método de início de sessão único empresarial. Esta política não se aplica a proprietários e administradores.",
-    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
+  "requireSsoPolicyDescListV2Vfo1": {
+    "message": "Exigir que os membros iniciem sessão através de SSO.",
+    "description": "'SSO' is an abbreviation of 'single sign-on'."
   },
   "requireSsoPolicyTitle": {
     "message": "Exigir início de sessão único (SSO)"
@@ -8426,9 +8567,8 @@
   "centralizeDataOwnershipDesc": {
     "message": "Todos os itens dos membros serão propriedade da organização e geridos por esta. Os administradores e proprietários estão isentos. "
   },
-  "centralizeDataOwnershipDescVfo1": {
-    "message": "Exigir que os membros guardem os itens na organização, removendo o seu cofre pessoal.",
-    "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
+  "centralizeDataOwnershipDescListVfo1": {
+    "message": "Todos os itens dos membros serão propriedade da organização e serão geridos por esta."
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Saiba mais sobre a propriedade centralizada",
@@ -8658,13 +8798,16 @@
     "message": "Devido a uma política empresarial, está impedido de guardar itens no seu cofre pessoal. Altere a opção Propriedade para uma organização e escolha entre as coleções disponíveis."
   },
   "desktopAutotypePolicy": {
-    "message": "Definição predefinida da digitação automática no computador"
+    "message": "Definição predefinida da introdução automática no computador"
   },
   "desktopAutotypePolicyTitleV2": {
-    "message": "Definição predefinida da digitação automática no computador"
+    "message": "Definição predefinida da introdução automática no computador"
   },
   "desktopAutotypePolicyDescV2": {
-    "message": "Ativar a digitação automática no computador para os membros. Os membros poderão desativar manualmente a digitação automática na aplicação para computador."
+    "message": "Ativar a introdução automática no computador para os membros. Os membros poderão desativar manualmente a digitação automática na aplicação para computador."
+  },
+  "desktopAutotypePolicyDescVfo1": {
+    "message": "Ativar a introdução automática no ambiente de trabalho para os membros."
   },
   "disableSend": {
     "message": "Remover Send"
@@ -8714,21 +8857,17 @@
     "message": "Gerir Send",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "manageSendAndShareVfo1": {
-    "message": "Gerir o Send e partilhar",
-    "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
-  },
   "sendControlsPolicyDesc": {
     "message": "Definir opções para criar e editar Sends, incluindo a possibilidade de remover Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescV4": {
-    "message": "Gira a forma como os membros utilizam o Send. Esta política será aplicada aos Sends criados após a sua ativação. Os administradores e proprietários estão isentos.",
+    "message": "Gerir a forma como os membros utilizam o Send. Esta política será aplicada aos Sends criados depois de ativar esta política. Os administradores e proprietários estão isentos.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescVfo1": {
-    "message": "Definir opções de configuração do Send.",
-    "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
+  "sendControlsPolicyDescListVfo1": {
+    "message": "Gerir a forma como os membros utilizam o Send.",
+    "description": "'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
     "message": "Opções do Send",
@@ -9185,9 +9324,8 @@
   "accountRecoveryPolicy": {
     "message": "Gestão da recuperação de contas"
   },
-  "accountRecoveryPolicyDescVfo1": {
-    "message": "Permitir que os administradores reponham as palavras-passe mestras dos membros.",
-    "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
+  "accountRecoveryPolicyDescListVfo1": {
+    "message": "Permitir que os administradores ajudem os membros a recuperar o acesso às suas contas."
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "A política empresarial de organização única tem de estar ativada antes de ativar esta política."
@@ -9586,9 +9724,8 @@
   "sessionTimeoutPolicyDescription": {
     "message": "Definir um tempo limite máximo da sessão para todos os membros, exceto os proprietários."
   },
-  "sessionTimeoutPolicyDescriptionVfo1": {
-    "message": "Definir um tempo limite máximo do cofre para os membros.",
-    "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
+  "sessionTimeoutPolicyDescriptionListVfo1": {
+    "message": "Definir um tempo limite máximo de sessão para os membros."
   },
   "maximumAllowedTimeout": {
     "message": "Tempo limite máximo permitido"
@@ -9716,18 +9853,14 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Uma ou mais políticas da organização impedem-no de exportar o seu cofre pessoal."
   },
-  "activateAutofillPolicy": {
-    "message": "Ativar o preenchimento automático"
-  },
   "enableAutofillOnPageLoad": {
     "message": "Ativar preenchimento automático ao carregar a página"
   },
   "activateAutofillPolicyDescription": {
-    "message": "Ative a definição de preenchimento automático ao carregar a página na extensão do navegador para todos os membros atuais e novos."
+    "message": "Ativar a definição de preenchimento automático ao carregar a página na extensão do navegador para todos os membros atuais e novos."
   },
-  "activateAutofillPolicyDescriptionVfo1": {
-    "message": "Preencher automaticamente as credenciais em sites e apps.",
-    "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
+  "activateAutofillPolicyDescriptionListVfo1": {
+    "message": "Ativar a definição de preenchimento automático ao carregar a página na extensão do navegador para todos os membros."
   },
   "activateAutofillPolicyDescV2": {
     "message": "Ativar a definição de preenchimento automático ao carregar a página na extensão do navegador para todos os membros, atuais e novos. Tenha em atenção que sites comprometidos ou não fidedignos podem"
@@ -10396,9 +10529,6 @@
   "billingHistory": {
     "message": "Histórico de faturação"
   },
-  "backToReports": {
-    "message": "Voltar aos relatórios"
-  },
   "organizationPicker": {
     "message": "Selecionador de organizações"
   },
@@ -10499,6 +10629,10 @@
   "random": {
     "message": "Aleatório",
     "description": "Generates domain-based username using random letters"
+  },
+  "websiteName": {
+    "message": "Nome do site",
+    "description": "Username generator option that uses the current website hostname in the catch-all email address"
   },
   "randomWord": {
     "message": "Palavra aleatória"
@@ -10957,6 +11091,15 @@
       "count": {
         "content": "$1",
         "example": "20"
+      }
+    }
+  },
+  "tooManyEmailsForRemainingSeats": {
+    "message": "Restam apenas $COUNT$ lugares. Remova um endereço de e-mail ou atualize o seu plano.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
       }
     }
   },
@@ -11790,35 +11933,8 @@
   "switchProducts": {
     "message": "Trocar produtos"
   },
-  "freeOrgInvLimitReachedManageBilling": {
-    "message": "As organizações gratuitas podem ter até $SEATCOUNT$ membros. Atualize para um plano pago para convidar mais membros.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "freeOrgInvLimitReachedNoManageBilling": {
-    "message": "As organizações gratuitas podem ter até $SEATCOUNT$ membros. Contacte o proprietário da organização para atualizar para um plano pago.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Os planos Teams Starter podem ter até $SEATCOUNT$ membros. Atualize o seu plano para convidar mais membros.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "10"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "Os planos Teams Starter podem ter até $SEATCOUNT$ membros. Contacte o proprietário da organização para atualizar o plano e convidar mais membros.",
+  "seatLimitReachedContactOwner": {
+    "message": "Foi atingido o limite de $SEATCOUNT$ lugares. Contacte o proprietário da sua organização para atualizar o plano.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -12561,7 +12677,7 @@
     "message": "Ao redefinir a palavra-passe ou a verificação de dois passos deste membro, este será notificado da alteração e a sessão será terminada."
   },
   "accountRecoveryPolicyDescV2": {
-    "message": "Recupere contas quando a palavra-passe mestra, a verificação de dois passos ou os dispositivos fidedignos forem esquecidos ou perdidos."
+    "message": "Recuperar contas quando a palavra-passe principal, a verificação de dois passos ou os dispositivos fidedignos são esquecidos ou perdidos."
   },
   "accountRecoveryPolicyWarningV2": {
     "message": "As contas existentes com palavras-passe mestras exigirão que os membros se inscrevam antes de os administradores poderem recuperar as suas contas."
@@ -13154,14 +13270,14 @@
   "unexpectedErrorSend": {
     "message": "Ocorreu um erro inesperado ao carregar este Send. Tente novamente mais tarde."
   },
-  "seatLimitReached": {
-    "message": "O limite de lugares foi atingido"
-  },
-  "contactYourProvider": {
-    "message": "Contacte o seu fornecedor para adquirir lugares adicionais."
-  },
-  "seatLimitReachedContactYourProvider": {
-    "message": "O limite de lugares foi atingido. Contacte o seu fornecedor para adquirir lugares adicionais."
+  "seatLimitReachedContactProvider": {
+    "message": "Foi atingido o limite de $SEATCOUNT$ lugares. Contacte o seu fornecedor para adquirir lugares adicionais.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "collectionAccessRestricted": {
     "message": "O acesso à coleção é restrito"
@@ -14550,24 +14666,6 @@
   "includeSsoAuthenticationMessage": {
     "message": "Autenticação SSO"
   },
-  "familiesPlanInvLimitReachedManageBilling": {
-    "message": "As organizações com o plano Familiar podem ter até $SEATCOUNT$ membros. Atualize para um plano pago para convidar mais membros.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
-  "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "As organizações com o plano Familiar podem ter até $SEATCOUNT$ membros. Contacte o proprietário da organização para atualizar para um plano pago.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
   "familiesPlanRestoreLimitReachedManageBilling": {
     "message": "As organizações com o plano Familiar podem ter até $SEATCOUNT$ membros. Atualize para um plano pago para restaurar o acesso deste membro.",
     "placeholders": {
@@ -14925,6 +15023,9 @@
   "freeFamiliesSponsorshipDescVfo1": {
     "message": "Remover a opção de os membros usufruírem de um plano Familiar gratuito.",
     "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipDescV2Vfo1": {
+    "message": "Não permitir que os membros resgatem um plano Familiar patrocinado pela sua organização."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "O pagamento com uma conta bancária só está disponível para clientes nos Estados Unidos. Ser-lhe-á pedido que verifique a sua conta bancária. Efetuaremos um micro-depósito nos próximos 1-2 dias úteis. Introduza o código descritor do extrato deste depósito na página de faturação da organização para verificar a conta bancária. A não verificação da conta bancária resultará na falta de pagamento e na suspensão da sua subscrição."
@@ -15374,6 +15475,9 @@
     "message": "Site em falta"
   },
   "removeUnlockWithPinPolicyTitle": {
+    "message": "Remover o desbloqueio com PIN"
+  },
+  "removeUnlockWithPinPolicyTitleVfo1": {
     "message": "Remover o desbloqueio com PIN"
   },
   "removeUnlockWithPinPolicyDescV2": {
@@ -17042,10 +17146,13 @@
     "message": "Banner do cofre"
   },
   "organizationUserNotificationPolicyDesc": {
-    "message": "Crie e apresente um banner personalizado que todos os membros da organização verão na página do respetivo cofre após iniciarem sessão."
+    "message": "Criar e apresentar um banner personalizado que todos os membros da organização vêem na página do cofre depois de iniciarem sessão."
   },
   "singleOrgPrerequisite": {
     "message": "A política de organização única tem de estar ativada antes de ativar esta política."
+  },
+  "singleOrgPrerequisiteVfo1": {
+    "message": "A política de adesão a uma única organização tem de estar ativada antes de ativar esta política."
   },
   "enableBanner": {
     "message": "Ativar banner"
