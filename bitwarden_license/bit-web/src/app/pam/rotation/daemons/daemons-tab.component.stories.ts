@@ -75,6 +75,7 @@ function rotationServices(rows: DaemonRow[]) {
         provide: DaemonsService,
         useValue: {
           loading$: of(false),
+          loadError$: of(null),
           rows$: of(rows),
           daemons$: of(rows.map((r) => r.daemon)),
           load: () => Promise.resolve(),
@@ -89,6 +90,8 @@ function rotationServices(rows: DaemonRow[]) {
         provide: TargetSystemsService,
         useValue: {
           activeAutomaticSystems$: of([{ id: sysId("1") }] as TargetSystem[]),
+          loading$: of(false),
+          loadError$: of(null),
           load: () => Promise.resolve(),
         },
       },
@@ -132,6 +135,12 @@ export default {
               pamAccessConnectorDisconnected: "Disconnected",
               pamAccessConnectorViewDetails: "View details",
               pamAccessConnectorAssignTargets: "Assign targets",
+              pamAccessConnectorAssignTargetDisabled:
+                "Target systems can only be assigned while the access connector is active.",
+              pamAccessConnectorAssignNoOptions:
+                "All active automatic target systems are already assigned to this access connector.",
+              pamAccessConnectorAssignNoTargetSystems:
+                "There are no active automatic target systems to assign. Create one on the Target systems tab, or activate an existing one.",
               pamAccessConnectorUnassign: "Remove __$1__",
               pamAccessConnectorDeactivate: "Deactivate",
               pamAccessConnectorActivate: "Activate",
