@@ -1,10 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { animate, state, style, transition, trigger } from "@angular/animations";
-import { A11yModule } from "@angular/cdk/a11y";
-import { OverlayModule, ConnectedPosition } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component, input, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
@@ -16,7 +13,14 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
-import { AvatarModule, IconButtonModule } from "@bitwarden/components";
+import {
+  AvatarModule,
+  IconButtonModule,
+  MenuModule,
+  MenuPositionIdentifier,
+  IconComponent,
+  BadgeComponent,
+} from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DesktopBiometricsService } from "../../../key-management/biometrics/desktop.biometrics.service";
@@ -38,29 +42,23 @@ type InactiveAccount = ActiveAccount & {
 @Component({
   selector: "app-account-switcher-v2",
   templateUrl: "account-switcher-v2.component.html",
-  imports: [CommonModule, OverlayModule, A11yModule, I18nPipe, AvatarModule, IconButtonModule],
-  animations: [
-    trigger("transformPanel", [
-      state(
-        "void",
-        style({
-          opacity: 0,
-        }),
-      ),
-      transition(
-        "void => open",
-        animate(
-          "100ms linear",
-          style({
-            opacity: 1,
-          }),
-        ),
-      ),
-      transition("* => void", animate("100ms linear", style({ opacity: 0 }))),
-    ]),
+  imports: [
+    CommonModule,
+    MenuModule,
+    I18nPipe,
+    AvatarModule,
+    IconButtonModule,
+    IconComponent,
+    BadgeComponent,
   ],
 })
 export class AccountSwitcherV2Component implements OnInit {
+  /** Whether the side nav is expanded. Controls whether the name and email are shown. */
+  readonly expanded = input<boolean>(false);
+
+  /** Preferred opening position of the switcher menu, relative to the trigger. */
+  readonly menuPosition = input<MenuPositionIdentifier>("below-end");
+
   activeAccount$: Observable<ActiveAccount | null>;
   inactiveAccounts$: Observable<{ [userId: string]: InactiveAccount }>;
   authStatus = AuthenticationStatus;
@@ -71,16 +69,6 @@ export class AccountSwitcherV2Component implements OnInit {
     numberOfAccounts: number;
     showSwitcher: boolean;
   }>;
-
-  isOpen = false;
-  overlayPosition: ConnectedPosition[] = [
-    {
-      originX: "end",
-      originY: "bottom",
-      overlayX: "end",
-      overlayY: "top",
-    },
-  ];
 
   showSwitcher$: Observable<boolean>;
 
@@ -182,16 +170,7 @@ export class AccountSwitcherV2Component implements OnInit {
     }
   }
 
-  toggle() {
-    this.isOpen = !this.isOpen;
-  }
-
-  close() {
-    this.isOpen = false;
-  }
-
   async switch(userId: string) {
-    this.close();
     await this.biometricsService.setShouldAutopromptNow(true);
 
     this.disabled = true;
@@ -204,8 +183,6 @@ export class AccountSwitcherV2Component implements OnInit {
   }
 
   async addAccount() {
-    this.close();
-
     await this.accountService.switchAccount(null);
     await this.router.navigate(["/login"]);
   }

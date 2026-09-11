@@ -17,30 +17,17 @@ default = [
 manual_test = []
 
 [dependencies]
-aes = { workspace = true }
 anyhow = { workspace = true }
 arboard = { workspace = true, features = ["wayland-data-control"] }
 base64 = { workspace = true }
-bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", rev = "a641316227227f8777fdf56ac9fa2d6b5f7fe662" }
 bytes = { workspace = true }
-cbc = { workspace = true, features = ["alloc"] }
 dirs = { workspace = true }
 futures = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
-rsa = "=0.9.6"
-sha2 = "=0.10.9"
-ssh-key = { version = "=0.6.7", features = [
-    "encryption",
-    "ed25519",
-    "rsa",
-    "getrandom",
-] }
-sysinfo = { workspace = true, features = ["windows"] }
 thiserror = { workspace = true }
-tokio = { workspace = true, features = ["io-util", "sync", "macros", "net"] }
+tokio = { workspace = true, features = ["io-util", "sync", "macros"] }
 tokio-util = { workspace = true, features = ["codec"] }
 tracing = { workspace = true }
-typenum = { workspace = true }
 
 [target.'cfg(not(windows))'.dependencies]
 zeroizing-alloc = { workspace = true }
@@ -55,19 +42,17 @@ zbus = { workspace = true, optional = true }
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = { workspace = true, optional = true }
 desktop_objc = { path = "../objc" }
-homedir = { workspace = true }
-libc = { workspace = true }
 secmem-proc = { workspace = true }
 security-framework = { workspace = true, optional = true }
 security-framework-sys = { workspace = true, optional = true }
 
 [target.'cfg(windows)'.dependencies]
-pin-project = { workspace = true }
 scopeguard = { workspace = true }
 secmem-proc = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 serde_with = { workspace = true, features = ["base64"] }
+sha2 = "=0.10.9"
 widestring = { workspace = true, optional = true }
 win_webauthn = { path = "../win_webauthn" }
 windows = { workspace = true, features = [
@@ -75,14 +60,10 @@ windows = { workspace = true, features = [
     "Storage_Search",
     "Win32_Foundation",
     "Win32_Security_Credentials",
-    "Win32_System_Pipes",
 ], optional = true }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
-
-[target.'cfg(unix)'.dev-dependencies]
-rand = { workspace = true }
 
 [lints]
 workspace = true

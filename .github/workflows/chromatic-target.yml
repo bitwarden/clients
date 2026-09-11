@@ -5,7 +5,7 @@
 # reviewing the PR to ensure that no malicious code has been introduced, as it could allow the code
 # on the forked branch to have access to workflow secrets.
 
-name: Chromatic on PR Target
+name: Chromatic (Fork PR)
 
 on:
   pull_request_target:

@@ -270,18 +270,17 @@ describe("SharedFolderCardGridComponent", () => {
       createComponent(children(2));
 
       expect(cards().map((card) => card.getAttribute("href"))).toEqual([
-        "/vault/org-1/engineering-folder-0",
-        "/vault/org-1/engineering-folder-1",
+        "/vault/org-1/shared-folders/engineering-folder-0",
+        "/vault/org-1/shared-folders/engineering-folder-1",
       ]);
     });
 
-    // A folder's route names the vault it lives in, not the path taken to it.
     it("replaces the folder segment rather than nesting under it", () => {
       const engineering = collection(PARENT.id, "Departments/Engineering");
       const platform = collection("platform", "Departments/Engineering/Platform");
       createComponent([collection("departments", "Departments"), engineering, platform]);
 
-      expect(cards()[0].getAttribute("href")).toBe("/vault/org-1/platform");
+      expect(cards()[0].getAttribute("href")).toBe("/vault/org-1/shared-folders/platform");
     });
 
     // Cmd/ctrl-click, middle-click, and Enter all have to open the folder, which only a real anchor

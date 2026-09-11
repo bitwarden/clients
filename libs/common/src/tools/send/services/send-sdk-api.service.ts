@@ -1,4 +1,4 @@
-import { catchError, firstValueFrom, switchMap } from "rxjs";
+import { catchError, concatMap, firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
@@ -33,6 +33,7 @@ import { SendType } from "../types/send-type";
 
 import { SendApiService } from "./send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "./send-api.service.abstraction";
+import { SendDecryptionService } from "./send-decryption.service";
 import { InternalSendService } from "./send.service.abstraction";
 
 /**
@@ -59,6 +60,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     private sendService: InternalSendService,
     private accountService: AccountService,
     private logService: LogService,
+    private sendDecryptionService: SendDecryptionService,
   ) {}
 
   /**
@@ -89,7 +91,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     if (send.id == null && send.type === SendType.File) {
       throw new Error("SendSdkApiService.save: file send creation requires SendApiService.");
     }
-    const sendView = await send.decrypt(userId);
+    const sendView = await this.sendDecryptionService.decryptSend(send, userId);
     const sdkView = await this.mutateSend(sendView, userId, plaintextPassword);
 
     // Patch server-assigned identifiers onto the input for callers that read them after
@@ -153,7 +155,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
+        concatMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -169,13 +171,13 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     await this.sendService.delete(id);
   }
 
-  // Note: the SDK calls the V2 endpoint which removes all auth (password and any other
-  // auth type), not just the password.
+  // Removes all auth (password or email OTP) from the send. Matches the legacy SendApiService
+  // path exactly.
   async removePassword(id: string): Promise<any> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
+        concatMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -239,7 +241,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
+        concatMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -272,7 +274,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   ): Promise<SdkSendView> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
+        concatMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -329,7 +331,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
 
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        switchMap(async (sdk) => {
+        concatMap(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }

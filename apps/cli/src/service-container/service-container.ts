@@ -155,6 +155,7 @@ import {
 import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
 import { SendApiServiceSelector } from "@bitwarden/common/tools/send/services/send-api-service.selector";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
+import { SendDecryptionService } from "@bitwarden/common/tools/send/services/send-decryption.service";
 import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
@@ -207,7 +208,11 @@ import {
 } from "@bitwarden/legacy-crypto";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
-import { DefaultManagedSettingsService } from "@bitwarden/managed-settings";
+import {
+  DefaultManagedSettingsService,
+  DevManagedSettingsService,
+  ManagedSettingsService,
+} from "@bitwarden/managed-settings";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -251,7 +256,7 @@ import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
 import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
 import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
-import { flagEnabled } from "../platform/flags";
+import { devFlagEnabled, devFlagValue, flagEnabled } from "../platform/flags";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
 import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
 import { CliSystemService } from "../platform/services/cli-system.service";
@@ -340,6 +345,7 @@ export class ServiceContainer {
   userVerificationApiService: UserVerificationApiService;
   organizationApiService: OrganizationApiServiceAbstraction;
   sendApiService: SendApiServiceSelector;
+  sendDecryptionService: SendDecryptionService;
   sendTokenService: SendTokenService;
   sendPasswordService: SendPasswordService;
   devicesApiService: DevicesApiServiceAbstraction;
@@ -680,27 +686,22 @@ export class ServiceContainer {
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
 
-    this.sendService = new SendService(
-      this.accountService,
-      this.keyService,
-      this.i18nService,
-      this.keyGenerationService,
-      this.sendStateProvider,
-      this.encryptService,
-      this.configService,
-    );
-
-    const legacySendApiService = new SendApiService(
-      this.apiService,
-      this.fileUploadService,
-      this.sendService,
-    );
     const sdkClientFactory = flagEnabled("sdk")
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
     this.sdkLoadService = new CliSdkLoadService();
 
-    const managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+    let managedSettingsService: ManagedSettingsService;
+    if (devFlagEnabled("managedSettingsDevSource")) {
+      const devManagedSettingsService = new DevManagedSettingsService(SdkLoadService.Ready);
+      devManagedSettingsService.pushExplicit(
+        devFlagValue("managedSettingsDevSource") as Record<string, unknown>,
+      );
+      managedSettingsService = devManagedSettingsService;
+    } else {
+      // The CLI has no host acquisition code, so nothing pushes a profile here.
+      managedSettingsService = new DefaultManagedSettingsService(SdkLoadService.Ready);
+    }
 
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
@@ -718,6 +719,30 @@ export class ServiceContainer {
       customUserAgent,
     );
 
+    this.sendDecryptionService = new SendDecryptionService(
+      this.sdkService,
+      this.configService,
+      this.legacyCompatKeyService,
+    );
+
+    this.sendService = new SendService(
+      this.accountService,
+      this.keyService,
+      this.i18nService,
+      this.keyGenerationService,
+      this.sendStateProvider,
+      this.encryptService,
+      this.configService,
+      this.sdkService,
+      this.sendDecryptionService,
+    );
+
+    const legacySendApiService = new SendApiService(
+      this.apiService,
+      this.fileUploadService,
+      this.sendService,
+    );
+
     this.sendApiService = new SendApiServiceSelector(
       this.configService,
       legacySendApiService,
@@ -727,6 +752,7 @@ export class ServiceContainer {
         this.sendService,
         this.accountService,
         this.logService,
+        this.sendDecryptionService,
       ),
     );
 

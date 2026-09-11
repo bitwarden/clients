@@ -128,19 +128,19 @@ export class SetupComponent implements OnInit, OnDestroy {
       const providerKey = await this.legacyCompatKeyService.makeOrgKey<ProviderKey>(activeUserId);
       const key = providerKey[0].encryptedString;
 
-      const request = new ProviderSetupRequest();
-      request.name = this.formGroup.value.name!;
-      request.billingEmail = this.formGroup.value.billingEmail!;
-      request.token = this.token;
-      request.key = key!;
-
       const paymentMethod = await this.enterPaymentMethodComponent.tokenize();
       if (!paymentMethod) {
         return;
       }
 
-      request.paymentMethod = paymentMethod;
-      request.billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
+      const request = new ProviderSetupRequest({
+        name: this.formGroup.value.name!,
+        billingEmail: this.formGroup.value.billingEmail!,
+        token: this.token,
+        key: key!,
+        paymentMethod,
+        billingAddress: getBillingAddressFromForm(this.formGroup.controls.billingAddress),
+      });
 
       const provider = await this.providerApiService.postProviderSetup(this.providerId, request);
 
