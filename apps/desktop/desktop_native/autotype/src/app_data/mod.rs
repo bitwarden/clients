@@ -10,6 +10,6 @@ pub mod running_apps;
 pub struct AppData {
     /// Human-readable name for the app (e.g. `Google Chrome`, `Netflix`).
     pub display_name: String,
-    /// Absolute path to the app's executable, when it can be resolved.
-    pub path: Option<PathBuf>,
+    /// Absolute path to the app's executable.
+    pub path: PathBuf,
 }

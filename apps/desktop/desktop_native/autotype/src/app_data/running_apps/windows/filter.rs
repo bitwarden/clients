@@ -30,10 +30,12 @@ trait FilterStep: Sync {
 /// threaded in through [`FilterCtx`].
 static PIPELINE: &[&dyn FilterStep] = &[
     &ExcludeUnlabeled,
+    &ExcludePathless,
     &ExcludeSelf,
     &ExcludeSystemPaths,
     &ExcludeShellSurface,
     &ExcludeUnregisteredBackground,
+    &ExcludeAmbiguousHost,
     &ExcludeBackgroundNoise,
 ];
 
@@ -64,17 +66,33 @@ pub(super) fn apply(candidates: Vec<RunningApp>) -> Vec<RunningApp> {
     kept
 }
 
-/// Drop candidates with no usable label. An app we can't name isn't a pairable target and would
-/// otherwise surface as a blank row — e.g. a windowless packaged app whose WinRT display name is
-/// absent and whose process path can't be resolved, or a window whose AUMID/product/exe all fail
-/// to resolve. Enforced here (policy) since collection stays inclusive.
+/// Drop candidates with no display name. `display_name` is `Some` only when we obtained
+/// a trusted name — from the AppsFolder registry (registered apps) or the exe's version info;
+/// It is `None` for an unregistered window/exe with no version resource.
+/// We deliberately do not fall back to the raw file name since is both visible to the user and used
+/// to match a paired app during verification, and a file name is neither a friendly label nor a
+/// reliable unique identity.
 struct ExcludeUnlabeled;
 impl FilterStep for ExcludeUnlabeled {
     fn name(&self) -> &'static str {
         "exclude-unlabeled"
     }
     fn keep(&self, c: &RunningApp, _ctx: &FilterCtx) -> bool {
-        !c.name().trim().is_empty()
+        c.display_name
+            .as_deref()
+            .is_some_and(|n| !n.trim().is_empty())
+    }
+}
+
+/// Drop candidates whose executable path couldn't be resolved. A pairable app must have a concrete
+/// path in order for AppData to be unique and deterministic.
+struct ExcludePathless;
+impl FilterStep for ExcludePathless {
+    fn name(&self) -> &'static str {
+        "exclude-pathless"
+    }
+    fn keep(&self, c: &RunningApp, _ctx: &FilterCtx) -> bool {
+        c.exe_path.is_some()
     }
 }
 
@@ -158,6 +176,37 @@ impl FilterStep for ExcludeBackgroundNoise {
     }
 }
 
+/// Drop apps launched by a known *multiplexing host* (Java/interpreter/script/COM hosts and the
+/// browser PWA proxy stubs) **unless** the window carried a registered AUMID that uniquely
+/// identifies it. Without that AUMID, the host's fallback name (version-info/filename) is shared by
+/// every app it launches — e.g. two Java apps both show as "Java" under `javaw.exe` — so the
+/// identity is non-unique.
+struct ExcludeAmbiguousHost;
+impl FilterStep for ExcludeAmbiguousHost {
+    fn name(&self) -> &'static str {
+        "exclude-ambiguous-host"
+    }
+    fn keep(&self, c: &RunningApp, _ctx: &FilterCtx) -> bool {
+        const AMBIGUOUS_HOSTS: &[&str] = &[
+            "javaw.exe",
+            "java.exe",
+            "pythonw.exe",
+            "python.exe",
+            "wscript.exe",
+            "cscript.exe",
+            "mshta.exe",
+            "rundll32.exe",
+            "dllhost.exe",
+            "mmc.exe",
+            "msedge_proxy.exe",
+            "chrome_proxy.exe",
+        ];
+        // `registered` is true when the app has a registered AUMID and thus can be uniquely
+        // identified, even if it's a PWA that has a browser stub.
+        c.registered || !name_matches(&c.filename, AMBIGUOUS_HOSTS)
+    }
+}
+
 fn name_matches(name: &str, list: &[&str]) -> bool {
     let lc = name.to_ascii_lowercase();
     list.contains(&lc.as_str())
@@ -197,7 +246,9 @@ mod tests {
             pid,
             filename: name.to_string(),
             exe_path: exe_path.map(PathBuf::from),
-            display_name: None,
+            // Labeled by default so candidates survive `ExcludeUnlabeled`; tests exercising the
+            // no-display-name case clear this field explicitly.
+            display_name: Some(name.to_string()),
             has_window,
             registered,
         }
@@ -212,14 +263,33 @@ mod tests {
     }
 
     #[test]
-    fn exclude_unlabeled_drops_candidates_with_no_usable_name() {
+    fn exclude_unlabeled_requires_a_resolved_display_name() {
         let step = ExcludeUnlabeled;
         let ctx = FilterCtx { self_pid: 0 };
-        // No display name (helper sets it None) and an empty filename → no usable label.
-        assert!(!step.keep(&app(1, "", None, true, true), &ctx));
-        // Whitespace-only is also unusable.
-        assert!(!step.keep(&app(1, "   ", None, true, true), &ctx));
+
+        // No resolved display name → dropped (we never fall back to the file name).
+        let mut no_name = app(1, "chrome.exe", None, true, true);
+        no_name.display_name = None;
+        assert!(!step.keep(&no_name, &ctx));
+
+        // Whitespace-only name is also unusable.
+        let mut blank = app(1, "chrome.exe", None, true, true);
+        blank.display_name = Some("   ".to_string());
+        assert!(!step.keep(&blank, &ctx));
+
+        // A real resolved display name → kept.
         assert!(step.keep(&app(1, "chrome.exe", None, true, false), &ctx));
+    }
+
+    #[test]
+    fn exclude_pathless_requires_a_resolved_path() {
+        let step = ExcludePathless;
+        let ctx = FilterCtx { self_pid: 0 };
+        assert!(step.keep(
+            &app(1, "chrome.exe", Some("D:\\Apps\\chrome.exe"), true, true),
+            &ctx
+        ));
+        assert!(!step.keep(&app(1, "chrome.exe", None, true, true), &ctx));
     }
 
     #[test]
@@ -259,6 +329,18 @@ mod tests {
         let ctx = FilterCtx { self_pid: 0 };
         assert!(!step.keep(&app(1, "Explorer.EXE", None, true, false), &ctx));
         assert!(step.keep(&app(1, "chrome.exe", None, true, false), &ctx));
+    }
+
+    #[test]
+    fn exclude_ambiguous_host_drops_only_unregistered_host_apps() {
+        let step = ExcludeAmbiguousHost;
+        let ctx = FilterCtx { self_pid: 0 };
+        // Unregistered app on a multiplexing host → non-unique identity → drop.
+        assert!(!step.keep(&app(1, "javaw.exe", None, true, false), &ctx));
+        // Registered (AUMID-identified) on the same host, e.g. a PWA → uniquely known → keep.
+        assert!(step.keep(&app(1, "javaw.exe", None, true, true), &ctx));
+        // Unregistered non-host app (unique exe) → permissive keep.
+        assert!(step.keep(&app(1, "slack.exe", None, true, false), &ctx));
     }
 
     #[test]

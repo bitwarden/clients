@@ -10,8 +10,6 @@
 //! ```
 #![cfg(target_os = "windows")]
 
-use std::path::PathBuf;
-
 use autotype::get_running_apps;
 
 /// Install a fmt subscriber that routes through cargo's test capture (so `--nocapture` shows it)
@@ -49,17 +47,7 @@ fn print_running_apps() {
     println!("  {:<name_w$}  PATH", "NAME");
     println!("  {:<name_w$}  ----", "-".repeat(name_w));
     for a in &apps {
-        println!(
-            "  {:<name_w$}  {}",
-            a.display_name,
-            path_or_unknown(&a.path)
-        );
+        println!("  {:<name_w$}  {}", a.display_name, a.path.display());
     }
     println!();
-}
-
-fn path_or_unknown(path: &Option<PathBuf>) -> String {
-    path.as_deref()
-        .map(|p| p.display().to_string())
-        .unwrap_or_else(|| "<unknown>".to_string())
 }

@@ -16,7 +16,10 @@ use windows::{
     },
 };
 
-use crate::app_data::AppData;
+use crate::app_data::{
+    path::{build_normalizer, PathNormalizer},
+    AppData,
+};
 
 mod appsfolder;
 mod collect;
@@ -69,11 +72,12 @@ impl RunningApp {
         self.display_name.as_deref().unwrap_or(&self.filename)
     }
 
-    fn into_app_data(self) -> AppData {
-        AppData {
-            display_name: self.name().to_owned(),
-            path: self.exe_path,
-        }
+    fn into_app_data(self, normalizer: &PathNormalizer) -> Option<AppData> {
+        let display_name = self.display_name?;
+        let exe_path = self.exe_path?;
+        let path = PathBuf::from(normalizer.normalize(&exe_path.to_string_lossy()));
+
+        Some(AppData { display_name, path })
     }
 }
 
@@ -91,6 +95,7 @@ impl RunningApp {
 pub(super) fn get_running_apps() -> Vec<AppData> {
     // S_OK / S_FALSE add an initialization reference on this thread that we own and must
     // release; RPC_E_CHANGED_MODE does not (the thread keeps its existing apartment).
+    // <https://learn.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-coinitializeex>
     let hr_result = unsafe { CoInitializeEx(None, COINIT_APARTMENTTHREADED) };
 
     let owns_com = hr_result.is_ok();
@@ -143,7 +148,10 @@ fn enumerate() -> Vec<AppData> {
     );
 
     // 4. Convert: the raw type to the public API
-    kept.into_iter().map(RunningApp::into_app_data).collect()
+    let normalizer = build_normalizer();
+    kept.into_iter()
+        .filter_map(|app| app.into_app_data(&normalizer))
+        .collect()
 }
 
 #[cfg(test)]
@@ -175,14 +183,37 @@ mod tests {
     }
 
     #[test]
-    fn into_app_data_uses_label_and_path() {
+    fn into_app_data_uses_label_and_normalizes_path() {
+        // Fixture mapping keeps this deterministic and proves `into_app_data` applies the
+        // normalizer (rather than depending on the machine's real user dirs).
+        let normalizer = PathNormalizer::new(
+            [("C:\\c".to_string(), "%TEST%".to_string())],
+            crate::app_data::path::PlatformPolicy::WINDOWS,
+        );
         let data = running(
             "chrome.exe",
             Some("Google Chrome"),
             Some("C:\\c\\chrome.exe"),
         )
-        .into_app_data();
+        .into_app_data(&normalizer)
+        .expect("a candidate with a display name and a path yields an AppData");
         assert_eq!(data.display_name, "Google Chrome");
-        assert_eq!(data.path, Some(PathBuf::from("C:\\c\\chrome.exe")));
+        assert_eq!(data.path, PathBuf::from("%TEST%\\chrome.exe"));
+    }
+
+    #[test]
+    fn into_app_data_requires_display_name_and_path() {
+        let normalizer = PathNormalizer::new(
+            std::iter::empty::<(String, String)>(),
+            crate::app_data::path::PlatformPolicy::WINDOWS,
+        );
+        // No display name → not surfaced (we never fall back to the file name).
+        assert!(running("chrome.exe", None, Some("C:\\c\\chrome.exe"))
+            .into_app_data(&normalizer)
+            .is_none());
+        // No resolvable path → not surfaced.
+        assert!(running("chrome.exe", Some("Google Chrome"), None)
+            .into_app_data(&normalizer)
+            .is_none());
     }
 }
