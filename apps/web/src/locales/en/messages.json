@@ -18984,27 +18984,6 @@
   "pamTargetSystemNoResults": {
     "message": "No target systems match your filters."
   },
-  "pamTargetSystemDisable": {
-    "message": "Disable"
-  },
-  "pamTargetSystemEnable": {
-    "message": "Enable"
-  },
-  "pamTargetSystemDisableTitle": {
-    "message": "Disable target system?"
-  },
-  "pamTargetSystemDisableContent": {
-    "message": "Disabling this target system will stop new rotations from being offered. Pending jobs will be held unclaimable. Rotations already in progress will continue to completion."
-  },
-  "pamTargetSystemDisableConfirm": {
-    "message": "Disable"
-  },
-  "pamTargetSystemDisableSuccess": {
-    "message": "Target system disabled."
-  },
-  "pamTargetSystemEnableSuccess": {
-    "message": "Target system enabled."
-  },
   "pamTargetSystemEditTarget": {
     "message": "Edit target system"
   },
