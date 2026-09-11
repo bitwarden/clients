@@ -258,7 +258,8 @@ const safeProviders: SafeProvider[] = [
   // Web-only automation capability.
   safeProvider({
     provide: AutomationCapability,
-    useFactory: (win: Window) => new ProcessReloadCapability(() => win.location.reload()),
+    useFactory: (win: Window) =>
+      new ProcessReloadCapability({ reload: () => win.location.reload() }),
     deps: [WINDOW],
     multi: true,
   }),

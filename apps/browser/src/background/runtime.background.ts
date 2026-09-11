@@ -446,7 +446,17 @@ export default class RuntimeBackground {
         await this.main.clearClipboard(msg.clipboardValue, msg.timeoutMs);
         break;
       }
+      case "setProcessReloadEnabled": {
+        // Reloads live in the background, so the automation driver in the popup cannot turn them
+        // off directly.
+        BrowserApi.setReloadEnabled(msg.enabled);
+        break;
+      }
       case "reloadExtension": {
+        if (!BrowserApi.isReloadEnabled()) {
+          break;
+        }
+
         // Close any open popups first so the runtime reload doesn't strand them with an
         // invalidated context. The popup closes itself upon receiving this message; poll to
         // confirm before reloading. Unlike process reload (which is skipped while the vault is
