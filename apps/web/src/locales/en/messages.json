@@ -19777,6 +19777,12 @@
   "pamTargetSystemDiscardTitle": {
     "message": "Discard target system"
   },
+  "pamAccessConnectorConnected": {
+    "message": "Connected"
+  },
+  "pamAccessConnectorDisconnected": {
+    "message": "Disconnected"
+  },
   "pamAccessConnectorDeactivate": {
     "message": "Deactivate"
   },
@@ -19803,6 +19809,12 @@
         "example": "On-prem production server"
       }
     }
+  },
+  "pamAccessConnectorStatusActive": {
+    "message": "Active"
+  },
+  "pamAccessConnectorStatusInactive": {
+    "message": "Inactive"
   },
   "pamRotationConfigNew": {
     "message": "New managed credential"
