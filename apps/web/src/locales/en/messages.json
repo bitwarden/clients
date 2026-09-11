@@ -7561,6 +7561,9 @@
   "inviteByLinkDesc": {
     "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
   },
+  "inviteLinkSelfHostEmailVerificationWarning": {
+    "message": "Using an invite link could be a security risk in your self-hosted environment because users don’t have to verify their emails."
+  },
   "byContinuingYouAgreeToThe": {
     "message": "By continuing, you agree to the"
   },

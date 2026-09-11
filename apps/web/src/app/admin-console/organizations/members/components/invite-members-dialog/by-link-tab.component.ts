@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
@@ -19,6 +19,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -79,6 +80,16 @@ export class ByLinkTabComponent {
   private readonly fb = inject(FormBuilder);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly eventCollectionService = inject(EventCollectionService);
+  private readonly serverSettingsService = inject(DefaultServerSettingsService);
+
+  private readonly isSelfHost = this.platformUtilsService.isSelfHost();
+  private readonly emailVerificationEnabled = toSignal(
+    this.serverSettingsService.isEmailVerificationEnabled$,
+    { initialValue: false },
+  );
+  protected readonly showSelfHostWarning = computed(
+    () => this.isSelfHost && !this.emailVerificationEnabled(),
+  );
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 

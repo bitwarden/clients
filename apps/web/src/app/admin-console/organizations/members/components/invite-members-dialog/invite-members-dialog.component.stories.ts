@@ -11,6 +11,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
@@ -57,11 +58,16 @@ const mockToastService = {
 
 const mockPlatformUtilsService = {
   copyToClipboard: () => {},
+  isSelfHost: () => false,
 };
 
 const mockEventCollectionService = {
   collect: () => Promise.resolve(),
   collectMany: () => Promise.resolve(),
+};
+
+const mockServerSettingsService = {
+  isEmailVerificationEnabled$: of(true),
 };
 
 const mockDialogRef = {
@@ -221,6 +227,7 @@ export default {
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: MemberActionsService, useValue: mockMemberActionsService },
         { provide: EventCollectionService, useValue: mockEventCollectionService },
+        { provide: DefaultServerSettingsService, useValue: mockServerSettingsService },
         {
           provide: OrgDomainApiServiceAbstraction,
           useValue: { getAllByOrgId: () => Promise.resolve([]) },

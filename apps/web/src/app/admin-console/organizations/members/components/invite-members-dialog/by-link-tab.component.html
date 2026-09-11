@@ -37,6 +37,29 @@
   </button>
 </bit-form-field>
 
+@if (showSelfHostWarning()) {
+  <bit-callout
+    type="warning"
+    [title]="null"
+    [accessibleName]="'inviteLinkSelfHostEmailVerificationWarning' | i18n"
+  >
+    <div class="tw-flex tw-items-center tw-justify-between tw-gap-4">
+      <span>{{ "inviteLinkSelfHostEmailVerificationWarning" | i18n }}</span>
+      <a
+        bitLink
+        linkType="warning"
+        href="https://bitwarden.com/help/environment-variables/#optional-variables"
+        target="_blank"
+        rel="noreferrer"
+        endIcon="bwi-arrow-right"
+        class="tw-shrink-0"
+      >
+        {{ "learnMore" | i18n }}
+      </a>
+    </div>
+  </bit-callout>
+}
+
 @let inviteLink = inviteLink$ | async;
 @if (inviteLink == null) {
   <bit-callout
