@@ -6,6 +6,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { TargetSystemMethod, TargetSystemStatus } from "../rotation";
 import { RotationSdkService } from "../rotation-sdk.service";
+import { deferred } from "../testing/deferred";
 import { ORGANIZATION_ID, sysId, targetSystem } from "../testing/rotation-builders";
 
 import { TargetSystemsService } from "./target-systems.service";
@@ -78,6 +79,26 @@ describe("TargetSystemsService", () => {
 
       expect(await firstValueFrom(service.systems$)).toHaveLength(1);
       expect(await firstValueFrom(service.loadError$)).toBeNull();
+    });
+
+    it("does not let a superseded load's success clear the current load's failure", async () => {
+      const gate = deferred();
+      const failure = new Error("network fail");
+      rotationSdk.listTargetSystems
+        .mockImplementationOnce(async () => {
+          await gate.promise;
+          return [targetSystem()];
+        })
+        .mockRejectedValueOnce(failure);
+
+      const superseded = service.load(ORG_ID);
+      await service.load(ORG_ID);
+      gate.settle();
+      await superseded;
+
+      expect(await firstValueFrom(service.systems$)).toHaveLength(0);
+      expect(await firstValueFrom(service.loadError$)).toBe(failure);
+      expect(await firstValueFrom(service.loading$)).toBe(false);
     });
   });
 
