@@ -5,8 +5,11 @@ import { RotationConfigDescription } from "../rotation-sdk.service";
 import { targetSystemMethodLabelKey } from "../target-systems/target-system-label";
 
 /**
- * The single status a managed credential row shows. Mutually exclusive: a row renders one badge,
- * never a stack of them.
+ * The single status a managed credential row resolves to. Mutually exclusive: one status wins, and
+ * it is the only one the status column sorts and the status filter matches on.
+ *
+ * A row may still carry a companion pause marker alongside the status badge; see
+ * {@link RotationConfigRow.pausedWhileRotating}.
  */
 export const RotationRowStatus = Object.freeze({
   Active: "active",
@@ -99,6 +102,15 @@ export type RotationConfigRow = {
   /** i18n label key of {@link statusBadge}. */
   statusLabelKey: string;
   /**
+   * Whether the row is paused while a claimed job is still running, the one case where the single
+   * status badge cannot show the pause: {@link resolveRotationStatus} gives the in-flight job
+   * precedence, so the row would otherwise read as merely rotating.
+   *
+   * Kept apart from {@link status}, {@link statusBadge} and {@link statusLabelKey} so the status
+   * column's sort and the status filter still see exactly the four resolved statuses.
+   */
+  pausedWhileRotating: boolean;
+  /**
    * For preset crons: the i18n key for the preset label (e.g. `"pamRotationScheduleDaily"`).
    * For a custom cron: the raw cron string itself (displayed verbatim).
    * For null/none: `"pamRotationScheduleNone"` — the template renders an em-dash.
@@ -161,6 +173,7 @@ export function buildRotationConfigRow(
     status,
     statusBadge,
     statusLabelKey: statusBadge.labelKey,
+    pausedWhileRotating: !config.enabled && status === RotationRowStatus.Rotating,
     scheduleLabelKeyOrCron,
     rotateOnAccessEnd: config.rotateOnAccessEnd,
     lastRotationAtMs: Number.isNaN(lastRotationAtMs) ? null : lastRotationAtMs,
