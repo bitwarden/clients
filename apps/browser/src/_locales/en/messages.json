@@ -451,6 +451,9 @@
   "noFolders": {
     "message": "There are no folders to list."
   },
+  "noFoldersFilter": {
+    "message": "No folders"
+  },
   "helpFeedback": {
     "message": "Help & feedback"
   },

@@ -344,8 +344,9 @@ export class VaultPopupListTableFiltersService {
           const noFolder = folders.find((f) => !f.id);
 
           if (noFolder) {
-            const updatedNoFolder = { ...noFolder, name: this.i18nService.t("itemsWithNoFolder") };
-            arrangedFolders = [...folders.filter((f) => f.id), updatedNoFolder];
+            const updatedNoFolder = { ...noFolder, name: this.i18nService.t("noFoldersFilter") };
+            // Leads the list, and the menu rules it off from the real folders.
+            arrangedFolders = [updatedNoFolder, ...folders.filter((f) => f.id)];
           }
 
           return [selectedOrgs, arrangedFolders, cipherViews] as const;
