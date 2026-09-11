@@ -2294,6 +2294,26 @@ describe("AutofillService", () => {
 
         expect(autofillService["inUntrustedIframe"]).not.toHaveBeenCalled();
       });
+
+      it("skips the iframe check on the password-generation path", async () => {
+        const newPasswordField = buildTargetedField({
+          opid: "targeted_field_0_newPassword",
+          type: "password",
+          fieldQualifier: AutofillTargetingRuleTypes.newPassword,
+        });
+        const options = createGenerateFillScriptOptionsMock();
+        options.cipher.type = CipherType.Login;
+        options.cipher.login = mock<LoginView>({ password: "generated-pass", uris: [] });
+        options.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+        jest.spyOn(autofillService as any, "inUntrustedIframe");
+
+        await autofillService["generateTargetedFillScript"](
+          buildTargetedPageDetails([newPasswordField]),
+          options,
+        );
+
+        expect(autofillService["inUntrustedIframe"]).not.toHaveBeenCalled();
+      });
     });
   });
 
