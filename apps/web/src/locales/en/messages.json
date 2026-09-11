@@ -19110,9 +19110,6 @@
   "pamRotationTabTargetSystems": {
     "message": "Target systems"
   },
-  "pamRotationTabDaemons": {
-    "message": "Daemons"
-  },
   "pamRotationTabAccessConnectors": {
     "message": "Access connectors"
   },
@@ -19518,15 +19515,6 @@
   },
   "pamTargetSystemNotFound": {
     "message": "Target system not found."
-  },
-  "pamDaemonNew": {
-    "message": "New daemon"
-  },
-  "pamDaemonRegistered": {
-    "message": "Daemon registered."
-  },
-  "pamDaemonDetailTitle": {
-    "message": "Daemon"
   },
   "pamTargetSystemDiscardTitle": {
     "message": "Discard target system"
