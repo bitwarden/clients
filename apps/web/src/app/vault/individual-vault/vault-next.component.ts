@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute } from "@angular/router";
-import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs";
+import { ActivatedRoute, RouterLink } from "@angular/router";
+import { combineLatest, firstValueFrom, map, shareReplay, switchMap, take } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -10,13 +10,20 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
-import { ButtonModule, DialogService, IconTileComponent } from "@bitwarden/components";
+import {
+  ButtonModule,
+  CalloutModule,
+  DialogService,
+  IconTileComponent,
+  LinkModule,
+} from "@bitwarden/components";
 import { isGuid } from "@bitwarden/guid";
 import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
@@ -68,8 +75,7 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
  * Every side-nav destination renders this one component, scoped by the `:vaultId` route segment —
  * see `VaultScope`.
  *
- * Not yet wired: the `?itemId=&action=` deep link that opens an item on load. The archive's
- * "premium subscription ended" callout has nowhere to surface yet.
+ * Not yet wired: the `?itemId=&action=` deep link that opens an item on load.
  */
 @Component({
   selector: "app-vault-next",
@@ -80,8 +86,11 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
   },
   imports: [
     ButtonModule,
+    CalloutModule,
     I18nPipe,
     HeaderModule,
+    LinkModule,
+    RouterLink,
     NewCipherMenuComponent,
     VaultBannersComponent,
     VaultBreadcrumbsComponent,
@@ -109,6 +118,7 @@ export class VaultNextComponent {
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly vaultNavService = inject(VaultNavService);
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly cipherArchiveService = inject(CipherArchiveService);
   private readonly i18nService = inject(I18nService);
   private readonly policyService = inject(PolicyService);
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
@@ -295,6 +305,18 @@ export class VaultNextComponent {
     const { type } = this.vaultScope();
     return type !== VaultScopeType.Trash && type !== VaultScopeType.Archive;
   });
+
+  private readonly subscriptionEndedMessaging = toSignal(
+    this.userId$.pipe(
+      switchMap((userId) => this.cipherArchiveService.showSubscriptionEndedMessaging$(userId)),
+      take(1),
+    ),
+    { initialValue: false },
+  );
+
+  protected readonly showSubscriptionEndedMessaging = computed(
+    () => this.vaultScope().type === VaultScopeType.Archive && this.subscriptionEndedMessaging(),
+  );
 
   protected readonly title = computed(() =>
     vaultScopeTitle(this.vaultScope(), this.i18nService, this.vaultNav()),
