@@ -19,10 +19,13 @@ export class RotationLoadingAnnouncerComponent {
   /** Whether the load failed. */
   readonly failed = input(false);
 
-  /** Latches once a load has been announced, so arrival is only announced after a departure. */
-  private readonly announced = linkedSignal<boolean, boolean>({
-    source: this.loading,
-    computation: (loading, previous) => loading || (previous?.value ?? false),
+  /** Latches within one attempt, so arrival is only announced after a departure. Clears on retry. */
+  private readonly announced = linkedSignal<{ loading: boolean; failed: boolean }, boolean>({
+    source: () => ({ loading: this.loading(), failed: this.failed() }),
+    computation: ({ loading, failed }, previous) => {
+      const retrying = !failed && (previous?.source.failed ?? false);
+      return loading || (!retrying && (previous?.value ?? false));
+    },
   });
 
   /** Reads the latch before anything can short-circuit past it. */
