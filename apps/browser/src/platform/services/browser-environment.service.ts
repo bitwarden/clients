@@ -7,15 +7,33 @@ import { Region, RegionConfig } from "@bitwarden/common/platform/abstractions/en
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
+import { ManagedSettingsService } from "@bitwarden/managed-settings";
 
 import { GroupPolicyEnvironment } from "../../admin-console/types/group-policy-environment";
 import { devFlagEnabled, devFlagValue } from "../flags";
 
+const MANAGED_ENVIRONMENT_FIELDS: readonly (keyof GroupPolicyEnvironment)[] = [
+  "base",
+  "webVault",
+  "api",
+  "identity",
+  "icons",
+  "notifications",
+  "events",
+];
+
 export class BrowserEnvironmentService extends DefaultEnvironmentService {
+  /**
+   * @param managedSettingsService - Source of the administrator's `environment.*` settings. Only
+   *   the background's instance is fed by `BrowserManagedConfigReader`, so the popup's instance is
+   *   always empty. That is harmless while the background is the only caller of
+   *   {@link getManagedEnvironment}, and needs a foreground proxy before it is not.
+   */
   constructor(
     private logService: LogService,
     stateProvider: StateProvider,
     accountService: AccountService,
+    private managedSettingsService: ManagedSettingsService,
     additionalRegionConfigs: RegionConfig[] = [],
   ) {
     super(stateProvider, accountService, additionalRegionConfigs);
@@ -50,22 +68,35 @@ export class BrowserEnvironmentService extends DefaultEnvironmentService {
     );
   }
 
+  /**
+   * The administrator's environment, reconstructed from the `environment.*` leaves of the active
+   * management profile, or `null` when none of them is managed.
+   *
+   * Resolves synchronously against the in-memory profile. The signature stays a promise because
+   * acquisition used to be asynchronous and the callers still await it.
+   */
   getManagedEnvironment(): Promise<GroupPolicyEnvironment> {
-    return devFlagEnabled("managedEnvironment")
-      ? new Promise((resolve) => resolve(devFlagValue("managedEnvironment")))
-      : new Promise((resolve, reject) => {
-          if (chrome.storage.managed == null) {
-            return resolve(null);
-          }
+    if (devFlagEnabled("managedEnvironment")) {
+      return Promise.resolve(devFlagValue("managedEnvironment"));
+    }
 
-          chrome.storage.managed.get("environment", (result) => {
-            if (chrome.runtime.lastError) {
-              return reject(chrome.runtime.lastError);
-            }
+    let managed = false;
+    const environment: GroupPolicyEnvironment = {};
+    for (const field of MANAGED_ENVIRONMENT_FIELDS) {
+      // Absence, not falsiness: presence in the profile means the value is forced, so an
+      // administrator who sets an empty string has forced an empty string.
+      const raw = this.managedSettingsService.get(`environment.${field}`);
+      if (raw === undefined) {
+        continue;
+      }
 
-            resolve(result.environment);
-          });
-        });
+      managed = true;
+      // Unguarded because every writer reaches the profile through `flattenSettings`, which
+      // JSON-encodes each leaf. A stored value is always decodable.
+      environment[field] = JSON.parse(raw) as string;
+    }
+
+    return Promise.resolve(managed ? environment : null);
   }
 
   async setUrlsToManagedEnvironment() {
