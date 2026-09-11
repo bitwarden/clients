@@ -54,7 +54,10 @@ export interface AssignmentPickerHints {
   readonly default: string;
   readonly noneEligible: string;
   readonly loadError: string;
-  /** Optional; omitted, a blocked picker falls through to whichever other state applies. */
+  /**
+   * Optional, and read only when the caller gives no `disabledTooltipKey`: a blocked picker says
+   * so on Assign rather than twice. Omitted, it falls through to whichever other state applies.
+   */
   readonly disabled?: string;
 }
 
@@ -195,13 +198,20 @@ export class AssignmentPickerComponent<TRow extends AssignmentPickerRow> {
   );
 
   /**
-   * The hint under the picker. An exhausted option list gets no hint of its own: the dropdown
-   * opens and says it has nothing to offer.
+   * The hint under the picker, or null when there is nothing left for it to say. A blocked
+   * picker carries its reason on Assign's tooltip, so repeating it here would state it twice. An
+   * exhausted option list gets no hint of its own: the dropdown opens and says it has nothing to
+   * offer.
    */
-  protected readonly hintKey = computed(() => {
+  protected readonly hintKey = computed<string | null>(() => {
     const hints = this.hints();
-    if (this.disabled() && hints.disabled != null) {
-      return hints.disabled;
+    if (this.disabled()) {
+      if (this.assignTooltip() !== "") {
+        return null;
+      }
+      if (hints.disabled != null) {
+        return hints.disabled;
+      }
     }
     if (this.loadError()) {
       return hints.loadError;

@@ -40,7 +40,6 @@ const CONNECTOR_COLUMNS: AssignmentPickerColumn[] = [
 const TARGET_HINTS: AssignmentPickerHints = {
   default: "pamAccessConnectorAssignSelectHint",
   noneEligible: "pamAccessConnectorAssignNoTargetSystems",
-  disabled: "pamAccessConnectorAssignTargetDisabled",
   loadError: "pamAccessConnectorTargetSystemsLoadError",
 };
 
@@ -192,7 +191,7 @@ export const AllAssigned: Story = {
   args: { options: [] },
 };
 
-/** The record cannot take assignments at all. */
+/** The record cannot take assignments at all; Assign carries the reason, the hint does not. */
 export const Blocked: Story = {
   args: {
     disabled: true,
