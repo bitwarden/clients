@@ -1,11 +1,12 @@
 import { provideZonelessChangeDetection } from "@angular/core";
 import { of } from "rxjs";
 
-import { LockService, LogoutService } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LockService } from "@bitwarden/unlock";
 import { ProductSwitcherService } from "@bitwarden/web-vault/app/layouts/product-switcher/shared/product-switcher.service";
 
 import type {
