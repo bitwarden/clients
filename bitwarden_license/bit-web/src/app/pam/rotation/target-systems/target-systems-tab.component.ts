@@ -11,7 +11,7 @@ import {
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { map } from "rxjs";
+import { filter, firstValueFrom, map } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -294,32 +294,49 @@ export class TargetSystemsTabComponent {
   /**
    * Open the mirror of the access-connectors tab's "Assign targets" dialog: pick an enabled
    * connector for this target instead of picking a target for a fixed connector.
+   *
+   * The menu item is live while the connector read is still in flight, so a click can arrive
+   * before there is a list to offer. The read settles first: opening on an empty list would leave
+   * the dialog stating that every active connector is already assigned, and a read that failed
+   * says so instead of opening at all. The row is busy throughout, which is what its own
+   * {@link isRowBusy} binding reflects and what keeps a delete from racing the assignment's
+   * optimistic patch.
    */
-  protected readonly openAssignConnectorDialog = async (system: TargetSystem): Promise<void> => {
-    const options = assignableConnectors(system.id, this.daemons());
+  protected readonly openAssignConnectorDialog = (system: TargetSystem): Promise<void> =>
+    this.busyRows.run(system.id, async () => {
+      await firstValueFrom(this.daemonsService.loading$.pipe(filter((inFlight) => !inFlight)));
+      if (this.connectorsUnavailable()) {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("pamTargetSystemConnectorAssignmentsLoadError"),
+        });
+        return;
+      }
 
-    const ref = AssignConnectorDialogComponent.open(this.dialogService, {
-      data: { targetSystem: system, options },
-    });
-    const selectedId = await ref.closed.toPromise();
-    if (!selectedId) {
-      return;
-    }
-    const accessConnectorId = asUuid<AccessConnectorId>(selectedId);
-    const daemon = this.daemons().find((d) => d.id === accessConnectorId);
-    if (!daemon) {
-      return;
-    }
-    try {
-      await this.daemonsService.assign(daemon, system.id);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamTargetSystemAssignConnectorSuccess"),
+      const options = assignableConnectors(system.id, this.daemons());
+
+      const ref = AssignConnectorDialogComponent.open(this.dialogService, {
+        data: { targetSystem: system, options },
       });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
+      const selectedId = await ref.closed.toPromise();
+      if (!selectedId) {
+        return;
+      }
+      const accessConnectorId = asUuid<AccessConnectorId>(selectedId);
+      const daemon = this.daemons().find((d) => d.id === accessConnectorId);
+      if (!daemon) {
+        return;
+      }
+      try {
+        await this.daemonsService.assign(daemon, system.id);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("pamTargetSystemAssignConnectorSuccess"),
+        });
+      } catch (e) {
+        this.showError(e);
+      }
+    });
 
   /** Disable a target system after confirming with the operator. */
   protected readonly disable = (system: TargetSystem): Promise<void> =>
