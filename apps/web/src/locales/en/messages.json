@@ -19047,9 +19047,6 @@
   "pamDaemonNew": {
     "message": "New daemon"
   },
-  "pamDaemonRegister": {
-    "message": "Register daemon"
-  },
   "pamDaemonEmptyStateTitle": {
     "message": "No daemons registered"
   },
@@ -19149,15 +19146,6 @@
   "pamDaemonDeleted": {
     "message": "Daemon deleted."
   },
-  "pamDaemonRegisterTitle": {
-    "message": "Register daemon"
-  },
-  "pamDaemonNamePlaceholder": {
-    "message": "e.g. On-prem production server"
-  },
-  "pamDaemonNameHint": {
-    "message": "A descriptive name to identify this daemon. Max 200 characters."
-  },
   "pamDaemonRegistered": {
     "message": "Daemon registered."
   },
@@ -19187,6 +19175,9 @@
   },
   "pamTargetSystemDiscardTitle": {
     "message": "Discard target system"
+  },
+  "pamAccessConnectorRegister": {
+    "message": "Register access connector"
   },
   "pamAccessConnectorConnection": {
     "message": "Connection"
@@ -19265,6 +19256,15 @@
         "example": "On-prem production server"
       }
     }
+  },
+  "pamAccessConnectorRegisterTitle": {
+    "message": "Register access connector"
+  },
+  "pamAccessConnectorNamePlaceholder": {
+    "message": "e.g. On-prem production server"
+  },
+  "pamAccessConnectorNameHint": {
+    "message": "A descriptive name to identify this access connector. Max 200 characters."
   },
   "pamAccessConnectorStatusActive": {
     "message": "Active"
