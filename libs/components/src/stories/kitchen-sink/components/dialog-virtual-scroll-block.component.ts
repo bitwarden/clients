@@ -1,7 +1,7 @@
 import { DatePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from "@angular/core";
 
-import { BadgeListModule } from "../../../badge-list";
+import { BadgeGroupComponent, type BadgeGroupItem } from "../../../badge-group";
 import { DialogModule, DialogService } from "../../../dialog";
 import { IconButtonModule } from "../../../icon-button";
 import {
@@ -13,7 +13,7 @@ import {
   defineTable,
 } from "../../../table/v2";
 
-type Row = { id: number; name: string; updatedAt: Date; tags: string[] };
+type Row = { id: number; name: string; updatedAt: Date; tags: BadgeGroupItem[] };
 
 const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"];
 
@@ -22,7 +22,7 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
   selector: "dialog-virtual-scroll-block",
   imports: [
     DatePipe,
-    BadgeListModule,
+    BadgeGroupComponent,
     DialogModule,
     IconButtonModule,
     BitTableV2Component,
@@ -52,8 +52,8 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
     </bit-column>
     <bit-column sortable [sortFn]="sortByTags">
       <bit-header-cell>Tags</bit-header-cell>
-      <bit-cell *bitCellDef="table.columns.tags; let row" [truncate]="false">
-        <bit-badge-list [items]="row.tags" variant="subtle"></bit-badge-list>
+      <bit-cell *bitCellDef="table.columns.tags; let row">
+        <bit-badge-group [badges]="row.tags"></bit-badge-group>
       </bit-cell>
     </bit-column>
     <bit-column width="64px">
@@ -76,7 +76,10 @@ export class DialogVirtualScrollBlockComponent implements OnInit {
   protected readonly table = defineTable<Row, "actions">(this.rows);
 
   protected readonly sortByTags = (a: Row, b: Row) =>
-    a.tags.join(",").localeCompare(b.tags.join(","));
+    a.tags
+      .map((tag) => tag.label)
+      .join(",")
+      .localeCompare(b.tags.map((tag) => tag.label).join(","));
 
   ngOnInit(): void {
     const base = new Date(Date.UTC(2026, 0, 1));
@@ -88,7 +91,10 @@ export class DialogVirtualScrollBlockComponent implements OnInit {
           id: i,
           name: `name-${i}`,
           updatedAt: date,
-          tags: Array.from({ length: (i % 3) + 1 }, (_, j) => TAG_POOL[(i + j) % TAG_POOL.length]),
+          tags: Array.from({ length: (i % 3) + 1 }, (_, j) => ({
+            label: TAG_POOL[(i + j) % TAG_POOL.length],
+            variant: "subtle" as const,
+          })),
         };
       }),
     );
