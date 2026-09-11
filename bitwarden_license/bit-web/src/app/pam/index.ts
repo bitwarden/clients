@@ -113,3 +113,4 @@ export type { RequestAccessErrorOutcome } from "./helpers/request-access-error";
 export { accessRuleErrorMessageKey, classifyAccessRuleError } from "./helpers/access-rule-error";
 export type { AccessRuleErrorField, AccessRuleErrorOutcome } from "./helpers/access-rule-error";
 export { activateAccessErrorMessageKey } from "./helpers/activate-access-error";
+export { selectedFilterStrings } from "./helpers/selected-filter-strings";
