@@ -554,6 +554,45 @@
   "noItemsInVault": {
     "message": "Kasada hiç kayıt yok"
   },
+  "noItemsInMyVault": {
+    "message": "Kasanızda hiç kayıt yok"
+  },
+  "emptyMyItems": {
+    "message": "Kayıtlarım'da hiç kayıt yok"
+  },
+  "noItemsInOrganizationVault": {
+    "message": "$VAULT_NAME$ kasasında hiç kayıt yok",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "noItemsInSharedFolder": {
+    "message": "$VAULT_NAME$ kasasında hiç kayıt yok",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "noItemsInVaults": {
+    "message": "Kasalarınız boş"
+  },
+  "noItemsMatchSelectedFilters": {
+    "message": "Seçilen filtrelerle hiçbir kayıt eşleşmedi"
+  },
+  "noItemsMatchSearchTerm": {
+    "message": "\"$SEARCH_TERM$\" ile hiçbir kayıt eşleşmedi",
+    "placeholders": {
+      "search_term": {
+        "content": "$1",
+        "example": "example search"
+      }
+    }
+  },
   "length": {
     "message": "Uzunluk"
   },
@@ -1497,6 +1536,9 @@
   "importVerb": {
     "message": "İçe aktar",
     "description": "The verb form of the word Import"
+  },
+  "importItems": {
+    "message": "Kayıtları içe aktar"
   },
   "fileFormat": {
     "message": "Dosya biçimi"
@@ -2686,7 +2728,7 @@
     "message": "Satırı seç"
   },
   "showingItemRange": {
-    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "message": "$START$ - $END$ ve $TOTAL$ Gösteriliyor",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -2773,6 +2815,30 @@
         "example": "eng"
       }
     }
+  },
+  "oneFilterResult": {
+    "message": "1 sonuç",
+    "description": "Shown above a filter menu's option list when a search matches exactly one option."
+  },
+  "filterResults": {
+    "message": "$COUNT$ sonuç",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    },
+    "description": "Shown above a filter menu's option list when a search matches more than one option."
+  },
+  "noFiltersMatchTerm": {
+    "message": "“$SEARCH$” ile hiçbir filtre eşleşmedi",
+    "placeholders": {
+      "search": {
+        "content": "$1",
+        "example": "eng"
+      }
+    },
+    "description": "Replaces noFiltersMatch, which is immutable in Crowdin, to use typographic quotes."
   },
   "clearSearch": {
     "message": "Aramayı temizle"
@@ -5354,7 +5420,7 @@
     "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
   },
   "importProtonpassInstructions": {
-    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+    "message": "ProtonPass tarayıcı uzantısında Ayarlar > Dışa Aktar'a gidin. PGP şifrelemesi olmadan dışa aktarın ve zip dosyasını kaydedin."
   },
   "importPasswordxpInstructions": {
     "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
@@ -5390,10 +5456,10 @@
     "message": "Anahtar dosyası ekle"
   },
   "keyFileUpload": {
-    "message": "Key file upload"
+    "message": "Anahtar dosya yükleme"
   },
   "kdbxFileUpload": {
-    "message": "KDBX file upload"
+    "message": "KDBX dosya yükleme"
   },
   "acceptedFormatsKdbx": {
     "message": "Kabul edilen formatlar: kdbx"
@@ -5570,7 +5636,7 @@
     "message": "Veri merkezi konumu"
   },
   "keeperMasterPassword": {
-    "message": "Keeper master password"
+    "message": "Keeper ana parola"
   },
   "keeperMasterPasswordPrompt": {
     "message": "Lütfen Keeper ana şifrenizi girin"
@@ -5585,7 +5651,7 @@
     "message": "Lütfen kısa mesajla gönderilen kodu giriniz"
   },
   "keeperDnaCodePrompt": {
-    "message": "Please enter the code from your Keeper DNA app"
+    "message": "Lütfen Keeper DNA uygulamanızdaki kodu girin"
   },
   "adminApproval": {
     "message": "Yönetici onayı"
@@ -5618,31 +5684,31 @@
     "message": "SSO token"
   },
   "keeperAuthRequired": {
-    "message": "Keeper authentication required"
+    "message": "Keeper kimlik doğrulaması gerekli"
   },
   "keeperDeviceApprovalRequired": {
-    "message": "Keeper device approval required"
+    "message": "Keeper cihazı onaylamanız gerekiyor"
   },
   "selectApprovalMethod": {
-    "message": "Approval methods"
+    "message": "Onay yöntemleri"
   },
   "deviceApprovalNeeded": {
-    "message": "Device approval needed"
+    "message": "Cihaz onayı gerekiyor"
   },
   "selectApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below"
+    "message": "Aşağıdan bir yöntem seçerek bu cihazı onaylayın"
   },
   "keeperPush": {
     "message": "Keeper Push"
   },
   "twoFactorMethod": {
-    "message": "Two-factor method"
+    "message": "İki adımlı doğrulama yöntemi"
   },
   "emailVerification": {
     "message": "E-posta doğrulama"
   },
   "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below"
+    "message": "Lütfen e-postanızı kontrol edin ve doğrulama kodunu aşağıya girin"
   },
   "otherDeviceApprovalPushDesc": {
     "message": "Keeper Push notification sent to approved device"
@@ -5651,25 +5717,25 @@
     "message": "Keeper Push sent"
   },
   "approvalRequestWillBeCanceled": {
-    "message": "Approval request will be canceled"
+    "message": "Onay talebi iptal edilecek"
   },
   "pendingApprovalCancelConfirmation": {
-    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+    "message": "Ayrılmak istediğinden emin misin? Yönetici onay isteğiniz iptal edilecektir."
   },
   "cancelRequest": {
     "message": "İsteği iptal et"
   },
   "keeperMFARequired": {
-    "message": "Keeper two-factor authentication required"
+    "message": "Keeper iki aşamalı kimlik doğrulaması gerekli"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "Kimlik doğrulama uygulamanızda oturum açma isteğini onaylayın. Bu iletişim kutusu otomatik olarak kapanacaktır."
   },
   "selectTwoFactorMethod": {
-    "message": "Select two-factor method"
+    "message": "İki adımlı doğrulama yöntemini seç"
   },
   "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
+    "message": "Kimliğinizi nasıl doğrulamak istediğinizi seçin."
   },
   "authenticatorAppTotp": {
     "message": "Kimlik Doğrulama uygulaması (TOTP)"
@@ -5702,10 +5768,10 @@
     "message": "Approve the Keeper DNA notification on your device"
   },
   "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
+    "message": "Keeper DNA yöntemini seç"
   },
   "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
+    "message": "Keeper DNA ile nasıl doğrulamak istediğinizi seçin."
   },
   "pushNotification": {
     "message": "Anlık bildirim"
@@ -5720,10 +5786,10 @@
     "message": "Bilinmeyen yöntem"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "Duo yöntemini seç"
   },
   "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
+    "message": "Duo Security ile nasıl doğrulamak istediğinizi seçin."
   },
   "duoPush": {
     "message": "Duo Push"
@@ -5738,7 +5804,7 @@
     "message": "Approve the Duo push notification on your device."
   },
   "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+    "message": "Telefonunuza bir kısa mesaj gönderildi. Devam etmek için kodu Duo uygulamasına girin."
   },
   "duoVoiceWaiting": {
     "message": "Answer the phone call from Duo and follow the instructions."
@@ -5974,7 +6040,7 @@
     "message": "Filtreleri temizleyin veya başka bir arama yapmayı deneyin"
   },
   "noSharedFoldersAdded": {
-    "message": "No shared folders added"
+    "message": "Paylaşılan klasör eklenmedi"
   },
   "noSharedFoldersAddedDescription": {
     "message": "Add a shared folder to securely share vault items with other members."
@@ -6064,7 +6130,7 @@
     "message": "Paylaşılan klasöre ekle"
   },
   "transferAndAdd": {
-    "message": "Transfer and add"
+    "message": "Aktar ve ekle"
   },
   "copyEmail": {
     "message": "E-postayı kopyala"
@@ -6696,19 +6762,19 @@
     "message": "Successfully added shared folders"
   },
   "itemMovedToCollection": {
-    "message": "Item moved to collection"
+    "message": "Kayıt koleksiyona taşındı"
   },
   "itemAddedToSharedFolder": {
-    "message": "Item added to shared folder"
+    "message": "Kayıt paylaşılan klasöre eklendi"
   },
   "itemMovedToCollections": {
-    "message": "Item moved to collections"
+    "message": "Kayıt koleksiyonlara taşındı"
   },
   "itemAddedToSharedFolders": {
-    "message": "Item added to shared folders"
+    "message": "Kayıt paylaşılan klasörlere eklendi"
   },
   "itemsMovedToCollection": {
-    "message": "Items moved to collection"
+    "message": "Kayıtlar koleksiyona taşındı"
   },
   "itemsAddedToSharedFolder": {
     "message": "Items added to shared folder"
@@ -6852,6 +6918,9 @@
   },
   "noItemsInTrashDesc": {
     "message": "Sildiğiniz kayıtlar burada görünecek ve 30 gün sonra kalıcı olarak silinecektir"
+  },
+  "noItemsInTrashDescription": {
+    "message": "Sildiğiniz kayıtlar burada görünecek ve 30 gün sonra kalıcı olarak silinecektir."
   },
   "trashWarning": {
     "message": "30 günden uzun süre çöp kutusunda duran kayıtlar otomatik olarak silinecektir"
@@ -7137,6 +7206,33 @@
   },
   "emptyVaultDescription": {
     "message": "Kasanız sadece parolalarınız için değil. Hesaplarınızı, kimliklerinizi, kredi kartlarınızı ve notlarınızı da güvenle burada depolayabilirsiniz."
+  },
+  "emptyVaultsDescription": {
+    "message": "Başlamak için hesaplarınızı, kimliklerinizi ve diğer bilgilerinizi ekleyin."
+  },
+  "emptySharedFolderDescription": {
+    "message": "Add items to this shared folder, then give access to other $VAULT_NAME$ members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "emptyMyItemsDescription": {
+    "message": "My items is your private space for storing items that stay owned by $VAULT_NAME$ but aren't visible to other members.",
+    "placeholders": {
+      "vault_name": {
+        "content": "$1",
+        "example": "Acme Corp"
+      }
+    }
+  },
+  "youHaveNoFolders": {
+    "message": "Hiç klasörünüz yok."
+  },
+  "emptyFoldersDescription": {
+    "message": "Use folders to organize vault items. They're just for you — no one else will see or use them."
   },
   "introCarouselLabel": {
     "message": "Bitwarden’a hoş geldiniz"
@@ -7933,7 +8029,7 @@
     "message": "Parolaları görmek için yükseltme yapın"
   },
   "categoryHealthy": {
-    "message": "No items need attention",
+    "message": "Dikkat edilmesi gereken hiçbir kayıt yok",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
   },
   "scanningYourVault": {
