@@ -50,6 +50,7 @@ function rotationServices(systems: TargetSystem[]) {
         provide: TargetSystemsService,
         useValue: {
           loading$: of(false),
+          loadError$: of(null),
           systems$: of(systems),
           systemById$: of(new Map(systems.map((s) => [s.id, s] as const))),
           activeAutomaticSystems$: of(systems.filter((s) => s.status === "active")),
@@ -62,6 +63,9 @@ function rotationServices(systems: TargetSystem[]) {
         provide: DaemonsService,
         useValue: {
           daemons$: of([] as AccessConnector[]),
+          loading$: of(false),
+          loadError$: of(null),
+          load: () => Promise.resolve(),
           forgetTargetSystem: () => {},
           assign: () => Promise.resolve(),
         },
