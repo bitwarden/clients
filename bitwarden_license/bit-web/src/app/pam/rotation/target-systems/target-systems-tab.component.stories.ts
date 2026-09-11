@@ -53,7 +53,7 @@ function rotationServices(systems: TargetSystem[]) {
           loadError$: of(null),
           systems$: of(systems),
           systemById$: of(new Map(systems.map((s) => [s.id, s] as const))),
-          activeAutomaticSystems$: of(systems.filter((s) => s.status === "active")),
+          automaticSystems$: of(systems.filter((s) => s.status === "active")),
           load: () => Promise.resolve(),
           setEnabled: () => Promise.resolve(),
           delete: () => Promise.resolve(),
