@@ -221,10 +221,9 @@ export class DaemonDetailComponent {
     return resolved;
   });
 
-  private readonly activeAutomaticSystems = toSignal(
-    this.targetSystemsService.activeAutomaticSystems$,
-    { initialValue: [] as TargetSystem[] },
-  );
+  private readonly automaticSystems = toSignal(this.targetSystemsService.automaticSystems$, {
+    initialValue: [] as TargetSystem[],
+  });
 
   protected readonly targetSystemsLoadError = toSignal(this.targetSystemsService.loadError$, {
     initialValue: null as unknown,
@@ -274,7 +273,7 @@ export class DaemonDetailComponent {
   /** The active automatic target systems the staged list does not already hold, as picker rows. */
   protected readonly assignOptions = computed<SelectItemView[]>(() => {
     const staged = new Set<string>(this.stagedAssignmentIds().map(String));
-    return this.activeAutomaticSystems()
+    return this.automaticSystems()
       .filter((system) => !staged.has(String(system.id)))
       .map((system) => {
         const { qualified } = targetSystemLabel(this.i18nService, system.id, system);
@@ -284,7 +283,7 @@ export class DaemonDetailComponent {
 
   /** True when the org has nothing eligible at all, as opposed to having assigned it all already. */
   protected readonly noEligibleTargetSystems = computed(
-    () => this.targetSystemsLoadError() == null && this.activeAutomaticSystems().length === 0,
+    () => this.targetSystemsLoadError() == null && this.automaticSystems().length === 0,
   );
 
   protected readonly assignmentColumns: readonly AssignmentPickerColumn[] = [
