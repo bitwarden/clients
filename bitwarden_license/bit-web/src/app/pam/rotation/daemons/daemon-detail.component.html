@@ -1,102 +1,265 @@
 <bit-header [title]="titleText()" icon="bwi-terminal">
-  <bit-breadcrumbs slot="breadcrumbs">
-    <bit-breadcrumb [route]="['..']">{{ "pamRotationTabDaemons" | i18n }}</bit-breadcrumb>
-  </bit-breadcrumbs>
-  @if (daemon()) {
-    @if (enabled()) {
-      <button
-        type="button"
-        bitButton
-        buttonType="secondary"
-        [bitAction]="disable"
-        id="daemon-detail_button_disable"
+  <pam-detail-breadcrumb
+    slot="breadcrumbs"
+    [route]="connectorsListRoute"
+    parentLabelKey="pamRotationTabAccessConnectors"
+    [current]="titleText()"
+    [truncate]="true"
+  />
+  <span slot="title-suffix" class="tw-flex tw-h-full tw-items-center tw-ms-2">
+    @if (daemon()) {
+      <span class="tw-sr-only">{{ "status" | i18n }}:</span>
+      <span
+        bitBadge
+        [variant]="enabled() ? 'success' : 'secondary'"
+        id="daemon-detail_badge_status"
+        >{{
+          (enabled() ? "pamAccessConnectorStatusActive" : "pamAccessConnectorStatusInactive") | i18n
+        }}</span
       >
-        {{ "pamDaemonDisable" | i18n }}
-      </button>
-    } @else {
-      <button
-        type="button"
-        bitButton
-        buttonType="secondary"
-        [bitAction]="enable"
-        id="daemon-detail_button_enable"
-      >
-        {{ "pamDaemonEnable" | i18n }}
-      </button>
     }
-    <button
-      type="button"
-      bitButton
-      buttonType="danger"
-      [bitAction]="deleteDaemon"
-      id="daemon-detail_button_delete"
-    >
-      {{ "delete" | i18n }}
-    </button>
-  }
+  </span>
+
+  <bit-tab-nav-bar slot="tabs" [label]="'pamAccessConnectorDetailTitle' | i18n">
+    <bit-tab-link [route]="configurationTabRoute">{{
+      "pamAccessConnectorTabConfiguration" | i18n
+    }}</bit-tab-link>
+    <bit-tab-link [route]="historyTabRoute">{{
+      "pamAccessConnectorTabHistory" | i18n
+    }}</bit-tab-link>
+  </bit-tab-nav-bar>
 </bit-header>
 
-@if (loading()) {
-  <bit-spinner />
-} @else if (daemon(); as d) {
-  <div class="tw-max-w-4xl">
-    <!-- Details -->
-    <bit-section>
-      <bit-section-header>
-        <h2 bitTypography="h5">{{ "pamDaemonDetailsHeading" | i18n }}</h2>
-      </bit-section-header>
-      <bit-card>
-        <div class="tw-mb-4">
-          <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">{{ "status" | i18n }}</p>
-          @if (d.connector.status === DaemonStatus.Enabled) {
-            <span bitBadge variant="success">{{ "pamDaemonStatusEnabled" | i18n }}</span>
-          } @else {
-            <span bitBadge variant="secondary">{{ "pamDaemonStatusDisabled" | i18n }}</span>
-          }
-        </div>
+<pam-rotation-loading-announcer
+  [loading]="loading()"
+  [failed]="loadError() != null"
+  loadedKey="pamRotationPageLoaded"
+/>
 
-        <div class="tw-mb-4">
-          <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
-            {{ "pamDaemonConnection" | i18n }}
-          </p>
-          @if (d.connector.isConnected) {
-            <span bitBadge variant="success">{{ "pamDaemonConnected" | i18n }}</span>
-          } @else {
-            <span bitBadge variant="secondary">{{ "pamDaemonOffline" | i18n }}</span>
-          }
-        </div>
+@if (loadError()) {
+  <pam-rotation-load-error [focusRetry]="retried()" (retry)="retryLoad()" />
+} @else if (loadingVisible()) {
+  <div
+    aria-hidden="true"
+    data-testid="daemon-detail-loading"
+    [class.tw-max-w-4xl]="activeTab() !== 'history'"
+  >
+    @if (showSkeleton()) {
+      @switch (activeTab()) {
+        @case ("history") {
+          <bit-section>
+            <bit-section-header>
+              <h2 bitTypography="h5">{{ "pamAccessConnectorTabHistory" | i18n }}</h2>
+            </bit-section-header>
+            <app-rotation-history-skeleton [showCredential]="true" />
+          </bit-section>
+        }
+        @default {
+          <bit-section>
+            <bit-section-header>
+              <h2 bitTypography="h5">{{ "status" | i18n }}</h2>
+            </bit-section-header>
+            <bit-card>
+              <bit-skeleton-text [lines]="2" class="tw-w-72"></bit-skeleton-text>
+            </bit-card>
+          </bit-section>
 
-        <div>
-          <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
-            {{ "pamDaemonAssignments" | i18n }}
-          </p>
-          @if (assignmentNames().length === 0) {
-            <span class="tw-text-muted">&mdash;</span>
-          } @else {
-            <div class="tw-flex tw-flex-wrap tw-gap-1">
-              @for (name of assignmentNames(); track $index) {
-                <span bitBadge variant="subtle">{{ name }}</span>
-              }
-            </div>
-          }
-        </div>
-      </bit-card>
-    </bit-section>
+          <bit-section>
+            <bit-section-header>
+              <h2 bitTypography="h5">{{ "pamAccessConnectorDetailsHeading" | i18n }}</h2>
+            </bit-section-header>
+            <bit-card>
+              <div class="tw-mb-4">
+                <bit-skeleton-text class="tw-mb-2 tw-w-24"></bit-skeleton-text>
+                <bit-skeleton class="tw-h-6 tw-w-24" edgeShape="circle"></bit-skeleton>
+              </div>
+              <div class="tw-mb-4">
+                <bit-skeleton-text class="tw-mb-2 tw-w-24"></bit-skeleton-text>
+                <bit-skeleton-text class="tw-w-48"></bit-skeleton-text>
+              </div>
+              <div>
+                <bit-skeleton-text class="tw-mb-2 tw-w-24"></bit-skeleton-text>
+                <bit-skeleton-text class="tw-w-48"></bit-skeleton-text>
+              </div>
+            </bit-card>
+          </bit-section>
 
-    <!-- Recent activity -->
-    <bit-section>
-      <bit-section-header>
-        <h2 bitTypography="h5">{{ "pamDaemonActivityHeading" | i18n }}</h2>
-      </bit-section-header>
-      @if (d.jobs.length > 0) {
-        <app-rotation-history [jobs]="d.jobs"></app-rotation-history>
-      } @else {
-        <bit-card>
-          <p bitTypography="body2" class="tw-m-0 tw-text-muted">
-            {{ "pamDaemonActivityEmpty" | i18n }}
-          </p>
-        </bit-card>
+          <bit-section>
+            <bit-section-header>
+              <h2 bitTypography="h5">{{ "pamAccessConnectorAssignments" | i18n }}</h2>
+            </bit-section-header>
+            <bit-card>
+              <bit-skeleton-text [lines]="3" class="tw-w-full"></bit-skeleton-text>
+            </bit-card>
+          </bit-section>
+        }
       }
-    </bit-section>
+    }
   </div>
+} @else if (daemon(); as d) {
+  <form [formGroup]="formGroup" [bitSubmit]="submit">
+    <div [class.tw-max-w-4xl]="activeTab() !== 'history'">
+      @switch (activeTab()) {
+        @case ("history") {
+          <bit-section>
+            <bit-section-header>
+              <h2 bitTypography="h5">{{ "pamAccessConnectorTabHistory" | i18n }}</h2>
+            </bit-section-header>
+            @if (d.jobs.length > 0) {
+              <app-rotation-history
+                [jobs]="d.jobs"
+                [showCredential]="true"
+                [credentialNames]="credentialNames()"
+              ></app-rotation-history>
+            } @else {
+              <bit-card>
+                <p bitTypography="body2" class="tw-m-0 tw-text-muted">
+                  {{ "pamAccessConnectorActivityEmpty" | i18n }}
+                </p>
+              </bit-card>
+            }
+          </bit-section>
+        }
+        @default {
+          <!-- Status -->
+          <bit-section>
+            <bit-section-header>
+              <h2 bitTypography="h5">{{ "status" | i18n }}</h2>
+            </bit-section-header>
+            <bit-card>
+              <bit-form-control disableMargin>
+                <input
+                  type="checkbox"
+                  bitCheckbox
+                  id="daemon-detail_checkbox_active"
+                  formControlName="active"
+                />
+                <bit-label>{{ "pamAccessConnectorStatusActive" | i18n }}</bit-label>
+                <bit-hint>{{ "pamAccessConnectorActiveHint" | i18n }}</bit-hint>
+              </bit-form-control>
+            </bit-card>
+          </bit-section>
+
+          <!-- Details -->
+          <bit-section>
+            <bit-section-header>
+              <h2 bitTypography="h5">{{ "pamAccessConnectorDetailsHeading" | i18n }}</h2>
+            </bit-section-header>
+            <bit-card>
+              <div class="tw-mb-4">
+                <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+                  {{ "pamAccessConnectorConnection" | i18n }}
+                </p>
+                <span bitBadge [variant]="d.connector.isConnected ? 'success' : 'secondary'">{{
+                  (d.connector.isConnected
+                    ? "pamAccessConnectorConnected"
+                    : "pamAccessConnectorDisconnected"
+                  ) | i18n
+                }}</span>
+              </div>
+
+              <div class="tw-mb-4">
+                <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+                  {{ "pamAccessConnectorLastSeen" | i18n }}
+                </p>
+                <p bitTypography="body1" class="tw-m-0" data-testid="connector-last-seen">
+                  @if (d.connector.lastHeartbeatAt) {
+                    {{ d.connector.lastHeartbeatAt | date: "medium" }}
+                  } @else {
+                    <span class="tw-text-muted">{{ "never" | i18n }}</span>
+                  }
+                </p>
+              </div>
+
+              <div>
+                <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+                  {{ "dateCreated" | i18n }}
+                </p>
+                <p bitTypography="body1" class="tw-m-0" data-testid="connector-created">
+                  @if (d.connector.creationDate) {
+                    {{ d.connector.creationDate | date: "medium" }}
+                  } @else {
+                    <span class="tw-text-muted">&mdash;</span>
+                  }
+                </p>
+              </div>
+            </bit-card>
+          </bit-section>
+
+          <!-- Assigned targets -->
+          <pam-assignment-picker
+            idPrefix="daemon-detail"
+            headingKey="pamAccessConnectorAssignments"
+            selectLabelKey="pamAccessConnectorAssignSelectLabel"
+            assignLabelKey="pamAccessConnectorAssignConfirm"
+            unassignLabelKey="pamAccessConnectorUnassign"
+            emptyKey="pamAccessConnectorAssignmentsEmpty"
+            goToLabelKey="pamAccessConnectorAssignGoToTargetSystems"
+            disabledTooltipKey="pamAccessConnectorAssignTargetDisabled"
+            [options]="assignOptions()"
+            [assignments]="assignments()"
+            [columns]="assignmentColumns"
+            [rowTemplate]="assignmentRow"
+            [hints]="assignmentHints"
+            [assign]="assignTargets"
+            [unassign]="unassignTarget"
+            [disabled]="!stagedActive()"
+            [loadError]="targetSystemsLoadError() != null"
+            [noneEligible]="noEligibleTargetSystems()"
+            [goToRoute]="targetSystemsRoute"
+          />
+
+          <ng-template #assignmentRow let-assignment>
+            <td bitCell>
+              <span
+                [class.tw-line-through]="assignment.pending === 'remove'"
+                [class.tw-text-muted]="assignment.pending === 'remove'"
+                >{{ assignment.name }}</span
+              >
+              @switch (assignment.pending) {
+                @case ("add") {
+                  <span bitBadge variant="subtle" class="tw-ms-2">{{
+                    "pamRotationAssignmentPendingAssign" | i18n
+                  }}</span>
+                }
+                @case ("remove") {
+                  <span bitBadge variant="subtle" class="tw-ms-2">{{
+                    "pamRotationAssignmentPendingUnassign" | i18n
+                  }}</span>
+                }
+              }
+            </td>
+            <td bitCell class="tw-text-muted">
+              @if (assignment.qualifierKey) {
+                {{ assignment.qualifierKey | i18n }}
+              }
+            </td>
+          </ng-template>
+        }
+      }
+
+      <div class="tw-flex tw-max-w-4xl tw-items-center tw-gap-2">
+        <button
+          type="submit"
+          bitButton
+          buttonType="primary"
+          bitFormButton
+          id="daemon-detail_button_save"
+        >
+          {{ "save" | i18n }}
+        </button>
+        <button
+          type="button"
+          bitButton
+          buttonType="danger"
+          bitFormButton
+          [bitAction]="deleteDaemon"
+          class="tw-ms-auto"
+          id="daemon-detail_button_delete"
+        >
+          {{ "delete" | i18n }}
+        </button>
+      </div>
+    </div>
+  </form>
 }
