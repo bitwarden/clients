@@ -355,17 +355,23 @@ export class CipherView implements View, InitializerMetadata {
       case CipherType.Login:
         cipherView.login = obj.login ? LoginView.fromSdkLoginView(obj.login) : new LoginView();
         if (sdk && obj.login?.fido2Credentials?.length) {
-          const fido2CredentialViews = sdk.decrypt_fido2_credentials(obj);
-          const decryptedKeyValue = sdk.decrypt_fido2_private_key(obj);
-          cipherView.login.fido2Credentials = fido2CredentialViews
-            .map((cred) => {
-              const view = Fido2CredentialView.fromSdkFido2CredentialView(cred);
-              if (view) {
-                view.keyValue = decryptedKeyValue;
-              }
-              return view;
-            })
-            .filter((cred): cred is Fido2CredentialView => !!cred);
+          try {
+            const fido2CredentialViews = sdk.decrypt_fido2_credentials(obj);
+            const decryptedKeyValue = sdk.decrypt_fido2_private_key(obj);
+            cipherView.login.fido2Credentials = fido2CredentialViews
+              .map((cred) => {
+                const view = Fido2CredentialView.fromSdkFido2CredentialView(cred);
+                if (view) {
+                  view.keyValue = decryptedKeyValue;
+                }
+                return view;
+              })
+              .filter((cred): cred is Fido2CredentialView => !!cred);
+          } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error(`Failed to decrypt Fido2 credentials for cipher ${cipherView.id}: ${e}`);
+            cipherView.login.fido2Credentials = [];
+          }
         }
         break;
       case CipherType.SecureNote:
