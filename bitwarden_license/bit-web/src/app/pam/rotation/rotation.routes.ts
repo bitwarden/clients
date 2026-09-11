@@ -28,8 +28,16 @@ export const rotationRoutes: Routes = [
     component: RotationConfigEditComponent,
     data: { titleId: "pamRotationConfigCreateTitle" },
   },
+  // The edit page's two tabs are routed, so each is deep-linkable and survives a refresh. Both
+  // land on the same component, which reads `:tab` and renders that half; Angular reuses the
+  // instance across the param change, so a tab switch costs no reload and keeps unsaved input.
   {
     path: `${ROTATION_TABS.managedCredentials}/:configId`,
+    pathMatch: "full",
+    redirectTo: `${ROTATION_TABS.managedCredentials}/:configId/configuration`,
+  },
+  {
+    path: `${ROTATION_TABS.managedCredentials}/:configId/:tab`,
     component: RotationConfigEditComponent,
     data: { titleId: "pamRotationConfigEditTitle" },
   },
