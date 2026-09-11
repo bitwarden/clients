@@ -391,6 +391,93 @@ export const testData: ProtonPassJsonFile = {
           modifyTime: 1777041700,
           pinned: false,
         },
+        {
+          itemId: "REDACTED_WIFI_NETWORK_ITEM_ID",
+          shareId:
+            "SN5uWo4WZF2uT5wIDqtbdpkjuxCbNTOIdf-JQ_DYZcKYKURHiZB5csS1a1p9lklvju9ni42l08IKzwQG0B2ySg==",
+          data: {
+            metadata: {
+              name: "Test WiFi Network (WPA3)",
+              note: "",
+              itemUuid: "309a1451",
+            },
+            extraFields: [],
+            type: "wifi",
+            content: {
+              ssid: "Test Network",
+              password: "SECRETSECRETSECRET",
+              security: 3,
+              sections: [
+                {
+                  sectionName: "Custom Section",
+                  sectionFields: [
+                    {
+                      fieldName: "Custom Field",
+                      type: "text",
+                      data: {
+                        content: "Custom Field Value",
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+          state: 1,
+          aliasEmail: null,
+          contentFormatVersion: 8,
+          createTime: 1788191504,
+          modifyTime: 1788879440,
+          pinned: false,
+          shareCount: 0,
+          files: [],
+        },
+        {
+          itemId: "REDACTED_UNKNOWN_TYPE_ITEM_ID",
+          shareId:
+            "SN5uWo4WZF2uT5wIDqtbdpkjuxCbNTOIdf-JQ_DYZcKYKURHiZB5csS1a1p9lklvju9ni42l08IKzwQG0B2ySg==",
+          data: {
+            metadata: {
+              name: "Test Item",
+              note: "",
+              itemUuid: "00000009",
+            },
+            extraFields: [],
+            // Test the handling of some new type from Proton Pass that we don't support explicitly yet
+            type: "UNKNOWN_TYPE" as any,
+            content: {
+              newNumberProperty: 1,
+              newStringProperty: "test",
+              // This field will be ignored by the importer since it's more complicated than a single string or number
+              newObjectProperty: {
+                foo: "bar",
+              },
+              // Sections' general format is known, so this *will* be parsed by the importer
+              sections: [
+                {
+                  sectionName: "Custom Section",
+                  sectionFields: [
+                    {
+                      fieldName: "Custom Field",
+                      type: "text",
+                      data: {
+                        content: "Custom Field Value",
+                      },
+                    },
+                  ],
+                },
+              ],
+            } as any,
+          },
+          state: 1,
+          aliasEmail: null,
+          contentFormatVersion: 8,
+          createTime: 1788191504,
+          modifyTime: 1788879440,
+          pinned: false,
+          shareCount: 0,
+          files: [],
+        },
       ],
     },
     REDACTED_VAULT_ID_B: {

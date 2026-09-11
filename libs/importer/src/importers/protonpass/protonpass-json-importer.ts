@@ -27,13 +27,15 @@ import {
   ProtonPassCreditCardItemContent,
   ProtonPassCustomItemContent,
   ProtonPassIdentityItemContent,
-  ProtonPassIdentityItemExtraSection,
+  ProtonPassItemDataSection,
   ProtonPassItem,
   ProtonPassItemExtraField,
   ProtonPassItemState,
   ProtonPassJsonFile,
   ProtonPassLoginItemContent,
   ProtonPassSshKeyItemContent,
+  ProtonPassWifiItemContent,
+  ProtonPassWifiSecurityType,
 } from "./types/protonpass-json-type";
 
 export class ProtonPassJsonImporter extends BaseImporter implements Importer {
@@ -111,7 +113,7 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
         } else {
           const extraSections = identityItem[
             key as keyof ProtonPassIdentityItemContent
-          ] as ProtonPassIdentityItemExtraSection[];
+          ] as ProtonPassItemDataSection[];
 
           extraSections?.forEach((extraSection) => {
             this.processExtraFields(cipher, extraSection.sectionFields);
@@ -121,14 +123,14 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
     });
   }
 
-  private processSections(cipher: CipherView, sections: ProtonPassIdentityItemExtraSection[]) {
-    sections?.forEach((section) => {
+  private processSections(cipher: CipherView, sections: ProtonPassItemDataSection[] = []) {
+    sections.forEach((section) => {
       section.sectionFields?.forEach((field) => {
         this.processKvp(
           cipher,
           field.fieldName,
           this.getExtraFieldValue(field),
-          field.type === "hidden" ? FieldType.Hidden : FieldType.Text,
+          this.getExtraFieldType(field),
         );
       });
     });
@@ -204,7 +206,6 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
             if (!this.isNullOrWhitespace(creditCardContent.pin)) {
               this.processKvp(cipher, "PIN", creditCardContent.pin, FieldType.Hidden);
             }
-
             this.processExtraFields(cipher, item.data.extraFields);
             break;
           }
@@ -276,7 +277,6 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
             // An alias is an email-forwarding address; map it to a login with the
             // alias address as the username so the item (and its data) is preserved.
             cipher.login.username = this.getValueOrDefault(item.aliasEmail);
-            this.processExtraFields(cipher, item.data.extraFields);
             break;
           }
           case "sshKey": {
@@ -316,8 +316,35 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
             }
             break;
           }
-          default:
-            continue;
+          case "wifi": {
+            cipher.type = CipherType.SecureNote;
+            const wifiContent = item.data.content as ProtonPassWifiItemContent;
+            this.processWifiFields(cipher, wifiContent);
+            this.processExtraFields(cipher, item.data.extraFields);
+            this.processSections(cipher, wifiContent.sections);
+            break;
+          }
+          default: {
+            cipher.type = CipherType.SecureNote;
+            this.processExtraFields(cipher, item.data.extraFields);
+            const otherContent = item.data.content as any;
+            for (const [key, value] of Object.entries(otherContent)) {
+              if (key === "sections") {
+                this.processSections(cipher, otherContent.sections);
+              } else {
+                if (typeof value === "string") {
+                  this.processKvp(cipher, key, value);
+                } else if (typeof value === "number") {
+                  this.processKvp(cipher, key, value.toString());
+                } else {
+                  // We do basic handling of new string and number fields, but anything
+                  // more complicated should be added to this importer explicitly
+                  continue;
+                }
+              }
+            }
+            break;
+          }
         }
 
         this.processFolder(result, vault.name);
@@ -426,6 +453,38 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
       } else {
         this.processKvp(cipher, field.fieldName, fieldValue, this.getExtraFieldType(field));
       }
+    }
+  }
+
+  private processWifiFields(cipher: CipherView, itemContent: ProtonPassWifiItemContent) {
+    if (itemContent.password) {
+      this.processKvp(
+        cipher,
+        this.i18nService.t("password"),
+        itemContent.password,
+        FieldType.Hidden,
+      );
+    }
+    if (itemContent.ssid) {
+      this.processKvp(cipher, "SSID", itemContent.ssid, FieldType.Text);
+    }
+    if (itemContent.security != null) {
+      let securityString = this.i18nService.t("unknown");
+      switch (itemContent.security) {
+        case ProtonPassWifiSecurityType.WPA:
+          securityString = "WPA";
+          break;
+        case ProtonPassWifiSecurityType.WPA2:
+          securityString = "WPA2";
+          break;
+        case ProtonPassWifiSecurityType.WPA3:
+          securityString = "WPA3";
+          break;
+        case ProtonPassWifiSecurityType.WEP:
+          securityString = "WEP";
+          break;
+      }
+      this.processKvp(cipher, this.i18nService.t("security"), securityString, FieldType.Text);
     }
   }
 }
