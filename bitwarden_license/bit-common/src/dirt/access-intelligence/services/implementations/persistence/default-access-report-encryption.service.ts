@@ -330,13 +330,15 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
               ),
             }).pipe(
               // Per-branch timings would overlap, so the whole forkJoin is one measurement.
+              // The two encryptString artifacts are sized in characters: their EncString is the
+              // serialized base64 envelope, not a buffer, so only reportByteSize is a byte count.
               tap((encrypted) =>
                 measureStep("Save: artifacts encrypted", [
                   ...counts,
                   ["reportByteSize", encrypted.encryptedReportData.buffer.byteLength],
-                  ["summaryByteSize", encrypted.encryptedSummaryData.encryptedString?.length ?? 0],
+                  ["summaryCharCount", encrypted.encryptedSummaryData.encryptedString?.length ?? 0],
                   [
-                    "applicationsByteSize",
+                    "applicationsCharCount",
                     encrypted.encryptedApplicationData.encryptedString?.length ?? 0,
                   ],
                 ]),

@@ -56,7 +56,7 @@ cannot start until it finishes.
 | `Save: report encoded`           | Encoding the serialized report to bytes                                    | `byteSize`                                                     |
 | `Save: summary serialized`       | Serializing the summary with its version envelope                          | `byteSize`                                                     |
 | `Save: applications serialized`  | Serializing the application settings with their version envelope           | `byteSize`                                                     |
-| `Save: artifacts encrypted`      | All five concurrent encryption operations                                  | `reportByteSize`, `summaryByteSize`, `applicationsByteSize`    |
+| `Save: artifacts encrypted`      | All five concurrent encryption operations                                  | `reportByteSize`, `summaryCharCount`, `applicationsCharCount`  |
 | `Save: report row created`       | The request that creates the report record and returns an upload URL       | `passwordCount`, `memberCount`, `applicationCount`, `byteSize` |
 | `Save: report file uploaded`     | Uploading the encrypted report file                                        | `byteSize`                                                     |
 
@@ -126,6 +126,21 @@ from and the pair is what makes the relationship legible. `Save: report row crea
 `passwordCount`: it reports the aggregate the request actually sends, and no cipher count is in scope
 there.
 
+#### `byteSize` and `charCount` are not interchangeable
+
+A property is named `byteSize` only where the value is a true byte length, and `charCount` where it
+is a length in characters. The two differ by roughly 4/3 plus envelope overhead wherever base64 is
+involved, so the suffix is what tells you whether two numbers can be compared.
+
+`Save: artifacts encrypted` carries one of each for this reason. `encryptFileData` returns a buffer,
+so the report is a real `reportByteSize`. The summary and application artifacts go through
+`encryptString`, whose `EncString` holds the serialized `2.<iv>|<data>|<mac>` form, so the only
+length available without re-encoding is a character count.
+
+This means the summary appears twice on different scales: as true bytes at `Save: summary
+serialized`, then as characters at `Save: artifacts encrypted`. That is the plaintext and the
+ciphertext envelope, not one value measured two ways.
+
 #### The report is sized at encode, not at serialize
 
 `Save: report serialized` carries `charCount` rather than a byte size. Running a `TextEncoder` over
@@ -133,8 +148,8 @@ the serialized report purely to measure it would allocate a second copy of the l
 the flow, which is the memory behavior under investigation. The real byte size arrives one step
 later at `Save: report encoded`, which encodes that same string as part of the existing work.
 
-The summary and application artifacts are sized directly, because they are small. The report is
-not, and is never encoded twice.
+The summary and application artifacts are encoded to measure them, because they are small. The
+report is not, and is never encoded twice.
 
 This applies to the file storage path only. With that flag off the report is encrypted inline as a
 single string instead, and that path carries no instrumentation at all, so nothing measures or
