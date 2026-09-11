@@ -19509,6 +19509,41 @@
   "pamRotationHistoryColumnResult": {
     "message": "Result"
   },
+  "pamRotationDurationSeconds": {
+    "message": "$SECONDS$s",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "13"
+      }
+    }
+  },
+  "pamRotationDurationMinutes": {
+    "message": "$MINUTES$m $SECONDS$s",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "2"
+      },
+      "seconds": {
+        "content": "$2",
+        "example": "27"
+      }
+    }
+  },
+  "pamRotationDurationHours": {
+    "message": "$HOURS$h $MINUTES$m",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "1"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "pamAuditKindRotationConfigCreated": {
     "message": "Rotation config created"
   },
