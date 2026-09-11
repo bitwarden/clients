@@ -3,13 +3,16 @@
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { SendAccessToken } from "@bitwarden/common/auth/send-access";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { unsafeUrlReason } from "@bitwarden/common/tools/url-safety";
 import { ToastService } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { EncArrayBuffer, EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
@@ -33,6 +36,7 @@ export class SendAccessFileComponent {
     private encryptService: EncryptService,
     private fileDownloadService: FileDownloadService,
     private sendApiService: SendApiService,
+    private environmentService: EnvironmentService,
   ) {}
 
   protected download = async () => {
@@ -55,7 +59,20 @@ export class SendAccessFileComponent {
       return;
     }
 
-    const response = await fetch(new Request(downloadData.url, { cache: "no-store" }));
+    const environment = await firstValueFrom(this.environmentService.environment$);
+    if (unsafeUrlReason(downloadData.url, environment.getApiUrl())) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("sendDownloadBlocked"),
+      });
+      return;
+    }
+
+    // don't follow a redirect blindly — a validated host could still redirect elsewhere
+    const response = await fetch(
+      new Request(downloadData.url, { cache: "no-store", redirect: "manual" }),
+    );
     if (response.status !== 200) {
       this.toastService.showToast({
         variant: "error",

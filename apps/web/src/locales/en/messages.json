@@ -8414,6 +8414,10 @@
     "message": "The file associated with this Send could not be found.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDownloadBlocked": {
+    "message": "This file couldn't be downloaded because the download link failed a security check.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. Displayed when a Send's file download url fails to use https or targets a local/private network address."
+  },
   "noSendsInList": {
     "message": "There are no Sends to list.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -10850,6 +10854,22 @@
         "example": "SimpleLogin"
       }
     }
+  },
+  "forwarderUnsafeUrl": {
+    "message": "This URL isn't allowed. It must use https and can't point to a local or private network address, or you can check the box below to allow it anyway.",
+    "description": "Displayed when a forwarder's base url fails to use https or targets a local/private network address."
+  },
+  "forwarderMalformedUrl": {
+    "message": "Enter a full URL, starting with https://.",
+    "description": "Displayed when a forwarder's base url can't be parsed as a url at all."
+  },
+  "forwarderAllowUnsafeUrl": {
+    "message": "I trust this address",
+    "description": "Label for the checkbox that lets a user override the self-hosted forwarder url safety check."
+  },
+  "forwarderAllowUnsafeUrlHint": {
+    "message": "Only turn this on for a self-hosted address you control. Bitwarden won't check that this address is encrypted or private, so your forwarder API key could be exposed if the address is wrong.",
+    "description": "Disclaimer shown next to the forwarder url safety override checkbox."
   },
   "forwarderUnknownError": {
     "message": "Unknown $SERVICENAME$ error occurred.",
