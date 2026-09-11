@@ -3,13 +3,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import {
-  ActivatedRoute,
-  Router,
-  Routes,
-  convertToParamMap,
-  provideRouter,
-} from "@angular/router";
+import { ActivatedRoute, Router, Routes, convertToParamMap, provideRouter } from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
 import { BehaviorSubject, of } from "rxjs";
 
