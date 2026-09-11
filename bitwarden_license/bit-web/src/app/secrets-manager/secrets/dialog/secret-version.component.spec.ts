@@ -57,13 +57,13 @@ const internals = (component: SecretVersionDialogComponent) =>
   component as unknown as DialogInternals;
 
 function makeVersion(overrides: Partial<SecretVersionView> = {}): SecretVersionView {
-  return new SecretVersionView(
-    overrides.id ?? "version-1",
-    overrides.secretId ?? "secret-1",
-    overrides.value ?? "old-value",
-    overrides.versionDate ?? "2026-01-27T14:15:32.000Z",
-    overrides.authorName,
-  );
+  return new SecretVersionView({
+    id: overrides.id ?? "version-1",
+    secretId: overrides.secretId ?? "secret-1",
+    value: overrides.value ?? "old-value",
+    versionDate: overrides.versionDate ?? "2026-01-27T14:15:32.000Z",
+    authorName: overrides.authorName,
+  });
 }
 
 function makeSecret(value: string, revisionDate: string): SecretView {

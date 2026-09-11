@@ -20,7 +20,6 @@ import {
   ButtonModule,
   CardComponent,
   DIALOG_DATA,
-  DialogConfig,
   DialogModule,
   DialogRef,
   DialogService,
@@ -157,17 +156,7 @@ export class SecretVersionDialogComponent implements OnInit {
       date: version.versionDate ? new Date(version.versionDate) : undefined,
       author: version.authorName ?? undefined,
       copy: () => this.copyValue(version.value),
-      toggleVisibility: async () => {
-        this.visibleVersionIds.update((s) => {
-          const n = new Set(s);
-          if (n.has(version.id)) {
-            n.delete(version.id);
-          } else {
-            n.add(version.id);
-          }
-          return n;
-        });
-      },
+      toggleVisibility: () => this.toggleVersionVisibility(version.id),
       restore: () => this.restoreVersion(version),
     };
   }
@@ -213,6 +202,18 @@ export class SecretVersionDialogComponent implements OnInit {
     });
   }
 
+  private async toggleVersionVisibility(versionId: string): Promise<void> {
+    this.visibleVersionIds.update((s) => {
+      const n = new Set(s);
+      if (n.has(versionId)) {
+        n.delete(versionId);
+      } else {
+        n.add(versionId);
+      }
+      return n;
+    });
+  }
+
   private async restoreVersion(version: SecretVersionView): Promise<void> {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "restoreVersionConfirmTitle" },
@@ -240,18 +241,3 @@ export class SecretVersionDialogComponent implements OnInit {
     }
   }
 }
-
-/**
- * Strongly typed helper to open a SecretVersionDialogComponent as a drawer
- * @param dialogService Instance of the dialog service that will be used to open the drawer
- * @param config Configuration for the drawer
- */
-export const openSecretVersionDialog = (
-  dialogService: DialogService,
-  config: DialogConfig<SecretVersionDialogParams>,
-) => {
-  return dialogService.openDrawer<void, SecretVersionDialogParams>(
-    SecretVersionDialogComponent,
-    config,
-  );
-};

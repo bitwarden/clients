@@ -13,6 +13,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   CenterPositionStrategy,
   DialogRef,
@@ -33,7 +34,7 @@ import {
   SecretDialogComponent,
   SecretOperation,
 } from "./dialog/secret-dialog.component";
-import { openSecretVersionDialog } from "./dialog/secret-version.component";
+import { SecretVersionDialogService } from "./dialog/secret-version-dialog.service";
 import {
   SecretViewDialogComponent,
   SecretViewDialogParams,
@@ -51,7 +52,7 @@ export class SecretsComponent implements OnInit, OnDestroy {
   protected secrets$: Observable<SecretListView[]>;
   protected search: string;
 
-  private organizationId: string;
+  private organizationId: OrganizationId;
   private organizationEnabled: boolean;
 
   constructor(
@@ -65,6 +66,7 @@ export class SecretsComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private toastService: ToastService,
     private router: Router,
+    private secretVersionDialogService: SecretVersionDialogService,
   ) {}
 
   ngOnDestroy(): void {
@@ -76,7 +78,7 @@ export class SecretsComponent implements OnInit, OnDestroy {
       startWith(null),
       combineLatestWith(this.route.params),
       switchMap(async ([_, params]) => {
-        this.organizationId = params.organizationId;
+        this.organizationId = params.organizationId as OrganizationId;
         const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
         this.organizationEnabled = (
           await firstValueFrom(
@@ -119,7 +121,6 @@ export class SecretsComponent implements OnInit, OnDestroy {
               //They aren't an admin so we don't know if they have access to it, lets show the unknown secret toast.
               this.toastService.showToast({
                 variant: "error",
-                title: null,
                 message: this.i18nService.t("unknownSecret"),
               });
             }
@@ -187,26 +188,7 @@ export class SecretsComponent implements OnInit, OnDestroy {
   }
 
   async openVersionHistory(secretId: string) {
-    try {
-      const secret = await this.secretService.getBySecretId(secretId);
-      void openSecretVersionDialog(this.dialogService, {
-        data: {
-          organizationId: this.organizationId,
-          secretId: secretId,
-          name: secret.name,
-          currentValue: secret.value,
-          revisionDate: secret.revisionDate,
-          canWrite: secret.write,
-        },
-      });
-    } catch (e) {
-      this.logService.error("Retrieving secret failed", e);
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("errorOccurred"),
-      });
-    }
+    await this.secretVersionDialogService.openVersionHistory(this.organizationId, secretId);
   }
 
   openDeleteSecret(event: SecretListView[]) {

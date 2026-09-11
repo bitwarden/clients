@@ -101,13 +101,13 @@ export class SecretVersionService {
     const value = await this.decryptField(new EncString(response.value), orgKey);
     const authorName = await this.resolveEditorName(response, orgKey);
 
-    return new SecretVersionView(
-      response.id,
-      response.secretId,
-      value,
-      response.versionDate,
-      authorName,
-    );
+    return new SecretVersionView({
+      id: response.id,
+      secretId: response.secretId,
+      value: value,
+      versionDate: response.versionDate,
+      authorName: authorName,
+    });
   }
 
   /**

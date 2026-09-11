@@ -26,7 +26,8 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/components";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CenterPositionStrategy, DialogService } from "@bitwarden/components";
 
 import { OrganizationCounts } from "../models/view/counts.view";
 import { ProjectListView } from "../models/view/project-list.view";
@@ -49,7 +50,7 @@ import {
   SecretDialogComponent,
   SecretOperation,
 } from "../secrets/dialog/secret-dialog.component";
-import { openSecretVersionDialog } from "../secrets/dialog/secret-version.component";
+import { SecretVersionDialogService } from "../secrets/dialog/secret-version-dialog.service";
 import {
   SecretViewDialogComponent,
   SecretViewDialogParams,
@@ -86,7 +87,7 @@ type OrganizationTasks = {
 export class OverviewComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
   private tableSize = 10;
-  private organizationId: string;
+  private organizationId: OrganizationId;
   protected organizationName: string;
   protected userIsAdmin: boolean;
   protected showOnboarding = false;
@@ -118,7 +119,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private smOnboardingTasksService: SMOnboardingTasksService,
     private logService: LogService,
     private router: Router,
-    private toastService: ToastService,
+    private secretVersionDialogService: SecretVersionDialogService,
   ) {}
 
   ngOnInit() {
@@ -140,7 +141,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     );
 
     org$.pipe(takeUntil(this.destroy$)).subscribe((org) => {
-      this.organizationId = org.id;
+      this.organizationId = org.id as OrganizationId;
       this.organization = org;
       this.organizationName = org.name;
       this.userIsAdmin = org.isAdmin;
@@ -379,26 +380,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   async openVersionHistory(secretId: string) {
-    try {
-      const secret = await this.secretService.getBySecretId(secretId);
-      void openSecretVersionDialog(this.dialogService, {
-        data: {
-          organizationId: this.organizationId,
-          secretId: secretId,
-          name: secret.name,
-          currentValue: secret.value,
-          revisionDate: secret.revisionDate,
-          canWrite: secret.write,
-        },
-      });
-    } catch (e) {
-      this.logService.error("Retrieving secret failed", e);
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("errorOccurred"),
-      });
-    }
+    await this.secretVersionDialogService.openVersionHistory(this.organizationId, secretId);
   }
 
   protected async hideOnboarding() {

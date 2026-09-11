@@ -22,7 +22,8 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/components";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CenterPositionStrategy, DialogService } from "@bitwarden/components";
 
 import { ProjectView } from "../../models/view/project.view";
 import { SecretListView } from "../../models/view/secret-list.view";
@@ -35,7 +36,7 @@ import {
   SecretDialogComponent,
   SecretOperation,
 } from "../../secrets/dialog/secret-dialog.component";
-import { openSecretVersionDialog } from "../../secrets/dialog/secret-version.component";
+import { SecretVersionDialogService } from "../../secrets/dialog/secret-version-dialog.service";
 import {
   SecretViewDialogComponent,
   SecretViewDialogParams,
@@ -53,7 +54,7 @@ import { ProjectService } from "../project.service";
 export class ProjectSecretsComponent implements OnInit, OnDestroy {
   secrets$: Observable<SecretListView[]>;
 
-  private organizationId: string;
+  private organizationId: OrganizationId;
   private projectId: string;
   protected project$: Observable<ProjectView>;
   private organizationEnabled: boolean;
@@ -68,7 +69,7 @@ export class ProjectSecretsComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private logService: LogService,
-    private toastService: ToastService,
+    private secretVersionDialogService: SecretVersionDialogService,
   ) {}
 
   readonly noItemsIcon = NoResults;
@@ -91,7 +92,7 @@ export class ProjectSecretsComponent implements OnInit, OnDestroy {
       startWith(null),
       combineLatestWith(this.route.params, currentProjectEdited),
       switchMap(async ([_, params]) => {
-        this.organizationId = params.organizationId;
+        this.organizationId = params.organizationId as OrganizationId;
         this.projectId = params.projectId;
         const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
         this.organizationEnabled = (
@@ -171,25 +172,6 @@ export class ProjectSecretsComponent implements OnInit, OnDestroy {
   }
 
   async openVersionHistory(secretId: string) {
-    try {
-      const secret = await this.secretService.getBySecretId(secretId);
-      void openSecretVersionDialog(this.dialogService, {
-        data: {
-          organizationId: this.organizationId,
-          secretId: secretId,
-          name: secret.name,
-          currentValue: secret.value,
-          revisionDate: secret.revisionDate,
-          canWrite: secret.write,
-        },
-      });
-    } catch (e) {
-      this.logService.error("Retrieving secret failed", e);
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("errorOccurred"),
-      });
-    }
+    await this.secretVersionDialogService.openVersionHistory(this.organizationId, secretId);
   }
 }
