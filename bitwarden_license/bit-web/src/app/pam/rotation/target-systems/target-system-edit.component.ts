@@ -431,9 +431,9 @@ export class TargetSystemEditComponent {
    */
   protected readonly disableSystem = async (): Promise<void> => {
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamTargetSystemDisableTitle" },
-      content: { key: "pamTargetSystemDisableContent" },
-      acceptButtonText: { key: "pamTargetSystemDisableConfirm" },
+      title: { key: "pamTargetSystemDeactivateTitle" },
+      content: { key: "pamTargetSystemDeactivateContent" },
+      acceptButtonText: { key: "pamTargetSystemDeactivateConfirm" },
       cancelButtonText: { key: "cancel" },
       type: "warning",
     });
@@ -446,7 +446,7 @@ export class TargetSystemEditComponent {
       await this.loadSystem();
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamTargetSystemDisableSuccess"),
+        message: this.i18nService.t("pamTargetSystemDeactivateSuccess"),
       });
     } catch (e) {
       this.showError(e);
@@ -460,7 +460,7 @@ export class TargetSystemEditComponent {
       await this.loadSystem();
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamTargetSystemEnableSuccess"),
+        message: this.i18nService.t("pamTargetSystemActivateSuccess"),
       });
     } catch (e) {
       this.showError(e);
