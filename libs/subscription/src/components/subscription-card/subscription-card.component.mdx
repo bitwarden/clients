@@ -72,7 +72,6 @@ import {
 | `title`             | `string`                                       | **Required.** The title displayed at the top of the card                                     |
 | `subscription`      | `BitwardenSubscription \| SubscriptionPreview` | **Required.** The subscription data including status, cart, and storage (see Data Structure) |
 | `showUpgradeButton` | `boolean`                                      | **Optional.** Whether to show the upgrade callout (default: `false`)                         |
-| `hideCallout`       | `boolean`                                      | **Optional.** Hides the status callout entirely while the badge stays (default: `false`)     |
 
 ### Outputs
 
@@ -441,23 +440,6 @@ Enterprise subscription with multiple products and discount:
       used: 0
     }
   }"
-  (callToActionClicked)="handleAction($event)"
->
-</billing-subscription-card>
-```
-
-### Callout Suppressed
-
-`hideCallout` removes the status callout entirely (e.g. reseller orgs exempt from billing
-automation) while the badge and header stay:
-
-<Canvas of={SubscriptionCardStories.CalloutSuppressed} />
-
-```html
-<billing-subscription-card
-  [title]="'Enterprise Subscription'"
-  [subscription]="previewSubscription"
-  [hideCallout]="true"
   (callToActionClicked)="handleAction($event)"
 >
 </billing-subscription-card>
