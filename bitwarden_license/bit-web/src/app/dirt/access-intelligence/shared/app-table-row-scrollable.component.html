@@ -1,9 +1,11 @@
 <ng-container>
-  <bit-table-scroll [dataSource]="dataSource" [rowSize]="53">
+  <bit-table-scroll [dataSource]="dataSource" [rowSize]="53" layout="fixed">
     <ng-container header>
-      <th></th>
-      <th bitCell></th>
-      <th bitSortable="applicationName" bitCell tabindex="0">{{ "application" | i18n }}</th>
+      <th class="tw-w-12"></th>
+      <th bitCell class="tw-w-12"></th>
+      <th bitSortable="applicationName" bitCell tabindex="0" class="tw-w-1/4">
+        {{ "application" | i18n }}
+      </th>
       <th bitSortable="atRiskPasswordCount" bitCell default="desc" tabindex="0">
         {{ "atRiskPasswords" | i18n }}
       </th>
@@ -54,7 +56,7 @@
         }
       </td>
       <td
-        class="tw-cursor-pointer"
+        class="tw-cursor-pointer tw-truncate tw-max-w-0"
         [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication }"
         (click)="showAppAtRiskMembers(row.applicationName)"
         (keydown.enter)="showAppAtRiskMembers(row.applicationName)"
