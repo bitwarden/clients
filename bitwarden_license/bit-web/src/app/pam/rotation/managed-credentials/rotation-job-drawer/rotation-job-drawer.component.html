@@ -159,7 +159,7 @@
                   <td class="tw-whitespace-nowrap tw-py-1.5 tw-pe-3 tw-text-muted">
                     @if (attempt.duration) {
                       <pam-rotation-duration [parts]="attempt.duration" />
-                    } @else {
+                    } @else if (attempt.running) {
                       {{ "pamRotationAttemptInProgress" | i18n }}
                     }
                   </td>
