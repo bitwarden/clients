@@ -453,8 +453,12 @@ export declare namespace sshagent_v2 {
     replace(newKeys: Array<SshKeyData>): void
   }
   export type SSHAgentState = SshAgentState
+  /** Configures the machine so that SSH clients reach the Bitwarden agent. */
+  export function applyConfiguration(): Promise<void>
   /** The address SSH clients connect to in order to reach the agent. */
   export function getSocketAddress(): string
+  /** Whether SSH clients on this machine already reach the Bitwarden agent. */
+  export function isConfigured(): Promise<boolean>
   /** SSH public key data */
   export interface PublicKey {
     alg: string

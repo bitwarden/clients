@@ -19,12 +19,16 @@
         ></button>
       </div>
 
-      <p class="tw-mt-4">{{ "sshAgentSetupUnixRestart" | i18n }}</p>
+      <p class="tw-mt-4">{{ "sshAgentSetupUnixApplyDesc" | i18n }}</p>
+      <p>{{ "sshAgentSetupUnixRestart" | i18n }}</p>
     }
   </ng-container>
 
   <ng-container bitDialogFooter>
-    <button bitButton type="button" buttonType="primary" [bitDialogClose]="undefined">
+    <button bitButton type="button" buttonType="primary" [bitAction]="applyAutomatically">
+      {{ "sshAgentSetupApplyAutomatically" | i18n }}
+    </button>
+    <button bitButton type="button" buttonType="secondary" [bitDialogClose]="undefined">
       {{ "ok" | i18n }}
     </button>
     <button bitButton type="button" buttonType="secondary" (click)="launchHelp()">

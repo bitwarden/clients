@@ -29,6 +29,11 @@ const sshAgent = {
   // The address (unix socket path or Windows named pipe) SSH clients must connect to.
   getSocketAddress: (): Promise<string> =>
     ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.GET_SOCKET_ADDRESS),
+  // Whether SSH clients on this machine already reach the Bitwarden agent.
+  isConfigured: (): Promise<boolean> => ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.IS_CONFIGURED),
+  // Configures the machine so that SSH clients reach the Bitwarden agent.
+  applyConfiguration: (): Promise<void> =>
+    ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.APPLY_CONFIGURATION),
   isLoaded(): Promise<boolean> {
     return ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.IS_LOADED);
   },

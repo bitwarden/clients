@@ -290,6 +290,13 @@
         }
       },
       {
+        "dot-shell-profiles": {
+          "interface": "personal-files",
+          "read": [],
+          "write": ["$HOME/.bashrc", "$HOME/.zshrc", "$HOME/.config/fish/config.fish"]
+        }
+      },
+      {
         "dot-native-messaging": {
           "interface": "personal-files",
           "read": [],

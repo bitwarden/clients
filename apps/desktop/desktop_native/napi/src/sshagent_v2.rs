@@ -112,6 +112,29 @@ pub mod sshagent_v2 {
         ssh_agent::socket_address().map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
+    /// Whether SSH clients on this machine already reach the Bitwarden agent.
+    #[napi]
+    pub async fn is_configured() -> napi::Result<bool> {
+        run_blocking(ssh_agent::is_configured).await
+    }
+
+    /// Configures the machine so that SSH clients reach the Bitwarden agent.
+    #[napi]
+    pub async fn apply_configuration() -> napi::Result<()> {
+        run_blocking(ssh_agent::apply_configuration).await
+    }
+
+    /// Setup inspects the filesystem and, on Windows, waits for a UAC prompt, so it
+    /// must stay off the main thread.
+    async fn run_blocking<T: Send + 'static>(
+        operation: impl FnOnce() -> anyhow::Result<T> + Send + 'static,
+    ) -> napi::Result<T> {
+        napi::tokio::task::spawn_blocking(operation)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))?
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
     /// Wrapper for Electron to be able to interface with the agent directly.
     #[napi]
     pub struct SSHAgentState {

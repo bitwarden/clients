@@ -153,6 +153,8 @@ export class SettingsDialogComponent implements OnInit {
 
   protected readonly supportsBiometric = signal(false);
   protected readonly showEnableAutotype = signal(false);
+  /** Whether SSH clients on this machine already reach the agent. */
+  protected readonly sshAgentConfigured = signal(false);
   private readonly activeAccount = toSignal(this.accountService.activeAccount$, {
     requireSync: true,
   });
@@ -272,6 +274,8 @@ export class SettingsDialogComponent implements OnInit {
           this.showEnableAutotype.set(enabled);
         });
     }
+
+    await this.refreshSshAgentConfigured();
 
     this.userHasMasterPassword.set(await this.userVerificationService.hasMasterPassword());
 
@@ -624,14 +628,30 @@ export class SettingsDialogComponent implements OnInit {
   protected async saveSshAgent() {
     await this.desktopSettingsService.setSshAgentEnabled(this.form.value.enableSshAgent);
 
-    if (this.form.value.enableSshAgent) {
-      await this.openSshAgentSetupDialog();
+    if (!this.form.value.enableSshAgent) {
+      return;
     }
+
+    // Machines that already reach the agent need no instructions.
+    await this.refreshSshAgentConfigured();
+    if (this.sshAgentConfigured()) {
+      return;
+    }
+
+    await this.openSshAgentSetupDialog();
   }
 
   protected async openSshAgentSetupDialog() {
     const socketAddress = await ipc.autofill.sshAgent.getSocketAddress();
-    SshAgentSetupDialogComponent.open(this.dialogService, { socketAddress });
+    const dialogRef = SshAgentSetupDialogComponent.open(this.dialogService, { socketAddress });
+
+    // The dialog can configure the machine itself, so re-check once it is gone.
+    await firstValueFrom(dialogRef.closed);
+    await this.refreshSshAgentConfigured();
+  }
+
+  private async refreshSshAgentConfigured() {
+    this.sshAgentConfigured.set(await ipc.autofill.sshAgent.isConfigured());
   }
 
   private async saveSshAgentPromptBehavior(newValue: SshAgentPromptType) {

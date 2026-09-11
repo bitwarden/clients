@@ -68,6 +68,14 @@ export class MainSshAgentService {
       return sshagent_v2.getSocketAddress();
     });
 
+    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.IS_CONFIGURED, async (_event: any) => {
+      return await sshagent_v2.isConfigured();
+    });
+
+    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.APPLY_CONFIGURATION, async (_event: any) => {
+      return await sshagent_v2.applyConfiguration();
+    });
+
     ipcMain.handle(SSH_AGENT_IPC_CHANNELS.IS_LOADED, async (_event: any) => {
       if (this.agentStateV2 != null) {
         return this.agentStateV2.isRunning();

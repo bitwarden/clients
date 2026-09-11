@@ -131,6 +131,7 @@ describe("SettingsDialogComponent", () => {
       autofill: {
         sshAgent: {
           getSocketAddress: jest.fn().mockResolvedValue(TEST_SSH_SOCKET_ADDRESS),
+          isConfigured: jest.fn().mockResolvedValue(false),
         },
       },
       platform: {
@@ -142,6 +143,8 @@ describe("SettingsDialogComponent", () => {
         },
       },
     };
+
+    dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
 
     i18nService.supportedTranslationLocales = [];
     i18nService.t.mockImplementation((key: string) => key);
@@ -1115,6 +1118,25 @@ describe("SettingsDialogComponent", () => {
         data: { socketAddress: TEST_SSH_SOCKET_ADDRESS },
         positionStrategy: expect.any(CenterPositionStrategy),
       });
+    });
+
+    it("does not open the setup dialog when the machine is already configured", async () => {
+      (global as any).ipc.autofill.sshAgent.isConfigured.mockResolvedValue(true);
+      await component.ngOnInit();
+      component["form"].controls.enableSshAgent.setValue(true, { emitEvent: false });
+
+      await component["saveSshAgent"]();
+
+      expect(desktopSettingsService.setSshAgentEnabled).toHaveBeenLastCalledWith(true);
+      expect(dialogService.open).not.toHaveBeenCalled();
+    });
+
+    it("hides the setup instructions link when the machine is configured", async () => {
+      (global as any).ipc.autofill.sshAgent.isConfigured.mockResolvedValue(true);
+
+      await component.ngOnInit();
+
+      expect(component["sshAgentConfigured"]()).toBe(true);
     });
 
     it("does not open the setup dialog when disabling", async () => {
