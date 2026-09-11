@@ -763,6 +763,46 @@ describe("RotationConfigEditComponent — discard guard", () => {
     expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
+  /**
+   * `savedValue` is only filled once `initialize()` settles, so until then it holds no snapshot and
+   * the value comparison alone would treat the form's own defaults as unsaved input. There is
+   * nothing to discard yet; leaving must be free.
+   */
+  describe("while the page is still loading", () => {
+    it("leaves an edit page mid-load without asking", async () => {
+      const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
+
+      expect(component.loading()).toBe(true);
+      await expect(runGuard(component)).resolves.toBe(true);
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+
+      await fixture.whenStable();
+    });
+
+    it("leaves a create page mid-load without asking", async () => {
+      const { component, fixture, dialogService } = setup();
+
+      expect(component.loading()).toBe(true);
+      await expect(runGuard(component)).resolves.toBe(true);
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+
+      await fixture.whenStable();
+    });
+
+    /** The short-circuit must lift with the load, not suppress the prompt for the page's life. */
+    it("asks again once the load has settled and the operator has edited", async () => {
+      const { component, fixture, dialogService } = setup({ configId: configId("cfg-1") });
+
+      await expect(runGuard(component)).resolves.toBe(true);
+
+      await fixture.whenStable();
+      component.accountForm.controls.accountIdentity.setValue("svc_rotation");
+
+      await expect(runGuard(component)).resolves.toBe(true);
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(EDIT_DIALOG);
+    });
+  });
+
   it("leaves a create form the schedule editor only re-emitted into without asking", async () => {
     const { component, fixture, dialogService } = setup();
     await fixture.whenStable();
