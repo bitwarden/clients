@@ -1,4 +1,5 @@
 import {
+  AUTOFILL_ATTRIBUTES,
   DEEP_QUERY_SELECTOR_COMBINATOR,
   EVENTS,
   MAX_DEEP_QUERY_RECURSION_DEPTH,
@@ -11,16 +12,16 @@ import {
   DomQueryService as DomQueryServiceInterface,
   ShadowRootScanResult,
 } from "./abstractions/dom-query.service";
+// Mirrors the light-DOM observer's attributeFilter so shadow-root attribute churn can't flood the callback.
+const SHADOW_OBSERVER_ATTRIBUTE_FILTER = Object.values(AUTOFILL_ATTRIBUTES);
 
 // Per-scan cap; the persistent cap lives in ShadowHostHydrationTracker.
 const MAX_UNRESOLVED_SHADOW_HOSTS = 256;
 
-// Shared so the observe sites can't drift apart.
-const SHADOW_ROOT_OBSERVE_OPTIONS: MutationObserverInit = {
-  attributes: true,
-  childList: true,
-  subtree: true,
-};
+/** Default field detector: any input, select, or textarea element. */
+function anyField(root: ParentNode): boolean {
+  return root.querySelector("input, select, textarea") != null;
+}
 
 /**
  * The two bins one shadow-root scan fills — hosts to re-scan, roots not seen before — plus the
@@ -31,6 +32,7 @@ type ShadowScanContext = {
   unresolvedHosts: Set<Element>;
   discoveredRoots: Set<ShadowRoot>;
   observer?: MutationObserver;
+  fieldDetector: (root: ShadowRoot) => boolean;
 };
 
 export class DomQueryService implements DomQueryServiceInterface {
@@ -162,11 +164,13 @@ export class DomQueryService implements DomQueryServiceInterface {
   checkForNewShadowRoots = (
     addedElements?: Element[],
     mutationObserver?: MutationObserver,
+    fieldDetector: (root: ShadowRoot) => boolean = anyField,
   ): ShadowRootScanResult => {
     const scan: ShadowScanContext = {
       unresolvedHosts: new Set(),
       discoveredRoots: new Set(),
       observer: mutationObserver,
+      fieldDetector,
     };
     // No batch ⇒ short-circuit; never a full-document walk (O(document), re-pierces roots).
     if (!addedElements?.length) {
@@ -188,16 +192,17 @@ export class DomQueryService implements DomQueryServiceInterface {
     }
   };
 
-  /** O(N²) over the batch — N is bounded upstream by `pendingMutationAddedElementsCap`. */
+  /** Drops batch elements whose ancestor is also present; parentElement walk (not contains) keeps non-piercing behavior at shadow boundaries. */
   private suppressDescendantsInBatch = (elements: Element[]): Element[] => {
     if (elements.length < 2) {
       return elements;
     }
+    const batch = new Set(elements);
     const roots: Element[] = [];
     for (const candidate of elements) {
       let coveredByAnotherElement = false;
-      for (const other of elements) {
-        if (other !== candidate && other.contains(candidate)) {
+      for (let ancestor = candidate.parentElement; ancestor; ancestor = ancestor.parentElement) {
+        if (batch.has(ancestor)) {
           coveredByAnotherElement = true;
           break;
         }
@@ -381,10 +386,12 @@ export class DomQueryService implements DomQueryServiceInterface {
 
     for (let index = 0; index < shadowRoots.length; index++) {
       const shadowRoot = shadowRoots[index];
-      elements = elements.concat(this.queryElements<T>(shadowRoot, queryString));
+      const fieldsInRoot = this.queryElements<T>(shadowRoot, queryString);
+      elements = elements.concat(fieldsInRoot);
 
       if (mutationObserver) {
-        this.enrollShadowRoot(shadowRoot, mutationObserver);
+        this.observeShadowRoot(mutationObserver, shadowRoot, fieldsInRoot.length > 0);
+        this.knownShadowRoots.add(shadowRoot);
       }
     }
 
@@ -401,6 +408,28 @@ export class DomQueryService implements DomQueryServiceInterface {
     // Avoid a redundant pre-check querySelector — querySelectorAll already
     // returns an empty NodeList when nothing matches, at no extra cost.
     return Array.from(root.querySelectorAll(queryString)) as T[];
+  }
+
+  // Roots with no fields use shallow observation (childList only) to avoid watching attributes.
+  // If a field is added as a direct child of the root, the shallow watch detects it and triggers re-query and
+  // promotion to full observation. If a field is added nested inside a wrapper element, detection defers to the
+  // next collection batch.
+  private observeShadowRoot(
+    mutationObserver: MutationObserver,
+    shadowRoot: ShadowRoot,
+    hasFields: boolean,
+  ): void {
+    mutationObserver.observe(
+      shadowRoot,
+      hasFields
+        ? {
+            attributes: true,
+            attributeFilter: SHADOW_OBSERVER_ATTRIBUTE_FILTER,
+            childList: true,
+            subtree: true,
+          }
+        : { childList: true },
+    );
   }
 
   // No cycle guard — `attachShadow` throws on re-attach, `ShadowRoot.host` is
@@ -452,7 +481,7 @@ export class DomQueryService implements DomQueryServiceInterface {
       scan.discoveredRoots.add(root);
       // With an observer in hand, enroll here rather than re-finding the root in a later walk.
       if (scan.observer) {
-        this.enrollShadowRoot(root, scan.observer);
+        this.enrollShadowRoot(root, scan.observer, scan.fieldDetector);
       }
     }
     // Descend even into a new root — its own un-hydrated hosts still belong in the sink.
@@ -462,8 +491,13 @@ export class DomQueryService implements DomQueryServiceInterface {
   /**
    * Always both, in that order, so `knownShadowRoots` never holds a root we aren't watching.
    */
-  private enrollShadowRoot = (root: ShadowRoot, observer: MutationObserver): void => {
-    observer.observe(root, SHADOW_ROOT_OBSERVE_OPTIONS);
+  private enrollShadowRoot = (
+    root: ShadowRoot,
+    observer: MutationObserver,
+    fieldDetector: (root: ShadowRoot) => boolean,
+  ): void => {
+    const hasFields = fieldDetector(root);
+    this.observeShadowRoot(observer, root, hasFields);
     this.knownShadowRoots.add(root);
   };
 
@@ -608,10 +642,8 @@ export class DomQueryService implements DomQueryServiceInterface {
         nodeShadowRoot = currentElement.shadowRoot ?? this.getShadowRoot(currentElement);
       }
       if (nodeShadowRoot) {
-        if (mutationObserver) {
-          this.enrollShadowRoot(nodeShadowRoot, mutationObserver);
-        }
-
+        // Descend before measuring the field-presence delta; over-counting nested fields only over-observes.
+        const fieldsBefore = treeWalkerQueryResults.length;
         this.buildTreeWalkerNodesQueryResults(
           nodeShadowRoot,
           treeWalkerQueryResults,
@@ -619,6 +651,13 @@ export class DomQueryService implements DomQueryServiceInterface {
           mutationObserver,
           unresolvedHosts,
         );
+
+        if (mutationObserver) {
+          const hasFields = treeWalkerQueryResults.length > fieldsBefore;
+          // Always observe to allow promoting from shallow to full options if fields are added
+          this.observeShadowRoot(mutationObserver, nodeShadowRoot, hasFields);
+          this.knownShadowRoots.add(nodeShadowRoot);
+        }
       } else {
         this.sinkUnresolvedHost(currentElement, unresolvedHosts);
       }
