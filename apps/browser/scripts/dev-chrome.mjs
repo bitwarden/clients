@@ -15,6 +15,7 @@
 
 import { access, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
+import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -75,7 +76,7 @@ async function assertBuilt() {
 // Reuse the cached Chrome for Testing download when present; install it
 // on first run so a fresh clone needs no manual browser setup.
 async function resolveChrome(browsers) {
-  const cacheDir = join(process.env.HOME, ".cache", "puppeteer");
+  const cacheDir = join(homedir(), ".cache", "puppeteer");
   const platform = browsers.detectBrowserPlatform();
 
   if (!platform) {
