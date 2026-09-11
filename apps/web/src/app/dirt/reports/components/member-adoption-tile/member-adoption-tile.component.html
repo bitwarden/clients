@@ -1,0 +1,44 @@
+<bit-card class="tw-flex tw-min-h-40 tw-flex-col tw-shadow-sm">
+  <div class="tw-flex tw-items-center tw-gap-2">
+    <span bitTypography="h6" noMargin data-testid="tile-label">{{ label() }}</span>
+    @if (hasInfo()) {
+      <button
+        type="button"
+        bitLink
+        startIcon="bwi-info-circle"
+        [appA11yTitle]="infoTitleText()"
+        [bitPopoverTriggerFor]="infoPopover"
+        data-testid="tile-info"
+      ></button>
+      <bit-popover #infoPopover [title]="infoTitleText()">
+        <p class="tw-mb-0" data-testid="tile-info-body">{{ infoBodyText() }}</p>
+      </bit-popover>
+    }
+  </div>
+
+  <div class="tw-mt-3 tw-flex tw-items-baseline tw-gap-2">
+    @if (loading()) {
+      <bit-skeleton class="tw-h-7 tw-w-24" data-testid="tile-skeleton"></bit-skeleton>
+    } @else if (hasValue()) {
+      <span bitTypography="h3" noMargin class="tw-tabular-nums" data-testid="tile-value">
+        {{ value() }}
+      </span>
+    } @else {
+      <span bitTypography="h3" noMargin class="tw-text-muted" data-testid="tile-value-empty">
+        {{ emptyValuePlaceholder }}
+      </span>
+    }
+    @if (showUnit()) {
+      <span bitTypography="body2" class="tw-text-muted" data-testid="tile-unit">{{ unit() }}</span>
+    }
+  </div>
+
+  @if (sublabel()) {
+    <span
+      bitTypography="body2"
+      class="tw-mt-auto tw-pt-3 tw-text-muted"
+      data-testid="tile-sublabel"
+      >{{ sublabel() }}</span
+    >
+  }
+</bit-card>
