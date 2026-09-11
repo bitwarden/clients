@@ -47,6 +47,7 @@ import { radioInputClasses } from "../radio-button";
 import { SearchComponent } from "../search/search.component";
 import { BitwardenIcon } from "../shared/icon";
 import { StatusLockupComponent } from "../status-lockup";
+import { TooltipDirective } from "../tooltip";
 import { focusAfterRender } from "../utils/focus-after-render";
 
 import { FilterOptionComponent } from "./filter-option.component";
@@ -162,6 +163,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
     FilterTreeRowDirective,
     IconTileComponent,
     StatusLockupComponent,
+    TooltipDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [

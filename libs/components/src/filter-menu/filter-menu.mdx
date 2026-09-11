@@ -92,6 +92,13 @@ Usage guidelines:
 
 <Canvas of={stories.IconTiles} />
 
+## Long labels
+
+Option and section labels truncate to the row's width rather than wrapping, so every row carries a
+tooltip with its full text — on hover, and on focus for the rows that take focus. This is built-in
+behavior that does not need to be opted into. The chip trigger and the responsive dialog's rows do
+the same with their labels.
+
 ## In-menu search
 
 Once a chip has more than ten options it renders a `bit-search` at the top of its own menu — you
