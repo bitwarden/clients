@@ -97,30 +97,30 @@
     }
   </div>
 } @else if (daemon(); as d) {
-  <form [formGroup]="formGroup" [bitSubmit]="submit">
-    <div [class.tw-max-w-4xl]="activeTab() !== 'history'">
-      @switch (activeTab()) {
-        @case ("history") {
-          <bit-section>
-            <bit-section-header>
-              <h2 bitTypography="h5">{{ "pamAccessConnectorTabHistory" | i18n }}</h2>
-            </bit-section-header>
-            @if (d.jobs.length > 0) {
-              <app-rotation-history
-                [jobs]="d.jobs"
-                [showCredential]="true"
-                [credentialNames]="credentialNames()"
-              ></app-rotation-history>
-            } @else {
-              <bit-card>
-                <p bitTypography="body2" class="tw-m-0 tw-text-muted">
-                  {{ "pamAccessConnectorActivityEmpty" | i18n }}
-                </p>
-              </bit-card>
-            }
-          </bit-section>
-        }
-        @default {
+  <div [class.tw-max-w-4xl]="activeTab() !== 'history'">
+    @switch (activeTab()) {
+      @case ("history") {
+        <bit-section>
+          <bit-section-header>
+            <h2 bitTypography="h5">{{ "pamAccessConnectorTabHistory" | i18n }}</h2>
+          </bit-section-header>
+          @if (d.jobs.length > 0) {
+            <app-rotation-history
+              [jobs]="d.jobs"
+              [showCredential]="true"
+              [credentialNames]="credentialNames()"
+            ></app-rotation-history>
+          } @else {
+            <bit-card>
+              <p bitTypography="body2" class="tw-m-0 tw-text-muted">
+                {{ "pamAccessConnectorActivityEmpty" | i18n }}
+              </p>
+            </bit-card>
+          }
+        </bit-section>
+      }
+      @default {
+        <form [formGroup]="formGroup" [bitSubmit]="submit">
           <!-- Status -->
           <bit-section>
             <bit-section-header>
@@ -235,31 +235,31 @@
               }
             </td>
           </ng-template>
-        }
-      }
 
-      <div class="tw-flex tw-max-w-4xl tw-items-center tw-gap-2">
-        <button
-          type="submit"
-          bitButton
-          buttonType="primary"
-          bitFormButton
-          id="daemon-detail_button_save"
-        >
-          {{ "save" | i18n }}
-        </button>
-        <button
-          type="button"
-          bitButton
-          buttonType="danger"
-          bitFormButton
-          [bitAction]="deleteDaemon"
-          class="tw-ms-auto"
-          id="daemon-detail_button_delete"
-        >
-          {{ "delete" | i18n }}
-        </button>
-      </div>
-    </div>
-  </form>
+          <div class="tw-flex tw-items-center tw-gap-2">
+            <button
+              type="submit"
+              bitButton
+              buttonType="primary"
+              bitFormButton
+              id="daemon-detail_button_save"
+            >
+              {{ "save" | i18n }}
+            </button>
+            <button
+              type="button"
+              bitButton
+              buttonType="danger"
+              bitFormButton
+              [bitAction]="deleteDaemon"
+              class="tw-ms-auto"
+              id="daemon-detail_button_delete"
+            >
+              {{ "delete" | i18n }}
+            </button>
+          </div>
+        </form>
+      }
+    }
+  </div>
 }

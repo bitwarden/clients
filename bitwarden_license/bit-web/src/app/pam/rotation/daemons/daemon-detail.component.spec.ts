@@ -1052,10 +1052,14 @@ describe("DaemonDetailComponent", () => {
   });
 
   describe("action row (rendered)", () => {
-    async function render(daemon: AccessConnectorDetail): Promise<HTMLElement> {
+    async function render(
+      daemon: AccessConnectorDetail,
+      tab = "configuration",
+    ): Promise<HTMLElement> {
       rotationSdk.getConnector.mockResolvedValue(daemon);
       await setup(rotationSdk, connectorId("daemon-1"), mock<DialogService>(), {
         renderTemplate: true,
+        tab,
       });
       await createComponent();
       return fixture.nativeElement as HTMLElement;
@@ -1109,6 +1113,22 @@ describe("DaemonDetailComponent", () => {
       expect(checkbox).toBeTruthy();
       expect(checkbox.closest("bit-card")).toBeTruthy();
       expect(el.textContent).toContain("pamAccessConnectorActiveHint");
+    });
+
+    it("offers both Save and Delete on the Configuration tab", async () => {
+      const el = await render(makeDaemon(), "configuration");
+
+      expect(el.querySelector("form")).not.toBeNull();
+      expect(el.querySelector("#daemon-detail_button_save")).not.toBeNull();
+      expect(el.querySelector("#daemon-detail_button_delete")).not.toBeNull();
+    });
+
+    it("offers neither Save nor Delete on the History tab", async () => {
+      const el = await render(makeDaemon(), "history");
+
+      expect(el.querySelector("form")).toBeNull();
+      expect(el.querySelector("#daemon-detail_button_save")).toBeNull();
+      expect(el.querySelector("#daemon-detail_button_delete")).toBeNull();
     });
   });
 
