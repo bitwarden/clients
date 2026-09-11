@@ -19,6 +19,13 @@ export const TENSION_FACTOR = 0.15;
 /** How much one arrow keypress moves the width, in rem. */
 export const ARROW_STEP_REM = 1;
 
+/** Where `widthRem` sits in the handle's travel, collapsed (0) to widest (100). Whole numbers only,
+ *  so a pointer drag does not announce the float it commits. */
+export function resizeHandlePercent(widthRem: number): number {
+  const travel = SIDE_NAV_WIDTH_BOUNDS.max - SIDERAIL_WIDTH_REM;
+  return Math.round(((widthRem - SIDERAIL_WIDTH_REM) / travel) * 100);
+}
+
 export type DragFromClosed =
   /** Dragged back onto the icon strip — stay collapsed and drop the preview. */
   | { action: "abort" }

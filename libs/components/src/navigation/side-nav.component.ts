@@ -21,7 +21,7 @@ import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 import { SIDERAIL_WIDTH_REM } from "../shared";
 
 import { NavDividerComponent } from "./nav-divider.component";
-import { SIDE_NAV_WIDTH_BOUNDS } from "./side-nav-width.service";
+import { resizeHandlePercent } from "./side-nav-resize";
 import { media, SideNavService } from "./side-nav.service";
 
 export type SideNavVariant = "primary" | "secondary";
@@ -87,16 +87,12 @@ export class SideNavComponent {
     initialValue: false,
   });
 
-  /**
-   * Handle position as a percentage of its travel, collapsed (0) to widest (100). A percentage
-   * carries more meaning than a rem measurement, and a whole number keeps a pointer drag from
-   * announcing the float it commits.
-   */
-  protected readonly widthPercent = computed(() => {
-    const width = this.sideNavService.open() ? this.sideNavService.widthRem() : SIDERAIL_WIDTH_REM;
-    const travel = SIDE_NAV_WIDTH_BOUNDS.max - SIDERAIL_WIDTH_REM;
-    return Math.round(((width - SIDERAIL_WIDTH_REM) / travel) * 100);
-  });
+  /** Handle position announced to assistive tech. The collapsed rail is the low end of the travel. */
+  protected readonly widthPercent = computed(() =>
+    resizeHandlePercent(
+      this.sideNavService.open() ? this.sideNavService.widthRem() : SIDERAIL_WIDTH_REM,
+    ),
+  );
 
   /** True when it is safe to animate the nav's width. */
   protected readonly animateWidth = computed(
