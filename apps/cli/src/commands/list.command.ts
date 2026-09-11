@@ -206,7 +206,7 @@ export class ListCommand {
     const organization = await firstValueFrom(
       this.organizationService
         .organizations$(userId)
-        .pipe(map((organizatons) => organizatons.find((o) => o.id == options.organizationId))),
+        .pipe(map((organizations) => organizations.find((o) => o.id == options.organizationId))),
     );
     if (organization == null) {
       return Response.error("Organization not found.");
@@ -256,7 +256,7 @@ export class ListCommand {
     const organization = await firstValueFrom(
       this.organizationService
         .organizations$(userId)
-        .pipe(map((organizatons) => organizatons.find((o) => o.id == options.organizationId))),
+        .pipe(map((organizations) => organizations.find((o) => o.id == options.organizationId))),
     );
     if (organization == null) {
       return Response.error("Organization not found.");
