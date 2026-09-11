@@ -25,6 +25,7 @@ import {
   SkeletonTextComponent,
   TabsModule,
   ToastService,
+  TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
 import type { CipherId } from "@bitwarden/sdk-internal";
@@ -102,6 +103,7 @@ export type RotationConfigEditTab = (typeof ROTATION_CONFIG_EDIT_TABS)[number];
     SkeletonComponent,
     SkeletonTextComponent,
     TabsModule,
+    TooltipDirective,
     TypographyModule,
     I18nPipe,
   ],

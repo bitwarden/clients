@@ -3,19 +3,13 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import {
-  ActivatedRoute,
-  Router,
-  Routes,
-  convertToParamMap,
-  provideRouter,
-} from "@angular/router";
+import { ActivatedRoute, Router, Routes, convertToParamMap, provideRouter } from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
 import { BehaviorSubject, of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService, TabsModule, ToastService } from "@bitwarden/components";
+import { DialogService, TabsModule, ToastService, TooltipDirective } from "@bitwarden/components";
 
 import { OrgCiphersService } from "../org-ciphers.service";
 import type {
@@ -1071,23 +1065,64 @@ describe("RotationConfigEditComponent — action row", () => {
     expect(actionButton(fixture, "delete")).toBeNull();
   });
 
-  it("disables Delete and says why while a rotation job is in flight", async () => {
+  it("disables Delete and says why on the button while a job is in flight", async () => {
     const fixture = await renderPage({ existingConfig: loadedConfig({ hasActiveJob: true }) });
 
     const remove = fixture.debugElement.query(By.css("#rotation-config-edit_button_delete"));
+    const tooltip = remove.injector.get(TooltipDirective);
+
     expect(remove.componentInstance.disabled()).toBe(true);
-    expect(fixture.nativeElement.textContent).toContain(
-      "pamRotationConfigRemoveLockedContentConnector",
-    );
+    expect(tooltip.tooltipContent()).toBe("pamRotationConfigDeleteLockedTitle");
+    expect(tooltip.addTooltipToDescribedby()).toBe(true);
   });
 
-  it("keeps Delete live while no job is running", async () => {
+  it("keeps Delete live, and unexplained, while no job is running", async () => {
     const fixture = await renderPage();
 
     const remove = fixture.debugElement.query(By.css("#rotation-config-edit_button_delete"));
+    const tooltip = remove.injector.get(TooltipDirective);
+
     expect(remove.componentInstance.disabled()).toBe(false);
-    expect(fixture.nativeElement.textContent).not.toContain(
-      "pamRotationConfigRemoveLockedContentConnector",
+    expect(tooltip.tooltipContent()).toBe("");
+    expect(tooltip.addTooltipToDescribedby()).toBe(false);
+  });
+});
+
+describe("RotationConfigEditComponent — a job in flight", () => {
+  function callouts(fixture: ComponentFixture<RotationConfigEditComponent>): HTMLElement[] {
+    return Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>("bit-callout"),
+    );
+  }
+
+  it("states the reason once, above the form's first section", async () => {
+    const fixture = await renderPage({ existingConfig: loadedConfig({ hasActiveJob: true }) });
+
+    const rendered = callouts(fixture);
+
+    expect(rendered).toHaveLength(1);
+    expect(rendered[0].textContent).toContain("pamRotationConfigJobInProgressTitle");
+    expect(rendered[0].textContent).toContain("pamRotationConfigJobInProgressContent");
+    expect(rendered[0].closest("form")).not.toBeNull();
+    expect(rendered[0].closest("bit-section")).toBeNull();
+  });
+
+  it("locks the account fieldset without repeating the reason inside it", async () => {
+    const fixture = await renderPage({ existingConfig: loadedConfig({ hasActiveJob: true }) });
+
+    const page = fixture.nativeElement as HTMLElement;
+    const fieldset = page.querySelector<HTMLFieldSetElement>("fieldset")!;
+
+    expect(fieldset.disabled).toBe(true);
+    expect(fieldset.textContent).not.toContain("pamRotationConfigJobInProgressContent");
+  });
+
+  it("says nothing at all while no job is running", async () => {
+    const fixture = await renderPage();
+
+    expect(callouts(fixture)).toHaveLength(0);
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain(
+      "pamRotationConfigJobInProgressContent",
     );
   });
 });

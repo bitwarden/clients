@@ -19505,9 +19505,6 @@
   "pamRotationConfigHistoryEmpty": {
     "message": "No rotations have run yet."
   },
-  "pamRotationConfigRemoveLockedContentConnector": {
-    "message": "A rotation job is currently in progress. You can remove this credential from rotation once the access connector finishes it, or once it times out. Pausing only stops new jobs; it does not cancel the one already running."
-  },
   "pamRotationConfigCreateHeading": {
     "message": "Credential details"
   },
@@ -19568,11 +19565,11 @@
   "pamRotationConfigSaved": {
     "message": "Managed credential saved."
   },
-  "pamRotationConfigAccountLockedTitle": {
-    "message": "Settings unavailable"
+  "pamRotationConfigJobInProgressTitle": {
+    "message": "Rotation in progress"
   },
-  "pamRotationConfigAccountLockedContent": {
-    "message": "Account settings cannot be changed while a rotation job is in progress."
+  "pamRotationConfigJobInProgressContent": {
+    "message": "Account settings cannot be changed and this credential cannot be removed until the current job finishes or times out. Pausing stops new jobs. It does not cancel the one already running."
   },
   "pamRotationHistoryEmpty": {
     "message": "No rotation jobs recorded yet."
