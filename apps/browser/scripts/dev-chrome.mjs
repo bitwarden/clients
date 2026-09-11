@@ -76,7 +76,12 @@ function build() {
   const result = spawnSync(NPM, ["run", BUILD_SCRIPT], {
     cwd: BROWSER_DIR,
     stdio: "inherit",
+    shell: process.platform === "win32",
   });
+
+  if (result.error) {
+    throw result.error;
+  }
 
   if (result.status !== 0) {
     throw new Error(`npm run ${BUILD_SCRIPT} failed.`);
